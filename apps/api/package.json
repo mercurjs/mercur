@@ -1,0 +1,103 @@
+{
+	"name": "mercur-api",
+	"version": "0.0.1",
+	"description": "A starter for marketplace projects.",
+	"author": "Rigby (https://rigbyjs.com)",
+	"license": "MIT",
+	"keywords": [
+		"sqlite",
+		"postgres",
+		"typescript",
+		"ecommerce",
+		"headless",
+		"medusa"
+	],
+	"scripts": {
+		"clean": "cross-env ./node_modules/.bin/rimraf dist",
+		"build": "cross-env npm run clean && npm run build:server",
+		"build:server": "cross-env npm run clean && tsc -p tsconfig.server.json",
+		"build:admin": "cross-env medusa-admin build",
+		"watch": "cross-env tsc --watch",
+		"test": "cross-env jest",
+		"seed": "cross-env medusa seed -f ./data/seed.json",
+		"start": "cross-env npm run build && medusa start",
+		"start:custom": "cross-env npm run build && node --preserve-symlinks --trace-warnings index.js",
+		"dev": "cross-env npm run build:server && medusa develop",
+		"generate:migration": "npx typeorm migration:create",
+		"lint": "./node_modules/.bin/eslint src/ --fix"
+	},
+	"dependencies": {
+		"@medusajs/admin": "latest",
+		"@medusajs/cache-inmemory": "latest",
+		"@medusajs/cache-redis": "latest",
+		"@medusajs/event-bus-local": "latest",
+		"@medusajs/event-bus-redis": "latest",
+		"@medusajs/file-local": "latest",
+		"@medusajs/medusa": "latest",
+		"@tanstack/react-query": "4.22.0",
+		"body-parser": "^1.19.0",
+		"class-validator": "^0.14.1",
+		"cors": "^2.8.5",
+		"dotenv": "16.3.1",
+		"express": "^4.17.2",
+		"get-port": "5.1.1",
+		"medusa-fulfillment-manual": "latest",
+		"medusa-interfaces": "latest",
+		"medusa-payment-manual": "latest",
+		"medusa-payment-stripe": "latest",
+		"pg-god": "^1.0.12",
+		"prism-react-renderer": "^2.0.4",
+		"typeorm": "^0.3.16"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.14.3",
+		"@babel/core": "^7.14.3",
+		"@babel/preset-typescript": "^7.21.4",
+		"@medusajs/medusa-cli": "latest",
+		"@stdlib/number-float64-base-normalize": "0.0.8",
+		"@types/express": "^4.17.13",
+		"@types/jest": "^27.4.0",
+		"@types/mime": "1.3.5",
+		"@types/node": "^17.0.8",
+		"@typescript-eslint/eslint-plugin": "^5.4.0",
+		"@typescript-eslint/parser": "^5.4.0",
+		"babel-preset-medusa-package": "^1.1.19",
+		"cross-env": "^7.0.3",
+		"eslint": "^8.3.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-prettier": "^4.0.0",
+		"jest": "^27.3.1",
+		"prettier": "^2.5.0",
+		"rimraf": "^3.0.2",
+		"ts-jest": "^27.0.7",
+		"ts-loader": "^9.2.6",
+		"typescript": "^4.5.2"
+	},
+	"jest": {
+		"globals": {
+			"ts-jest": {
+				"tsconfig": "tsconfig.spec.json"
+			}
+		},
+		"moduleFileExtensions": [
+			"js",
+			"json",
+			"ts"
+		],
+		"testPathIgnorePatterns": [
+			"/node_modules/",
+			"<rootDir>/node_modules/"
+		],
+		"rootDir": "src",
+		"testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|js)$",
+		"transform": {
+			".ts": "ts-jest"
+		},
+		"collectCoverageFrom": [
+			"**/*.(t|j)s"
+		],
+		"coverageDirectory": "./coverage",
+		"testEnvironment": "node"
+	},
+	"main": "index.js"
+}

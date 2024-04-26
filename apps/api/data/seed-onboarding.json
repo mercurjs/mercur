@@ -1,0 +1,141 @@
+{
+  "store": {
+    "currencies": [
+      "eur",
+      "usd"
+    ]
+  },
+  "users": [],
+  "regions": [
+    {
+      "id": "test-region-eu",
+      "name": "EU",
+      "currency_code": "eur",
+      "tax_rate": 0,
+      "payment_providers": [
+        "manual"
+      ],
+      "fulfillment_providers": [
+        "manual"
+      ],
+      "countries": [
+        "gb",
+        "de",
+        "dk",
+        "se",
+        "fr",
+        "es",
+        "it"
+      ]
+    },
+    {
+      "id": "test-region-na",
+      "name": "NA",
+      "currency_code": "usd",
+      "tax_rate": 0,
+      "payment_providers": [
+        "manual"
+      ],
+      "fulfillment_providers": [
+        "manual"
+      ],
+      "countries": [
+        "us",
+        "ca"
+      ]
+    }
+  ],
+  "shipping_options": [
+    {
+      "name": "PostFake Standard",
+      "region_id": "test-region-eu",
+      "provider_id": "manual",
+      "data": {
+        "id": "manual-fulfillment"
+      },
+      "price_type": "flat_rate",
+      "amount": 1000
+    },
+    {
+      "name": "PostFake Express",
+      "region_id": "test-region-eu",
+      "provider_id": "manual",
+      "data": {
+        "id": "manual-fulfillment"
+      },
+      "price_type": "flat_rate",
+      "amount": 1500
+    },
+    {
+      "name": "PostFake Return",
+      "region_id": "test-region-eu",
+      "provider_id": "manual",
+      "data": {
+        "id": "manual-fulfillment"
+      },
+      "price_type": "flat_rate",
+      "is_return": true,
+      "amount": 1000
+    },
+    {
+      "name": "I want to return it myself",
+      "region_id": "test-region-eu",
+      "provider_id": "manual",
+      "data": {
+        "id": "manual-fulfillment"
+      },
+      "price_type": "flat_rate",
+      "is_return": true,
+      "amount": 0
+    },
+    {
+      "name": "FakeEx Standard",
+      "region_id": "test-region-na",
+      "provider_id": "manual",
+      "data": {
+        "id": "manual-fulfillment"
+      },
+      "price_type": "flat_rate",
+      "amount": 800
+    },
+    {
+      "name": "FakeEx Express",
+      "region_id": "test-region-na",
+      "provider_id": "manual",
+      "data": {
+        "id": "manual-fulfillment"
+      },
+      "price_type": "flat_rate",
+      "amount": 1200
+    },
+    {
+      "name": "FakeEx Return",
+      "region_id": "test-region-na",
+      "provider_id": "manual",
+      "data": {
+        "id": "manual-fulfillment"
+      },
+      "price_type": "flat_rate",
+      "is_return": true,
+      "amount": 800
+    },
+    {
+      "name": "I want to return it myself",
+      "region_id": "test-region-na",
+      "provider_id": "manual",
+      "data": {
+        "id": "manual-fulfillment"
+      },
+      "price_type": "flat_rate",
+      "is_return": true,
+      "amount": 0
+    }
+  ],
+  "products": [],
+  "categories": [],
+  "publishable_api_keys": [
+    {
+      "title": "Development"
+    }
+  ]
+}
