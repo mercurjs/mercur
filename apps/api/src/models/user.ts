@@ -2,13 +2,13 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { User as MedusaUser } from '@medusajs/medusa';
 import { Store } from './store';
 
-export enum UserStatuses {
+export enum UserStatus {
 	PENDING = 'pending',
 	ACTIVE = 'active',
 	REJECTED = 'rejected',
 }
 
-export enum UserPermissions {
+export enum UserPermission {
 	ADMIN = 'admin',
 	VENDOR = 'vendor',
 }
@@ -26,6 +26,6 @@ export class User extends MedusaUser {
 	@Column({ type: 'bool', default: false, select: false })
 	is_admin: boolean;
 
-	@Column({ type: 'enum', enum: UserStatuses })
-	status: UserStatuses;
+	@Column({ type: 'enum', enum: UserStatus })
+	status: UserStatus;
 }

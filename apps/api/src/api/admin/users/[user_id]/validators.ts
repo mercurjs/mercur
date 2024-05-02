@@ -1,7 +1,7 @@
 import { IsOptional, IsString, IsEnum, IsEmpty } from 'class-validator';
-import { UserStatuses } from '../../../../models/user';
+import { UserStatus } from '../../../../models/user';
 import { UserRoles } from '@medusajs/medusa';
-import { UserPermissions } from '../../../../models/user';
+import { UserPermission } from '../../../../models/user';
 
 export class AdminUpdateUserRequest {
 	@IsString()
@@ -14,15 +14,15 @@ export class AdminUpdateUserRequest {
 
 	@IsEnum(UserRoles)
 	@IsEmpty({
-		groups: [UserPermissions.VENDOR],
+		groups: [UserPermission.VENDOR],
 	})
 	@IsOptional()
 	role?: UserRoles;
 
-	@IsEnum(UserStatuses)
+	@IsEnum(UserStatus)
 	@IsEmpty({
-		groups: [UserPermissions.VENDOR],
+		groups: [UserPermission.VENDOR],
 	})
 	@IsOptional()
-	status?: UserStatuses;
+	status?: UserStatus;
 }

@@ -12,8 +12,7 @@ class AdminPostProductsReq extends MedusaAdminPostProductsReq {
 }
 
 class AdminPostProductsProductReq extends MedusaAdminPostProductsProductReq {
-	@IsString()
-	@IsArray()
+	@IsString({ each: true })
 	@ArrayMaxSize(10)
 	@IsOptional()
 	shipping_options?: string[];

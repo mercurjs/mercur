@@ -2,7 +2,7 @@ import { MedusaRequest, MedusaResponse, validator } from '@medusajs/medusa';
 import UserService from '../../../../services/user';
 import { EntityManager } from 'typeorm';
 import { AdminUpdateUserRequest } from './validators';
-import { User, UserPermissions } from '../../../../models/user';
+import { User, UserPermission } from '../../../../models/user';
 
 /**
  * Overwriting medusa endpoint to validate based on logged in user role
@@ -13,7 +13,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
 
 	const { user_id } = req.params;
 
-	const permission = loggedInUser.is_admin ? UserPermissions.ADMIN : UserPermissions.VENDOR;
+	const permission = loggedInUser.is_admin ? UserPermission.ADMIN : UserPermission.VENDOR;
 
 	const validated = await validator(AdminUpdateUserRequest, req.body, {
 		groups: [permission],

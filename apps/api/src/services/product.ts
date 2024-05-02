@@ -32,9 +32,11 @@ class ProductService extends MedusaProductService {
 	constructor(container) {
 		super(container);
 
+		this.storeService_ = container.storeService;
+		this.shippingOptionRepository_ = container.shippingOptionRepository;
+
 		try {
 			this.loggedInUser_ = container.loggedInUser;
-			this.storeService_ = container.storeService;
 		} catch (e) {
 			// avoid errors when backend first runs
 		}
@@ -61,7 +63,7 @@ class ProductService extends MedusaProductService {
 	async retrieve(productId: string, config: FindProductConfig = {}): Promise<Product> {
 		const product = await super.retrieve(productId, config);
 
-		if (product.store_id && this.loggedInUser_.store_id && product.store_id !== this.loggedInUser_.store_id) {
+		if (product.store_id && this.loggedInUser_?.store_id && product.store_id !== this.loggedInUser_.store_id) {
 			// Throw error if you don't want a product to be accessible to other stores
 			throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Product does not exist');
 		}
@@ -75,7 +77,7 @@ class ProductService extends MedusaProductService {
 		}
 
 		// Upsert shipping options if they exist
-		if (productObject.shipping_options) {
+		if (productObject.shipping_options?.length) {
 			productObject.shipping_options = await this.shippingOptionRepository_.upsertShippingOptions(
 				productObject.shipping_options
 			);

@@ -3,10 +3,9 @@ import { Lifetime } from 'awilix';
 import { MedusaError } from '@medusajs/utils';
 import { Selector, UserRoles } from '@medusajs/medusa';
 import UserService from './user';
-import { User } from '../models/user';
+import { User, UserStatus } from '../models/user';
 import { Invite } from '../models/invite';
 import InviteRepository from '../repositories/invite';
-import { isRoleAdmin } from '../util/is-role-admin';
 
 const DEFAULT_VALID_DURATION = 1000 * 60 * 60 * 24 * 7;
 
@@ -123,6 +122,8 @@ class InviteService extends MedusaInviteService {
 					first_name: user_.first_name,
 					last_name: user_.last_name,
 					store_id: invite.store_id,
+					is_admin: invite.is_admin,
+					status: UserStatus.ACTIVE,
 				},
 				user_.password
 			);
@@ -134,9 +135,7 @@ class InviteService extends MedusaInviteService {
 	}
 
 	async list(selector: Selector<Invite> = {}, config = {}) {
-		const isAdmin = isRoleAdmin(this.loggedInUser_.role);
-
-		if (!isAdmin) {
+		if (this.loggedInUser_) {
 			selector = {
 				...selector,
 				store_id: this.loggedInUser_.store_id,

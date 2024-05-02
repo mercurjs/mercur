@@ -24,12 +24,12 @@ export class AddStoreIdAndIsAdminFlagToInvite1714119227979 implements MigrationI
 
 		await queryRunner.query(`
             ALTER TABLE invite
-            DROP COLUMN store_id,
+            DROP COLUMN store_id;
         `);
 
 		await queryRunner.query(`
         ALTER TABLE invite
-        DROP COLUMN is_admin,
+        DROP COLUMN is_admin;
     `);
 	}
 }

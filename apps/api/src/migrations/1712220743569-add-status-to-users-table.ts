@@ -3,12 +3,17 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 export class AddStatusToUsersTable1712220743569 implements MigrationInterface {
 	public async up(queryRunner: QueryRunner): Promise<void> {
 		await queryRunner.query(`
-      CREATE TYPE "userstatuses" AS ENUM ('pending', 'active', 'rejected');
+      CREATE TYPE "userstatus" AS ENUM ('pending', 'active', 'rejected');
     `);
 
 		await queryRunner.query(`
       ALTER TABLE "user"
-      ADD COLUMN "status" "userstatuses" DEFAULT 'active' NOT NULL;
+      ADD COLUMN "status" "userstatus" DEFAULT 'pending' NOT NULL;
+    `);
+
+		await queryRunner.query(`
+      ALTER TABLE "user"
+      ALTER COLUMN "role" SET DEFAULT 'admin';
     `);
 	}
 
@@ -19,7 +24,12 @@ export class AddStatusToUsersTable1712220743569 implements MigrationInterface {
     `);
 
 		await queryRunner.query(`
-      DROP TYPE "userstatuses";
+      DROP TYPE "userstatus";
+    `);
+
+		await queryRunner.query(`
+      ALTER TABLE "user"
+      ALTER COLUMN "role" SET DEFAULT 'member';
     `);
 	}
 }

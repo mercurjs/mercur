@@ -1,6 +1,6 @@
 import { Lifetime } from 'awilix';
 import { FindConfig, UserService as MedusaUserService, buildQuery } from '@medusajs/medusa';
-import { User, UserStatuses } from '../models/user';
+import { User, UserStatus } from '../models/user';
 import { FilterableUserProps, CreateUserInput as MedusaCreateUserInput } from '@medusajs/medusa/dist/types/user';
 import StoreService from './store';
 import { EntityManager } from 'typeorm';
@@ -9,7 +9,8 @@ import { Selector } from '@medusajs/types';
 
 type CreateUserInput = {
 	store_id?: string;
-	status?: UserStatuses;
+	status?: UserStatus;
+	is_admin?: boolean;
 } & MedusaCreateUserInput;
 
 class UserService extends MedusaUserService {
@@ -82,7 +83,7 @@ class UserService extends MedusaUserService {
 		const query = buildQuery(
 			{
 				email: email.toLowerCase(),
-				status: UserStatuses.ACTIVE,
+				status: UserStatus.ACTIVE,
 			},
 			config
 		);

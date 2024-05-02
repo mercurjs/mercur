@@ -11,8 +11,23 @@ import CartService from '../../../../../services/cart';
 import { EntityManager } from 'typeorm';
 import { StorePostCartsCartShippingMethodReq } from './validators';
 
-// Overwrite the shipping methods route to include line item shipping method
+/**
+ * @oas [post] /store/carts/{id}/shipping-methods
+ * operationId: "PostStoreCartsCartShippingMethod"
+ * summary: "Add shipping method to cart"
+ * description: "Adds a shipping method to a cart's line item."
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/StorePostCartsCartShippingMethodReq"
+ * x-codegen:
+ *   method: create
+ * tags:
+ *   - StoreCarts
+ */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
+	// Overwrite the shipping methods route to include line item shipping method
 	const validated = await validator(StorePostCartsCartShippingMethodReq, req.body);
 
 	const { id } = req.params;
