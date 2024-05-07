@@ -14,7 +14,7 @@ const runCommand = (command) => {
 };
 
 const folderName = process.argv[2];
-const gitCheckoutCommand = `git clone --depth 1 https://github.com/mercurjs/mercur.git ${folderName}`;
+const gitCheckoutCommand = `git clone --depth 1 https://github.com/mercurjs/mercur-api-starter.git ${folderName}`;
 
 const checkedOut = runCommand(gitCheckoutCommand);
 if (!checkedOut) {
