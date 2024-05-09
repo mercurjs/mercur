@@ -1,8 +1,8 @@
 {
-  "name": "mercurjs-starter",
+  "name": "mercurjs",
   "bin": "./bin/cli.js",
   "description": "Marketplace starter built on top of Medusa.js",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "main": "index.js",
   "repository": "https://github.com/mercurjs/mercur.git",
   "author": "vholik <1viktorholik@gmail.com>",

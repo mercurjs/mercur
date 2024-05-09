@@ -74,10 +74,8 @@ async function main() {
     }
   }
 
-  console.log(
-    `Congratulations 🎉! Succesfuly initialized Mercur. Run follow commands to start`
-  );
-  console.log(`cd ${folderName} && npm install`);
+  console.log(`Congratulations 🎉! Succesfuly initialized Mercur.`);
+  console.log(`cd ${folderName}`);
 }
 
 main();

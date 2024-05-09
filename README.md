@@ -29,7 +29,7 @@
 # Getting started
 
 ```bash
-npx mercurjs-starter mercur-marketplace
+npx mercurjs marketplace
 ```
 
 # What is Mercur?
