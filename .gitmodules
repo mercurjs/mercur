@@ -1,0 +1,12 @@
+[submodule "marketplace/admin"]
+	path = marketplace/admin
+	url = https://github.com/mercurjs/mercur-admin-starter.git
+[submodule "marketplace/vendor"]
+	path = marketplace/vendor
+	url = https://github.com/mercurjs/mercur-vendor-starter.git
+[submodule "marketplace/storefront"]
+	path = marketplace/storefront
+	url = https://github.com/mercurjs/mercur-storefront-starter.git
+[submodule "marketplace/api"]
+	path = marketplace/api
+	url = https://github.com/mercurjs/mercur-api-starter.git
