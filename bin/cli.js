@@ -20,7 +20,7 @@ const folderName = process.argv[2];
 if (!fs.existsSync(folderName)) {
   fs.mkdirSync(folderName);
 } else {
-  console.log("Folder already exists:", path);
+  console.log("Folder already exists:", folderName);
   process.exit(-1);
 }
 
