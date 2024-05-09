@@ -26,15 +26,21 @@
 </div>
 <br>
 
+# Getting started
+
+```bash
+npx mercurjs-starter mercur-marketplace
+```
+
 # What is Mercur?
 
 Mercur is the first JavaScript open-source platform for building multi-vendor marketplaces. Built on top of Medusa.js, it simplifies the development of customized marketplaces.
 
 ## Why Mercur?
 
-After seeing the rising trend in multi-vendor business models and setting up several marketplaces from scratch at Rigby, we wanted to eliminate the repetitive setup of marketplaces. 
+After seeing the rising trend in multi-vendor business models and setting up several marketplaces from scratch at Rigby, we wanted to eliminate the repetitive setup of marketplaces.
 
-The aim is to enable users to start a new marketplace in about five minutes, providing a strong starting point for anyone looking to build their own multi-vendor platform. 
+The aim is to enable users to start a new marketplace in about five minutes, providing a strong starting point for anyone looking to build their own multi-vendor platform.
 
 Medusa is an amazing and strong foundation for building marketplaces but requires a few modifications to adjust to this business model. We wanted a faster way to get these platforms up and running — Mercur is that accelerator for building multi-vendor marketplace with Medusa.js as a core.
 
@@ -45,6 +51,7 @@ We aim to make Mercur adaptable for various marketplace types, such as rental or
 Feel free to share your ideas on our Discord, how you imagine the development of this project.
 
 ## Project Components:
+
 ![Mercur Architecture](https://rigby-web.fra1.digitaloceanspaces.com/mercur-mvm-arch.png)
 
 - **Core:** The backbone of Mercur, handling the primary operations and data flow essential for marketplace functionality.

@@ -1,6 +1,0 @@
-[submodule "apps/api"]
-	path = apps/api
-	url = https://github.com/mercurjs/mercur-api-starter.git
-[submodule "marketplace/api"]
-	path = marketplace/api
-	url = https://github.com/mercurjs/mercur-api-starter.git
