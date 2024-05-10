@@ -5,7 +5,7 @@
   <p>JavaScript Open Source Multi-Vendor Marketplace built on top of Medusa.js.</p>
   
   <!-- Shields.io Badges -->
-  <a href="#">
+  <a href="https://github.com/mercurjs/mercur/tree/main?tab=MIT-1-ov-file">
     <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" />
   </a>
   <a href="#">
@@ -184,4 +184,4 @@ Mercur is a community-driven, open-source initiative. We are committed to keepin
 
 ## License
 
-Licensed under the MIT License.
+Licensed under the [MIT License](https://github.com/mercurjs/mercur/tree/main?tab=MIT-1-ov-file).
