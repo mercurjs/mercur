@@ -1,36 +1,27 @@
-![Mercur](https://rigby-web.fra1.digitaloceanspaces.com/mercur-readme.png)
+![Mercur](https://rigby-web.fra1.digitaloceanspaces.com/README-mercur.png)
 
 <div align="center">
   <h1>Mercur</h1>
   <p>JavaScript Open Source Multi-Vendor Marketplace built on top of Medusa.js.</p>
   
   <!-- Shields.io Badges -->
-  <a href="https://your-link-to-license">
+  <a href="#">
     <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" />
   </a>
-  <a href="https://your-link-to-pull-requests">
+  <a href="#">
     <img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
   </a>
-  <a href="https://your-link-to-support">
+  <a href="https://rigbyjs.com/en#contact">
     <img alt="Support" src="https://img.shields.io/badge/support-contact%20author-blueviolet.svg" />
   </a>
-  <a href="https://your-link-to-discord">
-    <img alt="Chat on Discord" src="https://img.shields.io/discord/your-discord-server-id.svg?label=chat&logo=discord&color=7289da" />
-  </a>
 
-  <!-- Documentation and Website Links -->
+  <!-- Website Links -->
   <p>
-    <a href="https://link-to-your-documentation">Documentation</a> |
-    <a href="https://link-to-your-website">Website</a>
+    <a href="https://mercurjs.com/">Mercur</a> |
+    <a href="https://medusajs.com/">Medusa</a>
   </p>
 </div>
 <br>
-
-# Getting started
-
-```bash
-npx mercurjs marketplace
-```
 
 # What is Mercur?
 
@@ -52,7 +43,7 @@ Feel free to share your ideas on our Discord, how you imagine the development of
 
 ## Project Components:
 
-![Mercur Architecture](https://rigby-web.fra1.digitaloceanspaces.com/mercur-mvm-arch.png)
+![Mercur Architecture](https://rigby-web.fra1.digitaloceanspaces.com/mercur-mvm-lg.png)
 
 - **Core:** The backbone of Mercur, handling the primary operations and data flow essential for marketplace functionality.
 - **Admin:** Provides a control panel for marketplace administrators to manage vendors, orders, settings, and more.
@@ -64,18 +55,109 @@ Feel free to share your ideas on our Discord, how you imagine the development of
 - **Vendor Registration:** Allows new vendors to sign up and await approval from marketplace administrators.
 - **Vendor Profiles:** Enables vendors to create and customize their profiles on the marketplace.
 - **Vendor Authorization by Admin:** Admins can review and authorize vendor registrations to maintain marketplace standards.
-- **Role-based Access:** Ensures users have permissions appropriate to their role within the marketplace.
 - **Order Splitting:** Facilitates the distribution of orders among multiple vendors involved in a single transaction.
 - **Vendor Shipping Management:** Vendors can manage their shipping logistics independently within the platform.
-- **Commission Management:** Admins can set up and manage commission rates from vendor sales.
+
+## Roadmap:
+- Payment provider & Commission Management & Invoices
+- Adjustments to Medusa 2.0!
+- More: coming soon
 
 ## Getting started 🚀
 
-Create a new Mercur project with just one command:
+Create a new Mercur project with the command:
 
-`npx @mercur generate marketplace`
+```bash
+npx mercurjs marketplace
+```
 
 You will be asked to enter the project's name and select the project’s modules (admin / vendor / storefront) platform you wish to use. Once selected, the CLI will create project files in the directory matching your project name.
+
+## How to configure
+
+#### API Configuration
+
+**Initial Setup**
+
+1. Navigate to the `/api` directory.
+2. Execute the `yarn` command to install dependencies.
+
+**Environment Configuration**
+
+1. Create a `.env` file in the root of the project.
+2. Add the `DATABASE_URL` variable with your PostgreSQL database URL.
+
+**Database and Server Initialization**
+
+1. Run database migrations with the command:
+ ```bash
+ medusa migrations run
+ ```
+2. Seed the database:
+ ```bash
+ yarn seed
+ ```
+3. Start the Medusa development server:
+ ```bash
+yarn develop
+ ```
+
+The server will start on http://localhost:9000.
+
+#### Admin and Vendor Panels
+
+In both /admin and /vendor directories:
+
+1. Execute the `yarn` command to install dependencies.
+
+2. Create an .env file in each directory and set:
+``` bash
+VITE_BACKEND_URL=http://localhost:9000
+```
+
+3. Start the panels with `yarn dev`
+
+Admin panel will be accessible at http://localhost:7000.
+Vendor panel will be available at http://localhost:7001.
+
+Log into the admin panel using the credentials created during the seeding process (admin@medusa-test.com with password supersecret).
+
+#### Storefront Setup
+
+1. Navigate to the `/store-front` folder.
+2. Run the `yarn` command to install dependencies.
+3. Create an `.env` file in the root of the project folder with the following entries:
+
+``` bash
+NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
+NEXT_PUBLIC_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_DEFAULT_REGION=eu
+REVALIDATE_SECRET=supersecret
+```
+
+4. Start the storefront application:
+```bash
+yarn dev
+```
+
+This will launch the storefront, typically available at http://localhost:8000.
+
+#### Adding a Vendor User
+
+To add a vendor user via the API, follow these steps:
+
+1. Make a POST request to the endpoint `api_url/vendors/users` with the body:
+ ```json
+ {
+   "email": "vendoremail@email.com",
+   "password": "vendorpassword"
+ }
+ ```
+
+Replace api_url with your actual API endpoint URL, typically something like http://localhost:9000.
+
+This will create a new vendor user in the system. Before the vendor can log in, the admin must authorize his registration in the administration panel.
+
 
 ## Support Mercur ❤️
 
@@ -92,14 +174,12 @@ Mercur is a community-driven, open-source initiative. We are committed to keepin
 
 ## Useful Links
 
-- [GitHub Issues](https://github.com/medusajs/medusa/issues)
-- [Community Discord](https://discord.gg/medusajs)
-- [Mercur website](https://medusajs.com/blog/)
-- [Mercur docs](https://github.com/medusajs/medusa)
+- [Medusa Community Discord](https://discord.gg/medusajs)
+- [Mercur website](https://mercurjs.com)
 - [Medusa website](https://medusajs.com)
-- [Medusa repo](https://github.com/medusajs/medusa/blob/develop/LICENSE)
-- [Medusa Docs](https://github.com/medusajs/medusa)
+- [Medusa docs](https://docs.medusajs.com/)
+- [Medusa repo](https://github.com/medusajs/medusa)
 
 ## License
 
-Licensed under the [MIT License](https://github.com/medusajs/medusa/blob/develop/LICENSE).
+Licensed under the MIT License.
