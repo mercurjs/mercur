@@ -45,7 +45,7 @@ Feel free to share your ideas on Medusa Discord, how you imagine the development
 
 ## Project Components:
 
-![Mercur Architecture](https://rigby-web.fra1.digitaloceanspaces.com/mercur-mvm-lg.png)
+![Mercur Architecture](https://rigby-web.fra1.digitaloceanspaces.com/mercur-mvm-lgg.png)
 
 - **Core:** The backbone of Mercur, handling the primary operations and data flow essential for marketplace functionality.
 - **Admin:** Provides a control panel for marketplace administrators to manage vendors, orders, settings, and more.
