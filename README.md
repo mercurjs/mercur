@@ -1,4 +1,4 @@
-![Mercur](https://rigby-web.fra1.digitaloceanspaces.com/README-mercur.png)
+![Mercur](https://rigby-web.fra1.digitaloceanspaces.com/README-mercur-lg.png)
 
 <div align="center">
   <h1>Mercur</h1>
@@ -37,9 +37,11 @@ Medusa is an amazing and strong foundation for building marketplaces but require
 
 ## Goals
 
-We aim to make Mercur adaptable for various marketplace types, such as rental or service marketplaces. We're also building an ecosystem of plugins tailored to multi-vendor setups, including solutions for payment distributions like Stripe.
+We aim to make Mercur adaptable for various marketplace types, such as rental or service marketplaces. 
 
-Feel free to share your ideas on our Discord, how you imagine the development of this project.
+We also want to build an ecosystem of plugins tailored to multi-vendor setups, including solutions for payment distributions like Stripe. We want to publish all plugins adapted to the multi-vendor market under the name `medusa-mercur-...` e.g. `medusa-mercur-stripe`. With this annotation, developers will always know that this is a plugin for the MVM.
+
+Feel free to share your ideas on Medusa Discord, how you imagine the development of this project.
 
 ## Project Components:
 
