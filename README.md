@@ -101,7 +101,7 @@ You will be asked to enter the project's name and select the project’s modules
  ```
 3. Start the Medusa development server:
  ```bash
-yarn develop
+yarn dev
  ```
 
 The server will start on http://localhost:9000.
