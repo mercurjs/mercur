@@ -25,7 +25,7 @@ if (!fs.existsSync(folderName)) {
 }
 
 const API_CHECKOUT = `git clone --depth 1 https://github.com/mercurjs/mercur-api-starter.git ${folderName}/api`;
-const VENDOR_CHECKOUT = `git clone --depth 1 git@github.com:mercurjs/mercur-vendor-starter.git ${folderName}/vendor`;
+const VENDOR_CHECKOUT = `git clone --depth 1 https://github.com/mercurjs/mercur-vendor-starter.git ${folderName}/vendor`;
 const ADMIN_CHECKOUT = `git clone --depth 1 https://github.com/mercurjs/mercur-admin-starter.git ${folderName}/admin`;
 const STORE_CHECKOUT = `git clone --depth 1 https://github.com/mercurjs/mercur-storefront-starter.git ${folderName}/store-front`;
 
