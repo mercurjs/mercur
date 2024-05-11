@@ -91,15 +91,11 @@ You will be asked to enter the project's name and select the project’s modules
 
 **Database and Server Initialization**
 
-1. Run database migrations with the command:
- ```bash
- medusa migrations run
- ```
-2. Seed the database:
+1. Seed the database:
  ```bash
  yarn seed
  ```
-3. Start the Medusa development server:
+2. Start the Medusa development server:
  ```bash
 yarn dev
  ```
