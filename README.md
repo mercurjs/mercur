@@ -144,7 +144,7 @@ This will launch the storefront, typically available at http://localhost:8000.
 
 To add a vendor user via the API, follow these steps:
 
-1. Make a POST request to the endpoint `api_url/vendors/users` with the body:
+1. Make a POST request to the endpoint `api_url/vendor/users` with the body:
  ```json
  {
    "email": "vendoremail@email.com",
