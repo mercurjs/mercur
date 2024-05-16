@@ -113,7 +113,15 @@ In both /admin and /vendor directories:
 VITE_BACKEND_URL=http://localhost:9000
 ```
 
-3. Start the panels with `yarn dev`
+3. To configure CORS, append the following lines to the .env file located in the `/api` directory:
+```bash
+# Admin and Vendor Panels
+ADMIN_CORS=http://localhost:7000,http://localhost:7001
+# Storefront CORS
+STORE_CORS=http://localhost:8000
+```
+
+4. Start the panels with `yarn dev`
 
 Admin panel will be accessible at http://localhost:7000.
 Vendor panel will be available at http://localhost:7001.
