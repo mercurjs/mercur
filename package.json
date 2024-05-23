@@ -1,5 +1,6 @@
 {
   "name": "mercurjs",
+  "private": false,
   "bin": "./bin/cli.js",
   "description": "Marketplace starter built on top of Medusa.js",
   "version": "1.0.5",
