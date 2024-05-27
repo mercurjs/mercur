@@ -1,4 +1,4 @@
-import { AdminOptions } from "vendor-ui-alpha-v1";
+import { AdminOptions } from "@rigby-software-house/mercurjs-vendor-ui";
 import fse from "fs-extra";
 import isEqual from "lodash/isEqual";
 import isNil from "lodash/isNil";

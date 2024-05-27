@@ -10,8 +10,10 @@ export const loadConfig = (isDev?: boolean): PluginOptions | null => {
 
   const plugin = configModule.plugins.find(
     (p) =>
-      (typeof p === "string" && p === "vendor-alpha-v1") ||
-      (typeof p === "object" && p.resolve === "vendor-alpha-v1")
+      (typeof p === "string" &&
+        p === "@rigby-software-house/mercurjs-vendor") ||
+      (typeof p === "object" &&
+        p.resolve === "@rigby-software-house/mercurjs-vendor")
   );
 
   if (!plugin) {

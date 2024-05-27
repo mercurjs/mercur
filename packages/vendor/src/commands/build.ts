@@ -1,4 +1,7 @@
-import { build as adminBuild, clean } from "vendor-ui-alpha-v1";
+import {
+  build as adminBuild,
+  clean,
+} from "@rigby-software-house/mercurjs-vendor-ui";
 import { resolve } from "path";
 import { BuildOptions } from "../types";
 import { getPluginPaths, loadConfig } from "../utils";

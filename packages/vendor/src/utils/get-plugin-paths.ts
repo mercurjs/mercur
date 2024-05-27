@@ -1,4 +1,4 @@
-import { logger } from "vendor-ui-alpha-v1";
+import { logger } from "@rigby-software-house/mercurjs-vendor-ui";
 import type { ConfigModule } from "@medusajs/medusa";
 import { getConfigFile } from "medusa-core-utils";
 import path from "path";

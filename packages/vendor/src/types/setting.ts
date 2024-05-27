@@ -1,3 +1,6 @@
-import type { SettingConfig, SettingProps } from "vendor-ui-alpha-v1";
+import type {
+  SettingConfig,
+  SettingProps,
+} from "@rigby-software-house/mercurjs-vendor-ui";
 
 export { SettingConfig, SettingProps };

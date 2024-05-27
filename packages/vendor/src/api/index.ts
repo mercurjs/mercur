@@ -1,4 +1,4 @@
-import { logger } from "vendor-ui-alpha-v1";
+import { logger } from "@rigby-software-house/mercurjs-vendor-ui";
 import express, { Request, Response, Router } from "express";
 import fse from "fs-extra";
 import { ServerResponse } from "http";

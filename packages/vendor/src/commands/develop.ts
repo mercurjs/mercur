@@ -1,4 +1,7 @@
-import { AdminOptions, develop as adminDevelop } from "vendor-ui-alpha-v1";
+import {
+  AdminOptions,
+  develop as adminDevelop,
+} from "@rigby-software-house/mercurjs-vendor-ui";
 import { getPluginPaths, loadConfig } from "../utils";
 
 type DevelopArgs = AdminOptions & {

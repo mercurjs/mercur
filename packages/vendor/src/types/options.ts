@@ -1,4 +1,4 @@
-import type { AdminOptions } from "vendor-ui-alpha-v1";
+import type { AdminOptions } from "@rigby-software-house/mercurjs-vendor-ui";
 
 export type PluginOptions = AdminOptions & {
   /**

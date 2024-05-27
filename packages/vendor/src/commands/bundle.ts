@@ -5,7 +5,7 @@ import {
   findAllValidWidgets,
   logger,
   normalizePath,
-} from "vendor-ui-alpha-v1";
+} from "@rigby-software-house/mercurjs-vendor-ui";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import { nodeResolve } from "@rollup/plugin-node-resolve";

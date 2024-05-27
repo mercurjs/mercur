@@ -1,4 +1,4 @@
-import { build, clean, logger } from "vendor-ui-alpha-v1";
+import { build, clean, logger } from "@rigby-software-house/mercurjs-vendor-ui";
 import { getPluginPaths, loadConfig } from "../utils";
 import { createBuildManifest, shouldBuild } from "../utils/build-manifest";
 

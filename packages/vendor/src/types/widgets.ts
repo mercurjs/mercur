@@ -10,7 +10,10 @@ import type {
   ProductCollection,
 } from "@medusajs/medusa";
 
-import type { WidgetConfig, WidgetProps } from "vendor-ui-alpha-v1";
+import type {
+  WidgetConfig,
+  WidgetProps,
+} from "@rigby-software-house/mercurjs-vendor-ui";
 
 export interface ProductDetailsWidgetProps extends WidgetProps {
   product: Product;
