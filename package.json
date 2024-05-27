@@ -1,12 +1,11 @@
 {
   "name": "mercurjs",
-  "private": false,
   "bin": "./bin/cli.js",
   "description": "Marketplace starter built on top of Medusa.js",
-  "version": "1.0.5",
+  "version": "1.0.10",
   "main": "index.js",
   "repository": "https://github.com/mercurjs/mercur.git",
-  "author": "vholik <1viktorholik@gmail.com>",
+  "author": "vholik - Rigby (https://rigbyjs.com/en)",
   "license": "MIT",
   "dependencies": {
     "inquirer": "^8.2.6"

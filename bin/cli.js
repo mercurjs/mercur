@@ -25,13 +25,9 @@ if (!fs.existsSync(folderName)) {
 }
 
 const API_CHECKOUT = `git clone --depth 1 https://github.com/mercurjs/mercur-api-starter.git ${folderName}/api`;
-const VENDOR_CHECKOUT = `git clone --depth 1 git@github.com:mercurjs/mercur-vendor-starter.git ${folderName}/vendor`;
-const ADMIN_CHECKOUT = `git clone --depth 1 https://github.com/mercurjs/mercur-admin-starter.git ${folderName}/admin`;
 const STORE_CHECKOUT = `git clone --depth 1 https://github.com/mercurjs/mercur-storefront-starter.git ${folderName}/store-front`;
 
 const checkoutMap = {
-  Admin: ADMIN_CHECKOUT,
-  Vendor: VENDOR_CHECKOUT,
   "Store-front": STORE_CHECKOUT,
   API: API_CHECKOUT,
 };
@@ -44,8 +40,6 @@ async function main() {
         message: "Select components to include in your project:",
         name: "components",
         choices: [
-          { name: "Admin", checked: true },
-          { name: "Vendor", checked: true },
           { name: "Store-front" },
           {
             name: "API",
@@ -75,7 +69,7 @@ async function main() {
   }
 
   console.log(`Congratulations 🎉! Succesfuly initialized Mercur.`);
-  console.log(`cd ${folderName}`);
+  console.log(`cd ${folderName} && yarn install`);
 }
 
 main();

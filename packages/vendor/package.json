@@ -1,6 +1,6 @@
 {
-  "name": "vendor-alpha-v1",
-  "version": "0.0.14",
+  "name": "@rigby-software-house/mercurjs-vendor",
+  "version": "0.0.1",
   "bin": {
     "medusa-vendor": "./bin/medusa-vendor.js"
   },
@@ -23,7 +23,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "vendor-ui-alpha-v1": "^0.0.10",
+    "@rigby-software-house/mercurjs-vendor-ui": "^0.0.0",
     "@rollup/plugin-alias": "5.0.0",
     "@rollup/plugin-commonjs": "24.1.0",
     "@rollup/plugin-json": "6.0.0",
