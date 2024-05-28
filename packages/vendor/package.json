@@ -1,6 +1,6 @@
 {
   "name": "@rigby-software-house/mercurjs-vendor",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "bin": {
     "medusa-vendor": "./bin/medusa-vendor.js"
   },

@@ -23,7 +23,7 @@ export const loadConfig = (isDev?: boolean): PluginOptions | null => {
   let config: PluginOptions = {
     serve: true,
     autoRebuild: false,
-    path: isDev ? "/" : "/app",
+    path: "/",
     outDir: "build-vendor",
     backend: isDev ? "http://localhost:9000" : "/",
     develop: {
