@@ -84,6 +84,7 @@ You will be asked to enter the project's name and select the project’s modules
 
 1. Navigate to the `/api` directory.
 2. Execute the `yarn` command to install dependencies.
+3. Build the admin and vendor ui:s; `yarn run build:admin && yarn run build:vendor`
 
 **Environment Configuration**
 
