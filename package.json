@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "devDependencies": {
+    "turbo": "^2.3.3"
+  },
+  "packageManager": "yarn@1.22.21",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build"
+  }
+}
