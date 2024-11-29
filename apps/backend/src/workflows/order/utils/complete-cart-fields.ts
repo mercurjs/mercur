@@ -1,0 +1,20 @@
+export const completeCartFields = [
+  'id',
+  'metadata',
+  'currency_code',
+  'email',
+  'items.tax_lines.*',
+  'customer.*',
+  'shipping_methods.*',
+  'shipping_methods.tax_lines.*',
+  'shipping_methods.shipping_option.id',
+  'shipping_methods.shipping_option.vendor.id',
+  'shipping_address.*',
+  'billing_address.*',
+  'region.*',
+  'payment_collection.*',
+  'payment_collection.payment_sessions.*',
+  'items.variant.id',
+  'items.variant.product.id',
+  'items.variant.product.seller.id'
+]

@@ -1,0 +1,175 @@
+import {
+  AuthenticatedMedusaRequest,
+  MedusaRequest,
+  MedusaResponse
+} from '@medusajs/framework'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import {
+  deleteProductsWorkflow,
+  updateProductsWorkflow
+} from '@medusajs/medusa/core-flows'
+
+import {
+  VendorGetProductParamsType,
+  VendorUpdateProductType
+} from '../validators'
+
+/**
+ * @oas [get] /vendor/products/{id}
+ * operationId: "VendorGetProduct"
+ * summary: "Get a Product"
+ * description: "Retrieves a product by id for the authenticated vendor."
+ * x-authenticated: true
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the Product.
+ *     schema:
+ *       type: string
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             product:
+ *               $ref: "#/components/schemas/VendorProduct"
+ * tags:
+ *   - Product
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
+export const GET = async (
+  req: MedusaRequest<VendorGetProductParamsType>,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [product]
+  } = await query.graph(
+    {
+      entity: 'product',
+      fields: req.remoteQueryConfig.fields,
+      filters: { id: req.params.id }
+    },
+    { throwIfKeyNotFound: true }
+  )
+
+  res.json({ product })
+}
+
+/**
+ * @oas [post] /vendor/products/{id}
+ * operationId: "VendorPostProductsId"
+ * summary: "Update a Product"
+ * description: "Updates an existing product for the authenticated vendor."
+ * x-authenticated: true
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the Product.
+ *     schema:
+ *       type: string
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/VendorUpdateProduct"
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             product:
+ *               $ref: "#/components/schemas/VendorProduct"
+ * tags:
+ *   - Product
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
+export const POST = async (
+  req: AuthenticatedMedusaRequest<VendorUpdateProductType>,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { result } = await updateProductsWorkflow(req.scope).run({
+    input: {
+      // @ts-expect-error: updateProductsWorkflow does not support null values
+      products: [req.validatedBody]
+    }
+  })
+
+  const {
+    data: [product]
+  } = await query.graph(
+    {
+      entity: 'product',
+      fields: req.remoteQueryConfig.fields,
+      filters: { id: result[0].id }
+    },
+    { throwIfKeyNotFound: true }
+  )
+
+  res.json({ product })
+}
+
+/**
+ * @oas [delete] /vendor/products/{id}
+ * operationId: "VendorDeleteProductsId"
+ * summary: "Delete a Product"
+ * description: "Deletes a product by id for the authenticated vendor."
+ * x-authenticated: true
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the Product.
+ *     schema:
+ *       type: string
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: string
+ *               description: The ID of the deleted Product
+ *             object:
+ *               type: string
+ *               description: The type of the object that was deleted
+ *             deleted:
+ *               type: boolean
+ *               description: Whether or not the items were deleted
+ * tags:
+ *   - Product
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
+export const DELETE = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  const { id } = req.params
+  await deleteProductsWorkflow(req.scope).run({
+    input: {
+      ids: [id]
+    }
+  })
+
+  res.json({ id, object: 'product', deleted: true })
+}

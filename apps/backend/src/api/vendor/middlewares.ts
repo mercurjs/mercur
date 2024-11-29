@@ -1,0 +1,49 @@
+import { MiddlewareRoute, authenticate } from '@medusajs/framework'
+
+import { unlessBaseUrl } from '../../shared/infra/http/utils'
+import { vendorInvitesMiddlewares } from './invites/middlewares'
+import { vendorProductsMiddlewares } from './products/middlewares'
+import { vendorSellersMiddlewares } from './sellers/middlewares'
+import { vendorServiceZonesMiddlewares } from './service-zones/middlewares'
+import { vendorStockLocationsMiddlewares } from './stock-locations/middlewares'
+
+export const vendorMiddlewares: MiddlewareRoute[] = [
+  /**
+   * @desc Here we are authenticating the seller routes
+   * except for the route for creating a seller
+   * and the route for accepting a member invite
+   */
+
+  {
+    matcher: '/vendor/sellers',
+    method: ['POST'],
+    middlewares: [
+      authenticate('seller', ['bearer', 'session'], {
+        allowUnregistered: true
+      })
+    ]
+  },
+  {
+    matcher: '/vendor/invites/accept',
+    method: ['POST'],
+    middlewares: [
+      authenticate('seller', ['bearer', 'session'], {
+        allowUnregistered: true
+      })
+    ]
+  },
+  {
+    matcher: '/vendor/*',
+    middlewares: [
+      unlessBaseUrl(
+        /^\/vendor\/(sellers|invites\/accept)$/,
+        authenticate('seller', ['bearer', 'session'])
+      )
+    ]
+  },
+  ...vendorSellersMiddlewares,
+  ...vendorProductsMiddlewares,
+  ...vendorInvitesMiddlewares,
+  ...vendorServiceZonesMiddlewares,
+  ...vendorStockLocationsMiddlewares
+]
