@@ -19,9 +19,9 @@ export default tseslint.config({
     // other options...
     parserOptions: {
       project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
+      tsconfigRootDir: import.meta.dirname
+    }
+  }
 })
 ```
 
@@ -38,13 +38,13 @@ export default tseslint.config({
   settings: { react: { version: '18.3' } },
   plugins: {
     // Add the react plugin
-    react,
+    react
   },
   rules: {
     // other rules...
     // Enable its recommended rules
     ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
+    ...react.configs['jsx-runtime'].rules
+  }
 })
 ```
