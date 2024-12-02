@@ -1,4 +1,5 @@
 import { model } from '@medusajs/framework/utils'
+
 import { MemberRole } from '@mercurjs/types'
 
 import { Seller } from './seller'

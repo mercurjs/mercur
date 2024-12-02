@@ -5,9 +5,9 @@ import {
 } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
-import { fetchSellerByAuthActorId } from 'src/shared/infra/http/utils'
 
 import sellerProductLink from '../../../links/seller-product'
+import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import {
   remapProductFieldsToSellerProduct,
   remapSellerProductQuery

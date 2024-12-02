@@ -8,6 +8,10 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "generate:oas": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

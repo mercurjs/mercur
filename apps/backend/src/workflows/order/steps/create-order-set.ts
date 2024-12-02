@@ -1,6 +1,8 @@
-import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
-import { OrderSetDTO } from '@mercurjs/types'
 import MarketplaceModuleService from 'src/modules/marketplace/service'
+
+import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
+
+import { OrderSetDTO } from '@mercurjs/types'
 
 import { MARKETPLACE_MODULE } from '../../../modules/marketplace'
 

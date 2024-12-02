@@ -1,5 +1,6 @@
-import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import SellerModuleService from 'src/modules/seller/service'
+
+import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SELLER_MODULE } from '../../../modules/seller'
 

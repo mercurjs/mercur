@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import {
   CustomerDTO,
@@ -16,8 +18,8 @@ import {
   MathBN,
   OrderStatus
 } from '@medusajs/framework/utils'
+
 import { OrderSetDTO } from '@mercurjs/types'
-import BigNumber from 'bignumber.js'
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)

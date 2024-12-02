@@ -1,6 +1,7 @@
+import { z } from 'zod'
+
 import { ProductStatus } from '@medusajs/framework/utils'
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
-import { z } from 'zod'
 
 import { IdAssociation } from '../../../shared/infra/http/utils'
 

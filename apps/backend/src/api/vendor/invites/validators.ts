@@ -1,6 +1,8 @@
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
-import { MemberRole } from '@mercurjs/types'
 import { z } from 'zod'
+
+import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+
+import { MemberRole } from '@mercurjs/types'
 
 /**
  * @schema VendorGetMemberInviteParams

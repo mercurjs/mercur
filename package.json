@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "generate:oas": "turbo run generate:oas"
   }
 }

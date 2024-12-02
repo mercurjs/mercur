@@ -1,5 +1,6 @@
-import { AuthenticatedMedusaRequest } from '@medusajs/framework/http'
 import { NextFunction } from 'express'
+
+import { AuthenticatedMedusaRequest } from '@medusajs/framework/http'
 
 import { fetchSellerByAuthActorId } from '../utils/seller'
 

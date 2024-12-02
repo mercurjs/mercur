@@ -1,3 +1,5 @@
+import jwt, { JwtPayload } from 'jsonwebtoken'
+
 import { ConfigModule } from '@medusajs/framework'
 import { Context, CreateInviteDTO } from '@medusajs/framework/types'
 import {
@@ -6,8 +8,8 @@ import {
   MedusaError,
   MedusaService
 } from '@medusajs/framework/utils'
+
 import { MemberInviteDTO } from '@mercurjs/types'
-import jwt, { JwtPayload } from 'jsonwebtoken'
 
 import { SELLER_MODULE } from '.'
 import { Invite, Member, Seller } from './models'
