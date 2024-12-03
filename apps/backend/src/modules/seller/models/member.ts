@@ -1,7 +1,6 @@
 import { model } from '@medusajs/framework/utils'
 
-import { MemberRole } from '@mercurjs/types'
-
+import { MemberRole } from '../types'
 import { Seller } from './seller'
 
 export const Member = model.define('member', {

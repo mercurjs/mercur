@@ -9,10 +9,9 @@ import {
   MedusaService
 } from '@medusajs/framework/utils'
 
-import { MemberInviteDTO } from '@mercurjs/types'
-
 import { SELLER_MODULE } from '.'
 import { Invite, Member, Seller } from './models'
+import { MemberInviteDTO } from './types'
 
 type InjectedDependencies = {
   configModule: ConfigModule

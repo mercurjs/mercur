@@ -8,7 +8,7 @@ createProductsWorkflow.hooks.productsCreated(
   async ({ products, additional_data }, { container }) => {
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
-    if (!additional_data.sellerId) {
+    if (!additional_data?.sellerId) {
       return new StepResponse(undefined, null)
     }
 
@@ -29,6 +29,10 @@ createProductsWorkflow.hooks.productsCreated(
     )
   },
   async (productIds: string[] | null, { container }) => {
+    if (!productIds) {
+      return
+    }
+
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     await remoteLink.dismiss(

@@ -2,14 +2,6 @@ import { z } from 'zod'
 
 import { createSelectParams } from '@medusajs/medusa/api/utils/validators'
 
-/**
- * @schema VendorGetSellerParams
- * type: object
- * properties:
- *   fields:
- *     type: string
- *     description: Comma-separated fields that should be included in the returned data.
- */
 export type VendorGetSellerParamsType = z.infer<typeof VendorGetSellerParams>
 export const VendorGetSellerParams = createSelectParams()
 

@@ -25,7 +25,11 @@ import {
  * description: "Retrieves a list of service zones for the authenticated vendor."
  * x-authenticated: true
  * parameters:
- *   - (VendorGetServiceZoneParams)
+ *   - in: query
+ *     name: fields
+ *     description: The comma-separated fields to include in the response
+ *     schema:
+ *       type: string
  * responses:
  *   "200":
  *     description: OK

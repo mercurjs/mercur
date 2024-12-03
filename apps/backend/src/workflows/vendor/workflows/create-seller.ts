@@ -2,8 +2,7 @@ import { transform } from '@medusajs/framework/workflows-sdk'
 import { setAuthAppMetadataStep } from '@medusajs/medusa/core-flows'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { CreateMemberDTO, CreateSellerDTO } from '@mercurjs/types'
-
+import { CreateMemberDTO, CreateSellerDTO } from '../../../modules/seller/types'
 import { createMemberStep } from '../../member/steps'
 import { createSellerStep } from '../steps'
 

@@ -2,9 +2,8 @@ import SellerModuleService from 'src/modules/seller/service'
 
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { CreateMemberDTO, MemberDTO } from '@mercurjs/types'
-
 import { SELLER_MODULE } from '../../../modules/seller'
+import { CreateMemberDTO, MemberDTO } from '../../../modules/seller/types'
 
 export const createMemberStep = createStep(
   'create-member',

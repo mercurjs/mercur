@@ -71,7 +71,26 @@ export const POST = async (
  * description: "Retrieves a list of member invites for the authenticated vendor."
  * x-authenticated: true
  * parameters:
- *   - (VendorGetMemberInviteParams)
+ *   - in: query
+ *     name: limit
+ *     schema:
+ *       type: number
+ *     description: The number of items to return. Default 50.
+ *   - in: query
+ *     name: offset
+ *     schema:
+ *       type: number
+ *     description: The number of items to skip before starting the response. Default 0.
+ *   - in: query
+ *     name: fields
+ *     schema:
+ *       type: string
+ *     description: Comma-separated fields that should be included in the returned data.
+ *   - in: query
+ *     name: order
+ *     schema:
+ *       type: string
+ *     description: Field used to order the results.
  * responses:
  *   "200":
  *     description: OK

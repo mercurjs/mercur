@@ -19,7 +19,7 @@ import {
   OrderStatus
 } from '@medusajs/framework/utils'
 
-import { OrderSetDTO } from '@mercurjs/types'
+import { OrderSetDTO } from '../../../modules/marketplace/types'
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)

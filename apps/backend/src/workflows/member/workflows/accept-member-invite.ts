@@ -2,8 +2,7 @@ import { parallelize } from '@medusajs/framework/workflows-sdk'
 import { setAuthAppMetadataStep } from '@medusajs/medusa/core-flows'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { AcceptMemberInviteDTO } from '@mercurjs/types'
-
+import { AcceptMemberInviteDTO } from '../../../modules/seller/types'
 import { createMemberStep, updateMemberInviteStep } from '../steps'
 import { validateMemberInviteStep } from '../steps/validate-member-invites'
 

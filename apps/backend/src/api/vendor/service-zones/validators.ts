@@ -2,34 +2,12 @@ import { z } from 'zod'
 
 import { createSelectParams } from '@medusajs/medusa/api/utils/validators'
 
-/**
- * @schema VendorGetServiceZoneParams
- * type: object
- * properties:
- *   fields:
- *     type: string
- *     description: Comma-separated fields that should be included in the returned data.
- */
 export type VendorGetServiceZoneParamsType = z.infer<
   typeof VendorGetServiceZoneParams
 >
 
 export const VendorGetServiceZoneParams = createSelectParams()
 
-/**
- * @schema VendorGetShippingOptionParams
- * type: object
- * properties:
- *   offset:
- *     type: number
- *     description: The number of items to skip before starting to collect the result set.
- *   limit:
- *     type: number
- *     description: The number of items to return.
- *   order:
- *     type: string
- *     description: The order of the returned items.
- */
 export type VendorGetShippingOptionParamsType = z.infer<
   typeof VendorGetShippingOptionParams
 >
