@@ -2,7 +2,7 @@ export default {
   vendor: {
     output: {
       target: "codegen/index.ts",
-      schemas: "codegen/models",
+      schemas: "codegen/types",
       client: "fetch",
       baseUrl: "http://localhost:3000",
       mock: false,
