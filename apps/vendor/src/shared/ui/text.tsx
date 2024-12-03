@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/utils'
+import { cn } from '@/shared/lib'
 import { Slot } from '@radix-ui/react-slot'
 import { VariantProps, cva } from 'cva'
 import * as React from 'react'
