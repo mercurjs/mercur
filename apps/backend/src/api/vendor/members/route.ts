@@ -5,7 +5,7 @@ import { VendorGetMemberParamsType } from './validators'
 
 /**
  * @oas [get] /vendor/members
- * operationId: "VendorGetMembers"
+ * operationId: "VendorListMembers"
  * summary: "List Members"
  * description: "Retrieves a list of members."
  * x-authenticated: true

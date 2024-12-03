@@ -3,12 +3,16 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 /**
  * @oas [get] /vendor/stock-locations
- * operationId: "VendorGetStockLocations"
+ * operationId: "VendorListStockLocations"
  * summary: "List Stock Locations"
  * description: "Retrieves a list of Stock Locations."
  * x-authenticated: true
  * parameters:
- *   - (VendorGetStockLocationParams)
+ *   - in: query
+ *     name: fields
+ *     description: The comma-separated fields to include in the response
+ *     schema:
+ *       type: string
  * responses:
  *   "200":
  *     description: OK

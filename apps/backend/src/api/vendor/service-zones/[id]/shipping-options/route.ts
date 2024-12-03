@@ -8,7 +8,7 @@ import { VendorCreateShippingOptionType } from '../../validators'
 
 /**
  * @oas [post] /vendor/service-zones/{id}/shipping-options
- * operationId: "VendorPostServiceZonesServiceZoneShippingOptions"
+ * operationId: "VendorCreateShippingOption"
  * summary: "Create a Shipping Option"
  * description: "Creates a Shipping Option for a Service Zone."
  * x-authenticated: true
@@ -89,7 +89,7 @@ export const POST = async (
 
 /**
  * @oas [get] /vendor/service-zones/{id}/shipping-options
- * operationId: "VendorGetServiceZonesServiceZoneShippingOptions"
+ * operationId: "VendorListShippingOptions"
  * summary: "List Shipping Options"
  * description: "Retrieves a list of Shipping Options for a Service Zone."
  * x-authenticated: true

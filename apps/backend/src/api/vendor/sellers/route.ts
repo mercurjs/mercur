@@ -9,7 +9,7 @@ import { VendorCreateSellerType } from './validators'
 
 /**
  * @oas [post] /vendor/sellers
- * operationId: "VendorPostSellers"
+ * operationId: "VendorCreateSeller"
  * summary: "Create a Seller"
  * description: "Creates a new seller with an initial owner member."
  * x-authenticated: true

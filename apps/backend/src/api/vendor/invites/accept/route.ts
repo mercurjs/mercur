@@ -6,7 +6,7 @@ import { VendorAcceptMemberInviteType } from '../validators'
 
 /**
  * @oas [post] /vendor/invites/{id}/accept
- * operationId: "VendorPostInvitesAccept"
+ * operationId: "VendorAcceptInvite"
  * summary: "Accept a Member Invite"
  * description: "Accepts a member invite using the provided token and creates a new member."
  * x-authenticated: true

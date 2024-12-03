@@ -9,7 +9,7 @@ import { VendorUpdateShippingOptionType } from '../../../validators'
 
 /**
  * @oas [get] /vendor/service-zones/{id}/shipping-options/{option_id}
- * operationId: "VendorGetServiceZonesServiceZoneShippingOptionsOption"
+ * operationId: "VendorGetShippingOptionById"
  * summary: "Get a Shipping Option"
  * description: "Retrieves a Shipping Option by its ID."
  * x-authenticated: true
@@ -64,7 +64,7 @@ export const GET = async (
 
 /**
  * @oas [post] /vendor/service-zones/{id}/shipping-options/{option_id}
- * operationId: "VendorPostServiceZonesServiceZoneShippingOptionsOption"
+ * operationId: "VendorUpdateShippingOptionById"
  * summary: "Update a Shipping Option"
  * description: "Updates a Shipping Option."
  * x-authenticated: true
@@ -128,7 +128,7 @@ export const POST = async (
 
 /**
  * @oas [delete] /vendor/service-zones/{id}/shipping-options/{option_id}
- * operationId: "VendorDeleteServiceZonesServiceZoneShippingOptionsOption"
+ * operationId: "VendorDeleteShippingOptionById"
  * summary: "Delete a Shipping Option"
  * description: "Deletes a Shipping Option."
  * x-authenticated: true

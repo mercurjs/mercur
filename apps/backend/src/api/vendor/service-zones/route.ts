@@ -20,7 +20,7 @@ import {
 
 /**
  * @oas [get] /vendor/service-zones
- * operationId: "VendorGetServiceZones"
+ * operationId: "VendorListServiceZones"
  * summary: "List Service Zones"
  * description: "Retrieves a list of service zones for the authenticated vendor."
  * x-authenticated: true
@@ -82,7 +82,7 @@ export const GET = async (
 
 /**
  * @oas [post] /vendor/service-zones
- * operationId: "VendorPostServiceZones"
+ * operationId: "VendorCreateServiceZone"
  * summary: "Create a Service Zone"
  * description: "Creates a new service zone for the authenticated vendor."
  * x-authenticated: true

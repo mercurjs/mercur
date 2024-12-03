@@ -19,7 +19,7 @@ import {
 
 /**
  * @oas [get] /vendor/products
- * operationId: "VendorGetProducts"
+ * operationId: "VendorListProducts"
  * summary: "List Products"
  * description: "Retrieves a list of products for the authenticated vendor."
  * x-authenticated: true
@@ -98,7 +98,7 @@ export const GET = async (
 
 /**
  * @oas [post] /vendor/products
- * operationId: "VendorPostProducts"
+ * operationId: "VendorCreateProduct"
  * summary: "Create a Product"
  * description: "Creates a new product for the authenticated vendor."
  * x-authenticated: true

@@ -13,7 +13,7 @@ import { VendorUpdateServiceZoneType } from '../validators'
 
 /**
  * @oas [get] /vendor/service-zones/{id}
- * operationId: "VendorGetServiceZone"
+ * operationId: "VendorGetServiceZoneById"
  * summary: "Get a Service Zone"
  * description: "Retrieves a service zone by its ID."
  * x-authenticated: true
@@ -59,7 +59,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
 /**
  * @oas [post] /vendor/service-zones/{id}
- * operationId: "VendorPostServiceZonesServiceZone"
+ * operationId: "VendorUpdateServiceZoneById"
  * summary: "Update a Service Zone"
  * description: "Updates a Service Zone."
  * x-authenticated: true
@@ -120,7 +120,7 @@ export const POST = async (
 
 /**
  * @oas [delete] /vendor/service-zones/{id}
- * operationId: "VendorDeleteServiceZonesServiceZone"
+ * operationId: "VendorDeleteServiceZoneById"
  * summary: "Delete a Service Zone"
  * description: "Deletes a Service Zone."
  * x-authenticated: true

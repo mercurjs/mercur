@@ -7,7 +7,7 @@ import { VendorInviteMemberType } from './validators'
 
 /**
  * @oas [post] /vendor/invites
- * operationId: "VendorPostInvites"
+ * operationId: "VendorCreateInvite"
  * summary: "Create a Member Invite"
  * description: "Creates a new member invite for the authenticated vendor."
  * x-authenticated: true
@@ -66,7 +66,7 @@ export const POST = async (
 
 /**
  * @oas [get] /vendor/invites
- * operationId: "VendorGetInvites"
+ * operationId: "VendorListInvites"
  * summary: "List Member Invites"
  * description: "Retrieves a list of member invites for the authenticated vendor."
  * x-authenticated: true

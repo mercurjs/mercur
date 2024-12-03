@@ -16,7 +16,7 @@ import {
 
 /**
  * @oas [get] /vendor/products/{id}
- * operationId: "VendorGetProduct"
+ * operationId: "VendorGetProductById"
  * summary: "Get a Product"
  * description: "Retrieves a product by id for the authenticated vendor."
  * x-authenticated: true
@@ -71,7 +71,7 @@ export const GET = async (
 
 /**
  * @oas [post] /vendor/products/{id}
- * operationId: "VendorPostProductsId"
+ * operationId: "VendorUpdateProductById"
  * summary: "Update a Product"
  * description: "Updates an existing product for the authenticated vendor."
  * x-authenticated: true
@@ -138,7 +138,7 @@ export const POST = async (
 
 /**
  * @oas [delete] /vendor/products/{id}
- * operationId: "VendorDeleteProductsId"
+ * operationId: "VendorDeleteProductById"
  * summary: "Delete a Product"
  * description: "Deletes a product by id for the authenticated vendor."
  * x-authenticated: true

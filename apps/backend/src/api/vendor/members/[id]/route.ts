@@ -7,7 +7,7 @@ import { VendorUpdateMemberType } from '../validators'
 
 /**
  * @oas [post] /vendor/members/{id}
- * operationId: "VendorUpdateMemberId"
+ * operationId: "VendorUpdateMemberById"
  * summary: "Update a Member"
  * description: "Updates a member by id for the authenticated vendor."
  * x-authenticated: true
@@ -69,7 +69,7 @@ export const POST = async (
 
 /**
  * @oas [get] /vendor/members/{id}
- * operationId: "VendorGetMemberId"
+ * operationId: "VendorGetMemberById"
  * summary: "Get a Member"
  * description: "Retrieves a member by id."
  * x-authenticated: true
@@ -119,7 +119,7 @@ export const GET = async (
 
 /**
  * @oas [delete] /vendor/members/{id}
- * operationId: "VendorDeleteMemberId"
+ * operationId: "VendorDeleteMemberById"
  * summary: "Delete a Member"
  * description: "Deletes a member by id."
  * x-authenticated: true
