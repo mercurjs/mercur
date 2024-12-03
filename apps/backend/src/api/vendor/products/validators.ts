@@ -5,20 +5,6 @@ import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
 import { IdAssociation } from '../../../shared/infra/http/utils'
 
-/**
- * @schema VendorGetProductParams
- * type: object
- * properties:
- *   offset:
- *     type: number
- *     description: The number of items to skip before starting to collect the result set.
- *   limit:
- *     type: number
- *     description: The number of items to return.
- *   order:
- *     type: string
- *     description: The order of the returned items.
- */
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>
 export const VendorGetProductParams = createFindParams({
   offset: 0,

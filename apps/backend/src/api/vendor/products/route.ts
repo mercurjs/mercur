@@ -24,7 +24,30 @@ import {
  * description: "Retrieves a list of products for the authenticated vendor."
  * x-authenticated: true
  * parameters:
- *   - (VendorGetProductParams)
+ *   - name: offset
+ *     in: query
+ *     schema:
+ *       type: number
+ *     required: false
+ *     description: The number of items to skip before starting to collect the result set.
+ *   - name: limit
+ *     in: query
+ *     schema:
+ *       type: number
+ *     required: false
+ *     description: The number of items to return.
+ *   - name: fields
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Comma-separated fields to include in the response.
+ *   - name: order
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: The order of the returned items.
  * responses:
  *   "200":
  *     description: OK

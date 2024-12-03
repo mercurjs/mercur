@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["ES2021"],
+    "lib": ["ES2021", "DOM"],
     "target": "ES2021",
     "outDir": "dist",
     "esModuleInterop": true,
@@ -22,6 +22,6 @@
     "skipLibCheck": true,
     "incremental": false
   },
-  "include": ["src"],
+  "include": ["codegen"],
   "exclude": ["node_modules", "dist"]
 }

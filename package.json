@@ -11,8 +11,9 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "generate:oas": "turbo run generate:oas",
     "format": "turbo run format",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "codegen": "turbo run codegen",
+    "generate:oas": "turbo run generate:oas"
   }
 }

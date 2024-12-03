@@ -1,0 +1,15 @@
+{
+  "name": "@mercurjs/http-client",
+  "types": "./dist/index.d.ts",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "codegen": "rimraf dist && rimraf codegen && npx orval && tsc"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}
