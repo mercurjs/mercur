@@ -4,8 +4,9 @@
   "version": "0.0.1",
   "private": true,
   "exports": {
-    ".": "./dist/index.js",
-    "./types": "./dist/types/index.js"
+    ".": "./dist/codegen/index.js",
+    "./types": "./dist/codegen/types/index.js",
+    "./client": "./dist/src/index.js"
   },
   "scripts": {
     "codegen": "rimraf dist && rimraf codegen && npx orval && tsc"

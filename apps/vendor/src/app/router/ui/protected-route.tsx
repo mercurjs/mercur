@@ -24,7 +24,7 @@ const useAuth = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setIsAuthenticated(true)
+      setIsAuthenticated(false)
       setIsLoading(false)
     }, 1000)
 

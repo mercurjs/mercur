@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 7000",
+    "dev": "vite --port 7001",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
+    "@mercurjs/http-client": "",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",
@@ -38,8 +39,7 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.1",
     "wouter": "^3.3.5",
-    "zod": "^3.23.8",
-    "@mercurjs/http-client": ""
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

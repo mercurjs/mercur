@@ -3,7 +3,7 @@ import {
   MedusaRequest,
   MedusaResponse
 } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerProductLink from '../../../links/seller-product'
@@ -128,6 +128,12 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const salesChannelModuleService = req.scope.resolve(Modules.SALES_CHANNEL)
+
+  const defaultSalesChannels =
+    await salesChannelModuleService.listSalesChannels({
+      name: 'Default Sales Channel'
+    })
 
   const seller = await fetchSellerByAuthActorId(
     req.auth_context?.actor_id,
@@ -136,7 +142,12 @@ export const POST = async (
 
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
-      products: [req.validatedBody],
+      products: [
+        {
+          ...req.validatedBody,
+          sales_channels: defaultSalesChannels.map((sc) => ({ id: sc.id }))
+        }
+      ],
       additional_data: {
         sellerId: seller.id
       }
