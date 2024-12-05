@@ -1,13 +1,12 @@
-import { createLocationFulfillmentSetWorkflow } from '@medusajs/core-flows'
+import { fetchSellerByAuthActorId } from '#/shared/infra/http/utils'
+import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '#/workflows/fulfillment-set/workflows'
+
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse
 } from '@medusajs/framework/http'
-import { FulfillmentSetDTO } from '@medusajs/framework/types'
-import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { SELLER_MODULE } from '../../../../../modules/seller'
-import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
 import { VendorCreateStockLocationFulfillmentSetType } from '../../validators'
 
 /**
@@ -53,29 +52,23 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateStockLocationFulfillmentSetType>,
   res: MedusaResponse
 ) => {
-  const remoteLink = req.scope.resolve(ContainerRegistrationKeys.REMOTE_LINK)
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,
     req.scope
   )
 
-  const { result } = await createLocationFulfillmentSetWorkflow(req.scope).run({
+  await createLocationFulfillmentSetAndAssociateWithSellerWorkflow(
+    req.scope
+  ).run({
     input: {
       location_id: req.params.id,
       fulfillment_set_data: {
         name: req.validatedBody.name,
         type: req.validatedBody.type
-      }
-    }
-  })
-
-  await remoteLink.create({
-    [SELLER_MODULE]: {
+      },
       seller_id: seller.id
-    },
-    [Modules.FULFILLMENT]: {
-      fulfillment_set_id: (result as FulfillmentSetDTO).id
     }
   })
 
