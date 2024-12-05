@@ -1,13 +1,9 @@
+import { splitAndCompleteCartWorkflow } from '#/workflows/order-set/workflows'
+
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
-import { HttpTypes } from '@medusajs/framework/types'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { splitAndCompleteCartWorkflow } from '../../../../../workflows/order/workflows'
-
-export const POST = async (
-  req: MedusaRequest,
-  res: MedusaResponse<HttpTypes.StoreCompleteCartResponse>
-) => {
+export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const cart_id = req.params.id
 

@@ -9,5 +9,10 @@ export default [
 
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  { rules: { 'prefer-rest-params': 'off' } }
+  {
+    rules: {
+      'prefer-rest-params': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn'
+    }
+  }
 ]

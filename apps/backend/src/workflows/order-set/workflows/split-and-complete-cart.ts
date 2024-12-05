@@ -22,12 +22,12 @@ import { MARKETPLACE_MODULE } from '../../../modules/marketplace'
 import { OrderSetWorkflowEvents } from '../../../modules/marketplace/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { createOrderSetStep } from '../steps'
-import { completeCartFields } from '../utils/complete-cart-fields'
-import { prepareConfirmInventoryInput } from '../utils/prepare-confirm-intentory-input'
 import {
+  completeCartFields,
+  prepareConfirmInventoryInput,
   prepareLineItemData,
   prepareTaxLinesData
-} from '../utils/prepare-line-item-data'
+} from '../utils'
 
 type SplitAndCompleteCartWorkflowInput = {
   id: string
