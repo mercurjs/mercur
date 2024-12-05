@@ -28,10 +28,8 @@ export const VendorGetMemberInviteParams = createFindParams({
  *     enum: [owner, admin, member]
  *     description: The role to assign to the invited member.
  */
-export type VendorInviteMemberType = WithRequired<
-  z.infer<typeof VendorInviteMember>,
-  'email' | 'role'
->
+export type VendorInviteMemberType = z.infer<typeof VendorInviteMember>
+
 export const VendorInviteMember = z
   .object({
     email: z.string().email(),
@@ -53,9 +51,8 @@ export const VendorInviteMember = z
  *     type: string
  *     description: The name of the member accepting the invite.
  */
-export type VendorAcceptMemberInviteType = WithRequired<
-  z.infer<typeof VendorAcceptMemberInvite>,
-  'name' | 'token'
+export type VendorAcceptMemberInviteType = z.infer<
+  typeof VendorAcceptMemberInvite
 >
 export const VendorAcceptMemberInvite = z
   .object({

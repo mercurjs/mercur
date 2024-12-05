@@ -56,10 +56,7 @@ export const VendorGetSellerParams = createSelectParams()
  *         description: URL to the member's photo.
  */
 
-export type VendorCreateSellerType = WithRequired<
-  z.infer<typeof VendorCreateSeller>,
-  'name' | 'handle'
->
+export type VendorCreateSellerType = z.infer<typeof VendorCreateSeller>
 export const VendorCreateSeller = z
   .object({
     name: z.preprocess((val: string) => val.trim(), z.string().min(1)),
