@@ -14,10 +14,7 @@ import {
   useRemoteQueryStep,
   validateCartPaymentsStep
 } from '@medusajs/medusa/core-flows'
-import {
-  CartLineItemDTO,
-  CartShippingMethodDTO
-} from '@medusajs/types/dist/cart'
+import { CartShippingMethodDTO } from '@medusajs/types/dist/cart'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
 import orderSetCartLink from '../../../links/order-set-cart'
@@ -76,7 +73,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         const { ordersToCreate, sellers, variants } = transform(
           { cart },
           ({ cart }) => {
-            const sellerLineItemsMap = new Map<string, CartLineItemDTO[]>()
+            const sellerLineItemsMap = new Map<string, any[]>()
             const sellerShippingMethodsMap = new Map<
               string,
               CartShippingMethodDTO
@@ -238,10 +235,20 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
               }
             }
 
+            const orderSetCustomerLink = {
+              [MARKETPLACE_MODULE]: {
+                order_set_id: orderSet.id
+              },
+              [Modules.CUSTOMER]: {
+                customer_id: cart.customer_id
+              }
+            }
+
             return [
               ...sellerOrderLinks,
               ...orderSetOrderLinks,
-              orderSetCartLink
+              orderSetCartLink,
+              orderSetCustomerLink
             ]
           }
         )
