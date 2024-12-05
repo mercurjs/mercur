@@ -6,17 +6,13 @@ import {
   createRegionsWorkflow,
   createSalesChannelsWorkflow,
   createShippingProfilesWorkflow,
-  createStockLocationsWorkflow,
   createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
-  linkSalesChannelsToStockLocationWorkflow,
   updateStoresWorkflow
 } from '@medusajs/medusa/core-flows'
 
 export default async function seedMarketplaceData({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
-  const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
-  const fulfillmentModuleService = container.resolve(Modules.FULFILLMENT)
   const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL)
   const storeModuleService = container.resolve(Modules.STORE)
 
@@ -89,39 +85,6 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
     }))
   })
 
-  logger.info('Seeding stock location data...')
-  const { result: stockLocationResult } = await createStockLocationsWorkflow(
-    container
-  ).run({
-    input: {
-      locations: [
-        /**
-         * Here we set main marketplace stock location that is used for all vendors
-         */
-
-        {
-          name: 'Marketplace',
-          address: {
-            postal_code: '53-608',
-            country_code: 'pl',
-            city: 'Wrocław',
-            address_1: 'ul. Robotnicza 42A'
-          }
-        }
-      ]
-    }
-  })
-  const stockLocation = stockLocationResult[0]
-
-  await remoteLink.create({
-    [Modules.STOCK_LOCATION]: {
-      stock_location_id: stockLocation.id
-    },
-    [Modules.FULFILLMENT]: {
-      fulfillment_provider_id: 'manual_manual'
-    }
-  })
-
   logger.info('Seeding fulfillment data...')
 
   await createShippingProfilesWorkflow(container).run({
@@ -132,31 +95,6 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
           type: 'default'
         }
       ]
-    }
-  })
-
-  /**
-   * Here we create fulfillment set for marketplace that will be used for all vendors
-   * Could be shipping or pickup
-   */
-  const fulfillmentSet = await fulfillmentModuleService.createFulfillmentSets({
-    name: 'Marketplace delivery',
-    type: 'shipping'
-  })
-
-  await remoteLink.create({
-    [Modules.STOCK_LOCATION]: {
-      stock_location_id: stockLocation.id
-    },
-    [Modules.FULFILLMENT]: {
-      fulfillment_set_id: fulfillmentSet.id
-    }
-  })
-
-  await linkSalesChannelsToStockLocationWorkflow(container).run({
-    input: {
-      id: stockLocation.id,
-      add: [defaultSalesChannel[0].id]
     }
   })
 

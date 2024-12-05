@@ -5,10 +5,10 @@ import {
   updateShippingOptionsWorkflow
 } from '@medusajs/medusa/core-flows'
 
-import { VendorUpdateShippingOptionType } from '../../../validators'
+import { VendorUpdateShippingOptionType } from '../validators'
 
 /**
- * @oas [get] /vendor/service-zones/{id}/shipping-options/{option_id}
+ * @oas [get] /vendor/shipping-options/{id}
  * operationId: "VendorGetShippingOptionById"
  * summary: "Get a Shipping Option"
  * description: "Retrieves a Shipping Option by its ID."
@@ -17,15 +17,7 @@ import { VendorUpdateShippingOptionType } from '../../../validators'
  *   - in: path
  *     name: id
  *     required: true
- *     description: The ID of the Service Zone.
- *     schema:
- *       type: string
- *   - in: path
- *     name: option_id
- *     required: true
  *     description: The ID of the Shipping Option.
- *     schema:
- *       type: string
  * responses:
  *   "200":
  *     description: OK
@@ -54,7 +46,7 @@ export const GET = async (
     {
       entity: 'shipping_option',
       fields: req.remoteQueryConfig.fields,
-      filters: { id: req.params.option_id }
+      filters: { id: req.params.id }
     },
     { throwIfKeyNotFound: true }
   )
@@ -63,7 +55,7 @@ export const GET = async (
 }
 
 /**
- * @oas [post] /vendor/service-zones/{id}/shipping-options/{option_id}
+ * @oas [post] /vendor/shipping-options/{id}
  * operationId: "VendorUpdateShippingOptionById"
  * summary: "Update a Shipping Option"
  * description: "Updates a Shipping Option."
@@ -72,15 +64,7 @@ export const GET = async (
  *   - in: path
  *     name: id
  *     required: true
- *     description: The ID of the Service Zone.
- *     schema:
- *       type: string
- *   - in: path
- *     name: option_id
- *     required: true
  *     description: The ID of the Shipping Option.
- *     schema:
- *       type: string
  * requestBody:
  *   content:
  *     application/json:
@@ -118,7 +102,7 @@ export const POST = async (
     {
       entity: 'shipping_option',
       fields: req.remoteQueryConfig.fields,
-      filters: { id: req.params.option_id }
+      filters: { id: req.params.id }
     },
     { throwIfKeyNotFound: true }
   )
@@ -127,7 +111,7 @@ export const POST = async (
 }
 
 /**
- * @oas [delete] /vendor/service-zones/{id}/shipping-options/{option_id}
+ * @oas [delete] /vendor/shipping-options/{id}
  * operationId: "VendorDeleteShippingOptionById"
  * summary: "Delete a Shipping Option"
  * description: "Deletes a Shipping Option."
@@ -136,15 +120,7 @@ export const POST = async (
  *   - in: path
  *     name: id
  *     required: true
- *     description: The ID of the Service Zone.
- *     schema:
- *       type: string
- *   - in: path
- *     name: option_id
- *     required: true
  *     description: The ID of the Shipping Option.
- *     schema:
- *       type: string
  * responses:
  *   "200":
  *     description: OK

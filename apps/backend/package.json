@@ -15,8 +15,8 @@
   "scripts": {
     "build": "medusa build",
     "seed": "medusa exec ./src/scripts/seed.ts",
-    "start": "medusa start",
-    "dev": "medusa develop",
+    "start": "medusa start --types=false",
+    "dev": "medusa develop --types=false",
     "db:migrate": "medusa db:migrate",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@medusajs/admin-sdk": "latest",
-    "@medusajs/cli": "latest",
+    "@medusajs/cli": "^2.1.0",
     "@medusajs/framework": "latest",
     "@medusajs/medusa": "latest",
     "@mikro-orm/core": "5.9.7",

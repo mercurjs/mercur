@@ -5,8 +5,8 @@ import {
 import { MiddlewareRoute } from '@medusajs/medusa'
 
 import {
-  checkResourceOwnershipByParamId,
-  filterFieldSellerId
+  checkResourceOwnershipByResourceId,
+  filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import { vendorMemberQueryConfig } from './query-config'
 import { VendorGetMemberParams, VendorUpdateMember } from './validators'
@@ -20,14 +20,14 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
         VendorGetMemberParams,
         vendorMemberQueryConfig.list
       ),
-      filterFieldSellerId()
+      filterBySellerId()
     ]
   },
   {
     method: ['GET'],
     matcher: '/vendor/members/:id',
     middlewares: [
-      checkResourceOwnershipByParamId({
+      checkResourceOwnershipByResourceId({
         entryPoint: 'member'
       }),
       validateAndTransformQuery(
@@ -40,7 +40,7 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     method: ['POST'],
     matcher: '/vendor/members/:id',
     middlewares: [
-      checkResourceOwnershipByParamId({
+      checkResourceOwnershipByResourceId({
         entryPoint: 'member'
       }),
       validateAndTransformBody(VendorUpdateMember),
@@ -54,7 +54,7 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     method: ['DELETE'],
     matcher: '/vendor/members/:id',
     middlewares: [
-      checkResourceOwnershipByParamId({
+      checkResourceOwnershipByResourceId({
         entryPoint: 'member'
       })
     ]

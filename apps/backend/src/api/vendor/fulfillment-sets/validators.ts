@@ -2,17 +2,11 @@ import { z } from 'zod'
 
 import { createSelectParams } from '@medusajs/medusa/api/utils/validators'
 
-export type VendorGetServiceZoneParamsType = z.infer<
-  typeof VendorGetServiceZoneParams
+export type VendorFulfillmentSetParamsType = z.infer<
+  typeof VendorFulfillmentSetParams
 >
 
-export const VendorGetServiceZoneParams = createSelectParams()
-
-export type VendorGetShippingOptionParamsType = z.infer<
-  typeof VendorGetShippingOptionParams
->
-
-export const VendorGetShippingOptionParams = createSelectParams()
+export const VendorFulfillmentSetParams = createSelectParams()
 
 /* Geo zones */
 
@@ -151,17 +145,13 @@ export const geoZoneZip = geoZoneBaseSchema.merge(
  * type: object
  * required:
  *   - name
- *   - fulfillment_set_id
  * properties:
  *   name:
  *     type: string
  *     description: The name of the service zone.
- *   fulfillment_set_id:
- *     type: string
- *     description: The ID of the fulfillment set.
  *   geo_zones:
  *     type: array
- *     description: The geo zones associated with the service zone.
+ *     description: The geo zones that belong to the service zone.
  *     items:
  *       oneOf:
  *         - $ref: "#/components/schemas/GeoZoneCountry"
@@ -169,14 +159,9 @@ export const geoZoneZip = geoZoneBaseSchema.merge(
  *         - $ref: "#/components/schemas/GeoZoneCity"
  *         - $ref: "#/components/schemas/GeoZoneZip"
  */
-export type VendorCreateServiceZoneType = z.infer<
-  typeof VendorCreateServiceZone
->
-
-export const VendorCreateServiceZone = z
+export const VendorCreateFulfillmentSetServiceZonesSchema = z
   .object({
     name: z.string(),
-    fulfillment_set_id: z.string(),
     geo_zones: z
       .array(
         z.union([geoZoneCountry, geoZoneProvince, geoZoneCity, geoZoneZip])
@@ -191,14 +176,10 @@ export const VendorCreateServiceZone = z
  * properties:
  *   name:
  *     type: string
- *     nullable: true
  *     description: The name of the service zone.
- *   fulfillment_set_id:
- *     type: string
- *     description: The ID of the fulfillment set.
  *   geo_zones:
  *     type: array
- *     description: The geo zones associated with the service zone.
+ *     description: The geo zones that belong to the service zone.
  *     items:
  *       oneOf:
  *         - allOf:
@@ -207,32 +188,32 @@ export const VendorCreateServiceZone = z
  *             properties:
  *               id:
  *                 type: string
+ *                 description: The ID of the geo zone.
  *         - allOf:
  *           - $ref: "#/components/schemas/GeoZoneProvince"
  *           - type: object
  *             properties:
  *               id:
  *                 type: string
+ *                 description: The ID of the geo zone.
  *         - allOf:
  *           - $ref: "#/components/schemas/GeoZoneCity"
  *           - type: object
  *             properties:
  *               id:
  *                 type: string
+ *                 description: The ID of the geo zone.
  *         - allOf:
  *           - $ref: "#/components/schemas/GeoZoneZip"
  *           - type: object
  *             properties:
  *               id:
  *                 type: string
+ *                 description: The ID of the geo zone.
  */
-export type VendorUpdateServiceZoneType = z.infer<
-  typeof VendorUpdateServiceZone
->
-export const VendorUpdateServiceZone = z
+export const VenodrUpdateServiceZone = z
   .object({
     name: z.string().nullish(),
-    fulfillment_set_id: z.string().optional(),
     geo_zones: z
       .array(
         z.union([
@@ -246,125 +227,9 @@ export const VendorUpdateServiceZone = z
   })
   .strict()
 
-/* Shipping options */
-
-/**
- * @schema CreateShippingOptionPriceWithCurrency
- * type: object
- * required:
- *   - currency_code
- *   - amount
- * properties:
- *   currency_code:
- *     type: string
- *     description: The currency code for the price.
- *   amount:
- *     type: number
- *     description: The amount of the price.
- */
-const CreateShippingOptionPriceWithCurrency = z
-  .object({
-    currency_code: z.string(),
-    amount: z.number()
-  })
-  .strict()
-
-/**
- * @schema CreateShippingOptionTypeObject
- * type: object
- * required:
- *   - label
- *   - description
- *   - code
- * properties:
- *   label:
- *     type: string
- *     description: The label of the shipping option type.
- *   description:
- *     type: string
- *     description: The description of the shipping option type.
- *   code:
- *     type: string
- *     description: The code of the shipping option type.
- */
-const CreateShippingOptionTypeObject = z
-  .object({
-    label: z.string(),
-    description: z.string(),
-    code: z.string()
-  })
-  .strict()
-
-/**
- * @schema VendorCreateShippingOption
- * type: object
- * required:
- *   - name
- *   - shipping_profile_id
- *   - provider_id
- *   - prices
- *   - type
- * properties:
- *   name:
- *     type: string
- *     description: The name of the shipping option.
- *   shipping_profile_id:
- *     type: string
- *     description: The ID of the shipping profile.
- *   provider_id:
- *     type: string
- *     description: The ID of the fulfillment provider.
- *   prices:
- *     type: array
- *     description: The prices of the shipping option.
- *     items:
- *       $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
- *   type:
- *     $ref: "#/components/schemas/CreateShippingOptionTypeObject"
- */
-export type VendorCreateShippingOptionType = z.infer<
-  typeof VendorCreateShippingOption
+export type VendorCreateServiceZoneType = z.infer<
+  typeof VendorCreateFulfillmentSetServiceZonesSchema
 >
-export const VendorCreateShippingOption = z
-  .object({
-    name: z.string(),
-    shipping_profile_id: z.string(),
-    provider_id: z.string(),
-    prices: CreateShippingOptionPriceWithCurrency.array(),
-    type: CreateShippingOptionTypeObject
-  })
-  .strict()
-
-/**
- * @schema VendorUpdateShippingOption
- * type: object
- * properties:
- *   name:
- *     type: string
- *     description: The name of the shipping option.
- *   shipping_profile_id:
- *     type: string
- *     description: The ID of the shipping profile.
- *   provider_id:
- *     type: string
- *     description: The ID of the fulfillment provider.
- *   prices:
- *     type: array
- *     description: The prices of the shipping option.
- *     items:
- *       $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
- *   type:
- *     $ref: "#/components/schemas/CreateShippingOptionTypeObject"
- */
-export type VendorUpdateShippingOptionType = z.infer<
-  typeof VendorUpdateShippingOption
+export type VendorUpdateServiceZoneType = z.infer<
+  typeof VenodrUpdateServiceZone
 >
-export const VendorUpdateShippingOption = z
-  .object({
-    name: z.string().optional(),
-    shipping_profile_id: z.string().optional(),
-    provider_id: z.string().optional(),
-    prices: CreateShippingOptionPriceWithCurrency.array().optional(),
-    type: CreateShippingOptionTypeObject.optional()
-  })
-  .strict()

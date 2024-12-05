@@ -1,10 +1,11 @@
 import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
 import { unlessBaseUrl } from '../../shared/infra/http/utils'
+import { vendorFulfillmentSetsMiddlewares } from './fulfillment-sets/middlewares'
 import { vendorInvitesMiddlewares } from './invites/middlewares'
 import { vendorProductsMiddlewares } from './products/middlewares'
 import { vendorSellersMiddlewares } from './sellers/middlewares'
-import { vendorServiceZonesMiddlewares } from './service-zones/middlewares'
+import { vendorShippingOptionsMiddlewares } from './shipping-options/middlewares'
 import { vendorStockLocationsMiddlewares } from './stock-locations/middlewares'
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
@@ -44,6 +45,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorSellersMiddlewares,
   ...vendorProductsMiddlewares,
   ...vendorInvitesMiddlewares,
-  ...vendorServiceZonesMiddlewares,
-  ...vendorStockLocationsMiddlewares
+  ...vendorFulfillmentSetsMiddlewares,
+  ...vendorStockLocationsMiddlewares,
+  ...vendorShippingOptionsMiddlewares
 ]

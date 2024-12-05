@@ -7,7 +7,7 @@ import { fetchSellerByAuthActorId } from '../utils/seller'
 /**
  * @desc Adds a seller id to the filterable fields
  */
-export function filterFieldSellerId() {
+export function filterBySellerId() {
   return async (req: AuthenticatedMedusaRequest, _, next: NextFunction) => {
     const seller = await fetchSellerByAuthActorId(
       req.auth_context.actor_id,

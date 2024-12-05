@@ -9,10 +9,6 @@ import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 import sellerProductLink from '../../../links/seller-product'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import {
-  remapProductFieldsToSellerProduct,
-  remapSellerProductQuery
-} from './helpers'
-import {
   VendorCreateProductType,
   VendorGetProductParamsType
 } from './validators'
@@ -81,15 +77,15 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: products, metadata } = await query.graph({
+  const { data: sellerProducts, metadata } = await query.graph({
     entity: sellerProductLink.entryPoint,
-    fields: remapProductFieldsToSellerProduct(req.remoteQueryConfig.fields),
+    fields: req.remoteQueryConfig.fields.map((field) => `seller.${field}`),
     filters: req.filterableFields,
     pagination: req.remoteQueryConfig.pagination
   })
 
   res.json({
-    products: remapSellerProductQuery(products),
+    products: sellerProducts.map((product) => product.product),
     count: metadata!.count,
     offset: metadata!.skip,
     limit: metadata!.take

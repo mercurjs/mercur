@@ -6,10 +6,10 @@ import {
   MedusaError
 } from '@medusajs/framework/utils'
 
-type CheckResourceOwnershipByParamIdOptions = {
+type CheckResourceOwnershipByResourceIdOptions = {
   entryPoint: string
   filterField?: string
-  paramIdField?: string
+  resourceId?: (req: AuthenticatedMedusaRequest) => string
 }
 
 /**
@@ -34,14 +34,14 @@ type CheckResourceOwnershipByParamIdOptions = {
  * app.use(checkResourceOwnershipByParamId({
  *   entryPoint: 'service_zone',
  *   filterField: 'service_zone_id',
- *   paramIdField: 'zone_id'
+ *   resourceId: (req) => req.params.zone_id
  * }))
  */
-export const checkResourceOwnershipByParamId = ({
+export const checkResourceOwnershipByResourceId = ({
   entryPoint,
   filterField = 'id',
-  paramIdField = 'id'
-}: CheckResourceOwnershipByParamIdOptions) => {
+  resourceId = (req) => req.params.id
+}: CheckResourceOwnershipByResourceIdOptions) => {
   return async (
     req: AuthenticatedMedusaRequest,
     _res: MedusaResponse,
@@ -69,7 +69,7 @@ export const checkResourceOwnershipByParamId = ({
         entity: entryPoint,
         fields: ['seller_id'],
         filters: {
-          [filterField]: req.params[paramIdField]
+          [filterField]: resourceId(req)
         }
       },
       { throwIfKeyNotFound: true }

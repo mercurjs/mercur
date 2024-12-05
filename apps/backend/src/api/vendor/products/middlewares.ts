@@ -6,8 +6,8 @@ import { MiddlewareRoute } from '@medusajs/medusa'
 
 import sellerProductLink from '../../../links/seller-product'
 import {
-  checkResourceOwnershipByParamId,
-  filterFieldSellerId
+  checkResourceOwnershipByResourceId,
+  filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import { vendorProductQueryConfig } from './query-config'
 import {
@@ -25,7 +25,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductParams,
         vendorProductQueryConfig.list
       ),
-      filterFieldSellerId()
+      filterBySellerId()
     ]
   },
   {
@@ -43,7 +43,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     method: ['GET'],
     matcher: '/vendor/products/:id',
     middlewares: [
-      checkResourceOwnershipByParamId({
+      checkResourceOwnershipByResourceId({
         entryPoint: sellerProductLink.entryPoint,
         filterField: 'product_id'
       }),
@@ -57,7 +57,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     method: ['POST'],
     matcher: '/vendor/products/:id',
     middlewares: [
-      checkResourceOwnershipByParamId({
+      checkResourceOwnershipByResourceId({
         entryPoint: sellerProductLink.entryPoint,
         filterField: 'product_id'
       }),
@@ -72,7 +72,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     method: ['DELETE'],
     matcher: '/vendor/products/:id',
     middlewares: [
-      checkResourceOwnershipByParamId({
+      checkResourceOwnershipByResourceId({
         entryPoint: sellerProductLink.entryPoint,
         filterField: 'product_id'
       })

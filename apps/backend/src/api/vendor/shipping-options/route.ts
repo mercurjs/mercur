@@ -2,9 +2,9 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createShippingOptionsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { SELLER_MODULE } from '../../../../../modules/seller'
-import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
-import { VendorCreateShippingOptionType } from '../../validators'
+import { SELLER_MODULE } from '../../../modules/seller'
+import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { VendorCreateShippingOptionType } from './validators'
 
 /**
  * @oas [post] /vendor/service-zones/{id}/shipping-options
@@ -56,14 +56,12 @@ export const POST = async (
     input: [
       {
         ...req.validatedBody,
-        price_type: 'flat',
-        service_zone_id: req.params.id
+        price_type: 'flat'
       }
     ]
   })
 
   // TODO: Move this into createShippingOptionsWorkflow workflow hook
-  // Currently createShippingOptionsWorkflow does not support hooks
   await remoteLink.create({
     [SELLER_MODULE]: {
       seller_id: seller.id
@@ -136,10 +134,7 @@ export const GET = async (
   const { data: shippingOptions, metadata } = await query.graph({
     entity: 'shipping_option',
     fields: req.remoteQueryConfig.fields,
-    filters: {
-      service_zone_id: req.params.id,
-      ...req.filterableFields
-    },
+    filters: req.filterableFields,
     pagination: req.remoteQueryConfig.pagination
   })
 

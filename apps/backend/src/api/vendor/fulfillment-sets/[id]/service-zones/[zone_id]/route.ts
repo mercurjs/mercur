@@ -1,64 +1,14 @@
-import {
-  AuthenticatedMedusaRequest,
-  MedusaRequest,
-  MedusaResponse
-} from '@medusajs/framework'
+import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import {
   deleteServiceZonesWorkflow,
   updateServiceZonesWorkflow
 } from '@medusajs/medusa/core-flows'
 
-import { VendorUpdateServiceZoneType } from '../validators'
+import { VendorUpdateServiceZoneType } from '../../../validators'
 
 /**
- * @oas [get] /vendor/service-zones/{id}
- * operationId: "VendorGetServiceZoneById"
- * summary: "Get a Service Zone"
- * description: "Retrieves a service zone by its ID."
- * x-authenticated: true
- * parameters:
- *   - in: path
- *     name: id
- *     required: true
- *     description: The ID of the Service Zone.
- *     schema:
- *       type: string
- * responses:
- *   "200":
- *     description: OK
- *     content:
- *       application/json:
- *         schema:
- *           type: object
- *           properties:
- *             service_zone:
- *               $ref: "#/components/schemas/VendorServiceZone"
- * tags:
- *   - Service Zone
- * security:
- *   - api_token: []
- *   - cookie_auth: []
- */
-export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const {
-    data: [serviceZone]
-  } = await query.graph(
-    {
-      entity: 'service_zone',
-      fields: req.remoteQueryConfig.fields,
-      filters: { id: req.params.id }
-    },
-    { throwIfKeyNotFound: true }
-  )
-
-  res.json({ service_zone: serviceZone })
-}
-
-/**
- * @oas [post] /vendor/service-zones/{id}
+ * @oas [post] /vendor/fulfillment-sets/{id}/service-zones/{zone_id}
  * operationId: "VendorUpdateServiceZoneById"
  * summary: "Update a Service Zone"
  * description: "Updates a Service Zone."
@@ -83,10 +33,10 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
  *         schema:
  *           type: object
  *           properties:
- *             service_zone:
- *               $ref: "#/components/schemas/VendorServiceZone"
+ *             fulfillment_set:
+ *               $ref: "#/components/schemas/VendorFulfillmentSet"
  * tags:
- *   - Service Zone
+ *   - Fulfillment Set
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -97,29 +47,31 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { result } = await updateServiceZonesWorkflow(req.scope).run({
+  await updateServiceZonesWorkflow(req.scope).run({
     input: {
-      selector: { id: req.params.id },
+      selector: { id: req.params.zone_id },
       update: req.validatedBody
     }
   })
 
   const {
-    data: [serviceZone]
+    data: [fulfillmentSet]
   } = await query.graph(
     {
-      entity: 'service_zone',
+      entity: 'fulfillment_set',
       fields: req.remoteQueryConfig.fields,
-      filters: { id: result[0].id }
+      filters: {
+        id: req.params.id
+      }
     },
     { throwIfKeyNotFound: true }
   )
 
-  res.json({ service_zone: serviceZone })
+  res.json({ fulfillment_set: fulfillmentSet })
 }
 
 /**
- * @oas [delete] /vendor/service-zones/{id}
+ * @oas [delete] /vendor/fulfillment-sets/{id}/service-zones/{zone_id}
  * operationId: "VendorDeleteServiceZoneById"
  * summary: "Delete a Service Zone"
  * description: "Deletes a Service Zone."
@@ -160,12 +112,12 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const { id } = req.params
+  const { zone_id } = req.params
   await deleteServiceZonesWorkflow(req.scope).run({
     input: {
-      ids: [id]
+      ids: [zone_id]
     }
   })
 
-  res.json({ id, object: 'service_zone', deleted: true })
+  res.json({ id: zone_id, object: 'service_zone', deleted: true })
 }
