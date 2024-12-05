@@ -1,9 +1,11 @@
+import sellerStockLocationLink from '#/links/seller-stock-location'
+import { SELLER_MODULE } from '#/modules/seller'
+import { fetchSellerByAuthActorId } from '#/shared/infra/http/utils'
+
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createStockLocationsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { SELLER_MODULE } from '../../../modules/seller'
-import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { VendorCreateStockLocationType } from './validators'
 
 /**
@@ -65,16 +67,13 @@ export const POST = async (
 
   const {
     data: [stockLocation]
-  } = await query.graph(
-    {
-      entity: 'stock_location',
-      fields: req.remoteQueryConfig.fields,
-      filters: {
-        id: result[0].id
-      }
-    },
-    { throwIfKeyNotFound: true }
-  )
+  } = await query.graph({
+    entity: 'stock_location',
+    fields: req.remoteQueryConfig.fields,
+    filters: {
+      id: result[0].id
+    }
+  })
 
   res.status(201).json({
     stock_location: stockLocation
@@ -117,14 +116,13 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: sellerLocations } = await query.graph(
-    {
-      entity: 'stock_location',
-      fields: req.remoteQueryConfig.fields.map((field) => `seller.${field}`),
-      filters: req.filterableFields
-    },
-    { throwIfKeyNotFound: true }
-  )
+  const { data: sellerLocations } = await query.graph({
+    entity: sellerStockLocationLink.entryPoint,
+    fields: req.remoteQueryConfig.fields.map(
+      (field) => `stock_location.${field}`
+    ),
+    filters: req.filterableFields
+  })
 
   res.status(200).json({
     stock_locations: sellerLocations.map(

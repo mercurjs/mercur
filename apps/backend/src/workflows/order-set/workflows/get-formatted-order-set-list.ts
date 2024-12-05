@@ -10,8 +10,8 @@ import { formatOrderSets } from '../utils'
 
 export const getFormattedOrderSetListWorkflow = createWorkflow(
   'get-formatted-order-set-list',
-  function (input: { fields: string[]; variables?: Record<string, any> }) {
-    const fields = transform(input.fields, (fields) => {
+  function (input: { fields?: string[]; variables?: Record<string, any> }) {
+    const fields = transform(input.fields ?? [], (fields) => {
       return deduplicate([
         ...fields,
         'id',

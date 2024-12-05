@@ -1,9 +1,8 @@
+import { MARKETPLACE_MODULE } from '#/modules/marketplace'
 import MarketplaceModuleService from 'src/modules/marketplace/service'
 import { OrderSetDTO } from 'src/modules/marketplace/types'
 
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
-
-import { MARKETPLACE_MODULE } from '../../../modules/marketplace'
 
 export const getOrderSetListStep = createStep(
   'get-order-set-list',

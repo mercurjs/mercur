@@ -11,8 +11,7 @@ export const vendorStockLocationFields = [
   'address.province',
   'address.postal_code',
   'address.metadata',
-  '*fulfillment_sets',
-  '*seller'
+  '*fulfillment_sets'
 ]
 
 export const vendorStockLocationQueryConfig = {
