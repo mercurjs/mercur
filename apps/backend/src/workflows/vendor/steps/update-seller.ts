@@ -1,5 +1,6 @@
 import SellerModuleService from 'src/modules/seller/service'
 
+import { kebabCase } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SELLER_MODULE } from '../../../modules/seller'
@@ -14,7 +15,12 @@ export const updateSellerStep = createStep(
       id: input.id
     })
 
-    const updatedSellers: SellerDTO = await service.updateSellers(input)
+    const newHandle = input.name ? kebabCase(input.name) : undefined
+
+    const updatedSellers: SellerDTO = await service.updateSellers({
+      ...input,
+      handle: newHandle
+    })
 
     return new StepResponse(updatedSellers, previousData)
   },

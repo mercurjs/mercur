@@ -6,7 +6,6 @@ export interface CreateSellerDTO
     'id' | 'created_at' | 'updated_at' | 'members'
   > {
   name: string
-  handle: string
 }
 
 export interface UpdateSellerDTO extends Partial<SellerDTO> {

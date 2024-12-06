@@ -25,10 +25,6 @@ export const VendorGetSellerParams = createSelectParams()
  *     type: string
  *     nullable: true
  *     description: URL to the seller's photo.
- *   handle:
- *     type: string
- *     description: A unique handle for the seller.
- *     minLength: 4
  *   member:
  *     type: object
  *     required:
@@ -38,10 +34,6 @@ export const VendorGetSellerParams = createSelectParams()
  *       name:
  *         type: string
  *         description: The name of the member.
- *       email:
- *         type: string
- *         format: email
- *         description: The email of the member.
  *       bio:
  *         type: string
  *         nullable: true
@@ -62,7 +54,6 @@ export const VendorCreateSeller = z
     name: z.preprocess((val: string) => val?.trim(), z.string().min(1)),
     description: z.string().nullish().optional(),
     photo: z.string().nullish().optional(),
-    handle: z.string().min(4),
     member: z.object({
       name: z.string(),
       bio: z.string().nullish().optional(),
@@ -82,15 +73,11 @@ export const VendorCreateSeller = z
  *   name:
  *     type: string
  *     description: The name of the seller.
- *     minLength: 1
+ *     minLength: 4
  *   description:
  *     type: string
  *     nullable: true
  *     description: A description of the seller.
- *   handle:
- *     type: string
- *     description: A unique handle for the seller.
- *     minLength: 1
  *   photo:
  *     type: string
  *     nullable: true
@@ -100,10 +87,9 @@ export type VendorUpdateSellerType = z.infer<typeof VendorUpdateSeller>
 export const VendorUpdateSeller = z
   .object({
     name: z
-      .preprocess((val: string) => val.trim(), z.string().min(1))
+      .preprocess((val: string) => val.trim(), z.string().min(4))
       .optional(),
     description: z.string().nullish().optional(),
-    handle: z.string().min(1).optional(),
     photo: z.string().nullish().optional()
   })
   .strict()
