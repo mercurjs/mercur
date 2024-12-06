@@ -1,3 +1,6 @@
+import sellerProductLink from '#/links/seller-product'
+import sellerShippingOptionLink from '#/links/seller-shipping-option'
+
 import {
   Modules,
   OrderStatus,
@@ -63,6 +66,32 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           list: false
         }).config({ name: 'cart-query' })
 
+        const products = transform(cart, ({ items }) =>
+          items.map((item) => item.variant.product_id)
+        )
+
+        const shippingOptions = transform(cart, ({ shipping_methods }) =>
+          shipping_methods.map((sm) => sm.shipping_option_id)
+        )
+
+        const [sellerProducts, sellerShippingOptions] = parallelize(
+          useRemoteQueryStep({
+            entry_point: sellerProductLink.entryPoint,
+            fields: ['seller_id', 'product_id'],
+            variables: {
+              product_id: products
+            }
+          }).config({ name: 'seller-product-query' }),
+
+          useRemoteQueryStep({
+            entry_point: sellerShippingOptionLink.entryPoint,
+            fields: ['seller_id', 'shipping_option_id'],
+            variables: {
+              shipping_option_id: shippingOptions
+            }
+          }).config({ name: 'seller-shipping-option-query' })
+        )
+
         const paymentSessions = validateCartPaymentsStep({ cart })
 
         const payment = authorizePaymentSessionStep({
@@ -71,8 +100,17 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         })
 
         const { ordersToCreate, sellers, variants } = transform(
-          { cart },
-          ({ cart }) => {
+          { cart, sellerProducts, sellerShippingOptions },
+          ({ cart, sellerProducts, sellerShippingOptions }) => {
+            const productSellerMap = new Map<string, string>(
+              sellerProducts.map((sp) => [sp.product_id, sp.seller_id])
+            )
+            const shippingOptionSellerMap = new Map<string, string>(
+              sellerShippingOptions.map((sp) => [
+                sp.shipping_option_id,
+                sp.seller_id
+              ])
+            )
             const sellerLineItemsMap = new Map<string, any[]>()
             const sellerShippingMethodsMap = new Map<
               string,
@@ -82,7 +120,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
             const sellerTotalsMap = new Map<string, number>()
 
             cart.items.forEach((item) => {
-              const sellerId = item.variant.product.seller.id
+              const sellerId = productSellerMap.get(item.variant.product_id)!
               const lineItems = sellerLineItemsMap.get(sellerId) || []
               lineItems.push(item)
               sellerLineItemsMap.set(sellerId, lineItems)
@@ -94,7 +132,9 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
             })
 
             cart.shipping_methods.forEach((method) => {
-              const sellerId = method.shipping_option.vendor.id
+              const sellerId = shippingOptionSellerMap.get(
+                method.shipping_option_id
+              )!
               sellerShippingMethodsMap.set(sellerId, method)
 
               const total = sellerTotalsMap.get(sellerId) || 0

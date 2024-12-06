@@ -10,8 +10,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
 
   const { result } = await splitAndCompleteCartWorkflow(req.scope).run({
     input: { id: cart_id },
-    context: { transactionId: cart_id },
-    throwOnError: false
+    context: { transactionId: cart_id }
   })
 
   const {

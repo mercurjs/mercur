@@ -1,4 +1,3 @@
-// copy of https://github.com/medusajs/medusa/blob/develop/packages/core/core-flows/src/cart/utils/prepare-line-item-data.ts
 import {
   BigNumberInput,
   CartLineItemDTO,

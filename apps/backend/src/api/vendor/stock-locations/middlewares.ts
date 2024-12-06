@@ -8,6 +8,7 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
+import { createLinkBody } from '@medusajs/medusa/api/utils/validators'
 
 import sellerStockLocationLink from '../../../links/seller-stock-location'
 import { vendorStockLocationQueryConfig } from './query-config'
@@ -65,6 +66,36 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
         filterField: 'stock_location_id'
       }),
       validateAndTransformBody(VendorUpdateStockLocation),
+      validateAndTransformQuery(
+        VendorGetStockLocationParams,
+        vendorStockLocationQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/stock-locations/:id/fulfillment-providers',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerStockLocationLink.entryPoint,
+        filterField: 'stock_location_id'
+      }),
+      validateAndTransformBody(createLinkBody()),
+      validateAndTransformQuery(
+        VendorGetStockLocationParams,
+        vendorStockLocationQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/stock-locations/:id/sales-channels',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerStockLocationLink.entryPoint,
+        filterField: 'stock_location_id'
+      }),
+      validateAndTransformBody(createLinkBody()),
       validateAndTransformQuery(
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
