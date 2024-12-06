@@ -1,8 +1,17 @@
 export const vendorShippingOptionFields = [
   'id',
   'name',
-  '*geo_zones',
-  '*shipping_options'
+  'price_type',
+  'data',
+  'provider_id',
+  'metadata',
+  'created_at',
+  'updated_at',
+  '*type',
+  '*prices',
+  '*service_zone',
+  '*shipping_profile',
+  '*provider'
 ]
 
 export const vendorShippingOptionQueryConfig = {

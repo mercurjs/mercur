@@ -62,19 +62,21 @@ export const checkResourceOwnershipByResourceId = <Body>({
       { throwIfKeyNotFound: true }
     )
 
+    const id = resourceId(req)
+
     const {
       data: [resource]
     } = await query.graph({
       entity: entryPoint,
       fields: ['seller_id'],
       filters: {
-        [filterField]: resourceId(req)
+        [filterField]: id
       }
     })
 
     if (!resource) {
       res.status(404).json({
-        message: 'Not found',
+        message: `${entryPoint} with ${filterField}: ${id} not found`,
         type: MedusaError.Types.NOT_FOUND
       })
       return
