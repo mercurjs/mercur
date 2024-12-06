@@ -211,7 +211,7 @@ export const VendorCreateFulfillmentSetServiceZonesSchema = z
  *                 type: string
  *                 description: The ID of the geo zone.
  */
-export const VenodrUpdateServiceZone = z
+export const VendorUpdateServiceZone = z
   .object({
     name: z.string().nullish(),
     geo_zones: z
@@ -231,5 +231,5 @@ export type VendorCreateServiceZoneType = z.infer<
   typeof VendorCreateFulfillmentSetServiceZonesSchema
 >
 export type VendorUpdateServiceZoneType = z.infer<
-  typeof VenodrUpdateServiceZone
+  typeof VendorUpdateServiceZone
 >

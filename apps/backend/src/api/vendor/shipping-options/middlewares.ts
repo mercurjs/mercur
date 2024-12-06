@@ -1,3 +1,5 @@
+import sellerServiceZoneLink from '#/links/seller-service-zone'
+
 import {
   validateAndTransformBody,
   validateAndTransformQuery
@@ -9,6 +11,7 @@ import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/m
 import { vendorShippingOptionQueryConfig } from './query-config'
 import {
   VendorCreateShippingOption,
+  VendorCreateShippingOptionType,
   VendorGetShippingOptionParams,
   VendorUpdateShippingOption
 } from './validators'
@@ -29,6 +32,11 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     matcher: '/vendor/shipping-options',
     middlewares: [
       validateAndTransformBody(VendorCreateShippingOption),
+      checkResourceOwnershipByResourceId<VendorCreateShippingOptionType>({
+        entryPoint: sellerServiceZoneLink.entryPoint,
+        filterField: 'service_zone_id',
+        resourceId: (req) => req.validatedBody.service_zone_id
+      }),
       validateAndTransformQuery(
         VendorGetShippingOptionParams,
         vendorShippingOptionQueryConfig.retrieve

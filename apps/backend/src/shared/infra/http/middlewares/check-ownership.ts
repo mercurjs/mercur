@@ -6,10 +6,10 @@ import {
   MedusaError
 } from '@medusajs/framework/utils'
 
-type CheckResourceOwnershipByResourceIdOptions = {
+type CheckResourceOwnershipByResourceIdOptions<Body> = {
   entryPoint: string
   filterField?: string
-  resourceId?: (req: AuthenticatedMedusaRequest) => string
+  resourceId?: (req: AuthenticatedMedusaRequest<Body>) => string
 }
 
 /**
@@ -37,14 +37,14 @@ type CheckResourceOwnershipByResourceIdOptions = {
  *   resourceId: (req) => req.params.zone_id
  * }))
  */
-export const checkResourceOwnershipByResourceId = ({
+export const checkResourceOwnershipByResourceId = <Body>({
   entryPoint,
   filterField = 'id',
   resourceId = (req) => req.params.id
-}: CheckResourceOwnershipByResourceIdOptions) => {
+}: CheckResourceOwnershipByResourceIdOptions<Body>) => {
   return async (
-    req: AuthenticatedMedusaRequest,
-    _res: MedusaResponse,
+    req: AuthenticatedMedusaRequest<Body>,
+    res: MedusaResponse,
     next: NextFunction
   ) => {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -64,22 +64,28 @@ export const checkResourceOwnershipByResourceId = ({
 
     const {
       data: [resource]
-    } = await query.graph(
-      {
-        entity: entryPoint,
-        fields: ['seller_id'],
-        filters: {
-          [filterField]: resourceId(req)
-        }
-      },
-      { throwIfKeyNotFound: true }
-    )
+    } = await query.graph({
+      entity: entryPoint,
+      fields: ['seller_id'],
+      filters: {
+        [filterField]: resourceId(req)
+      }
+    })
+
+    if (!resource) {
+      res.status(404).json({
+        message: 'Not found',
+        type: MedusaError.Types.NOT_FOUND
+      })
+      return
+    }
 
     if (member.seller.id !== resource.seller_id) {
-      throw new MedusaError(
-        MedusaError.Types.NOT_ALLOWED,
-        'You are not allowed to perform this action'
-      )
+      res.status(403).json({
+        message: 'You are not allowed to perform this action',
+        type: MedusaError.Types.NOT_ALLOWED
+      })
+      return
     }
 
     next()

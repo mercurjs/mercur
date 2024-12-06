@@ -12,7 +12,7 @@ import { vendorFulfillmentSetQueryConfig } from './query-config'
 import {
   VendorCreateFulfillmentSetServiceZonesSchema,
   VendorFulfillmentSetParams,
-  VenodrUpdateServiceZone
+  VendorUpdateServiceZone
 } from './validators'
 
 export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
@@ -34,8 +34,8 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
     matcher: '/vendor/fulfillment-sets/:id/service-zones',
     middlewares: [
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerServiceZoneLink.entryPoint,
-        filterField: 'service_zone_id'
+        entryPoint: sellerFulfillmentSetLink.entryPoint,
+        filterField: 'fulfillment_set_id'
       }),
       validateAndTransformBody(VendorCreateFulfillmentSetServiceZonesSchema),
       validateAndTransformQuery(
@@ -49,10 +49,14 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
     matcher: '/vendor/fulfillment-sets/:id/service-zones/:zone_id',
     middlewares: [
       checkResourceOwnershipByResourceId({
+        entryPoint: sellerFulfillmentSetLink.entryPoint,
+        filterField: 'fulfillment_set_id'
+      }),
+      checkResourceOwnershipByResourceId({
         entryPoint: sellerServiceZoneLink.entryPoint,
         filterField: 'service_zone_id'
       }),
-      validateAndTransformBody(VenodrUpdateServiceZone),
+      validateAndTransformBody(VendorUpdateServiceZone),
       validateAndTransformQuery(
         VendorFulfillmentSetParams,
         vendorFulfillmentSetQueryConfig.retrieve
@@ -63,6 +67,10 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
     method: ['DELETE'],
     matcher: '/vendor/fulfillment-sets/:id/service-zones/:zone_id',
     middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerFulfillmentSetLink.entryPoint,
+        filterField: 'fulfillment_set_id'
+      }),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerServiceZoneLink.entryPoint,
         filterField: 'service_zone_id'

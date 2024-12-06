@@ -49,7 +49,9 @@ export const POST = async (
 
   await updateServiceZonesWorkflow(req.scope).run({
     input: {
-      selector: { id: req.params.zone_id },
+      selector: {
+        id: req.params.zone_id
+      },
       update: req.validatedBody
     }
   })
