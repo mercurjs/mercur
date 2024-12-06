@@ -4,7 +4,7 @@ import {
   MedusaError
 } from '@medusajs/framework/utils'
 
-import { createSellerWorkflow } from '../../../workflows/vendor/workflows'
+import { createSellerWorkflow } from '../../../workflows/seller/workflows'
 import { VendorCreateSellerType } from './validators'
 
 /**

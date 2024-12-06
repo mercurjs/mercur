@@ -2,7 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils/seller'
-import { updateSellerWorkflow } from '../../../../workflows/vendor/workflows'
+import { updateSellerWorkflow } from '../../../../workflows/seller/workflows'
 import { VendorUpdateSellerType } from '../validators'
 
 /**

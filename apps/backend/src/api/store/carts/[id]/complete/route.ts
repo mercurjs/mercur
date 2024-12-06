@@ -1,7 +1,5 @@
-import {
-  getFormattedOrderSetListWorkflow,
-  splitAndCompleteCartWorkflow
-} from '#/workflows/order-set/workflows'
+import { splitAndCompleteCartWorkflow } from '#/workflows/cart/workflows'
+import { getFormattedOrderSetListWorkflow } from '#/workflows/order-set/workflows'
 
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
 
@@ -13,15 +11,13 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     context: { transactionId: cart_id }
   })
 
-  const {
-    result: {
-      orderSets: [orderSet]
-    }
-  } = await getFormattedOrderSetListWorkflow(req.scope).run({
+  const { result: orderSets } = await getFormattedOrderSetListWorkflow(
+    req.scope
+  ).run({
     input: { variables: { filters: { id: result.id } } }
   })
 
   res.json({
-    order_set: orderSet
+    order_set: orderSets
   })
 }

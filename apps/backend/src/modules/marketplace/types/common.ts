@@ -1,5 +1,7 @@
 import {
   BigNumberInput,
+  CartDTO,
+  CustomerDTO,
   FulfillmentDTO,
   FulfillmentStatus,
   OrderAddressDTO,
@@ -16,6 +18,10 @@ export type OrderSetDTO = {
   created_at: Date
   updated_at: Date
   display_id: number
+  customer_id?: string
+  customer?: CustomerDTO
+  cart_id: string
+  cart?: CartDTO
 }
 
 export type OrderSetWithOrdersDTO = OrderSetDTO & {

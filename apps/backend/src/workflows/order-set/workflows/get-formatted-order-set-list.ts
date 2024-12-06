@@ -4,8 +4,8 @@ import {
   createWorkflow,
   transform
 } from '@medusajs/framework/workflows-sdk'
+import { useRemoteQueryStep } from '@medusajs/medusa/core-flows'
 
-import { getOrderSetListStep } from '../steps'
 import { formatOrderSets } from '../utils'
 
 export const getFormattedOrderSetListWorkflow = createWorkflow(
@@ -18,18 +18,23 @@ export const getFormattedOrderSetListWorkflow = createWorkflow(
         'updated_at',
         'created_at',
         'display_id',
+        'customer_id',
+        'customer.*',
+        'cart_id',
+        'cart.*',
         'orders.*',
         'orders.items.*'
       ])
     })
 
-    const { orderSets, count } = getOrderSetListStep({
-      fields: fields,
+    const orderSets = useRemoteQueryStep({
+      entry_point: 'order_set',
+      fields,
       variables: input.variables
     })
 
     const formattedOrderSets = transform(orderSets, formatOrderSets)
 
-    return new WorkflowResponse({ orderSets: formattedOrderSets, count })
+    return new WorkflowResponse(formattedOrderSets)
   }
 )

@@ -48,6 +48,7 @@ export const completeCartFields = [
   'items.*',
   'items.tax_lines.*',
   'items.adjustments.*',
+  'customer_id',
   'customer.*',
   'shipping_methods.*',
   'shipping_methods.tax_lines.*',

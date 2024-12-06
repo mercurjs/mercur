@@ -3,11 +3,7 @@ import OrderModule from '@medusajs/medusa/order'
 
 import MarketplaceModule from '../modules/marketplace'
 
-export default defineLink(
-  MarketplaceModule.linkable.orderSet,
-  OrderModule.linkable.order,
-  {
-    isList: true,
-    readOnly: true
-  }
-)
+export default defineLink(MarketplaceModule.linkable.orderSet, {
+  linkable: OrderModule.linkable.order,
+  isList: true
+})

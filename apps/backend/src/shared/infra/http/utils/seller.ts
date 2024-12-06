@@ -10,18 +10,14 @@ export const fetchSellerByAuthActorId = async (
 
   const {
     data: [seller]
-  } = await query.graph(
-    {
-      entity: 'seller',
-      filters: {
-        members: {
-          id: authActorId
-        }
-      },
-      fields
+  } = await query.graph({
+    entity: 'seller',
+    filters: {
+      members: {
+        id: authActorId
+      }
     },
-    { throwIfKeyNotFound: true }
-  )
-
+    fields
+  })
   return seller
 }

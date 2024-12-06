@@ -28,18 +28,16 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   {
     matcher: '/vendor/invites/accept',
     method: ['POST'],
-    middlewares: [
-      authenticate('seller', ['bearer', 'session'], {
-        allowUnregistered: true
-      })
-    ]
+    middlewares: [authenticate('seller', ['bearer', 'session'])]
   },
   {
     matcher: '/vendor/*',
     middlewares: [
       unlessBaseUrl(
         /^\/vendor\/(sellers|invites\/accept)$/,
-        authenticate('seller', ['bearer', 'session'])
+        authenticate('seller', ['bearer', 'session'], {
+          allowUnregistered: false
+        })
       )
     ]
   },

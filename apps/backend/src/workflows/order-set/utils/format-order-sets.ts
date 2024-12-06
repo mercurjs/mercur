@@ -1,10 +1,12 @@
 import {
   FormattedOrderSetDTO,
   OrderSetWithOrdersDTO
-} from 'src/modules/marketplace/types'
+} from '#/modules/marketplace/types'
 
 import {
   BigNumberInput,
+  CartDTO,
+  CustomerDTO,
   FulfillmentDTO,
   FulfillmentStatus,
   OrderAddressDTO,
@@ -20,6 +22,7 @@ import { MathBN } from '@medusajs/framework/utils'
 export const formatOrderSets = (
   orderSetsWithOrders: OrderSetWithOrdersDTO[]
 ): FormattedOrderSetDTO[] => {
+  console.log('orderSetsWithOrders', orderSetsWithOrders)
   return orderSetsWithOrders.map((orderSet) => new OrderSetFormatter(orderSet))
 }
 
@@ -43,7 +46,10 @@ class OrderSetFormatter {
   billing_address: OrderAddressDTO
 
   customer_id?: string
-  sales_channel_id?: string
+  customer?: CustomerDTO
+
+  cart_id: string
+  cart: CartDTO
 
   fulfillments: FulfillmentDTO[]
   shipping_methods: OrderShippingMethodDTO[]
@@ -75,9 +81,11 @@ class OrderSetFormatter {
     this.shipping_address = this.orders[0].shipping_address!
     this.billing_address = this.orders[0].billing_address!
 
-    this.customer_id = this.orders[0].customer_id
+    this.customer_id = this.orderSet_.customer_id
+    this.customer = this.orderSet_.customer
 
-    this.sales_channel_id = this.orders[0].sales_channel_id
+    this.cart_id = this.orderSet_.cart_id
+    this.cart = this.orderSet_.cart!
 
     this.fulfillments = this.getFulfillments_()
     this.shipping_methods = this.getShippingMethods_()
