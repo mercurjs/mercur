@@ -458,6 +458,16 @@ const UpdateProductVariant = z
  *   metadata:
  *     type: object
  *     description: Additional metadata for the product.
+ *   sales_channels:
+ *     type: array
+ *     description: Sales channels to associate the product with.
+ *     items:
+ *       type: object
+ *       required:
+ *         - id
+ *       properties:
+ *         id:
+ *           type: string
  */
 export type VendorCreateProductType = z.infer<typeof VendorCreateProduct>
 export const VendorCreateProduct = z
@@ -486,7 +496,8 @@ export const VendorCreateProduct = z
     mid_code: z.string().optional(),
     origin_country: z.string().optional(),
     material: z.string().optional(),
-    metadata: z.record(z.unknown()).optional()
+    metadata: z.record(z.unknown()).optional(),
+    sales_channels: z.array(z.object({ id: z.string() })).optional()
   })
   .strict()
 
@@ -609,6 +620,16 @@ export const VendorCreateProduct = z
  *     type: object
  *     nullable: true
  *     description: Additional metadata for the product.
+ *   sales_channels:
+ *     type: array
+ *     description: Sales channels to associate the product with.
+ *     items:
+ *       type: object
+ *       required:
+ *         - id
+ *       properties:
+ *         id:
+ *           type: string
  */
 export type VendorUpdateProductType = z.infer<typeof VendorUpdateProduct>
 export const VendorUpdateProduct = z
@@ -637,6 +658,7 @@ export const VendorUpdateProduct = z
     mid_code: z.string().nullish(),
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
-    metadata: z.record(z.unknown()).nullish()
+    metadata: z.record(z.unknown()).nullish(),
+    sales_channels: z.array(z.object({ id: z.string() })).optional()
   })
   .strict()
