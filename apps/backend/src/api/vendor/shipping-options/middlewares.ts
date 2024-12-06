@@ -7,7 +7,10 @@ import {
 import { MiddlewareRoute } from '@medusajs/medusa'
 
 import sellerShippingOptionLink from '../../../links/seller-shipping-option'
-import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
+import {
+  checkResourceOwnershipByResourceId,
+  filterBySellerId
+} from '../../../shared/infra/http/middlewares'
 import { vendorShippingOptionQueryConfig } from './query-config'
 import {
   VendorCreateShippingOption,
@@ -21,6 +24,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ['GET'],
     matcher: '/vendor/shipping-options',
     middlewares: [
+      filterBySellerId(),
       validateAndTransformQuery(
         VendorGetShippingOptionParams,
         vendorShippingOptionQueryConfig.list
