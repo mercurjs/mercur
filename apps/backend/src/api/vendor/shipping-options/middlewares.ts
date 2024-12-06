@@ -24,11 +24,11 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ['GET'],
     matcher: '/vendor/shipping-options',
     middlewares: [
-      filterBySellerId(),
       validateAndTransformQuery(
         VendorGetShippingOptionParams,
         vendorShippingOptionQueryConfig.list
-      )
+      ),
+      filterBySellerId()
     ]
   },
   {
