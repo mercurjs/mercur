@@ -135,7 +135,9 @@ export const GET = async (
 
   const { data: sellerShippingOptions, metadata } = await query.graph({
     entity: sellerShippingOption.entryPoint,
-    fields: req.remoteQueryConfig.fields.map((field) => `seller.${field}`),
+    fields: req.remoteQueryConfig.fields.map(
+      (field) => `shipping_option.${field}`
+    ),
     filters: req.filterableFields,
     pagination: req.remoteQueryConfig.pagination
   })
