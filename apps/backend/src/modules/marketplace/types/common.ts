@@ -2,15 +2,12 @@ import {
   BigNumberInput,
   CartDTO,
   CustomerDTO,
-  FulfillmentDTO,
   FulfillmentStatus,
-  OrderAddressDTO,
   OrderDTO,
   OrderDetailDTO,
-  OrderLineItemDTO,
-  OrderShippingMethodDTO,
   OrderStatus,
-  PaymentStatus
+  PaymentStatus,
+  SalesChannelDTO
 } from '@medusajs/framework/types'
 
 export type OrderSetDTO = {
@@ -22,6 +19,9 @@ export type OrderSetDTO = {
   customer?: CustomerDTO
   cart_id: string
   cart?: CartDTO
+
+  sales_channel_id?: string
+  sales_channel?: SalesChannelDTO
 }
 
 export type OrderSetWithOrdersDTO = OrderSetDTO & {
@@ -29,23 +29,9 @@ export type OrderSetWithOrdersDTO = OrderSetDTO & {
 }
 
 export type FormattedOrderSetDTO = OrderSetDTO & {
-  email: string
-  currency_code: string
-
   status: OrderStatus
   payment_status: PaymentStatus
   fulfillment_status: FulfillmentStatus
-
-  shipping_address: OrderAddressDTO
-  billing_address: OrderAddressDTO
-
-  customer_id?: string
-  sales_channel_id?: string
-
-  fulfillments: FulfillmentDTO[]
-  shipping_methods: OrderShippingMethodDTO[]
-
-  items: OrderLineItemDTO[]
 
   total: BigNumberInput
   tax_total: BigNumberInput

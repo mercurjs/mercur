@@ -202,7 +202,8 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
 
       const orderSet = createOrderSetStep({
         cart_id: cart.id,
-        customer_id: cart.customer_id
+        customer_id: cart.customer_id,
+        sales_channel_id: cart.sales_channel_id
       })
 
       const createdOrders = createOrdersStep(ordersToCreate)
