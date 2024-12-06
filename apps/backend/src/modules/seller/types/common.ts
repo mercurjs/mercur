@@ -20,10 +20,10 @@ export type MemberDTO = {
   created_at: Date
   updated_at: Date
   role: MemberRole
-  email: string
   name: string | null
   bio: string | null
   photo: string | null
+  phone: string | null
   seller?: Partial<SellerDTO>
 }
 

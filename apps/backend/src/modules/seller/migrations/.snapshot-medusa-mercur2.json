@@ -1,5 +1,7 @@
 {
-  "namespaces": ["public"],
+  "namespaces": [
+    "public"
+  ],
   "name": "public",
   "tables": [
     {
@@ -94,8 +96,18 @@
           "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_seller_handle_unique\" ON \"seller\" (handle) WHERE deleted_at IS NULL"
         },
         {
+          "keyName": "IDX_seller_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_seller_deleted_at\" ON \"seller\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "seller_pkey",
-          "columnNames": ["id"],
+          "columnNames": [
+            "id"
+          ],
           "composite": false,
           "primary": true,
           "unique": true
@@ -132,7 +144,11 @@
           "primary": false,
           "nullable": false,
           "default": "'owner'",
-          "enumItems": ["owner", "admin", "moderator"],
+          "enumItems": [
+            "owner",
+            "admin",
+            "member"
+          ],
           "mappedType": "enum"
         },
         "seller_id": {
@@ -218,8 +234,18 @@
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_invite_seller_id\" ON \"member_invite\" (seller_id) WHERE deleted_at IS NULL"
         },
         {
+          "keyName": "IDX_member_invite_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_invite_deleted_at\" ON \"member_invite\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "member_invite_pkey",
-          "columnNames": ["id"],
+          "columnNames": [
+            "id"
+          ],
           "composite": false,
           "primary": true,
           "unique": true
@@ -229,9 +255,13 @@
       "foreignKeys": {
         "member_invite_seller_id_foreign": {
           "constraintName": "member_invite_seller_id_foreign",
-          "columnNames": ["seller_id"],
+          "columnNames": [
+            "seller_id"
+          ],
           "localTableName": "public.member_invite",
-          "referencedColumnNames": ["id"],
+          "referencedColumnNames": [
+            "id"
+          ],
           "referencedTableName": "public.seller",
           "deleteRule": "cascade",
           "updateRule": "cascade"
@@ -249,15 +279,6 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
         "role": {
           "name": "role",
           "type": "text",
@@ -266,7 +287,11 @@
           "primary": false,
           "nullable": false,
           "default": "'owner'",
-          "enumItems": ["owner", "admin", "moderator"],
+          "enumItems": [
+            "owner",
+            "admin",
+            "member"
+          ],
           "mappedType": "enum"
         },
         "name": {
@@ -351,14 +376,6 @@
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_member_email_unique",
-          "columnNames": [],
-          "composite": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_member_email_unique\" ON \"member\" (email) WHERE deleted_at IS NULL"
-        },
-        {
           "keyName": "IDX_member_seller_id",
           "columnNames": [],
           "composite": false,
@@ -367,8 +384,18 @@
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_seller_id\" ON \"member\" (seller_id) WHERE deleted_at IS NULL"
         },
         {
+          "keyName": "IDX_member_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_deleted_at\" ON \"member\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "member_pkey",
-          "columnNames": ["id"],
+          "columnNames": [
+            "id"
+          ],
           "composite": false,
           "primary": true,
           "unique": true
@@ -378,9 +405,13 @@
       "foreignKeys": {
         "member_seller_id_foreign": {
           "constraintName": "member_seller_id_foreign",
-          "columnNames": ["seller_id"],
+          "columnNames": [
+            "seller_id"
+          ],
           "localTableName": "public.member",
-          "referencedColumnNames": ["id"],
+          "referencedColumnNames": [
+            "id"
+          ],
           "referencedTableName": "public.seller",
           "deleteRule": "cascade",
           "updateRule": "cascade"

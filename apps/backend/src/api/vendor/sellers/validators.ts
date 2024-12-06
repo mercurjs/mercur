@@ -59,13 +59,12 @@ export const VendorGetSellerParams = createSelectParams()
 export type VendorCreateSellerType = z.infer<typeof VendorCreateSeller>
 export const VendorCreateSeller = z
   .object({
-    name: z.preprocess((val: string) => val.trim(), z.string().min(1)),
+    name: z.preprocess((val: string) => val?.trim(), z.string().min(1)),
     description: z.string().nullish().optional(),
     photo: z.string().nullish().optional(),
     handle: z.string().min(4),
     member: z.object({
       name: z.string(),
-      email: z.string().email(),
       bio: z.string().nullish().optional(),
       phone: z.string().nullish().optional(),
       photo: z.string().nullish().optional()
