@@ -1,3 +1,5 @@
+import sellerShippingOption from '#/links/seller-shipping-option'
+
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createShippingOptionsWorkflow } from '@medusajs/medusa/core-flows'
@@ -131,15 +133,15 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: shippingOptions, metadata } = await query.graph({
-    entity: 'shipping_option',
-    fields: req.remoteQueryConfig.fields,
+  const { data: sellerShippingOptions, metadata } = await query.graph({
+    entity: sellerShippingOption.entryPoint,
+    fields: req.remoteQueryConfig.fields.map((field) => `seller.${field}`),
     filters: req.filterableFields,
     pagination: req.remoteQueryConfig.pagination
   })
 
   res.json({
-    shipping_options: shippingOptions,
+    shipping_options: sellerShippingOptions.map((rel) => rel.shipping_option),
     count: metadata!.count,
     offset: metadata!.skip,
     limit: metadata!.take
