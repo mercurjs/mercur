@@ -36,6 +36,16 @@ MedusaModule.setCustomLink({
         foreignKey: 'sales_channel_id',
         alias: 'sales_channel'
       }
+    },
+    {
+      serviceName: MARKETPLACE_MODULE,
+      relationship: {
+        serviceName: Modules.PAYMENT,
+        entity: 'PaymentCollection',
+        primaryKey: 'id',
+        foreignKey: 'payment_collection_id',
+        alias: 'payment_collection'
+      }
     }
   ]
 })

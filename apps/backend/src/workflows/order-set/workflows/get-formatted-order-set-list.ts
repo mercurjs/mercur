@@ -8,6 +8,7 @@ import { useRemoteQueryStep } from '@medusajs/medusa/core-flows'
 
 import { formatOrderSets } from '../utils'
 
+// TODO: fulfillment and payment status are not included in the children orders
 export const getFormattedOrderSetListWorkflow = createWorkflow(
   'get-formatted-order-set-list',
   function (input: { fields?: string[]; variables?: Record<string, any> }) {
@@ -22,11 +23,16 @@ export const getFormattedOrderSetListWorkflow = createWorkflow(
         'customer.*',
         'cart_id',
         'cart.*',
+        'payment_collection_id',
+        'payment_collection.*',
         'orders.id',
         'orders.currency_code',
         'orders.email',
         'orders.created_at',
         'orders.updated_at',
+        'orders.status',
+        'orders.payment_status',
+        'orders.fulfillment_status',
         'orders.completed_at',
         'orders.total',
         'orders.subtotal',

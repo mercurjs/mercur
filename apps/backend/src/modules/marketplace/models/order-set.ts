@@ -5,5 +5,6 @@ export const OrderSet = model.define('order_set', {
   display_id: model.number().nullable(),
   sales_channel_id: model.text(),
   cart_id: model.text(),
-  customer_id: model.text().nullable()
+  customer_id: model.text().nullable(),
+  payment_collection_id: model.text()
 })

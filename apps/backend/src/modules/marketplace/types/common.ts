@@ -6,6 +6,7 @@ import {
   OrderDTO,
   OrderDetailDTO,
   OrderStatus,
+  PaymentCollectionDTO,
   PaymentStatus,
   SalesChannelDTO
 } from '@medusajs/framework/types'
@@ -22,6 +23,9 @@ export type OrderSetDTO = {
 
   sales_channel_id?: string
   sales_channel?: SalesChannelDTO
+
+  payment_collection_id?: string
+  payment_collection?: PaymentCollectionDTO
 }
 
 export type OrderSetWithOrdersDTO = OrderSetDTO & {
