@@ -4,14 +4,21 @@ import {
   createWorkflow,
   transform
 } from '@medusajs/framework/workflows-sdk'
-import { useRemoteQueryStep } from '@medusajs/medusa/core-flows'
+import { useQueryGraphStep } from '@medusajs/medusa/core-flows'
 
 import { formatOrderSets } from '../utils'
 
-// TODO: fulfillment and payment status are not included in the children orders
 export const getFormattedOrderSetListWorkflow = createWorkflow(
   'get-formatted-order-set-list',
-  function (input: { fields?: string[]; variables?: Record<string, any> }) {
+  function (input: {
+    fields?: string[]
+    filters?: Record<string, any>
+    pagination?: {
+      skip: number
+      take?: number
+      order?: Record<string, any>
+    }
+  }) {
     const fields = transform(input, ({ fields }) => {
       return deduplicate([
         ...(fields ?? []),
@@ -30,10 +37,10 @@ export const getFormattedOrderSetListWorkflow = createWorkflow(
         'orders.email',
         'orders.created_at',
         'orders.updated_at',
+        'orders.completed_at',
         'orders.status',
         'orders.payment_status',
         'orders.fulfillment_status',
-        'orders.completed_at',
         'orders.total',
         'orders.subtotal',
         'orders.tax_total',
@@ -52,19 +59,19 @@ export const getFormattedOrderSetListWorkflow = createWorkflow(
         'orders.shipping_subtotal',
         'orders.shipping_tax_total',
         'orders.items.*',
-        'orders.customer_id',
         'orders.customer.*'
       ])
     })
 
-    const orderSets = useRemoteQueryStep({
-      entry_point: 'order_set',
+    const { data, metadata } = useQueryGraphStep({
+      entity: 'order_set',
       fields,
-      variables: input.variables
+      filters: input.filters,
+      pagination: input.pagination
     })
 
-    const formattedOrderSets = transform(orderSets, formatOrderSets)
+    const formattedOrderSets = transform(data, formatOrderSets)
 
-    return new WorkflowResponse(formattedOrderSets)
+    return new WorkflowResponse({ data: formattedOrderSets, metadata })
   }
 )

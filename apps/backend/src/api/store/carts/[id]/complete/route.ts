@@ -11,13 +11,13 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     context: { transactionId: cart_id }
   })
 
-  const { result: orderSets } = await getFormattedOrderSetListWorkflow(
-    req.scope
-  ).run({
-    input: { variables: { filters: { id: result.id } } }
+  const {
+    result: { data }
+  } = await getFormattedOrderSetListWorkflow(req.scope).run({
+    input: { filters: { id: result.id } }
   })
 
   res.json({
-    order_set: orderSets
+    order_set: data[0]
   })
 }
