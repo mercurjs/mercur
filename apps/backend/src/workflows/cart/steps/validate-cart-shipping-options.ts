@@ -55,13 +55,6 @@ export const validateCartShippingOptionsStep = createStep(
       }
     }
 
-    if (sellers.size !== sellerShippingOptions.length) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        'Every seller must have a single shipping option'
-      )
-    }
-
     return new StepResponse({
       sellerProducts,
       sellerShippingOptions
