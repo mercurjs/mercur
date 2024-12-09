@@ -5,7 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type VendorListServiceZonesParams = {
+export type VendorUpdateStockLocationSalesChannelsParams = {
 /**
  * The comma-separated fields to include in the response
  */

@@ -8,6 +8,7 @@ import type { VendorCreateProductCategoriesItem } from './vendorCreateProductCat
 import type { VendorCreateProductImagesItem } from './vendorCreateProductImagesItem';
 import type { VendorCreateProductMetadata } from './vendorCreateProductMetadata';
 import type { CreateProductOption } from './createProductOption';
+import type { VendorCreateProductSalesChannelsItem } from './vendorCreateProductSalesChannelsItem';
 import type { VendorCreateProductStatus } from './vendorCreateProductStatus';
 import type { VendorCreateProductTagsItem } from './vendorCreateProductTagsItem';
 import type { CreateProductVariant } from './createProductVariant';
@@ -45,6 +46,8 @@ export interface VendorCreateProduct {
   options?: CreateProductOption[];
   /** The country of origin of the product. */
   origin_country?: string;
+  /** Sales channels to associate the product with. */
+  sales_channels?: VendorCreateProductSalesChannelsItem[];
   /** The status of the product. */
   status?: VendorCreateProductStatus;
   /** The subtitle of the product. */

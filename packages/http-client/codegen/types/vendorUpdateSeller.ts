@@ -15,13 +15,8 @@ export interface VendorUpdateSeller {
    */
   description?: string | null;
   /**
-   * A unique handle for the seller.
-   * @minLength 1
-   */
-  handle?: string;
-  /**
    * The name of the seller.
-   * @minLength 1
+   * @minLength 4
    */
   name?: string;
   /**

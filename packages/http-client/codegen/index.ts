@@ -340,6 +340,7 @@ import type {
   AdminPostOrdersIdFulfillmentsFulfillmentIdShipmentsBody,
   AdminPostOrdersIdFulfillmentsFulfillmentIdShipmentsParams,
   AdminPostOrdersIdFulfillmentsParams,
+  AdminPostOrdersIdParams,
   AdminPostOrdersIdTransferCancelParams,
   AdminPostOrdersIdTransferParams,
   AdminPostPaymentCollectionsBody,
@@ -519,6 +520,7 @@ import type {
   AdminUpdateApiKey,
   AdminUpdateCollection,
   AdminUpdateCustomerGroup,
+  AdminUpdateOrder,
   AdminUpdatePriceList,
   AdminUpdatePricePreference,
   AdminUpdateReturnReason,
@@ -640,9 +642,16 @@ import type {
   VendorCreateSeller,
   VendorCreateSeller201,
   VendorCreateServiceZone,
-  VendorCreateServiceZone201,
+  VendorCreateServiceZone200,
   VendorCreateShippingOption,
   VendorCreateShippingOption201,
+  VendorCreateStockLocation,
+  VendorCreateStockLocation201,
+  VendorCreateStockLocationFulfillmentSet,
+  VendorCreateStockLocationFulfillmentSet200,
+  VendorCreateStockLocationFulfillmentSetParams,
+  VendorCreateStockLocationParams,
+  VendorDeleteFulfillmentSet200,
   VendorDeleteMemberById200,
   VendorDeleteProductById200,
   VendorDeleteServiceZoneById200,
@@ -652,8 +661,9 @@ import type {
   VendorGetProductById200,
   VendorGetProductByIdParams,
   VendorGetSellerById200,
-  VendorGetServiceZoneById200,
   VendorGetShippingOptionById200,
+  VendorGetStockLocation200,
+  VendorGetStockLocationParams,
   VendorInviteMember,
   VendorListInvites200,
   VendorListInvitesParams,
@@ -661,8 +671,6 @@ import type {
   VendorListMembersParams,
   VendorListProducts200,
   VendorListProductsParams,
-  VendorListServiceZones200,
-  VendorListServiceZonesParams,
   VendorListShippingOptions200,
   VendorListStockLocations200,
   VendorListStockLocationsParams,
@@ -676,7 +684,16 @@ import type {
   VendorUpdateServiceZone,
   VendorUpdateServiceZoneById200,
   VendorUpdateShippingOption,
-  VendorUpdateShippingOptionById200
+  VendorUpdateShippingOptionById200,
+  VendorUpdateStockLocation,
+  VendorUpdateStockLocation200,
+  VendorUpdateStockLocationFulfillmentProviders200,
+  VendorUpdateStockLocationFulfillmentProvidersBody,
+  VendorUpdateStockLocationFulfillmentProvidersParams,
+  VendorUpdateStockLocationParams,
+  VendorUpdateStockLocationSalesChannels200,
+  VendorUpdateStockLocationSalesChannelsBody,
+  VendorUpdateStockLocationSalesChannelsParams
 } from './types'
 import { customFetch } from '../src/index';
 
@@ -5107,6 +5124,46 @@ export const adminGetOrdersId = async (id: string,
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * Update an order's details.
+ * @summary Update Order
+ */
+export type adminPostOrdersIdResponse = {
+  data: AdminOrderResponse;
+  status: number;
+  headers: Headers;
+}
+
+export const getAdminPostOrdersIdUrl = (id: string,
+    params?: AdminPostOrdersIdParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}`
+}
+
+export const adminPostOrdersId = async (id: string,
+    adminUpdateOrder: AdminUpdateOrder,
+    params?: AdminPostOrdersIdParams, options?: RequestInit): Promise<adminPostOrdersIdResponse> => {
+  
+  return customFetch<Promise<adminPostOrdersIdResponse>>(getAdminPostOrdersIdUrl(id,params),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      adminUpdateOrder,)
   }
 );}
 
@@ -14047,6 +14104,130 @@ export const postVendorTypeAuthProviderRegister = async (authProvider: string,
 
 
 /**
+ * Deletes a Fulfillment Set.
+ * @summary Delete a Fulfillment Set
+ */
+export type vendorDeleteFulfillmentSetResponse = {
+  data: VendorDeleteFulfillmentSet200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorDeleteFulfillmentSetUrl = (id: string,) => {
+
+
+  return `http://localhost:3000/vendor/fulfillment-sets/${id}`
+}
+
+export const vendorDeleteFulfillmentSet = async (id: string, options?: RequestInit): Promise<vendorDeleteFulfillmentSetResponse> => {
+  
+  return customFetch<Promise<vendorDeleteFulfillmentSetResponse>>(getVendorDeleteFulfillmentSetUrl(id),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Creates a Service Zone.
+ * @summary Create a Service Zone
+ */
+export type vendorCreateServiceZoneResponse = {
+  data: VendorCreateServiceZone200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorCreateServiceZoneUrl = (id: string,) => {
+
+
+  return `http://localhost:3000/vendor/fulfillment-sets/${id}/service-zones`
+}
+
+export const vendorCreateServiceZone = async (id: string,
+    vendorCreateServiceZone: VendorCreateServiceZone, options?: RequestInit): Promise<vendorCreateServiceZoneResponse> => {
+  
+  return customFetch<Promise<vendorCreateServiceZoneResponse>>(getVendorCreateServiceZoneUrl(id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorCreateServiceZone,)
+  }
+);}
+
+
+
+/**
+ * Updates a Service Zone.
+ * @summary Update a Service Zone
+ */
+export type vendorUpdateServiceZoneByIdResponse = {
+  data: VendorUpdateServiceZoneById200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorUpdateServiceZoneByIdUrl = (id: string,
+    zoneId: string,) => {
+
+
+  return `http://localhost:3000/vendor/fulfillment-sets/${id}/service-zones/${zoneId}`
+}
+
+export const vendorUpdateServiceZoneById = async (id: string,
+    zoneId: string,
+    vendorUpdateServiceZone: VendorUpdateServiceZone, options?: RequestInit): Promise<vendorUpdateServiceZoneByIdResponse> => {
+  
+  return customFetch<Promise<vendorUpdateServiceZoneByIdResponse>>(getVendorUpdateServiceZoneByIdUrl(id,zoneId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorUpdateServiceZone,)
+  }
+);}
+
+
+
+/**
+ * Deletes a Service Zone.
+ * @summary Delete a Service Zone
+ */
+export type vendorDeleteServiceZoneByIdResponse = {
+  data: VendorDeleteServiceZoneById200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorDeleteServiceZoneByIdUrl = (id: string,
+    zoneId: string,) => {
+
+
+  return `http://localhost:3000/vendor/fulfillment-sets/${id}/service-zones/${zoneId}`
+}
+
+export const vendorDeleteServiceZoneById = async (id: string,
+    zoneId: string, options?: RequestInit): Promise<vendorDeleteServiceZoneByIdResponse> => {
+  
+  return customFetch<Promise<vendorDeleteServiceZoneByIdResponse>>(getVendorDeleteServiceZoneByIdUrl(id,zoneId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
  * Retrieves a list of member invites for the authenticated vendor.
  * @summary List Member Invites
  */
@@ -14560,161 +14741,6 @@ export const vendorUpdateSellerById = async (vendorUpdateSeller: VendorUpdateSel
 
 
 /**
- * Retrieves a list of service zones for the authenticated vendor.
- * @summary List Service Zones
- */
-export type vendorListServiceZonesResponse = {
-  data: VendorListServiceZones200;
-  status: number;
-  headers: Headers;
-}
-
-export const getVendorListServiceZonesUrl = (params?: VendorListServiceZonesParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  return normalizedParams.size ? `http://localhost:3000/vendor/service-zones?${normalizedParams.toString()}` : `http://localhost:3000/vendor/service-zones`
-}
-
-export const vendorListServiceZones = async (params?: VendorListServiceZonesParams, options?: RequestInit): Promise<vendorListServiceZonesResponse> => {
-  
-  return customFetch<Promise<vendorListServiceZonesResponse>>(getVendorListServiceZonesUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * Creates a new service zone for the authenticated vendor.
- * @summary Create a Service Zone
- */
-export type vendorCreateServiceZoneResponse = {
-  data: VendorCreateServiceZone201;
-  status: number;
-  headers: Headers;
-}
-
-export const getVendorCreateServiceZoneUrl = () => {
-
-
-  return `http://localhost:3000/vendor/service-zones`
-}
-
-export const vendorCreateServiceZone = async (vendorCreateServiceZone: VendorCreateServiceZone, options?: RequestInit): Promise<vendorCreateServiceZoneResponse> => {
-  
-  return customFetch<Promise<vendorCreateServiceZoneResponse>>(getVendorCreateServiceZoneUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      vendorCreateServiceZone,)
-  }
-);}
-
-
-
-/**
- * Retrieves a service zone by its ID.
- * @summary Get a Service Zone
- */
-export type vendorGetServiceZoneByIdResponse = {
-  data: VendorGetServiceZoneById200;
-  status: number;
-  headers: Headers;
-}
-
-export const getVendorGetServiceZoneByIdUrl = (id: string,) => {
-
-
-  return `http://localhost:3000/vendor/service-zones/${id}`
-}
-
-export const vendorGetServiceZoneById = async (id: string, options?: RequestInit): Promise<vendorGetServiceZoneByIdResponse> => {
-  
-  return customFetch<Promise<vendorGetServiceZoneByIdResponse>>(getVendorGetServiceZoneByIdUrl(id),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * Updates a Service Zone.
- * @summary Update a Service Zone
- */
-export type vendorUpdateServiceZoneByIdResponse = {
-  data: VendorUpdateServiceZoneById200;
-  status: number;
-  headers: Headers;
-}
-
-export const getVendorUpdateServiceZoneByIdUrl = (id: string,) => {
-
-
-  return `http://localhost:3000/vendor/service-zones/${id}`
-}
-
-export const vendorUpdateServiceZoneById = async (id: string,
-    vendorUpdateServiceZone: VendorUpdateServiceZone, options?: RequestInit): Promise<vendorUpdateServiceZoneByIdResponse> => {
-  
-  return customFetch<Promise<vendorUpdateServiceZoneByIdResponse>>(getVendorUpdateServiceZoneByIdUrl(id),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      vendorUpdateServiceZone,)
-  }
-);}
-
-
-
-/**
- * Deletes a Service Zone.
- * @summary Delete a Service Zone
- */
-export type vendorDeleteServiceZoneByIdResponse = {
-  data: VendorDeleteServiceZoneById200;
-  status: number;
-  headers: Headers;
-}
-
-export const getVendorDeleteServiceZoneByIdUrl = (id: string,) => {
-
-
-  return `http://localhost:3000/vendor/service-zones/${id}`
-}
-
-export const vendorDeleteServiceZoneById = async (id: string, options?: RequestInit): Promise<vendorDeleteServiceZoneByIdResponse> => {
-  
-  return customFetch<Promise<vendorDeleteServiceZoneByIdResponse>>(getVendorDeleteServiceZoneByIdUrl(id),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-);}
-
-
-
-/**
  * Retrieves a list of Shipping Options for a Service Zone.
  * @summary List Shipping Options
  */
@@ -14784,17 +14810,15 @@ export type vendorGetShippingOptionByIdResponse = {
   headers: Headers;
 }
 
-export const getVendorGetShippingOptionByIdUrl = (id: string,
-    optionId: string,) => {
+export const getVendorGetShippingOptionByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/service-zones/${id}/shipping-options/${optionId}`
+  return `http://localhost:3000/vendor/shipping-options/${id}`
 }
 
-export const vendorGetShippingOptionById = async (id: string,
-    optionId: string, options?: RequestInit): Promise<vendorGetShippingOptionByIdResponse> => {
+export const vendorGetShippingOptionById = async (id: string, options?: RequestInit): Promise<vendorGetShippingOptionByIdResponse> => {
   
-  return customFetch<Promise<vendorGetShippingOptionByIdResponse>>(getVendorGetShippingOptionByIdUrl(id,optionId),
+  return customFetch<Promise<vendorGetShippingOptionByIdResponse>>(getVendorGetShippingOptionByIdUrl(id),
   {      
     ...options,
     method: 'GET'
@@ -14815,18 +14839,16 @@ export type vendorUpdateShippingOptionByIdResponse = {
   headers: Headers;
 }
 
-export const getVendorUpdateShippingOptionByIdUrl = (id: string,
-    optionId: string,) => {
+export const getVendorUpdateShippingOptionByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/service-zones/${id}/shipping-options/${optionId}`
+  return `http://localhost:3000/vendor/shipping-options/${id}`
 }
 
 export const vendorUpdateShippingOptionById = async (id: string,
-    optionId: string,
     vendorUpdateShippingOption: VendorUpdateShippingOption, options?: RequestInit): Promise<vendorUpdateShippingOptionByIdResponse> => {
   
-  return customFetch<Promise<vendorUpdateShippingOptionByIdResponse>>(getVendorUpdateShippingOptionByIdUrl(id,optionId),
+  return customFetch<Promise<vendorUpdateShippingOptionByIdResponse>>(getVendorUpdateShippingOptionByIdUrl(id),
   {      
     ...options,
     method: 'POST',
@@ -14848,17 +14870,15 @@ export type vendorDeleteShippingOptionByIdResponse = {
   headers: Headers;
 }
 
-export const getVendorDeleteShippingOptionByIdUrl = (id: string,
-    optionId: string,) => {
+export const getVendorDeleteShippingOptionByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/service-zones/${id}/shipping-options/${optionId}`
+  return `http://localhost:3000/vendor/shipping-options/${id}`
 }
 
-export const vendorDeleteShippingOptionById = async (id: string,
-    optionId: string, options?: RequestInit): Promise<vendorDeleteShippingOptionByIdResponse> => {
+export const vendorDeleteShippingOptionById = async (id: string, options?: RequestInit): Promise<vendorDeleteShippingOptionByIdResponse> => {
   
-  return customFetch<Promise<vendorDeleteShippingOptionByIdResponse>>(getVendorDeleteShippingOptionByIdUrl(id,optionId),
+  return customFetch<Promise<vendorDeleteShippingOptionByIdResponse>>(getVendorDeleteShippingOptionByIdUrl(id),
   {      
     ...options,
     method: 'DELETE'
@@ -14900,6 +14920,242 @@ export const vendorListStockLocations = async (params?: VendorListStockLocations
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * Creates a Stock Location.
+ * @summary Create a Stock Location
+ */
+export type vendorCreateStockLocationResponse = {
+  data: VendorCreateStockLocation201;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorCreateStockLocationUrl = (params?: VendorCreateStockLocationParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations`
+}
+
+export const vendorCreateStockLocation = async (vendorCreateStockLocation: VendorCreateStockLocation,
+    params?: VendorCreateStockLocationParams, options?: RequestInit): Promise<vendorCreateStockLocationResponse> => {
+  
+  return customFetch<Promise<vendorCreateStockLocationResponse>>(getVendorCreateStockLocationUrl(params),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorCreateStockLocation,)
+  }
+);}
+
+
+
+/**
+ * Retrieves a Stock Location by id.
+ * @summary Get Stock Location
+ */
+export type vendorGetStockLocationResponse = {
+  data: VendorGetStockLocation200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorGetStockLocationUrl = (id: string,
+    params?: VendorGetStockLocationParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}`
+}
+
+export const vendorGetStockLocation = async (id: string,
+    params?: VendorGetStockLocationParams, options?: RequestInit): Promise<vendorGetStockLocationResponse> => {
+  
+  return customFetch<Promise<vendorGetStockLocationResponse>>(getVendorGetStockLocationUrl(id,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Updates a Stock Location.
+ * @summary Update Stock Location
+ */
+export type vendorUpdateStockLocationResponse = {
+  data: VendorUpdateStockLocation200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorUpdateStockLocationUrl = (id: string,
+    params?: VendorUpdateStockLocationParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}`
+}
+
+export const vendorUpdateStockLocation = async (id: string,
+    vendorUpdateStockLocation: VendorUpdateStockLocation,
+    params?: VendorUpdateStockLocationParams, options?: RequestInit): Promise<vendorUpdateStockLocationResponse> => {
+  
+  return customFetch<Promise<vendorUpdateStockLocationResponse>>(getVendorUpdateStockLocationUrl(id,params),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorUpdateStockLocation,)
+  }
+);}
+
+
+
+/**
+ * Updates the fulfillment providers of a Stock Location.
+ * @summary Update Stock Location Fulfillment Providers
+ */
+export type vendorUpdateStockLocationFulfillmentProvidersResponse = {
+  data: VendorUpdateStockLocationFulfillmentProviders200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorUpdateStockLocationFulfillmentProvidersUrl = (id: string,
+    params?: VendorUpdateStockLocationFulfillmentProvidersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}/fulfillment-providers?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}/fulfillment-providers`
+}
+
+export const vendorUpdateStockLocationFulfillmentProviders = async (id: string,
+    vendorUpdateStockLocationFulfillmentProvidersBody: VendorUpdateStockLocationFulfillmentProvidersBody,
+    params?: VendorUpdateStockLocationFulfillmentProvidersParams, options?: RequestInit): Promise<vendorUpdateStockLocationFulfillmentProvidersResponse> => {
+  
+  return customFetch<Promise<vendorUpdateStockLocationFulfillmentProvidersResponse>>(getVendorUpdateStockLocationFulfillmentProvidersUrl(id,params),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorUpdateStockLocationFulfillmentProvidersBody,)
+  }
+);}
+
+
+
+/**
+ * Creates a Fulfillment Set for a Stock Location.
+ * @summary Create a Fulfillment Set
+ */
+export type vendorCreateStockLocationFulfillmentSetResponse = {
+  data: VendorCreateStockLocationFulfillmentSet200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorCreateStockLocationFulfillmentSetUrl = (id: string,
+    params?: VendorCreateStockLocationFulfillmentSetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}/fulfillment-sets?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}/fulfillment-sets`
+}
+
+export const vendorCreateStockLocationFulfillmentSet = async (id: string,
+    vendorCreateStockLocationFulfillmentSet: VendorCreateStockLocationFulfillmentSet,
+    params?: VendorCreateStockLocationFulfillmentSetParams, options?: RequestInit): Promise<vendorCreateStockLocationFulfillmentSetResponse> => {
+  
+  return customFetch<Promise<vendorCreateStockLocationFulfillmentSetResponse>>(getVendorCreateStockLocationFulfillmentSetUrl(id,params),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorCreateStockLocationFulfillmentSet,)
+  }
+);}
+
+
+
+/**
+ * Updates the sales channels of a Stock Location.
+ * @summary Update Stock Location Sales Channels
+ */
+export type vendorUpdateStockLocationSalesChannelsResponse = {
+  data: VendorUpdateStockLocationSalesChannels200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorUpdateStockLocationSalesChannelsUrl = (id: string,
+    params?: VendorUpdateStockLocationSalesChannelsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}/sales-channels?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}/sales-channels`
+}
+
+export const vendorUpdateStockLocationSalesChannels = async (id: string,
+    vendorUpdateStockLocationSalesChannelsBody: VendorUpdateStockLocationSalesChannelsBody,
+    params?: VendorUpdateStockLocationSalesChannelsParams, options?: RequestInit): Promise<vendorUpdateStockLocationSalesChannelsResponse> => {
+  
+  return customFetch<Promise<vendorUpdateStockLocationSalesChannelsResponse>>(getVendorUpdateStockLocationSalesChannelsUrl(id,params),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorUpdateStockLocationSalesChannelsBody,)
   }
 );}
 

@@ -8,6 +8,7 @@ import type { VendorUpdateProductCategoriesItem } from './vendorUpdateProductCat
 import type { VendorUpdateProductImagesItem } from './vendorUpdateProductImagesItem';
 import type { VendorUpdateProductMetadata } from './vendorUpdateProductMetadata';
 import type { UpdateProductOption } from './updateProductOption';
+import type { VendorUpdateProductSalesChannelsItem } from './vendorUpdateProductSalesChannelsItem';
 import type { VendorUpdateProductStatus } from './vendorUpdateProductStatus';
 import type { VendorUpdateProductTagsItem } from './vendorUpdateProductTagsItem';
 import type { UpdateProductVariant } from './updateProductVariant';
@@ -78,6 +79,8 @@ export interface VendorUpdateProduct {
    * @nullable
    */
   origin_country?: string | null;
+  /** Sales channels to associate the product with. */
+  sales_channels?: VendorUpdateProductSalesChannelsItem[];
   /** The status of the product. */
   status?: VendorUpdateProductStatus;
   /**

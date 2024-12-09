@@ -6,6 +6,7 @@
  */
 
 /**
- * The calculated price's details.
+ * Additional metadata
+ * @nullable
  */
-export type BaseCalculatedPriceSetCalculatedPrice = { [key: string]: unknown };
+export type VendorUpdateStockLocationMetadata = { [key: string]: unknown } | null;

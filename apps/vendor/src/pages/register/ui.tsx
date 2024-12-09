@@ -29,7 +29,7 @@ const registerSchema = z.object({
   })
 })
 
-const LoginPage = () => {
+export const RegisterPage = () => {
   const { mutateAsync } = useCreateSeller()
 
   const form = useForm<z.infer<typeof registerSchema>>({
@@ -90,5 +90,3 @@ const LoginPage = () => {
     </div>
   )
 }
-
-export default LoginPage

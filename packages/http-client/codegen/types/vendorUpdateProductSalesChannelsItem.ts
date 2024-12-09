@@ -5,7 +5,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type VendorUpdateServiceZoneGeoZonesItemOneOfFiveAllOf = {
-  /** The ID of the geo zone. */
-  id?: string;
+export type VendorUpdateProductSalesChannelsItem = {
+  id: string;
 };

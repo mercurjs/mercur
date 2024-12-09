@@ -6,5 +6,6 @@
  */
 
 export type VendorUpdateServiceZoneGeoZonesItemOneOfAllOf = {
+  /** The ID of the geo zone. */
   id?: string;
 };

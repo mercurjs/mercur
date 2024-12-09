@@ -6,6 +6,6 @@
  */
 import type { VendorFulfillmentSet } from './vendorFulfillmentSet';
 
-export type VendorUpdateServiceZoneById200 = {
+export type VendorCreateServiceZone200 = {
   fulfillment_set?: VendorFulfillmentSet;
 };

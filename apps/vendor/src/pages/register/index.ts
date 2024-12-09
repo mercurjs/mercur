@@ -1,1 +1,1 @@
-export * from './ui.async'
+export * from './ui'

@@ -7,9 +7,7 @@
 import type { VendorCreateServiceZoneGeoZonesItem } from './vendorCreateServiceZoneGeoZonesItem';
 
 export interface VendorCreateServiceZone {
-  /** The ID of the fulfillment set. */
-  fulfillment_set_id: string;
-  /** The geo zones associated with the service zone. */
+  /** The geo zones that belong to the service zone. */
   geo_zones?: VendorCreateServiceZoneGeoZonesItem[];
   /** The name of the service zone. */
   name: string;

@@ -11,8 +11,6 @@ export type VendorCreateSellerMember = {
    * @nullable
    */
   bio?: string | null;
-  /** The email of the member. */
-  email: string;
   /** The name of the member. */
   name: string;
   /**

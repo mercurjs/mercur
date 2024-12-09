@@ -1,16 +1,13 @@
 import { Redirect, Route, Switch } from 'wouter'
 import { ProtectedRoute } from './protected-route'
-import { RegisterPageAsync } from '@/pages/register'
-import { Suspense } from 'react'
+import { RegisterPage } from '@/pages/register'
 
 export const AppRouter = () => {
   return (
     <Switch>
       {/* Public routes */}
       <Route path="/login">
-        <Suspense fallback={null}>
-          <RegisterPageAsync />
-        </Suspense>
+        <RegisterPage />
       </Route>
       <Route path="/register" component={Register} />
 

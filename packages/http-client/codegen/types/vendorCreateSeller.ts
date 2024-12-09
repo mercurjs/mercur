@@ -12,11 +12,6 @@ export interface VendorCreateSeller {
    * @nullable
    */
   description?: string | null;
-  /**
-   * A unique handle for the seller.
-   * @minLength 4
-   */
-  handle: string;
   member: VendorCreateSellerMember;
   /**
    * The name of the seller.

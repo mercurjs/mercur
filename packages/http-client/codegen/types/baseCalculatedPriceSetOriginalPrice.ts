@@ -8,15 +8,4 @@
 /**
  * The original price's details.
  */
-export type BaseCalculatedPriceSetOriginalPrice = {
-  /** The ID of the price. */
-  id: string;
-  /** The maximum quantity allowed in the cart for this price to apply. */
-  max_quantity: number;
-  /** The minimum quantity required in the cart for this price to apply. */
-  min_quantity: number;
-  /** The ID of the associated price list. */
-  price_list_id: string;
-  /** The price list's type. For example, sale. */
-  price_list_type: string;
-};
+export type BaseCalculatedPriceSetOriginalPrice = { [key: string]: unknown };
