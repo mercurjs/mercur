@@ -17,6 +17,12 @@ import { VendorUpdateServiceZoneType } from '../../../validators'
  *   - in: path
  *     name: id
  *     required: true
+ *     description: The ID of the Fulfillment Set.
+ *     schema:
+ *       type: string
+ *   - in: path
+ *     name: zone_id
+ *     required: true
  *     description: The ID of the Service Zone.
  *     schema:
  *       type: string
@@ -81,6 +87,12 @@ export const POST = async (
  * parameters:
  *   - in: path
  *     name: id
+ *     required: true
+ *     description: The ID of the Fulfillment Set.
+ *     schema:
+ *       type: string
+ *   - in: path
+ *     name: zone_id
  *     required: true
  *     description: The ID of the Service Zone.
  *     schema:

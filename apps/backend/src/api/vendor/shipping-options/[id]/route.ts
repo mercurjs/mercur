@@ -18,6 +18,8 @@ import { VendorUpdateShippingOptionType } from '../validators'
  *     name: id
  *     required: true
  *     description: The ID of the Shipping Option.
+ *     schema:
+ *       type: string
  * responses:
  *   "200":
  *     description: OK
@@ -65,6 +67,8 @@ export const GET = async (
  *     name: id
  *     required: true
  *     description: The ID of the Shipping Option.
+ *     schema:
+ *       type: string
  * requestBody:
  *   content:
  *     application/json:
@@ -121,6 +125,8 @@ export const POST = async (
  *     name: id
  *     required: true
  *     description: The ID of the Shipping Option.
+ *     schema:
+ *       type: string
  * responses:
  *   "200":
  *     description: OK
