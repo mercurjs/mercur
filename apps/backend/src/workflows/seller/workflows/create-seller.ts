@@ -9,7 +9,7 @@ import { createSellerStep } from '../steps'
 type CreateSellerWorkflowInput = {
   seller: CreateSellerDTO
   member: Omit<CreateMemberDTO, 'seller_id'>
-  authIdentityId: string
+  auth_identity_id: string
 }
 
 export const createSellerWorkflow = createWorkflow(
@@ -28,7 +28,7 @@ export const createSellerWorkflow = createWorkflow(
     const member = createMemberStep(memberInput)
 
     setAuthAppMetadataStep({
-      authIdentityId: input.authIdentityId,
+      authIdentityId: input.auth_identity_id,
       actorType: 'seller',
       value: member.id
     })

@@ -53,7 +53,7 @@ export const POST = async (
     input: {
       seller: sellerData,
       member,
-      authIdentityId: req.auth_context?.auth_identity_id
+      auth_identity_id: req.auth_context?.auth_identity_id
     }
   })
 

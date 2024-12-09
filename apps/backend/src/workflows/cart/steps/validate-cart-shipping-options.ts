@@ -1,7 +1,6 @@
 import sellerProductLink from '#/links/seller-product'
 import sellerShippingOptionLink from '#/links/seller-shipping-option'
 
-import { CartDTO } from '@medusajs/framework/types'
 import {
   ContainerRegistrationKeys,
   MedusaError,
@@ -9,14 +8,23 @@ import {
 } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-type ValidateCartShippingMethodsInput = {
-  cart: CartDTO
+type ValidateCartShippingOptionsInput = {
+  cart_id: string
+  option_ids: string[]
 }
 
-export const validateCartShippingMethodsStep = createStep(
-  'validate-cart-shipping-methods',
-  async (input: ValidateCartShippingMethodsInput, { container }) => {
+export const validateCartShippingOptionsStep = createStep(
+  'validate-cart-shipping-options',
+  async (input: ValidateCartShippingOptionsInput, { container }) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+    const {
+      data: [cart]
+    } = await query.graph({
+      entity: 'cart',
+      fields: ['id', 'items.product_id'],
+      filters: { id: input.cart_id }
+    })
 
     const [{ data: sellerProducts }, { data: sellerShippingOptions }] =
       await promiseAll([
@@ -24,16 +32,14 @@ export const validateCartShippingMethodsStep = createStep(
           entity: sellerProductLink.entryPoint,
           fields: ['seller_id', 'product_id'],
           filters: {
-            product_id: input.cart.items!.map((item) => item.product_id)
+            product_id: cart.items.map((item) => item.product_id)
           }
         }),
         query.graph({
           entity: sellerShippingOptionLink.entryPoint,
           fields: ['seller_id', 'shipping_option_id'],
           filters: {
-            shipping_option_id: input.cart.shipping_methods!.map(
-              (sm) => sm.shipping_option_id
-            )
+            shipping_option_id: input.option_ids
           }
         })
       ])

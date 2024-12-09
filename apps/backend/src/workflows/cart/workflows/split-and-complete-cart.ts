@@ -21,7 +21,7 @@ import {
 import { CartShippingMethodDTO } from '@medusajs/types/dist/cart'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { createOrderSetStep, validateCartShippingMethodsStep } from '../steps'
+import { createOrderSetStep, validateCartShippingOptionsStep } from '../steps'
 import {
   completeCartFields,
   prepareConfirmInventoryInput,
@@ -64,8 +64,18 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         list: false
       }).config({ name: 'cart-query' })
 
+      const validateCartShippingOptionsInput = transform(
+        { cart },
+        ({ cart }) => ({
+          cart_id: cart.id,
+          option_ids: cart.shipping_methods.map(
+            (method) => method.shipping_option_id
+          )
+        })
+      )
+
       const { sellerProducts, sellerShippingOptions } =
-        validateCartShippingMethodsStep({ cart })
+        validateCartShippingOptionsStep(validateCartShippingOptionsInput)
 
       const paymentSessions = validateCartPaymentsStep({ cart })
 

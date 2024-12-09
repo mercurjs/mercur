@@ -14,7 +14,7 @@ createProductsWorkflow.hooks.productsCreated(
 
     const remoteLinks = products.map((product) => ({
       [SELLER_MODULE]: {
-        seller_id: additional_data.sellerId
+        seller_id: additional_data.seller_id
       },
       [Modules.PRODUCT]: {
         product_id: product.id

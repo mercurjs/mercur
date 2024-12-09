@@ -138,7 +138,7 @@ export const POST = async (
         }
       ],
       additional_data: {
-        sellerId: seller.id
+        seller_id: seller.id
       }
     }
   })

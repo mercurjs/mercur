@@ -8,6 +8,8 @@ import {
   useQueryGraphStep
 } from '@medusajs/medusa/core-flows'
 
+import { validateCartShippingOptionsStep } from '../steps'
+
 type AddSellerShippingMethodToCartWorkflowInput = {
   cart_id: string
   option: {
@@ -27,6 +29,19 @@ export const addSellerShippingMethodToCartWorkflow = createWorkflow(
       fields: ['id', 'shipping_methods.*'],
       options: { throwIfKeyNotFound: true }
     }).config({ name: 'cart-query' })
+
+    const validateCartShippingOptionsInput = transform(
+      { carts, option: input.option },
+      ({ carts: [cart], option }) => ({
+        cart_id: cart.id,
+        option_ids: [
+          ...cart.shipping_methods.map((method) => method.shipping_option_id),
+          option.id
+        ]
+      })
+    )
+
+    validateCartShippingOptionsStep(validateCartShippingOptionsInput)
 
     const addShippingMethodToCartInput = transform(
       input,
