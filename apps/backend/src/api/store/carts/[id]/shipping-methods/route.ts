@@ -1,16 +1,34 @@
-import { addShippingMethodToCartWithourReplacementWorkflow } from '#/workflows/cart/workflows/add-shipping-method-to-cart'
+import { addSellerShippingMethodToCartWorkflow } from '#/workflows/cart/workflows'
 
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { StoreAddCartShippingMethodsType } from '@medusajs/medusa/api/store/carts/validators'
 
-export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-  const payload = req.body
+export const POST = async (
+  req: MedusaRequest<StoreAddCartShippingMethodsType>,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  await addShippingMethodToCartWithourReplacementWorkflow(req.scope).run({
+  await addSellerShippingMethodToCartWorkflow(req.scope).run({
     input: {
-      options: [{ id: payload.option_id, data: payload.data }],
-      cart_id: req.params.id
+      cart_id: req.params.id,
+      option: {
+        id: req.validatedBody.option_id,
+        data: req.validatedBody.data
+      }
     }
   })
 
-  res.sendStatus(200)
+  const {
+    data: [cart]
+  } = await query.graph({
+    entity: 'cart',
+    filters: {
+      id: req.params.id
+    },
+    fields: req.remoteQueryConfig.fields
+  })
+
+  res.json({ cart })
 }
