@@ -662,3 +662,13 @@ export const VendorUpdateProduct = z
     sales_channels: z.array(z.object({ id: z.string() })).optional()
   })
   .strict()
+
+export type VendorUpdateInventoryLevel = z.infer<
+  typeof VendorUpdateInventoryLevel
+>
+
+export const VendorUpdateInventoryLevel = z.object({
+  location_id: z.string(),
+  inventory_item_id: z.string(),
+  stock_quantity: z.number().int().min(0)
+})

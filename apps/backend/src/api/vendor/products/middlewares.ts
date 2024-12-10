@@ -9,10 +9,15 @@ import {
   checkResourceOwnershipByResourceId,
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
+import {
+  inventoryItemOwnershipGuardMiddleware,
+  inventoryItemRelationshipGuardMiddleware
+} from './[id]/variants/[variantId]/stock/guards'
 import { vendorProductQueryConfig } from './query-config'
 import {
   VendorCreateProduct,
   VendorGetProductParams,
+  VendorUpdateInventoryLevel,
   VendorUpdateProduct
 } from './validators'
 
@@ -76,6 +81,15 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         entryPoint: sellerProductLink.entryPoint,
         filterField: 'product_id'
       })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/products/:id/variants/:variantId/stock',
+    middlewares: [
+      validateAndTransformBody(VendorUpdateInventoryLevel),
+      ...inventoryItemOwnershipGuardMiddleware,
+      ...inventoryItemRelationshipGuardMiddleware
     ]
   }
 ]
