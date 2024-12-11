@@ -13,6 +13,34 @@ type CheckChildParentRelation<Body> = {
   parentId?: (req: AuthenticatedMedusaRequest<Body>) => string
 }
 
+/**
+ * Middleware that verifies if the specified entities are in database relationship.
+ *
+ * @param options - Configuration options for the check
+ * @param options.parentResource - The parent entity type
+ * @param options.childField - Field to select that indicates the relation
+ * @param options.childId - Request parameter containing the child resource ID
+ * @param options.parentId - Request parameter containing the parent resource ID (defaults to 'id')
+ *
+ * @throws {MedusaError} If the child does not belong to the parent resource
+ *
+ * @example
+ * // Basic usage - check if variant belongs to product
+ * app.use(checkChildParentRelation({
+ *   parentResource: 'product',
+ *   childField: 'variants.id',
+ *   childId: (req) => req.params.variantId
+ * }))
+ *
+ * @example
+ * // Custom field usage - check if inventory item belongs to variant
+ * app.use(checkChildParentRelation({
+ *   parentResource: 'variant',
+ *   childField: 'inventory_items.inventory_item_id',
+ *   childId: (req) => req.params.inventoryItemId,
+ *   parentId: (req) => req.params.variantId
+ * }))
+ */
 export const checkChildParentRelation = <Body>({
   parentResource,
   childField,

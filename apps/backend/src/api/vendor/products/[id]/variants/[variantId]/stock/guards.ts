@@ -9,12 +9,12 @@ import { VendorUpdateInventoryLevel } from '../../../../validators'
 export const inventoryItemRelationshipGuardMiddleware = [
   checkChildParentRelation({
     parentResource: 'product',
-    childField: 'variant.id',
+    childField: 'variants.id',
     childId: (req) => req.params.variantId
   }),
   checkChildParentRelation({
     parentResource: 'variant',
-    childField: 'inventory_items.id',
+    childField: 'inventory_items.inventory_item_id',
     childId: (req: AuthenticatedMedusaRequest<VendorUpdateInventoryLevel>) =>
       req.body.inventory_item_id,
     parentId: (req) => req.params.variantId
