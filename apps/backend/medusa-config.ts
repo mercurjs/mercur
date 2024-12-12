@@ -15,6 +15,12 @@ module.exports = defineConfig({
   },
   modules: [
     { resolve: './src/modules/seller' },
-    { resolve: './src/modules/marketplace' }
+    { resolve: './src/modules/marketplace' },
+    {
+      resolve: './src/modules/payouts',
+      options: {
+        api_key: process.env.STRIPE_SECRET_API_KEY
+      }
+    }
   ]
 })
