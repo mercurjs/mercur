@@ -1,6 +1,6 @@
 import { OnboardingDTO } from './common'
 
-export type CreatePayoutAccountDTO = {
+export interface CreatePayoutAccountDTO {
   context: Record<string, unknown>
 }
 

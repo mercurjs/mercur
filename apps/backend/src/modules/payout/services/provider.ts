@@ -9,7 +9,8 @@ import {
   IPayoutProvider,
   InitializeOnboardingResponse,
   PayoutAccountStatus,
-  ProcessTransferContext
+  PayoutWebhookAction,
+  PayoutWebhookActionPayload
 } from '../types'
 
 type InjectedDependencies = {
@@ -40,11 +41,7 @@ export class PayoutProvider implements IPayoutProvider {
     this.client_ = new Stripe(this.config_.apiKey)
   }
 
-  async processTransfer({
-    amount,
-    currency,
-    reference_id
-  }: ProcessTransferContext): Promise<void> {
+  async processTransfer(): Promise<void> {
     this.logger_.info('Processing transfer')
   }
 
@@ -126,6 +123,17 @@ export class PayoutProvider implements IPayoutProvider {
 
     return {
       data: accountLink as unknown as Record<string, unknown>
+    }
+  }
+
+  async getWebhookActionAndData(payload: PayoutWebhookActionPayload) {
+    this.logger_.info('Getting webhook action')
+
+    return {
+      action: PayoutWebhookAction.ACCOUNT_AUTHORIZED,
+      data: {
+        account_id: payload.data.account_id as string
+      }
     }
   }
 }

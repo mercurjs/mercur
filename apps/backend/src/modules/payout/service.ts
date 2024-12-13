@@ -11,7 +11,8 @@ import { Onboarding, PayoutAccount, Transfer } from './models'
 import {
   CreateOnboardingDTO,
   CreatePayoutAccountDTO,
-  IPayoutProvider
+  IPayoutProvider,
+  PayoutWebhookActionPayload
 } from './types'
 
 type InjectedDependencies = {
@@ -101,6 +102,10 @@ class PayoutModuleService extends MedusaService({
       undefined,
       sharedContext
     )
+  }
+
+  async getWebhookActionAndData(input: PayoutWebhookActionPayload) {
+    return this.provider_.getWebhookActionAndData(input)
   }
 }
 

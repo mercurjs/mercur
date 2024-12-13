@@ -7,6 +7,12 @@ export enum TransferStatus {
 
 /* Payment Account */
 
+export enum PayoutWebhookAction {
+  ACCOUNT_AUTHORIZED = 'account_authorized',
+  ACCOUNT_DEAUTHORIZED = 'account_deauthorized',
+  ACCOUNT_REQUIRES_ACTION = 'account_requires_action'
+}
+
 export enum PayoutAccountStatus {
   PENDING = 'pending',
   ACTIVE = 'active',

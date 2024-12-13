@@ -1,8 +1,8 @@
 import { BigNumberInput } from '@medusajs/framework/types'
 
-import { PayoutAccountStatus } from './common'
+import { PayoutAccountStatus, PayoutWebhookAction } from './common'
 
-export type ProcessTransferContext = {
+export type ProcessTransferData = {
   amount: BigNumberInput
   currency: string
   reference_id: string
@@ -17,9 +17,22 @@ export type InitializeOnboardingResponse = {
   data: Record<string, unknown>
 }
 
+export type PayoutWebhookActionPayload = {
+  data: Record<string, unknown>
+  rawData: string | Buffer
+  headers: Record<string, unknown>
+}
+
+export type PayoutWebhookActionAndDataResponse = {
+  action: PayoutWebhookAction
+  data: {
+    account_id: string
+  }
+}
+
 export interface IPayoutProvider {
-  processTransfer(context: ProcessTransferContext): Promise<void>
-  retryTransfer(context: ProcessTransferContext): Promise<void>
+  processTransfer(context: ProcessTransferData): Promise<void>
+  retryTransfer(context: ProcessTransferData): Promise<void>
   createPayoutAccount(context: CreatePayoutAccountData): Promise<{
     data: Record<string, unknown>
     id: string
@@ -35,4 +48,7 @@ export interface IPayoutProvider {
     accountId: string,
     context: Record<string, unknown>
   ): Promise<InitializeOnboardingResponse>
+  getWebhookActionAndData(
+    payload: PayoutWebhookActionPayload
+  ): Promise<PayoutWebhookActionAndDataResponse>
 }
