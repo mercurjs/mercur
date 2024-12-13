@@ -17,7 +17,6 @@
 - [Features](#features)
 - [Quickstart](#quickstart)
 - [Resources](#resources)
-- [Contributors](#contributors)
 
 ## Prerequisites
 
@@ -47,10 +46,8 @@
 # Clone the repository
 git clone https://github.com/mercurjs/mercur.git
 
-
 # Install dependencies
 yarn install
-
 
 # Go to backend folder
 cd apps/backend
