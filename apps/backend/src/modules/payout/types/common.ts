@@ -7,17 +7,17 @@ export enum TransferStatus {
 
 /* Payment Account */
 
-export enum PaymentAccountStatus {
+export enum PayoutAccountStatus {
   PENDING = 'pending',
   ACTIVE = 'active',
   DISABLED = 'disabled'
 }
 
-export type PaymentAccountDTO = {
+export type PayoutAccountDTO = {
   id: string
   created_at: Date
   updated_at: Date
   reference_id: string
   data: Record<string, unknown>
-  status: PaymentAccountStatus
+  status: PayoutAccountStatus
 }

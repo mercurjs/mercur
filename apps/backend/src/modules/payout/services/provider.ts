@@ -2,10 +2,10 @@ import Stripe from 'stripe'
 
 import { ConfigModule, Logger } from '@medusajs/framework/types'
 
-import { PAYOUTS_MODULE } from '..'
+import { PAYOUT_MODULE } from '..'
 import {
-  IPayoutsProvider,
-  PaymentAccountStatus,
+  IPayoutProvider,
+  PayoutAccountStatus,
   ProcessTransferContext
 } from '../types'
 
@@ -18,7 +18,7 @@ type StripeConnectConfig = {
   apiKey: string
 }
 
-export class PayoutsProvider implements IPayoutsProvider {
+export class PayoutProvider implements IPayoutProvider {
   protected config_: StripeConnectConfig
   protected logger_: Logger
   protected client_: Stripe
@@ -26,7 +26,7 @@ export class PayoutsProvider implements IPayoutsProvider {
   constructor({ logger, configModule }: InjectedDependencies) {
     this.logger_ = logger
 
-    const moduleDef = configModule.modules?.[PAYOUTS_MODULE]
+    const moduleDef = configModule.modules?.[PAYOUT_MODULE]
 
     if (typeof moduleDef !== 'boolean' && moduleDef?.options) {
       this.config_ = {
@@ -49,7 +49,7 @@ export class PayoutsProvider implements IPayoutsProvider {
     this.logger_.info('Retrying transfer')
   }
 
-  async createPaymentAccount(): Promise<{
+  async createPayoutAccount(): Promise<{
     data: Record<string, unknown>
     id: string
   }> {
@@ -61,7 +61,7 @@ export class PayoutsProvider implements IPayoutsProvider {
     }
   }
 
-  async updatePaymentAccount(): Promise<void> {
+  async updatePayoutAccount(): Promise<void> {
     this.logger_.info('Updating payment profile')
   }
 
@@ -69,9 +69,9 @@ export class PayoutsProvider implements IPayoutsProvider {
     this.logger_.info('Getting payment profile')
   }
 
-  async getPaymentAccountStatus(): Promise<PaymentAccountStatus> {
+  async getPayoutAccountStatus(): Promise<PayoutAccountStatus> {
     this.logger_.info('Getting payment profile status')
 
-    return PaymentAccountStatus.ACTIVE
+    return PayoutAccountStatus.ACTIVE
   }
 }

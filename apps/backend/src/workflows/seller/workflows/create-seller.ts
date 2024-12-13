@@ -5,7 +5,7 @@ import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 import { CreateMemberDTO, CreateSellerDTO } from '../../../modules/seller/types'
 import { createMemberStep } from '../../member/steps'
 import { createSellerStep } from '../steps'
-import { createOnboardingStep } from '../steps/create-onboarding'
+import { createOnboardingForSellerStep } from '../steps/create-onboarding'
 
 type CreateSellerWorkflowInput = {
   seller: CreateSellerDTO
@@ -34,7 +34,7 @@ export const createSellerWorkflow = createWorkflow(
         actorType: 'seller',
         value: member.id
       }),
-      createOnboardingStep({
+      createOnboardingForSellerStep({
         seller_id: seller.id
       })
     )

@@ -5,8 +5,8 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SELLER_MODULE } from '../../../modules/seller'
 
-export const createOnboardingStep = createStep(
-  'create-onboarding',
+export const createOnboardingForSellerStep = createStep(
+  'create-onboarding-for-seller',
   async (input: CreateOnboardingDTO, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 

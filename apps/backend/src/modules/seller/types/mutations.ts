@@ -45,3 +45,6 @@ export interface CreateOnboardingDTO
   > {
   seller_id: string
 }
+
+export type UpdateOnboardingDTO = Partial<OnboardingDTO> &
+  ({ id: string } | { seller_id: string })

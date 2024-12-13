@@ -43,6 +43,6 @@ export type OnboardingDTO = {
   id: string
   created_at: Date
   updated_at: Date
-  is_payment_account_setup_completed: boolean
+  is_payout_account_setup_completed: boolean
   seller?: Partial<SellerDTO>
 }

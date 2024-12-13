@@ -1,6 +1,6 @@
 import { BigNumberInput } from '@medusajs/framework/types'
 
-import { PaymentAccountStatus } from './common'
+import { PayoutAccountStatus } from './common'
 
 export type ProcessTransferContext = {
   amount: BigNumberInput
@@ -8,19 +8,19 @@ export type ProcessTransferContext = {
   reference_id: string
 }
 
-export type CreatePaymentAccountInput = {
+export type CreatePayoutAccountInput = {
   context: Record<string, unknown>
 }
 
-export interface IPayoutsProvider {
+export interface IPayoutProvider {
   processTransfer(context: ProcessTransferContext): Promise<void>
   retryTransfer(context: ProcessTransferContext): Promise<void>
-  createPaymentAccount(context: CreatePaymentAccountInput): Promise<{
+  createPayoutAccount(context: CreatePayoutAccountInput): Promise<{
     data: Record<string, unknown>
     id: string
   }>
-  updatePaymentAccount(data: Record<string, unknown>): Promise<void>
-  getPaymentAccountStatus(
-    paymentAccountData: Record<string, unknown>
-  ): Promise<PaymentAccountStatus>
+  updatePayoutAccount(data: Record<string, unknown>): Promise<void>
+  getPayoutAccountStatus(
+    payoutAccountData: Record<string, unknown>
+  ): Promise<PayoutAccountStatus>
 }

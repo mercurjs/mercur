@@ -4,6 +4,8 @@ import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
 import { vendorFulfillmentSetsMiddlewares } from './fulfillment-sets/middlewares'
 import { vendorInvitesMiddlewares } from './invites/middlewares'
+import { vendorOnboardingMiddlewares } from './onboarding/middlewares'
+import { vendorPayoutAccountMiddlewares } from './payout-account/middlewares'
 import { vendorProductsMiddlewares } from './products/middlewares'
 import { vendorSellersMiddlewares } from './sellers/middlewares'
 import { vendorShippingOptionsMiddlewares } from './shipping-options/middlewares'
@@ -46,5 +48,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorInvitesMiddlewares,
   ...vendorFulfillmentSetsMiddlewares,
   ...vendorStockLocationsMiddlewares,
-  ...vendorShippingOptionsMiddlewares
+  ...vendorShippingOptionsMiddlewares,
+  ...vendorOnboardingMiddlewares,
+  ...vendorPayoutAccountMiddlewares
 ]
