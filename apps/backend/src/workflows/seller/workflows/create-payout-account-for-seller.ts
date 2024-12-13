@@ -17,8 +17,10 @@ type CreatePayoutAccountForSellerInput = {
 }
 
 export const createPayoutAccountForSellerWorkflow = createWorkflow(
-  'create-payment-account-for-seller',
+  'create-payout-account-for-seller',
   function (input: CreatePayoutAccountForSellerInput) {
+    checkIfPayoutAccountExistsForSellerStep(input.seller_id)
+
     const payoutAccount = createPayoutAccountStep(input.payout_account)
 
     createRemoteLinkStep([
