@@ -24,3 +24,19 @@ export const VendorCreatePayoutAccount = z
     context: z.record(z.unknown()).optional()
   })
   .strict()
+
+export type VendorCreateOnboardingType = z.infer<typeof VendorCreateOnboarding>
+/**
+ * @schema VendorCreateOnboarding
+ * type: object
+ * properties:
+ *   context:
+ *     type: object
+ *     description: Additional data needed by the payment provider to create onboarding.
+ *     nullable: true
+ */
+export const VendorCreateOnboarding = z
+  .object({
+    context: z.record(z.unknown()).optional()
+  })
+  .strict()

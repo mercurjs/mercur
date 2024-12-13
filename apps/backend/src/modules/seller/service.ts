@@ -10,7 +10,7 @@ import {
 } from '@medusajs/framework/utils'
 
 import { SELLER_MODULE } from '.'
-import { Invite, Member, Onboarding, Seller } from './models'
+import { Invite, Member, Seller } from './models'
 import { MemberInviteDTO } from './types'
 
 type InjectedDependencies = {
@@ -27,8 +27,7 @@ const DEFAULT_VALID_INVITE_DURATION = 60 * 60 * 24 * 7000
 class SellerModuleService extends MedusaService({
   Invite,
   Member,
-  Seller,
-  Onboarding
+  Seller
 }) {
   private readonly config_: SellerModuleConfig
   private readonly httpConfig_: ConfigModule['projectConfig']['http']

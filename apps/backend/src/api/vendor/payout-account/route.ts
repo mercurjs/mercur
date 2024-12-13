@@ -1,6 +1,6 @@
 import sellerPayoutAccountLink from '#/links/seller-payout-account'
 import { fetchSellerByAuthActorId } from '#/shared/infra/http/utils'
-import { createPayoutAccountForSellerWorkflow } from '#/workflows/seller/workflows/create-payout-account-for-seller'
+import { createPayoutAccountForSellerWorkflow } from '#/workflows/seller/workflows'
 
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
@@ -90,21 +90,32 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreatePayoutAccountType>,
   res: MedusaResponse
 ) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,
     req.scope
   )
 
-  const { result: payoutAccount } = await createPayoutAccountForSellerWorkflow(
-    req.scope
-  ).run({
+  const { result } = await createPayoutAccountForSellerWorkflow(req.scope).run({
+    context: { transactionId: seller.id },
     input: {
       seller_id: seller.id,
-      payout_account: {
-        context: req.validatedBody.context ?? {}
-      }
+      context: req.validatedBody.context ?? {}
     }
   })
+
+  const {
+    data: [payoutAccount]
+  } = await query.graph(
+    {
+      entity: 'payout_account',
+      fields: req.remoteQueryConfig.fields,
+      filters: {
+        id: result.id
+      }
+    },
+    { throwIfKeyNotFound: true }
+  )
 
   res.status(201).json({
     payout_account: payoutAccount

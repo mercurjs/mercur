@@ -6,8 +6,8 @@ import {
 } from '@medusajs/framework/utils'
 import { createStep } from '@medusajs/framework/workflows-sdk'
 
-export const checkIfPayoutAccountExistsForSellerStep = createStep(
-  'check-if-payment-account-exists-for-seller',
+export const validateNoExistingPayoutAccountForSellerStep = createStep(
+  'validate-no-existing-payout-account-for-seller',
   async (sellerId: string, { container }) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 

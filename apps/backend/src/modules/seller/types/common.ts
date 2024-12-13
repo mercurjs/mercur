@@ -38,11 +38,3 @@ export type MemberInviteDTO = {
   expires_at: Date
   accepted: boolean
 }
-
-export type OnboardingDTO = {
-  id: string
-  created_at: Date
-  updated_at: Date
-  is_payout_account_setup_completed: boolean
-  seller?: Partial<SellerDTO>
-}

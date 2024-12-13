@@ -48,6 +48,15 @@
           "nullable": true,
           "mappedType": "json"
         },
+        "context": {
+          "name": "context",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -104,6 +113,131 @@
       ],
       "checks": [],
       "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
+        "context": {
+          "name": "context",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
+        "payout_account_id": {
+          "name": "payout_account_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "onboarding",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "payout_account_id"
+          ],
+          "composite": false,
+          "keyName": "onboarding_payout_account_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "IDX_onboarding_payout_account_id",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_onboarding_payout_account_id\" ON \"onboarding\" (payout_account_id) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_onboarding_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_onboarding_deleted_at\" ON \"onboarding\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "onboarding_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "onboarding_payout_account_id_foreign": {
+          "constraintName": "onboarding_payout_account_id_foreign",
+          "columnNames": [
+            "payout_account_id"
+          ],
+          "localTableName": "public.onboarding",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.payout_account",
+          "updateRule": "cascade"
+        }
+      }
     },
     {
       "columns": {

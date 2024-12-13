@@ -1,11 +1,10 @@
-import { parallelize, transform } from '@medusajs/framework/workflows-sdk'
+import { transform } from '@medusajs/framework/workflows-sdk'
 import { setAuthAppMetadataStep } from '@medusajs/medusa/core-flows'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
 import { CreateMemberDTO, CreateSellerDTO } from '../../../modules/seller/types'
 import { createMemberStep } from '../../member/steps'
 import { createSellerStep } from '../steps'
-import { createOnboardingForSellerStep } from '../steps/create-onboarding'
 
 type CreateSellerWorkflowInput = {
   seller: CreateSellerDTO
@@ -28,16 +27,11 @@ export const createSellerWorkflow = createWorkflow(
 
     const member = createMemberStep(memberInput)
 
-    parallelize(
-      setAuthAppMetadataStep({
-        authIdentityId: input.auth_identity_id,
-        actorType: 'seller',
-        value: member.id
-      }),
-      createOnboardingForSellerStep({
-        seller_id: seller.id
-      })
-    )
+    setAuthAppMetadataStep({
+      authIdentityId: input.auth_identity_id,
+      actorType: 'seller',
+      value: member.id
+    })
 
     return new WorkflowResponse(seller)
   }

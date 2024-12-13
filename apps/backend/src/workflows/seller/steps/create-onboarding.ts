@@ -1,28 +1,16 @@
-import { CreateOnboardingDTO } from '#/modules/seller/types'
-import SellerModuleService from 'src/modules/seller/service'
+import { PAYOUT_MODULE } from '#/modules/payout'
+import PayoutModuleService from '#/modules/payout/service'
+import { CreateOnboardingDTO } from '#/modules/payout/types'
 
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { SELLER_MODULE } from '../../../modules/seller'
-
-export const createOnboardingForSellerStep = createStep(
-  'create-onboarding-for-seller',
+export const createOnboardingStep = createStep(
+  'create-onboarding',
   async (input: CreateOnboardingDTO, { container }) => {
-    const service = container.resolve<SellerModuleService>(SELLER_MODULE)
+    const service = container.resolve<PayoutModuleService>(PAYOUT_MODULE)
 
-    const onboarding = await service.createOnboardings({
-      seller: input.seller_id
-    })
+    const onboarding = await service.createOnboardings(input)
 
     return new StepResponse(onboarding, onboarding.id)
-  },
-  async (id: string, { container }) => {
-    if (!id) {
-      return
-    }
-
-    const service = container.resolve<SellerModuleService>(SELLER_MODULE)
-
-    await service.deleteOnboardings(id)
   }
 )

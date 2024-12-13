@@ -21,3 +21,11 @@ export type PayoutAccountDTO = {
   data: Record<string, unknown>
   status: PayoutAccountStatus
 }
+
+export type OnboardingDTO = {
+  id: string
+  created_at: Date
+  updated_at: Date
+  data: Record<string, unknown>
+  context: Record<string, unknown>
+}

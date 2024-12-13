@@ -127,8 +127,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "is_payment_account_setup_completed": {
-          "name": "is_payment_account_setup_completed",
+        "is_payout_account_setup_completed": {
+          "name": "is_payout_account_setup_completed",
           "type": "boolean",
           "unsigned": false,
           "autoincrement": false,

@@ -8,14 +8,19 @@ export type ProcessTransferContext = {
   reference_id: string
 }
 
-export type CreatePayoutAccountInput = {
+export type CreatePayoutAccountData = {
   context: Record<string, unknown>
+  account_id: string
+}
+
+export type InitializeOnboardingResponse = {
+  data: Record<string, unknown>
 }
 
 export interface IPayoutProvider {
   processTransfer(context: ProcessTransferContext): Promise<void>
   retryTransfer(context: ProcessTransferContext): Promise<void>
-  createPayoutAccount(context: CreatePayoutAccountInput): Promise<{
+  createPayoutAccount(context: CreatePayoutAccountData): Promise<{
     data: Record<string, unknown>
     id: string
   }>
@@ -23,4 +28,11 @@ export interface IPayoutProvider {
   getPayoutAccountStatus(
     payoutAccountData: Record<string, unknown>
   ): Promise<PayoutAccountStatus>
+  /**
+   * Initialize the onboarding process for a payout account.
+   */
+  initializeOnboarding(
+    accountId: string,
+    context: Record<string, unknown>
+  ): Promise<InitializeOnboardingResponse>
 }

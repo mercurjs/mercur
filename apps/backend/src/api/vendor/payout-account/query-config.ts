@@ -2,7 +2,9 @@ export const vendorPayoutAccountFields = [
   'id',
   'status',
   'reference_id',
-  'data'
+  'data',
+  'context',
+  '*onboarding'
 ]
 
 export const vendorPayoutAccountQueryConfig = {

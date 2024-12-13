@@ -6,22 +6,24 @@ import { createRemoteLinkStep } from '@medusajs/medusa/core-flows'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
 import {
-  checkIfPayoutAccountExistsForSellerStep,
-  createPayoutAccountStep
+  createPayoutAccountStep,
+  validateNoExistingPayoutAccountForSellerStep
 } from '../steps'
-import { updateOnboardingStep } from '../steps/update-onboarding'
 
 type CreatePayoutAccountForSellerInput = {
-  payout_account: CreatePayoutAccountDTO
+  context: CreatePayoutAccountDTO['context']
   seller_id: string
 }
 
 export const createPayoutAccountForSellerWorkflow = createWorkflow(
-  'create-payout-account-for-seller',
+  {
+    name: 'create-payout-account-for-seller',
+    idempotent: true
+  },
   function (input: CreatePayoutAccountForSellerInput) {
-    checkIfPayoutAccountExistsForSellerStep(input.seller_id)
+    validateNoExistingPayoutAccountForSellerStep(input.seller_id)
 
-    const payoutAccount = createPayoutAccountStep(input.payout_account)
+    const payoutAccount = createPayoutAccountStep({ context: input.context })
 
     createRemoteLinkStep([
       {
@@ -33,11 +35,6 @@ export const createPayoutAccountForSellerWorkflow = createWorkflow(
         }
       }
     ])
-
-    updateOnboardingStep({
-      is_payout_account_setup_completed: true,
-      seller_id: input.seller_id
-    })
 
     return new WorkflowResponse(payoutAccount)
   }
