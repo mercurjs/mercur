@@ -37,29 +37,34 @@ class PayoutModuleService extends MedusaService({
     { context }: CreatePayoutAccountDTO,
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
-    const result = await super.createPayoutAccounts({ context }, sharedContext)
+    const result = await this.createPayoutAccounts({ context }, sharedContext)
 
-    const { data, id: referenceId } = await this.provider_.createPayoutAccount({
-      context,
-      account_id: result.id
-    })
+    try {
+      const { data, id: referenceId } =
+        await this.provider_.createPayoutAccount({
+          context,
+          account_id: result.id
+        })
 
-    await this.updatePayoutAccounts(
-      {
-        id: result.id,
-        data,
-        reference_id: referenceId
-      },
-      sharedContext
-    )
+      await this.updatePayoutAccounts(
+        {
+          id: result.id,
+          data,
+          reference_id: referenceId
+        },
+        sharedContext
+      )
 
-    const updated = await this.retrievePayoutAccount(
-      result.id,
-      undefined,
-      sharedContext
-    )
-
-    return updated
+      const updated = await this.retrievePayoutAccount(
+        result.id,
+        undefined,
+        sharedContext
+      )
+      return updated
+    } catch (error) {
+      await this.deletePayoutAccounts(result.id, sharedContext)
+      throw error
+    }
   }
 
   @InjectTransactionManager()
