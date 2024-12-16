@@ -1,1 +1,1 @@
-export * from './stripe-connect'
+export * from './provider'

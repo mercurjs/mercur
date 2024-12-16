@@ -53,7 +53,7 @@ export const processPayoutForOrderWorkflow = createWorkflow(
       transaction_id: order.id,
       amount: order.total,
       currency_code: order.currency_code,
-      account_reference_id: seller.payout_account.reference_id
+      account_id: seller.payout_account.id
     })
 
     when({ payout }, ({ payout }) => !!payout).then(() => {

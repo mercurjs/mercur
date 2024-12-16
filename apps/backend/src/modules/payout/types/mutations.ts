@@ -18,6 +18,6 @@ export interface CreateOnboardingDTO
 export type CreatePayoutDTO = {
   amount: BigNumberInput
   currency_code: string
-  account_reference_id: string
+  account_id: string
   transaction_id: string
 }

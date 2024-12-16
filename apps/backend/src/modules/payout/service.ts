@@ -113,11 +113,12 @@ class PayoutModuleService extends MedusaService({
     input: CreatePayoutDTO,
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
-    const { amount, currency_code, account_reference_id, transaction_id } =
-      input
+    const { amount, currency_code, account_id, transaction_id } = input
+
+    const payoutAccount = await this.retrievePayoutAccount(account_id)
 
     const { data } = await this.provider_.processPayout({
-      account_reference_id,
+      account_reference_id: payoutAccount.reference_id,
       amount,
       currency: currency_code,
       transaction_id
