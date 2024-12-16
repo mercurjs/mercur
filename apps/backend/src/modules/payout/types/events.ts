@@ -1,9 +1,15 @@
-export enum TransferEvents {
-  FAILED = 'transfer.failed',
-  SUCCEEDED = 'transfer.succeeded',
-  PROCESS = 'transfer.process'
+export enum PayoutEvents {
+  FAILED = 'payout.failed',
+  SUCCEEDED = 'payout.succeeded',
+  PROCESS = 'payout.process'
 }
 
 export enum PayoutWebhookEvents {
   ACCOUNT_WEBHOOK_RECEIVED = 'payout_account.webhook_received'
+}
+
+export enum PayoutWebhookAction {
+  ACCOUNT_AUTHORIZED = 'account_authorized',
+  ACCOUNT_DEAUTHORIZED = 'account_deauthorized',
+  ACCOUNT_REQUIRES_ACTION = 'account_requires_action'
 }

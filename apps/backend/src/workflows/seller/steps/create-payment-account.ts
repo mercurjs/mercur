@@ -9,7 +9,7 @@ export const createPayoutAccountStep = createStep(
   async (input: CreatePayoutAccountDTO, { container }) => {
     const service = container.resolve<PayoutModuleService>(PAYOUT_MODULE)
 
-    const payoutAccount = await service.createPayoutAccounts(input)
+    const payoutAccount = await service.createPayoutAccount(input)
 
     return new StepResponse(payoutAccount, payoutAccount.id)
   },

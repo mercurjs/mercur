@@ -4,6 +4,7 @@ import {
   PayoutWebhookActionPayload,
   PayoutWebhookEvents
 } from '#/modules/payout/types'
+import { processPayoutWebhookActionWorkflow } from '#/workflows/payout/workflows'
 
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 
@@ -32,7 +33,12 @@ export default async function payoutWebhookHandler({
     return
   }
 
-  // todo: handle action
+  await processPayoutWebhookActionWorkflow(container).run({
+    input: {
+      action: actionAndData.action,
+      data: actionAndData.data
+    }
+  })
 }
 
 export const config: SubscriberConfig = {

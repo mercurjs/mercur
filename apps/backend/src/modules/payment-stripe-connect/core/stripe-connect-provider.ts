@@ -1,3 +1,4 @@
+import { getAmountFromSmallestUnit, getSmallestUnit } from '#/shared/utils'
 import { EOL } from 'os'
 import Stripe from 'stripe'
 
@@ -21,10 +22,6 @@ import {
 } from '@medusajs/types'
 
 import { PaymentIntentOptions } from '../types'
-import {
-  getAmountFromSmallestUnit,
-  getSmallestUnit
-} from '../utils/get-smallest-unit'
 
 type Options = {
   apiKey: string

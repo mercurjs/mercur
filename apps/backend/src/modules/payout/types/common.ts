@@ -1,17 +1,5 @@
-/* Transfer */
-
-export enum TransferStatus {
-  SUCCEEDED = 'succeeded',
-  FAILED = 'failed'
-}
-
 /* Payment Account */
-
-export enum PayoutWebhookAction {
-  ACCOUNT_AUTHORIZED = 'account_authorized',
-  ACCOUNT_DEAUTHORIZED = 'account_deauthorized',
-  ACCOUNT_REQUIRES_ACTION = 'account_requires_action'
-}
+import { BigNumberInput } from '@medusajs/framework/types'
 
 export enum PayoutAccountStatus {
   PENDING = 'pending',
@@ -28,10 +16,23 @@ export type PayoutAccountDTO = {
   status: PayoutAccountStatus
 }
 
+/* Onboarding */
+
 export type OnboardingDTO = {
   id: string
   created_at: Date
   updated_at: Date
   data: Record<string, unknown>
   context: Record<string, unknown>
+}
+
+/* Payout */
+
+export type PayoutDTO = {
+  id: string
+  created_at: Date
+  updated_at: Date
+  data: Record<string, unknown>
+  amount: BigNumberInput
+  currency_code: string
 }

@@ -7,10 +7,11 @@ import {
   MedusaService
 } from '@medusajs/framework/utils'
 
-import { Onboarding, PayoutAccount, Transfer } from './models'
+import { Onboarding, Payout, PayoutAccount } from './models'
 import {
   CreateOnboardingDTO,
   CreatePayoutAccountDTO,
+  CreatePayoutDTO,
   IPayoutProvider,
   PayoutWebhookActionPayload
 } from './types'
@@ -20,7 +21,7 @@ type InjectedDependencies = {
 }
 
 class PayoutModuleService extends MedusaService({
-  Transfer,
+  Payout,
   PayoutAccount,
   Onboarding
 }) {
@@ -32,8 +33,7 @@ class PayoutModuleService extends MedusaService({
   }
 
   @InjectTransactionManager()
-  // @ts-expect-error: createPaymentProfiles method already exists
-  async createPayoutAccounts(
+  async createPayoutAccount(
     { context }: CreatePayoutAccountDTO,
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
@@ -63,8 +63,7 @@ class PayoutModuleService extends MedusaService({
   }
 
   @InjectTransactionManager()
-  // @ts-expect-error: createOnboardings method already exists
-  async createOnboardings(
+  async initializeOnboarding(
     { context, payout_account_id }: CreateOnboardingDTO,
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
@@ -104,8 +103,35 @@ class PayoutModuleService extends MedusaService({
     )
   }
 
+  @InjectTransactionManager()
+  async processPayout(
+    input: CreatePayoutDTO,
+    @MedusaContext() sharedContext?: Context<EntityManager>
+  ) {
+    const { amount, currency_code, account_reference_id, transaction_id } =
+      input
+
+    const { data } = await this.provider_.processPayout({
+      account_reference_id,
+      amount,
+      currency: currency_code,
+      transaction_id
+    })
+
+    const payout = await this.createPayouts(
+      {
+        data,
+        amount,
+        currency_code
+      },
+      sharedContext
+    )
+
+    return payout
+  }
+
   async getWebhookActionAndData(input: PayoutWebhookActionPayload) {
-    return this.provider_.getWebhookActionAndData(input)
+    return await this.provider_.getWebhookActionAndData(input)
   }
 }
 

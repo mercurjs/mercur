@@ -9,7 +9,7 @@ export const createOnboardingStep = createStep(
   async (input: CreateOnboardingDTO, { container }) => {
     const service = container.resolve<PayoutModuleService>(PAYOUT_MODULE)
 
-    const onboarding = await service.createOnboardings(input)
+    const onboarding = await service.initializeOnboarding(input)
 
     return new StepResponse(onboarding, onboarding.id)
   }
