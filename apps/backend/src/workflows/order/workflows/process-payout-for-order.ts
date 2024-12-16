@@ -1,10 +1,12 @@
 import sellerOrderLink from '#/links/seller-order'
+import { PayoutEvents } from '#/modules/payout/types'
 import { SELLER_MODULE } from '#/modules/seller'
 
 import { Modules } from '@medusajs/framework/utils'
-import { WorkflowResponse, transform } from '@medusajs/framework/workflows-sdk'
+import { transform, when } from '@medusajs/framework/workflows-sdk'
 import {
   createRemoteLinkStep,
+  emitEventStep,
   useQueryGraphStep
 } from '@medusajs/medusa/core-flows'
 import { createWorkflow } from '@medusajs/workflows-sdk'
@@ -47,24 +49,41 @@ export const processPayoutForOrderWorkflow = createWorkflow(
 
     validatePayoutAccountStep(seller.payout_account)
 
-    const payout = createPayoutStep({
+    const { payout, err } = createPayoutStep({
       transaction_id: order.id,
       amount: order.total,
       currency_code: order.currency_code,
       account_reference_id: seller.payout_account.reference_id
     })
 
-    createRemoteLinkStep([
-      {
-        [Modules.ORDER]: {
-          order_id: order.id
-        },
-        [SELLER_MODULE]: {
-          seller_id: seller.id
+    when({ payout }, ({ payout }) => !!payout).then(() => {
+      createRemoteLinkStep([
+        {
+          [Modules.ORDER]: {
+            order_id: order.id
+          },
+          [SELLER_MODULE]: {
+            seller_id: seller.id
+          }
         }
-      }
-    ])
+      ])
 
-    return new WorkflowResponse(payout)
+      emitEventStep({
+        eventName: PayoutEvents.SUCCEEDED,
+        data: {
+          id: payout!.id,
+          order_id: order.id
+        }
+      })
+    })
+
+    when({ err }, ({ err }) => !!err).then(() => {
+      emitEventStep({
+        eventName: PayoutEvents.FAILED,
+        data: {
+          order_id: order.id
+        }
+      })
+    })
   }
 )

@@ -8,9 +8,18 @@ export const createPayoutStep = createStep(
   'create-payout',
   async (input: CreatePayoutDTO, { container }) => {
     const service = container.resolve<PayoutModuleService>(PAYOUT_MODULE)
+    let payout: PayoutDTO | null = null
+    let err: Error | null = null
 
-    const payout: PayoutDTO = await service.processPayout(input)
+    try {
+      payout = await service.processPayout(input)
+    } catch (error) {
+      err = error
+    }
 
-    return new StepResponse(payout)
+    return new StepResponse({
+      payout,
+      err
+    })
   }
 )
