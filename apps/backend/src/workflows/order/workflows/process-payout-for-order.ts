@@ -11,7 +11,8 @@ import { createWorkflow } from '@medusajs/workflows-sdk'
 
 import {
   createPayoutStep,
-  validateNoExistingPayoutForOrderStep
+  validateNoExistingPayoutForOrderStep,
+  validatePayoutAccountStep
 } from '../steps'
 
 type ProcessPayoutForOrderWorkflowInput = {
@@ -43,6 +44,8 @@ export const processPayoutForOrderWorkflow = createWorkflow(
     }).config({ name: 'query-seller' })
 
     const seller = transform(sellerRelations, (sellers) => sellers[0])
+
+    validatePayoutAccountStep(seller.payout_account)
 
     const payout = createPayoutStep({
       transaction_id: order.id,
