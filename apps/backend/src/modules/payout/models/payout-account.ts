@@ -4,7 +4,7 @@ import { PayoutAccountStatus } from '../types'
 import { Onboarding } from './onboarding'
 
 export const PayoutAccount = model.define('payout_account', {
-  id: model.id({ prefix: 'pa' }).primaryKey(),
+  id: model.id({ prefix: 'pacc' }).primaryKey(),
   status: model.enum(PayoutAccountStatus).default(PayoutAccountStatus.PENDING),
   reference_id: model.text().nullable(),
   data: model.json().nullable(),
