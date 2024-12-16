@@ -15,6 +15,9 @@ export default async function payoutOrderHandler({
     const { result } = await processPayoutForOrderWorkflow(container).run({
       input: {
         order_id: event.data.order_id
+      },
+      context: {
+        transactionId: event.data.order_id
       }
     })
     await eventBus.emit({
