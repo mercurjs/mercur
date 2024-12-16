@@ -9,7 +9,10 @@ import {
 } from '@medusajs/medusa/core-flows'
 import { createWorkflow } from '@medusajs/workflows-sdk'
 
-import { createPayoutStep } from '../steps'
+import {
+  createPayoutStep,
+  validateNoExistingPayoutForOrderStep
+} from '../steps'
 
 type ProcessPayoutForOrderWorkflowInput = {
   order_id: string
@@ -18,6 +21,8 @@ type ProcessPayoutForOrderWorkflowInput = {
 export const processPayoutForOrderWorkflow = createWorkflow(
   { name: 'process-payout-for-order', idempotent: true },
   function (input: ProcessPayoutForOrderWorkflowInput) {
+    validateNoExistingPayoutForOrderStep(input.order_id)
+
     const { data: orders } = useQueryGraphStep({
       entity: 'order',
       fields: ['id', 'total', 'currency_code'],
