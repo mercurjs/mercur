@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCreateSession, useEmailpassLogin } from '@/entities/auth'
-import { useLocation } from 'wouter'
+import { Link, useLocation } from 'wouter'
 
 const schema = z
   .object({
@@ -104,9 +104,9 @@ const LoginPage = () => {
           <div className="mt-4 text-center">
             <Text className="text-gray-600">
               Don't have an account?{' '}
-              <a href="/register" className="text-primary hover:underline">
+              <Link href="/register" className="text-primary hover:underline">
                 Create new one
-              </a>
+              </Link>
             </Text>
           </div>
         </div>

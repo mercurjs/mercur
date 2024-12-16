@@ -10,6 +10,8 @@ import {
 } from '@mercurjs/http-client/types'
 import { FetchError } from '@mercurjs/http-client/client'
 import { useMutation, UseMutationOptions } from '@tanstack/react-query'
+import { queryClient } from '@/shared/lib'
+import { sellerQueryKeys } from '../seller'
 
 export const useEmailpassRegister = (
   options?: UseMutationOptions<
@@ -39,6 +41,12 @@ export const useEmailpassLogin = (
       postSellerTypeAuthProvider('emailpass', payload).then(
         (res) => res.data as AuthResponse
       ),
+    onSuccess: (data, ...otherArgs) => {
+      queryClient.invalidateQueries({
+        queryKey: sellerQueryKeys.details()
+      })
+      options?.onSuccess?.(data, ...otherArgs)
+    },
     ...options
   })
 }

@@ -660,7 +660,7 @@ import type {
   VendorGetMemberMe200,
   VendorGetProductById200,
   VendorGetProductByIdParams,
-  VendorGetSellerById200,
+  VendorGetSellerMe200,
   VendorGetShippingOptionById200,
   VendorGetStockLocation200,
   VendorGetStockLocationParams,
@@ -680,7 +680,7 @@ import type {
   VendorUpdateProductById200,
   VendorUpdateProductByIdParams,
   VendorUpdateSeller,
-  VendorUpdateSellerById200,
+  VendorUpdateSellerMe200,
   VendorUpdateServiceZone,
   VendorUpdateServiceZoneById200,
   VendorUpdateShippingOption,
@@ -14685,21 +14685,21 @@ export const vendorCreateSeller = async (vendorCreateSeller: VendorCreateSeller,
  * Retrieves the seller associated with the authenticated user.
  * @summary Get Current Seller
  */
-export type vendorGetSellerByIdResponse = {
-  data: VendorGetSellerById200;
+export type vendorGetSellerMeResponse = {
+  data: VendorGetSellerMe200;
   status: number;
   headers: Headers;
 }
 
-export const getVendorGetSellerByIdUrl = () => {
+export const getVendorGetSellerMeUrl = () => {
 
 
   return `http://localhost:9000/vendor/sellers/me`
 }
 
-export const vendorGetSellerById = async ( options?: RequestInit): Promise<vendorGetSellerByIdResponse> => {
+export const vendorGetSellerMe = async ( options?: RequestInit): Promise<vendorGetSellerMeResponse> => {
   
-  return customFetch<Promise<vendorGetSellerByIdResponse>>(getVendorGetSellerByIdUrl(),
+  return customFetch<Promise<vendorGetSellerMeResponse>>(getVendorGetSellerMeUrl(),
   {      
     ...options,
     method: 'GET'
@@ -14714,21 +14714,21 @@ export const vendorGetSellerById = async ( options?: RequestInit): Promise<vendo
  * Updates the seller associated with the authenticated user.
  * @summary Update Current Seller
  */
-export type vendorUpdateSellerByIdResponse = {
-  data: VendorUpdateSellerById200;
+export type vendorUpdateSellerMeResponse = {
+  data: VendorUpdateSellerMe200;
   status: number;
   headers: Headers;
 }
 
-export const getVendorUpdateSellerByIdUrl = () => {
+export const getVendorUpdateSellerMeUrl = () => {
 
 
   return `http://localhost:9000/vendor/sellers/me`
 }
 
-export const vendorUpdateSellerById = async (vendorUpdateSeller: VendorUpdateSeller, options?: RequestInit): Promise<vendorUpdateSellerByIdResponse> => {
+export const vendorUpdateSellerMe = async (vendorUpdateSeller: VendorUpdateSeller, options?: RequestInit): Promise<vendorUpdateSellerMeResponse> => {
   
-  return customFetch<Promise<vendorUpdateSellerByIdResponse>>(getVendorUpdateSellerByIdUrl(),
+  return customFetch<Promise<vendorUpdateSellerMeResponse>>(getVendorUpdateSellerMeUrl(),
   {      
     ...options,
     method: 'POST',

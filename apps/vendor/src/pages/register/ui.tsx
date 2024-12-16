@@ -14,7 +14,7 @@ import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCreateSeller } from '@/entities/seller'
 import { useEmailpassRegister } from '@/entities/auth'
-import { useLocation } from 'wouter'
+import { Link, useLocation } from 'wouter'
 
 const schema = z
   .object({
@@ -138,9 +138,22 @@ const RegisterPage = () => {
                   )}
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Sign up
-              </Button>
+              <div className="space-y-3">
+                <Button type="submit" className="w-full">
+                  Sign up
+                </Button>
+                <div className="text-center">
+                  <Text className="text-gray-600">
+                    Already have an account?{' '}
+                    <Link
+                      href="/login"
+                      className="text-primary hover:underline"
+                    >
+                      Login
+                    </Link>
+                  </Text>
+                </div>
+              </div>
             </form>
           </Form>
         </div>
