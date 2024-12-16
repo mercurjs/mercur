@@ -12,8 +12,7 @@ import {
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useCreateSeller } from '@/entities/seller'
-import { useEmailpassRegister } from '@/entities/auth'
+import { useCreateSession, useEmailpassLogin } from '@/entities/auth'
 import { useLocation } from 'wouter'
 
 const schema = z
@@ -23,51 +22,32 @@ const schema = z
     }),
     password: z.string().min(8, {
       message: 'Password must be at least 8 characters.'
-    }),
-    name: z.string().min(1, {
-      message: 'Store name is required.'
-    }),
-    fullName: z.string().min(1, {
-      message: 'Full name is required.'
     })
   })
   .strict()
 
-const RegisterPage = () => {
-  const { mutateAsync: createSeller } = useCreateSeller()
-  const { mutateAsync: register } = useEmailpassRegister()
+const LoginPage = () => {
+  const { mutateAsync: login } = useEmailpassLogin()
+  const { mutateAsync: createSession } = useCreateSession()
   const [, navigate] = useLocation()
 
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: '',
-      fullName: '',
       email: '',
       password: ''
     }
   })
 
-  async function onSubmit({
-    name,
-    fullName,
-    email,
-    password
-  }: z.infer<typeof schema>) {
-    const { token } = await register({
+  async function onSubmit({ email, password }: z.infer<typeof schema>) {
+    const { token } = await login({
       email,
       password
     })
 
-    await createSeller({
-      name,
-      member: {
-        name: fullName
-      },
-      token
-    })
+    await createSession({ token })
 
-    navigate('/login')
+    navigate('/dashboard/orders')
   }
 
   return (
@@ -75,42 +55,16 @@ const RegisterPage = () => {
       <div className="min-w-[360px]">
         <div>
           <Text weight="plus" size="xlarge" className="text-center">
-            Create account
+            Sign in
           </Text>
           <Text className="text-center mt-2">
-            To continue, please enter your details below.
+            Welcome back! Please enter your details.
           </Text>
         </div>
         <div className="mt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="flex flex-col space-y-3">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Store name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Store name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Your name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="email"
@@ -131,7 +85,11 @@ const RegisterPage = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your password" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="Your password"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -139,14 +97,22 @@ const RegisterPage = () => {
                 />
               </div>
               <Button type="submit" className="w-full">
-                Sign up
+                Sign in
               </Button>
             </form>
           </Form>
+          <div className="mt-4 text-center">
+            <Text className="text-gray-600">
+              Don't have an account?{' '}
+              <a href="/register" className="text-primary hover:underline">
+                Create new one
+              </a>
+            </Text>
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-export default RegisterPage
+export default LoginPage

@@ -10,12 +10,18 @@ export const useCreateSeller = (
   options?: UseMutationOptions<
     VendorCreateSeller201,
     FetchError,
-    VendorCreateSeller
+    VendorCreateSeller & { token: string }
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      vendorCreateSeller(payload).then((res) => res.data),
+    mutationFn: ({ token, ...payload }) =>
+      vendorCreateSeller(payload, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }).then((res) => res.data),
     ...options
   })
 }
+
+export const useSeller = () => {}

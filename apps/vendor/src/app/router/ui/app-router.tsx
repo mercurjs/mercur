@@ -1,15 +1,23 @@
 import { Redirect, Route, Switch } from 'wouter'
 import { ProtectedRoute } from './protected-route'
-import { RegisterPage } from '@/pages/register'
+import { RegisterPageAsync } from '@/pages/register'
+import { LoginPageAsync } from '@/pages/login'
+import { Suspense } from 'react'
 
 export const AppRouter = () => {
   return (
     <Switch>
       {/* Public routes */}
-      <Route path="/login">
-        <RegisterPage />
+      <Route path="/register">
+        <Suspense fallback={<div>Loading...</div>}>
+          <RegisterPageAsync />
+        </Suspense>
       </Route>
-      <Route path="/register" component={Register} />
+      <Route path="/login">
+        <Suspense fallback={<div>Loading...</div>}>
+          <LoginPageAsync />
+        </Suspense>
+      </Route>
 
       {/* Protected dashboard routes */}
       <ProtectedRoute path="/dashboard" nest>
@@ -31,10 +39,6 @@ export const AppRouter = () => {
       <Route>404, Not Found!</Route>
     </Switch>
   )
-}
-
-const Register = () => {
-  return <div>Register</div>
 }
 
 const Orders = () => {
