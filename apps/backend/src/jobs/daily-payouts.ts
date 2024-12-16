@@ -24,7 +24,7 @@ export default async function dailyPayouts(container: MedusaContainer) {
       fields: ['id'],
       pagination: {
         order: {
-          id: 'ASC'
+          created_at: 'ASC'
         },
         skip: offset,
         take: BATCH_SIZE
