@@ -34,45 +34,46 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
     method: ['GET'],
     matcher: '/vendor/orders/:id',
     middlewares: [
-      checkResourceOwnershipByResourceId({
-        entryPoint: sellerOrderLink.entryPoint
-      }),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
-      )
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerOrderLink.entryPoint
+      })
     ]
   },
   {
     method: ['POST'],
     matcher: '/vendor/orders/:id/cancel',
     middlewares: [
-      checkResourceOwnershipByResourceId({
-        entryPoint: sellerOrderLink.entryPoint
-      }),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
-      )
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerOrderLink.entryPoint
+      })
     ]
   },
   {
     method: ['POST'],
     matcher: '/vendor/orders/:id/complete',
     middlewares: [
-      checkResourceOwnershipByResourceId({
-        entryPoint: sellerOrderLink.entryPoint
-      }),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
-      )
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerOrderLink.entryPoint
+      })
     ]
   },
   {
     method: ['POST'],
     matcher: '/vendor/orders/:id/fulfillment',
     middlewares: [
+      validateAndTransformBody(VendorCreateFulfillment),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerOrderLink.entryPoint
       }),
@@ -81,8 +82,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         resourceId: (
           req: AuthenticatedMedusaRequest<VendorCreateFulfillmentType>
         ) => req.validatedBody.location_id
-      }),
-      validateAndTransformBody(VendorCreateFulfillment)
+      })
     ]
   }
 ]
