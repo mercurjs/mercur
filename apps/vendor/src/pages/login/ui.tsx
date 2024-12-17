@@ -14,6 +14,7 @@ import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCreateSession, useEmailpassLogin } from '@/entities/auth'
 import { Link, useLocation } from 'wouter'
+import { toast } from 'sonner'
 
 const schema = z
   .object({
@@ -45,7 +46,16 @@ const LoginPage = () => {
       password
     })
 
-    await createSession({ token })
+    await createSession(
+      { token },
+      {
+        onError: () => {
+          toast.error('Error occurred while logging in', {
+            description: 'Please try again later'
+          })
+        }
+      }
+    )
 
     navigate('/dashboard/orders')
   }

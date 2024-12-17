@@ -28,6 +28,7 @@ export const customFetch = async <T>(
   options: RequestInit
 ): Promise<T> => {
   const requestInit: RequestInit = {
+    credentials: "include",
     ...options,
   };
 

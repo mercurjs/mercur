@@ -1,8 +1,8 @@
-import { vendorCors } from '#/shared/infra/http/middlewares'
 import { unlessBaseUrl } from '#/shared/infra/http/utils'
 
 import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
+import { vendorCors } from './cors'
 import { vendorFulfillmentSetsMiddlewares } from './fulfillment-sets/middlewares'
 import { vendorInvitesMiddlewares } from './invites/middlewares'
 import { vendorProductsMiddlewares } from './products/middlewares'
@@ -12,8 +12,8 @@ import { vendorStockLocationsMiddlewares } from './stock-locations/middlewares'
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
   {
-    matcher: '/vendor/*',
-    middlewares: [vendorCors()]
+    matcher: '/vendor*',
+    middlewares: [vendorCors]
   },
   /**
    * @desc Here we are authenticating the seller routes

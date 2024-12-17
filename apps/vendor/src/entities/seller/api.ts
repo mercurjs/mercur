@@ -35,7 +35,8 @@ export const useCreateSeller = (
 export const useSeller = () => {
   const { data, ...other } = useQuery({
     queryKey: sellerQueryKeys.details(),
-    queryFn: () => vendorGetSellerMe().then((res) => res.data)
+    queryFn: () => vendorGetSellerMe().then((res) => res.data),
+    retry: false
   })
 
   return { ...data, ...other }

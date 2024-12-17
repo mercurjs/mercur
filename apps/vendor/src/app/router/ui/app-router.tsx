@@ -3,6 +3,8 @@ import { ProtectedRoute } from './protected-route'
 import { RegisterPageAsync } from '@/pages/register'
 import { LoginPageAsync } from '@/pages/login'
 import { Suspense } from 'react'
+import { SidebarTrigger } from '@/shared/ui'
+import { AppSidebarAsync } from '@/widgets/app-sidebar'
 
 export const AppRouter = () => {
   return (
@@ -21,6 +23,10 @@ export const AppRouter = () => {
 
       {/* Protected dashboard routes */}
       <ProtectedRoute path="/dashboard" nest>
+        <Suspense fallback={<div>Loading...</div>}>
+          <AppSidebarAsync />
+        </Suspense>
+        <SidebarTrigger className="ml-2" />
         <Switch>
           <Route path="/orders">
             <Orders />
