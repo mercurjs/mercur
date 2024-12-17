@@ -4,6 +4,7 @@ import {
 } from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
 
+import sellerInventoryItem from '../../../links/seller-inventory-item'
 import {
   checkResourceOwnershipByResourceId,
   filterBySellerId
@@ -13,9 +14,9 @@ import {
   vendorInventoryLevelQueryConfig
 } from './query-config'
 import {
-  VendorCreateInventoryItem,
   VendorCreateInventoryLocationLevel,
   VendorGetInventoryItemsParams,
+  VendorUpdateInventoryItem,
   VendorUpdateInventoryLevel
 } from './validators'
 
@@ -32,17 +33,6 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     ]
   },
   {
-    method: ['POST'],
-    matcher: '/vendor/inventory-items',
-    middlewares: [
-      validateAndTransformQuery(
-        VendorGetInventoryItemsParams,
-        vendorInventoryItemQueryConfig.retrieve
-      ),
-      validateAndTransformBody(VendorCreateInventoryItem)
-    ]
-  },
-  {
     method: ['GET'],
     matcher: '/vendor/inventory-items/:id',
     middlewares: [
@@ -50,9 +40,8 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         VendorGetInventoryItemsParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
-      // Check?
       checkResourceOwnershipByResourceId({
-        entryPoint: 'seller_product',
+        entryPoint: sellerInventoryItem.entryPoint,
         filterField: 'inventory_item_id'
       })
     ]
@@ -65,9 +54,9 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         VendorGetInventoryItemsParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
-      validateAndTransformBody(VendorCreateInventoryItem),
+      validateAndTransformBody(VendorUpdateInventoryItem),
       checkResourceOwnershipByResourceId({
-        entryPoint: 'seller_product',
+        entryPoint: sellerInventoryItem.entryPoint,
         filterField: 'inventory_item_id'
       })
     ]
@@ -81,7 +70,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         vendorInventoryLevelQueryConfig.list
       ),
       checkResourceOwnershipByResourceId({
-        entryPoint: 'seller_product',
+        entryPoint: sellerInventoryItem.entryPoint,
         filterField: 'inventory_item_id'
       })
     ]
@@ -96,7 +85,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
       ),
       validateAndTransformBody(VendorCreateInventoryLocationLevel),
       checkResourceOwnershipByResourceId({
-        entryPoint: 'seller_product',
+        entryPoint: sellerInventoryItem.entryPoint,
         filterField: 'inventory_item_id'
       })
     ]
@@ -110,7 +99,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         vendorInventoryLevelQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
-        entryPoint: 'seller_product',
+        entryPoint: sellerInventoryItem.entryPoint,
         filterField: 'inventory_item_id'
       }),
       checkResourceOwnershipByResourceId({
@@ -130,7 +119,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
       ),
       validateAndTransformBody(VendorUpdateInventoryLevel),
       checkResourceOwnershipByResourceId({
-        entryPoint: 'seller_product',
+        entryPoint: sellerInventoryItem.entryPoint,
         filterField: 'inventory_item_id'
       }),
       checkResourceOwnershipByResourceId({

@@ -51,8 +51,8 @@ export const VendorCreateInventoryLocationLevel = z
   .strict()
 
 /**
- * @schema VendorCreateInventoryItem
- * title: "VendorCreateInventoryItem"
+ * @schema VendorUpdateInventoryItem
+ * title: "VendorUpdateInventoryItem"
  * type: object
  * description: The inventory item's details.
  * properties:
@@ -112,10 +112,10 @@ export const VendorCreateInventoryLocationLevel = z
  *     type: object
  *     description: The inventory item's metadata, used to store custom key-value pairs.
  */
-export type VendorCreateInventoryItemType = z.infer<
-  typeof VendorCreateInventoryItem
+export type VendorUpdateInventoryItemType = z.infer<
+  typeof VendorUpdateInventoryItem
 >
-export const VendorCreateInventoryItem = z
+export const VendorUpdateInventoryItem = z
   .object({
     sku: z.string().nullish(),
     hs_code: z.string().nullish(),

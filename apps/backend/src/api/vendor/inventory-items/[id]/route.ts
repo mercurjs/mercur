@@ -2,7 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { updateInventoryItemsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { VendorCreateInventoryItemType } from '../validators'
+import { VendorUpdateInventoryItemType } from '../validators'
 
 /**
  * @oas [get] /vendor/inventory-items/{id}
@@ -70,7 +70,7 @@ export const GET = async (
  *   content:
  *     application/json:
  *       schema:
- *         $ref: "#/components/schemas/VendorCreateInventoryItem"
+ *         $ref: "#/components/schemas/VendorUpdateInventoryItem"
  * responses:
  *   "200":
  *     description: Ok
@@ -81,7 +81,7 @@ export const GET = async (
  *   - cookie_auth: []
  */
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorCreateInventoryItemType>,
+  req: AuthenticatedMedusaRequest<VendorUpdateInventoryItemType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)

@@ -1,10 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import { createInventoryItemsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerProductLink from '../../../links/seller-product'
 import { VendorGetProductParamsType } from '../products/validators'
-import { VendorCreateInventoryItemType } from './validators'
 
 /**
  * @oas [get] /vendor/inventory-items
@@ -47,50 +45,5 @@ export const GET = async (
     count: metadata!.count,
     offset: metadata!.skip,
     limit: metadata!.take
-  })
-}
-
-/**
- * @oas [post] /vendor/inventory-items
- * operationId: "VendorCreateInventoryItem"
- * summary: "Create InventoryItem"
- * description: "Creates InventoryItem"
- * x-authenticated: true
- * requestBody:
- *   content:
- *     application/json:
- *       schema:
- *         $ref: "#/components/schemas/VendorCreateInventoryItem"
- * responses:
- *   "201":
- *     description: Ok
- * tags:
- *   - Product
- * security:
- *   - api_token: []
- *   - cookie_auth: []
- */
-export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorCreateInventoryItemType>,
-  res: MedusaResponse
-) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const { result } = await createInventoryItemsWorkflow(req.scope).run({
-    input: { items: [req.validatedBody] }
-  })
-
-  const {
-    data: [inventory_item]
-  } = await query.graph({
-    entity: 'inventory_item',
-    fields: req.remoteQueryConfig.fields,
-    filters: {
-      id: result[0].id
-    }
-  })
-
-  res.status(201).json({
-    inventory_item
   })
 }
