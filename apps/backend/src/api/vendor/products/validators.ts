@@ -662,26 +662,3 @@ export const VendorUpdateProduct = z
     sales_channels: z.array(z.object({ id: z.string() })).optional()
   })
   .strict()
-
-/**
- * @schema VendorUpdateInventoryLevel
- * type: object
- * properties:
- *   location_id:
- *     type: string
- *     description: The ID of the StockLocation in which update should occur.
- *   inventory_item_id:
- *     type: string
- *     description: The ID of the InventoryItem.
- *   stocked_quantity:
- *     type: number
- *     description: The quantity of the InventoryItem in StockLocation.
- */
-export type VendorUpdateInventoryLevel = z.infer<
-  typeof VendorUpdateInventoryLevel
->
-export const VendorUpdateInventoryLevel = z.object({
-  location_id: z.string(),
-  inventory_item_id: z.string(),
-  stocked_quantity: z.number().int().min(0)
-})

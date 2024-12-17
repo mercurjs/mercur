@@ -3,6 +3,7 @@ import { unlessBaseUrl } from '#/shared/infra/http/utils'
 import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
 import { vendorFulfillmentSetsMiddlewares } from './fulfillment-sets/middlewares'
+import { vendorInventoryItemsMiddlewares } from './inventory-items/middlewares'
 import { vendorInvitesMiddlewares } from './invites/middlewares'
 import { vendorProductsMiddlewares } from './products/middlewares'
 import { vendorSellersMiddlewares } from './sellers/middlewares'
@@ -46,5 +47,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorInvitesMiddlewares,
   ...vendorFulfillmentSetsMiddlewares,
   ...vendorStockLocationsMiddlewares,
-  ...vendorShippingOptionsMiddlewares
+  ...vendorShippingOptionsMiddlewares,
+  ...vendorInventoryItemsMiddlewares
 ]
