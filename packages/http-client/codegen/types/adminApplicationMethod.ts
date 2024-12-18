@@ -6,7 +6,7 @@
  */
 import type { AdminApplicationMethodAllocation } from './adminApplicationMethodAllocation';
 import type { AdminPromotionRule } from './adminPromotionRule';
-import type { AdminPromotion } from './adminPromotion';
+import type { AdminApplicationMethodPromotion } from './adminApplicationMethodPromotion';
 import type { AdminApplicationMethodTargetType } from './adminApplicationMethodTargetType';
 import type { AdminApplicationMethodType } from './adminApplicationMethodType';
 
@@ -28,7 +28,7 @@ export interface AdminApplicationMethod {
   id: string;
   /** The max quantity allowed in the cart for the associated promotion to be applied. */
   max_quantity?: number;
-  promotion?: AdminPromotion;
+  promotion?: AdminApplicationMethodPromotion;
   /** The application method's target rules. */
   target_rules?: AdminPromotionRule[];
   /** Which item does the promotion apply to. `items` mean the promotion applies to the cart's items; `shipping_methods` means the promotion applies to the cart's shipping methods; `order` means the promotion applies on the entire order. */

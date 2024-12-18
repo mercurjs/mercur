@@ -18,7 +18,7 @@ import { VendorUpdateInventoryLevel } from '../../../validators'
  *     schema:
  *       type: string
  *   - in: path
- *     name: locationId
+ *     name: location_id
  *     required: true
  *     description: The ID of the Stock Location.
  *     schema:
@@ -85,7 +85,7 @@ export const POST = async (
  *     schema:
  *       type: string
  *   - in: path
- *     name: locationId
+ *     name: location_id
  *     required: true
  *     description: The ID of the Stock Location.
  *     schema:

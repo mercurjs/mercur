@@ -4,7 +4,7 @@
  * Medusa API
  * OpenAPI spec version: 1.0.0
  */
-import type { AdminPromotionApplicationMethod } from './adminPromotionApplicationMethod';
+import type { AdminApplicationMethod } from './adminApplicationMethod';
 import type { AdminCampaign } from './adminCampaign';
 import type { AdminPromotionRule } from './adminPromotionRule';
 import type { AdminPromotionType } from './adminPromotionType';
@@ -13,7 +13,7 @@ import type { AdminPromotionType } from './adminPromotionType';
  * The promotion's details.
  */
 export interface AdminPromotion {
-  application_method?: AdminPromotionApplicationMethod;
+  application_method?: AdminApplicationMethod;
   campaign?: AdminCampaign;
   /** The ID of the campaign this promotion belongs to. */
   campaign_id?: string;

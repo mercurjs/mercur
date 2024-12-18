@@ -46,7 +46,7 @@ export const GET = async (
 }
 
 /**
- * @oas [post] /vendor/inventory-items/{id}/location-levels/{locationId}
+ * @oas [post] /vendor/inventory-items/{id}/location-levels
  * operationId: "VendorCreateInventoryLevel"
  * summary: "Create inventory level"
  * description: "Creates inventory level of the InventoryItem in the specified location"

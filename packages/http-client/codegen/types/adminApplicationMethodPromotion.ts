@@ -5,4 +5,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type AdminPromotionApplicationMethod = { [key: string]: unknown };
+export type AdminApplicationMethodPromotion = { [key: string]: unknown };

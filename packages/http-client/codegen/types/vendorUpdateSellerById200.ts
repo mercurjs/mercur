@@ -6,6 +6,6 @@
  */
 import type { VendorSeller } from './vendorSeller';
 
-export type VendorGetSellerMe200 = {
+export type VendorUpdateSellerById200 = {
   seller?: VendorSeller;
 };

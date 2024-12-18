@@ -333,7 +333,6 @@
  *     format: date-time
  *     title: updated_at
  *     description: The date the sales channel was updated.
- *   deleted_at:
  */
 
 /**

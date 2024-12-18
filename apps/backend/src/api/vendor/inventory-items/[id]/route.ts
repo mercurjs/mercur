@@ -60,12 +60,6 @@ export const GET = async (
  *     description: The ID of the InventoryItem.
  *     schema:
  *       type: string
- *   - in: path
- *     name: locationId
- *     required: true
- *     description: The ID of the Stock Location.
- *     schema:
- *       type: string
  * requestBody:
  *   content:
  *     application/json:

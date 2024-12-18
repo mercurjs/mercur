@@ -2,9 +2,9 @@ import { Redirect, Route, Switch } from 'wouter'
 import { ProtectedRoute } from './protected-route'
 import { RegisterPageAsync } from '@/pages/register'
 import { LoginPageAsync } from '@/pages/login'
-import { Suspense } from 'react'
-import { SidebarTrigger } from '@/shared/ui'
+import { PropsWithChildren, Suspense } from 'react'
 import { AppSidebarAsync } from '@/widgets/app-sidebar'
+import { OrdersPageAsync } from '@/pages/orders'
 
 export const AppRouter = () => {
   return (
@@ -23,17 +23,16 @@ export const AppRouter = () => {
 
       {/* Protected dashboard routes */}
       <ProtectedRoute path="/dashboard" nest>
-        <Suspense fallback={<div>Loading...</div>}>
-          <AppSidebarAsync />
-        </Suspense>
-        <SidebarTrigger className="ml-2" />
-        <Switch>
-          <Route path="/orders">
-            <Orders />
-            <Route path="/:id" component={OrderDetails} />
-          </Route>
-          <Route>404, Not Found!</Route>
-        </Switch>
+        <Shell>
+          <Switch>
+            <Route path="/orders">
+              <Suspense fallback={<div>Loading...</div>}>
+                <OrdersPageAsync />
+              </Suspense>
+            </Route>
+            <Route>404, Not Found!</Route>
+          </Switch>
+        </Shell>
       </ProtectedRoute>
 
       {/* Root redirect */}
@@ -47,10 +46,15 @@ export const AppRouter = () => {
   )
 }
 
-const Orders = () => {
-  return <div>Orders</div>
-}
-
-const OrderDetails = () => {
-  return <div>OrderDetails</div>
+const Shell = ({ children }: PropsWithChildren) => {
+  return (
+    <div className="flex h-screen items-start overflow-hidden w-full">
+      <Suspense fallback={<div>Loading...</div>}>
+        <AppSidebarAsync />
+      </Suspense>
+      <div className="flex w-full max-w-[1600px] flex-col gap-y-2 p-10">
+        {children}
+      </div>
+    </div>
+  )
 }

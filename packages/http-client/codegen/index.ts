@@ -537,9 +537,9 @@ import type {
   AdminWorkflowExecutionResponse,
   AuthResponse,
   AuthStoreSessionResponse,
-  PostSellerTypeAuthProvider200,
-  PostSellerTypeAuthProviderBody,
-  PostSellerTypeAuthProviderRegisterBody,
+  PostActorTypeAuthProvider200,
+  PostActorTypeAuthProviderBody,
+  PostVendorTypeAuthProviderRegisterBody,
   RefundReasonResponse,
   StoreAcceptOrderTransfer,
   StoreAddCartLineItem,
@@ -625,6 +625,8 @@ import type {
   StorePostOrdersIdTransferRequestParams,
   StorePostPaymentCollectionsIdPaymentSessionsParams,
   StorePostPaymentCollectionsParams,
+  StorePostShippingOptionsIdCalculateBody,
+  StorePostShippingOptionsIdCalculateParams,
   StoreProductCategoryListResponse,
   StoreProductCategoryResponse,
   StoreProductResponse,
@@ -632,11 +634,16 @@ import type {
   StoreReturnReasonResponse,
   StoreReturnResponse,
   StoreShippingOptionListResponse,
+  StoreShippingOptionResponse,
   StoreUpdateCartLineItem,
   StoreUpdateCustomer,
   VendorAcceptInvite200,
   VendorAcceptMemberInvite,
   VendorCreateInvite201,
+  VendorCreateOnboarding,
+  VendorCreateOnboarding200,
+  VendorCreatePayoutAccount,
+  VendorCreatePayoutAccount201,
   VendorCreateProduct,
   VendorCreateProduct201,
   VendorCreateSeller,
@@ -658,9 +665,11 @@ import type {
   VendorDeleteShippingOptionById200,
   VendorGetMemberById200,
   VendorGetMemberMe200,
+  VendorGetPayoutAccount200,
+  VendorGetPayoutAccountParams,
   VendorGetProductById200,
   VendorGetProductByIdParams,
-  VendorGetSellerMe200,
+  VendorGetSellerById200,
   VendorGetShippingOptionById200,
   VendorGetStockLocation200,
   VendorGetStockLocationParams,
@@ -680,7 +689,7 @@ import type {
   VendorUpdateProductById200,
   VendorUpdateProductByIdParams,
   VendorUpdateSeller,
-  VendorUpdateSellerMe200,
+  VendorUpdateSellerById200,
   VendorUpdateServiceZone,
   VendorUpdateServiceZoneById200,
   VendorUpdateShippingOption,
@@ -14039,65 +14048,105 @@ export const storeGetShippingOptions = async (params: StoreGetShippingOptionsPar
 
 
 /**
- * Authenticate a seller and receive the JWT token to be used in the header of subsequent requests.
-
-When used with a third-party provider, such as Google, the request returns a `location` property. You redirect to the specified URL in your frontend to continue authentication with the third-party service.
-
- * @summary Authenticate Seller
+ * Calculate the price of a shipping option in a cart.
+ * @summary Calculate Shipping Option Price
  */
-export type postSellerTypeAuthProviderResponse = {
-  data: PostSellerTypeAuthProvider200;
+export type storePostShippingOptionsIdCalculateResponse = {
+  data: StoreShippingOptionResponse;
   status: number;
   headers: Headers;
 }
 
-export const getPostSellerTypeAuthProviderUrl = (authProvider: string,) => {
+export const getStorePostShippingOptionsIdCalculateUrl = (id: string,
+    params?: StorePostShippingOptionsIdCalculateParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  return `http://localhost:9000/auth/seller/${authProvider}`
+  return normalizedParams.size ? `http://localhost:9000/store/shipping-options/${id}/calculate?${normalizedParams.toString()}` : `http://localhost:9000/store/shipping-options/${id}/calculate`
 }
 
-export const postSellerTypeAuthProvider = async (authProvider: string,
-    postSellerTypeAuthProviderBody: PostSellerTypeAuthProviderBody, options?: RequestInit): Promise<postSellerTypeAuthProviderResponse> => {
+export const storePostShippingOptionsIdCalculate = async (id: string,
+    storePostShippingOptionsIdCalculateBody: StorePostShippingOptionsIdCalculateBody,
+    params?: StorePostShippingOptionsIdCalculateParams, options?: RequestInit): Promise<storePostShippingOptionsIdCalculateResponse> => {
   
-  return customFetch<Promise<postSellerTypeAuthProviderResponse>>(getPostSellerTypeAuthProviderUrl(authProvider),
+  return customFetch<Promise<storePostShippingOptionsIdCalculateResponse>>(getStorePostShippingOptionsIdCalculateUrl(id,params),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      postSellerTypeAuthProviderBody,)
+      storePostShippingOptionsIdCalculateBody,)
   }
 );}
 
 
 
 /**
- * This API route retrieves a registration JWT token of a seller that hasn't been registered yet. The token is used in the header of requests that create a seller, such as the Accept Invite API route.
- * @summary Retrieve Registration JWT Token
+ * Authenticate a vendor and receive the JWT token to be used in the header of subsequent requests.
+
+When used with a third-party provider, such as Google, the request returns a `location` property. You redirect to the specified URL in your frontend to continue authentication with the third-party service.
+
+ * @summary Authenticate Vendor
  */
-export type postSellerTypeAuthProviderRegisterResponse = {
-  data: AuthResponse;
+export type postActorTypeAuthProviderResponse = {
+  data: PostActorTypeAuthProvider200;
   status: number;
   headers: Headers;
 }
 
-export const getPostSellerTypeAuthProviderRegisterUrl = (authProvider: string,) => {
+export const getPostActorTypeAuthProviderUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:9000/auth/seller/${authProvider}/register`
+  return `http://localhost:9000/auth/vendor/${authProvider}`
 }
 
-export const postSellerTypeAuthProviderRegister = async (authProvider: string,
-    postSellerTypeAuthProviderRegisterBody: PostSellerTypeAuthProviderRegisterBody, options?: RequestInit): Promise<postSellerTypeAuthProviderRegisterResponse> => {
+export const postActorTypeAuthProvider = async (authProvider: string,
+    postActorTypeAuthProviderBody: PostActorTypeAuthProviderBody, options?: RequestInit): Promise<postActorTypeAuthProviderResponse> => {
   
-  return customFetch<Promise<postSellerTypeAuthProviderRegisterResponse>>(getPostSellerTypeAuthProviderRegisterUrl(authProvider),
+  return customFetch<Promise<postActorTypeAuthProviderResponse>>(getPostActorTypeAuthProviderUrl(authProvider),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      postSellerTypeAuthProviderRegisterBody,)
+      postActorTypeAuthProviderBody,)
+  }
+);}
+
+
+
+/**
+ * This API route retrieves a registration JWT token of a vendor that hasn't been registered yet. The token is used in the header of requests that create a vendor, such as the Accept Invite API route.
+ * @summary Retrieve Registration JWT Token
+ */
+export type postVendorTypeAuthProviderRegisterResponse = {
+  data: AuthResponse;
+  status: number;
+  headers: Headers;
+}
+
+export const getPostVendorTypeAuthProviderRegisterUrl = (authProvider: string,) => {
+
+
+  return `http://localhost:9000/auth/vendor/${authProvider}/register`
+}
+
+export const postVendorTypeAuthProviderRegister = async (authProvider: string,
+    postVendorTypeAuthProviderRegisterBody: PostVendorTypeAuthProviderRegisterBody, options?: RequestInit): Promise<postVendorTypeAuthProviderRegisterResponse> => {
+  
+  return customFetch<Promise<postVendorTypeAuthProviderRegisterResponse>>(getPostVendorTypeAuthProviderRegisterUrl(authProvider),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postVendorTypeAuthProviderRegisterBody,)
   }
 );}
 
@@ -14479,6 +14528,102 @@ export const vendorDeleteMemberById = async (id: string, options?: RequestInit):
 
 
 /**
+ * Retrieves the payout account for the authenticated vendor.
+ * @summary Get Payout Account
+ */
+export type vendorGetPayoutAccountResponse = {
+  data: VendorGetPayoutAccount200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorGetPayoutAccountUrl = (params?: VendorGetPayoutAccountParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  return normalizedParams.size ? `http://localhost:9000/vendor/payout-account?${normalizedParams.toString()}` : `http://localhost:9000/vendor/payout-account`
+}
+
+export const vendorGetPayoutAccount = async (params?: VendorGetPayoutAccountParams, options?: RequestInit): Promise<vendorGetPayoutAccountResponse> => {
+  
+  return customFetch<Promise<vendorGetPayoutAccountResponse>>(getVendorGetPayoutAccountUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Creates a payout account for the authenticated vendor.
+ * @summary Create Payout Account
+ */
+export type vendorCreatePayoutAccountResponse = {
+  data: VendorCreatePayoutAccount201;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorCreatePayoutAccountUrl = () => {
+
+
+  return `http://localhost:9000/vendor/payout-account`
+}
+
+export const vendorCreatePayoutAccount = async (vendorCreatePayoutAccount: VendorCreatePayoutAccount, options?: RequestInit): Promise<vendorCreatePayoutAccountResponse> => {
+  
+  return customFetch<Promise<vendorCreatePayoutAccountResponse>>(getVendorCreatePayoutAccountUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorCreatePayoutAccount,)
+  }
+);}
+
+
+
+/**
+ * Creates an onboarding for the authenticated vendor's payout account.
+ * @summary Create Onboarding
+ */
+export type vendorCreateOnboardingResponse = {
+  data: VendorCreateOnboarding200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorCreateOnboardingUrl = () => {
+
+
+  return `http://localhost:9000/vendor/payout-account/onboarding`
+}
+
+export const vendorCreateOnboarding = async (vendorCreateOnboarding: VendorCreateOnboarding, options?: RequestInit): Promise<vendorCreateOnboardingResponse> => {
+  
+  return customFetch<Promise<vendorCreateOnboardingResponse>>(getVendorCreateOnboardingUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorCreateOnboarding,)
+  }
+);}
+
+
+
+/**
  * Retrieves a list of products for the authenticated vendor.
  * @summary List Products
  */
@@ -14685,21 +14830,21 @@ export const vendorCreateSeller = async (vendorCreateSeller: VendorCreateSeller,
  * Retrieves the seller associated with the authenticated user.
  * @summary Get Current Seller
  */
-export type vendorGetSellerMeResponse = {
-  data: VendorGetSellerMe200;
+export type vendorGetSellerByIdResponse = {
+  data: VendorGetSellerById200;
   status: number;
   headers: Headers;
 }
 
-export const getVendorGetSellerMeUrl = () => {
+export const getVendorGetSellerByIdUrl = () => {
 
 
   return `http://localhost:9000/vendor/sellers/me`
 }
 
-export const vendorGetSellerMe = async ( options?: RequestInit): Promise<vendorGetSellerMeResponse> => {
+export const vendorGetSellerById = async ( options?: RequestInit): Promise<vendorGetSellerByIdResponse> => {
   
-  return customFetch<Promise<vendorGetSellerMeResponse>>(getVendorGetSellerMeUrl(),
+  return customFetch<Promise<vendorGetSellerByIdResponse>>(getVendorGetSellerByIdUrl(),
   {      
     ...options,
     method: 'GET'
@@ -14714,21 +14859,21 @@ export const vendorGetSellerMe = async ( options?: RequestInit): Promise<vendorG
  * Updates the seller associated with the authenticated user.
  * @summary Update Current Seller
  */
-export type vendorUpdateSellerMeResponse = {
-  data: VendorUpdateSellerMe200;
+export type vendorUpdateSellerByIdResponse = {
+  data: VendorUpdateSellerById200;
   status: number;
   headers: Headers;
 }
 
-export const getVendorUpdateSellerMeUrl = () => {
+export const getVendorUpdateSellerByIdUrl = () => {
 
 
   return `http://localhost:9000/vendor/sellers/me`
 }
 
-export const vendorUpdateSellerMe = async (vendorUpdateSeller: VendorUpdateSeller, options?: RequestInit): Promise<vendorUpdateSellerMeResponse> => {
+export const vendorUpdateSellerById = async (vendorUpdateSeller: VendorUpdateSeller, options?: RequestInit): Promise<vendorUpdateSellerByIdResponse> => {
   
-  return customFetch<Promise<vendorUpdateSellerMeResponse>>(getVendorUpdateSellerMeUrl(),
+  return customFetch<Promise<vendorUpdateSellerByIdResponse>>(getVendorUpdateSellerByIdUrl(),
   {      
     ...options,
     method: 'POST',

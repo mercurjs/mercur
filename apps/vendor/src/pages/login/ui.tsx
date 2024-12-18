@@ -41,10 +41,19 @@ const LoginPage = () => {
   })
 
   async function onSubmit({ email, password }: z.infer<typeof schema>) {
-    const { token } = await login({
-      email,
-      password
-    })
+    const { token } = await login(
+      {
+        email,
+        password
+      },
+      {
+        onError: (error) => {
+          toast.error('Error occurred while logging in', {
+            description: error.message
+          })
+        }
+      }
+    )
 
     await createSession(
       { token },
