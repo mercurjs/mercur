@@ -2,27 +2,6 @@ import { z } from 'zod'
 
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
-/**
- * @schema VendorGetMemberParams
- * type: object
- * properties:
- *   limit:
- *     type: number
- *     description: The number of items to return. Default 50.
- *   offset:
- *     type: number
- *     description: The number of items to skip before starting the response. Default 0.
- *   fields:
- *     type: string
- *     description: Comma-separated fields that should be included in the returned data.
- *   expand:
- *     type: string
- *     description: Comma-separated relations that should be expanded in the returned data.
- *   order:
- *     type: string
- *     description: Field used to order the results.
- */
-
 export type VendorGetMemberParamsType = z.infer<typeof VendorGetMemberParams>
 export const VendorGetMemberParams = createFindParams({
   offset: 0,

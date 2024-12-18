@@ -19,7 +19,7 @@ export const updateSellerStep = createStep(
 
     const updatedSellers: SellerDTO = await service.updateSellers({
       ...input,
-      handle: newHandle
+      ...(newHandle ? { handle: newHandle } : {})
     })
 
     return new StepResponse(updatedSellers, previousData)

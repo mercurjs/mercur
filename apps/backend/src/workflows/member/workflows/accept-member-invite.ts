@@ -19,7 +19,6 @@ export const acceptMemberInvitesWorkflow = createWorkflow(
     const [member] = parallelize(
       createMemberStep({
         seller_id: invite.seller.id,
-        email: invite.email,
         name: input.invite.name,
         role: invite.role
       }),

@@ -1,3 +1,5 @@
+import { PayoutAccountDTO } from '#/modules/payout/types'
+
 export type SellerDTO = {
   id: string
   created_at: Date
@@ -7,6 +9,10 @@ export type SellerDTO = {
   handle: string
   photo: string | null
   members?: Partial<MemberDTO>[]
+}
+
+export type SellerWithPayoutAccountDTO = SellerDTO & {
+  payout_account: PayoutAccountDTO
 }
 
 export enum MemberRole {

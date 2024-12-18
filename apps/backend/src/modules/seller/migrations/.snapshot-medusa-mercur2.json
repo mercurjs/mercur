@@ -127,6 +127,123 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "is_payout_account_setup_completed": {
+          "name": "is_payout_account_setup_completed",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
+        "seller_id": {
+          "name": "seller_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "onboarding",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "seller_id"
+          ],
+          "composite": false,
+          "keyName": "onboarding_seller_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "IDX_onboarding_seller_id",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_onboarding_seller_id\" ON \"onboarding\" (seller_id) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_onboarding_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_onboarding_deleted_at\" ON \"onboarding\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "onboarding_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "onboarding_seller_id_foreign": {
+          "constraintName": "onboarding_seller_id_foreign",
+          "columnNames": [
+            "seller_id"
+          ],
+          "localTableName": "public.onboarding",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.seller",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
         "email": {
           "name": "email",
           "type": "text",
@@ -263,7 +380,6 @@
             "id"
           ],
           "referencedTableName": "public.seller",
-          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }
@@ -413,7 +529,6 @@
             "id"
           ],
           "referencedTableName": "public.seller",
-          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }

@@ -1,9 +1,14 @@
 import {
   FormattedOrderSetDTO,
+  OrderSetDTO,
   OrderSetWithOrdersDTO
 } from '#/modules/marketplace/types'
 
-import { OrderDTO, OrderDetailDTO } from '@medusajs/framework/types'
+import {
+  OrderDTO,
+  OrderDetailDTO,
+  PaymentCollectionStatus
+} from '@medusajs/framework/types'
 import { BigNumber, MathBN } from '@medusajs/framework/utils'
 
 export const formatOrderSets = (
@@ -35,7 +40,7 @@ export const formatOrderSets = (
     return {
       ...orderSet,
       status: getStatus(orderSet.orders),
-      payment_status: getPaymentStatus(orderSet.orders),
+      payment_status: getPaymentStatus(orderSet),
       fulfillment_status: getFulfillmentStatus(orderSet.orders),
       tax_total: new BigNumber(taxTotal),
       shipping_tax_total: new BigNumber(shippingTaxTotal),
@@ -64,58 +69,8 @@ const getStatus = (orders: OrderDTO[]) => {
   return 'pending'
 }
 
-const getPaymentStatus = (orders: OrderDetailDTO[]) => {
-  const statuses = orders.map((order) => order.payment_status)
-
-  if (statuses.every((status) => status === 'awaiting')) {
-    return 'awaiting'
-  }
-
-  if (statuses.every((status) => status === 'canceled')) {
-    return 'canceled'
-  }
-
-  if (statuses.every((status) => status === 'captured')) {
-    return 'captured'
-  }
-
-  if (statuses.every((status) => status === 'not_paid')) {
-    return 'not_paid'
-  }
-
-  if (statuses.every((status) => status === 'refunded')) {
-    return 'refunded'
-  }
-
-  if (statuses.every((status) => status === 'requires_action')) {
-    return 'requires_action'
-  }
-
-  if (
-    statuses.some(
-      (status) => status === 'partially_refunded' || status === 'refunded'
-    )
-  ) {
-    return 'partially_refunded'
-  }
-
-  if (
-    statuses.some(
-      (status) => status === 'partially_captured' || status === 'captured'
-    )
-  ) {
-    return 'partially_captured'
-  }
-
-  if (
-    statuses.some(
-      (status) => status === 'partially_authorized' || status === 'authorized'
-    )
-  ) {
-    return 'partially_authorized'
-  }
-
-  return 'authorized'
+const getPaymentStatus = (orderSet: OrderSetDTO): PaymentCollectionStatus => {
+  return orderSet.payment_collection!.status
 }
 
 export const getFulfillmentStatus = (orders: OrderDetailDTO[]) => {

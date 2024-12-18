@@ -83,19 +83,6 @@ class SellerModuleService extends MedusaService({
   ): Promise<MemberInviteDTO[]> {
     const data = Array.isArray(input) ? input : [input]
 
-    const alreadyExistingMembers = await this.listMembers({
-      email: data.map((d) => d.email)
-    })
-
-    if (alreadyExistingMembers.length) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        `Members for following email(s) already exist: ${alreadyExistingMembers
-          .map((u) => u.email)
-          .join(', ')}`
-      )
-    }
-
     const toCreate = data.map((invite) => {
       return {
         ...invite,

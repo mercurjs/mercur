@@ -17,6 +17,27 @@ module.exports = defineConfig({
   },
   modules: [
     { resolve: './src/modules/seller' },
-    { resolve: './src/modules/marketplace' }
+    { resolve: './src/modules/marketplace' },
+    {
+      resolve: './src/modules/payout',
+      options: {
+        apiKey: process.env.STRIPE_SECRET_API_KEY,
+        webhookSecret: process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET
+      }
+    },
+    {
+      resolve: '@medusajs/medusa/payment',
+      options: {
+        providers: [
+          {
+            resolve: './src/modules/payment-stripe-connect',
+            id: 'stripe-connect',
+            options: {
+              apiKey: process.env.STRIPE_SECRET_API_KEY
+            }
+          }
+        ]
+      }
+    }
   ]
 })
