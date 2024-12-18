@@ -8,7 +8,6 @@ import type { BaseClaimItem } from './baseClaimItem';
 import type { OrderClaimMetadata } from './orderClaimMetadata';
 import type { Order } from './order';
 import type { OrderClaimRawRefundAmount } from './orderClaimRawRefundAmount';
-import type { OrderClaimRefundAmount } from './orderClaimRefundAmount';
 import type { OrderClaimReturn } from './orderClaimReturn';
 import type { OrderShippingMethod } from './orderShippingMethod';
 import type { OrderTransaction } from './orderTransaction';
@@ -45,7 +44,7 @@ export interface OrderClaim {
   order_version: number;
   raw_refund_amount?: OrderClaimRawRefundAmount;
   /** The amount to be refunded. */
-  refund_amount?: OrderClaimRefundAmount;
+  refund_amount?: number;
   return?: OrderClaimReturn;
   /** The ID of the associated return. */
   return_id?: string;

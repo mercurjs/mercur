@@ -537,9 +537,9 @@ import type {
   AdminWorkflowExecutionResponse,
   AuthResponse,
   AuthStoreSessionResponse,
-  PostActorTypeAuthProvider200,
-  PostActorTypeAuthProviderBody,
-  PostVendorTypeAuthProviderRegisterBody,
+  PostSellerTypeAuthProvider200,
+  PostSellerTypeAuthProviderBody,
+  PostSellerTypeAuthProviderRegisterBody,
   RefundReasonResponse,
   StoreAcceptOrderTransfer,
   StoreAddCartLineItem,
@@ -660,7 +660,7 @@ import type {
   VendorGetMemberMe200,
   VendorGetProductById200,
   VendorGetProductByIdParams,
-  VendorGetSellerById200,
+  VendorGetSellerMe200,
   VendorGetShippingOptionById200,
   VendorGetStockLocation200,
   VendorGetStockLocationParams,
@@ -680,7 +680,7 @@ import type {
   VendorUpdateProductById200,
   VendorUpdateProductByIdParams,
   VendorUpdateSeller,
-  VendorUpdateSellerById200,
+  VendorUpdateSellerMe200,
   VendorUpdateServiceZone,
   VendorUpdateServiceZoneById200,
   VendorUpdateShippingOption,
@@ -718,7 +718,7 @@ export const getAdminGetApiKeysUrl = (params?: AdminGetApiKeysParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/api-keys?${normalizedParams.toString()}` : `http://localhost:3000/admin/api-keys`
+  return normalizedParams.size ? `http://localhost:9000/admin/api-keys?${normalizedParams.toString()}` : `http://localhost:9000/admin/api-keys`
 }
 
 export const adminGetApiKeys = async (params?: AdminGetApiKeysParams, options?: RequestInit): Promise<adminGetApiKeysResponse> => {
@@ -751,7 +751,7 @@ export type adminPostApiKeysResponse = {
 export const getAdminPostApiKeysUrl = () => {
 
 
-  return `http://localhost:3000/admin/api-keys`
+  return `http://localhost:9000/admin/api-keys`
 }
 
 export const adminPostApiKeys = async (adminCreateApiKey: AdminCreateApiKey, options?: RequestInit): Promise<adminPostApiKeysResponse> => {
@@ -789,7 +789,7 @@ export const getAdminGetApiKeysIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/api-keys/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/api-keys/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/api-keys/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/api-keys/${id}`
 }
 
 export const adminGetApiKeysId = async (id: string,
@@ -827,7 +827,7 @@ export const getAdminPostApiKeysIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/api-keys/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/api-keys/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/api-keys/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/api-keys/${id}`
 }
 
 export const adminPostApiKeysId = async (id: string,
@@ -860,7 +860,7 @@ export type adminDeleteApiKeysIdResponse = {
 export const getAdminDeleteApiKeysIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/api-keys/${id}`
+  return `http://localhost:9000/admin/api-keys/${id}`
 }
 
 export const adminDeleteApiKeysId = async (id: string, options?: RequestInit): Promise<adminDeleteApiKeysIdResponse> => {
@@ -898,7 +898,7 @@ export const getAdminPostApiKeysIdRevokeUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/api-keys/${id}/revoke?${normalizedParams.toString()}` : `http://localhost:3000/admin/api-keys/${id}/revoke`
+  return normalizedParams.size ? `http://localhost:9000/admin/api-keys/${id}/revoke?${normalizedParams.toString()}` : `http://localhost:9000/admin/api-keys/${id}/revoke`
 }
 
 export const adminPostApiKeysIdRevoke = async (id: string,
@@ -938,7 +938,7 @@ export const getAdminPostApiKeysIdSalesChannelsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/api-keys/${id}/sales-channels?${normalizedParams.toString()}` : `http://localhost:3000/admin/api-keys/${id}/sales-channels`
+  return normalizedParams.size ? `http://localhost:9000/admin/api-keys/${id}/sales-channels?${normalizedParams.toString()}` : `http://localhost:9000/admin/api-keys/${id}/sales-channels`
 }
 
 export const adminPostApiKeysIdSalesChannels = async (id: string,
@@ -977,7 +977,7 @@ export const getAdminGetCampaignsUrl = (params?: AdminGetCampaignsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/campaigns?${normalizedParams.toString()}` : `http://localhost:3000/admin/campaigns`
+  return normalizedParams.size ? `http://localhost:9000/admin/campaigns?${normalizedParams.toString()}` : `http://localhost:9000/admin/campaigns`
 }
 
 export const adminGetCampaigns = async (params?: AdminGetCampaignsParams, options?: RequestInit): Promise<adminGetCampaignsResponse> => {
@@ -1013,7 +1013,7 @@ export const getAdminPostCampaignsUrl = (params?: AdminPostCampaignsParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/campaigns?${normalizedParams.toString()}` : `http://localhost:3000/admin/campaigns`
+  return normalizedParams.size ? `http://localhost:9000/admin/campaigns?${normalizedParams.toString()}` : `http://localhost:9000/admin/campaigns`
 }
 
 export const adminPostCampaigns = async (adminPostCampaignsBody: AdminPostCampaignsBody,
@@ -1052,7 +1052,7 @@ export const getAdminGetCampaignsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/campaigns/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/campaigns/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/campaigns/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/campaigns/${id}`
 }
 
 export const adminGetCampaignsId = async (id: string,
@@ -1090,7 +1090,7 @@ export const getAdminPostCampaignsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/campaigns/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/campaigns/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/campaigns/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/campaigns/${id}`
 }
 
 export const adminPostCampaignsId = async (id: string,
@@ -1123,7 +1123,7 @@ export type adminDeleteCampaignsIdResponse = {
 export const getAdminDeleteCampaignsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/campaigns/${id}`
+  return `http://localhost:9000/admin/campaigns/${id}`
 }
 
 export const adminDeleteCampaignsId = async (id: string, options?: RequestInit): Promise<adminDeleteCampaignsIdResponse> => {
@@ -1160,7 +1160,7 @@ export const getAdminPostCampaignsIdPromotionsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/campaigns/${id}/promotions?${normalizedParams.toString()}` : `http://localhost:3000/admin/campaigns/${id}/promotions`
+  return normalizedParams.size ? `http://localhost:9000/admin/campaigns/${id}/promotions?${normalizedParams.toString()}` : `http://localhost:9000/admin/campaigns/${id}/promotions`
 }
 
 export const adminPostCampaignsIdPromotions = async (id: string,
@@ -1199,7 +1199,7 @@ export const getAdminGetClaimsUrl = (params?: AdminGetClaimsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims`
 }
 
 export const adminGetClaims = async (params?: AdminGetClaimsParams, options?: RequestInit): Promise<adminGetClaimsResponse> => {
@@ -1235,7 +1235,7 @@ export const getAdminPostClaimsUrl = (params?: AdminPostClaimsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims`
 }
 
 export const adminPostClaims = async (adminPostOrderClaimsReqSchema: AdminPostOrderClaimsReqSchema,
@@ -1274,7 +1274,7 @@ export const getAdminGetClaimsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}`
 }
 
 export const adminGetClaimsId = async (id: string,
@@ -1304,7 +1304,7 @@ export type adminPostClaimsIdCancelResponse = {
 export const getAdminPostClaimsIdCancelUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/claims/${id}/cancel`
+  return `http://localhost:9000/admin/claims/${id}/cancel`
 }
 
 export const adminPostClaimsIdCancel = async (id: string,
@@ -1343,7 +1343,7 @@ export const getAdminPostClaimsIdClaimItemsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/claim-items?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/claim-items`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/claim-items?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/claim-items`
 }
 
 export const adminPostClaimsIdClaimItems = async (id: string,
@@ -1387,7 +1387,7 @@ export const getAdminPostClaimsIdClaimItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/claim-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/claim-items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/claim-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/claim-items/${actionId}`
 }
 
 export const adminPostClaimsIdClaimItemsActionId = async (id: string,
@@ -1432,7 +1432,7 @@ export const getAdminDeleteClaimsIdClaimItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/claim-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/claim-items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/claim-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/claim-items/${actionId}`
 }
 
 export const adminDeleteClaimsIdClaimItemsActionId = async (id: string,
@@ -1464,7 +1464,7 @@ export type adminPostClaimsIdInboundItemsResponse = {
 export const getAdminPostClaimsIdInboundItemsUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/claims/${id}/inbound/items`
+  return `http://localhost:9000/admin/claims/${id}/inbound/items`
 }
 
 export const adminPostClaimsIdInboundItems = async (id: string,
@@ -1499,7 +1499,7 @@ export const getAdminPostClaimsIdInboundItemsActionIdUrl = (id: string,
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/claims/${id}/inbound/items/${actionId}`
+  return `http://localhost:9000/admin/claims/${id}/inbound/items/${actionId}`
 }
 
 export const adminPostClaimsIdInboundItemsActionId = async (id: string,
@@ -1535,7 +1535,7 @@ export const getAdminDeleteClaimsIdInboundItemsActionIdUrl = (id: string,
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/claims/${id}/inbound/items/${actionId}`
+  return `http://localhost:9000/admin/claims/${id}/inbound/items/${actionId}`
 }
 
 export const adminDeleteClaimsIdInboundItemsActionId = async (id: string,
@@ -1566,7 +1566,7 @@ export type adminPostClaimsIdInboundShippingMethodResponse = {
 export const getAdminPostClaimsIdInboundShippingMethodUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/claims/${id}/inbound/shipping-method`
+  return `http://localhost:9000/admin/claims/${id}/inbound/shipping-method`
 }
 
 export const adminPostClaimsIdInboundShippingMethod = async (id: string,
@@ -1609,7 +1609,7 @@ export const getAdminPostClaimsIdInboundShippingMethodActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/inbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/inbound/shipping-method/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/inbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/inbound/shipping-method/${actionId}`
 }
 
 export const adminPostClaimsIdInboundShippingMethodActionId = async (id: string,
@@ -1646,7 +1646,7 @@ export const getAdminDeleteClaimsIdInboundShippingMethodActionIdUrl = (id: strin
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/claims/${id}/inbound/shipping-method/${actionId}`
+  return `http://localhost:9000/admin/claims/${id}/inbound/shipping-method/${actionId}`
 }
 
 export const adminDeleteClaimsIdInboundShippingMethodActionId = async (id: string,
@@ -1685,7 +1685,7 @@ export const getAdminPostClaimsIdOutboundItemsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/outbound/items?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/outbound/items`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/outbound/items?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/outbound/items`
 }
 
 export const adminPostClaimsIdOutboundItems = async (id: string,
@@ -1729,7 +1729,7 @@ export const getAdminPostClaimsIdOutboundItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/outbound/items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/outbound/items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/outbound/items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/outbound/items/${actionId}`
 }
 
 export const adminPostClaimsIdOutboundItemsActionId = async (id: string,
@@ -1774,7 +1774,7 @@ export const getAdminDeleteClaimsIdOutboundItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/outbound/items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/outbound/items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/outbound/items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/outbound/items/${actionId}`
 }
 
 export const adminDeleteClaimsIdOutboundItemsActionId = async (id: string,
@@ -1814,7 +1814,7 @@ export const getAdminPostClaimsIdOutboundShippingMethodUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/outbound/shipping-method?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/outbound/shipping-method`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/outbound/shipping-method?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/outbound/shipping-method`
 }
 
 export const adminPostClaimsIdOutboundShippingMethod = async (id: string,
@@ -1858,7 +1858,7 @@ export const getAdminPostClaimsIdOutboundShippingMethodActionIdUrl = (id: string
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/outbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/outbound/shipping-method/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/outbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/outbound/shipping-method/${actionId}`
 }
 
 export const adminPostClaimsIdOutboundShippingMethodActionId = async (id: string,
@@ -1903,7 +1903,7 @@ export const getAdminDeleteClaimsIdOutboundShippingMethodActionIdUrl = (id: stri
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/outbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/outbound/shipping-method/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/outbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/outbound/shipping-method/${actionId}`
 }
 
 export const adminDeleteClaimsIdOutboundShippingMethodActionId = async (id: string,
@@ -1942,7 +1942,7 @@ export const getAdminPostClaimsIdRequestUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/claims/${id}/request?${normalizedParams.toString()}` : `http://localhost:3000/admin/claims/${id}/request`
+  return normalizedParams.size ? `http://localhost:9000/admin/claims/${id}/request?${normalizedParams.toString()}` : `http://localhost:9000/admin/claims/${id}/request`
 }
 
 export const adminPostClaimsIdRequest = async (id: string,
@@ -1972,7 +1972,7 @@ export type adminDeleteClaimsIdRequestResponse = {
 export const getAdminDeleteClaimsIdRequestUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/claims/${id}/request`
+  return `http://localhost:9000/admin/claims/${id}/request`
 }
 
 export const adminDeleteClaimsIdRequest = async (id: string, options?: RequestInit): Promise<adminDeleteClaimsIdRequestResponse> => {
@@ -2008,7 +2008,7 @@ export const getAdminGetCollectionsUrl = (params?: AdminGetCollectionsParams,) =
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/collections?${normalizedParams.toString()}` : `http://localhost:3000/admin/collections`
+  return normalizedParams.size ? `http://localhost:9000/admin/collections?${normalizedParams.toString()}` : `http://localhost:9000/admin/collections`
 }
 
 export const adminGetCollections = async (params?: AdminGetCollectionsParams, options?: RequestInit): Promise<adminGetCollectionsResponse> => {
@@ -2044,7 +2044,7 @@ export const getAdminPostCollectionsUrl = (params?: AdminPostCollectionsParams,)
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/collections?${normalizedParams.toString()}` : `http://localhost:3000/admin/collections`
+  return normalizedParams.size ? `http://localhost:9000/admin/collections?${normalizedParams.toString()}` : `http://localhost:9000/admin/collections`
 }
 
 export const adminPostCollections = async (adminCreateCollection: AdminCreateCollection,
@@ -2083,7 +2083,7 @@ export const getAdminGetCollectionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/collections/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/collections/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/collections/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/collections/${id}`
 }
 
 export const adminGetCollectionsId = async (id: string,
@@ -2121,7 +2121,7 @@ export const getAdminPostCollectionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/collections/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/collections/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/collections/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/collections/${id}`
 }
 
 export const adminPostCollectionsId = async (id: string,
@@ -2153,7 +2153,7 @@ export type adminDeleteCollectionsIdResponse = {
 export const getAdminDeleteCollectionsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/collections/${id}`
+  return `http://localhost:9000/admin/collections/${id}`
 }
 
 export const adminDeleteCollectionsId = async (id: string, options?: RequestInit): Promise<adminDeleteCollectionsIdResponse> => {
@@ -2190,7 +2190,7 @@ export const getAdminPostCollectionsIdProductsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/collections/${id}/products?${normalizedParams.toString()}` : `http://localhost:3000/admin/collections/${id}/products`
+  return normalizedParams.size ? `http://localhost:9000/admin/collections/${id}/products?${normalizedParams.toString()}` : `http://localhost:9000/admin/collections/${id}/products`
 }
 
 export const adminPostCollectionsIdProducts = async (id: string,
@@ -2229,7 +2229,7 @@ export const getAdminGetCurrenciesUrl = (params?: AdminGetCurrenciesParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/currencies?${normalizedParams.toString()}` : `http://localhost:3000/admin/currencies`
+  return normalizedParams.size ? `http://localhost:9000/admin/currencies?${normalizedParams.toString()}` : `http://localhost:9000/admin/currencies`
 }
 
 export const adminGetCurrencies = async (params?: AdminGetCurrenciesParams, options?: RequestInit): Promise<adminGetCurrenciesResponse> => {
@@ -2266,7 +2266,7 @@ export const getAdminGetCurrenciesCodeUrl = (code: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/currencies/${code}?${normalizedParams.toString()}` : `http://localhost:3000/admin/currencies/${code}`
+  return normalizedParams.size ? `http://localhost:9000/admin/currencies/${code}?${normalizedParams.toString()}` : `http://localhost:9000/admin/currencies/${code}`
 }
 
 export const adminGetCurrenciesCode = async (code: string,
@@ -2303,7 +2303,7 @@ export const getAdminGetCustomerGroupsUrl = (params?: AdminGetCustomerGroupsPara
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customer-groups?${normalizedParams.toString()}` : `http://localhost:3000/admin/customer-groups`
+  return normalizedParams.size ? `http://localhost:9000/admin/customer-groups?${normalizedParams.toString()}` : `http://localhost:9000/admin/customer-groups`
 }
 
 export const adminGetCustomerGroups = async (params?: AdminGetCustomerGroupsParams, options?: RequestInit): Promise<adminGetCustomerGroupsResponse> => {
@@ -2339,7 +2339,7 @@ export const getAdminPostCustomerGroupsUrl = (params?: AdminPostCustomerGroupsPa
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customer-groups?${normalizedParams.toString()}` : `http://localhost:3000/admin/customer-groups`
+  return normalizedParams.size ? `http://localhost:9000/admin/customer-groups?${normalizedParams.toString()}` : `http://localhost:9000/admin/customer-groups`
 }
 
 export const adminPostCustomerGroups = async (adminCreateCustomerGroup: AdminCreateCustomerGroup,
@@ -2378,7 +2378,7 @@ export const getAdminGetCustomerGroupsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customer-groups/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/customer-groups/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/customer-groups/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/customer-groups/${id}`
 }
 
 export const adminGetCustomerGroupsId = async (id: string,
@@ -2416,7 +2416,7 @@ export const getAdminPostCustomerGroupsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customer-groups/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/customer-groups/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/customer-groups/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/customer-groups/${id}`
 }
 
 export const adminPostCustomerGroupsId = async (id: string,
@@ -2449,7 +2449,7 @@ export type adminDeleteCustomerGroupsIdResponse = {
 export const getAdminDeleteCustomerGroupsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/customer-groups/${id}`
+  return `http://localhost:9000/admin/customer-groups/${id}`
 }
 
 export const adminDeleteCustomerGroupsId = async (id: string, options?: RequestInit): Promise<adminDeleteCustomerGroupsIdResponse> => {
@@ -2486,7 +2486,7 @@ export const getAdminPostCustomerGroupsIdCustomersUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customer-groups/${id}/customers?${normalizedParams.toString()}` : `http://localhost:3000/admin/customer-groups/${id}/customers`
+  return normalizedParams.size ? `http://localhost:9000/admin/customer-groups/${id}/customers?${normalizedParams.toString()}` : `http://localhost:9000/admin/customer-groups/${id}/customers`
 }
 
 export const adminPostCustomerGroupsIdCustomers = async (id: string,
@@ -2525,7 +2525,7 @@ export const getAdminGetCustomersUrl = (params?: AdminGetCustomersParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers`
 }
 
 export const adminGetCustomers = async (params?: AdminGetCustomersParams, options?: RequestInit): Promise<adminGetCustomersResponse> => {
@@ -2561,7 +2561,7 @@ export const getAdminPostCustomersUrl = (params?: AdminPostCustomersParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers`
 }
 
 export const adminPostCustomers = async (adminPostCustomersBody: AdminPostCustomersBody,
@@ -2600,7 +2600,7 @@ export const getAdminGetCustomersIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers/${id}`
 }
 
 export const adminGetCustomersId = async (id: string,
@@ -2638,7 +2638,7 @@ export const getAdminPostCustomersIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers/${id}`
 }
 
 export const adminPostCustomersId = async (id: string,
@@ -2670,7 +2670,7 @@ export type adminDeleteCustomersIdResponse = {
 export const getAdminDeleteCustomersIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/customers/${id}`
+  return `http://localhost:9000/admin/customers/${id}`
 }
 
 export const adminDeleteCustomersId = async (id: string, options?: RequestInit): Promise<adminDeleteCustomersIdResponse> => {
@@ -2707,7 +2707,7 @@ export const getAdminGetCustomersIdAddressesUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers/${id}/addresses?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers/${id}/addresses`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers/${id}/addresses?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers/${id}/addresses`
 }
 
 export const adminGetCustomersIdAddresses = async (id: string,
@@ -2745,7 +2745,7 @@ export const getAdminPostCustomersIdAddressesUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers/${id}/addresses?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers/${id}/addresses`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers/${id}/addresses?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers/${id}/addresses`
 }
 
 export const adminPostCustomersIdAddresses = async (id: string,
@@ -2786,7 +2786,7 @@ export const getAdminGetCustomersIdAddressesAddressIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers/${id}/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers/${id}/addresses/${addressId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers/${id}/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers/${id}/addresses/${addressId}`
 }
 
 export const adminGetCustomersIdAddressesAddressId = async (id: string,
@@ -2826,7 +2826,7 @@ export const getAdminPostCustomersIdAddressesAddressIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers/${id}/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers/${id}/addresses/${addressId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers/${id}/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers/${id}/addresses/${addressId}`
 }
 
 export const adminPostCustomersIdAddressesAddressId = async (id: string,
@@ -2868,7 +2868,7 @@ export const getAdminDeleteCustomersIdAddressesAddressIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers/${id}/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers/${id}/addresses/${addressId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers/${id}/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers/${id}/addresses/${addressId}`
 }
 
 export const adminDeleteCustomersIdAddressesAddressId = async (id: string,
@@ -2907,7 +2907,7 @@ export const getAdminPostCustomersIdCustomerGroupsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/customers/${id}/customer-groups?${normalizedParams.toString()}` : `http://localhost:3000/admin/customers/${id}/customer-groups`
+  return normalizedParams.size ? `http://localhost:9000/admin/customers/${id}/customer-groups?${normalizedParams.toString()}` : `http://localhost:9000/admin/customers/${id}/customer-groups`
 }
 
 export const adminPostCustomersIdCustomerGroups = async (id: string,
@@ -2946,7 +2946,7 @@ export const getAdminGetDraftOrdersUrl = (params?: AdminGetDraftOrdersParams,) =
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/draft-orders?${normalizedParams.toString()}` : `http://localhost:3000/admin/draft-orders`
+  return normalizedParams.size ? `http://localhost:9000/admin/draft-orders?${normalizedParams.toString()}` : `http://localhost:9000/admin/draft-orders`
 }
 
 export const adminGetDraftOrders = async (params?: AdminGetDraftOrdersParams, options?: RequestInit): Promise<adminGetDraftOrdersResponse> => {
@@ -2982,7 +2982,7 @@ export const getAdminPostDraftOrdersUrl = (params?: AdminPostDraftOrdersParams,)
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/draft-orders?${normalizedParams.toString()}` : `http://localhost:3000/admin/draft-orders`
+  return normalizedParams.size ? `http://localhost:9000/admin/draft-orders?${normalizedParams.toString()}` : `http://localhost:9000/admin/draft-orders`
 }
 
 export const adminPostDraftOrders = async (adminPostDraftOrdersBody: AdminPostDraftOrdersBody,
@@ -3013,7 +3013,7 @@ export type adminGetDraftOrdersIdResponse = {
 export const getAdminGetDraftOrdersIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/draft-orders/${id}`
+  return `http://localhost:9000/admin/draft-orders/${id}`
 }
 
 export const adminGetDraftOrdersId = async (id: string, options?: RequestInit): Promise<adminGetDraftOrdersIdResponse> => {
@@ -3049,7 +3049,7 @@ export const getAdminGetExchangesUrl = (params?: AdminGetExchangesParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges`
 }
 
 export const adminGetExchanges = async (params?: AdminGetExchangesParams, options?: RequestInit): Promise<adminGetExchangesResponse> => {
@@ -3085,7 +3085,7 @@ export const getAdminPostExchangesUrl = (params?: AdminPostExchangesParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges`
 }
 
 export const adminPostExchanges = async (adminPostOrderExchangesReqSchema: AdminPostOrderExchangesReqSchema,
@@ -3124,7 +3124,7 @@ export const getAdminGetExchangesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges/${id}`
 }
 
 export const adminGetExchangesId = async (id: string,
@@ -3154,7 +3154,7 @@ export type adminPostExchangesIdCancelResponse = {
 export const getAdminPostExchangesIdCancelUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/exchanges/${id}/cancel`
+  return `http://localhost:9000/admin/exchanges/${id}/cancel`
 }
 
 export const adminPostExchangesIdCancel = async (id: string,
@@ -3185,7 +3185,7 @@ export type adminPostExchangesIdInboundItemsResponse = {
 export const getAdminPostExchangesIdInboundItemsUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/exchanges/${id}/inbound/items`
+  return `http://localhost:9000/admin/exchanges/${id}/inbound/items`
 }
 
 export const adminPostExchangesIdInboundItems = async (id: string,
@@ -3220,7 +3220,7 @@ export const getAdminPostExchangesIdInboundItemsActionIdUrl = (id: string,
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/exchanges/${id}/inbound/items/${actionId}`
+  return `http://localhost:9000/admin/exchanges/${id}/inbound/items/${actionId}`
 }
 
 export const adminPostExchangesIdInboundItemsActionId = async (id: string,
@@ -3256,7 +3256,7 @@ export const getAdminDeleteExchangesIdInboundItemsActionIdUrl = (id: string,
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/exchanges/${id}/inbound/items/${actionId}`
+  return `http://localhost:9000/admin/exchanges/${id}/inbound/items/${actionId}`
 }
 
 export const adminDeleteExchangesIdInboundItemsActionId = async (id: string,
@@ -3286,7 +3286,7 @@ export type adminPostExchangesIdInboundShippingMethodResponse = {
 export const getAdminPostExchangesIdInboundShippingMethodUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/exchanges/${id}/inbound/shipping-method`
+  return `http://localhost:9000/admin/exchanges/${id}/inbound/shipping-method`
 }
 
 export const adminPostExchangesIdInboundShippingMethod = async (id: string,
@@ -3329,7 +3329,7 @@ export const getAdminPostExchangesIdInboundShippingMethodActionIdUrl = (id: stri
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges/${id}/inbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges/${id}/inbound/shipping-method/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges/${id}/inbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges/${id}/inbound/shipping-method/${actionId}`
 }
 
 export const adminPostExchangesIdInboundShippingMethodActionId = async (id: string,
@@ -3366,7 +3366,7 @@ export const getAdminDeleteExchangesIdInboundShippingMethodActionIdUrl = (id: st
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/exchanges/${id}/inbound/shipping-method/${actionId}`
+  return `http://localhost:9000/admin/exchanges/${id}/inbound/shipping-method/${actionId}`
 }
 
 export const adminDeleteExchangesIdInboundShippingMethodActionId = async (id: string,
@@ -3404,7 +3404,7 @@ export const getAdminPostExchangesIdOutboundItemsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges/${id}/outbound/items?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges/${id}/outbound/items`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges/${id}/outbound/items?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges/${id}/outbound/items`
 }
 
 export const adminPostExchangesIdOutboundItems = async (id: string,
@@ -3448,7 +3448,7 @@ export const getAdminPostExchangesIdOutboundItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges/${id}/outbound/items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges/${id}/outbound/items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges/${id}/outbound/items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges/${id}/outbound/items/${actionId}`
 }
 
 export const adminPostExchangesIdOutboundItemsActionId = async (id: string,
@@ -3493,7 +3493,7 @@ export const getAdminDeleteExchangesIdOutboundItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges/${id}/outbound/items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges/${id}/outbound/items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges/${id}/outbound/items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges/${id}/outbound/items/${actionId}`
 }
 
 export const adminDeleteExchangesIdOutboundItemsActionId = async (id: string,
@@ -3532,7 +3532,7 @@ export const getAdminPostExchangesIdOutboundShippingMethodUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges/${id}/outbound/shipping-method?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges/${id}/outbound/shipping-method`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges/${id}/outbound/shipping-method?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges/${id}/outbound/shipping-method`
 }
 
 export const adminPostExchangesIdOutboundShippingMethod = async (id: string,
@@ -3576,7 +3576,7 @@ export const getAdminPostExchangesIdOutboundShippingMethodActionIdUrl = (id: str
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges/${id}/outbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges/${id}/outbound/shipping-method/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges/${id}/outbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges/${id}/outbound/shipping-method/${actionId}`
 }
 
 export const adminPostExchangesIdOutboundShippingMethodActionId = async (id: string,
@@ -3621,7 +3621,7 @@ export const getAdminDeleteExchangesIdOutboundShippingMethodActionIdUrl = (id: s
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges/${id}/outbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges/${id}/outbound/shipping-method/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges/${id}/outbound/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges/${id}/outbound/shipping-method/${actionId}`
 }
 
 export const adminDeleteExchangesIdOutboundShippingMethodActionId = async (id: string,
@@ -3660,7 +3660,7 @@ export const getAdminPostExchangesIdRequestUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/exchanges/${id}/request?${normalizedParams.toString()}` : `http://localhost:3000/admin/exchanges/${id}/request`
+  return normalizedParams.size ? `http://localhost:9000/admin/exchanges/${id}/request?${normalizedParams.toString()}` : `http://localhost:9000/admin/exchanges/${id}/request`
 }
 
 export const adminPostExchangesIdRequest = async (id: string,
@@ -3690,7 +3690,7 @@ export type adminDeleteExchangesIdRequestResponse = {
 export const getAdminDeleteExchangesIdRequestUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/exchanges/${id}/request`
+  return `http://localhost:9000/admin/exchanges/${id}/request`
 }
 
 export const adminDeleteExchangesIdRequest = async (id: string, options?: RequestInit): Promise<adminDeleteExchangesIdRequestResponse> => {
@@ -3726,7 +3726,7 @@ export const getAdminGetFulfillmentProvidersUrl = (params?: AdminGetFulfillmentP
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/fulfillment-providers?${normalizedParams.toString()}` : `http://localhost:3000/admin/fulfillment-providers`
+  return normalizedParams.size ? `http://localhost:9000/admin/fulfillment-providers?${normalizedParams.toString()}` : `http://localhost:9000/admin/fulfillment-providers`
 }
 
 export const adminGetFulfillmentProviders = async (params?: AdminGetFulfillmentProvidersParams, options?: RequestInit): Promise<adminGetFulfillmentProvidersResponse> => {
@@ -3755,7 +3755,7 @@ export type adminDeleteFulfillmentSetsIdResponse = {
 export const getAdminDeleteFulfillmentSetsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/fulfillment-sets/${id}`
+  return `http://localhost:9000/admin/fulfillment-sets/${id}`
 }
 
 export const adminDeleteFulfillmentSetsId = async (id: string, options?: RequestInit): Promise<adminDeleteFulfillmentSetsIdResponse> => {
@@ -3792,7 +3792,7 @@ export const getAdminPostFulfillmentSetsIdServiceZonesUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/fulfillment-sets/${id}/service-zones?${normalizedParams.toString()}` : `http://localhost:3000/admin/fulfillment-sets/${id}/service-zones`
+  return normalizedParams.size ? `http://localhost:9000/admin/fulfillment-sets/${id}/service-zones?${normalizedParams.toString()}` : `http://localhost:9000/admin/fulfillment-sets/${id}/service-zones`
 }
 
 export const adminPostFulfillmentSetsIdServiceZones = async (id: string,
@@ -3833,7 +3833,7 @@ export const getAdminGetFulfillmentSetsIdServiceZonesZoneIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/fulfillment-sets/${id}/service-zones/${zoneId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/fulfillment-sets/${id}/service-zones/${zoneId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/fulfillment-sets/${id}/service-zones/${zoneId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/fulfillment-sets/${id}/service-zones/${zoneId}`
 }
 
 export const adminGetFulfillmentSetsIdServiceZonesZoneId = async (id: string,
@@ -3873,7 +3873,7 @@ export const getAdminPostFulfillmentSetsIdServiceZonesZoneIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/fulfillment-sets/${id}/service-zones/${zoneId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/fulfillment-sets/${id}/service-zones/${zoneId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/fulfillment-sets/${id}/service-zones/${zoneId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/fulfillment-sets/${id}/service-zones/${zoneId}`
 }
 
 export const adminPostFulfillmentSetsIdServiceZonesZoneId = async (id: string,
@@ -3907,7 +3907,7 @@ export const getAdminDeleteFulfillmentSetsIdServiceZonesZoneIdUrl = (id: string,
     zoneId: string,) => {
 
 
-  return `http://localhost:3000/admin/fulfillment-sets/${id}/service-zones/${zoneId}`
+  return `http://localhost:9000/admin/fulfillment-sets/${id}/service-zones/${zoneId}`
 }
 
 export const adminDeleteFulfillmentSetsIdServiceZonesZoneId = async (id: string,
@@ -3944,7 +3944,7 @@ export const getAdminPostFulfillmentsUrl = (params?: AdminPostFulfillmentsParams
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/fulfillments?${normalizedParams.toString()}` : `http://localhost:3000/admin/fulfillments`
+  return normalizedParams.size ? `http://localhost:9000/admin/fulfillments?${normalizedParams.toString()}` : `http://localhost:9000/admin/fulfillments`
 }
 
 export const adminPostFulfillments = async (adminCreateFulfillment: AdminCreateFulfillment,
@@ -3986,7 +3986,7 @@ export const getAdminPostFulfillmentsIdCancelUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/fulfillments/${id}/cancel?${normalizedParams.toString()}` : `http://localhost:3000/admin/fulfillments/${id}/cancel`
+  return normalizedParams.size ? `http://localhost:9000/admin/fulfillments/${id}/cancel?${normalizedParams.toString()}` : `http://localhost:9000/admin/fulfillments/${id}/cancel`
 }
 
 export const adminPostFulfillmentsIdCancel = async (id: string,
@@ -4024,7 +4024,7 @@ export const getAdminPostFulfillmentsIdShipmentUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/fulfillments/${id}/shipment?${normalizedParams.toString()}` : `http://localhost:3000/admin/fulfillments/${id}/shipment`
+  return normalizedParams.size ? `http://localhost:9000/admin/fulfillments/${id}/shipment?${normalizedParams.toString()}` : `http://localhost:9000/admin/fulfillments/${id}/shipment`
 }
 
 export const adminPostFulfillmentsIdShipment = async (id: string,
@@ -4063,7 +4063,7 @@ export const getAdminGetInventoryItemsUrl = (params?: AdminGetInventoryItemsPara
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/inventory-items?${normalizedParams.toString()}` : `http://localhost:3000/admin/inventory-items`
+  return normalizedParams.size ? `http://localhost:9000/admin/inventory-items?${normalizedParams.toString()}` : `http://localhost:9000/admin/inventory-items`
 }
 
 export const adminGetInventoryItems = async (params?: AdminGetInventoryItemsParams, options?: RequestInit): Promise<adminGetInventoryItemsResponse> => {
@@ -4099,7 +4099,7 @@ export const getAdminPostInventoryItemsUrl = (params?: AdminPostInventoryItemsPa
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/inventory-items?${normalizedParams.toString()}` : `http://localhost:3000/admin/inventory-items`
+  return normalizedParams.size ? `http://localhost:9000/admin/inventory-items?${normalizedParams.toString()}` : `http://localhost:9000/admin/inventory-items`
 }
 
 export const adminPostInventoryItems = async (adminCreateInventoryItem: AdminCreateInventoryItem,
@@ -4138,7 +4138,7 @@ export const getAdminGetInventoryItemsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/inventory-items/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/inventory-items/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/inventory-items/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/inventory-items/${id}`
 }
 
 export const adminGetInventoryItemsId = async (id: string,
@@ -4176,7 +4176,7 @@ export const getAdminPostInventoryItemsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/inventory-items/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/inventory-items/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/inventory-items/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/inventory-items/${id}`
 }
 
 export const adminPostInventoryItemsId = async (id: string,
@@ -4208,7 +4208,7 @@ export type adminDeleteInventoryItemsIdResponse = {
 export const getAdminDeleteInventoryItemsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/inventory-items/${id}`
+  return `http://localhost:9000/admin/inventory-items/${id}`
 }
 
 export const adminDeleteInventoryItemsId = async (id: string, options?: RequestInit): Promise<adminDeleteInventoryItemsIdResponse> => {
@@ -4245,7 +4245,7 @@ export const getAdminGetInventoryItemsIdLocationLevelsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/inventory-items/${id}/location-levels?${normalizedParams.toString()}` : `http://localhost:3000/admin/inventory-items/${id}/location-levels`
+  return normalizedParams.size ? `http://localhost:9000/admin/inventory-items/${id}/location-levels?${normalizedParams.toString()}` : `http://localhost:9000/admin/inventory-items/${id}/location-levels`
 }
 
 export const adminGetInventoryItemsIdLocationLevels = async (id: string,
@@ -4283,7 +4283,7 @@ export const getAdminPostInventoryItemsIdLocationLevelsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/inventory-items/${id}/location-levels?${normalizedParams.toString()}` : `http://localhost:3000/admin/inventory-items/${id}/location-levels`
+  return normalizedParams.size ? `http://localhost:9000/admin/inventory-items/${id}/location-levels?${normalizedParams.toString()}` : `http://localhost:9000/admin/inventory-items/${id}/location-levels`
 }
 
 export const adminPostInventoryItemsIdLocationLevels = async (id: string,
@@ -4315,7 +4315,7 @@ export type adminPostInventoryItemsIdLocationLevelsBatchResponse = {
 export const getAdminPostInventoryItemsIdLocationLevelsBatchUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/inventory-items/${id}/location-levels/batch`
+  return `http://localhost:9000/admin/inventory-items/${id}/location-levels/batch`
 }
 
 export const adminPostInventoryItemsIdLocationLevelsBatch = async (id: string,
@@ -4355,7 +4355,7 @@ export const getAdminPostInventoryItemsIdLocationLevelsLocationIdUrl = (id: stri
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/inventory-items/${id}/location-levels/${locationId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/inventory-items/${id}/location-levels/${locationId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/inventory-items/${id}/location-levels/${locationId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/inventory-items/${id}/location-levels/${locationId}`
 }
 
 export const adminPostInventoryItemsIdLocationLevelsLocationId = async (id: string,
@@ -4400,7 +4400,7 @@ export const getAdminDeleteInventoryItemsIdLocationLevelsLocationIdUrl = (id: st
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/inventory-items/${id}/location-levels/${locationId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/inventory-items/${id}/location-levels/${locationId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/inventory-items/${id}/location-levels/${locationId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/inventory-items/${id}/location-levels/${locationId}`
 }
 
 export const adminDeleteInventoryItemsIdLocationLevelsLocationId = async (id: string,
@@ -4438,7 +4438,7 @@ export const getAdminGetInvitesUrl = (params?: AdminGetInvitesParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/invites?${normalizedParams.toString()}` : `http://localhost:3000/admin/invites`
+  return normalizedParams.size ? `http://localhost:9000/admin/invites?${normalizedParams.toString()}` : `http://localhost:9000/admin/invites`
 }
 
 export const adminGetInvites = async (params?: AdminGetInvitesParams, options?: RequestInit): Promise<adminGetInvitesResponse> => {
@@ -4474,7 +4474,7 @@ export const getAdminPostInvitesUrl = (params?: AdminPostInvitesParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/invites?${normalizedParams.toString()}` : `http://localhost:3000/admin/invites`
+  return normalizedParams.size ? `http://localhost:9000/admin/invites?${normalizedParams.toString()}` : `http://localhost:9000/admin/invites`
 }
 
 export const adminPostInvites = async (adminPostInvitesBody: AdminPostInvitesBody,
@@ -4507,7 +4507,7 @@ export type adminPostInvitesAcceptResponse = {
 export const getAdminPostInvitesAcceptUrl = () => {
 
 
-  return `http://localhost:3000/admin/invites/accept`
+  return `http://localhost:9000/admin/invites/accept`
 }
 
 export const adminPostInvitesAccept = async (adminPostInvitesAcceptBody: AdminPostInvitesAcceptBody, options?: RequestInit): Promise<adminPostInvitesAcceptResponse> => {
@@ -4545,7 +4545,7 @@ export const getAdminGetInvitesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/invites/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/invites/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/invites/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/invites/${id}`
 }
 
 export const adminGetInvitesId = async (id: string,
@@ -4575,7 +4575,7 @@ export type adminDeleteInvitesIdResponse = {
 export const getAdminDeleteInvitesIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/invites/${id}`
+  return `http://localhost:9000/admin/invites/${id}`
 }
 
 export const adminDeleteInvitesId = async (id: string, options?: RequestInit): Promise<adminDeleteInvitesIdResponse> => {
@@ -4612,7 +4612,7 @@ export const getAdminPostInvitesIdResendUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/invites/${id}/resend?${normalizedParams.toString()}` : `http://localhost:3000/admin/invites/${id}/resend`
+  return normalizedParams.size ? `http://localhost:9000/admin/invites/${id}/resend?${normalizedParams.toString()}` : `http://localhost:9000/admin/invites/${id}/resend`
 }
 
 export const adminPostInvitesIdResend = async (id: string,
@@ -4649,7 +4649,7 @@ export const getAdminGetNotificationsUrl = (params?: AdminGetNotificationsParams
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/notifications?${normalizedParams.toString()}` : `http://localhost:3000/admin/notifications`
+  return normalizedParams.size ? `http://localhost:9000/admin/notifications?${normalizedParams.toString()}` : `http://localhost:9000/admin/notifications`
 }
 
 export const adminGetNotifications = async (params?: AdminGetNotificationsParams, options?: RequestInit): Promise<adminGetNotificationsResponse> => {
@@ -4686,7 +4686,7 @@ export const getAdminGetNotificationsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/notifications/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/notifications/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/notifications/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/notifications/${id}`
 }
 
 export const adminGetNotificationsId = async (id: string,
@@ -4716,7 +4716,7 @@ export type adminPostOrderEditsResponse = {
 export const getAdminPostOrderEditsUrl = () => {
 
 
-  return `http://localhost:3000/admin/order-edits`
+  return `http://localhost:9000/admin/order-edits`
 }
 
 export const adminPostOrderEdits = async (adminPostOrderEditsReqSchema: AdminPostOrderEditsReqSchema, options?: RequestInit): Promise<adminPostOrderEditsResponse> => {
@@ -4746,7 +4746,7 @@ export type adminDeleteOrderEditsIdResponse = {
 export const getAdminDeleteOrderEditsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}`
+  return `http://localhost:9000/admin/order-edits/${id}`
 }
 
 export const adminDeleteOrderEditsId = async (id: string, options?: RequestInit): Promise<adminDeleteOrderEditsIdResponse> => {
@@ -4775,7 +4775,7 @@ export type adminPostOrderEditsIdConfirmResponse = {
 export const getAdminPostOrderEditsIdConfirmUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}/confirm`
+  return `http://localhost:9000/admin/order-edits/${id}/confirm`
 }
 
 export const adminPostOrderEditsIdConfirm = async (id: string, options?: RequestInit): Promise<adminPostOrderEditsIdConfirmResponse> => {
@@ -4804,7 +4804,7 @@ export type adminPostOrderEditsIdItemsResponse = {
 export const getAdminPostOrderEditsIdItemsUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}/items`
+  return `http://localhost:9000/admin/order-edits/${id}/items`
 }
 
 export const adminPostOrderEditsIdItems = async (id: string,
@@ -4836,7 +4836,7 @@ export const getAdminPostOrderEditsIdItemsItemItemIdUrl = (id: string,
     itemId: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}/items/item/${itemId}`
+  return `http://localhost:9000/admin/order-edits/${id}/items/item/${itemId}`
 }
 
 export const adminPostOrderEditsIdItemsItemItemId = async (id: string,
@@ -4872,7 +4872,7 @@ export const getAdminPostOrderEditsIdItemsActionIdUrl = (id: string,
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}/items/${actionId}`
+  return `http://localhost:9000/admin/order-edits/${id}/items/${actionId}`
 }
 
 export const adminPostOrderEditsIdItemsActionId = async (id: string,
@@ -4908,7 +4908,7 @@ export const getAdminDeleteOrderEditsIdItemsActionIdUrl = (id: string,
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}/items/${actionId}`
+  return `http://localhost:9000/admin/order-edits/${id}/items/${actionId}`
 }
 
 export const adminDeleteOrderEditsIdItemsActionId = async (id: string,
@@ -4938,7 +4938,7 @@ export type adminPostOrderEditsIdRequestResponse = {
 export const getAdminPostOrderEditsIdRequestUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}/request`
+  return `http://localhost:9000/admin/order-edits/${id}/request`
 }
 
 export const adminPostOrderEditsIdRequest = async (id: string, options?: RequestInit): Promise<adminPostOrderEditsIdRequestResponse> => {
@@ -4967,7 +4967,7 @@ export type adminPostOrderEditsIdShippingMethodResponse = {
 export const getAdminPostOrderEditsIdShippingMethodUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}/shipping-method`
+  return `http://localhost:9000/admin/order-edits/${id}/shipping-method`
 }
 
 export const adminPostOrderEditsIdShippingMethod = async (id: string,
@@ -5002,7 +5002,7 @@ export const getAdminPostOrderEditsIdShippingMethodActionIdUrl = (id: string,
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}/shipping-method/${actionId}`
+  return `http://localhost:9000/admin/order-edits/${id}/shipping-method/${actionId}`
 }
 
 export const adminPostOrderEditsIdShippingMethodActionId = async (id: string,
@@ -5038,7 +5038,7 @@ export const getAdminDeleteOrderEditsIdShippingMethodActionIdUrl = (id: string,
     actionId: string,) => {
 
 
-  return `http://localhost:3000/admin/order-edits/${id}/shipping-method/${actionId}`
+  return `http://localhost:9000/admin/order-edits/${id}/shipping-method/${actionId}`
 }
 
 export const adminDeleteOrderEditsIdShippingMethodActionId = async (id: string,
@@ -5075,7 +5075,7 @@ export const getAdminGetOrdersUrl = (params?: AdminGetOrdersParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders`
 }
 
 export const adminGetOrders = async (params?: AdminGetOrdersParams, options?: RequestInit): Promise<adminGetOrdersResponse> => {
@@ -5112,7 +5112,7 @@ export const getAdminGetOrdersIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}`
 }
 
 export const adminGetOrdersId = async (id: string,
@@ -5150,7 +5150,7 @@ export const getAdminPostOrdersIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}`
 }
 
 export const adminPostOrdersId = async (id: string,
@@ -5190,7 +5190,7 @@ export const getAdminPostOrdersIdArchiveUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/archive?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/archive`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/archive?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/archive`
 }
 
 export const adminPostOrdersIdArchive = async (id: string,
@@ -5236,7 +5236,7 @@ export const getAdminPostOrdersIdCancelUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/cancel?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/cancel`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/cancel?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/cancel`
 }
 
 export const adminPostOrdersIdCancel = async (id: string,
@@ -5277,7 +5277,7 @@ export const getAdminGetOrdersIdChangesUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/changes?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/changes`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/changes?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/changes`
 }
 
 export const adminGetOrdersIdChanges = async (id: string,
@@ -5315,7 +5315,7 @@ export const getAdminPostOrdersIdCompleteUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/complete?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/complete`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/complete?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/complete`
 }
 
 export const adminPostOrdersIdComplete = async (id: string,
@@ -5355,7 +5355,7 @@ export const getAdminPostOrdersIdFulfillmentsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/fulfillments?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/fulfillments`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/fulfillments?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/fulfillments`
 }
 
 export const adminPostOrdersIdFulfillments = async (id: string,
@@ -5396,7 +5396,7 @@ export const getAdminPostOrdersIdFulfillmentsFulfillmentIdCancelUrl = (id: strin
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/fulfillments/${fulfillmentId}/cancel?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/fulfillments/${fulfillmentId}/cancel`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/fulfillments/${fulfillmentId}/cancel?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/fulfillments/${fulfillmentId}/cancel`
 }
 
 export const adminPostOrdersIdFulfillmentsFulfillmentIdCancel = async (id: string,
@@ -5438,7 +5438,7 @@ export const getAdminPostOrdersIdFulfillmentsFulfillmentIdMarkAsDeliveredUrl = (
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/fulfillments/${fulfillmentId}/mark-as-delivered?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/fulfillments/${fulfillmentId}/mark-as-delivered`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/fulfillments/${fulfillmentId}/mark-as-delivered?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/fulfillments/${fulfillmentId}/mark-as-delivered`
 }
 
 export const adminPostOrdersIdFulfillmentsFulfillmentIdMarkAsDelivered = async (id: string,
@@ -5478,7 +5478,7 @@ export const getAdminPostOrdersIdFulfillmentsFulfillmentIdShipmentsUrl = (id: st
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/fulfillments/${fulfillmentId}/shipments?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/fulfillments/${fulfillmentId}/shipments`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/fulfillments/${fulfillmentId}/shipments?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/fulfillments/${fulfillmentId}/shipments`
 }
 
 export const adminPostOrdersIdFulfillmentsFulfillmentIdShipments = async (id: string,
@@ -5519,7 +5519,7 @@ export const getAdminGetOrdersIdLineItemsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/line-items?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/line-items`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/line-items?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/line-items`
 }
 
 export const adminGetOrdersIdLineItems = async (id: string,
@@ -5549,7 +5549,7 @@ export type adminGetOrdersIdPreviewResponse = {
 export const getAdminGetOrdersIdPreviewUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/orders/${id}/preview`
+  return `http://localhost:9000/admin/orders/${id}/preview`
 }
 
 export const adminGetOrdersIdPreview = async (id: string, options?: RequestInit): Promise<adminGetOrdersIdPreviewResponse> => {
@@ -5586,7 +5586,7 @@ export const getAdminPostOrdersIdTransferUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/transfer?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/transfer`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/transfer?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/transfer`
 }
 
 export const adminPostOrdersIdTransfer = async (id: string,
@@ -5626,7 +5626,7 @@ export const getAdminPostOrdersIdTransferCancelUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/orders/${id}/transfer/cancel?${normalizedParams.toString()}` : `http://localhost:3000/admin/orders/${id}/transfer/cancel`
+  return normalizedParams.size ? `http://localhost:9000/admin/orders/${id}/transfer/cancel?${normalizedParams.toString()}` : `http://localhost:9000/admin/orders/${id}/transfer/cancel`
 }
 
 export const adminPostOrdersIdTransferCancel = async (id: string,
@@ -5663,7 +5663,7 @@ export const getAdminPostPaymentCollectionsUrl = (params?: AdminPostPaymentColle
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/payment-collections?${normalizedParams.toString()}` : `http://localhost:3000/admin/payment-collections`
+  return normalizedParams.size ? `http://localhost:9000/admin/payment-collections?${normalizedParams.toString()}` : `http://localhost:9000/admin/payment-collections`
 }
 
 export const adminPostPaymentCollections = async (adminPostPaymentCollectionsBody: AdminPostPaymentCollectionsBody,
@@ -5694,7 +5694,7 @@ export type adminDeletePaymentCollectionsIdResponse = {
 export const getAdminDeletePaymentCollectionsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/payment-collections/${id}`
+  return `http://localhost:9000/admin/payment-collections/${id}`
 }
 
 export const adminDeletePaymentCollectionsId = async (id: string, options?: RequestInit): Promise<adminDeletePaymentCollectionsIdResponse> => {
@@ -5731,7 +5731,7 @@ export const getAdminPostPaymentCollectionsIdMarkAsPaidUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/payment-collections/${id}/mark-as-paid?${normalizedParams.toString()}` : `http://localhost:3000/admin/payment-collections/${id}/mark-as-paid`
+  return normalizedParams.size ? `http://localhost:9000/admin/payment-collections/${id}/mark-as-paid?${normalizedParams.toString()}` : `http://localhost:9000/admin/payment-collections/${id}/mark-as-paid`
 }
 
 export const adminPostPaymentCollectionsIdMarkAsPaid = async (id: string,
@@ -5770,7 +5770,7 @@ export const getAdminGetPaymentsUrl = (params?: AdminGetPaymentsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/payments?${normalizedParams.toString()}` : `http://localhost:3000/admin/payments`
+  return normalizedParams.size ? `http://localhost:9000/admin/payments?${normalizedParams.toString()}` : `http://localhost:9000/admin/payments`
 }
 
 export const adminGetPayments = async (params?: AdminGetPaymentsParams, options?: RequestInit): Promise<adminGetPaymentsResponse> => {
@@ -5806,7 +5806,7 @@ export const getAdminGetPaymentsPaymentProvidersUrl = (params: AdminGetPaymentsP
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/payments/payment-providers?${normalizedParams.toString()}` : `http://localhost:3000/admin/payments/payment-providers`
+  return normalizedParams.size ? `http://localhost:9000/admin/payments/payment-providers?${normalizedParams.toString()}` : `http://localhost:9000/admin/payments/payment-providers`
 }
 
 export const adminGetPaymentsPaymentProviders = async (params: AdminGetPaymentsPaymentProvidersParams, options?: RequestInit): Promise<adminGetPaymentsPaymentProvidersResponse> => {
@@ -5843,7 +5843,7 @@ export const getAdminGetPaymentsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/payments/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/payments/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/payments/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/payments/${id}`
 }
 
 export const adminGetPaymentsId = async (id: string,
@@ -5881,7 +5881,7 @@ export const getAdminPostPaymentsIdCaptureUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/payments/${id}/capture?${normalizedParams.toString()}` : `http://localhost:3000/admin/payments/${id}/capture`
+  return normalizedParams.size ? `http://localhost:9000/admin/payments/${id}/capture?${normalizedParams.toString()}` : `http://localhost:9000/admin/payments/${id}/capture`
 }
 
 export const adminPostPaymentsIdCapture = async (id: string,
@@ -5921,7 +5921,7 @@ export const getAdminPostPaymentsIdRefundUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/payments/${id}/refund?${normalizedParams.toString()}` : `http://localhost:3000/admin/payments/${id}/refund`
+  return normalizedParams.size ? `http://localhost:9000/admin/payments/${id}/refund?${normalizedParams.toString()}` : `http://localhost:9000/admin/payments/${id}/refund`
 }
 
 export const adminPostPaymentsIdRefund = async (id: string,
@@ -5960,7 +5960,7 @@ export const getAdminGetPriceListsUrl = (params?: AdminGetPriceListsParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/price-lists?${normalizedParams.toString()}` : `http://localhost:3000/admin/price-lists`
+  return normalizedParams.size ? `http://localhost:9000/admin/price-lists?${normalizedParams.toString()}` : `http://localhost:9000/admin/price-lists`
 }
 
 export const adminGetPriceLists = async (params?: AdminGetPriceListsParams, options?: RequestInit): Promise<adminGetPriceListsResponse> => {
@@ -5996,7 +5996,7 @@ export const getAdminPostPriceListsUrl = (params?: AdminPostPriceListsParams,) =
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/price-lists?${normalizedParams.toString()}` : `http://localhost:3000/admin/price-lists`
+  return normalizedParams.size ? `http://localhost:9000/admin/price-lists?${normalizedParams.toString()}` : `http://localhost:9000/admin/price-lists`
 }
 
 export const adminPostPriceLists = async (adminCreatePriceList: AdminCreatePriceList,
@@ -6035,7 +6035,7 @@ export const getAdminGetPriceListsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/price-lists/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/price-lists/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/price-lists/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/price-lists/${id}`
 }
 
 export const adminGetPriceListsId = async (id: string,
@@ -6073,7 +6073,7 @@ export const getAdminPostPriceListsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/price-lists/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/price-lists/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/price-lists/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/price-lists/${id}`
 }
 
 export const adminPostPriceListsId = async (id: string,
@@ -6105,7 +6105,7 @@ export type adminDeletePriceListsIdResponse = {
 export const getAdminDeletePriceListsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/price-lists/${id}`
+  return `http://localhost:9000/admin/price-lists/${id}`
 }
 
 export const adminDeletePriceListsId = async (id: string, options?: RequestInit): Promise<adminDeletePriceListsIdResponse> => {
@@ -6134,7 +6134,7 @@ export type adminPostPriceListsIdPricesBatchResponse = {
 export const getAdminPostPriceListsIdPricesBatchUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/price-lists/${id}/prices/batch`
+  return `http://localhost:9000/admin/price-lists/${id}/prices/batch`
 }
 
 export const adminPostPriceListsIdPricesBatch = async (id: string,
@@ -6173,7 +6173,7 @@ export const getAdminPostPriceListsIdProductsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/price-lists/${id}/products?${normalizedParams.toString()}` : `http://localhost:3000/admin/price-lists/${id}/products`
+  return normalizedParams.size ? `http://localhost:9000/admin/price-lists/${id}/products?${normalizedParams.toString()}` : `http://localhost:9000/admin/price-lists/${id}/products`
 }
 
 export const adminPostPriceListsIdProducts = async (id: string,
@@ -6212,7 +6212,7 @@ export const getAdminGetPricePreferencesUrl = (params?: AdminGetPricePreferences
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/price-preferences?${normalizedParams.toString()}` : `http://localhost:3000/admin/price-preferences`
+  return normalizedParams.size ? `http://localhost:9000/admin/price-preferences?${normalizedParams.toString()}` : `http://localhost:9000/admin/price-preferences`
 }
 
 export const adminGetPricePreferences = async (params?: AdminGetPricePreferencesParams, options?: RequestInit): Promise<adminGetPricePreferencesResponse> => {
@@ -6248,7 +6248,7 @@ export const getAdminPostPricePreferencesUrl = (params?: AdminPostPricePreferenc
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/price-preferences?${normalizedParams.toString()}` : `http://localhost:3000/admin/price-preferences`
+  return normalizedParams.size ? `http://localhost:9000/admin/price-preferences?${normalizedParams.toString()}` : `http://localhost:9000/admin/price-preferences`
 }
 
 export const adminPostPricePreferences = async (adminCreatePricePreference: AdminCreatePricePreference,
@@ -6287,7 +6287,7 @@ export const getAdminGetPricePreferencesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/price-preferences/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/price-preferences/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/price-preferences/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/price-preferences/${id}`
 }
 
 export const adminGetPricePreferencesId = async (id: string,
@@ -6325,7 +6325,7 @@ export const getAdminPostPricePreferencesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/price-preferences/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/price-preferences/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/price-preferences/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/price-preferences/${id}`
 }
 
 export const adminPostPricePreferencesId = async (id: string,
@@ -6357,7 +6357,7 @@ export type adminDeletePricePreferencesIdResponse = {
 export const getAdminDeletePricePreferencesIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/price-preferences/${id}`
+  return `http://localhost:9000/admin/price-preferences/${id}`
 }
 
 export const adminDeletePricePreferencesId = async (id: string, options?: RequestInit): Promise<adminDeletePricePreferencesIdResponse> => {
@@ -6393,7 +6393,7 @@ export const getAdminGetProductCategoriesUrl = (params?: AdminGetProductCategori
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-categories?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-categories`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-categories?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-categories`
 }
 
 export const adminGetProductCategories = async (params?: AdminGetProductCategoriesParams, options?: RequestInit): Promise<adminGetProductCategoriesResponse> => {
@@ -6429,7 +6429,7 @@ export const getAdminPostProductCategoriesUrl = (params?: AdminPostProductCatego
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-categories?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-categories`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-categories?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-categories`
 }
 
 export const adminPostProductCategories = async (adminCreateProductCategory: AdminCreateProductCategory,
@@ -6468,7 +6468,7 @@ export const getAdminGetProductCategoriesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-categories/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-categories/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-categories/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-categories/${id}`
 }
 
 export const adminGetProductCategoriesId = async (id: string,
@@ -6506,7 +6506,7 @@ export const getAdminPostProductCategoriesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-categories/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-categories/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-categories/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-categories/${id}`
 }
 
 export const adminPostProductCategoriesId = async (id: string,
@@ -6538,7 +6538,7 @@ export type adminDeleteProductCategoriesIdResponse = {
 export const getAdminDeleteProductCategoriesIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/product-categories/${id}`
+  return `http://localhost:9000/admin/product-categories/${id}`
 }
 
 export const adminDeleteProductCategoriesId = async (id: string, options?: RequestInit): Promise<adminDeleteProductCategoriesIdResponse> => {
@@ -6575,7 +6575,7 @@ export const getAdminPostProductCategoriesIdProductsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-categories/${id}/products?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-categories/${id}/products`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-categories/${id}/products?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-categories/${id}/products`
 }
 
 export const adminPostProductCategoriesIdProducts = async (id: string,
@@ -6614,7 +6614,7 @@ export const getAdminGetProductTagsUrl = (params?: AdminGetProductTagsParams,) =
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-tags?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-tags`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-tags?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-tags`
 }
 
 export const adminGetProductTags = async (params?: AdminGetProductTagsParams, options?: RequestInit): Promise<adminGetProductTagsResponse> => {
@@ -6650,7 +6650,7 @@ export const getAdminPostProductTagsUrl = (params?: AdminPostProductTagsParams,)
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-tags?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-tags`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-tags?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-tags`
 }
 
 export const adminPostProductTags = async (adminCreateProductTag: AdminCreateProductTag,
@@ -6689,7 +6689,7 @@ export const getAdminGetProductTagsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-tags/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-tags/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-tags/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-tags/${id}`
 }
 
 export const adminGetProductTagsId = async (id: string,
@@ -6727,7 +6727,7 @@ export const getAdminPostProductTagsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-tags/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-tags/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-tags/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-tags/${id}`
 }
 
 export const adminPostProductTagsId = async (id: string,
@@ -6759,7 +6759,7 @@ export type adminDeleteProductTagsIdResponse = {
 export const getAdminDeleteProductTagsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/product-tags/${id}`
+  return `http://localhost:9000/admin/product-tags/${id}`
 }
 
 export const adminDeleteProductTagsId = async (id: string, options?: RequestInit): Promise<adminDeleteProductTagsIdResponse> => {
@@ -6795,7 +6795,7 @@ export const getAdminGetProductTypesUrl = (params?: AdminGetProductTypesParams,)
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-types?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-types`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-types?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-types`
 }
 
 export const adminGetProductTypes = async (params?: AdminGetProductTypesParams, options?: RequestInit): Promise<adminGetProductTypesResponse> => {
@@ -6831,7 +6831,7 @@ export const getAdminPostProductTypesUrl = (params?: AdminPostProductTypesParams
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-types?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-types`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-types?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-types`
 }
 
 export const adminPostProductTypes = async (adminCreateProductType: AdminCreateProductType,
@@ -6870,7 +6870,7 @@ export const getAdminGetProductTypesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-types/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-types/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-types/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-types/${id}`
 }
 
 export const adminGetProductTypesId = async (id: string,
@@ -6908,7 +6908,7 @@ export const getAdminPostProductTypesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-types/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-types/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-types/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-types/${id}`
 }
 
 export const adminPostProductTypesId = async (id: string,
@@ -6940,7 +6940,7 @@ export type adminDeleteProductTypesIdResponse = {
 export const getAdminDeleteProductTypesIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/product-types/${id}`
+  return `http://localhost:9000/admin/product-types/${id}`
 }
 
 export const adminDeleteProductTypesId = async (id: string, options?: RequestInit): Promise<adminDeleteProductTypesIdResponse> => {
@@ -6976,7 +6976,7 @@ export const getAdminGetProductVariantsUrl = (params?: AdminGetProductVariantsPa
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/product-variants?${normalizedParams.toString()}` : `http://localhost:3000/admin/product-variants`
+  return normalizedParams.size ? `http://localhost:9000/admin/product-variants?${normalizedParams.toString()}` : `http://localhost:9000/admin/product-variants`
 }
 
 export const adminGetProductVariants = async (params?: AdminGetProductVariantsParams, options?: RequestInit): Promise<adminGetProductVariantsResponse> => {
@@ -7012,7 +7012,7 @@ export const getAdminGetProductsUrl = (params?: AdminGetProductsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products?${normalizedParams.toString()}` : `http://localhost:3000/admin/products`
+  return normalizedParams.size ? `http://localhost:9000/admin/products?${normalizedParams.toString()}` : `http://localhost:9000/admin/products`
 }
 
 export const adminGetProducts = async (params?: AdminGetProductsParams, options?: RequestInit): Promise<adminGetProductsResponse> => {
@@ -7048,7 +7048,7 @@ export const getAdminPostProductsUrl = (params?: AdminPostProductsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products?${normalizedParams.toString()}` : `http://localhost:3000/admin/products`
+  return normalizedParams.size ? `http://localhost:9000/admin/products?${normalizedParams.toString()}` : `http://localhost:9000/admin/products`
 }
 
 export const adminPostProducts = async (adminPostProductsBody: AdminPostProductsBody,
@@ -7086,7 +7086,7 @@ export const getAdminPostProductsBatchUrl = (params?: AdminPostProductsBatchPara
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/batch?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/batch`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/batch?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/batch`
 }
 
 export const adminPostProductsBatch = async (adminBatchProductRequest: AdminBatchProductRequest,
@@ -7128,7 +7128,7 @@ export const getAdminPostProductsExportUrl = (params?: AdminPostProductsExportPa
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/export?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/export`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/export?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/export`
 }
 
 export const adminPostProductsExport = async (params?: AdminPostProductsExportParams, options?: RequestInit): Promise<adminPostProductsExportResponse> => {
@@ -7157,7 +7157,7 @@ export type adminPostProductsImportResponse = {
 export const getAdminPostProductsImportUrl = () => {
 
 
-  return `http://localhost:3000/admin/products/import`
+  return `http://localhost:9000/admin/products/import`
 }
 
 export const adminPostProductsImport = async (adminImportProductRequest: AdminImportProductRequest, options?: RequestInit): Promise<adminPostProductsImportResponse> => {
@@ -7187,7 +7187,7 @@ export type adminPostProductsImportTransactionIdConfirmResponse = {
 export const getAdminPostProductsImportTransactionIdConfirmUrl = (transactionId: string,) => {
 
 
-  return `http://localhost:3000/admin/products/import/${transactionId}/confirm`
+  return `http://localhost:9000/admin/products/import/${transactionId}/confirm`
 }
 
 export const adminPostProductsImportTransactionIdConfirm = async (transactionId: string, options?: RequestInit): Promise<adminPostProductsImportTransactionIdConfirmResponse> => {
@@ -7224,7 +7224,7 @@ export const getAdminGetProductsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}`
 }
 
 export const adminGetProductsId = async (id: string,
@@ -7262,7 +7262,7 @@ export const getAdminPostProductsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}`
 }
 
 export const adminPostProductsId = async (id: string,
@@ -7294,7 +7294,7 @@ export type adminDeleteProductsIdResponse = {
 export const getAdminDeleteProductsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/products/${id}`
+  return `http://localhost:9000/admin/products/${id}`
 }
 
 export const adminDeleteProductsId = async (id: string, options?: RequestInit): Promise<adminDeleteProductsIdResponse> => {
@@ -7331,7 +7331,7 @@ export const getAdminGetProductsIdOptionsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/options?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/options`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/options?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/options`
 }
 
 export const adminGetProductsIdOptions = async (id: string,
@@ -7369,7 +7369,7 @@ export const getAdminPostProductsIdOptionsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/options?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/options`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/options?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/options`
 }
 
 export const adminPostProductsIdOptions = async (id: string,
@@ -7410,7 +7410,7 @@ export const getAdminGetProductsIdOptionsOptionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/options/${optionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/options/${optionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/options/${optionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/options/${optionId}`
 }
 
 export const adminGetProductsIdOptionsOptionId = async (id: string,
@@ -7450,7 +7450,7 @@ export const getAdminPostProductsIdOptionsOptionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/options/${optionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/options/${optionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/options/${optionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/options/${optionId}`
 }
 
 export const adminPostProductsIdOptionsOptionId = async (id: string,
@@ -7495,7 +7495,7 @@ export const getAdminDeleteProductsIdOptionsOptionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/options/${optionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/options/${optionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/options/${optionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/options/${optionId}`
 }
 
 export const adminDeleteProductsIdOptionsOptionId = async (id: string,
@@ -7534,7 +7534,7 @@ export const getAdminGetProductsIdVariantsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/variants?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/variants`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/variants?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/variants`
 }
 
 export const adminGetProductsIdVariants = async (id: string,
@@ -7572,7 +7572,7 @@ export const getAdminPostProductsIdVariantsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/variants?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/variants`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/variants?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/variants`
 }
 
 export const adminPostProductsIdVariants = async (id: string,
@@ -7612,7 +7612,7 @@ export const getAdminPostProductsIdVariantsBatchUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/variants/batch?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/variants/batch`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/variants/batch?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/variants/batch`
 }
 
 export const adminPostProductsIdVariantsBatch = async (id: string,
@@ -7644,7 +7644,7 @@ export type adminPostProductsIdVariantsInventoryItemsBatchResponse = {
 export const getAdminPostProductsIdVariantsInventoryItemsBatchUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/products/${id}/variants/inventory-items/batch`
+  return `http://localhost:9000/admin/products/${id}/variants/inventory-items/batch`
 }
 
 export const adminPostProductsIdVariantsInventoryItemsBatch = async (id: string,
@@ -7684,7 +7684,7 @@ export const getAdminGetProductsIdVariantsVariantIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/variants/${variantId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/variants/${variantId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/variants/${variantId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/variants/${variantId}`
 }
 
 export const adminGetProductsIdVariantsVariantId = async (id: string,
@@ -7724,7 +7724,7 @@ export const getAdminPostProductsIdVariantsVariantIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/variants/${variantId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/variants/${variantId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/variants/${variantId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/variants/${variantId}`
 }
 
 export const adminPostProductsIdVariantsVariantId = async (id: string,
@@ -7766,7 +7766,7 @@ export const getAdminDeleteProductsIdVariantsVariantIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/variants/${variantId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/variants/${variantId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/variants/${variantId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/variants/${variantId}`
 }
 
 export const adminDeleteProductsIdVariantsVariantId = async (id: string,
@@ -7806,7 +7806,7 @@ export const getAdminPostProductsIdVariantsVariantIdInventoryItemsUrl = (id: str
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/variants/${variantId}/inventory-items?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/variants/${variantId}/inventory-items`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/variants/${variantId}/inventory-items?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/variants/${variantId}/inventory-items`
 }
 
 export const adminPostProductsIdVariantsVariantIdInventoryItems = async (id: string,
@@ -7849,7 +7849,7 @@ export const getAdminPostProductsIdVariantsVariantIdInventoryItemsInventoryItemI
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}`
 }
 
 export const adminPostProductsIdVariantsVariantIdInventoryItemsInventoryItemId = async (id: string,
@@ -7893,7 +7893,7 @@ export const getAdminDeleteProductsIdVariantsVariantIdInventoryItemsInventoryIte
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}`
 }
 
 export const adminDeleteProductsIdVariantsVariantIdInventoryItemsInventoryItemId = async (id: string,
@@ -7932,7 +7932,7 @@ export const getAdminGetPromotionsUrl = (params?: AdminGetPromotionsParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions`
 }
 
 export const adminGetPromotions = async (params?: AdminGetPromotionsParams, options?: RequestInit): Promise<adminGetPromotionsResponse> => {
@@ -7968,7 +7968,7 @@ export const getAdminPostPromotionsUrl = (params?: AdminPostPromotionsParams,) =
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions`
 }
 
 export const adminPostPromotions = async (adminPostPromotionsBody: AdminPostPromotionsBody,
@@ -8014,7 +8014,7 @@ export const getAdminGetPromotionsRuleAttributeOptionsRuleTypeUrl = (ruleType: '
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions/rule-attribute-options/${ruleType}?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions/rule-attribute-options/${ruleType}`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions/rule-attribute-options/${ruleType}?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions/rule-attribute-options/${ruleType}`
 }
 
 export const adminGetPromotionsRuleAttributeOptionsRuleType = async (ruleType: 'rules' | 'target-rules' | 'buy-rules',
@@ -8055,7 +8055,7 @@ export const getAdminGetPromotionsRuleValueOptionsRuleTypeRuleAttributeIdUrl = (
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions/rule-value-options/${ruleType}/${ruleAttributeId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions/rule-value-options/${ruleType}/${ruleAttributeId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions/rule-value-options/${ruleType}/${ruleAttributeId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions/rule-value-options/${ruleType}/${ruleAttributeId}`
 }
 
 export const adminGetPromotionsRuleValueOptionsRuleTypeRuleAttributeId = async (ruleType: 'rules' | 'target-rules' | 'buy-rules',
@@ -8094,7 +8094,7 @@ export const getAdminGetPromotionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions/${id}`
 }
 
 export const adminGetPromotionsId = async (id: string,
@@ -8132,7 +8132,7 @@ export const getAdminPostPromotionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions/${id}`
 }
 
 export const adminPostPromotionsId = async (id: string,
@@ -8164,7 +8164,7 @@ export type adminDeletePromotionsIdResponse = {
 export const getAdminDeletePromotionsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/promotions/${id}`
+  return `http://localhost:9000/admin/promotions/${id}`
 }
 
 export const adminDeletePromotionsId = async (id: string, options?: RequestInit): Promise<adminDeletePromotionsIdResponse> => {
@@ -8201,7 +8201,7 @@ export const getAdminPostPromotionsIdBuyRulesBatchUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions/${id}/buy-rules/batch?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions/${id}/buy-rules/batch`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions/${id}/buy-rules/batch?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions/${id}/buy-rules/batch`
 }
 
 export const adminPostPromotionsIdBuyRulesBatch = async (id: string,
@@ -8241,7 +8241,7 @@ export const getAdminPostPromotionsIdRulesBatchUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions/${id}/rules/batch?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions/${id}/rules/batch`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions/${id}/rules/batch?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions/${id}/rules/batch`
 }
 
 export const adminPostPromotionsIdRulesBatch = async (id: string,
@@ -8281,7 +8281,7 @@ export const getAdminPostPromotionsIdTargetRulesBatchUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions/${id}/target-rules/batch?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions/${id}/target-rules/batch`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions/${id}/target-rules/batch?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions/${id}/target-rules/batch`
 }
 
 export const adminPostPromotionsIdTargetRulesBatch = async (id: string,
@@ -8326,7 +8326,7 @@ export const getAdminGetPromotionsIdRuleTypeUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/promotions/${id}/${ruleType}?${normalizedParams.toString()}` : `http://localhost:3000/admin/promotions/${id}/${ruleType}`
+  return normalizedParams.size ? `http://localhost:9000/admin/promotions/${id}/${ruleType}?${normalizedParams.toString()}` : `http://localhost:9000/admin/promotions/${id}/${ruleType}`
 }
 
 export const adminGetPromotionsIdRuleType = async (id: string,
@@ -8364,7 +8364,7 @@ export const getAdminGetRefundReasonsUrl = (params?: AdminGetRefundReasonsParams
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/refund-reasons?${normalizedParams.toString()}` : `http://localhost:3000/admin/refund-reasons`
+  return normalizedParams.size ? `http://localhost:9000/admin/refund-reasons?${normalizedParams.toString()}` : `http://localhost:9000/admin/refund-reasons`
 }
 
 export const adminGetRefundReasons = async (params?: AdminGetRefundReasonsParams, options?: RequestInit): Promise<adminGetRefundReasonsResponse> => {
@@ -8400,7 +8400,7 @@ export const getAdminPostRefundReasonsUrl = (params?: AdminPostRefundReasonsPara
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/refund-reasons?${normalizedParams.toString()}` : `http://localhost:3000/admin/refund-reasons`
+  return normalizedParams.size ? `http://localhost:9000/admin/refund-reasons?${normalizedParams.toString()}` : `http://localhost:9000/admin/refund-reasons`
 }
 
 export const adminPostRefundReasons = async (adminCreateRefundReason: AdminCreateRefundReason,
@@ -8439,7 +8439,7 @@ export const getAdminGetRefundReasonsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/refund-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/refund-reasons/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/refund-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/refund-reasons/${id}`
 }
 
 export const adminGetRefundReasonsId = async (id: string,
@@ -8477,7 +8477,7 @@ export const getAdminPostRefundReasonsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/refund-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/refund-reasons/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/refund-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/refund-reasons/${id}`
 }
 
 export const adminPostRefundReasonsId = async (id: string,
@@ -8509,7 +8509,7 @@ export type adminDeleteRefundReasonsIdResponse = {
 export const getAdminDeleteRefundReasonsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/refund-reasons/${id}`
+  return `http://localhost:9000/admin/refund-reasons/${id}`
 }
 
 export const adminDeleteRefundReasonsId = async (id: string, options?: RequestInit): Promise<adminDeleteRefundReasonsIdResponse> => {
@@ -8545,7 +8545,7 @@ export const getAdminGetRegionsUrl = (params?: AdminGetRegionsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/regions?${normalizedParams.toString()}` : `http://localhost:3000/admin/regions`
+  return normalizedParams.size ? `http://localhost:9000/admin/regions?${normalizedParams.toString()}` : `http://localhost:9000/admin/regions`
 }
 
 export const adminGetRegions = async (params?: AdminGetRegionsParams, options?: RequestInit): Promise<adminGetRegionsResponse> => {
@@ -8581,7 +8581,7 @@ export const getAdminPostRegionsUrl = (params?: AdminPostRegionsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/regions?${normalizedParams.toString()}` : `http://localhost:3000/admin/regions`
+  return normalizedParams.size ? `http://localhost:9000/admin/regions?${normalizedParams.toString()}` : `http://localhost:9000/admin/regions`
 }
 
 export const adminPostRegions = async (adminCreateRegion: AdminCreateRegion,
@@ -8620,7 +8620,7 @@ export const getAdminGetRegionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/regions/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/regions/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/regions/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/regions/${id}`
 }
 
 export const adminGetRegionsId = async (id: string,
@@ -8658,7 +8658,7 @@ export const getAdminPostRegionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/regions/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/regions/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/regions/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/regions/${id}`
 }
 
 export const adminPostRegionsId = async (id: string,
@@ -8690,7 +8690,7 @@ export type adminDeleteRegionsIdResponse = {
 export const getAdminDeleteRegionsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/regions/${id}`
+  return `http://localhost:9000/admin/regions/${id}`
 }
 
 export const adminDeleteRegionsId = async (id: string, options?: RequestInit): Promise<adminDeleteRegionsIdResponse> => {
@@ -8726,7 +8726,7 @@ export const getAdminGetReservationsUrl = (params?: AdminGetReservationsParams,)
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/reservations?${normalizedParams.toString()}` : `http://localhost:3000/admin/reservations`
+  return normalizedParams.size ? `http://localhost:9000/admin/reservations?${normalizedParams.toString()}` : `http://localhost:9000/admin/reservations`
 }
 
 export const adminGetReservations = async (params?: AdminGetReservationsParams, options?: RequestInit): Promise<adminGetReservationsResponse> => {
@@ -8762,7 +8762,7 @@ export const getAdminPostReservationsUrl = (params?: AdminPostReservationsParams
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/reservations?${normalizedParams.toString()}` : `http://localhost:3000/admin/reservations`
+  return normalizedParams.size ? `http://localhost:9000/admin/reservations?${normalizedParams.toString()}` : `http://localhost:9000/admin/reservations`
 }
 
 export const adminPostReservations = async (adminCreateReservation: AdminCreateReservation,
@@ -8801,7 +8801,7 @@ export const getAdminGetReservationsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/reservations/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/reservations/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/reservations/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/reservations/${id}`
 }
 
 export const adminGetReservationsId = async (id: string,
@@ -8839,7 +8839,7 @@ export const getAdminPostReservationsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/reservations/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/reservations/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/reservations/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/reservations/${id}`
 }
 
 export const adminPostReservationsId = async (id: string,
@@ -8871,7 +8871,7 @@ export type adminDeleteReservationsIdResponse = {
 export const getAdminDeleteReservationsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/reservations/${id}`
+  return `http://localhost:9000/admin/reservations/${id}`
 }
 
 export const adminDeleteReservationsId = async (id: string, options?: RequestInit): Promise<adminDeleteReservationsIdResponse> => {
@@ -8907,7 +8907,7 @@ export const getAdminGetReturnReasonsUrl = (params?: AdminGetReturnReasonsParams
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/return-reasons?${normalizedParams.toString()}` : `http://localhost:3000/admin/return-reasons`
+  return normalizedParams.size ? `http://localhost:9000/admin/return-reasons?${normalizedParams.toString()}` : `http://localhost:9000/admin/return-reasons`
 }
 
 export const adminGetReturnReasons = async (params?: AdminGetReturnReasonsParams, options?: RequestInit): Promise<adminGetReturnReasonsResponse> => {
@@ -8943,7 +8943,7 @@ export const getAdminPostReturnReasonsUrl = (params?: AdminPostReturnReasonsPara
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/return-reasons?${normalizedParams.toString()}` : `http://localhost:3000/admin/return-reasons`
+  return normalizedParams.size ? `http://localhost:9000/admin/return-reasons?${normalizedParams.toString()}` : `http://localhost:9000/admin/return-reasons`
 }
 
 export const adminPostReturnReasons = async (adminCreateReturnReason: AdminCreateReturnReason,
@@ -8982,7 +8982,7 @@ export const getAdminGetReturnReasonsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/return-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/return-reasons/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/return-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/return-reasons/${id}`
 }
 
 export const adminGetReturnReasonsId = async (id: string,
@@ -9020,7 +9020,7 @@ export const getAdminPostReturnReasonsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/return-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/return-reasons/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/return-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/return-reasons/${id}`
 }
 
 export const adminPostReturnReasonsId = async (id: string,
@@ -9052,7 +9052,7 @@ export type adminDeleteReturnReasonsIdResponse = {
 export const getAdminDeleteReturnReasonsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/return-reasons/${id}`
+  return `http://localhost:9000/admin/return-reasons/${id}`
 }
 
 export const adminDeleteReturnReasonsId = async (id: string, options?: RequestInit): Promise<adminDeleteReturnReasonsIdResponse> => {
@@ -9088,7 +9088,7 @@ export const getAdminGetReturnsUrl = (params?: AdminGetReturnsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns`
 }
 
 export const adminGetReturns = async (params?: AdminGetReturnsParams, options?: RequestInit): Promise<adminGetReturnsResponse> => {
@@ -9124,7 +9124,7 @@ export const getAdminPostReturnsUrl = (params?: AdminPostReturnsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns`
 }
 
 export const adminPostReturns = async (adminPostReturnsReqSchema: AdminPostReturnsReqSchema,
@@ -9163,7 +9163,7 @@ export const getAdminGetReturnsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}`
 }
 
 export const adminGetReturnsId = async (id: string,
@@ -9201,7 +9201,7 @@ export const getAdminPostReturnsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}`
 }
 
 export const adminPostReturnsId = async (id: string,
@@ -9233,7 +9233,7 @@ export type adminPostReturnsIdCancelResponse = {
 export const getAdminPostReturnsIdCancelUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/returns/${id}/cancel`
+  return `http://localhost:9000/admin/returns/${id}/cancel`
 }
 
 export const adminPostReturnsIdCancel = async (id: string,
@@ -9272,7 +9272,7 @@ export const getAdminPostReturnsIdDismissItemsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/dismiss-items?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/dismiss-items`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/dismiss-items?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/dismiss-items`
 }
 
 export const adminPostReturnsIdDismissItems = async (id: string,
@@ -9316,7 +9316,7 @@ export const getAdminPostReturnsIdDismissItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/dismiss-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/dismiss-items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/dismiss-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/dismiss-items/${actionId}`
 }
 
 export const adminPostReturnsIdDismissItemsActionId = async (id: string,
@@ -9361,7 +9361,7 @@ export const getAdminDeleteReturnsIdDismissItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/dismiss-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/dismiss-items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/dismiss-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/dismiss-items/${actionId}`
 }
 
 export const adminDeleteReturnsIdDismissItemsActionId = async (id: string,
@@ -9400,7 +9400,7 @@ export const getAdminPostReturnsIdReceiveUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/receive?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/receive`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/receive?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/receive`
 }
 
 export const adminPostReturnsIdReceive = async (id: string,
@@ -9432,7 +9432,7 @@ export type adminDeleteReturnsIdReceiveResponse = {
 export const getAdminDeleteReturnsIdReceiveUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/returns/${id}/receive`
+  return `http://localhost:9000/admin/returns/${id}/receive`
 }
 
 export const adminDeleteReturnsIdReceive = async (id: string, options?: RequestInit): Promise<adminDeleteReturnsIdReceiveResponse> => {
@@ -9469,7 +9469,7 @@ export const getAdminPostReturnsIdReceiveItemsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/receive-items?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/receive-items`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/receive-items?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/receive-items`
 }
 
 export const adminPostReturnsIdReceiveItems = async (id: string,
@@ -9513,7 +9513,7 @@ export const getAdminPostReturnsIdReceiveItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/receive-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/receive-items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/receive-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/receive-items/${actionId}`
 }
 
 export const adminPostReturnsIdReceiveItemsActionId = async (id: string,
@@ -9558,7 +9558,7 @@ export const getAdminDeleteReturnsIdReceiveItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/receive-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/receive-items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/receive-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/receive-items/${actionId}`
 }
 
 export const adminDeleteReturnsIdReceiveItemsActionId = async (id: string,
@@ -9598,7 +9598,7 @@ export const getAdminPostReturnsIdReceiveConfirmUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/receive/confirm?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/receive/confirm`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/receive/confirm?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/receive/confirm`
 }
 
 export const adminPostReturnsIdReceiveConfirm = async (id: string,
@@ -9639,7 +9639,7 @@ export const getAdminPostReturnsIdRequestUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/request?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/request`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/request?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/request`
 }
 
 export const adminPostReturnsIdRequest = async (id: string,
@@ -9671,7 +9671,7 @@ export type adminDeleteReturnsIdRequestResponse = {
 export const getAdminDeleteReturnsIdRequestUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/returns/${id}/request`
+  return `http://localhost:9000/admin/returns/${id}/request`
 }
 
 export const adminDeleteReturnsIdRequest = async (id: string, options?: RequestInit): Promise<adminDeleteReturnsIdRequestResponse> => {
@@ -9708,7 +9708,7 @@ export const getAdminPostReturnsIdRequestItemsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/request-items?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/request-items`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/request-items?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/request-items`
 }
 
 export const adminPostReturnsIdRequestItems = async (id: string,
@@ -9752,7 +9752,7 @@ export const getAdminPostReturnsIdRequestItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/request-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/request-items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/request-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/request-items/${actionId}`
 }
 
 export const adminPostReturnsIdRequestItemsActionId = async (id: string,
@@ -9797,7 +9797,7 @@ export const getAdminDeleteReturnsIdRequestItemsActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/request-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/request-items/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/request-items/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/request-items/${actionId}`
 }
 
 export const adminDeleteReturnsIdRequestItemsActionId = async (id: string,
@@ -9836,7 +9836,7 @@ export const getAdminPostReturnsIdShippingMethodUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/shipping-method?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/shipping-method`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/shipping-method?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/shipping-method`
 }
 
 export const adminPostReturnsIdShippingMethod = async (id: string,
@@ -9880,7 +9880,7 @@ export const getAdminPostReturnsIdShippingMethodActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/shipping-method/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/shipping-method/${actionId}`
 }
 
 export const adminPostReturnsIdShippingMethodActionId = async (id: string,
@@ -9925,7 +9925,7 @@ export const getAdminDeleteReturnsIdShippingMethodActionIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/returns/${id}/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/returns/${id}/shipping-method/${actionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/returns/${id}/shipping-method/${actionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/returns/${id}/shipping-method/${actionId}`
 }
 
 export const adminDeleteReturnsIdShippingMethodActionId = async (id: string,
@@ -9963,7 +9963,7 @@ export const getAdminGetSalesChannelsUrl = (params?: AdminGetSalesChannelsParams
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/sales-channels?${normalizedParams.toString()}` : `http://localhost:3000/admin/sales-channels`
+  return normalizedParams.size ? `http://localhost:9000/admin/sales-channels?${normalizedParams.toString()}` : `http://localhost:9000/admin/sales-channels`
 }
 
 export const adminGetSalesChannels = async (params?: AdminGetSalesChannelsParams, options?: RequestInit): Promise<adminGetSalesChannelsResponse> => {
@@ -9999,7 +9999,7 @@ export const getAdminPostSalesChannelsUrl = (params?: AdminPostSalesChannelsPara
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/sales-channels?${normalizedParams.toString()}` : `http://localhost:3000/admin/sales-channels`
+  return normalizedParams.size ? `http://localhost:9000/admin/sales-channels?${normalizedParams.toString()}` : `http://localhost:9000/admin/sales-channels`
 }
 
 export const adminPostSalesChannels = async (adminCreateSalesChannel: AdminCreateSalesChannel,
@@ -10038,7 +10038,7 @@ export const getAdminGetSalesChannelsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/sales-channels/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/sales-channels/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/sales-channels/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/sales-channels/${id}`
 }
 
 export const adminGetSalesChannelsId = async (id: string,
@@ -10076,7 +10076,7 @@ export const getAdminPostSalesChannelsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/sales-channels/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/sales-channels/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/sales-channels/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/sales-channels/${id}`
 }
 
 export const adminPostSalesChannelsId = async (id: string,
@@ -10108,7 +10108,7 @@ export type adminDeleteSalesChannelsIdResponse = {
 export const getAdminDeleteSalesChannelsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/sales-channels/${id}`
+  return `http://localhost:9000/admin/sales-channels/${id}`
 }
 
 export const adminDeleteSalesChannelsId = async (id: string, options?: RequestInit): Promise<adminDeleteSalesChannelsIdResponse> => {
@@ -10145,7 +10145,7 @@ export const getAdminPostSalesChannelsIdProductsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/sales-channels/${id}/products?${normalizedParams.toString()}` : `http://localhost:3000/admin/sales-channels/${id}/products`
+  return normalizedParams.size ? `http://localhost:9000/admin/sales-channels/${id}/products?${normalizedParams.toString()}` : `http://localhost:9000/admin/sales-channels/${id}/products`
 }
 
 export const adminPostSalesChannelsIdProducts = async (id: string,
@@ -10184,7 +10184,7 @@ export const getAdminGetShippingOptionsUrl = (params?: AdminGetShippingOptionsPa
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/shipping-options?${normalizedParams.toString()}` : `http://localhost:3000/admin/shipping-options`
+  return normalizedParams.size ? `http://localhost:9000/admin/shipping-options?${normalizedParams.toString()}` : `http://localhost:9000/admin/shipping-options`
 }
 
 export const adminGetShippingOptions = async (params?: AdminGetShippingOptionsParams, options?: RequestInit): Promise<adminGetShippingOptionsResponse> => {
@@ -10220,7 +10220,7 @@ export const getAdminPostShippingOptionsUrl = (params?: AdminPostShippingOptions
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/shipping-options?${normalizedParams.toString()}` : `http://localhost:3000/admin/shipping-options`
+  return normalizedParams.size ? `http://localhost:9000/admin/shipping-options?${normalizedParams.toString()}` : `http://localhost:9000/admin/shipping-options`
 }
 
 export const adminPostShippingOptions = async (adminCreateShippingOption: AdminCreateShippingOption,
@@ -10259,7 +10259,7 @@ export const getAdminGetShippingOptionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/shipping-options/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/shipping-options/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/shipping-options/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/shipping-options/${id}`
 }
 
 export const adminGetShippingOptionsId = async (id: string,
@@ -10297,7 +10297,7 @@ export const getAdminPostShippingOptionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/shipping-options/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/shipping-options/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/shipping-options/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/shipping-options/${id}`
 }
 
 export const adminPostShippingOptionsId = async (id: string,
@@ -10329,7 +10329,7 @@ export type adminDeleteShippingOptionsIdResponse = {
 export const getAdminDeleteShippingOptionsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/shipping-options/${id}`
+  return `http://localhost:9000/admin/shipping-options/${id}`
 }
 
 export const adminDeleteShippingOptionsId = async (id: string, options?: RequestInit): Promise<adminDeleteShippingOptionsIdResponse> => {
@@ -10366,7 +10366,7 @@ export const getAdminPostShippingOptionsIdRulesBatchUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/shipping-options/${id}/rules/batch?${normalizedParams.toString()}` : `http://localhost:3000/admin/shipping-options/${id}/rules/batch`
+  return normalizedParams.size ? `http://localhost:9000/admin/shipping-options/${id}/rules/batch?${normalizedParams.toString()}` : `http://localhost:9000/admin/shipping-options/${id}/rules/batch`
 }
 
 export const adminPostShippingOptionsIdRulesBatch = async (id: string,
@@ -10405,7 +10405,7 @@ export const getAdminGetShippingProfilesUrl = (params?: AdminGetShippingProfiles
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/shipping-profiles?${normalizedParams.toString()}` : `http://localhost:3000/admin/shipping-profiles`
+  return normalizedParams.size ? `http://localhost:9000/admin/shipping-profiles?${normalizedParams.toString()}` : `http://localhost:9000/admin/shipping-profiles`
 }
 
 export const adminGetShippingProfiles = async (params?: AdminGetShippingProfilesParams, options?: RequestInit): Promise<adminGetShippingProfilesResponse> => {
@@ -10441,7 +10441,7 @@ export const getAdminPostShippingProfilesUrl = (params?: AdminPostShippingProfil
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/shipping-profiles?${normalizedParams.toString()}` : `http://localhost:3000/admin/shipping-profiles`
+  return normalizedParams.size ? `http://localhost:9000/admin/shipping-profiles?${normalizedParams.toString()}` : `http://localhost:9000/admin/shipping-profiles`
 }
 
 export const adminPostShippingProfiles = async (adminCreateShippingProfile: AdminCreateShippingProfile,
@@ -10480,7 +10480,7 @@ export const getAdminGetShippingProfilesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/shipping-profiles/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/shipping-profiles/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/shipping-profiles/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/shipping-profiles/${id}`
 }
 
 export const adminGetShippingProfilesId = async (id: string,
@@ -10518,7 +10518,7 @@ export const getAdminPostShippingProfilesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/shipping-profiles/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/shipping-profiles/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/shipping-profiles/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/shipping-profiles/${id}`
 }
 
 export const adminPostShippingProfilesId = async (id: string,
@@ -10550,7 +10550,7 @@ export type adminDeleteShippingProfilesIdResponse = {
 export const getAdminDeleteShippingProfilesIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/shipping-profiles/${id}`
+  return `http://localhost:9000/admin/shipping-profiles/${id}`
 }
 
 export const adminDeleteShippingProfilesId = async (id: string, options?: RequestInit): Promise<adminDeleteShippingProfilesIdResponse> => {
@@ -10586,7 +10586,7 @@ export const getAdminGetStockLocationsUrl = (params?: AdminGetStockLocationsPara
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stock-locations?${normalizedParams.toString()}` : `http://localhost:3000/admin/stock-locations`
+  return normalizedParams.size ? `http://localhost:9000/admin/stock-locations?${normalizedParams.toString()}` : `http://localhost:9000/admin/stock-locations`
 }
 
 export const adminGetStockLocations = async (params?: AdminGetStockLocationsParams, options?: RequestInit): Promise<adminGetStockLocationsResponse> => {
@@ -10622,7 +10622,7 @@ export const getAdminPostStockLocationsUrl = (params?: AdminPostStockLocationsPa
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stock-locations?${normalizedParams.toString()}` : `http://localhost:3000/admin/stock-locations`
+  return normalizedParams.size ? `http://localhost:9000/admin/stock-locations?${normalizedParams.toString()}` : `http://localhost:9000/admin/stock-locations`
 }
 
 export const adminPostStockLocations = async (adminCreateStockLocation: AdminCreateStockLocation,
@@ -10661,7 +10661,7 @@ export const getAdminGetStockLocationsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/stock-locations/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/stock-locations/${id}`
 }
 
 export const adminGetStockLocationsId = async (id: string,
@@ -10699,7 +10699,7 @@ export const getAdminPostStockLocationsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/stock-locations/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/stock-locations/${id}`
 }
 
 export const adminPostStockLocationsId = async (id: string,
@@ -10731,7 +10731,7 @@ export type adminDeleteStockLocationsIdResponse = {
 export const getAdminDeleteStockLocationsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/stock-locations/${id}`
+  return `http://localhost:9000/admin/stock-locations/${id}`
 }
 
 export const adminDeleteStockLocationsId = async (id: string, options?: RequestInit): Promise<adminDeleteStockLocationsIdResponse> => {
@@ -10768,7 +10768,7 @@ export const getAdminPostStockLocationsIdFulfillmentProvidersUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stock-locations/${id}/fulfillment-providers?${normalizedParams.toString()}` : `http://localhost:3000/admin/stock-locations/${id}/fulfillment-providers`
+  return normalizedParams.size ? `http://localhost:9000/admin/stock-locations/${id}/fulfillment-providers?${normalizedParams.toString()}` : `http://localhost:9000/admin/stock-locations/${id}/fulfillment-providers`
 }
 
 export const adminPostStockLocationsIdFulfillmentProviders = async (id: string,
@@ -10808,7 +10808,7 @@ export const getAdminPostStockLocationsIdFulfillmentSetsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stock-locations/${id}/fulfillment-sets?${normalizedParams.toString()}` : `http://localhost:3000/admin/stock-locations/${id}/fulfillment-sets`
+  return normalizedParams.size ? `http://localhost:9000/admin/stock-locations/${id}/fulfillment-sets?${normalizedParams.toString()}` : `http://localhost:9000/admin/stock-locations/${id}/fulfillment-sets`
 }
 
 export const adminPostStockLocationsIdFulfillmentSets = async (id: string,
@@ -10848,7 +10848,7 @@ export const getAdminPostStockLocationsIdSalesChannelsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stock-locations/${id}/sales-channels?${normalizedParams.toString()}` : `http://localhost:3000/admin/stock-locations/${id}/sales-channels`
+  return normalizedParams.size ? `http://localhost:9000/admin/stock-locations/${id}/sales-channels?${normalizedParams.toString()}` : `http://localhost:9000/admin/stock-locations/${id}/sales-channels`
 }
 
 export const adminPostStockLocationsIdSalesChannels = async (id: string,
@@ -10887,7 +10887,7 @@ export const getAdminGetStoresUrl = (params?: AdminGetStoresParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stores?${normalizedParams.toString()}` : `http://localhost:3000/admin/stores`
+  return normalizedParams.size ? `http://localhost:9000/admin/stores?${normalizedParams.toString()}` : `http://localhost:9000/admin/stores`
 }
 
 export const adminGetStores = async (params?: AdminGetStoresParams, options?: RequestInit): Promise<adminGetStoresResponse> => {
@@ -10924,7 +10924,7 @@ export const getAdminGetStoresIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stores/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/stores/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/stores/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/stores/${id}`
 }
 
 export const adminGetStoresId = async (id: string,
@@ -10962,7 +10962,7 @@ export const getAdminPostStoresIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/stores/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/stores/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/stores/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/stores/${id}`
 }
 
 export const adminPostStoresId = async (id: string,
@@ -11001,7 +11001,7 @@ export const getAdminGetTaxRatesUrl = (params?: AdminGetTaxRatesParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-rates?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-rates`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-rates?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-rates`
 }
 
 export const adminGetTaxRates = async (params?: AdminGetTaxRatesParams, options?: RequestInit): Promise<adminGetTaxRatesResponse> => {
@@ -11037,7 +11037,7 @@ export const getAdminPostTaxRatesUrl = (params?: AdminPostTaxRatesParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-rates?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-rates`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-rates?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-rates`
 }
 
 export const adminPostTaxRates = async (adminCreateTaxRate: AdminCreateTaxRate,
@@ -11076,7 +11076,7 @@ export const getAdminGetTaxRatesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-rates/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-rates/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-rates/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-rates/${id}`
 }
 
 export const adminGetTaxRatesId = async (id: string,
@@ -11114,7 +11114,7 @@ export const getAdminPostTaxRatesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-rates/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-rates/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-rates/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-rates/${id}`
 }
 
 export const adminPostTaxRatesId = async (id: string,
@@ -11146,7 +11146,7 @@ export type adminDeleteTaxRatesIdResponse = {
 export const getAdminDeleteTaxRatesIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/tax-rates/${id}`
+  return `http://localhost:9000/admin/tax-rates/${id}`
 }
 
 export const adminDeleteTaxRatesId = async (id: string, options?: RequestInit): Promise<adminDeleteTaxRatesIdResponse> => {
@@ -11183,7 +11183,7 @@ export const getAdminPostTaxRatesIdRulesUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-rates/${id}/rules?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-rates/${id}/rules`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-rates/${id}/rules?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-rates/${id}/rules`
 }
 
 export const adminPostTaxRatesIdRules = async (id: string,
@@ -11224,7 +11224,7 @@ export const getAdminDeleteTaxRatesIdRulesRuleIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-rates/${id}/rules/${ruleId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-rates/${id}/rules/${ruleId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-rates/${id}/rules/${ruleId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-rates/${id}/rules/${ruleId}`
 }
 
 export const adminDeleteTaxRatesIdRulesRuleId = async (id: string,
@@ -11262,7 +11262,7 @@ export const getAdminGetTaxRegionsUrl = (params?: AdminGetTaxRegionsParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-regions?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-regions`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-regions?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-regions`
 }
 
 export const adminGetTaxRegions = async (params?: AdminGetTaxRegionsParams, options?: RequestInit): Promise<adminGetTaxRegionsResponse> => {
@@ -11298,7 +11298,7 @@ export const getAdminPostTaxRegionsUrl = (params?: AdminPostTaxRegionsParams,) =
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-regions?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-regions`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-regions?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-regions`
 }
 
 export const adminPostTaxRegions = async (adminCreateTaxRegion: AdminCreateTaxRegion,
@@ -11337,7 +11337,7 @@ export const getAdminGetTaxRegionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-regions/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-regions/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-regions/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-regions/${id}`
 }
 
 export const adminGetTaxRegionsId = async (id: string,
@@ -11375,7 +11375,7 @@ export const getAdminPostTaxRegionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/tax-regions/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/tax-regions/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/tax-regions/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/tax-regions/${id}`
 }
 
 export const adminPostTaxRegionsId = async (id: string,
@@ -11407,7 +11407,7 @@ export type adminDeleteTaxRegionsIdResponse = {
 export const getAdminDeleteTaxRegionsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/tax-regions/${id}`
+  return `http://localhost:9000/admin/tax-regions/${id}`
 }
 
 export const adminDeleteTaxRegionsId = async (id: string, options?: RequestInit): Promise<adminDeleteTaxRegionsIdResponse> => {
@@ -11436,7 +11436,7 @@ export type adminPostUploadsResponse = {
 export const getAdminPostUploadsUrl = () => {
 
 
-  return `http://localhost:3000/admin/uploads`
+  return `http://localhost:9000/admin/uploads`
 }
 
 export const adminPostUploads = async (adminPostUploadsBody: AdminPostUploadsBody, options?: RequestInit): Promise<adminPostUploadsResponse> => {
@@ -11474,7 +11474,7 @@ export const getAdminGetUploadsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/uploads/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/uploads/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/uploads/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/uploads/${id}`
 }
 
 export const adminGetUploadsId = async (id: string,
@@ -11504,7 +11504,7 @@ export type adminDeleteUploadsIdResponse = {
 export const getAdminDeleteUploadsIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/uploads/${id}`
+  return `http://localhost:9000/admin/uploads/${id}`
 }
 
 export const adminDeleteUploadsId = async (id: string, options?: RequestInit): Promise<adminDeleteUploadsIdResponse> => {
@@ -11540,7 +11540,7 @@ export const getAdminGetUsersUrl = (params?: AdminGetUsersParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/users?${normalizedParams.toString()}` : `http://localhost:3000/admin/users`
+  return normalizedParams.size ? `http://localhost:9000/admin/users?${normalizedParams.toString()}` : `http://localhost:9000/admin/users`
 }
 
 export const adminGetUsers = async (params?: AdminGetUsersParams, options?: RequestInit): Promise<adminGetUsersResponse> => {
@@ -11576,7 +11576,7 @@ export const getAdminGetUsersMeUrl = (params?: AdminGetUsersMeParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/users/me?${normalizedParams.toString()}` : `http://localhost:3000/admin/users/me`
+  return normalizedParams.size ? `http://localhost:9000/admin/users/me?${normalizedParams.toString()}` : `http://localhost:9000/admin/users/me`
 }
 
 export const adminGetUsersMe = async (params?: AdminGetUsersMeParams, options?: RequestInit): Promise<adminGetUsersMeResponse> => {
@@ -11613,7 +11613,7 @@ export const getAdminGetUsersIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/users/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/users/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/users/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/users/${id}`
 }
 
 export const adminGetUsersId = async (id: string,
@@ -11651,7 +11651,7 @@ export const getAdminPostUsersIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/users/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/users/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/users/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/users/${id}`
 }
 
 export const adminPostUsersId = async (id: string,
@@ -11683,7 +11683,7 @@ export type adminDeleteUsersIdResponse = {
 export const getAdminDeleteUsersIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/admin/users/${id}`
+  return `http://localhost:9000/admin/users/${id}`
 }
 
 export const adminDeleteUsersId = async (id: string, options?: RequestInit): Promise<adminDeleteUsersIdResponse> => {
@@ -11719,7 +11719,7 @@ export const getAdminGetWorkflowsExecutionsUrl = (params?: AdminGetWorkflowsExec
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/workflows-executions?${normalizedParams.toString()}` : `http://localhost:3000/admin/workflows-executions`
+  return normalizedParams.size ? `http://localhost:9000/admin/workflows-executions?${normalizedParams.toString()}` : `http://localhost:9000/admin/workflows-executions`
 }
 
 export const adminGetWorkflowsExecutions = async (params?: AdminGetWorkflowsExecutionsParams, options?: RequestInit): Promise<adminGetWorkflowsExecutionsResponse> => {
@@ -11756,7 +11756,7 @@ export const getAdminGetWorkflowsExecutionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/workflows-executions/${id}?${normalizedParams.toString()}` : `http://localhost:3000/admin/workflows-executions/${id}`
+  return normalizedParams.size ? `http://localhost:9000/admin/workflows-executions/${id}?${normalizedParams.toString()}` : `http://localhost:9000/admin/workflows-executions/${id}`
 }
 
 export const adminGetWorkflowsExecutionsId = async (id: string,
@@ -11786,7 +11786,7 @@ export type adminPostWorkflowsExecutionsWorkflowIdRunResponse = {
 export const getAdminPostWorkflowsExecutionsWorkflowIdRunUrl = (workflowId: string,) => {
 
 
-  return `http://localhost:3000/admin/workflows-executions/${workflowId}/run`
+  return `http://localhost:9000/admin/workflows-executions/${workflowId}/run`
 }
 
 export const adminPostWorkflowsExecutionsWorkflowIdRun = async (workflowId: string,
@@ -11817,7 +11817,7 @@ export type adminPostWorkflowsExecutionsWorkflowIdStepsFailureResponse = {
 export const getAdminPostWorkflowsExecutionsWorkflowIdStepsFailureUrl = (workflowId: string,) => {
 
 
-  return `http://localhost:3000/admin/workflows-executions/${workflowId}/steps/failure`
+  return `http://localhost:9000/admin/workflows-executions/${workflowId}/steps/failure`
 }
 
 export const adminPostWorkflowsExecutionsWorkflowIdStepsFailure = async (workflowId: string,
@@ -11848,7 +11848,7 @@ export type adminPostWorkflowsExecutionsWorkflowIdStepsSuccessResponse = {
 export const getAdminPostWorkflowsExecutionsWorkflowIdStepsSuccessUrl = (workflowId: string,) => {
 
 
-  return `http://localhost:3000/admin/workflows-executions/${workflowId}/steps/success`
+  return `http://localhost:9000/admin/workflows-executions/${workflowId}/steps/success`
 }
 
 export const adminPostWorkflowsExecutionsWorkflowIdStepsSuccess = async (workflowId: string,
@@ -11881,7 +11881,7 @@ export type adminGetWorkflowsExecutionsWorkflowIdSubscribeResponse = {
 export const getAdminGetWorkflowsExecutionsWorkflowIdSubscribeUrl = (workflowId: string,) => {
 
 
-  return `http://localhost:3000/admin/workflows-executions/${workflowId}/subscribe`
+  return `http://localhost:9000/admin/workflows-executions/${workflowId}/subscribe`
 }
 
 export const adminGetWorkflowsExecutionsWorkflowIdSubscribe = async (workflowId: string, options?: RequestInit): Promise<adminGetWorkflowsExecutionsWorkflowIdSubscribeResponse> => {
@@ -11919,7 +11919,7 @@ export const getAdminGetWorkflowsExecutionsWorkflowIdTransactionIdUrl = (workflo
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/admin/workflows-executions/${workflowId}/${transactionId}?${normalizedParams.toString()}` : `http://localhost:3000/admin/workflows-executions/${workflowId}/${transactionId}`
+  return normalizedParams.size ? `http://localhost:9000/admin/workflows-executions/${workflowId}/${transactionId}?${normalizedParams.toString()}` : `http://localhost:9000/admin/workflows-executions/${workflowId}/${transactionId}`
 }
 
 export const adminGetWorkflowsExecutionsWorkflowIdTransactionId = async (workflowId: string,
@@ -11954,7 +11954,7 @@ export const getAdminGetWorkflowsExecutionsWorkflowIdTransactionIdStepIdSubscrib
     stepId: string,) => {
 
 
-  return `http://localhost:3000/admin/workflows-executions/${workflowId}/${transactionId}/${stepId}/subscribe`
+  return `http://localhost:9000/admin/workflows-executions/${workflowId}/${transactionId}/${stepId}/subscribe`
 }
 
 export const adminGetWorkflowsExecutionsWorkflowIdTransactionIdStepIdSubscribe = async (workflowId: string,
@@ -11985,7 +11985,7 @@ export type storePostSessionResponse = {
 export const getStorePostSessionUrl = () => {
 
 
-  return `http://localhost:3000/auth/session`
+  return `http://localhost:9000/auth/session`
 }
 
 export const storePostSession = async ( options?: RequestInit): Promise<storePostSessionResponse> => {
@@ -12014,7 +12014,7 @@ export type storeDeleteSessionResponse = {
 export const getStoreDeleteSessionUrl = () => {
 
 
-  return `http://localhost:3000/auth/session`
+  return `http://localhost:9000/auth/session`
 }
 
 export const storeDeleteSession = async ( options?: RequestInit): Promise<storeDeleteSessionResponse> => {
@@ -12043,7 +12043,7 @@ export type storePostAdminAuthTokenRefreshResponse = {
 export const getStorePostAdminAuthTokenRefreshUrl = () => {
 
 
-  return `http://localhost:3000/auth/token/refresh`
+  return `http://localhost:9000/auth/token/refresh`
 }
 
 export const storePostAdminAuthTokenRefresh = async ( options?: RequestInit): Promise<storePostAdminAuthTokenRefreshResponse> => {
@@ -12075,7 +12075,7 @@ export type adminPostActorTypeAuthProviderResponse = {
 export const getAdminPostActorTypeAuthProviderUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/user/${authProvider}`
+  return `http://localhost:9000/auth/user/${authProvider}`
 }
 
 export const adminPostActorTypeAuthProvider = async (authProvider: string,
@@ -12111,7 +12111,7 @@ export type adminPostActorTypeAuthProviderCallbackResponse = {
 export const getAdminPostActorTypeAuthProviderCallbackUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/user/${authProvider}/callback`
+  return `http://localhost:9000/auth/user/${authProvider}/callback`
 }
 
 export const adminPostActorTypeAuthProviderCallback = async (authProvider: string, options?: RequestInit): Promise<adminPostActorTypeAuthProviderCallbackResponse> => {
@@ -12140,7 +12140,7 @@ export type adminPostActorTypeAuthProviderRegisterResponse = {
 export const getAdminPostActorTypeAuthProviderRegisterUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/user/${authProvider}/register`
+  return `http://localhost:9000/auth/user/${authProvider}/register`
 }
 
 export const adminPostActorTypeAuthProviderRegister = async (authProvider: string,
@@ -12175,7 +12175,7 @@ export type adminPostActorTypeAuthProviderResetPasswordResponse = {
 export const getAdminPostActorTypeAuthProviderResetPasswordUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/user/${authProvider}/reset-password`
+  return `http://localhost:9000/auth/user/${authProvider}/reset-password`
 }
 
 export const adminPostActorTypeAuthProviderResetPassword = async (authProvider: string,
@@ -12214,7 +12214,7 @@ export const getAdminPostActorTypeAuthProviderUpdateUrl = (authProvider: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/auth/user/${authProvider}/update?${normalizedParams.toString()}` : `http://localhost:3000/auth/user/${authProvider}/update`
+  return normalizedParams.size ? `http://localhost:9000/auth/user/${authProvider}/update?${normalizedParams.toString()}` : `http://localhost:9000/auth/user/${authProvider}/update`
 }
 
 export const adminPostActorTypeAuthProviderUpdate = async (authProvider: string,
@@ -12249,7 +12249,7 @@ export type storePostActorTypeAuthProviderResponse = {
 export const getStorePostActorTypeAuthProviderUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/customer/${authProvider}`
+  return `http://localhost:9000/auth/customer/${authProvider}`
 }
 
 export const storePostActorTypeAuthProvider = async (authProvider: string,
@@ -12285,7 +12285,7 @@ export type storePostActorTypeAuthProviderCallbackResponse = {
 export const getStorePostActorTypeAuthProviderCallbackUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/customer/${authProvider}/callback`
+  return `http://localhost:9000/auth/customer/${authProvider}/callback`
 }
 
 export const storePostActorTypeAuthProviderCallback = async (authProvider: string, options?: RequestInit): Promise<storePostActorTypeAuthProviderCallbackResponse> => {
@@ -12314,7 +12314,7 @@ export type storePostActorTypeAuthProviderRegisterResponse = {
 export const getStorePostActorTypeAuthProviderRegisterUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/customer/${authProvider}/register`
+  return `http://localhost:9000/auth/customer/${authProvider}/register`
 }
 
 export const storePostActorTypeAuthProviderRegister = async (authProvider: string,
@@ -12349,7 +12349,7 @@ export type storePostActorTypeAuthProviderResetPasswordResponse = {
 export const getStorePostActorTypeAuthProviderResetPasswordUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/customer/${authProvider}/reset-password`
+  return `http://localhost:9000/auth/customer/${authProvider}/reset-password`
 }
 
 export const storePostActorTypeAuthProviderResetPassword = async (authProvider: string,
@@ -12388,7 +12388,7 @@ export const getStorePostActorTypeAuthProviderUpdateUrl = (authProvider: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/auth/customer/${authProvider}/update?${normalizedParams.toString()}` : `http://localhost:3000/auth/customer/${authProvider}/update`
+  return normalizedParams.size ? `http://localhost:9000/auth/customer/${authProvider}/update?${normalizedParams.toString()}` : `http://localhost:9000/auth/customer/${authProvider}/update`
 }
 
 export const storePostActorTypeAuthProviderUpdate = async (authProvider: string,
@@ -12427,7 +12427,7 @@ export const getStorePostCartsUrl = (params?: StorePostCartsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts?${normalizedParams.toString()}` : `http://localhost:3000/store/carts`
+  return normalizedParams.size ? `http://localhost:9000/store/carts?${normalizedParams.toString()}` : `http://localhost:9000/store/carts`
 }
 
 export const storePostCarts = async (storePostCartsBody: StorePostCartsBody,
@@ -12466,7 +12466,7 @@ export const getStoreGetCartsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}`
 }
 
 export const storeGetCartsId = async (id: string,
@@ -12504,7 +12504,7 @@ export const getStorePostCartsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}`
 }
 
 export const storePostCartsId = async (id: string,
@@ -12544,7 +12544,7 @@ export const getStorePostCartsIdCompleteUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}/complete?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}/complete`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}/complete?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}/complete`
 }
 
 export const storePostCartsIdComplete = async (id: string,
@@ -12582,7 +12582,7 @@ export const getStorePostCartsIdCustomerUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}/customer?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}/customer`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}/customer?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}/customer`
 }
 
 export const storePostCartsIdCustomer = async (id: string,
@@ -12620,7 +12620,7 @@ export const getStorePostCartsIdLineItemsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}/line-items?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}/line-items`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}/line-items?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}/line-items`
 }
 
 export const storePostCartsIdLineItems = async (id: string,
@@ -12661,7 +12661,7 @@ export const getStorePostCartsIdLineItemsLineIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}/line-items/${lineId}?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}/line-items/${lineId}`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}/line-items/${lineId}?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}/line-items/${lineId}`
 }
 
 export const storePostCartsIdLineItemsLineId = async (id: string,
@@ -12703,7 +12703,7 @@ export const getStoreDeleteCartsIdLineItemsLineIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}/line-items/${lineId}?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}/line-items/${lineId}`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}/line-items/${lineId}?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}/line-items/${lineId}`
 }
 
 export const storeDeleteCartsIdLineItemsLineId = async (id: string,
@@ -12742,7 +12742,7 @@ export const getStorePostCartsIdPromotionsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}/promotions?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}/promotions`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}/promotions?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}/promotions`
 }
 
 export const storePostCartsIdPromotions = async (id: string,
@@ -12782,7 +12782,7 @@ export const getStoreDeleteCartsIdPromotionsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}/promotions?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}/promotions`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}/promotions?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}/promotions`
 }
 
 export const storeDeleteCartsIdPromotions = async (id: string,
@@ -12820,7 +12820,7 @@ export const getStorePostCartsIdShippingMethodsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}/shipping-methods?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}/shipping-methods`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}/shipping-methods?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}/shipping-methods`
 }
 
 export const storePostCartsIdShippingMethods = async (id: string,
@@ -12860,7 +12860,7 @@ export const getStorePostCartsIdTaxesUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/carts/${id}/taxes?${normalizedParams.toString()}` : `http://localhost:3000/store/carts/${id}/taxes`
+  return normalizedParams.size ? `http://localhost:9000/store/carts/${id}/taxes?${normalizedParams.toString()}` : `http://localhost:9000/store/carts/${id}/taxes`
 }
 
 export const storePostCartsIdTaxes = async (id: string,
@@ -12897,7 +12897,7 @@ export const getStoreGetCollectionsUrl = (params?: StoreGetCollectionsParams,) =
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/collections?${normalizedParams.toString()}` : `http://localhost:3000/store/collections`
+  return normalizedParams.size ? `http://localhost:9000/store/collections?${normalizedParams.toString()}` : `http://localhost:9000/store/collections`
 }
 
 export const storeGetCollections = async (params?: StoreGetCollectionsParams, options?: RequestInit): Promise<storeGetCollectionsResponse> => {
@@ -12934,7 +12934,7 @@ export const getStoreGetCollectionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/collections/${id}?${normalizedParams.toString()}` : `http://localhost:3000/store/collections/${id}`
+  return normalizedParams.size ? `http://localhost:9000/store/collections/${id}?${normalizedParams.toString()}` : `http://localhost:9000/store/collections/${id}`
 }
 
 export const storeGetCollectionsId = async (id: string,
@@ -12971,7 +12971,7 @@ export const getStoreGetCurrenciesUrl = (params?: StoreGetCurrenciesParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/currencies?${normalizedParams.toString()}` : `http://localhost:3000/store/currencies`
+  return normalizedParams.size ? `http://localhost:9000/store/currencies?${normalizedParams.toString()}` : `http://localhost:9000/store/currencies`
 }
 
 export const storeGetCurrencies = async (params?: StoreGetCurrenciesParams, options?: RequestInit): Promise<storeGetCurrenciesResponse> => {
@@ -13008,7 +13008,7 @@ export const getStoreGetCurrenciesCodeUrl = (code: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/currencies/${code}?${normalizedParams.toString()}` : `http://localhost:3000/store/currencies/${code}`
+  return normalizedParams.size ? `http://localhost:9000/store/currencies/${code}?${normalizedParams.toString()}` : `http://localhost:9000/store/currencies/${code}`
 }
 
 export const storeGetCurrenciesCode = async (code: string,
@@ -13045,7 +13045,7 @@ export const getStorePostCustomersUrl = (params?: StorePostCustomersParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/customers?${normalizedParams.toString()}` : `http://localhost:3000/store/customers`
+  return normalizedParams.size ? `http://localhost:9000/store/customers?${normalizedParams.toString()}` : `http://localhost:9000/store/customers`
 }
 
 export const storePostCustomers = async (storeCreateCustomer: StoreCreateCustomer,
@@ -13083,7 +13083,7 @@ export const getStoreGetCustomersMeUrl = (params?: StoreGetCustomersMeParams,) =
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/customers/me?${normalizedParams.toString()}` : `http://localhost:3000/store/customers/me`
+  return normalizedParams.size ? `http://localhost:9000/store/customers/me?${normalizedParams.toString()}` : `http://localhost:9000/store/customers/me`
 }
 
 export const storeGetCustomersMe = async (params?: StoreGetCustomersMeParams, options?: RequestInit): Promise<storeGetCustomersMeResponse> => {
@@ -13119,7 +13119,7 @@ export const getStorePostCustomersMeUrl = (params?: StorePostCustomersMeParams,)
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/customers/me?${normalizedParams.toString()}` : `http://localhost:3000/store/customers/me`
+  return normalizedParams.size ? `http://localhost:9000/store/customers/me?${normalizedParams.toString()}` : `http://localhost:9000/store/customers/me`
 }
 
 export const storePostCustomersMe = async (storeUpdateCustomer: StoreUpdateCustomer,
@@ -13157,7 +13157,7 @@ export const getStoreGetCustomersMeAddressesUrl = (params?: StoreGetCustomersMeA
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/customers/me/addresses?${normalizedParams.toString()}` : `http://localhost:3000/store/customers/me/addresses`
+  return normalizedParams.size ? `http://localhost:9000/store/customers/me/addresses?${normalizedParams.toString()}` : `http://localhost:9000/store/customers/me/addresses`
 }
 
 export const storeGetCustomersMeAddresses = async (params?: StoreGetCustomersMeAddressesParams, options?: RequestInit): Promise<storeGetCustomersMeAddressesResponse> => {
@@ -13193,7 +13193,7 @@ export const getStorePostCustomersMeAddressesUrl = (params?: StorePostCustomersM
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/customers/me/addresses?${normalizedParams.toString()}` : `http://localhost:3000/store/customers/me/addresses`
+  return normalizedParams.size ? `http://localhost:9000/store/customers/me/addresses?${normalizedParams.toString()}` : `http://localhost:9000/store/customers/me/addresses`
 }
 
 export const storePostCustomersMeAddresses = async (storePostCustomersMeAddressesBody: StorePostCustomersMeAddressesBody,
@@ -13232,7 +13232,7 @@ export const getStoreGetCustomersMeAddressesAddressIdUrl = (addressId: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/customers/me/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:3000/store/customers/me/addresses/${addressId}`
+  return normalizedParams.size ? `http://localhost:9000/store/customers/me/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:9000/store/customers/me/addresses/${addressId}`
 }
 
 export const storeGetCustomersMeAddressesAddressId = async (addressId: string,
@@ -13270,7 +13270,7 @@ export const getStorePostCustomersMeAddressesAddressIdUrl = (addressId: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/customers/me/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:3000/store/customers/me/addresses/${addressId}`
+  return normalizedParams.size ? `http://localhost:9000/store/customers/me/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:9000/store/customers/me/addresses/${addressId}`
 }
 
 export const storePostCustomersMeAddressesAddressId = async (addressId: string,
@@ -13310,7 +13310,7 @@ export const getStoreDeleteCustomersMeAddressesAddressIdUrl = (addressId: string
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/customers/me/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:3000/store/customers/me/addresses/${addressId}`
+  return normalizedParams.size ? `http://localhost:9000/store/customers/me/addresses/${addressId}?${normalizedParams.toString()}` : `http://localhost:9000/store/customers/me/addresses/${addressId}`
 }
 
 export const storeDeleteCustomersMeAddressesAddressId = async (addressId: string,
@@ -13347,7 +13347,7 @@ export const getStoreGetOrdersUrl = (params?: StoreGetOrdersParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/orders?${normalizedParams.toString()}` : `http://localhost:3000/store/orders`
+  return normalizedParams.size ? `http://localhost:9000/store/orders?${normalizedParams.toString()}` : `http://localhost:9000/store/orders`
 }
 
 export const storeGetOrders = async (params?: StoreGetOrdersParams, options?: RequestInit): Promise<storeGetOrdersResponse> => {
@@ -13384,7 +13384,7 @@ export const getStoreGetOrdersIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/orders/${id}?${normalizedParams.toString()}` : `http://localhost:3000/store/orders/${id}`
+  return normalizedParams.size ? `http://localhost:9000/store/orders/${id}?${normalizedParams.toString()}` : `http://localhost:9000/store/orders/${id}`
 }
 
 export const storeGetOrdersId = async (id: string,
@@ -13422,7 +13422,7 @@ export const getStorePostOrdersIdTransferAcceptUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/orders/${id}/transfer/accept?${normalizedParams.toString()}` : `http://localhost:3000/store/orders/${id}/transfer/accept`
+  return normalizedParams.size ? `http://localhost:9000/store/orders/${id}/transfer/accept?${normalizedParams.toString()}` : `http://localhost:9000/store/orders/${id}/transfer/accept`
 }
 
 export const storePostOrdersIdTransferAccept = async (id: string,
@@ -13462,7 +13462,7 @@ export const getStorePostOrdersIdTransferCancelUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/orders/${id}/transfer/cancel?${normalizedParams.toString()}` : `http://localhost:3000/store/orders/${id}/transfer/cancel`
+  return normalizedParams.size ? `http://localhost:9000/store/orders/${id}/transfer/cancel?${normalizedParams.toString()}` : `http://localhost:9000/store/orders/${id}/transfer/cancel`
 }
 
 export const storePostOrdersIdTransferCancel = async (id: string,
@@ -13500,7 +13500,7 @@ export const getStorePostOrdersIdTransferDeclineUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/orders/${id}/transfer/decline?${normalizedParams.toString()}` : `http://localhost:3000/store/orders/${id}/transfer/decline`
+  return normalizedParams.size ? `http://localhost:9000/store/orders/${id}/transfer/decline?${normalizedParams.toString()}` : `http://localhost:9000/store/orders/${id}/transfer/decline`
 }
 
 export const storePostOrdersIdTransferDecline = async (id: string,
@@ -13540,7 +13540,7 @@ export const getStorePostOrdersIdTransferRequestUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/orders/${id}/transfer/request?${normalizedParams.toString()}` : `http://localhost:3000/store/orders/${id}/transfer/request`
+  return normalizedParams.size ? `http://localhost:9000/store/orders/${id}/transfer/request?${normalizedParams.toString()}` : `http://localhost:9000/store/orders/${id}/transfer/request`
 }
 
 export const storePostOrdersIdTransferRequest = async (id: string,
@@ -13579,7 +13579,7 @@ export const getStorePostPaymentCollectionsUrl = (params?: StorePostPaymentColle
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/payment-collections?${normalizedParams.toString()}` : `http://localhost:3000/store/payment-collections`
+  return normalizedParams.size ? `http://localhost:9000/store/payment-collections?${normalizedParams.toString()}` : `http://localhost:9000/store/payment-collections`
 }
 
 export const storePostPaymentCollections = async (storeCreatePaymentCollection: StoreCreatePaymentCollection,
@@ -13618,7 +13618,7 @@ export const getStorePostPaymentCollectionsIdPaymentSessionsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/payment-collections/${id}/payment-sessions?${normalizedParams.toString()}` : `http://localhost:3000/store/payment-collections/${id}/payment-sessions`
+  return normalizedParams.size ? `http://localhost:9000/store/payment-collections/${id}/payment-sessions?${normalizedParams.toString()}` : `http://localhost:9000/store/payment-collections/${id}/payment-sessions`
 }
 
 export const storePostPaymentCollectionsIdPaymentSessions = async (id: string,
@@ -13657,7 +13657,7 @@ export const getStoreGetPaymentProvidersUrl = (params: StoreGetPaymentProvidersP
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/payment-providers?${normalizedParams.toString()}` : `http://localhost:3000/store/payment-providers`
+  return normalizedParams.size ? `http://localhost:9000/store/payment-providers?${normalizedParams.toString()}` : `http://localhost:9000/store/payment-providers`
 }
 
 export const storeGetPaymentProviders = async (params: StoreGetPaymentProvidersParams, options?: RequestInit): Promise<storeGetPaymentProvidersResponse> => {
@@ -13693,7 +13693,7 @@ export const getStoreGetProductCategoriesUrl = (params?: StoreGetProductCategori
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/product-categories?${normalizedParams.toString()}` : `http://localhost:3000/store/product-categories`
+  return normalizedParams.size ? `http://localhost:9000/store/product-categories?${normalizedParams.toString()}` : `http://localhost:9000/store/product-categories`
 }
 
 export const storeGetProductCategories = async (params?: StoreGetProductCategoriesParams, options?: RequestInit): Promise<storeGetProductCategoriesResponse> => {
@@ -13730,7 +13730,7 @@ export const getStoreGetProductCategoriesIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/product-categories/${id}?${normalizedParams.toString()}` : `http://localhost:3000/store/product-categories/${id}`
+  return normalizedParams.size ? `http://localhost:9000/store/product-categories/${id}?${normalizedParams.toString()}` : `http://localhost:9000/store/product-categories/${id}`
 }
 
 export const storeGetProductCategoriesId = async (id: string,
@@ -13767,7 +13767,7 @@ export const getStoreGetProductsUrl = (params?: StoreGetProductsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/products?${normalizedParams.toString()}` : `http://localhost:3000/store/products`
+  return normalizedParams.size ? `http://localhost:9000/store/products?${normalizedParams.toString()}` : `http://localhost:9000/store/products`
 }
 
 export const storeGetProducts = async (params?: StoreGetProductsParams, options?: RequestInit): Promise<storeGetProductsResponse> => {
@@ -13804,7 +13804,7 @@ export const getStoreGetProductsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/products/${id}?${normalizedParams.toString()}` : `http://localhost:3000/store/products/${id}`
+  return normalizedParams.size ? `http://localhost:9000/store/products/${id}?${normalizedParams.toString()}` : `http://localhost:9000/store/products/${id}`
 }
 
 export const storeGetProductsId = async (id: string,
@@ -13841,7 +13841,7 @@ export const getStoreGetRegionsUrl = (params?: StoreGetRegionsParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/regions?${normalizedParams.toString()}` : `http://localhost:3000/store/regions`
+  return normalizedParams.size ? `http://localhost:9000/store/regions?${normalizedParams.toString()}` : `http://localhost:9000/store/regions`
 }
 
 export const storeGetRegions = async (params?: StoreGetRegionsParams, options?: RequestInit): Promise<storeGetRegionsResponse> => {
@@ -13878,7 +13878,7 @@ export const getStoreGetRegionsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/regions/${id}?${normalizedParams.toString()}` : `http://localhost:3000/store/regions/${id}`
+  return normalizedParams.size ? `http://localhost:9000/store/regions/${id}?${normalizedParams.toString()}` : `http://localhost:9000/store/regions/${id}`
 }
 
 export const storeGetRegionsId = async (id: string,
@@ -13908,7 +13908,7 @@ export type storePostReturnResponse = {
 export const getStorePostReturnUrl = () => {
 
 
-  return `http://localhost:3000/store/return`
+  return `http://localhost:9000/store/return`
 }
 
 export const storePostReturn = async (storeCreateReturn: StoreCreateReturn, options?: RequestInit): Promise<storePostReturnResponse> => {
@@ -13945,7 +13945,7 @@ export const getStoreGetReturnReasonsUrl = (params?: StoreGetReturnReasonsParams
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/return-reasons?${normalizedParams.toString()}` : `http://localhost:3000/store/return-reasons`
+  return normalizedParams.size ? `http://localhost:9000/store/return-reasons?${normalizedParams.toString()}` : `http://localhost:9000/store/return-reasons`
 }
 
 export const storeGetReturnReasons = async (params?: StoreGetReturnReasonsParams, options?: RequestInit): Promise<storeGetReturnReasonsResponse> => {
@@ -13982,7 +13982,7 @@ export const getStoreGetReturnReasonsIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/return-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:3000/store/return-reasons/${id}`
+  return normalizedParams.size ? `http://localhost:9000/store/return-reasons/${id}?${normalizedParams.toString()}` : `http://localhost:9000/store/return-reasons/${id}`
 }
 
 export const storeGetReturnReasonsId = async (id: string,
@@ -14022,7 +14022,7 @@ export const getStoreGetShippingOptionsUrl = (params: StoreGetShippingOptionsPar
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/store/shipping-options?${normalizedParams.toString()}` : `http://localhost:3000/store/shipping-options`
+  return normalizedParams.size ? `http://localhost:9000/store/shipping-options?${normalizedParams.toString()}` : `http://localhost:9000/store/shipping-options`
 }
 
 export const storeGetShippingOptions = async (params: StoreGetShippingOptionsParams, options?: RequestInit): Promise<storeGetShippingOptionsResponse> => {
@@ -14039,65 +14039,65 @@ export const storeGetShippingOptions = async (params: StoreGetShippingOptionsPar
 
 
 /**
- * Authenticate a vendor and receive the JWT token to be used in the header of subsequent requests.
+ * Authenticate a seller and receive the JWT token to be used in the header of subsequent requests.
 
 When used with a third-party provider, such as Google, the request returns a `location` property. You redirect to the specified URL in your frontend to continue authentication with the third-party service.
 
- * @summary Authenticate Vendor
+ * @summary Authenticate Seller
  */
-export type postActorTypeAuthProviderResponse = {
-  data: PostActorTypeAuthProvider200;
+export type postSellerTypeAuthProviderResponse = {
+  data: PostSellerTypeAuthProvider200;
   status: number;
   headers: Headers;
 }
 
-export const getPostActorTypeAuthProviderUrl = (authProvider: string,) => {
+export const getPostSellerTypeAuthProviderUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/vendor/${authProvider}`
+  return `http://localhost:9000/auth/seller/${authProvider}`
 }
 
-export const postActorTypeAuthProvider = async (authProvider: string,
-    postActorTypeAuthProviderBody: PostActorTypeAuthProviderBody, options?: RequestInit): Promise<postActorTypeAuthProviderResponse> => {
+export const postSellerTypeAuthProvider = async (authProvider: string,
+    postSellerTypeAuthProviderBody: PostSellerTypeAuthProviderBody, options?: RequestInit): Promise<postSellerTypeAuthProviderResponse> => {
   
-  return customFetch<Promise<postActorTypeAuthProviderResponse>>(getPostActorTypeAuthProviderUrl(authProvider),
+  return customFetch<Promise<postSellerTypeAuthProviderResponse>>(getPostSellerTypeAuthProviderUrl(authProvider),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      postActorTypeAuthProviderBody,)
+      postSellerTypeAuthProviderBody,)
   }
 );}
 
 
 
 /**
- * This API route retrieves a registration JWT token of a vendor that hasn't been registered yet. The token is used in the header of requests that create a vendor, such as the Accept Invite API route.
+ * This API route retrieves a registration JWT token of a seller that hasn't been registered yet. The token is used in the header of requests that create a seller, such as the Accept Invite API route.
  * @summary Retrieve Registration JWT Token
  */
-export type postVendorTypeAuthProviderRegisterResponse = {
+export type postSellerTypeAuthProviderRegisterResponse = {
   data: AuthResponse;
   status: number;
   headers: Headers;
 }
 
-export const getPostVendorTypeAuthProviderRegisterUrl = (authProvider: string,) => {
+export const getPostSellerTypeAuthProviderRegisterUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:3000/auth/vendor/${authProvider}/register`
+  return `http://localhost:9000/auth/seller/${authProvider}/register`
 }
 
-export const postVendorTypeAuthProviderRegister = async (authProvider: string,
-    postVendorTypeAuthProviderRegisterBody: PostVendorTypeAuthProviderRegisterBody, options?: RequestInit): Promise<postVendorTypeAuthProviderRegisterResponse> => {
+export const postSellerTypeAuthProviderRegister = async (authProvider: string,
+    postSellerTypeAuthProviderRegisterBody: PostSellerTypeAuthProviderRegisterBody, options?: RequestInit): Promise<postSellerTypeAuthProviderRegisterResponse> => {
   
-  return customFetch<Promise<postVendorTypeAuthProviderRegisterResponse>>(getPostVendorTypeAuthProviderRegisterUrl(authProvider),
+  return customFetch<Promise<postSellerTypeAuthProviderRegisterResponse>>(getPostSellerTypeAuthProviderRegisterUrl(authProvider),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      postVendorTypeAuthProviderRegisterBody,)
+      postSellerTypeAuthProviderRegisterBody,)
   }
 );}
 
@@ -14116,7 +14116,7 @@ export type vendorDeleteFulfillmentSetResponse = {
 export const getVendorDeleteFulfillmentSetUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/fulfillment-sets/${id}`
+  return `http://localhost:9000/vendor/fulfillment-sets/${id}`
 }
 
 export const vendorDeleteFulfillmentSet = async (id: string, options?: RequestInit): Promise<vendorDeleteFulfillmentSetResponse> => {
@@ -14145,7 +14145,7 @@ export type vendorCreateServiceZoneResponse = {
 export const getVendorCreateServiceZoneUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/fulfillment-sets/${id}/service-zones`
+  return `http://localhost:9000/vendor/fulfillment-sets/${id}/service-zones`
 }
 
 export const vendorCreateServiceZone = async (id: string,
@@ -14177,7 +14177,7 @@ export const getVendorUpdateServiceZoneByIdUrl = (id: string,
     zoneId: string,) => {
 
 
-  return `http://localhost:3000/vendor/fulfillment-sets/${id}/service-zones/${zoneId}`
+  return `http://localhost:9000/vendor/fulfillment-sets/${id}/service-zones/${zoneId}`
 }
 
 export const vendorUpdateServiceZoneById = async (id: string,
@@ -14210,7 +14210,7 @@ export const getVendorDeleteServiceZoneByIdUrl = (id: string,
     zoneId: string,) => {
 
 
-  return `http://localhost:3000/vendor/fulfillment-sets/${id}/service-zones/${zoneId}`
+  return `http://localhost:9000/vendor/fulfillment-sets/${id}/service-zones/${zoneId}`
 }
 
 export const vendorDeleteServiceZoneById = async (id: string,
@@ -14247,7 +14247,7 @@ export const getVendorListInvitesUrl = (params?: VendorListInvitesParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/invites?${normalizedParams.toString()}` : `http://localhost:3000/vendor/invites`
+  return normalizedParams.size ? `http://localhost:9000/vendor/invites?${normalizedParams.toString()}` : `http://localhost:9000/vendor/invites`
 }
 
 export const vendorListInvites = async (params?: VendorListInvitesParams, options?: RequestInit): Promise<vendorListInvitesResponse> => {
@@ -14276,7 +14276,7 @@ export type vendorCreateInviteResponse = {
 export const getVendorCreateInviteUrl = () => {
 
 
-  return `http://localhost:3000/vendor/invites`
+  return `http://localhost:9000/vendor/invites`
 }
 
 export const vendorCreateInvite = async (vendorInviteMember: VendorInviteMember, options?: RequestInit): Promise<vendorCreateInviteResponse> => {
@@ -14306,7 +14306,7 @@ export type vendorAcceptInviteResponse = {
 export const getVendorAcceptInviteUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/invites/${id}/accept`
+  return `http://localhost:9000/vendor/invites/${id}/accept`
 }
 
 export const vendorAcceptInvite = async (id: string,
@@ -14344,7 +14344,7 @@ export const getVendorListMembersUrl = (params?: VendorListMembersParams,) => {
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/members?${normalizedParams.toString()}` : `http://localhost:3000/vendor/members`
+  return normalizedParams.size ? `http://localhost:9000/vendor/members?${normalizedParams.toString()}` : `http://localhost:9000/vendor/members`
 }
 
 export const vendorListMembers = async (params?: VendorListMembersParams, options?: RequestInit): Promise<vendorListMembersResponse> => {
@@ -14373,7 +14373,7 @@ export type vendorGetMemberMeResponse = {
 export const getVendorGetMemberMeUrl = () => {
 
 
-  return `http://localhost:3000/vendor/members/me`
+  return `http://localhost:9000/vendor/members/me`
 }
 
 export const vendorGetMemberMe = async ( options?: RequestInit): Promise<vendorGetMemberMeResponse> => {
@@ -14402,7 +14402,7 @@ export type vendorGetMemberByIdResponse = {
 export const getVendorGetMemberByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/members/${id}`
+  return `http://localhost:9000/vendor/members/${id}`
 }
 
 export const vendorGetMemberById = async (id: string, options?: RequestInit): Promise<vendorGetMemberByIdResponse> => {
@@ -14431,7 +14431,7 @@ export type vendorUpdateMemberByIdResponse = {
 export const getVendorUpdateMemberByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/members/${id}`
+  return `http://localhost:9000/vendor/members/${id}`
 }
 
 export const vendorUpdateMemberById = async (id: string,
@@ -14462,7 +14462,7 @@ export type vendorDeleteMemberByIdResponse = {
 export const getVendorDeleteMemberByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/members/${id}`
+  return `http://localhost:9000/vendor/members/${id}`
 }
 
 export const vendorDeleteMemberById = async (id: string, options?: RequestInit): Promise<vendorDeleteMemberByIdResponse> => {
@@ -14498,7 +14498,7 @@ export const getVendorListProductsUrl = (params?: VendorListProductsParams,) => 
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/products?${normalizedParams.toString()}` : `http://localhost:3000/vendor/products`
+  return normalizedParams.size ? `http://localhost:9000/vendor/products?${normalizedParams.toString()}` : `http://localhost:9000/vendor/products`
 }
 
 export const vendorListProducts = async (params?: VendorListProductsParams, options?: RequestInit): Promise<vendorListProductsResponse> => {
@@ -14527,7 +14527,7 @@ export type vendorCreateProductResponse = {
 export const getVendorCreateProductUrl = () => {
 
 
-  return `http://localhost:3000/vendor/products`
+  return `http://localhost:9000/vendor/products`
 }
 
 export const vendorCreateProduct = async (vendorCreateProduct: VendorCreateProduct, options?: RequestInit): Promise<vendorCreateProductResponse> => {
@@ -14565,7 +14565,7 @@ export const getVendorGetProductByIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/products/${id}?${normalizedParams.toString()}` : `http://localhost:3000/vendor/products/${id}`
+  return normalizedParams.size ? `http://localhost:9000/vendor/products/${id}?${normalizedParams.toString()}` : `http://localhost:9000/vendor/products/${id}`
 }
 
 export const vendorGetProductById = async (id: string,
@@ -14603,7 +14603,7 @@ export const getVendorUpdateProductByIdUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/products/${id}?${normalizedParams.toString()}` : `http://localhost:3000/vendor/products/${id}`
+  return normalizedParams.size ? `http://localhost:9000/vendor/products/${id}?${normalizedParams.toString()}` : `http://localhost:9000/vendor/products/${id}`
 }
 
 export const vendorUpdateProductById = async (id: string,
@@ -14635,7 +14635,7 @@ export type vendorDeleteProductByIdResponse = {
 export const getVendorDeleteProductByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/products/${id}`
+  return `http://localhost:9000/vendor/products/${id}`
 }
 
 export const vendorDeleteProductById = async (id: string, options?: RequestInit): Promise<vendorDeleteProductByIdResponse> => {
@@ -14664,7 +14664,7 @@ export type vendorCreateSellerResponse = {
 export const getVendorCreateSellerUrl = () => {
 
 
-  return `http://localhost:3000/vendor/sellers`
+  return `http://localhost:9000/vendor/sellers`
 }
 
 export const vendorCreateSeller = async (vendorCreateSeller: VendorCreateSeller, options?: RequestInit): Promise<vendorCreateSellerResponse> => {
@@ -14685,21 +14685,21 @@ export const vendorCreateSeller = async (vendorCreateSeller: VendorCreateSeller,
  * Retrieves the seller associated with the authenticated user.
  * @summary Get Current Seller
  */
-export type vendorGetSellerByIdResponse = {
-  data: VendorGetSellerById200;
+export type vendorGetSellerMeResponse = {
+  data: VendorGetSellerMe200;
   status: number;
   headers: Headers;
 }
 
-export const getVendorGetSellerByIdUrl = () => {
+export const getVendorGetSellerMeUrl = () => {
 
 
-  return `http://localhost:3000/vendor/sellers/me`
+  return `http://localhost:9000/vendor/sellers/me`
 }
 
-export const vendorGetSellerById = async ( options?: RequestInit): Promise<vendorGetSellerByIdResponse> => {
+export const vendorGetSellerMe = async ( options?: RequestInit): Promise<vendorGetSellerMeResponse> => {
   
-  return customFetch<Promise<vendorGetSellerByIdResponse>>(getVendorGetSellerByIdUrl(),
+  return customFetch<Promise<vendorGetSellerMeResponse>>(getVendorGetSellerMeUrl(),
   {      
     ...options,
     method: 'GET'
@@ -14714,21 +14714,21 @@ export const vendorGetSellerById = async ( options?: RequestInit): Promise<vendo
  * Updates the seller associated with the authenticated user.
  * @summary Update Current Seller
  */
-export type vendorUpdateSellerByIdResponse = {
-  data: VendorUpdateSellerById200;
+export type vendorUpdateSellerMeResponse = {
+  data: VendorUpdateSellerMe200;
   status: number;
   headers: Headers;
 }
 
-export const getVendorUpdateSellerByIdUrl = () => {
+export const getVendorUpdateSellerMeUrl = () => {
 
 
-  return `http://localhost:3000/vendor/sellers/me`
+  return `http://localhost:9000/vendor/sellers/me`
 }
 
-export const vendorUpdateSellerById = async (vendorUpdateSeller: VendorUpdateSeller, options?: RequestInit): Promise<vendorUpdateSellerByIdResponse> => {
+export const vendorUpdateSellerMe = async (vendorUpdateSeller: VendorUpdateSeller, options?: RequestInit): Promise<vendorUpdateSellerMeResponse> => {
   
-  return customFetch<Promise<vendorUpdateSellerByIdResponse>>(getVendorUpdateSellerByIdUrl(),
+  return customFetch<Promise<vendorUpdateSellerMeResponse>>(getVendorUpdateSellerMeUrl(),
   {      
     ...options,
     method: 'POST',
@@ -14753,7 +14753,7 @@ export type vendorListShippingOptionsResponse = {
 export const getVendorListShippingOptionsUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/service-zones/${id}/shipping-options`
+  return `http://localhost:9000/vendor/service-zones/${id}/shipping-options`
 }
 
 export const vendorListShippingOptions = async (id: string, options?: RequestInit): Promise<vendorListShippingOptionsResponse> => {
@@ -14782,7 +14782,7 @@ export type vendorCreateShippingOptionResponse = {
 export const getVendorCreateShippingOptionUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/service-zones/${id}/shipping-options`
+  return `http://localhost:9000/vendor/service-zones/${id}/shipping-options`
 }
 
 export const vendorCreateShippingOption = async (id: string,
@@ -14813,7 +14813,7 @@ export type vendorGetShippingOptionByIdResponse = {
 export const getVendorGetShippingOptionByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/shipping-options/${id}`
+  return `http://localhost:9000/vendor/shipping-options/${id}`
 }
 
 export const vendorGetShippingOptionById = async (id: string, options?: RequestInit): Promise<vendorGetShippingOptionByIdResponse> => {
@@ -14842,7 +14842,7 @@ export type vendorUpdateShippingOptionByIdResponse = {
 export const getVendorUpdateShippingOptionByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/shipping-options/${id}`
+  return `http://localhost:9000/vendor/shipping-options/${id}`
 }
 
 export const vendorUpdateShippingOptionById = async (id: string,
@@ -14873,7 +14873,7 @@ export type vendorDeleteShippingOptionByIdResponse = {
 export const getVendorDeleteShippingOptionByIdUrl = (id: string,) => {
 
 
-  return `http://localhost:3000/vendor/shipping-options/${id}`
+  return `http://localhost:9000/vendor/shipping-options/${id}`
 }
 
 export const vendorDeleteShippingOptionById = async (id: string, options?: RequestInit): Promise<vendorDeleteShippingOptionByIdResponse> => {
@@ -14909,7 +14909,7 @@ export const getVendorListStockLocationsUrl = (params?: VendorListStockLocations
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations`
+  return normalizedParams.size ? `http://localhost:9000/vendor/stock-locations?${normalizedParams.toString()}` : `http://localhost:9000/vendor/stock-locations`
 }
 
 export const vendorListStockLocations = async (params?: VendorListStockLocationsParams, options?: RequestInit): Promise<vendorListStockLocationsResponse> => {
@@ -14945,7 +14945,7 @@ export const getVendorCreateStockLocationUrl = (params?: VendorCreateStockLocati
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations`
+  return normalizedParams.size ? `http://localhost:9000/vendor/stock-locations?${normalizedParams.toString()}` : `http://localhost:9000/vendor/stock-locations`
 }
 
 export const vendorCreateStockLocation = async (vendorCreateStockLocation: VendorCreateStockLocation,
@@ -14984,7 +14984,7 @@ export const getVendorGetStockLocationUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}`
+  return normalizedParams.size ? `http://localhost:9000/vendor/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:9000/vendor/stock-locations/${id}`
 }
 
 export const vendorGetStockLocation = async (id: string,
@@ -15022,7 +15022,7 @@ export const getVendorUpdateStockLocationUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}`
+  return normalizedParams.size ? `http://localhost:9000/vendor/stock-locations/${id}?${normalizedParams.toString()}` : `http://localhost:9000/vendor/stock-locations/${id}`
 }
 
 export const vendorUpdateStockLocation = async (id: string,
@@ -15062,7 +15062,7 @@ export const getVendorUpdateStockLocationFulfillmentProvidersUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}/fulfillment-providers?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}/fulfillment-providers`
+  return normalizedParams.size ? `http://localhost:9000/vendor/stock-locations/${id}/fulfillment-providers?${normalizedParams.toString()}` : `http://localhost:9000/vendor/stock-locations/${id}/fulfillment-providers`
 }
 
 export const vendorUpdateStockLocationFulfillmentProviders = async (id: string,
@@ -15102,7 +15102,7 @@ export const getVendorCreateStockLocationFulfillmentSetUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}/fulfillment-sets?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}/fulfillment-sets`
+  return normalizedParams.size ? `http://localhost:9000/vendor/stock-locations/${id}/fulfillment-sets?${normalizedParams.toString()}` : `http://localhost:9000/vendor/stock-locations/${id}/fulfillment-sets`
 }
 
 export const vendorCreateStockLocationFulfillmentSet = async (id: string,
@@ -15142,7 +15142,7 @@ export const getVendorUpdateStockLocationSalesChannelsUrl = (id: string,
     }
   });
 
-  return normalizedParams.size ? `http://localhost:3000/vendor/stock-locations/${id}/sales-channels?${normalizedParams.toString()}` : `http://localhost:3000/vendor/stock-locations/${id}/sales-channels`
+  return normalizedParams.size ? `http://localhost:9000/vendor/stock-locations/${id}/sales-channels?${normalizedParams.toString()}` : `http://localhost:9000/vendor/stock-locations/${id}/sales-channels`
 }
 
 export const vendorUpdateStockLocationSalesChannels = async (id: string,
