@@ -4,8 +4,10 @@
  * Medusa API
  * OpenAPI spec version: 1.0.0
  */
+import type { StoreCalculatedPrice } from './storeCalculatedPrice';
 import type { StoreCartShippingOptionData } from './storeCartShippingOptionData';
 import type { StoreCartShippingOptionPriceType } from './storeCartShippingOptionPriceType';
+import type { StorePrice } from './storePrice';
 import type { StoreCartShippingOptionProvider } from './storeCartShippingOptionProvider';
 import type { StoreCartShippingOptionType } from './storeCartShippingOptionType';
 
@@ -15,6 +17,7 @@ import type { StoreCartShippingOptionType } from './storeCartShippingOptionType'
 export interface StoreCartShippingOption {
   /** The shipping option's amount. */
   amount: number;
+  calculated_price: StoreCalculatedPrice;
   /** The shipping option's data, useful for the provider handling fulfillment. */
   data: StoreCartShippingOptionData;
   /** The shipping option's ID. */
@@ -23,6 +26,8 @@ export interface StoreCartShippingOption {
   name: string;
   /** The shipping option's price type. If it's `flat`, the price is fixed and is set in the `prices` property. If it's `calculated`, the price is calculated on checkout by the associated fulfillment provider. */
   price_type: StoreCartShippingOptionPriceType;
+  /** The shipping option's prices. */
+  prices: StorePrice[];
   /** The fulfillment provider's details. */
   provider: StoreCartShippingOptionProvider;
   /** The ID of the fulfillment provider handling this option. */

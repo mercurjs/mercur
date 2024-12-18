@@ -1,18 +1,32 @@
 import { Redirect, Route, Switch } from 'wouter'
 import { ProtectedRoute } from './protected-route'
-import { RegisterPage } from '@/pages/register'
+import { RegisterPageAsync } from '@/pages/register'
+import { LoginPageAsync } from '@/pages/login'
+import { Suspense } from 'react'
+import { SidebarTrigger } from '@/shared/ui'
+import { AppSidebarAsync } from '@/widgets/app-sidebar'
 
 export const AppRouter = () => {
   return (
     <Switch>
       {/* Public routes */}
-      <Route path="/login">
-        <RegisterPage />
+      <Route path="/register">
+        <Suspense fallback={<div>Loading...</div>}>
+          <RegisterPageAsync />
+        </Suspense>
       </Route>
-      <Route path="/register" component={Register} />
+      <Route path="/login">
+        <Suspense fallback={<div>Loading...</div>}>
+          <LoginPageAsync />
+        </Suspense>
+      </Route>
 
       {/* Protected dashboard routes */}
       <ProtectedRoute path="/dashboard" nest>
+        <Suspense fallback={<div>Loading...</div>}>
+          <AppSidebarAsync />
+        </Suspense>
+        <SidebarTrigger className="ml-2" />
         <Switch>
           <Route path="/orders">
             <Orders />
@@ -31,10 +45,6 @@ export const AppRouter = () => {
       <Route>404, Not Found!</Route>
     </Switch>
   )
-}
-
-const Register = () => {
-  return <div>Register</div>
 }
 
 const Orders = () => {

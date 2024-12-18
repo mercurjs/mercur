@@ -9,7 +9,7 @@ import type { AdminGetCustomersIdAddressesOrItem } from './adminGetCustomersIdAd
 
 export type AdminGetCustomersIdAddressesParams = {
 /**
- * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+ * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
  */
 fields?: string;
 /**

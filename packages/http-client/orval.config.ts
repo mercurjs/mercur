@@ -4,7 +4,7 @@ export default {
       target: "codegen/index.ts",
       schemas: "codegen/types",
       client: "fetch",
-      baseUrl: "http://localhost:3000",
+      baseUrl: "http://localhost:9000",
       mock: false,
       override: {
         mutator: {

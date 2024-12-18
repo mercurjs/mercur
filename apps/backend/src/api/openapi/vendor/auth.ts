@@ -1,8 +1,8 @@
 /**
- * @oas [post] /auth/vendor/{auth_provider}/register
- * operationId: PostVendor_typeAuth_provider_register
+ * @oas [post] /auth/seller/{auth_provider}/register
+ * operationId: PostSeller_typeAuth_provider_register
  * summary: Retrieve Registration JWT Token
- * description: This API route retrieves a registration JWT token of a vendor that hasn't been registered yet. The token is used in the header of requests that create a vendor, such as the Accept Invite API route.
+ * description: This API route retrieves a registration JWT token of a seller that hasn't been registered yet. The token is used in the header of requests that create a seller, such as the Accept Invite API route.
  * externalDocs:
  *   url: https://docs.medusajs.com/v2/resources/commerce-modules/auth/authentication-route#1-basic-authentication-flow
  *   description: Learn about the basic authentication flow.
@@ -29,7 +29,7 @@
  *   - lang: Shell
  *     label: cURL
  *     source:  |-
- *       curl -X POST '{backend_url}/auth/vendor/emailpass/register' \
+ *       curl -X POST '{backend_url}/auth/seller/emailpass/register' \
  *       -H 'Content-Type: application/json' \
  *       --data-raw '{
  *         "email": "admin@medusa-test.com",
@@ -60,11 +60,11 @@
  */
 
 /**
- * @oas [post] /auth/vendor/{auth_provider}
- * operationId: PostActor_typeAuth_provider
- * summary: Authenticate Vendor
+ * @oas [post] /auth/seller/{auth_provider}
+ * operationId: PostSeller_typeAuth_provider
+ * summary: Authenticate Seller
  * description: >
- *   Authenticate a vendor and receive the JWT token to be used in the header of subsequent requests.
+ *   Authenticate a seller and receive the JWT token to be used in the header of subsequent requests.
  *
  *
  *   When used with a third-party provider, such as Google, the request returns a `location` property. You redirect to the
@@ -92,7 +92,7 @@
  *   - lang: Shell
  *     label: EmailPass Provider
  *     source:  |-
- *       curl -X POST '{backend_url}/auth/vendor/emailpass' \
+ *       curl -X POST '{backend_url}/auth/seller/emailpass' \
  *       -H 'Content-Type: application/json' \
  *       --data-raw '{
  *         "email": "admin@medusa-test.com",
@@ -101,7 +101,7 @@
  *   - lang: Bash
  *     label: Google Provider
  *     source:  |-
- *       curl -X POST '{backend_url}/auth/vendor/google'
+ *       curl -X POST '{backend_url}/auth/seller/google'
  * tags:
  *   - Auth
  * responses:
