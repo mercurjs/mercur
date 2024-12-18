@@ -1,7 +1,7 @@
-export enum PayoutEvents {
+export enum PayoutWorkflowEvents {
   FAILED = 'payout.failed',
   SUCCEEDED = 'payout.succeeded',
-  PROCESS = 'payout.process'
+  RECEIVED = 'payout.received'
 }
 
 export enum PayoutWebhookEvents {

@@ -1,4 +1,4 @@
-import { getAmountFromSmallestUnit } from '#/shared/utils'
+import { getSmallestUnit } from '#/shared/utils'
 import Stripe from 'stripe'
 
 import { ConfigModule, Logger } from '@medusajs/framework/types'
@@ -23,6 +23,7 @@ type InjectedDependencies = {
 
 type StripeConnectConfig = {
   apiKey: string
+  webhookSecret: string
 }
 
 export class PayoutProvider implements IPayoutProvider {
@@ -37,27 +38,30 @@ export class PayoutProvider implements IPayoutProvider {
 
     if (typeof moduleDef !== 'boolean' && moduleDef?.options) {
       this.config_ = {
-        apiKey: moduleDef.options.api_key as string
+        apiKey: moduleDef.options.apiKey as string,
+        webhookSecret: moduleDef.options.webhookSecret as string
       }
     }
 
-    this.client_ = new Stripe(this.config_.apiKey)
+    this.client_ = new Stripe(this.config_.apiKey, { apiVersion: '2024-04-10' })
   }
 
-  async processPayout({
+  async createPayout({
     amount,
     currency,
     account_reference_id,
     transaction_id
   }: ProcessPayoutInput): Promise<ProcessPayoutResponse> {
     try {
-      this.logger_.info('Processing payout')
+      this.logger_.info(
+        `Processing payout for transaction with ID ${transaction_id}`
+      )
 
       const transfer = await this.client_.transfers.create(
         {
           currency,
           destination: account_reference_id,
-          amount: getAmountFromSmallestUnit(amount, currency),
+          amount: getSmallestUnit(amount, currency),
           transfer_group: transaction_id,
           metadata: {
             transaction_id
@@ -70,8 +74,10 @@ export class PayoutProvider implements IPayoutProvider {
         data: transfer as unknown as Record<string, unknown>
       }
     } catch (error) {
-      const message =
-        error?.message ?? 'Error occured while processing transfer'
+      this.logger_.error('Error occured while creating payout', error)
+
+      const message = error?.message ?? 'Error occured while creating payout'
+
       throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, message)
     }
   }
@@ -120,14 +126,14 @@ export class PayoutProvider implements IPayoutProvider {
       if (!isPresent(context.refresh_url)) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
-          `"refresh_url" is required`
+          `'refresh_url' is required`
         )
       }
 
       if (!isPresent(context.return_url)) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
-          `"return_url" is required`
+          `'return_url' is required`
         )
       }
 
@@ -149,13 +155,30 @@ export class PayoutProvider implements IPayoutProvider {
   }
 
   async getWebhookActionAndData(payload: PayoutWebhookActionPayload) {
-    this.logger_.info('Getting webhook action')
+    const signature = payload.headers['stripe-signature'] as string
 
-    return {
-      action: PayoutWebhookAction.ACCOUNT_AUTHORIZED,
-      data: {
-        account_id: payload.data.account_id as string
-      }
+    const event = this.client_.webhooks.constructEvent(
+      payload.rawData as string | Buffer,
+      signature,
+      this.config_.webhookSecret
+    )
+
+    const data = event.data.object as Stripe.Account
+
+    switch (event.type) {
+      case 'account.updated':
+        // here you can validate account data to make sure it's valid
+        return {
+          action: PayoutWebhookAction.ACCOUNT_AUTHORIZED,
+          data: {
+            account_id: data.metadata?.account_id as string
+          }
+        }
     }
+
+    throw new MedusaError(
+      MedusaError.Types.UNEXPECTED_STATE,
+      `Unsupported event type: ${event.type}`
+    )
   }
 }

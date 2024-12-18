@@ -1,4 +1,4 @@
-import { PayoutEvents } from '#/modules/payout/types'
+import { PayoutWorkflowEvents } from '#/modules/payout/types'
 import { processPayoutForOrderWorkflow } from '#/workflows/order/workflows'
 
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
@@ -18,7 +18,7 @@ export default async function payoutOrderHandler({
 }
 
 export const config: SubscriberConfig = {
-  event: PayoutEvents.PROCESS,
+  event: PayoutWorkflowEvents.RECEIVED,
   context: {
     subscriberId: 'payout-order-handler'
   }

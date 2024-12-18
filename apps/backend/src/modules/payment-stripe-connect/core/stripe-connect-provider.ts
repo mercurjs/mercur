@@ -15,6 +15,7 @@ import {
   isPaymentProviderError,
   isPresent
 } from '@medusajs/framework/utils'
+import { Logger } from '@medusajs/medusa/types'
 import {
   CreatePaymentProviderSession,
   PaymentProviderError,
@@ -31,12 +32,13 @@ type Options = {
 abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
   private readonly options_: Options
   private readonly client_: Stripe
-
+  private readonly logger_: Logger
   constructor(container, options: Options) {
     super(container)
 
     this.options_ = options
 
+    this.logger_ = container.logger
     this.client_ = new Stripe(options.apiKey)
   }
 
@@ -210,8 +212,6 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     input: UpdatePaymentProviderSession
   ): Promise<PaymentProviderError | PaymentProviderSessionResponse> {
     const { data, currency_code, amount } = input
-
-    // TODO: initiate new payment intent if customer email changes
 
     const amountNumeric = getSmallestUnit(amount, currency_code)
 

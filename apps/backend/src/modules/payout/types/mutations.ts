@@ -1,9 +1,14 @@
 import { BigNumberInput } from '@medusajs/framework/types'
 
-import { OnboardingDTO } from './common'
+import { OnboardingDTO, PayoutAccountDTO } from './common'
 
 export interface CreatePayoutAccountDTO {
   context: Record<string, unknown>
+}
+
+export interface UpdatePayoutAccountDTO
+  extends Omit<Partial<PayoutAccountDTO>, 'id' | 'created_at' | 'updated_at'> {
+  id: string
 }
 
 export interface CreateOnboardingDTO

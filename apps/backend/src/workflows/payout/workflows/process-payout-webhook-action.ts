@@ -1,6 +1,13 @@
-import { PayoutWebhookActionAndDataResponse } from '#/modules/payout/types'
+import {
+  PayoutAccountStatus,
+  PayoutWebhookAction,
+  PayoutWebhookActionAndDataResponse
+} from '#/modules/payout/types'
 
+import { when } from '@medusajs/framework/workflows-sdk'
 import { createWorkflow } from '@medusajs/workflows-sdk'
+
+import { updatePayoutAccountStep } from '../steps'
 
 type ProcessPayoutWebhookActionInput = {
   action: PayoutWebhookActionAndDataResponse['action']
@@ -14,5 +21,15 @@ export const processPayoutWebhookActionWorkflow = createWorkflow(
     // - send email with confirmation of payout
     // - send email about failed payout
     // - send email about account status change
+
+    when(
+      { action: input.action },
+      ({ action }) => action === PayoutWebhookAction.ACCOUNT_AUTHORIZED
+    ).then(() => {
+      updatePayoutAccountStep({
+        id: input.data.account_id,
+        status: PayoutAccountStatus.ACTIVE
+      })
+    })
   }
 )

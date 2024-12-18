@@ -41,7 +41,7 @@ export type InitializeOnboardingResponse = {
 }
 
 export interface IPayoutProvider {
-  processPayout(input: ProcessPayoutInput): Promise<ProcessPayoutResponse>
+  createPayout(input: ProcessPayoutInput): Promise<ProcessPayoutResponse>
   createPayoutAccount(
     input: CreatePayoutAccountInput
   ): Promise<CreatePayoutAccountResponse>

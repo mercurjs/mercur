@@ -1,4 +1,4 @@
-import { PayoutEvents } from '#/modules/payout/types'
+import { PayoutWorkflowEvents } from '#/modules/payout/types'
 
 import {
   IEventBusModuleService,
@@ -9,8 +9,10 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 const BATCH_SIZE = 100
 const RETRY_COUNT = 3
 
-export default async function dailyPayouts(container: MedusaContainer) {
-  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+export default async function dailyPayoutsJob(container: MedusaContainer) {
+  const pgConnection = container.resolve(
+    ContainerRegistrationKeys.PG_CONNECTION
+  )
   const eventBus: IEventBusModuleService = container.resolve(Modules.EVENT_BUS)
 
   let hasMore = true
@@ -18,18 +20,13 @@ export default async function dailyPayouts(container: MedusaContainer) {
   let offset = 0
 
   while (hasMore) {
-    // todo: filter by fulfillment status and fulfillment time
-    const { data: orders } = await query.graph({
-      entity: 'order',
-      fields: ['id'],
-      pagination: {
-        order: {
-          created_at: 'ASC'
-        },
-        skip: offset,
-        take: BATCH_SIZE
-      }
-    })
+    const orders = await pgConnection
+      .select('order.id')
+      .from('order')
+      .leftJoin('order_payout', 'order.id', 'order_payout.order_id')
+      .whereNull('order_payout.order_id')
+      .limit(BATCH_SIZE)
+      .offset(offset)
 
     if (orders.length > 0) {
       for (const order of orders) {
@@ -37,7 +34,7 @@ export default async function dailyPayouts(container: MedusaContainer) {
           data: {
             order_id: order.id
           },
-          name: PayoutEvents.PROCESS,
+          name: PayoutWorkflowEvents.RECEIVED,
           options: {
             attempts: RETRY_COUNT
           }

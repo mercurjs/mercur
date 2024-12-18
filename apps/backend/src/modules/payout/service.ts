@@ -37,7 +37,10 @@ class PayoutModuleService extends MedusaService({
     { context }: CreatePayoutAccountDTO,
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
-    const result = await this.createPayoutAccounts({ context }, sharedContext)
+    const result = await this.createPayoutAccounts(
+      { context, reference_id: 'placeholder', data: {} },
+      sharedContext
+    )
 
     try {
       const { data, id: referenceId } =
@@ -109,7 +112,7 @@ class PayoutModuleService extends MedusaService({
   }
 
   @InjectTransactionManager()
-  async processPayout(
+  async createPayout(
     input: CreatePayoutDTO,
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
@@ -117,7 +120,7 @@ class PayoutModuleService extends MedusaService({
 
     const payoutAccount = await this.retrievePayoutAccount(account_id)
 
-    const { data } = await this.provider_.processPayout({
+    const { data } = await this.provider_.createPayout({
       account_reference_id: payoutAccount.reference_id,
       amount,
       currency: currency_code,
