@@ -131,7 +131,8 @@ class PayoutModuleService extends MedusaService({
       {
         data,
         amount,
-        currency_code
+        currency_code,
+        payout_account: payoutAccount.id
       },
       sharedContext
     )
