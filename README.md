@@ -35,6 +35,8 @@
 - **Fulfillment management**. Sellers can manage their fulfillments, shipping options and delivery types.
 - **Order spliting**. Orders are splitted into multiple orders by sellers in the cart.
 - **OpenAPI support**. Mercur API endpoints are available via OpenAPI.
+- **Payouts**. Automated payouts to sellers.
+- **Stripe Connect Integration**. Integration with Stripe Connect for payment and payout processing.
 
 &nbsp;
 
