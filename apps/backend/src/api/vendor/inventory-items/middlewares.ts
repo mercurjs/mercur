@@ -5,6 +5,7 @@ import {
 import { MiddlewareRoute } from '@medusajs/medusa'
 
 import sellerInventoryItem from '../../../links/seller-inventory-item'
+import sellerStockLocation from '../../../links/seller-stock-location'
 import {
   checkResourceOwnershipByResourceId,
   filterBySellerId
@@ -92,7 +93,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['GET'],
-    matcher: '/vendor/inventory-items/:id/location-levels/:locationId',
+    matcher: '/vendor/inventory-items/:id/location-levels/:location_id',
     middlewares: [
       validateAndTransformQuery(
         VendorGetInventoryItemsParams,
@@ -103,15 +104,15 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         filterField: 'inventory_item_id'
       }),
       checkResourceOwnershipByResourceId({
-        entryPoint: 'seller_stock_location',
+        entryPoint: sellerStockLocation.entryPoint,
         filterField: 'location_id',
-        resourceId: (req) => req.params.locationId
+        resourceId: (req) => req.params.location_id
       })
     ]
   },
   {
     method: ['POST'],
-    matcher: '/vendor/inventory-items/:id/location-levels/:locationId',
+    matcher: '/vendor/inventory-items/:id/location-levels/:location_id',
     middlewares: [
       validateAndTransformQuery(
         VendorGetInventoryItemsParams,
@@ -123,9 +124,9 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         filterField: 'inventory_item_id'
       }),
       checkResourceOwnershipByResourceId({
-        entryPoint: 'seller_stock_location',
+        entryPoint: sellerStockLocation.entryPoint,
         filterField: 'location_id',
-        resourceId: (req) => req.params.locationId
+        resourceId: (req) => req.params.location_id
       })
     ]
   }

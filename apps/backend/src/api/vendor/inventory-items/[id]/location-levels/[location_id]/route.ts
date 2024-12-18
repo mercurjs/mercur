@@ -5,7 +5,7 @@ import { updateInventoryLevelsWorkflow } from '@medusajs/medusa/core-flows'
 import { VendorUpdateInventoryLevel } from '../../../validators'
 
 /**
- * @oas [post] /vendor/inventory-items/{id}/location-levels/{locationId}
+ * @oas [post] /vendor/inventory-items/{id}/location-levels/{location_id}
  * operationId: "VendorUpdateInventoryLevel"
  * summary: "Update inventory level"
  * description: "Updates inventory level of the InventoryItem in the specified location"
@@ -41,11 +41,12 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateInventoryLevel>,
   res: MedusaResponse
 ) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   await updateInventoryLevelsWorkflow.run({
     input: {
       updates: [
         {
-          location_id: req.params.locationId,
+          location_id: req.params.location_id,
           inventory_item_id: req.params.id,
           ...req.validatedBody
         }
@@ -54,11 +55,24 @@ export const POST = async (
     container: req.scope
   })
 
-  res.status(202).end()
+  const {
+    data: [location_level]
+  } = await query.graph({
+    entity: 'inventory_level',
+    fields: req.remoteQueryConfig.fields,
+    filters: {
+      inventory_item_id: req.params.id,
+      location_id: req.params.location_id
+    }
+  })
+
+  res.json({
+    location_level
+  })
 }
 
 /**
- * @oas [get] /vendor/inventory-items/{id}/location-levels/{locationId}
+ * @oas [get] /vendor/inventory-items/{id}/location-levels/{location_id}
  * operationId: "VendorGetInventoryLevel"
  * summary: "Get inventory level"
  * description: "Retrieves inventory level of the InventoryItem in the specified location"
@@ -98,7 +112,7 @@ export const GET = async (
     fields: req.remoteQueryConfig.fields,
     filters: {
       inventory_item_id: req.params.id,
-      location_id: req.params.locationId
+      location_id: req.params.location_id
     }
   })
 
