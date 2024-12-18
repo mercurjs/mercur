@@ -7,4 +7,4 @@
 import type { AuthResponse } from './authResponse';
 import type { AuthCallbackResponse } from './authCallbackResponse';
 
-export type PostActorTypeAuthProvider200 = AuthResponse | AuthCallbackResponse;
+export type PostSellerTypeAuthProvider200 = AuthResponse | AuthCallbackResponse;

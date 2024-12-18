@@ -13,11 +13,11 @@ export interface AdminInvite {
   /** Whether the invite has been accepted. */
   accepted: boolean;
   /** The date the invite was created. */
-  created_at?: string;
+  created_at: string;
   /** The invite's email. */
   email: string;
   /** The invite's expiry date. */
-  expires_at?: string;
+  expires_at: string;
   /** The invite's ID. */
   id: string;
   /** The invite's metadata, can hold custom key-value pairs. */
@@ -25,5 +25,5 @@ export interface AdminInvite {
   /** The invite's token. */
   token: string;
   /** The date the invite was updated. */
-  updated_at?: string;
+  updated_at: string;
 }

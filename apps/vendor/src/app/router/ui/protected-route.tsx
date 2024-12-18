@@ -1,4 +1,5 @@
-import { PropsWithChildren, useEffect, useState } from 'react'
+import { useSeller } from '@/entities/seller'
+import { PropsWithChildren } from 'react'
 import { Redirect, Route, RouteProps } from 'wouter'
 
 export const ProtectedRoute = ({
@@ -19,19 +20,7 @@ export const ProtectedRoute = ({
 }
 
 const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const { seller, isLoading } = useSeller()
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsAuthenticated(false)
-      setIsLoading(false)
-    }, 1000)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [])
-
-  return { isAuthenticated, isLoading }
+  return { isAuthenticated: !!seller, isLoading }
 }

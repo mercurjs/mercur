@@ -7,7 +7,7 @@ import { VendorUpdateSellerType } from '../validators'
 
 /**
  * @oas [get] /vendor/sellers/me
- * operationId: "VendorGetSellerById"
+ * operationId: "VendorGetSellerMe"
  * summary: "Get Current Seller"
  * description: "Retrieves the seller associated with the authenticated user."
  * x-authenticated: true
@@ -42,7 +42,7 @@ export const GET = async (
 
 /**
  * @oas [post] /vendor/sellers/me
- * operationId: "VendorUpdateSellerById"
+ * operationId: "VendorUpdateSellerMe"
  * summary: "Update Current Seller"
  * description: "Updates the seller associated with the authenticated user."
  * x-authenticated: true
