@@ -3,7 +3,7 @@
 </h1>
 
 <h4 align="center">
-  <a href="https://rigby-3d34c1f9.mintlify.app/introduction">Documentation</a> |
+  <a href="https://docs.mercurjs.com">Documentation</a> |
   <a href="https://www.mercurjs.com">Website</a>
 </h4>
 
