@@ -1,3 +1,5 @@
+import sellerOrderLink from '#/links/seller-order'
+
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
@@ -42,7 +44,7 @@ import { VendorGetOrderParamsType } from './validators'
  *         schema:
  *           type: object
  *           properties:
- *             products:
+ *             orders:
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/VendorOrderDetails"
@@ -67,9 +69,9 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: orders, metadata } = await query.graph({
-    entity: 'order',
-    fields: req.remoteQueryConfig.fields,
+  const { data: orderRelations, metadata } = await query.graph({
+    entity: sellerOrderLink.entryPoint,
+    fields: req.remoteQueryConfig.fields.map((field) => `order.${field}`),
     filters: req.filterableFields,
     pagination: {
       ...req.remoteQueryConfig.pagination
@@ -77,7 +79,7 @@ export const GET = async (
   })
 
   res.json({
-    members: orders,
+    orders: orderRelations.map((relation) => relation.order),
     count: metadata!.count,
     offset: metadata!.skip,
     limit: metadata!.take

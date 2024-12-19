@@ -4,7 +4,7 @@ import {
   Form,
   FormField,
   FormItem,
-  Text,
+  Typography,
   FormControl,
   FormMessage,
   Button
@@ -74,12 +74,12 @@ const RegisterPage = () => {
     <div className="w-full h-screen flex items-center justify-center">
       <div className="min-w-[360px]">
         <div>
-          <Text weight="plus" size="xlarge" className="text-center">
+          <Typography weight="plus" size="xlarge" className="text-center">
             Create account
-          </Text>
-          <Text className="text-center mt-2">
+          </Typography>
+          <Typography className="text-center mt-2">
             To continue, please enter your details below.
-          </Text>
+          </Typography>
         </div>
         <div className="mt-6">
           <Form {...form}>
@@ -143,7 +143,7 @@ const RegisterPage = () => {
                   Sign up
                 </Button>
                 <div className="text-center">
-                  <Text className="text-gray-600">
+                  <Typography className="text-gray-600">
                     Already have an account?{' '}
                     <Link
                       href="/login"
@@ -151,7 +151,7 @@ const RegisterPage = () => {
                     >
                       Login
                     </Link>
-                  </Text>
+                  </Typography>
                 </div>
               </div>
             </form>

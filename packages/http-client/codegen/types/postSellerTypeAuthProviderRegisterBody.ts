@@ -8,4 +8,4 @@
 /**
  * The input data necessary for authentication. For example, for email-pass authentication, pass `email` and `password` properties.
  */
-export type PostActorTypeAuthProviderBody = { [key: string]: unknown };
+export type PostSellerTypeAuthProviderRegisterBody = { [key: string]: unknown };

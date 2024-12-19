@@ -2,21 +2,22 @@ import { Redirect, Route, Switch } from 'wouter'
 import { ProtectedRoute } from './protected-route'
 import { RegisterPageAsync } from '@/pages/register'
 import { LoginPageAsync } from '@/pages/login'
-import { PropsWithChildren, Suspense } from 'react'
-import { AppSidebarAsync } from '@/widgets/app-sidebar'
+import { Suspense } from 'react'
 import { OrdersPageAsync } from '@/pages/orders'
+import { Shell } from '@/widgets/shell'
+import { FallbackLoader } from '@/widgets/fallback-loader'
 
 export const AppRouter = () => {
   return (
     <Switch>
       {/* Public routes */}
       <Route path="/register">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<FallbackLoader />}>
           <RegisterPageAsync />
         </Suspense>
       </Route>
       <Route path="/login">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<FallbackLoader />}>
           <LoginPageAsync />
         </Suspense>
       </Route>
@@ -26,7 +27,7 @@ export const AppRouter = () => {
         <Shell>
           <Switch>
             <Route path="/orders">
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<FallbackLoader />}>
                 <OrdersPageAsync />
               </Suspense>
             </Route>
@@ -43,18 +44,5 @@ export const AppRouter = () => {
       {/* Fallback 404 */}
       <Route>404, Not Found!</Route>
     </Switch>
-  )
-}
-
-const Shell = ({ children }: PropsWithChildren) => {
-  return (
-    <div className="flex h-screen items-start overflow-hidden w-full">
-      <Suspense fallback={<div>Loading...</div>}>
-        <AppSidebarAsync />
-      </Suspense>
-      <div className="flex w-full max-w-[1600px] flex-col gap-y-2 p-10">
-        {children}
-      </div>
-    </div>
   )
 }
