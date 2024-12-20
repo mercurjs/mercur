@@ -1,27 +1,36 @@
 import { TableFilter } from '@/shared/ui/table-filter'
-import { useState } from 'react'
 
-export const OrderTableFilters = () => {
-  const [status, setStatus] = useState<string | null>(null)
-  const [createdAt, setCreatedAt] = useState<string | null>(null)
+export type CreatedAtOption =
+  | 'today'
+  | 'last_24_hours'
+  | 'last_48_hours'
+  | 'last_72_hours'
+  | 'last_month'
 
+const createdAtOptions: { value: CreatedAtOption; label: string }[] = [
+  { value: 'today', label: 'Today' },
+  { value: 'last_24_hours', label: 'Last 24 hours' },
+  { value: 'last_48_hours', label: 'Last 48 hours' },
+  { value: 'last_72_hours', label: 'Last 72 hours' },
+  { value: 'last_month', label: 'Last month' }
+]
+
+type OrderTableFiltersProps = {
+  createdAt: CreatedAtOption | null
+  onCreatedAtChange: (createdAt: CreatedAtOption | null) => void
+}
+
+export const OrderTableFilters = ({
+  onCreatedAtChange,
+  createdAt
+}: OrderTableFiltersProps) => {
   return (
     <div className="flex gap-2">
       <TableFilter
-        options={[{ value: 'paid', label: 'Paid' }]}
-        label="Status"
-        value={status}
-        onChange={(value) => setStatus(value)}
-      />
-      <TableFilter
-        options={[
-          { value: '2024-12-19', label: 'Last 24 hours' },
-          { value: '2024-12-18', label: 'Last 48 hours' },
-          { value: '2024-12-17', label: 'Last 72 hours' }
-        ]}
+        options={createdAtOptions}
         label="Created at"
         value={createdAt}
-        onChange={(value) => setCreatedAt(value)}
+        onChange={(value) => onCreatedAtChange(value as CreatedAtOption)}
       />
     </div>
   )

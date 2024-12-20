@@ -36,6 +36,12 @@ import { VendorGetOrderParamsType } from './validators'
  *       type: string
  *     required: false
  *     description: The order of the returned items.
+ *   - name: created_at
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Filter by created at.
  * responses:
  *   "200":
  *     description: OK

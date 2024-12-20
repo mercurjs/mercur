@@ -1,7 +1,8 @@
 import {
   postSellerTypeAuthProviderRegister,
   postSellerTypeAuthProvider,
-  storePostSession
+  storePostSession,
+  storeDeleteSession
 } from '@mercurjs/http-client'
 import {
   AuthResponse,
@@ -62,5 +63,11 @@ export const useCreateSession = (
         }
       }).then(() => undefined),
     ...options
+  })
+}
+
+export const useLogout = () => {
+  return useMutation({
+    mutationFn: () => storeDeleteSession().then(() => undefined)
   })
 }

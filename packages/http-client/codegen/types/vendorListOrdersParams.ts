@@ -22,4 +22,8 @@ fields?: string;
  * The order of the returned items.
  */
 order?: string;
+/**
+ * Filter by created at.
+ */
+created_at?: string;
 };

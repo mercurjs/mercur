@@ -1,12 +1,19 @@
 import * as z from 'zod'
 
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import {
+  createFindParams,
+  createOperatorMap
+} from '@medusajs/medusa/api/utils/validators'
 
 export type VendorGetOrderParamsType = z.infer<typeof VendorGetOrderParams>
 export const VendorGetOrderParams = createFindParams({
   offset: 0,
   limit: 50
-})
+}).merge(
+  z.object({
+    created_at: createOperatorMap().optional()
+  })
+)
 
 /**
  * @schema VendorCreateFulfillment

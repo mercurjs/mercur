@@ -57,7 +57,7 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
       </TableHeader>
       <TableBody>
         {orders.map((order) => (
-          <TableRow key={order.display_id}>
+          <TableRow key={order.display_id} className="cursor-pointer">
             <TableCell>
               <Typography weight="plus" size="small">
                 #{order.display_id}

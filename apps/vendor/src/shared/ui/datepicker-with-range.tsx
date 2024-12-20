@@ -11,8 +11,8 @@ import { Calendar } from './calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 
 type DatePickerWithRangeProps = {
-  date: DateRange | undefined
-  setDate: (date: DateRange | undefined) => void
+  date?: DateRange
+  setDate: (date?: DateRange) => void
   className?: string
 }
 
