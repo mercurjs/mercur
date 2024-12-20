@@ -1,11 +1,11 @@
 import { CreatedAtOption } from '@/features/order-table-filters/ui'
 import { useSearchState } from '@/shared/hooks'
-import { subMonths } from 'date-fns'
 import { DateRange } from 'react-day-picker'
+import dayjs from 'dayjs'
 
 const DEFAULT_DATE_RANGE = {
-  from: subMonths(new Date(), 1),
-  to: new Date()
+  from: dayjs().subtract(1, 'month').toDate(),
+  to: dayjs().toDate()
 }
 
 export const useOrdersFilters = () => {

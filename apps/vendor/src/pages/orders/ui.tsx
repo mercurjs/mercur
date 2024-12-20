@@ -49,7 +49,6 @@ export default function OrdersPage() {
         createdAt={createdAt}
         onCreatedAtChange={setCreatedAt}
       />
-
       {orders && <OrderTable orders={orders} />}
       <Paginator
         currentPage={currentPage}

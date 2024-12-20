@@ -1,15 +1,11 @@
-import { subMonths } from 'date-fns'
-
-import { subHours } from 'date-fns'
+import dayjs from 'dayjs'
 
 import { CreatedAtOption } from '@/features/order-table-filters'
 
-import { startOfDay } from 'date-fns'
-
 export const createdAtOptionToDate: Record<CreatedAtOption, string> = {
-  today: startOfDay(new Date()).toISOString(),
-  last_24_hours: subHours(new Date(), 24).toISOString(),
-  last_48_hours: subHours(new Date(), 48).toISOString(),
-  last_72_hours: subHours(new Date(), 72).toISOString(),
-  last_month: subMonths(new Date(), 1).toISOString()
+  today: dayjs().startOf('day').toISOString(),
+  last_24_hours: dayjs().subtract(24, 'hour').toISOString(),
+  last_48_hours: dayjs().subtract(48, 'hour').toISOString(),
+  last_72_hours: dayjs().subtract(72, 'hour').toISOString(),
+  last_month: dayjs().subtract(1, 'month').toISOString()
 }

@@ -1,7 +1,5 @@
 'use client'
 
-import * as React from 'react'
-import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { DateRange } from 'react-day-picker'
 
@@ -9,6 +7,7 @@ import { cn } from '@/shared/lib'
 import { Button } from '@/shared/ui/button'
 import { Calendar } from './calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
+import dayjs from 'dayjs'
 
 type DatePickerWithRangeProps = {
   date?: DateRange
@@ -38,11 +37,11 @@ export function DatePickerWithRange({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, 'LLL dd, y')} -{' '}
-                  {format(date.to, 'LLL dd, y')}
+                  {dayjs(date.from).format('MMM DD, YYYY')} -{' '}
+                  {dayjs(date.to).format('MMM DD, YYYY')}
                 </>
               ) : (
-                format(date.from, 'LLL dd, y')
+                dayjs(date.from).format('MMM DD, YYYY')
               )
             ) : (
               <span>Pick a date</span>

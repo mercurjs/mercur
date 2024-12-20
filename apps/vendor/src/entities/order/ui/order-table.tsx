@@ -11,7 +11,7 @@ import { VendorOrderDetails } from '@mercurjs/http-client/types'
 import { OrderStatusBadge } from './order-status-badge'
 import { CustomerAvatar } from '@/entities/customer'
 import { ActionMenu, Typography } from '@/shared/ui'
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 
 type OrderTableProps = {
   orders: VendorOrderDetails[]
@@ -56,6 +56,15 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
         </TableRow>
       </TableHeader>
       <TableBody>
+        {orders.length === 0 && (
+          <TableRow className="hover:bg-transparent">
+            <TableCell colSpan={7} className="h-24 text-center">
+              <Typography className="text-muted-foreground">
+                No orders to show
+              </Typography>
+            </TableCell>
+          </TableRow>
+        )}
         {orders.map((order) => (
           <TableRow key={order.display_id} className="cursor-pointer">
             <TableCell>
@@ -83,7 +92,7 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
             </TableCell>
             <TableCell>
               <Typography size="small" className="text-muted-foreground">
-                {format(new Date(order.created_at!), 'd MMM, hh:mm a')}
+                {dayjs(order.created_at!).format('MMM DD, YYYY hh:mm a')}
               </Typography>
             </TableCell>
             <TableCell>
