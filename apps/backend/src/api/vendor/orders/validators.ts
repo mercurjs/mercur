@@ -11,7 +11,13 @@ export const VendorGetOrderParams = createFindParams({
   limit: 50
 }).merge(
   z.object({
-    created_at: createOperatorMap().optional()
+    created_at: createOperatorMap().optional(),
+    status: z
+      .union([z.string(), z.array(z.string()), createOperatorMap()])
+      .optional(),
+    fulfillment_status: z.string().optional(),
+    payment_status: z.string().optional(),
+    q: z.string().optional()
   })
 )
 

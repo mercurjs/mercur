@@ -221,9 +221,10 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         {
           createdOrders,
           sellers,
-          orderSet
+          orderSet,
+          cart
         },
-        ({ createdOrders, sellers, orderSet }) => {
+        ({ createdOrders, sellers, orderSet, cart }) => {
           const sellerOrderLinks = createdOrders.map((order, index) => ({
             [SELLER_MODULE]: {
               seller_id: sellers[index]
@@ -242,7 +243,20 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
             }
           }))
 
-          return [...sellerOrderLinks, ...orderSetOrderLinks]
+          const orderPaymentLinks = createdOrders.map((order) => ({
+            [Modules.ORDER]: {
+              order_id: order.id
+            },
+            [Modules.PAYMENT]: {
+              payment_collection_id: cart.payment_collection.id
+            }
+          }))
+
+          return [
+            ...sellerOrderLinks,
+            ...orderSetOrderLinks,
+            ...orderPaymentLinks
+          ]
         }
       )
 

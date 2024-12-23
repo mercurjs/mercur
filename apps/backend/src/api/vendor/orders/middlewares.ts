@@ -7,10 +7,7 @@ import {
 
 import sellerOrderLink from '../../../links/seller-order'
 import sellerLocationLink from '../../../links/seller-stock-location'
-import {
-  checkResourceOwnershipByResourceId,
-  filterBySellerId
-} from '../../../shared/infra/http/middlewares'
+import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
 import { vendorOrderQueryConfig } from './query-config'
 import {
   VendorCreateFulfillment,
@@ -26,8 +23,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.list
-      ),
-      filterBySellerId()
+      )
     ]
   },
   {
