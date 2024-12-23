@@ -39,7 +39,8 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         vendorOrderQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerOrderLink.entryPoint
+        entryPoint: sellerOrderLink.entryPoint,
+        filterField: 'order_id'
       })
     ]
   },
@@ -52,7 +53,8 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         vendorOrderQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerOrderLink.entryPoint
+        entryPoint: sellerOrderLink.entryPoint,
+        filterField: 'order_id'
       })
     ]
   },
@@ -65,7 +67,8 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         vendorOrderQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerOrderLink.entryPoint
+        entryPoint: sellerOrderLink.entryPoint,
+        filterField: 'order_id'
       })
     ]
   },
@@ -75,7 +78,8 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorCreateFulfillment),
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerOrderLink.entryPoint
+        entryPoint: sellerOrderLink.entryPoint,
+        filterField: 'order_id'
       }),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerLocationLink.entryPoint,

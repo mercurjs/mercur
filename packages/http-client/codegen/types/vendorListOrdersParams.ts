@@ -25,5 +25,5 @@ order?: string;
 /**
  * Filter by created at.
  */
-created_at?: string;
+'created_at[$gte]'?: string;
 };

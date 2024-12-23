@@ -36,7 +36,7 @@ import { VendorGetOrderParamsType } from './validators'
  *       type: string
  *     required: false
  *     description: The order of the returned items.
- *   - name: created_at
+ *   - name: created_at[$gte]
  *     in: query
  *     schema:
  *       type: string

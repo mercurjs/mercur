@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import { OrdersPageAsync } from '@/pages/orders'
 import { Shell } from '@/widgets/shell'
 import { FallbackLoader } from '@/widgets/fallback-loader'
+import { OrderDetailsPageAsync } from '@/pages/order-details'
 
 export const AppRouter = () => {
   return (
@@ -26,10 +27,15 @@ export const AppRouter = () => {
       <ProtectedRoute path="/dashboard" nest>
         <Shell>
           <Switch>
-            <Route path="/orders">
+            <Route path="/orders" nest>
               <Suspense fallback={<FallbackLoader />}>
                 <OrdersPageAsync />
               </Suspense>
+              <Route path=":id">
+                <Suspense fallback={<FallbackLoader />}>
+                  <OrderDetailsPageAsync />
+                </Suspense>
+              </Route>
             </Route>
             <Route>404, Not Found!</Route>
           </Switch>

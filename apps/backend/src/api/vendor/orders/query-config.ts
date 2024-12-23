@@ -2,6 +2,8 @@ export const vendorOrderFields = [
   'id',
   'display_id',
   'status',
+  'email',
+  'currency_code',
   'version',
   'summary',
   'metadata',

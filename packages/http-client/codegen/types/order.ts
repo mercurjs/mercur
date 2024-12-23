@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { OrderAddress } from './orderAddress';
+import type { OrderCreditLine } from './orderCreditLine';
 import type { OrderLineItem } from './orderLineItem';
 import type { OrderMetadata } from './orderMetadata';
 import type { OrderOrderChange } from './orderOrderChange';
@@ -22,6 +23,8 @@ export interface Order {
   canceled_at?: string;
   /** The date the order was created. */
   created_at: string;
+  /** The order's credit lines, useful to add additional payment amounts for an order. */
+  credit_lines?: OrderCreditLine[];
   /** The order's currency code. */
   currency_code: string;
   /** The ID of the customer that placed the order. */

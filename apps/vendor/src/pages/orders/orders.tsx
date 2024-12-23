@@ -1,4 +1,4 @@
-import { OrderAnalyticsChart, OrderTable, useOrders } from '@/entities/order'
+import { OrderAnalyticsChart, OrdersTable, useOrders } from '@/entities/order'
 import { OrderTableFilters } from '@/features/order-table-filters'
 import { Paginator, Typography } from '@/shared/ui'
 import { OrderMetrics } from '@/entities/order'
@@ -18,8 +18,8 @@ export default function OrdersPage() {
 
   const { orders, count } = useOrders(
     {
+      order: '-created_at',
       limit: PAGE_SIZE,
-      // @ts-expect-error: unsupported date range filter
       'created_at[$gte]': createdAt
         ? createdAtOptionToDate[createdAt]
         : undefined,
@@ -49,7 +49,7 @@ export default function OrdersPage() {
         createdAt={createdAt}
         onCreatedAtChange={setCreatedAt}
       />
-      {orders && <OrderTable orders={orders} />}
+      {orders && <OrdersTable orders={orders} />}
       <Paginator
         currentPage={currentPage}
         totalPages={Math.ceil((count ?? 0) / PAGE_SIZE)}

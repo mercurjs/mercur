@@ -7,5 +7,5 @@
 import type { VendorOrderDetails } from './vendorOrderDetails';
 
 export type VendorGetOrder200 = {
-  member?: VendorOrderDetails;
+  order?: VendorOrderDetails;
 };

@@ -22,7 +22,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *         schema:
  *           type: object
  *           properties:
- *             member:
+ *             order:
  *               $ref: "#/components/schemas/VendorOrderDetails"
  * tags:
  *   - Order

@@ -12,12 +12,13 @@ import { OrderStatusBadge } from './order-status-badge'
 import { CustomerAvatar } from '@/entities/customer'
 import { ActionMenu, Typography } from '@/shared/ui'
 import dayjs from 'dayjs'
+import { navigate } from 'wouter/use-browser-location'
 
 type OrderTableProps = {
   orders: VendorOrderDetails[]
 }
 
-export const OrderTable = ({ orders }: OrderTableProps) => {
+export const OrdersTable = ({ orders }: OrderTableProps) => {
   return (
     <Table>
       <TableHeader>
@@ -49,7 +50,7 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
           </TableHead>
           <TableHead>
             <Typography weight="plus" size="xsmall">
-              Revenue
+              Total
             </Typography>
           </TableHead>
           <TableHead className="text-right"></TableHead>
@@ -66,7 +67,13 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
           </TableRow>
         )}
         {orders.map((order) => (
-          <TableRow key={order.display_id} className="cursor-pointer">
+          <TableRow
+            key={order.display_id}
+            className="cursor-pointer"
+            onClick={() => {
+              navigate(`/dashboard/orders/${order.id}`)
+            }}
+          >
             <TableCell>
               <Typography weight="plus" size="small">
                 #{order.display_id}
@@ -75,10 +82,7 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
             <TableCell>
               <CustomerAvatar
                 customer={{
-                  name:
-                    order.shipping_address?.first_name ??
-                    order.shipping_address?.last_name ??
-                    'John Doe'
+                  name: order.email
                 }}
               />
             </TableCell>
@@ -88,7 +92,7 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
               </Typography>
             </TableCell>
             <TableCell>
-              <OrderStatusBadge />
+              <OrderStatusBadge paymentStatus={order.payment_status} />
             </TableCell>
             <TableCell>
               <Typography size="small" className="text-muted-foreground">

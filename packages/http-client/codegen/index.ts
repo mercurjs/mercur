@@ -95,6 +95,7 @@ import type {
   AdminFileListResponse,
   AdminFileResponse,
   AdminFulfillmentProviderListResponse,
+  AdminFulfillmentProviderOptionsListResponse,
   AdminFulfillmentResponse,
   AdminFulfillmentSetDeleteResponse,
   AdminFulfillmentSetResponse,
@@ -3751,6 +3752,35 @@ export const getAdminGetFulfillmentProvidersUrl = (params?: AdminGetFulfillmentP
 export const adminGetFulfillmentProviders = async (params?: AdminGetFulfillmentProvidersParams, options?: RequestInit): Promise<adminGetFulfillmentProvidersResponse> => {
   
   return customFetch<Promise<adminGetFulfillmentProvidersResponse>>(getAdminGetFulfillmentProvidersUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Retrieve the list of fulfillment options of a fulfillment provider. These options may be retrieved from an integrated third-party service.
+ * @summary List Fulfillment Options
+ */
+export type adminGetFulfillmentProvidersIdOptionsResponse = {
+  data: AdminFulfillmentProviderOptionsListResponse;
+  status: number;
+  headers: Headers;
+}
+
+export const getAdminGetFulfillmentProvidersIdOptionsUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/admin/fulfillment-providers/${id}/options`
+}
+
+export const adminGetFulfillmentProvidersIdOptions = async (id: string, options?: RequestInit): Promise<adminGetFulfillmentProvidersIdOptionsResponse> => {
+  
+  return customFetch<Promise<adminGetFulfillmentProvidersIdOptionsResponse>>(getAdminGetFulfillmentProvidersIdOptionsUrl(id),
   {      
     ...options,
     method: 'GET'

@@ -36,10 +36,10 @@ export const TableFilter = ({
         <SelectTrigger
           withArrow={!!value}
           className={cn(
-            'flex rounded-full h-7 px-2 py-1 w-fit gap-x-2  items-center justify-between border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+            'flex rounded-full h-7 px-2 py-1 w-fit gap-x-2 items-center justify-between border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
             {
-              'border border-dashed': !value,
-              border: !!value
+              'border border-dashed bg-background': !value,
+              'border bg-card': !!value
             }
           )}
         >

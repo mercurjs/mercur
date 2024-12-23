@@ -1,9 +1,10 @@
 import { queryKeysFactory } from '@/shared/lib'
-import { vendorListOrders } from '@mercurjs/http-client'
+import { vendorGetOrder, vendorListOrders } from '@mercurjs/http-client'
 import { FetchError } from '@mercurjs/http-client/client'
 import {
   VendorListOrdersParams,
-  VendorListOrders200
+  VendorListOrders200,
+  VendorGetOrder200
 } from '@mercurjs/http-client/types'
 import { QueryKey, useQuery, UseQueryOptions } from '@tanstack/react-query'
 
@@ -25,6 +26,22 @@ export const useOrders = (
   const { data, ...other } = useQuery({
     queryKey: orderQueryKeys.list(query),
     queryFn: () => vendorListOrders(query).then((res) => res.data),
+    ...options
+  })
+
+  return { ...data, ...other }
+}
+
+export const useOrder = (
+  id: string,
+  options?: Omit<
+    UseQueryOptions<unknown, FetchError, VendorGetOrder200, QueryKey>,
+    'queryFn' | 'queryKey'
+  >
+) => {
+  const { data, ...other } = useQuery({
+    queryKey: orderQueryKeys.detail(id),
+    queryFn: () => vendorGetOrder(id).then((res) => res.data),
     ...options
   })
 

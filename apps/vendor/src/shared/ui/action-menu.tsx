@@ -1,7 +1,7 @@
 import { PropsWithChildren, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from './button'
-import { EllipsisVertical } from 'lucide-react'
+import { Ellipsis } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,7 @@ type ActionMenuProps = PropsWithChildren<{
 export const ActionMenu = ({ groups, children }: ActionMenuProps) => {
   const inner = children ?? (
     <Button size="icon" variant="ghost">
-      <EllipsisVertical className="h-4 w-4 text-muted-foreground" />
+      <Ellipsis className="h-4 w-4 text-muted-foreground" />
     </Button>
   )
 
