@@ -1,11 +1,14 @@
-import { OrderAnalyticsChart, OrdersTable, useOrders } from '@/entities/order'
-import { OrderTableFilters } from '@/features/order-table-filters'
 import { Paginator, Typography } from '@/shared/ui'
-import { OrderMetrics } from '@/entities/order'
-import { OrderAnalyticsFilter } from '@/features/order-analytics-filter'
-import { createdAtOptionToDate } from './const'
+
+import { createdAtOptionToDate } from '../const'
 import { keepPreviousData } from '@tanstack/react-query'
-import { useOrdersFilters } from './lib/use-orders-filters'
+import { useOrdersFilters } from '../lib/use-orders-filters'
+import { OrderAnalyticsFilter } from './order-analytics-filter'
+import { OrderAnalyticsChart } from './order-anaylytics-chart'
+import { OrderMetrics } from './order-metrics'
+import { OrderTableFilters } from './order-table-filters'
+import { OrdersTable } from './orders-table'
+import { useOrders } from '@/shared/hooks/api'
 
 const PAGE_SIZE = 50
 

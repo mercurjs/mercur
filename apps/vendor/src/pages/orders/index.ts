@@ -1,1 +1,1 @@
-export * from './orders.async'
+export * from './ui/orders.async'

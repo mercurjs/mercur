@@ -9,7 +9,7 @@ import {
 } from '@/shared/ui'
 import { VendorOrderDetails } from '@mercurjs/http-client/types'
 import { OrderStatusBadge } from './order-status-badge'
-import { CustomerAvatar } from '@/entities/customer'
+import { CustomerAvatar } from '@/shared/ui'
 import { ActionMenu, Typography } from '@/shared/ui'
 import dayjs from 'dayjs'
 import { navigate } from 'wouter/use-browser-location'

@@ -12,7 +12,7 @@ import {
 import { FetchError } from '@mercurjs/http-client/client'
 import { useMutation, UseMutationOptions } from '@tanstack/react-query'
 import { queryClient } from '@/shared/lib'
-import { sellerQueryKeys } from '../seller'
+import { sellerQueryKeys } from '../../../entities/seller'
 
 export const useEmailpassRegister = (
   options?: UseMutationOptions<

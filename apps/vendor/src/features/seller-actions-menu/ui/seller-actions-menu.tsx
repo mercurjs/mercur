@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '@/shared/ui'
-import { useLogout } from '@/entities/auth'
+import { useLogout } from '@/shared/hooks/api'
 import { navigate } from 'wouter/use-browser-location'
 
 export const SellerActionsMenu = () => {
