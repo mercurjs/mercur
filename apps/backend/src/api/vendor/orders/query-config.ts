@@ -40,7 +40,10 @@ export const vendorOrderFields = [
   '*billing_address',
   '*shipping_methods',
   '*shipping_methods.tax_lines',
-  '*shipping_methods.adjustments'
+  '*shipping_methods.adjustments',
+  '*fulfillments',
+  '*fulfillments.items',
+  '*fulfillments.labels'
 ]
 
 export const vendorOrderQueryConfig = {

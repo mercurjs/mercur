@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { AdminShippingOptionPriceRuleOperator } from './adminShippingOptionPriceRuleOperator';
+import type { AdminShippingOptionPriceRuleValue } from './adminShippingOptionPriceRuleValue';
 
 /**
  * The details of a shipping option price's rule.
@@ -27,5 +28,5 @@ export interface AdminShippingOptionPriceRule {
   /** The date the price rule was updated. */
   updated_at: string;
   /** The price rule's value. */
-  value: string;
+  value: AdminShippingOptionPriceRuleValue;
 }

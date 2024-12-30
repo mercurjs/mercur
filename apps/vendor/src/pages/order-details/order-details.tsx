@@ -1,8 +1,9 @@
-import { OrderDetailsModal, useOrder } from '@/entities/order'
+import { useOrder } from '@/shared/hooks/api'
 import { useToggleState } from '@/shared/hooks'
 import { ActionMenu } from '@/shared/ui'
 import { useParams } from 'wouter'
 import { navigate } from 'wouter/use-browser-location'
+import { OrderDetailsModal } from './ui/order-details-modal'
 
 const OrderDetailsPage = () => {
   const { toggle, state } = useToggleState(true)

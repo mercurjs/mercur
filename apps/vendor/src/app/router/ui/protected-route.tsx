@@ -1,4 +1,4 @@
-import { useSeller } from '@/entities/seller'
+import { useSeller } from '@/shared/hooks/api'
 import { FallbackLoader } from '@/widgets/fallback-loader'
 import { PropsWithChildren } from 'react'
 import { Redirect, Route, RouteProps } from 'wouter'

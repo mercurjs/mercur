@@ -12,7 +12,7 @@ import {
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useCreateSession, useEmailpassLogin } from '@/entities/auth'
+import { useCreateSession, useEmailpassLogin } from '@/shared/hooks/api'
 import { Link, useLocation } from 'wouter'
 import { toast } from 'sonner'
 

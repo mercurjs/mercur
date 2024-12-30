@@ -8,7 +8,7 @@ import {
   TableRow
 } from '@/shared/ui'
 import { VendorOrderDetails } from '@mercurjs/http-client/types'
-import { OrderStatusBadge } from './order-status-badge'
+import { OrderStatusBadge } from '@/entities/order'
 import { CustomerAvatar } from '@/shared/ui'
 import { ActionMenu, Typography } from '@/shared/ui'
 import dayjs from 'dayjs'

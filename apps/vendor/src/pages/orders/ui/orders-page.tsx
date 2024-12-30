@@ -23,6 +23,7 @@ export default function OrdersPage() {
     {
       order: '-created_at',
       limit: PAGE_SIZE,
+      // @ts-expect-error: you can not provide object as a value as a query param
       'created_at[$gte]': createdAt
         ? createdAtOptionToDate[createdAt]
         : undefined,

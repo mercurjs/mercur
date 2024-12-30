@@ -1,4 +1,4 @@
-import { CreatedAtOption } from '@/features/order-table-filters/ui'
+import { CreatedAtOption } from '../ui/order-table-filters'
 import { useSearchState } from '@/shared/hooks'
 import { DateRange } from 'react-day-picker'
 import dayjs from 'dayjs'

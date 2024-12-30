@@ -4,6 +4,7 @@
  * Medusa API
  * OpenAPI spec version: 1.0.0
  */
+import type { VendorListOrdersStatusOneOf } from './vendorListOrdersStatusOneOf';
 
 export type VendorListOrdersParams = {
 /**
@@ -23,7 +24,23 @@ fields?: string;
  */
 order?: string;
 /**
- * Filter by created at.
+ * Filter by created at date range
  */
-'created_at[$gte]'?: string;
+created_at?: { [key: string]: unknown };
+/**
+ * Filter by order status
+ */
+status?: string | string[] | VendorListOrdersStatusOneOf;
+/**
+ * Filter by fulfillment status
+ */
+fulfillment_status?: string;
+/**
+ * Filter by payment status
+ */
+payment_status?: string;
+/**
+ * Search query for filtering orders
+ */
+q?: string;
 };

@@ -15,9 +15,9 @@ import {
 import { VendorOrderDetails } from '@mercurjs/http-client/types'
 import { ChevronLeft, Send, Check } from 'lucide-react'
 import { ReactNode, useMemo } from 'react'
-import { OrderStatusBadge } from './order-status-badge'
 import { formatAddress } from '@/shared/lib/address'
 import { formatDate, formatMoney } from '@/shared/lib'
+import { OrderStatusBadge } from '@/entities/order'
 
 type OrderDetailsModalProps = {
   open: boolean
@@ -26,25 +26,6 @@ type OrderDetailsModalProps = {
   isLoading?: boolean
   actions?: ReactNode
 }
-
-const events = [
-  {
-    type: 'subscribed',
-    timestamp: '24 Aug 2024, 10:39 PM',
-    email: 'mail@domain.com'
-  },
-  {
-    type: 'order_created',
-    timestamp: '24 Aug 2024, 10:39 PM',
-    email: 'mail@domain.com',
-    details: '$49 PAYPAL'
-  },
-  {
-    type: 'email_sent',
-    timestamp: '24 Aug 2024, 10:39 PM',
-    email: 'mail@domain.com'
-  }
-]
 
 export const OrderDetailsModal = ({
   open,
@@ -118,7 +99,7 @@ export const OrderDetailsModal = ({
             <Separator />
             <OrderDetailsProducts order={order} />
             <Separator />
-            <OrderDetailsTimeLine />
+            <OrderDetailsTimeLine order={order} />
           </div>
           <Separator />
           <DialogFooter className="sm:justify-start">
@@ -240,10 +221,10 @@ export const OrderDetailsProducts = ({
       <Typography weight="plus" size="base">
         Products
       </Typography>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         {order.items?.map((item) => (
           <div className="flex items-center gap-2">
-            <Thumbnail />
+            <Thumbnail src={item.thumbnail} />
             <div className="flex flex-col gap-1">
               <Typography weight="plus">{item.product_title}</Typography>
               <div className="flex gap-2 text-muted-foreground items-center">
@@ -263,41 +244,56 @@ export const OrderDetailsProducts = ({
   )
 }
 
-export const OrderDetailsTimeLine = () => {
+export const OrderDetailsTimeLine = ({
+  order
+}: {
+  order: VendorOrderDetails
+}) => {
+  const events = useMemo(() => {
+    const baseEvents = [
+      {
+        title: 'Order created',
+        date: order.created_at,
+        details: order.email,
+        icon: <Send className="h-5 w-5 text-muted-foreground mt-1" />
+      }
+    ]
+
+    if (order.payment_status === 'captured') {
+      baseEvents.push({
+        title: 'Order paid',
+        date: order.created_at,
+        details: order.email,
+        icon: (
+          <div className="rounded-full w-5 h-5 flex items-center justify-center bg-success mt-1">
+            <Check className="size-3 text-white" />
+          </div>
+        )
+      })
+    }
+
+    return baseEvents
+  }, [order])
+
   return (
     <div className="flex flex-col gap-5">
       <Typography weight="plus" size="base">
         Timeline
       </Typography>
       <div className="space-y-4">
-        {events?.map((event, i) => (
+        {events?.reverse().map((event, i) => (
           <div key={i} className="flex gap-3 pb-2">
-            {event.type === 'email_sent' ? (
-              <Send className="h-5 w-5 text-muted-foreground mt-1" />
-            ) : (
-              <div className="rounded-full w-5 h-5 flex items-center justify-center bg-success mt-1">
-                <Check className="size-3 text-white" />
-              </div>
-            )}
+            {event.icon}
             <div className="flex-1">
               <div className="flex justify-between gap-1">
-                <Typography size="base" weight="plus">
-                  {event.type === 'subscribed' && 'Subscribed'}
-                  {event.type === 'order_created' && 'Order created'}
-                  {event.type === 'email_sent' && 'Email receipt sent'}
-                </Typography>
+                <Typography weight="plus">{event.title}</Typography>
                 <Typography size="xsmall" className="text-muted-foreground">
-                  {event.timestamp}
+                  {formatDate(event.date!)}
                 </Typography>
               </div>
-              <Typography className="text-muted-foreground">
-                {event.email}
+              <Typography className="text-muted-foreground" size="xsmall">
+                {event.details}
               </Typography>
-              {event.details && (
-                <Typography className="text-muted-foreground">
-                  {event.details}
-                </Typography>
-              )}
             </div>
           </div>
         ))}

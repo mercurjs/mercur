@@ -5,4 +5,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type AdminShippingOptionRuleValue = string | string[];
+export type VendorListOrdersStatusOneOf = { [key: string]: unknown };
