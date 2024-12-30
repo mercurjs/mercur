@@ -27,6 +27,7 @@ module.exports = defineConfig({
         apiKey: process.env.STRIPE_SECRET_API_KEY
       }
     },
+    { resolve: './src/modules/comission' },
     {
       resolve: './src/modules/payout',
       options: {
