@@ -26,4 +26,16 @@ province?: string;
  * The ID of the customer's cart. If set, the cart's region and shipping address's country code and province are used instead of the `region_id`, `country_code`, and `province` properties.
  */
 cart_id?: string;
+/**
+ * Limit the number of items returned in the list.
+ */
+limit?: number;
+/**
+ * The number of items to skip when retrieving a list.
+ */
+offset?: number;
+/**
+ * The field to sort the data by. By default, the sort order is ascending. To change the order to descending, prefix the field name with `-`.
+ */
+order?: string;
 };

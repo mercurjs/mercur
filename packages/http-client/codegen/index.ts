@@ -95,6 +95,7 @@ import type {
   AdminFileListResponse,
   AdminFileResponse,
   AdminFulfillmentProviderListResponse,
+  AdminFulfillmentProviderOptionsListResponse,
   AdminFulfillmentResponse,
   AdminFulfillmentSetDeleteResponse,
   AdminFulfillmentSetResponse,
@@ -537,9 +538,9 @@ import type {
   AdminWorkflowExecutionResponse,
   AuthResponse,
   AuthStoreSessionResponse,
-  PostActorTypeAuthProvider200,
-  PostActorTypeAuthProviderBody,
-  PostVendorTypeAuthProviderRegisterBody,
+  PostSellerTypeAuthProvider200,
+  PostSellerTypeAuthProviderBody,
+  PostSellerTypeAuthProviderRegisterBody,
   RefundReasonResponse,
   StoreAcceptOrderTransfer,
   StoreAddCartLineItem,
@@ -639,6 +640,11 @@ import type {
   StoreUpdateCustomer,
   VendorAcceptInvite200,
   VendorAcceptMemberInvite,
+  VendorCancelOrder200,
+  VendorCompleteOrder200,
+  VendorCreateFulfillment,
+  VendorCreateFulfillment200,
+  VendorCreateInventoryLevel,
   VendorCreateInvite201,
   VendorCreateOnboarding,
   VendorCreateOnboarding200,
@@ -665,11 +671,12 @@ import type {
   VendorDeleteShippingOptionById200,
   VendorGetMemberById200,
   VendorGetMemberMe200,
+  VendorGetOrder200,
   VendorGetPayoutAccount200,
   VendorGetPayoutAccountParams,
   VendorGetProductById200,
   VendorGetProductByIdParams,
-  VendorGetSellerById200,
+  VendorGetSellerMe200,
   VendorGetShippingOptionById200,
   VendorGetStockLocation200,
   VendorGetStockLocationParams,
@@ -678,18 +685,22 @@ import type {
   VendorListInvitesParams,
   VendorListMembers200,
   VendorListMembersParams,
+  VendorListOrders200,
+  VendorListOrdersParams,
   VendorListProducts200,
   VendorListProductsParams,
   VendorListShippingOptions200,
   VendorListStockLocations200,
   VendorListStockLocationsParams,
+  VendorUpdateInventoryItem,
+  VendorUpdateInventoryLevel,
   VendorUpdateMember,
   VendorUpdateMemberById200,
   VendorUpdateProduct,
   VendorUpdateProductById200,
   VendorUpdateProductByIdParams,
   VendorUpdateSeller,
-  VendorUpdateSellerById200,
+  VendorUpdateSellerMe200,
   VendorUpdateServiceZone,
   VendorUpdateServiceZoneById200,
   VendorUpdateShippingOption,
@@ -3741,6 +3752,35 @@ export const getAdminGetFulfillmentProvidersUrl = (params?: AdminGetFulfillmentP
 export const adminGetFulfillmentProviders = async (params?: AdminGetFulfillmentProvidersParams, options?: RequestInit): Promise<adminGetFulfillmentProvidersResponse> => {
   
   return customFetch<Promise<adminGetFulfillmentProvidersResponse>>(getAdminGetFulfillmentProvidersUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Retrieve the list of fulfillment options of a fulfillment provider. These options may be retrieved from an integrated third-party service.
+ * @summary List Fulfillment Options
+ */
+export type adminGetFulfillmentProvidersIdOptionsResponse = {
+  data: AdminFulfillmentProviderOptionsListResponse;
+  status: number;
+  headers: Headers;
+}
+
+export const getAdminGetFulfillmentProvidersIdOptionsUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/admin/fulfillment-providers/${id}/options`
+}
+
+export const adminGetFulfillmentProvidersIdOptions = async (id: string, options?: RequestInit): Promise<adminGetFulfillmentProvidersIdOptionsResponse> => {
+  
+  return customFetch<Promise<adminGetFulfillmentProvidersIdOptionsResponse>>(getAdminGetFulfillmentProvidersIdOptionsUrl(id),
   {      
     ...options,
     method: 'GET'
@@ -14088,65 +14128,65 @@ export const storePostShippingOptionsIdCalculate = async (id: string,
 
 
 /**
- * Authenticate a vendor and receive the JWT token to be used in the header of subsequent requests.
+ * Authenticate a seller and receive the JWT token to be used in the header of subsequent requests.
 
 When used with a third-party provider, such as Google, the request returns a `location` property. You redirect to the specified URL in your frontend to continue authentication with the third-party service.
 
- * @summary Authenticate Vendor
+ * @summary Authenticate Seller
  */
-export type postActorTypeAuthProviderResponse = {
-  data: PostActorTypeAuthProvider200;
+export type postSellerTypeAuthProviderResponse = {
+  data: PostSellerTypeAuthProvider200;
   status: number;
   headers: Headers;
 }
 
-export const getPostActorTypeAuthProviderUrl = (authProvider: string,) => {
+export const getPostSellerTypeAuthProviderUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:9000/auth/vendor/${authProvider}`
+  return `http://localhost:9000/auth/seller/${authProvider}`
 }
 
-export const postActorTypeAuthProvider = async (authProvider: string,
-    postActorTypeAuthProviderBody: PostActorTypeAuthProviderBody, options?: RequestInit): Promise<postActorTypeAuthProviderResponse> => {
+export const postSellerTypeAuthProvider = async (authProvider: string,
+    postSellerTypeAuthProviderBody: PostSellerTypeAuthProviderBody, options?: RequestInit): Promise<postSellerTypeAuthProviderResponse> => {
   
-  return customFetch<Promise<postActorTypeAuthProviderResponse>>(getPostActorTypeAuthProviderUrl(authProvider),
+  return customFetch<Promise<postSellerTypeAuthProviderResponse>>(getPostSellerTypeAuthProviderUrl(authProvider),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      postActorTypeAuthProviderBody,)
+      postSellerTypeAuthProviderBody,)
   }
 );}
 
 
 
 /**
- * This API route retrieves a registration JWT token of a vendor that hasn't been registered yet. The token is used in the header of requests that create a vendor, such as the Accept Invite API route.
+ * This API route retrieves a registration JWT token of a seller that hasn't been registered yet. The token is used in the header of requests that create a seller, such as the Accept Invite API route.
  * @summary Retrieve Registration JWT Token
  */
-export type postVendorTypeAuthProviderRegisterResponse = {
+export type postSellerTypeAuthProviderRegisterResponse = {
   data: AuthResponse;
   status: number;
   headers: Headers;
 }
 
-export const getPostVendorTypeAuthProviderRegisterUrl = (authProvider: string,) => {
+export const getPostSellerTypeAuthProviderRegisterUrl = (authProvider: string,) => {
 
 
-  return `http://localhost:9000/auth/vendor/${authProvider}/register`
+  return `http://localhost:9000/auth/seller/${authProvider}/register`
 }
 
-export const postVendorTypeAuthProviderRegister = async (authProvider: string,
-    postVendorTypeAuthProviderRegisterBody: PostVendorTypeAuthProviderRegisterBody, options?: RequestInit): Promise<postVendorTypeAuthProviderRegisterResponse> => {
+export const postSellerTypeAuthProviderRegister = async (authProvider: string,
+    postSellerTypeAuthProviderRegisterBody: PostSellerTypeAuthProviderRegisterBody, options?: RequestInit): Promise<postSellerTypeAuthProviderRegisterResponse> => {
   
-  return customFetch<Promise<postVendorTypeAuthProviderRegisterResponse>>(getPostVendorTypeAuthProviderRegisterUrl(authProvider),
+  return customFetch<Promise<postSellerTypeAuthProviderRegisterResponse>>(getPostSellerTypeAuthProviderRegisterUrl(authProvider),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      postVendorTypeAuthProviderRegisterBody,)
+      postSellerTypeAuthProviderRegisterBody,)
   }
 );}
 
@@ -14271,6 +14311,219 @@ export const vendorDeleteServiceZoneById = async (id: string,
     method: 'DELETE'
     
     
+  }
+);}
+
+
+
+/**
+ * Retrieves list of InventoryItems
+ * @summary List InventoryItems
+ */
+export type vendorListInventoryItemResponse = {
+  data: void;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorListInventoryItemUrl = () => {
+
+
+  return `http://localhost:9000/vendor/inventory-items`
+}
+
+export const vendorListInventoryItem = async ( options?: RequestInit): Promise<vendorListInventoryItemResponse> => {
+  
+  return customFetch<Promise<vendorListInventoryItemResponse>>(getVendorListInventoryItemUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Retrieves InventoryItem of specified id
+ * @summary Get inventory item
+ */
+export type vendorGetInventoryItemResponse = {
+  data: void;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorGetInventoryItemUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/vendor/inventory-items/${id}`
+}
+
+export const vendorGetInventoryItem = async (id: string, options?: RequestInit): Promise<vendorGetInventoryItemResponse> => {
+  
+  return customFetch<Promise<vendorGetInventoryItemResponse>>(getVendorGetInventoryItemUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Updates InventoryItem of specified id
+ * @summary Update inventory item
+ */
+export type vendorUpdateInventoryItemResponse = {
+  data: void;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorUpdateInventoryItemUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/vendor/inventory-items/${id}`
+}
+
+export const vendorUpdateInventoryItem = async (id: string,
+    vendorUpdateInventoryItem: VendorUpdateInventoryItem, options?: RequestInit): Promise<vendorUpdateInventoryItemResponse> => {
+  
+  return customFetch<Promise<vendorUpdateInventoryItemResponse>>(getVendorUpdateInventoryItemUrl(id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorUpdateInventoryItem,)
+  }
+);}
+
+
+
+/**
+ * Retrieves inventory levels of the InventoryItem
+ * @summary Get InventoryLevels of specified InventoryItem 
+ */
+export type vendorGetItemInventoryLevelResponse = {
+  data: void;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorGetItemInventoryLevelUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/vendor/inventory-items/${id}/location-levels`
+}
+
+export const vendorGetItemInventoryLevel = async (id: string, options?: RequestInit): Promise<vendorGetItemInventoryLevelResponse> => {
+  
+  return customFetch<Promise<vendorGetItemInventoryLevelResponse>>(getVendorGetItemInventoryLevelUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Creates inventory level of the InventoryItem in the specified location
+ * @summary Create inventory level
+ */
+export type vendorCreateInventoryLevelResponse = {
+  data: void;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorCreateInventoryLevelUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/vendor/inventory-items/${id}/location-levels`
+}
+
+export const vendorCreateInventoryLevel = async (id: string,
+    vendorCreateInventoryLevel: VendorCreateInventoryLevel, options?: RequestInit): Promise<vendorCreateInventoryLevelResponse> => {
+  
+  return customFetch<Promise<vendorCreateInventoryLevelResponse>>(getVendorCreateInventoryLevelUrl(id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorCreateInventoryLevel,)
+  }
+);}
+
+
+
+/**
+ * Retrieves inventory level of the InventoryItem in the specified location
+ * @summary Get inventory level
+ */
+export type vendorGetInventoryLevelResponse = {
+  data: void;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorGetInventoryLevelUrl = (id: string,
+    locationId: string,) => {
+
+
+  return `http://localhost:9000/vendor/inventory-items/${id}/location-levels/${locationId}`
+}
+
+export const vendorGetInventoryLevel = async (id: string,
+    locationId: string, options?: RequestInit): Promise<vendorGetInventoryLevelResponse> => {
+  
+  return customFetch<Promise<vendorGetInventoryLevelResponse>>(getVendorGetInventoryLevelUrl(id,locationId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Updates inventory level of the InventoryItem in the specified location
+ * @summary Update inventory level
+ */
+export type vendorUpdateInventoryLevelResponse = {
+  data: void;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorUpdateInventoryLevelUrl = (id: string,
+    locationId: string,) => {
+
+
+  return `http://localhost:9000/vendor/inventory-items/${id}/location-levels/${locationId}`
+}
+
+export const vendorUpdateInventoryLevel = async (id: string,
+    locationId: string,
+    vendorUpdateInventoryLevel: VendorUpdateInventoryLevel, options?: RequestInit): Promise<vendorUpdateInventoryLevelResponse> => {
+  
+  return customFetch<Promise<vendorUpdateInventoryLevelResponse>>(getVendorUpdateInventoryLevelUrl(id,locationId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorUpdateInventoryLevel,)
   }
 );}
 
@@ -14520,6 +14773,129 @@ export const vendorDeleteMemberById = async (id: string, options?: RequestInit):
   {      
     ...options,
     method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Retrieves a list of orders for the authenticated vendor.
+ * @summary List Orders
+ */
+export type vendorListOrdersResponse = {
+  data: VendorListOrders200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorListOrdersUrl = (params?: VendorListOrdersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  return normalizedParams.size ? `http://localhost:9000/vendor/orders?${normalizedParams.toString()}` : `http://localhost:9000/vendor/orders`
+}
+
+export const vendorListOrders = async (params?: VendorListOrdersParams, options?: RequestInit): Promise<vendorListOrdersResponse> => {
+  
+  return customFetch<Promise<vendorListOrdersResponse>>(getVendorListOrdersUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Retrieves the details of specified order.
+ * @summary Get Order details
+ */
+export type vendorGetOrderResponse = {
+  data: VendorGetOrder200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorGetOrderUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/vendor/orders/${id}`
+}
+
+export const vendorGetOrder = async (id: string, options?: RequestInit): Promise<vendorGetOrderResponse> => {
+  
+  return customFetch<Promise<vendorGetOrderResponse>>(getVendorGetOrderUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Mark order as cancelled.
+ * @summary Mark order as cancelled
+ */
+export type vendorCancelOrderResponse = {
+  data: VendorCancelOrder200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorCancelOrderUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/vendor/orders/${id}/cancel`
+}
+
+export const vendorCancelOrder = async (id: string, options?: RequestInit): Promise<vendorCancelOrderResponse> => {
+  
+  return customFetch<Promise<vendorCancelOrderResponse>>(getVendorCancelOrderUrl(id),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * Mark order as complete.
+ * @summary Mark order as complete
+ */
+export type vendorCompleteOrderResponse = {
+  data: VendorCompleteOrder200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorCompleteOrderUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/vendor/orders/${id}/complete`
+}
+
+export const vendorCompleteOrder = async (id: string, options?: RequestInit): Promise<vendorCompleteOrderResponse> => {
+  
+  return customFetch<Promise<vendorCompleteOrderResponse>>(getVendorCompleteOrderUrl(id),
+  {      
+    ...options,
+    method: 'POST'
     
     
   }
@@ -14797,6 +15173,37 @@ export const vendorDeleteProductById = async (id: string, options?: RequestInit)
 
 
 /**
+ * Updates an existing product for the authenticated vendor.
+ * @summary Update a Product
+ */
+export type vendorCreateFulfillmentResponse = {
+  data: VendorCreateFulfillment200;
+  status: number;
+  headers: Headers;
+}
+
+export const getVendorCreateFulfillmentUrl = (id: string,) => {
+
+
+  return `http://localhost:9000/vendor/products/${id}/fulfillment`
+}
+
+export const vendorCreateFulfillment = async (id: string,
+    vendorCreateFulfillment: VendorCreateFulfillment, options?: RequestInit): Promise<vendorCreateFulfillmentResponse> => {
+  
+  return customFetch<Promise<vendorCreateFulfillmentResponse>>(getVendorCreateFulfillmentUrl(id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      vendorCreateFulfillment,)
+  }
+);}
+
+
+
+/**
  * Creates a new seller with an initial owner member.
  * @summary Create a Seller
  */
@@ -14830,21 +15237,21 @@ export const vendorCreateSeller = async (vendorCreateSeller: VendorCreateSeller,
  * Retrieves the seller associated with the authenticated user.
  * @summary Get Current Seller
  */
-export type vendorGetSellerByIdResponse = {
-  data: VendorGetSellerById200;
+export type vendorGetSellerMeResponse = {
+  data: VendorGetSellerMe200;
   status: number;
   headers: Headers;
 }
 
-export const getVendorGetSellerByIdUrl = () => {
+export const getVendorGetSellerMeUrl = () => {
 
 
   return `http://localhost:9000/vendor/sellers/me`
 }
 
-export const vendorGetSellerById = async ( options?: RequestInit): Promise<vendorGetSellerByIdResponse> => {
+export const vendorGetSellerMe = async ( options?: RequestInit): Promise<vendorGetSellerMeResponse> => {
   
-  return customFetch<Promise<vendorGetSellerByIdResponse>>(getVendorGetSellerByIdUrl(),
+  return customFetch<Promise<vendorGetSellerMeResponse>>(getVendorGetSellerMeUrl(),
   {      
     ...options,
     method: 'GET'
@@ -14859,21 +15266,21 @@ export const vendorGetSellerById = async ( options?: RequestInit): Promise<vendo
  * Updates the seller associated with the authenticated user.
  * @summary Update Current Seller
  */
-export type vendorUpdateSellerByIdResponse = {
-  data: VendorUpdateSellerById200;
+export type vendorUpdateSellerMeResponse = {
+  data: VendorUpdateSellerMe200;
   status: number;
   headers: Headers;
 }
 
-export const getVendorUpdateSellerByIdUrl = () => {
+export const getVendorUpdateSellerMeUrl = () => {
 
 
   return `http://localhost:9000/vendor/sellers/me`
 }
 
-export const vendorUpdateSellerById = async (vendorUpdateSeller: VendorUpdateSeller, options?: RequestInit): Promise<vendorUpdateSellerByIdResponse> => {
+export const vendorUpdateSellerMe = async (vendorUpdateSeller: VendorUpdateSeller, options?: RequestInit): Promise<vendorUpdateSellerMeResponse> => {
   
-  return customFetch<Promise<vendorUpdateSellerByIdResponse>>(getVendorUpdateSellerByIdUrl(),
+  return customFetch<Promise<vendorUpdateSellerMeResponse>>(getVendorUpdateSellerMeUrl(),
   {      
     ...options,
     method: 'POST',

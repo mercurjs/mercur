@@ -1,29 +1,20 @@
-export const vendorListOrderFields = [
+export const vendorOrderFields = [
   'id',
-  'status',
-  'summary',
   'display_id',
-  'total',
+  'status',
+  'email',
   'currency_code',
+  'version',
+  'summary',
   'metadata',
   'created_at',
   'updated_at',
-  '*seller'
-]
-
-export const vendorRetrieveOrderFields = [
-  'id',
-  'status',
-  'summary',
-  'currency_code',
-  'display_id',
   'region_id',
-  'email',
   'total',
   'subtotal',
   'tax_total',
+  'order_change',
   'discount_total',
-  'discount_subtotal',
   'discount_tax_total',
   'original_total',
   'original_tax_total',
@@ -39,26 +30,29 @@ export const vendorRetrieveOrderFields = [
   'original_shipping_tax_total',
   'original_shipping_subtotal',
   'original_shipping_total',
-  'created_at',
-  'updated_at',
   '*items',
-  '*items.detail',
+  '*items.tax_lines',
+  '*items.adjustments',
   '*items.variant',
   '*items.variant.product',
+  '*items.detail',
   '*shipping_address',
   '*billing_address',
   '*shipping_methods',
-  '*payment_collections',
-  '*seller'
+  '*shipping_methods.tax_lines',
+  '*shipping_methods.adjustments',
+  '*fulfillments',
+  '*fulfillments.items',
+  '*fulfillments.labels'
 ]
 
 export const vendorOrderQueryConfig = {
   list: {
-    defaults: vendorListOrderFields,
+    defaults: vendorOrderFields,
     isList: true
   },
   retrieve: {
-    defaults: vendorRetrieveOrderFields,
+    defaults: vendorOrderFields,
     isList: false
   }
 }

@@ -4,7 +4,6 @@
  * Medusa API
  * OpenAPI spec version: 1.0.0
  */
-import type { AdminShippingOptionRuleValue } from './adminShippingOptionRuleValue';
 
 /**
  * The shipping option rule's details.
@@ -24,5 +23,5 @@ export interface AdminShippingOptionRule {
   shipping_option_id: string;
   /** The date the shipping option rule was updated. */
   updated_at: string;
-  value: AdminShippingOptionRuleValue;
+  value: string;
 }

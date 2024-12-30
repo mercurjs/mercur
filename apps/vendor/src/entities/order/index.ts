@@ -1,1 +1,1 @@
-export * from './ui'
+export { OrderStatusBadge } from './ui/order-status-badge'

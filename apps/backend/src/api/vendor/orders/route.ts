@@ -1,5 +1,10 @@
-import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+import sellerOrderLink from '#/links/seller-order'
+import { fetchSellerByAuthActorId } from '#/shared/infra/http/utils'
+
+import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { OrderDTO } from '@medusajs/framework/types'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { getOrdersListWorkflow } from '@medusajs/medusa/core-flows'
 
 import { VendorGetOrderParamsType } from './validators'
 
@@ -34,6 +39,41 @@ import { VendorGetOrderParamsType } from './validators'
  *       type: string
  *     required: false
  *     description: The order of the returned items.
+ *   - name: created_at
+ *     in: query
+ *     schema:
+ *       type: object
+ *     required: false
+ *     description: Filter by created at date range
+ *   - name: status
+ *     in: query
+ *     schema:
+ *       oneOf:
+ *         - type: string
+ *         - type: array
+ *           items:
+ *             type: string
+ *         - type: object
+ *     required: false
+ *     description: Filter by order status
+ *   - name: fulfillment_status
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Filter by fulfillment status
+ *   - name: payment_status
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Filter by payment status
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search query for filtering orders
  * responses:
  *   "200":
  *     description: OK
@@ -42,7 +82,7 @@ import { VendorGetOrderParamsType } from './validators'
  *         schema:
  *           type: object
  *           properties:
- *             products:
+ *             orders:
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/VendorOrderDetails"
@@ -62,22 +102,44 @@ import { VendorGetOrderParamsType } from './validators'
  *   - cookie_auth: []
  */
 export const GET = async (
-  req: MedusaRequest<VendorGetOrderParamsType>,
+  req: AuthenticatedMedusaRequest<VendorGetOrderParamsType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: orders, metadata } = await query.graph({
-    entity: 'order',
-    fields: req.remoteQueryConfig.fields,
-    filters: req.filterableFields,
-    pagination: {
-      ...req.remoteQueryConfig.pagination
+  const seller = await fetchSellerByAuthActorId(
+    req.auth_context.actor_id,
+    req.scope
+  )
+
+  const { data: orderRelations } = await query.graph({
+    entity: sellerOrderLink.entryPoint,
+    fields: ['order_id'],
+    filters: {
+      seller_id: seller.id
     }
   })
 
+  const { result } = await getOrdersListWorkflow(req.scope).run({
+    input: {
+      fields: req.remoteQueryConfig.fields,
+      variables: {
+        filters: {
+          ...req.filterableFields,
+          id: orderRelations.map((relation) => relation.order_id)
+        },
+        ...req.remoteQueryConfig.pagination
+      }
+    }
+  })
+
+  const { rows, metadata } = result as {
+    rows: OrderDTO[]
+    metadata: any
+  }
+
   res.json({
-    members: orders,
+    orders: rows,
     count: metadata!.count,
     offset: metadata!.skip,
     limit: metadata!.take

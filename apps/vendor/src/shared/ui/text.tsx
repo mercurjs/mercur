@@ -6,12 +6,12 @@ import * as React from 'react'
 const textVariants = cva({
   variants: {
     size: {
-      xsmall: 'text-xs',
-      small: 'text-sm',
-      base: 'text-base',
-      large: 'text-lg',
-      xlarge: 'text-xl',
-      '2xlarge': 'text-2xl'
+      xsmall: 'text-[13px] leading-[18px]',
+      small: 'text-sm leading-5',
+      base: 'text-base leading-6',
+      large: 'text-lg leading-7',
+      xlarge: 'text-xl leading-8',
+      '2xlarge': 'text-2xl leading-9'
     },
     weight: {
       regular: 'font-normal',
@@ -31,7 +31,7 @@ export interface TextProps
   as?: string
 }
 
-const Text = React.forwardRef<HTMLParagraphElement, TextProps>(
+const Typography = React.forwardRef<HTMLParagraphElement, TextProps>(
   (
     {
       className,
@@ -57,6 +57,6 @@ const Text = React.forwardRef<HTMLParagraphElement, TextProps>(
     )
   }
 )
-Text.displayName = 'Text'
+Typography.displayName = 'Typography'
 
-export { Text }
+export { Typography }

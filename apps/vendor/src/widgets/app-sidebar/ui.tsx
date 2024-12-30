@@ -1,43 +1,67 @@
+import { SellerActionsMenu } from '@/features/seller-actions-menu'
+import { cn } from '@/shared/lib'
 import {
+  Button,
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
+  SidebarMenuItem,
+  Typography
 } from '@/shared/ui'
-import { Home, Settings } from 'lucide-react'
+import { House, Settings } from 'lucide-react'
+import { Link, useLocation } from 'wouter'
 
 const items = [
   {
     title: 'Home',
-    url: '#',
-    icon: Home
+    url: '/orders',
+    icon: House
   },
   {
     title: 'Settings',
-    url: '#',
+    url: '/settings',
     icon: Settings
   }
 ]
 
-const AppSidebar = () => {
+export const AppSidebar = () => {
+  const [pathname] = useLocation()
+
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarHeader>
+            <SellerActionsMenu />
+          </SidebarHeader>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
+                    <Link href={item.url} asChild>
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          'w-full justify-start',
+                          pathname === item.url
+                            ? 'text-primary bg-accent'
+                            : '!text-muted-foreground'
+                        )}
+                        size="sm"
+                      >
+                        <span className="size-3.5">
+                          <item.icon />
+                        </span>
+                        <Typography size="small" weight="plus">
+                          {item.title}
+                        </Typography>
+                      </Button>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -48,5 +72,3 @@ const AppSidebar = () => {
     </Sidebar>
   )
 }
-
-export default AppSidebar

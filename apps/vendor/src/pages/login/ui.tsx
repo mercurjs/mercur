@@ -4,7 +4,7 @@ import {
   Form,
   FormField,
   FormItem,
-  Text,
+  Typography,
   FormControl,
   FormMessage,
   Button
@@ -12,7 +12,7 @@ import {
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useCreateSession, useEmailpassLogin } from '@/entities/auth'
+import { useCreateSession, useEmailpassLogin } from '@/shared/hooks/api'
 import { Link, useLocation } from 'wouter'
 import { toast } from 'sonner'
 
@@ -73,12 +73,12 @@ const LoginPage = () => {
     <div className="w-full h-screen flex items-center justify-center">
       <div className="min-w-[360px]">
         <div>
-          <Text weight="plus" size="xlarge" className="text-center">
+          <Typography weight="plus" size="xlarge" className="text-center">
             Sign in
-          </Text>
-          <Text className="text-center mt-2">
+          </Typography>
+          <Typography className="text-center mt-2">
             Welcome back! Please enter your details.
-          </Text>
+          </Typography>
         </div>
         <div className="mt-6">
           <Form {...form}>
@@ -121,12 +121,12 @@ const LoginPage = () => {
             </form>
           </Form>
           <div className="mt-4 text-center">
-            <Text className="text-gray-600">
+            <Typography className="text-gray-600">
               Don't have an account?{' '}
               <Link href="/register" className="text-primary hover:underline">
                 Create new one
               </Link>
-            </Text>
+            </Typography>
           </div>
         </div>
       </div>

@@ -163,14 +163,18 @@ province?: string;
 sales_channel_id?: string | string[];
 category_id?: string | string[];
 /**
- * The currency code to retrieve prices in.
- */
-currency_code?: string;
-/**
  * Filter the products' variants.
  */
 variants?: {
   /** Filter by the variants' options. */
   options?: StoreGetProductsVariantsOptions;
 };
+/**
+ * The product's country code.
+ */
+country_code?: string;
+/**
+ * The product's cart id.
+ */
+cart_id?: string;
 };

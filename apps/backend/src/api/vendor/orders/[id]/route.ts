@@ -1,5 +1,6 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { OrderDTO } from '@medusajs/framework/types'
+import { getOrdersListWorkflow } from '@medusajs/medusa/core-flows'
 
 /**
  * @oas [get] /vendor/orders/{id}
@@ -22,7 +23,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *         schema:
  *           type: object
  *           properties:
- *             member:
+ *             order:
  *               $ref: "#/components/schemas/VendorOrderDetails"
  * tags:
  *   - Order
@@ -34,19 +35,20 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
   const { id } = req.params
-  const {
-    data: [order]
-  } = await query.graph(
-    {
-      entity: 'order',
+
+  const { result } = await getOrdersListWorkflow(req.scope).run({
+    input: {
       fields: req.remoteQueryConfig.fields,
-      filters: { id: id }
-    },
-    { throwIfKeyNotFound: true }
-  )
+      variables: {
+        filters: {
+          id
+        }
+      }
+    }
+  })
+
+  const [order] = result as OrderDTO[]
 
   res.json({ order })
 }
