@@ -3,7 +3,8 @@ import { MedusaService } from '@medusajs/framework/utils'
 import {
   acceptProductCategoryRequestWorkflow,
   acceptProductCollectionRequestWorkflow,
-  acceptProductRequestWorkflow
+  acceptProductRequestWorkflow,
+  acceptSellerCreationRequestWorkflow
 } from '../../workflows/requests/workflows'
 import { Request } from './models'
 
@@ -21,6 +22,10 @@ class RequestsModuleService extends MedusaService({
 
     if (type === 'product') {
       return acceptProductRequestWorkflow
+    }
+
+    if (type === 'seller') {
+      return acceptSellerCreationRequestWorkflow
     }
 
     return null
