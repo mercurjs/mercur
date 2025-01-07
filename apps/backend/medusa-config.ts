@@ -5,6 +5,11 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+		// databaseDriverOptions: {
+    //   connection: {
+    //     ssl: { rejectUnauthorized: false}
+    //   }
+    // },
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -18,6 +23,22 @@ module.exports = defineConfig({
   modules: [
     { resolve: './src/modules/seller' },
     { resolve: './src/modules/marketplace' },
+		{ resolve: './src/modules/marketplace' },
+		{ resolve: '@medusajs/medusa/notification',
+			options: {
+				providers: [
+					{
+            resolve: "./src/modules/resend",
+            id: "resend",
+            options: {
+              channels: ["email"],
+              api_key: process.env.RESEND_API_KEY,
+              from: process.env.RESEND_FROM_EMAIL,
+            },
+          }
+				]
+			}
+		},
     {
       resolve: './src/modules/payout',
       options: {
