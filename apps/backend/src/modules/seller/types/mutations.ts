@@ -3,12 +3,16 @@ import { MemberDTO, MemberInviteDTO, SellerDTO } from './common'
 export interface CreateSellerDTO
   extends Omit<
     Partial<SellerDTO>,
-    'id' | 'created_at' | 'updated_at' | 'members'
+    'id' | 'created_at' | 'updated_at' | 'members' | 'status'
   > {
   name: string
 }
 
-export interface UpdateSellerDTO extends Partial<SellerDTO> {
+export interface ChangeSellerStatusDTO extends Pick<SellerDTO, 'status'> {
+  id: string
+}
+
+export interface UpdateSellerDTO extends Partial<Omit<SellerDTO, 'status'>> {
   id: string
 }
 

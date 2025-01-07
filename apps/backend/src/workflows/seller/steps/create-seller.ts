@@ -4,7 +4,11 @@ import { kebabCase } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SELLER_MODULE } from '../../../modules/seller'
-import { CreateSellerDTO, SellerDTO } from '../../../modules/seller/types'
+import {
+  CreateSellerDTO,
+  SellerDTO,
+  SellerStatus
+} from '../../../modules/seller/types'
 
 export const createSellerStep = createStep(
   'create-seller',
@@ -13,7 +17,7 @@ export const createSellerStep = createStep(
 
     const seller: SellerDTO = await service.createSellers({
       ...input,
-      status: 'PENDING',
+      status: SellerStatus.PENDING,
       handle: kebabCase(input.name)
     })
 

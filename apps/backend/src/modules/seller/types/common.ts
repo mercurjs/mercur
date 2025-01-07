@@ -25,6 +25,12 @@ export type SellerWithPayoutAccountDTO = SellerDTO & {
   payout_account: PayoutAccountDTO
 }
 
+export enum SellerStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED'
+}
+
 export enum MemberRole {
   OWNER = 'owner',
   ADMIN = 'admin',
