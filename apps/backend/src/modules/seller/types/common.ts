@@ -9,6 +9,16 @@ export type SellerDTO = {
   handle: string
   photo: string | null
   members?: Partial<MemberDTO>[]
+  email: string
+  lastName: string
+  shopName: string
+  address1: string
+  address2: string
+  zip: string
+  city: string
+  country: string
+  phone: string
+  status: string
 }
 
 export type SellerWithPayoutAccountDTO = SellerDTO & {

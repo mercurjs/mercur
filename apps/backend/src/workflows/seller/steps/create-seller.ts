@@ -13,6 +13,7 @@ export const createSellerStep = createStep(
 
     const seller: SellerDTO = await service.createSellers({
       ...input,
+      status: 'PENDING',
       handle: kebabCase(input.name)
     })
 

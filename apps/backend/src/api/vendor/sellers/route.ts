@@ -1,4 +1,9 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+import {
+  AuthenticationInput,
+  IAuthModuleService
+} from '@medusajs/framework/types'
+import { Modules } from '@medusajs/framework/utils'
 import {
   ContainerRegistrationKeys,
   MedusaError
@@ -12,7 +17,7 @@ import { VendorCreateSellerType } from './validators'
  * operationId: "VendorCreateSeller"
  * summary: "Create a Seller"
  * description: "Creates a new seller with an initial owner member."
- * x-authenticated: true
+ * x-authenticated: false
  * requestBody:
  *   content:
  *     application/json:
@@ -35,38 +40,60 @@ import { VendorCreateSellerType } from './validators'
  *   - cookie_auth: []
  */
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorCreateSellerType>,
+  req: MedusaRequest<VendorCreateSellerType>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const service: IAuthModuleService = req.scope.resolve(Modules.AUTH)
 
-  if (req.auth_context?.actor_id) {
+  const registerVendorPayload = {
+    email: req.validatedBody.email,
+    password: req.validatedBody.password
+  }
+
+  const authData = {
+    url: req.url,
+    headers: req.headers,
+    query: req.query,
+    body: registerVendorPayload,
+    protocol: req.protocol
+  } as unknown as AuthenticationInput
+
+  const { success, error, authIdentity } = await service.register(
+    'emailpass',
+    authData
+  )
+
+  if (error) {
     throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      'Request already authenticated as a seller.'
+      MedusaError.Types.UNEXPECTED_STATE,
+      `Error registering seller: ${error}`
     )
   }
 
-  const { member, ...sellerData } = req.validatedBody
+  if (success && authIdentity) {
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { result: created } = await createSellerWorkflow(req.scope).run({
-    input: {
-      seller: sellerData,
-      member,
-      auth_identity_id: req.auth_context?.auth_identity_id
-    }
-  })
+    const { member, ...sellerData } = req.validatedBody
 
-  const {
-    data: [seller]
-  } = await query.graph(
-    {
-      entity: 'seller',
-      fields: req.remoteQueryConfig.fields,
-      filters: { id: created.id }
-    },
-    { throwIfKeyNotFound: true }
-  )
+    const { result: created } = await createSellerWorkflow(req.scope).run({
+      input: {
+        seller: sellerData,
+        member,
+        auth_identity_id: authIdentity.id
+      }
+    })
 
-  res.status(201).json({ seller })
+    const {
+      data: [seller]
+    } = await query.graph(
+      {
+        entity: 'seller',
+        fields: req.remoteQueryConfig.fields,
+        filters: { id: created.id }
+      },
+      { throwIfKeyNotFound: true }
+    )
+
+    res.status(201).json({ seller })
+  }
 }

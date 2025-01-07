@@ -52,6 +52,16 @@ export type VendorCreateSellerType = z.infer<typeof VendorCreateSeller>
 export const VendorCreateSeller = z
   .object({
     name: z.preprocess((val: string) => val?.trim(), z.string().min(1)),
+    lastName: z.preprocess((val: string) => val?.trim(), z.string().min(1)),
+    password: z.string().min(5),
+    email: z.string().email(),
+    shopName: z.string().min(1),
+    address1: z.string().min(1),
+    address2: z.string().min(1),
+    zip: z.string(),
+    city: z.string(),
+    country: z.string(),
+    phone: z.string(),
     description: z.string().nullish().optional(),
     photo: z.string().nullish().optional(),
     member: z.object({
