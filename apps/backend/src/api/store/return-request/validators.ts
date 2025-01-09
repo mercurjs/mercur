@@ -6,7 +6,7 @@ export type StoreCreateReturnRequestType = z.infer<
 export const StoreCreateReturnRequest = z
   .object({
     order_id: z.string(),
-    line_item_ids: z.array(z.string()),
+    line_items: z.array(z.string()),
     customer_note: z.string()
   })
   .strict()

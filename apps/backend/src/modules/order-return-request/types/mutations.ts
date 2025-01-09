@@ -1,6 +1,6 @@
 export type CreateOrderReturnRequestDTO = {
   order_id: string
-  line_item_ids: string[]
+  line_items: string[]
   customer_id: string
   customer_note: string
 }

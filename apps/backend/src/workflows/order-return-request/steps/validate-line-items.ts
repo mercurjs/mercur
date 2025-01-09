@@ -23,7 +23,7 @@ export const validateOrderReturnRequestStep = createStep(
 
     const orderLineItems = order.items.map((i) => i.id)
 
-    for (const item of input.line_item_ids) {
+    for (const item of input.line_items) {
       if (!orderLineItems.includes(item)) {
         throw new MedusaError(
           MedusaError.Types.INVALID_ARGUMENT,

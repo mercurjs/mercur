@@ -1,7 +1,6 @@
 export const vendorReturnOrderRequestFields = [
   'id',
   'customer_id',
-  'line_item_ids',
   'customer_note',
   'vendor_reviewer_id',
   'vendor_reviewer_note',
@@ -10,6 +9,7 @@ export const vendorReturnOrderRequestFields = [
   'admin_reviewer_note',
   'admin_reviewer_date',
   'status',
+  'line_items.*',
   'order.*'
 ]
 
