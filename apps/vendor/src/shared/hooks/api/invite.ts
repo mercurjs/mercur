@@ -1,14 +1,15 @@
 import { queryKeysFactory } from '@/shared/lib'
 import { useQuery } from '@tanstack/react-query'
-import { vendorListInvites } from '@mercurjs/http-client'
-import { VendorListInvitesParams } from '@mercurjs/http-client/types'
+import { api } from './config'
 
 const INVITE_QUERY_KEY = 'invite' as const
 export const inviteQueryKeys = queryKeysFactory(INVITE_QUERY_KEY)
 
-export const useListInvites = (params?: VendorListInvitesParams) => {
+export const useListInvites = (
+  params?: Parameters<typeof api.vendor.vendorListInvites>[0]
+) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => vendorListInvites(params),
+    queryFn: () => api.vendor.vendorListInvites(params),
     queryKey: inviteQueryKeys.list(params)
   })
 

@@ -1,23 +1,18 @@
 import { queryKeysFactory } from '@/shared/lib'
-import { vendorGetOrder, vendorListOrders } from '@mercurjs/http-client'
-import { FetchError } from '@mercurjs/http-client/client'
-import {
-  VendorListOrdersParams,
-  VendorListOrders200,
-  VendorGetOrder200
-} from '@mercurjs/http-client/types'
+import { api } from './config'
 import { QueryKey, useQuery, UseQueryOptions } from '@tanstack/react-query'
+import { VendorOrderDetails } from '@mercurjs/http-client'
 
 const ORDER_QUERY_KEY = 'order'
 export const orderQueryKeys = queryKeysFactory(ORDER_QUERY_KEY)
 
 export const useOrders = (
-  query?: VendorListOrdersParams,
+  query?: Parameters<typeof api.vendor.vendorListOrders>[0],
   options?: Omit<
     UseQueryOptions<
-      VendorListOrdersParams,
-      FetchError,
-      VendorListOrders200,
+      Parameters<typeof api.vendor.vendorListOrders>[0],
+      Error,
+      { orders: VendorOrderDetails[]; count: number },
       QueryKey
     >,
     'queryFn' | 'queryKey'
@@ -25,7 +20,7 @@ export const useOrders = (
 ) => {
   const { data, ...other } = useQuery({
     queryKey: orderQueryKeys.list(query),
-    queryFn: () => vendorListOrders(query).then((res) => res.data),
+    queryFn: () => api.vendor.vendorListOrders(query).then((res) => res.data),
     ...options
   })
 
@@ -35,13 +30,13 @@ export const useOrders = (
 export const useOrder = (
   id: string,
   options?: Omit<
-    UseQueryOptions<unknown, FetchError, VendorGetOrder200, QueryKey>,
+    UseQueryOptions<unknown, Error, VendorOrderDetails, QueryKey>,
     'queryFn' | 'queryKey'
   >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: orderQueryKeys.detail(id),
-    queryFn: () => vendorGetOrder(id).then((res) => res.data),
+    queryFn: () => api.vendor.vendorGetOrder(id).then((res) => res.data),
     ...options
   })
 
