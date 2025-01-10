@@ -50,15 +50,16 @@ export const POST = async (
     )
   }
 
-  const orderReturnRequest = await updateOrderReturnRequestWorkflow.run({
-    input: {
-      id: req.params.id,
-      ...req.validatedBody,
-      admin_reviewer_id: req.auth_context.actor_id,
-      admin_review_date: new Date()
-    },
-    container: req.scope
-  })
+  const { result: orderReturnRequest } =
+    await updateOrderReturnRequestWorkflow.run({
+      input: {
+        id: req.params.id,
+        ...req.validatedBody,
+        admin_reviewer_id: req.auth_context.actor_id,
+        admin_review_date: new Date()
+      },
+      container: req.scope
+    })
 
   res.json({ orderReturnRequest })
 }

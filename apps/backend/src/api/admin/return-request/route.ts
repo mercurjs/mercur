@@ -19,7 +19,7 @@ export const GET = async (
   })
 
   res.json({
-    shipping_options: orderReturnRequests.map(
+    order_return_request: orderReturnRequests.map(
       (rel) => rel.order_return_request
     ),
     count: metadata!.count,
