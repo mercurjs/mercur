@@ -1,47 +1,34 @@
-import {
-  postSellerTypeAuthProviderRegister,
-  postSellerTypeAuthProvider,
-  storePostSession,
-  storeDeleteSession
-} from '@mercurjs/http-client'
-import {
-  AuthResponse,
-  PostSellerTypeAuthProviderRegisterBody,
-  PostSellerTypeAuthProviderBody
-} from '@mercurjs/http-client/types'
-import { FetchError } from '@mercurjs/http-client/client'
 import { useMutation, UseMutationOptions } from '@tanstack/react-query'
 import { queryClient } from '@/shared/lib'
 import { sellerQueryKeys } from './seller'
+import { api } from './config'
+import { AuthResponse } from '@mercurjs/http-client'
+
+type EmailpassAuthRequest = {
+  email: string
+  password: string
+}
 
 export const useEmailpassRegister = (
-  options?: UseMutationOptions<
-    AuthResponse,
-    FetchError,
-    PostSellerTypeAuthProviderRegisterBody
-  >
+  options?: UseMutationOptions<AuthResponse, Error, EmailpassAuthRequest>
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      postSellerTypeAuthProviderRegister('emailpass', payload).then(
-        (res) => res.data
-      ),
+      api.auth
+        .postSellerTypeAuthProviderRegister('emailpass', payload)
+        .then((res) => res.data),
     ...options
   })
 }
 
 export const useEmailpassLogin = (
-  options?: UseMutationOptions<
-    AuthResponse,
-    FetchError,
-    PostSellerTypeAuthProviderBody
-  >
+  options?: UseMutationOptions<AuthResponse, Error, EmailpassAuthRequest>
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      postSellerTypeAuthProvider('emailpass', payload).then(
-        (res) => res.data as AuthResponse
-      ),
+      api.auth
+        .postSellerTypeAuthProvider('emailpass', payload)
+        .then((res) => res.data as AuthResponse),
     onSuccess: (data, ...otherArgs) => {
       queryClient.invalidateQueries({
         queryKey: sellerQueryKeys.details()
@@ -53,21 +40,23 @@ export const useEmailpassLogin = (
 }
 
 export const useCreateSession = (
-  options?: UseMutationOptions<void, FetchError, { token: string }>
+  options?: UseMutationOptions<void, Error, { token: string }>
 ) => {
   return useMutation({
     mutationFn: ({ token }) =>
-      storePostSession({
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }).then(() => undefined),
+      api.auth
+        .storePostSession({
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        .then(() => undefined),
     ...options
   })
 }
 
 export const useLogout = () => {
   return useMutation({
-    mutationFn: () => storeDeleteSession().then(() => undefined)
+    mutationFn: () => api.auth.storeDeleteSession().then(() => undefined)
   })
 }

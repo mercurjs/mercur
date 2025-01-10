@@ -22,6 +22,6 @@
     "skipLibCheck": true,
     "incremental": false
   },
-  "include": ["codegen", "src"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"],
+  "exclude": ["node_modules", "codegen"]
 }

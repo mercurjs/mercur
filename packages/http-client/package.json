@@ -4,14 +4,13 @@
   "version": "0.0.1",
   "private": true,
   "exports": {
-    ".": "./dist/codegen/index.js",
-    "./types": "./dist/codegen/types/index.js",
-    "./client": "./dist/src/index.js"
+    ".": "./dist/index.js"
   },
   "scripts": {
-    "codegen": "rimraf dist && rimraf codegen && npx orval && tsc"
+    "codegen": "swagger-typescript-api --path ../../apps/backend/combined.oas.json --output ./src -n index.ts && tsc"
   },
-  "devDependencies": {
-    "rimraf": "^6.0.1"
+  "devDependencies": {},
+  "dependencies": {
+    "swagger-typescript-api": "^13.0.23"
   }
 }

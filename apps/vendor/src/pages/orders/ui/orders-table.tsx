@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow
 } from '@/shared/ui'
-import { VendorOrderDetails } from '@mercurjs/http-client/types'
+import { VendorOrderDetails } from '@mercurjs/http-client'
 import { OrderStatusBadge } from '@/entities/order'
 import { CustomerAvatar } from '@/shared/ui'
 import { ActionMenu, Typography } from '@/shared/ui'

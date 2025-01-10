@@ -12,7 +12,7 @@ import {
   Thumbnail,
   Typography
 } from '@/shared/ui'
-import { VendorOrderDetails } from '@mercurjs/http-client/types'
+import { VendorOrderDetails } from '@mercurjs/http-client'
 import { ChevronLeft, Send, Check } from 'lucide-react'
 import { ReactNode, useMemo } from 'react'
 import { formatAddress } from '@/shared/lib/address'

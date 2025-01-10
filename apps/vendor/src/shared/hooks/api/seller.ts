@@ -1,33 +1,32 @@
 import { queryKeysFactory } from '@/shared/lib'
-import { vendorCreateSeller, vendorGetSellerMe } from '@mercurjs/http-client'
-import { FetchError } from '@mercurjs/http-client/client'
-import {
-  VendorCreateSeller,
-  VendorCreateSeller201
-} from '@mercurjs/http-client/types'
+
 import {
   useMutation,
   UseMutationOptions,
   useQuery
 } from '@tanstack/react-query'
+import { api } from './config'
+import { VendorCreateSeller, VendorSeller } from '@mercurjs/http-client'
 
 const SELLER_QUERY_KEY = 'seller'
 export const sellerQueryKeys = queryKeysFactory(SELLER_QUERY_KEY)
 
 export const useCreateSeller = (
   options?: UseMutationOptions<
-    VendorCreateSeller201,
-    FetchError,
+    { seller?: VendorSeller },
+    Error,
     VendorCreateSeller & { token: string }
   >
 ) => {
   return useMutation({
     mutationFn: ({ token, ...payload }) =>
-      vendorCreateSeller(payload, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }).then((res) => res.data),
+      api.vendor
+        .vendorCreateSeller(payload, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        .then((res) => res.data),
     ...options
   })
 }
@@ -35,7 +34,7 @@ export const useCreateSeller = (
 export const useSeller = () => {
   const { data, ...other } = useQuery({
     queryKey: sellerQueryKeys.details(),
-    queryFn: () => vendorGetSellerMe().then((res) => res.data),
+    queryFn: () => api.vendor.vendorGetSellerMe().then((res) => res.data),
     retry: false
   })
 

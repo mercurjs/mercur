@@ -12,8 +12,7 @@ import {
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useCreateSeller } from '@/entities/seller'
-import { useEmailpassRegister } from '@/entities/auth'
+import { useCreateSeller, useEmailpassRegister } from '@/shared/hooks/api'
 import { Link, useLocation } from 'wouter'
 
 const schema = z
