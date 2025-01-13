@@ -1,5 +1,8 @@
 interface EmailTemplateProps {
-  data: any
+  data: {
+		host: string,
+		resetPasswordToken: string
+	}
 }
 
 export const ForgotPasswordEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {

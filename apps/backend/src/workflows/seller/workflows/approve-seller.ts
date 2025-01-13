@@ -9,10 +9,5 @@ export const approveSellerWorkflow = createWorkflow(
     return new WorkflowResponse(
       approveSellerStep({ id: input.id, status: SellerStatus.APPROVED })
     )
-
-    /**
-     * TODO:
-     * Added email notification after sucessul workflow execution
-     */
   }
 )

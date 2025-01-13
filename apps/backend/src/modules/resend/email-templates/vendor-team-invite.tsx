@@ -1,15 +1,23 @@
 interface EmailTemplateProps {
-  data: any
+  data: {
+		user_name: string
+		store_name: string,
+		host: string,
+		token: string,
+		vendor: {
+			email: string
+		}
+	}
 }
 
 export const VendorTeamInviteEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
   return (
     <div>
       <h1>
-        {data.userName} has invited you to join the team at {data.storeName}.
+        {data.user_name} has invited you to join the team at {data.store_name}.
       </h1>
       <p>
-        To join the team at {data.storeName}, please accept the invitation. Your login email: {data.vendor.email}
+        To join the team at {data.store_name}, please accept the invitation. Your login email: {data.vendor.email}
       </p>
       <p>
         <a href={`${data.host}/invite/accept?token=${data.token}`}>Accept Invitation</a>

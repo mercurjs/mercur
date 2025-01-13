@@ -1,4 +1,7 @@
 import SellerModuleService from 'src/modules/seller/service'
+import { INotificationModuleService } from '@medusajs/framework/types'
+import { Modules } from '@medusajs/framework/utils'
+import { ResendNotificationTemplates } from '../../../modules/resend/service'
 
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
@@ -16,6 +19,21 @@ export const rejectSellerStep = createStep(
 
     const updatedSellers: SellerDTO = await service.updateSellers({
       ...input
+    })
+
+    const notificationModuleService: INotificationModuleService =
+      container.resolve(Modules.NOTIFICATION)
+
+		console.log('sendig rejection email')
+
+    await notificationModuleService.createNotifications({
+      to: previousData.email,
+      channel: 'email',
+      template: ResendNotificationTemplates.VENDOR_ACCOUNT_UPDATES_REJECTION,
+      content: {
+        subject: 'Mercur - Seller account rejection'
+      },
+      data: { data: { user_name: previousData.name } }
     })
 
     return new StepResponse(updatedSellers, previousData)

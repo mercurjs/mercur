@@ -1,12 +1,39 @@
 interface EmailTemplateProps {
-  data: any
+  data: {
+		user_name: string,
+		host: string,
+		order_id: string,
+		order: {
+			display_id: string,
+			items: any[],
+			currency_code: string,
+			item_total: number,
+			shipping_methods: {
+				amount: number,
+				name: string
+			}[],
+			total: number
+			email: string
+			shipping_address: {
+				first_name: string,
+				last_name: string,
+				company: string,
+				address_1: string,
+				address_2: string,
+				city: string,
+				province: string,
+				postal_code: string,
+				phone: string
+			}
+		}
+	}
 }
 
 export const BuyerNewOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
   return (
     <div>
       <h1>
-        Thank you for your order, {data.userName}
+        Thank you for your order, {data.user_name}
         Your order #{data.order.display_id} has been placed!
       </h1>
       <p>
@@ -14,7 +41,7 @@ export const BuyerNewOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> 
       </p>
       <p>
         <a href=''>Order details</a>
-        If you can’t click the button, no worries! Here’s your link: {data.host}/orders/{data.orderId}
+        If you can’t click the button, no worries! Here’s your link: {data.host}/orders/{data.order_id}
         Here’s the breakdown:
       </p>
       <table>

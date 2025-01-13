@@ -1,13 +1,13 @@
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
 import { SellerStatus } from '../../../modules/seller/types/common'
-import { approveSellerStep } from '../steps'
+import { rejectSellerStep } from '../steps'
 
 export const rejectSellerWorkflow = createWorkflow(
   'reject-seller',
   function (input: { id: string }) {
     return new WorkflowResponse(
-      approveSellerStep({ id: input.id, status: SellerStatus.REJECTED })
+      rejectSellerStep({ id: input.id, status: SellerStatus.REJECTED })
     )
 
     /**

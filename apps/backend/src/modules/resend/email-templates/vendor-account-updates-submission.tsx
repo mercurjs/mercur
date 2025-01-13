@@ -1,11 +1,13 @@
 interface EmailTemplateProps {
-  data: any
+  data: {
+		user_name: string,
+	}
 }
 
 export const VendorAccountSubmissionEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
   return (
     <div>
-      <h1>Hello, {data.userName} 👋</h1>
+      <h1>Hello, {data.user_name} 👋</h1>
       <p>We are thrilled about your interest in collaborating with us.</p>
       <p>
         Your application is currently being reviewed by our team. Please expect a response within [three] business days.

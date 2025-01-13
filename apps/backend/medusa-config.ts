@@ -18,22 +18,23 @@ module.exports = defineConfig({
   modules: [
     { resolve: './src/modules/seller' },
     { resolve: './src/modules/marketplace' },
-		{ resolve: './src/modules/marketplace' },
-		{ resolve: '@medusajs/medusa/notification',
-			options: {
-				providers: [
-					{
-            resolve: "./src/modules/resend",
-            id: "resend",
+    { resolve: './src/modules/marketplace' },
+    {
+      resolve: '@medusajs/medusa/notification',
+      options: {
+        providers: [
+          {
+            resolve: './src/modules/resend',
+            id: 'resend',
             options: {
-              channels: ["email"],
+              channels: ['email'],
               api_key: process.env.RESEND_API_KEY,
-              from: process.env.RESEND_FROM_EMAIL,
-            },
+              from: process.env.RESEND_FROM_EMAIL
+            }
           }
-				]
-			}
-		},
+        ]
+      }
+    },
     {
       resolve: './src/modules/payout',
       options: {

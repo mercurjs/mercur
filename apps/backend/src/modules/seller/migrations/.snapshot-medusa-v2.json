@@ -353,7 +353,6 @@
             "id"
           ],
           "referencedTableName": "public.seller",
-          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }
@@ -503,7 +502,6 @@
             "id"
           ],
           "referencedTableName": "public.seller",
-          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }

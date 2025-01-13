@@ -1,5 +1,11 @@
 interface EmailTemplateProps {
-  data: any
+  data: {
+		host: string,
+		order: {
+			id: string,
+			item: any
+		}
+	}
 }
 
 export const BuyerCancelOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {

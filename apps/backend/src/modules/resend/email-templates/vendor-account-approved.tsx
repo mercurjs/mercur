@@ -1,12 +1,14 @@
 interface EmailTemplateProps {
-  data: any
+  data: {
+		user_name: string
+	}
 }
 
 export const VendorAccountApprovedEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
   return (
     <div>
       <h1>
-        Hello, {data.userName} 👋
+        Hello, {data.user_name} 👋
         <br />
         Your account have been approved!
       </h1>
