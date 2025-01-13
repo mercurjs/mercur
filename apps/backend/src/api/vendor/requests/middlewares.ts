@@ -12,7 +12,7 @@ import {
 import { vendorRequestsConfig } from './query-config'
 import { VendorCreateRequest, VendorGetRequestsParams } from './validators'
 
-export const requestsMiddlewares: MiddlewareRoute[] = [
+export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
   {
     method: ['GET'],
     matcher: '/vendor/requests',
