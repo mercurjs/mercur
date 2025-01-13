@@ -12,6 +12,30 @@ export const VendorGetRequestsParams = createFindParams({
   limit: 50
 })
 
+/**
+ * @schema ProductCategoryRequest
+ * type: object
+ * required:
+ *   - type
+ *   - data
+ * properties:
+ *   type:
+ *     type: string
+ *     description: The type of the request
+ *     enum: [product_category]
+ *   data:
+ *     type: object
+ *     properties:
+ *       name:
+ *         type: string
+ *         description: The name of the product category
+ *       description:
+ *         type: string
+ *         description: The description of the product category
+ *       parent_category_id:
+ *         type: string
+ *         description: The id of the parent category
+ */
 const ProductCategoryRequest = z.object({
   type: z.literal('product_category'),
   data: z.object({
@@ -21,6 +45,24 @@ const ProductCategoryRequest = z.object({
   })
 })
 
+/**
+ * @schema ProductCollectionRequest
+ * type: object
+ * required:
+ *   - type
+ *   - data
+ * properties:
+ *   type:
+ *     type: string
+ *     description: The type of the request
+ *     enum: [product_collection]
+ *   data:
+ *     type: object
+ *     properties:
+ *       title:
+ *         type: string
+ *         description: The title of the product collection
+ */
 const ProductCollectionRequest = z.object({
   type: z.literal('product_collection'),
   data: z.object({
@@ -28,11 +70,39 @@ const ProductCollectionRequest = z.object({
   })
 })
 
+/**
+ * @schema ProductRequest
+ * type: object
+ * required:
+ *   - type
+ *   - data
+ * properties:
+ *   type:
+ *     type: string
+ *     description: The type of the request
+ *     enum: [product]
+ *   data:
+ *     $ref: "#/components/schemas/VendorCreateProduct"
+ */
 const ProductRequest = z.object({
   type: z.literal('product'),
   data: VendorCreateProduct
 })
 
+/**
+ * @schema VendorCreateRequest
+ * type: object
+ * required:
+ *   - request
+ * properties:
+ *   request:
+ *     type: object
+ *     description: The resource to be created by request
+ *     oneOf:
+ *       - $ref: "#/components/schemas/ProductRequest"
+ *       - $ref: "#/components/schemas/ProductCollectionRequest"
+ *       - $ref: "#/components/schemas/ProductCategoryRequest"
+ */
 export type VendorCreateRequestType = z.infer<typeof VendorCreateRequest>
 export const VendorCreateRequest = z.object({
   request: z.discriminatedUnion('type', [
