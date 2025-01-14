@@ -30,7 +30,7 @@ export const useOrders = (
 export const useOrder = (
   id: string,
   options?: Omit<
-    UseQueryOptions<unknown, Error, VendorOrderDetails, QueryKey>,
+    UseQueryOptions<unknown, Error, { order: VendorOrderDetails }, QueryKey>,
     'queryFn' | 'queryKey'
   >
 ) => {

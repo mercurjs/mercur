@@ -1,6 +1,5 @@
 import dayjs from 'dayjs'
-
-import { CreatedAtOption } from '@/features/order-table-filters'
+import { CreatedAtOption } from './ui/order-table-filters'
 
 export const createdAtOptionToDate: Record<CreatedAtOption, string> = {
   today: dayjs().startOf('day').toISOString(),
