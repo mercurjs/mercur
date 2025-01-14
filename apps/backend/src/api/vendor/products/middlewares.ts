@@ -10,7 +10,7 @@ import {
   checkResourceOwnershipByResourceId,
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
-import { checkConfigurationRule } from '../../../shared/infra/http/middlewares/check-configuration'
+import { checkConfigurationRule } from '../../../shared/infra/http/middlewares'
 import { vendorProductQueryConfig } from './query-config'
 import {
   VendorCreateProduct,
