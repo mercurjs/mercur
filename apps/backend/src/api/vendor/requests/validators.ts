@@ -10,6 +10,11 @@ export type VendorGetRequestsParamsType = z.infer<
 export const VendorGetRequestsParams = createFindParams({
   offset: 0,
   limit: 50
+}).extend({
+  type: z
+    .enum(['product_collection', 'product_category', 'product'])
+    .optional(),
+  status: z.enum(['accepted', 'rejected', 'pending']).optional()
 })
 
 /**

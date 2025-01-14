@@ -4,6 +4,7 @@ import {
 } from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
 
+import { applyRequestsFilterableFields } from '../../../shared/infra/http/middlewares/apply-requests-filterable-fields'
 import { adminRequestsConfig } from './query-config'
 import { AdminGetRequestsParams, AdminReviewRequest } from './validators'
 
@@ -15,7 +16,8 @@ export const requestsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         AdminGetRequestsParams,
         adminRequestsConfig.list
-      )
+      ),
+      applyRequestsFilterableFields()
     ]
   },
   {

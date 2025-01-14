@@ -9,6 +9,7 @@ import {
   checkResourceOwnershipByResourceId,
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
+import { applyRequestsFilterableFields } from '../../../shared/infra/http/middlewares/apply-requests-filterable-fields'
 import { vendorRequestsConfig } from './query-config'
 import { VendorCreateRequest, VendorGetRequestsParams } from './validators'
 
@@ -21,7 +22,8 @@ export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
         VendorGetRequestsParams,
         vendorRequestsConfig.list
       ),
-      filterBySellerId()
+      filterBySellerId(),
+      applyRequestsFilterableFields()
     ]
   },
   {

@@ -9,12 +9,12 @@ export const acceptProductRequestWorkflow = createWorkflow(
   function (input: AcceptProductRequestDTO) {
     const product = createProductsWorkflow.runAsStep({
       input: {
-        products: [input.data],
+        products: [{ ...input.data, status: 'published' }],
         additional_data: input.seller_id ? { seller_id: input.seller_id } : {}
       }
     })
 
     updateRequestWorkflow.runAsStep({ input })
-    return new WorkflowResponse(product)
+    return new WorkflowResponse(product[0])
   }
 )
