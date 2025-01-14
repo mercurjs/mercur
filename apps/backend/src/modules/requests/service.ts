@@ -12,7 +12,7 @@ class RequestsModuleService extends MedusaService({
   Request
 }) {
   static getWorkflowByType(type: string) {
-    if (type === 'product_colleciton') {
+    if (type === 'product_collection') {
       return acceptProductCollectionRequestWorkflow
     }
 

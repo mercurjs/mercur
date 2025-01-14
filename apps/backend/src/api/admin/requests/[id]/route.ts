@@ -18,7 +18,7 @@ export async function POST(
     data: [request]
   } = await query.graph({
     entity: 'request',
-    fields: ['id', 'type', 'data'],
+    fields: ['id', 'type', 'data', 'submitter_id'],
     filters: {
       id: req.params.id,
       status: 'pending'
@@ -62,7 +62,10 @@ export async function POST(
       id: req.params.id,
       reviewer_id: req.auth_context.actor_id,
       data: request.data,
-      ...req.validatedBody
+      ...req.validatedBody,
+      seller_id: req.validatedBody.assign_product_to_seller
+        ? request.submitter_id
+        : undefined
     },
     throwOnError: true
   })
