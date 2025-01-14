@@ -1,8 +1,11 @@
-import { validateAndTransformQuery } from '@medusajs/framework'
+import {
+  validateAndTransformBody,
+  validateAndTransformQuery
+} from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
 
 import { adminRequestsConfig } from './query-config'
-import { AdminGetRequestsParams } from './validators'
+import { AdminGetRequestsParams, AdminReviewRequest } from './validators'
 
 export const requestsMiddlewares: MiddlewareRoute[] = [
   {
@@ -14,5 +17,10 @@ export const requestsMiddlewares: MiddlewareRoute[] = [
         adminRequestsConfig.list
       )
     ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/admin/requests/:id',
+    middlewares: [validateAndTransformBody(AdminReviewRequest)]
   }
 ]

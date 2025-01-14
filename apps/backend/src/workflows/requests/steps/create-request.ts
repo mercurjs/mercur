@@ -6,13 +6,10 @@ import { CreateRequestDTO, RequestDTO } from '../../../modules/requests/types'
 
 export const createRequestStep = createStep(
   'create-request',
-  async (
-    input: { data: CreateRequestDTO; seller_id: string },
-    { container }
-  ) => {
+  async (input: CreateRequestDTO, { container }) => {
     const service = container.resolve<RequestsModuleService>(REQUESTS_MODULE)
 
-    const request: RequestDTO = await service.createRequests([input.data])
+    const request: RequestDTO = await service.createRequests(input)
 
     return new StepResponse(request, request.id)
   }

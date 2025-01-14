@@ -15,8 +15,8 @@ export async function GET(
 
   res.json({
     requests,
-    count: metadata!.count,
-    offset: metadata!.skip,
-    limit: metadata!.take
+    count: metadata?.count,
+    offset: metadata?.skip,
+    limit: metadata?.take
   })
 }

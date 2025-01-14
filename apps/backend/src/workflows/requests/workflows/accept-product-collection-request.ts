@@ -12,6 +12,6 @@ export const acceptProductCollectionRequestWorkflow = createWorkflow(
     })
 
     updateRequestWorkflow.runAsStep({ input })
-    return new WorkflowResponse(collection)
+    return new WorkflowResponse(collection[0])
   }
 )

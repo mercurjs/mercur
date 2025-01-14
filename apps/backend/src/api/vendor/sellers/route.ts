@@ -1,7 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { MedusaError } from '@medusajs/framework/utils'
 
-import { createRequestWorkflow } from '../../../workflows/requests/workflows'
+import { createSellerCreationRequestWorkflow } from '../../../workflows/requests/workflows'
 import { VendorCreateSellerType } from './validators'
 
 /**
@@ -44,14 +44,13 @@ export const POST = async (
 
   const { member, ...sellerData } = req.validatedBody
 
-  const { result: request } = await createRequestWorkflow.run({
+  const { result: request } = await createSellerCreationRequestWorkflow.run({
     input: {
       data: {
         seller: sellerData,
         member,
         auth_identity_id: req.auth_context?.auth_identity_id
-      },
-      seller_id: req.auth_context?.auth_identity_id
+      }
     },
     container: req.scope
   })

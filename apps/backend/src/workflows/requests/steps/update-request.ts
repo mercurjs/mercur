@@ -9,7 +9,7 @@ export const updateRequestStep = createStep(
   async (input: UpdateRequestDTO, { container }) => {
     const service = container.resolve<RequestsModuleService>(REQUESTS_MODULE)
 
-    const request: RequestDTO = await service.updateRequests([input])
+    const request: RequestDTO = await service.updateRequests(input)
 
     return new StepResponse(request, request.id)
   }

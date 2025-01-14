@@ -14,6 +14,6 @@ export const acceptProductCategoryRequestWorkflow = createWorkflow(
     })
 
     updateRequestWorkflow.runAsStep({ input })
-    return new WorkflowResponse(productCategory)
+    return new WorkflowResponse(productCategory[0])
   }
 )

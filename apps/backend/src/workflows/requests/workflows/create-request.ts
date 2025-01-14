@@ -13,9 +13,9 @@ import { createRequestStep } from '../steps'
 export const createRequestWorkflow = createWorkflow(
   'create-request',
   function (input: { data: CreateRequestDTO; seller_id: string }) {
-    const request = createRequestStep(input)
+    const request = createRequestStep(input.data)
 
-    const link = transform({ request }, ({ request }) => {
+    const link = transform({ request, input }, ({ request, input }) => {
       return [
         {
           [SELLER_MODULE]: {
@@ -29,6 +29,7 @@ export const createRequestWorkflow = createWorkflow(
     })
 
     createRemoteLinkStep(link)
+
     return new WorkflowResponse(request)
   }
 )
