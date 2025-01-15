@@ -22,6 +22,7 @@ export enum ResendNotificationTemplates {
   VENDOR_CANCELED_ORDER = 'vendorCanceledOrderEmailTemplate',
   VENDOR_ORDER_SHIPPED = 'vendorOrderShippingEmailTemplate',
   VENDOR_TEAM_MEMBER_INVITATION = 'vendorTeamInviteEmailTemplate',
+	VENDOR_VERIFY_EMAIL_TEMPLATE = 'vendorVerifyEmailTemplate',
   FORGOT_PASSWORD = 'forgotPasswordEmailTemplate'
 }
 

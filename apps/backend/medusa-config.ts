@@ -56,5 +56,8 @@ module.exports = defineConfig({
         ]
       }
     }
-  ]
+  ],
+	otpModuleService: {
+		resolve: './modules/otp',
+	},
 })

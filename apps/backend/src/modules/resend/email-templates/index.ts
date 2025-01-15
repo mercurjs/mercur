@@ -10,6 +10,7 @@ import { VendorCanceledOrderEmailTemplate } from './vendor-canceled-order'
 import { VendorNewOrderEmailTemplate } from './vendor-new-order'
 import { VendorOrderShippingEmailTemplate } from './vendor-shipping-order'
 import { VendorTeamInviteEmailTemplate } from './vendor-team-invite'
+import { VendorEmailVerifyEmailTemplate } from './vendor-verify-email'
 
 export const emailTemplates = {
   buyerAccountCreatedEmailTemplate: BuyerAccountCreatedEmailTemplate,
@@ -23,5 +24,6 @@ export const emailTemplates = {
   vendorCanceledOrderEmailTemplate: VendorCanceledOrderEmailTemplate,
   vendorNewOrderEmailTemplate: VendorNewOrderEmailTemplate,
   vendorOrderShippingEmailTemplate: VendorOrderShippingEmailTemplate,
-  vendorTeamInviteEmailTemplate: VendorTeamInviteEmailTemplate
+  vendorTeamInviteEmailTemplate: VendorTeamInviteEmailTemplate,
+  vendorVerifyEmailTemplate: VendorEmailVerifyEmailTemplate
 }

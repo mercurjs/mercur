@@ -36,6 +36,7 @@
     "@mikro-orm/migrations": "5.9.7",
     "@mikro-orm/postgresql": "5.9.7",
     "awilix": "^8.0.1",
+    "crypto-js": "^4.2.0",
     "pg": "^8.13.0",
     "resend": "^4.0.1",
     "stripe": "^17.4.0"
@@ -48,6 +49,7 @@
     "@swc/core": "1.5.7",
     "@swc/jest": "^0.2.36",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/crypto-js": "^4.2.2",
     "@types/jest": "^29.5.13",
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.2",
