@@ -20,7 +20,7 @@ import {
 export const comissionMiddlewares: MiddlewareRoute[] = [
   {
     method: ['GET'],
-    matcher: '/admin/rules',
+    matcher: '/admin/comission/rules',
     middlewares: [
       validateAndTransformQuery(
         AdminComissionRuleParams,
@@ -30,7 +30,7 @@ export const comissionMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['POST'],
-    matcher: '/admin/rules',
+    matcher: '/admin/comission/rules',
     middlewares: [
       validateAndTransformQuery(
         AdminComissionRuleParams,
@@ -41,7 +41,7 @@ export const comissionMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['GET'],
-    matcher: '/admin/rules/:id',
+    matcher: '/admin/comission/rules/:id',
     middlewares: [
       validateAndTransformQuery(
         AdminComissionRuleParams,
@@ -51,7 +51,7 @@ export const comissionMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['POST'],
-    matcher: '/admin/rules/:id',
+    matcher: '/admin/comission/rules/:id',
     middlewares: [
       validateAndTransformQuery(
         AdminComissionRuleParams,
@@ -62,7 +62,7 @@ export const comissionMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['GET'],
-    matcher: '/admin/rates',
+    matcher: '/admin/comission/rates',
     middlewares: [
       validateAndTransformQuery(
         AdminComissionRateParams,
@@ -72,7 +72,7 @@ export const comissionMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['POST'],
-    matcher: '/admin/rates',
+    matcher: '/admin/comission/rates',
     middlewares: [
       validateAndTransformQuery(
         AdminComissionRateParams,
@@ -83,7 +83,7 @@ export const comissionMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['GET'],
-    matcher: '/admin/rates/:id',
+    matcher: '/admin/comission/rates/:id',
     middlewares: [
       validateAndTransformQuery(
         AdminComissionRateParams,
@@ -93,7 +93,7 @@ export const comissionMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['POST'],
-    matcher: '/admin/rates/:id',
+    matcher: '/admin/comission/rates/:id',
     middlewares: [
       validateAndTransformQuery(
         AdminComissionRateParams,

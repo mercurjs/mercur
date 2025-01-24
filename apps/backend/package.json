@@ -27,6 +27,7 @@
     "generate:oas": "medusa-oas oas --type combined --paths ./src/api"
   },
   "dependencies": {
+    "@mercurjs/http-client": "",
     "@medusajs/admin-sdk": "latest",
     "@medusajs/cli": "^2.1.0",
     "@medusajs/framework": "latest",
