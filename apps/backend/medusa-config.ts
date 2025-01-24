@@ -21,6 +21,7 @@ module.exports = defineConfig({
     { resolve: './src/modules/configuration' },
     { resolve: './src/modules/order-return-request' },
     { resolve: './src/modules/requests' },
+    { resolve: './src/modules/reviews' },
     {
       resolve: './src/modules/taxcode',
       options: {
