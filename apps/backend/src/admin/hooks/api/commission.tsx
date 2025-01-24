@@ -1,38 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 
-import { AdminComissionRule, Api } from "@mercurjs/http-client";
+import { AdminComissionRule, Api } from '@mercurjs/http-client'
 
 export const useCommissionRules = () => {
-  const api = new Api();
+  const api = new Api()
 
-  const [data, setData] = useState<AdminComissionRule[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [data, setData] = useState<AdminComissionRule[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const [refetchTrigger, setRefetchTrigger] = useState(0);
+  const [refetchTrigger, setRefetchTrigger] = useState(0)
   const refetch = () => {
-    setRefetchTrigger((prev) => prev + 1);
-  };
+    setRefetchTrigger((prev) => prev + 1)
+  }
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        const { data } = await api.admin.adminListComissionRules();
-        setData(data.products || []);
+        const { data } = await api.admin.adminListComissionRules()
+        setData(data.products || [])
       } catch (err: any) {
-        setError(err);
+        setError(err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetch();
-  }, [refetchTrigger]);
+    fetch()
+  }, [refetchTrigger])
 
   return {
     data,
     loading,
     error,
-    refetch,
-  };
-};
+    refetch
+  }
+}

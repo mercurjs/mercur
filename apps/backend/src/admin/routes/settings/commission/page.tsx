@@ -2,11 +2,11 @@ import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { DocumentText } from "@medusajs/icons";
 import { Container, Heading, Text } from "@medusajs/ui";
 import { CommissionDetailTable } from "./components/commission-detail-table";
-import { ComissionRuleDTO } from "../../../../modules/comission/types";
+import { CommissionRuleDTO } from "../../../../modules/commission/types";
 import { useCommissionRules } from "../../../hooks/api/commission";
 import { CommissionTable } from "./components/commission-table";
 
-const Comission = () => {
+const Commission = () => {
   const rule = {
     rate: {
       max_price_set_id: "xxx",
@@ -14,7 +14,7 @@ const Comission = () => {
       percentage_rate: 10,
       include_tax: true,
     },
-  } as ComissionRuleDTO;
+  } as CommissionRuleDTO;
 
   useCommissionRules();
   return (
@@ -51,4 +51,4 @@ export const config = defineRouteConfig({
   icon: DocumentText,
 });
 
-export default Comission;
+export default Commission;

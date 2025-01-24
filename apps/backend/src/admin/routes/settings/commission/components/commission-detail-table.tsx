@@ -1,10 +1,10 @@
 import { Table, StatusBadge } from "@medusajs/ui";
-import { ComissionRuleDTO } from "../../../../../modules/comission/types";
+import { CommissionRuleDTO } from "../../../../../modules/commission/types";
 
 export const CommissionDetailTable = ({
   commissionRule,
 }: {
-  commissionRule: ComissionRuleDTO;
+  commissionRule: CommissionRuleDTO;
 }) => {
   return (
     <>
