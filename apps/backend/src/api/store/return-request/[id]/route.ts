@@ -43,7 +43,7 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const {
-    data: [orderReturnRequest]
+    data: [order_return_request]
   } = await query.graph({
     entity: 'order_return_request',
     fields: req.remoteQueryConfig.fields,
@@ -53,5 +53,5 @@ export const GET = async (
     }
   })
 
-  res.json({ orderReturnRequest })
+  res.json({ order_return_request })
 }

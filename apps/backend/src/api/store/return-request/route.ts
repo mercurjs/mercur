@@ -51,7 +51,7 @@ export async function GET(
 ): Promise<void> {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: orderReturnRequests, metadata } = await query.graph({
+  const { data: order_return_requests, metadata } = await query.graph({
     entity: 'order_return_request',
     fields: req.remoteQueryConfig.fields,
     filters: {
@@ -62,7 +62,7 @@ export async function GET(
   })
 
   res.json({
-    orderReturnRequests,
+    order_return_requests,
     count: metadata!.count,
     offset: metadata!.skip,
     limit: metadata!.take
@@ -112,7 +112,7 @@ export async function POST(
     }
   })
 
-  const { result: orderReturnRequest } =
+  const { result: order_return_request } =
     await createOrderReturnRequestWorkflow.run({
       input: {
         data: { ...req.validatedBody, customer_id: req.auth_context.actor_id },
@@ -120,5 +120,5 @@ export async function POST(
       }
     })
 
-  res.json({ orderReturnRequest })
+  res.json({ order_return_request })
 }

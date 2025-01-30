@@ -49,7 +49,7 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const {
-    data: [orderReturnRequest]
+    data: [order_return_request]
   } = await query.graph({
     entity: 'order_return_request',
     fields: req.remoteQueryConfig.fields,
@@ -58,7 +58,7 @@ export const GET = async (
     }
   })
 
-  res.json({ orderReturnRequest })
+  res.json({ order_return_request })
 }
 
 /**
@@ -119,7 +119,7 @@ export const POST = async (
     )
   }
 
-  const { result: orderReturnRequest } =
+  const { result: order_return_request } =
     await updateOrderReturnRequestWorkflow.run({
       input: {
         id: req.params.id,
@@ -130,5 +130,5 @@ export const POST = async (
       container: req.scope
     })
 
-  res.json({ orderReturnRequest })
+  res.json({ order_return_request })
 }
