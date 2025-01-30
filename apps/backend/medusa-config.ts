@@ -18,7 +18,12 @@ module.exports = defineConfig({
   modules: [
     { resolve: './src/modules/seller' },
     { resolve: './src/modules/marketplace' },
-    { resolve: './src/modules/taxcode' },
+    {
+      resolve: './src/modules/taxcode',
+      options: {
+        apiKey: process.env.STRIPE_SECRET_API_KEY
+      }
+    },
     {
       resolve: './src/modules/payout',
       options: {

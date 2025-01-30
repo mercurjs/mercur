@@ -9,6 +9,7 @@ import { MathBN } from '@medusajs/framework/utils'
 import { Logger } from '@medusajs/medusa'
 
 import { getSmallestUnit } from '../../shared/utils'
+import StripeTaxClient from './client'
 import { StripeTaxCalculationResponseValidator } from './validators'
 
 type InjectedDependencies = {
@@ -24,15 +25,17 @@ type Options = {
 export default class StripeTaxProvider implements ITaxProvider {
   static identifier = 'stripe-tax-provider'
 
-  private readonly client_: Stripe
-  private defaultTaxcode: string
+  private readonly client_: StripeTaxClient
+  private defaultTaxcode_: string
 
-  constructor(
-    private deps: InjectedDependencies,
-    options: Options
-  ) {
-    this.defaultTaxcode = options.defaultTaxcode
-    this.client_ = new Stripe(options.apiKey)
+  private logger_: Logger
+  private remoteQuery_: Omit<RemoteQueryFunction, symbol>
+
+  constructor({ logger, remoteQuery }: InjectedDependencies, options: Options) {
+    this.defaultTaxcode_ = options.defaultTaxcode
+    this.client_ = new StripeTaxClient(options.apiKey)
+    this.logger_ = logger
+    this.remoteQuery_ = remoteQuery
   }
 
   getIdentifier(): string {
@@ -57,7 +60,7 @@ export default class StripeTaxProvider implements ITaxProvider {
 
     const line_items: Stripe.Tax.CalculationCreateParams.LineItem[] = []
     for (const item of itemLines) {
-      const tax_code = await this.getProductTaxCode(item.line_item.product_id)
+      const tax_code = await this.getProductTaxCode_(item.line_item.product_id)
 
       const quantity = MathBN.convert(item.line_item.quantity || 0)
       const amount = MathBN.convert(
@@ -72,7 +75,7 @@ export default class StripeTaxProvider implements ITaxProvider {
       })
     }
 
-    const calculationResponse = await this.client_.tax.calculations.create({
+    const calculationResponse = await this.client_.getCalculation({
       currency,
       customer_details: {
         address: {
@@ -123,19 +126,19 @@ export default class StripeTaxProvider implements ITaxProvider {
     return [...itemTaxLines, ...shippingTaxLines]
   }
 
-  private async getProductTaxCode(productId: string) {
+  private async getProductTaxCode_(productId: string) {
     const {
       data: [product]
-    } = await this.deps.remoteQuery.graph({
+    } = await this.remoteQuery_.graph({
       entity: 'product',
       fields: ['categories.tax_code.code'],
       filters: { id: productId }
     })
 
     if (!product || product.categories.length !== 1) {
-      return this.defaultTaxcode
+      return this.defaultTaxcode_
     }
 
-    return product.categories[0].tax_code?.code || this.defaultTaxcode
+    return product.categories[0].tax_code?.code || this.defaultTaxcode_
   }
 }
