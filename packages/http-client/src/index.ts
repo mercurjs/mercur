@@ -128,6 +128,30 @@ export interface AdminApplicationMethod {
   apply_to_quantity?: number;
 }
 
+/** The details of an inventory level to create. */
+export interface AdminBatchCreateInventoryItemsLocationLevels {
+  /**
+   * location_id
+   * The ID of the associated stock location.
+   */
+  location_id: string;
+  /**
+   * inventory_item_id
+   * The ID of the associated inventory item.
+   */
+  inventory_item_id: string;
+  /**
+   * stocked_quantity
+   * The stocked quantity.
+   */
+  stocked_quantity?: number;
+  /**
+   * incoming_quantity
+   * The incoming quantity to be added to stock.
+   */
+  incoming_quantity?: number;
+}
+
 /** The inventory levels to create, update, or delete. */
 export interface AdminBatchInventoryItemLocationsLevel {
   /** The inventory levels to create. */
@@ -178,6 +202,31 @@ export interface AdminBatchInventoryItemLocationsLevel {
    * Whether to delete specified inventory levels even if they have a non-zero stocked quantity.
    */
   force?: boolean;
+}
+
+/** The inventory levels to manage. */
+export interface AdminBatchInventoryItemsLocationLevels {
+  /** The inventory levels to create. */
+  create: AdminBatchCreateInventoryItemsLocationLevels[];
+  /** The inventory levels to update. */
+  update: AdminBatchUpdateInventoryItemsLocationLevels[];
+  /** The IDs of the inventory levels to delete. */
+  delete: string[];
+  /**
+   * force
+   * Whether to delete specified inventory levels even if they have a non-zero stocked quantity.
+   */
+  force?: boolean;
+}
+
+/** The result of managing inventory levels. */
+export interface AdminBatchInventoryItemsLocationLevelsResponse {
+  /** The created inventory levels. */
+  created?: InventoryLevel[];
+  /** The updated inventory levels. */
+  updated?: InventoryLevel[];
+  /** The IDs of deleted inventory levels. */
+  deleted?: string[];
 }
 
 /** The products to create, update, or delete. */
@@ -23106,23 +23155,68 @@ export interface WorkflowExecutionContext {
 }
 
 /**
- * ComissionRate
- * Comission rate object
+ * CommissionAggregate
+ * Commission aggregate object
  */
-export interface AdminComissionRate {
+export interface AdminCommissionAggregate {
   /** The unique identifier. */
   id?: string;
-  /** Comission rate type. */
+  /** Commission rule name. */
+  name?: string;
+  /** Commission rate type. */
   type?: "flat" | "percentage";
-  /** Percent of comission. */
+  /** Rule reference type */
+  reference?: string;
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  /** Indicates if rate is calculated including tax. */
+  include_tax?: boolean;
+  /** Percent of commission. */
+  percentage_rate?: number;
+  /** Flat rate price id */
+  price_id?: string;
+  /** Flat rate price currency code */
+  price_currency?: string;
+  /** Flat rate price amount */
+  price_amount?: string;
+  /** Min price id */
+  min_price_id?: string;
+  /** Min price currency code */
+  min_price_currency?: string;
+  /** Min price amount */
+  min_price_amount?: string;
+  /** Max price id */
+  max_price_id?: string;
+  /** Max price currency code */
+  max_price_currency?: string;
+  /** Max price amount */
+  max_price_amount?: string;
+  /** Aggregated fee value */
+  fee_value?: string;
+  /** Aggregated reference value */
+  ref_value?: string;
+}
+
+/**
+ * CommissionRate
+ * Commission rate object
+ */
+export interface AdminCommissionRate {
+  /** The unique identifier. */
+  id?: string;
+  /** Commission rate type. */
+  type?: "flat" | "percentage";
+  /** Percent of commission. */
   percentage_rate?: number;
   /** Indicates if rate is calculated including tax. */
   include_tax?: boolean;
-  /** Flat comission value. */
+  /** Flat commission value. */
   price_set_id?: string;
-  /** Min comission value. */
+  /** Min commission value. */
   min_price_set_id?: string;
-  /** Max comission value. */
+  /** Max commission value. */
   max_price_set_id?: string;
   /**
    * The date with timezone at which the resource was created.
@@ -23136,21 +23230,30 @@ export interface AdminComissionRate {
   updated_at?: string;
 }
 
+export interface AdminCommissionRatePrice {
+  /** Currency of the price. */
+  currency_code?: string;
+  /** The subtitle of the product. */
+  amount?: number;
+}
+
 /**
- * ComissionRule
- * Comission rule object
+ * CommissionRule
+ * Commission rule object
  */
-export interface AdminComissionRule {
+export interface AdminCommissionRule {
   /** The unique identifier. */
   id?: string;
-  /** Comission rule name. */
+  /** Commission rule name. */
   name?: string;
   /** Rule reference type */
   reference?: string;
   /** Rule reference id */
   reference_id?: string;
-  /** Comission rate object */
-  rate?: AdminComissionRate;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  /** Commission rate object */
+  rate?: AdminCommissionRate;
   /**
    * The date with timezone at which the resource was created.
    * @format date-time
@@ -23161,6 +23264,49 @@ export interface AdminComissionRule {
    * @format date-time
    */
   updated_at?: string;
+}
+
+export interface AdminCreateCommissionRate {
+  /** Rate type. */
+  type?: "flat" | "percentage";
+  /** The subtitle of the product. */
+  percentage_rate?: number;
+  /** The description of the product. */
+  include_tax?: boolean;
+  price_set?: AdminCommissionRatePrice;
+  min_price_set?: AdminCommissionRatePrice;
+  max_price_set?: AdminCommissionRatePrice;
+}
+
+export interface AdminCreateCommissionRule {
+  /** Commission rule name. */
+  name?: string;
+  /** Rule reference type */
+  reference?: string;
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  rate?: AdminCreateCommissionRate;
+}
+
+export interface AdminUpdateCommissionRule {
+  /** Commission rule name. */
+  name?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+}
+
+export interface AdminUpsertDefaultCommissionRule {
+  /** Commission rule name. */
+  name?: string;
+  /** Rule reference type */
+  reference?: "site";
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  rate?: AdminCreateCommissionRate;
 }
 
 export interface CreateProductOption {
@@ -35344,69 +35490,19 @@ export class Api<
      * @secure
      */
     adminPostInventoryItemsLocationLevelsBatch: (
-      data: {
-        /** The inventory levels to create. */
-        create?: {
-          /**
-           * location_id
-           * The ID of the associated stock location.
-           */
-          location_id: string;
-          /**
-           * inventory_item_id
-           * The ID of the associated inventory item.
-           */
-          inventory_item_id: string;
-          /**
-           * stocked_quantity
-           * The stocked quantity.
-           */
-          stocked_quantity?: number;
-          /**
-           * incoming_quantity
-           * The incoming quantity to be added to stock.
-           */
-          incoming_quantity?: number;
-        }[];
-        /** The inventory levels to update. */
-        update?: {
-          /**
-           * location_id
-           * The ID of the associated stock location.
-           */
-          location_id: string;
-          /**
-           * inventory_item_id
-           * The ID of the associated inventory item.
-           */
-          inventory_item_id: string;
-          /**
-           * stocked_quantity
-           * The stocked quantity.
-           */
-          stocked_quantity?: number;
-          /**
-           * incoming_quantity
-           * The incoming quantity to be added to stock.
-           */
-          incoming_quantity?: number;
-        }[];
-        /** The IDs of the inventory levels to delete. */
-        delete?: string[];
-        /**
-         * force
-         * Whether to delete specified inventory levels even if they have a non-zero stocked quantity.
-         */
-        force?: boolean;
-      },
+      data: AdminBatchInventoryItemsLocationLevels,
       params: RequestParams = {}
     ) =>
-      this.request<any, Error | string>({
+      this.request<
+        AdminBatchInventoryItemsLocationLevelsResponse,
+        Error | string
+      >({
         path: `/admin/inventory-items/location-levels/batch`,
         method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -50220,15 +50316,217 @@ export class Api<
       }),
 
     /**
-     * @description Retrieves a list of comission rules.
+     * @description Retrieves a commission rule with 'site' reference type.
      *
      * @tags Admin
-     * @name AdminListComissionRules
-     * @summary List Comission rules
-     * @request GET:/admin/comission/rules
+     * @name AdminGetDefaultCommissionRule
+     * @summary Get default commission rule
+     * @request GET:/admin/commission/default
      * @secure
      */
-    adminListComissionRules: (
+    adminGetDefaultCommissionRule: (params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission aggregate object */
+          commission_rule?: AdminCommissionAggregate;
+        },
+        any
+      >({
+        path: `/admin/commission/default`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates or updates default commission rule.
+     *
+     * @tags Admin
+     * @name AdminUpsertDefaultCommissionRule
+     * @summary Upsert default CommissionRule
+     * @request POST:/admin/commission/default
+     * @secure
+     */
+    adminUpsertDefaultCommissionRule: (
+      data: AdminUpsertDefaultCommissionRule,
+      params: RequestParams = {}
+    ) =>
+      this.request<
+        {
+          /** Commission rule object */
+          commission_rule?: AdminCommissionRule;
+        },
+        any
+      >({
+        path: `/admin/commission/default`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of commission rules.
+     *
+     * @tags Admin
+     * @name AdminListCommissionRules
+     * @summary List Commission rules
+     * @request GET:/admin/commission/rules
+     * @secure
+     */
+    adminListCommissionRules: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<
+        {
+          commission_rules?: AdminCommissionAggregate[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/commission/rules`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new commission rule.
+     *
+     * @tags Admin
+     * @name AdminCreateCommissionRule
+     * @summary Create a CommissionRule
+     * @request POST:/admin/commission/rules
+     * @secure
+     */
+    adminCreateCommissionRule: (
+      data: AdminCreateCommissionRule,
+      params: RequestParams = {}
+    ) =>
+      this.request<
+        {
+          /** Commission rule object */
+          commission_rule?: AdminCommissionRule;
+        },
+        any
+      >({
+        path: `/admin/commission/rules`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a commission rule by id.
+     *
+     * @tags Admin
+     * @name AdminGetCommissionRuleById
+     * @summary Get commission rule by id
+     * @request GET:/admin/commission/rules/{id}
+     * @secure
+     */
+    adminGetCommissionRuleById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission aggregate object */
+          commission_rule?: AdminCommissionAggregate;
+        },
+        any
+      >({
+        path: `/admin/commission/rules/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates commission rule by id.
+     *
+     * @tags Admin
+     * @name AdminUpdateCommissionRuleById
+     * @summary Update CommissionRule
+     * @request POST:/admin/commission/rules/{id}
+     * @secure
+     */
+    adminUpdateCommissionRuleById: (
+      id: string,
+      data: AdminUpdateCommissionRule,
+      params: RequestParams = {}
+    ) =>
+      this.request<
+        {
+          /** Commission rule object */
+          commission_rule?: AdminCommissionRule;
+        },
+        any
+      >({
+        path: `/admin/commission/rules/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a commission rule by id.
+     *
+     * @tags Admin
+     * @name AdminDeleteCommissionRuleById
+     * @summary Delete a Commission Rule
+     * @request DELETE:/admin/commission/rules/{id}
+     * @secure
+     */
+    adminDeleteCommissionRuleById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted rule */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/admin/commission/rules/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of sellers.
+     *
+     * @tags Admin
+     * @name AdminListSellers
+     * @summary List Sellers
+     * @request GET:/admin/sellers
+     * @secure
+     */
+    adminListSellers: (
       query?: {
         /** The number of items to skip before starting to collect the result set. */
         offset?: number;
@@ -50241,7 +50539,7 @@ export class Api<
     ) =>
       this.request<
         {
-          products?: AdminComissionRule[];
+          sellers?: VendorSeller[];
           /** The total number of items available */
           count?: number;
           /** The number of items skipped before these items */
@@ -50251,7 +50549,7 @@ export class Api<
         },
         any
       >({
-        path: `/admin/comission/rules`,
+        path: `/admin/sellers`,
         method: "GET",
         query: query,
         secure: true,
