@@ -1,0 +1,13 @@
+export enum ConfigurationRuleType {
+  GLOBAL_PRODUCT_CATALOG = 'global_product_catalog',
+  REQUIRE_PRODUCT_APPROVAL = 'require_product_approval',
+  PRODUCT_REQUEST_ENABLED = 'product_request_enabled'
+}
+
+export type ConfigurationRule = {
+  id: string
+  rule_type: ConfigurationRuleType
+  is_enabled: boolean
+  created_at: Date
+  updated_at: Date
+}

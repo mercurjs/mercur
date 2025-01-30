@@ -5,16 +5,23 @@ import {
 import { MiddlewareRoute } from '@medusajs/medusa'
 
 import sellerProductLink from '../../../links/seller-product'
+import { ConfigurationRuleType } from '../../../modules/configuration/types'
 import {
   checkResourceOwnershipByResourceId,
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
+import { checkConfigurationRule } from '../../../shared/infra/http/middlewares'
 import { vendorProductQueryConfig } from './query-config'
 import {
   VendorCreateProduct,
   VendorGetProductParams,
   VendorUpdateProduct
 } from './validators'
+
+const canVendorCreateProduct = [
+  checkConfigurationRule(ConfigurationRuleType.GLOBAL_PRODUCT_CATALOG, false),
+  checkConfigurationRule(ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL, false)
+]
 
 export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
@@ -32,6 +39,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     method: ['POST'],
     matcher: '/vendor/products',
     middlewares: [
+      ...canVendorCreateProduct,
       validateAndTransformBody(VendorCreateProduct),
       validateAndTransformQuery(
         VendorGetProductParams,
