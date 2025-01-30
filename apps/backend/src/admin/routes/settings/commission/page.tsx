@@ -1,22 +1,52 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { DocumentText } from "@medusajs/icons";
-import { Container, Heading, Text } from "@medusajs/ui";
+import { Button, Container, Drawer, Heading, Text } from "@medusajs/ui";
 import { CommissionDetailTable } from "./components/commission-detail-table";
-import { CommissionRuleDTO } from "../../../../modules/commission/types";
-import { useCommissionRules } from "../../../hooks/api/commission";
-import { CommissionTable } from "./components/commission-table";
+import { DataTable } from "../../../components/table/data-table";
+import { useCommissionRulesTableQuery } from "../../../hooks/query/use-commission-rules-table-query";
+import {
+  useCommissionRules,
+  useDefaultCommissionRule,
+} from "../../../hooks/api/commission";
+import { AdminCommissionAggregate } from "@mercurjs/http-client";
+import { useDataTable } from "../../../hooks/table/use-data-table";
+import { useCommissionRulesTableColumns } from "../../../hooks/table/columns/use-commission-rules-table-columns";
+import CreateCommissionRuleForm from "./components/create-commission-rule-form";
+import { useState } from "react";
+import UpsertDefaultCommissionRuleForm from "./components/upsert-default-commission-rule";
+
+const PAGE_SIZE = 50;
 
 const Commission = () => {
-  const rule = {
-    rate: {
-      max_price_set_id: "xxx",
-      min_price_set_id: "zzz",
-      percentage_rate: 10,
-      include_tax: true,
-    },
-  } as CommissionRuleDTO;
+  const [createRuleOpen, setCreateRuleOpen] = useState(false);
+  const [upsertDefaultOpen, setUpsertDefaultOpen] = useState(false);
+  const defaultRule = useDefaultCommissionRule();
+  const { searchParams, raw } = useCommissionRulesTableQuery({
+    pageSize: PAGE_SIZE,
+  });
+  const {
+    commission_rules,
+    count,
+    isPending: isLoading,
+    refetch,
+  } = useCommissionRules({
+    ...searchParams,
+  });
 
-  useCommissionRules();
+  const columns = useCommissionRulesTableColumns({
+    onSuccess() {
+      refetch();
+    },
+  });
+
+  const { table } = useDataTable({
+    data: (commission_rules ?? []) as AdminCommissionAggregate[],
+    columns,
+    enablePagination: true,
+    getRowId: (row) => row.id!,
+    pageSize: PAGE_SIZE,
+  });
+
   return (
     <>
       <Container className="divide-y p-0">
@@ -27,9 +57,37 @@ const Commission = () => {
               Manage global commission settings for your marketplace.
             </Text>
           </div>
+
+          <Drawer
+            open={upsertDefaultOpen}
+            onOpenChange={(openChanged) => setUpsertDefaultOpen(openChanged)}
+          >
+            <Drawer.Trigger
+              onClick={() => {
+                setUpsertDefaultOpen(true);
+              }}
+              asChild
+            >
+              <Button variant="secondary">Edit</Button>
+            </Drawer.Trigger>
+            <Drawer.Content>
+              <Drawer.Header>
+                <Drawer.Title>Edit default rule</Drawer.Title>
+              </Drawer.Header>
+              <Drawer.Body>
+                <UpsertDefaultCommissionRuleForm
+                  onSuccess={() => {
+                    setUpsertDefaultOpen(false);
+                    refetch();
+                  }}
+                  rule={defaultRule.commission_rule}
+                />
+              </Drawer.Body>
+            </Drawer.Content>
+          </Drawer>
         </div>
 
-        <CommissionDetailTable commissionRule={rule}></CommissionDetailTable>
+        <CommissionDetailTable commissionRule={defaultRule.commission_rule} />
       </Container>
       <Container className="divide-y p-0">
         <div className="flex items-center justify-between px-6 py-4">
@@ -39,8 +97,48 @@ const Commission = () => {
               View, search, and manage existing commission rules.
             </Text>
           </div>
+          <Drawer
+            open={createRuleOpen}
+            onOpenChange={(openChanged) => setCreateRuleOpen(openChanged)}
+          >
+            <Drawer.Trigger
+              onClick={() => {
+                setCreateRuleOpen(true);
+              }}
+              asChild
+            >
+              <Button variant="secondary">Create</Button>
+            </Drawer.Trigger>
+            <Drawer.Content>
+              <Drawer.Header>
+                <Drawer.Title>Create Rule</Drawer.Title>
+              </Drawer.Header>
+              <Drawer.Body>
+                <CreateCommissionRuleForm
+                  onSuccess={() => {
+                    setCreateRuleOpen(false);
+                    refetch();
+                  }}
+                />
+              </Drawer.Body>
+            </Drawer.Content>
+          </Drawer>
         </div>
-        <CommissionTable></CommissionTable>
+
+        <DataTable
+          table={table}
+          count={count}
+          columns={columns}
+          pageSize={PAGE_SIZE}
+          isLoading={isLoading}
+          filters={[]}
+          pagination
+          queryObject={raw}
+          noRecords={{
+            title: "Commission rules",
+            message: "No records",
+          }}
+        />
       </Container>
     </>
   );

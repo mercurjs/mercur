@@ -1,13 +1,49 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { createCommissionRuleWorkflow } from '../../../../workflows/commission/workflows'
-import { AdminCreateCommissionRuleType } from '../validators'
+import {
+  createCommissionRuleWorkflow,
+  listCommissionRulesWorkflow
+} from '../../../../workflows/commission/workflows'
+import {
+  AdminCreateCommissionRuleType,
+  validateCommissionRate,
+  validateCommissionRule
+} from '../validators'
 
+/**
+ * @oas [post] /admin/commission/rules
+ * operationId: "AdminCreateCommissionRule"
+ * summary: "Create a CommissionRule"
+ * description: "Creates a new commission rule."
+ * x-authenticated: true
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/AdminCreateCommissionRule"
+ * responses:
+ *   "201":
+ *     description: Created
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             commission_rule:
+ *               $ref: "#/components/schemas/AdminCommissionRule"
+ * tags:
+ *   - Admin
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
 export async function POST(
   req: MedusaRequest<AdminCreateCommissionRuleType>,
   res: MedusaResponse
 ): Promise<void> {
+  validateCommissionRate(req.validatedBody.rate)
+  validateCommissionRule(req.validatedBody)
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { result } = await createCommissionRuleWorkflow.run({
@@ -50,12 +86,6 @@ export async function POST(
  *       type: number
  *     required: false
  *     description: The number of items to return.
- *   - name: fields
- *     in: query
- *     schema:
- *       type: string
- *     required: false
- *     description: Comma-separated fields to include in the response.
  * responses:
  *   "200":
  *     description: OK
@@ -67,7 +97,7 @@ export async function POST(
  *             commission_rules:
  *               type: array
  *               items:
- *                 $ref: "#/components/schemas/AdminCommissionRule"
+ *                 $ref: "#/components/schemas/AdminCommissionAggregate"
  *             count:
  *               type: integer
  *               description: The total number of items available
@@ -77,6 +107,7 @@ export async function POST(
  *             limit:
  *               type: integer
  *               description: The number of items per page
+ *
  * tags:
  *   - Admin
  * security:
@@ -87,18 +118,15 @@ export async function GET(
   req: MedusaRequest,
   res: MedusaResponse
 ): Promise<void> {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const { data: commission_rules, metadata } = await query.graph({
-    entity: 'commission_rule',
-    fields: req.remoteQueryConfig.fields,
-    pagination: req.remoteQueryConfig.pagination
+  const { result } = await listCommissionRulesWorkflow.run({
+    container: req.scope,
+    input: { pagination: req.remoteQueryConfig.pagination }
   })
 
   res.json({
-    commission_rules,
-    count: metadata?.count,
-    offset: metadata?.skip,
-    limit: metadata?.take
+    commission_rules: result.commission_rules,
+    count: result.count,
+    offset: req.remoteQueryConfig.pagination.skip,
+    limit: req.remoteQueryConfig.pagination.take
   })
 }

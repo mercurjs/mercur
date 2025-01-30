@@ -5,11 +5,11 @@ import { CommissionRule } from './commission_rule'
 export const CommissionRate = model.define('commission_rate', {
   id: model.id({ prefix: 'com_rate' }).primaryKey(),
   type: model.text(),
-  percentage_rate: model.number(),
+  percentage_rate: model.number().nullable(),
   include_tax: model.boolean(),
-  price_set_id: model.text(),
-  max_price_set_id: model.text(),
-  min_price_set_id: model.text(),
+  price_set_id: model.text().nullable(),
+  max_price_set_id: model.text().nullable(),
+  min_price_set_id: model.text().nullable(),
   rule: model
     .belongsTo(() => CommissionRule, {
       mappedBy: 'rate'

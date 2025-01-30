@@ -11,7 +11,7 @@ class CommissionModuleService extends MedusaService({
 }) {
   private async selectCommissionRule(reference: string, reference_id: string) {
     const [rule] = await this.listCommissionRules(
-      { reference, reference_id },
+      { reference, reference_id, is_active: true, deleted_at: null },
       { relations: ['rate'] }
     )
 

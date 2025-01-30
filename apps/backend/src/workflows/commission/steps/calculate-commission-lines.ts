@@ -26,7 +26,7 @@ async function calculateFlatCommission(
   container: MedusaContainer
 ) {
   const priceService = container.resolve(Modules.PRICING)
-  const priceSet = await priceService.retrievePriceSet(rate.price_set_id, {
+  const priceSet = await priceService.retrievePriceSet(rate.price_set_id!, {
     relations: ['prices']
   })
 
@@ -51,18 +51,18 @@ async function calculatePercentageCommission(
 
   const commissionValue = MathBN.mult(
     rate.include_tax ? totalPrice : MathBN.sub(totalPrice, taxValue),
-    MathBN.div(rate.percentage_rate, 100)
+    MathBN.div(rate.percentage_rate!, 100)
   )
 
   const priceService = container.resolve(Modules.PRICING)
 
   const minPriceSet = await priceService.retrievePriceSet(
-    rate.min_price_set_id,
+    rate.min_price_set_id!,
     { relations: ['prices'] }
   )
 
   const maxPriceSet = await priceService.retrievePriceSet(
-    rate.max_price_set_id,
+    rate.max_price_set_id!,
     { relations: ['prices'] }
   )
 

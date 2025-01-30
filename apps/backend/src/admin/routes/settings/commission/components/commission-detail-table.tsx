@@ -1,10 +1,17 @@
 import { Table, StatusBadge } from "@medusajs/ui";
-import { CommissionRuleDTO } from "../../../../../modules/commission/types";
+import { AdminCommissionAggregate } from "@mercurjs/http-client";
+
+const getFormattedPrice = (amount: string | null | undefined, currency: string | null | undefined) => {
+  if(!amount || !currency) {
+    return '-'
+  }
+  return `${amount} ${currency}`
+}
 
 export const CommissionDetailTable = ({
   commissionRule,
 }: {
-  commissionRule: CommissionRuleDTO;
+  commissionRule?: AdminCommissionAggregate;
 }) => {
   return (
     <>
@@ -12,23 +19,23 @@ export const CommissionDetailTable = ({
         <Table.Body>
           <Table.Row>
             <Table.Cell>Default commission</Table.Cell>
-            <Table.Cell>{commissionRule.rate.percentage_rate}%</Table.Cell>
+            <Table.Cell>{commissionRule?.fee_value}</Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Minimum commission per order</Table.Cell>
-            <Table.Cell>{commissionRule.rate.min_price_set_id}</Table.Cell>
+            <Table.Cell>{getFormattedPrice(commissionRule?.min_price_amount, commissionRule?.min_price_currency)}</Table.Cell>
           </Table.Row>
           <Table.Row>
-            <Table.Cell>Minimum commission per order</Table.Cell>
-            <Table.Cell>{commissionRule.rate.max_price_set_id}</Table.Cell>
+            <Table.Cell>Maximum commission per order</Table.Cell>
+            <Table.Cell>{getFormattedPrice(commissionRule?.max_price_amount, commissionRule?.max_price_currency)}</Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Commission charged including tax</Table.Cell>
             <Table.Cell>
               <StatusBadge
-                color={commissionRule.rate.include_tax ? "green" : "grey"}
+                color={commissionRule?.include_tax ? "green" : "grey"}
               >
-                {commissionRule.rate.include_tax ? "True" : "False"}
+                {commissionRule?.include_tax ? "True" : "False"}
               </StatusBadge>
             </Table.Cell>
           </Table.Row>

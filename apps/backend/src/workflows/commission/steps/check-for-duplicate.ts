@@ -15,13 +15,14 @@ export const checkForDuplicateStep = createStep(
     const service =
       container.resolve<CommissionModuleService>(COMMISSION_MODULE)
 
-    const commissionRate: CommissionRuleDTO[] =
+    const commissionRule: CommissionRuleDTO[] =
       await service.listCommissionRules({
         reference: input.reference,
-        reference_id: input.reference_id
+        reference_id: input.reference_id,
+        deleted_at: null
       })
 
-    if (commissionRate.length > 0) {
+    if (commissionRule.length > 0) {
       throw new MedusaError(MedusaError.Types.CONFLICT, 'Rule already exists!')
     }
 

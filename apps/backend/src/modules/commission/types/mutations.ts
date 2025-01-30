@@ -1,18 +1,26 @@
-import {
-  CommissionLineDTO,
-  CommissionRateDTO,
-  CommissionRuleDTO
-} from './common'
+import { CommissionLineDTO } from './common'
 
-export type CreateCommissionRateDTO = Omit<
-  CommissionRateDTO,
-  'id' | 'created_at' | 'updated_at'
->
+export type Price = {
+  amount: number
+  currency_code: string
+}
 
-export type CreateCommissionRuleDTO = Omit<
-  CommissionRuleDTO,
-  'id' | 'created_at' | 'updated_at'
->
+export type CreateCommissionRateDTO = {
+  type: string
+  percentage_rate?: number
+  include_tax: boolean
+  price_set?: Price
+  min_price_set?: Price
+  max_price_set?: Price
+}
+
+export type CreateCommissionRuleDTO = {
+  name: string
+  reference: string
+  reference_id: string
+  is_active: boolean
+  rate: CreateCommissionRateDTO
+}
 
 export type CreateCommissionLineDTO = Omit<
   CommissionLineDTO,

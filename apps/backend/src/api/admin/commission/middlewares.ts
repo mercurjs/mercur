@@ -1,105 +1,53 @@
 import {
   validateAndTransformBody,
-  validateAndTransformQuery
-} from '@medusajs/framework'
-import { MiddlewareRoute } from '@medusajs/medusa'
+  validateAndTransformQuery,
+} from "@medusajs/framework";
+import { MiddlewareRoute } from "@medusajs/medusa";
 
+import { adminCommissionRuleQueryConfig } from "./query-config";
 import {
-  adminCommissionRateQueryConfig,
-  adminCommissionRuleQueryConfig
-} from './query-config'
-import {
-  AdminCommissionRateParams,
   AdminCommissionRuleParams,
-  AdminCreateCommissionRate,
+  AdminUpsertDefaultCommissionRule,
+  AdminUpdateCommissionRule,
   AdminCreateCommissionRule,
-  AdminUpdateCommissionRate,
-  AdminUpdateCommissionRule
-} from './validators'
+} from "./validators";
 
 export const commissionMiddlewares: MiddlewareRoute[] = [
   {
-    method: ['GET'],
-    matcher: '/admin/commission/rules',
+    method: ["GET"],
+    matcher: "/admin/commission/rules",
     middlewares: [
       validateAndTransformQuery(
         AdminCommissionRuleParams,
-        adminCommissionRuleQueryConfig.list
-      )
-    ]
+        adminCommissionRuleQueryConfig.list,
+      ),
+    ],
   },
   {
-    method: ['POST'],
-    matcher: '/admin/commission/rules',
+    method: ["POST"],
+    matcher: "/admin/commission/rules",
     middlewares: [
       validateAndTransformQuery(
         AdminCommissionRuleParams,
-        adminCommissionRuleQueryConfig.retrieve
+        adminCommissionRuleQueryConfig.retrieve,
       ),
-      validateAndTransformBody(AdminCreateCommissionRule)
-    ]
+      validateAndTransformBody(AdminCreateCommissionRule),
+    ],
   },
   {
-    method: ['GET'],
-    matcher: '/admin/commission/rules/:id',
+    method: ["POST"],
+    matcher: "/admin/commission/rules/:id",
     middlewares: [
       validateAndTransformQuery(
         AdminCommissionRuleParams,
-        adminCommissionRuleQueryConfig.retrieve
-      )
-    ]
-  },
-  {
-    method: ['POST'],
-    matcher: '/admin/commission/rules/:id',
-    middlewares: [
-      validateAndTransformQuery(
-        AdminCommissionRuleParams,
-        adminCommissionRuleQueryConfig.retrieve
+        adminCommissionRuleQueryConfig.retrieve,
       ),
-      validateAndTransformBody(AdminUpdateCommissionRule)
-    ]
+      validateAndTransformBody(AdminUpdateCommissionRule),
+    ],
   },
   {
-    method: ['GET'],
-    matcher: '/admin/commission/rates',
-    middlewares: [
-      validateAndTransformQuery(
-        AdminCommissionRateParams,
-        adminCommissionRateQueryConfig.list
-      )
-    ]
+    method: ["POST"],
+    matcher: "/admin/commission/default",
+    middlewares: [validateAndTransformBody(AdminUpsertDefaultCommissionRule)],
   },
-  {
-    method: ['POST'],
-    matcher: '/admin/commission/rates',
-    middlewares: [
-      validateAndTransformQuery(
-        AdminCommissionRateParams,
-        adminCommissionRateQueryConfig.retrieve
-      ),
-      validateAndTransformBody(AdminCreateCommissionRate)
-    ]
-  },
-  {
-    method: ['GET'],
-    matcher: '/admin/commission/rates/:id',
-    middlewares: [
-      validateAndTransformQuery(
-        AdminCommissionRateParams,
-        adminCommissionRateQueryConfig.retrieve
-      )
-    ]
-  },
-  {
-    method: ['POST'],
-    matcher: '/admin/commission/rates/:id',
-    middlewares: [
-      validateAndTransformQuery(
-        AdminCommissionRateParams,
-        adminCommissionRateQueryConfig.retrieve
-      ),
-      validateAndTransformBody(AdminUpdateCommissionRate)
-    ]
-  }
-]
+];
