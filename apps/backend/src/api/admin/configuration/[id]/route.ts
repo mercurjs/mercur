@@ -1,22 +1,16 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 
-import { CONFIGURATION_MODULE } from '../../../../modules/configuration'
-import ConfigurationModuleService from '../../../../modules/configuration/service'
+import { updateConfigurationRuleWorkflow } from '../../../../workflows/configuration/workflows'
 import { AdminUpdateRuleType } from '../validators'
 
 export const POST = async (
   req: MedusaRequest<AdminUpdateRuleType>,
   res: MedusaResponse
 ) => {
-  const service =
-    req.scope.resolve<ConfigurationModuleService>(CONFIGURATION_MODULE)
-
-  const configuration_rule = await service.updateConfigurationRules([
-    {
-      id: req.params.id,
-      ...req.validatedBody
-    }
-  ])
+  const configuration_rule = await updateConfigurationRuleWorkflow.run({
+    container: req.scope,
+    input: { ...req.validatedBody, id: req.params.id }
+  })
 
   res.json({ configuration_rule })
 }

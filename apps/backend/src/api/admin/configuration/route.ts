@@ -1,8 +1,7 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { CONFIGURATION_MODULE } from '../../../modules/configuration'
-import ConfigurationModuleService from '../../../modules/configuration/service'
+import { createConfigurationRuleWorkflow } from '../../../workflows/configuration/workflows'
 import { AdminCreateRuleType } from './validators'
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
@@ -26,12 +25,11 @@ export const POST = async (
   req: MedusaRequest<AdminCreateRuleType>,
   res: MedusaResponse
 ) => {
-  const service =
-    req.scope.resolve<ConfigurationModuleService>(CONFIGURATION_MODULE)
-
-  const configuration_rule = await service.createConfigurationRules([
-    req.validatedBody
-  ])
+  const { result: configuration_rule } =
+    await createConfigurationRuleWorkflow.run({
+      container: req.scope,
+      input: req.validatedBody
+    })
 
   res.status(201).json({ configuration_rule })
 }
