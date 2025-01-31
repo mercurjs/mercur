@@ -1,17 +1,14 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import {
-  ContainerRegistrationKeys,
-  MedusaError
-} from '@medusajs/framework/utils'
+import { MedusaError } from '@medusajs/framework/utils'
 
-import { createSellerWorkflow } from '../../../workflows/seller/workflows'
+import { createSellerCreationRequestWorkflow } from '../../../workflows/requests/workflows'
 import { VendorCreateSellerType } from './validators'
 
 /**
  * @oas [post] /vendor/sellers
  * operationId: "VendorCreateSeller"
  * summary: "Create a Seller"
- * description: "Creates a new seller with an initial owner member."
+ * description: "Creates a request to create a new seller with an initial owner member."
  * x-authenticated: true
  * requestBody:
  *   content:
@@ -26,8 +23,8 @@ import { VendorCreateSellerType } from './validators'
  *         schema:
  *           type: object
  *           properties:
- *             seller:
- *               $ref: "#/components/schemas/VendorSeller"
+ *             request:
+ *               $ref: "#/components/schemas/VendorRequest"
  * tags:
  *   - Seller
  * security:
@@ -38,8 +35,6 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateSellerType>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
   if (req.auth_context?.actor_id) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
@@ -49,24 +44,16 @@ export const POST = async (
 
   const { member, ...sellerData } = req.validatedBody
 
-  const { result: created } = await createSellerWorkflow(req.scope).run({
+  const { result: request } = await createSellerCreationRequestWorkflow.run({
     input: {
-      seller: sellerData,
-      member,
-      auth_identity_id: req.auth_context?.auth_identity_id
-    }
+      data: {
+        seller: sellerData,
+        member,
+        auth_identity_id: req.auth_context?.auth_identity_id
+      }
+    },
+    container: req.scope
   })
 
-  const {
-    data: [seller]
-  } = await query.graph(
-    {
-      entity: 'seller',
-      fields: req.remoteQueryConfig.fields,
-      filters: { id: created.id }
-    },
-    { throwIfKeyNotFound: true }
-  )
-
-  res.status(201).json({ seller })
+  res.status(201).json({ request })
 }
