@@ -22,6 +22,12 @@ module.exports = defineConfig({
     { resolve: './src/modules/order-return-request' },
     { resolve: './src/modules/requests' },
     {
+      resolve: './src/modules/taxcode',
+      options: {
+        apiKey: process.env.STRIPE_SECRET_API_KEY
+      }
+    },
+    {
       resolve: './src/modules/payout',
       options: {
         apiKey: process.env.STRIPE_SECRET_API_KEY,
