@@ -1,5 +1,8 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import {
+  ContainerRegistrationKeys,
+  MedusaError
+} from '@medusajs/framework/utils'
 
 import {
   listCommissionRulesWorkflow,
@@ -112,6 +115,10 @@ export async function GET(
       reference: 'site'
     }
   })
+
+  if (!default_rule) {
+    throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Rule not found!')
+  }
 
   const {
     result: {

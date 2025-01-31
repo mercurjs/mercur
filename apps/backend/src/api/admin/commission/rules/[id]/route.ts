@@ -1,5 +1,8 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import {
+  ContainerRegistrationKeys,
+  MedusaError
+} from '@medusajs/framework/utils'
 
 import {
   deleteCommissionRuleWorkflow,
@@ -163,6 +166,10 @@ export async function GET(
       ids: [req.params.id]
     }
   })
+
+  if (!commission_rule) {
+    throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Rule not found!')
+  }
 
   res.json({
     commission_rule
