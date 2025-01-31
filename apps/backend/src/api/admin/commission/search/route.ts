@@ -2,6 +2,7 @@ import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 
 import { COMMISSION_MODULE } from '../../../../modules/commission'
 import CommissionModuleService from '../../../../modules/commission/service'
+import { listCommissionRulesWorkflow } from '../../../../workflows/commission/workflows'
 
 export async function GET(
   req: MedusaRequest,
@@ -9,11 +10,25 @@ export async function GET(
 ): Promise<void> {
   const service = req.scope.resolve<CommissionModuleService>(COMMISSION_MODULE)
 
-  const comission_rules = await service.listCommissionRules({
-    q: req.query.q
+  const ids = await service.listCommissionRules(
+    {
+      q: req.query.q
+    },
+    { select: ['id'] }
+  )
+
+  const { result } = await listCommissionRulesWorkflow.run({
+    container: req.scope,
+    input: {
+      ids: ids.map((v) => v.id),
+      pagination: req.remoteQueryConfig.pagination
+    }
   })
 
   res.json({
-    comission_rules
+    commission_rules: result.commission_rules,
+    count: result.count,
+    offset: req.remoteQueryConfig.pagination.skip,
+    limit: req.remoteQueryConfig.pagination.take
   })
 }
