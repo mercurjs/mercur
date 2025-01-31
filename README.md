@@ -54,14 +54,20 @@ yarn install
 # Go to backend folder
 cd apps/backend
 
+In the .env.template file, for the DATABSE_URL variable, replace the values enclosed by '[]' for the actual values
+Example from DATABASE_URL=postgres://[user]:[password]@localhost:5432/$DB_NAME to DATABASE_URL=postgres://postgres:supersecret@localhost:5432/$DB_NAME
+
 # Clone .env.template
 cp .env.template .env
 
-# Setup database and run migrations
+# Setup database and run migrations. Enter your desired DB name when asked in the console
 yarn medusa db:create && yarn medusa db:migrate && yarn run seed
 
-# Generate OpenAPI client
-yarn codegen
+# Go to http-client folder
+cd ../../packages/http-client
+
+# Build http-client
+yarn build
 
 # Go to root folder
 cd ../..
