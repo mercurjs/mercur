@@ -56,7 +56,7 @@ export const POST = async (
     data: [review]
   } = await query.graph({
     entity: 'review',
-    fields: req.queryConfig.fields,
+    fields: req.remoteQueryConfig.fields,
     filters: {
       id: result.id
     }
@@ -71,6 +71,25 @@ export const POST = async (
  * summary: "Get reviews of the current user"
  * description: "Retrieves the reviews created by the authenticated user."
  * x-authenticated: true
+ * parameters:
+ *   - name: offset
+ *     in: query
+ *     schema:
+ *       type: number
+ *     required: false
+ *     description: The number of items to skip before starting to collect the result set.
+ *   - name: limit
+ *     in: query
+ *     schema:
+ *       type: number
+ *     required: false
+ *     description: The number of items to return.
+ *   - name: fields
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Comma-separated fields to include in the response.
  * responses:
  *   "200":
  *     description: OK
@@ -106,11 +125,11 @@ export const GET = async (
 
   const { data: reviews, metadata } = await query.graph({
     entity: 'review',
-    fields: req.queryConfig.fields,
+    fields: req.remoteQueryConfig.fields,
     filters: {
       customer_id: req.auth_context.actor_id
     },
-    pagination: req.queryConfig.pagination
+    pagination: req.remoteQueryConfig.pagination
   })
 
   res.json({

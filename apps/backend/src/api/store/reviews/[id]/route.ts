@@ -63,7 +63,7 @@ export const POST = async (
     data: [review]
   } = await query.graph({
     entity: 'review',
-    fields: req.queryConfig.fields,
+    fields: req.remoteQueryConfig.fields,
     filters: {
       id
     }
@@ -129,7 +129,7 @@ export const DELETE = async (
 
 /**
  * @oas [get] /store/reviews/{id}
- * operationId: "StoreUGetReviewById"
+ * operationId: "StoreGetReviewById"
  * summary: "Get Review"
  * description: "Retrieves a review of specified id"
  * x-authenticated: true
@@ -173,9 +173,10 @@ export const GET = async (
     data: [review]
   } = await query.graph({
     entity: 'review',
-    fields: req.queryConfig.fields,
+    fields: req.remoteQueryConfig.fields,
     filters: {
-      id
+      id,
+      customer_id: req.auth_context.actor_id
     }
   })
 
