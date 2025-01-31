@@ -175,8 +175,7 @@ export const GET = async (
     entity: 'review',
     fields: req.remoteQueryConfig.fields,
     filters: {
-      id,
-      customer_id: req.auth_context.actor_id
+      id
     }
   })
 
