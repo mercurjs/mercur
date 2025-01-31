@@ -12,7 +12,7 @@ export default class TaxCodeService extends MedusaService({ TaxCode }) {
   private readonly stripe_: Stripe
 
   constructor(_, { apiKey }: ModuleOptions) {
-    super()
+    super(_)
     this.stripe_ = new Stripe(apiKey)
   }
 
