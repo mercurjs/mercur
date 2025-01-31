@@ -1,16 +1,41 @@
+import { NextFunction } from 'express'
+
 import {
+  MedusaRequest,
   MiddlewareRoute,
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
 
 import sellerRequest from '../../../links/seller-request'
+import { ConfigurationRuleType } from '../../../modules/configuration/types'
 import {
+  checkConfigurationRule,
   checkResourceOwnershipByResourceId,
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import { vendorRequestsConfig } from './query-config'
-import { VendorCreateRequest, VendorGetRequestsParams } from './validators'
+import {
+  VendorCreateRequest,
+  VendorCreateRequestType,
+  VendorGetRequestsParams
+} from './validators'
+
+const canVendorRequestProduct = () => {
+  return (
+    req: MedusaRequest<VendorCreateRequestType>,
+    _,
+    next: NextFunction
+  ) => {
+    if (req.validatedBody.request.type === 'product') {
+      return checkConfigurationRule(
+        ConfigurationRuleType.PRODUCT_REQUEST_ENABLED,
+        true
+      )
+    }
+    return next()
+  }
+}
 
 export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
   {
@@ -45,7 +70,8 @@ export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetRequestsParams,
         vendorRequestsConfig.retrieve
-      )
+      ),
+      canVendorRequestProduct()
     ]
   }
 ]

@@ -1,6 +1,7 @@
 import { createRemoteLinkStep } from '@medusajs/medusa/core-flows'
 import {
   WorkflowResponse,
+  createHook,
   createWorkflow,
   transform
 } from '@medusajs/workflows-sdk'
@@ -30,6 +31,12 @@ export const createRequestWorkflow = createWorkflow(
 
     createRemoteLinkStep(link)
 
-    return new WorkflowResponse(request)
+    const requestCreatedHook = createHook('requestCreated', {
+      requestId: request.id,
+      sellerId: input.seller_id
+    })
+    return new WorkflowResponse(request, {
+      hooks: [requestCreatedHook]
+    })
   }
 )
