@@ -19,6 +19,7 @@ module.exports = defineConfig({
     { resolve: './src/modules/seller' },
     { resolve: './src/modules/marketplace' },
     { resolve: './src/modules/configuration' },
+    { resolve: './src/modules/requests' },
     {
       resolve: './src/modules/payout',
       options: {

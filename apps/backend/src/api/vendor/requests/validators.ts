@@ -1,0 +1,118 @@
+import { z } from 'zod'
+
+import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+
+import { VendorCreateProduct } from '../products/validators'
+
+export type VendorGetRequestsParamsType = z.infer<
+  typeof VendorGetRequestsParams
+>
+export const VendorGetRequestsParams = createFindParams({
+  offset: 0,
+  limit: 50
+}).extend({
+  type: z
+    .enum(['product_collection', 'product_category', 'product'])
+    .optional(),
+  status: z.enum(['accepted', 'rejected', 'pending']).optional()
+})
+
+/**
+ * @schema ProductCategoryRequest
+ * type: object
+ * required:
+ *   - type
+ *   - data
+ * properties:
+ *   type:
+ *     type: string
+ *     description: The type of the request
+ *     enum: [product_category]
+ *   data:
+ *     type: object
+ *     properties:
+ *       name:
+ *         type: string
+ *         description: The name of the product category
+ *       description:
+ *         type: string
+ *         description: The description of the product category
+ *       parent_category_id:
+ *         type: string
+ *         description: The id of the parent category
+ */
+const ProductCategoryRequest = z.object({
+  type: z.literal('product_category'),
+  data: z.object({
+    name: z.string(),
+    description: z.string().optional(),
+    parent_category_id: z.string().nullable()
+  })
+})
+
+/**
+ * @schema ProductCollectionRequest
+ * type: object
+ * required:
+ *   - type
+ *   - data
+ * properties:
+ *   type:
+ *     type: string
+ *     description: The type of the request
+ *     enum: [product_collection]
+ *   data:
+ *     type: object
+ *     properties:
+ *       title:
+ *         type: string
+ *         description: The title of the product collection
+ */
+const ProductCollectionRequest = z.object({
+  type: z.literal('product_collection'),
+  data: z.object({
+    title: z.string()
+  })
+})
+
+/**
+ * @schema ProductRequest
+ * type: object
+ * required:
+ *   - type
+ *   - data
+ * properties:
+ *   type:
+ *     type: string
+ *     description: The type of the request
+ *     enum: [product]
+ *   data:
+ *     $ref: "#/components/schemas/VendorCreateProduct"
+ */
+const ProductRequest = z.object({
+  type: z.literal('product'),
+  data: VendorCreateProduct
+})
+
+/**
+ * @schema VendorCreateRequest
+ * type: object
+ * required:
+ *   - request
+ * properties:
+ *   request:
+ *     type: object
+ *     description: The resource to be created by request
+ *     oneOf:
+ *       - $ref: "#/components/schemas/ProductRequest"
+ *       - $ref: "#/components/schemas/ProductCollectionRequest"
+ *       - $ref: "#/components/schemas/ProductCategoryRequest"
+ */
+export type VendorCreateRequestType = z.infer<typeof VendorCreateRequest>
+export const VendorCreateRequest = z.object({
+  request: z.discriminatedUnion('type', [
+    ProductCategoryRequest,
+    ProductCollectionRequest,
+    ProductRequest
+  ])
+})
