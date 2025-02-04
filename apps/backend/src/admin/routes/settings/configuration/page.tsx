@@ -38,9 +38,9 @@ const ConfigurationRulesPage = () => {
     <Container>
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading>Configuration rules</Heading>
+          <Heading>Product catalog settings</Heading>
           <Text className="text-ui-fg-subtle" size="small">
-            Manage global configuration settings
+            Manage global product catalog configuration settings
           </Text>
         </div>
         <Drawer
@@ -116,7 +116,7 @@ const ConfigurationRulesPage = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "Configuration rules",
+  label: "Product catalog settings",
 });
 
 export default ConfigurationRulesPage;
