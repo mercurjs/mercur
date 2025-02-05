@@ -60,11 +60,14 @@ cp .env.template .env
 # Setup database and run migrations
 yarn medusa db:create && yarn medusa db:migrate && yarn run seed
 
-# Generate OpenAPI client
-yarn codegen
-
 # Go to root folder
 cd ../..
+
+# Generate OpenAPI client
+yarn generate:oas
+
+# Generate OpenAPI client
+yarn codegen
 
 # Start Mercur
 yarn dev
