@@ -39,3 +39,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# Ignore any file that contains .local.
+**/*.local.*
