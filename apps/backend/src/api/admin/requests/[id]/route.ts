@@ -58,7 +58,7 @@ export async function POST(
     )
   }
 
-  const seller_id = req.validatedBody.assign_product_to_seller
+  const seller_id = request.type === 'product' && req.validatedBody.assign_product_to_seller
     ? (await fetchSellerByAuthActorId(request.submitter_id, req.scope)).id
     : undefined
 
