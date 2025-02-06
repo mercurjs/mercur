@@ -50,7 +50,9 @@ export const POST = async (
         seller: sellerData,
         member,
         auth_identity_id: req.auth_context?.auth_identity_id
-      }
+      },
+      type: 'seller',
+      submitter_id: 'unknown',
     },
     container: req.scope
   })
