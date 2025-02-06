@@ -1,4 +1,5 @@
 import EasyPost, { CarrierAccount } from '@easypost/api/types'
+import { log } from 'console'
 
 import {
   CreateShippingOptionDTO,
@@ -39,10 +40,26 @@ class EasyPostProviderService extends AbstractFulfillmentProviderService {
   }
   private async getShippingRates(id: string) {
     return this.client_.Shipment.retrieve(id)
+    // TODO can be removerd for as we get rates together with get shipment or after creation - to be optimised
+  }
+  private async getShipment(id: string) {
+    return this.client_.Shipment.retrieve(id)
   }
 
-  private async createShippment(payload: CreateShipment) {
+  private async createShipment(payload: CreateShipment) {
     return this.client_.Shipment.create(payload)
+  }
+
+  private async purchaseLabelForShipment(shipment_id: string, rate_id: string) {
+    const shipment = await this.client_.Shipment.buy(shipment_id, rate_id)
+    console.log('purchaseLabelForShipment: shipment:', shipment)
+    return shipment
+  }
+
+  private async cancelShipment(id: string) {
+    const batch = await this.client_.Batch.removeShipments('batch_...', [id])
+
+    console.log(batch)
   }
 
   async getFulfillmentOptions(): Promise<FulfillmentOption[]> {
@@ -61,6 +78,7 @@ class EasyPostProviderService extends AbstractFulfillmentProviderService {
   }
 
   async calculatePrice(optionData: any, data: any, cart: any): Promise<number> {
+    console.log('calculatePricedata:', data)
     // assuming the client can calculate the price using
     // the third-party service
 
@@ -77,13 +95,47 @@ class EasyPostProviderService extends AbstractFulfillmentProviderService {
     data: any,
     context: any
   ): Promise<any> {
+    let { shipment_id } = data as {
+      shipment_id?: string
+    }
+    console.log('validateFulfillmentData data:', data)
+
+    // TODO check is there any shipment ? and if not create one ?
     // assuming your client retrieves an ID from the
     // third-party service
     // const externalId = await this.client.getId()
     // TODO got through documentation
     return {
       ...data,
-      externalId
+      my_attitional_field: 'some_value'
+    }
+  }
+
+  async createFulfillment(
+    data: object,
+    items: object[],
+    order: object | undefined,
+    fulfillment: Record<string, unknown>
+  ): Promise<any> {
+    const { shipment_id } = data as {
+      shipment_id: string
+    }
+
+    const originalShipment = 'sa_assasdasdasd' // can be taken from: getShipment or just check it can
+
+    const orderItemsToFulfill = [] // can be get from order property private - createShipment
+    // in doc thwere is iteration through order with comparition to item.line_item.id ? // TODO to be checked
+
+    const newShipment = 'to che checked' // how many times will be created new shipment any why ?
+
+    const label = 'buy label from third party service' // can be taken from private purchaseLabelForShipment
+
+    return {
+      data: {
+        ...((fulfillment.data as object) || {}),
+        label_id: label,
+        shipment_id: newShipment
+      }
     }
   }
 }

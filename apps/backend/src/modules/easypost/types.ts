@@ -8,7 +8,7 @@ import {
 export type CreateShipment = {
   from_address: IAddress
   to_address: IAddress
-  parce: IParcel
+  parcel: IParcel
   reference?: string
   custom_info?: ICustomsInfo
   carrier_accounts?: ICarrierAccount[]
