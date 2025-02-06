@@ -47,6 +47,25 @@ module.exports = defineConfig({
           }
         ]
       }
+    },
+    {
+      resolve: '@medusajs/medusa/fulfillment',
+      options: {
+        providers: [
+          // default provider
+          {
+            resolve: '@medusajs/medusa/fulfillment-manual',
+            id: 'manual'
+          },
+          {
+            resolve: './src/modules/easypost',
+            id: 'easypost',
+            options: {
+              api_key: process.env.EASYPOST_API_KEY || 'supersecret'
+            }
+          }
+        ]
+      }
     }
   ]
 })

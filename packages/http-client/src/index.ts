@@ -128,6 +128,107 @@ export interface AdminApplicationMethod {
   apply_to_quantity?: number;
 }
 
+/** The details of an inventory level to create. */
+export interface AdminBatchCreateInventoryItemsLocationLevels {
+  /**
+   * location_id
+   * The ID of the associated stock location.
+   */
+  location_id: string;
+  /**
+   * inventory_item_id
+   * The ID of the associated inventory item.
+   */
+  inventory_item_id: string;
+  /**
+   * stocked_quantity
+   * The stocked quantity.
+   */
+  stocked_quantity?: number;
+  /**
+   * incoming_quantity
+   * The incoming quantity to be added to stock.
+   */
+  incoming_quantity?: number;
+}
+
+/** The inventory levels to create, update, or delete. */
+export interface AdminBatchInventoryItemLocationsLevel {
+  /** The inventory levels to create. */
+  create?: {
+    /**
+     * location_id
+     * The ID of the associated location.
+     */
+    location_id: string;
+    /**
+     * stocked_quantity
+     * The inventory level's stocked quantity.
+     */
+    stocked_quantity?: number;
+    /**
+     * incoming_quantity
+     * The inventory level's incoming quantity.
+     */
+    incoming_quantity?: number;
+  }[];
+  /** The inventory levels to update. */
+  update?: {
+    /**
+     * stocked_quantity
+     * The inventory level's stocked quantity.
+     */
+    stocked_quantity?: number;
+    /**
+     * incoming_quantity
+     * The inventory level's incoming quantity.
+     */
+    incoming_quantity?: number;
+    /**
+     * location_id
+     * The associated stock location's ID.
+     */
+    location_id: string;
+    /**
+     * id
+     * The ID of the location level.
+     */
+    id?: string;
+  }[];
+  /** The inventory levels to delete. */
+  delete?: string[];
+  /**
+   * force
+   * Whether to delete specified inventory levels even if they have a non-zero stocked quantity.
+   */
+  force?: boolean;
+}
+
+/** The inventory levels to manage. */
+export interface AdminBatchInventoryItemsLocationLevels {
+  /** The inventory levels to create. */
+  create: AdminBatchCreateInventoryItemsLocationLevels[];
+  /** The inventory levels to update. */
+  update: AdminBatchUpdateInventoryItemsLocationLevels[];
+  /** The IDs of the inventory levels to delete. */
+  delete: string[];
+  /**
+   * force
+   * Whether to delete specified inventory levels even if they have a non-zero stocked quantity.
+   */
+  force?: boolean;
+}
+
+/** The result of managing inventory levels. */
+export interface AdminBatchInventoryItemsLocationLevelsResponse {
+  /** The created inventory levels. */
+  created?: InventoryLevel[];
+  /** The updated inventory levels. */
+  updated?: InventoryLevel[];
+  /** The IDs of deleted inventory levels. */
+  deleted?: string[];
+}
+
 /** The products to create, update, or delete. */
 export interface AdminBatchProductRequest {
   /** The products to create. */
@@ -194,6 +295,35 @@ export interface AdminBatchProductVariantResponse {
      */
     deleted: boolean;
   };
+}
+
+/** The details of an inventory level to update. */
+export interface AdminBatchUpdateInventoryItemsLocationLevels {
+  /**
+   * location_id
+   * The ID of the associated stock location.
+   */
+  location_id: string;
+  /**
+   * inventory_item_id
+   * The ID of the associated inventory item.
+   */
+  inventory_item_id: string;
+  /**
+   * stocked_quantity
+   * The stocked quantity.
+   */
+  stocked_quantity?: number;
+  /**
+   * incoming_quantity
+   * The incoming quantity to be added to stock.
+   */
+  incoming_quantity?: number;
+  /**
+   * id
+   * The update's ID.
+   */
+  id?: string;
 }
 
 /** The product's details. */
@@ -3244,7 +3374,7 @@ export interface AdminImportProductResponse {
   };
 }
 
-/** The reservation's inventory item. */
+/** The inventory item's details. */
 export interface AdminInventoryItem {
   /**
    * id
@@ -3263,17 +3393,17 @@ export interface AdminInventoryItem {
   origin_country?: string;
   /**
    * hs_code
-   * The inventory item's hs code.
+   * The inventory item's HS code.
    */
   hs_code?: string;
   /**
    * requires_shipping
-   * The inventory item's requires shipping.
+   * Whether the inventory item requires shipping.
    */
   requires_shipping: boolean;
   /**
    * mid_code
-   * The inventory item's mid code.
+   * The inventory item's MID code.
    */
   mid_code?: string;
   /**
@@ -3313,10 +3443,10 @@ export interface AdminInventoryItem {
   description?: string;
   /**
    * thumbnail
-   * The inventory item's thumbnail.
+   * The thumbnail URL of the inventory item.
    */
   thumbnail?: string;
-  /** The inventory item's metadata. */
+  /** Custom key-value pairs, used to store additional information about the inventory item. */
   metadata?: object;
   /** The inventory item's location levels. */
   location_levels?: AdminInventoryLevel[];
@@ -3324,7 +3454,7 @@ export interface AdminInventoryItem {
 
 /** The inventory item's details. */
 export interface AdminInventoryItemResponse {
-  /** The reservation's inventory item. */
+  /** The inventory item's details. */
   inventory_item: AdminInventoryItem;
 }
 
@@ -5013,26 +5143,6 @@ export interface AdminPayment {
    * The ID of the payment provider used to process this payment.
    */
   provider_id: string;
-  /**
-   * cart_id
-   * The ID of the associated cart.
-   */
-  cart_id?: string;
-  /**
-   * order_id
-   * The ID of the associated order.
-   */
-  order_id?: string;
-  /**
-   * order_edit_id
-   * The ID of the associated order edit.
-   */
-  order_edit_id?: string;
-  /**
-   * customer_id
-   * ID of the associated customer.
-   */
-  customer_id?: string;
   /** The payment's data, useful for processing by the payment provider. */
   data?: object;
   /**
@@ -5090,11 +5200,6 @@ export interface AdminPaymentCollection {
    * The payment collection's currency code.
    */
   currency_code: string;
-  /**
-   * region_id
-   * The ID of the region this payment collection is associated with.
-   */
-  region_id: string;
   /**
    * amount
    * The total amount to be paid.
@@ -6987,6 +7092,8 @@ export interface AdminProductVariant {
   deleted_at: string;
   /** The variant's metadata, can hold custom key-value pairs. */
   metadata?: object;
+  /** The variant's inventory items. */
+  inventory_items?: AdminProductVariantInventoryItemLink[];
 }
 
 /** The details of the product variant's deletion. */
@@ -7076,6 +7183,28 @@ export interface AdminProductVariantInventoryBatchResponse {
           inventory_item_id: string;
         };
       }[];
+}
+
+/** An association between a product variant and an inventory item. */
+export interface AdminProductVariantInventoryItemLink {
+  /**
+   * id
+   * The ID of the association.
+   */
+  id: string;
+  /**
+   * variant_id
+   * The associated product variant's ID.
+   */
+  variant_id: string;
+  variant?: object;
+  /**
+   * inventory_item_id
+   * The associated inventory item's ID.
+   */
+  inventory_item_id: string;
+  /** The inventory item's details. */
+  inventory?: AdminInventoryItem;
 }
 
 /** The details of an association between a product variant and an inventory item. */
@@ -7172,6 +7301,8 @@ export interface AdminPromotion {
    * @format date-time
    */
   deleted_at: string;
+  /** The promotion's status. */
+  status?: "draft" | "active" | "inactive";
 }
 
 /** The promotion's details. */
@@ -7402,7 +7533,7 @@ export interface AdminReservation {
    * The ID of the inventory item this reservation is associated with.
    */
   inventory_item_id: string;
-  /** The reservation's inventory item. */
+  /** The inventory item's details. */
   inventory_item?: AdminInventoryItem;
   /** The reservation's metadata, can hold custom key-value pairs. */
   metadata?: object;
@@ -8062,12 +8193,8 @@ export interface AdminShippingOptionRule {
    * @example "is_return"
    */
   attribute: string;
-  /**
-   * operator
-   * The shipping option rule's operator.
-   * @example "eq"
-   */
-  operator: string;
+  /** The rule's operator. */
+  operator: "gt" | "lt" | "eq" | "ne" | "in" | "lte" | "gte" | "nin";
   /** value */
   value: string;
   /**
@@ -11755,26 +11882,6 @@ export interface BasePayment {
    * The ID of the payment provider used to process this payment.
    */
   provider_id: string;
-  /**
-   * cart_id
-   * The ID of the associated cart.
-   */
-  cart_id?: string;
-  /**
-   * order_id
-   * The ID of the associated order.
-   */
-  order_id?: string;
-  /**
-   * order_edit_id
-   * The ID of the associated order edit.
-   */
-  order_edit_id?: string;
-  /**
-   * customer_id
-   * ID of the associated customer.
-   */
-  customer_id?: string;
   /** The payment's data, useful for processing by the payment provider. */
   data?: object;
   /**
@@ -11831,11 +11938,6 @@ export interface BasePaymentCollection {
    * The payment collection's currency code.
    */
   currency_code: string;
-  /**
-   * region_id
-   * The ID of the region this payment collection is associated with.
-   */
-  region_id: string;
   /**
    * amount
    * The total amount to be paid.
@@ -21636,11 +21738,6 @@ export interface StorePaymentCollection {
    */
   currency_code: string;
   /**
-   * region_id
-   * The ID of the region this payment collection is associated with.
-   */
-  region_id: string;
-  /**
    * amount
    * The total amount to be paid.
    */
@@ -21805,7 +21902,8 @@ export interface StorePriceRule {
 export interface StoreProduct {
   /** The product's categories. */
   categories?: object[];
-  type?: object;
+  /** The product type's details. */
+  type?: StoreProductType;
   /**
    * length
    * The product's length.
@@ -22180,6 +22278,94 @@ export interface StoreProductTag {
   deleted_at?: string;
   /** The tag's metadata, can hold custom key-value pairs. */
   metadata?: object;
+}
+
+/** The paginated list of product tags. */
+export interface StoreProductTagListResponse {
+  /**
+   * limit
+   * The maximum number of items returned.
+   */
+  limit: number;
+  /**
+   * offset
+   * The number of items to skip before retrieving the returned items.
+   */
+  offset: number;
+  /**
+   * count
+   * The total number of items available.
+   */
+  count: number;
+  /** The list of product tags. */
+  product_tags: StoreProductTag[];
+}
+
+/** The product tag's details. */
+export interface StoreProductTagResponse {
+  /** The tag's details. */
+  product_tag: StoreProductTag;
+}
+
+/** The product type's details. */
+export interface StoreProductType {
+  /**
+   * id
+   * The product type's ID.
+   */
+  id: string;
+  /** The product type's metadata, can hold custom key-value pairs. */
+  metadata?: object;
+  /**
+   * created_at
+   * The date the product type was created.
+   * @format date-time
+   */
+  created_at: string;
+  /**
+   * updated_at
+   * The date the product type was updated.
+   * @format date-time
+   */
+  updated_at: string;
+  /**
+   * deleted_at
+   * The date the product type was deleted.
+   * @format date-time
+   */
+  deleted_at?: string;
+  /**
+   * value
+   * The type's value.
+   */
+  value: string;
+}
+
+/** The paginated list of product types. */
+export interface StoreProductTypeListResponse {
+  /**
+   * limit
+   * The maximum number of items returned.
+   */
+  limit: number;
+  /**
+   * offset
+   * The number of items to skip before retrieving the returned items.
+   */
+  offset: number;
+  /**
+   * count
+   * The total number of items available.
+   */
+  count: number;
+  /** The list of product types. */
+  product_types: StoreProductType[];
+}
+
+/** The product type's details. */
+export interface StoreProductTypeResponse {
+  /** The product type's details. */
+  product_type: StoreProductType;
 }
 
 /** The variant's details. */
@@ -22852,2544 +23038,6 @@ export interface WorkflowExecutionContext {
      */
     handlerType: string;
   }[];
-}
-
-export interface CreateProductOption {
-  /** The title of the product option (e.g. "Size", "Color"). */
-  title: string;
-  /** The values that the product option can take (e.g. ["Small", "Medium", "Large"]). */
-  values: string[];
-}
-
-export interface CreateProductVariant {
-  /** The title of the variant. */
-  title?: string;
-  /** The unique SKU for the variant. */
-  sku?: string;
-  /** The EAN number of the variant. */
-  ean?: string;
-  /** The UPC number of the variant. */
-  upc?: string;
-  /** The barcode of the variant. */
-  barcode?: string;
-  /** The HS code of the variant. */
-  hs_code?: string;
-  /** The MID code of the variant. */
-  mid_code?: string;
-  /**
-   * Whether the variant can be backordered.
-   * @default false
-   */
-  allow_backorder?: boolean;
-  /**
-   * Whether Medusa should keep track of inventory for this variant.
-   * @default true
-   */
-  manage_inventory?: boolean;
-  /** The rank of the variant. */
-  variant_rank?: number;
-  /** The weight of the variant. */
-  weight?: number;
-  /** The length of the variant. */
-  length?: number;
-  /** The height of the variant. */
-  height?: number;
-  /** The width of the variant. */
-  width?: number;
-  /** The country of origin of the variant. */
-  origin_country?: string;
-  /** The material composition of the variant. */
-  material?: string;
-  /** Additional metadata for the variant. */
-  metadata?: object;
-  /** The prices of the variant. */
-  prices?: CreateVariantPrice[];
-  /** The options of the variant. */
-  options?: object;
-  /** The inventory items of the variant. */
-  inventory_items?: {
-    inventory_item_id?: string;
-    required_quantity?: number;
-  }[];
-}
-
-export interface CreateShippingOptionPriceWithCurrency {
-  /** The currency code for the price. */
-  currency_code: string;
-  /** The amount of the price. */
-  amount: number;
-}
-
-export interface CreateShippingOptionTypeObject {
-  /** The label of the shipping option type. */
-  label: string;
-  /** The description of the shipping option type. */
-  description: string;
-  /** The code of the shipping option type. */
-  code: string;
-}
-
-export interface CreateVariantPrice {
-  /** The currency code of the price. */
-  currency_code: string;
-  /** The amount of the price. */
-  amount: number;
-  /** The minimum quantity required to get this price. */
-  min_quantity?: number | null;
-  /** The maximum quantity allowed to get this price. */
-  max_quantity?: number | null;
-  /** Additional rules that apply to the price. */
-  rules?: Record<string, string>;
-}
-
-export interface GeoZoneBase {
-  /** The country code of the geo zone. */
-  country_code: string;
-}
-
-export interface GeoZoneCity {
-  /** The country code of the geo zone. */
-  country_code: string;
-  /** The type of the geo zone. */
-  type: "city";
-  /** The province code of the geo zone. */
-  province_code: string;
-  /** The city name of the geo zone. */
-  city: string;
-}
-
-export interface GeoZoneCountry {
-  /** The country code of the geo zone. */
-  country_code: string;
-  /** The type of the geo zone. */
-  type: "country";
-}
-
-export interface GeoZoneProvince {
-  /** The country code of the geo zone. */
-  country_code: string;
-  /** The type of the geo zone. */
-  type: "province";
-  /** The province code of the geo zone. */
-  province_code: string;
-}
-
-export interface GeoZoneZip {
-  /** The country code of the geo zone. */
-  country_code: string;
-  /** The type of the geo zone. */
-  type: "zip";
-  /** The province code of the geo zone. */
-  province_code: string;
-  /** The city name of the geo zone. */
-  city: string;
-  /** The postal code expression for the geo zone. */
-  postal_expression: object;
-}
-
-export interface UpdateProductOption {
-  /** The ID of the option to update. */
-  id?: string;
-  /** The title of the product option (e.g. "Size", "Color"). */
-  title?: string;
-  /** The values that the product option can take (e.g. ["Small", "Medium", "Large"]). */
-  values?: string[];
-}
-
-export interface UpdateProductVariant {
-  /** The ID of the variant to update. */
-  id?: string;
-  /** The title of the variant. */
-  title?: string;
-  /** The prices of the variant. */
-  prices?: UpdateVariantPrice[];
-  /** The unique SKU for the variant. */
-  sku?: string | null;
-  /** The EAN number of the variant. */
-  ean?: string | null;
-  /** The UPC number of the variant. */
-  upc?: string | null;
-  /** A generic GTIN field for the variant. */
-  barcode?: string | null;
-  /** The Harmonized System code of the variant. */
-  hs_code?: string | null;
-  /** The Manufacturer Identification code of the variant. */
-  mid_code?: string | null;
-  /** Whether the variant can be backordered. */
-  allow_backorder?: boolean;
-  /** Whether Medusa should keep track of the inventory of this variant. */
-  manage_inventory?: boolean;
-  /** The rank of the variant when presented in a list of variants. */
-  variant_rank?: number;
-  /** The weight of the variant. */
-  weight?: number | null;
-  /** The length of the variant. */
-  length?: number | null;
-  /** The height of the variant. */
-  height?: number | null;
-  /** The width of the variant. */
-  width?: number | null;
-  /** The country of origin of the variant. */
-  origin_country?: string | null;
-  /** The material composition of the variant. */
-  material?: string | null;
-  /** An optional set of key-value pairs with additional information. */
-  metadata?: object | null;
-  /** The options of the variant. */
-  options?: Record<string, string>;
-}
-
-export interface UpdateVariantPrice {
-  /** The ID of the price to update. */
-  id?: string;
-  /** The currency code of the price. */
-  currency_code?: string;
-  /** The amount of the price. */
-  amount?: number;
-  /** The minimum quantity required to get this price. */
-  min_quantity?: number | null;
-  /** The maximum quantity allowed to get this price. */
-  max_quantity?: number | null;
-  /** Additional rules that apply to the price. */
-  rules?: Record<string, string>;
-}
-
-export interface UpsertStockLocationAddress {
-  /** Address line 1 */
-  address_1: string;
-  /** Address line 2 */
-  address_2?: string | null;
-  /** Company name */
-  company?: string | null;
-  /** City */
-  city?: string | null;
-  /** Country code */
-  country_code: string;
-  /** Phone number */
-  phone?: string | null;
-  /** Postal code */
-  postal_code?: string | null;
-  /** Province */
-  province?: string | null;
-}
-
-export interface VendorAcceptMemberInvite {
-  /** The invitation token to accept. */
-  token: string;
-  /** The name of the member accepting the invite. */
-  name: string;
-}
-
-export interface VendorCreateFulfillment {
-  /** The number of items to return. Default 50. */
-  requires_shipping?: boolean;
-  /** The number of items to skip before starting the response. Default 0. */
-  location_id?: string;
-  /** Sales channels to associate the product with. */
-  items?: {
-    id?: string;
-    quantity?: number;
-  }[];
-}
-
-/**
- * VendorCreateInventoryLevel
- * The inventory level details.
- */
-export interface VendorCreateInventoryLevel {
-  /**
-   * location_id
-   * The inventory level locationId.
-   */
-  location_id?: string;
-  /**
-   * stocked_quantity
-   * The inventory level in stock.
-   */
-  stocked_quantity?: number;
-}
-
-export interface VendorCreateOnboarding {
-  /** Additional data needed by the payment provider to create onboarding. */
-  context?: object | null;
-}
-
-export interface VendorCreatePayoutAccount {
-  /** Additional data needed by the payment provider to create a payment account. */
-  context?: object | null;
-}
-
-export interface VendorCreateProduct {
-  /** The title of the product. */
-  title: string;
-  /** The subtitle of the product. */
-  subtitle?: string;
-  /** The description of the product. */
-  description?: string;
-  /**
-   * Whether the product is a gift card.
-   * @default false
-   */
-  is_giftcard?: boolean;
-  /**
-   * Whether the product can be discounted.
-   * @default true
-   */
-  discountable?: boolean;
-  /** Images of the product. */
-  images?: {
-    url: string;
-  }[];
-  /** The thumbnail of the product. */
-  thumbnail?: string;
-  /** A unique handle to identify the product. */
-  handle?: string;
-  /**
-   * The status of the product.
-   * @default "draft"
-   */
-  status?: "draft" | "proposed" | "published" | "rejected";
-  /** The external ID of the product. */
-  external_id?: string;
-  /** The ID of the product type. */
-  type_id?: string;
-  /** The ID of the collection the product belongs to. */
-  collection_id?: string;
-  /** Categories the product belongs to. */
-  categories?: {
-    id: string;
-  }[];
-  /** Tags associated with the product. */
-  tags?: {
-    id: string;
-  }[];
-  /** Product options. */
-  options?: CreateProductOption[];
-  /** Product variants. */
-  variants?: CreateProductVariant[];
-  /** The weight of the product. */
-  weight?: number;
-  /** The length of the product. */
-  length?: number;
-  /** The height of the product. */
-  height?: number;
-  /** The width of the product. */
-  width?: number;
-  /** The HS code of the product. */
-  hs_code?: string;
-  /** The MID code of the product. */
-  mid_code?: string;
-  /** The country of origin of the product. */
-  origin_country?: string;
-  /** The material composition of the product. */
-  material?: string;
-  /** Additional metadata for the product. */
-  metadata?: object;
-  /** Sales channels to associate the product with. */
-  sales_channels?: {
-    id: string;
-  }[];
-}
-
-export interface VendorCreateSeller {
-  /**
-   * The name of the seller.
-   * @minLength 1
-   */
-  name: string;
-  /** A description of the seller. */
-  description?: string | null;
-  /** URL to the seller's photo. */
-  photo?: string | null;
-  member: {
-    /** The name of the member. */
-    name: string;
-    /** The member's biography. */
-    bio?: string | null;
-    /** The member's phone number. */
-    phone?: string | null;
-    /** URL to the member's photo. */
-    photo?: string | null;
-  };
-}
-
-export interface VendorCreateServiceZone {
-  /** The name of the service zone. */
-  name: string;
-  /** The geo zones that belong to the service zone. */
-  geo_zones?: (GeoZoneCountry | GeoZoneProvince | GeoZoneCity | GeoZoneZip)[];
-}
-
-export interface VendorCreateShippingOption {
-  /** The name of the shipping option. */
-  name: string;
-  /** The ID of the shipping profile. */
-  shipping_profile_id: string;
-  /** The ID of the fulfillment provider. */
-  provider_id: string;
-  /** The prices of the shipping option. */
-  prices: CreateShippingOptionPriceWithCurrency[];
-  type: CreateShippingOptionTypeObject;
-}
-
-export interface VendorCreateStockLocation {
-  /** Name of the stock location */
-  name: string;
-  address?: UpsertStockLocationAddress;
-  /** ID of an existing address to use */
-  address_id?: string | null;
-  /** Additional metadata */
-  metadata?: object | null;
-}
-
-export interface VendorCreateStockLocationFulfillmentSet {
-  /** Name of the fulfillment set */
-  name: string;
-  /** Type of the fulfillment set */
-  type: string;
-}
-
-/**
- * VendorFulfillmentAddress
- * An address's details.
- */
-export interface VendorFulfillmentAddress {
-  /**
-   * id
-   * The address's ID.
-   */
-  id?: string;
-  /**
-   * company
-   * The address's company.
-   */
-  company?: string;
-  /**
-   * first_name
-   * The address's first name.
-   */
-  first_name?: string;
-  /**
-   * last_name
-   * The address's last name.
-   */
-  last_name?: string;
-  /**
-   * address_1
-   * The address's first line.
-   */
-  address_1?: string;
-  /**
-   * address_2
-   * The address's second line.
-   */
-  address_2?: string;
-  /**
-   * city
-   * The address's city.
-   */
-  city?: string;
-  /**
-   * country_code
-   * The address's country code.
-   */
-  country_code?: string;
-  /**
-   * province
-   * The address's province.
-   */
-  province?: string;
-  /**
-   * postal_code
-   * The address's postal code.
-   */
-  postal_code?: string;
-  /**
-   * phone
-   * The address's phone.
-   */
-  phone?: string;
-  /** The address's metadata, can hold custom key-value pairs. */
-  metadata?: object;
-  /**
-   * created_at
-   * The date the address was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the address was updated.
-   * @format date-time
-   */
-  updated_at?: string;
-  /**
-   * deleted_at
-   * The date the address was deleted.
-   * @format date-time
-   */
-  deleted_at?: string;
-}
-
-/**
- * VendorFulfillmentItem
- * The details of a fulfillment's item.
- */
-export interface VendorFulfillmentItem {
-  /**
-   * id
-   * The item's ID.
-   */
-  id?: string;
-  /**
-   * title
-   * The item's title.
-   */
-  title?: string;
-  /**
-   * quantity
-   * The item's quantity to be fulfilled.
-   */
-  quantity?: number;
-  /**
-   * sku
-   * The item's SKU.
-   */
-  sku?: string;
-  /**
-   * barcode
-   * The item's barcode.
-   */
-  barcode?: string;
-  /**
-   * line_item_id
-   * The ID of the order's line item to be fulfilled.
-   */
-  line_item_id?: string;
-  /**
-   * inventory_item_id
-   * The ID of the inventory item of the underlying product variant.
-   */
-  inventory_item_id?: string;
-  /**
-   * fulfillment_id
-   * The ID of the fulfillment the item belongs to.
-   */
-  fulfillment_id?: string;
-  /**
-   * created_at
-   * The date the item was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the item was updated.
-   * @format date-time
-   */
-  updated_at?: string;
-  /**
-   * deleted_at
-   * The date the item was deleted.
-   * @format date-time
-   */
-  deleted_at?: string;
-}
-
-/**
- * VendorFulfillmentLabel
- * The details of a fulfillmet's shipment label.
- */
-export interface VendorFulfillmentLabel {
-  /**
-   * id
-   * The label's ID.
-   */
-  id?: string;
-  /**
-   * tracking_number
-   * The label's tracking number.
-   */
-  tracking_number?: string;
-  /**
-   * tracking_url
-   * The label's tracking URL.
-   */
-  tracking_url?: string;
-  /**
-   * label_url
-   * The label's URL.
-   */
-  label_url?: string;
-  /**
-   * fulfillment_id
-   * The ID of the fulfillment the label is associated with.
-   */
-  fulfillment_id?: string;
-  /**
-   * created_at
-   * The date the label was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the label was updated.
-   * @format date-time
-   */
-  updated_at?: string;
-  /**
-   * deleted_at
-   * The date the label was deleted.
-   * @format date-time
-   */
-  deleted_at?: string;
-}
-
-/**
- * VendorFulfillmentProvider
- * The fulfillment provider's details.
- */
-export interface VendorFulfillmentProvider {
-  /**
-   * id
-   * The provider's ID.
-   */
-  id?: string;
-  /**
-   * is_enabled
-   * The provider's is enabled.
-   */
-  is_enabled?: boolean;
-}
-
-/** The service zone's fulfillment set. */
-export interface VendorFulfillmentSet {
-  /**
-   * id
-   * The fulfillment set's ID.
-   */
-  id: string;
-  /**
-   * name
-   * The fulfillment set's name.
-   */
-  name: string;
-  /**
-   * type
-   * The fulfillment set's type.
-   */
-  type: string;
-  /** The stock location's details. */
-  location: VendorStockLocation;
-  /** The fulfillment set's service zones. */
-  service_zones: VendorServiceZone[];
-  /**
-   * created_at
-   * The fulfillment set's created at.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * updated_at
-   * The fulfillment set's updated at.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * deleted_at
-   * The fulfillment set's deleted at.
-   * @format date-time
-   */
-  deleted_at: string;
-}
-
-/** The geo zone's geo zones. */
-export interface VendorGeoZone {
-  /**
-   * id
-   * The geo zone's ID.
-   */
-  id: string;
-  /** The geo zone's type. */
-  type: "country" | "province" | "city" | "zip";
-  /**
-   * country_code
-   * The geo zone's country code.
-   */
-  country_code: string;
-  /**
-   * province_code
-   * The geo zone's province code.
-   */
-  province_code: string;
-  /**
-   * city
-   * The geo zone's city.
-   */
-  city: string;
-  /** The geo zone's postal expression. */
-  postal_expression: object;
-  /**
-   * created_at
-   * The geo zone's created at.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * updated_at
-   * The geo zone's updated at.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * deleted_at
-   * The geo zone's deleted at.
-   * @format date-time
-   */
-  deleted_at: string;
-}
-
-export interface VendorInviteMember {
-  /**
-   * The email address of the member to invite.
-   * @format email
-   */
-  email: string;
-  /** The role to assign to the invited member. */
-  role: "owner" | "admin" | "member";
-}
-
-/**
- * Member
- * A member object with its properties
- */
-export interface VendorMember {
-  /** The unique identifier of the member. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /** The role of the member. */
-  role: "owner" | "admin" | "member";
-  /**
-   * The email of the member.
-   * @format email
-   */
-  email: string;
-  /** The name of the member. */
-  name?: string | null;
-  /** The member's biography. */
-  bio?: string | null;
-  /** URL to the member's photo. */
-  photo?: string | null;
-  /** The seller associated with the member. */
-  seller?: VendorSeller | null;
-}
-
-/**
- * Member Invite
- * A member invite object with its properties
- */
-export interface VendorMemberInvite {
-  /** The unique identifier of the member invite. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * The email of the invited member.
-   * @format email
-   */
-  email: string;
-  /** The role assigned to the invited member. */
-  role: "owner" | "admin" | "member";
-  /** The seller associated with the invite. */
-  seller?: VendorSeller | null;
-  /** The unique token used to accept the invite. */
-  token: string;
-  /**
-   * The date with timezone at which the invite expires.
-   * @format date-time
-   */
-  expires_at: string;
-  /** Whether the invite has been accepted. */
-  accepted: boolean;
-}
-
-/**
- * Onboarding
- * An onboarding object with its properties
- */
-export interface VendorOnboarding {
-  /** The unique identifier of the onboarding. */
-  id: string;
-  /** Additional data stored with the onboarding. */
-  data?: object | null;
-  /** Additional context stored with the onboarding. */
-  context?: object | null;
-  /** The payout account this onboarding belongs to. */
-  payout_account?: VendorPayoutAccount;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at?: string;
-}
-
-/**
- * VendorOrderAddress
- * An order address.
- */
-export interface VendorOrderAddress {
-  /**
-   * id
-   * The address's ID.
-   */
-  id?: string;
-  /**
-   * customer_id
-   * The ID of the customer this address belongs to.
-   */
-  customer_id?: string;
-  /**
-   * first_name
-   * The address's first name.
-   */
-  first_name?: string;
-  /**
-   * last_name
-   * The address's last name.
-   */
-  last_name?: string;
-  /**
-   * phone
-   * The address's phone.
-   */
-  phone?: string;
-  /**
-   * company
-   * The address's company.
-   */
-  company?: string;
-  /**
-   * address_1
-   * The address's first line.
-   */
-  address_1?: string;
-  /**
-   * address_2
-   * The address's second line.
-   */
-  address_2?: string;
-  /**
-   * city
-   * The address's city.
-   */
-  city?: string;
-  /**
-   * country_code
-   * The address's country code.
-   * @example "us"
-   */
-  country_code?: string;
-  /** The country's details. */
-  country?: VendorOrderCountryCode;
-  /**
-   * province
-   * The address's province.
-   */
-  province?: string;
-  /**
-   * postal_code
-   * The address's postal code.
-   */
-  postal_code?: string;
-  /** The address's metadata, can hold custom key-value pairs. */
-  metadata?: object;
-  /**
-   * created_at
-   * The date the address was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the address was updated.
-   * @format date-time
-   */
-  updated_at?: string;
-}
-
-/**
- * VendorOrderCountryCode
- * The country's details.
- */
-export interface VendorOrderCountryCode {
-  /**
-   * id
-   * The country's ID.
-   */
-  id?: string;
-  /**
-   * iso_2
-   * The country's iso 2.
-   * @example "us"
-   */
-  iso_2?: string;
-  /**
-   * iso_3
-   * The country's iso 3.
-   * @example "usa"
-   */
-  iso_3?: string;
-  /**
-   * num_code
-   * The country's num code.
-   * @example 840
-   */
-  num_code?: string;
-  /**
-   * name
-   * The country's name.
-   */
-  name?: string;
-  /**
-   * display_name
-   * The country's display name.
-   */
-  display_name?: string;
-}
-
-/** The order's details. */
-export interface VendorOrderDetails {
-  /** The order's payment collections. */
-  payment_collections?: VendorOrderPaymentCollection[];
-  /** The order's fulfillments. */
-  fulfillments?: VendorOrderFulfillment[];
-  /** An order address. */
-  shipping_address?: VendorOrderAddress;
-  /** An order address. */
-  billing_address?: VendorOrderAddress;
-  /**
-   * id
-   * The order's ID.
-   */
-  id?: string;
-  /**
-   * version
-   * The order's version.
-   */
-  version?: number;
-  /**
-   * region_id
-   * The ID of the region associated with the order.
-   */
-  region_id?: string;
-  /**
-   * customer_id
-   * The ID of the customer that placed the order.
-   */
-  customer_id?: string;
-  /**
-   * sales_channel_id
-   * The ID of the sales channel the order is placed in.
-   */
-  sales_channel_id?: string;
-  /**
-   * email
-   * The email of the customer that placed the order.
-   * @format email
-   */
-  email?: string;
-  /**
-   * currency_code
-   * The order's currency code.
-   */
-  currency_code?: string;
-  /**
-   * display_id
-   * The order's display ID.
-   */
-  display_id?: number;
-  /** The order's items. */
-  items?: VendorOrderLineItem[];
-  /** The order's shipping methods. */
-  shipping_methods?: VendorOrderShippingMethod[];
-  /** The order's payment status. */
-  payment_status?:
-    | "canceled"
-    | "not_paid"
-    | "awaiting"
-    | "authorized"
-    | "partially_authorized"
-    | "captured"
-    | "partially_captured"
-    | "partially_refunded"
-    | "refunded"
-    | "requires_action";
-  /** The order's fulfillment status. */
-  fulfillment_status?:
-    | "canceled"
-    | "not_fulfilled"
-    | "partially_fulfilled"
-    | "fulfilled"
-    | "partially_shipped"
-    | "shipped"
-    | "partially_delivered"
-    | "delivered";
-  /** The order's summary details. */
-  summary?: VendorOrderSummary;
-  /** The order's metadata, can hold custom key-value pairs. */
-  metadata?: object;
-  /**
-   * created_at
-   * The date the order was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the order was updated.
-   * @format date-time
-   */
-  updated_at?: string;
-  /**
-   * original_item_total
-   * The total of the order's items including taxes, excluding promotions.
-   */
-  original_item_total?: number;
-  /**
-   * original_item_subtotal
-   * The total of the order's items excluding taxes, including promotions.
-   */
-  original_item_subtotal?: number;
-  /**
-   * original_item_tax_total
-   * The tax total of the order's items excluding promotions.
-   */
-  original_item_tax_total?: number;
-  /**
-   * item_total
-   * The total of the order's items including taxes and promotions.
-   */
-  item_total?: number;
-  /**
-   * item_subtotal
-   * The total of the order's items excluding taxes, including promotions.
-   */
-  item_subtotal?: number;
-  /**
-   * item_tax_total
-   * The tax total of the order's items including promotions.
-   */
-  item_tax_total?: number;
-  /**
-   * original_total
-   * The order's total excluding promotions, including taxes.
-   */
-  original_total?: number;
-  /**
-   * original_subtotal
-   * The order's total excluding taxes, including promotions.
-   */
-  original_subtotal?: number;
-  /**
-   * original_tax_total
-   * The order's tax total, excluding promotions.
-   */
-  original_tax_total?: number;
-  /**
-   * total
-   * The order's total including taxes and promotions.
-   */
-  total?: number;
-  /**
-   * subtotal
-   * The order's total excluding taxes, including promotions.
-   */
-  subtotal?: number;
-  /**
-   * tax_total
-   * The order's tax total including promotions.
-   */
-  tax_total?: number;
-  /**
-   * discount_total
-   * The order's discount or promotions total.
-   */
-  discount_total?: number;
-  /**
-   * discount_tax_total
-   * The tax total of order's discount or promotion.
-   */
-  discount_tax_total?: number;
-  /**
-   * gift_card_total
-   * The order's gift card total.
-   */
-  gift_card_total?: number;
-  /**
-   * gift_card_tax_total
-   * The tax total of the order's gift card.
-   */
-  gift_card_tax_total?: number;
-  /**
-   * shipping_total
-   * The order's shipping total including taxes and promotions.
-   */
-  shipping_total?: number;
-  /**
-   * shipping_subtotal
-   * The order's shipping total excluding taxes, including promotions.
-   */
-  shipping_subtotal?: number;
-  /**
-   * shipping_tax_total
-   * The tax total of the order's shipping.
-   */
-  shipping_tax_total?: number;
-  /**
-   * original_shipping_total
-   * The order's shipping total including taxes, excluding promotions.
-   */
-  original_shipping_total?: number;
-  /**
-   * original_shipping_subtotal
-   * The order's shipping total excluding taxes, including promotions.
-   */
-  original_shipping_subtotal?: number;
-  /**
-   * original_shipping_tax_total
-   * The tax total of the order's shipping excluding promotions.
-   */
-  original_shipping_tax_total?: number;
-}
-
-/**
- * VendorOrderFulfillment
- * The fulfillment's details.
- */
-export interface VendorOrderFulfillment {
-  /**
-   * id
-   * The fulfillment's ID.
-   */
-  id?: string;
-  /**
-   * location_id
-   * The ID of the location the fulfillment's items are shipped from.
-   */
-  location_id?: string;
-  /**
-   * provider_id
-   * The ID of the fulfillment provider handling this fulfillment.
-   */
-  provider_id?: string;
-  /**
-   * shipping_option_id
-   * The ID of the shipping option this fulfillment is created for.
-   */
-  shipping_option_id?: string;
-  /** The fulfillment provider's details. */
-  provider?: VendorFulfillmentProvider;
-  /** An address's details. */
-  delivery_address?: VendorFulfillmentAddress;
-  /** The fulfillment's items. */
-  items?: VendorFulfillmentItem[];
-  /** The fulfillment's shipment labels. */
-  labels?: VendorFulfillmentLabel[];
-  /**
-   * packed_at
-   * The date the fulfillment was packed at.
-   */
-  packed_at?: string;
-  /**
-   * shipped_at
-   * The date the fulfillment was shipped at.
-   */
-  shipped_at?: string;
-  /**
-   * delivered_at
-   * The date the fulfillment was delivered at.
-   */
-  delivered_at?: string;
-  /**
-   * canceled_at
-   * The date the fulfillment was canceled at.
-   */
-  canceled_at?: string;
-  /** The fulfillment's data, useful for the third-party provider handling the fulfillment. */
-  data?: object;
-  /** The fulfillment's metadata, can hold custom key-value pairs. */
-  metadata?: object;
-  /**
-   * created_at
-   * The date the fulfillment was created at.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the fulfillment was updated at.
-   * @format date-time
-   */
-  updated_at?: string;
-  /**
-   * deleted_at
-   * The date the fulfillment was deleted at.
-   * @format date-time
-   */
-  deleted_at?: string;
-}
-
-/**
- * VendorOrderLineItem
- * The item's details.
- */
-export interface VendorOrderLineItem {
-  /**
-   * id
-   * The item's ID.
-   */
-  id?: string;
-  /**
-   * title
-   * The item's title.
-   */
-  title?: string;
-  /**
-   * subtitle
-   * The item's subtitle.
-   */
-  subtitle?: string;
-  /**
-   * thumbnail
-   * The URL of the item's thumbnail.
-   */
-  thumbnail?: string;
-  /** A product variant object with its properties */
-  variant?: VendorProductVariant;
-  /**
-   * variant_id
-   * The ID of the associated variant.
-   */
-  variant_id?: string;
-  /** A product object with its properties */
-  product?: VendorProduct;
-  /**
-   * product_id
-   * The ID of the associated product.
-   */
-  product_id?: string;
-  /**
-   * product_title
-   * The item's product title.
-   */
-  product_title?: string;
-  /**
-   * product_description
-   * The item's product description.
-   */
-  product_description?: string;
-  /**
-   * product_subtitle
-   * The item's product subtitle.
-   */
-  product_subtitle?: string;
-  /**
-   * product_type
-   * The item's product type.
-   */
-  product_type?: string;
-  /**
-   * product_collection
-   * The ID of the collection the item's product belongs to.
-   */
-  product_collection?: string;
-  /**
-   * product_handle
-   * The item's product handle.
-   */
-  product_handle?: string;
-  /**
-   * variant_sku
-   * The item's variant SKU.
-   */
-  variant_sku?: string;
-  /**
-   * variant_barcode
-   * The item's variant barcode.
-   */
-  variant_barcode?: string;
-  /**
-   * variant_title
-   * The item's variant title.
-   */
-  variant_title?: string;
-  /**
-   * The values of the item variant's options.
-   * @example {"Color":"Blue"}
-   */
-  variant_option_values?: object;
-  /**
-   * requires_shipping
-   * Whether the item requires shipping.
-   */
-  requires_shipping?: boolean;
-  /**
-   * is_discountable
-   * Whether the item is discountable.
-   */
-  is_discountable?: boolean;
-  /**
-   * is_tax_inclusive
-   * Whether the item is tax inclusive.
-   */
-  is_tax_inclusive?: boolean;
-  /**
-   * compare_at_unit_price
-   * The original price of the item before a promotion or sale.
-   */
-  compare_at_unit_price?: number;
-  /**
-   * unit_price
-   * The item's unit price.
-   */
-  unit_price?: number;
-  /**
-   * quantity
-   * The item's quantity.
-   */
-  quantity?: number;
-  detail?: object;
-  /**
-   * created_at
-   * The date the item was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the item was updated.
-   * @format date-time
-   */
-  updated_at?: string;
-  /** The item's metadata, can hold custom key-value pairs. */
-  metadata?: object;
-  /**
-   * original_total
-   * The item's total including taxes, excluding promotions.
-   */
-  original_total?: number;
-  /**
-   * original_subtotal
-   * The item's total excluding taxes, including promotions.
-   */
-  original_subtotal?: number;
-  /**
-   * original_tax_total
-   * The total taxes of the item, excluding promotions.
-   */
-  original_tax_total?: number;
-  /**
-   * item_total
-   * The total taxes of the item, including promotions.
-   */
-  item_total?: number;
-  /**
-   * item_subtotal
-   * The item's total excluding taxes, including promotions.
-   */
-  item_subtotal?: number;
-  /**
-   * item_tax_total
-   * The total taxes of the item, including promotions.
-   */
-  item_tax_total?: number;
-  /**
-   * total
-   * The item's total, including taxes and promotions.
-   */
-  total?: number;
-  /**
-   * subtotal
-   * The item's subtotal excluding taxes, including promotions.
-   */
-  subtotal?: number;
-  /**
-   * tax_total
-   * The tax total of the item including promotions.
-   */
-  tax_total?: number;
-  /**
-   * discount_total
-   * The total discount amount of the item.
-   */
-  discount_total?: number;
-  /**
-   * discount_tax_total
-   * The total taxes applied on the discounted amount.
-   */
-  discount_tax_total?: number;
-  /**
-   * refundable_total
-   * The total refundable amount of the item's total.
-   */
-  refundable_total?: number;
-  /**
-   * refundable_total_per_unit
-   * The total refundable amount of the item's total for a single quantity.
-   */
-  refundable_total_per_unit?: number;
-  /**
-   * product_type_id
-   * The ID of the associated product's type.
-   */
-  product_type_id?: string;
-}
-
-/**
- * VendorOrderPaymentCollection
- * The payment collection's details.
- */
-export interface VendorOrderPaymentCollection {
-  /**
-   * id
-   * The payment collection's ID.
-   */
-  id?: string;
-  /**
-   * currency_code
-   * The payment collection's currency code.
-   */
-  currency_code?: string;
-  /**
-   * region_id
-   * The ID of the region this payment collection is associated with.
-   */
-  region_id?: string;
-  /**
-   * amount
-   * The total amount to be paid.
-   */
-  amount?: number;
-  /**
-   * authorized_amount
-   * The total authorized amount of the collection's payments.
-   */
-  authorized_amount?: number;
-  /**
-   * captured_amount
-   * The total captured amount of the collection's payments.
-   */
-  captured_amount?: number;
-  /**
-   * refunded_amount
-   * The total refunded amount of the collection's payments.
-   */
-  refunded_amount?: number;
-  /**
-   * completed_at
-   * The date the payment collection was completed.
-   * @format date-time
-   */
-  completed_at?: string;
-  /**
-   * created_at
-   * The date the payment collection was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the payment collection was updated.
-   * @format date-time
-   */
-  updated_at?: string;
-  /** The payment collection's metadata, can hold custom key-value pairs. */
-  metadata?: object;
-  /** The payment collection's status. */
-  status?: "canceled" | "not_paid" | "awaiting" | "authorized" | "partially_authorized";
-}
-
-/**
- * Order Set
- * An order set object with its properties
- */
-export interface VendorOrderSet {
-  /** The unique identifier of the order set. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /** The display ID of the order set. */
-  display_id: number;
-}
-
-/**
- * VendorOrderShippingMethod
- * The shipping method's details.
- */
-export interface VendorOrderShippingMethod {
-  /**
-   * id
-   * The shipping method's ID.
-   */
-  id?: string;
-  /**
-   * name
-   * The shipping method's name.
-   */
-  name?: string;
-  /**
-   * description
-   * The shipping method's description.
-   */
-  description?: string;
-  /**
-   * amount
-   * The shipping method's amount.
-   */
-  amount?: number;
-  /**
-   * is_tax_inclusive
-   * Whether the shipping method's amount includes applied taxes.
-   */
-  is_tax_inclusive?: boolean;
-  /**
-   * shipping_option_id
-   * The ID of the shipping option this method was created from.
-   */
-  shipping_option_id?: string;
-  /** The shipping method's data, useful for fulfillment provider handling its fulfillment. */
-  data?: object;
-  /** The shipping method's metadata, can hold custom key-value pairs. */
-  metadata?: object;
-  /**
-   * original_total
-   * The shipping method's total including taxes, excluding promotions.
-   */
-  original_total?: number;
-  /**
-   * original_subtotal
-   * The shipping method's total excluding taxes, including promotions.
-   */
-  original_subtotal?: number;
-  /**
-   * original_tax_total
-   * The shipping method's total taxes excluding promotions.
-   */
-  original_tax_total?: number;
-  /**
-   * total
-   * The shipping method's total including taxes and promotions.
-   */
-  total?: number;
-  /**
-   * subtotal
-   * The shipping method's total excluding taxes, including promotions.
-   */
-  subtotal?: number;
-  /**
-   * tax_total
-   * The shipping method's tax total including promotions.
-   */
-  tax_total?: number;
-  /**
-   * discount_total
-   * The total discounts applied on the shipping method.
-   */
-  discount_total?: number;
-  /**
-   * discount_tax_total
-   * The taxes applied on the discount amount.
-   */
-  discount_tax_total?: number;
-  /**
-   * created_at
-   * The date the shipping method was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the shipping method was updated.
-   * @format date-time
-   */
-  updated_at?: string;
-}
-
-/**
- * VendorOrderSummary
- * The order's summary details.
- */
-export interface VendorOrderSummary {
-  /**
-   * total
-   * The order's total including taxes and promotions.
-   */
-  total?: number;
-  /**
-   * subtotal
-   * The order's total excluding taxes, including promotions.
-   */
-  subtotal?: number;
-  /**
-   * total_tax
-   * The order's total taxes.
-   */
-  total_tax?: number;
-  /**
-   * ordered_total
-   * The order's total when it was placed.
-   */
-  ordered_total?: number;
-  /**
-   * fulfilled_total
-   * The total of the fulfilled items of the order.
-   */
-  fulfilled_total?: number;
-  /**
-   * returned_total
-   * The total of the order's returned items.
-   */
-  returned_total?: number;
-  /**
-   * return_request_total
-   * The total of the items requested to be returned.
-   */
-  return_request_total?: number;
-  /**
-   * write_off_total
-   * The total of the items removed from the order.
-   */
-  write_off_total?: number;
-  /**
-   * paid_total
-   * The total amount paid.
-   */
-  paid_total?: number;
-  /**
-   * refunded_total
-   * The total amount refunded.
-   */
-  refunded_total?: number;
-}
-
-/**
- * Payout
- * A payout object with its properties
- */
-export interface VendorPayout {
-  /** The unique identifier of the payout. */
-  id: string;
-  /** The currency code of the payout. */
-  currency_code: string;
-  /** The amount of the payout. */
-  amount: number;
-  /** Additional data stored with the payout. */
-  data?: object | null;
-  /** The payout account this payout belongs to. */
-  payout_account?: VendorPayoutAccount;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at?: string;
-}
-
-/**
- * Payout Account
- * A payout account object with its properties
- */
-export interface VendorPayoutAccount {
-  /** The unique identifier of the payout account. */
-  id: string;
-  /** The status of the payout account. */
-  status: "pending" | "active" | "disabled";
-  /** Reference ID used by the payment processor. */
-  reference_id: string;
-  /** Additional data stored with the payout account. */
-  data: object;
-  /** Context data stored with the payout account. */
-  context?: object | null;
-  /** The onboarding associated with the payout account. */
-  onboarding?: VendorOnboarding | null;
-  /** The payouts associated with this account. */
-  payouts?: VendorPayout[];
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at?: string;
-}
-
-/**
- * Product
- * A product object with its properties
- */
-export interface VendorProduct {
-  /** The unique identifier of the product. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * The date with timezone at which the resource was deleted.
-   * @format date-time
-   */
-  deleted_at?: string | null;
-  /** The title of the product. */
-  title: string;
-  /** The subtitle of the product. */
-  subtitle?: string | null;
-  /** A description of the product. */
-  description?: string | null;
-  /** A unique handle for the product. */
-  handle: string;
-  /** Whether the product is a gift card. */
-  is_giftcard?: boolean;
-  /** The status of the product. */
-  status?: "draft" | "proposed" | "published" | "rejected";
-  /** URL to the product's thumbnail. */
-  thumbnail?: string | null;
-  /** The width of the product. */
-  width?: number | null;
-  /** The weight of the product. */
-  weight?: number | null;
-  /** The length of the product. */
-  length?: number | null;
-  /** The height of the product. */
-  height?: number | null;
-  /** The origin country of the product. */
-  origin_country?: string | null;
-  /** The HS Code of the product. */
-  hs_code?: string | null;
-  /** The MID Code of the product. */
-  mid_code?: string | null;
-  /** The material of the product. */
-  material?: string | null;
-  /** The associated product collection. */
-  collection?: VendorProductCollection | null;
-  /** The associated product type. */
-  type?: VendorProductType | null;
-  /** The associated product tags. */
-  tags?: VendorProductTag[];
-  /** The associated product categories. */
-  categories?: VendorProductCategory[];
-  /** The associated product variants. */
-  variants?: VendorProductVariant[];
-  /** The associated product options. */
-  options?: VendorProductOption[];
-  /** The associated product images. */
-  images?: VendorProductImage[];
-  /** Whether the product can be discounted. */
-  discountable?: boolean;
-  /** The ID of the product in an external system. */
-  external_id?: string | null;
-  /**
-   * An optional key-value map with additional details.
-   * @example {"car":"white"}
-   */
-  metadata?: object;
-}
-
-/**
- * Product Category
- * A product category object with its properties
- */
-export interface VendorProductCategory {
-  /** The unique identifier of the product category. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * The date with timezone at which the resource was deleted.
-   * @format date-time
-   */
-  deleted_at?: string | null;
-  /** The name of the product category. */
-  name: string;
-  /** The handle of the product category. */
-  handle?: string;
-  /** Whether the product category is active. */
-  is_active?: boolean;
-  /** Whether the product category is internal. */
-  is_internal?: boolean;
-  /** The rank of the category among sibling categories. */
-  rank?: number;
-  /** The parent category. */
-  parent_category?: VendorProductCategory | null;
-  /** The child categories. */
-  category_children?: VendorProductCategory[];
-  /**
-   * An optional key-value map with additional details.
-   * @example {"car":"white"}
-   */
-  metadata?: object;
-}
-
-/**
- * Product Collection
- * A product collection object with its properties
- */
-export interface VendorProductCollection {
-  /** The unique identifier of the product collection. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * The date with timezone at which the resource was deleted.
-   * @format date-time
-   */
-  deleted_at?: string | null;
-  /** The title of the product collection. */
-  title: string;
-  /** The handle of the product collection. */
-  handle?: string;
-  /**
-   * An optional key-value map with additional details.
-   * @example {"car":"white"}
-   */
-  metadata?: object;
-}
-
-/**
- * Product Image
- * A product image object with its properties
- */
-export interface VendorProductImage {
-  /** The unique identifier of the product image. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * The date with timezone at which the resource was deleted.
-   * @format date-time
-   */
-  deleted_at?: string | null;
-  /** The URL of the product image. */
-  url: string;
-  /** The rank of the product image. */
-  rank?: number;
-  /**
-   * An optional key-value map with additional details.
-   * @example {"car":"white"}
-   */
-  metadata?: object;
-}
-
-/**
- * Product Option
- * A product option object with its properties
- */
-export interface VendorProductOption {
-  /** The unique identifier of the product option. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * The date with timezone at which the resource was deleted.
-   * @format date-time
-   */
-  deleted_at?: string | null;
-  /** The title of the product option. */
-  title: string;
-  /** The associated product option values. */
-  values?: VendorProductOptionValue[];
-  /**
-   * An optional key-value map with additional details.
-   * @example {"car":"white"}
-   */
-  metadata?: object;
-}
-
-/**
- * Product Option Value
- * A product option value object with its properties
- */
-export interface VendorProductOptionValue {
-  /** The unique identifier of the product option value. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * The date with timezone at which the resource was deleted.
-   * @format date-time
-   */
-  deleted_at?: string | null;
-  /** The value of the product option value. */
-  value: string;
-  /**
-   * An optional key-value map with additional details.
-   * @example {"car":"white"}
-   */
-  metadata?: object;
-}
-
-/**
- * Product Tag
- * A product tag object with its properties
- */
-export interface VendorProductTag {
-  /** The unique identifier of the product tag. */
-  id: string;
-  /** The value of the product tag. */
-  value: string;
-  /**
-   * An optional key-value map with additional details.
-   * @example {"car":"white"}
-   */
-  metadata?: object;
-}
-
-/**
- * Product Type
- * A product type object with its properties
- */
-export interface VendorProductType {
-  /** The unique identifier of the product type. */
-  id: string;
-  /** The value of the product type. */
-  value: string;
-  /**
-   * An optional key-value map with additional details.
-   * @example {"car":"white"}
-   */
-  metadata?: object;
-}
-
-/**
- * Product Variant
- * A product variant object with its properties
- */
-export interface VendorProductVariant {
-  /** The unique identifier of the product variant. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * The date with timezone at which the resource was deleted.
-   * @format date-time
-   */
-  deleted_at?: string | null;
-  /** The title of the product variant. */
-  title: string;
-  /** The SKU of the product variant. */
-  sku?: string | null;
-  /** The barcode of the product variant. */
-  barcode?: string | null;
-  /** The EAN of the product variant. */
-  ean?: string | null;
-  /** The UPC of the product variant. */
-  upc?: string | null;
-  /** Whether the product variant can be ordered when it's out of stock. */
-  allow_backorder?: boolean;
-  /** Whether the product variant's inventory should be managed by the core system. */
-  manage_inventory?: boolean;
-  /** The HS Code of the product variant. */
-  hs_code?: string | null;
-  /** The origin country of the product variant. */
-  origin_country?: string | null;
-  /** The MID Code of the product variant. */
-  mid_code?: string | null;
-  /** The material of the product variant. */
-  material?: string | null;
-  /** The weight of the product variant. */
-  weight?: number | null;
-  /** The length of the product variant. */
-  length?: number | null;
-  /** The height of the product variant. */
-  height?: number | null;
-  /** The width of the product variant. */
-  width?: number | null;
-  /** The associated product option values. */
-  options?: VendorProductOptionValue[];
-  /**
-   * An optional key-value map with additional details.
-   * @example {"car":"white"}
-   */
-  metadata?: object;
-}
-
-/**
- * VendorSalesChannel
- * The sales channel's details.
- */
-export interface VendorSalesChannel {
-  /**
-   * id
-   * The sales channel's ID.
-   */
-  id?: string;
-  /**
-   * name
-   * The sales channel's name.
-   */
-  name?: string;
-  /**
-   * description
-   * The sales channel's description.
-   */
-  description?: string;
-  /**
-   * is_disabled
-   * Whether the sales channel is disabled.
-   */
-  is_disabled?: boolean;
-  /** The sales channel's metadata, can hold custom key-value pairs. */
-  metadata?: object;
-  /**
-   * created_at
-   * The date the sales channel was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * updated_at
-   * The date the sales channel was updated.
-   * @format date-time
-   */
-  updated_at?: string;
-}
-
-/**
- * Seller
- * A seller object with its properties
- */
-export interface VendorSeller {
-  /** The unique identifier of the seller. */
-  id: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /** The name of the seller. */
-  name: string;
-  /** A description of the seller. */
-  description?: string | null;
-  /** A unique handle for the seller. */
-  handle: string;
-  /** URL to the seller's photo. */
-  photo?: string | null;
-  /** The members associated with the seller. */
-  members?: VendorMember[];
-}
-
-/** The shipping option's service zone. */
-export interface VendorServiceZone {
-  /**
-   * id
-   * The service zone's ID.
-   */
-  id: string;
-  /**
-   * name
-   * The service zone's name.
-   */
-  name: string;
-  /**
-   * fulfillment_set_id
-   * The service zone's fulfillment set id.
-   */
-  fulfillment_set_id: string;
-  /** The service zone's fulfillment set. */
-  fulfillment_set: VendorFulfillmentSet;
-  /** The service zone's geo zones. */
-  geo_zones: VendorGeoZone[];
-  /** The service zone's shipping options. */
-  shipping_options: VendorShippingOption[];
-  /**
-   * created_at
-   * The service zone's created at.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * updated_at
-   * The service zone's updated at.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * deleted_at
-   * The service zone's deleted at.
-   * @format date-time
-   */
-  deleted_at: string;
-}
-
-/** The shipping option's details. */
-export interface VendorShippingOption {
-  /**
-   * id
-   * The shipping option's ID.
-   */
-  id: string;
-  /**
-   * name
-   * The shipping option's name.
-   */
-  name: string;
-  /** The shipping option's price type. If it's `flat`, the price is fixed and is set in the `prices` property. If it's `calculated`, the price is calculated on checkout by the associated fulfillment provider. */
-  price_type: "calculated" | "flat";
-  /**
-   * service_zone_id
-   * The ID of the service zone this option belongs to.
-   */
-  service_zone_id: string;
-  /** The shipping option's service zone. */
-  service_zone: VendorServiceZone;
-  /**
-   * shipping_option_type_id
-   * The ID of the associated shipping option type.
-   */
-  shipping_option_type_id: string;
-  /** The shipping option's details. */
-  type: VendorShippingOptionType;
-  /** The shipping option's prices. If the `price_type` is `calculated`, this array will be empty since the price is calculated by the fulfillment provider during checkout. */
-  prices: VendorShippingOptionPrice[];
-  /** The shipping option's data, useful for the fulfillment provider handling fulfillments created from this option. */
-  data: object;
-  /** The shipping option's metadata, can hold custom key-value pairs. */
-  metadata: object;
-  /**
-   * created_at
-   * The date the shipping option was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * updated_at
-   * The date the shipping option was updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * deleted_at
-   * The date the shipping option was deleted.
-   * @format date-time
-   */
-  deleted_at: string;
-}
-
-/** The details of the shipping option's price. */
-export interface VendorShippingOptionPrice {
-  /**
-   * id
-   * The price's ID.
-   */
-  id: string;
-  /**
-   * title
-   * The price's title.
-   */
-  title: string;
-  /**
-   * currency_code
-   * The price's currency code.
-   * @example "usd"
-   */
-  currency_code: string;
-  /**
-   * amount
-   * The price's amount.
-   */
-  amount: number;
-  /**
-   * created_at
-   * The date the price was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * updated_at
-   * The date the price was updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * deleted_at
-   * The date the price was deleted.
-   * @format date-time
-   */
-  deleted_at: string;
-}
-
-/** The shipping option's details. */
-export interface VendorShippingOptionType {
-  /**
-   * id
-   * The shipping option's ID.
-   */
-  id: string;
-  /**
-   * created_at
-   * The date the shipping option was created.
-   * @format date-time
-   */
-  created_at: string;
-  /**
-   * updated_at
-   * The date the shipping option was updated.
-   * @format date-time
-   */
-  updated_at: string;
-  /**
-   * deleted_at
-   * The date the shipping option was deleted.
-   * @format date-time
-   */
-  deleted_at: string;
-  /**
-   * label
-   * The type's label.
-   */
-  label: string;
-  /**
-   * description
-   * The type's description.
-   */
-  description: string;
-  /**
-   * code
-   * The type's code.
-   */
-  code: string;
-  /**
-   * shipping_option_id
-   * The type's shipping option id.
-   */
-  shipping_option_id: string;
-}
-
-/** The stock location's details. */
-export interface VendorStockLocation {
-  /**
-   * id
-   * The location's ID.
-   */
-  id: string;
-  /**
-   * name
-   * The location's name.
-   */
-  name: string;
-  /** The fulfillment sets associated with the location. */
-  fulfillment_sets?: VendorFulfillmentSet[];
-}
-
-/**
- * VendorUpdateInventoryItem
- * The inventory item's details.
- */
-export interface VendorUpdateInventoryItem {
-  /**
-   * sku
-   * The inventory item's SKU.
-   */
-  sku?: string;
-  /**
-   * hs_code
-   * The inventory item's HS code.
-   */
-  hs_code?: string;
-  /**
-   * weight
-   * The inventory item's weight.
-   */
-  weight?: number;
-  /**
-   * length
-   * The inventory item's length.
-   */
-  length?: number;
-  /**
-   * height
-   * The inventory item's height.
-   */
-  height?: number;
-  /**
-   * width
-   * The inventory item's width.
-   */
-  width?: number;
-  /**
-   * origin_country
-   * The inventory item's origin country.
-   */
-  origin_country?: string;
-  /**
-   * mid_code
-   * The inventory item's mid code.
-   */
-  mid_code?: string;
-  /**
-   * material
-   * The inventory item's material.
-   */
-  material?: string;
-  /**
-   * title
-   * The inventory item's title.
-   */
-  title?: string;
-  /**
-   * description
-   * The description of the variant associated with the inventory item.
-   */
-  description?: string;
-  /**
-   * requires_shipping
-   * Whether the item requires shipping.
-   */
-  requires_shipping?: boolean;
-  /**
-   * thumbnail
-   * The inventory item's thumbnail.
-   */
-  thumbnail?: string;
-  /** The inventory item's metadata, used to store custom key-value pairs. */
-  metadata?: object;
-}
-
-export interface VendorUpdateInventoryLevel {
-  /** The quantity of the InventoryItem in StockLocation. */
-  stocked_quantity?: number;
-}
-
-export interface VendorUpdateMember {
-  /** The name of the member. */
-  name?: string;
-  /** The member's biography. */
-  bio?: string | null;
-  /** The member's phone number. */
-  phone?: string | null;
-  /** URL to the member's photo. */
-  photo?: string | null;
-}
-
-export interface VendorUpdateProduct {
-  /** The title of the product. */
-  title?: string;
-  /** Whether the product can be discounted. */
-  discountable?: boolean;
-  /** Whether the product is a gift card. */
-  is_giftcard?: boolean;
-  /** The product options to update. */
-  options?: UpdateProductOption[];
-  /** The product variants to update. */
-  variants?: UpdateProductVariant[];
-  /** The status of the product. */
-  status?: "draft" | "proposed" | "published" | "rejected";
-  /** The subtitle of the product. */
-  subtitle?: string | null;
-  /** The description of the product. */
-  description?: string | null;
-  /** Images of the product. */
-  images?: {
-    url?: string;
-  }[];
-  /** The thumbnail of the product. */
-  thumbnail?: string | null;
-  /** The handle of the product. */
-  handle?: string | null;
-  /** The ID of the product type. */
-  type_id?: string | null;
-  /** The external ID of the product. */
-  external_id?: string | null;
-  /** The ID of the collection the product belongs to. */
-  collection_id?: string | null;
-  /** Product category IDs to associate with the product. */
-  categories?: {
-    id: string;
-  }[];
-  /** Product tag IDs to associate with the product. */
-  tags?: {
-    id: string;
-  }[];
-  /** The weight of the product. */
-  weight?: number | null;
-  /** The length of the product. */
-  length?: number | null;
-  /** The height of the product. */
-  height?: number | null;
-  /** The width of the product. */
-  width?: number | null;
-  /** The HS code of the product. */
-  hs_code?: string | null;
-  /** The MID code of the product. */
-  mid_code?: string | null;
-  /** The country of origin of the product. */
-  origin_country?: string | null;
-  /** The material composition of the product. */
-  material?: string | null;
-  /** Additional metadata for the product. */
-  metadata?: object | null;
-  /** Sales channels to associate the product with. */
-  sales_channels?: {
-    id: string;
-  }[];
-}
-
-/**
- * Update Seller
- * A schema for the update seller request body.
- */
-export interface VendorUpdateSeller {
-  /**
-   * The name of the seller.
-   * @minLength 4
-   */
-  name?: string;
-  /** A description of the seller. */
-  description?: string | null;
-  /** URL to the seller's photo. */
-  photo?: string | null;
-}
-
-export interface VendorUpdateServiceZone {
-  /** The name of the service zone. */
-  name?: string;
-  /** The geo zones that belong to the service zone. */
-  geo_zones?: (
-    | (GeoZoneCountry & {
-        /** The ID of the geo zone. */
-        id?: string;
-      })
-    | (GeoZoneProvince & {
-        /** The ID of the geo zone. */
-        id?: string;
-      })
-    | (GeoZoneCity & {
-        /** The ID of the geo zone. */
-        id?: string;
-      })
-    | (GeoZoneZip & {
-        /** The ID of the geo zone. */
-        id?: string;
-      })
-  )[];
-}
-
-export interface VendorUpdateShippingOption {
-  /** The name of the shipping option. */
-  name?: string;
-  /** The ID of the shipping profile. */
-  shipping_profile_id?: string;
-  /** The ID of the fulfillment provider. */
-  provider_id?: string;
-  /** The prices of the shipping option. */
-  prices?: CreateShippingOptionPriceWithCurrency[];
-  type?: CreateShippingOptionTypeObject;
-}
-
-export interface VendorUpdateStockLocation {
-  /** Name of the stock location */
-  name?: string;
-  address?: UpsertStockLocationAddress;
-  /** ID of an existing address to use */
-  address_id?: string | null;
-  /** Additional metadata */
-  metadata?: object | null;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -31865,20 +29513,20 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Add a Customer Group to a customer
+     * @description Manage the customer groups of a customer, adding or removing the customer from those groups.
      *
      * @tags Admin Customers
      * @name AdminPostCustomersIdCustomerGroups
-     * @summary Add Customer Group to Customer
+     * @summary Manage Customer Groups of Customer
      * @request POST:/admin/customers/{id}/customer-groups
      * @secure
      */
     adminPostCustomersIdCustomerGroups: (
       id: string,
       data: {
-        /** The customer's add. */
+        /** The customer groups to add the customer to. */
         add?: string[];
-        /** The customer's remove. */
+        /** The customer groups to remove the customer from. */
         remove?: string[];
       },
       query?: {
@@ -34797,6 +32445,29 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Manage inventory levels to create, update, or delete them.
+     *
+     * @tags Admin Inventory Items
+     * @name AdminPostInventoryItemsLocationLevelsBatch
+     * @summary Manage Inventory Levels
+     * @request POST:/admin/inventory-items/location-levels/batch
+     * @secure
+     */
+    adminPostInventoryItemsLocationLevelsBatch: (
+      data: AdminBatchInventoryItemsLocationLevels,
+      params: RequestParams = {},
+    ) =>
+      this.request<AdminBatchInventoryItemsLocationLevelsResponse, Error | string>({
+        path: `/admin/inventory-items/location-levels/batch`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieve a inventory item by its ID. You can expand the inventory item's relations or select the fields that should be returned.
      *
      * @tags Admin Inventory Items
@@ -35098,56 +32769,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     adminPostInventoryItemsIdLocationLevelsBatch: (
       id: string,
-      data: {
-        /** The inventory levels to create. */
-        create?: {
-          /**
-           * location_id
-           * The ID of the associated location.
-           */
-          location_id: string;
-          /**
-           * stocked_quantity
-           * The inventory level's stocked quantity.
-           */
-          stocked_quantity?: number;
-          /**
-           * incoming_quantity
-           * The inventory level's incoming quantity.
-           */
-          incoming_quantity?: number;
-        }[];
-        /** The inventory levels to update. */
-        update?: {
-          /**
-           * stocked_quantity
-           * The inventory level's stocked quantity.
-           */
-          stocked_quantity?: number;
-          /**
-           * incoming_quantity
-           * The inventory level's incoming quantity.
-           */
-          incoming_quantity?: number;
-        }[];
-        /** The inventory levels to delete. */
-        delete?: string[];
-      },
+      data: AdminBatchInventoryItemLocationsLevel,
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          /** The inventory item's details. */
-          inventory_item: object;
-        },
-        Error | string
-      >({
+      this.request<any, Error | string>({
         path: `/admin/inventory-items/${id}/location-levels/batch`,
         method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
-        format: "json",
         ...params,
       }),
 
@@ -35234,7 +32864,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
            */
           deleted: boolean;
         } & {
-          /** The reservation's inventory item. */
+          /** The inventory item's details. */
           parent?: AdminInventoryItem;
         },
         Error | string
@@ -49676,7 +47306,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description This API route is used by your dashboard or frontend application when a third-party provider redirects to it after authentication. It validates the authentication with the third-party provider and, if successful, returns an authentication token. You can decode the JWT token using libraries like [react-jwt](https://www.npmjs.com/package/react-jwt) in the frontend. If the decoded data doesn't  have an `actor_id` property, then you must create a user, typically using the Accept Invite route passing the token in the request's Authorization header.
+     * @description This API route is used by your dashboard or frontend application when a third-party provider redirects to it after authentication. It validates the authentication with the third-party provider and, if successful, returns an authentication token. All query parameters received from the third-party provider, such as `code`, `state`, and `error`, must be passed as query parameters to this route. You can decode the JWT token using libraries like [react-jwt](https://www.npmjs.com/package/react-jwt) in the frontend. If the decoded data doesn't  have an `actor_id` property, then you must create a user, typically using the Accept Invite route passing the token in the request's Authorization header.
      *
      * @tags Admin Auth
      * @name AdminPostActorTypeAuthProviderCallback
@@ -49785,7 +47415,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description This API route is used by your storefront or frontend application when a third-party provider redirects to it after authentication. It validates the authentication with the third-party provider and, if successful, returns an authentication token. You can decode the JWT token using libraries like [react-jwt](https://www.npmjs.com/package/react-jwt) in the storefront. If the decoded data doesn't  have an `actor_id` property, then you must register the customer using the Create Customer API route passing the token in the request's Authorization header.
+     * @description This API route is used by your storefront or frontend application when a third-party provider redirects to it after authentication. It validates the authentication with the third-party provider and, if successful, returns an authentication token. All query parameters received from the third-party provider, such as `code`, `state`, and `error`, must be passed as query parameters to this route. You can decode the JWT token using libraries like [react-jwt](https://www.npmjs.com/package/react-jwt) in the storefront. If the decoded data doesn't  have an `actor_id` property, then you must register the customer using the Create Customer API route passing the token in the request's Authorization header.
      *
      * @tags Store Auth
      * @name StorePostActorTypeAuthProviderCallback
@@ -49874,42 +47504,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         format: "json",
         ...params,
       }),
-
-    /**
-     * @description Authenticate a seller and receive the JWT token to be used in the header of subsequent requests. When used with a third-party provider, such as Google, the request returns a `location` property. You redirect to the specified URL in your frontend to continue authentication with the third-party service.
-     *
-     * @tags Auth
-     * @name PostSellerTypeAuthProvider
-     * @summary Authenticate Seller
-     * @request POST:/auth/seller/{auth_provider}
-     */
-    postSellerTypeAuthProvider: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
-      this.request<AuthResponse | AuthCallbackResponse, Error | string>({
-        path: `/auth/seller/${authProvider}`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description This API route retrieves a registration JWT token of a seller that hasn't been registered yet. The token is used in the header of requests that create a seller, such as the Accept Invite API route.
-     *
-     * @tags Auth
-     * @name PostSellerTypeAuthProviderRegister
-     * @summary Retrieve Registration JWT Token
-     * @request POST:/auth/seller/{auth_provider}/register
-     */
-    postSellerTypeAuthProviderRegister: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
-      this.request<AuthResponse, Error | string>({
-        path: `/auth/seller/${authProvider}/register`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
   };
   store = {
     /**
@@ -49972,7 +47566,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Update a cart's details. This unsets the shipping an payment methods chosen before, and the customer would have to choose them again.
+     * @description Update a cart's details. This unsets the payment methods chosen before, and the customer would have to choose them again. Also, if the customer has chosen a shipping method whose option isn't valid for the cart's shipping address anymore, the shipping method will be unset. For example, if the shipping option is valid only in the US geo zone, and the shipping address's country code is `DE`, the shipping method will be unset.
      *
      * @tags Store Carts
      * @name StorePostCartsId
@@ -52053,6 +49647,800 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieve a list of product tags. The product tags can be filtered by fields such as `id`. The product tags can also be sorted or paginated.
+     *
+     * @tags Store Product Tags
+     * @name StoreGetProductTags
+     * @summary List Product Tags
+     * @request GET:/store/product-tags
+     */
+    storeGetProductTags: (
+      query?: {
+        /**
+         * fields
+         * Comma-separated fields that should be included in the returned data. If a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. Without prefix it will replace the entire default fields.
+         */
+        fields?: string;
+        /**
+         * offset
+         * The number of items to skip when retrieving a list.
+         */
+        offset?: number;
+        /**
+         * limit
+         * Limit the number of items returned in the list.
+         */
+        limit?: number;
+        /**
+         * order
+         * The field to sort the data by. By default, the sort order is ascending. To change the order to descending, prefix the field name with `-`.
+         */
+        order?: string;
+        /**
+         * $and
+         * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+         */
+        $and?: object[];
+        /**
+         * $or
+         * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+         */
+        $or?: object[];
+        /**
+         * q
+         * Query to search product tag's searchable fields.
+         */
+        q?: string;
+        /** Filter by a product tag's ID. */
+        id?: string | string[];
+        /** Filter by a product tag's value. */
+        value?: string | string[];
+        /** Filter by the tag's creation date. */
+        created_at?: {
+          /**
+           * $and
+           * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+           */
+          $and?: object[];
+          /**
+           * $or
+           * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+           */
+          $or?: object[];
+          /** Filter by an exact match. */
+          $eq?: string | string[];
+          /**
+           * $ne
+           * Filter by values not equal to this parameter.
+           */
+          $ne?: string;
+          /** Filter by values in this array. */
+          $in?: string[];
+          /** Filter by values not in this array. */
+          $nin?: string[];
+          /** Filter by values not matching this parameter. */
+          $not?:
+            | string
+            | {
+                /**
+                 * $and
+                 * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+                 */
+                $and?: object[];
+                /**
+                 * $or
+                 * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+                 */
+                $or?: object[];
+                /** Filter by an exact match. */
+                $eq?: string | string[];
+                /**
+                 * $ne
+                 * Filter by values not matching this parameter.
+                 */
+                $ne?: string;
+                /** Filter by values in this array. */
+                $in?: string[];
+                /** Filter by values not in this array. */
+                $nin?: string[];
+                /** Filter by values not matching this parameter */
+                $not?: string | object | string[];
+                /**
+                 * $gt
+                 * Filter by values greater than this parameter. Useful for numbers and dates only.
+                 */
+                $gt?: string;
+                /**
+                 * $gte
+                 * Filter by values greater than or equal to this parameter. Useful for numbers and dates only.
+                 */
+                $gte?: string;
+                /**
+                 * $lt
+                 * Filter by values less than this parameter. Useful for numbers and dates only.
+                 */
+                $lt?: string;
+                /**
+                 * $lte
+                 * Filter by values less than or equal to this parameter. Useful for numbers and dates only.
+                 */
+                $lte?: string;
+                /**
+                 * $like
+                 * Apply a `like` filter. Useful for strings only.
+                 */
+                $like?: string;
+                /**
+                 * $re
+                 * Apply a regex filter. Useful for strings only.
+                 */
+                $re?: string;
+                /**
+                 * $ilike
+                 * Apply a case-insensitive `like` filter. Useful for strings only.
+                 */
+                $ilike?: string;
+                /**
+                 * $fulltext
+                 * Filter to apply on full-text properties.
+                 */
+                $fulltext?: string;
+                /** Filter arrays that have overlapping values with this parameter. */
+                $overlap?: string[];
+                /** Filter arrays that contain some of the values of this parameter. */
+                $contains?: string[];
+                /** Filter arrays that contain all values of this parameter. */
+                $contained?: string[];
+                /**
+                 * $exists
+                 * Filter by whether a value for this parameter exists (not `null`).
+                 */
+                $exists?: boolean;
+              }
+            | string[];
+          /**
+           * $gt
+           * Filter by values greater than this parameter. Useful for numbers and dates only.
+           */
+          $gt?: string;
+          /**
+           * $gte
+           * Filter by values greater than or equal to this parameter. Useful for numbers and dates only.
+           */
+          $gte?: string;
+          /**
+           * $lt
+           * Filter by values less than this parameter. Useful for numbers and dates only.
+           */
+          $lt?: string;
+          /**
+           * $lte
+           * Filter by values less than or equal to this parameter. Useful for numbers and dates only.
+           */
+          $lte?: string;
+          /**
+           * $like
+           * Apply a `like` filter. Useful for strings only.
+           */
+          $like?: string;
+          /**
+           * $re
+           * Apply a regex filter. Useful for strings only.
+           */
+          $re?: string;
+          /**
+           * $ilike
+           * Apply a case-insensitive `like` filter. Useful for strings only.
+           */
+          $ilike?: string;
+          /**
+           * $fulltext
+           * Filter to apply on full-text properties.
+           */
+          $fulltext?: string;
+          /** Filter arrays that have overlapping values with this parameter. */
+          $overlap?: string[];
+          /** Filter arrays that contain some of the values of this parameter. */
+          $contains?: string[];
+          /** Filter arrays that contain all values of this parameter. */
+          $contained?: string[];
+          /**
+           * $exists
+           * Filter by whether a value for this parameter exists (not `null`).
+           */
+          $exists?: boolean;
+        };
+        /** Filter by the tag's update date. */
+        updated_at?: {
+          /**
+           * $and
+           * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+           */
+          $and?: object[];
+          /**
+           * $or
+           * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+           */
+          $or?: object[];
+          /** Filter by an exact match. */
+          $eq?: string | string[];
+          /**
+           * $ne
+           * Filter by values not equal to this parameter.
+           */
+          $ne?: string;
+          /** Filter by values in this array. */
+          $in?: string[];
+          /** Filter by values not in this array. */
+          $nin?: string[];
+          /** Filter by values not matching this parameter. */
+          $not?:
+            | string
+            | {
+                /**
+                 * $and
+                 * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+                 */
+                $and?: object[];
+                /**
+                 * $or
+                 * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+                 */
+                $or?: object[];
+                /** Filter by an exact match. */
+                $eq?: string | string[];
+                /**
+                 * $ne
+                 * Filter by values not matching this parameter.
+                 */
+                $ne?: string;
+                /** Filter by values in this array. */
+                $in?: string[];
+                /** Filter by values not in this array. */
+                $nin?: string[];
+                /** Filter by values not matching this parameter */
+                $not?: string | object | string[];
+                /**
+                 * $gt
+                 * Filter by values greater than this parameter. Useful for numbers and dates only.
+                 */
+                $gt?: string;
+                /**
+                 * $gte
+                 * Filter by values greater than or equal to this parameter. Useful for numbers and dates only.
+                 */
+                $gte?: string;
+                /**
+                 * $lt
+                 * Filter by values less than this parameter. Useful for numbers and dates only.
+                 */
+                $lt?: string;
+                /**
+                 * $lte
+                 * Filter by values less than or equal to this parameter. Useful for numbers and dates only.
+                 */
+                $lte?: string;
+                /**
+                 * $like
+                 * Apply a `like` filter. Useful for strings only.
+                 */
+                $like?: string;
+                /**
+                 * $re
+                 * Apply a regex filter. Useful for strings only.
+                 */
+                $re?: string;
+                /**
+                 * $ilike
+                 * Apply a case-insensitive `like` filter. Useful for strings only.
+                 */
+                $ilike?: string;
+                /**
+                 * $fulltext
+                 * Filter to apply on full-text properties.
+                 */
+                $fulltext?: string;
+                /** Filter arrays that have overlapping values with this parameter. */
+                $overlap?: string[];
+                /** Filter arrays that contain some of the values of this parameter. */
+                $contains?: string[];
+                /** Filter arrays that contain all values of this parameter. */
+                $contained?: string[];
+                /**
+                 * $exists
+                 * Filter by whether a value for this parameter exists (not `null`).
+                 */
+                $exists?: boolean;
+              }
+            | string[];
+          /**
+           * $gt
+           * Filter by values greater than this parameter. Useful for numbers and dates only.
+           */
+          $gt?: string;
+          /**
+           * $gte
+           * Filter by values greater than or equal to this parameter. Useful for numbers and dates only.
+           */
+          $gte?: string;
+          /**
+           * $lt
+           * Filter by values less than this parameter. Useful for numbers and dates only.
+           */
+          $lt?: string;
+          /**
+           * $lte
+           * Filter by values less than or equal to this parameter. Useful for numbers and dates only.
+           */
+          $lte?: string;
+          /**
+           * $like
+           * Apply a `like` filter. Useful for strings only.
+           */
+          $like?: string;
+          /**
+           * $re
+           * Apply a regex filter. Useful for strings only.
+           */
+          $re?: string;
+          /**
+           * $ilike
+           * Apply a case-insensitive `like` filter. Useful for strings only.
+           */
+          $ilike?: string;
+          /**
+           * $fulltext
+           * Filter to apply on full-text properties.
+           */
+          $fulltext?: string;
+          /** Filter arrays that have overlapping values with this parameter. */
+          $overlap?: string[];
+          /** Filter arrays that contain some of the values of this parameter. */
+          $contains?: string[];
+          /** Filter arrays that contain all values of this parameter. */
+          $contained?: string[];
+          /**
+           * $exists
+           * Filter by whether a value for this parameter exists (not `null`).
+           */
+          $exists?: boolean;
+        };
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<StoreProductTagListResponse, Error | string>({
+        path: `/store/product-tags`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieve a product tag by its ID. You can expand the product tag's relations or select the fields that should be returned.
+     *
+     * @tags Store Product Tags
+     * @name StoreGetProductTagsId
+     * @summary Get a Product Tag
+     * @request GET:/store/product-tags/{id}
+     */
+    storeGetProductTagsId: (
+      id: string,
+      query?: {
+        /**
+         * fields
+         * Comma-separated fields that should be included in the returned data. If a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. Without prefix it will replace the entire default fields.
+         */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<StoreProductTagResponse, Error | string>({
+        path: `/store/product-tags/${id}`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieve a list of product types. The product types can be filtered by fields such as `id`. The product types can also be sorted or paginated.
+     *
+     * @tags Store Product Types
+     * @name StoreGetProductTypes
+     * @summary List Product Types
+     * @request GET:/store/product-types
+     */
+    storeGetProductTypes: (
+      query?: {
+        /**
+         * fields
+         * Comma-separated fields that should be included in the returned data. If a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. Without prefix it will replace the entire default fields.
+         */
+        fields?: string;
+        /**
+         * offset
+         * The number of items to skip when retrieving a list.
+         */
+        offset?: number;
+        /**
+         * limit
+         * Limit the number of items returned in the list.
+         */
+        limit?: number;
+        /**
+         * order
+         * The field to sort the data by. By default, the sort order is ascending. To change the order to descending, prefix the field name with `-`.
+         */
+        order?: string;
+        /**
+         * $and
+         * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+         */
+        $and?: object[];
+        /**
+         * $or
+         * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+         */
+        $or?: object[];
+        /**
+         * q
+         * Query to search the product type's searchable fields.
+         */
+        q?: string;
+        /** Filter by a product type's ID. */
+        id?: string | string[];
+        /** Filter by a product type's value. */
+        value?: string | string[];
+        /** Filter by the type's creation date. */
+        created_at?: {
+          /**
+           * $and
+           * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+           */
+          $and?: object[];
+          /**
+           * $or
+           * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+           */
+          $or?: object[];
+          /** Filter by an exact match. */
+          $eq?: string | string[];
+          /**
+           * $ne
+           * Filter by values not equal to this parameter.
+           */
+          $ne?: string;
+          /** Filter by values in this array. */
+          $in?: string[];
+          /** Filter by values not in this array. */
+          $nin?: string[];
+          /** Filter by values not matching this parameter. */
+          $not?:
+            | string
+            | {
+                /**
+                 * $and
+                 * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+                 */
+                $and?: object[];
+                /**
+                 * $or
+                 * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+                 */
+                $or?: object[];
+                /** Filter by an exact match. */
+                $eq?: string | string[];
+                /**
+                 * $ne
+                 * Filter by values not matching this parameter.
+                 */
+                $ne?: string;
+                /** Filter by values in this array. */
+                $in?: string[];
+                /** Filter by values not in this array. */
+                $nin?: string[];
+                /** Filter by values not matching this parameter */
+                $not?: string | object | string[];
+                /**
+                 * $gt
+                 * Filter by values greater than this parameter. Useful for numbers and dates only.
+                 */
+                $gt?: string;
+                /**
+                 * $gte
+                 * Filter by values greater than or equal to this parameter. Useful for numbers and dates only.
+                 */
+                $gte?: string;
+                /**
+                 * $lt
+                 * Filter by values less than this parameter. Useful for numbers and dates only.
+                 */
+                $lt?: string;
+                /**
+                 * $lte
+                 * Filter by values less than or equal to this parameter. Useful for numbers and dates only.
+                 */
+                $lte?: string;
+                /**
+                 * $like
+                 * Apply a `like` filter. Useful for strings only.
+                 */
+                $like?: string;
+                /**
+                 * $re
+                 * Apply a regex filter. Useful for strings only.
+                 */
+                $re?: string;
+                /**
+                 * $ilike
+                 * Apply a case-insensitive `like` filter. Useful for strings only.
+                 */
+                $ilike?: string;
+                /**
+                 * $fulltext
+                 * Filter to apply on full-text properties.
+                 */
+                $fulltext?: string;
+                /** Filter arrays that have overlapping values with this parameter. */
+                $overlap?: string[];
+                /** Filter arrays that contain some of the values of this parameter. */
+                $contains?: string[];
+                /** Filter arrays that contain all values of this parameter. */
+                $contained?: string[];
+                /**
+                 * $exists
+                 * Filter by whether a value for this parameter exists (not `null`).
+                 */
+                $exists?: boolean;
+              }
+            | string[];
+          /**
+           * $gt
+           * Filter by values greater than this parameter. Useful for numbers and dates only.
+           */
+          $gt?: string;
+          /**
+           * $gte
+           * Filter by values greater than or equal to this parameter. Useful for numbers and dates only.
+           */
+          $gte?: string;
+          /**
+           * $lt
+           * Filter by values less than this parameter. Useful for numbers and dates only.
+           */
+          $lt?: string;
+          /**
+           * $lte
+           * Filter by values less than or equal to this parameter. Useful for numbers and dates only.
+           */
+          $lte?: string;
+          /**
+           * $like
+           * Apply a `like` filter. Useful for strings only.
+           */
+          $like?: string;
+          /**
+           * $re
+           * Apply a regex filter. Useful for strings only.
+           */
+          $re?: string;
+          /**
+           * $ilike
+           * Apply a case-insensitive `like` filter. Useful for strings only.
+           */
+          $ilike?: string;
+          /**
+           * $fulltext
+           * Filter to apply on full-text properties.
+           */
+          $fulltext?: string;
+          /** Filter arrays that have overlapping values with this parameter. */
+          $overlap?: string[];
+          /** Filter arrays that contain some of the values of this parameter. */
+          $contains?: string[];
+          /** Filter arrays that contain all values of this parameter. */
+          $contained?: string[];
+          /**
+           * $exists
+           * Filter by whether a value for this parameter exists (not `null`).
+           */
+          $exists?: boolean;
+        };
+        /** Filter by the type's update date. */
+        updated_at?: {
+          /**
+           * $and
+           * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+           */
+          $and?: object[];
+          /**
+           * $or
+           * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+           */
+          $or?: object[];
+          /** Filter by an exact match. */
+          $eq?: string | string[];
+          /**
+           * $ne
+           * Filter by values not equal to this parameter.
+           */
+          $ne?: string;
+          /** Filter by values in this array. */
+          $in?: string[];
+          /** Filter by values not in this array. */
+          $nin?: string[];
+          /** Filter by values not matching this parameter. */
+          $not?:
+            | string
+            | {
+                /**
+                 * $and
+                 * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+                 */
+                $and?: object[];
+                /**
+                 * $or
+                 * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+                 */
+                $or?: object[];
+                /** Filter by an exact match. */
+                $eq?: string | string[];
+                /**
+                 * $ne
+                 * Filter by values not matching this parameter.
+                 */
+                $ne?: string;
+                /** Filter by values in this array. */
+                $in?: string[];
+                /** Filter by values not in this array. */
+                $nin?: string[];
+                /** Filter by values not matching this parameter */
+                $not?: string | object | string[];
+                /**
+                 * $gt
+                 * Filter by values greater than this parameter. Useful for numbers and dates only.
+                 */
+                $gt?: string;
+                /**
+                 * $gte
+                 * Filter by values greater than or equal to this parameter. Useful for numbers and dates only.
+                 */
+                $gte?: string;
+                /**
+                 * $lt
+                 * Filter by values less than this parameter. Useful for numbers and dates only.
+                 */
+                $lt?: string;
+                /**
+                 * $lte
+                 * Filter by values less than or equal to this parameter. Useful for numbers and dates only.
+                 */
+                $lte?: string;
+                /**
+                 * $like
+                 * Apply a `like` filter. Useful for strings only.
+                 */
+                $like?: string;
+                /**
+                 * $re
+                 * Apply a regex filter. Useful for strings only.
+                 */
+                $re?: string;
+                /**
+                 * $ilike
+                 * Apply a case-insensitive `like` filter. Useful for strings only.
+                 */
+                $ilike?: string;
+                /**
+                 * $fulltext
+                 * Filter to apply on full-text properties.
+                 */
+                $fulltext?: string;
+                /** Filter arrays that have overlapping values with this parameter. */
+                $overlap?: string[];
+                /** Filter arrays that contain some of the values of this parameter. */
+                $contains?: string[];
+                /** Filter arrays that contain all values of this parameter. */
+                $contained?: string[];
+                /**
+                 * $exists
+                 * Filter by whether a value for this parameter exists (not `null`).
+                 */
+                $exists?: boolean;
+              }
+            | string[];
+          /**
+           * $gt
+           * Filter by values greater than this parameter. Useful for numbers and dates only.
+           */
+          $gt?: string;
+          /**
+           * $gte
+           * Filter by values greater than or equal to this parameter. Useful for numbers and dates only.
+           */
+          $gte?: string;
+          /**
+           * $lt
+           * Filter by values less than this parameter. Useful for numbers and dates only.
+           */
+          $lt?: string;
+          /**
+           * $lte
+           * Filter by values less than or equal to this parameter. Useful for numbers and dates only.
+           */
+          $lte?: string;
+          /**
+           * $like
+           * Apply a `like` filter. Useful for strings only.
+           */
+          $like?: string;
+          /**
+           * $re
+           * Apply a regex filter. Useful for strings only.
+           */
+          $re?: string;
+          /**
+           * $ilike
+           * Apply a case-insensitive `like` filter. Useful for strings only.
+           */
+          $ilike?: string;
+          /**
+           * $fulltext
+           * Filter to apply on full-text properties.
+           */
+          $fulltext?: string;
+          /** Filter arrays that have overlapping values with this parameter. */
+          $overlap?: string[];
+          /** Filter arrays that contain some of the values of this parameter. */
+          $contains?: string[];
+          /** Filter arrays that contain all values of this parameter. */
+          $contained?: string[];
+          /**
+           * $exists
+           * Filter by whether a value for this parameter exists (not `null`).
+           */
+          $exists?: boolean;
+        };
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<StoreProductTypeListResponse, Error | string>({
+        path: `/store/product-types`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieve a product type by its ID. You can expand the product type's relations or select the fields that should be returned.
+     *
+     * @tags Store Product Types
+     * @name StoreGetProductTypesId
+     * @summary Get a Product Type
+     * @request GET:/store/product-types/{id}
+     */
+    storeGetProductTypesId: (
+      id: string,
+      query?: {
+        /**
+         * fields
+         * Comma-separated fields that should be included in the returned data. If a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. Without prefix it will replace the entire default fields.
+         */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<StoreProductTypeResponse, Error | string>({
+        path: `/store/product-types/${id}`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieve a list of products. The products can be filtered by fields such as `id`. The products can also be sorted or paginated.
      *
      * @tags Store Products
@@ -52878,1359 +51266,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         query: query,
         body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-  };
-  vendor = {
-    /**
-     * @description Deletes a Fulfillment Set.
-     *
-     * @tags Fulfillment Set
-     * @name VendorDeleteFulfillmentSet
-     * @summary Delete a Fulfillment Set
-     * @request DELETE:/vendor/fulfillment-sets/{id}
-     * @secure
-     */
-    vendorDeleteFulfillmentSet: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The ID of the deleted Fulfillment Set. */
-          id?: string;
-          /**
-           * The type of the object that was deleted.
-           * @default "fulfillment_set"
-           */
-          object?: string;
-          /**
-           * Whether or not the items were deleted.
-           * @default true
-           */
-          deleted?: boolean;
-        },
-        any
-      >({
-        path: `/vendor/fulfillment-sets/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a Service Zone.
-     *
-     * @tags Fulfillment Set
-     * @name VendorCreateServiceZone
-     * @summary Create a Service Zone
-     * @request POST:/vendor/fulfillment-sets/{id}/service-zones
-     * @secure
-     */
-    vendorCreateServiceZone: (id: string, data: VendorCreateServiceZone, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The service zone's fulfillment set. */
-          fulfillment_set?: VendorFulfillmentSet;
-        },
-        any
-      >({
-        path: `/vendor/fulfillment-sets/${id}/service-zones`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates a Service Zone.
-     *
-     * @tags Fulfillment Set
-     * @name VendorUpdateServiceZoneById
-     * @summary Update a Service Zone
-     * @request POST:/vendor/fulfillment-sets/{id}/service-zones/{zone_id}
-     * @secure
-     */
-    vendorUpdateServiceZoneById: (
-      id: string,
-      zoneId: string,
-      data: VendorUpdateServiceZone,
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** The service zone's fulfillment set. */
-          fulfillment_set?: VendorFulfillmentSet;
-        },
-        any
-      >({
-        path: `/vendor/fulfillment-sets/${id}/service-zones/${zoneId}`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Deletes a Service Zone.
-     *
-     * @tags Service Zone
-     * @name VendorDeleteServiceZoneById
-     * @summary Delete a Service Zone
-     * @request DELETE:/vendor/fulfillment-sets/{id}/service-zones/{zone_id}
-     * @secure
-     */
-    vendorDeleteServiceZoneById: (id: string, zoneId: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The ID of the deleted Service Zone. */
-          id?: string;
-          /**
-           * The type of the object that was deleted.
-           * @default "service_zone"
-           */
-          object?: string;
-          /**
-           * Whether or not the items were deleted.
-           * @default true
-           */
-          deleted?: boolean;
-        },
-        any
-      >({
-        path: `/vendor/fulfillment-sets/${id}/service-zones/${zoneId}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves list of InventoryItems
-     *
-     * @tags Product
-     * @name VendorListInventoryItem
-     * @summary List InventoryItems
-     * @request GET:/vendor/inventory-items
-     * @secure
-     */
-    vendorListInventoryItem: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/vendor/inventory-items`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves InventoryItem of specified id
-     *
-     * @tags Product
-     * @name VendorGetInventoryItem
-     * @summary Get inventory item
-     * @request GET:/vendor/inventory-items/{id}
-     * @secure
-     */
-    vendorGetInventoryItem: (id: string, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/vendor/inventory-items/${id}`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description Updates InventoryItem of specified id
-     *
-     * @tags Product
-     * @name VendorUpdateInventoryItem
-     * @summary Update inventory item
-     * @request POST:/vendor/inventory-items/{id}
-     * @secure
-     */
-    vendorUpdateInventoryItem: (id: string, data: VendorUpdateInventoryItem, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/vendor/inventory-items/${id}`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves inventory levels of the InventoryItem
-     *
-     * @tags Product
-     * @name VendorGetItemInventoryLevel
-     * @summary Get InventoryLevels of specified InventoryItem
-     * @request GET:/vendor/inventory-items/{id}/location-levels
-     * @secure
-     */
-    vendorGetItemInventoryLevel: (id: string, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/vendor/inventory-items/${id}/location-levels`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description Creates inventory level of the InventoryItem in the specified location
-     *
-     * @tags Product
-     * @name VendorCreateInventoryLevel
-     * @summary Create inventory level
-     * @request POST:/vendor/inventory-items/{id}/location-levels
-     * @secure
-     */
-    vendorCreateInventoryLevel: (id: string, data: VendorCreateInventoryLevel, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/vendor/inventory-items/${id}/location-levels`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves inventory level of the InventoryItem in the specified location
-     *
-     * @tags Product
-     * @name VendorGetInventoryLevel
-     * @summary Get inventory level
-     * @request GET:/vendor/inventory-items/{id}/location-levels/{location_id}
-     * @secure
-     */
-    vendorGetInventoryLevel: (id: string, locationId: string, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/vendor/inventory-items/${id}/location-levels/${locationId}`,
-        method: "GET",
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description Updates inventory level of the InventoryItem in the specified location
-     *
-     * @tags Product
-     * @name VendorUpdateInventoryLevel
-     * @summary Update inventory level
-     * @request POST:/vendor/inventory-items/{id}/location-levels/{location_id}
-     * @secure
-     */
-    vendorUpdateInventoryLevel: (
-      id: string,
-      locationId: string,
-      data: VendorUpdateInventoryLevel,
-      params: RequestParams = {},
-    ) =>
-      this.request<void, any>({
-        path: `/vendor/inventory-items/${id}/location-levels/${locationId}`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a list of member invites for the authenticated vendor.
-     *
-     * @tags Member
-     * @name VendorListInvites
-     * @summary List Member Invites
-     * @request GET:/vendor/invites
-     * @secure
-     */
-    vendorListInvites: (
-      query?: {
-        /** The number of items to return. Default 50. */
-        limit?: number;
-        /** The number of items to skip before starting the response. Default 0. */
-        offset?: number;
-        /** Comma-separated fields that should be included in the returned data. */
-        fields?: string;
-        /** Field used to order the results. */
-        order?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          invites?: VendorMemberInvite[];
-          /** The total number of items available */
-          count?: number;
-          /** The number of items skipped before these items */
-          offset?: number;
-          /** The number of items per page */
-          limit?: number;
-        },
-        any
-      >({
-        path: `/vendor/invites`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a new member invite for the authenticated vendor.
-     *
-     * @tags Member
-     * @name VendorCreateInvite
-     * @summary Create a Member Invite
-     * @request POST:/vendor/invites
-     * @secure
-     */
-    vendorCreateInvite: (data: VendorInviteMember, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A member invite object with its properties */
-          invite?: VendorMemberInvite;
-        },
-        any
-      >({
-        path: `/vendor/invites`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Accepts a member invite using the provided token and creates a new member.
-     *
-     * @tags Member
-     * @name VendorAcceptInvite
-     * @summary Accept a Member Invite
-     * @request POST:/vendor/invites/{id}/accept
-     * @secure
-     */
-    vendorAcceptInvite: (id: string, data: VendorAcceptMemberInvite, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A member invite object with its properties */
-          invite?: VendorMemberInvite;
-        },
-        any
-      >({
-        path: `/vendor/invites/${id}/accept`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a list of members.
-     *
-     * @tags Member
-     * @name VendorListMembers
-     * @summary List Members
-     * @request GET:/vendor/members
-     * @secure
-     */
-    vendorListMembers: (
-      query?: {
-        /** The number of items to return. Default 50. */
-        limit?: number;
-        /** The number of items to skip before starting the response. Default 0. */
-        offset?: number;
-        /** Comma-separated fields that should be included in the returned data. */
-        fields?: string;
-        /** Comma-separated relations that should be expanded in the returned data. */
-        expand?: string;
-        /** Field used to order the results. */
-        order?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          members?: VendorMember[];
-          /** The total number of items available */
-          count?: number;
-          /** The number of items skipped before these items */
-          offset?: number;
-          /** The number of items per page */
-          limit?: number;
-        },
-        any
-      >({
-        path: `/vendor/members`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves the member associated with the authenticated user.
-     *
-     * @tags Member
-     * @name VendorGetMemberMe
-     * @summary Get Current Member
-     * @request GET:/vendor/members/me
-     * @secure
-     */
-    vendorGetMemberMe: (params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A member object with its properties */
-          member?: VendorMember;
-        },
-        any
-      >({
-        path: `/vendor/members/me`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a member by id.
-     *
-     * @tags Member
-     * @name VendorGetMemberById
-     * @summary Get a Member
-     * @request GET:/vendor/members/{id}
-     * @secure
-     */
-    vendorGetMemberById: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A member object with its properties */
-          member?: VendorMember;
-        },
-        any
-      >({
-        path: `/vendor/members/${id}`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates a member by id for the authenticated vendor.
-     *
-     * @tags Member
-     * @name VendorUpdateMemberById
-     * @summary Update a Member
-     * @request POST:/vendor/members/{id}
-     * @secure
-     */
-    vendorUpdateMemberById: (id: string, data: VendorUpdateMember, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A member object with its properties */
-          member?: VendorMember;
-        },
-        any
-      >({
-        path: `/vendor/members/${id}`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Deletes a member by id.
-     *
-     * @tags Member
-     * @name VendorDeleteMemberById
-     * @summary Delete a Member
-     * @request DELETE:/vendor/members/{id}
-     * @secure
-     */
-    vendorDeleteMemberById: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The ID of the deleted Member */
-          id?: string;
-          /** The type of the object that was deleted */
-          object?: string;
-          /** Whether or not the items were deleted */
-          deleted?: boolean;
-        },
-        any
-      >({
-        path: `/vendor/members/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a list of orders for the authenticated vendor.
-     *
-     * @tags Order
-     * @name VendorListOrders
-     * @summary List Orders
-     * @request GET:/vendor/orders
-     * @secure
-     */
-    vendorListOrders: (
-      query?: {
-        /** The number of items to skip before starting to collect the result set. */
-        offset?: number;
-        /** The number of items to return. */
-        limit?: number;
-        /** Comma-separated fields to include in the response. */
-        fields?: string;
-        /** The order of the returned items. */
-        order?: string;
-        /** Filter by created at date range */
-        created_at?: object;
-        /** Filter by order status */
-        status?: string | string[] | object;
-        /** Filter by fulfillment status */
-        fulfillment_status?: string;
-        /** Filter by payment status */
-        payment_status?: string;
-        /** Search query for filtering orders */
-        q?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          orders?: VendorOrderDetails[];
-          /** The total number of items available */
-          count?: number;
-          /** The number of items skipped before these items */
-          offset?: number;
-          /** The number of items per page */
-          limit?: number;
-        },
-        any
-      >({
-        path: `/vendor/orders`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves the details of specified order.
-     *
-     * @tags Order
-     * @name VendorGetOrder
-     * @summary Get Order details
-     * @request GET:/vendor/orders/{id}
-     * @secure
-     */
-    vendorGetOrder: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The order's details. */
-          order?: VendorOrderDetails;
-        },
-        any
-      >({
-        path: `/vendor/orders/${id}`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Mark order as cancelled.
-     *
-     * @tags Order
-     * @name VendorCancelOrder
-     * @summary Mark order as cancelled
-     * @request POST:/vendor/orders/{id}/cancel
-     * @secure
-     */
-    vendorCancelOrder: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The order's details. */
-          member?: VendorOrderDetails;
-        },
-        any
-      >({
-        path: `/vendor/orders/${id}/cancel`,
-        method: "POST",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Mark order as complete.
-     *
-     * @tags Order
-     * @name VendorCompleteOrder
-     * @summary Mark order as complete
-     * @request POST:/vendor/orders/{id}/complete
-     * @secure
-     */
-    vendorCompleteOrder: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The order's details. */
-          member?: VendorOrderDetails;
-        },
-        any
-      >({
-        path: `/vendor/orders/${id}/complete`,
-        method: "POST",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves the payout account for the authenticated vendor.
-     *
-     * @tags Payment Account
-     * @name VendorGetPayoutAccount
-     * @summary Get Payout Account
-     * @request GET:/vendor/payout-account
-     * @secure
-     */
-    vendorGetPayoutAccount: (
-      query?: {
-        /** Comma-separated fields that should be included in the returned data. */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** A payout account object with its properties */
-          payout_account?: VendorPayoutAccount;
-        },
-        any
-      >({
-        path: `/vendor/payout-account`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a payout account for the authenticated vendor.
-     *
-     * @tags Payment Account
-     * @name VendorCreatePayoutAccount
-     * @summary Create Payout Account
-     * @request POST:/vendor/payout-account
-     * @secure
-     */
-    vendorCreatePayoutAccount: (data: VendorCreatePayoutAccount, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A payout account object with its properties */
-          payout_account?: VendorPayoutAccount;
-        },
-        any
-      >({
-        path: `/vendor/payout-account`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates an onboarding for the authenticated vendor's payout account.
-     *
-     * @tags Payment Account
-     * @name VendorCreateOnboarding
-     * @summary Create Onboarding
-     * @request POST:/vendor/payout-account/onboarding
-     * @secure
-     */
-    vendorCreateOnboarding: (data: VendorCreateOnboarding, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A payout account object with its properties */
-          payout_account?: VendorPayoutAccount;
-        },
-        any
-      >({
-        path: `/vendor/payout-account/onboarding`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a list of products for the authenticated vendor.
-     *
-     * @tags Product
-     * @name VendorListProducts
-     * @summary List Products
-     * @request GET:/vendor/products
-     * @secure
-     */
-    vendorListProducts: (
-      query?: {
-        /** The number of items to skip before starting to collect the result set. */
-        offset?: number;
-        /** The number of items to return. */
-        limit?: number;
-        /** Comma-separated fields to include in the response. */
-        fields?: string;
-        /** The order of the returned items. */
-        order?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          products?: VendorProduct[];
-          /** The total number of items available */
-          count?: number;
-          /** The number of items skipped before these items */
-          offset?: number;
-          /** The number of items per page */
-          limit?: number;
-        },
-        any
-      >({
-        path: `/vendor/products`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a new product for the authenticated vendor.
-     *
-     * @tags Product
-     * @name VendorCreateProduct
-     * @summary Create a Product
-     * @request POST:/vendor/products
-     * @secure
-     */
-    vendorCreateProduct: (data: VendorCreateProduct, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A product object with its properties */
-          product?: VendorProduct;
-        },
-        any
-      >({
-        path: `/vendor/products`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a product by id for the authenticated vendor.
-     *
-     * @tags Product
-     * @name VendorGetProductById
-     * @summary Get a Product
-     * @request GET:/vendor/products/{id}
-     * @secure
-     */
-    vendorGetProductById: (
-      id: string,
-      query?: {
-        /** Comma-separated fields to include in the response. */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** A product object with its properties */
-          product?: VendorProduct;
-        },
-        any
-      >({
-        path: `/vendor/products/${id}`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates an existing product for the authenticated vendor.
-     *
-     * @tags Product
-     * @name VendorUpdateProductById
-     * @summary Update a Product
-     * @request POST:/vendor/products/{id}
-     * @secure
-     */
-    vendorUpdateProductById: (
-      id: string,
-      data: VendorUpdateProduct,
-      query?: {
-        /** Comma-separated fields to include in the response. */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** A product object with its properties */
-          product?: VendorProduct;
-        },
-        any
-      >({
-        path: `/vendor/products/${id}`,
-        method: "POST",
-        query: query,
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Deletes a product by id for the authenticated vendor.
-     *
-     * @tags Product
-     * @name VendorDeleteProductById
-     * @summary Delete a Product
-     * @request DELETE:/vendor/products/{id}
-     * @secure
-     */
-    vendorDeleteProductById: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The ID of the deleted Product */
-          id?: string;
-          /** The type of the object that was deleted */
-          object?: string;
-          /** Whether or not the items were deleted */
-          deleted?: boolean;
-        },
-        any
-      >({
-        path: `/vendor/products/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates an existing product for the authenticated vendor.
-     *
-     * @tags Order
-     * @name VendorCreateFulfillment
-     * @summary Update a Product
-     * @request POST:/vendor/products/{id}/fulfillment
-     * @secure
-     */
-    vendorCreateFulfillment: (id: string, data: VendorCreateFulfillment, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The fulfillment's details. */
-          fulfillment?: VendorOrderFulfillment;
-        },
-        any
-      >({
-        path: `/vendor/products/${id}/fulfillment`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a new seller with an initial owner member.
-     *
-     * @tags Seller
-     * @name VendorCreateSeller
-     * @summary Create a Seller
-     * @request POST:/vendor/sellers
-     * @secure
-     */
-    vendorCreateSeller: (data: VendorCreateSeller, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A seller object with its properties */
-          seller?: VendorSeller;
-        },
-        any
-      >({
-        path: `/vendor/sellers`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves the seller associated with the authenticated user.
-     *
-     * @tags Seller
-     * @name VendorGetSellerMe
-     * @summary Get Current Seller
-     * @request GET:/vendor/sellers/me
-     * @secure
-     */
-    vendorGetSellerMe: (params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A seller object with its properties */
-          seller?: VendorSeller;
-        },
-        any
-      >({
-        path: `/vendor/sellers/me`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates the seller associated with the authenticated user.
-     *
-     * @tags Seller
-     * @name VendorUpdateSellerMe
-     * @summary Update Current Seller
-     * @request POST:/vendor/sellers/me
-     * @secure
-     */
-    vendorUpdateSellerMe: (data: VendorUpdateSeller, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A seller object with its properties */
-          seller?: VendorSeller;
-        },
-        any
-      >({
-        path: `/vendor/sellers/me`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a list of Shipping Options for a Service Zone.
-     *
-     * @tags Shipping Option
-     * @name VendorListShippingOptions
-     * @summary List Shipping Options
-     * @request GET:/vendor/service-zones/{id}/shipping-options
-     * @secure
-     */
-    vendorListShippingOptions: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          shipping_options?: VendorShippingOption[];
-          /** The total number of items available */
-          count?: number;
-          /** The number of items skipped before these items */
-          offset?: number;
-          /** The number of items per page */
-          limit?: number;
-        },
-        any
-      >({
-        path: `/vendor/service-zones/${id}/shipping-options`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a Shipping Option for a Service Zone.
-     *
-     * @tags Shipping Option
-     * @name VendorCreateShippingOption
-     * @summary Create a Shipping Option
-     * @request POST:/vendor/service-zones/{id}/shipping-options
-     * @secure
-     */
-    vendorCreateShippingOption: (id: string, data: VendorCreateShippingOption, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The shipping option's details. */
-          shipping_option?: VendorShippingOption;
-        },
-        any
-      >({
-        path: `/vendor/service-zones/${id}/shipping-options`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a Shipping Option by its ID.
-     *
-     * @tags Shipping Option
-     * @name VendorGetShippingOptionById
-     * @summary Get a Shipping Option
-     * @request GET:/vendor/shipping-options/{id}
-     * @secure
-     */
-    vendorGetShippingOptionById: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The shipping option's details. */
-          shipping_option?: VendorShippingOption;
-        },
-        any
-      >({
-        path: `/vendor/shipping-options/${id}`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates a Shipping Option.
-     *
-     * @tags Shipping Option
-     * @name VendorUpdateShippingOptionById
-     * @summary Update a Shipping Option
-     * @request POST:/vendor/shipping-options/{id}
-     * @secure
-     */
-    vendorUpdateShippingOptionById: (id: string, data: VendorUpdateShippingOption, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The shipping option's details. */
-          shipping_option?: VendorShippingOption;
-        },
-        any
-      >({
-        path: `/vendor/shipping-options/${id}`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Deletes a Shipping Option.
-     *
-     * @tags Shipping Option
-     * @name VendorDeleteShippingOptionById
-     * @summary Delete a Shipping Option
-     * @request DELETE:/vendor/shipping-options/{id}
-     * @secure
-     */
-    vendorDeleteShippingOptionById: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The ID of the deleted Shipping Option. */
-          id?: string;
-          /**
-           * The type of the object that was deleted.
-           * @default "shipping_option"
-           */
-          object?: string;
-          /**
-           * Whether or not the items were deleted.
-           * @default true
-           */
-          deleted?: boolean;
-        },
-        any
-      >({
-        path: `/vendor/shipping-options/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a list of Stock Locations.
-     *
-     * @tags Stock Location
-     * @name VendorListStockLocations
-     * @summary List Stock Locations
-     * @request GET:/vendor/stock-locations
-     * @secure
-     */
-    vendorListStockLocations: (
-      query?: {
-        /** The comma-separated fields to include in the response */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          stock_locations?: VendorStockLocation[];
-        },
-        any
-      >({
-        path: `/vendor/stock-locations`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a Stock Location.
-     *
-     * @tags Stock Location
-     * @name VendorCreateStockLocation
-     * @summary Create a Stock Location
-     * @request POST:/vendor/stock-locations
-     * @secure
-     */
-    vendorCreateStockLocation: (
-      data: VendorCreateStockLocation,
-      query?: {
-        /** The comma-separated fields to include in the response */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** The stock location's details. */
-          stock_location?: VendorStockLocation;
-        },
-        any
-      >({
-        path: `/vendor/stock-locations`,
-        method: "POST",
-        query: query,
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves a Stock Location by id.
-     *
-     * @tags Stock Location
-     * @name VendorGetStockLocation
-     * @summary Get Stock Location
-     * @request GET:/vendor/stock-locations/{id}
-     * @secure
-     */
-    vendorGetStockLocation: (
-      id: string,
-      query?: {
-        /** The comma-separated fields to include in the response */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** The stock location's details. */
-          stock_location?: VendorStockLocation;
-        },
-        any
-      >({
-        path: `/vendor/stock-locations/${id}`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates a Stock Location.
-     *
-     * @tags Stock Location
-     * @name VendorUpdateStockLocation
-     * @summary Update Stock Location
-     * @request POST:/vendor/stock-locations/{id}
-     * @secure
-     */
-    vendorUpdateStockLocation: (
-      id: string,
-      data: VendorUpdateStockLocation,
-      query?: {
-        /** The comma-separated fields to include in the response */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** The stock location's details. */
-          stock_location?: VendorStockLocation;
-        },
-        any
-      >({
-        path: `/vendor/stock-locations/${id}`,
-        method: "POST",
-        query: query,
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates the fulfillment providers of a Stock Location.
-     *
-     * @tags Stock Location
-     * @name VendorUpdateStockLocationFulfillmentProviders
-     * @summary Update Stock Location Fulfillment Providers
-     * @request POST:/vendor/stock-locations/{id}/fulfillment-providers
-     * @secure
-     */
-    vendorUpdateStockLocationFulfillmentProviders: (
-      id: string,
-      data: {
-        /** Array of fulfillment provider IDs to add */
-        add?: string[];
-        /** Array of fulfillment provider IDs to remove */
-        remove?: string[];
-      },
-      query?: {
-        /** The comma-separated fields to include in the response */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** The stock location's details. */
-          stock_location?: VendorStockLocation;
-        },
-        any
-      >({
-        path: `/vendor/stock-locations/${id}/fulfillment-providers`,
-        method: "POST",
-        query: query,
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a Fulfillment Set for a Stock Location.
-     *
-     * @tags Stock Location
-     * @name VendorCreateStockLocationFulfillmentSet
-     * @summary Create a Fulfillment Set
-     * @request POST:/vendor/stock-locations/{id}/fulfillment-sets
-     * @secure
-     */
-    vendorCreateStockLocationFulfillmentSet: (
-      id: string,
-      data: VendorCreateStockLocationFulfillmentSet,
-      query?: {
-        /** The comma-separated fields to include in the response */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** The stock location's details. */
-          stock_location?: VendorStockLocation;
-        },
-        any
-      >({
-        path: `/vendor/stock-locations/${id}/fulfillment-sets`,
-        method: "POST",
-        query: query,
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates the sales channels of a Stock Location.
-     *
-     * @tags Stock Location
-     * @name VendorUpdateStockLocationSalesChannels
-     * @summary Update Stock Location Sales Channels
-     * @request POST:/vendor/stock-locations/{id}/sales-channels
-     * @secure
-     */
-    vendorUpdateStockLocationSalesChannels: (
-      id: string,
-      data: {
-        /** Array of sales channel IDs to add */
-        add?: string[];
-        /** Array of sales channel IDs to remove */
-        remove?: string[];
-      },
-      query?: {
-        /** The comma-separated fields to include in the response */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** The stock location's details. */
-          stock_location?: VendorStockLocation;
-        },
-        any
-      >({
-        path: `/vendor/stock-locations/${id}/sales-channels`,
-        method: "POST",
-        query: query,
-        body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,

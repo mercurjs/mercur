@@ -63,6 +63,10 @@ class EasyPostProviderService extends AbstractFulfillmentProviderService {
   }
 
   async getFulfillmentOptions(): Promise<FulfillmentOption[]> {
+    return [
+      { id: '11111111', name: 'test1', is_return: false },
+      { id: '22222222', name: 'test2', is_return: false }
+    ]
     const carriers = (await this.getActiveCarriers()).map((carrier) => {
       return {
         ...carrier,
@@ -70,6 +74,7 @@ class EasyPostProviderService extends AbstractFulfillmentProviderService {
         name: carrier.readable
       }
     })
+
     return carriers
   }
 
@@ -95,7 +100,7 @@ class EasyPostProviderService extends AbstractFulfillmentProviderService {
     data: any,
     context: any
   ): Promise<any> {
-    let { shipment_id } = data as {
+    const { shipment_id } = data as {
       shipment_id?: string
     }
     console.log('validateFulfillmentData data:', data)
@@ -137,6 +142,17 @@ class EasyPostProviderService extends AbstractFulfillmentProviderService {
         shipment_id: newShipment
       }
     }
+  }
+  async cancelFulfillment(data: Record<string, unknown>): Promise<any> {
+    const { label_id, shipment_id } = data as {
+      label_id: string
+      shipment_id: string
+    }
+    const test_message = 'Hello World'
+    console.log(test_message)
+
+    // await this.cancelShipment(shipment_id)
+    return true
   }
 }
 
