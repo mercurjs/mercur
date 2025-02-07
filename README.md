@@ -57,14 +57,25 @@ cd apps/backend
 # Clone .env.template
 cp .env.template .env
 
+# In the .env file replace user, password, address and port parameters in the DATABASE_URL variable with your values
+DATABASE_URL=postgres://[user]:[password]@[address]:[port]/$DB_NAME
+# For example:
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/$DB_NAME
+
 # Setup database and run migrations
 yarn medusa db:create && yarn medusa db:migrate && yarn run seed
 
 # Generate OpenAPI client
-yarn codegen
+yarn generate:oas
+
+# Create admin user
+npx medusa user --email <email> --password <password>
 
 # Go to root folder
 cd ../..
+
+# Generate http-client interfaces
+yarn codegen
 
 # Start Mercur
 yarn dev
@@ -77,7 +88,7 @@ yarn dev
 #### Learn more about Mercur
 
 - [Website](https://www.mercurjs.com/)
-- [Docs](https://rigby-3d34c1f9.mintlify.app/introduction)
+- [Docs](https://docs.mercurjs.com/introduction)
 
 #### Learn more about Medusa
 
