@@ -27,6 +27,7 @@
     "generate:oas": "medusa-oas oas --type combined --paths ./src/api"
   },
   "dependencies": {
+    "@easypost/api": "^7.5.5",
     "@medusajs/admin-sdk": "2.4.0",
     "@medusajs/cli": "2.4.0",
     "@medusajs/framework": "2.4.0",
