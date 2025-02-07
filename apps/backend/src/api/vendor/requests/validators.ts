@@ -34,6 +34,9 @@ export const VendorGetRequestsParams = createFindParams({
  *       name:
  *         type: string
  *         description: The name of the product category
+ *       handle:
+ *         type: string
+ *         description: The description of the product category
  *       description:
  *         type: string
  *         description: The description of the product category
@@ -45,6 +48,7 @@ const ProductCategoryRequest = z.object({
   type: z.literal('product_category'),
   data: z.object({
     name: z.string(),
+    handle: z.string(),
     description: z.string().optional(),
     parent_category_id: z.string().nullable()
   })
@@ -67,11 +71,15 @@ const ProductCategoryRequest = z.object({
  *       title:
  *         type: string
  *         description: The title of the product collection
+ *       handle:
+ *         type: string
+ *         description: The description of the product category
  */
 const ProductCollectionRequest = z.object({
   type: z.literal('product_collection'),
   data: z.object({
-    title: z.string()
+    title: z.string(),
+    handle: z.string()
   })
 })
 

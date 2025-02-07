@@ -1,5 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { MedusaError } from '@medusajs/framework/utils'
+import {
+  ContainerRegistrationKeys,
+  MedusaError
+} from '@medusajs/framework/utils'
 
 import { createSellerCreationRequestWorkflow } from '../../../workflows/requests/workflows'
 import { VendorCreateSellerType } from './validators'
@@ -41,18 +44,29 @@ export const POST = async (
       'Request already authenticated as a seller.'
     )
   }
-
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { member, ...sellerData } = req.validatedBody
+
+  const {
+    data: [identity]
+  } = await query.graph({
+    entity: 'provider_identity',
+    fields: ['id', 'entity_id'],
+    filters: {
+      auth_identity_id: req.auth_context?.auth_identity_id
+    }
+  })
 
   const { result: request } = await createSellerCreationRequestWorkflow.run({
     input: {
       data: {
         seller: sellerData,
         member,
-        auth_identity_id: req.auth_context?.auth_identity_id
+        auth_identity_id: req.auth_context?.auth_identity_id,
+        provider_identity_id: identity.entity_id
       },
       type: 'seller',
-      submitter_id: 'unknown',
+      submitter_id: identity.id
     },
     container: req.scope
   })

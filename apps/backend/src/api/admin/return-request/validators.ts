@@ -1,11 +1,18 @@
 import { z } from 'zod'
 
-import { createSelectParams } from '@medusajs/medusa/api/utils/validators'
+import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
 export type AdminGetOrderReturnRequestParamsType = z.infer<
   typeof AdminGetOrderReturnRequestParams
 >
-export const AdminGetOrderReturnRequestParams = createSelectParams()
+export const AdminGetOrderReturnRequestParams = createFindParams({
+  offset: 0,
+  limit: 50
+}).extend({
+  status: z
+    .enum(['pending', 'refunded', 'withdrawn', 'escalated', 'canceled'])
+    .optional()
+})
 
 /**
  * @schema AdminUpdateOrderReturnRequest
@@ -21,8 +28,7 @@ export const AdminGetOrderReturnRequestParams = createSelectParams()
  *     type: string
  *     enum:
  *       - refunded
- *       - withdrawn
- *       - escalated
+ *       - canceled
  *     description: A status of the request
  */
 export type AdminUpdateOrderReturnRequestType = z.infer<

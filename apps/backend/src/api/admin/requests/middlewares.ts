@@ -4,7 +4,8 @@ import {
 } from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
 
-import { applyRequestsFilterableFields } from '../../../shared/infra/http/middlewares/apply-requests-filterable-fields'
+import { applyRequestsStatusFilter } from '../../../shared/infra/http/middlewares/apply-request-status-filter'
+import { applyRequestsTypeFilter } from '../../../shared/infra/http/middlewares/apply-request-type-filter'
 import { adminRequestsConfig } from './query-config'
 import { AdminGetRequestsParams, AdminReviewRequest } from './validators'
 
@@ -17,12 +18,23 @@ export const requestsMiddlewares: MiddlewareRoute[] = [
         AdminGetRequestsParams,
         adminRequestsConfig.list
       ),
-      applyRequestsFilterableFields()
+      applyRequestsStatusFilter(),
+      applyRequestsTypeFilter()
     ]
   },
   {
     method: ['POST'],
     matcher: '/admin/requests/:id',
     middlewares: [validateAndTransformBody(AdminReviewRequest)]
+  },
+  {
+    method: ['GET'],
+    matcher: '/admin/requests/:id',
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetRequestsParams,
+        adminRequestsConfig.retrieve
+      )
+    ]
   }
 ]
