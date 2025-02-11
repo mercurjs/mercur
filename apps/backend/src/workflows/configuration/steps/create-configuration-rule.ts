@@ -10,7 +10,7 @@ export const createConfigurationRuleStep = createStep(
     const service =
       container.resolve<ConfigurationModuleService>(CONFIGURATION_MODULE)
 
-    const configuration_rule = await service.createConfigurationRules([input])
+    const configuration_rule = await service.createConfigurationRules(input)
 
     return new StepResponse(configuration_rule, configuration_rule.id)
   },
