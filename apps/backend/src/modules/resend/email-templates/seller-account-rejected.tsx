@@ -1,4 +1,4 @@
-export const VendorAccountRejectedEmailTemplate: React.FC = () => {
+export const SellerAccountRejectedEmailTemplate: React.FC = () => {
   return (
     <div>
       <h1>We regret to inform you that your account application has been rejected.</h1>

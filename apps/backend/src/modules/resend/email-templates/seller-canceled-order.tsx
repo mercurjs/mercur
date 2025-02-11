@@ -33,7 +33,7 @@ interface EmailTemplateProps {
 	}
 }
 
-export const VendorCanceledOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
+export const SellerCanceledOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
   return (
     <div>
       <h1>

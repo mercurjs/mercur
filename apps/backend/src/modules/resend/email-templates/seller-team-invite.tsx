@@ -10,7 +10,7 @@ interface EmailTemplateProps {
 	}
 }
 
-export const VendorTeamInviteEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
+export const SellerTeamInviteEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
   return (
     <div>
       <h1>

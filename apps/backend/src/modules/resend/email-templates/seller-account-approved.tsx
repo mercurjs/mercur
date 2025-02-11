@@ -4,13 +4,13 @@ interface EmailTemplateProps {
 	}
 }
 
-export const VendorAccountApprovedEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
+export const SellerAccountApprovedEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
   return (
     <div>
       <h1>
         Hello, {data.user_name} 👋
         <br />
-        Your account have been approved!
+        Your account has been approved!
       </h1>
       <p>
         We’re happy to let you know that your application has been approved! This means your account is now activated on

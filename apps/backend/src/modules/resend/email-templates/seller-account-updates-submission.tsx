@@ -4,7 +4,7 @@ interface EmailTemplateProps {
 	}
 }
 
-export const VendorAccountSubmissionEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
+export const SellerAccountSubmissionEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
   return (
     <div>
       <h1>Hello, {data.user_name} 👋</h1>

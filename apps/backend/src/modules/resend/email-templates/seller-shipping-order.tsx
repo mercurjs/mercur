@@ -31,7 +31,7 @@ interface EmailTemplateProps {
 	}
 }
 
-export const VendorOrderShippingEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
+export const SellerOrderShippingEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
   return (
     <div>
       <h1>The order #{data.order.display_id} has been marked as shipped.</h1>

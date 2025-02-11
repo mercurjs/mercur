@@ -3,14 +3,14 @@ import { BuyerCancelOrderEmailTemplate } from './buyer-cancel-order'
 import { BuyerNewOrderEmailTemplate } from './buyer-new-order'
 import { BuyerOrderShippedEmailTemplate } from './buyer-shipped-order'
 import { ForgotPasswordEmailTemplate } from './forgot-password'
-import { VendorAccountApprovedEmailTemplate } from './vendor-account-approved'
-import { VendorAccountRejectedEmailTemplate } from './vendor-account-rejected'
-import { VendorAccountSubmissionEmailTemplate } from './vendor-account-updates-submission'
-import { VendorCanceledOrderEmailTemplate } from './vendor-canceled-order'
-import { VendorNewOrderEmailTemplate } from './vendor-new-order'
-import { VendorOrderShippingEmailTemplate } from './vendor-shipping-order'
-import { VendorTeamInviteEmailTemplate } from './vendor-team-invite'
-import { VendorEmailVerifyEmailTemplate } from './vendor-verify-email'
+import { SellerAccountApprovedEmailTemplate } from './seller-account-approved'
+import { SellerAccountRejectedEmailTemplate } from './seller-account-rejected'
+import { SellerAccountSubmissionEmailTemplate } from './seller-account-updates-submission'
+import { SellerCanceledOrderEmailTemplate } from './seller-canceled-order'
+import { SellerNewOrderEmailTemplate } from './seller-new-order'
+import { SellerOrderShippingEmailTemplate } from './seller-shipping-order'
+import { SellerTeamInviteEmailTemplate } from './seller-team-invite'
+import { SellerEmailVerifyEmailTemplate } from './seller-verify-email'
 
 export const emailTemplates = {
   buyerAccountCreatedEmailTemplate: BuyerAccountCreatedEmailTemplate,
@@ -18,12 +18,12 @@ export const emailTemplates = {
   buyerNewOrderEmailTemplate: BuyerNewOrderEmailTemplate,
   buyerOrderShippedEmailTemplate: BuyerOrderShippedEmailTemplate,
   forgotPasswordEmailTemplate: ForgotPasswordEmailTemplate,
-  vendorAccountApprovedEmailTemplate: VendorAccountApprovedEmailTemplate,
-  vendorAccountRejectedEmailTemplate: VendorAccountRejectedEmailTemplate,
-  vendorAccountSubmissionEmailTemplate: VendorAccountSubmissionEmailTemplate,
-  vendorCanceledOrderEmailTemplate: VendorCanceledOrderEmailTemplate,
-  vendorNewOrderEmailTemplate: VendorNewOrderEmailTemplate,
-  vendorOrderShippingEmailTemplate: VendorOrderShippingEmailTemplate,
-  vendorTeamInviteEmailTemplate: VendorTeamInviteEmailTemplate,
-  vendorVerifyEmailTemplate: VendorEmailVerifyEmailTemplate
+  sellerAccountApprovedEmailTemplate: SellerAccountApprovedEmailTemplate,
+  sellerAccountRejectedEmailTemplate: SellerAccountRejectedEmailTemplate,
+  sellerAccountSubmissionEmailTemplate: SellerAccountSubmissionEmailTemplate,
+  sellerCanceledOrderEmailTemplate: SellerCanceledOrderEmailTemplate,
+  sellerNewOrderEmailTemplate: SellerNewOrderEmailTemplate,
+  sellerOrderShippingEmailTemplate: SellerOrderShippingEmailTemplate,
+  sellerTeamInviteEmailTemplate: SellerTeamInviteEmailTemplate,
+  sellerVerifyEmailTemplate: SellerEmailVerifyEmailTemplate
 }
