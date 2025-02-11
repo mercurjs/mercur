@@ -1,6 +1,3 @@
-import EasyPost, { CarrierAccount } from '@easypost/api/types'
-import { log } from 'console'
-
 import {
   CreateShippingOptionDTO,
   FulfillmentOption
@@ -8,61 +5,66 @@ import {
 import { AbstractFulfillmentProviderService } from '@medusajs/framework/utils'
 import { Logger } from '@medusajs/medusa/types'
 
-import { createEasyPostClient } from './client'
-import { CreateShipment } from './types'
+import { IEasyPostClient } from './loaders/client'
+import { CarrierAccount, CreateShipment } from './types'
 
 type InjectedDependencies = {
   logger: Logger
+  easyPostClient: { getInstance: (opts: EasyPostOptions) => IEasyPostClient }
 }
 
 type CanCalculateData = CreateShippingOptionDTO & Record<string, unknown>
 
 export type EasyPostOptions = {
-  api_key: string
+  apiKey: string
 }
 
-class EasyPostProviderService extends AbstractFulfillmentProviderService {
+class EasyPostFulfillmentProviderService extends AbstractFulfillmentProviderService {
   static identifier = 'easypost'
   protected logger_: Logger
   protected options_: EasyPostOptions
-  private client_: EasyPost
+  private easypost_: IEasyPostClient
 
-  constructor({ logger }: InjectedDependencies, options: EasyPostOptions) {
-    super()
-    this.logger_ = logger
-    this.client_ = createEasyPostClient({ ...options, logger })
+  constructor(container: InjectedDependencies, options: EasyPostOptions) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    super(...arguments)
+    this.logger_ = container.logger
+    this.easypost_ = container.easyPostClient.getInstance(options)
     this.options_ = options
   }
 
   private async getActiveCarriers(): Promise<CarrierAccount[]> {
-    this.client_.CarrierAccount.all()
-    return this.client_.CarrierAccount.all()
+    return this.easypost_.getCarrierAccounts()
   }
   private async getShippingRates(id: string) {
-    return this.client_.Shipment.retrieve(id)
+    return this.easypost_.Shipment.retrieve(id)
     // TODO can be removerd for as we get rates together with get shipment or after creation - to be optimised
   }
   private async getShipment(id: string) {
-    return this.client_.Shipment.retrieve(id)
+    return this.easypost_.Shipment.retrieve(id)
   }
 
   private async createShipment(payload: CreateShipment) {
-    return this.client_.Shipment.create(payload)
+    return this.easypost_.Shipment.create(payload)
   }
 
   private async purchaseLabelForShipment(shipment_id: string, rate_id: string) {
-    const shipment = await this.client_.Shipment.buy(shipment_id, rate_id)
+    const shipment = await this.easypost_.Shipment.buy(shipment_id, rate_id)
     console.log('purchaseLabelForShipment: shipment:', shipment)
     return shipment
   }
 
   private async cancelShipment(id: string) {
-    const batch = await this.client_.Batch.removeShipments('batch_...', [id])
+    const batch = await this.easypost_.Batch.removeShipments('batch_...', [id])
 
     console.log(batch)
   }
 
-  async getFulfillmentOptions(): Promise<FulfillmentOption[]> {
+  async getFulfillmentOptions(data: any): Promise<FulfillmentOption[]> {
+    console.log('data:', data)
+    // TODO - here is needed to check which providers are active and which ones are not for this region or other related stuff
+    // TODO : async hooks - check can we add hook (it can be attached somewhere to get vendor_id as cintex )
     return [
       { id: '11111111', name: 'test1', is_return: false },
       { id: '22222222', name: 'test2', is_return: false }
@@ -156,4 +158,4 @@ class EasyPostProviderService extends AbstractFulfillmentProviderService {
   }
 }
 
-export default EasyPostProviderService
+export default EasyPostFulfillmentProviderService

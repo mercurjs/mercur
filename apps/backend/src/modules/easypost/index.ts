@@ -1,7 +1,9 @@
 import { ModuleProvider, Modules } from '@medusajs/framework/utils'
 
-import EasyPostProviderService from './service'
+import easyPostClientLoader from './loaders/client'
+import EasyPostFulfillmentProviderService from './service'
 
 export default ModuleProvider(Modules.FULFILLMENT, {
-  services: [EasyPostProviderService]
+  services: [EasyPostFulfillmentProviderService],
+  loaders: [easyPostClientLoader]
 })

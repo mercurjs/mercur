@@ -21,6 +21,7 @@ module.exports = defineConfig({
     { resolve: './src/modules/configuration' },
     { resolve: './src/modules/order-return-request' },
     { resolve: './src/modules/requests' },
+    { resolve: './src/modules/default-shipping-options' },
     {
       resolve: './src/modules/taxcode',
       options: {
@@ -52,7 +53,6 @@ module.exports = defineConfig({
       resolve: '@medusajs/medusa/fulfillment',
       options: {
         providers: [
-          // default provider
           {
             resolve: '@medusajs/medusa/fulfillment-manual',
             id: 'manual'
@@ -61,7 +61,8 @@ module.exports = defineConfig({
             resolve: './src/modules/easypost',
             id: 'easypost',
             options: {
-              api_key: process.env.EASYPOST_API_KEY || 'supersecret'
+              apiKey: process.env.EASYPOST_API_KEY || 'supersecret',
+              mockEasyPostClient: true
             }
           }
         ]
