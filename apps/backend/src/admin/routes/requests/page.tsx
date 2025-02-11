@@ -1,16 +1,9 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { QueueList } from "@medusajs/icons";
 
 const RequestsPage = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    navigate("/requests/seller");
-  });
-
-  return <></>;
+  return <Navigate to={"/requests/seller"} />;
 };
 
 export const config = defineRouteConfig({
