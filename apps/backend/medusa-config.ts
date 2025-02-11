@@ -21,6 +21,7 @@ module.exports = defineConfig({
     { resolve: './src/modules/configuration' },
     { resolve: './src/modules/order-return-request' },
     { resolve: './src/modules/requests' },
+    { resolve: './src/modules/default-shipping-options' },
     {
       resolve: './src/modules/taxcode',
       options: {
@@ -43,6 +44,25 @@ module.exports = defineConfig({
             id: 'stripe-connect',
             options: {
               apiKey: process.env.STRIPE_SECRET_API_KEY
+            }
+          }
+        ]
+      }
+    },
+    {
+      resolve: '@medusajs/medusa/fulfillment',
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/fulfillment-manual',
+            id: 'manual'
+          },
+          {
+            resolve: './src/modules/easypost',
+            id: 'easypost',
+            options: {
+              apiKey: process.env.EASYPOST_API_KEY || 'supersecret',
+              mockEasyPostClient: true
             }
           }
         ]
