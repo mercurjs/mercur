@@ -2,18 +2,22 @@ import { NextFunction } from 'express'
 
 import {
   MedusaRequest,
+  MedusaResponse,
   MiddlewareRoute,
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
+import { MedusaError } from '@medusajs/framework/utils'
 
 import sellerRequest from '../../../links/seller-request'
 import { ConfigurationRuleType } from '../../../modules/configuration/types'
 import {
-  checkConfigurationRule,
   checkResourceOwnershipByResourceId,
-  filterBySellerId
+  filterBySellerId,
+  getRuleValue
 } from '../../../shared/infra/http/middlewares'
+import { applyRequestsStatusFilter } from '../../../shared/infra/http/middlewares/apply-request-status-filter'
+import { applyRequestsTypeFilter } from '../../../shared/infra/http/middlewares/apply-request-type-filter'
 import { vendorRequestsConfig } from './query-config'
 import {
   VendorCreateRequest,
@@ -22,16 +26,23 @@ import {
 } from './validators'
 
 const canVendorRequestProduct = () => {
-  return (
+  return async (
     req: MedusaRequest<VendorCreateRequestType>,
-    _,
+    res: MedusaResponse,
     next: NextFunction
   ) => {
-    if (req.validatedBody.request.type === 'product') {
-      return checkConfigurationRule(
-        ConfigurationRuleType.PRODUCT_REQUEST_ENABLED,
-        true
-      )
+    if (
+      req.validatedBody.request.type === 'product' &&
+      !(await getRuleValue(
+        req.scope,
+        ConfigurationRuleType.PRODUCT_REQUEST_ENABLED
+      ))
+    ) {
+      res.status(403).json({
+        message: `This feature is disabled!`,
+        type: MedusaError.Types.NOT_ALLOWED
+      })
+      return
     }
     return next()
   }
@@ -46,7 +57,9 @@ export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
         VendorGetRequestsParams,
         vendorRequestsConfig.list
       ),
-      filterBySellerId()
+      filterBySellerId(),
+      applyRequestsStatusFilter(),
+      applyRequestsTypeFilter()
     ]
   },
   {

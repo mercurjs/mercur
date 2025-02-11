@@ -10,7 +10,11 @@ export const adminReturnOrderRequestFields = [
   'admin_reviewer_date',
   'status',
   'line_items.*',
-  'order.*'
+  'order.*',
+  'order.customer.first_name',
+  'order.customer.last_name',
+  'seller.*',
+  'created_at'
 ]
 
 export const adminReturnOrderRequestQueryConfig = {

@@ -1,5 +1,5 @@
 /**
- * @schema OrderReturnRequest
+ * @schema AdminOrderReturnRequest
  * title: "Order return request"
  * description: "A return request object with its properties"
  * properties:
@@ -39,6 +39,20 @@
  *     type: object
  *     properties:
  *        id:
+ *          type: string
+ *        customer:
+ *          type: object
+ *          properties:
+ *             first_name:
+ *                type: string
+ *             last_name:
+ *                type: string
+ *   seller:
+ *     type: object
+ *     properties:
+ *        id:
+ *          type: string
+ *        name:
  *          type: string
  *   line_items:
  *     type: array

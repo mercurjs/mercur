@@ -4,21 +4,23 @@ import {
   validateAndTransformQuery
 } from '@medusajs/framework'
 
+import { applyRequestsStatusFilter } from '../../../shared/infra/http/middlewares/apply-request-status-filter'
 import { adminReturnOrderRequestQueryConfig } from './query-config'
 import {
   AdminGetOrderReturnRequestParams,
   AdminUpdateOrderReturnRequest
 } from './validators'
 
-export const adminReturnRequestsMiddlewares: MiddlewareRoute[] = [
+export const returnRequestsMiddlewares: MiddlewareRoute[] = [
   {
     method: ['GET'],
-    matcher: '/vendor/return-request',
+    matcher: '/admin/return-request',
     middlewares: [
       validateAndTransformQuery(
         AdminGetOrderReturnRequestParams,
         adminReturnOrderRequestQueryConfig.list
-      )
+      ),
+      applyRequestsStatusFilter()
     ]
   },
   {

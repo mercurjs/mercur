@@ -9,7 +9,7 @@ export const acceptProductCategoryRequestWorkflow = createWorkflow(
   function (input: AcceptRequestDTO) {
     const productCategory = createProductCategoriesWorkflow.runAsStep({
       input: {
-        product_categories: [input.data]
+        product_categories: [{ ...input.data, is_active: true }]
       }
     })
 

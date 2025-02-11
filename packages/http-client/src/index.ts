@@ -23100,13 +23100,107 @@ export interface WorkflowExecutionContext {
   }[];
 }
 
-export interface AdminCreateRule {
-  /** The type of the rule */
-  rule_type?:
-    | "global_product_catalog"
-    | "require_product_approval"
-    | "product_request_enabled";
-  is_enabled?: boolean;
+/**
+ * Order return request
+ * A return request object with its properties
+ */
+export interface AdminOrderReturnRequest {
+  /** The unique identifier of the order return request. */
+  id?: string;
+  /** The id of the submitter */
+  customer_id?: string;
+  /** Note from the submitter */
+  customer_note?: string;
+  /** The id of the vendor reviewer */
+  vendor_reviewer_id?: string;
+  /** Note from the vendor reviewer */
+  vendor_reviewer_note?: string;
+  /**
+   * The date with timezone of the vendor review
+   * @format date-time
+   */
+  vendor_reviewer_date?: string;
+  /** The id of the admin reviewer */
+  admin_reviewer_id?: string;
+  /** Note from the admin reviewer */
+  admin_reviewer_note?: string;
+  /**
+   * The date with timezone of the admin review
+   * @format date-time
+   */
+  admin_reviewer_date?: string;
+  status?: "pending" | "refunded" | "withdrawn" | "escalated" | "canceled";
+  order?: {
+    id?: string;
+    customer?: {
+      first_name?: string;
+      last_name?: string;
+    };
+  };
+  seller?: {
+    id?: string;
+    name?: string;
+  };
+  /** The line items to return. */
+  line_items?: OrderReturnRequestLineItem[];
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+}
+
+/**
+ * Request
+ * A request object
+ */
+export interface AdminRequest {
+  /** The unique identifier of the request. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** The type of the request object. */
+  type?: string;
+  /** The request payload. */
+  data?: object;
+  /** A unique id of the submitter */
+  submitter_id?: string;
+  /** A unique id of the reviewer */
+  reviewer_id?: string | null;
+  /** A note provided by the reviewer */
+  reviewer_note?: string | null;
+  /** The status of the request */
+  status?: string;
+  seller?: {
+    id?: string;
+    name?: string;
+  };
+}
+
+/**
+ * Update Request
+ * A schema for the admin review of request.
+ */
+export interface AdminReviewRequest {
+  /** Reviewer note. */
+  reviewer_note?: string;
+  /** A status of the request */
+  status?: "accepted" | "rejected";
+  /** Assign product to seller (applicable only to Product request) */
+  assign_product_to_seller?: boolean;
 }
 
 /**
@@ -23117,24 +23211,7 @@ export interface AdminUpdateOrderReturnRequest {
   /** Reviewer note. */
   admin_reviewer_note?: string;
   /** A status of the request */
-  status?: "refunded" | "withdrawn" | "escalated";
-}
-
-export interface AdminUpdateRule {
-  is_enabled?: boolean;
-}
-
-/**
- * Configuration rule
- * A configuration rule object
- */
-export interface ConfigurationRule {
-  /** The unique identifier of the rule. */
-  id?: string;
-  /** The unique type of the rule. */
-  rule_type?: string;
-  /** Flag that indicates if rule is enabled. */
-  is_enabled?: boolean;
+  status?: "refunded" | "canceled";
 }
 
 export interface CreateProductOption {
@@ -23299,6 +23376,10 @@ export interface OrderReturnRequest {
    * @format date-time
    */
   admin_reviewer_date?: string;
+  status?: "pending" | "refunded" | "withdrawn" | "escalated" | "canceled";
+  order?: {
+    id?: string;
+  };
   /** The line items to return. */
   line_items?: OrderReturnRequestLineItem[];
   /**
@@ -23333,6 +23414,8 @@ export interface ProductCategoryRequest {
     /** The name of the product category */
     name?: string;
     /** The description of the product category */
+    handle?: string;
+    /** The description of the product category */
     description?: string;
     /** The id of the parent category */
     parent_category_id?: string;
@@ -23345,6 +23428,8 @@ export interface ProductCollectionRequest {
   data: {
     /** The title of the product collection */
     title?: string;
+    /** The description of the product category */
+    handle?: string;
   };
 }
 
@@ -50136,26 +50221,32 @@ export class Api<
       }),
 
     /**
-     * @description Retrieves rules list
+     * @description Retrieves requests list
      *
      * @tags Admin
-     * @name AdminListRules
-     * @summary List rules
-     * @request GET:/admin/configuration
+     * @name AdminListRequests
+     * @summary List requests
+     * @request GET:/admin/requests
      * @secure
      */
-    adminListRules: (
+    adminListRequests: (
       query?: {
-        /** The number of items to skip before starting to collect the result set. */
-        offset?: number;
-        /** The number of items to return. */
+        /** The number of items to return. Default 50. */
         limit?: number;
+        /** The number of items to skip before starting the response. Default 0. */
+        offset?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+        /** Filter by request type */
+        type?: "product" | "product_collection" | "product_category" | "seller";
+        /** Filter by request status */
+        status?: "pending" | "rejected" | "accepted";
       },
       params: RequestParams = {}
     ) =>
       this.request<
         {
-          configuration_rules?: ConfigurationRule[];
+          requests?: AdminRequest[];
           /** The total number of requests */
           count?: number;
           /** The number of requests skipped */
@@ -50165,7 +50256,7 @@ export class Api<
         },
         any
       >({
-        path: `/admin/configuration`,
+        path: `/admin/requests`,
         method: "GET",
         query: query,
         secure: true,
@@ -50174,53 +50265,59 @@ export class Api<
       }),
 
     /**
-     * @description Creates a request to admin to accept new resource
+     * @description Retrieves a request by id.
      *
      * @tags Admin
-     * @name AdminCreateRule
-     * @summary Create a configuration rule
-     * @request POST:/admin/configuration
+     * @name AdminGetRequestById
+     * @summary Get return request by id
+     * @request GET:/admin/requests/{id}
      * @secure
      */
-    adminCreateRule: (data: AdminCreateRule, params: RequestParams = {}) =>
+    adminGetRequestById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {}
+    ) =>
       this.request<
         {
-          /** A configuration rule object */
-          configuration_rule?: ConfigurationRule;
+          /** A request object */
+          request?: AdminRequest;
         },
         any
       >({
-        path: `/admin/configuration`,
-        method: "POST",
-        body: data,
+        path: `/admin/requests/${id}`,
+        method: "GET",
+        query: query,
         secure: true,
-        type: ContentType.Json,
         format: "json",
         ...params,
       }),
 
     /**
-     * @description Updates a rule
+     * @description Retrieves a request by id.
      *
      * @tags Admin
-     * @name AdminUpdateRule
-     * @summary Update a configuration rule
-     * @request POST:/admin/configuration/{id}
+     * @name AdminReviewRequestById
+     * @summary Get return request by id
+     * @request POST:/admin/requests/{id}
      * @secure
      */
-    adminUpdateRule: (
+    adminReviewRequestById: (
       id: string,
-      data: AdminUpdateRule,
+      data: AdminReviewRequest,
       params: RequestParams = {}
     ) =>
       this.request<
         {
-          /** A configuration rule object */
-          configuration_rule?: ConfigurationRule;
+          id?: string;
+          status?: "accepted" | "rejected";
         },
         any
       >({
-        path: `/admin/configuration/${id}`,
+        path: `/admin/requests/${id}`,
         method: "POST",
         body: data,
         secure: true,
@@ -50246,12 +50343,19 @@ export class Api<
         offset?: number;
         /** Comma-separated fields to include in the response. */
         fields?: string;
+        /** Filter by request status */
+        status?:
+          | "pending"
+          | "refunded"
+          | "withdrawn"
+          | "escalated"
+          | "canceled";
       },
       params: RequestParams = {}
     ) =>
       this.request<
         {
-          order_return_request?: OrderReturnRequest[];
+          order_return_request?: AdminOrderReturnRequest[];
           /** The total number of requests */
           count?: number;
           /** The number of requests skipped */

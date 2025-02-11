@@ -9,6 +9,43 @@ import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils'
 import { updateRequestWorkflow } from '../../../../workflows/requests/workflows'
 import { AdminReviewRequestType } from '../validators'
 
+/**
+ * @oas [post] /admin/requests/{id}
+ * operationId: "AdminReviewRequestById"
+ * summary: "Get return request by id"
+ * description: "Retrieves a request by id."
+ * x-authenticated: true
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the Request.
+ *     schema:
+ *       type: string
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/AdminReviewRequest"
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: string
+ *             status:
+ *               type: string
+ *               enum: [accepted,rejected]
+ * tags:
+ *   - Admin
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
 export async function POST(
   req: AuthenticatedMedusaRequest<AdminReviewRequestType>,
   res: MedusaResponse
@@ -81,6 +118,41 @@ export async function POST(
   })
 }
 
+/**
+ * @oas [get] /admin/requests/{id}
+ * operationId: "AdminGetRequestById"
+ * summary: "Get return request by id"
+ * description: "Retrieves a request by id."
+ * x-authenticated: true
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the Request.
+ *     schema:
+ *       type: string
+ *   - name: fields
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Comma-separated fields to include in the response.
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             request:
+ *               $ref: "#/components/schemas/AdminRequest"
+ * tags:
+ *   - Admin
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
 export async function GET(
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
@@ -97,5 +169,5 @@ export async function GET(
     }
   })
 
-  res.json(request)
+  res.json({ request })
 }
