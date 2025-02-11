@@ -13,7 +13,7 @@ type Props = {
 
 export function SellerRequestDetail({ request, open, close }: Props) {
   if (!request) {
-    return <></>;
+    return null;
   }
   const requestData = request.data as any;
 

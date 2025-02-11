@@ -7,7 +7,6 @@ export const adminRequestsFields = [
   'reviewer_note',
   'status',
   'seller.*',
-  'seller.name',
   'created_at',
   'updated_at'
 ]

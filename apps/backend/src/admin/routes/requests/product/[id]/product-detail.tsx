@@ -10,6 +10,7 @@ import { useProductType } from "../../../../hooks/api/product_type";
 import { useProductTags } from "../../../../hooks/api/product_tags";
 import { useState } from "react";
 import { ResolveRequestPrompt } from "../../components/resolve-request";
+import { LoadingSpinner } from "../../../../common/LoadingSpinner";
 
 export const ProductRequestDetail = ({ id }: { id: string }) => {
   const navigate = useNavigate();
@@ -24,7 +25,11 @@ export const ProductRequestDetail = ({ id }: { id: string }) => {
     setPromptOpen(true);
   };
 
-  return request && !isLoading && !isError ? (
+  if (!request || isLoading || isError) {
+    return <LoadingSpinner />
+  }
+
+  return (
     <TwoColumnLayout
       firstCol={
         <>
@@ -84,9 +89,7 @@ export const ProductRequestDetail = ({ id }: { id: string }) => {
         </>
       }
     />
-  ) : (
-    <></>
-  );
+  )
 };
 
 const ProductOptionsInfo = ({ product }: { product: ProductDTO }) => {

@@ -15,7 +15,7 @@ type Props = {
 
 export function ProductCategoryRequestDetail({ request, open, close }: Props) {
   if (!request) {
-    return <></>;
+    return null;
   }
   const requestData = request.data as ProductCategoryDTO;
 

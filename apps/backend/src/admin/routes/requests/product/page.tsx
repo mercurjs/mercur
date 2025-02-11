@@ -4,7 +4,7 @@ import { History } from "@medusajs/icons";
 import { useVendorRequests } from "../../../hooks/api/requests";
 import { ProductDTO } from "@medusajs/framework/types";
 import { formatDate } from "../../../lib/date";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getRequestStatusBadge } from "../utils/get-status-badge";
 import { FilterRequests, FilterState } from "../components/filter-requests";
 import { AdminRequest } from "@mercurjs/http-client";
@@ -15,14 +15,10 @@ import { useNavigate } from "react-router-dom";
 const ProductRequestsPage = () => {
   const [currentFilter, setCurrentFilter] = useState<FilterState>("");
 
-  const { requests, isLoading, refetch } = useVendorRequests({
+  const { requests, isLoading } = useVendorRequests({
     type: "product",
     status: currentFilter !== "" ? currentFilter : undefined,
   });
-
-  useEffect(() => {
-    refetch();
-  }, []);
 
   return (
     <Container>

@@ -18,7 +18,7 @@ export function ProductCollectionRequestDetail({
   close,
 }: Props) {
   if (!request) {
-    return <></>;
+    return null;
   }
   const requestData = request.data as ProductCollectionDTO;
 

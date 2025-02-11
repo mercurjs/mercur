@@ -15,7 +15,7 @@ type Props = {
 
 export function ReturnRequestDetail({ request, open, close }: Props) {
   if (!request || !request.order?.id) {
-    return <></>;
+    return null;
   }
 
   const { order } = useOrder(request.order?.id);
