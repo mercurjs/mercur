@@ -157,7 +157,7 @@ const CreateCommissionRuleForm = ({ onSuccess }: Props) => {
       </fieldset>
       <fieldset className="my-4">
         <legend className="mb-2">Attribute</legend>
-        {showSellers && sellers ? (
+        {showSellers && sellers && (
           <Select
             value={seller}
             onValueChange={(value) => {
@@ -173,10 +173,8 @@ const CreateCommissionRuleForm = ({ onSuccess }: Props) => {
               })}
             </Select.Content>
           </Select>
-        ) : (
-          <></>
         )}
-        {showProductCategories && product_categories ? (
+        {showProductCategories && product_categories && (
           <Select
             value={category}
             onValueChange={(value) => {
@@ -192,10 +190,8 @@ const CreateCommissionRuleForm = ({ onSuccess }: Props) => {
               })}
             </Select.Content>
           </Select>
-        ) : (
-          <></>
         )}
-        {showProductTypes && product_types ? (
+        {showProductTypes && product_types && (
           <Select
             value={type}
             onValueChange={(value) => {
@@ -211,8 +207,6 @@ const CreateCommissionRuleForm = ({ onSuccess }: Props) => {
               })}
             </Select.Content>
           </Select>
-        ) : (
-          <></>
         )}
       </fieldset>
       <fieldset className="my-4">
@@ -250,48 +244,48 @@ const CreateCommissionRuleForm = ({ onSuccess }: Props) => {
           onChange={(e) => setRateValue(parseFloat(e.target.value))}
         />
       </fieldset>
-      <fieldset className="my-4">
-        <div className="flex items-center gap-x-2">
-          <Label>Minimum commission value (USD)</Label>
-          <Switch
-            id="min_com"
-            onCheckedChange={(val) => {
-              setMinCommission(val ? 0 : null);
-            }}
-          />
-        </div>
-        {minCommission !== null ? (
-          <Input
-            name="min_com_val"
-            type="number"
-            value={minCommission || 0}
-            onChange={(e) => setMinCommission(parseFloat(e.target.value))}
-          />
-        ) : (
-          <></>
-        )}
-      </fieldset>
-      <fieldset className="my-4">
-        <div className="flex items-center gap-x-2">
-          <Label>Maximum commission value (USD)</Label>
-          <Switch
-            id="max_com"
-            onCheckedChange={(val) => {
-              setMaxCommission(val ? 0 : null);
-            }}
-          />
-        </div>
-        {maxCommission !== null ? (
-          <Input
-            name="max_com_val"
-            type="number"
-            value={maxCommission || 0}
-            onChange={(e) => setMaxCommission(parseFloat(e.target.value))}
-          />
-        ) : (
-          <></>
-        )}
-      </fieldset>
+      {rateType === "percentage" && (
+        <>
+          <fieldset className="my-4">
+            <div className="flex items-center gap-x-2">
+              <Label>Minimum commission value (USD)</Label>
+              <Switch
+                id="min_com"
+                onCheckedChange={(val) => {
+                  setMinCommission(val ? 0 : null);
+                }}
+              />
+            </div>
+            {minCommission !== null && (
+              <Input
+                name="min_com_val"
+                type="number"
+                value={minCommission || 0}
+                onChange={(e) => setMinCommission(parseFloat(e.target.value))}
+              />
+            )}
+          </fieldset>
+          <fieldset className="my-4">
+            <div className="flex items-center gap-x-2">
+              <Label>Maximum commission value (USD)</Label>
+              <Switch
+                id="max_com"
+                onCheckedChange={(val) => {
+                  setMaxCommission(val ? 0 : null);
+                }}
+              />
+            </div>
+            {maxCommission !== null && (
+              <Input
+                name="max_com_val"
+                type="number"
+                value={maxCommission || 0}
+                onChange={(e) => setMaxCommission(parseFloat(e.target.value))}
+              />
+            )}
+          </fieldset>
+        </>
+      )}
       <Button type="submit" isLoading={loading}>
         Create
       </Button>

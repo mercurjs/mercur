@@ -95,50 +95,50 @@ const UpsertDefaultCommissionRuleForm = ({ onSuccess, rule }: Props) => {
           onChange={(e) => setRateValue(parseFloat(e.target.value))}
         />
       </fieldset>
-      <fieldset className="my-4">
-        <div className="flex items-center gap-x-2">
-          <Label>Minimum commission value (USD)</Label>
-          <Switch
-            id="min_com"
-            checked={minCommission !== null}
-            onCheckedChange={(val) => {
-              setMinCommission(val ? 0 : null);
-            }}
-          />
-        </div>
-        {minCommission !== null ? (
-          <Input
-            name="min_com_val"
-            type="number"
-            value={minCommission || 0}
-            onChange={(e) => setMinCommission(parseFloat(e.target.value))}
-          />
-        ) : (
-          <></>
-        )}
-      </fieldset>
-      <fieldset className="my-4">
-        <div className="flex items-center gap-x-2">
-          <Label>Maximum commission value (USD)</Label>
-          <Switch
-            id="max_com"
-            checked={maxCommission !== null}
-            onCheckedChange={(val) => {
-              setMaxCommission(val ? 0 : null);
-            }}
-          />
-        </div>
-        {maxCommission !== null ? (
-          <Input
-            name="max_com_val"
-            type="number"
-            value={maxCommission || 0}
-            onChange={(e) => setMaxCommission(parseFloat(e.target.value))}
-          />
-        ) : (
-          <></>
-        )}
-      </fieldset>
+      {rateType === "percentage" && (
+        <>
+          <fieldset className="my-4">
+            <div className="flex items-center gap-x-2">
+              <Label>Minimum commission value (USD)</Label>
+              <Switch
+                id="min_com"
+                checked={minCommission !== null}
+                onCheckedChange={(val) => {
+                  setMinCommission(val ? 0 : null);
+                }}
+              />
+            </div>
+            {minCommission !== null && (
+              <Input
+                name="min_com_val"
+                type="number"
+                value={minCommission || 0}
+                onChange={(e) => setMinCommission(parseFloat(e.target.value))}
+              />
+            )}
+          </fieldset>
+          <fieldset className="my-4">
+            <div className="flex items-center gap-x-2">
+              <Label>Maximum commission value (USD)</Label>
+              <Switch
+                id="max_com"
+                checked={maxCommission !== null}
+                onCheckedChange={(val) => {
+                  setMaxCommission(val ? 0 : null);
+                }}
+              />
+            </div>
+            {maxCommission !== null && (
+              <Input
+                name="max_com_val"
+                type="number"
+                value={maxCommission || 0}
+                onChange={(e) => setMaxCommission(parseFloat(e.target.value))}
+              />
+            )}
+          </fieldset>
+        </>
+      )}
       <Button type="submit" isLoading={loading}>
         Create
       </Button>
