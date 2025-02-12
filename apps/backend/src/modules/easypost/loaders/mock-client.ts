@@ -1,8 +1,8 @@
 import { GetAccountsResponse } from './validators'
 
 const mockEasyPostClient = () => {
-  const getCarrierAccounts = async () =>
-    GetAccountsResponse.parse([
+  const getCarrierAccounts = async (id?: string) => {
+    const accounts = [
       {
         id: 'ca_3c870664d65c440d96ad1f3c3208eef8',
         object: 'CarrierAccount',
@@ -43,8 +43,14 @@ const mockEasyPostClient = () => {
         created_at: '2025-02-03T17:43:41.000Z',
         updated_at: '2025-02-03T17:43:41.000Z'
       }
-    ])
-
+    ]
+    if (id) {
+      return GetAccountsResponse.parse(
+        accounts.filter((account) => account.id === id)
+      )
+    }
+    return GetAccountsResponse.parse(accounts)
+  }
   return { getCarrierAccounts }
 }
 

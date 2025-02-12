@@ -6,7 +6,7 @@ import {
 import { getShippingOptionsFromEasyPost } from '../steps'
 
 export const getEasyPostOptions = createWorkflow('get-easypost-options', () => {
-  const options = getShippingOptionsFromEasyPost()
+  const options = getShippingOptionsFromEasyPost({})
 
   return new WorkflowResponse(options)
 })

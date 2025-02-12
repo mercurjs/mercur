@@ -1,10 +1,6 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
 
-// id: model.id().primaryKey(),
-// external_provider: model.text(),
-// external_provider_id: model.text(),
-// external_provider_option_name: model.text(),
-// is_enabled: model.boolean().default(false)
+import { AdminCreateDefaultShippingOptionType } from './validators'
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   // const carriers = await getAdminCarriersList(req.scope).run()
@@ -17,8 +13,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   res.json(data)
 }
 
-export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
+export const POST = async (
+  req: MedusaRequest<AdminCreateDefaultShippingOptionType>,
+  res: MedusaResponse
+) => {
   // const carriers = await getAdminCarriersList(req.scope).run()
 
-  res.send('')
+  res.send('To be implemented')
 }

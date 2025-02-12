@@ -14,7 +14,7 @@ const Client = require('@easypost/api')
 export type GetAccountsResponse = z.infer<typeof GetAccountsResponse>
 
 export interface IEasyPostClient {
-  getCarrierAccounts: () => Promise<GetAccountsResponse>
+  getCarrierAccounts: (id?: string) => Promise<GetAccountsResponse>
 }
 
 export class EasyPostClient implements IEasyPostClient {
@@ -45,9 +45,15 @@ export class EasyPostClient implements IEasyPostClient {
     return EasyPostClient.instance
   }
 
-  async getCarrierAccounts() {
+  async getCarrierAccounts(id?: string) {
     try {
-      const response = await this.client_.CarrierAccount.all()
+      let response
+      if (id) {
+        response = [await this.client_.CarrierAccount.retrieve(id)]
+      } else {
+        response = await this.client_.CarrierAccount.all()
+      }
+
       const accounts = GetAccountsResponse.parse(response)
       return accounts
     } catch {
