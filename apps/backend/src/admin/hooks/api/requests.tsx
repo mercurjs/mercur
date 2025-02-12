@@ -19,7 +19,10 @@ export const useVendorRequests = (
     UseQueryOptions<
       Parameters<typeof api.admin.adminListRequests>[0],
       Error,
-      { requests: AdminRequest[] },
+      {
+        requests: AdminRequest[];
+        count?: number;
+      },
       QueryKey
     >,
     "queryFn" | "queryKey"

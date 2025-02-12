@@ -11,7 +11,10 @@ import { AdminRequest } from "@mercurjs/http-client";
 import { ProductCollectionRequestDetail } from "./product-collection-detail";
 import { RequestMenu } from "../components/request-menu";
 
+const PAGE_SIZE = 20;
+
 const ProductCollectionRequestsPage = () => {
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailRequest, setDetailRequest] = useState<AdminRequest | undefined>(
     undefined,
@@ -24,7 +27,9 @@ const ProductCollectionRequestsPage = () => {
 
   const [currentFilter, setCurrentFilter] = useState<FilterState>("");
 
-  const { requests, isLoading, refetch } = useVendorRequests({
+  const { requests, isLoading, refetch, count } = useVendorRequests({
+    offset: currentPage * PAGE_SIZE,
+    limit: PAGE_SIZE,
     type: "product_collection",
     status: currentFilter !== "" ? currentFilter : undefined,
   });
@@ -92,6 +97,20 @@ const ProductCollectionRequestsPage = () => {
               );
             })}
           </Table.Body>
+          <Table.Pagination
+            canNextPage={PAGE_SIZE * (currentPage + 1) < count!}
+            canPreviousPage={currentPage > 0}
+            previousPage={() => {
+              setCurrentPage(currentPage - 1);
+            }}
+            nextPage={() => {
+              setCurrentPage(currentPage + 1);
+            }}
+            count={count!}
+            pageCount={Math.ceil(count! / PAGE_SIZE)}
+            pageIndex={currentPage}
+            pageSize={PAGE_SIZE}
+          />
         </Table>
       </div>
     </Container>
