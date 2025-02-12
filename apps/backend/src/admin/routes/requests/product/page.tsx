@@ -8,14 +8,18 @@ import { useState } from "react";
 import { getRequestStatusBadge } from "../utils/get-status-badge";
 import { FilterRequests, FilterState } from "../components/filter-requests";
 import { AdminRequest } from "@mercurjs/http-client";
-import { useProductCategory } from "../../../hooks/api/product_category";
 import { RequestMenu } from "../components/request-menu";
 import { useNavigate } from "react-router-dom";
 
+const PAGE_SIZE = 20;
+
 const ProductRequestsPage = () => {
   const [currentFilter, setCurrentFilter] = useState<FilterState>("");
+  const [currentPage, setCurrentPage] = useState<number>(0);
 
-  const { requests, isLoading } = useVendorRequests({
+  const { requests, isLoading, count } = useVendorRequests({
+    limit: PAGE_SIZE,
+    offset: currentPage * PAGE_SIZE,
     type: "product",
     status: currentFilter !== "" ? currentFilter : undefined,
   });
@@ -39,7 +43,6 @@ const ProductRequestsPage = () => {
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Product</Table.HeaderCell>
-              <Table.HeaderCell>Category</Table.HeaderCell>
               <Table.HeaderCell>Submitted By</Table.HeaderCell>
               <Table.HeaderCell>Variants</Table.HeaderCell>
               <Table.HeaderCell>Date</Table.HeaderCell>
@@ -52,6 +55,20 @@ const ProductRequestsPage = () => {
               return <ProductRequestsRow request={request} />;
             })}
           </Table.Body>
+          <Table.Pagination
+            canNextPage={PAGE_SIZE * (currentPage + 1) < count!}
+            canPreviousPage={currentPage > 0}
+            previousPage={() => {
+              setCurrentPage(currentPage - 1);
+            }}
+            nextPage={() => {
+              setCurrentPage(currentPage + 1);
+            }}
+            count={count!}
+            pageCount={Math.ceil(count! / PAGE_SIZE)}
+            pageIndex={currentPage}
+            pageSize={PAGE_SIZE}
+          />
         </Table>
       </div>
     </Container>
@@ -61,16 +78,9 @@ const ProductRequestsPage = () => {
 const ProductRequestsRow = ({ request }: { request: AdminRequest }) => {
   const navigate = useNavigate();
   const requestData = request.data as ProductDTO;
-  let category_name = "";
-  if (requestData.categories && requestData.categories[0]) {
-    const id = requestData.categories[0].id;
-    const { product_category } = useProductCategory(id);
-    category_name = product_category?.name || "";
-  }
   return (
     <Table.Row key={request.id}>
       <Table.Cell>{requestData.title}</Table.Cell>
-      <Table.Cell>{category_name}</Table.Cell>
       <Table.Cell>{request.seller?.name}</Table.Cell>
       <Table.Cell>
         {requestData.variants?.length || 0}

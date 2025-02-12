@@ -23,7 +23,7 @@ export const useReturnRequests = (
     UseQueryOptions<
       Parameters<typeof api.admin.adminListOrderReturnRequests>[0],
       Error,
-      { order_return_request: AdminOrderReturnRequest[] },
+      { order_return_request: AdminOrderReturnRequest[]; count?: number },
       QueryKey
     >,
     "queryFn" | "queryKey"

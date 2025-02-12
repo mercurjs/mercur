@@ -13,7 +13,10 @@ import { ReturnRequestDetail } from "./return-detail";
 import { AdminOrderReturnRequest } from "@mercurjs/http-client";
 import { ReturnRequestMenu } from "../components/return-request-menu";
 
+const PAGE_SIZE = 20;
+
 const OrderReturnRequestsPage = () => {
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailRequest, setDetailRequest] = useState<
     AdminOrderReturnRequest | undefined
@@ -30,7 +33,10 @@ const OrderReturnRequestsPage = () => {
     order_return_request: requests,
     isLoading,
     refetch,
+    count,
   } = useReturnRequests({
+    offset: currentPage * PAGE_SIZE,
+    limit: PAGE_SIZE,
     status: currentFilter !== "" ? currentFilter : undefined,
   });
 
@@ -101,6 +107,20 @@ const OrderReturnRequestsPage = () => {
               );
             })}
           </Table.Body>
+          <Table.Pagination
+            canNextPage={PAGE_SIZE * (currentPage + 1) < count!}
+            canPreviousPage={currentPage > 0}
+            previousPage={() => {
+              setCurrentPage(currentPage - 1);
+            }}
+            nextPage={() => {
+              setCurrentPage(currentPage + 1);
+            }}
+            count={count!}
+            pageCount={Math.ceil(count! / PAGE_SIZE)}
+            pageIndex={currentPage}
+            pageSize={PAGE_SIZE}
+          />
         </Table>
       </div>
     </Container>
