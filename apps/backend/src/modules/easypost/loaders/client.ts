@@ -1,6 +1,5 @@
 import EasyPost from '@easypost/api/types/EasyPost'
 import { asValue } from 'awilix'
-// import { createRequire } from 'node:module'
 import { z } from 'zod'
 
 import { LoaderOptions } from '@medusajs/framework/types'
@@ -8,8 +7,6 @@ import { MedusaError } from '@medusajs/framework/utils'
 
 import mockClient from './mock-client'
 import { GetAccountsResponse } from './validators'
-
-// const require2 = createRequire(import.meta.url)
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const Client = require('@easypost/api')

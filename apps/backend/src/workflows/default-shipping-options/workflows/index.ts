@@ -1,1 +1,1 @@
-export * from './get-admin-easypost-carriers'
+export * from './get-easypost-options'
