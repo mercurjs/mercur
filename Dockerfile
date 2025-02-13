@@ -3,7 +3,6 @@ FROM node:20-alpine as builder
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-COPY .yarn ./.yarn
 
 COPY apps/backend/package.json ./apps/backend/
 
@@ -18,7 +17,6 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-COPY .yarn ./.yarn
 
 COPY apps/backend/package.json ./apps/backend/
 
