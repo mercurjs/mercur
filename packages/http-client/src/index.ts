@@ -55735,15 +55735,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Retrieves a list of Shipping Options for a Service Zone.
+     * @description Retrieves a list of Shipping Options for authenticated vendor.
      *
      * @tags Shipping Option
      * @name VendorListShippingOptions
      * @summary List Shipping Options
-     * @request GET:/vendor/service-zones/{id}/shipping-options
+     * @request GET:/vendor/shipping-options
      * @secure
      */
-    vendorListShippingOptions: (id: string, params: RequestParams = {}) =>
+    vendorListShippingOptions: (params: RequestParams = {}) =>
       this.request<
         {
           shipping_options?: VendorShippingOption[];
@@ -55756,7 +55756,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         },
         any
       >({
-        path: `/vendor/service-zones/${id}/shipping-options`,
+        path: `/vendor/shipping-options`,
         method: "GET",
         secure: true,
         format: "json",
@@ -55764,15 +55764,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Creates a Shipping Option for a Service Zone.
+     * @description Creates a Shipping Option for authenticated vendor.
      *
      * @tags Shipping Option
      * @name VendorCreateShippingOption
      * @summary Create a Shipping Option
-     * @request POST:/vendor/service-zones/{id}/shipping-options
+     * @request POST:/vendor/shipping-options
      * @secure
      */
-    vendorCreateShippingOption: (id: string, data: VendorCreateShippingOption, params: RequestParams = {}) =>
+    vendorCreateShippingOption: (data: VendorCreateShippingOption, params: RequestParams = {}) =>
       this.request<
         {
           /** The shipping option's details. */
@@ -55780,7 +55780,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         },
         any
       >({
-        path: `/vendor/service-zones/${id}/shipping-options`,
+        path: `/vendor/shipping-options`,
         method: "POST",
         body: data,
         secure: true,
