@@ -14,13 +14,6 @@ import { VendorCreateShippingOptionType } from './validators'
  * summary: "Create a Shipping Option"
  * description: "Creates a Shipping Option for authenticated vendor."
  * x-authenticated: true
- * parameters:
- *   - in: path
- *     name: id
- *     required: true
- *     description: The ID of the Service Zone.
- *     schema:
- *       type: string
  * requestBody:
  *   content:
  *     application/json:
@@ -93,13 +86,6 @@ export const POST = async (
  * summary: "List Shipping Options"
  * description: "Retrieves a list of Shipping Options for authenticated vendor."
  * x-authenticated: true
- * parameters:
- *   - in: path
- *     name: id
- *     required: true
- *     description: The ID of the Service Zone.
- *     schema:
- *       type: string
  * responses:
  *   "200":
  *     description: OK
