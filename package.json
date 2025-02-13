@@ -1,6 +1,7 @@
 {
   "private": true,
   "devDependencies": {
+    "patch-package": "^8.0.0",
     "turbo": "^2.3.3"
   },
   "packageManager": "yarn@1.22.21",
