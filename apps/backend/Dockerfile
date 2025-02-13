@@ -1,52 +1,46 @@
-# === Base Stage ===
+# Stage 1: Base image
 FROM node:20-alpine AS base
-RUN apk update && apk add --no-cache libc6-compat
 
-# === Builder Stage ===
+# Stage 2: Builder – install Turbo and generate a pruned repo for the "backend" workspace
 FROM base AS builder
+RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /app
-
-# Install Turborepo globally. Adjust the version as needed.
+# Install Turbo globally (replace "^2" with your desired version if needed)
 RUN yarn global add turbo@^2
-
-# Copy entire repository into the image.
+# Copy the entire monorepo into the image
 COPY . .
+# Prune the repository for the backend workspace
+RUN turbo prune backend --docker
 
-# Prune the monorepo to include only the "medusa" workspace.
-RUN turbo prune medusa --docker
-
-# === Installer Stage ===
+# Stage 3: Installer – install dependencies and build the backend
 FROM base AS installer
+RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /app
-
-# Copy pruned dependency manifests.
+# Copy pruned lockfiles and package manifests
 COPY --from=builder /app/out/json/ .
-
-# Install dependencies using the pruned lockfile.
+# Install dependencies (this cacheable step speeds up rebuilds)
 RUN yarn install --frozen-lockfile
-
-# Copy the full pruned repository for the "medusa" workspace.
+# Copy the full source for the backend workspace
 COPY --from=builder /app/out/full/ .
+# Build the backend (use "--filter=backend..." to target only the backend workspace)
+RUN yarn turbo run build --filter=backend...
 
-# Build the Medusa backend.
-RUN yarn turbo run build
+# Stage 4: Runner – create the final production image
+FROM node:20-alpine AS runner
+WORKDIR /app/apps/backend
 
-# === Runner Stage ===
-FROM base AS runner
-WORKDIR /app
-
-# Create a non-root user for security.
-RUN addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 medusa
+# Create a non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 medusa
 USER medusa
 
-# Copy the built assets and node_modules for the "medusa" workspace.
-COPY --from=installer --chown=medusa:nodejs /app/apps/medusa/dist ./apps/medusa/dist
-COPY --from=installer --chown=medusa:nodejs /app/apps/medusa/node_modules ./apps/medusa/node_modules
-COPY --from=installer --chown=medusa:nodejs /app/apps/medusa/package.json ./apps/medusa/package.json
+# Set production environment variable (optional but recommended)
+ENV NODE_ENV=production
 
-# Set the working directory to the Medusa app folder.
-WORKDIR /app/apps/medusa
+# Copy the built backend workspace into the image
+COPY --from=installer --chown=medusa:nodejs /app/apps/backend .
 
-# Start the Medusa backend using Yarn.
+# Start the Medusa backend using Yarn
+RUN yarn build
+RUN yarn db:migrate
 CMD ["yarn", "start"]
