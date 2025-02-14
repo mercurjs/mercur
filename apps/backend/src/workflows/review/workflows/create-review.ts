@@ -18,7 +18,7 @@ export const createReviewWorkflow = createWorkflow(
   function (input: CreateReviewDTO) {
     const review = createReviewStep(input)
 
-    const links = transform({ input, review }, ({ input, review }) => {
+    const link = transform({ input, review }, ({ input, review }) => {
       return input.reference === 'product'
         ? [
             {
@@ -42,7 +42,7 @@ export const createReviewWorkflow = createWorkflow(
           ]
     })
 
-    createRemoteLinkStep(links)
+    createRemoteLinkStep(link)
     return new WorkflowResponse(review)
   }
 )

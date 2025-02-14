@@ -1,6 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import customerReview from '../../../links/customer-review'
 import { createReviewWorkflow } from '../../../workflows/review/workflows'
 import { StoreCreateReviewType, StoreGetReviewsParamsType } from './validators'
 
@@ -124,8 +125,8 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: reviews, metadata } = await query.graph({
-    entity: 'review',
-    fields: req.remoteQueryConfig.fields,
+    entity: customerReview.entryPoint,
+    fields: req.remoteQueryConfig.fields.map((field) => `review.${field}`),
     filters: {
       customer_id: req.auth_context.actor_id
     },

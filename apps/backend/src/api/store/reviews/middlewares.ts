@@ -4,6 +4,7 @@ import {
 } from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
 
+import customerReview from '../../../links/customer-review'
 import { checkCustomerResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares/check-customer-ownership'
 import { storeReviewQueryConfig } from './query-config'
 import {
@@ -43,7 +44,7 @@ export const storeReviewMiddlewares: MiddlewareRoute[] = [
         storeReviewQueryConfig.retrieve
       ),
       checkCustomerResourceOwnershipByResourceId({
-        entryPoint: 'review'
+        entryPoint: customerReview.entryPoint
       })
     ]
   },
@@ -52,7 +53,7 @@ export const storeReviewMiddlewares: MiddlewareRoute[] = [
     matcher: '/store/reviews/:id',
     middlewares: [
       checkCustomerResourceOwnershipByResourceId({
-        entryPoint: 'review'
+        entryPoint: customerReview.entryPoint
       })
     ]
   },
@@ -66,7 +67,7 @@ export const storeReviewMiddlewares: MiddlewareRoute[] = [
       ),
       validateAndTransformBody(StoreUpdateReview),
       checkCustomerResourceOwnershipByResourceId({
-        entryPoint: 'review'
+        entryPoint: customerReview.entryPoint
       })
     ]
   }

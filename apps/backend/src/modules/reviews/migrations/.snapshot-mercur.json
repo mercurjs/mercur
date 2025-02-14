@@ -46,15 +46,6 @@
           "nullable": true,
           "mappedType": "text"
         },
-        "customer_id": {
-          "name": "customer_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
         "seller_note": {
           "name": "seller_note",
           "type": "text",
