@@ -126,6 +126,10 @@
  *     type: object
  *     description: An optional key-value map with additional details.
  *     example: {car: "white"}
+ *   rating:
+ *     type: string
+ *     nullable: true
+ *     description: The average rating from customer reviews
  */
 
 /**

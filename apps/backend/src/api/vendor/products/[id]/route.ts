@@ -9,6 +9,7 @@ import {
   updateProductsWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import { getAvgRating } from '../../../../modules/reviews/utils'
 import {
   VendorGetProductParamsType,
   VendorUpdateProductType
@@ -66,7 +67,9 @@ export const GET = async (
     { throwIfKeyNotFound: true }
   )
 
-  res.json({ product })
+  const rating = await getAvgRating(req.scope, 'product', req.params.id)
+
+  res.json({ product: { ...product, rating } })
 }
 
 /**
