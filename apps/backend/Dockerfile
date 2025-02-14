@@ -39,9 +39,9 @@ FROM base AS runner
 WORKDIR /app
 
 # Don't run production as root
-RUN addgroup --system --gid 1001 expressjs
-RUN adduser --system --uid 1001 expressjs
-USER expressjs
+RUN addgroup --system --gid 1001 medusa
+RUN adduser --system --uid 1001 medusa
+USER medusa
 COPY --from=installer /app .
 
 WORKDIR /app/apps/backend
