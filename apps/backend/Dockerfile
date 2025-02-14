@@ -48,4 +48,4 @@ WORKDIR /app/apps/backend
 
 RUN yarn db:migrate
 
-CMD ['yarn', 'start']
+CMD ["yarn", "start"]
