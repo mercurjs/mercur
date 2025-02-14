@@ -1,7 +1,6 @@
 {
   "private": true,
   "devDependencies": {
-    "patch-package": "^8.0.0",
     "turbo": "^2.3.3"
   },
   "packageManager": "yarn@1.22.21",
@@ -10,7 +9,7 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "patch-package",
+    "postinstall": "npx patch-package",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "format": "turbo run format",
