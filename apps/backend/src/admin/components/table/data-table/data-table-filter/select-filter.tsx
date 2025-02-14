@@ -44,6 +44,9 @@ export const SelectFilter = ({
   const [previousValue, setPreviousValue] = useState<string | string[] | undefined>(labelValues)
 
   const handleRemove = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
     selectedParams.delete()
     removeFilter(key)
   }

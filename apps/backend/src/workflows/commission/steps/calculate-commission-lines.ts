@@ -34,7 +34,7 @@ async function calculateFlatCommission(
     (p) => p.currency_code === currency
   ) as PriceDTO
 
-  return price.amount || MathBN.convert(0)
+  return price?.amount || MathBN.convert(0)
 }
 
 async function calculatePercentageCommission(
@@ -68,11 +68,11 @@ async function calculatePercentageCommission(
 
   const minValue =
     (minPriceSet.prices?.find((p) => p.currency_code === currency) as PriceDTO)
-      .amount || MathBN.convert(0)
+      ?.amount || MathBN.convert(0)
 
   const maxValue =
     (maxPriceSet.prices?.find((p) => p.currency_code === currency) as PriceDTO)
-      .amount || MathBN.convert(Number.POSITIVE_INFINITY)
+      ?.amount || MathBN.convert(Number.POSITIVE_INFINITY)
 
   return MathBN.max(minValue, MathBN.min(maxValue, commissionValue))
 }
