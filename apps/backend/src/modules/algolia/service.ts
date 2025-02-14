@@ -1,10 +1,21 @@
-import { Algoliasearch, algoliasearch } from 'algoliasearch'
+import { Algoliasearch, IndexSettings, algoliasearch } from 'algoliasearch'
 
 import { AlgoliaProduct, IndexType } from './types'
 
 export type ModuleOptions = {
   appId: string
   apiKey: string
+}
+
+export const defaultProductSettings: IndexSettings = {
+  searchableAttributes: [
+    'title',
+    'subtitle',
+    'tags.value',
+    'type.value',
+    'categories.name',
+    'collection.title'
+  ]
 }
 
 class AlgoliaModuleService {
@@ -14,6 +25,13 @@ class AlgoliaModuleService {
   constructor(_, options: ModuleOptions) {
     this.options_ = options
     this.algolia_ = algoliasearch(this.options_.appId, this.options_.apiKey)
+  }
+
+  updateSettings(index: IndexType, settings: IndexSettings) {
+    return this.algolia_.setSettings({
+      indexName: index,
+      indexSettings: settings
+    })
   }
 
   upsertProduct(product: AlgoliaProduct) {
