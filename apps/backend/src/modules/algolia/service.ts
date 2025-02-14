@@ -24,7 +24,14 @@ class AlgoliaModuleService {
     })
   }
 
-  batchInsertProduct(products: AlgoliaProduct[]) {
+  deleteProduct(id: string) {
+    return this.algolia_.deleteObject({
+      indexName: IndexType.PRODUCT,
+      objectID: id
+    })
+  }
+
+  batchUpsertProduct(products: AlgoliaProduct[]) {
     return this.algolia_.batch({
       indexName: IndexType.PRODUCT,
       batchWriteParams: {
@@ -33,6 +40,21 @@ class AlgoliaModuleService {
             action: 'addObject',
             objectID: product.id,
             body: product
+          }
+        })
+      }
+    })
+  }
+
+  batchDeleteProduct(ids: string[]) {
+    return this.algolia_.batch({
+      indexName: IndexType.PRODUCT,
+      batchWriteParams: {
+        requests: ids.map((id) => {
+          return {
+            action: 'deleteObject',
+            objectID: id,
+            body: {}
           }
         })
       }
