@@ -23612,6 +23612,36 @@ export interface ProductRequest {
 }
 
 /**
+ * Seller/product review
+ * A product/seller review with rating and comment
+ */
+export interface Review {
+  /** The unique identifier of the review. */
+  id?: string;
+  /** The rating associated with the review. */
+  rating?: number;
+  /** Indicates if review reference is seller or product */
+  reference?: "seller" | "product";
+  /** Customer comment on resource */
+  customer_note?: string | null;
+  /** Id of the customer who left the review */
+  customer_id?: string;
+  /** Seller response to customer review */
+  seller_note?: string | null;
+}
+
+export interface ReviewRemoveRequest {
+  /** The type of the request */
+  type: "review_remove";
+  data: {
+    /** Id of the review to remove */
+    review_id?: string;
+    /** The reason to remove review */
+    reason?: string;
+  };
+}
+
+/**
  * Create Order Return Request
  * A schema for the creation of order return request.
  */
@@ -23625,6 +23655,46 @@ export interface StoreCreateOrderReturnRequest {
     line_item_id?: string;
     quantity?: number;
   }[];
+}
+
+/**
+ * Create Review
+ * A schema for creating a review.
+ */
+export interface StoreCreateReview {
+  /** Indicates if review reference is seller or product */
+  reference?: "seller" | "product";
+  /** The unique identifier of reference. */
+  reference_id?: string;
+  /**
+   * The customer rating on the resource.
+   * @min 1
+   * @max 5
+   */
+  rating?: number;
+  /**
+   * The customer note on the resource.
+   * @maxLength 300
+   */
+  customer_note?: string;
+}
+
+/**
+ * Update Review
+ * A schema for the review update.
+ */
+export interface StoreUpdateReview {
+  /**
+   * The customer rating on the resource.
+   * @min 1
+   * @max 5
+   */
+  rating?: number;
+  /**
+   * The customer note on the resource.
+   * @maxLength 300
+   */
+  customer_note?: string;
 }
 
 export interface UpdateProductOption {
@@ -23833,7 +23903,7 @@ export interface VendorCreateProduct {
 
 export interface VendorCreateRequest {
   /** The resource to be created by request */
-  request: ProductRequest | ProductCollectionRequest | ProductCategoryRequest;
+  request: ProductRequest | ProductCollectionRequest | ProductCategoryRequest | ReviewRemoveRequest;
 }
 
 export interface VendorCreateSeller {
@@ -25281,6 +25351,8 @@ export interface VendorProduct {
    * @example {"car":"white"}
    */
   metadata?: object;
+  /** The average rating from customer reviews */
+  rating?: string | null;
 }
 
 /**
@@ -26015,6 +26087,18 @@ export interface VendorUpdateProduct {
   sales_channels?: {
     id: string;
   }[];
+}
+
+/**
+ * Update Review
+ * A schema for the review update.
+ */
+export interface VendorUpdateReview {
+  /**
+   * The seller response to a review.
+   * @maxLength 300
+   */
+  seller_note?: string;
 }
 
 /**
@@ -54960,6 +55044,175 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Retrieves the reviews created by the authenticated user.
+     *
+     * @tags Review
+     * @name StoreGetMyReviews
+     * @summary Get reviews of the current user
+     * @request GET:/store/reviews
+     * @secure
+     */
+    storeGetMyReviews: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          products?: Review[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/store/reviews`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates new review with rating and comment
+     *
+     * @tags Review
+     * @name StoreCreateNewReview
+     * @summary Create new review
+     * @request POST:/store/reviews
+     * @secure
+     */
+    storeCreateNewReview: (
+      data: StoreCreateReview,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/store/reviews`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a review of specified id
+     *
+     * @tags Review
+     * @name StoreGetReviewById
+     * @summary Get Review
+     * @request GET:/store/reviews/{id}
+     * @secure
+     */
+    storeGetReviewById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/store/reviews/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates customer_note and rating for the review of specified id
+     *
+     * @tags Review
+     * @name StoreUpdateReviewById
+     * @summary Update a Review
+     * @request POST:/store/reviews/{id}
+     * @secure
+     */
+    storeUpdateReviewById: (
+      id: string,
+      data: StoreUpdateReview,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/store/reviews/${id}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a review by id.
+     *
+     * @tags Review
+     * @name StoreDeleteReviewById
+     * @summary Delete a Review
+     * @request DELETE:/store/reviews/{id}
+     * @secure
+     */
+    storeDeleteReviewById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted Review */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/store/reviews/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   vendor = {
     /**
@@ -56114,6 +56367,102 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/vendor/sellers/me`,
         method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves the reviews about the seller associated with the authenticated user.
+     *
+     * @tags Seller, Review
+     * @name VendorGetSellerMyReviews
+     * @summary Get reviews of the current seller
+     * @request GET:/vendor/sellers/me/reviews
+     * @secure
+     */
+    vendorGetSellerMyReviews: (params: RequestParams = {}) =>
+      this.request<
+        {
+          products?: Review[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/reviews`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a review by id for the authenticated vendor.
+     *
+     * @tags Seller, Review
+     * @name VendorGetSellerReviewById
+     * @summary Get a review by id
+     * @request GET:/vendor/sellers/me/reviews/{id}
+     * @secure
+     */
+    vendorGetSellerReviewById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/reviews/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates seller_note for the review of specified id
+     *
+     * @tags Seller, Review
+     * @name VendorUpdateReviewById
+     * @summary Update a Review
+     * @request POST:/vendor/sellers/me/reviews/{id}
+     * @secure
+     */
+    vendorUpdateReviewById: (
+      id: string,
+      data: VendorUpdateReview,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/reviews/${id}`,
+        method: "POST",
+        query: query,
         body: data,
         secure: true,
         type: ContentType.Json,
