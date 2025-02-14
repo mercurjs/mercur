@@ -37,7 +37,8 @@
     "@mikro-orm/postgresql": "5.9.7",
     "awilix": "^8.0.1",
     "pg": "^8.13.0",
-    "stripe": "^17.4.0"
+    "stripe": "^17.4.0",
+    "@mercurjs/http-client": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
