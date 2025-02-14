@@ -23094,6 +23094,142 @@ export interface WorkflowExecutionContext {
   }[];
 }
 
+/**
+ * CommissionAggregate
+ * Commission aggregate object
+ */
+export interface AdminCommissionAggregate {
+  /** The unique identifier. */
+  id?: string;
+  /** Commission rule name. */
+  name?: string;
+  /** Commission rate type. */
+  type?: "flat" | "percentage";
+  /** Rule reference type */
+  reference?: string;
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  /** Indicates if rate is calculated including tax. */
+  include_tax?: boolean;
+  /** Percent of commission. */
+  percentage_rate?: number;
+  /** Flat rate price id */
+  price_id?: string;
+  /** Flat rate price currency code */
+  price_currency?: string;
+  /** Flat rate price amount */
+  price_amount?: string;
+  /** Min price id */
+  min_price_id?: string;
+  /** Min price currency code */
+  min_price_currency?: string;
+  /** Min price amount */
+  min_price_amount?: string;
+  /** Max price id */
+  max_price_id?: string;
+  /** Max price currency code */
+  max_price_currency?: string;
+  /** Max price amount */
+  max_price_amount?: string;
+  /** Aggregated fee value */
+  fee_value?: string;
+  /** Aggregated reference value */
+  ref_value?: string;
+}
+
+/**
+ * CommissionRate
+ * Commission rate object
+ */
+export interface AdminCommissionRate {
+  /** The unique identifier. */
+  id?: string;
+  /** Commission rate type. */
+  type?: "flat" | "percentage";
+  /** Percent of commission. */
+  percentage_rate?: number;
+  /** Indicates if rate is calculated including tax. */
+  include_tax?: boolean;
+  /** Flat commission value. */
+  price_set_id?: string;
+  /** Min commission value. */
+  min_price_set_id?: string;
+  /** Max commission value. */
+  max_price_set_id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+}
+
+export interface AdminCommissionRatePrice {
+  /** Currency of the price. */
+  currency_code?: string;
+  /** The subtitle of the product. */
+  amount?: number;
+}
+
+/**
+ * CommissionRule
+ * Commission rule object
+ */
+export interface AdminCommissionRule {
+  /** The unique identifier. */
+  id?: string;
+  /** Commission rule name. */
+  name?: string;
+  /** Rule reference type */
+  reference?: string;
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  /** Commission rate object */
+  rate?: AdminCommissionRate;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+}
+
+export interface AdminCreateCommissionRate {
+  /** Rate type. */
+  type?: "flat" | "percentage";
+  /** The subtitle of the product. */
+  percentage_rate?: number;
+  /** The description of the product. */
+  include_tax?: boolean;
+  price_set?: AdminCommissionRatePrice;
+  min_price_set?: AdminCommissionRatePrice;
+  max_price_set?: AdminCommissionRatePrice;
+}
+
+export interface AdminCreateCommissionRule {
+  /** Commission rule name. */
+  name?: string;
+  /** Rule reference type */
+  reference?: string;
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  rate?: AdminCreateCommissionRate;
+}
+
 export interface AdminCreateRule {
   /** The type of the rule */
   rule_type?: "global_product_catalog" | "require_product_approval" | "product_request_enabled";
@@ -23203,6 +23339,13 @@ export interface AdminReviewRequest {
   assign_product_to_seller?: boolean;
 }
 
+export interface AdminUpdateCommissionRule {
+  /** Commission rule name. */
+  name?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+}
+
 /**
  * Update Order Return Request
  * A schema for the update of order return request.
@@ -23216,6 +23359,18 @@ export interface AdminUpdateOrderReturnRequest {
 
 export interface AdminUpdateRule {
   is_enabled?: boolean;
+}
+
+export interface AdminUpsertDefaultCommissionRule {
+  /** Commission rule name. */
+  name?: string;
+  /** Rule reference type */
+  reference?: "site";
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  rate?: AdminCreateCommissionRate;
 }
 
 /**
@@ -50114,6 +50269,198 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a commission rule with 'site' reference type.
+     *
+     * @tags Admin
+     * @name AdminGetDefaultCommissionRule
+     * @summary Get default commission rule
+     * @request GET:/admin/commission/default
+     * @secure
+     */
+    adminGetDefaultCommissionRule: (params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission aggregate object */
+          commission_rule?: AdminCommissionAggregate;
+        },
+        any
+      >({
+        path: `/admin/commission/default`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates or updates default commission rule.
+     *
+     * @tags Admin
+     * @name AdminUpsertDefaultCommissionRule
+     * @summary Upsert default CommissionRule
+     * @request POST:/admin/commission/default
+     * @secure
+     */
+    adminUpsertDefaultCommissionRule: (data: AdminUpsertDefaultCommissionRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission rule object */
+          commission_rule?: AdminCommissionRule;
+        },
+        any
+      >({
+        path: `/admin/commission/default`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of commission rules.
+     *
+     * @tags Admin
+     * @name AdminListCommissionRules
+     * @summary List Commission rules
+     * @request GET:/admin/commission/rules
+     * @secure
+     */
+    adminListCommissionRules: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          commission_rules?: AdminCommissionAggregate[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/commission/rules`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new commission rule.
+     *
+     * @tags Admin
+     * @name AdminCreateCommissionRule
+     * @summary Create a CommissionRule
+     * @request POST:/admin/commission/rules
+     * @secure
+     */
+    adminCreateCommissionRule: (data: AdminCreateCommissionRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission rule object */
+          commission_rule?: AdminCommissionRule;
+        },
+        any
+      >({
+        path: `/admin/commission/rules`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a commission rule by id.
+     *
+     * @tags Admin
+     * @name AdminGetCommissionRuleById
+     * @summary Get commission rule by id
+     * @request GET:/admin/commission/rules/{id}
+     * @secure
+     */
+    adminGetCommissionRuleById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission aggregate object */
+          commission_rule?: AdminCommissionAggregate;
+        },
+        any
+      >({
+        path: `/admin/commission/rules/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates commission rule by id.
+     *
+     * @tags Admin
+     * @name AdminUpdateCommissionRuleById
+     * @summary Update CommissionRule
+     * @request POST:/admin/commission/rules/{id}
+     * @secure
+     */
+    adminUpdateCommissionRuleById: (id: string, data: AdminUpdateCommissionRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission rule object */
+          commission_rule?: AdminCommissionRule;
+        },
+        any
+      >({
+        path: `/admin/commission/rules/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a commission rule by id.
+     *
+     * @tags Admin
+     * @name AdminDeleteCommissionRuleById
+     * @summary Delete a Commission Rule
+     * @request DELETE:/admin/commission/rules/{id}
+     * @secure
+     */
+    adminDeleteCommissionRuleById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted rule */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/admin/commission/rules/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves rules list
      *
      * @tags Admin
@@ -50401,6 +50748,46 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of sellers.
+     *
+     * @tags Admin
+     * @name AdminListSellers
+     * @summary List Sellers
+     * @request GET:/admin/sellers
+     * @secure
+     */
+    adminListSellers: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          sellers?: VendorSeller[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/sellers`,
+        method: "GET",
+        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
