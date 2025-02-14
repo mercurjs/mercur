@@ -5251,12 +5251,7 @@ export interface AdminPaymentCollection {
   /** The payment collection's metadata, can hold custom key-value pairs. */
   metadata?: object;
   /** The payment collection's status. */
-  status:
-    | "canceled"
-    | "not_paid"
-    | "awaiting"
-    | "authorized"
-    | "partially_authorized";
+  status: "canceled" | "not_paid" | "awaiting" | "authorized" | "partially_authorized";
   /** The payment provider used to process the collection's payments and sessions. */
   payment_providers: AdminPaymentProvider[];
   /** The payment collection's payment sessions. */
@@ -5322,13 +5317,7 @@ export interface AdminPaymentSession {
    */
   context?: object;
   /** The payment session's status. */
-  status:
-    | "authorized"
-    | "captured"
-    | "canceled"
-    | "pending"
-    | "requires_more"
-    | "error";
+  status: "authorized" | "captured" | "canceled" | "pending" | "requires_more" | "error";
   /**
    * authorized_at
    * The date the payment session was authorized.
@@ -9699,14 +9688,7 @@ export interface AdminWorkflowExecution {
   /** The workflow execution's context. */
   context: WorkflowExecutionContext;
   /** The workflow execution's state. */
-  state:
-    | "not_started"
-    | "invoking"
-    | "waiting_to_compensate"
-    | "compensating"
-    | "done"
-    | "reverted"
-    | "failed";
+  state: "not_started" | "invoking" | "waiting_to_compensate" | "compensating" | "done" | "reverted" | "failed";
   /**
    * created_at
    * The date the workflow execution was created.
@@ -9753,12 +9735,7 @@ export interface AdminWorkflowExecutionExecution {
           | "skipped_failure"
           | "timeout";
         /** The invokation step's state. */
-        status:
-          | "idle"
-          | "ok"
-          | "waiting_response"
-          | "temp_failure"
-          | "permanent_failure";
+        status: "idle" | "ok" | "waiting_response" | "temp_failure" | "permanent_failure";
       };
       /** The step's definition details. */
       definition?: {
@@ -9829,12 +9806,7 @@ export interface AdminWorkflowExecutionExecution {
           | "skipped_failure"
           | "timeout";
         /** The compensation function's status. */
-        status:
-          | "idle"
-          | "ok"
-          | "waiting_response"
-          | "temp_failure"
-          | "permanent_failure";
+        status: "idle" | "ok" | "waiting_response" | "temp_failure" | "permanent_failure";
       };
       /**
        * depth
@@ -12021,12 +11993,7 @@ export interface BasePaymentCollection {
   /** The payment collection's metadata, can hold custom key-value pairs. */
   metadata?: object;
   /** The payment collection's status. */
-  status:
-    | "canceled"
-    | "not_paid"
-    | "awaiting"
-    | "authorized"
-    | "partially_authorized";
+  status: "canceled" | "not_paid" | "awaiting" | "authorized" | "partially_authorized";
   /** The payment provider used to process the collection's payments and sessions. */
   payment_providers: BasePaymentProvider[];
   /** The payment collection's payment sessions. */
@@ -12075,13 +12042,7 @@ export interface BasePaymentSession {
    */
   context?: object;
   /** The payment session's status. */
-  status:
-    | "authorized"
-    | "captured"
-    | "canceled"
-    | "pending"
-    | "requires_more"
-    | "error";
+  status: "authorized" | "captured" | "canceled" | "pending" | "requires_more" | "error";
   /**
    * authorized_at
    * The date the payment session was authorized.
@@ -13251,11 +13212,7 @@ export interface CustomerGroupInCustomerFilters {
 /** Response Error */
 export interface Error {
   /** A slug code to indicate the type of the error. */
-  code?:
-    | "invalid_state_error"
-    | "invalid_request_error"
-    | "api_error"
-    | "unknown_error";
+  code?: "invalid_state_error" | "invalid_request_error" | "api_error" | "unknown_error";
   /**
    * Description of the error that occurred.
    * @example "first_name must be a string"
@@ -13334,13 +13291,7 @@ export interface Order {
   version: number;
   order_change?: object;
   /** The order's status. */
-  status:
-    | "canceled"
-    | "requires_action"
-    | "pending"
-    | "completed"
-    | "draft"
-    | "archived";
+  status: "canceled" | "requires_action" | "pending" | "completed" | "draft" | "archived";
   /**
    * region_id
    * The ID of the region the order belongs to.
@@ -21881,12 +21832,7 @@ export interface StorePaymentCollection {
   /** The payment collection's metadata, can hold custom key-value pairs. */
   metadata?: object;
   /** The payment collection's status. */
-  status:
-    | "canceled"
-    | "not_paid"
-    | "awaiting"
-    | "authorized"
-    | "partially_authorized";
+  status: "canceled" | "not_paid" | "awaiting" | "authorized" | "partially_authorized";
   /** The payment provider used to process the collection's payments and sessions. */
   payment_providers: StorePaymentProvider[];
   /** The payment collection's payment sessions. */
@@ -21941,13 +21887,7 @@ export interface StorePaymentSession {
    */
   context?: object;
   /** The payment session's status. */
-  status:
-    | "authorized"
-    | "captured"
-    | "canceled"
-    | "pending"
-    | "requires_more"
-    | "error";
+  status: "authorized" | "captured" | "canceled" | "pending" | "requires_more" | "error";
   /**
    * authorized_at
    * The date the payment session was authorized.
@@ -23290,11 +23230,135 @@ export interface AdminCreateCommissionRule {
   rate?: AdminCreateCommissionRate;
 }
 
+export interface AdminCreateRule {
+  /** The type of the rule */
+  rule_type?: "global_product_catalog" | "require_product_approval" | "product_request_enabled";
+  is_enabled?: boolean;
+}
+
+/**
+ * Order return request
+ * A return request object with its properties
+ */
+export interface AdminOrderReturnRequest {
+  /** The unique identifier of the order return request. */
+  id?: string;
+  /** The id of the submitter */
+  customer_id?: string;
+  /** Note from the submitter */
+  customer_note?: string;
+  /** The id of the vendor reviewer */
+  vendor_reviewer_id?: string;
+  /** Note from the vendor reviewer */
+  vendor_reviewer_note?: string;
+  /**
+   * The date with timezone of the vendor review
+   * @format date-time
+   */
+  vendor_reviewer_date?: string;
+  /** The id of the admin reviewer */
+  admin_reviewer_id?: string;
+  /** Note from the admin reviewer */
+  admin_reviewer_note?: string;
+  /**
+   * The date with timezone of the admin review
+   * @format date-time
+   */
+  admin_reviewer_date?: string;
+  status?: "pending" | "refunded" | "withdrawn" | "escalated" | "canceled";
+  order?: {
+    id?: string;
+    customer?: {
+      first_name?: string;
+      last_name?: string;
+    };
+  };
+  seller?: {
+    id?: string;
+    name?: string;
+  };
+  /** The line items to return. */
+  line_items?: OrderReturnRequestLineItem[];
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+}
+
+/**
+ * Request
+ * A request object
+ */
+export interface AdminRequest {
+  /** The unique identifier of the request. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** The type of the request object. */
+  type?: string;
+  /** The request payload. */
+  data?: object;
+  /** A unique id of the submitter */
+  submitter_id?: string;
+  /** A unique id of the reviewer */
+  reviewer_id?: string | null;
+  /** A note provided by the reviewer */
+  reviewer_note?: string | null;
+  /** The status of the request */
+  status?: string;
+  seller?: {
+    id?: string;
+    name?: string;
+  };
+}
+
+/**
+ * Update Request
+ * A schema for the admin review of request.
+ */
+export interface AdminReviewRequest {
+  /** Reviewer note. */
+  reviewer_note?: string;
+  /** A status of the request */
+  status?: "accepted" | "rejected";
+  /** Assign product to seller (applicable only to Product request) */
+  assign_product_to_seller?: boolean;
+}
+
 export interface AdminUpdateCommissionRule {
   /** Commission rule name. */
   name?: string;
   /** Indicates if rule is active. */
   is_active?: boolean;
+}
+
+/**
+ * Update Order Return Request
+ * A schema for the update of order return request.
+ */
+export interface AdminUpdateOrderReturnRequest {
+  /** Reviewer note. */
+  admin_reviewer_note?: string;
+  /** A status of the request */
+  status?: "refunded" | "canceled";
+}
+
+export interface AdminUpdateRule {
+  is_enabled?: boolean;
 }
 
 export interface AdminUpsertDefaultCommissionRule {
@@ -23307,6 +23371,19 @@ export interface AdminUpsertDefaultCommissionRule {
   /** Indicates if rule is active. */
   is_active?: boolean;
   rate?: AdminCreateCommissionRate;
+}
+
+/**
+ * Configuration rule
+ * A configuration rule object
+ */
+export interface ConfigurationRule {
+  /** The unique identifier of the rule. */
+  id?: string;
+  /** The unique type of the rule. */
+  rule_type?: string;
+  /** Flag that indicates if rule is enabled. */
+  is_enabled?: boolean;
 }
 
 export interface CreateProductOption {
@@ -24897,12 +24974,7 @@ export interface VendorOrderPaymentCollection {
   /** The payment collection's metadata, can hold custom key-value pairs. */
   metadata?: object;
   /** The payment collection's status. */
-  status?:
-    | "canceled"
-    | "not_paid"
-    | "awaiting"
-    | "authorized"
-    | "partially_authorized";
+  status?: "canceled" | "not_paid" | "awaiting" | "authorized" | "partially_authorized";
 }
 
 /**
@@ -26029,22 +26101,16 @@ export interface FullRequestParams extends Omit<RequestInit, "body"> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<
-  FullRequestParams,
-  "body" | "method" | "query" | "path"
->;
+export type RequestParams = Omit<FullRequestParams, "body" | "method" | "query" | "path">;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
   baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
-  securityWorker?: (
-    securityData: SecurityDataType | null
-  ) => Promise<RequestParams | void> | RequestParams | void;
+  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
-  extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
   data: D;
   error: E;
 }
@@ -26063,8 +26129,7 @@ export class HttpClient<SecurityDataType = unknown> {
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
-    fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
     credentials: "same-origin",
@@ -26097,15 +26162,9 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter(
-      (key) => "undefined" !== typeof query[key]
-    );
+    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
     return keys
-      .map((key) =>
-        Array.isArray(query[key])
-          ? this.addArrayQueryParam(query, key)
-          : this.addQueryParam(query, key)
-      )
+      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
       .join("&");
   }
 
@@ -26116,13 +26175,8 @@ export class HttpClient<SecurityDataType = unknown> {
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === "object" || typeof input === "string")
-        ? JSON.stringify(input)
-        : input,
-    [ContentType.Text]: (input: any) =>
-      input !== null && typeof input !== "string"
-        ? JSON.stringify(input)
-        : input,
+      input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
+    [ContentType.Text]: (input: any) => (input !== null && typeof input !== "string" ? JSON.stringify(input) : input),
     [ContentType.FormData]: (input: any) =>
       Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
@@ -26132,17 +26186,14 @@ export class HttpClient<SecurityDataType = unknown> {
             ? property
             : typeof property === "object" && property !== null
               ? JSON.stringify(property)
-              : `${property}`
+              : `${property}`,
         );
         return formData;
       }, new FormData()),
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
-  protected mergeRequestParams(
-    params1: RequestParams,
-    params2?: RequestParams
-  ): RequestParams {
+  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -26155,9 +26206,7 @@ export class HttpClient<SecurityDataType = unknown> {
     };
   }
 
-  protected createAbortSignal = (
-    cancelToken: CancelToken
-  ): AbortSignal | undefined => {
+  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -26201,26 +26250,15 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json];
     const responseFormat = format || requestParams.format;
 
-    return this.customFetch(
-      `${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`,
-      {
-        ...requestParams,
-        headers: {
-          ...(requestParams.headers || {}),
-          ...(type && type !== ContentType.FormData
-            ? { "Content-Type": type }
-            : {}),
-        },
-        signal:
-          (cancelToken
-            ? this.createAbortSignal(cancelToken)
-            : requestParams.signal) || null,
-        body:
-          typeof body === "undefined" || body === null
-            ? null
-            : payloadFormatter(body),
-      }
-    ).then(async (response) => {
+    return this.customFetch(`${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`, {
+      ...requestParams,
+      headers: {
+        ...(requestParams.headers || {}),
+        ...(type && type !== ContentType.FormData ? { "Content-Type": type } : {}),
+      },
+      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
+      body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
+    }).then(async (response) => {
       const r = response.clone() as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
@@ -26255,9 +26293,7 @@ export class HttpClient<SecurityDataType = unknown> {
  * @title Medusa API
  * @version 1.0.0
  */
-export class Api<
-  SecurityDataType extends unknown,
-> extends HttpClient<SecurityDataType> {
+export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   admin = {
     /**
      * @description Retrieve a list of API keys. The API keys can be filtered by fields such as `id`. The API keys can also be sorted or paginated.
@@ -26934,7 +26970,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -27005,7 +27041,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminApiKeyResponse, Error | string>({
         path: `/admin/api-keys/${id}`,
@@ -27035,7 +27071,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminApiKeyResponse, Error | string>({
         path: `/admin/api-keys/${id}`,
@@ -27105,7 +27141,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminApiKeyResponse, Error | string>({
         path: `/admin/api-keys/${id}/revoke`,
@@ -27142,7 +27178,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminApiKeyResponse, Error | string>({
         path: `/admin/api-keys/${id}/sales-channels`,
@@ -27187,7 +27223,7 @@ export class Api<
          */
         order?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -27295,7 +27331,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCampaignResponse, Error | string>({
         path: `/admin/campaigns`,
@@ -27326,7 +27362,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCampaignResponse, Error | string>({
         path: `/admin/campaigns/${id}`,
@@ -27403,7 +27439,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCampaignResponse, Error | string>({
         path: `/admin/campaigns/${id}`,
@@ -27478,7 +27514,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCampaignResponse, Error | string>({
         path: `/admin/campaigns/${id}/promotions`,
@@ -28009,7 +28045,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimListResponse, Error | string>({
         path: `/admin/claims`,
@@ -28038,7 +28074,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimOrderResponse, Error | string>({
         path: `/admin/claims`,
@@ -28069,7 +28105,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimResponse, Error | string>({
         path: `/admin/claims/${id}`,
@@ -28089,11 +28125,7 @@ export class Api<
      * @request POST:/admin/claims/{id}/cancel
      * @secure
      */
-    adminPostClaimsIdCancel: (
-      id: string,
-      data: AdminPostCancelClaimReqSchema,
-      params: RequestParams = {}
-    ) =>
+    adminPostClaimsIdCancel: (id: string, data: AdminPostCancelClaimReqSchema, params: RequestParams = {}) =>
       this.request<AdminClaimResponse, Error | string>({
         path: `/admin/claims/${id}/cancel`,
         method: "POST",
@@ -28123,7 +28155,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/claim-items`,
@@ -28156,7 +28188,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/claim-items/${actionId}`,
@@ -28188,7 +28220,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/claim-items/${actionId}`,
@@ -28211,7 +28243,7 @@ export class Api<
     adminPostClaimsIdInboundItems: (
       id: string,
       data: AdminPostReturnsRequestItemsReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimReturnPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/inbound/items`,
@@ -28236,7 +28268,7 @@ export class Api<
       id: string,
       actionId: string,
       data: AdminPostReturnsRequestItemsActionReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimReturnPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/inbound/items/${actionId}`,
@@ -28257,11 +28289,7 @@ export class Api<
      * @request DELETE:/admin/claims/{id}/inbound/items/{action_id}
      * @secure
      */
-    adminDeleteClaimsIdInboundItemsActionId: (
-      id: string,
-      actionId: string,
-      params: RequestParams = {}
-    ) =>
+    adminDeleteClaimsIdInboundItemsActionId: (id: string, actionId: string, params: RequestParams = {}) =>
       this.request<AdminClaimReturnPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/inbound/items/${actionId}`,
         method: "DELETE",
@@ -28282,7 +28310,7 @@ export class Api<
     adminPostClaimsIdInboundShippingMethod: (
       id: string,
       data: AdminPostReturnsShippingReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimReturnPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/inbound/shipping-method`,
@@ -28314,7 +28342,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/inbound/shipping-method/${actionId}`,
@@ -28336,11 +28364,7 @@ export class Api<
      * @request DELETE:/admin/claims/{id}/inbound/shipping-method/{action_id}
      * @secure
      */
-    adminDeleteClaimsIdInboundShippingMethodActionId: (
-      id: string,
-      actionId: string,
-      params: RequestParams = {}
-    ) =>
+    adminDeleteClaimsIdInboundShippingMethodActionId: (id: string, actionId: string, params: RequestParams = {}) =>
       this.request<AdminClaimReturnPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/inbound/shipping-method/${actionId}`,
         method: "DELETE",
@@ -28368,7 +28392,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/outbound/items`,
@@ -28401,7 +28425,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/outbound/items/${actionId}`,
@@ -28433,7 +28457,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/outbound/items/${actionId}`,
@@ -28463,7 +28487,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/outbound/shipping-method`,
@@ -28496,7 +28520,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/outbound/shipping-method/${actionId}`,
@@ -28528,7 +28552,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimPreviewResponse, Error | string>({
         path: `/admin/claims/${id}/outbound/shipping-method/${actionId}`,
@@ -28557,7 +28581,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminClaimRequestResponse, Error | string>({
         path: `/admin/claims/${id}/request`,
@@ -29104,7 +29128,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCollectionListResponse, Error | string>({
         path: `/admin/collections`,
@@ -29133,7 +29157,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCollectionResponse, Error | string>({
         path: `/admin/collections`,
@@ -29164,7 +29188,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCollectionResponse, Error | string>({
         path: `/admin/collections/${id}`,
@@ -29194,7 +29218,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCollectionResponse, Error | string>({
         path: `/admin/collections/${id}`,
@@ -29249,7 +29273,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCollectionResponse, Error | string>({
         path: `/admin/collections/${id}/products`,
@@ -29311,7 +29335,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCurrencyListResponse, Error | string>({
         path: `/admin/currencies`,
@@ -29340,7 +29364,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCurrencyResponse, Error | string>({
         path: `/admin/currencies/${code}`,
@@ -29871,7 +29895,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -29922,7 +29946,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerGroupResponse, Error | string>({
         path: `/admin/customer-groups`,
@@ -29953,7 +29977,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerGroupResponse, Error | string>({
         path: `/admin/customer-groups/${id}`,
@@ -29983,7 +30007,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerGroupResponse, Error | string>({
         path: `/admin/customer-groups/${id}`,
@@ -30057,7 +30081,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerGroupResponse, Error | string>({
         path: `/admin/customer-groups/${id}/customers`,
@@ -31921,7 +31945,7 @@ export class Api<
          */
         has_account?: boolean;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -32004,7 +32028,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerResponse, Error | string>({
         path: `/admin/customers`,
@@ -32035,7 +32059,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerResponse, Error | string>({
         path: `/admin/customers/${id}`,
@@ -32097,7 +32121,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerResponse, Error | string>({
         path: `/admin/customers/${id}`,
@@ -32205,7 +32229,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -32328,7 +32352,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerResponse, Error | string>({
         path: `/admin/customers/${id}/addresses`,
@@ -32360,7 +32384,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerAddressResponse, Error | string>({
         path: `/admin/customers/${id}/addresses/${addressId}`,
@@ -32462,7 +32486,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerResponse, Error | string>({
         path: `/admin/customers/${id}/addresses/${addressId}`,
@@ -32494,7 +32518,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -32551,7 +32575,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminCustomerResponse, Error | string>({
         path: `/admin/customers/${id}/customer-groups`,
@@ -33395,7 +33419,7 @@ export class Api<
         /** The draft order's customer id. */
         customer_id?: string | string[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -33682,7 +33706,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminDraftOrderResponse, Error | string>({
         path: `/admin/draft-orders`,
@@ -34216,7 +34240,7 @@ export class Api<
           $exists?: boolean;
         };
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -34267,7 +34291,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangeOrderResponse, Error | string>({
         path: `/admin/exchanges`,
@@ -34298,7 +34322,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangeResponse, Error | string>({
         path: `/admin/exchanges/${id}`,
@@ -34318,11 +34342,7 @@ export class Api<
      * @request POST:/admin/exchanges/{id}/cancel
      * @secure
      */
-    adminPostExchangesIdCancel: (
-      id: string,
-      data: AdminPostCancelExchangeReqSchema,
-      params: RequestParams = {}
-    ) =>
+    adminPostExchangesIdCancel: (id: string, data: AdminPostCancelExchangeReqSchema, params: RequestParams = {}) =>
       this.request<AdminExchangeResponse, Error | string>({
         path: `/admin/exchanges/${id}/cancel`,
         method: "POST",
@@ -34345,7 +34365,7 @@ export class Api<
     adminPostExchangesIdInboundItems: (
       id: string,
       data: AdminPostExchangesReturnRequestItemsReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangeReturnResponse, Error | string>({
         path: `/admin/exchanges/${id}/inbound/items`,
@@ -34370,7 +34390,7 @@ export class Api<
       id: string,
       actionId: string,
       data: AdminPostExchangesRequestItemsReturnActionReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangeReturnResponse, Error | string>({
         path: `/admin/exchanges/${id}/inbound/items/${actionId}`,
@@ -34391,11 +34411,7 @@ export class Api<
      * @request DELETE:/admin/exchanges/{id}/inbound/items/{action_id}
      * @secure
      */
-    adminDeleteExchangesIdInboundItemsActionId: (
-      id: string,
-      actionId: string,
-      params: RequestParams = {}
-    ) =>
+    adminDeleteExchangesIdInboundItemsActionId: (id: string, actionId: string, params: RequestParams = {}) =>
       this.request<AdminExchangeReturnResponse, Error | string>({
         path: `/admin/exchanges/${id}/inbound/items/${actionId}`,
         method: "DELETE",
@@ -34416,7 +34432,7 @@ export class Api<
     adminPostExchangesIdInboundShippingMethod: (
       id: string,
       data: AdminPostReturnsShippingReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangeReturnResponse, Error | string>({
         path: `/admin/exchanges/${id}/inbound/shipping-method`,
@@ -34448,7 +34464,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangePreviewResponse, Error | string>({
         path: `/admin/exchanges/${id}/inbound/shipping-method/${actionId}`,
@@ -34470,11 +34486,7 @@ export class Api<
      * @request DELETE:/admin/exchanges/{id}/inbound/shipping-method/{action_id}
      * @secure
      */
-    adminDeleteExchangesIdInboundShippingMethodActionId: (
-      id: string,
-      actionId: string,
-      params: RequestParams = {}
-    ) =>
+    adminDeleteExchangesIdInboundShippingMethodActionId: (id: string, actionId: string, params: RequestParams = {}) =>
       this.request<AdminExchangeReturnResponse, Error | string>({
         path: `/admin/exchanges/${id}/inbound/shipping-method/${actionId}`,
         method: "DELETE",
@@ -34502,7 +34514,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangePreviewResponse, Error | string>({
         path: `/admin/exchanges/${id}/outbound/items`,
@@ -34535,7 +34547,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangePreviewResponse, Error | string>({
         path: `/admin/exchanges/${id}/outbound/items/${actionId}`,
@@ -34567,7 +34579,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangePreviewResponse, Error | string>({
         path: `/admin/exchanges/${id}/outbound/items/${actionId}`,
@@ -34597,7 +34609,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangePreviewResponse, Error | string>({
         path: `/admin/exchanges/${id}/outbound/shipping-method`,
@@ -34630,7 +34642,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangePreviewResponse, Error | string>({
         path: `/admin/exchanges/${id}/outbound/shipping-method/${actionId}`,
@@ -34662,7 +34674,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangePreviewResponse, Error | string>({
         path: `/admin/exchanges/${id}/outbound/shipping-method/${actionId}`,
@@ -34691,7 +34703,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExchangeRequestResponse, Error | string>({
         path: `/admin/exchanges/${id}/request`,
@@ -34766,7 +34778,7 @@ export class Api<
         /** Filter by associated stock location's ID. */
         stock_location_id?: string | string[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminFulfillmentProviderListResponse, Error | string>({
         path: `/admin/fulfillment-providers`,
@@ -34786,19 +34798,14 @@ export class Api<
      * @request GET:/admin/fulfillment-providers/{id}/options
      * @secure
      */
-    adminGetFulfillmentProvidersIdOptions: (
-      id: string,
-      params: RequestParams = {}
-    ) =>
-      this.request<AdminFulfillmentProviderOptionsListResponse, Error | string>(
-        {
-          path: `/admin/fulfillment-providers/${id}/options`,
-          method: "GET",
-          secure: true,
-          format: "json",
-          ...params,
-        }
-      ),
+    adminGetFulfillmentProvidersIdOptions: (id: string, params: RequestParams = {}) =>
+      this.request<AdminFulfillmentProviderOptionsListResponse, Error | string>({
+        path: `/admin/fulfillment-providers/${id}/options`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
 
     /**
      * @description Delete a fulfillment set.
@@ -34933,7 +34940,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminFulfillmentSetResponse, Error | string>({
         path: `/admin/fulfillment-sets/${id}/service-zones`,
@@ -34965,7 +34972,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminServiceZoneResponse, Error | string>({
         path: `/admin/fulfillment-sets/${id}/service-zones/${zoneId}`,
@@ -35112,7 +35119,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminFulfillmentSetResponse, Error | string>({
         path: `/admin/fulfillment-sets/${id}/service-zones/${zoneId}`,
@@ -35134,11 +35141,7 @@ export class Api<
      * @request DELETE:/admin/fulfillment-sets/{id}/service-zones/{zone_id}
      * @secure
      */
-    adminDeleteFulfillmentSetsIdServiceZonesZoneId: (
-      id: string,
-      zoneId: string,
-      params: RequestParams = {}
-    ) =>
+    adminDeleteFulfillmentSetsIdServiceZonesZoneId: (id: string, zoneId: string, params: RequestParams = {}) =>
       this.request<AdminServiceZoneDeleteResponse, Error | string>({
         path: `/admin/fulfillment-sets/${id}/service-zones/${zoneId}`,
         method: "DELETE",
@@ -35165,7 +35168,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminFulfillmentResponse, Error | string>({
         path: `/admin/fulfillments`,
@@ -35196,7 +35199,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminFulfillmentResponse, Error | string>({
         path: `/admin/fulfillments/${id}/cancel`,
@@ -35226,7 +35229,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminFulfillmentResponse, Error | string>({
         path: `/admin/fulfillments/${id}/shipment`,
@@ -35416,7 +35419,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -35467,7 +35470,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminInventoryItemResponse, Error | string>({
         path: `/admin/inventory-items`,
@@ -35491,12 +35494,9 @@ export class Api<
      */
     adminPostInventoryItemsLocationLevelsBatch: (
       data: AdminBatchInventoryItemsLocationLevels,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
-      this.request<
-        AdminBatchInventoryItemsLocationLevelsResponse,
-        Error | string
-      >({
+      this.request<AdminBatchInventoryItemsLocationLevelsResponse, Error | string>({
         path: `/admin/inventory-items/location-levels/batch`,
         method: "POST",
         body: data,
@@ -35524,7 +35524,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminInventoryItemResponse, Error | string>({
         path: `/admin/inventory-items/${id}`,
@@ -35622,7 +35622,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminInventoryItemResponse, Error | string>({
         path: `/admin/inventory-items/${id}`,
@@ -35716,7 +35716,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -35784,7 +35784,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminInventoryItemResponse, Error | string>({
         path: `/admin/inventory-items/${id}/location-levels`,
@@ -35809,7 +35809,7 @@ export class Api<
     adminPostInventoryItemsIdLocationLevelsBatch: (
       id: string,
       data: AdminBatchInventoryItemLocationsLevel,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<any, Error | string>({
         path: `/admin/inventory-items/${id}/location-levels/batch`,
@@ -35851,7 +35851,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminInventoryItemResponse, Error | string>({
         path: `/admin/inventory-items/${id}/location-levels/${locationId}`,
@@ -35883,7 +35883,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -36197,7 +36197,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -36255,7 +36255,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminInviteResponse, Error | string>({
         path: `/admin/invites`,
@@ -36294,7 +36294,7 @@ export class Api<
          */
         last_name?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         | {
@@ -36335,7 +36335,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminInviteResponse, Error | string>({
         path: `/admin/invites/${id}`,
@@ -36398,7 +36398,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminInviteResponse, Error | string>({
         path: `/admin/invites/${id}/resend`,
@@ -36459,7 +36459,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminNotificationListResponse, Error | string>({
         path: `/admin/notifications`,
@@ -36488,7 +36488,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminNotificationResponse, Error | string>({
         path: `/admin/notifications/${id}`,
@@ -36508,10 +36508,7 @@ export class Api<
      * @request POST:/admin/order-edits
      * @secure
      */
-    adminPostOrderEdits: (
-      data: AdminPostOrderEditsReqSchema,
-      params: RequestParams = {}
-    ) =>
+    adminPostOrderEdits: (data: AdminPostOrderEditsReqSchema, params: RequestParams = {}) =>
       this.request<AdminOrderEditResponse, Error | string>({
         path: `/admin/order-edits`,
         method: "POST",
@@ -36587,11 +36584,7 @@ export class Api<
      * @request POST:/admin/order-edits/{id}/items
      * @secure
      */
-    adminPostOrderEditsIdItems: (
-      id: string,
-      data: AdminPostOrderEditsAddItemsReqSchema,
-      params: RequestParams = {}
-    ) =>
+    adminPostOrderEditsIdItems: (id: string, data: AdminPostOrderEditsAddItemsReqSchema, params: RequestParams = {}) =>
       this.request<AdminOrderEditPreviewResponse, Error | string>({
         path: `/admin/order-edits/${id}/items`,
         method: "POST",
@@ -36615,7 +36608,7 @@ export class Api<
       id: string,
       itemId: string,
       data: AdminPostOrderEditsUpdateItemQuantityReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderEditPreviewResponse, Error | string>({
         path: `/admin/order-edits/${id}/items/item/${itemId}`,
@@ -36640,7 +36633,7 @@ export class Api<
       id: string,
       actionId: string,
       data: AdminPostOrderEditsItemsActionReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderEditPreviewResponse, Error | string>({
         path: `/admin/order-edits/${id}/items/${actionId}`,
@@ -36661,11 +36654,7 @@ export class Api<
      * @request DELETE:/admin/order-edits/{id}/items/{action_id}
      * @secure
      */
-    adminDeleteOrderEditsIdItemsActionId: (
-      id: string,
-      actionId: string,
-      params: RequestParams = {}
-    ) =>
+    adminDeleteOrderEditsIdItemsActionId: (id: string, actionId: string, params: RequestParams = {}) =>
       this.request<AdminOrderEditPreviewResponse, Error | string>({
         path: `/admin/order-edits/${id}/items/${actionId}`,
         method: "DELETE",
@@ -36704,7 +36693,7 @@ export class Api<
     adminPostOrderEditsIdShippingMethod: (
       id: string,
       data: AdminPostOrderEditsShippingReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderEditPreviewResponse, Error | string>({
         path: `/admin/order-edits/${id}/shipping-method`,
@@ -36729,7 +36718,7 @@ export class Api<
       id: string,
       actionId: string,
       data: AdminPostOrderEditsShippingActionReqSchema,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderEditPreviewResponse, Error | string>({
         path: `/admin/order-edits/${id}/shipping-method/${actionId}`,
@@ -36750,11 +36739,7 @@ export class Api<
      * @request DELETE:/admin/order-edits/{id}/shipping-method/{action_id}
      * @secure
      */
-    adminDeleteOrderEditsIdShippingMethodActionId: (
-      id: string,
-      actionId: string,
-      params: RequestParams = {}
-    ) =>
+    adminDeleteOrderEditsIdShippingMethodActionId: (id: string, actionId: string, params: RequestParams = {}) =>
       this.request<AdminOrderEditPreviewResponse, Error | string>({
         path: `/admin/order-edits/${id}/shipping-method/${actionId}`,
         method: "DELETE",
@@ -37154,7 +37139,7 @@ export class Api<
         /** The order's customer id. */
         customer_id?: string | string[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -37217,7 +37202,7 @@ export class Api<
         updated_at?: any;
         deleted_at?: any;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}`,
@@ -37247,7 +37232,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}`,
@@ -37278,7 +37263,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}/archive`,
@@ -37307,7 +37292,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}/cancel`,
@@ -37338,7 +37323,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderChangesResponse, Error | string>({
         path: `/admin/orders/${id}/changes`,
@@ -37371,7 +37356,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}/complete`,
@@ -37432,7 +37417,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}/fulfillments`,
@@ -37474,7 +37459,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}/fulfillments/${fulfillmentId}/cancel`,
@@ -37506,7 +37491,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}/fulfillments/${fulfillmentId}/mark-as-delivered`,
@@ -37579,7 +37564,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}/fulfillments/${fulfillmentId}/shipments`,
@@ -37633,7 +37618,7 @@ export class Api<
          */
         order?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -37687,7 +37672,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}/transfer`,
@@ -37718,7 +37703,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderResponse, Error | string>({
         path: `/admin/orders/${id}/transfer/cancel`,
@@ -37758,7 +37743,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPaymentCollectionResponse, Error | string>({
         path: `/admin/payment-collections`,
@@ -37814,7 +37799,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPaymentCollectionResponse, Error | string>({
         path: `/admin/payment-collections/${id}/mark-as-paid`,
@@ -38109,7 +38094,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -38191,7 +38176,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -38242,7 +38227,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPaymentResponse, Error | string>({
         path: `/admin/payments/${id}`,
@@ -38278,7 +38263,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPaymentResponse, Error | string>({
         path: `/admin/payments/${id}/capture`,
@@ -38326,7 +38311,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPaymentResponse, Error | string>({
         path: `/admin/payments/${id}/refund`,
@@ -38546,7 +38531,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPriceListListResponse, Error | string>({
         path: `/admin/price-lists`,
@@ -38575,7 +38560,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPriceListResponse, Error | string>({
         path: `/admin/price-lists`,
@@ -38606,7 +38591,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPriceListResponse, Error | string>({
         path: `/admin/price-lists/${id}`,
@@ -38636,7 +38621,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPriceListResponse, Error | string>({
         path: `/admin/price-lists/${id}`,
@@ -38753,7 +38738,7 @@ export class Api<
         /** The prices to delete. */
         delete?: string[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPriceListBatchResponse, Error | string>({
         path: `/admin/price-lists/${id}/prices/batch`,
@@ -38784,7 +38769,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPriceListResponse, Error | string>({
         path: `/admin/price-lists/${id}/products`,
@@ -38850,7 +38835,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPricePreferenceListResponse, Error | string>({
         path: `/admin/price-preferences`,
@@ -38879,7 +38864,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPricePreferenceResponse, Error | string>({
         path: `/admin/price-preferences`,
@@ -38910,7 +38895,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPricePreferenceResponse, Error | string>({
         path: `/admin/price-preferences/${id}`,
@@ -38940,7 +38925,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPricePreferenceResponse, Error | string>({
         path: `/admin/price-preferences/${id}`,
@@ -39279,7 +39264,7 @@ export class Api<
         /** The product category's name. */
         name?: string | string[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductCategoryListResponse, Error | string>({
         path: `/admin/product-categories`,
@@ -39308,7 +39293,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductCategoryResponse, Error | string>({
         path: `/admin/product-categories`,
@@ -39349,7 +39334,7 @@ export class Api<
          */
         include_descendants_tree?: boolean;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductCategoryResponse, Error | string>({
         path: `/admin/product-categories/${id}`,
@@ -39417,7 +39402,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductCategoryResponse, Error | string>({
         path: `/admin/product-categories/${id}`,
@@ -39472,7 +39457,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductCategoryResponse, Error | string>({
         path: `/admin/product-categories/${id}/products`,
@@ -39767,7 +39752,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductTagListResponse, Error | string>({
         path: `/admin/product-tags`,
@@ -39796,7 +39781,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductTagResponse, Error | string>({
         path: `/admin/product-tags`,
@@ -39827,7 +39812,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductTagResponse, Error | string>({
         path: `/admin/product-tags/${id}`,
@@ -39865,7 +39850,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductTagResponse, Error | string>({
         path: `/admin/product-tags/${id}`,
@@ -40178,7 +40163,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductTypeListResponse, Error | string>({
         path: `/admin/product-types`,
@@ -40207,7 +40192,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductTypeResponse, Error | string>({
         path: `/admin/product-types`,
@@ -40238,7 +40223,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductTypeResponse, Error | string>({
         path: `/admin/product-types/${id}`,
@@ -40276,7 +40261,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductTypeResponse, Error | string>({
         path: `/admin/product-types/${id}`,
@@ -40597,7 +40582,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -41217,7 +41202,7 @@ export class Api<
           $or?: object[];
         };
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -41271,7 +41256,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductResponse, Error | string>({
         path: `/admin/products`,
@@ -41302,7 +41287,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminBatchProductResponse, Error | string>({
         path: `/admin/products/batch`,
@@ -41332,7 +41317,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminExportProductResponse, Error | string>({
         path: `/admin/products/export`,
@@ -41352,10 +41337,7 @@ export class Api<
      * @request POST:/admin/products/import
      * @secure
      */
-    adminPostProductsImport: (
-      data: AdminImportProductRequest,
-      params: RequestParams = {}
-    ) =>
+    adminPostProductsImport: (data: AdminImportProductRequest, params: RequestParams = {}) =>
       this.request<AdminImportProductResponse, Error | string>({
         path: `/admin/products/import`,
         method: "POST",
@@ -41375,10 +41357,7 @@ export class Api<
      * @request POST:/admin/products/import/{transaction_id}/confirm
      * @secure
      */
-    adminPostProductsImportTransactionIdConfirm: (
-      transactionId: string,
-      params: RequestParams = {}
-    ) =>
+    adminPostProductsImportTransactionIdConfirm: (transactionId: string, params: RequestParams = {}) =>
       this.request<any, Error | string>({
         path: `/admin/products/import/${transactionId}/confirm`,
         method: "POST",
@@ -41404,7 +41383,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductResponse, Error | string>({
         path: `/admin/products/${id}`,
@@ -41437,7 +41416,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductResponse, Error | string>({
         path: `/admin/products/${id}`,
@@ -41520,7 +41499,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -41575,7 +41554,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductResponse, Error | string>({
         path: `/admin/products/${id}/options`,
@@ -41607,7 +41586,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductOptionResponse, Error | string>({
         path: `/admin/products/${id}/options/${optionId}`,
@@ -41641,7 +41620,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductResponse, Error | string>({
         path: `/admin/products/${id}/options/${optionId}`,
@@ -41673,7 +41652,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductOptionDeleteResponse, Error | string>({
         path: `/admin/products/${id}/options/${optionId}`,
@@ -41975,7 +41954,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -42030,7 +42009,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductResponse, Error | string>({
         path: `/admin/products/${id}/variants`,
@@ -42062,7 +42041,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminBatchProductVariantResponse, Error | string>({
         path: `/admin/products/${id}/variants/batch`,
@@ -42137,7 +42116,7 @@ export class Api<
           variant_id: string;
         }[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductVariantInventoryBatchResponse, Error | string>({
         path: `/admin/products/${id}/variants/inventory-items/batch`,
@@ -42168,7 +42147,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductVariantResponse, Error | string>({
         path: `/admin/products/${id}/variants/${variantId}`,
@@ -42202,7 +42181,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductResponse, Error | string>({
         path: `/admin/products/${id}/variants/${variantId}`,
@@ -42234,7 +42213,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductVariantDeleteResponse, Error | string>({
         path: `/admin/products/${id}/variants/${variantId}`,
@@ -42265,7 +42244,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductVariantResponse, Error | string>({
         path: `/admin/products/${id}/variants/${variantId}/inventory-items`,
@@ -42299,7 +42278,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminProductVariantResponse, Error | string>({
         path: `/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}`,
@@ -42332,12 +42311,9 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
-      this.request<
-        AdminProductVariantInventoryLinkDeleteResponse,
-        Error | string
-      >({
+      this.request<AdminProductVariantInventoryLinkDeleteResponse, Error | string>({
         path: `/admin/products/${id}/variants/${variantId}/inventory-items/${inventoryItemId}`,
         method: "DELETE",
         query: query,
@@ -42633,7 +42609,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -42843,7 +42819,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPromotionResponse, Error | string>({
         path: `/admin/promotions`,
@@ -42879,7 +42855,7 @@ export class Api<
          */
         application_method_type?: "fixed" | "percentage";
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -42935,7 +42911,7 @@ export class Api<
          */
         application_method_type?: "fixed" | "percentage";
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -42970,7 +42946,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPromotionResponse, Error | string>({
         path: `/admin/promotions/${id}`,
@@ -43065,7 +43041,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminPromotionResponse, Error | string>({
         path: `/admin/promotions/${id}`,
@@ -43142,7 +43118,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -43205,7 +43181,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -43268,7 +43244,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -43324,7 +43300,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -43390,7 +43366,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -43441,7 +43417,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<RefundReasonResponse, Error | string>({
         path: `/admin/refund-reasons`,
@@ -43472,7 +43448,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<RefundReasonResponse, Error | string>({
         path: `/admin/refund-reasons/${id}`,
@@ -43513,7 +43489,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<RefundReasonResponse, Error | string>({
         path: `/admin/refund-reasons/${id}`,
@@ -43848,7 +43824,7 @@ export class Api<
         /** The region's currency code. */
         currency_code?: string | string[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -43899,7 +43875,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminRegionResponse, Error | string>({
         path: `/admin/regions`,
@@ -43930,7 +43906,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminRegionResponse, Error | string>({
         path: `/admin/regions/${id}`,
@@ -43987,7 +43963,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminRegionResponse, Error | string>({
         path: `/admin/regions/${id}`,
@@ -44338,7 +44314,7 @@ export class Api<
           $exists?: boolean;
         };
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -44389,7 +44365,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReservationResponse, Error | string>({
         path: `/admin/reservations`,
@@ -44420,7 +44396,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReservationResponse, Error | string>({
         path: `/admin/reservations/${id}`,
@@ -44468,7 +44444,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReservationResponse, Error | string>({
         path: `/admin/reservations/${id}`,
@@ -44807,7 +44783,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnReasonListResponse, Error | string>({
         path: `/admin/return-reasons`,
@@ -44836,7 +44812,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnReasonResponse, Error | string>({
         path: `/admin/return-reasons`,
@@ -44867,7 +44843,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnReasonResponse, Error | string>({
         path: `/admin/return-reasons/${id}`,
@@ -44897,7 +44873,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnReasonResponse, Error | string>({
         path: `/admin/return-reasons/${id}`,
@@ -45319,7 +45295,7 @@ export class Api<
         /** The return's customer id. */
         customer_id?: string | string[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -45370,7 +45346,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderReturnResponse, Error | string>({
         path: `/admin/returns`,
@@ -45401,7 +45377,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnResponse, Error | string>({
         path: `/admin/returns/${id}`,
@@ -45431,7 +45407,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}`,
@@ -45453,11 +45429,7 @@ export class Api<
      * @request POST:/admin/returns/{id}/cancel
      * @secure
      */
-    adminPostReturnsIdCancel: (
-      id: string,
-      data: AdminPostCancelReturnReqSchema,
-      params: RequestParams = {}
-    ) =>
+    adminPostReturnsIdCancel: (id: string, data: AdminPostCancelReturnReqSchema, params: RequestParams = {}) =>
       this.request<AdminReturnResponse, Error | string>({
         path: `/admin/returns/${id}/cancel`,
         method: "POST",
@@ -45487,7 +45459,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/dismiss-items`,
@@ -45520,7 +45492,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/dismiss-items/${actionId}`,
@@ -45552,7 +45524,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/dismiss-items/${actionId}`,
@@ -45582,7 +45554,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminOrderReturnResponse, Error | string>({
         path: `/admin/returns/${id}/receive`,
@@ -45652,7 +45624,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/receive-items`,
@@ -45685,7 +45657,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/receive-items/${actionId}`,
@@ -45717,7 +45689,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/receive-items/${actionId}`,
@@ -45747,7 +45719,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/receive/confirm`,
@@ -45779,7 +45751,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/request`,
@@ -45849,7 +45821,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/request-items`,
@@ -45882,7 +45854,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/request-items/${actionId}`,
@@ -45914,7 +45886,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/request-items/${actionId}`,
@@ -45944,7 +45916,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/shipping-method`,
@@ -45977,7 +45949,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/shipping-method/${actionId}`,
@@ -46009,7 +45981,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminReturnPreviewResponse, Error | string>({
         path: `/admin/returns/${id}/shipping-method/${actionId}`,
@@ -46316,7 +46288,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -46367,7 +46339,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminSalesChannelResponse, Error | string>({
         path: `/admin/sales-channels`,
@@ -46398,7 +46370,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminSalesChannelResponse, Error | string>({
         path: `/admin/sales-channels/${id}`,
@@ -46428,7 +46400,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminSalesChannelResponse, Error | string>({
         path: `/admin/sales-channels/${id}`,
@@ -46483,7 +46455,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminSalesChannelResponse, Error | string>({
         path: `/admin/sales-channels/${id}/products`,
@@ -46786,7 +46758,7 @@ export class Api<
          */
         admin_only?: boolean;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -46837,7 +46809,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminShippingOptionResponse, Error | string>({
         path: `/admin/shipping-options`,
@@ -46868,7 +46840,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminShippingOptionResponse, Error | string>({
         path: `/admin/shipping-options/${id}`,
@@ -46969,15 +46941,7 @@ export class Api<
         rules?: (
           | {
               /** The operator used to check whether a rule applies. */
-              operator:
-                | "in"
-                | "eq"
-                | "ne"
-                | "gt"
-                | "gte"
-                | "lt"
-                | "lte"
-                | "nin";
+              operator: "in" | "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "nin";
               /**
                * attribute
                * The name of a property or table that the rule applies to.
@@ -46994,15 +46958,7 @@ export class Api<
                */
               id: string;
               /** The operator used to check whether a rule applies. */
-              operator:
-                | "in"
-                | "eq"
-                | "ne"
-                | "gt"
-                | "gte"
-                | "lt"
-                | "lte"
-                | "nin";
+              operator: "in" | "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "nin";
               /**
                * attribute
                * The name of a property or table that the rule applies to.
@@ -47021,7 +46977,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminShippingOptionResponse, Error | string>({
         path: `/admin/shipping-options/${id}`,
@@ -47078,7 +47034,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -47405,7 +47361,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -47456,7 +47412,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminShippingProfileResponse, Error | string>({
         path: `/admin/shipping-profiles`,
@@ -47487,7 +47443,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminShippingProfileResponse, Error | string>({
         path: `/admin/shipping-profiles/${id}`,
@@ -47530,7 +47486,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminShippingProfileResponse, Error | string>({
         path: `/admin/shipping-profiles/${id}`,
@@ -47847,7 +47803,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStockLocationListResponse, Error | string>({
         path: `/admin/stock-locations`,
@@ -47876,7 +47832,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStockLocationResponse, Error | string>({
         path: `/admin/stock-locations`,
@@ -47907,7 +47863,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStockLocationResponse, Error | string>({
         path: `/admin/stock-locations/${id}`,
@@ -47937,7 +47893,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStockLocationResponse, Error | string>({
         path: `/admin/stock-locations/${id}`,
@@ -47992,7 +47948,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStockLocationResponse, Error | string>({
         path: `/admin/stock-locations/${id}/fulfillment-providers`,
@@ -48035,7 +47991,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStockLocationResponse, Error | string>({
         path: `/admin/stock-locations/${id}/fulfillment-sets`,
@@ -48072,7 +48028,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStockLocationResponse, Error | string>({
         path: `/admin/stock-locations/${id}/sales-channels`,
@@ -48136,7 +48092,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStoreListResponse, Error | string>({
         path: `/admin/stores`,
@@ -48165,7 +48121,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStoreResponse, Error | string>({
         path: `/admin/stores/${id}`,
@@ -48195,7 +48151,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminStoreResponse, Error | string>({
         path: `/admin/stores/${id}`,
@@ -48538,7 +48494,7 @@ export class Api<
          */
         shipping_option_type_id?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -48589,7 +48545,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminTaxRateResponse, Error | string>({
         path: `/admin/tax-rates`,
@@ -48620,7 +48576,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminTaxRateResponse, Error | string>({
         path: `/admin/tax-rates/${id}`,
@@ -48650,7 +48606,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminTaxRateResponse, Error | string>({
         path: `/admin/tax-rates/${id}`,
@@ -48700,7 +48656,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminTaxRateResponse, Error | string>({
         path: `/admin/tax-rates/${id}/rules`,
@@ -48732,7 +48688,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -49377,7 +49333,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -49428,7 +49384,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminTaxRegionResponse, Error | string>({
         path: `/admin/tax-regions`,
@@ -49459,7 +49415,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminTaxRegionResponse, Error | string>({
         path: `/admin/tax-regions/${id}`,
@@ -49489,7 +49445,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminTaxRegionResponse, Error | string>({
         path: `/admin/tax-regions/${id}`,
@@ -49550,7 +49506,7 @@ export class Api<
             )[];
           }
         | object[],
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminFileListResponse, Error | string>({
         path: `/admin/uploads`,
@@ -49580,7 +49536,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminFileResponse, Error | string>({
         path: `/admin/uploads/${id}`,
@@ -49914,7 +49870,7 @@ export class Api<
           $exists?: boolean;
         };
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminUserListResponse, Error | string>({
         path: `/admin/users`,
@@ -49940,7 +49896,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminUserResponse, Error | string>({
         path: `/admin/users/me`,
@@ -49967,7 +49923,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminUserResponse, Error | string>({
         path: `/admin/users/${id}`,
@@ -49995,7 +49951,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminUserResponse, Error | string>({
         path: `/admin/users/${id}`,
@@ -50059,7 +50015,7 @@ export class Api<
         /** Filter by a workflow ID. */
         workflow_id?: string | string[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -50110,7 +50066,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminWorkflowExecutionResponse, Error | string>({
         path: `/admin/workflows-executions/${id}`,
@@ -50133,7 +50089,7 @@ export class Api<
     adminPostWorkflowsExecutionsWorkflowIdRun: (
       workflowId: string,
       data: AdminCreateWorkflowsRun,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -50189,7 +50145,7 @@ export class Api<
     adminPostWorkflowsExecutionsWorkflowIdStepsFailure: (
       workflowId: string,
       data: AdminCreateWorkflowsAsyncResponse,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -50222,7 +50178,7 @@ export class Api<
     adminPostWorkflowsExecutionsWorkflowIdStepsSuccess: (
       workflowId: string,
       data: AdminCreateWorkflowsAsyncResponse,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -50252,10 +50208,7 @@ export class Api<
      * @request GET:/admin/workflows-executions/{workflow_id}/subscribe
      * @secure
      */
-    adminGetWorkflowsExecutionsWorkflowIdSubscribe: (
-      workflowId: string,
-      params: RequestParams = {}
-    ) =>
+    adminGetWorkflowsExecutionsWorkflowIdSubscribe: (workflowId: string, params: RequestParams = {}) =>
       this.request<string, Error | string>({
         path: `/admin/workflows-executions/${workflowId}/subscribe`,
         method: "GET",
@@ -50282,7 +50235,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<AdminWorkflowExecutionResponse, Error | string>({
         path: `/admin/workflows-executions/${workflowId}/${transactionId}`,
@@ -50306,7 +50259,7 @@ export class Api<
       workflowId: string,
       transactionId: string,
       stepId: string,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<string, Error | string>({
         path: `/admin/workflows-executions/${workflowId}/${transactionId}/${stepId}/subscribe`,
@@ -50348,10 +50301,7 @@ export class Api<
      * @request POST:/admin/commission/default
      * @secure
      */
-    adminUpsertDefaultCommissionRule: (
-      data: AdminUpsertDefaultCommissionRule,
-      params: RequestParams = {}
-    ) =>
+    adminUpsertDefaultCommissionRule: (data: AdminUpsertDefaultCommissionRule, params: RequestParams = {}) =>
       this.request<
         {
           /** Commission rule object */
@@ -50384,7 +50334,7 @@ export class Api<
         /** The number of items to return. */
         limit?: number;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -50415,10 +50365,7 @@ export class Api<
      * @request POST:/admin/commission/rules
      * @secure
      */
-    adminCreateCommissionRule: (
-      data: AdminCreateCommissionRule,
-      params: RequestParams = {}
-    ) =>
+    adminCreateCommissionRule: (data: AdminCreateCommissionRule, params: RequestParams = {}) =>
       this.request<
         {
           /** Commission rule object */
@@ -50468,11 +50415,7 @@ export class Api<
      * @request POST:/admin/commission/rules/{id}
      * @secure
      */
-    adminUpdateCommissionRuleById: (
-      id: string,
-      data: AdminUpdateCommissionRule,
-      params: RequestParams = {}
-    ) =>
+    adminUpdateCommissionRuleById: (id: string, data: AdminUpdateCommissionRule, params: RequestParams = {}) =>
       this.request<
         {
           /** Commission rule object */
@@ -50518,6 +50461,298 @@ export class Api<
       }),
 
     /**
+     * @description Retrieves rules list
+     *
+     * @tags Admin
+     * @name AdminListRules
+     * @summary List rules
+     * @request GET:/admin/configuration
+     * @secure
+     */
+    adminListRules: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          configuration_rules?: ConfigurationRule[];
+          /** The total number of requests */
+          count?: number;
+          /** The number of requests skipped */
+          offset?: number;
+          /** The number of requests per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/configuration`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a request to admin to accept new resource
+     *
+     * @tags Admin
+     * @name AdminCreateRule
+     * @summary Create a configuration rule
+     * @request POST:/admin/configuration
+     * @secure
+     */
+    adminCreateRule: (data: AdminCreateRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** A configuration rule object */
+          configuration_rule?: ConfigurationRule;
+        },
+        any
+      >({
+        path: `/admin/configuration`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates a rule
+     *
+     * @tags Admin
+     * @name AdminUpdateRule
+     * @summary Update a configuration rule
+     * @request POST:/admin/configuration/{id}
+     * @secure
+     */
+    adminUpdateRule: (id: string, data: AdminUpdateRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** A configuration rule object */
+          configuration_rule?: ConfigurationRule;
+        },
+        any
+      >({
+        path: `/admin/configuration/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves requests list
+     *
+     * @tags Admin
+     * @name AdminListRequests
+     * @summary List requests
+     * @request GET:/admin/requests
+     * @secure
+     */
+    adminListRequests: (
+      query?: {
+        /** The number of items to return. Default 50. */
+        limit?: number;
+        /** The number of items to skip before starting the response. Default 0. */
+        offset?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+        /** Filter by request type */
+        type?: "product" | "product_collection" | "product_category" | "seller";
+        /** Filter by request status */
+        status?: "pending" | "rejected" | "accepted";
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          requests?: AdminRequest[];
+          /** The total number of requests */
+          count?: number;
+          /** The number of requests skipped */
+          offset?: number;
+          /** The number of requests per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/requests`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a request by id.
+     *
+     * @tags Admin
+     * @name AdminGetRequestById
+     * @summary Get return request by id
+     * @request GET:/admin/requests/{id}
+     * @secure
+     */
+    adminGetRequestById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A request object */
+          request?: AdminRequest;
+        },
+        any
+      >({
+        path: `/admin/requests/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a request by id.
+     *
+     * @tags Admin
+     * @name AdminReviewRequestById
+     * @summary Get return request by id
+     * @request POST:/admin/requests/{id}
+     * @secure
+     */
+    adminReviewRequestById: (id: string, data: AdminReviewRequest, params: RequestParams = {}) =>
+      this.request<
+        {
+          id?: string;
+          status?: "accepted" | "rejected";
+        },
+        any
+      >({
+        path: `/admin/requests/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves requests list
+     *
+     * @tags OrderReturnRequest
+     * @name AdminListOrderReturnRequests
+     * @summary List return requests
+     * @request GET:/admin/return-request
+     * @secure
+     */
+    adminListOrderReturnRequests: (
+      query?: {
+        /** The number of items to return. Default 50. */
+        limit?: number;
+        /** The number of items to skip before starting the response. Default 0. */
+        offset?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+        /** Filter by request status */
+        status?: "pending" | "refunded" | "withdrawn" | "escalated" | "canceled";
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          order_return_request?: AdminOrderReturnRequest[];
+          /** The total number of requests */
+          count?: number;
+          /** The number of requests skipped */
+          offset?: number;
+          /** The number of requests per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/return-request`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a request by id.
+     *
+     * @tags OrderReturnRequest
+     * @name AdminGetOrderReturnRequestById
+     * @summary Get return request by id
+     * @request GET:/admin/return-request/{id}
+     * @secure
+     */
+    adminGetOrderReturnRequestById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A return request object with its properties */
+          orderReturnRequest?: OrderReturnRequest;
+        },
+        any
+      >({
+        path: `/admin/return-request/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates a request by id.
+     *
+     * @tags OrderReturnRequest
+     * @name AdminUpdateOrderReturnRequestById
+     * @summary Update return request by id
+     * @request POST:/admin/return-request/{id}
+     * @secure
+     */
+    adminUpdateOrderReturnRequestById: (id: string, data: AdminUpdateOrderReturnRequest, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** A return request object with its properties */
+          orderReturnRequest?: OrderReturnRequest;
+        },
+        any
+      >({
+        path: `/admin/return-request/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves a list of sellers.
      *
      * @tags Admin
@@ -50535,7 +50770,7 @@ export class Api<
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -50623,11 +50858,7 @@ export class Api<
      * @summary Authenticate User
      * @request POST:/auth/user/{auth_provider}
      */
-    adminPostActorTypeAuthProvider: (
-      authProvider: string,
-      data: BaseCartAddress,
-      params: RequestParams = {}
-    ) =>
+    adminPostActorTypeAuthProvider: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
       this.request<AuthResponse | AuthCallbackResponse, Error | string>({
         path: `/auth/user/${authProvider}`,
         method: "POST",
@@ -50645,10 +50876,7 @@ export class Api<
      * @summary Validate Authentication Callback
      * @request POST:/auth/user/{auth_provider}/callback
      */
-    adminPostActorTypeAuthProviderCallback: (
-      authProvider: string,
-      params: RequestParams = {}
-    ) =>
+    adminPostActorTypeAuthProviderCallback: (authProvider: string, params: RequestParams = {}) =>
       this.request<AuthResponse, Error | string>({
         path: `/auth/user/${authProvider}/callback`,
         method: "POST",
@@ -50664,11 +50892,7 @@ export class Api<
      * @summary Retrieve Registration JWT Token
      * @request POST:/auth/user/{auth_provider}/register
      */
-    adminPostActorTypeAuthProviderRegister: (
-      authProvider: string,
-      data: BaseCartAddress,
-      params: RequestParams = {}
-    ) =>
+    adminPostActorTypeAuthProviderRegister: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
       this.request<AuthResponse, Error | string>({
         path: `/auth/user/${authProvider}/register`,
         method: "POST",
@@ -50689,7 +50913,7 @@ export class Api<
     adminPostActorTypeAuthProviderResetPassword: (
       authProvider: string,
       data: BaseCartAddress,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<void, Error | string>({
         path: `/auth/user/${authProvider}/reset-password`,
@@ -50714,7 +50938,7 @@ export class Api<
         token: string;
       },
       data: BaseCartAddress,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -50743,11 +50967,7 @@ export class Api<
      * @summary Authenticate Customer
      * @request POST:/auth/customer/{auth_provider}
      */
-    storePostActorTypeAuthProvider: (
-      authProvider: string,
-      data: BaseCartAddress,
-      params: RequestParams = {}
-    ) =>
+    storePostActorTypeAuthProvider: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
       this.request<AuthResponse | AuthCallbackResponse, Error | string>({
         path: `/auth/customer/${authProvider}`,
         method: "POST",
@@ -50765,10 +50985,7 @@ export class Api<
      * @summary Validate Authentication Callback
      * @request POST:/auth/customer/{auth_provider}/callback
      */
-    storePostActorTypeAuthProviderCallback: (
-      authProvider: string,
-      params: RequestParams = {}
-    ) =>
+    storePostActorTypeAuthProviderCallback: (authProvider: string, params: RequestParams = {}) =>
       this.request<AuthResponse, Error | string>({
         path: `/auth/customer/${authProvider}/callback`,
         method: "POST",
@@ -50784,11 +51001,7 @@ export class Api<
      * @summary Retrieve Registration JWT Token
      * @request POST:/auth/customer/{auth_provider}/register
      */
-    storePostActorTypeAuthProviderRegister: (
-      authProvider: string,
-      data: BaseCartAddress,
-      params: RequestParams = {}
-    ) =>
+    storePostActorTypeAuthProviderRegister: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
       this.request<AuthResponse, Error | string>({
         path: `/auth/customer/${authProvider}/register`,
         method: "POST",
@@ -50809,7 +51022,7 @@ export class Api<
     storePostActorTypeAuthProviderResetPassword: (
       authProvider: string,
       data: BaseCartAddress,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<void, Error | string>({
         path: `/auth/customer/${authProvider}/reset-password`,
@@ -50834,7 +51047,7 @@ export class Api<
         token: string;
       },
       data: BaseCartAddress,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -50863,11 +51076,7 @@ export class Api<
      * @summary Authenticate Seller
      * @request POST:/auth/seller/{auth_provider}
      */
-    postSellerTypeAuthProvider: (
-      authProvider: string,
-      data: BaseCartAddress,
-      params: RequestParams = {}
-    ) =>
+    postSellerTypeAuthProvider: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
       this.request<AuthResponse | AuthCallbackResponse, Error | string>({
         path: `/auth/seller/${authProvider}`,
         method: "POST",
@@ -50885,11 +51094,7 @@ export class Api<
      * @summary Retrieve Registration JWT Token
      * @request POST:/auth/seller/{auth_provider}/register
      */
-    postSellerTypeAuthProviderRegister: (
-      authProvider: string,
-      data: BaseCartAddress,
-      params: RequestParams = {}
-    ) =>
+    postSellerTypeAuthProviderRegister: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
       this.request<AuthResponse, Error | string>({
         path: `/auth/seller/${authProvider}/register`,
         method: "POST",
@@ -50920,7 +51125,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCartResponse, Error | string>({
         path: `/store/carts`,
@@ -50949,7 +51154,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCartResponse, Error | string>({
         path: `/store/carts/${id}`,
@@ -50980,7 +51185,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -51015,7 +51220,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         | {
@@ -51082,7 +51287,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCartResponse, Error | string>({
         path: `/store/carts/${id}/customer`,
@@ -51110,7 +51315,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCartResponse, Error | string>({
         path: `/store/carts/${id}/line-items`,
@@ -51141,7 +51346,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCartResponse, Error | string>({
         path: `/store/carts/${id}/line-items/${lineId}`,
@@ -51171,7 +51376,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -51222,7 +51427,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCartResponse, Error | string>({
         path: `/store/carts/${id}/promotions`,
@@ -51251,7 +51456,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -51293,7 +51498,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCartResponse, Error | string>({
         path: `/store/carts/${id}/shipping-methods`,
@@ -51322,7 +51527,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCartResponse, Error | string>({
         path: `/store/carts/${id}/taxes`,
@@ -51692,7 +51897,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -51741,7 +51946,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCollectionResponse, Error | string>({
         path: `/store/collections/${id}`,
@@ -51799,7 +52004,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCurrencyListResponse, Error | string>({
         path: `/store/currencies`,
@@ -51826,7 +52031,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCurrencyResponse, Error | string>({
         path: `/store/currencies/${code}`,
@@ -51854,7 +52059,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCustomerResponse, Error | string>({
         path: `/store/customers`,
@@ -51884,7 +52089,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCustomerResponse, Error | string>({
         path: `/store/customers/me`,
@@ -51913,7 +52118,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCustomerResponse, Error | string>({
         path: `/store/customers/me`,
@@ -51969,7 +52174,7 @@ export class Api<
          */
         q?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCustomerAddressListResponse, Error | string>({
         path: `/store/customers/me/addresses`,
@@ -52066,7 +52271,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCustomerResponse, Error | string>({
         path: `/store/customers/me/addresses`,
@@ -52097,7 +52302,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCustomerAddressResponse, Error | string>({
         path: `/store/customers/me/addresses/${addressId}`,
@@ -52195,7 +52400,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreCustomerResponse, Error | string>({
         path: `/store/customers/me/addresses/${addressId}`,
@@ -52226,7 +52431,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -52304,18 +52509,9 @@ export class Api<
          */
         $or?: object[];
         /** The order's status. */
-        status?:
-          | string
-          | (
-              | "canceled"
-              | "requires_action"
-              | "pending"
-              | "completed"
-              | "draft"
-              | "archived"
-            )[];
+        status?: string | ("canceled" | "requires_action" | "pending" | "completed" | "draft" | "archived")[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -52365,7 +52561,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreOrderResponse, Error | string>({
         path: `/store/orders/${id}`,
@@ -52393,7 +52589,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreOrderResponse, Error | string>({
         path: `/store/orders/${id}/transfer/accept`,
@@ -52423,7 +52619,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreOrderResponse, Error | string>({
         path: `/store/orders/${id}/transfer/cancel`,
@@ -52452,7 +52648,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreOrderResponse, Error | string>({
         path: `/store/orders/${id}/transfer/decline`,
@@ -52483,7 +52679,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreOrderResponse, Error | string>({
         path: `/store/orders/${id}/transfer/request`,
@@ -52513,7 +52709,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StorePaymentCollectionResponse, Error | string>({
         path: `/store/payment-collections`,
@@ -52543,7 +52739,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StorePaymentCollectionResponse, Error | string>({
         path: `/store/payment-collections/${id}/payment-sessions`,
@@ -52591,7 +52787,7 @@ export class Api<
          */
         region_id: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -52999,7 +53195,7 @@ export class Api<
         /** Filter by a product category name. */
         name?: string | string[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreProductCategoryListResponse, Error | string>({
         path: `/store/product-categories`,
@@ -53036,7 +53232,7 @@ export class Api<
          */
         include_descendants_tree?: boolean;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreProductCategoryResponse, Error | string>({
         path: `/store/product-categories/${id}`,
@@ -53406,7 +53602,7 @@ export class Api<
           $exists?: boolean;
         };
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreProductTagListResponse, Error | string>({
         path: `/store/product-tags`,
@@ -53433,7 +53629,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreProductTagResponse, Error | string>({
         path: `/store/product-tags/${id}`,
@@ -53803,7 +53999,7 @@ export class Api<
           $exists?: boolean;
         };
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreProductTypeListResponse, Error | string>({
         path: `/store/product-types`,
@@ -53830,7 +54026,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreProductTypeResponse, Error | string>({
         path: `/store/product-types/${id}`,
@@ -54253,7 +54449,7 @@ export class Api<
          */
         cart_id?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -54337,7 +54533,7 @@ export class Api<
          */
         order?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreProductResponse, Error | string>({
         path: `/store/products/${id}`,
@@ -54399,7 +54595,7 @@ export class Api<
          */
         $or?: object[];
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -54448,7 +54644,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -54513,7 +54709,7 @@ export class Api<
          */
         order?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -54562,7 +54758,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreReturnReasonResponse, Error | string>({
         path: `/store/return-reasons/${id}`,
@@ -54623,7 +54819,7 @@ export class Api<
          */
         is_return?: boolean;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreShippingOptionListResponse, Error | string>({
         path: `/store/shipping-options`,
@@ -54659,7 +54855,7 @@ export class Api<
          */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<StoreShippingOptionResponse, Error | string>({
         path: `/store/shipping-options/${id}/calculate`,
@@ -54685,7 +54881,7 @@ export class Api<
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -54716,10 +54912,7 @@ export class Api<
      * @request POST:/store/return-request
      * @secure
      */
-    storeCreateOrderReturnRequest: (
-      data: StoreCreateOrderReturnRequest,
-      params: RequestParams = {}
-    ) =>
+    storeCreateOrderReturnRequest: (data: StoreCreateOrderReturnRequest, params: RequestParams = {}) =>
       this.request<
         {
           /** A return request object with its properties */
@@ -54751,7 +54944,7 @@ export class Api<
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -54812,11 +55005,7 @@ export class Api<
      * @request POST:/vendor/fulfillment-sets/{id}/service-zones
      * @secure
      */
-    vendorCreateServiceZone: (
-      id: string,
-      data: VendorCreateServiceZone,
-      params: RequestParams = {}
-    ) =>
+    vendorCreateServiceZone: (id: string, data: VendorCreateServiceZone, params: RequestParams = {}) =>
       this.request<
         {
           /** The service zone's fulfillment set. */
@@ -54846,7 +55035,7 @@ export class Api<
       id: string,
       zoneId: string,
       data: VendorUpdateServiceZone,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -54873,11 +55062,7 @@ export class Api<
      * @request DELETE:/vendor/fulfillment-sets/{id}/service-zones/{zone_id}
      * @secure
      */
-    vendorDeleteServiceZoneById: (
-      id: string,
-      zoneId: string,
-      params: RequestParams = {}
-    ) =>
+    vendorDeleteServiceZoneById: (id: string, zoneId: string, params: RequestParams = {}) =>
       this.request<
         {
           /** The ID of the deleted Service Zone. */
@@ -54945,11 +55130,7 @@ export class Api<
      * @request POST:/vendor/inventory-items/{id}
      * @secure
      */
-    vendorUpdateInventoryItem: (
-      id: string,
-      data: VendorUpdateInventoryItem,
-      params: RequestParams = {}
-    ) =>
+    vendorUpdateInventoryItem: (id: string, data: VendorUpdateInventoryItem, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/vendor/inventory-items/${id}`,
         method: "POST",
@@ -54985,11 +55166,7 @@ export class Api<
      * @request POST:/vendor/inventory-items/{id}/location-levels
      * @secure
      */
-    vendorCreateInventoryLevel: (
-      id: string,
-      data: VendorCreateInventoryLevel,
-      params: RequestParams = {}
-    ) =>
+    vendorCreateInventoryLevel: (id: string, data: VendorCreateInventoryLevel, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/vendor/inventory-items/${id}/location-levels`,
         method: "POST",
@@ -55008,11 +55185,7 @@ export class Api<
      * @request GET:/vendor/inventory-items/{id}/location-levels/{location_id}
      * @secure
      */
-    vendorGetInventoryLevel: (
-      id: string,
-      locationId: string,
-      params: RequestParams = {}
-    ) =>
+    vendorGetInventoryLevel: (id: string, locationId: string, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/vendor/inventory-items/${id}/location-levels/${locationId}`,
         method: "GET",
@@ -55033,7 +55206,7 @@ export class Api<
       id: string,
       locationId: string,
       data: VendorUpdateInventoryLevel,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<void, any>({
         path: `/vendor/inventory-items/${id}/location-levels/${locationId}`,
@@ -55064,7 +55237,7 @@ export class Api<
         /** Field used to order the results. */
         order?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55095,10 +55268,7 @@ export class Api<
      * @request POST:/vendor/invites
      * @secure
      */
-    vendorCreateInvite: (
-      data: VendorInviteMember,
-      params: RequestParams = {}
-    ) =>
+    vendorCreateInvite: (data: VendorInviteMember, params: RequestParams = {}) =>
       this.request<
         {
           /** A member invite object with its properties */
@@ -55124,11 +55294,7 @@ export class Api<
      * @request POST:/vendor/invites/{id}/accept
      * @secure
      */
-    vendorAcceptInvite: (
-      id: string,
-      data: VendorAcceptMemberInvite,
-      params: RequestParams = {}
-    ) =>
+    vendorAcceptInvite: (id: string, data: VendorAcceptMemberInvite, params: RequestParams = {}) =>
       this.request<
         {
           /** A member invite object with its properties */
@@ -55167,7 +55333,7 @@ export class Api<
         /** Field used to order the results. */
         order?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55246,11 +55412,7 @@ export class Api<
      * @request POST:/vendor/members/{id}
      * @secure
      */
-    vendorUpdateMemberById: (
-      id: string,
-      data: VendorUpdateMember,
-      params: RequestParams = {}
-    ) =>
+    vendorUpdateMemberById: (id: string, data: VendorUpdateMember, params: RequestParams = {}) =>
       this.request<
         {
           /** A member object with its properties */
@@ -55325,7 +55487,7 @@ export class Api<
         /** Search query for filtering orders */
         q?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55433,7 +55595,7 @@ export class Api<
         /** Comma-separated fields that should be included in the returned data. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55459,10 +55621,7 @@ export class Api<
      * @request POST:/vendor/payout-account
      * @secure
      */
-    vendorCreatePayoutAccount: (
-      data: VendorCreatePayoutAccount,
-      params: RequestParams = {}
-    ) =>
+    vendorCreatePayoutAccount: (data: VendorCreatePayoutAccount, params: RequestParams = {}) =>
       this.request<
         {
           /** A payout account object with its properties */
@@ -55488,10 +55647,7 @@ export class Api<
      * @request POST:/vendor/payout-account/onboarding
      * @secure
      */
-    vendorCreateOnboarding: (
-      data: VendorCreateOnboarding,
-      params: RequestParams = {}
-    ) =>
+    vendorCreateOnboarding: (data: VendorCreateOnboarding, params: RequestParams = {}) =>
       this.request<
         {
           /** A payout account object with its properties */
@@ -55528,7 +55684,7 @@ export class Api<
         /** The order of the returned items. */
         order?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55559,10 +55715,7 @@ export class Api<
      * @request POST:/vendor/products
      * @secure
      */
-    vendorCreateProduct: (
-      data: VendorCreateProduct,
-      params: RequestParams = {}
-    ) =>
+    vendorCreateProduct: (data: VendorCreateProduct, params: RequestParams = {}) =>
       this.request<
         {
           /** A product object with its properties */
@@ -55594,7 +55747,7 @@ export class Api<
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55627,7 +55780,7 @@ export class Api<
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55683,11 +55836,7 @@ export class Api<
      * @request POST:/vendor/products/{id}/fulfillment
      * @secure
      */
-    vendorCreateFulfillment: (
-      id: string,
-      data: VendorCreateFulfillment,
-      params: RequestParams = {}
-    ) =>
+    vendorCreateFulfillment: (id: string, data: VendorCreateFulfillment, params: RequestParams = {}) =>
       this.request<
         {
           /** The fulfillment's details. */
@@ -55718,7 +55867,7 @@ export class Api<
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55749,10 +55898,7 @@ export class Api<
      * @request POST:/vendor/requests
      * @secure
      */
-    vendorCreateRequest: (
-      data: VendorCreateRequest,
-      params: RequestParams = {}
-    ) =>
+    vendorCreateRequest: (data: VendorCreateRequest, params: RequestParams = {}) =>
       this.request<
         {
           /** A request object */
@@ -55784,7 +55930,7 @@ export class Api<
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55815,7 +55961,7 @@ export class Api<
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55852,7 +55998,7 @@ export class Api<
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55881,7 +56027,7 @@ export class Api<
     vendorUpdateOrderReturnRequestById: (
       id: string,
       data: VendorUpdateOrderReturnRequest,
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -55908,10 +56054,7 @@ export class Api<
      * @request POST:/vendor/sellers
      * @secure
      */
-    vendorCreateSeller: (
-      data: VendorCreateSeller,
-      params: RequestParams = {}
-    ) =>
+    vendorCreateSeller: (data: VendorCreateSeller, params: RequestParams = {}) =>
       this.request<
         {
           /** A request object */
@@ -55961,10 +56104,7 @@ export class Api<
      * @request POST:/vendor/sellers/me
      * @secure
      */
-    vendorUpdateSellerMe: (
-      data: VendorUpdateSeller,
-      params: RequestParams = {}
-    ) =>
+    vendorUpdateSellerMe: (data: VendorUpdateSeller, params: RequestParams = {}) =>
       this.request<
         {
           /** A seller object with its properties */
@@ -56019,10 +56159,7 @@ export class Api<
      * @request POST:/vendor/shipping-options
      * @secure
      */
-    vendorCreateShippingOption: (
-      data: VendorCreateShippingOption,
-      params: RequestParams = {}
-    ) =>
+    vendorCreateShippingOption: (data: VendorCreateShippingOption, params: RequestParams = {}) =>
       this.request<
         {
           /** The shipping option's details. */
@@ -56072,11 +56209,7 @@ export class Api<
      * @request POST:/vendor/shipping-options/{id}
      * @secure
      */
-    vendorUpdateShippingOptionById: (
-      id: string,
-      data: VendorUpdateShippingOption,
-      params: RequestParams = {}
-    ) =>
+    vendorUpdateShippingOptionById: (id: string, data: VendorUpdateShippingOption, params: RequestParams = {}) =>
       this.request<
         {
           /** The shipping option's details. */
@@ -56141,7 +56274,7 @@ export class Api<
         /** The comma-separated fields to include in the response */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -56172,7 +56305,7 @@ export class Api<
         /** The comma-separated fields to include in the response */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -56206,7 +56339,7 @@ export class Api<
         /** The comma-separated fields to include in the response */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -56239,7 +56372,7 @@ export class Api<
         /** The comma-separated fields to include in the response */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -56279,7 +56412,7 @@ export class Api<
         /** The comma-separated fields to include in the response */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -56314,7 +56447,7 @@ export class Api<
         /** The comma-separated fields to include in the response */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
@@ -56354,7 +56487,7 @@ export class Api<
         /** The comma-separated fields to include in the response */
         fields?: string;
       },
-      params: RequestParams = {}
+      params: RequestParams = {},
     ) =>
       this.request<
         {
