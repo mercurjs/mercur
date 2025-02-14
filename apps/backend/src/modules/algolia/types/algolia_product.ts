@@ -11,12 +11,14 @@ export const AlgoliaProductValidator = z.object({
     .object({
       title: z.string()
     })
-    .nullable(),
+    .nullable()
+    .optional(),
   type: z
     .object({
       value: z.string()
     })
-    .nullable(),
+    .nullable()
+    .optional(),
   tags: z
     .array(
       z.object({
@@ -31,16 +33,19 @@ export const AlgoliaProductValidator = z.object({
       })
     )
     .optional(),
-  sku: z.string().nullable(),
-  ean: z.string().nullable(),
-  upc: z.string().nullable(),
-  barcode: z.string().nullable(),
-  hs_code: z.string().nullable(),
-  mid_code: z.string().nullable(),
-  weight: z.number().nullable(),
-  length: z.number().nullable(),
-  height: z.number().nullable(),
-  width: z.number().nullable(),
-  origin_country: z.string().nullable(),
-  material: z.string().nullable()
+  sku: z.string().nullable().optional(),
+  ean: z.string().nullable().optional(),
+  upc: z.string().nullable().optional(),
+  barcode: z.string().nullable().optional(),
+  hs_code: z.string().nullable().optional(),
+  mid_code: z.string().nullable().optional(),
+  weight: z.number().nullable().optional(),
+  length: z.number().nullable().optional(),
+  height: z.number().nullable().optional(),
+  width: z.number().nullable().optional(),
+  origin_country: z.string().nullable().optional(),
+  material: z.string().nullable().optional(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date().nullable(),
+  deleted_at: z.coerce.date().nullable()
 })

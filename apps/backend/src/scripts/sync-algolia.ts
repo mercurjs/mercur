@@ -1,19 +1,15 @@
 import { z } from 'zod'
 
-import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
+import { ExecArgs } from '@medusajs/framework/types'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import { ALGOLIA_MODULE } from '../modules/algolia'
 import AlgoliaModuleService from '../modules/algolia/service'
-import {
-  AlgoliaEvents,
-  AlgoliaProductValidator
-} from '../modules/algolia/types'
+import { AlgoliaProductValidator } from '../modules/algolia/types'
 
-export default async function productsChangedHandler({
-  event,
+export default async function syncExistingProductsWithAlgolia({
   container
-}: SubscriberArgs<{ ids: string[] }>) {
+}: ExecArgs) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const algolia = container.resolve<AlgoliaModuleService>(ALGOLIA_MODULE)
 
@@ -25,19 +21,10 @@ export default async function productsChangedHandler({
       'collection.title ',
       'tags.value',
       'type.value'
-    ],
-    filters: {
-      id: event.data.ids
-    }
+    ]
   })
 
   const productsToInsert = z.array(AlgoliaProductValidator).parse(products)
-  await algolia.batchUpsertProduct(productsToInsert)
-}
-
-export const config: SubscriberConfig = {
-  event: AlgoliaEvents.PRODUCTS_CHANGED,
-  context: {
-    subscriberId: 'products-changed-handler'
-  }
+  const result = await algolia.batchUpsertProduct(productsToInsert)
+  console.log(result)
 }
