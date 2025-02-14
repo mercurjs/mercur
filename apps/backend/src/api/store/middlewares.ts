@@ -6,7 +6,11 @@ import { storeReviewMiddlewares } from './reviews/middlewares'
 
 export const storeMiddlewares: MiddlewareRoute[] = [
   {
-    matcher: '/store/*',
+    matcher: '/store/reviews/*',
+    middlewares: [authenticate('customer', ['bearer', 'session'])]
+  },
+  {
+    matcher: '/store/return-request/*',
     middlewares: [authenticate('customer', ['bearer', 'session'])]
   },
   ...storeCartsMiddlewares,
