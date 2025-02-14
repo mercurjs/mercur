@@ -44,7 +44,7 @@ RUN adduser --system --uid 1001 expressjs
 USER expressjs
 COPY --from=installer /app .
 
-WORKDIR /app/apps/api
+WORKDIR /app/apps/backend
 
 RUN yarn db:migrate
 
