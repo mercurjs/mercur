@@ -23919,6 +23919,8 @@ export interface VendorCreateSeller {
   member: {
     /** The name of the member. */
     name: string;
+    /** The email of the member. */
+    email: string;
     /** The member's biography. */
     bio?: string | null;
     /** The member's phone number. */
@@ -50652,7 +50654,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         /** Comma-separated fields to include in the response. */
         fields?: string;
         /** Filter by request type */
-        type?: "product" | "product_collection" | "product_category" | "seller";
+        type?: "product" | "product_collection" | "product_category" | "seller" | "review_remove";
         /** Filter by request status */
         status?: "pending" | "rejected" | "accepted";
       },
@@ -50832,6 +50834,80 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves review list
+     *
+     * @tags Admin
+     * @name AdminListReviews
+     * @summary List reviews
+     * @request GET:/admin/reviews
+     * @secure
+     */
+    adminListReviews: (
+      query?: {
+        /** The number of items to return. Default 50. */
+        limit?: number;
+        /** The number of items to skip before starting the response. Default 0. */
+        offset?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+        /** Filter by review reference */
+        reference?: "product" | "seller";
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          reviews?: Review[];
+          /** The total number of reviews */
+          count?: number;
+          /** The number of reviews skipped */
+          offset?: number;
+          /** The number of reviews per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/reviews`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a review by id.
+     *
+     * @tags Admin
+     * @name AdminGetReviewById
+     * @summary Get review by id
+     * @request GET:/admin/reviews/{id}
+     * @secure
+     */
+    adminGetReviewById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          review?: Review;
+        },
+        any
+      >({
+        path: `/admin/reviews/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),

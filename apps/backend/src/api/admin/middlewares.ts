@@ -5,6 +5,7 @@ import { configurationMiddleware } from './configuration/middlewares'
 import { orderSetsMiddlewares } from './order-sets/middlewares'
 import { requestsMiddlewares } from './requests/middlewares'
 import { returnRequestsMiddlewares } from './return-request/middlewares'
+import { reviewsMiddlewares } from './reviews/middlewares'
 import { sellerMiddlewares } from './sellers/middlewares'
 
 export const adminMiddlewares: MiddlewareRoute[] = [
@@ -13,5 +14,6 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...configurationMiddleware,
   ...returnRequestsMiddlewares,
   ...commissionMiddlewares,
-  ...sellerMiddlewares
+  ...sellerMiddlewares,
+  ...reviewsMiddlewares
 ]
