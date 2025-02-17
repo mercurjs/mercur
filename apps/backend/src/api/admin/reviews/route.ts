@@ -2,10 +2,10 @@ import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 /**
- * @oas [get] /admin/requests
- * operationId: "AdminListRequests"
- * summary: "List requests"
- * description: "Retrieves requests list"
+ * @oas [get] /admin/reviews
+ * operationId: "AdminListReviews"
+ * summary: "List reviews"
+ * description: "Retrieves review list"
  * x-authenticated: true
  * parameters:
  *   - in: query
@@ -24,20 +24,13 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *       type: string
  *     required: false
  *     description: Comma-separated fields to include in the response.
- *   - name: type
+ *   - name: reference
  *     in: query
  *     schema:
  *       type: string
- *       enum: [product,product_collection,product_category,seller,review_remove]
+ *       enum: [product,seller]
  *     required: false
- *     description: Filter by request type
- *   - name: status
- *     in: query
- *     schema:
- *       type: string
- *       enum: [pending,rejected,accepted]
- *     required: false
- *     description: Filter by request status
+ *     description: Filter by review reference
  * responses:
  *   "200":
  *     description: OK
@@ -46,19 +39,19 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *         schema:
  *           type: object
  *           properties:
- *             requests:
+ *             reviews:
  *               type: array
  *               items:
- *                 $ref: "#/components/schemas/AdminRequest"
+ *                 $ref: "#/components/schemas/Review"
  *             count:
  *               type: integer
- *               description: The total number of requests
+ *               description: The total number of reviews
  *             offset:
  *               type: integer
- *               description: The number of requests skipped
+ *               description: The number of reviews skipped
  *             limit:
  *               type: integer
- *               description: The number of requests per page
+ *               description: The number of reviews per page
  * tags:
  *   - Admin
  * security:
@@ -70,15 +63,15 @@ export async function GET(
   res: MedusaResponse
 ): Promise<void> {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { data: requests, metadata } = await query.graph({
-    entity: 'request',
+  const { data: reviews, metadata } = await query.graph({
+    entity: 'review',
     fields: req.remoteQueryConfig.fields,
     filters: req.filterableFields,
     pagination: req.remoteQueryConfig.pagination
   })
 
   res.json({
-    requests,
+    requests: reviews,
     count: metadata?.count,
     offset: metadata?.skip,
     limit: metadata?.take
