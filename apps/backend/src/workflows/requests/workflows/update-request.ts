@@ -1,7 +1,9 @@
+import { emitEventStep } from '@medusajs/medusa/core-flows'
 import {
   WorkflowResponse,
   createHook,
-  createWorkflow
+  createWorkflow,
+  transform
 } from '@medusajs/workflows-sdk'
 
 import { UpdateRequestDTO } from '../../../modules/requests/types'
@@ -14,6 +16,13 @@ export const updateRequestWorkflow = createWorkflow(
 
     const requestUpdatedHook = createHook('requestUpdated', {
       id: input.id
+    })
+
+    emitEventStep({
+      eventName: transform(request, (request) => {
+        return `requests.${request.type}.${request.status}`
+      }),
+      data: request
     })
     return new WorkflowResponse(request, { hooks: [requestUpdatedHook] })
   }
