@@ -37,6 +37,9 @@ export const VendorGetSellerParams = createSelectParams()
  *       name:
  *         type: string
  *         description: The name of the member.
+ *       email:
+ *         type: string
+ *         description: The email of the member.
  *       bio:
  *         type: string
  *         nullable: true
@@ -59,6 +62,7 @@ export const VendorCreateSeller = z
     photo: z.string().nullish().optional(),
     member: z.object({
       name: z.string(),
+      email: z.string().email(),
       bio: z.string().nullish().optional(),
       phone: z.string().nullish().optional(),
       photo: z.string().nullish().optional()
