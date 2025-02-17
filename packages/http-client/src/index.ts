@@ -23094,6 +23094,142 @@ export interface WorkflowExecutionContext {
   }[];
 }
 
+/**
+ * CommissionAggregate
+ * Commission aggregate object
+ */
+export interface AdminCommissionAggregate {
+  /** The unique identifier. */
+  id?: string;
+  /** Commission rule name. */
+  name?: string;
+  /** Commission rate type. */
+  type?: "flat" | "percentage";
+  /** Rule reference type */
+  reference?: string;
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  /** Indicates if rate is calculated including tax. */
+  include_tax?: boolean;
+  /** Percent of commission. */
+  percentage_rate?: number;
+  /** Flat rate price id */
+  price_id?: string;
+  /** Flat rate price currency code */
+  price_currency?: string;
+  /** Flat rate price amount */
+  price_amount?: string;
+  /** Min price id */
+  min_price_id?: string;
+  /** Min price currency code */
+  min_price_currency?: string;
+  /** Min price amount */
+  min_price_amount?: string;
+  /** Max price id */
+  max_price_id?: string;
+  /** Max price currency code */
+  max_price_currency?: string;
+  /** Max price amount */
+  max_price_amount?: string;
+  /** Aggregated fee value */
+  fee_value?: string;
+  /** Aggregated reference value */
+  ref_value?: string;
+}
+
+/**
+ * CommissionRate
+ * Commission rate object
+ */
+export interface AdminCommissionRate {
+  /** The unique identifier. */
+  id?: string;
+  /** Commission rate type. */
+  type?: "flat" | "percentage";
+  /** Percent of commission. */
+  percentage_rate?: number;
+  /** Indicates if rate is calculated including tax. */
+  include_tax?: boolean;
+  /** Flat commission value. */
+  price_set_id?: string;
+  /** Min commission value. */
+  min_price_set_id?: string;
+  /** Max commission value. */
+  max_price_set_id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+}
+
+export interface AdminCommissionRatePrice {
+  /** Currency of the price. */
+  currency_code?: string;
+  /** The subtitle of the product. */
+  amount?: number;
+}
+
+/**
+ * CommissionRule
+ * Commission rule object
+ */
+export interface AdminCommissionRule {
+  /** The unique identifier. */
+  id?: string;
+  /** Commission rule name. */
+  name?: string;
+  /** Rule reference type */
+  reference?: string;
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  /** Commission rate object */
+  rate?: AdminCommissionRate;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+}
+
+export interface AdminCreateCommissionRate {
+  /** Rate type. */
+  type?: "flat" | "percentage";
+  /** The subtitle of the product. */
+  percentage_rate?: number;
+  /** The description of the product. */
+  include_tax?: boolean;
+  price_set?: AdminCommissionRatePrice;
+  min_price_set?: AdminCommissionRatePrice;
+  max_price_set?: AdminCommissionRatePrice;
+}
+
+export interface AdminCreateCommissionRule {
+  /** Commission rule name. */
+  name?: string;
+  /** Rule reference type */
+  reference?: string;
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  rate?: AdminCreateCommissionRate;
+}
+
 export interface AdminCreateRule {
   /** The type of the rule */
   rule_type?: "global_product_catalog" | "require_product_approval" | "product_request_enabled";
@@ -23203,6 +23339,13 @@ export interface AdminReviewRequest {
   assign_product_to_seller?: boolean;
 }
 
+export interface AdminUpdateCommissionRule {
+  /** Commission rule name. */
+  name?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+}
+
 /**
  * Update Order Return Request
  * A schema for the update of order return request.
@@ -23216,6 +23359,18 @@ export interface AdminUpdateOrderReturnRequest {
 
 export interface AdminUpdateRule {
   is_enabled?: boolean;
+}
+
+export interface AdminUpsertDefaultCommissionRule {
+  /** Commission rule name. */
+  name?: string;
+  /** Rule reference type */
+  reference?: "site";
+  /** Rule reference id */
+  reference_id?: string;
+  /** Indicates if rule is active. */
+  is_active?: boolean;
+  rate?: AdminCreateCommissionRate;
 }
 
 /**
@@ -23457,6 +23612,36 @@ export interface ProductRequest {
 }
 
 /**
+ * Seller/product review
+ * A product/seller review with rating and comment
+ */
+export interface Review {
+  /** The unique identifier of the review. */
+  id?: string;
+  /** The rating associated with the review. */
+  rating?: number;
+  /** Indicates if review reference is seller or product */
+  reference?: "seller" | "product";
+  /** Customer comment on resource */
+  customer_note?: string | null;
+  /** Id of the customer who left the review */
+  customer_id?: string;
+  /** Seller response to customer review */
+  seller_note?: string | null;
+}
+
+export interface ReviewRemoveRequest {
+  /** The type of the request */
+  type: "review_remove";
+  data: {
+    /** Id of the review to remove */
+    review_id?: string;
+    /** The reason to remove review */
+    reason?: string;
+  };
+}
+
+/**
  * Create Order Return Request
  * A schema for the creation of order return request.
  */
@@ -23470,6 +23655,46 @@ export interface StoreCreateOrderReturnRequest {
     line_item_id?: string;
     quantity?: number;
   }[];
+}
+
+/**
+ * Create Review
+ * A schema for creating a review.
+ */
+export interface StoreCreateReview {
+  /** Indicates if review reference is seller or product */
+  reference?: "seller" | "product";
+  /** The unique identifier of reference. */
+  reference_id?: string;
+  /**
+   * The customer rating on the resource.
+   * @min 1
+   * @max 5
+   */
+  rating?: number;
+  /**
+   * The customer note on the resource.
+   * @maxLength 300
+   */
+  customer_note?: string;
+}
+
+/**
+ * Update Review
+ * A schema for the review update.
+ */
+export interface StoreUpdateReview {
+  /**
+   * The customer rating on the resource.
+   * @min 1
+   * @max 5
+   */
+  rating?: number;
+  /**
+   * The customer note on the resource.
+   * @maxLength 300
+   */
+  customer_note?: string;
 }
 
 export interface UpdateProductOption {
@@ -23678,7 +23903,7 @@ export interface VendorCreateProduct {
 
 export interface VendorCreateRequest {
   /** The resource to be created by request */
-  request: ProductRequest | ProductCollectionRequest | ProductCategoryRequest;
+  request: ProductRequest | ProductCollectionRequest | ProductCategoryRequest | ReviewRemoveRequest;
 }
 
 export interface VendorCreateSeller {
@@ -23694,6 +23919,8 @@ export interface VendorCreateSeller {
   member: {
     /** The name of the member. */
     name: string;
+    /** The email of the member. */
+    email: string;
     /** The member's biography. */
     bio?: string | null;
     /** The member's phone number. */
@@ -25126,6 +25353,8 @@ export interface VendorProduct {
    * @example {"car":"white"}
    */
   metadata?: object;
+  /** The average rating from customer reviews */
+  rating?: string | null;
 }
 
 /**
@@ -25860,6 +26089,18 @@ export interface VendorUpdateProduct {
   sales_channels?: {
     id: string;
   }[];
+}
+
+/**
+ * Update Review
+ * A schema for the review update.
+ */
+export interface VendorUpdateReview {
+  /**
+   * The seller response to a review.
+   * @maxLength 300
+   */
+  seller_note?: string;
 }
 
 /**
@@ -50114,6 +50355,198 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a commission rule with 'site' reference type.
+     *
+     * @tags Admin
+     * @name AdminGetDefaultCommissionRule
+     * @summary Get default commission rule
+     * @request GET:/admin/commission/default
+     * @secure
+     */
+    adminGetDefaultCommissionRule: (params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission aggregate object */
+          commission_rule?: AdminCommissionAggregate;
+        },
+        any
+      >({
+        path: `/admin/commission/default`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates or updates default commission rule.
+     *
+     * @tags Admin
+     * @name AdminUpsertDefaultCommissionRule
+     * @summary Upsert default CommissionRule
+     * @request POST:/admin/commission/default
+     * @secure
+     */
+    adminUpsertDefaultCommissionRule: (data: AdminUpsertDefaultCommissionRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission rule object */
+          commission_rule?: AdminCommissionRule;
+        },
+        any
+      >({
+        path: `/admin/commission/default`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of commission rules.
+     *
+     * @tags Admin
+     * @name AdminListCommissionRules
+     * @summary List Commission rules
+     * @request GET:/admin/commission/rules
+     * @secure
+     */
+    adminListCommissionRules: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          commission_rules?: AdminCommissionAggregate[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/commission/rules`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new commission rule.
+     *
+     * @tags Admin
+     * @name AdminCreateCommissionRule
+     * @summary Create a CommissionRule
+     * @request POST:/admin/commission/rules
+     * @secure
+     */
+    adminCreateCommissionRule: (data: AdminCreateCommissionRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission rule object */
+          commission_rule?: AdminCommissionRule;
+        },
+        any
+      >({
+        path: `/admin/commission/rules`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a commission rule by id.
+     *
+     * @tags Admin
+     * @name AdminGetCommissionRuleById
+     * @summary Get commission rule by id
+     * @request GET:/admin/commission/rules/{id}
+     * @secure
+     */
+    adminGetCommissionRuleById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission aggregate object */
+          commission_rule?: AdminCommissionAggregate;
+        },
+        any
+      >({
+        path: `/admin/commission/rules/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates commission rule by id.
+     *
+     * @tags Admin
+     * @name AdminUpdateCommissionRuleById
+     * @summary Update CommissionRule
+     * @request POST:/admin/commission/rules/{id}
+     * @secure
+     */
+    adminUpdateCommissionRuleById: (id: string, data: AdminUpdateCommissionRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Commission rule object */
+          commission_rule?: AdminCommissionRule;
+        },
+        any
+      >({
+        path: `/admin/commission/rules/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a commission rule by id.
+     *
+     * @tags Admin
+     * @name AdminDeleteCommissionRuleById
+     * @summary Delete a Commission Rule
+     * @request DELETE:/admin/commission/rules/{id}
+     * @secure
+     */
+    adminDeleteCommissionRuleById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted rule */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/admin/commission/rules/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves rules list
      *
      * @tags Admin
@@ -50221,7 +50654,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         /** Comma-separated fields to include in the response. */
         fields?: string;
         /** Filter by request type */
-        type?: "product" | "product_collection" | "product_category" | "seller";
+        type?: "product" | "product_collection" | "product_category" | "seller" | "review_remove";
         /** Filter by request status */
         status?: "pending" | "rejected" | "accepted";
       },
@@ -50401,6 +50834,120 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves review list
+     *
+     * @tags Admin
+     * @name AdminListReviews
+     * @summary List reviews
+     * @request GET:/admin/reviews
+     * @secure
+     */
+    adminListReviews: (
+      query?: {
+        /** The number of items to return. Default 50. */
+        limit?: number;
+        /** The number of items to skip before starting the response. Default 0. */
+        offset?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+        /** Filter by review reference */
+        reference?: "product" | "seller";
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          reviews?: Review[];
+          /** The total number of reviews */
+          count?: number;
+          /** The number of reviews skipped */
+          offset?: number;
+          /** The number of reviews per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/reviews`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a review by id.
+     *
+     * @tags Admin
+     * @name AdminGetReviewById
+     * @summary Get review by id
+     * @request GET:/admin/reviews/{id}
+     * @secure
+     */
+    adminGetReviewById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          review?: Review;
+        },
+        any
+      >({
+        path: `/admin/reviews/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of sellers.
+     *
+     * @tags Admin
+     * @name AdminListSellers
+     * @summary List Sellers
+     * @request GET:/admin/sellers
+     * @secure
+     */
+    adminListSellers: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          sellers?: VendorSeller[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/admin/sellers`,
+        method: "GET",
+        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -54573,6 +55120,175 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Retrieves the reviews created by the authenticated user.
+     *
+     * @tags Review
+     * @name StoreGetMyReviews
+     * @summary Get reviews of the current user
+     * @request GET:/store/reviews
+     * @secure
+     */
+    storeGetMyReviews: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          products?: Review[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/store/reviews`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates new review with rating and comment
+     *
+     * @tags Review
+     * @name StoreCreateNewReview
+     * @summary Create new review
+     * @request POST:/store/reviews
+     * @secure
+     */
+    storeCreateNewReview: (
+      data: StoreCreateReview,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/store/reviews`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a review of specified id
+     *
+     * @tags Review
+     * @name StoreGetReviewById
+     * @summary Get Review
+     * @request GET:/store/reviews/{id}
+     * @secure
+     */
+    storeGetReviewById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/store/reviews/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates customer_note and rating for the review of specified id
+     *
+     * @tags Review
+     * @name StoreUpdateReviewById
+     * @summary Update a Review
+     * @request POST:/store/reviews/{id}
+     * @secure
+     */
+    storeUpdateReviewById: (
+      id: string,
+      data: StoreUpdateReview,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/store/reviews/${id}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a review by id.
+     *
+     * @tags Review
+     * @name StoreDeleteReviewById
+     * @summary Delete a Review
+     * @request DELETE:/store/reviews/{id}
+     * @secure
+     */
+    storeDeleteReviewById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted Review */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/store/reviews/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   vendor = {
     /**
@@ -55727,6 +56443,102 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/vendor/sellers/me`,
         method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves the reviews about the seller associated with the authenticated user.
+     *
+     * @tags Seller, Review
+     * @name VendorGetSellerMyReviews
+     * @summary Get reviews of the current seller
+     * @request GET:/vendor/sellers/me/reviews
+     * @secure
+     */
+    vendorGetSellerMyReviews: (params: RequestParams = {}) =>
+      this.request<
+        {
+          products?: Review[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/reviews`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a review by id for the authenticated vendor.
+     *
+     * @tags Seller, Review
+     * @name VendorGetSellerReviewById
+     * @summary Get a review by id
+     * @request GET:/vendor/sellers/me/reviews/{id}
+     * @secure
+     */
+    vendorGetSellerReviewById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/reviews/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates seller_note for the review of specified id
+     *
+     * @tags Seller, Review
+     * @name VendorUpdateReviewById
+     * @summary Update a Review
+     * @request POST:/vendor/sellers/me/reviews/{id}
+     * @secure
+     */
+    vendorUpdateReviewById: (
+      id: string,
+      data: VendorUpdateReview,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product/seller review with rating and comment */
+          product?: Review;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/reviews/${id}`,
+        method: "POST",
+        query: query,
         body: data,
         secure: true,
         type: ContentType.Json,

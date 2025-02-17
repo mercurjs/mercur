@@ -20,7 +20,8 @@ export const acceptMemberInvitesWorkflow = createWorkflow(
       createMemberStep({
         seller_id: invite.seller.id,
         name: input.invite.name,
-        role: invite.role
+        role: invite.role,
+        email: invite.email
       }),
       updateMemberInviteStep({
         id: invite.id,

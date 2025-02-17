@@ -21,12 +21,14 @@ module.exports = defineConfig({
     { resolve: './src/modules/configuration' },
     { resolve: './src/modules/order-return-request' },
     { resolve: './src/modules/requests' },
+    { resolve: './src/modules/reviews' },
     {
       resolve: './src/modules/taxcode',
       options: {
         apiKey: process.env.STRIPE_SECRET_API_KEY
       }
     },
+    { resolve: './src/modules/commission' },
     {
       resolve: './src/modules/payout',
       options: {
@@ -43,6 +45,22 @@ module.exports = defineConfig({
             id: 'stripe-connect',
             options: {
               apiKey: process.env.STRIPE_SECRET_API_KEY
+            }
+          }
+        ]
+      }
+    },
+    {
+      resolve: '@medusajs/medusa/notification',
+      options: {
+        providers: [
+          {
+            resolve: './src/modules/resend',
+            id: 'resend',
+            options: {
+              channels: ['email'],
+              api_key: process.env.RESEND_API_KEY,
+              from: process.env.RESEND_FROM_EMAIL
             }
           }
         ]
