@@ -25,8 +25,8 @@ export const StoreGetReviewsParams = createFindParams({
  *   rating:
  *     type: number
  *     description: The customer rating on the resource.
- *     max: 5
- *     min: 1
+ *     maximum: 5
+ *     minimum: 1
  *   customer_note:
  *     type: string
  *     description: The customer note on the resource.
@@ -50,8 +50,8 @@ export const StoreCreateReview = z.object({
  *   rating:
  *     type: number
  *     description: The customer rating on the resource.
- *     max: 5
- *     min: 1
+ *     maximum: 5
+ *     minimum: 1
  *   customer_note:
  *     type: string
  *     description: The customer note on the resource.
