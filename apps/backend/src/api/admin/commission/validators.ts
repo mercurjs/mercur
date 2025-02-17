@@ -1,9 +1,9 @@
-import { z } from "zod";
+import { z } from 'zod'
 
-import { createFindParams } from "@medusajs/medusa/api/utils/validators";
-import { MedusaError } from "@medusajs/framework/utils";
+import { MedusaError } from '@medusajs/framework/utils'
+import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
-export const CommissionRateType = z.enum(["flat", "percentage"]);
+export const CommissionRateType = z.enum(['flat', 'percentage'])
 
 /**
  * @schema AdminCommissionRatePrice
@@ -18,8 +18,8 @@ export const CommissionRateType = z.enum(["flat", "percentage"]);
  */
 const Price = z.object({
   amount: z.number(),
-  currency_code: z.string().default("USD"),
-});
+  currency_code: z.string().default('USD')
+})
 
 /**
  * @schema AdminCreateCommissionRate
@@ -44,23 +44,23 @@ const Price = z.object({
  */
 export type AdminCreateCommissionRateType = z.infer<
   typeof AdminCreateCommissionRate
->;
+>
 export const AdminCreateCommissionRate = z.object({
   type: CommissionRateType,
   percentage_rate: z.number().min(0).max(100).optional(),
   include_tax: z.boolean(),
   price_set: Price.optional(),
   max_price_set: Price.optional(),
-  min_price_set: Price.optional(),
-});
+  min_price_set: Price.optional()
+})
 
 export type AdminCommissionRuleParamsType = z.infer<
   typeof AdminCommissionRuleParams
->;
+>
 export const AdminCommissionRuleParams = createFindParams({
   offset: 0,
-  limit: 50,
-});
+  limit: 50
+})
 
 /**
  * Reference type for commission rule
@@ -73,13 +73,13 @@ export const AdminCommissionRuleParams = createFindParams({
  * }
  */
 export const CommissionRuleReferenceType = z.enum([
-  "product_type",
-  "product_category",
-  "seller_group",
-  "seller+product_category",
-  "seller+product_type",
-  "seller",
-]);
+  'product_type',
+  'product_category',
+  'seller_group',
+  'seller+product_category',
+  'seller+product_type',
+  'seller'
+])
 
 /**
  * @schema AdminCreateCommissionRule
@@ -102,14 +102,14 @@ export const CommissionRuleReferenceType = z.enum([
  */
 export type AdminCreateCommissionRuleType = z.infer<
   typeof AdminCreateCommissionRule
->;
+>
 export const AdminCreateCommissionRule = z.object({
   name: z.string(),
   reference: CommissionRuleReferenceType,
   reference_id: z.string(),
   is_active: z.boolean().default(true),
-  rate: AdminCreateCommissionRate,
-});
+  rate: AdminCreateCommissionRate
+})
 
 /**
  * @schema AdminUpdateCommissionRule
@@ -124,11 +124,11 @@ export const AdminCreateCommissionRule = z.object({
  */
 export type AdminUpdateCommissionRuleType = z.infer<
   typeof AdminUpdateCommissionRule
->;
+>
 export const AdminUpdateCommissionRule = z.object({
   name: z.string().optional(),
-  is_active: z.boolean().optional(),
-});
+  is_active: z.boolean().optional()
+})
 
 /**
  * @schema AdminUpsertDefaultCommissionRule
@@ -152,58 +152,55 @@ export const AdminUpdateCommissionRule = z.object({
  */
 export type AdminUpsertDefaultCommissionRuleType = z.infer<
   typeof AdminCreateCommissionRule
->;
+>
 export const AdminUpsertDefaultCommissionRule = z.object({
-  name: z.string().default("default"),
-  reference: z.enum(["site"]).default("site"),
-  reference_id: z.enum([""]).default(""),
+  name: z.string().default('default'),
+  reference: z.enum(['site']).default('site'),
+  reference_id: z.enum(['']).default(''),
   is_active: z.boolean().default(true),
-  rate: AdminCreateCommissionRate,
-});
+  rate: AdminCreateCommissionRate
+})
 
 export const validateCommissionRate = (rate: AdminCreateCommissionRateType) => {
-  if (rate.type === "flat" && !rate.price_set) {
+  if (rate.type === 'flat' && !rate.price_set) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
-      "Flat rate requires fee value",
-    );
+      'Flat rate requires fee value'
+    )
   }
-  if (rate.type === "percentage" && !rate.percentage_rate) {
+  if (rate.type === 'percentage' && !rate.percentage_rate) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
-      "Percentage rate requires percent value",
-    );
+      'Percentage rate requires percent value'
+    )
   }
   if (
     rate.max_price_set &&
     rate.min_price_set &&
-    rate.max_price_set <= rate.min_price_set
+    rate.max_price_set.amount <= rate.min_price_set.amount
   ) {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      "Invalid price range",
-    );
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, 'Invalid price range')
   }
-};
+}
 
 export const validateCommissionRule = (obj: AdminCreateCommissionRuleType) => {
   const errors = [
-    obj.reference === "seller" && !obj.reference_id.startsWith("sel"),
-    obj.reference === "product_category" &&
-      !obj.reference_id.startsWith("pcat"),
-    obj.reference === "product_type" && !obj.reference_id.startsWith("ptyp"),
-    obj.reference === "seller+product_type" &&
-      (!obj.reference_id.split("+")[0].startsWith("sel") ||
-        !obj.reference_id.split("+")[1].startsWith("ptyp")),
-    obj.reference === "seller+product_category" &&
-      (!obj.reference_id.split("+")[0].startsWith("sel") ||
-        !obj.reference_id.split("+")[1].startsWith("pcat")),
-  ];
+    obj.reference === 'seller' && !obj.reference_id.startsWith('sel'),
+    obj.reference === 'product_category' &&
+      !obj.reference_id.startsWith('pcat'),
+    obj.reference === 'product_type' && !obj.reference_id.startsWith('ptyp'),
+    obj.reference === 'seller+product_type' &&
+      (!obj.reference_id.split('+')[0].startsWith('sel') ||
+        !obj.reference_id.split('+')[1].startsWith('ptyp')),
+    obj.reference === 'seller+product_category' &&
+      (!obj.reference_id.split('+')[0].startsWith('sel') ||
+        !obj.reference_id.split('+')[1].startsWith('pcat'))
+  ]
 
   if (errors.find((v) => v)) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
-      "Invalid reference id",
-    );
+      'Invalid reference id'
+    )
   }
-};
+}

@@ -78,7 +78,7 @@ const Commission = () => {
                 <UpsertDefaultCommissionRuleForm
                   onSuccess={() => {
                     setUpsertDefaultOpen(false);
-                    refetch();
+                    defaultRule.refetch()
                   }}
                   rule={defaultRule.commission_rule}
                 />
