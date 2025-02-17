@@ -43,7 +43,7 @@ RUN addgroup --system --gid 1001 medusa
 RUN adduser --system --uid 1001 medusa
 
 # Ensure the medusa user owns the backend folder
-RUN mkdir -p /app/apps/backend
+RUN mkdir -p /app/apps/backend/static
 RUN chown -R medusa:medusa /app/apps/backend
 
 USER medusa
