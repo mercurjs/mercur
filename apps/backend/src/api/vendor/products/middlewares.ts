@@ -13,6 +13,7 @@ import {
 import { checkConfigurationRule } from '../../../shared/infra/http/middlewares'
 import { vendorProductQueryConfig } from './query-config'
 import {
+  VendorAssignBrandName,
   VendorCreateProduct,
   VendorGetProductParams,
   VendorUpdateProduct
@@ -70,6 +71,21 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         filterField: 'product_id'
       }),
       validateAndTransformBody(VendorUpdateProduct),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/products/:id/brand',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: 'product_id'
+      }),
+      validateAndTransformBody(VendorAssignBrandName),
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
