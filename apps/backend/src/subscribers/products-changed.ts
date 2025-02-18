@@ -24,7 +24,8 @@ export default async function productsChangedHandler({
       'categories.name',
       'collection.title ',
       'tags.value',
-      'type.value'
+      'type.value',
+      'variants.*'
     ],
     filters: {
       id: event.data.ids
