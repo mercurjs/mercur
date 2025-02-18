@@ -11,6 +11,7 @@ export const defaultProductSettings: IndexSettings = {
   searchableAttributes: [
     'title',
     'subtitle',
+    'brand.name',
     'tags.value',
     'type.value',
     'categories.name',
