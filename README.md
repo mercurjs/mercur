@@ -1,42 +1,61 @@
-<h1 align="center">
-  Mercur
-</h1>
+![Mercur Main Cover](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png)
+<div align="center">
+  <h1>Mercur <br> Open Source Marketplace Platform</h1> 
+  <!-- Shields.io Badges -->
+  <a href="https://github.com/mercurjs/mercur/tree/main?tab=MIT-1-ov-file">
+    <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" />
+  </a>
+  <a href="#">
+    <img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
+  </a>
+  <a href="https://rigbyjs.com/#contact">
+    <img alt="Support" src="https://img.shields.io/badge/support-contact%20author-blueviolet.svg" />
+  </a>
+  <!-- Website Links -->
+  <p>
+    <a href="https://mercurjs.com/">Mercur</a> |   <a href="https://docs.mercurjs.com/">Docs</a> 
+  </p> 
+</div>
 
-<h4 align="center">
-  <a href="https://docs.mercurjs.com">Documentation</a> |
-  <a href="https://www.mercurjs.com">Website</a>
-</h4>
+# What is Mercur?
 
-<p align="center">
-  Marketplace solution built on top of <a href="https://medusajs.com/" target="_blank">Medusa 2.0</a>
-</p>
+<a href="https://www.mercurjs.com/">Mercur</a> is the first truly limitless open source marketplace platform that combines the simplicity of SaaS with the freedom of open source. Built on [MedusaJS](https://github.com/medusajs/medusa) 2.0, it empowers businesses to create custom marketplaces without choosing between ownership and ease of use.
 
-## Table
+Mercur is a platform to start, customize, manage, and scale your marketplace for every business model with a modern technology stack.
 
-- [Prerequisites](#prerequisites)
-- [Features](#features)
-- [Quickstart](#quickstart)
-- [Resources](#resources)
+## Why Choose Mercur?
 
-## Prerequisites
+- Full Ownership: Unlike SaaS platforms, you own your marketplace with no transaction fees or vendor lock-in
+- Modern Foundation: Built on MedusaJS, offering a modern tech stack that developers love
+- Beautiful by Default: Create stunning storefronts without sacrificing customization
 
-- Node.js v20+
-- PostgreSQL
-- Git CLI
+## Power Any Marketplace Model
 
+Custom B2B Marketplace: Build enterprise-grade platforms with specialized workflows
+Custom B2C Marketplace: Create engaging consumer marketplaces with modern UX
+eCommerce Extension: Transform your store into a marketplace [coming soon 👀]
+
+![Mercur Use Cases](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67b46aa08180d5b8499c6a15_Use-cases.jpg)
 &nbsp;
 
-## Features
+# Ready-to-go marketplace features
 
-- **Product management**. Sellers can manage their products and variants.
-- **Order management**. Sellers can manage their orders.
-- **Stock location and inventory managment**. Sellers can create stock locations and manage their inventory.
-- **Team management**. Sellers can invite and manage their team members.
-- **Fulfillment management**. Sellers can manage their fulfillments, shipping options and delivery types.
-- **Order spliting**. Orders are splitted into multiple orders by sellers in the cart.
-- **OpenAPI support**. Mercur API endpoints are available via OpenAPI.
-- **Payouts**. Automated payouts to sellers.
-- **Stripe Connect Integration**. Integration with Stripe Connect for payment and payout processing.
+<b>Storefronts for Marketplace </b> <br>
+Customizable storefronts designed for B2B and B2C with all elements including browsing and buying products across multiple vendors at once. 
+
+Discover <a href="https://github.com/mercurjs/b2c-marketplace-storefront">B2C Storefront Repository</a> - <a href="https://b2c.mercurjs.com/">🛍️ Check demo </a>
+
+<b>Admin Panel</b> <br>
+Control over whole marketplace: setting product categories, vendors, commissions and rules
+
+<b>Vendor Panel</b> <br>
+A powerful dashboard giving sellers complete control over their products, orders, and store management in one intuitive interface.
+
+<b>Integrations</b> <br>
+Built-in integration with Stripe for payments and Resend for communication needs. More integrations coming soon. 
+
+![Mercur](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a1020f202572832c954ead_6b96703adfe74613f85133f83a19b1f0_Fleek%20Tilt%20-%20Readme.png)
+
 
 &nbsp;
 
@@ -83,14 +102,20 @@ yarn dev
 
 &nbsp;
 
+## Prerequisites
+
+- Node.js v20+
+- PostgreSQL
+- Git CLI
+
 # Resources
 
 #### Learn more about Mercur
 
-- [Website](https://www.mercurjs.com/)
-- [Docs](https://docs.mercurjs.com/introduction)
+- [Mercur Website](https://www.mercurjs.com/)
+- [Mercur Docs](https://docs.mercurjs.com/introduction)
 
 #### Learn more about Medusa
 
-- [Website](https://www.medusajs.com/)
-- [Docs](https://docs.medusajs.com/v2)
+- [Medusa Website](https://www.medusajs.com/)
+- [Medusa Docs](https://docs.medusajs.com/v2)
