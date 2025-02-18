@@ -14,7 +14,8 @@ export const defaultProductSettings: IndexSettings = {
     'tags.value',
     'type.value',
     'categories.name',
-    'collection.title'
+    'collection.title',
+    'variants.title'
   ]
 }
 
