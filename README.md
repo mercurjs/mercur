@@ -92,5 +92,5 @@ yarn dev
 
 #### Learn more about Medusa
 
-- [Website](https://www.medusajs.com/)
 - [Docs](https://docs.medusajs.com/v2)
+- [Website](https://www.medusajs.com/)
