@@ -31,9 +31,9 @@ Mercur is a platform to start, customize, manage, and scale your marketplace for
 
 ## Power Any Marketplace Model
 
-Custom B2B Marketplace: Build enterprise-grade platforms with specialized workflows
-Custom B2C Marketplace: Create engaging consumer marketplaces with modern UX
-eCommerce Extension: Transform your store into a marketplace [coming soon 👀]
+- Custom B2B Marketplace: Build enterprise-grade platforms with specialized workflows
+- Custom B2C Marketplace: Create engaging consumer marketplaces with modern UX
+- eCommerce Extension: Transform your store into a marketplace (coming soon)
 
 ![Mercur Use Cases](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67b46aa08180d5b8499c6a15_Use-cases.jpg)
 &nbsp;
