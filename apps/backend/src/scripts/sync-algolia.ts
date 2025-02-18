@@ -24,7 +24,8 @@ export default async function syncExistingProductsWithAlgolia({
       'categories.name',
       'collection.title ',
       'tags.value',
-      'type.value'
+      'type.value',
+      'variants.*'
     ]
   })
 
