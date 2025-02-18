@@ -35,6 +35,21 @@ const CreateProductOption = z.object({
 })
 
 /**
+ * @schema VendorAssignBrandName
+ * type: object
+ * required:
+ *   - brand_name
+ * properties:
+ *   brand_name:
+ *     type: string
+ *     description: The name of the brand.
+ */
+export type VendorAssignBrandNameType = z.infer<typeof VendorAssignBrandName>
+export const VendorAssignBrandName = z.object({
+  brand_name: z.string()
+})
+
+/**
  * @schema UpdateProductOption
  * type: object
  * properties:
@@ -497,8 +512,7 @@ export const VendorCreateProduct = z
     origin_country: z.string().optional(),
     material: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
-    sales_channels: z.array(z.object({ id: z.string() })).optional(),
-    brand_name: z.string().optional()
+    sales_channels: z.array(z.object({ id: z.string() })).optional()
   })
   .strict()
 
