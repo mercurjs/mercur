@@ -23790,6 +23790,11 @@ export interface VendorAcceptMemberInvite {
   name: string;
 }
 
+export interface VendorAssignBrandName {
+  /** The name of the brand. */
+  brand_name: string;
+}
+
 export interface VendorCreateFulfillment {
   /** The number of items to return. Default 50. */
   requires_shipping?: boolean;
@@ -56152,6 +56157,41 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/vendor/products/${id}`,
         method: "DELETE",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Upserts brand and links to the product
+     *
+     * @tags Product
+     * @name VendorAssignBrandToProduct
+     * @summary Assign brand to the Product
+     * @request POST:/vendor/products/{id}/brand
+     * @secure
+     */
+    vendorAssignBrandToProduct: (
+      id: string,
+      data: VendorAssignBrandName,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product object with its properties */
+          product?: VendorProduct;
+        },
+        any
+      >({
+        path: `/vendor/products/${id}/brand`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
