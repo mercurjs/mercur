@@ -15,10 +15,18 @@ export const acceptProductRequestWorkflow = createWorkflow(
       ...input.data,
       status: 'published'
     }))
+
+    const additional_data = transform(input, (input) => {
+      return {
+        seller_id: input.seller_id,
+        brand_name: input.data.brand_name
+      }
+    })
+
     const product = createProductsWorkflow.runAsStep({
       input: {
         products: [productPayload],
-        additional_data: input.seller_id ? { seller_id: input.seller_id } : {}
+        additional_data
       }
     })
 

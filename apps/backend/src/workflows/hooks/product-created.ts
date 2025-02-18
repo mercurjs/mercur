@@ -4,6 +4,8 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 import { StepResponse } from '@medusajs/workflows-sdk'
 
+import { BRAND_MODULE } from '../../modules/brand'
+import BrandModuleService from '../../modules/brand/service'
 import { SELLER_MODULE } from '../../modules/seller'
 
 const getVariantInventoryItemIds = async (
@@ -27,6 +29,30 @@ const getVariantInventoryItemIds = async (
 createProductsWorkflow.hooks.productsCreated(
   async ({ products, additional_data }, { container }) => {
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+
+    if (additional_data?.brand_name) {
+      const brandService = container.resolve<BrandModuleService>(BRAND_MODULE)
+      let [brand] = await brandService.listBrands({
+        name: additional_data.brand_name
+      })
+
+      if (!brand) {
+        brand = await brandService.createBrands({
+          name: additional_data.brand_name
+        })
+      }
+
+      await remoteLink.create(
+        products.map((product) => ({
+          [Modules.PRODUCT]: {
+            product_id: product.id
+          },
+          [BRAND_MODULE]: {
+            brand_id: brand.id
+          }
+        }))
+      )
+    }
 
     if (!additional_data?.seller_id) {
       return new StepResponse(undefined, null)

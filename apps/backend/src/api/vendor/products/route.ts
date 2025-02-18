@@ -138,7 +138,8 @@ export const POST = async (
         }
       ],
       additional_data: {
-        seller_id: seller.id
+        seller_id: seller.id,
+        brand_name: req.validatedBody.brand_name
       }
     }
   })
