@@ -22,6 +22,7 @@ module.exports = defineConfig({
     { resolve: './src/modules/order-return-request' },
     { resolve: './src/modules/requests' },
     { resolve: './src/modules/reviews' },
+    { resolve: './src/modules/brand' },
     {
       resolve: './src/modules/taxcode',
       options: {
@@ -34,6 +35,20 @@ module.exports = defineConfig({
       options: {
         apiKey: process.env.STRIPE_SECRET_API_KEY,
         webhookSecret: process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET
+      }
+    },
+    {
+      resolve: '@medusajs/medusa/file',
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/file-local',
+            id: 'local',
+            options: {
+              backend_url: process.env.BACKEND_URL
+            }
+          }
+        ]
       }
     },
     {

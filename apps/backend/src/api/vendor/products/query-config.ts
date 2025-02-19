@@ -20,6 +20,7 @@ export const vendorProductFields = [
   'mid_code',
   'material',
   'metadata',
+  'brand.name',
   '*type',
   '*collection',
   '*options',
