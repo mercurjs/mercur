@@ -15,6 +15,7 @@ export const acceptProductRequestWorkflow = createWorkflow(
       ...input.data,
       status: 'published'
     }))
+
     const product = createProductsWorkflow.runAsStep({
       input: {
         products: [productPayload],

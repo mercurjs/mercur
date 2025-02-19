@@ -12,7 +12,12 @@ export const VendorGetRequestsParams = createFindParams({
   limit: 50
 }).extend({
   type: z
-    .enum(['product_collection', 'product_category', 'product'])
+    .enum([
+      'product_collection',
+      'product_category',
+      'product',
+      'review_remove'
+    ])
     .optional(),
   status: z.enum(['accepted', 'rejected', 'pending']).optional()
 })
@@ -103,6 +108,35 @@ const ProductRequest = z.object({
 })
 
 /**
+ * @schema ReviewRemoveRequest
+ * type: object
+ * required:
+ *   - type
+ *   - data
+ * properties:
+ *   type:
+ *     type: string
+ *     description: The type of the request
+ *     enum: [review_remove]
+ *   data:
+ *     type: object
+ *     properties:
+ *       review_id:
+ *         type: string
+ *         description: Id of the review to remove
+ *       reason:
+ *         type: string
+ *         description: The reason to remove review
+ */
+const ReviewRemoveRequest = z.object({
+  type: z.literal('review_remove'),
+  data: z.object({
+    review_id: z.string(),
+    reason: z.string()
+  })
+})
+
+/**
  * @schema VendorCreateRequest
  * type: object
  * required:
@@ -115,12 +149,14 @@ const ProductRequest = z.object({
  *       - $ref: "#/components/schemas/ProductRequest"
  *       - $ref: "#/components/schemas/ProductCollectionRequest"
  *       - $ref: "#/components/schemas/ProductCategoryRequest"
+ *       - $ref: "#/components/schemas/ReviewRemoveRequest"
  */
 export type VendorCreateRequestType = z.infer<typeof VendorCreateRequest>
 export const VendorCreateRequest = z.object({
   request: z.discriminatedUnion('type', [
     ProductCategoryRequest,
     ProductCollectionRequest,
-    ProductRequest
+    ProductRequest,
+    ReviewRemoveRequest
   ])
 })

@@ -35,6 +35,21 @@ const CreateProductOption = z.object({
 })
 
 /**
+ * @schema VendorAssignBrandName
+ * type: object
+ * required:
+ *   - brand_name
+ * properties:
+ *   brand_name:
+ *     type: string
+ *     description: The name of the brand.
+ */
+export type VendorAssignBrandNameType = z.infer<typeof VendorAssignBrandName>
+export const VendorAssignBrandName = z.object({
+  brand_name: z.string()
+})
+
+/**
  * @schema UpdateProductOption
  * type: object
  * properties:
@@ -484,7 +499,7 @@ export const VendorCreateProduct = z
     external_id: z.string().optional(),
     type_id: z.string().optional(),
     collection_id: z.string().optional(),
-    categories: z.array(IdAssociation).optional(),
+    categories: z.array(IdAssociation).max(1).optional(),
     tags: z.array(IdAssociation).optional(),
     options: z.array(CreateProductOption).optional(),
     variants: z.array(CreateProductVariant).optional(),
@@ -648,7 +663,7 @@ export const VendorUpdateProduct = z
     type_id: z.string().nullish(),
     external_id: z.string().nullish(),
     collection_id: z.string().nullish(),
-    categories: z.array(IdAssociation).optional(),
+    categories: z.array(IdAssociation).max(1).optional(),
     tags: z.array(IdAssociation).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),

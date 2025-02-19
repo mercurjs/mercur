@@ -15,8 +15,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "name": {
-          "name": "name",
+        "item_line_id": {
+          "name": "item_line_id",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -24,8 +24,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "handle": {
-          "name": "handle",
+        "rule_id": {
+          "name": "rule_id",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -33,23 +33,32 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "description": {
-          "name": "description",
+        "currency_code": {
+          "name": "currency_code",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
+          "nullable": false,
           "mappedType": "text"
         },
-        "photo": {
-          "name": "photo",
-          "type": "text",
+        "value": {
+          "name": "value",
+          "type": "numeric",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
-          "mappedType": "text"
+          "nullable": false,
+          "mappedType": "decimal"
+        },
+        "raw_value": {
+          "name": "raw_value",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "json"
         },
         "created_at": {
           "name": "created_at",
@@ -84,27 +93,19 @@
           "mappedType": "datetime"
         }
       },
-      "name": "seller",
+      "name": "commission_line",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_seller_handle_unique",
+          "keyName": "IDX_commission_line_deleted_at",
           "columnNames": [],
           "composite": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_seller_handle_unique\" ON \"seller\" (handle) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_commission_line_deleted_at\" ON \"commission_line\" (deleted_at) WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_seller_deleted_at",
-          "columnNames": [],
-          "composite": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_seller_deleted_at\" ON \"seller\" (deleted_at) WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "seller_pkey",
+          "keyName": "commission_line_pkey",
           "columnNames": [
             "id"
           ],
@@ -127,289 +128,6 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "is_payout_account_setup_completed": {
-          "name": "is_payout_account_setup_completed",
-          "type": "boolean",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "false",
-          "mappedType": "boolean"
-        },
-        "seller_id": {
-          "name": "seller_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        }
-      },
-      "name": "onboarding",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "seller_id"
-          ],
-          "composite": false,
-          "keyName": "onboarding_seller_id_unique",
-          "primary": false,
-          "unique": true
-        },
-        {
-          "keyName": "IDX_onboarding_seller_id",
-          "columnNames": [],
-          "composite": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_onboarding_seller_id\" ON \"onboarding\" (seller_id) WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "IDX_onboarding_deleted_at",
-          "columnNames": [],
-          "composite": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_onboarding_deleted_at\" ON \"onboarding\" (deleted_at) WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "onboarding_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "onboarding_seller_id_foreign": {
-          "constraintName": "onboarding_seller_id_foreign",
-          "columnNames": [
-            "seller_id"
-          ],
-          "localTableName": "public.onboarding",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.seller",
-          "updateRule": "cascade"
-        }
-      }
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'owner'",
-          "enumItems": [
-            "owner",
-            "admin",
-            "member"
-          ],
-          "mappedType": "enum"
-        },
-        "seller_id": {
-          "name": "seller_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "accepted": {
-          "name": "accepted",
-          "type": "boolean",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "false",
-          "mappedType": "boolean"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        }
-      },
-      "name": "member_invite",
-      "schema": "public",
-      "indexes": [
-        {
-          "keyName": "IDX_member_invite_seller_id",
-          "columnNames": [],
-          "composite": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_invite_seller_id\" ON \"member_invite\" (seller_id) WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "IDX_member_invite_deleted_at",
-          "columnNames": [],
-          "composite": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_invite_deleted_at\" ON \"member_invite\" (deleted_at) WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "member_invite_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "member_invite_seller_id_foreign": {
-          "constraintName": "member_invite_seller_id_foreign",
-          "columnNames": [
-            "seller_id"
-          ],
-          "localTableName": "public.member_invite",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.seller",
-          "updateRule": "cascade"
-        }
-      }
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'owner'",
-          "enumItems": [
-            "owner",
-            "admin",
-            "member"
-          ],
-          "mappedType": "enum"
-        },
         "name": {
           "name": "name",
           "type": "text",
@@ -419,40 +137,163 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "bio": {
-          "name": "bio",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "text"
-        },
-        "phone": {
-          "name": "phone",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "text"
-        },
-        "photo": {
-          "name": "photo",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "text"
-        },
-        "seller_id": {
-          "name": "seller_id",
+        "reference": {
+          "name": "reference",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "mappedType": "text"
+        },
+        "reference_id": {
+          "name": "reference_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "mappedType": "boolean"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "commission_rule",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "IDX_commission_rule_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_commission_rule_deleted_at\" ON \"commission_rule\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "commission_rule_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "percentage_rate": {
+          "name": "percentage_rate",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "include_tax": {
+          "name": "include_tax",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "boolean"
+        },
+        "price_set_id": {
+          "name": "price_set_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "max_price_set_id": {
+          "name": "max_price_set_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "min_price_set_id": {
+          "name": "min_price_set_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "rule_id": {
+          "name": "rule_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "created_at": {
@@ -488,27 +329,36 @@
           "mappedType": "datetime"
         }
       },
-      "name": "member",
+      "name": "commission_rate",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_member_seller_id",
+          "columnNames": [
+            "rule_id"
+          ],
+          "composite": false,
+          "keyName": "commission_rate_rule_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "IDX_commission_rate_rule_id",
           "columnNames": [],
           "composite": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_seller_id\" ON \"member\" (seller_id) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_commission_rate_rule_id\" ON \"commission_rate\" (rule_id) WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_member_deleted_at",
+          "keyName": "IDX_commission_rate_deleted_at",
           "columnNames": [],
           "composite": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_deleted_at\" ON \"member\" (deleted_at) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_commission_rate_deleted_at\" ON \"commission_rate\" (deleted_at) WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "member_pkey",
+          "keyName": "commission_rate_pkey",
           "columnNames": [
             "id"
           ],
@@ -519,16 +369,17 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "member_seller_id_foreign": {
-          "constraintName": "member_seller_id_foreign",
+        "commission_rate_rule_id_foreign": {
+          "constraintName": "commission_rate_rule_id_foreign",
           "columnNames": [
-            "seller_id"
+            "rule_id"
           ],
-          "localTableName": "public.member",
+          "localTableName": "public.commission_rate",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.seller",
+          "referencedTableName": "public.commission_rule",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       }
