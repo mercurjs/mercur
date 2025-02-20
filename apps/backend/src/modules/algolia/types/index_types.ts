@@ -1,3 +1,4 @@
 export enum IndexType {
-  PRODUCT = 'products'
+  PRODUCT = 'products',
+  REVIEW = 'reviews'
 }

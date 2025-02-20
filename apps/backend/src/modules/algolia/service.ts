@@ -1,6 +1,6 @@
 import { Algoliasearch, IndexSettings, algoliasearch } from 'algoliasearch'
 
-import { AlgoliaProduct, IndexType } from './types'
+import { AlgoliaProduct, AlgoliaReview, IndexType } from './types'
 
 export type ModuleOptions = {
   appId: string
@@ -20,6 +20,10 @@ export const defaultProductSettings: IndexSettings = {
   ]
 }
 
+export const defaultReviewSettings: IndexSettings = {
+  attributesForFaceting: ['filterOnly(reference_id)', 'filterOnly(reference)']
+}
+
 class AlgoliaModuleService {
   private options_: ModuleOptions
   private algolia_: Algoliasearch
@@ -36,6 +40,21 @@ class AlgoliaModuleService {
     })
   }
 
+  upsertReview(review: AlgoliaReview) {
+    return this.algolia_.addOrUpdateObject({
+      indexName: IndexType.REVIEW,
+      objectID: review.id,
+      body: review
+    })
+  }
+
+  deleteReview(id: string) {
+    return this.algolia_.deleteObject({
+      indexName: IndexType.REVIEW,
+      objectID: id
+    })
+  }
+
   upsertProduct(product: AlgoliaProduct) {
     return this.algolia_.addOrUpdateObject({
       indexName: IndexType.PRODUCT,
@@ -48,6 +67,14 @@ class AlgoliaModuleService {
     return this.algolia_.deleteObject({
       indexName: IndexType.PRODUCT,
       objectID: id
+    })
+  }
+
+  partialUpdateProduct(product: Partial<AlgoliaProduct> & { id: string }) {
+    return this.algolia_.partialUpdateObject({
+      indexName: IndexType.PRODUCT,
+      objectID: product.id,
+      attributesToUpdate: { ...product }
     })
   }
 

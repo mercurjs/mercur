@@ -4,8 +4,12 @@ import {
   createWorkflow,
   transform
 } from '@medusajs/framework/workflows-sdk'
-import { createRemoteLinkStep } from '@medusajs/medusa/core-flows'
+import {
+  createRemoteLinkStep,
+  emitEventStep
+} from '@medusajs/medusa/core-flows'
 
+import { AlgoliaEvents } from '../../../modules/algolia/types'
 import { REVIEW_MODULE } from '../../../modules/reviews'
 import { CreateReviewDTO } from '../../../modules/reviews/types'
 import { SELLER_MODULE } from '../../../modules/seller'
@@ -43,6 +47,10 @@ export const createReviewWorkflow = createWorkflow(
     })
 
     createRemoteLinkStep(link)
+    emitEventStep({
+      eventName: AlgoliaEvents.REVIEW_CHANGED,
+      data: { review }
+    })
     return new WorkflowResponse(review)
   }
 )
