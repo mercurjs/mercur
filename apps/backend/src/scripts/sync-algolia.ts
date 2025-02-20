@@ -7,6 +7,7 @@ import AlgoliaModuleService, {
 } from '../modules/algolia/service'
 import { IndexType } from '../modules/algolia/types'
 import { findAndTransformAlgoliaProducts } from '../modules/algolia/utils'
+import { findAndTransformAlgoliaReviews } from '../modules/algolia/utils/algolia-reviews'
 
 export default async function syncExistingProductsWithAlgolia({
   container
@@ -17,6 +18,18 @@ export default async function syncExistingProductsWithAlgolia({
   await algolia.updateSettings(IndexType.REVIEW, defaultReviewSettings)
 
   const productsToInsert = await findAndTransformAlgoliaProducts(container)
-  const result = await algolia.batchUpsert(IndexType.PRODUCT, productsToInsert)
-  console.log(result)
+  const productResult = await algolia.batchUpsert(
+    IndexType.PRODUCT,
+    productsToInsert
+  )
+
+  const reviewsToInsert = await findAndTransformAlgoliaReviews(container)
+  const reviewResult = await algolia.batchUpsert(
+    IndexType.REVIEW,
+    reviewsToInsert
+  )
+
+  console.log(
+    `Inserted ${productResult.objectIDs.length} products and ${reviewResult.objectIDs.length} reviews!`
+  )
 }

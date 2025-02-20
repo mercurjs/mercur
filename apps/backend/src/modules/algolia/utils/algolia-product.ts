@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { MedusaContainer } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import { getAvgRating } from '../../reviews/utils'
 import { AlgoliaProductValidator } from '../types'
 
 export async function findAndTransformAlgoliaProducts(
@@ -31,6 +32,11 @@ export async function findAndTransformAlgoliaProducts(
   })
 
   for (const product of products) {
+    product.average_rating = await getAvgRating(
+      container,
+      'product',
+      product.id
+    )
     product.options = product.options
       ?.map((option) => {
         return option.values.map((value) => {
