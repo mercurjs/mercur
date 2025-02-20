@@ -7,7 +7,8 @@ import { ALGOLIA_MODULE } from '../modules/algolia'
 import AlgoliaModuleService from '../modules/algolia/service'
 import {
   AlgoliaEvents,
-  AlgoliaProductValidator
+  AlgoliaProductValidator,
+  IndexType
 } from '../modules/algolia/types'
 
 export default async function productsChangedHandler({
@@ -34,7 +35,7 @@ export default async function productsChangedHandler({
   })
 
   const productsToInsert = z.array(AlgoliaProductValidator).parse(products)
-  await algolia.batchUpsertProduct(productsToInsert)
+  await algolia.batchUpsert(IndexType.PRODUCT, productsToInsert)
 }
 
 export const config: SubscriberConfig = {

@@ -1,6 +1,6 @@
 import { Algoliasearch, IndexSettings, algoliasearch } from 'algoliasearch'
 
-import { AlgoliaProduct, AlgoliaReview, IndexType } from './types'
+import { AlgoliaEntity, IndexType } from './types'
 
 export type ModuleOptions = {
   appId: string
@@ -40,62 +40,24 @@ class AlgoliaModuleService {
     })
   }
 
-  upsertReview(review: AlgoliaReview) {
-    return this.algolia_.addOrUpdateObject({
-      indexName: IndexType.REVIEW,
-      objectID: review.id,
-      body: review
-    })
-  }
-
-  deleteReview(id: string) {
-    return this.algolia_.deleteObject({
-      indexName: IndexType.REVIEW,
-      objectID: id
-    })
-  }
-
-  upsertProduct(product: AlgoliaProduct) {
-    return this.algolia_.addOrUpdateObject({
-      indexName: IndexType.PRODUCT,
-      objectID: product.id,
-      body: product
-    })
-  }
-
-  deleteProduct(id: string) {
-    return this.algolia_.deleteObject({
-      indexName: IndexType.PRODUCT,
-      objectID: id
-    })
-  }
-
-  partialUpdateProduct(product: Partial<AlgoliaProduct> & { id: string }) {
-    return this.algolia_.partialUpdateObject({
-      indexName: IndexType.PRODUCT,
-      objectID: product.id,
-      attributesToUpdate: { ...product }
-    })
-  }
-
-  batchUpsertProduct(products: AlgoliaProduct[]) {
+  batchUpsert(type: IndexType, entities: AlgoliaEntity[]) {
     return this.algolia_.batch({
-      indexName: IndexType.PRODUCT,
+      indexName: type,
       batchWriteParams: {
-        requests: products.map((product) => {
+        requests: entities.map((entity) => {
           return {
             action: 'addObject',
-            objectID: product.id,
-            body: product
+            objectID: entity.id,
+            body: entity
           }
         })
       }
     })
   }
 
-  batchDeleteProduct(ids: string[]) {
+  batchDelete(type: IndexType, ids: string[]) {
     return this.algolia_.batch({
-      indexName: IndexType.PRODUCT,
+      indexName: type,
       batchWriteParams: {
         requests: ids.map((id) => {
           return {
@@ -105,6 +67,32 @@ class AlgoliaModuleService {
           }
         })
       }
+    })
+  }
+
+  upsert(type: IndexType, entity: AlgoliaEntity) {
+    return this.algolia_.addOrUpdateObject({
+      indexName: type,
+      objectID: entity.id,
+      body: entity
+    })
+  }
+
+  delete(type: IndexType, id: string) {
+    return this.algolia_.deleteObject({
+      indexName: type,
+      objectID: id
+    })
+  }
+
+  partialUpdate(
+    type: IndexType,
+    entity: Partial<AlgoliaEntity> & { id: string }
+  ) {
+    return this.algolia_.partialUpdateObject({
+      indexName: type,
+      objectID: entity.id,
+      attributesToUpdate: { ...entity }
     })
   }
 }

@@ -5,7 +5,11 @@ import productReview from '../links/product-review'
 import sellerReview from '../links/seller-review'
 import { ALGOLIA_MODULE } from '../modules/algolia'
 import AlgoliaModuleService from '../modules/algolia/service'
-import { AlgoliaEvents, AlgoliaReviewValidator } from '../modules/algolia/types'
+import {
+  AlgoliaEvents,
+  AlgoliaReviewValidator,
+  IndexType
+} from '../modules/algolia/types'
 import { ReviewDTO } from '../modules/reviews/types'
 import { getAvgRating } from '../modules/reviews/utils'
 
@@ -35,12 +39,13 @@ export default async function reviewChangedHandler({
       relation.product_id
     )
 
-    await algolia.partialUpdateProduct({
+    await algolia.partialUpdate(IndexType.PRODUCT, {
       id: relation.product_id,
       average_rating: Number(average_rating)
     })
 
-    await algolia.upsertReview(
+    await algolia.upsert(
+      IndexType.REVIEW,
       AlgoliaReviewValidator.parse({
         ...review,
         reference_id: relation.product_id
@@ -59,7 +64,8 @@ export default async function reviewChangedHandler({
       }
     })
 
-    await algolia.upsertReview(
+    await algolia.upsert(
+      IndexType.REVIEW,
       AlgoliaReviewValidator.parse({
         ...review,
         reference_id: relation.seller_id
