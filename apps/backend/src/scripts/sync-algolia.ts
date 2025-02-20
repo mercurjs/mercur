@@ -33,6 +33,6 @@ export default async function syncExistingProductsWithAlgolia({
   })
 
   const productsToInsert = z.array(AlgoliaProductValidator).parse(products)
-  const result = await algolia.batchUpsertProduct(productsToInsert)
+  const result = await algolia.batchUpsert(IndexType.PRODUCT, productsToInsert)
   console.log(result)
 }
