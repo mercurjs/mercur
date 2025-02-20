@@ -5,7 +5,8 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import { ALGOLIA_MODULE } from '../modules/algolia'
 import AlgoliaModuleService, {
-  defaultProductSettings
+  defaultProductSettings,
+  defaultReviewSettings
 } from '../modules/algolia/service'
 import { AlgoliaProductValidator, IndexType } from '../modules/algolia/types'
 
@@ -16,6 +17,7 @@ export default async function syncExistingProductsWithAlgolia({
   const algolia = container.resolve<AlgoliaModuleService>(ALGOLIA_MODULE)
 
   await algolia.updateSettings(IndexType.PRODUCT, defaultProductSettings)
+  await algolia.updateSettings(IndexType.REVIEW, defaultReviewSettings)
 
   const { data: products } = await query.graph({
     entity: 'product',
