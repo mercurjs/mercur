@@ -17,7 +17,6 @@ export async function findAndTransformAlgoliaProducts(
       '*',
       'categories.name',
       'categories.id',
-      'handle',
       'collection.title ',
       'tags.value',
       'type.value',
