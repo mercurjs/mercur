@@ -6,8 +6,10 @@ import AlgoliaModuleService, {
   defaultReviewSettings
 } from '../modules/algolia/service'
 import { IndexType } from '../modules/algolia/types'
-import { findAndTransformAlgoliaProducts } from '../modules/algolia/utils'
-import { findAndTransformAlgoliaReviews } from '../modules/algolia/utils/algolia-reviews'
+import {
+  findAndTransformAlgoliaProducts,
+  findAndTransformAlgoliaReviews
+} from '../modules/algolia/utils'
 
 export default async function syncExistingProductsWithAlgolia({
   container
