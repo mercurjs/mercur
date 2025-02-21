@@ -16,10 +16,14 @@ export async function findAndTransformAlgoliaProducts(
     fields: [
       '*',
       'categories.name',
+      'categories.id',
       'collection.title ',
       'tags.value',
       'type.value',
       'variants.*',
+      'variants.options.*',
+      'variants.options.prices.*',
+      'variants.prices.*',
       'brand.name',
       'options.*',
       'options.values.*'
@@ -44,6 +48,20 @@ export async function findAndTransformAlgoliaProducts(
           entry[option.title.toLowerCase()] = value.value
           return entry
         })
+      })
+      .flat()
+    product.variants = product.variants
+      ?.map((variant) => {
+        return variant.options?.reduce(
+          (entry, item) => {
+            entry[item.option.title.toLowerCase()] = item.value
+            return entry
+          },
+          {
+            title: variant.title,
+            prices: variant.prices
+          }
+        )
       })
       .flat()
   }
