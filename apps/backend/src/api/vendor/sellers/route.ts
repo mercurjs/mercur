@@ -57,6 +57,21 @@ export const POST = async (
     }
   })
 
+  const {
+    data: [existingRequest]
+  } = await query.graph({
+    entity: 'request',
+    fields: ['id'],
+    filters: {
+      submitter_id: identity.id,
+      type: 'seller'
+    }
+  })
+
+  if (existingRequest) {
+    throw new MedusaError(MedusaError.Types.CONFLICT, 'Request already exists!')
+  }
+
   const { result: request } = await createSellerCreationRequestWorkflow.run({
     input: {
       data: {
