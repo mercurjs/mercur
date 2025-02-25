@@ -34,6 +34,26 @@
  *     type: string
  *     nullable: true
  *     description: URL to the seller's photo.
+ *   address_line:
+ *     type: string
+ *     nullable: true
+ *     description: Seller address line.
+ *   postal_code:
+ *     type: string
+ *     nullable: true
+ *     description: Seller postal code.
+ *   city:
+ *     type: string
+ *     nullable: true
+ *     description: Seller city.
+ *   country_code:
+ *     type: string
+ *     nullable: true
+ *     description: Seller country code.
+ *   tax_id:
+ *     type: string
+ *     nullable: true
+ *     description: Seller tax id.
  *   members:
  *     type: array
  *     description: The members associated with the seller.
