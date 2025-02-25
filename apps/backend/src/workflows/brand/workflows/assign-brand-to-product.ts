@@ -4,8 +4,12 @@ import {
   createWorkflow,
   transform
 } from '@medusajs/framework/workflows-sdk'
-import { createRemoteLinkStep } from '@medusajs/medusa/core-flows'
+import {
+  createRemoteLinkStep,
+  emitEventStep
+} from '@medusajs/medusa/core-flows'
 
+import { AlgoliaEvents } from '../../../modules/algolia/types'
 import { BRAND_MODULE } from '../../../modules/brand'
 import { createBrandStep } from '../steps'
 
@@ -30,7 +34,12 @@ export const assignBrandToProductWorkflow = createWorkflow(
     })
 
     createRemoteLinkStep(link)
-
+    emitEventStep({
+      eventName: AlgoliaEvents.PRODUCTS_CHANGED,
+      data: {
+        ids: [input.product_id]
+      }
+    })
     return new WorkflowResponse(link)
   }
 )

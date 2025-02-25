@@ -4,6 +4,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 import { StepResponse } from '@medusajs/workflows-sdk'
 
+import { AlgoliaEvents } from '../../modules/algolia/types'
 import { SELLER_MODULE } from '../../modules/seller'
 
 const getVariantInventoryItemIds = async (
@@ -64,6 +65,11 @@ createProductsWorkflow.hooks.productsCreated(
     }
 
     await remoteLink.create(remoteLinks)
+
+    await container.resolve(Modules.EVENT_BUS).emit({
+      name: AlgoliaEvents.PRODUCTS_CHANGED,
+      data: { ids: products.map((product) => product.id) }
+    })
 
     return new StepResponse(
       undefined,

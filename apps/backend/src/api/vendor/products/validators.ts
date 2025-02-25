@@ -512,7 +512,8 @@ export const VendorCreateProduct = z
     origin_country: z.string().optional(),
     material: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
-    sales_channels: z.array(z.object({ id: z.string() })).optional()
+    sales_channels: z.array(z.object({ id: z.string() })).optional(),
+    brand_name: z.string().optional()
   })
   .strict()
 
