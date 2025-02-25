@@ -66,7 +66,7 @@ createProductsWorkflow.hooks.productsCreated(
 
     await remoteLink.create(remoteLinks)
 
-    await container.resolve('event_bus').emit({
+    await container.resolve(Modules.EVENT_BUS).emit({
       name: AlgoliaEvents.PRODUCTS_CHANGED,
       data: { ids: products.map((product) => product.id) }
     })

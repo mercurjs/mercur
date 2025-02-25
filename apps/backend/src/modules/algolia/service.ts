@@ -2,7 +2,7 @@ import { Algoliasearch, IndexSettings, algoliasearch } from 'algoliasearch'
 
 import { AlgoliaEntity, IndexType } from './types'
 
-export type ModuleOptions = {
+type ModuleOptions = {
   appId: string
   apiKey: string
 }
