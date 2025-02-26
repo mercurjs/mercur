@@ -231,8 +231,8 @@ const CreateProductVariant = z
     barcode: z.string().optional(),
     hs_code: z.string().optional(),
     mid_code: z.string().optional(),
-    allow_backorder: z.boolean().optional().default(false),
-    manage_inventory: z.boolean().optional().default(true),
+    allow_backorder: z.literal(false).optional().default(false),
+    manage_inventory: z.literal(true).optional().default(true),
     variant_rank: z.number().optional(),
     weight: z.number().optional(),
     length: z.number().optional(),
@@ -512,7 +512,8 @@ export const VendorCreateProduct = z
     origin_country: z.string().optional(),
     material: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
-    sales_channels: z.array(z.object({ id: z.string() })).optional()
+    sales_channels: z.array(z.object({ id: z.string() })).optional(),
+    brand_name: z.string().optional()
   })
   .strict()
 

@@ -28,6 +28,26 @@ export const VendorGetSellerParams = createSelectParams()
  *     type: string
  *     nullable: true
  *     description: URL to the seller's photo.
+ *   address_line:
+ *     type: string
+ *     nullable: true
+ *     description: Seller address line.
+ *   postal_code:
+ *     type: string
+ *     nullable: true
+ *     description: Seller postal code.
+ *   city:
+ *     type: string
+ *     nullable: true
+ *     description: Seller city.
+ *   country_code:
+ *     type: string
+ *     nullable: true
+ *     description: Seller country code.
+ *   tax_id:
+ *     type: string
+ *     nullable: true
+ *     description: Seller tax id.
  *   member:
  *     type: object
  *     required:
@@ -60,6 +80,11 @@ export const VendorCreateSeller = z
     name: z.preprocess((val: string) => val?.trim(), z.string().min(1)),
     description: z.string().nullish().optional(),
     photo: z.string().nullish().optional(),
+    address_line: z.string().nullish().optional(),
+    city: z.string().nullish().optional(),
+    postal_code: z.string().nullish().optional(),
+    country_code: z.string().nullish().optional(),
+    tax_id: z.string().nullish().optional(),
     member: z.object({
       name: z.string(),
       email: z.string().email(),
@@ -89,6 +114,26 @@ export const VendorCreateSeller = z
  *     type: string
  *     nullable: true
  *     description: URL to the seller's photo.
+ *   address_line:
+ *     type: string
+ *     nullable: true
+ *     description: Seller address line.
+ *   postal_code:
+ *     type: string
+ *     nullable: true
+ *     description: Seller postal code.
+ *   city:
+ *     type: string
+ *     nullable: true
+ *     description: Seller city.
+ *   country_code:
+ *     type: string
+ *     nullable: true
+ *     description: Seller country code.
+ *   tax_id:
+ *     type: string
+ *     nullable: true
+ *     description: Seller tax id.
  */
 export type VendorUpdateSellerType = z.infer<typeof VendorUpdateSeller>
 export const VendorUpdateSeller = z
@@ -97,7 +142,12 @@ export const VendorUpdateSeller = z
       .preprocess((val: string) => val.trim(), z.string().min(4))
       .optional(),
     description: z.string().nullish().optional(),
-    photo: z.string().nullish().optional()
+    photo: z.string().nullish().optional(),
+    address_line: z.string().nullish().optional(),
+    city: z.string().nullish().optional(),
+    postal_code: z.string().nullish().optional(),
+    country_code: z.string().nullish().optional(),
+    tax_id: z.string().nullish().optional()
   })
   .strict()
 

@@ -8,6 +8,7 @@ import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerProductLink from '../../../links/seller-product'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { assignBrandToProductWorkflow } from '../../../workflows/brand/workflows'
 import {
   VendorCreateProductType,
   VendorGetProductParamsType
@@ -130,6 +131,9 @@ export const POST = async (
     req.scope
   )
 
+  const brand_name = req.validatedBody.brand_name
+  delete req.validatedBody['brand_name']
+
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
       products: [
@@ -142,6 +146,16 @@ export const POST = async (
       }
     }
   })
+
+  if (brand_name) {
+    await assignBrandToProductWorkflow.run({
+      container: req.scope,
+      input: {
+        brand_name,
+        product_id: result[0].id
+      }
+    })
+  }
 
   const {
     data: [product]

@@ -3,7 +3,12 @@ export const vendorSellerFields = [
   'name',
   'handle',
   'description',
-  'photo'
+  'photo',
+  'address_line',
+  'city',
+  'postal_code',
+  'country_code',
+  'tax_id'
 ]
 
 export const vendorSellerQueryConfig = {
