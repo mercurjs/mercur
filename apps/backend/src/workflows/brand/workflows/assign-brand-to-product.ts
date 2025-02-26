@@ -40,6 +40,7 @@ export const assignBrandToProductWorkflow = createWorkflow(
         ids: [input.product_id]
       }
     })
+
     return new WorkflowResponse(link)
   }
 )

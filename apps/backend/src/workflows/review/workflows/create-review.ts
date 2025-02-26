@@ -51,6 +51,7 @@ export const createReviewWorkflow = createWorkflow(
       eventName: AlgoliaEvents.REVIEW_CHANGED,
       data: { review }
     })
+
     return new WorkflowResponse(review)
   }
 )
