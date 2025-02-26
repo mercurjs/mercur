@@ -25,3 +25,13 @@ export const GET = async (
 
   res.json({ onboarding })
 }
+
+export const POST = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  const seller = await fetchSellerByAuthActorId(
+    req.auth_context.actor_id,
+    req.scope
+  )
+}
