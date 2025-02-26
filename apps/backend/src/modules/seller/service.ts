@@ -119,6 +119,23 @@ class SellerModuleService extends MedusaService({
       expiresIn: this.config_.validInviteDuration
     })
   }
+
+  async isOnboardingCompleted(seller_id: string): Promise<boolean> {
+    const { onboarding } = await this.retrieveSeller(seller_id, {
+      relations: ['onboarding']
+    })
+
+    if (!onboarding) {
+      return false
+    }
+
+    return (
+      onboarding.locations_shipping &&
+      onboarding.products &&
+      onboarding.store_information &&
+      onboarding.stripe_connection
+    )
+  }
 }
 
 export default SellerModuleService
