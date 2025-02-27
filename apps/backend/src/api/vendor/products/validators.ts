@@ -231,8 +231,9 @@ const CreateProductVariant = z
     barcode: z.string().optional(),
     hs_code: z.string().optional(),
     mid_code: z.string().optional(),
-    allow_backorder: z.literal(false).optional().default(false),
-    manage_inventory: z.literal(true).optional().default(true),
+    allow_backorder: z.boolean().optional().default(false),
+    manage_inventory: z.boolean().optional().default(false),
+    inventory_kit: z.boolean().optional().default(false),
     variant_rank: z.number().optional(),
     weight: z.number().optional(),
     length: z.number().optional(),
@@ -241,7 +242,7 @@ const CreateProductVariant = z
     origin_country: z.string().optional(),
     material: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
-    prices: z.array(CreateVariantPrice),
+    prices: z.array(CreateVariantPrice).optional(),
     options: z.record(z.string()).optional(),
     inventory_items: z
       .array(
@@ -501,8 +502,18 @@ export const VendorCreateProduct = z
     collection_id: z.string().optional(),
     categories: z.array(IdAssociation).max(1).optional(),
     tags: z.array(IdAssociation).optional(),
-    options: z.array(CreateProductOption).optional(),
-    variants: z.array(CreateProductVariant).optional(),
+    options: z.array(CreateProductOption).optional().default([{
+      title: "Default option",
+      values: ["Default option value"],
+    }]),
+    variants: z.array(CreateProductVariant).optional().default([{
+      ...CreateProductVariant.parse({
+        title: 'Default variant',
+        options: {
+          "Default option": "Default option value",
+        }
+      }),
+    }]),
     weight: z.number().optional(),
     length: z.number().optional(),
     height: z.number().optional(),
