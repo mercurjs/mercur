@@ -1,13 +1,11 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-
-import { selectSellerCustomers } from '../../../modules/seller/utils'
-import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 /**
- * @oas [get] /vendor/customers
- * operationId: "VendorListSellerCustomers"
- * summary: "List Customers"
- * description: "Retrieves a list of customers who placed an order in sellers store."
+ * @oas [get] /vendor/customer-groups
+ * operationId: "VendorListCustomerGroups"
+ * summary: "List Customer Groups"
+ * description: "Retrieves a list of customer groups."
  * x-authenticated: true
  * parameters:
  *   - in: query
@@ -33,10 +31,10 @@ import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
  *         schema:
  *           type: object
  *           properties:
- *             customers:
+ *             customer_groups:
  *               type: array
  *               items:
- *                 $ref: "#/components/schemas/VendorCustomer"
+ *                 $ref: "#/components/schemas/VendorCustomerGroup"
  *             count:
  *               type: integer
  *               description: The total number of items available
@@ -56,25 +54,18 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context.actor_id,
-    req.scope
-  )
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { customers, count } = await selectSellerCustomers(
-    req.scope,
-    seller.id,
-    {
-      skip: req.remoteQueryConfig.pagination.skip,
-      take: req.remoteQueryConfig.pagination.take || 50
-    },
-    req.remoteQueryConfig.fields
-  )
+  const { data: customer_groups, metadata } = await query.graph({
+    entity: 'customer_group',
+    fields: req.remoteQueryConfig.fields,
+    pagination: req.remoteQueryConfig.pagination
+  })
 
   res.json({
-    customers,
-    count: count,
-    offset: req.remoteQueryConfig.pagination.skip,
-    limit: req.remoteQueryConfig.pagination.take
+    customer_groups,
+    count: metadata?.count,
+    offset: metadata?.skip,
+    limit: metadata?.take
   })
 }

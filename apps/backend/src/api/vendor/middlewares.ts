@@ -3,6 +3,7 @@ import { unlessBaseUrl } from '#/shared/infra/http/utils'
 import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
 import { vendorCors } from './cors'
+import { vendorCustomerGroupsMiddlewares } from './customer-groups/middlewares'
 import { vendorCustomersMiddlewares } from './customers/middlewares'
 import { vendorFulfillmentSetsMiddlewares } from './fulfillment-sets/middlewares'
 import { vendorInventoryItemsMiddlewares } from './inventory-items/middlewares'
@@ -67,5 +68,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorInventoryItemsMiddlewares,
   ...vendorRequestsMiddlewares,
   ...vendorSalesChannelMiddlewares,
-  ...vendorCustomersMiddlewares
+  ...vendorCustomersMiddlewares,
+  ...vendorCustomerGroupsMiddlewares
 ]
