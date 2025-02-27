@@ -51,8 +51,8 @@ export const GET = async (
   const {
     data: [review]
   } = await query.graph({
-    entity: sellerReview.entryPoint,
-    fields: req.remoteQueryConfig.fields.map((field) => `review.${field}`),
+    entity: 'review',
+    fields: req.remoteQueryConfig.fields,
     filters: {
       id
     }

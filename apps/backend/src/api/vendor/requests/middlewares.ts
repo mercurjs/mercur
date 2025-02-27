@@ -71,7 +71,8 @@ export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
         vendorRequestsConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerRequest.entryPoint
+        entryPoint: sellerRequest.entryPoint,
+        filterField: 'request_id'
       })
     ]
   },
