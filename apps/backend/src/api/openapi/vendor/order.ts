@@ -1222,3 +1222,64 @@
  *     title: deleted_at
  *     description: The date the image was deleted.
  */
+
+/**
+ * @schema VendorCustomerOrderOverview
+ * type: object
+ * description: The order's overview.
+ * properties:
+ *   id:
+ *     type: string
+ *     title: id
+ *     description: The order's ID.
+ *   version:
+ *     type: number
+ *     title: version
+ *     description: The order's version.
+ *   region_id:
+ *     type: string
+ *     title: region_id
+ *     description: The ID of the region associated with the order.
+ *   status:
+ *     type: string
+ *     title: status
+ *     description: The status of the order.
+ *   customer_id:
+ *     type: string
+ *     title: customer_id
+ *     description: The ID of the customer that placed the order.
+ *   sales_channel_id:
+ *     type: string
+ *     title: sales_channel_id
+ *     description: The ID of the sales channel the order is placed in.
+ *   email:
+ *     type: string
+ *     title: email
+ *     description: The email of the customer that placed the order.
+ *     format: email
+ *   currency_code:
+ *     type: string
+ *     title: currency_code
+ *     description: The order's currency code.
+ *   display_id:
+ *     type: number
+ *     title: display_id
+ *     description: The order's display ID.
+ *   is_draft_order:
+ *     type: boolean
+ *     title: is_draft_order
+ *     description: Indicates if order is draft.
+ *   metadata:
+ *     type: object
+ *     description: The order's metadata, can hold custom key-value pairs.
+ *   created_at:
+ *     type: string
+ *     format: date-time
+ *     title: created_at
+ *     description: The date the order was created.
+ *   updated_at:
+ *     type: string
+ *     format: date-time
+ *     title: updated_at
+ *     description: The date the order was updated.
+ */

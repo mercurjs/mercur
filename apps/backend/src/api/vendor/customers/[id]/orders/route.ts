@@ -1,35 +1,39 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 
-import { selectSellerCustomers } from '../../../modules/seller/utils'
-import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { selectCustomerOrders } from '../../../../../modules/seller/utils'
+import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
 
 /**
- * @oas [get] /vendor/customers
- * operationId: "VendorListSellerCustomers"
- * summary: "List Customers"
- * description: "Retrieves a list of customers who placed an order in sellers store."
+ * @oas [get] /vendor/customers/{id}/orders
+ * operationId: "VendorListOrdersByCustomerId"
+ * summary: "List Orders by customer id"
+ * description: "Retrieves a list of orders for the specified customer."
  * x-authenticated: true
  * parameters:
- *   - in: query
- *     name: limit
- *     schema:
- *       type: number
- *     description: The number of items to return. Default 50.
- *   - in: query
- *     name: offset
- *     schema:
- *       type: number
- *     description: The number of items to skip before starting the response. Default 0.
- *   - in: query
- *     name: fields
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the customer.
  *     schema:
  *       type: string
- *     description: Comma-separated fields that should be included in the returned data.
- *   - in: query
- *     name: expand
+ *   - name: offset
+ *     in: query
+ *     schema:
+ *       type: number
+ *     required: false
+ *     description: The number of items to skip before starting to collect the result set.
+ *   - name: limit
+ *     in: query
+ *     schema:
+ *       type: number
+ *     required: false
+ *     description: The number of items to return.
+ *   - name: fields
+ *     in: query
  *     schema:
  *       type: string
- *     description: Comma-separated relations that should be expanded in the returned data.
+ *     required: false
+ *     description: Comma-separated fields to include in the response.
  * responses:
  *   "200":
  *     description: OK
@@ -38,10 +42,10 @@ import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
  *         schema:
  *           type: object
  *           properties:
- *             customers:
+ *             orders:
  *               type: array
  *               items:
- *                 $ref: "#/components/schemas/VendorCustomer"
+ *                 $ref: "#/components/schemas/VendorCustomerOrderOverview"
  *             count:
  *               type: integer
  *               description: The total number of items available
@@ -52,7 +56,7 @@ import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Seller
+ *   - Order
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -66,9 +70,10 @@ export const GET = async (
     req.scope
   )
 
-  const { customers, count } = await selectSellerCustomers(
+  const { orders, count } = await selectCustomerOrders(
     req.scope,
     seller.id,
+    req.params.id,
     {
       skip: req.remoteQueryConfig.pagination.skip,
       take: req.remoteQueryConfig.pagination.take || 50
@@ -77,8 +82,8 @@ export const GET = async (
   )
 
   res.json({
-    customers,
-    count: count,
+    orders,
+    count,
     offset: req.remoteQueryConfig.pagination.skip,
     limit: req.remoteQueryConfig.pagination.take
   })
