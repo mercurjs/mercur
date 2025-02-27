@@ -74,7 +74,8 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         vendorReviewQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerReview.entryPoint
+        entryPoint: sellerReview.entryPoint,
+        filterField: 'review_id'
       })
     ]
   },
@@ -88,7 +89,8 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       ),
       validateAndTransformBody(VendorUpdateReview),
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerReview.entryPoint
+        entryPoint: sellerReview.entryPoint,
+        filterField: 'review_id'
       })
     ]
   }
