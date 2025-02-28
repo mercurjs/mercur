@@ -25,7 +25,7 @@ export async function selectSellerCustomers(
         .offset(pagination.skip)
     })
 
-  const [{ count }] = (await knex
+  const countResult = (await knex
     .countDistinct('customer_id')
     .from('order')
     .leftJoin(
@@ -36,7 +36,7 @@ export async function selectSellerCustomers(
     .where('seller_id', seller_id)
     .groupBy('customer_id')) as { count: string }[]
 
-  return { customers, count: parseInt(count) }
+  return { customers, count: parseInt(countResult[0]?.count || '0') }
 }
 
 export async function selectCustomerOrders(
@@ -61,7 +61,7 @@ export async function selectCustomerOrders(
     .limit(pagination.take)
     .offset(pagination.skip)
 
-  const [{ count }] = (await knex
+  const countResult = (await knex
     .countDistinct('order.id')
     .from('order')
     .leftJoin(
@@ -74,5 +74,5 @@ export async function selectCustomerOrders(
     count: string
   }[]
 
-  return { orders, count: parseInt(count) }
+  return { orders, count: parseInt(countResult[0]?.count || '0') }
 }
