@@ -4,8 +4,8 @@ import { CreateOnboardingDTO } from '#/modules/payout/types'
 
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-export const createOnboardingStep = createStep(
-  'create-onboarding',
+export const createPayoutOnboardingStep = createStep(
+  'create-payout-onboarding',
   async (input: CreateOnboardingDTO, { container }) => {
     const service = container.resolve<PayoutModuleService>(PAYOUT_MODULE)
 
