@@ -6,6 +6,19 @@ export const vendorCustomerFields = [
   'first_name',
   'last_name',
   'has_account',
+  'created_at',
+  'updated_at',
+  'deleted_at'
+]
+
+export const vendorCustomersFields = [
+  'id',
+  'email',
+  'phone',
+  'company_name',
+  'first_name',
+  'last_name',
+  'has_account',
   'groups.id',
   'groups.name',
   'created_at',
@@ -15,7 +28,7 @@ export const vendorCustomerFields = [
 
 export const vendorCustomerQueryConfig = {
   list: {
-    defaults: vendorCustomerFields,
+    defaults: vendorCustomersFields,
     isList: true
   },
   retrieve: {
