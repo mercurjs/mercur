@@ -24339,6 +24339,19 @@ export interface VendorCreateStockLocationFulfillmentSet {
 }
 
 /**
+ * Vendor currency details
+ * Currency object.
+ */
+export interface VendorCurrency {
+  /** The unique identifier of the currency. */
+  id?: string;
+  /** Indicates if currency is default in the store. */
+  is_default?: boolean;
+  /** The currency code. */
+  currency_code?: string;
+}
+
+/**
  * VendorCustomer
  * Customer who placed an order in sellers store.
  */
@@ -26416,6 +26429,25 @@ export interface VendorStockLocation {
   name: string;
   /** The fulfillment sets associated with the location. */
   fulfillment_sets?: VendorFulfillmentSet[];
+}
+
+/**
+ * Vendor store
+ * Store object.
+ */
+export interface VendorStore {
+  /** The unique identifier of the store. */
+  id?: string;
+  /** Name of the store. */
+  name?: string;
+  /** Id of the default sales channel. */
+  default_sales_channel_id?: string;
+  /** Id of the default region. */
+  default_region_id?: string;
+  /** Id of the default location. */
+  default_location_id?: string;
+  /** List of the supported currencies. */
+  supported_currencies?: VendorCurrency[];
 }
 
 /**
@@ -51585,7 +51617,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Generate a reset password token for an admin user. This API route emits the `` event, passing it the token as a payload. You can listen to that event and send the user a notification. The notification should have a URL that accepts a `token` query parameter. Use the generated token to update the user's password using the Reset Password API route.
+     * @description Generate a reset password token for an admin user. This API route doesn't reset the admin's password or send them the reset instructions in a notification. Instead, This API route emits the `auth.password_reset` event, passing it the token as a payload. You can listen to that event in a subscriber as explained in [this guide](https://docs.medusajs.com/resources/commerce-modules/auth/reset-password), then send the user a notification. The notification is sent using a [Notification Module Provider](https://docs.medusajs.com/resources/architectural-modules/notification), and it should have the URL to reset the password in the Medusa Admin dashboard, such as `http://localhost:9000/app/reset-password?token=123`. Use the generated token to update the user's password using the [Reset Password API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerupdate).
      *
      * @tags Admin Auth
      * @name AdminPostActorTypeAuthProviderResetPassword
@@ -51606,7 +51638,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Reset a user's password. Generate the reset password token first using the Get Reset Password Token API route.
+     * @description Reset an admin user's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerresetpassword).
      *
      * @tags Admin Auth
      * @name AdminPostActorTypeAuthProviderUpdate
@@ -51694,7 +51726,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Generate a reset password token for a customer. This API route emits the `auth.password_reset` event, passing it the token as a payload. You can listen to that event and send the user a notification. The notification should have a URL that accepts a `token` query parameter. Use the generated token to update the user's password using the Reset Password API route.
+     * @description Generate a reset password token for a customer. This API route doesn't reset the customer password or send them the reset instructions in a notification. Instead, This API route emits the `auth.password_reset` event, passing it the token as a payload. You can listen to that event in a subscriber as explained in [this guide](https://docs.medusajs.com/resources/commerce-modules/auth/reset-password), then send the customer a notification. The notification is sent using a [Notification Module Provider](https://docs.medusajs.com/resources/architectural-modules/notification), and it should have a URL that accepts a `token` query parameter, allowing the customer to reset their password from the storefront. Use the generated token to update the customer's password using the [Reset Password API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerupdate).
      *
      * @tags Store Auth
      * @name StorePostActorTypeAuthProviderResetPassword
@@ -51715,7 +51747,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Reset a customer's password. Generate the reset password token first using the Get Reset Password Token API route.
+     * @description Reset a customer's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerresetpassword).
      *
      * @tags Store Auth
      * @name StorePostActorTypeAuthProviderUpdate
@@ -55814,6 +55846,46 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   };
   vendor = {
     /**
+     * @description Retrieves a list of customer groups.
+     *
+     * @tags Seller
+     * @name VendorListCustomerGroups
+     * @summary List Customer Groups
+     * @request GET:/vendor/customer-groups
+     * @secure
+     */
+    vendorListCustomerGroups: (
+      query?: {
+        /** The number of items to return. Default 50. */
+        limit?: number;
+        /** The number of items to skip before starting the response. Default 0. */
+        offset?: number;
+        /** Comma-separated fields that should be included in the returned data. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          customer_groups?: VendorCustomerGroup[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/customer-groups`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves a list of customers who placed an order in sellers store.
      *
      * @tags Seller
@@ -55830,8 +55902,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         offset?: number;
         /** Comma-separated fields that should be included in the returned data. */
         fields?: string;
-        /** Comma-separated relations that should be expanded in the returned data. */
-        expand?: string;
       },
       params: RequestParams = {},
     ) =>
@@ -57620,6 +57690,46 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of stores.
+     *
+     * @tags Store
+     * @name VendorListStores
+     * @summary List Stores
+     * @request GET:/vendor/stores
+     * @secure
+     */
+    vendorListStores: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          stores?: VendorStore[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/stores`,
+        method: "GET",
+        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
