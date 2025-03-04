@@ -1,3 +1,4 @@
+import { CreatePromotionDTO } from '@medusajs/framework/types'
 import { Modules } from '@medusajs/framework/utils'
 import {
   createPromotionsWorkflow,
@@ -10,12 +11,17 @@ import {
 } from '@medusajs/workflows-sdk'
 
 import { SELLER_MODULE } from '../../../modules/seller'
+import { verifyVendorPromotionStep } from '../steps'
 
 export const createVendorPromotionWorkflow = createWorkflow(
   'create-vendor-promotion',
-  function (input: { promotion: any; seller_id: string }) {
+  function (input: { promotion: CreatePromotionDTO; seller_id: string }) {
+    verifyVendorPromotionStep(input)
+
     const promotions = createPromotionsWorkflow.runAsStep({
-      input: input.promotion
+      input: {
+        promotionsData: [input.promotion]
+      }
     })
 
     const links = transform({ input, promotions }, ({ input, promotions }) =>

@@ -24188,9 +24188,67 @@ export interface VendorAcceptMemberInvite {
   name: string;
 }
 
+/**
+ * Promotion Application Method
+ * Application method object
+ */
+export interface VendorApplicationMethod {
+  /** The unique identifier of the item. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** Description of the promotion. */
+  description?: string;
+  /** The percentage value of the promotion. */
+  value?: number;
+  /** The max quantity of the items. */
+  max_quantity?: string;
+  /** Apply to quantity of the items. */
+  apply_to_quantity?: string;
+  /** Buy ruyles min quantity of the items. */
+  buy_rules_min_quantity?: string;
+  /** The type of the application method. */
+  type?: string;
+  /** The target type of the application method. */
+  target_type?: string;
+  /** The allocation of the application method. */
+  allocation?: string;
+  /** Promotion target rules. */
+  target_rules?: VendorPromotionRule[];
+}
+
 export interface VendorAssignBrandName {
   /** The name of the brand. */
   brand_name: string;
+}
+
+export interface VendorCreateApplicationMethod {
+  /** Description of the promotion. */
+  description?: string;
+  /** The percentage value of the promotion. */
+  value?: number;
+  /** The max quantity of the items. */
+  max_quantity?: string;
+  /** Apply to quantity of the items. */
+  apply_to_quantity?: string;
+  /** Buy ruyles min quantity of the items. */
+  buy_rules_min_quantity?: string;
+  /** The type of the application method. */
+  type?: "percentage";
+  /** The target type of the application method. */
+  target_type?: "items";
+  /** The allocation of the application method. */
+  allocation?: "each" | "across";
+  /** Promotion target rules. */
+  target_rules?: VendorCreatePromotionRule[];
 }
 
 export interface VendorCreateFulfillment {
@@ -24309,6 +24367,30 @@ export interface VendorCreateProductTag {
   value: string;
   /** Product tag metadata. */
   metadata?: object;
+export interface VendorCreatePromotion {
+  /** The code of the promotion. */
+  code?: string;
+  /**
+   * Whether the promotion is applied automatically.
+   * @default false
+   */
+  is_automatic?: boolean;
+  /** The type of the promotion. */
+  type?: "standard";
+  application_method?: VendorCreateApplicationMethod;
+  /** Promotion rules. */
+  rules?: VendorCreatePromotionRule[];
+}
+
+export interface VendorCreatePromotionRule {
+  /** The description of the rule. */
+  description?: string;
+  /** The attribute of the rule. */
+  attribute?: string;
+  /** The operator of the rule. */
+  operator?: "in" | "eq";
+  /** Rule values. */
+  values?: string[];
 }
 
 export interface VendorCreateRequest {
@@ -26157,6 +26239,60 @@ export interface VendorProductVariant {
    * @example {"car":"white"}
    */
   metadata?: object;
+}
+
+/**
+ * Promotion
+ * Promotion object
+ */
+export interface VendorPromotion {
+  /** The unique identifier of the item. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** The code of the promotion. */
+  code?: string;
+  /** Whether the promotion is applied automatically. */
+  is_automatic?: boolean;
+  /** The type of the promotion. */
+  type?: string;
+  /** Application method object */
+  application_method?: VendorApplicationMethod;
+  /** Promotion rules. */
+  rules?: VendorPromotionRule[];
+}
+
+export interface VendorPromotionRule {
+  /** The unique identifier of the item. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** The description of the rule. */
+  description?: string;
+  /** The attribute of the rule. */
+  attribute?: string;
+  /** The operator of the rule. */
+  operator?: string;
+  /** Rule values. */
+  values?: {
+    value?: string;
+  }[];
 }
 
 /**
@@ -51615,6 +51751,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
 
     /**
      * @description Reset an admin user's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerresetpassword). You pass the token as a bearer token in the request's Authorization header.
+     * @description Reset an admin user's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerresetpassword).
      *
      * @tags Admin Auth
      * @name AdminPostActorTypeAuthProviderUpdate
@@ -51717,6 +51854,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
 
     /**
      * @description Reset a customer's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerresetpassword). You pass the token as a bearer token in the request's Authorization header.
+     * @description Reset a customer's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerresetpassword).
      *
      * @tags Store Auth
      * @name StorePostActorTypeAuthProviderUpdate
@@ -57069,6 +57207,20 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       id: string,
       data: CreateProductOption,
       query?: {
+     * @description Retrieves a list of promotions for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorListPromotions
+     * @summary List Promotions
+     * @request GET:/vendor/promotions
+     * @secure
+     */
+    vendorListPromotions: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
@@ -57084,6 +57236,43 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/vendor/products/${id}/options`,
         method: "POST",
         query: query,
+          promotions?: VendorPromotion[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/promotions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new promotion for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorCreatePromotion
+     * @summary Create promotion
+     * @request POST:/vendor/promotions
+     * @secure
+     */
+    vendorCreatePromotion: (data: VendorCreatePromotion, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions`,
+        method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
@@ -57104,6 +57293,16 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       id: string,
       optionId: string,
       data: UpdateProductOption,
+     * @description Retrieves promotion by id for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorGetPromotionById
+     * @summary Get promotion
+     * @request GET:/vendor/promotions/{id}
+     * @secure
+     */
+    vendorGetPromotionById: (
+      id: string,
       query?: {
         /** Comma-separated fields to include in the response. */
         fields?: string;
@@ -57123,6 +57322,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -57140,6 +57348,18 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<
         {
           /** The ID of the deleted Product option */
+     * @description Deletes promotion by id for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorDeletePromotionById
+     * @summary Delete promotion
+     * @request DELETE:/vendor/promotions/{id}
+     * @secure
+     */
+    vendorDeletePromotionById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted promotion */
           id?: string;
           /** The type of the object that was deleted */
           object?: string;
@@ -57248,6 +57468,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         any
       >({
         path: `/vendor/products/${id}/variants/${variantId}`,
+        path: `/vendor/promotions/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",
