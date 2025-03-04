@@ -4,7 +4,7 @@ import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
 import { CreateMemberDTO, CreateSellerDTO } from '../../../modules/seller/types'
 import { createMemberStep } from '../../member/steps'
-import { createSellerStep } from '../steps'
+import { createSellerOnboardingStep, createSellerStep } from '../steps'
 
 type CreateSellerWorkflowInput = {
   seller: CreateSellerDTO
@@ -26,6 +26,7 @@ export const createSellerWorkflow = createWorkflow(
     )
 
     const member = createMemberStep(memberInput)
+    createSellerOnboardingStep(seller)
 
     setAuthAppMetadataStep({
       authIdentityId: input.auth_identity_id,
