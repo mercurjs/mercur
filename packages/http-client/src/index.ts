@@ -24147,67 +24147,9 @@ export interface VendorAcceptMemberInvite {
   name: string;
 }
 
-/**
- * Promotion Application Method
- * Application method object
- */
-export interface VendorApplicationMethod {
-  /** The unique identifier of the item. */
-  id?: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at?: string;
-  /** Description of the promotion. */
-  description?: string;
-  /** The percentage value of the promotion. */
-  value?: number;
-  /** The max quantity of the items. */
-  max_quantity?: string;
-  /** Apply to quantity of the items. */
-  apply_to_quantity?: string;
-  /** Buy ruyles min quantity of the items. */
-  buy_rules_min_quantity?: string;
-  /** The type of the application method. */
-  type?: string;
-  /** The target type of the application method. */
-  target_type?: string;
-  /** The allocation of the application method. */
-  allocation?: string;
-  /** Promotion target rules. */
-  target_rules?: VendorPromotionRule[];
-}
-
 export interface VendorAssignBrandName {
   /** The name of the brand. */
   brand_name: string;
-}
-
-export interface VendorCreateApplicationMethod {
-  /** Description of the promotion. */
-  description?: string;
-  /** The percentage value of the promotion. */
-  value?: number;
-  /** The max quantity of the items. */
-  max_quantity?: string;
-  /** Apply to quantity of the items. */
-  apply_to_quantity?: string;
-  /** Buy ruyles min quantity of the items. */
-  buy_rules_min_quantity?: string;
-  /** The type of the application method. */
-  type?: "percentage";
-  /** The target type of the application method. */
-  target_type?: "items";
-  /** The allocation of the application method. */
-  allocation?: "each" | "across";
-  /** Promotion target rules. */
-  target_rules?: VendorCreatePromotionRule[];
 }
 
 export interface VendorCreateFulfillment {
@@ -24321,32 +24263,6 @@ export interface VendorCreateProduct {
   }[];
 }
 
-export interface VendorCreatePromotion {
-  /** The code of the promotion. */
-  code?: string;
-  /**
-   * Whether the promotion is applied automatically.
-   * @default false
-   */
-  is_automatic?: boolean;
-  /** The type of the promotion. */
-  type?: "standard";
-  application_method?: VendorCreateApplicationMethod;
-  /** Promotion rules. */
-  rules?: VendorCreatePromotionRule[];
-}
-
-export interface VendorCreatePromotionRule {
-  /** The description of the rule. */
-  description?: string;
-  /** The attribute of the rule. */
-  attribute?: string;
-  /** The operator of the rule. */
-  operator?: "in" | "eq";
-  /** Rule values. */
-  values?: string[];
-}
-
 export interface VendorCreateRequest {
   /** The resource to be created by request */
   request: ProductRequest | ProductCollectionRequest | ProductCategoryRequest | ReviewRemoveRequest;
@@ -24420,6 +24336,19 @@ export interface VendorCreateStockLocationFulfillmentSet {
   name: string;
   /** Type of the fulfillment set */
   type: string;
+}
+
+/**
+ * Vendor currency details
+ * Currency object.
+ */
+export interface VendorCurrency {
+  /** The unique identifier of the currency. */
+  id?: string;
+  /** Indicates if currency is default in the store. */
+  is_default?: boolean;
+  /** The currency code. */
+  currency_code?: string;
 }
 
 /**
@@ -26183,60 +26112,6 @@ export interface VendorProductVariant {
 }
 
 /**
- * Promotion
- * Promotion object
- */
-export interface VendorPromotion {
-  /** The unique identifier of the item. */
-  id?: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at?: string;
-  /** The code of the promotion. */
-  code?: string;
-  /** Whether the promotion is applied automatically. */
-  is_automatic?: boolean;
-  /** The type of the promotion. */
-  type?: string;
-  /** Application method object */
-  application_method?: VendorApplicationMethod;
-  /** Promotion rules. */
-  rules?: VendorPromotionRule[];
-}
-
-export interface VendorPromotionRule {
-  /** The unique identifier of the item. */
-  id?: string;
-  /**
-   * The date with timezone at which the resource was created.
-   * @format date-time
-   */
-  created_at?: string;
-  /**
-   * The date with timezone at which the resource was last updated.
-   * @format date-time
-   */
-  updated_at?: string;
-  /** The description of the rule. */
-  description?: string;
-  /** The attribute of the rule. */
-  attribute?: string;
-  /** The operator of the rule. */
-  operator?: string;
-  /** Rule values. */
-  values?: {
-    value?: string;
-  }[];
-}
-
-/**
  * Request
  * A request object
  */
@@ -26554,6 +26429,25 @@ export interface VendorStockLocation {
   name: string;
   /** The fulfillment sets associated with the location. */
   fulfillment_sets?: VendorFulfillmentSet[];
+}
+
+/**
+ * Vendor store
+ * Store object.
+ */
+export interface VendorStore {
+  /** The unique identifier of the store. */
+  id?: string;
+  /** Name of the store. */
+  name?: string;
+  /** Id of the default sales channel. */
+  default_sales_channel_id?: string;
+  /** Id of the default region. */
+  default_region_id?: string;
+  /** Id of the default location. */
+  default_location_id?: string;
+  /** List of the supported currencies. */
+  supported_currencies?: VendorCurrency[];
 }
 
 /**
@@ -57023,132 +56917,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Retrieves a list of promotions for the authenticated vendor.
-     *
-     * @tags Promotion
-     * @name VendorListPromotions
-     * @summary List Promotions
-     * @request GET:/vendor/promotions
-     * @secure
-     */
-    vendorListPromotions: (
-      query?: {
-        /** The number of items to skip before starting to collect the result set. */
-        offset?: number;
-        /** The number of items to return. */
-        limit?: number;
-        /** Comma-separated fields to include in the response. */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          promotions?: VendorPromotion[];
-          /** The total number of items available */
-          count?: number;
-          /** The number of items skipped before these items */
-          offset?: number;
-          /** The number of items per page */
-          limit?: number;
-        },
-        any
-      >({
-        path: `/vendor/promotions`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a new promotion for the authenticated vendor.
-     *
-     * @tags Promotion
-     * @name VendorCreatePromotion
-     * @summary Create promotion
-     * @request POST:/vendor/promotions
-     * @secure
-     */
-    vendorCreatePromotion: (data: VendorCreatePromotion, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** Promotion object */
-          promotion?: VendorPromotion;
-        },
-        any
-      >({
-        path: `/vendor/promotions`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves promotion by id for the authenticated vendor.
-     *
-     * @tags Promotion
-     * @name VendorGetPromotionById
-     * @summary Get promotion
-     * @request GET:/vendor/promotions/{id}
-     * @secure
-     */
-    vendorGetPromotionById: (
-      id: string,
-      query?: {
-        /** Comma-separated fields to include in the response. */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** Promotion object */
-          promotion?: VendorPromotion;
-        },
-        any
-      >({
-        path: `/vendor/promotions/${id}`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Deletes promotion by id for the authenticated vendor.
-     *
-     * @tags Promotion
-     * @name VendorDeletePromotionById
-     * @summary Delete promotion
-     * @request DELETE:/vendor/promotions/{id}
-     * @secure
-     */
-    vendorDeletePromotionById: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The ID of the deleted promotion */
-          id?: string;
-          /** The type of the object that was deleted */
-          object?: string;
-          /** Whether or not the items were deleted */
-          deleted?: boolean;
-        },
-        any
-      >({
-        path: `/vendor/promotions/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
      * @description Retrieves submited requests list
      *
      * @tags Requests
@@ -57922,6 +57690,46 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of stores.
+     *
+     * @tags Store
+     * @name VendorListStores
+     * @summary List Stores
+     * @request GET:/vendor/stores
+     * @secure
+     */
+    vendorListStores: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          stores?: VendorStore[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/stores`,
+        method: "GET",
+        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),

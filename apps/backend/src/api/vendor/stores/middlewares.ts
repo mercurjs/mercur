@@ -13,5 +13,15 @@ export const vendorStoresMiddlewares: MiddlewareRoute[] = [
         vendorStoresQueryConfig.list
       )
     ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/stores/:id',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetStoresParams,
+        vendorStoresQueryConfig.retrieve
+      )
+    ]
   }
 ]
