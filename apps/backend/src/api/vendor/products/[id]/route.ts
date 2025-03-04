@@ -121,7 +121,7 @@ export const POST = async (
   const { result } = await updateProductsWorkflow(req.scope).run({
     input: {
       // @ts-expect-error: updateProductsWorkflow does not support null values
-      products: [req.validatedBody]
+      products: [{ ...req.validatedBody, id: req.params.id }]
     }
   })
 
