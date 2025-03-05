@@ -29,7 +29,8 @@ export const VendorGetProductParams = createFindParams({
  *     items:
  *       type: string
  */
-const CreateProductOption = z.object({
+export type CreateProductOptionType = z.infer<typeof CreateProductOption>
+export const CreateProductOption = z.object({
   title: z.string(),
   values: z.array(z.string())
 })
@@ -65,6 +66,7 @@ export const VendorAssignBrandName = z.object({
  *     items:
  *       type: string
  */
+export type UpdateProductOptionType = z.infer<typeof UpdateProductOption>
 export const UpdateProductOption = z.object({
   id: z.string().optional(),
   title: z.string().optional(),
@@ -222,7 +224,8 @@ const UpdateVariantPrice = z.object({
  *         required_quantity:
  *           type: number
  */
-const CreateProductVariant = z
+export type CreateProductVariantType = z.infer<typeof CreateProductVariant>
+export const CreateProductVariant = z
   .object({
     title: z.string(),
     sku: z.string().optional(),
@@ -336,7 +339,8 @@ const CreateProductVariant = z
  *     additionalProperties:
  *       type: string
  */
-const UpdateProductVariant = z
+export type UpdateProductVariantType = z.infer<typeof UpdateProductVariant>
+export const UpdateProductVariant = z
   .object({
     id: z.string().optional(),
     title: z.string().optional(),

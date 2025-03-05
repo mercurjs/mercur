@@ -13,6 +13,10 @@ import {
 import { checkConfigurationRule } from '../../../shared/infra/http/middlewares'
 import { vendorProductQueryConfig } from './query-config'
 import {
+  CreateProductOption,
+  CreateProductVariant,
+  UpdateProductOption,
+  UpdateProductVariant,
   VendorAssignBrandName,
   VendorCreateProduct,
   VendorGetProductParams,
@@ -90,6 +94,86 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
       )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/products/:id/variants',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: 'product_id'
+      }),
+      validateAndTransformBody(CreateProductVariant),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/products/:id/variants/:variant_id',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: 'product_id'
+      }),
+      validateAndTransformBody(UpdateProductVariant),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['DELETE'],
+    matcher: '/vendor/products/:id/variants/:variant_id',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: 'product_id'
+      })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/products/:id/options',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: 'product_id'
+      }),
+      validateAndTransformBody(CreateProductOption),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/products/:id/options/:option_id',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: 'product_id'
+      }),
+      validateAndTransformBody(UpdateProductOption),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['DELETE'],
+    matcher: '/vendor/products/:id/options/:option_id',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: 'product_id'
+      })
     ]
   },
   {

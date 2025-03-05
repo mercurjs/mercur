@@ -57057,6 +57057,204 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Creates option for product.
+     *
+     * @tags Product
+     * @name VendorCreateOptionForProductById
+     * @summary Create option for product
+     * @request POST:/vendor/products/{id}/options
+     * @secure
+     */
+    vendorCreateOptionForProductById: (
+      id: string,
+      data: CreateProductOption,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product object with its properties */
+          product?: VendorProduct;
+        },
+        any
+      >({
+        path: `/vendor/products/${id}/options`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates an existing product option for the authenticated vendor.
+     *
+     * @tags Product
+     * @name VendorUpdateProductOptionById
+     * @summary Update a Product option
+     * @request POST:/vendor/products/{id}/options/{option_id}
+     * @secure
+     */
+    vendorUpdateProductOptionById: (
+      id: string,
+      optionId: string,
+      data: UpdateProductOption,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product object with its properties */
+          product?: VendorProduct;
+        },
+        any
+      >({
+        path: `/vendor/products/${id}/options/${optionId}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a product option by id for the authenticated vendor.
+     *
+     * @tags Product
+     * @name VendorDeleteProductOptionById
+     * @summary Delete a Product option
+     * @request DELETE:/vendor/products/{id}/options/{option_id}
+     * @secure
+     */
+    vendorDeleteProductOptionById: (id: string, optionId: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted Product option */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/products/${id}/options/${optionId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates variant for product.
+     *
+     * @tags Product
+     * @name VendorCreateVariantForProductById
+     * @summary Create variant for product
+     * @request POST:/vendor/products/{id}/variants
+     * @secure
+     */
+    vendorCreateVariantForProductById: (
+      id: string,
+      data: CreateProductVariant,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product object with its properties */
+          product?: VendorProduct;
+        },
+        any
+      >({
+        path: `/vendor/products/${id}/variants`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates an existing product variant for the authenticated vendor.
+     *
+     * @tags Product
+     * @name VendorUpdateProductVariantById
+     * @summary Update a Product variant
+     * @request POST:/vendor/products/{id}/variants/{variant_id}
+     * @secure
+     */
+    vendorUpdateProductVariantById: (
+      id: string,
+      variantId: string,
+      data: UpdateProductVariant,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product object with its properties */
+          product?: VendorProduct;
+        },
+        any
+      >({
+        path: `/vendor/products/${id}/variants/${variantId}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a product variant by id for the authenticated vendor.
+     *
+     * @tags Product
+     * @name VendorDeleteProductVariantById
+     * @summary Delete a Product variant
+     * @request DELETE:/vendor/products/{id}/variants/{variant_id}
+     * @secure
+     */
+    vendorDeleteProductVariantById: (id: string, variantId: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted Product variant */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/products/${id}/variants/${variantId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves submited requests list
      *
      * @tags Requests
