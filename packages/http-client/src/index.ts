@@ -10337,6 +10337,16 @@ export interface BaseCalculatedPriceSet {
   calculated_price?: object;
   /** The original price's details. */
   original_price?: object;
+  /**
+   * original_amount_with_tax
+   * The amount of the original price with taxes applied.
+   */
+  original_amount_with_tax: number;
+  /**
+   * original_amount_without_tax
+   * The amount of the original price without taxes.
+   */
+  original_amount_without_tax: number;
 }
 
 /** The details of a captured payment. */
@@ -14218,6 +14228,11 @@ export interface OrderCreditLine {
    * @format date-time
    */
   updated_at: string;
+  /**
+   * amount
+   * The credit line's amount.
+   */
+  amount: number;
 }
 
 /** The order change's exchange. */
@@ -14750,6 +14765,11 @@ export interface OrderReturnItem {
    * @format date-time
    */
   updated_at?: string;
+  /**
+   * damaged_quantity
+   * The item's damaged quantity.
+   */
+  damaged_quantity?: number;
 }
 
 /** The shipping method's details. */
@@ -15299,6 +15319,16 @@ export interface StoreCalculatedPrice {
      */
     max_quantity: number;
   };
+  /**
+   * original_amount_with_tax
+   * The original amount with taxes applied.
+   */
+  original_amount_with_tax: number;
+  /**
+   * original_amount_without_tax
+   * The original amount without taxes.
+   */
+  original_amount_without_tax: number;
 }
 
 /** The cart's details. */
@@ -23968,6 +23998,17 @@ export interface ProductRequest {
   data: VendorCreateProduct;
 }
 
+export interface ProductTypeRequest {
+  /** The type of the request */
+  type: "product_type";
+  data: {
+    /** The product type value */
+    value?: string;
+    /** The product type metadata */
+    metadata?: object;
+  };
+}
+
 /**
  * Seller/product review
  * A product/seller review with rating and comment
@@ -24261,6 +24302,13 @@ export interface VendorCreateProduct {
   sales_channels?: {
     id: string;
   }[];
+}
+
+export interface VendorCreateProductTag {
+  /** The title of the product tag. */
+  value: string;
+  /** Product tag metadata. */
+  metadata?: object;
 }
 
 export interface VendorCreateRequest {
@@ -33694,30 +33742,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         $or?: object[];
         /** Filter by the associated sales channels to retrieve its draft orders. */
         sales_channel_id?: string[];
-        /** Filter by the fulfillment status of the draft order. */
-        fulfillment_status?: (
-          | "canceled"
-          | "not_fulfilled"
-          | "partially_fulfilled"
-          | "fulfilled"
-          | "partially_shipped"
-          | "shipped"
-          | "partially_delivered"
-          | "delivered"
-        )[];
-        /** Filter by the payment status of the draft order. */
-        payment_status?: (
-          | "canceled"
-          | "not_paid"
-          | "awaiting"
-          | "authorized"
-          | "partially_authorized"
-          | "captured"
-          | "partially_captured"
-          | "partially_refunded"
-          | "refunded"
-          | "requires_action"
-        )[];
         /** Filter by region IDs to retrieve their associated draft orders. */
         region_id?: string | string[];
         /**
@@ -37435,30 +37459,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         $or?: object[];
         /** Filter by sales channel IDs to retrieve the orders associated with them. */
         sales_channel_id?: string[];
-        /** Filter by the order's fulfillment status. */
-        fulfillment_status?: (
-          | "canceled"
-          | "not_fulfilled"
-          | "partially_fulfilled"
-          | "fulfilled"
-          | "partially_shipped"
-          | "shipped"
-          | "partially_delivered"
-          | "delivered"
-        )[];
-        /** Filter by the order's payment status. */
-        payment_status?: (
-          | "canceled"
-          | "not_paid"
-          | "awaiting"
-          | "authorized"
-          | "partially_authorized"
-          | "captured"
-          | "partially_captured"
-          | "partially_refunded"
-          | "refunded"
-          | "requires_action"
-        )[];
         /** Filter by region IDs to retrieve their associated orders. */
         region_id?: string | string[];
         /**
@@ -45591,30 +45591,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         $or?: object[];
         /** Filter by sales channel IDs to retrieve their associated returns. */
         sales_channel_id?: string[];
-        /** Filter by fulfillment statuses. */
-        fulfillment_status?: (
-          | "canceled"
-          | "not_fulfilled"
-          | "partially_fulfilled"
-          | "fulfilled"
-          | "partially_shipped"
-          | "shipped"
-          | "partially_delivered"
-          | "delivered"
-        )[];
-        /** Filter by payment statuses. */
-        payment_status?: (
-          | "canceled"
-          | "not_paid"
-          | "awaiting"
-          | "authorized"
-          | "partially_authorized"
-          | "captured"
-          | "partially_captured"
-          | "partially_refunded"
-          | "refunded"
-          | "requires_action"
-        )[];
         /** Filter by region IDs to retrieve their associated returns. */
         region_id?: string | string[];
         /**
@@ -51208,7 +51184,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         /** Comma-separated fields to include in the response. */
         fields?: string;
         /** Filter by request type */
-        type?: "product" | "product_collection" | "product_category" | "seller" | "review_remove";
+        type?: "product" | "product_collection" | "product_category" | "seller" | "review_remove" | "product_type";
         /** Filter by request status */
         status?: "pending" | "rejected" | "accepted";
       },
@@ -51638,22 +51614,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Reset an admin user's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerresetpassword).
+     * @description Reset an admin user's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerresetpassword). You pass the token as a bearer token in the request's Authorization header.
      *
      * @tags Admin Auth
      * @name AdminPostActorTypeAuthProviderUpdate
      * @summary Reset an Admin User's Password
      * @request POST:/auth/user/{auth_provider}/update
+     * @secure
      */
-    adminPostActorTypeAuthProviderUpdate: (
-      authProvider: string,
-      query: {
-        /** The reset password token received using the Get Reset Password API route. */
-        token: string;
-      },
-      data: BaseCartAddress,
-      params: RequestParams = {},
-    ) =>
+    adminPostActorTypeAuthProviderUpdate: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
       this.request<
         {
           /**
@@ -51666,8 +51635,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/auth/user/${authProvider}/update`,
         method: "POST",
-        query: query,
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -51747,22 +51716,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Reset a customer's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerresetpassword).
+     * @description Reset a customer's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerresetpassword). You pass the token as a bearer token in the request's Authorization header.
      *
      * @tags Store Auth
      * @name StorePostActorTypeAuthProviderUpdate
      * @summary Reset a Customer's Password
      * @request POST:/auth/customer/{auth_provider}/update
+     * @secure
      */
-    storePostActorTypeAuthProviderUpdate: (
-      authProvider: string,
-      query: {
-        /** The reset password token received using the Get Reset Password API route. */
-        token: string;
-      },
-      data: BaseCartAddress,
-      params: RequestParams = {},
-    ) =>
+    storePostActorTypeAuthProviderUpdate: (authProvider: string, data: BaseCartAddress, params: RequestParams = {}) =>
       this.request<
         {
           /**
@@ -51775,8 +51737,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/auth/customer/${authProvider}/update`,
         method: "POST",
-        query: query,
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -56693,6 +56655,184 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a list of product tags.
+     *
+     * @tags Product
+     * @name VendorListProductTags
+     * @summary List product tags
+     * @request GET:/vendor/product-tags
+     * @secure
+     */
+    vendorListProductTags: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          product_tags?: VendorProductTag[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/product-tags`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates new product tag
+     *
+     * @tags Product
+     * @name VendorCreateProductTag
+     * @summary Create product tag
+     * @request POST:/vendor/product-tags
+     * @secure
+     */
+    vendorCreateProductTag: (
+      data: VendorCreateProductTag,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product tag object with its properties */
+          product_tag?: VendorProductTag;
+        },
+        any
+      >({
+        path: `/vendor/product-tags`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves product tag by id.
+     *
+     * @tags Product
+     * @name VendorGetProductTagById
+     * @summary Get product tag
+     * @request GET:/vendor/product-tags/{id}
+     * @secure
+     */
+    vendorGetProductTagById: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product tag object with its properties */
+          product_tag?: VendorProductTag;
+        },
+        any
+      >({
+        path: `/vendor/product-tags/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of product types.
+     *
+     * @tags Product
+     * @name VendorListProductTypes
+     * @summary List product types
+     * @request GET:/vendor/product-types
+     * @secure
+     */
+    vendorListProductTypes: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          product_types?: VendorProductType[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/product-types`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves product type by id.
+     *
+     * @tags Product
+     * @name VendorGetProductTypeById
+     * @summary Get product type
+     * @request GET:/vendor/product-types/{id}
+     * @secure
+     */
+    vendorGetProductTypeById: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product type object with its properties */
+          product_type?: VendorProductType;
+        },
+        any
+      >({
+        path: `/vendor/product-types/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves a list of products for the authenticated vendor.
      *
      * @tags Product
@@ -57727,6 +57867,38 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         any
       >({
         path: `/vendor/stores`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a Store by id.
+     *
+     * @tags Store
+     * @name VendorGetStoreById
+     * @summary Get store
+     * @request GET:/vendor/stores/{id}
+     * @secure
+     */
+    vendorGetStoreById: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** Store object. */
+          store?: VendorStore;
+        },
+        any
+      >({
+        path: `/vendor/stores/${id}`,
         method: "GET",
         query: query,
         secure: true,

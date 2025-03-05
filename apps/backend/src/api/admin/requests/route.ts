@@ -28,7 +28,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *     in: query
  *     schema:
  *       type: string
- *       enum: [product,product_collection,product_category,seller,review_remove]
+ *       enum: [product,product_collection,product_category,seller,review_remove,product_type]
  *     required: false
  *     description: Filter by request type
  *   - name: status
