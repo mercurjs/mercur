@@ -498,7 +498,7 @@ export const VendorCreateProduct = z
     status: z.nativeEnum(ProductStatus).optional().default(ProductStatus.DRAFT),
     external_id: z.string().optional(),
     type_id: z.string().nullable(),
-    collection_id: z.string().optional(),
+    collection_id: z.string().nullable(),
     categories: z.array(IdAssociation).max(1).optional(),
     tags: z.array(IdAssociation).optional(),
     options: z.array(CreateProductOption).optional(),
