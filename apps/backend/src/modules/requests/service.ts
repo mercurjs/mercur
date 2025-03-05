@@ -4,6 +4,7 @@ import {
   acceptProductCategoryRequestWorkflow,
   acceptProductCollectionRequestWorkflow,
   acceptProductRequestWorkflow,
+  acceptProductTypeRequestWorkflow,
   acceptReviewRemoveRequestWorkflow,
   acceptSellerCreationRequestWorkflow
 } from '../../workflows/requests/workflows'
@@ -31,6 +32,10 @@ class RequestsModuleService extends MedusaService({
 
     if (type === 'review_remove') {
       return acceptReviewRemoveRequestWorkflow
+    }
+
+    if (type === 'product_type') {
+      return acceptProductTypeRequestWorkflow
     }
 
     return null

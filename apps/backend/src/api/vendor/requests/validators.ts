@@ -16,7 +16,8 @@ export const VendorGetRequestsParams = createFindParams({
       'product_collection',
       'product_category',
       'product',
-      'review_remove'
+      'review_remove',
+      'product_type'
     ])
     .optional(),
   status: z.enum(['accepted', 'rejected', 'pending']).optional()
@@ -137,6 +138,35 @@ const ReviewRemoveRequest = z.object({
 })
 
 /**
+ * @schema ProductTypeRequest
+ * type: object
+ * required:
+ *   - type
+ *   - data
+ * properties:
+ *   type:
+ *     type: string
+ *     description: The type of the request
+ *     enum: [product_type]
+ *   data:
+ *     type: object
+ *     properties:
+ *       value:
+ *         type: string
+ *         description: The product type value
+ *       metadata:
+ *         type: object
+ *         description: The product type metadata
+ */
+const ProductTypeRequest = z.object({
+  type: z.literal('product_type'),
+  data: z.object({
+    value: z.string(),
+    metadata: z.record(z.unknown()).nullish()
+  })
+})
+
+/**
  * @schema VendorCreateRequest
  * type: object
  * required:
@@ -157,6 +187,7 @@ export const VendorCreateRequest = z.object({
     ProductCategoryRequest,
     ProductCollectionRequest,
     ProductRequest,
-    ReviewRemoveRequest
+    ReviewRemoveRequest,
+    ProductTypeRequest
   ])
 })
