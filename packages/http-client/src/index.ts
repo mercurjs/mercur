@@ -23998,6 +23998,17 @@ export interface ProductRequest {
   data: VendorCreateProduct;
 }
 
+export interface ProductTypeRequest {
+  /** The type of the request */
+  type: "product_type";
+  data: {
+    /** The product type value */
+    value?: string;
+    /** The product type metadata */
+    metadata?: object;
+  };
+}
+
 /**
  * Seller/product review
  * A product/seller review with rating and comment
@@ -51173,7 +51184,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         /** Comma-separated fields to include in the response. */
         fields?: string;
         /** Filter by request type */
-        type?: "product" | "product_collection" | "product_category" | "seller" | "review_remove";
+        type?: "product" | "product_collection" | "product_category" | "seller" | "review_remove" | "product_type";
         /** Filter by request status */
         status?: "pending" | "rejected" | "accepted";
       },
@@ -56742,6 +56753,78 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         any
       >({
         path: `/vendor/product-tags/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of product types.
+     *
+     * @tags Product
+     * @name VendorListProductTypes
+     * @summary List product types
+     * @request GET:/vendor/product-types
+     * @secure
+     */
+    vendorListProductTypes: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          product_types?: VendorProductType[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/product-types`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves product type by id.
+     *
+     * @tags Product
+     * @name VendorGetProductTypeById
+     * @summary Get product type
+     * @request GET:/vendor/product-types/{id}
+     * @secure
+     */
+    vendorGetProductTypeById: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product type object with its properties */
+          product_type?: VendorProductType;
+        },
+        any
+      >({
+        path: `/vendor/product-types/${id}`,
         method: "GET",
         query: query,
         secure: true,
