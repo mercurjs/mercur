@@ -57733,5 +57733,37 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Retrieves a Store by id.
+     *
+     * @tags Store
+     * @name VendorGetStoreById
+     * @summary Get store
+     * @request GET:/vendor/stores/{id}
+     * @secure
+     */
+    vendorGetStoreById: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** Store object. */
+          store?: VendorStore;
+        },
+        any
+      >({
+        path: `/vendor/stores/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
 }
