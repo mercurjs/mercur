@@ -22,6 +22,7 @@ import { vendorSellersMiddlewares } from './sellers/middlewares'
 import { vendorShippingOptionsMiddlewares } from './shipping-options/middlewares'
 import { vendorStockLocationsMiddlewares } from './stock-locations/middlewares'
 import { vendorStoresMiddlewares } from './stores/middlewares'
+import { vendorUploadMiddlewares } from './uploads/middlewares'
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
   {
@@ -77,5 +78,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorCustomerGroupsMiddlewares,
   ...vendorStoresMiddlewares,
   ...vendorProductTagsMiddlewares,
-  ...vendorProductTypesMiddlewares
+  ...vendorProductTypesMiddlewares,
+  ...vendorUploadMiddlewares
 ]
