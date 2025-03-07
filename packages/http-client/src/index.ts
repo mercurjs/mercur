@@ -24230,6 +24230,88 @@ export interface VendorAssignBrandName {
   brand_name: string;
 }
 
+/** The campaign's details. */
+export interface VendorCampaign {
+  /**
+   * id
+   * The campaign's ID.
+   */
+  id?: string;
+  /**
+   * name
+   * The campaign's name.
+   */
+  name?: string;
+  /**
+   * description
+   * The campaign's description.
+   */
+  description?: string;
+  /**
+   * currency
+   * The campaign's currency.
+   */
+  currency?: string;
+  /**
+   * campaign_identifier
+   * The campaign's identifier.
+   */
+  campaign_identifier?: string;
+  /**
+   * starts_at
+   * The date and time that the campaign starts.
+   */
+  starts_at?: string;
+  /**
+   * ends_at
+   * The date and time that the campaign ends.
+   */
+  ends_at?: string;
+  /** The campaign's budget. */
+  budget?: {
+    /**
+     * id
+     * The budget's ID.
+     */
+    id: string;
+    /** The budget's type. `spend` means the limit is set on the total amount discounted by the campaign's promotions; `usage` means the limit is set on the total number of times the campaign's promotions can be used. */
+    type: "spend" | "usage";
+    /**
+     * currency_code
+     * The budget's currency code.
+     */
+    currency_code: string;
+    /**
+     * limit
+     * The budget's limit.
+     */
+    limit: number;
+    /**
+     * used
+     * How much of the budget has been used. If the limit is `spend`, this property holds the total amount discounted so far. If the limit is `usage`, it holds the number of times the campaign's promotions have been used so far.
+     */
+    used: number;
+  };
+  /**
+   * created_at
+   * The date the campaign was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * updated_at
+   * The date the campaign was updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /**
+   * deleted_at
+   * The date the campaign was deleted.
+   * @format date-time
+   */
+  deleted_at?: string;
+}
+
 export interface VendorCreateApplicationMethod {
   /** Description of the promotion. */
   description?: string;
@@ -24249,6 +24331,29 @@ export interface VendorCreateApplicationMethod {
   allocation?: "each" | "across";
   /** Promotion target rules. */
   target_rules?: VendorCreatePromotionRule[];
+}
+
+export interface VendorCreateCampaign {
+  /** The campaign's name. */
+  name?: string;
+  /** The campaign's identifier. */
+  campaign_identifier?: string;
+  /** The campaign's description. */
+  description?: string;
+  /** The date and time that the campaign starts. */
+  starts_at?: string;
+  /** The date and time that the campaign ends. */
+  ends_at?: string;
+  budget?: VendorCreateCampaignBudget;
+}
+
+export interface VendorCreateCampaignBudget {
+  /** The budget's type. */
+  type?: "spend" | "usage";
+  /** The buget's limit. */
+  limit?: number;
+  /** The budget's currency_code. */
+  currency_code?: string;
 }
 
 export interface VendorCreateFulfillment {
@@ -26675,6 +26780,23 @@ export interface VendorStore {
   default_location_id?: string;
   /** List of the supported currencies. */
   supported_currencies?: VendorCurrency[];
+}
+
+export interface VendorUpdateCampaign {
+  /** The campaign's name. */
+  name?: string;
+  /** The campaign's identifier. */
+  campaign_identifier?: string;
+  /** The campaign's description. */
+  description?: string;
+  /** The date and time that the campaign starts. */
+  starts_at?: string;
+  /** The date and time that the campaign ends. */
+  ends_at?: string;
+  budget?: {
+    /** The buget's limit. */
+    limit?: number;
+  };
 }
 
 /**
@@ -56014,6 +56136,175 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
   };
   vendor = {
+    /**
+     * @description Retrieves a list of campaigns for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorListCampaigns
+     * @summary List Campaigns
+     * @request GET:/vendor/campaigns
+     * @secure
+     */
+    vendorListCampaigns: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          campaigns?: VendorCampaign[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/campaigns`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new campaign for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorCreateCampaign
+     * @summary Create campaign
+     * @request POST:/vendor/campaigns
+     * @secure
+     */
+    vendorCreateCampaign: (
+      data: VendorCreateCampaign,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The campaign's details. */
+          campaign?: VendorCampaign;
+        },
+        any
+      >({
+        path: `/vendor/campaigns`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves campaign by id for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorGetCampaignById
+     * @summary Get campaign
+     * @request GET:/vendor/campaigns/{id}
+     * @secure
+     */
+    vendorGetCampaignById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The campaign's details. */
+          campaign?: VendorCampaign;
+        },
+        any
+      >({
+        path: `/vendor/campaigns/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates campaign by id for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorUpdateCampaignById
+     * @summary Update campaign
+     * @request POST:/vendor/campaigns/{id}
+     * @secure
+     */
+    vendorUpdateCampaignById: (
+      id: string,
+      data: VendorUpdateCampaign,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The campaign's details. */
+          campaign?: VendorCampaign;
+        },
+        any
+      >({
+        path: `/vendor/campaigns/${id}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes campaign by id for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorDeleteCampaignById
+     * @summary Delete campaign
+     * @request DELETE:/vendor/campaigns/{id}
+     * @secure
+     */
+    vendorDeleteCampaignById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted campaign. */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/campaigns/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
     /**
      * @description Retrieves a list of customer groups.
      *
