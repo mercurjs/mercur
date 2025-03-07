@@ -26426,6 +26426,35 @@ export interface VendorSeller {
   members?: VendorMember[];
 }
 
+/**
+ * SellerOnboarding
+ * An onboarding object with its properties
+ */
+export interface VendorSellerOnboarding {
+  /** The unique identifier of the onboarding. */
+  id: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at: string;
+  /** The unique identifier of the seller. */
+  seller_id?: string;
+  /** Indicates if seller completed store information. */
+  store_information?: boolean;
+  /** Indicates if seller completed stripe connection. */
+  stripe_connection?: boolean;
+  /** Indicates if seller added shipping locations. */
+  locations_shipping?: boolean;
+  /** Indicates if seller added products. */
+  products?: boolean;
+}
+
 /** The shipping option's service zone. */
 export interface VendorServiceZone {
   /**
@@ -57851,6 +57880,54 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves the onboarding details of the current authenticated seller.
+     *
+     * @tags Seller, Onboarding
+     * @name VendorGetOnboardingStatus
+     * @summary Get onboarding status of the current seller
+     * @request GET:/vendor/sellers/me/onboarding
+     * @secure
+     */
+    vendorGetOnboardingStatus: (params: RequestParams = {}) =>
+      this.request<
+        {
+          /** An onboarding object with its properties */
+          onboarding?: VendorSellerOnboarding;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/onboarding`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Triggers onboarding status recalculation and retrieves the onboarding details of the current authenticated seller.
+     *
+     * @tags Seller, Onboarding
+     * @name VendorRecalculateOnboardingStatus
+     * @summary Recalculates onboarding status
+     * @request POST:/vendor/sellers/me/onboarding
+     * @secure
+     */
+    vendorRecalculateOnboardingStatus: (params: RequestParams = {}) =>
+      this.request<
+        {
+          /** An onboarding object with its properties */
+          onboarding?: VendorSellerOnboarding;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/onboarding`,
+        method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),

@@ -10,11 +10,13 @@ import {
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import {
+  vendorOnboardingQueryConfig,
   vendorReviewQueryConfig,
   vendorSellerQueryConfig
 } from './query-config'
 import {
   VendorCreateSeller,
+  VendorGetOnboardingParams,
   VendorGetReviewsParams,
   VendorGetSellerParams,
   VendorUpdateReview,
@@ -51,6 +53,16 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetSellerParams,
         vendorSellerQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['GET', 'POST'],
+    matcher: '/vendor/sellers/onboarding',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetOnboardingParams,
+        vendorOnboardingQueryConfig.retrieve
       )
     ]
   },

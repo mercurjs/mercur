@@ -496,6 +496,153 @@
           "updateRule": "cascade"
         }
       }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "store_information": {
+          "name": "store_information",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
+        "stripe_connection": {
+          "name": "stripe_connection",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
+        "locations_shipping": {
+          "name": "locations_shipping",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
+        "products": {
+          "name": "products",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
+        "seller_id": {
+          "name": "seller_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "seller_onboarding",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "seller_id"
+          ],
+          "composite": false,
+          "keyName": "seller_onboarding_seller_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "IDX_seller_onboarding_seller_id",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_seller_onboarding_seller_id\" ON \"seller_onboarding\" (seller_id) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_seller_onboarding_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_seller_onboarding_deleted_at\" ON \"seller_onboarding\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "seller_onboarding_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "seller_onboarding_seller_id_foreign": {
+          "constraintName": "seller_onboarding_seller_id_foreign",
+          "columnNames": [
+            "seller_id"
+          ],
+          "localTableName": "public.seller_onboarding",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.seller",
+          "updateRule": "cascade"
+        }
+      }
     }
   ]
 }

@@ -199,3 +199,8 @@ export type VendorUpdateReviewType = z.infer<typeof VendorUpdateReview>
 export const VendorUpdateReview = z.object({
   seller_note: z.string().max(300)
 })
+
+export type VendorGetOnboardingParamsType = z.infer<
+  typeof VendorGetOnboardingParams
+>
+export const VendorGetOnboardingParams = createSelectParams()
