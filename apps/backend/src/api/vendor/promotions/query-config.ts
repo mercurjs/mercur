@@ -6,6 +6,8 @@ export const vendorPromotionFields = [
   'created_at',
   'updated_at',
   'deleted_at',
+  '*campaign',
+  '*campaign.budget',
   '*application_method',
   '*application_method.target_rules',
   'application_method.target_rules.values.value',
