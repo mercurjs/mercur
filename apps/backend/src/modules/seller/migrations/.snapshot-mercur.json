@@ -51,6 +51,24 @@
           "nullable": true,
           "mappedType": "text"
         },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
         "address_line": {
           "name": "address_line",
           "type": "text",
@@ -62,6 +80,15 @@
         },
         "city": {
           "name": "city",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "state": {
+          "name": "state",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,

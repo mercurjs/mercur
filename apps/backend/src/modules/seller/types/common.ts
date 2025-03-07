@@ -5,9 +5,12 @@ export type SellerDTO = {
   created_at: Date
   updated_at: Date
   name: string
+  email: string | null
+  phone: string | null
   description: string | null
   address_line: string | null
   city: string | null
+  state: string | null
   postal_code: string | null
   country_code: string | null
   tax_id: string | null
