@@ -3,7 +3,7 @@ import { model } from '@medusajs/framework/utils'
 import { MemberRole } from '../types'
 import { Seller } from './seller'
 
-export const Invite = model.define('member_invite', {
+export const MemberInvite = model.define('member_invite', {
   id: model.id({ prefix: 'meminv' }).primaryKey(),
   email: model.text(),
   role: model.enum(MemberRole).default(MemberRole.OWNER),

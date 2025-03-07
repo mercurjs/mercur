@@ -10,13 +10,13 @@ export const createMemberInviteStep = createStep(
   async (input: CreateMemberInviteDTO, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    const [memberInvite] = await service.createInvites(input)
+    const [memberInvite] = await service.createMemberInvites(input)
 
     return new StepResponse(memberInvite, memberInvite.id)
   },
   async (memberInviteId: string, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    await service.deleteInvites([memberInviteId])
+    await service.deleteMemberInvites([memberInviteId])
   }
 )

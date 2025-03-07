@@ -13,15 +13,18 @@ export const updateMemberInviteStep = createStep(
   async (input: UpdateMemberInviteDTO, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    const previousData: MemberInviteDTO = await service.retrieveInvite(input.id)
+    const previousData: MemberInviteDTO = await service.retrieveMemberInvite(
+      input.id
+    )
 
-    const updatedInvites: MemberInviteDTO = await service.updateInvites(input)
+    const updatedInvites: MemberInviteDTO =
+      await service.updateMemberInvites(input)
 
     return new StepResponse(updatedInvites, previousData)
   },
   async (previousData: MemberInviteDTO, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    await service.updateInvites(previousData)
+    await service.updateMemberInvites(previousData)
   }
 )
