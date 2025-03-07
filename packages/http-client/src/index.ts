@@ -24188,9 +24188,67 @@ export interface VendorAcceptMemberInvite {
   name: string;
 }
 
+/**
+ * Promotion Application Method
+ * Application method object
+ */
+export interface VendorApplicationMethod {
+  /** The unique identifier of the item. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** Description of the promotion. */
+  description?: string;
+  /** The percentage value of the promotion. */
+  value?: number;
+  /** The max quantity of the items. */
+  max_quantity?: string;
+  /** Apply to quantity of the items. */
+  apply_to_quantity?: string;
+  /** Buy ruyles min quantity of the items. */
+  buy_rules_min_quantity?: string;
+  /** The type of the application method. */
+  type?: string;
+  /** The target type of the application method. */
+  target_type?: string;
+  /** The allocation of the application method. */
+  allocation?: string;
+  /** Promotion target rules. */
+  target_rules?: VendorPromotionRule[];
+}
+
 export interface VendorAssignBrandName {
   /** The name of the brand. */
   brand_name: string;
+}
+
+export interface VendorCreateApplicationMethod {
+  /** Description of the promotion. */
+  description?: string;
+  /** The percentage value of the promotion. */
+  value?: number;
+  /** The max quantity of the items. */
+  max_quantity?: string;
+  /** Apply to quantity of the items. */
+  apply_to_quantity?: string;
+  /** Buy ruyles min quantity of the items. */
+  buy_rules_min_quantity?: string;
+  /** The type of the application method. */
+  type?: "percentage";
+  /** The target type of the application method. */
+  target_type?: "items";
+  /** The allocation of the application method. */
+  allocation?: "each" | "across";
+  /** Promotion target rules. */
+  target_rules?: VendorCreatePromotionRule[];
 }
 
 export interface VendorCreateFulfillment {
@@ -24309,6 +24367,32 @@ export interface VendorCreateProductTag {
   value: string;
   /** Product tag metadata. */
   metadata?: object;
+}
+
+export interface VendorCreatePromotion {
+  /** The code of the promotion. */
+  code?: string;
+  /**
+   * Whether the promotion is applied automatically.
+   * @default false
+   */
+  is_automatic?: boolean;
+  /** The type of the promotion. */
+  type?: "standard";
+  application_method?: VendorCreateApplicationMethod;
+  /** Promotion rules. */
+  rules?: VendorCreatePromotionRule[];
+}
+
+export interface VendorCreatePromotionRule {
+  /** The description of the rule. */
+  description?: string;
+  /** The attribute of the rule. */
+  attribute?: string;
+  /** The operator of the rule. */
+  operator?: "in" | "eq";
+  /** Rule values. */
+  values?: string[];
 }
 
 export interface VendorCreateRequest {
@@ -26157,6 +26241,60 @@ export interface VendorProductVariant {
    * @example {"car":"white"}
    */
   metadata?: object;
+}
+
+/**
+ * Promotion
+ * Promotion object
+ */
+export interface VendorPromotion {
+  /** The unique identifier of the item. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** The code of the promotion. */
+  code?: string;
+  /** Whether the promotion is applied automatically. */
+  is_automatic?: boolean;
+  /** The type of the promotion. */
+  type?: string;
+  /** Application method object */
+  application_method?: VendorApplicationMethod;
+  /** Promotion rules. */
+  rules?: VendorPromotionRule[];
+}
+
+export interface VendorPromotionRule {
+  /** The unique identifier of the item. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** The description of the rule. */
+  description?: string;
+  /** The attribute of the rule. */
+  attribute?: string;
+  /** The operator of the rule. */
+  operator?: string;
+  /** Rule values. */
+  values?: {
+    value?: string;
+  }[];
 }
 
 /**
@@ -36587,6 +36725,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetInvites
      * @summary List Invites
      * @request GET:/admin/invites
+     * @secure
      */
     adminGetInvites: (
       query?: {
@@ -36889,6 +37028,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/invites`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -36900,6 +37040,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminPostInvites
      * @summary Create Invite
      * @request POST:/admin/invites
+     * @secure
      */
     adminPostInvites: (
       data: {
@@ -36926,6 +37067,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         query: query,
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -36938,6 +37080,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminPostInvitesAccept
      * @summary Accept Invite
      * @request POST:/admin/invites/accept
+     * @secure
      */
     adminPostInvitesAccept: (
       data: {
@@ -36977,6 +37120,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/invites/accept`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -36989,6 +37133,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetInvitesId
      * @summary Get an Invite
      * @request GET:/admin/invites/{id}
+     * @secure
      */
     adminGetInvitesId: (
       id: string,
@@ -37005,6 +37150,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/invites/${id}`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -37016,6 +37162,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminDeleteInvitesId
      * @summary Delete Invite
      * @request DELETE:/admin/invites/{id}
+     * @secure
      */
     adminDeleteInvitesId: (id: string, params: RequestParams = {}) =>
       this.request<
@@ -37041,6 +37188,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/admin/invites/${id}`,
         method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -37052,6 +37200,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminPostInvitesIdResend
      * @summary Refresh Invite Token
      * @request POST:/admin/invites/{id}/resend
+     * @secure
      */
     adminPostInvitesIdResend: (
       id: string,
@@ -37068,6 +37217,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/invites/${id}/resend`,
         method: "POST",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -50208,6 +50358,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetUsers
      * @summary List Users
      * @request GET:/admin/users
+     * @secure
      */
     adminGetUsers: (
       query?: {
@@ -50492,6 +50643,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/users`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -50503,6 +50655,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetUsersMe
      * @summary Get Logged-In User
      * @request GET:/admin/users/me
+     * @secure
      */
     adminGetUsersMe: (
       query?: {
@@ -50518,6 +50671,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/users/me`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -50529,6 +50683,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetUsersId
      * @summary Get a User
      * @request GET:/admin/users/{id}
+     * @secure
      */
     adminGetUsersId: (
       id: string,
@@ -50545,6 +50700,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/users/${id}`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -50556,6 +50712,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminPostUsersId
      * @summary Update a User
      * @request POST:/admin/users/{id}
+     * @secure
      */
     adminPostUsersId: (
       id: string,
@@ -50574,6 +50731,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         query: query,
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -50586,11 +50744,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminDeleteUsersId
      * @summary Delete a User
      * @request DELETE:/admin/users/{id}
+     * @secure
      */
     adminDeleteUsersId: (id: string, params: RequestParams = {}) =>
       this.request<AdminUserDeleteResponse, Error | string>({
         path: `/admin/users/${id}`,
         method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -57248,6 +57408,132 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         any
       >({
         path: `/vendor/products/${id}/variants/${variantId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of promotions for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorListPromotions
+     * @summary List Promotions
+     * @request GET:/vendor/promotions
+     * @secure
+     */
+    vendorListPromotions: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          promotions?: VendorPromotion[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/promotions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new promotion for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorCreatePromotion
+     * @summary Create promotion
+     * @request POST:/vendor/promotions
+     * @secure
+     */
+    vendorCreatePromotion: (data: VendorCreatePromotion, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves promotion by id for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorGetPromotionById
+     * @summary Get promotion
+     * @request GET:/vendor/promotions/{id}
+     * @secure
+     */
+    vendorGetPromotionById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes promotion by id for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorDeletePromotionById
+     * @summary Delete promotion
+     * @request DELETE:/vendor/promotions/{id}
+     * @secure
+     */
+    vendorDeletePromotionById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted promotion */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/promotions/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",
