@@ -72,7 +72,10 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { id } = req.params
+  const { id } = await fetchSellerByAuthActorId(
+    req.auth_context.actor_id,
+    req.scope
+  )
 
   await updateSellerWorkflow(req.scope).run({
     input: {
