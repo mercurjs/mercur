@@ -18,7 +18,7 @@ import { recalculateOnboardingWorkflow } from '../../../../../workflows/seller/w
  *         schema:
  *           type: object
  *           properties:
- *             product:
+ *             onboarding:
  *               $ref: "#/components/schemas/VendorSellerOnboarding"
  * tags:
  *   - Seller
@@ -64,7 +64,7 @@ export const GET = async (
  *         schema:
  *           type: object
  *           properties:
- *             product:
+ *             onboarding:
  *               $ref: "#/components/schemas/VendorSellerOnboarding"
  * tags:
  *   - Seller
