@@ -24367,6 +24367,8 @@ export interface VendorCreateProductTag {
   value: string;
   /** Product tag metadata. */
   metadata?: object;
+}
+
 export interface VendorCreatePromotion {
   /** The code of the promotion. */
   code?: string;
@@ -36723,6 +36725,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetInvites
      * @summary List Invites
      * @request GET:/admin/invites
+     * @secure
      */
     adminGetInvites: (
       query?: {
@@ -37025,6 +37028,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/invites`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -37036,6 +37040,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminPostInvites
      * @summary Create Invite
      * @request POST:/admin/invites
+     * @secure
      */
     adminPostInvites: (
       data: {
@@ -37062,6 +37067,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         query: query,
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -37074,6 +37080,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminPostInvitesAccept
      * @summary Accept Invite
      * @request POST:/admin/invites/accept
+     * @secure
      */
     adminPostInvitesAccept: (
       data: {
@@ -37113,6 +37120,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/invites/accept`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -37125,6 +37133,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetInvitesId
      * @summary Get an Invite
      * @request GET:/admin/invites/{id}
+     * @secure
      */
     adminGetInvitesId: (
       id: string,
@@ -37141,6 +37150,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/invites/${id}`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -37152,6 +37162,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminDeleteInvitesId
      * @summary Delete Invite
      * @request DELETE:/admin/invites/{id}
+     * @secure
      */
     adminDeleteInvitesId: (id: string, params: RequestParams = {}) =>
       this.request<
@@ -37177,6 +37188,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/admin/invites/${id}`,
         method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -37188,6 +37200,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminPostInvitesIdResend
      * @summary Refresh Invite Token
      * @request POST:/admin/invites/{id}/resend
+     * @secure
      */
     adminPostInvitesIdResend: (
       id: string,
@@ -37204,6 +37217,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/invites/${id}/resend`,
         method: "POST",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -50344,6 +50358,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetUsers
      * @summary List Users
      * @request GET:/admin/users
+     * @secure
      */
     adminGetUsers: (
       query?: {
@@ -50628,6 +50643,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/users`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -50639,6 +50655,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetUsersMe
      * @summary Get Logged-In User
      * @request GET:/admin/users/me
+     * @secure
      */
     adminGetUsersMe: (
       query?: {
@@ -50654,6 +50671,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/users/me`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -50665,6 +50683,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminGetUsersId
      * @summary Get a User
      * @request GET:/admin/users/{id}
+     * @secure
      */
     adminGetUsersId: (
       id: string,
@@ -50681,6 +50700,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/admin/users/${id}`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -50692,6 +50712,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminPostUsersId
      * @summary Update a User
      * @request POST:/admin/users/{id}
+     * @secure
      */
     adminPostUsersId: (
       id: string,
@@ -50710,6 +50731,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         query: query,
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -50722,11 +50744,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AdminDeleteUsersId
      * @summary Delete a User
      * @request DELETE:/admin/users/{id}
+     * @secure
      */
     adminDeleteUsersId: (id: string, params: RequestParams = {}) =>
       this.request<AdminUserDeleteResponse, Error | string>({
         path: `/admin/users/${id}`,
         method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -51751,7 +51775,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
 
     /**
      * @description Reset an admin user's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerresetpassword). You pass the token as a bearer token in the request's Authorization header.
-     * @description Reset an admin user's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerresetpassword).
      *
      * @tags Admin Auth
      * @name AdminPostActorTypeAuthProviderUpdate
@@ -51854,7 +51877,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
 
     /**
      * @description Reset a customer's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerresetpassword). You pass the token as a bearer token in the request's Authorization header.
-     * @description Reset a customer's password using a reset-password token generated with the [Generate Reset Password Token API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerresetpassword).
      *
      * @tags Store Auth
      * @name StorePostActorTypeAuthProviderUpdate
@@ -57207,20 +57229,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       id: string,
       data: CreateProductOption,
       query?: {
-     * @description Retrieves a list of promotions for the authenticated vendor.
-     *
-     * @tags Promotion
-     * @name VendorListPromotions
-     * @summary List Promotions
-     * @request GET:/vendor/promotions
-     * @secure
-     */
-    vendorListPromotions: (
-      query?: {
-        /** The number of items to skip before starting to collect the result set. */
-        offset?: number;
-        /** The number of items to return. */
-        limit?: number;
         /** Comma-separated fields to include in the response. */
         fields?: string;
       },
@@ -57236,43 +57244,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/vendor/products/${id}/options`,
         method: "POST",
         query: query,
-          promotions?: VendorPromotion[];
-          /** The total number of items available */
-          count?: number;
-          /** The number of items skipped before these items */
-          offset?: number;
-          /** The number of items per page */
-          limit?: number;
-        },
-        any
-      >({
-        path: `/vendor/promotions`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a new promotion for the authenticated vendor.
-     *
-     * @tags Promotion
-     * @name VendorCreatePromotion
-     * @summary Create promotion
-     * @request POST:/vendor/promotions
-     * @secure
-     */
-    vendorCreatePromotion: (data: VendorCreatePromotion, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** Promotion object */
-          promotion?: VendorPromotion;
-        },
-        any
-      >({
-        path: `/vendor/promotions`,
-        method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
@@ -57293,16 +57264,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       id: string,
       optionId: string,
       data: UpdateProductOption,
-     * @description Retrieves promotion by id for the authenticated vendor.
-     *
-     * @tags Promotion
-     * @name VendorGetPromotionById
-     * @summary Get promotion
-     * @request GET:/vendor/promotions/{id}
-     * @secure
-     */
-    vendorGetPromotionById: (
-      id: string,
       query?: {
         /** Comma-separated fields to include in the response. */
         fields?: string;
@@ -57322,15 +57283,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
-          /** Promotion object */
-          promotion?: VendorPromotion;
-        },
-        any
-      >({
-        path: `/vendor/promotions/${id}`,
-        method: "GET",
-        query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -57348,18 +57300,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<
         {
           /** The ID of the deleted Product option */
-     * @description Deletes promotion by id for the authenticated vendor.
-     *
-     * @tags Promotion
-     * @name VendorDeletePromotionById
-     * @summary Delete promotion
-     * @request DELETE:/vendor/promotions/{id}
-     * @secure
-     */
-    vendorDeletePromotionById: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The ID of the deleted promotion */
           id?: string;
           /** The type of the object that was deleted */
           object?: string;
@@ -57468,6 +57408,131 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         any
       >({
         path: `/vendor/products/${id}/variants/${variantId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of promotions for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorListPromotions
+     * @summary List Promotions
+     * @request GET:/vendor/promotions
+     * @secure
+     */
+    vendorListPromotions: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          promotions?: VendorPromotion[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/promotions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new promotion for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorCreatePromotion
+     * @summary Create promotion
+     * @request POST:/vendor/promotions
+     * @secure
+     */
+    vendorCreatePromotion: (data: VendorCreatePromotion, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves promotion by id for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorGetPromotionById
+     * @summary Get promotion
+     * @request GET:/vendor/promotions/{id}
+     * @secure
+     */
+    vendorGetPromotionById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes promotion by id for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorDeletePromotionById
+     * @summary Delete promotion
+     * @request DELETE:/vendor/promotions/{id}
+     * @secure
+     */
+    vendorDeletePromotionById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted promotion */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
         path: `/vendor/promotions/${id}`,
         method: "DELETE",
         secure: true,
