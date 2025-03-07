@@ -30,6 +30,14 @@
  *   handle:
  *     type: string
  *     description: A unique handle for the seller.
+ *   email:
+ *     type: string
+ *     nullable: true
+ *     description: Store contact email.
+ *   phone:
+ *     type: string
+ *     nullable: true
+ *     description: Store contact phone.
  *   photo:
  *     type: string
  *     nullable: true
@@ -46,6 +54,10 @@
  *     type: string
  *     nullable: true
  *     description: Seller city.
+ *   state:
+ *     type: string
+ *     nullable: true
+ *     description: Seller state.
  *   country_code:
  *     type: string
  *     nullable: true

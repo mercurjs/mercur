@@ -24,6 +24,12 @@ export const VendorGetSellerParams = createSelectParams()
  *     type: string
  *     nullable: true
  *     description: A description of the seller.
+ *   email:
+ *     type: string
+ *     description: Store contact email.
+ *   phone:
+ *     type: string
+ *     description: Store contact phone.
  *   photo:
  *     type: string
  *     nullable: true
@@ -40,6 +46,10 @@ export const VendorGetSellerParams = createSelectParams()
  *     type: string
  *     nullable: true
  *     description: Seller city.
+ *   state:
+ *     type: string
+ *     nullable: true
+ *     description: Seller state.
  *   country_code:
  *     type: string
  *     nullable: true
@@ -80,8 +90,11 @@ export const VendorCreateSeller = z
     name: z.preprocess((val: string) => val?.trim(), z.string().min(1)),
     description: z.string().nullish().optional(),
     photo: z.string().nullish().optional(),
+    email: z.string().email().nullish(),
+    phone: z.string().nullish(),
     address_line: z.string().nullish().optional(),
     city: z.string().nullish().optional(),
+    state: z.string().nullish().optional(),
     postal_code: z.string().nullish().optional(),
     country_code: z.string().nullish().optional(),
     tax_id: z.string().nullish().optional(),
@@ -114,6 +127,12 @@ export const VendorCreateSeller = z
  *     type: string
  *     nullable: true
  *     description: URL to the seller's photo.
+ *   email:
+ *     type: string
+ *     description: Store contact email.
+ *   phone:
+ *     type: string
+ *     description: Store contact phone.
  *   address_line:
  *     type: string
  *     nullable: true
@@ -126,6 +145,10 @@ export const VendorCreateSeller = z
  *     type: string
  *     nullable: true
  *     description: Seller city.
+ *   state:
+ *     type: string
+ *     nullable: true
+ *     description: Seller state.
  *   country_code:
  *     type: string
  *     nullable: true
@@ -143,8 +166,11 @@ export const VendorUpdateSeller = z
       .optional(),
     description: z.string().nullish().optional(),
     photo: z.string().nullish().optional(),
+    email: z.string().email().nullish().optional(),
+    phone: z.string().nullish().optional(),
     address_line: z.string().nullish().optional(),
     city: z.string().nullish().optional(),
+    state: z.string().nullish().optional(),
     postal_code: z.string().nullish().optional(),
     country_code: z.string().nullish().optional(),
     tax_id: z.string().nullish().optional()

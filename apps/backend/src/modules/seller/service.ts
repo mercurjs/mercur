@@ -10,7 +10,7 @@ import {
 } from '@medusajs/framework/utils'
 
 import { SELLER_MODULE } from '.'
-import { Invite, Member, Seller } from './models'
+import { Member, MemberInvite, Seller } from './models'
 import { MemberInviteDTO } from './types'
 
 type InjectedDependencies = {
@@ -25,7 +25,7 @@ type SellerModuleConfig = {
 const DEFAULT_VALID_INVITE_DURATION = 60 * 60 * 24 * 7000
 
 class SellerModuleService extends MedusaService({
-  Invite,
+  MemberInvite,
   Member,
   Seller
 }) {
@@ -56,7 +56,7 @@ class SellerModuleService extends MedusaService({
       complete: true
     })
 
-    const invite = await this.retrieveInvite(decoded.payload.id, {})
+    const invite = await this.retrieveMemberInvite(decoded.payload.id, {})
 
     if (invite.accepted) {
       throw new MedusaError(
@@ -77,12 +77,16 @@ class SellerModuleService extends MedusaService({
 
   @InjectTransactionManager()
   // @ts-expect-error: createInvites method already exists
-  async createInvites(
+  async createMemberInvites(
     input: CreateInviteDTO | CreateInviteDTO[],
     @MedusaContext() sharedContext: Context = {}
   ): Promise<MemberInviteDTO[]> {
     const data = Array.isArray(input) ? input : [input]
 
+    const expires_at = new Date()
+    expires_at.setMilliseconds(
+      new Date().getMilliseconds() + DEFAULT_VALID_INVITE_DURATION
+    )
     const toCreate = data.map((invite) => {
       return {
         ...invite,
@@ -91,25 +95,21 @@ class SellerModuleService extends MedusaService({
       }
     })
 
-    const created = await super.createInvites(toCreate, sharedContext)
-
+    const created = await super.createMemberInvites(toCreate, sharedContext)
     const toUpdate = Array.isArray(created) ? created : [created]
 
     const updates = toUpdate.map((invite) => {
       return {
+        ...invite,
         id: invite.id,
-        expires_at: new Date().setMilliseconds(
-          new Date().getMilliseconds() + DEFAULT_VALID_INVITE_DURATION
-        ),
+        expires_at,
         token: this.generateToken({ id: invite.id })
       }
     })
 
-    await this.updateInvites(updates, sharedContext)
+    await this.updateMemberInvites(updates, sharedContext)
 
-    return this.listInvites({
-      id: updates.map((u) => u.id)
-    })
+    return updates
   }
 
   private generateToken(data: { id: string }): string {
