@@ -19,6 +19,7 @@ import { vendorProductTypesMiddlewares } from './product-types/middlewares'
 import { vendorProductsMiddlewares } from './products/middlewares'
 import { vendorPromotionsMiddlewares } from './promotions/middlewares'
 import { vendorRequestsMiddlewares } from './requests/middlewares'
+import { vendorReservationsMiddlewares } from './reservations/middlewares'
 import { vendorReturnRequestsMiddlewares } from './return-request/middlewares'
 import { vendorSalesChannelMiddlewares } from './sales-channels/middlewares'
 import { vendorSellersMiddlewares } from './sellers/middlewares'
@@ -83,6 +84,8 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorProductTagsMiddlewares,
   ...vendorProductTypesMiddlewares,
   ...vendorUploadMiddlewares,
+  ...vendorPromotionsMiddlewares,
+  ...vendorReservationsMiddlewares,
   ...vendorPriceListsMiddlewares,
   ...vendorPromotionsMiddlewares,
   ...vendorCampaignsMiddlewares

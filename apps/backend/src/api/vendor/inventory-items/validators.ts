@@ -17,12 +17,17 @@ export const VendorGetInventoryItemsParams = createFindParams({
  *   stocked_quantity:
  *     type: number
  *     description: The quantity of the InventoryItem in StockLocation.
+ *   reserved_quantity:
+ *     type: number
+ *     title: reserved_quantity
+ *     description: The quantity reserved from the available stocked_quantity.
  */
 export type VendorUpdateInventoryLevel = z.infer<
   typeof VendorUpdateInventoryLevel
 >
 export const VendorUpdateInventoryLevel = z.object({
-  stocked_quantity: z.number().int().min(0)
+  stocked_quantity: z.number().int().min(0),
+  reserved_quantity: z.number().int().min(0).optional()
 })
 
 /**
@@ -39,6 +44,10 @@ export const VendorUpdateInventoryLevel = z.object({
  *     type: number
  *     title: stocked_quantity
  *     description: The inventory level in stock.
+ *   reserved_quantity:
+ *     type: number
+ *     title: reserved_quantity
+ *     description: The quantity reserved from the available stocked_quantity.
  */
 export type VendorCreateInventoryLocationLevelType = z.infer<
   typeof VendorCreateInventoryLocationLevel
@@ -46,7 +55,8 @@ export type VendorCreateInventoryLocationLevelType = z.infer<
 export const VendorCreateInventoryLocationLevel = z
   .object({
     location_id: z.string(),
-    stocked_quantity: z.number().min(0).optional()
+    stocked_quantity: z.number().int().min(0).optional(),
+    reserved_quantity: z.number().int().min(0).optional()
   })
   .strict()
 
