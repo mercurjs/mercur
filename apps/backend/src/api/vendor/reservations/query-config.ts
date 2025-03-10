@@ -7,7 +7,6 @@ export const vendorReservationFields = [
   'quantity',
   'line_item_id',
   'description',
-  'metadata',
   'created_at',
   'updated_at',
   ...vendorInventoryItemFields.map((f) => `inventory_item.${f}`)
