@@ -58,7 +58,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['GET', 'POST'],
-    matcher: '/vendor/sellers/onboarding',
+    matcher: '/vendor/sellers/me/onboarding',
     middlewares: [
       validateAndTransformQuery(
         VendorGetOnboardingParams,
