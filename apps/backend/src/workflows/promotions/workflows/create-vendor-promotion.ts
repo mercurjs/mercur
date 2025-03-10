@@ -11,11 +11,12 @@ import {
 } from '@medusajs/workflows-sdk'
 
 import { SELLER_MODULE } from '../../../modules/seller'
-import { verifyVendorPromotionStep } from '../steps'
+import { verifyVendorCampaignStep, verifyVendorPromotionStep } from '../steps'
 
 export const createVendorPromotionWorkflow = createWorkflow(
   'create-vendor-promotion',
   function (input: { promotion: CreatePromotionDTO; seller_id: string }) {
+    verifyVendorCampaignStep(input)
     verifyVendorPromotionStep(input)
 
     const promotions = createPromotionsWorkflow.runAsStep({

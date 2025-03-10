@@ -2,6 +2,7 @@ import { unlessBaseUrl } from '#/shared/infra/http/utils'
 
 import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
+import { vendorCampaignsMiddlewares } from './campaigns/middlewares'
 import { vendorCors } from './cors'
 import { vendorCustomerGroupsMiddlewares } from './customer-groups/middlewares'
 import { vendorCustomersMiddlewares } from './customers/middlewares'
@@ -81,5 +82,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorProductTagsMiddlewares,
   ...vendorProductTypesMiddlewares,
   ...vendorUploadMiddlewares,
-  ...vendorPromotionsMiddlewares
+  ...vendorPromotionsMiddlewares,
+  ...vendorCampaignsMiddlewares
 ]

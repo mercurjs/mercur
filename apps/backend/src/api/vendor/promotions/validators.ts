@@ -125,6 +125,7 @@ export const VendorCreatePromotion = z
     code: z.string(),
     is_automatic: z.boolean().default(false),
     type: z.literal(PromotionType.STANDARD),
+    campaign_id: z.string().nullish(),
     application_method: VendorCreateApplicationMethod,
     rules: z.array(VendorCreatePromotionRule).optional()
   })
