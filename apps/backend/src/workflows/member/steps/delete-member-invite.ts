@@ -9,13 +9,13 @@ export const deleteMemberInvitesStep = createStep(
   async (id: string, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    await service.softDeleteInvites(id)
+    await service.softDeleteMemberInvites(id)
 
     return new StepResponse(id)
   },
   async (inviteId: string, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    await service.restoreInvites(inviteId)
+    await service.restoreMemberInvites(inviteId)
   }
 )

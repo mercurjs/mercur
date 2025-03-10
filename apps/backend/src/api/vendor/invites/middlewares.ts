@@ -18,11 +18,11 @@ export const vendorInvitesMiddlewares: MiddlewareRoute[] = [
     method: ['GET'],
     matcher: '/vendor/invites',
     middlewares: [
-      filterBySellerId(),
       validateAndTransformQuery(
         VendorGetMemberInviteParams,
         vendorMemberInviteQueryConfig.list
-      )
+      ),
+      filterBySellerId()
     ]
   },
   {

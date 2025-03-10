@@ -55,7 +55,7 @@ export const POST = async (
     data: [invite]
   } = await query.graph(
     {
-      entity: 'invite',
+      entity: 'member_invite',
       fields: req.remoteQueryConfig.fields,
       filters: { id: created.id }
     },
@@ -126,7 +126,7 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: invites, metadata } = await query.graph({
-    entity: 'invite',
+    entity: 'member_invite',
     fields: req.remoteQueryConfig.fields,
     filters: req.filterableFields,
     pagination: {
