@@ -90,11 +90,11 @@ export const recalculateOnboardingStep = createStep(
 
     const sellerService = container.resolve<SellerModuleService>(SELLER_MODULE)
     const updatedOnboarding = onboarding
-      ? await sellerService.updateOnboardings({
+      ? await sellerService.updateSellerOnboardings({
           ...toUpdate,
           id: onboarding.id
         })
-      : await sellerService.createOnboardings(toUpdate)
+      : await sellerService.createSellerOnboardings(toUpdate)
 
     return new StepResponse(updatedOnboarding)
   }
