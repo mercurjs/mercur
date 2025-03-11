@@ -3,7 +3,7 @@ import { MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 /**
- * @oas [get] /vendor/members/me
+ * @oas [get] /vendor/me
  * operationId: "VendorGetMemberMe"
  * summary: "Get Current Member"
  * description: "Retrieves the member associated with the authenticated user."

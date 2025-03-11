@@ -24383,6 +24383,11 @@ export interface VendorCreateInventoryLevel {
    * The inventory level in stock.
    */
   stocked_quantity?: number;
+  /**
+   * reserved_quantity
+   * The quantity reserved from the available stocked_quantity.
+   */
+  reserved_quantity?: number;
 }
 
 export interface VendorCreateOnboarding {
@@ -24393,6 +24398,68 @@ export interface VendorCreateOnboarding {
 export interface VendorCreatePayoutAccount {
   /** Additional data needed by the payment provider to create a payment account. */
   context?: object | null;
+}
+
+export interface VendorCreatePriceList {
+  /**
+   * title
+   * The price list's title.
+   */
+  title?: string;
+  /**
+   * description
+   * The price list's description.
+   */
+  description?: string;
+  /** The price list's rules. */
+  rules?: object;
+  /**
+   * starts_at
+   * The date the price list starts.
+   */
+  starts_at?: string;
+  /**
+   * ends_at
+   * The date the price list ends.
+   */
+  ends_at?: string;
+  /** The price list's status. */
+  status?: "draft" | "active";
+  /** The price list's type. */
+  type?: "sale" | "override";
+  /** The price list's prices. */
+  prices?: VendorCreatePriceListPrice[];
+}
+
+export interface VendorCreatePriceListPrice {
+  /**
+   * variant_id
+   * The ID of the product variant this price list is for.
+   */
+  variant_id?: string;
+  /** The price's rules. */
+  rules?: object;
+  /**
+   * currency_code
+   * The price's currency code.
+   * @example "usd"
+   */
+  currency_code?: string;
+  /**
+   * amount
+   * The price's amount.
+   */
+  amount?: number;
+  /**
+   * min_quantity
+   * The minimum quantity that must be available in the cart for the price to be applied.
+   */
+  min_quantity?: number;
+  /**
+   * max_quantity
+   * The maximum quantity allowed to be available in the cart for the price to be applied.
+   */
+  max_quantity?: number;
 }
 
 export interface VendorCreateProduct {
@@ -26009,6 +26076,128 @@ export interface VendorPayoutAccount {
   updated_at?: string;
 }
 
+/** The price list's details. */
+export interface VendorPriceList {
+  /**
+   * id
+   * The price list's ID.
+   */
+  id?: string;
+  /**
+   * title
+   * The price list's title.
+   */
+  title?: string;
+  /**
+   * description
+   * The price list's description.
+   */
+  description?: string;
+  /** The price list's rules. */
+  rules?: object;
+  /**
+   * starts_at
+   * The date the price list starts.
+   */
+  starts_at?: string;
+  /**
+   * ends_at
+   * The date the price list ends.
+   */
+  ends_at?: string;
+  /** The price list's status. */
+  status?: "draft" | "active";
+  /** The price list's type. */
+  type?: "sale" | "override";
+  /** The price list's prices. */
+  prices?: VendorPriceListPrice[];
+  /**
+   * created_at
+   * The date the price list was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * updated_at
+   * The date the price list was updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /**
+   * deleted_at
+   * The date the price list was deleted.
+   * @format date-time
+   */
+  deleted_at?: string;
+}
+
+/** The details of a price list's price. */
+export interface VendorPriceListPrice {
+  /**
+   * variant_id
+   * The ID of the product variant this price list is for.
+   */
+  variant_id?: string;
+  /** The price's rules. */
+  rules?: object;
+  /**
+   * id
+   * The price's ID.
+   */
+  id?: string;
+  /**
+   * title
+   * The price's title.
+   */
+  title?: string;
+  /**
+   * currency_code
+   * The price's currency code.
+   * @example "usd"
+   */
+  currency_code?: string;
+  /**
+   * amount
+   * The price's amount.
+   */
+  amount?: number;
+  /** The price's raw amount. */
+  raw_amount?: object;
+  /**
+   * min_quantity
+   * The minimum quantity that must be available in the cart for the price to be applied.
+   */
+  min_quantity?: number;
+  /**
+   * max_quantity
+   * The maximum quantity allowed to be available in the cart for the price to be applied.
+   */
+  max_quantity?: number;
+  /**
+   * price_set_id
+   * The ID of the price set this price belongs to.
+   */
+  price_set_id?: string;
+  /**
+   * created_at
+   * The date the price was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * updated_at
+   * The date the price was updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /**
+   * deleted_at
+   * The date the price was deleted.
+   * @format date-time
+   */
+  deleted_at?: string;
+}
+
 /**
  * Product
  * A product object with its properties
@@ -26437,6 +26626,68 @@ export interface VendorRequest {
   reviewer_note?: string | null;
   /** The status of the request */
   status?: string;
+}
+
+/** The reservation's details. */
+export interface VendorReservation {
+  /**
+   * id
+   * The reservation's ID.
+   */
+  id?: string;
+  /**
+   * line_item_id
+   * The ID of the line item this reservation is for.
+   */
+  line_item_id?: string;
+  /**
+   * location_id
+   * The ID of the location the quantity is reserved from.
+   */
+  location_id?: string;
+  /**
+   * quantity
+   * The reservation's quantity.
+   */
+  quantity?: number;
+  /**
+   * external_id
+   * An ID in an external system
+   */
+  external_id?: string;
+  /**
+   * description
+   * The reservation's description.
+   */
+  description?: string;
+  /**
+   * inventory_item_id
+   * The ID of the inventory item this reservation is associated with.
+   */
+  inventory_item_id?: string;
+  /**
+   * created_by
+   * The ID of the user that created this reservation.
+   */
+  created_by?: string;
+  /**
+   * deleted_at
+   * The date this reservation was deleted.
+   * @format date-time
+   */
+  deleted_at?: string;
+  /**
+   * created_at
+   * The date this reservation was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * updated_at
+   * The date this reservation was updated.
+   * @format date-time
+   */
+  updated_at?: string;
 }
 
 /** The details of the sales channel. */
@@ -26876,6 +27127,11 @@ export interface VendorUpdateInventoryItem {
 export interface VendorUpdateInventoryLevel {
   /** The quantity of the InventoryItem in StockLocation. */
   stocked_quantity?: number;
+  /**
+   * reserved_quantity
+   * The quantity reserved from the available stocked_quantity.
+   */
+  reserved_quantity?: number;
 }
 
 export interface VendorUpdateMember {
@@ -26898,6 +27154,35 @@ export interface VendorUpdateOrderReturnRequest {
   vendor_reviewer_note?: string;
   /** A status of the request */
   status?: "refunded" | "withdrawn" | "escalated";
+}
+
+export interface VendorUpdatePriceList {
+  /**
+   * title
+   * The price list's title.
+   */
+  title?: string;
+  /**
+   * description
+   * The price list's description.
+   */
+  description?: string;
+  /** The price list's rules. */
+  rules?: object;
+  /**
+   * starts_at
+   * The date the price list starts.
+   */
+  starts_at?: string;
+  /**
+   * ends_at
+   * The date the price list ends.
+   */
+  ends_at?: string;
+  /** The price list's status. */
+  status?: "draft" | "active";
+  /** The price list's type. */
+  type?: "sale" | "override";
 }
 
 export interface VendorUpdateProduct {
@@ -26961,6 +27246,15 @@ export interface VendorUpdateProduct {
   sales_channels?: {
     id: string;
   }[];
+}
+
+export interface VendorUpdateReservation {
+  /** The description of the reservation. */
+  description?: string;
+  /** The location id of the reservation. */
+  location_id?: string;
+  /** The number of items in the reservation. */
+  quantity?: number;
 }
 
 /**
@@ -56800,6 +57094,30 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves the member associated with the authenticated user.
+     *
+     * @tags Member
+     * @name VendorGetMemberMe
+     * @summary Get Current Member
+     * @request GET:/vendor/me
+     * @secure
+     */
+    vendorGetMemberMe: (params: RequestParams = {}) =>
+      this.request<
+        {
+          /** A member object with its properties */
+          member?: VendorMember;
+        },
+        any
+      >({
+        path: `/vendor/me`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves a list of members.
      *
      * @tags Member
@@ -56838,30 +57156,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/vendor/members`,
         method: "GET",
         query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Retrieves the member associated with the authenticated user.
-     *
-     * @tags Member
-     * @name VendorGetMemberMe
-     * @summary Get Current Member
-     * @request GET:/vendor/members/me
-     * @secure
-     */
-    vendorGetMemberMe: (params: RequestParams = {}) =>
-      this.request<
-        {
-          /** A member object with its properties */
-          member?: VendorMember;
-        },
-        any
-      >({
-        path: `/vendor/members/me`,
-        method: "GET",
         secure: true,
         format: "json",
         ...params,
@@ -57148,6 +57442,230 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of price lists.
+     *
+     * @tags Price Lists
+     * @name VendorListPriceLists
+     * @summary List Price lists
+     * @request GET:/vendor/price-lists
+     * @secure
+     */
+    vendorListPriceLists: (
+      query?: {
+        /** The number of items to return. Default 50. */
+        limit?: number;
+        /** The number of items to skip before starting the response. Default 0. */
+        offset?: number;
+        /** Comma-separated fields that should be included in the returned data. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          price_lists?: VendorPriceList[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/price-lists`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates new price list
+     *
+     * @tags Price Lists
+     * @name VendorCreatePriceList
+     * @summary Create price list
+     * @request POST:/vendor/price-lists
+     * @secure
+     */
+    vendorCreatePriceList: (
+      data: VendorCreatePriceList,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The price list's details. */
+          price_list?: VendorPriceList;
+        },
+        any
+      >({
+        path: `/vendor/price-lists`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves the details of specified price list.
+     *
+     * @tags Price Lists
+     * @name VendorGetPriceListById
+     * @summary Get price list details
+     * @request GET:/vendor/price-lists/{id}
+     * @secure
+     */
+    vendorGetPriceListById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The price list's details. */
+          price_list?: VendorPriceList;
+        },
+        any
+      >({
+        path: `/vendor/price-lists/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates price list price
+     *
+     * @tags Price Lists
+     * @name VendorUpdatePriceList
+     * @summary Update price list
+     * @request POST:/vendor/price-lists/{id}
+     * @secure
+     */
+    vendorUpdatePriceList: (
+      id: string,
+      data: VendorUpdatePriceList,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The price list's details. */
+          price_list?: VendorPriceList;
+        },
+        any
+      >({
+        path: `/vendor/price-lists/${id}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Delete a price list.
+     *
+     * @tags Price Lists
+     * @name VendorDeletePriceListsId
+     * @summary Delete a Price List
+     * @request DELETE:/vendor/price-lists/{id}
+     * @secure
+     */
+    vendorDeletePriceListsId: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted Price list */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/price-lists/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates new price list price
+     *
+     * @tags Price Lists
+     * @name VendorCreatePriceListPrice
+     * @summary Create price list
+     * @request POST:/vendor/price-lists/{id}/prices
+     * @secure
+     */
+    vendorCreatePriceListPrice: (
+      id: string,
+      data: VendorCreatePriceListPrice,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The price list's details. */
+          price_list?: VendorPriceList;
+        },
+        any
+      >({
+        path: `/vendor/price-lists/${id}/prices`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes price list price by id.
+     *
+     * @tags Price Lists
+     * @name VendorDeletePriceListPriceById
+     * @summary Deletes price list price
+     * @request DELETE:/vendor/price-lists/{id}/prices/{price_id}
+     * @secure
+     */
+    vendorDeletePriceListPriceById: (id: string, priceId: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted Price */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/price-lists/${id}/prices/${priceId}`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -57967,6 +58485,141 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/vendor/requests/${id}`,
         method: "GET",
         query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of reservations for the authenticated vendor.
+     *
+     * @tags Reservations
+     * @name VendorListReservations
+     * @summary List Reservations
+     * @request GET:/vendor/reservations
+     * @secure
+     */
+    vendorListReservations: (
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          reservations?: VendorReservation[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/reservations`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves reservation by id for the authenticated vendor.
+     *
+     * @tags Reservations
+     * @name VendorGetReservationById
+     * @summary Get reservation
+     * @request GET:/vendor/reservations/{id}
+     * @secure
+     */
+    vendorGetReservationById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The reservation's details. */
+          reservation?: VendorReservation;
+        },
+        any
+      >({
+        path: `/vendor/reservations/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates an existing reservation for the authenticated vendor.
+     *
+     * @tags Reservations
+     * @name VendorUpdateReservationById
+     * @summary Update reservation
+     * @request POST:/vendor/reservations/{id}
+     * @secure
+     */
+    vendorUpdateReservationById: (
+      id: string,
+      data: VendorUpdateReservation,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The reservation's details. */
+          reservation?: VendorReservation;
+        },
+        any
+      >({
+        path: `/vendor/reservations/${id}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes reservation by id for the authenticated vendor.
+     *
+     * @tags Reservations
+     * @name VendorDeleteReservationById
+     * @summary Delete reservation
+     * @request DELETE:/vendor/reservations/{id}
+     * @secure
+     */
+    vendorDeleteReservationById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted reservation */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/reservations/${id}`,
+        method: "DELETE",
         secure: true,
         format: "json",
         ...params,
