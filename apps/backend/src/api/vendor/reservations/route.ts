@@ -70,11 +70,11 @@ export const GET = async (
 
   const { data: reservations, metadata } = await query.graph({
     entity: 'reservation',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       inventory_item_id: inventory_items.map((item) => item.inventory_item_id)
     },
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

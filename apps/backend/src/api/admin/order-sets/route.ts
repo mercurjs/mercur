@@ -7,9 +7,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     result: { data, metadata }
   } = await getFormattedOrderSetListWorkflow(req.scope).run({
     input: {
-      fields: req.remoteQueryConfig.fields,
+      fields: req.queryConfig.fields,
       filters: req.filterableFields,
-      pagination: req.remoteQueryConfig.pagination
+      pagination: req.queryConfig.pagination
     }
   })
 

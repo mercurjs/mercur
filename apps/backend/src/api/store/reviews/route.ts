@@ -57,7 +57,7 @@ export const POST = async (
     data: [review]
   } = await query.graph({
     entity: 'review',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id: result.id
     }
@@ -126,11 +126,11 @@ export const GET = async (
 
   const { data: reviews, metadata } = await query.graph({
     entity: customerReview.entryPoint,
-    fields: req.remoteQueryConfig.fields.map((field) => `review.${field}`),
+    fields: req.queryConfig.fields.map((field) => `review.${field}`),
     filters: {
       customer_id: req.auth_context.actor_id
     },
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

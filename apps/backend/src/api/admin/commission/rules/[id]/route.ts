@@ -60,7 +60,7 @@ export async function POST(
     data: [commission_rule]
   } = await query.graph({
     entity: 'commission_rule',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id: req.params.id
     }

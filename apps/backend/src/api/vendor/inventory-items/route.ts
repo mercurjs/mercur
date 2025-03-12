@@ -27,11 +27,9 @@ export const GET = async (
 
   const { data: inventory_items, metadata } = await query.graph({
     entity: sellerInventoryItemLink.entryPoint,
-    fields: req.remoteQueryConfig.fields.map(
-      (field) => `inventory_item.${field}`
-    ),
+    fields: req.queryConfig.fields.map((field) => `inventory_item.${field}`),
     filters: req.filterableFields,
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

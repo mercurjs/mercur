@@ -67,8 +67,8 @@ export const GET = async (
     'product_tag',
     req.filterableFields,
     req.scope,
-    req.remoteQueryConfig.fields,
-    req.remoteQueryConfig.pagination
+    req.queryConfig.fields,
+    req.queryConfig.pagination
   )
 
   res.json({
@@ -128,7 +128,7 @@ export const POST = async (
     data: [product_tag]
   } = await query.graph({
     entity: 'product_tag',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id: result[0].id
     }

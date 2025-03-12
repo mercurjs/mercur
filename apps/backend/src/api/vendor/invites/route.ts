@@ -56,7 +56,7 @@ export const POST = async (
   } = await query.graph(
     {
       entity: 'member_invite',
-      fields: req.remoteQueryConfig.fields,
+      fields: req.queryConfig.fields,
       filters: { id: created.id }
     },
     { throwIfKeyNotFound: true }
@@ -127,10 +127,10 @@ export const GET = async (
 
   const { data: invites, metadata } = await query.graph({
     entity: 'member_invite',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: {
-      ...req.remoteQueryConfig.pagination
+      ...req.queryConfig.pagination
     }
   })
 

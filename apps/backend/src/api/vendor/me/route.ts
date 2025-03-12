@@ -35,7 +35,7 @@ export const GET = async (
   } = await query.graph(
     {
       entity: 'member',
-      fields: req.remoteQueryConfig.fields,
+      fields: req.queryConfig.fields,
       filters: { id: req.auth_context.actor_id }
     },
     { throwIfKeyNotFound: true }

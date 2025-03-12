@@ -21,14 +21,14 @@ export async function GET(
     container: req.scope,
     input: {
       ids: ids.map((v) => v.id),
-      pagination: req.remoteQueryConfig.pagination
+      pagination: req.queryConfig.pagination
     }
   })
 
   res.json({
     commission_rules: result.commission_rules,
     count: result.count,
-    offset: req.remoteQueryConfig.pagination.skip,
-    limit: req.remoteQueryConfig.pagination.take
+    offset: req.queryConfig.pagination.skip,
+    limit: req.queryConfig.pagination.take
   })
 }

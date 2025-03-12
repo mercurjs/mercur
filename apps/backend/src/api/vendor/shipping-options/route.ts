@@ -71,7 +71,7 @@ export const POST = async (
   } = await query.graph(
     {
       entity: 'shipping_option',
-      fields: req.remoteQueryConfig.fields,
+      fields: req.queryConfig.fields,
       filters: { id: result[0].id }
     },
     { throwIfKeyNotFound: true }
@@ -121,11 +121,9 @@ export const GET = async (
 
   const { data: sellerShippingOptions, metadata } = await query.graph({
     entity: sellerShippingOption.entryPoint,
-    fields: req.remoteQueryConfig.fields.map(
-      (field) => `shipping_option.${field}`
-    ),
+    fields: req.queryConfig.fields.map((field) => `shipping_option.${field}`),
     filters: req.filterableFields,
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

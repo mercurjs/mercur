@@ -67,7 +67,7 @@ export const POST = async (
   } = await query.graph(
     {
       entity: 'product',
-      fields: req.remoteQueryConfig.fields,
+      fields: req.queryConfig.fields,
       filters: { id: req.params.id }
     },
     { throwIfKeyNotFound: true }

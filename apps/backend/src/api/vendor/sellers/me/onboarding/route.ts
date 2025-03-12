@@ -41,7 +41,7 @@ export const GET = async (
     data: [onboarding]
   } = await query.graph({
     entity: 'seller_onboarding',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       seller_id: seller.id
     }
@@ -92,7 +92,7 @@ export const POST = async (
     data: [onboarding]
   } = await query.graph({
     entity: 'seller_onboarding',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       seller_id: seller.id
     }

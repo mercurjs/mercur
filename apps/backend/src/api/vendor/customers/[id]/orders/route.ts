@@ -75,16 +75,16 @@ export const GET = async (
     seller.id,
     req.params.id,
     {
-      skip: req.remoteQueryConfig.pagination.skip,
-      take: req.remoteQueryConfig.pagination.take || 50
+      skip: req.queryConfig.pagination.skip,
+      take: req.queryConfig.pagination.take || 50
     },
-    req.remoteQueryConfig.fields
+    req.queryConfig.fields
   )
 
   res.json({
     orders,
     count,
-    offset: req.remoteQueryConfig.pagination.skip,
-    limit: req.remoteQueryConfig.pagination.take
+    offset: req.queryConfig.pagination.skip,
+    limit: req.queryConfig.pagination.take
   })
 }

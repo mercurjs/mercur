@@ -66,9 +66,9 @@ export const GET = async (
 
   const { data: promotions, metadata } = await query.graph({
     entity: sellerPromotion.entryPoint,
-    fields: req.remoteQueryConfig.fields.map((field) => `promotion.${field}`),
+    fields: req.queryConfig.fields.map((field) => `promotion.${field}`),
     filters: req.filterableFields,
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({
@@ -125,7 +125,7 @@ export const POST = async (
     data: [promotion]
   } = await query.graph({
     entity: 'promotion',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id: result[0].id
     }
