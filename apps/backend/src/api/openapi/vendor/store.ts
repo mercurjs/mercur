@@ -40,3 +40,16 @@
  *     type: string
  *     description: The currency code.
  */
+
+/**
+ * @schema VendorDateStatistics
+ * title: "Vendor statistics"
+ * description: "Statistics object."
+ * properties:
+ *   date:
+ *     type: string
+ *     description: Timestamp of the count
+ *   count:
+ *     type: string
+ *     description: Count of the records
+ */

@@ -6,6 +6,43 @@ import {
 } from '../../../modules/seller/utils'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 
+/**
+ * @oas [get] /vendor/statistics
+ * operationId: "VendorGetStoreStatistics"
+ * summary: "GetStoreStatistics"
+ * description: "Retrieves store statistics."
+ * x-authenticated: true
+ * parameters:
+ *   - name: time_from
+ *     in: query
+ *     schema:
+ *       type: string
+ *   - name: time_to
+ *     in: query
+ *     schema:
+ *       type: string
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             orders:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/VendorDateStatistics"
+ *             customers:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/VendorDateStatistics"
+ * tags:
+ *   - Seller
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse

@@ -24765,6 +24765,17 @@ export interface VendorCustomerOrderOverview {
 }
 
 /**
+ * Vendor statistics
+ * Statistics object.
+ */
+export interface VendorDateStatistics {
+  /** Timestamp of the count */
+  date?: string;
+  /** Count of the records */
+  count?: string;
+}
+
+/**
  * VendorFulfillmentAddress
  * An address's details.
  */
@@ -59106,6 +59117,37 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/vendor/shipping-options/${id}`,
         method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves store statistics.
+     *
+     * @tags Seller
+     * @name VendorGetStoreStatistics
+     * @summary GetStoreStatistics
+     * @request GET:/vendor/statistics
+     * @secure
+     */
+    vendorGetStoreStatistics: (
+      query?: {
+        time_from?: string;
+        time_to?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          orders?: VendorDateStatistics[];
+          customers?: VendorDateStatistics[];
+        },
+        any
+      >({
+        path: `/vendor/statistics`,
+        method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
