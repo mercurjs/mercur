@@ -56,7 +56,7 @@ export async function POST(
     data: [commission_rule]
   } = await query.graph({
     entity: 'commission_rule',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id: result.id
     }
@@ -120,13 +120,13 @@ export async function GET(
 ): Promise<void> {
   const { result } = await listCommissionRulesWorkflow.run({
     container: req.scope,
-    input: { pagination: req.remoteQueryConfig.pagination }
+    input: { pagination: req.queryConfig.pagination }
   })
 
   res.json({
     commission_rules: result.commission_rules,
     count: result.count,
-    offset: req.remoteQueryConfig.pagination.skip,
-    limit: req.remoteQueryConfig.pagination.take
+    offset: req.queryConfig.pagination.skip,
+    limit: req.queryConfig.pagination.take
   })
 }

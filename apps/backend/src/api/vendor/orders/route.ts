@@ -122,13 +122,13 @@ export const GET = async (
 
   const { result } = await getOrdersListWorkflow(req.scope).run({
     input: {
-      fields: req.remoteQueryConfig.fields,
+      fields: req.queryConfig.fields,
       variables: {
         filters: {
           ...req.filterableFields,
           id: orderRelations.map((relation) => relation.order_id)
         },
-        ...req.remoteQueryConfig.pagination
+        ...req.queryConfig.pagination
       }
     }
   })

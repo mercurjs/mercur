@@ -51,11 +51,11 @@ export const GET = async (
 
   const { data: orderReturnRequests, metadata } = await query.graph({
     entity: sellerReturnRequest.entryPoint,
-    fields: req.remoteQueryConfig.fields.map(
+    fields: req.queryConfig.fields.map(
       (field) => `order_return_request.${field}`
     ),
     filters: req.filterableFields,
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

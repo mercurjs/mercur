@@ -65,9 +65,9 @@ export async function GET(
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { data: reviews, metadata } = await query.graph({
     entity: 'review',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: req.filterableFields,
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

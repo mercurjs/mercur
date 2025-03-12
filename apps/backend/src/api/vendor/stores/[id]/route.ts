@@ -45,7 +45,7 @@ export const GET = async (
     data: [store]
   } = await query.graph({
     entity: 'store',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id: req.params.id
     }

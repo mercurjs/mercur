@@ -27,7 +27,7 @@ export const POST = async (
     filters: {
       id: req.params.id
     },
-    fields: req.remoteQueryConfig.fields
+    fields: req.queryConfig.fields
   })
 
   res.json({ cart })

@@ -56,7 +56,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { data: configuration_rules, metadata } = await query.graph({
     entity: 'configuration_rule',
     fields: ['id', 'rule_type', 'is_enabled'],
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

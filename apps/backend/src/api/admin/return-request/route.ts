@@ -66,9 +66,9 @@ export const GET = async (
 
   const { data: order_return_request, metadata } = await query.graph({
     entity: 'order_return_request',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: req.filterableFields,
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({
