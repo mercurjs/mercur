@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@medusajs/medusa-oas-cli": "^2.1.0",
+    "@medusajs/medusa-oas-cli": "2.4.0",
     "@medusajs/test-utils": "2.4.0",
     "@mikro-orm/cli": "6.4.3",
     "@swc/core": "1.5.7",
