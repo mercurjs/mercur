@@ -9,7 +9,9 @@ export const createSellerOnboardingStep = createStep(
   async (input: SellerDTO, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    const onboarding = await service.createOnboardings({ seller_id: input.id })
+    const onboarding = await service.createSellerOnboardings({
+      seller_id: input.id
+    })
 
     return new StepResponse(onboarding, onboarding.id)
   }
