@@ -6,6 +6,7 @@ import { vendorCampaignsMiddlewares } from './campaigns/middlewares'
 import { vendorCors } from './cors'
 import { vendorCustomerGroupsMiddlewares } from './customer-groups/middlewares'
 import { vendorCustomersMiddlewares } from './customers/middlewares'
+import { vendorFulfillmentProvidersMiddlewares } from './fulfillment-providers/middlewares'
 import { vendorFulfillmentSetsMiddlewares } from './fulfillment-sets/middlewares'
 import { vendorInventoryItemsMiddlewares } from './inventory-items/middlewares'
 import { vendorInvitesMiddlewares } from './invites/middlewares'
@@ -92,5 +93,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorPriceListsMiddlewares,
   ...vendorPromotionsMiddlewares,
   ...vendorCampaignsMiddlewares,
-  ...vendorStatisticsMiddlewares
+  ...vendorStatisticsMiddlewares,
+  ...vendorFulfillmentProvidersMiddlewares
 ]
