@@ -20,5 +20,5 @@ export const Seller = model.define('seller', {
   tax_id: model.text().nullable(),
   members: model.hasMany(() => Member),
   invites: model.hasMany(() => MemberInvite),
-  onboarding: model.hasOne(() => SellerOnboarding)
+  onboarding: model.hasOne(() => SellerOnboarding).nullable()
 })

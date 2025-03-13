@@ -163,6 +163,7 @@
           "keyName": "IDX_seller_handle_unique",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_seller_handle_unique\" ON \"seller\" (handle) WHERE deleted_at IS NULL"
@@ -171,6 +172,7 @@
           "keyName": "IDX_seller_deleted_at",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_seller_deleted_at\" ON \"seller\" (deleted_at) WHERE deleted_at IS NULL"
@@ -181,12 +183,14 @@
             "id"
           ],
           "composite": false,
+          "constraint": true,
           "primary": true,
           "unique": true
         }
       ],
       "checks": [],
-      "foreignKeys": {}
+      "foreignKeys": {},
+      "nativeEnums": {}
     },
     {
       "columns": {
@@ -301,6 +305,7 @@
           "keyName": "IDX_member_invite_seller_id",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_invite_seller_id\" ON \"member_invite\" (seller_id) WHERE deleted_at IS NULL"
@@ -309,6 +314,7 @@
           "keyName": "IDX_member_invite_deleted_at",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_invite_deleted_at\" ON \"member_invite\" (deleted_at) WHERE deleted_at IS NULL"
@@ -319,6 +325,7 @@
             "id"
           ],
           "composite": false,
+          "constraint": true,
           "primary": true,
           "unique": true
         }
@@ -337,7 +344,8 @@
           "referencedTableName": "public.seller",
           "updateRule": "cascade"
         }
-      }
+      },
+      "nativeEnums": {}
     },
     {
       "columns": {
@@ -459,6 +467,7 @@
           "keyName": "IDX_member_seller_id",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_seller_id\" ON \"member\" (seller_id) WHERE deleted_at IS NULL"
@@ -467,6 +476,7 @@
           "keyName": "IDX_member_deleted_at",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_member_deleted_at\" ON \"member\" (deleted_at) WHERE deleted_at IS NULL"
@@ -477,6 +487,7 @@
             "id"
           ],
           "composite": false,
+          "constraint": true,
           "primary": true,
           "unique": true
         }
@@ -495,7 +506,8 @@
           "referencedTableName": "public.seller",
           "updateRule": "cascade"
         }
-      }
+      },
+      "nativeEnums": {}
     },
     {
       "columns": {
@@ -594,26 +606,19 @@
       "schema": "public",
       "indexes": [
         {
-          "columnNames": [
-            "seller_id"
-          ],
-          "composite": false,
-          "keyName": "seller_onboarding_seller_id_unique",
-          "primary": false,
-          "unique": true
-        },
-        {
-          "keyName": "IDX_seller_onboarding_seller_id",
+          "keyName": "IDX_seller_onboarding_seller_id_unique",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_seller_onboarding_seller_id\" ON \"seller_onboarding\" (seller_id) WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_seller_onboarding_seller_id_unique\" ON \"seller_onboarding\" (seller_id) WHERE deleted_at IS NULL"
         },
         {
           "keyName": "IDX_seller_onboarding_deleted_at",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_seller_onboarding_deleted_at\" ON \"seller_onboarding\" (deleted_at) WHERE deleted_at IS NULL"
@@ -624,6 +629,7 @@
             "id"
           ],
           "composite": false,
+          "constraint": true,
           "primary": true,
           "unique": true
         }
@@ -642,7 +648,9 @@
           "referencedTableName": "public.seller",
           "updateRule": "cascade"
         }
-      }
+      },
+      "nativeEnums": {}
     }
-  ]
+  ],
+  "nativeEnums": {}
 }
