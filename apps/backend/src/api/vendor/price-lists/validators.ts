@@ -1,9 +1,12 @@
 import { z } from 'zod'
 
 import { PriceListStatus, PriceListType } from '@medusajs/framework/utils'
-import { createSelectParams } from '@medusajs/medusa/api/utils/validators'
+import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
-export const VendorGetPriceListPricesParams = createSelectParams()
+export const VendorGetPriceListPricesParams = createFindParams({
+  offset: 0,
+  limit: 50
+})
 
 /**
  * @schema VendorCreatePriceListPrice
