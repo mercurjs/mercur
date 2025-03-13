@@ -79,6 +79,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
       }),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerLocationLink.entryPoint,
+        filterField: 'stock_location_id',
         resourceId: (
           req: AuthenticatedMedusaRequest<VendorCreateFulfillmentType>
         ) => req.validatedBody.location_id
