@@ -7206,6 +7206,23 @@ export class Api extends HttpClient {
                 ...params,
             }),
             /**
+             * @description Retrieves a list of Fulfillment Providers.
+             *
+             * @tags Stock Location
+             * @name VendorListFulfillmentProviders
+             * @summary List Fulfillment Providers
+             * @request GET:/vendor/fulfillment-providers
+             * @secure
+             */
+            vendorListFulfillmentProviders: (query, params = {}) => this.request({
+                path: `/vendor/fulfillment-providers`,
+                method: "GET",
+                query: query,
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
              * @description Deletes a Fulfillment Set.
              *
              * @tags Fulfillment Set
@@ -8552,6 +8569,23 @@ export class Api extends HttpClient {
             vendorDeleteShippingOptionById: (id, params = {}) => this.request({
                 path: `/vendor/shipping-options/${id}`,
                 method: "DELETE",
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Retrieves store statistics.
+             *
+             * @tags Seller
+             * @name VendorGetStoreStatistics
+             * @summary GetStoreStatistics
+             * @request GET:/vendor/statistics
+             * @secure
+             */
+            vendorGetStoreStatistics: (query, params = {}) => this.request({
+                path: `/vendor/statistics`,
+                method: "GET",
+                query: query,
                 secure: true,
                 format: "json",
                 ...params,

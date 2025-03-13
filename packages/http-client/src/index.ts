@@ -56756,6 +56756,46 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a list of Fulfillment Providers.
+     *
+     * @tags Stock Location
+     * @name VendorListFulfillmentProviders
+     * @summary List Fulfillment Providers
+     * @request GET:/vendor/fulfillment-providers
+     * @secure
+     */
+    vendorListFulfillmentProviders: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          fulfillment_providers?: VendorFulfillmentSet[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/fulfillment-providers`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Deletes a Fulfillment Set.
      *
      * @tags Fulfillment Set

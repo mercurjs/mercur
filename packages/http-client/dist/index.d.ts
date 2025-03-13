@@ -24085,6 +24085,16 @@ export interface VendorCustomerOrderOverview {
     updated_at?: string;
 }
 /**
+ * Vendor statistics
+ * Statistics object.
+ */
+export interface VendorDateStatistics {
+    /** Timestamp of the count */
+    date?: string;
+    /** Count of the records */
+    count?: string;
+}
+/**
  * VendorFulfillmentAddress
  * An address's details.
  */
@@ -50030,6 +50040,31 @@ export declare class Api<SecurityDataType extends unknown> extends HttpClient<Se
             limit?: number;
         }, any>>;
         /**
+         * @description Retrieves a list of Fulfillment Providers.
+         *
+         * @tags Stock Location
+         * @name VendorListFulfillmentProviders
+         * @summary List Fulfillment Providers
+         * @request GET:/vendor/fulfillment-providers
+         * @secure
+         */
+        vendorListFulfillmentProviders: (query?: {
+            /** The comma-separated fields to include in the response */
+            fields?: string;
+            /** The number of items to skip before starting to collect the result set. */
+            offset?: number;
+            /** The number of items to return. */
+            limit?: number;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            fulfillment_providers?: VendorFulfillmentSet[];
+            /** The total number of items available */
+            count?: number;
+            /** The number of items skipped before these items */
+            offset?: number;
+            /** The number of items per page */
+            limit?: number;
+        }, any>>;
+        /**
          * @description Deletes a Fulfillment Set.
          *
          * @tags Fulfillment Set
@@ -51318,6 +51353,22 @@ export declare class Api<SecurityDataType extends unknown> extends HttpClient<Se
              * @default true
              */
             deleted?: boolean;
+        }, any>>;
+        /**
+         * @description Retrieves store statistics.
+         *
+         * @tags Seller
+         * @name VendorGetStoreStatistics
+         * @summary GetStoreStatistics
+         * @request GET:/vendor/statistics
+         * @secure
+         */
+        vendorGetStoreStatistics: (query?: {
+            time_from?: string;
+            time_to?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            orders?: VendorDateStatistics[];
+            customers?: VendorDateStatistics[];
         }, any>>;
         /**
          * @description Retrieves a list of Stock Locations.
