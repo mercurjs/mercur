@@ -16,7 +16,7 @@ node_modules
 coverage
 
 **/build
-**/dist
+apps/**/dist
 
 # Misc
 .DS_Store
