@@ -105,7 +105,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
       }),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerStockLocation.entryPoint,
-        filterField: 'location_id',
+        filterField: 'stock_location_id',
         resourceId: (req) => req.params.location_id
       })
     ]
@@ -125,7 +125,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
       }),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerStockLocation.entryPoint,
-        filterField: 'location_id',
+        filterField: 'stock_location_id',
         resourceId: (req) => req.params.location_id
       })
     ]
