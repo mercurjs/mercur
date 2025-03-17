@@ -10,7 +10,13 @@ import {
 } from '@medusajs/framework/utils'
 
 import { SELLER_MODULE } from '.'
-import { Member, MemberInvite, Seller, SellerOnboarding } from './models'
+import {
+  Member,
+  MemberInvite,
+  Seller,
+  SellerApiKey,
+  SellerOnboarding
+} from './models'
 import { MemberInviteDTO } from './types'
 
 type InjectedDependencies = {
@@ -28,7 +34,8 @@ class SellerModuleService extends MedusaService({
   MemberInvite,
   Member,
   Seller,
-  SellerOnboarding
+  SellerOnboarding,
+  SellerApiKey
 }) {
   private readonly config_: SellerModuleConfig
   private readonly httpConfig_: ConfigModule['projectConfig']['http']
