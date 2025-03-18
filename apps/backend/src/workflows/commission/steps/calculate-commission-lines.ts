@@ -43,11 +43,10 @@ async function calculatePercentageCommission(
   currency: string,
   container: MedusaContainer
 ) {
-  // TODO: Check if this is valid
-  const taxValue = item.item_tax_total
+  const taxValue = item.tax_total
   const totalPrice = item.is_tax_inclusive
     ? item.item_total
-    : MathBN.add(item.item_subtotal, taxValue)
+    : MathBN.add(item.subtotal, taxValue)
 
   const commissionValue = MathBN.mult(
     rate.include_tax ? totalPrice : MathBN.sub(totalPrice, taxValue),
@@ -99,7 +98,10 @@ export const calculateCommissionLinesStep = createStep(
   async ({ order_id, seller_id }: StepInput, { container }) => {
     const orderService = container.resolve(Modules.ORDER)
     const order = await orderService.retrieveOrder(order_id, {
-      relations: ['items']
+      relations: ['items'],
+      // At least one of the computed totals fields should be requested in select, 
+      // in order for decorateTotals to be called
+      select: ['*', 'item_total'],
     })
 
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
