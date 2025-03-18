@@ -33,8 +33,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "shiping_option_id": {
-          "name": "shiping_option_id",
+        "shipping_option_id": {
+          "name": "shipping_option_id",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
