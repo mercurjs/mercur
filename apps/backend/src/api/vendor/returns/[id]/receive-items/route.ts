@@ -1,11 +1,14 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { receiveItemReturnRequestWorkflow } from '@medusajs/medusa/core-flows'
+
+import { VendorReceiveReturnItemsSchemaType } from '../../validators'
 
 /**
- * @oas [get] /vendor/returns/{id}
- * operationId: "VendorGetReturnById"
- * summary: "Get return"
- * description: "Retrieves return by id for the authenticated vendor."
+ * @oas [post] /vendor/returns/{id}/receive-items
+ * operationId: "VendorAddReceiveReturnItemById"
+ * summary: "Add received Item to Return"
+ * description: "Add received items to return."
  * x-authenticated: true
  * parameters:
  *   - in: path
@@ -16,10 +19,13 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *       type: string
  *   - name: fields
  *     in: query
- *     schema:
- *       type: string
+ *     description: Comma-separated fields that should be included in the returned data.
  *     required: false
- *     description: Comma-separated fields to include in the response.
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/VendorReceiveReturnItems"
  * responses:
  *   "200":
  *     description: OK
@@ -36,13 +42,21 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *   - api_token: []
  *   - cookie_auth: []
  */
-export const GET = async (
-  req: AuthenticatedMedusaRequest,
+export const POST = async (
+  req: AuthenticatedMedusaRequest<VendorReceiveReturnItemsSchemaType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { id } = req.params
 
-  const { data: result } = await query.graph({
+  await receiveItemReturnRequestWorkflow.run({
+    container: req.scope,
+    input: { ...req.validatedBody, return_id: id }
+  })
+
+  const {
+    data: [result]
+  } = await query.graph({
     entity: 'return',
     fields: req.queryConfig.fields,
     filters: {
