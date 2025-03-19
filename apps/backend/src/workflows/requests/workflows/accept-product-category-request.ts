@@ -1,3 +1,4 @@
+import { kebabCase } from '@medusajs/framework/utils'
 import { createProductCategoriesWorkflow } from '@medusajs/medusa/core-flows'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
@@ -9,7 +10,16 @@ export const acceptProductCategoryRequestWorkflow = createWorkflow(
   function (input: AcceptRequestDTO) {
     const productCategory = createProductCategoriesWorkflow.runAsStep({
       input: {
-        product_categories: [{ ...input.data, is_active: true }]
+        product_categories: [
+          {
+            ...input.data,
+            handle:
+              input.data.handle === ''
+                ? kebabCase(input.data.name)
+                : input.data.handle,
+            is_active: true
+          }
+        ]
       }
     })
 

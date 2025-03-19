@@ -1,3 +1,4 @@
+import { kebabCase } from '@medusajs/framework/utils'
 import { createCollectionsWorkflow } from '@medusajs/medusa/core-flows'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
@@ -8,7 +9,17 @@ export const acceptProductCollectionRequestWorkflow = createWorkflow(
   'accept-product-collection-request',
   function (input: AcceptRequestDTO) {
     const collection = createCollectionsWorkflow.runAsStep({
-      input: { collections: [input.data] }
+      input: {
+        collections: [
+          {
+            ...input.data,
+            handle:
+              input.data.handle === ''
+                ? kebabCase(input.data.title)
+                : input.data.handle
+          }
+        ]
+      }
     })
 
     updateRequestWorkflow.runAsStep({ input })
