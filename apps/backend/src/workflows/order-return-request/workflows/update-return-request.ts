@@ -1,14 +1,15 @@
 import {
   WorkflowResponse,
   createHook,
-  createWorkflow
+  createWorkflow,
+  when
 } from '@medusajs/framework/workflows-sdk'
 
 import {
   AdminUpdateOrderReturnRequestDTO,
   VendorUpdateOrderReturnRequestDTO
 } from '../../../modules/order-return-request/types'
-import { updateOrderReturnRequestStep } from '../steps'
+import { createReturnObjectStep, updateOrderReturnRequestStep } from '../steps'
 
 export const updateOrderReturnRequestWorkflow = createWorkflow(
   'update-order-return-request',
@@ -16,6 +17,11 @@ export const updateOrderReturnRequestWorkflow = createWorkflow(
     input: VendorUpdateOrderReturnRequestDTO | AdminUpdateOrderReturnRequestDTO
   ) {
     const request = updateOrderReturnRequestStep(input)
+
+    when(request, (request) => request.status === 'refunded').then(() => {
+      createReturnObjectStep(request)
+    })
+
     const orderReturnRequestUpdatedHook = createHook(
       'orderReturnRequestUpdated',
       {

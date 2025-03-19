@@ -3,6 +3,7 @@ export type OrderReturnRequestDTO = {
   line_items: string[]
   customer_id: string
   customer_note: string
+  shipping_option_id: string
   vendor_reviewer_id: string | null
   vendor_reviewer_note: string | null
   vendor_review_date: Date | null

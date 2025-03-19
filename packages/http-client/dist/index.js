@@ -8338,6 +8338,186 @@ export class Api extends HttpClient {
                 ...params,
             }),
             /**
+             * @description Retrieves a list of returns for the authenticated vendor.
+             *
+             * @tags Return
+             * @name VendorListReturns
+             * @summary List Returns
+             * @request GET:/vendor/returns
+             * @secure
+             */
+            vendorListReturns: (query, params = {}) => this.request({
+                path: `/vendor/returns`,
+                method: "GET",
+                query: query,
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Retrieves return by id for the authenticated vendor.
+             *
+             * @tags Return
+             * @name VendorGetReturnById
+             * @summary Get return
+             * @request GET:/vendor/returns/{id}
+             * @secure
+             */
+            vendorGetReturnById: (id, query, params = {}) => this.request({
+                path: `/vendor/returns/${id}`,
+                method: "GET",
+                query: query,
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Add damaged items, whose quantity is to be dismissed, to a return.
+             *
+             * @tags Return
+             * @name VendorAddDismissReturnItemById
+             * @summary Add Damaged Item to Return
+             * @request POST:/vendor/returns/{id}/dismiss-items
+             * @secure
+             */
+            vendorAddDismissReturnItemById: (id, data, query, params = {}) => this.request({
+                path: `/vendor/returns/${id}/dismiss-items`,
+                method: "POST",
+                query: query,
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Update a damaged item, whose quantity is to be dismissed, in the return by the ID of the  item's `RECEIVE_DAMAGED_RETURN_ITEM` action.
+             *
+             * @tags Return
+             * @name VendorUpdateDismissReturnItemById
+             * @summary Update Damaged Item of Return
+             * @request POST:/vendor/returns/{id}/dismiss-items/{action_id}
+             * @secure
+             */
+            vendorUpdateDismissReturnItemById: (id, actionId, data, query, params = {}) => this.request({
+                path: `/vendor/returns/${id}/dismiss-items/${actionId}`,
+                method: "POST",
+                query: query,
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Remove a damaged item, whose quantity is to be dismissed, in the return by the ID of the  item's `RECEIVE_DAMAGED_RETURN_ITEM` action.
+             *
+             * @tags Return
+             * @name VendorDismissReturnItemById
+             * @summary Remove Damaged Item from Return
+             * @request DELETE:/vendor/returns/{id}/dismiss-items/{action_id}
+             * @secure
+             */
+            vendorDismissReturnItemById: (id, actionId, query, params = {}) => this.request({
+                path: `/vendor/returns/${id}/dismiss-items/${actionId}`,
+                method: "DELETE",
+                query: query,
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Start a return receival process to be later confirmed.
+             *
+             * @tags Return
+             * @name VendorReturnReceiveById
+             * @summary Start Return Receival
+             * @request POST:/vendor/returns/{id}/receive
+             * @secure
+             */
+            vendorReturnReceiveById: (id, data, query, params = {}) => this.request({
+                path: `/vendor/returns/${id}/receive`,
+                method: "POST",
+                query: query,
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Add received items to return.
+             *
+             * @tags Return
+             * @name VendorAddReceiveReturnItemById
+             * @summary Add received Item to Return
+             * @request POST:/vendor/returns/{id}/receive-items
+             * @secure
+             */
+            vendorAddReceiveReturnItemById: (id, data, query, params = {}) => this.request({
+                path: `/vendor/returns/${id}/receive-items`,
+                method: "POST",
+                query: query,
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Update a received item.
+             *
+             * @tags Return
+             * @name VendorUpdateReceiveReturnItemById
+             * @summary Update received Item of Return
+             * @request POST:/vendor/returns/{id}/receive-items/{action_id}
+             * @secure
+             */
+            vendorUpdateReceiveReturnItemById: (id, actionId, data, query, params = {}) => this.request({
+                path: `/vendor/returns/${id}/receive-items/${actionId}`,
+                method: "POST",
+                query: query,
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Remove a received item
+             *
+             * @tags Return
+             * @name VendorReceiveReturnItemById
+             * @summary Remove received Item from Return
+             * @request DELETE:/vendor/returns/{id}/receive-items/{action_id}
+             * @secure
+             */
+            vendorReceiveReturnItemById: (id, actionId, query, params = {}) => this.request({
+                path: `/vendor/returns/${id}/receive-items/${actionId}`,
+                method: "DELETE",
+                query: query,
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Confirm a return receival process.
+             *
+             * @tags Return
+             * @name VendorConfirmReturnReceiveById
+             * @summary Confirm Return Receival
+             * @request POST:/vendor/returns/{id}/receive/confirm
+             * @secure
+             */
+            vendorConfirmReturnReceiveById: (id, query, params = {}) => this.request({
+                path: `/vendor/returns/${id}/receive/confirm`,
+                method: "POST",
+                query: query,
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
              * @description Retrieves a list of Sales Channels for authenticated vendor.
              *
              * @tags Seller, Sales-channel

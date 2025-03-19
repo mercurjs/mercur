@@ -23402,6 +23402,8 @@ export interface StoreCreateOrderReturnRequest {
     order_id?: string;
     /** Customer note. */
     customer_note?: string;
+    /** ID of the shipping option */
+    shipping_option_id?: string;
     /** Array of items to return */
     line_items?: {
         line_item_id?: string;
@@ -25875,6 +25877,42 @@ export interface VendorPromotionRule {
         value?: string;
     }[];
 }
+/** The return receival details. */
+export interface VendorReceiveReturn {
+    /**
+     * internal_note
+     * A note.
+     */
+    internal_note?: string;
+    /**
+     * description
+     * The return's description.
+     */
+    description?: string;
+    /** The return's metadata, can hold custom key-value pairs. */
+    metadata?: object;
+}
+/** The items details. */
+export interface VendorReceiveReturnItems {
+    /** The items details. */
+    items?: {
+        /**
+         * id
+         * The ID of the item in the order.
+         */
+        id?: string;
+        /**
+         * quantity
+         * The item's quantity.
+         */
+        quantity?: number;
+        /**
+         * internal_note
+         * A note.
+         */
+        internal_note?: string;
+    }[];
+}
 /**
  * Request
  * A request object
@@ -25965,6 +26003,134 @@ export interface VendorReservation {
      * @format date-time
      */
     updated_at?: string;
+}
+/** The return's details. */
+export interface VendorReturn {
+    /**
+     * id
+     * The return's ID.
+     */
+    id?: string;
+    /** The return's status. */
+    status?: "canceled" | "requested" | "received" | "partially_received";
+    /**
+     * refund_amount
+     * The amount refunded by this return.
+     */
+    refund_amount?: number;
+    /**
+     * order_id
+     * The ID of the associated order.
+     */
+    order_id?: string;
+    /** The return's items. */
+    items?: VendorReturnItem[];
+    /**
+     * created_at
+     * The date the return was created.
+     * @format date-time
+     */
+    created_at?: string;
+    /**
+     * canceled_at
+     * The date the return was canceled.
+     * @format date-time
+     */
+    canceled_at?: string;
+    /**
+     * exchange_id
+     * The return's exchange id.
+     */
+    exchange_id?: string;
+    /**
+     * location_id
+     * The return's location id.
+     */
+    location_id?: string;
+    /**
+     * claim_id
+     * The return's claim id.
+     */
+    claim_id?: string;
+    /**
+     * order_version
+     * The return's order version.
+     */
+    order_version?: number;
+    /**
+     * display_id
+     * The return's display id.
+     */
+    display_id?: number;
+    /**
+     * no_notification
+     * Whether the customer should receive notifications about the return's updates.
+     */
+    no_notification?: boolean;
+    /**
+     * received_at
+     * The date the return was received.
+     */
+    received_at?: string;
+}
+/** The return item's details. */
+export interface VendorReturnItem {
+    /**
+     * id
+     * The return item's ID.
+     */
+    id?: string;
+    /**
+     * quantity
+     * The return item's quantity.
+     */
+    quantity?: number;
+    /**
+     * received_quantity
+     * The received quantity of the item. This quantity is added to the stocked inventory quantity of the item.
+     */
+    received_quantity?: number;
+    /**
+     * damaged_quantity
+     * The received damaged quantity of the item, which isn't added to the stocked inventory quantity of the item.
+     */
+    damaged_quantity?: number;
+    /**
+     * reason_id
+     * The ID of the return reason associated with the item.
+     */
+    reason_id?: string;
+    /**
+     * note
+     * A note about why the item was returned.
+     */
+    note?: string;
+    /**
+     * item_id
+     * The ID of the associated order item.
+     */
+    item_id?: string;
+    /**
+     * return_id
+     * The ID of the return this return item belongs to.
+     */
+    return_id?: string;
+    /** The return item's metadata, can hold custom key-value pairs. */
+    metadata?: object;
+}
+/** The return receival details. */
+export interface VendorReturnsDismissItemsAction {
+    /** Quantity of the item */
+    quantity?: string;
+    /** A note. */
+    internal_note?: string;
+}
+/** The return receival details. */
+export interface VendorReturnsReceiveItemsAction {
+    /** Quantity of the item */
+    quantity?: string;
+    /** A note. */
+    internal_note?: string;
 }
 /** The details of the sales channel. */
 export interface VendorSalesChannel {
@@ -51140,6 +51306,175 @@ export declare class Api<SecurityDataType extends unknown> extends HttpClient<Se
         vendorUpdateOrderReturnRequestById: (id: string, data: VendorUpdateOrderReturnRequest, params?: RequestParams) => Promise<HttpResponse<{
             /** A return request object with its properties */
             orderReturnRequest?: OrderReturnRequest;
+        }, any>>;
+        /**
+         * @description Retrieves a list of returns for the authenticated vendor.
+         *
+         * @tags Return
+         * @name VendorListReturns
+         * @summary List Returns
+         * @request GET:/vendor/returns
+         * @secure
+         */
+        vendorListReturns: (query?: {
+            /** The number of items to skip before starting to collect the result set. */
+            offset?: number;
+            /** The number of items to return. */
+            limit?: number;
+            /** Comma-separated fields to include in the response. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            returns?: VendorReturn[];
+            /** The total number of items available */
+            count?: number;
+            /** The number of items skipped before these items */
+            offset?: number;
+            /** The number of items per page */
+            limit?: number;
+        }, any>>;
+        /**
+         * @description Retrieves return by id for the authenticated vendor.
+         *
+         * @tags Return
+         * @name VendorGetReturnById
+         * @summary Get return
+         * @request GET:/vendor/returns/{id}
+         * @secure
+         */
+        vendorGetReturnById: (id: string, query?: {
+            /** Comma-separated fields to include in the response. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            /** The return's details. */
+            return?: VendorReturn;
+        }, any>>;
+        /**
+         * @description Add damaged items, whose quantity is to be dismissed, to a return.
+         *
+         * @tags Return
+         * @name VendorAddDismissReturnItemById
+         * @summary Add Damaged Item to Return
+         * @request POST:/vendor/returns/{id}/dismiss-items
+         * @secure
+         */
+        vendorAddDismissReturnItemById: (id: string, data: VendorReceiveReturnItems, query?: {
+            /** Comma-separated fields that should be included in the returned data. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            /** The return's details. */
+            return?: VendorReturn;
+        }, any>>;
+        /**
+         * @description Update a damaged item, whose quantity is to be dismissed, in the return by the ID of the  item's `RECEIVE_DAMAGED_RETURN_ITEM` action.
+         *
+         * @tags Return
+         * @name VendorUpdateDismissReturnItemById
+         * @summary Update Damaged Item of Return
+         * @request POST:/vendor/returns/{id}/dismiss-items/{action_id}
+         * @secure
+         */
+        vendorUpdateDismissReturnItemById: (id: string, actionId: string, data: VendorReturnsDismissItemsAction, query?: {
+            /** Comma-separated fields that should be included in the returned data. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            /** The return's details. */
+            return?: VendorReturn;
+        }, any>>;
+        /**
+         * @description Remove a damaged item, whose quantity is to be dismissed, in the return by the ID of the  item's `RECEIVE_DAMAGED_RETURN_ITEM` action.
+         *
+         * @tags Return
+         * @name VendorDismissReturnItemById
+         * @summary Remove Damaged Item from Return
+         * @request DELETE:/vendor/returns/{id}/dismiss-items/{action_id}
+         * @secure
+         */
+        vendorDismissReturnItemById: (id: string, actionId: string, query?: {
+            /** Comma-separated fields that should be included in the returned data. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            /** The return's details. */
+            return?: VendorReturn;
+        }, any>>;
+        /**
+         * @description Start a return receival process to be later confirmed.
+         *
+         * @tags Return
+         * @name VendorReturnReceiveById
+         * @summary Start Return Receival
+         * @request POST:/vendor/returns/{id}/receive
+         * @secure
+         */
+        vendorReturnReceiveById: (id: string, data: VendorReceiveReturn, query?: {
+            /** Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            /** The return's details. */
+            return?: VendorReturn;
+        }, any>>;
+        /**
+         * @description Add received items to return.
+         *
+         * @tags Return
+         * @name VendorAddReceiveReturnItemById
+         * @summary Add received Item to Return
+         * @request POST:/vendor/returns/{id}/receive-items
+         * @secure
+         */
+        vendorAddReceiveReturnItemById: (id: string, data: VendorReceiveReturnItems, query?: {
+            /** Comma-separated fields that should be included in the returned data. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            /** The return's details. */
+            return?: VendorReturn;
+        }, any>>;
+        /**
+         * @description Update a received item.
+         *
+         * @tags Return
+         * @name VendorUpdateReceiveReturnItemById
+         * @summary Update received Item of Return
+         * @request POST:/vendor/returns/{id}/receive-items/{action_id}
+         * @secure
+         */
+        vendorUpdateReceiveReturnItemById: (id: string, actionId: string, data: VendorReturnsReceiveItemsAction, query?: {
+            /** Comma-separated fields that should be included in the returned data. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            /** The return's details. */
+            return?: VendorReturn;
+        }, any>>;
+        /**
+         * @description Remove a received item
+         *
+         * @tags Return
+         * @name VendorReceiveReturnItemById
+         * @summary Remove received Item from Return
+         * @request DELETE:/vendor/returns/{id}/receive-items/{action_id}
+         * @secure
+         */
+        vendorReceiveReturnItemById: (id: string, actionId: string, query?: {
+            /** Comma-separated fields that should be included in the returned data. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            /** The return's details. */
+            return?: VendorReturn;
+        }, any>>;
+        /**
+         * @description Confirm a return receival process.
+         *
+         * @tags Return
+         * @name VendorConfirmReturnReceiveById
+         * @summary Confirm Return Receival
+         * @request POST:/vendor/returns/{id}/receive/confirm
+         * @secure
+         */
+        vendorConfirmReturnReceiveById: (id: string, query?: {
+            /** Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. */
+            fields?: string;
+        }, params?: RequestParams) => Promise<HttpResponse<{
+            /** The return's details. */
+            return?: VendorReturn;
         }, any>>;
         /**
          * @description Retrieves a list of Sales Channels for authenticated vendor.

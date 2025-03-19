@@ -33,6 +33,15 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "shipping_option_id": {
+          "name": "shipping_option_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
         "vendor_reviewer_id": {
           "name": "vendor_reviewer_id",
           "type": "text",
@@ -146,6 +155,7 @@
           "keyName": "IDX_order_return_request_deleted_at",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_order_return_request_deleted_at\" ON \"order_return_request\" (deleted_at) WHERE deleted_at IS NULL"
@@ -156,12 +166,14 @@
             "id"
           ],
           "composite": false,
+          "constraint": true,
           "primary": true,
           "unique": true
         }
       ],
       "checks": [],
-      "foreignKeys": {}
+      "foreignKeys": {},
+      "nativeEnums": {}
     },
     {
       "columns": {
@@ -241,6 +253,7 @@
           "keyName": "IDX_order_return_request_line_item_return_request_id",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_order_return_request_line_item_return_request_id\" ON \"order_return_request_line_item\" (return_request_id) WHERE deleted_at IS NULL"
@@ -249,6 +262,7 @@
           "keyName": "IDX_order_return_request_line_item_deleted_at",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_order_return_request_line_item_deleted_at\" ON \"order_return_request_line_item\" (deleted_at) WHERE deleted_at IS NULL"
@@ -259,6 +273,7 @@
             "id"
           ],
           "composite": false,
+          "constraint": true,
           "primary": true,
           "unique": true
         }
@@ -277,7 +292,9 @@
           "referencedTableName": "public.order_return_request",
           "updateRule": "cascade"
         }
-      }
+      },
+      "nativeEnums": {}
     }
-  ]
+  ],
+  "nativeEnums": {}
 }

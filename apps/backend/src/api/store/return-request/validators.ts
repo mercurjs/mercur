@@ -13,6 +13,9 @@ import { z } from 'zod'
  *   customer_note:
  *     type: string
  *     description: Customer note.
+ *   shipping_option_id:
+ *     type: string
+ *     description: ID of the shipping option
  *   line_items:
  *     type: array
  *     description: Array of items to return
@@ -30,6 +33,7 @@ export type StoreCreateReturnRequestType = z.infer<
 export const StoreCreateReturnRequest = z
   .object({
     order_id: z.string(),
+    shipping_option_id: z.string(),
     line_items: z.array(
       z.object({
         line_item_id: z.string(),
