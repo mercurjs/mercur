@@ -1,4 +1,5 @@
 // copy of https://github.com/medusajs/medusa/blob/develop/packages/core/core-flows/src/cart/utils/prepare-confirm-inventory-input.ts
+// @ts-nocheck
 import {
   BigNumberInput,
   ConfirmVariantInventoryWorkflowInputDTO
@@ -9,7 +10,7 @@ interface ConfirmInventoryPreparationInput {
   product_variant_inventory_items: {
     variant_id: string
     inventory_item_id: string
-    required_quantity: number,
+    required_quantity: number
     stock_location_ids: [string]
   }[]
   items: {
@@ -78,7 +79,9 @@ export const prepareConfirmInventoryInput = (data: {
           })
         }
         if (stock_locations) {
-            productVariantInventoryItems.get(inventoryItemId).stock_location_ids.push(stock_locations.id)
+          productVariantInventoryItems
+            .get(inventoryItemId)
+            .stock_location_ids.push(stock_locations.id)
         }
       }
 

@@ -1,6 +1,6 @@
 import { MARKETPLACE_MODULE } from '#/modules/marketplace'
 import MarketplaceModuleService from '#/modules/marketplace/service'
-import { CreateOrderSetDTO, OrderSetDTO } from '#/modules/marketplace/types'
+import { CreateOrderSetDTO } from '#/modules/marketplace/types'
 
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
@@ -10,7 +10,7 @@ export const createOrderSetStep = createStep(
     const service =
       container.resolve<MarketplaceModuleService>(MARKETPLACE_MODULE)
 
-    const orderSet: OrderSetDTO = await service.createOrderSets(input)
+    const orderSet = await service.createOrderSets(input)
 
     return new StepResponse(orderSet, orderSet.id)
   },

@@ -13,8 +13,9 @@ export const createPayoutStep = createStep(
     let err = false
 
     try {
+      //@ts-ignore
       payout = await service.createPayout(input)
-    } catch (_error) {
+    } catch {
       err = true
     }
 

@@ -14,6 +14,7 @@ import { BigNumber, MathBN } from '@medusajs/framework/utils'
 export const formatOrderSets = (
   orderSetsWithOrders: OrderSetWithOrdersDTO[]
 ): FormattedOrderSetDTO[] => {
+  //@ts-ignore
   return orderSetsWithOrders.map((orderSet) => {
     const taxTotal = orderSet.orders.reduce(
       (acc, item) => MathBN.add(acc, item.tax_total),

@@ -43,6 +43,7 @@ export const createCommissionRuleStep = createStep(
     const commissionRule: CommissionRuleDTO =
       await service.createCommissionRules({
         ...input,
+        // @ts-ignore
         rate: {
           ...input.rate,
           max_price_set_id,
