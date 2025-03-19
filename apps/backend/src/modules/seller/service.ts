@@ -1,4 +1,6 @@
+import crypto from 'crypto'
 import jwt, { JwtPayload } from 'jsonwebtoken'
+import util from 'util'
 
 import { ConfigModule } from '@medusajs/framework'
 import { Context, CreateInviteDTO } from '@medusajs/framework/types'
@@ -126,6 +128,25 @@ class SellerModuleService extends MedusaService({
     return jwt.sign(data, jwtSecret, {
       expiresIn: this.config_.validInviteDuration
     })
+  }
+
+  public async generateSecretKey() {
+    const plainToken = 'ssk_' + crypto.randomBytes(32).toString('hex')
+    const salt = crypto.randomBytes(16).toString('hex')
+    const redacted = [plainToken.slice(0, 6), plainToken.slice(-3)].join('***')
+    const hashedToken = await this.calculateHash(plainToken, salt)
+
+    return {
+      plainToken,
+      hashedToken,
+      salt,
+      redacted
+    }
+  }
+
+  private async calculateHash(token: string, salt: string): Promise<string> {
+    const scrypt = util.promisify(crypto.scrypt)
+    return ((await scrypt(token, salt, 64)) as Buffer).toString('hex')
   }
 
   async isOnboardingCompleted(seller_id: string): Promise<boolean> {
