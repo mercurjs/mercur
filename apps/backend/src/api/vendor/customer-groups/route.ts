@@ -58,8 +58,8 @@ export const GET = async (
 
   const { data: customer_groups, metadata } = await query.graph({
     entity: 'customer_group',
-    fields: req.remoteQueryConfig.fields,
-    pagination: req.remoteQueryConfig.pagination
+    fields: req.queryConfig.fields,
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

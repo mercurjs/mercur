@@ -60,8 +60,8 @@ export const GET = async (
 
   const { data: fulfillment_providers, metadata } = await query.graph({
     entity: 'fulfillment_provider',
-    fields: req.remoteQueryConfig.fields,
-    pagination: req.remoteQueryConfig.pagination
+    fields: req.queryConfig.fields,
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

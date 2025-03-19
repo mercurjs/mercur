@@ -61,7 +61,7 @@ export const GET = async (
     data: [reservation]
   } = await query.graph({
     entity: 'reservation',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id
     }
@@ -152,7 +152,7 @@ export const POST = async (
     data: [reservation]
   } = await query.graph({
     entity: 'reservation',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id
     }

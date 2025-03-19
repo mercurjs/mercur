@@ -70,10 +70,10 @@ export const GET = async (
 
   const { data: members, metadata } = await query.graph({
     entity: 'member',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: {
-      ...req.remoteQueryConfig.pagination
+      ...req.queryConfig.pagination
     }
   })
 

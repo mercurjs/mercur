@@ -57,7 +57,7 @@ export const POST = async (
   } = await query.graph(
     {
       entity: 'member_invite',
-      fields: req.remoteQueryConfig.fields,
+      fields: req.queryConfig.fields,
       filters: { id }
     },
     { throwIfKeyNotFound: true }

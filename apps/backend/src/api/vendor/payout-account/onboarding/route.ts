@@ -56,7 +56,7 @@ export const POST = async (
   } = await query.graph(
     {
       entity: 'payout_account',
-      fields: req.remoteQueryConfig.fields,
+      fields: req.queryConfig.fields,
       filters: {
         onboarding_id: result.id
       }

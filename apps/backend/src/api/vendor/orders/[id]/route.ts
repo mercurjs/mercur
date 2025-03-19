@@ -39,7 +39,7 @@ export const GET = async (
 
   const { result } = await getOrdersListWorkflow(req.scope).run({
     input: {
-      fields: req.remoteQueryConfig.fields,
+      fields: req.queryConfig.fields,
       variables: {
         filters: {
           id

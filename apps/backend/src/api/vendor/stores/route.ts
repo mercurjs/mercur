@@ -60,9 +60,9 @@ export const GET = async (
 
   const { data: stores, metadata } = await query.graph({
     entity: 'store',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: req.filterableFields,
-    pagination: req.remoteQueryConfig.pagination
+    pagination: req.queryConfig.pagination
   })
 
   res.json({

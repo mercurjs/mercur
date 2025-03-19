@@ -52,7 +52,7 @@ export const GET = async (
     data: [order_return_request]
   } = await query.graph({
     entity: 'order_return_request',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id: req.params.id
     }
@@ -105,7 +105,7 @@ export const POST = async (
     data: [request]
   } = await query.graph({
     entity: 'order_return_request',
-    fields: req.remoteQueryConfig.fields,
+    fields: req.queryConfig.fields,
     filters: {
       id: req.params.id,
       status: 'escalated'
