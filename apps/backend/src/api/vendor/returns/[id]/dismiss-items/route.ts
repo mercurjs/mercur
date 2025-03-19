@@ -20,14 +20,10 @@ import { VendorReceiveReturnItemsSchemaType } from '../../validators'
  *     description: The ID of the return.
  *     schema:
  *       type: string
- *   - name: action_id
- *     in: path
- *     description: The ID of the damaged item's `RECEIVE_DAMAGED_RETURN_ITEM` action.
- *     required: true
- *     schema:
- *       type: string
  *   - name: fields
  *     in: query
+ *     schema:
+ *       type: string
  *     description: Comma-separated fields that should be included in the returned data.
  *     required: false
  * requestBody:

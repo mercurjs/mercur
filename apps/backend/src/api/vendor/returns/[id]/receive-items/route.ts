@@ -19,6 +19,8 @@ import { VendorReceiveReturnItemsSchemaType } from '../../validators'
  *       type: string
  *   - name: fields
  *     in: query
+ *     schema:
+ *       type: string
  *     description: Comma-separated fields that should be included in the returned data.
  *     required: false
  * requestBody:
