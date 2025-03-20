@@ -13,7 +13,6 @@ export const createSellerApiKeyStep = createStep(
 
     const apiKey = await service.createSellerApiKeys({
       ...input,
-      salt: tokenDetails.salt,
       token: tokenDetails.hashedToken,
       redacted: tokenDetails.redacted
     })

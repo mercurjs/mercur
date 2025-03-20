@@ -6,24 +6,21 @@ import {
   MedusaResponse,
   authenticate
 } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+
+import { SELLER_MODULE } from '../../../../modules/seller'
+import SellerModuleService from '../../../../modules/seller/service'
 
 async function authenticateWithApiKey(
   req: MedusaRequest,
   res: MedusaResponse,
   next: NextFunction
 ) {
-  const token = req.headers.authorization?.split(' ')[1]
+  const token = req.headers.authorization?.split(' ')[1] || ''
 
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const {
-    data: [api_key]
-  } = await query.graph({
-    entity: 'seller_api_key',
-    fields: ['*'],
-    filters: {
-      token
-    }
+  const service = req.scope.resolve<SellerModuleService>(SELLER_MODULE)
+
+  const [api_key] = await service.listSellerApiKeys({
+    token: service.calculateHash(token)
   })
 
   if (!api_key || api_key.revoked_at !== null || api_key.deleted_at !== null) {

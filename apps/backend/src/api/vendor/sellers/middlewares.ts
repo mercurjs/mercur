@@ -16,8 +16,10 @@ import {
 } from './query-config'
 import {
   VendorCreateSeller,
+  VendorCreateSellerApiKey,
   VendorGetOnboardingParams,
   VendorGetReviewsParams,
+  VendorGetSellerApiKeysParams,
   VendorGetSellerParams,
   VendorUpdateReview,
   VendorUpdateSeller
@@ -104,6 +106,26 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         entryPoint: sellerReview.entryPoint,
         filterField: 'review_id'
       })
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/sellers/me/api-keys',
+    middlewares: [
+      validateAndTransformQuery(VendorGetSellerApiKeysParams, {}),
+      filterBySellerId()
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/sellers/me/api-keys',
+    middlewares: [validateAndTransformBody(VendorCreateSellerApiKey)]
+  },
+  {
+    method: ['DELETE', 'GET'],
+    matcher: '/vendor/sellers/me/api-keys/:id',
+    middlewares: [
+      checkResourceOwnershipByResourceId({ entryPoint: 'seller_api_key' })
     ]
   }
 ]

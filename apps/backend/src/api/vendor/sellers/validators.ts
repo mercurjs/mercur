@@ -222,3 +222,11 @@ export type VendorCreateSellerApiKeyType = z.infer<
 export const VendorCreateSellerApiKey = z.object({
   title: z.string().max(50)
 })
+
+export type VendorGetSellerApiKeysParamsType = z.infer<
+  typeof VendorGetSellerApiKeysParams
+>
+export const VendorGetSellerApiKeysParams = createFindParams({
+  offset: 0,
+  limit: 50
+})

@@ -58,7 +58,6 @@ export type SellerApiKeyDTO = {
   id: string
   seller_id: string
   token: string
-  salt: string
   redacted: string
   title: string
   created_by: string
