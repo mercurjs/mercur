@@ -11,5 +11,5 @@ export default async function seedTaxCodes({ container }: ExecArgs) {
     return { code: t.id, description: t.description, name: t.name }
   })
 
-  await taxCodeService.createTaxCodes(...taxCodes)
+  await taxCodeService.createTaxCodes(taxCodes)
 }
