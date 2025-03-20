@@ -15,12 +15,20 @@ async function authenticateWithApiKey(
   res: MedusaResponse,
   next: NextFunction
 ) {
+  const service = req.scope.resolve<SellerModuleService>(SELLER_MODULE)
   const token = req.headers.authorization?.split(' ')[1] || ''
 
-  const service = req.scope.resolve<SellerModuleService>(SELLER_MODULE)
+  let normalizedToken = token
+  if (!token.startsWith('ssk_')) {
+    normalizedToken = Buffer.from(token, 'base64').toString('utf-8')
+  }
+
+  if (normalizedToken.endsWith(':')) {
+    normalizedToken = normalizedToken.slice(0, -1)
+  }
 
   const [api_key] = await service.listSellerApiKeys({
-    token: service.calculateHash(token)
+    token: service.calculateHash(normalizedToken)
   })
 
   if (!api_key || api_key.revoked_at !== null || api_key.deleted_at !== null) {

@@ -38,7 +38,7 @@ export const fetchSellerByAuthContext = async (
     return fetchSellerByAuthActorId(ctx.actor_id, scope, fields)
   }
 
-  if (ctx.actor_type === 'seller_api_key') {
+  if (ctx.actor_type === 'seller-api-key') {
     const {
       data: [api_key]
     } = await query.graph({
