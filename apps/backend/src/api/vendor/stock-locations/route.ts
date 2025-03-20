@@ -1,6 +1,6 @@
 import sellerStockLocationLink from '#/links/seller-stock-location'
 import { SELLER_MODULE } from '#/modules/seller'
-import { fetchSellerByAuthActorId } from '#/shared/infra/http/utils'
+import { fetchSellerByAuthContext } from '#/shared/infra/http/utils'
 
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
@@ -47,10 +47,7 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const remoteLink = req.scope.resolve(ContainerRegistrationKeys.REMOTE_LINK)
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context.actor_id,
-    req.scope
-  )
+  const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
   const { result } = await createStockLocationsWorkflow(req.scope).run({
     input: { locations: [req.validatedBody] }

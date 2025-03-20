@@ -12,7 +12,7 @@ import {
 } from '@medusajs/framework/utils'
 
 import sellerStockLocation from '../../../../links/seller-stock-location'
-import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils'
+import { fetchSellerByAuthContext } from '../../../../shared/infra/http/utils'
 import { VendorUpdateReservationType } from '../validators'
 
 /**
@@ -118,10 +118,7 @@ export const POST = async (
   const { id } = req.params
 
   if (req.validatedBody.location_id) {
-    const seller = await fetchSellerByAuthActorId(
-      req.auth_context.actor_id,
-      req.scope
-    )
+    const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
     const {
       data: [relation]

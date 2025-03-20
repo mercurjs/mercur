@@ -1,7 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils/seller'
+import { fetchSellerByAuthContext } from '../../../../shared/infra/http/utils/seller'
 import { updateSellerWorkflow } from '../../../../workflows/seller/workflows'
 import { VendorUpdateSellerType } from '../validators'
 
@@ -31,8 +31,8 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context.actor_id,
+  const seller = await fetchSellerByAuthContext(
+    req.auth_context,
     req.scope,
     req.queryConfig.fields
   )
@@ -72,10 +72,7 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { id } = await fetchSellerByAuthActorId(
-    req.auth_context.actor_id,
-    req.scope
-  )
+  const { id } = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
   await updateSellerWorkflow(req.scope).run({
     input: {

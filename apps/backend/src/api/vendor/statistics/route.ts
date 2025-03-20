@@ -4,7 +4,7 @@ import {
   selectCustomersChartData,
   selectOrdersChartData
 } from '../../../modules/seller/utils'
-import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { fetchSellerByAuthContext } from '../../../shared/infra/http/utils'
 
 /**
  * @oas [get] /vendor/statistics
@@ -47,10 +47,7 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context.actor_id,
-    req.scope
-  )
+  const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
   const orders = await selectOrdersChartData(req.scope, seller.id, [
     (req.validatedQuery.time_from as Date).toISOString(),

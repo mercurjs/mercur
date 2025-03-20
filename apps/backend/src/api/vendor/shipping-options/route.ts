@@ -5,7 +5,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createShippingOptionsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { SELLER_MODULE } from '../../../modules/seller'
-import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { fetchSellerByAuthContext } from '../../../shared/infra/http/utils'
 import { VendorCreateShippingOptionType } from './validators'
 
 /**
@@ -42,10 +42,7 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const remoteLink = req.scope.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context?.actor_id,
-    req.scope
-  )
+  const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
   const { result } = await createShippingOptionsWorkflow(req.scope).run({
     input: [

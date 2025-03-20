@@ -2,7 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { getOrdersListWorkflow } from '@medusajs/medusa/core-flows'
 
 import { selectCustomerOrders } from '../../../../../modules/seller/utils'
-import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
+import { fetchSellerByAuthContext } from '../../../../../shared/infra/http/utils'
 
 /**
  * @oas [get] /vendor/customers/{id}/orders
@@ -66,10 +66,7 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context.actor_id,
-    req.scope
-  )
+  const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
   const { orders: orderIds, count } = await selectCustomerOrders(
     req.scope,
