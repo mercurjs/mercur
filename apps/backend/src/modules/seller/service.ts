@@ -108,6 +108,7 @@ class SellerModuleService extends MedusaService({
       }
     })
 
+    // @ts-ignore
     await this.updateMemberInvites(updates, sharedContext)
 
     return updates

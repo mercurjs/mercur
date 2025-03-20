@@ -127,6 +127,7 @@ class PayoutModuleService extends MedusaService({
       transaction_id
     })
 
+    // @ts-ignore
     const payout = await this.createPayouts(
       {
         data,

@@ -17,6 +17,7 @@ export const updateSellerStep = createStep(
 
     const newHandle = input.name ? kebabCase(input.name) : undefined
 
+    //@ts-ignore
     const updatedSellers: SellerDTO = await service.updateSellers({
       ...input,
       ...(newHandle ? { handle: newHandle } : {})
@@ -27,6 +28,7 @@ export const updateSellerStep = createStep(
   async (previousData: SellerDTO, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
+    //@ts-ignore
     await service.updateSellers(previousData)
   }
 )

@@ -6,6 +6,8 @@ import {
   updateStockLocationsWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import { VendorUpdateStockLocationType } from '../validators'
+
 /**
  * @oas [get] /vendor/stock-locations/{id}
  * operationId: "VendorGetStockLocation"
@@ -104,7 +106,7 @@ export const GET = async (
  *   - cookie_auth: []
  */
 export const POST = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<VendorUpdateStockLocationType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)

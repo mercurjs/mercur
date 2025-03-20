@@ -19,6 +19,7 @@ export const updateOrderReturnRequestWorkflow = createWorkflow(
     const request = updateOrderReturnRequestStep(input)
 
     when(request, (request) => request.status === 'refunded').then(() => {
+      //@ts-ignore
       createReturnObjectStep(request)
     })
 

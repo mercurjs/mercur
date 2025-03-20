@@ -16,6 +16,7 @@ export const updateCommissionRuleStep = createStep(
     const previousData: CommissionRuleDTO =
       await service.retrieveCommissionRule(input.id)
 
+    //@ts-ignore
     const updatedCommissionRule = await service.updateCommissionRules(input)
 
     return new StepResponse(updatedCommissionRule, previousData)
@@ -24,6 +25,7 @@ export const updateCommissionRuleStep = createStep(
     const service =
       container.resolve<CommissionModuleService>(COMMISSION_MODULE)
 
+    //@ts-ignore
     await service.updateCommissionRules(previousData)
   }
 )
