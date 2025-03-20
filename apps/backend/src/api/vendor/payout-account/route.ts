@@ -1,5 +1,5 @@
 import sellerPayoutAccountLink from '#/links/seller-payout-account'
-import { fetchSellerByAuthActorId } from '#/shared/infra/http/utils'
+import { fetchSellerByAuthContext } from '#/shared/infra/http/utils'
 import { createPayoutAccountForSellerWorkflow } from '#/workflows/seller/workflows'
 
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
@@ -89,10 +89,7 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context.actor_id,
-    req.scope
-  )
+  const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
   const { result } = await createPayoutAccountForSellerWorkflow(req.scope).run({
     context: { transactionId: seller.id },

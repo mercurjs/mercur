@@ -5,7 +5,6 @@ import {
 } from '@medusajs/framework/utils'
 
 import RequestsModuleService from '../../../../modules/requests/service'
-import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils'
 import { updateRequestWorkflow } from '../../../../workflows/requests/workflows'
 import { AdminReviewRequestType } from '../validators'
 
@@ -95,10 +94,25 @@ export async function POST(
     )
   }
 
-  const seller_id =
-    request.type === 'product' && req.validatedBody.assign_product_to_seller
-      ? (await fetchSellerByAuthActorId(request.submitter_id, req.scope)).id
-      : undefined
+  let seller_id
+
+  if (
+    request.type === 'product' &&
+    req.validatedBody.assign_product_to_seller
+  ) {
+    const {
+      data: [seller]
+    } = await query.graph({
+      entity: request.submitter_id.startsWith('mem')
+        ? 'member'
+        : 'seller_api_key',
+      fields: ['seller_id'],
+      filters: {
+        id: request.submitter_id
+      }
+    })
+    seller_id = seller?.id
+  }
 
   const { result: createdResource } = await workflow(req.scope).run({
     input: {

@@ -1,3 +1,4 @@
+import crypto, { createHash } from 'crypto'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
 import { ConfigModule } from '@medusajs/framework'
@@ -10,7 +11,13 @@ import {
 } from '@medusajs/framework/utils'
 
 import { SELLER_MODULE } from '.'
-import { Member, MemberInvite, Seller, SellerOnboarding } from './models'
+import {
+  Member,
+  MemberInvite,
+  Seller,
+  SellerApiKey,
+  SellerOnboarding
+} from './models'
 import { MemberInviteDTO } from './types'
 
 type InjectedDependencies = {
@@ -28,7 +35,8 @@ class SellerModuleService extends MedusaService({
   MemberInvite,
   Member,
   Seller,
-  SellerOnboarding
+  SellerOnboarding,
+  SellerApiKey
 }) {
   private readonly config_: SellerModuleConfig
   private readonly httpConfig_: ConfigModule['projectConfig']['http']
@@ -119,6 +127,22 @@ class SellerModuleService extends MedusaService({
     return jwt.sign(data, jwtSecret, {
       expiresIn: this.config_.validInviteDuration
     })
+  }
+
+  public async generateSecretKey() {
+    const plainToken = 'ssk_' + crypto.randomBytes(32).toString('hex')
+    const redacted = [plainToken.slice(0, 6), plainToken.slice(-3)].join('***')
+    const hashedToken = this.calculateHash(plainToken)
+
+    return {
+      plainToken,
+      hashedToken,
+      redacted
+    }
+  }
+
+  public calculateHash(token: string): string {
+    return createHash('sha256').update(token).digest('hex')
   }
 
   async isOnboardingCompleted(seller_id: string): Promise<boolean> {

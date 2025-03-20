@@ -7,7 +7,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerProductLink from '../../../links/seller-product'
-import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { fetchSellerByAuthContext } from '../../../shared/infra/http/utils'
 import { assignBrandToProductWorkflow } from '../../../workflows/brand/workflows'
 import {
   VendorCreateProductType,
@@ -126,10 +126,7 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context?.actor_id,
-    req.scope
-  )
+  const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
   const brand_name = req.validatedBody.brand_name
   delete req.validatedBody['brand_name']
@@ -137,6 +134,7 @@ export const POST = async (
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
       products: [
+        // @ts-ignore
         {
           ...req.validatedBody
         }

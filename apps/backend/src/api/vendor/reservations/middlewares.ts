@@ -14,7 +14,7 @@ import {
 
 import sellerInventoryItem from '../../../links/seller-inventory-item'
 import { filterBySellerId } from '../../../shared/infra/http/middlewares'
-import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { fetchSellerByAuthContext } from '../../../shared/infra/http/utils'
 import { vendorReservationQueryConfig } from './query-config'
 import {
   VendorGetReservationParams,
@@ -57,10 +57,7 @@ const checkReservationOwnership = () => {
       }
     })
 
-    const seller = await fetchSellerByAuthActorId(
-      req.auth_context.actor_id,
-      req.scope
-    )
+    const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
     if (!seller || !relation || seller.id !== relation.seller_id) {
       res.status(403).json({
