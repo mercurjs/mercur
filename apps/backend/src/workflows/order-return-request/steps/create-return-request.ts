@@ -10,7 +10,7 @@ export const createOrderReturnRequestStep = createStep(
     const service =
       container.resolve<OrderReturnModuleService>(ORDER_RETURN_MODULE)
 
-    //@ts-ignore
+    // @ts-expect-error Expects existing line item ids
     const request = await service.createOrderReturnRequests(input)
 
     return new StepResponse(request, request.id)

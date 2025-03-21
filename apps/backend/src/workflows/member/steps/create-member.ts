@@ -10,7 +10,6 @@ export const createMemberStep = createStep(
   async (input: CreateMemberDTO, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    //@ts-ignore
     const member: MemberDTO = await service.createMembers(input)
 
     return new StepResponse(member, member.id)
