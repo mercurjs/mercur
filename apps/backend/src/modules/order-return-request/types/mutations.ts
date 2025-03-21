@@ -6,12 +6,19 @@ export type CreateOrderReturnRequestDTO = {
   customer_note: string
 }
 
+export type OrderReturnRequestStatus =
+  | 'pending'
+  | 'refunded'
+  | 'withdrawn'
+  | 'escalated'
+  | 'canceled'
+
 export type VendorUpdateOrderReturnRequestDTO = {
   id: string
   vendor_reviewer_id: string
   vendor_reviewer_note: string
   vendor_review_date: Date
-  status: string
+  status: OrderReturnRequestStatus
 }
 
 export type AdminUpdateOrderReturnRequestDTO = {
@@ -19,5 +26,5 @@ export type AdminUpdateOrderReturnRequestDTO = {
   admin_reviewer_id: string
   admin_reviewer_note: string
   admin_review_date: Date
-  status: string
+  status: OrderReturnRequestStatus
 }

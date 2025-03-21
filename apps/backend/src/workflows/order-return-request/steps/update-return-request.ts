@@ -4,6 +4,7 @@ import { ORDER_RETURN_MODULE } from '../../../modules/order-return-request'
 import OrderReturnModuleService from '../../../modules/order-return-request/service'
 import {
   AdminUpdateOrderReturnRequestDTO,
+  OrderReturnRequestDTO,
   VendorUpdateOrderReturnRequestDTO
 } from '../../../modules/order-return-request/types'
 
@@ -16,8 +17,8 @@ export const updateOrderReturnRequestStep = createStep(
     const service =
       container.resolve<OrderReturnModuleService>(ORDER_RETURN_MODULE)
 
-    //@ts-ignore
-    const request = await service.updateOrderReturnRequests(input)
+    const request: OrderReturnRequestDTO =
+      await service.updateOrderReturnRequests(input)
 
     return new StepResponse(request, request.id)
   }
