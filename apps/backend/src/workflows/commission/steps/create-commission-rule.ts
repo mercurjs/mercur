@@ -40,16 +40,17 @@ export const createCommissionRuleStep = createStep(
         ).id
       : null
 
+    const commission_rate = await service.createCommissionRates({
+      ...input.rate,
+      max_price_set_id,
+      min_price_set_id,
+      price_set_id
+    })
+
     const commissionRule: CommissionRuleDTO =
       await service.createCommissionRules({
         ...input,
-        // @ts-ignore
-        rate: {
-          ...input.rate,
-          max_price_set_id,
-          min_price_set_id,
-          price_set_id
-        }
+        rate: commission_rate.id
       })
 
     return new StepResponse(commissionRule, commissionRule.id)

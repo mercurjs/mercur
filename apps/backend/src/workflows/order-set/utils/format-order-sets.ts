@@ -7,6 +7,7 @@ import {
 import {
   OrderDTO,
   OrderDetailDTO,
+  OrderStatus,
   PaymentCollectionStatus
 } from '@medusajs/framework/types'
 import { BigNumber, MathBN } from '@medusajs/framework/utils'
@@ -14,7 +15,6 @@ import { BigNumber, MathBN } from '@medusajs/framework/utils'
 export const formatOrderSets = (
   orderSetsWithOrders: OrderSetWithOrdersDTO[]
 ): FormattedOrderSetDTO[] => {
-  //@ts-ignore
   return orderSetsWithOrders.map((orderSet) => {
     const taxTotal = orderSet.orders.reduce(
       (acc, item) => MathBN.add(acc, item.tax_total),
@@ -52,7 +52,7 @@ export const formatOrderSets = (
   })
 }
 
-const getStatus = (orders: OrderDTO[]) => {
+const getStatus = (orders: OrderDTO[]): OrderStatus => {
   const statuses = orders.map((order) => order.status)
 
   if (statuses.every((status) => status === 'completed')) {

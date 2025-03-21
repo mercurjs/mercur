@@ -99,9 +99,9 @@ export const calculateCommissionLinesStep = createStep(
     const orderService = container.resolve(Modules.ORDER)
     const order = await orderService.retrieveOrder(order_id, {
       relations: ['items'],
-      // At least one of the computed totals fields should be requested in select, 
+      // At least one of the computed totals fields should be requested in select,
       // in order for decorateTotals to be called
-      select: ['*', 'item_total'],
+      select: ['*', 'item_total']
     })
 
     const query = container.resolve(ContainerRegistrationKeys.QUERY)

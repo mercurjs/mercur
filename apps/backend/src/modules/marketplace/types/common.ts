@@ -7,7 +7,7 @@ import {
   OrderDetailDTO,
   OrderStatus,
   PaymentCollectionDTO,
-  PaymentStatus,
+  PaymentCollectionStatus,
   SalesChannelDTO
 } from '@medusajs/framework/types'
 
@@ -34,7 +34,7 @@ export type OrderSetWithOrdersDTO = OrderSetDTO & {
 
 export type FormattedOrderSetDTO = OrderSetDTO & {
   status: OrderStatus
-  payment_status: PaymentStatus
+  payment_status: PaymentCollectionStatus
   fulfillment_status: FulfillmentStatus
 
   total: BigNumberInput
