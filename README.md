@@ -67,6 +67,9 @@ Built-in integration with Stripe for payments and Resend for communication needs
 # Clone the repository
 git clone https://github.com/mercurjs/mercur.git
 
+# Change directory
+cd mercur
+
 # Install dependencies
 yarn install
 
