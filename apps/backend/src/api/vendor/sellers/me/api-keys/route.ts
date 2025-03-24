@@ -9,6 +9,39 @@ import { fetchSellerByAuthContext } from '../../../../../shared/infra/http/utils
 import { createSellerApiKeyWorkflow } from '../../../../../workflows/seller/workflows'
 import { VendorCreateSellerApiKeyType } from '../../validators'
 
+/**
+ * @oas [get] /vendor/sellers/me/api-keys
+ * operationId: "VendorGetSellerMyApiKeys"
+ * summary: "Get api keys of the current seller"
+ * description: "Retrieves the api keys associated with the seller."
+ * x-authenticated: true
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             api_keys:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/SellerApiKey"
+ *             count:
+ *               type: integer
+ *               description: The total number of items available
+ *             offset:
+ *               type: integer
+ *               description: The number of items skipped before these items
+ *             limit:
+ *               type: integer
+ *               description: The number of items per page
+ * tags:
+ *   - Seller
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
@@ -36,6 +69,33 @@ export const GET = async (
   })
 }
 
+/**
+ * @oas [post] /vendor/sellers/me/api-keys
+ * operationId: "VendorCreateApiKey"
+ * summary: "Create seller api key"
+ * description: "Creates a seller api key"
+ * x-authenticated: true
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/VendorCreateSellerApiKey"
+ * responses:
+ *   "201":
+ *     description: Created
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             api_key:
+ *               $ref: "#/components/schemas/SellerApiKeyExplicit"
+ * tags:
+ *   - Seller
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateSellerApiKeyType>,
   res: MedusaResponse

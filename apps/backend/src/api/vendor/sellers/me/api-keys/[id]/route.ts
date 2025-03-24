@@ -7,6 +7,35 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import { revokeSellerApiKeyWorkflow } from '../../../../../../workflows/seller/workflows'
 
+/**
+ * @oas [get] /vendor/sellers/me/api-keys/{id}
+ * operationId: "VendorGetSellerApiKeyById"
+ * summary: "Get an api key by id"
+ * description: "Retrieves an api key by id for the authenticated vendor."
+ * x-authenticated: true
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the API key.
+ *     schema:
+ *       type: string
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             api_key:
+ *               $ref: "#/components/schemas/SellerApiKey"
+ * tags:
+ *   - Seller
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
@@ -31,6 +60,35 @@ export const GET = async (
   res.json({ api_key })
 }
 
+/**
+ * @oas [delete] /vendor/sellers/me/api-keys/{id}
+ * operationId: "VendorRevokeSellerApiKeyById"
+ * summary: "Revoke an api key by id"
+ * description: "Revokes an api key by id for the authenticated vendor."
+ * x-authenticated: true
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the API key.
+ *     schema:
+ *       type: string
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             api_key:
+ *               $ref: "#/components/schemas/SellerApiKey"
+ * tags:
+ *   - Seller
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse

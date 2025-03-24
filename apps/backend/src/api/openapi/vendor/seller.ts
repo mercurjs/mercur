@@ -169,3 +169,54 @@
  *     type: boolean
  *     description: Whether the invite has been accepted.
  */
+
+/**
+ * @schema SellerApiKey
+ * title: "Api key"
+ * description: "A seller api key details"
+ * properties:
+ *   id:
+ *     type: string
+ *     description: The unique identifier of the api key.
+ *   title:
+ *     type: string
+ *     description: The api key title.
+ *   redacted:
+ *     type: string
+ *     description: The redacted api key value.
+ *   created_by:
+ *     type: string
+ *     description: The identity that created the api key.
+ *   revoked_by:
+ *     type: string
+ *     description: The identity that revoked the api key.
+ *   revoked_at:
+ *     type: string
+ *     format: date-time
+ *     description: The date with timezone at which the invite expires.
+ */
+
+/**
+ * @schema SellerApiKeyExplicit
+ * title: "Api key explicit"
+ * description: "A seller api key with explicit token value"
+ * properties:
+ *   id:
+ *     type: string
+ *     description: The unique identifier of the api key.
+ *   title:
+ *     type: string
+ *     description: The api key title.
+ *   redacted:
+ *     type: string
+ *     description: The redacted api key value.
+ *   seller_id:
+ *     type: string
+ *     description: The seller id associated with the api key.
+ *   token:
+ *     type: string
+ *     description: Explicit api key value.
+ *   created_by:
+ *     type: string
+ *     description: The identity that created the api key.
+ */

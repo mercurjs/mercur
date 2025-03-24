@@ -24042,6 +24042,47 @@ export interface ReviewRemoveRequest {
 }
 
 /**
+ * Api key
+ * A seller api key details
+ */
+export interface SellerApiKey {
+  /** The unique identifier of the api key. */
+  id?: string;
+  /** The api key title. */
+  title?: string;
+  /** The redacted api key value. */
+  redacted?: string;
+  /** The identity that created the api key. */
+  created_by?: string;
+  /** The identity that revoked the api key. */
+  revoked_by?: string;
+  /**
+   * The date with timezone at which the invite expires.
+   * @format date-time
+   */
+  revoked_at?: string;
+}
+
+/**
+ * Api key explicit
+ * A seller api key with explicit token value
+ */
+export interface SellerApiKeyExplicit {
+  /** The unique identifier of the api key. */
+  id?: string;
+  /** The api key title. */
+  title?: string;
+  /** The redacted api key value. */
+  redacted?: string;
+  /** The seller id associated with the api key. */
+  seller_id?: string;
+  /** Explicit api key value. */
+  token?: string;
+  /** The identity that created the api key. */
+  created_by?: string;
+}
+
+/**
  * Create Order Return Request
  * A schema for the creation of order return request.
  */
@@ -24632,6 +24673,15 @@ export interface VendorCreateSeller {
     /** URL to the member's photo. */
     photo?: string | null;
   };
+}
+
+/**
+ * Create api key
+ * A schema for the api key creation.
+ */
+export interface VendorCreateSellerApiKey {
+  /** The title of the key */
+  title?: string;
 }
 
 export interface VendorCreateServiceZone {
@@ -59699,6 +59749,109 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves the api keys associated with the seller.
+     *
+     * @tags Seller
+     * @name VendorGetSellerMyApiKeys
+     * @summary Get api keys of the current seller
+     * @request GET:/vendor/sellers/me/api-keys
+     * @secure
+     */
+    vendorGetSellerMyApiKeys: (params: RequestParams = {}) =>
+      this.request<
+        {
+          api_keys?: SellerApiKey[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/api-keys`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a seller api key
+     *
+     * @tags Seller
+     * @name VendorCreateApiKey
+     * @summary Create seller api key
+     * @request POST:/vendor/sellers/me/api-keys
+     * @secure
+     */
+    vendorCreateApiKey: (data: VendorCreateSellerApiKey, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** A seller api key with explicit token value */
+          api_key?: SellerApiKeyExplicit;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/api-keys`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves an api key by id for the authenticated vendor.
+     *
+     * @tags Seller
+     * @name VendorGetSellerApiKeyById
+     * @summary Get an api key by id
+     * @request GET:/vendor/sellers/me/api-keys/{id}
+     * @secure
+     */
+    vendorGetSellerApiKeyById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** A seller api key details */
+          api_key?: SellerApiKey;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/api-keys/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Revokes an api key by id for the authenticated vendor.
+     *
+     * @tags Seller
+     * @name VendorRevokeSellerApiKeyById
+     * @summary Revoke an api key by id
+     * @request DELETE:/vendor/sellers/me/api-keys/{id}
+     * @secure
+     */
+    vendorRevokeSellerApiKeyById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** A seller api key details */
+          api_key?: SellerApiKey;
+        },
+        any
+      >({
+        path: `/vendor/sellers/me/api-keys/${id}`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
