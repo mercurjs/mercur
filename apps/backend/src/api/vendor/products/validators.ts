@@ -503,7 +503,7 @@ export const VendorCreateProduct = z
     external_id: z.string().optional(),
     type_id: z.string().optional(),
     collection_id: z.string().optional(),
-    categories: z.array(IdAssociation).max(1).optional(),
+    categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
     options: z.array(CreateProductOption).optional(),
     variants: z.array(CreateProductVariant).optional(),
