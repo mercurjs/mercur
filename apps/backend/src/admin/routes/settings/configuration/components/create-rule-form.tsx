@@ -5,7 +5,8 @@ import { useCreateConfigurationRule } from "../../../../hooks/api/configuration"
 type RuleType =
   | "global_product_catalog"
   | "require_product_approval"
-  | "product_request_enabled";
+  | "product_request_enabled"
+  | "product_import_enabled";
 
 type Props = {
   onSuccess?: () => void;
@@ -57,6 +58,9 @@ const CreateConfigurationRuleForm = ({ onSuccess }: Props) => {
             </Select.Item>
             <Select.Item value="product_request_enabled">
               product_request_enabled
+            </Select.Item>
+            <Select.Item value="product_import_enabled">
+              product_import_enabled
             </Select.Item>
           </Select.Content>
         </Select>

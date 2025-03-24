@@ -23619,7 +23619,11 @@ export interface AdminCreateCommissionRule {
 
 export interface AdminCreateRule {
   /** The type of the rule */
-  rule_type?: "global_product_catalog" | "require_product_approval" | "product_request_enabled";
+  rule_type?:
+    | "global_product_catalog"
+    | "require_product_approval"
+    | "product_request_enabled"
+    | "product_import_enabled";
   is_enabled?: boolean;
 }
 

@@ -65,7 +65,13 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ['POST'],
     matcher: '/vendor/products/import',
-    middlewares: [upload.single('file')]
+    middlewares: [
+      checkConfigurationRule(
+        ConfigurationRuleType.PRODUCT_IMPORT_ENABLED,
+        true
+      ),
+      upload.single('file')
+    ]
   },
   {
     method: ['GET'],
