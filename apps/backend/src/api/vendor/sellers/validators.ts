@@ -164,16 +164,16 @@ export const VendorUpdateSeller = z
     name: z
       .preprocess((val: string) => val.trim(), z.string().min(4))
       .optional(),
-    description: z.string().nullish().optional(),
-    photo: z.string().nullish().optional(),
-    email: z.string().email().nullish().optional(),
-    phone: z.string().nullish().optional(),
-    address_line: z.string().nullish().optional(),
-    city: z.string().nullish().optional(),
-    state: z.string().nullish().optional(),
-    postal_code: z.string().nullish().optional(),
-    country_code: z.string().nullish().optional(),
-    tax_id: z.string().nullish().optional()
+    description: z.string().optional(),
+    photo: z.string().optional(),
+    email: z.string().email().optional(),
+    phone: z.string().optional(),
+    address_line: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    postal_code: z.string().optional(),
+    country_code: z.string().optional(),
+    tax_id: z.string().optional()
   })
   .strict()
 
