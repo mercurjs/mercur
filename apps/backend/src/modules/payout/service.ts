@@ -127,7 +127,7 @@ class PayoutModuleService extends MedusaService({
       transaction_id
     })
 
-    // @ts-ignore
+    // @ts-expect-error BigNumber incompatible interface
     const payout = await this.createPayouts(
       {
         data,

@@ -32,8 +32,8 @@ export type VendorUpdateMemberType = z.infer<typeof VendorUpdateMember>
 export const VendorUpdateMember = z
   .object({
     name: z.string().optional(),
-    bio: z.string().nullish().optional(),
-    phone: z.string().nullish().optional(),
-    photo: z.string().nullish().optional()
+    bio: z.string().optional(),
+    phone: z.string().optional(),
+    photo: z.string().optional()
   })
   .strict()

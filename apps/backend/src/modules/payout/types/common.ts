@@ -32,7 +32,7 @@ export type PayoutDTO = {
   id: string
   created_at: Date
   updated_at: Date
-  data: Record<string, unknown>
+  data: Record<string, unknown> | null
   amount: BigNumberInput
   currency_code: string
 }
