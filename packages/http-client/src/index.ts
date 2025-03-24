@@ -56801,6 +56801,29 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves marketplace rules list
+     *
+     * @tags Seller
+     * @name VendorListRules
+     * @summary List rules
+     * @request GET:/vendor/configuration
+     * @secure
+     */
+    vendorListRules: (params: RequestParams = {}) =>
+      this.request<
+        {
+          configuration_rules?: ConfigurationRule[];
+        },
+        any
+      >({
+        path: `/vendor/configuration`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves a list of customer groups.
      *
      * @tags Seller
