@@ -49,7 +49,7 @@ export type VendorLinkCustomersToGroupType = z.infer<
 >
 export const VendorLinkCustomersToGroup = z
   .object({
-    add: z.array(z.string()),
-    remove: z.array(z.string())
+    add: z.array(z.string()).default([]),
+    remove: z.array(z.string()).default([])
   })
   .strict()
