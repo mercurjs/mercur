@@ -9,7 +9,7 @@ import {
 } from '../requests/workflows'
 
 createRequestWorkflow.hooks.requestCreated(
-  async ({ requestId, sellerId }, { container }) => {
+  async ({ requestId }, { container }) => {
     const service = container.resolve<RequestsModuleService>(REQUESTS_MODULE)
     const configuration =
       container.resolve<ConfigurationModuleService>(CONFIGURATION_MODULE)
@@ -29,8 +29,7 @@ createRequestWorkflow.hooks.requestCreated(
           id: request.id,
           reviewer_id: 'system',
           reviewer_note: '',
-          status: 'accepted',
-          seller_id: sellerId
+          status: 'accepted'
         }
       })
     }
