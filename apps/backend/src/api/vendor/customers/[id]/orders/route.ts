@@ -1,4 +1,5 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { getOrdersListWorkflow } from '@medusajs/medusa/core-flows'
 
 import { selectCustomerOrders } from '../../../../../modules/seller/utils'
 import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
@@ -70,7 +71,7 @@ export const GET = async (
     req.scope
   )
 
-  const { orders, count } = await selectCustomerOrders(
+  const { orders: orderIds, count } = await selectCustomerOrders(
     req.scope,
     seller.id,
     req.params.id,
@@ -78,8 +79,20 @@ export const GET = async (
       skip: req.queryConfig.pagination.skip,
       take: req.queryConfig.pagination.take || 50
     },
-    req.queryConfig.fields
+    ['id']
   )
+
+  const { result: orders } = await getOrdersListWorkflow.run({
+    container: req.scope,
+    input: {
+      fields: req.queryConfig.fields,
+      variables: {
+        filters: {
+          id: orderIds.map((o) => o.id)
+        }
+      }
+    }
+  })
 
   res.json({
     orders,

@@ -45,6 +45,7 @@ export const vendorCustomerOrdersFields = [
   'version',
   'sales_channel_id',
   'status',
+  'summary',
   'is_draft_order',
   'email',
   'currency_code',
