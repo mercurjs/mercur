@@ -10,9 +10,9 @@ import sellerProductLink from '../../../links/seller-product'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { assignBrandToProductWorkflow } from '../../../workflows/brand/workflows'
 import {
-  VendorCreateProductType,
   VendorGetProductParamsType
 } from './validators'
+import { VendorCreateProduct } from '#/types'
 
 /**
  * @oas [get] /vendor/products
@@ -121,7 +121,7 @@ export const GET = async (
  *   - cookie_auth: []
  */
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorCreateProductType>,
+  req: AuthenticatedMedusaRequest<VendorCreateProduct>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -131,14 +131,13 @@ export const POST = async (
     req.scope
   )
 
-  const brand_name = req.validatedBody.brand_name
-  delete req.validatedBody['brand_name']
+  const { brand_name, ...rest } = req.validatedBody
 
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
       products: [
         {
-          ...req.validatedBody
+          ...rest
         }
       ],
       additional_data: {
