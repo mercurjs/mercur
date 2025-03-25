@@ -24358,6 +24358,12 @@ export interface VendorCreateCampaignBudget {
   currency_code?: string;
 }
 
+/** Create customer group details */
+export interface VendorCreateCustomerGroup {
+  /** Customer group name */
+  name?: string;
+}
+
 export interface VendorCreateFulfillment {
   /** The number of items to return. Default 50. */
   requires_shipping?: boolean;
@@ -25086,6 +25092,14 @@ export interface VendorInviteMember {
   email: string;
   /** The role to assign to the invited member. */
   role: "owner" | "admin" | "member";
+}
+
+/** Create customer group details */
+export interface VendorLinkCustomersToGroup {
+  /** Customer ids to add. */
+  add?: string[];
+  /** Customer ids to remove. */
+  remove?: string[];
 }
 
 /**
@@ -56818,6 +56832,144 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new customer group
+     *
+     * @tags Seller
+     * @name VendorCreateCustomerGroup
+     * @summary Create a customer group
+     * @request POST:/vendor/customer-groups
+     * @secure
+     */
+    vendorCreateCustomerGroup: (data: VendorCreateCustomerGroup, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Customer group details. */
+          customer_group?: VendorCustomerGroup;
+        },
+        any
+      >({
+        path: `/vendor/customer-groups`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieve customer group by id
+     *
+     * @tags Seller
+     * @name VendorGetCustomerGroupById
+     * @summary Retrieve customer group by id
+     * @request GET:/vendor/customer-groups/{id}
+     * @secure
+     */
+    vendorGetCustomerGroupById: (
+      id: string,
+      query?: {
+        /** Comma-separated fields that should be included in the returned data. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** Customer group details. */
+          member?: VendorCustomerGroup;
+        },
+        any
+      >({
+        path: `/vendor/customer-groups/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates customer group
+     *
+     * @tags Seller
+     * @name VendorUpdateCustomerGroup
+     * @summary Update customer group
+     * @request POST:/vendor/customer-groups/{id}
+     * @secure
+     */
+    vendorUpdateCustomerGroup: (id: string, data: VendorCreateCustomerGroup, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Customer group details. */
+          customer_group?: VendorCustomerGroup;
+        },
+        any
+      >({
+        path: `/vendor/customer-groups/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a customer group by id.
+     *
+     * @tags Seller
+     * @name VendorDeleteCustomerGroupById
+     * @summary Delete a customer group
+     * @request DELETE:/vendor/customer-groups/{id}
+     * @secure
+     */
+    vendorDeleteCustomerGroupById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted Customer group */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/customer-groups/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Adds or removes customers to a customer group
+     *
+     * @tags Seller
+     * @name VendorUpdateCustomersInCustomerGroup
+     * @summary Link customers to customer group
+     * @request POST:/vendor/customer-groups/{id}/customers
+     * @secure
+     */
+    vendorUpdateCustomersInCustomerGroup: (id: string, data: VendorLinkCustomersToGroup, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Customer group details. */
+          customer_group?: VendorCustomerGroup;
+        },
+        any
+      >({
+        path: `/vendor/customer-groups/${id}/customers`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

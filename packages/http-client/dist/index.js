@@ -7156,6 +7156,93 @@ export class Api extends HttpClient {
                 ...params,
             }),
             /**
+             * @description Creates a new customer group
+             *
+             * @tags Seller
+             * @name VendorCreateCustomerGroup
+             * @summary Create a customer group
+             * @request POST:/vendor/customer-groups
+             * @secure
+             */
+            vendorCreateCustomerGroup: (data, params = {}) => this.request({
+                path: `/vendor/customer-groups`,
+                method: "POST",
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Retrieve customer group by id
+             *
+             * @tags Seller
+             * @name VendorGetCustomerGroupById
+             * @summary Retrieve customer group by id
+             * @request GET:/vendor/customer-groups/{id}
+             * @secure
+             */
+            vendorGetCustomerGroupById: (id, query, params = {}) => this.request({
+                path: `/vendor/customer-groups/${id}`,
+                method: "GET",
+                query: query,
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Updates customer group
+             *
+             * @tags Seller
+             * @name VendorUpdateCustomerGroup
+             * @summary Update customer group
+             * @request POST:/vendor/customer-groups/{id}
+             * @secure
+             */
+            vendorUpdateCustomerGroup: (id, data, params = {}) => this.request({
+                path: `/vendor/customer-groups/${id}`,
+                method: "POST",
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Deletes a customer group by id.
+             *
+             * @tags Seller
+             * @name VendorDeleteCustomerGroupById
+             * @summary Delete a customer group
+             * @request DELETE:/vendor/customer-groups/{id}
+             * @secure
+             */
+            vendorDeleteCustomerGroupById: (id, params = {}) => this.request({
+                path: `/vendor/customer-groups/${id}`,
+                method: "DELETE",
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Adds or removes customers to a customer group
+             *
+             * @tags Seller
+             * @name VendorUpdateCustomersInCustomerGroup
+             * @summary Link customers to customer group
+             * @request POST:/vendor/customer-groups/{id}/customers
+             * @secure
+             */
+            vendorUpdateCustomersInCustomerGroup: (id, data, params = {}) => this.request({
+                path: `/vendor/customer-groups/${id}/customers`,
+                method: "POST",
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
              * @description Retrieves a list of customers who placed an order in sellers store.
              *
              * @tags Seller
