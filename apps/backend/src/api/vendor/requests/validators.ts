@@ -180,6 +180,7 @@ const ProductTypeRequest = z.object({
  *       - $ref: "#/components/schemas/ProductCollectionRequest"
  *       - $ref: "#/components/schemas/ProductCategoryRequest"
  *       - $ref: "#/components/schemas/ReviewRemoveRequest"
+ *       - $ref: "#/components/schemas/ProductTypeRequest"
  */
 export type VendorCreateRequestType = z.infer<typeof VendorCreateRequest>
 export const VendorCreateRequest = z.object({

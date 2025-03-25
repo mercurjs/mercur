@@ -23,7 +23,3 @@ export type AcceptRequestDTO = {
   data: any
   status: RequestStatus
 }
-
-export type AcceptProductRequestDTO = AcceptRequestDTO & {
-  seller_id?: string
-}

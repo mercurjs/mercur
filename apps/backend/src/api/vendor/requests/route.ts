@@ -3,7 +3,10 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import sellerRequest from '../../../links/seller-request'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
-import { createRequestWorkflow } from '../../../workflows/requests/workflows'
+import {
+  createProductRequestWorkflow,
+  createRequestWorkflow
+} from '../../../workflows/requests/workflows'
 import { VendorCreateRequestType } from './validators'
 
 /**
@@ -105,7 +108,12 @@ export const POST = async (
     req.scope
   )
 
-  const { result } = await createRequestWorkflow.run({
+  const workflow =
+    req.validatedBody.request.type === 'product'
+      ? createProductRequestWorkflow
+      : createRequestWorkflow
+
+  const { result } = await workflow.run({
     input: {
       data: {
         submitter_id: req.auth_context.actor_id,
