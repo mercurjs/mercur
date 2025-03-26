@@ -105,7 +105,7 @@ const ProductCollectionRequest = z.object({
  */
 const ProductRequest = z.object({
   type: z.literal('product'),
-  data: VendorCreateProduct
+  data: VendorCreateProduct()
 })
 
 /**
