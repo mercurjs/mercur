@@ -5,7 +5,7 @@ import {
 import { ContainerRegistrationKeys, RuleType } from '@medusajs/framework/utils'
 
 import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
-import { batchVendorPromotionRulesWorkflow } from '../../../../../../workflows/promotions/workflows/batch-vendor-promotion-rules'
+import { batchVendorPromotionRulesWorkflow } from '../../../../../../workflows/promotions/workflows'
 import { VendorBatchPromotionRulesType } from '../../../validators'
 
 /**

@@ -4,7 +4,7 @@ import {
 } from '@medusajs/medusa/core-flows'
 import { createWorkflow, transform, when } from '@medusajs/workflows-sdk'
 
-import { verifyVendorTargetPromotionRulesStep } from '../steps/verify-vendor-target-promotion-rules'
+import { verifyVendorTargetPromotionRulesStep } from '../steps'
 
 export const batchVendorPromotionRulesWorkflow = createWorkflow(
   'batch-vendor-promotion-rules',
