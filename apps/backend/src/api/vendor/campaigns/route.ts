@@ -125,7 +125,7 @@ export const POST = async (
 
   const { result } = await createVendorCampaignWorkflow.run({
     container: req.scope,
-    input: { promotion: req.validatedBody, seller_id: seller.id }
+    input: { campaign: req.validatedBody, seller_id: seller.id }
   })
 
   const {
