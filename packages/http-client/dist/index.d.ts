@@ -23576,6 +23576,12 @@ export interface VendorAssignBrandName {
     /** The name of the brand. */
     brand_name: string;
 }
+export interface VendorBatchPromotionRule {
+    /** Rules to create. */
+    create?: VendorCreatePromotionRule[];
+    /** Rules to delete. */
+    delete?: string[];
+}
 /** The campaign's details. */
 export interface VendorCampaign {
     /**
@@ -51228,6 +51234,45 @@ export declare class Api<SecurityDataType extends unknown> extends HttpClient<Se
             object?: string;
             /** Whether or not the items were deleted */
             deleted?: boolean;
+        }, any>>;
+        /**
+         * @description Performs batch create/delete operation on buy-rules
+         *
+         * @tags Promotion
+         * @name VendorBatchBuyRules
+         * @summary Batch buy rules
+         * @request POST:/vendor/promotions/{id}/buy-rules/batch
+         * @secure
+         */
+        vendorBatchBuyRules: (id: string, data: VendorBatchPromotionRule, params?: RequestParams) => Promise<HttpResponse<{
+            /** Promotion object */
+            promotion?: VendorPromotion;
+        }, any>>;
+        /**
+         * @description Performs batch create/delete operation on rules
+         *
+         * @tags Promotion
+         * @name VendorBatchRules
+         * @summary Batch rules
+         * @request POST:/vendor/promotions/{id}/rules/batch
+         * @secure
+         */
+        vendorBatchRules: (id: string, data: VendorBatchPromotionRule, params?: RequestParams) => Promise<HttpResponse<{
+            /** Promotion object */
+            promotion?: VendorPromotion;
+        }, any>>;
+        /**
+         * @description Performs batch create/delete operation on target-rules
+         *
+         * @tags Promotion
+         * @name VendorBatchTargetRules
+         * @summary Batch target rules
+         * @request POST:/vendor/promotions/{id}/target-rules/batch
+         * @secure
+         */
+        vendorBatchTargetRules: (id: string, data: VendorBatchPromotionRule, params?: RequestParams) => Promise<HttpResponse<{
+            /** Promotion object */
+            promotion?: VendorPromotion;
         }, any>>;
         /**
          * @description Retrieves submited requests list

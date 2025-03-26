@@ -24236,6 +24236,13 @@ export interface VendorAssignBrandName {
   brand_name: string;
 }
 
+export interface VendorBatchPromotionRule {
+  /** Rules to create. */
+  create?: VendorCreatePromotionRule[];
+  /** Rules to delete. */
+  delete?: string[];
+}
+
 /** The campaign's details. */
 export interface VendorCampaign {
   /**
@@ -58794,6 +58801,84 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/vendor/promotions/${id}`,
         method: "DELETE",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Performs batch create/delete operation on buy-rules
+     *
+     * @tags Promotion
+     * @name VendorBatchBuyRules
+     * @summary Batch buy rules
+     * @request POST:/vendor/promotions/{id}/buy-rules/batch
+     * @secure
+     */
+    vendorBatchBuyRules: (id: string, data: VendorBatchPromotionRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions/${id}/buy-rules/batch`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Performs batch create/delete operation on rules
+     *
+     * @tags Promotion
+     * @name VendorBatchRules
+     * @summary Batch rules
+     * @request POST:/vendor/promotions/{id}/rules/batch
+     * @secure
+     */
+    vendorBatchRules: (id: string, data: VendorBatchPromotionRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions/${id}/rules/batch`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Performs batch create/delete operation on target-rules
+     *
+     * @tags Promotion
+     * @name VendorBatchTargetRules
+     * @summary Batch target rules
+     * @request POST:/vendor/promotions/{id}/target-rules/batch
+     * @secure
+     */
+    vendorBatchTargetRules: (id: string, data: VendorBatchPromotionRule, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions/${id}/target-rules/batch`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

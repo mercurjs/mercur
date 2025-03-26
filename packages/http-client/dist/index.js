@@ -8268,6 +8268,60 @@ export class Api extends HttpClient {
                 ...params,
             }),
             /**
+             * @description Performs batch create/delete operation on buy-rules
+             *
+             * @tags Promotion
+             * @name VendorBatchBuyRules
+             * @summary Batch buy rules
+             * @request POST:/vendor/promotions/{id}/buy-rules/batch
+             * @secure
+             */
+            vendorBatchBuyRules: (id, data, params = {}) => this.request({
+                path: `/vendor/promotions/${id}/buy-rules/batch`,
+                method: "POST",
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Performs batch create/delete operation on rules
+             *
+             * @tags Promotion
+             * @name VendorBatchRules
+             * @summary Batch rules
+             * @request POST:/vendor/promotions/{id}/rules/batch
+             * @secure
+             */
+            vendorBatchRules: (id, data, params = {}) => this.request({
+                path: `/vendor/promotions/${id}/rules/batch`,
+                method: "POST",
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
+             * @description Performs batch create/delete operation on target-rules
+             *
+             * @tags Promotion
+             * @name VendorBatchTargetRules
+             * @summary Batch target rules
+             * @request POST:/vendor/promotions/{id}/target-rules/batch
+             * @secure
+             */
+            vendorBatchTargetRules: (id, data, params = {}) => this.request({
+                path: `/vendor/promotions/${id}/target-rules/batch`,
+                method: "POST",
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
              * @description Retrieves submited requests list
              *
              * @tags Requests
