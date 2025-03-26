@@ -130,3 +130,26 @@ export const VendorCreatePromotion = z
     rules: z.array(VendorCreatePromotionRule).optional()
   })
   .strict()
+
+/**
+ * @schema VendorBatchPromotionRule
+ * type: object
+ * properties:
+ *   create:
+ *     type: array
+ *     description: Rules to create.
+ *     items:
+ *       $ref: "#/components/schemas/VendorCreatePromotionRule"
+ *   delete:
+ *     type: array
+ *     description: Rules to delete.
+ *     items:
+ *       type: string
+ */
+export type VendorBatchPromotionRulesType = z.infer<
+  typeof VendorBatchPromotionRules
+>
+export const VendorBatchPromotionRules = z.object({
+  create: z.array(VendorCreatePromotionRule).default([]),
+  delete: z.array(z.string()).default([])
+})

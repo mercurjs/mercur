@@ -12,12 +12,19 @@ import {
 
 import { SELLER_MODULE } from '../../../modules/seller'
 import { verifyVendorCampaignStep, verifyVendorPromotionStep } from '../steps'
+import { verifyVendorTargetPromotionRulesStep } from '../steps/verify-vendor-target-promotion-rules'
 
 export const createVendorPromotionWorkflow = createWorkflow(
   'create-vendor-promotion',
   function (input: { promotion: CreatePromotionDTO; seller_id: string }) {
     verifyVendorCampaignStep(input)
     verifyVendorPromotionStep(input)
+    verifyVendorTargetPromotionRulesStep(
+      transform(input, (input) => ({
+        rules: input.promotion.application_method.target_rules,
+        seller_id: input.seller_id
+      }))
+    )
 
     const promotions = createPromotionsWorkflow.runAsStep({
       input: {

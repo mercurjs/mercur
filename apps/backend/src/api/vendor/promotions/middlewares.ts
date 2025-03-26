@@ -10,7 +10,11 @@ import {
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import { vendorPromotionQueryConfig } from './query-config'
-import { VendorCreatePromotion, VendorGetPromotionsParams } from './validators'
+import {
+  VendorBatchPromotionRules,
+  VendorCreatePromotion,
+  VendorGetPromotionsParams
+} from './validators'
 
 export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
   {
@@ -53,6 +57,51 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
     matcher: '/vendor/promotions',
     middlewares: [
       validateAndTransformBody(VendorCreatePromotion),
+      validateAndTransformQuery(
+        VendorGetPromotionsParams,
+        vendorPromotionQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/promotions/:id/buy-rules/batch',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerPromotion.entryPoint,
+        filterField: 'promotion_id'
+      }),
+      validateAndTransformBody(VendorBatchPromotionRules),
+      validateAndTransformQuery(
+        VendorGetPromotionsParams,
+        vendorPromotionQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/promotions/:id/rules/batch',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerPromotion.entryPoint,
+        filterField: 'promotion_id'
+      }),
+      validateAndTransformBody(VendorBatchPromotionRules),
+      validateAndTransformQuery(
+        VendorGetPromotionsParams,
+        vendorPromotionQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/promotions/:id/target-rules/batch',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerPromotion.entryPoint,
+        filterField: 'promotion_id'
+      }),
+      validateAndTransformBody(VendorBatchPromotionRules),
       validateAndTransformQuery(
         VendorGetPromotionsParams,
         vendorPromotionQueryConfig.retrieve
