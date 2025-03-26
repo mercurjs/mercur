@@ -23000,7 +23000,7 @@ export interface AdminCreateCommissionRule {
 }
 export interface AdminCreateRule {
     /** The type of the rule */
-    rule_type?: "global_product_catalog" | "require_product_approval" | "product_request_enabled";
+    rule_type?: "global_product_catalog" | "require_product_approval" | "product_request_enabled" | "product_import_enabled";
     is_enabled?: boolean;
 }
 /**
@@ -50128,6 +50128,18 @@ export declare class Api<SecurityDataType extends unknown> extends HttpClient<Se
             object?: string;
             /** Whether or not the items were deleted */
             deleted?: boolean;
+        }, any>>;
+        /**
+         * @description Retrieves marketplace rules list
+         *
+         * @tags Seller
+         * @name VendorListRules
+         * @summary List rules
+         * @request GET:/vendor/configuration
+         * @secure
+         */
+        vendorListRules: (params?: RequestParams) => Promise<HttpResponse<{
+            configuration_rules?: ConfigurationRule[];
         }, any>>;
         /**
          * @description Retrieves a list of customer groups.

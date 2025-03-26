@@ -9,7 +9,8 @@ export const ConfigurationRuleDefaults = new Map<
 >([
   [ConfigurationRuleType.GLOBAL_PRODUCT_CATALOG, true],
   [ConfigurationRuleType.PRODUCT_REQUEST_ENABLED, false],
-  [ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL, true]
+  [ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL, true],
+  [ConfigurationRuleType.PRODUCT_IMPORT_ENABLED, true]
 ])
 
 class ConfigurationModuleService extends MedusaService({

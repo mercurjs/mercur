@@ -17,7 +17,7 @@ export const AdminGetRulesParams = createFindParams({
  *   rule_type:
  *     type: string
  *     description: The type of the rule
- *     enum: [global_product_catalog,require_product_approval,product_request_enabled]
+ *     enum: [global_product_catalog,require_product_approval,product_request_enabled,product_import_enabled]
  *   is_enabled:
  *     type: boolean
  */

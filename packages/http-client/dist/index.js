@@ -7139,6 +7139,22 @@ export class Api extends HttpClient {
                 ...params,
             }),
             /**
+             * @description Retrieves marketplace rules list
+             *
+             * @tags Seller
+             * @name VendorListRules
+             * @summary List rules
+             * @request GET:/vendor/configuration
+             * @secure
+             */
+            vendorListRules: (params = {}) => this.request({
+                path: `/vendor/configuration`,
+                method: "GET",
+                secure: true,
+                format: "json",
+                ...params,
+            }),
+            /**
              * @description Retrieves a list of customer groups.
              *
              * @tags Seller

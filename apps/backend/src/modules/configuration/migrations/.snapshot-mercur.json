@@ -25,7 +25,8 @@
           "enumItems": [
             "global_product_catalog",
             "require_product_approval",
-            "product_request_enabled"
+            "product_request_enabled",
+            "product_import_enabled"
           ],
           "mappedType": "enum"
         },
@@ -78,6 +79,7 @@
           "keyName": "IDX_configuration_rule_rule_type_unique",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_configuration_rule_rule_type_unique\" ON \"configuration_rule\" (rule_type) WHERE deleted_at IS NULL"
@@ -86,6 +88,7 @@
           "keyName": "IDX_configuration_rule_deleted_at",
           "columnNames": [],
           "composite": false,
+          "constraint": false,
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_configuration_rule_deleted_at\" ON \"configuration_rule\" (deleted_at) WHERE deleted_at IS NULL"
@@ -96,12 +99,15 @@
             "id"
           ],
           "composite": false,
+          "constraint": true,
           "primary": true,
           "unique": true
         }
       ],
       "checks": [],
-      "foreignKeys": {}
+      "foreignKeys": {},
+      "nativeEnums": {}
     }
-  ]
+  ],
+  "nativeEnums": {}
 }

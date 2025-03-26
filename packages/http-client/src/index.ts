@@ -23619,7 +23619,11 @@ export interface AdminCreateCommissionRule {
 
 export interface AdminCreateRule {
   /** The type of the rule */
-  rule_type?: "global_product_catalog" | "require_product_approval" | "product_request_enabled";
+  rule_type?:
+    | "global_product_catalog"
+    | "require_product_approval"
+    | "product_request_enabled"
+    | "product_import_enabled";
   is_enabled?: boolean;
 }
 
@@ -56791,6 +56795,29 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/vendor/campaigns/${id}`,
         method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves marketplace rules list
+     *
+     * @tags Seller
+     * @name VendorListRules
+     * @summary List rules
+     * @request GET:/vendor/configuration
+     * @secure
+     */
+    vendorListRules: (params: RequestParams = {}) =>
+      this.request<
+        {
+          configuration_rules?: ConfigurationRule[];
+        },
+        any
+      >({
+        path: `/vendor/configuration`,
+        method: "GET",
         secure: true,
         format: "json",
         ...params,
