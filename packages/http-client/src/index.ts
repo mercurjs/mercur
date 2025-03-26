@@ -23726,8 +23726,6 @@ export interface AdminReviewRequest {
   reviewer_note?: string;
   /** A status of the request */
   status?: "accepted" | "rejected";
-  /** Assign product to seller (applicable only to Product request) */
-  assign_product_to_seller?: boolean;
 }
 
 export interface AdminUpdateCommissionRule {
@@ -24588,7 +24586,12 @@ export interface VendorCreatePromotionRule {
 
 export interface VendorCreateRequest {
   /** The resource to be created by request */
-  request: ProductRequest | ProductCollectionRequest | ProductCategoryRequest | ReviewRemoveRequest;
+  request:
+    | ProductRequest
+    | ProductCollectionRequest
+    | ProductCategoryRequest
+    | ReviewRemoveRequest
+    | ProductTypeRequest;
 }
 
 export interface VendorCreateSeller {
@@ -27404,8 +27407,6 @@ export interface VendorUpdateProduct {
   options?: UpdateProductOption[];
   /** The product variants to update. */
   variants?: UpdateProductVariant[];
-  /** The status of the product. */
-  status?: "draft" | "proposed" | "published" | "rejected";
   /** The subtitle of the product. */
   subtitle?: string | null;
   /** The description of the product. */
@@ -27454,6 +27455,11 @@ export interface VendorUpdateProduct {
   sales_channels?: {
     id: string;
   }[];
+}
+
+export interface VendorUpdateProductStatus {
+  /** The status of the product. */
+  status?: "draft" | "proposed" | "published" | "rejected";
 }
 
 export interface VendorUpdateReservation {
@@ -58576,6 +58582,41 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/vendor/products/${id}/options/${optionId}`,
         method: "DELETE",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates an existing product status for the authenticated vendor.
+     *
+     * @tags Product
+     * @name VendorUpdateProductStatusById
+     * @summary Update a Product status
+     * @request POST:/vendor/products/{id}/status
+     * @secure
+     */
+    vendorUpdateProductStatusById: (
+      id: string,
+      data: VendorUpdateProductStatus,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product object with its properties */
+          product?: VendorProduct;
+        },
+        any
+      >({
+        path: `/vendor/products/${id}/status`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
