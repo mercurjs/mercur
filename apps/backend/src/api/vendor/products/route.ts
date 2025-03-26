@@ -131,18 +131,18 @@ export const POST = async (
     req.scope
   )
 
-  const brand_name = req.validatedBody.brand_name
-  delete req.validatedBody['brand_name']
+  const { brand_name, additional_data, ...validatedBody } = req.validatedBody
 
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
       products: [
         {
-          ...req.validatedBody
+          ...validatedBody
         }
       ],
       additional_data: {
-        seller_id: seller.id
+        seller_id: seller.id,
+        ...additional_data
       }
     }
   })
