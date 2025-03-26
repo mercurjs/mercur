@@ -33,7 +33,7 @@ export const createVendorPriceListWorkflow = createWorkflow(
       }
     })
 
-    const links = transform(result, (result) => {
+    const links = transform({ result, seller_id }, ({ result, seller_id }) => {
       return result.map((list) => {
         return {
           [SELLER_MODULE]: {
