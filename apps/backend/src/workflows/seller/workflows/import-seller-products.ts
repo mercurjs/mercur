@@ -19,6 +19,7 @@ export const importSellerProductsWorkflow = createWorkflow(
     const batchCreate = validateProductsToImportStep(products)
 
     const created = createProductsWorkflow.runAsStep({
+      // @ts-expect-error: createProductsWorkflow does not support null values
       input: { products: batchCreate, additional_data: { seller_id } }
     })
 
