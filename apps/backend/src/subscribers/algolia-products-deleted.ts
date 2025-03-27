@@ -16,6 +16,6 @@ export default async function productsDeletedHandler({
 export const config: SubscriberConfig = {
   event: AlgoliaEvents.PRODUCTS_DELETED,
   context: {
-    subscriberId: 'products-deleted-handler'
+    subscriberId: 'algolia-products-deleted-handler'
   }
 }

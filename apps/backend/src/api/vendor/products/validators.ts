@@ -544,10 +544,6 @@ export const VendorCreateProduct = z
  *     description: The product variants to update.
  *     items:
  *       $ref: "#/components/schemas/UpdateProductVariant"
- *   status:
- *     type: string
- *     enum: [draft, proposed, published, rejected]
- *     description: The status of the product.
  *   subtitle:
  *     type: string
  *     nullable: true
@@ -659,7 +655,6 @@ export const VendorUpdateProduct = z
     is_giftcard: z.boolean().optional(),
     options: z.array(UpdateProductOption).optional(),
     variants: z.array(UpdateProductVariant).optional(),
-    status: z.nativeEnum(ProductStatus).optional(),
     subtitle: z.string().nullish(),
     description: z.string().nullish(),
     images: z.array(z.object({ url: z.string() })).optional(),
@@ -682,3 +677,21 @@ export const VendorUpdateProduct = z
     sales_channels: z.array(z.object({ id: z.string() })).optional()
   })
   .strict()
+
+/**
+ * @schema VendorUpdateProductStatus
+ * type: object
+ * required:
+ *   - title
+ * properties:
+ *   status:
+ *     type: string
+ *     enum: [draft, proposed, published, rejected]
+ *     description: The status of the product.
+ */
+export type VendorUpdateProductStatusType = z.infer<
+  typeof VendorUpdateProductStatus
+>
+export const VendorUpdateProductStatus = z.object({
+  status: z.nativeEnum(ProductStatus)
+})

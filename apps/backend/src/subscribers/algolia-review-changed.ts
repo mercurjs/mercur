@@ -77,6 +77,6 @@ export default async function reviewChangedHandler({
 export const config: SubscriberConfig = {
   event: AlgoliaEvents.REVIEW_CHANGED,
   context: {
-    subscriberId: 'review-changed-handler'
+    subscriberId: 'algolia-review-changed-handler'
   }
 }

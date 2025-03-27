@@ -8146,6 +8146,25 @@ export class Api extends HttpClient {
                 ...params,
             }),
             /**
+             * @description Updates an existing product status for the authenticated vendor.
+             *
+             * @tags Product
+             * @name VendorUpdateProductStatusById
+             * @summary Update a Product status
+             * @request POST:/vendor/products/{id}/status
+             * @secure
+             */
+            vendorUpdateProductStatusById: (id, data, query, params = {}) => this.request({
+                path: `/vendor/products/${id}/status`,
+                method: "POST",
+                query: query,
+                body: data,
+                secure: true,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+            /**
              * @description Creates variant for product.
              *
              * @tags Product

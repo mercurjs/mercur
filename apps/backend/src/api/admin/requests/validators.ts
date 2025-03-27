@@ -34,13 +34,9 @@ export const AdminGetRequestsParams = createFindParams({
  *     type: string
  *     enum: [accepted,rejected]
  *     description: A status of the request
- *   assign_product_to_seller:
- *     type: boolean
- *     description: Assign product to seller (applicable only to Product request)
  */
 export type AdminReviewRequestType = z.infer<typeof AdminReviewRequest>
 export const AdminReviewRequest = z.object({
   status: z.enum(['accepted', 'rejected']),
-  reviewer_note: z.string(),
-  assign_product_to_seller: z.boolean().default(true)
+  reviewer_note: z.string()
 })

@@ -30,9 +30,10 @@ export async function findAndTransformAlgoliaProducts(
     ],
     filters: ids.length
       ? {
-          id: ids
+          id: ids,
+          status: 'published'
         }
-      : {}
+      : { status: 'published' }
   })
 
   for (const product of products) {

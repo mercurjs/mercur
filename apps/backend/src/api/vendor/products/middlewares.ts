@@ -23,7 +23,8 @@ import {
   VendorAssignBrandName,
   VendorCreateProduct,
   VendorGetProductParams,
-  VendorUpdateProduct
+  VendorUpdateProduct,
+  VendorUpdateProductStatus
 } from './validators'
 
 const canVendorCreateProduct = [
@@ -220,6 +221,25 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         entryPoint: sellerProductLink.entryPoint,
         filterField: 'product_id'
       })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/products/:id/status',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: 'product_id'
+      }),
+      checkConfigurationRule(
+        ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL,
+        false
+      ),
+      validateAndTransformBody(VendorUpdateProductStatus),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      )
     ]
   }
 ]

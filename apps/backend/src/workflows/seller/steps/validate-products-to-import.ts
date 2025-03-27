@@ -7,7 +7,7 @@ export const validateProductsToImportStep = createStep(
   async (products: unknown[]) => {
     const toCreate = products.map((product) => ({
       ...VendorCreateProduct.parse(product),
-      status: 'draft'
+      status: 'proposed'
     }))
 
     return new StepResponse(toCreate)

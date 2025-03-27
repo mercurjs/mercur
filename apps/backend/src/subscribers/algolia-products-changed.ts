@@ -21,6 +21,6 @@ export default async function productsChangedHandler({
 export const config: SubscriberConfig = {
   event: AlgoliaEvents.PRODUCTS_CHANGED,
   context: {
-    subscriberId: 'products-changed-handler'
+    subscriberId: 'algolia-products-changed-handler'
   }
 }
