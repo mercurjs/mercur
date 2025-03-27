@@ -134,7 +134,6 @@ export const POST = async (
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
       products: [
-        // @ts-ignore
         {
           ...req.validatedBody
         }
