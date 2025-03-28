@@ -5,10 +5,10 @@ import {
 } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { revokeSellerApiKeyWorkflow } from '../../../../../../workflows/seller/workflows'
+import { revokeSellerApiKeyWorkflow } from '../../../../workflows/seller/workflows'
 
 /**
- * @oas [get] /vendor/sellers/me/api-keys/{id}
+ * @oas [get] /vendor/api-keys/{id}
  * operationId: "VendorGetSellerApiKeyById"
  * summary: "Get an api key by id"
  * description: "Retrieves an api key by id for the authenticated vendor."
@@ -61,7 +61,7 @@ export const GET = async (
 }
 
 /**
- * @oas [delete] /vendor/sellers/me/api-keys/{id}
+ * @oas [delete] /vendor/api-keys/{id}
  * operationId: "VendorRevokeSellerApiKeyById"
  * summary: "Revoke an api key by id"
  * description: "Revokes an api key by id for the authenticated vendor."

@@ -5,12 +5,12 @@ import {
 } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { fetchSellerByAuthContext } from '../../../../../shared/infra/http/utils'
-import { createSellerApiKeyWorkflow } from '../../../../../workflows/seller/workflows'
-import { VendorCreateSellerApiKeyType } from '../../validators'
+import { fetchSellerByAuthContext } from '../../../shared/infra/http/utils'
+import { createSellerApiKeyWorkflow } from '../../../workflows/seller/workflows'
+import { VendorCreateSellerApiKeyType } from './validators'
 
 /**
- * @oas [get] /vendor/sellers/me/api-keys
+ * @oas [get] /vendor/api-keys
  * operationId: "VendorGetSellerMyApiKeys"
  * summary: "Get api keys of the current seller"
  * description: "Retrieves the api keys associated with the seller."
@@ -70,7 +70,7 @@ export const GET = async (
 }
 
 /**
- * @oas [post] /vendor/sellers/me/api-keys
+ * @oas [post] /vendor/api-keys
  * operationId: "VendorCreateApiKey"
  * summary: "Create seller api key"
  * description: "Creates a seller api key"
