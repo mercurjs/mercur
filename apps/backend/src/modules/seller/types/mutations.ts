@@ -60,3 +60,9 @@ export interface AcceptMemberInviteDTO {
 export interface UpdateMemberInviteDTO extends Partial<MemberInviteDTO> {
   id: string
 }
+
+export interface CreateSellerApiKeyDTO {
+  seller_id: string
+  title: string
+  created_by: string
+}

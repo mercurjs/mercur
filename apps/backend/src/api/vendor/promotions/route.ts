@@ -2,7 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import sellerPromotion from '../../../links/seller-promotion'
-import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { fetchSellerByAuthContext } from '../../../shared/infra/http/utils'
 import { createVendorPromotionWorkflow } from '../../../workflows/promotions/workflows'
 import { VendorCreatePromotionType } from './validators'
 
@@ -111,10 +111,7 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context?.actor_id,
-    req.scope
-  )
+  const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
   const { result } = await createVendorPromotionWorkflow.run({
     container: req.scope,

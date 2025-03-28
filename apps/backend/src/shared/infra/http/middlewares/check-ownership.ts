@@ -6,6 +6,8 @@ import {
   MedusaError
 } from '@medusajs/framework/utils'
 
+import { fetchSellerByAuthContext } from '../utils'
+
 type CheckResourceOwnershipByResourceIdOptions<Body> = {
   entryPoint: string
   filterField?: string
@@ -49,18 +51,7 @@ export const checkResourceOwnershipByResourceId = <Body>({
   ) => {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-    const {
-      data: [member]
-    } = await query.graph(
-      {
-        entity: 'member',
-        fields: ['seller.id'],
-        filters: {
-          id: req.auth_context.actor_id
-        }
-      },
-      { throwIfKeyNotFound: true }
-    )
+    const seller = await fetchSellerByAuthContext(req.auth_context, req.scope)
 
     const id = resourceId(req)
 
@@ -82,7 +73,7 @@ export const checkResourceOwnershipByResourceId = <Body>({
       return
     }
 
-    if (member.seller.id !== resource.seller_id) {
+    if (seller.id !== resource.seller_id) {
       res.status(403).json({
         message: 'You are not allowed to perform this action',
         type: MedusaError.Types.NOT_ALLOWED
