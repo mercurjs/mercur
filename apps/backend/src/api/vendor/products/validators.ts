@@ -1,9 +1,10 @@
 import { z } from 'zod'
 
 import { ProductStatus } from '@medusajs/framework/utils'
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import { createFindParams, WithAdditionalData } from '@medusajs/medusa/api/utils/validators'
 
 import { IdAssociation } from '../../../shared/infra/http/utils'
+import { AdditionalData } from '@medusajs/framework/types'
 
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>
 export const VendorGetProductParams = createFindParams({
@@ -368,7 +369,7 @@ export const UpdateProductVariant = z
 /* Products */
 
 /**
- * @schema VendorCreateProduct
+ * @schema CreateProduct
  * type: object
  * required:
  *   - title
@@ -488,8 +489,8 @@ export const UpdateProductVariant = z
  *         id:
  *           type: string
  */
-export type VendorCreateProductType = z.infer<typeof VendorCreateProduct>
-export const VendorCreateProduct = z
+export type VendorCreateProductType = z.infer<typeof CreateProduct> & AdditionalData
+export const CreateProduct = z
   .object({
     title: z.string(),
     subtitle: z.string().optional(),
@@ -520,6 +521,20 @@ export const VendorCreateProduct = z
     brand_name: z.string().optional()
   })
   .strict()
+/**
+ * @schema VendorCreateProduct
+ * type: object
+ * allOf:
+ *   - $ref: "#/components/schemas/CreateProduct"
+ *   - type: object
+ *     properties:
+  *      additional_data:
+  *        type: object
+  *        description: Additional data to use in products hooks.
+  *        additionalProperties: true
+ * 
+ */
+export const VendorCreateProduct = WithAdditionalData(CreateProduct)
 
 /**
  * @schema VendorUpdateProduct

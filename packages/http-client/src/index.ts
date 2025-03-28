@@ -23775,6 +23775,78 @@ export interface ConfigurationRule {
   is_enabled?: boolean;
 }
 
+export interface CreateProduct {
+  /** The title of the product. */
+  title: string;
+  /** The subtitle of the product. */
+  subtitle?: string;
+  /** The description of the product. */
+  description?: string;
+  /**
+   * Whether the product is a gift card.
+   * @default false
+   */
+  is_giftcard?: boolean;
+  /**
+   * Whether the product can be discounted.
+   * @default true
+   */
+  discountable?: boolean;
+  /** Images of the product. */
+  images?: {
+    url: string;
+  }[];
+  /** The thumbnail of the product. */
+  thumbnail?: string;
+  /** A unique handle to identify the product. */
+  handle?: string;
+  /**
+   * The status of the product.
+   * @default "draft"
+   */
+  status?: "draft" | "proposed" | "published" | "rejected";
+  /** The external ID of the product. */
+  external_id?: string;
+  /** The ID of the product type. */
+  type_id?: string;
+  /** The ID of the collection the product belongs to. */
+  collection_id?: string;
+  /** Categories the product belongs to. */
+  categories?: {
+    id: string;
+  }[];
+  /** Tags associated with the product. */
+  tags?: {
+    id: string;
+  }[];
+  /** Product options. */
+  options?: CreateProductOption[];
+  /** Product variants. */
+  variants?: CreateProductVariant[];
+  /** The weight of the product. */
+  weight?: number;
+  /** The length of the product. */
+  length?: number;
+  /** The height of the product. */
+  height?: number;
+  /** The width of the product. */
+  width?: number;
+  /** The HS code of the product. */
+  hs_code?: string;
+  /** The MID code of the product. */
+  mid_code?: string;
+  /** The country of origin of the product. */
+  origin_country?: string;
+  /** The material composition of the product. */
+  material?: string;
+  /** Additional metadata for the product. */
+  metadata?: object;
+  /** Sales channels to associate the product with. */
+  sales_channels?: {
+    id: string;
+  }[];
+}
+
 export interface CreateProductOption {
   /** The title of the product option (e.g. "Size", "Color"). */
   title: string;
@@ -24479,77 +24551,10 @@ export interface VendorCreatePriceListPrice {
   max_quantity?: number;
 }
 
-export interface VendorCreateProduct {
-  /** The title of the product. */
-  title: string;
-  /** The subtitle of the product. */
-  subtitle?: string;
-  /** The description of the product. */
-  description?: string;
-  /**
-   * Whether the product is a gift card.
-   * @default false
-   */
-  is_giftcard?: boolean;
-  /**
-   * Whether the product can be discounted.
-   * @default true
-   */
-  discountable?: boolean;
-  /** Images of the product. */
-  images?: {
-    url: string;
-  }[];
-  /** The thumbnail of the product. */
-  thumbnail?: string;
-  /** A unique handle to identify the product. */
-  handle?: string;
-  /**
-   * The status of the product.
-   * @default "draft"
-   */
-  status?: "draft" | "proposed" | "published" | "rejected";
-  /** The external ID of the product. */
-  external_id?: string;
-  /** The ID of the product type. */
-  type_id?: string;
-  /** The ID of the collection the product belongs to. */
-  collection_id?: string;
-  /** Categories the product belongs to. */
-  categories?: {
-    id: string;
-  }[];
-  /** Tags associated with the product. */
-  tags?: {
-    id: string;
-  }[];
-  /** Product options. */
-  options?: CreateProductOption[];
-  /** Product variants. */
-  variants?: CreateProductVariant[];
-  /** The weight of the product. */
-  weight?: number;
-  /** The length of the product. */
-  length?: number;
-  /** The height of the product. */
-  height?: number;
-  /** The width of the product. */
-  width?: number;
-  /** The HS code of the product. */
-  hs_code?: string;
-  /** The MID code of the product. */
-  mid_code?: string;
-  /** The country of origin of the product. */
-  origin_country?: string;
-  /** The material composition of the product. */
-  material?: string;
-  /** Additional metadata for the product. */
-  metadata?: object;
-  /** Sales channels to associate the product with. */
-  sales_channels?: {
-    id: string;
-  }[];
-}
+export type VendorCreateProduct = CreateProduct & {
+  /** Additional data to use in products hooks. */
+  additional_data?: Record<string, any>;
+};
 
 export interface VendorCreateProductTag {
   /** The title of the product tag. */
