@@ -24214,6 +24214,67 @@ export interface StoreUpdateReview {
   customer_note?: string;
 }
 
+export interface UpdateProduct {
+  /** The title of the product. */
+  title?: string;
+  /** Whether the product can be discounted. */
+  discountable?: boolean;
+  /** Whether the product is a gift card. */
+  is_giftcard?: boolean;
+  /** The product options to update. */
+  options?: UpdateProductOption[];
+  /** The product variants to update. */
+  variants?: UpdateProductVariant[];
+  /** The subtitle of the product. */
+  subtitle?: string | null;
+  /** The description of the product. */
+  description?: string | null;
+  /** Images of the product. */
+  images?: {
+    url?: string;
+  }[];
+  /** The thumbnail of the product. */
+  thumbnail?: string | null;
+  /** The handle of the product. */
+  handle?: string | null;
+  /** The ID of the product type. */
+  type_id?: string | null;
+  /** The external ID of the product. */
+  external_id?: string | null;
+  /** The ID of the collection the product belongs to. */
+  collection_id?: string | null;
+  /** Product category IDs to associate with the product. */
+  categories?: {
+    id: string;
+  }[];
+  /** Product tag IDs to associate with the product. */
+  tags?: {
+    id: string;
+  }[];
+  /** The weight of the product. */
+  weight?: number | null;
+  /** The length of the product. */
+  length?: number | null;
+  /** The height of the product. */
+  height?: number | null;
+  /** The width of the product. */
+  width?: number | null;
+  /** The HS code of the product. */
+  hs_code?: string | null;
+  /** The MID code of the product. */
+  mid_code?: string | null;
+  /** The country of origin of the product. */
+  origin_country?: string | null;
+  /** The material composition of the product. */
+  material?: string | null;
+  /** Additional metadata for the product. */
+  metadata?: object | null;
+  /** Sales channels to associate the product with. */
+  sales_channels?: {
+    id: string;
+  }[];
+}
+
 export interface UpdateProductOption {
   /** The ID of the option to update. */
   id?: string;
@@ -27444,66 +27505,10 @@ export interface VendorUpdatePriceList {
   type?: "sale" | "override";
 }
 
-export interface VendorUpdateProduct {
-  /** The title of the product. */
-  title?: string;
-  /** Whether the product can be discounted. */
-  discountable?: boolean;
-  /** Whether the product is a gift card. */
-  is_giftcard?: boolean;
-  /** The product options to update. */
-  options?: UpdateProductOption[];
-  /** The product variants to update. */
-  variants?: UpdateProductVariant[];
-  /** The subtitle of the product. */
-  subtitle?: string | null;
-  /** The description of the product. */
-  description?: string | null;
-  /** Images of the product. */
-  images?: {
-    url?: string;
-  }[];
-  /** The thumbnail of the product. */
-  thumbnail?: string | null;
-  /** The handle of the product. */
-  handle?: string | null;
-  /** The ID of the product type. */
-  type_id?: string | null;
-  /** The external ID of the product. */
-  external_id?: string | null;
-  /** The ID of the collection the product belongs to. */
-  collection_id?: string | null;
-  /** Product category IDs to associate with the product. */
-  categories?: {
-    id: string;
-  }[];
-  /** Product tag IDs to associate with the product. */
-  tags?: {
-    id: string;
-  }[];
-  /** The weight of the product. */
-  weight?: number | null;
-  /** The length of the product. */
-  length?: number | null;
-  /** The height of the product. */
-  height?: number | null;
-  /** The width of the product. */
-  width?: number | null;
-  /** The HS code of the product. */
-  hs_code?: string | null;
-  /** The MID code of the product. */
-  mid_code?: string | null;
-  /** The country of origin of the product. */
-  origin_country?: string | null;
-  /** The material composition of the product. */
-  material?: string | null;
-  /** Additional metadata for the product. */
-  metadata?: object | null;
-  /** Sales channels to associate the product with. */
-  sales_channels?: {
-    id: string;
-  }[];
-}
+export type VendorUpdateProduct = UpdateProduct & {
+  /** Additional data to use in products hooks. */
+  additional_data?: Record<string, any>;
+};
 
 export interface VendorUpdateProductStatus {
   /** The status of the product. */
