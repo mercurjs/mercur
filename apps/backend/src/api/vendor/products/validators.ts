@@ -706,7 +706,7 @@ export const UpdateProduct = z
   *        additionalProperties: true
  * 
  */
-export const VendorUpdateProduct = WithAdditionalData(CreateProduct)
+export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
 
 /**
  * @schema VendorUpdateProductStatus
