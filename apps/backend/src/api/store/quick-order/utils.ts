@@ -74,7 +74,11 @@ export async function createCart(
       billing_address: address,
       shipping_address: address,
       region_id: input.region_id,
-      sales_channel_id: sales_channel.id
+      sales_channel_id: sales_channel.id,
+      email: faker.internet.email({
+        firstName: address.first_name,
+        lastName: address.last_name
+      })
     }
   })
 
