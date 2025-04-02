@@ -537,7 +537,7 @@ export const CreateProduct = z
 export const VendorCreateProduct = WithAdditionalData(CreateProduct)
 
 /**
- * @schema VendorUpdateProduct
+ * @schema UpdateProduct
  * type: object
  * properties:
  *   title:
@@ -662,8 +662,8 @@ export const VendorCreateProduct = WithAdditionalData(CreateProduct)
  *         id:
  *           type: string
  */
-export type VendorUpdateProductType = z.infer<typeof VendorUpdateProduct>
-export const VendorUpdateProduct = z
+export type VendorUpdateProductType = z.infer<typeof UpdateProduct> & AdditionalData
+export const UpdateProduct = z
   .object({
     title: z.string().optional(),
     discountable: z.boolean().optional(),
@@ -692,6 +692,21 @@ export const VendorUpdateProduct = z
     sales_channels: z.array(z.object({ id: z.string() })).optional()
   })
   .strict()
+
+/**
+ * @schema VendorUpdateProduct
+ * type: object
+ * allOf:
+ *   - $ref: "#/components/schemas/UpdateProduct"
+ *   - type: object
+ *     properties:
+  *      additional_data:
+  *        type: object
+  *        description: Additional data to use in products hooks.
+  *        additionalProperties: true
+ * 
+ */
+export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
 
 /**
  * @schema VendorUpdateProductStatus

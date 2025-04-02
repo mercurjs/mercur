@@ -122,7 +122,8 @@ export const POST = async (
     input: {
       // @ts-expect-error: updateProductsWorkflow does not support null values
       update: req.validatedBody,
-      selector: { id: req.params.id }
+      selector: { id: req.params.id },
+      additional_data: req.validatedBody.additional_data,
     }
   })
 
