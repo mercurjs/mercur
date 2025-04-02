@@ -10,6 +10,16 @@ export const AlgoliaProductValidator = z.object({
   thumbnail: z.string().nullable(),
   average_rating: z.coerce.number().nullable().default(null),
   options: z.array(z.record(z.string())).nullable().default(null),
+  images: z
+    .array(
+      z.object({
+        id: z.string(),
+        url: z.string(),
+        rank: z.number()
+      })
+    )
+    .nullable()
+    .optional(),
   collection: z
     .object({
       title: z.string()
