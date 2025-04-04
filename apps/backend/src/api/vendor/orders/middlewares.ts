@@ -8,10 +8,14 @@ import {
 import sellerOrderLink from '../../../links/seller-order'
 import sellerLocationLink from '../../../links/seller-stock-location'
 import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
-import { vendorOrderQueryConfig } from './query-config'
+import {
+  vendorOrderChangesQueryConfig,
+  vendorOrderQueryConfig
+} from './query-config'
 import {
   VendorCreateFulfillment,
   VendorCreateFulfillmentType,
+  VendorGetOrderChangesParams,
   VendorGetOrderParams
 } from './validators'
 
@@ -83,6 +87,20 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         resourceId: (
           req: AuthenticatedMedusaRequest<VendorCreateFulfillmentType>
         ) => req.validatedBody.location_id
+      })
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/orders/:id/changes',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetOrderChangesParams,
+        vendorOrderChangesQueryConfig.list
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerOrderLink.entryPoint,
+        filterField: 'order_id'
       })
     ]
   }

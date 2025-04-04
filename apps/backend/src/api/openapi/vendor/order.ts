@@ -1283,3 +1283,193 @@
  *     title: updated_at
  *     description: The date the order was updated.
  */
+
+/**
+ * @schema VendorOrderChange
+ * type: object
+ * description: The order's change.
+ * x-schemaName: VendorOrderChange
+ * properties:
+ *   id:
+ *     type: string
+ *     title: id
+ *     description: The order change's ID.
+ *   version:
+ *     type: number
+ *     title: version
+ *     description: >-
+ *       The order change's version. This will be the order's version when the
+ *       change is applied.
+ *   change_type:
+ *     type: string
+ *     description: The order change's type.
+ *     enum:
+ *       - return
+ *       - exchange
+ *       - claim
+ *       - edit
+ *   order_id:
+ *     type: string
+ *     title: order_id
+ *     description: The ID of the order this change applies on.
+ *   return_id:
+ *     type: string
+ *     title: return_id
+ *     description: The ID of the associated return.
+ *   exchange_id:
+ *     type: string
+ *     title: exchange_id
+ *     description: The ID of the associated exchange.
+ *   claim_id:
+ *     type: string
+ *     title: claim_id
+ *     description: The ID of the associated claim.
+ *   actions:
+ *     type: array
+ *     description: The order change's actions.
+ *     items:
+ *       $ref: ./AdminOrderChangeAction.yaml
+ *   status:
+ *     type: string
+ *     description: The order change's status.
+ *     enum:
+ *       - canceled
+ *       - requested
+ *       - pending
+ *       - confirmed
+ *       - declined
+ *   requested_by:
+ *     type: string
+ *     title: requested_by
+ *     description: The ID of the user that requested the change.
+ *   requested_at:
+ *     type: string
+ *     title: requested_at
+ *     description: The date the order change was requested.
+ *     format: date-time
+ *   confirmed_by:
+ *     type: string
+ *     title: confirmed_by
+ *     description: The ID of the user that confirmed the order change.
+ *   confirmed_at:
+ *     type: string
+ *     title: confirmed_at
+ *     description: The date the order change was confirmed.
+ *     format: date-time
+ *   declined_by:
+ *     type: string
+ *     title: declined_by
+ *     description: The ID of the user that declined the order change.
+ *   declined_reason:
+ *     type: string
+ *     title: declined_reason
+ *     description: The reason the order change was declined.
+ *   metadata:
+ *     type: object
+ *     description: The order change's metadata, can hold custom key-value pairs.
+ *   declined_at:
+ *     type: string
+ *     title: declined_at
+ *     description: The date the order change was declined.
+ *     format: date-time
+ *   canceled_by:
+ *     type: string
+ *     title: canceled_by
+ *     description: The ID of the user that canceled the order change.
+ *   canceled_at:
+ *     type: string
+ *     title: canceled_at
+ *     description: The date the order change was canceled.
+ *     format: date-time
+ *   created_at:
+ *     type: string
+ *     format: date-time
+ *     title: created_at
+ *     description: The date the order change was created.
+ *   updated_at:
+ *     type: string
+ *     format: date-time
+ *     title: updated_at
+ *     description: The date the order change was updated.
+ */
+
+/**
+ * @schema VendorOrderChangeAction
+ * type: object
+ * description: The order change action's details.
+ * x-schemaName: VendorOrderChangeAction
+ * properties:
+ *   id:
+ *     type: string
+ *     title: id
+ *     description: The action's ID.
+ *   order_change_id:
+ *     type: string
+ *     title: order_change_id
+ *     description: The ID of the order change that the action belongs to.
+ *   order_id:
+ *     type: string
+ *     title: order_id
+ *     description: The ID of the order the associated change is for.
+ *   return_id:
+ *     type: string
+ *     title: return_id
+ *     description: The ID of the associated return.
+ *   claim_id:
+ *     type: string
+ *     title: claim_id
+ *     description: The ID of the associated claim.
+ *   exchange_id:
+ *     type: string
+ *     title: exchange_id
+ *     description: The ID of the associated exchange.
+ *   reference:
+ *     type: string
+ *     title: reference
+ *     description: The name of the table this action applies on.
+ *     enum:
+ *       - claim
+ *       - exchange
+ *       - return
+ *       - order_shipping_method
+ *   reference_id:
+ *     type: string
+ *     title: reference_id
+ *     description: The ID of the record in the referenced table.
+ *   action:
+ *     type: string
+ *     description: The applied action.
+ *     enum:
+ *       - CANCEL_RETURN_ITEM
+ *       - FULFILL_ITEM
+ *       - DELIVER_ITEM
+ *       - CANCEL_ITEM_FULFILLMENT
+ *       - ITEM_ADD
+ *       - ITEM_REMOVE
+ *       - ITEM_UPDATE
+ *       - RECEIVE_DAMAGED_RETURN_ITEM
+ *       - RECEIVE_RETURN_ITEM
+ *       - RETURN_ITEM
+ *       - SHIPPING_ADD
+ *       - SHIPPING_REMOVE
+ *       - SHIP_ITEM
+ *       - WRITE_OFF_ITEM
+ *       - REINSTATE_ITEM
+ *   details:
+ *     type: object
+ *     description: The action's details.
+ *   internal_note:
+ *     type: string
+ *     title: internal_note
+ *     description: A note that's viewed only by admin users.
+ *   created_at:
+ *     type: string
+ *     format: date-time
+ *     title: created_at
+ *     description: The date the action was created.
+ *   updated_at:
+ *     type: string
+ *     format: date-time
+ *     title: updated_at
+ *     description: The date the action was updated.
+ */
