@@ -53,3 +53,16 @@ export type MemberInviteDTO = {
   expires_at: Date
   accepted: boolean
 }
+
+export type SellerApiKeyDTO = {
+  id: string
+  seller_id: string
+  token: string
+  redacted: string
+  title: string
+  created_by: string
+  revoked_by: string | null
+  revoked_at: Date | null
+  created_at: Date
+  updated_at: Date | null
+}

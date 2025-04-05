@@ -1,7 +1,9 @@
 import { unlessBaseUrl } from '#/shared/infra/http/utils'
 
-import { MiddlewareRoute, authenticate } from '@medusajs/framework'
+import { MiddlewareRoute } from '@medusajs/framework'
 
+import { authenticateVendor } from '../../shared/infra/http/middlewares/authenticate-vendor'
+import { vendorApiKeyMiddlewares } from './api-keys/middlewares'
 import { vendorCampaignsMiddlewares } from './campaigns/middlewares'
 import { vendorCors } from './cors'
 import { vendorCustomerGroupsMiddlewares } from './customer-groups/middlewares'
@@ -47,7 +49,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     matcher: '/vendor/sellers',
     method: ['POST'],
     middlewares: [
-      authenticate('seller', ['bearer', 'session'], {
+      authenticateVendor({
         allowUnregistered: true
       })
     ]
@@ -55,14 +57,14 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   {
     matcher: '/vendor/invites/accept',
     method: ['POST'],
-    middlewares: [authenticate('seller', ['bearer', 'session'])]
+    middlewares: [authenticateVendor()]
   },
   {
     matcher: '/vendor/*',
     middlewares: [
       unlessBaseUrl(
         /^\/vendor\/(sellers|invites\/accept)$/,
-        authenticate('seller', ['bearer', 'session'], {
+        authenticateVendor({
           allowUnregistered: false
         })
       )
@@ -98,5 +100,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorCampaignsMiddlewares,
   ...vendorStatisticsMiddlewares,
   ...vendorFulfillmentProvidersMiddlewares,
-  ...vendorReturnsMiddlewares
+  ...vendorReturnsMiddlewares,
+  ...vendorApiKeyMiddlewares
 ]
