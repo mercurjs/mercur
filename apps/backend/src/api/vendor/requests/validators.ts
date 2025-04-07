@@ -2,8 +2,6 @@ import { z } from 'zod'
 
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
-import { VendorCreateProduct } from '../products/validators'
-
 export type VendorGetRequestsParamsType = z.infer<
   typeof VendorGetRequestsParams
 >
@@ -90,25 +88,6 @@ const ProductCollectionRequest = z.object({
 })
 
 /**
- * @schema ProductRequest
- * type: object
- * required:
- *   - type
- *   - data
- * properties:
- *   type:
- *     type: string
- *     description: The type of the request
- *     enum: [product]
- *   data:
- *     $ref: "#/components/schemas/VendorCreateProduct"
- */
-const ProductRequest = z.object({
-  type: z.literal('product'),
-  data: VendorCreateProduct()
-})
-
-/**
  * @schema ReviewRemoveRequest
  * type: object
  * required:
@@ -176,7 +155,6 @@ const ProductTypeRequest = z.object({
  *     type: object
  *     description: The resource to be created by request
  *     oneOf:
- *       - $ref: "#/components/schemas/ProductRequest"
  *       - $ref: "#/components/schemas/ProductCollectionRequest"
  *       - $ref: "#/components/schemas/ProductCategoryRequest"
  *       - $ref: "#/components/schemas/ReviewRemoveRequest"
@@ -187,7 +165,6 @@ export const VendorCreateRequest = z.object({
   request: z.discriminatedUnion('type', [
     ProductCategoryRequest,
     ProductCollectionRequest,
-    ProductRequest,
     ReviewRemoveRequest,
     ProductTypeRequest
   ])

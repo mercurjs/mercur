@@ -30,7 +30,7 @@ export function checkConfigurationRule(
     next: NextFunction
   ) => {
     if ((await getRuleValue(req.scope, rule_type)) !== expected_value) {
-      res.status(404).json({
+      res.status(403).json({
         message: `This feature is disabled!`,
         type: MedusaError.Types.NOT_FOUND
       })

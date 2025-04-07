@@ -4,11 +4,11 @@ import {
   MedusaResponse
 } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerProductLink from '../../../links/seller-product'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { assignBrandToProductWorkflow } from '../../../workflows/brand/workflows'
+import { createProductRequestWorkflow } from '../../../workflows/requests/workflows'
 import {
   VendorCreateProductType,
   VendorGetProductParamsType
@@ -133,26 +133,27 @@ export const POST = async (
 
   const { brand_name, additional_data, ...validatedBody } = req.validatedBody
 
-  const { result } = await createProductsWorkflow(req.scope).run({
+  const { result } = await createProductRequestWorkflow.run({
+    container: req.scope,
     input: {
-      products: [
-        {
-          ...validatedBody
-        }
-      ],
-      additional_data: {
-        seller_id: seller.id,
-        ...additional_data
-      }
+      seller_id: seller.id,
+      data: {
+        data: validatedBody,
+        type: 'product',
+        submitter_id: req.auth_context.actor_id
+      },
+      additional_data
     }
   })
+
+  const { product_id } = result.data
 
   if (brand_name) {
     await assignBrandToProductWorkflow.run({
       container: req.scope,
       input: {
         brand_name,
-        product_id: result[0].id
+        product_id
       }
     })
   }
@@ -163,7 +164,7 @@ export const POST = async (
     {
       entity: 'product',
       fields: req.queryConfig.fields,
-      filters: { id: result[0].id }
+      filters: { id: product_id }
     },
     { throwIfKeyNotFound: true }
   )

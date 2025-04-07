@@ -28,7 +28,7 @@ createRequestWorkflow.hooks.requestCreated(
           data: request.data,
           id: request.id,
           reviewer_id: 'system',
-          reviewer_note: '',
+          reviewer_note: 'auto accepted',
           status: 'accepted'
         }
       })
