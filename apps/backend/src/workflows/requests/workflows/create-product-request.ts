@@ -64,12 +64,12 @@ export const createProductRequestWorkflow = createWorkflow(
 
     createRemoteLinkStep(link)
 
-    const requestCreatedHook = createHook('requestCreated', {
+    const productRequestCreatedHook = createHook('productRequestCreated', {
       requestId: request.id,
       sellerId: input.seller_id
     })
     return new WorkflowResponse(request, {
-      hooks: [requestCreatedHook]
+      hooks: [productRequestCreatedHook]
     })
   }
 )
