@@ -24066,12 +24066,6 @@ export interface ProductCollectionRequest {
   };
 }
 
-export interface ProductRequest {
-  /** The type of the request */
-  type: "product";
-  data: VendorCreateProduct;
-}
-
 export interface ProductTypeRequest {
   /** The type of the request */
   type: "product_type";
@@ -24695,12 +24689,7 @@ export interface VendorCreatePromotionRule {
 
 export interface VendorCreateRequest {
   /** The resource to be created by request */
-  request:
-    | ProductRequest
-    | ProductCollectionRequest
-    | ProductCategoryRequest
-    | ReviewRemoveRequest
-    | ProductTypeRequest;
+  request: ProductCollectionRequest | ProductCategoryRequest | ReviewRemoveRequest | ProductTypeRequest;
 }
 
 export interface VendorCreateSeller {

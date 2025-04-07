@@ -29,7 +29,7 @@ import {
 
 const canVendorCreateProduct = [
   checkConfigurationRule(ConfigurationRuleType.GLOBAL_PRODUCT_CATALOG, false),
-  checkConfigurationRule(ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL, false)
+  checkConfigurationRule(ConfigurationRuleType.PRODUCT_REQUEST_ENABLED, true)
 ]
 
 const upload = multer({ storage: multer.memoryStorage() })

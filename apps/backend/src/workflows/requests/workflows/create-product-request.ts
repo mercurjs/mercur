@@ -16,7 +16,11 @@ import { createRequestStep } from '../steps'
 
 export const createProductRequestWorkflow = createWorkflow(
   'create-product-request',
-  function (input: { data: CreateRequestDTO; seller_id: string }) {
+  function (input: {
+    data: CreateRequestDTO
+    seller_id: string
+    additional_data?: any
+  }) {
     const productPayload = transform(input, (input) => ({
       ...input.data.data,
       status: 'proposed'
@@ -25,7 +29,10 @@ export const createProductRequestWorkflow = createWorkflow(
     const product = createProductsWorkflow.runAsStep({
       input: {
         products: [productPayload],
-        additional_data: { seller_id: input.seller_id }
+        additional_data: transform(input, (input) => ({
+          ...input.additional_data,
+          seller_id: input.seller_id
+        }))
       }
     })
 
@@ -57,12 +64,12 @@ export const createProductRequestWorkflow = createWorkflow(
 
     createRemoteLinkStep(link)
 
-    const requestCreatedHook = createHook('requestCreated', {
+    const productRequestCreatedHook = createHook('productRequestCreated', {
       requestId: request.id,
       sellerId: input.seller_id
     })
     return new WorkflowResponse(request, {
-      hooks: [requestCreatedHook]
+      hooks: [productRequestCreatedHook]
     })
   }
 )
