@@ -4,7 +4,7 @@ import { createOrderFulfillmentWorkflow } from '@medusajs/medusa/core-flows'
 import { VendorCreateFulfillmentType } from '../../validators'
 
 /**
- * @oas [post] /vendor/products/{id}/fulfillment
+ * @oas [post] /vendor/products/{id}/fulfillments
  * operationId: "VendorCreateFulfillment"
  * summary: "Update a Product"
  * description: "Updates an existing product for the authenticated vendor."

@@ -74,7 +74,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['POST'],
-    matcher: '/vendor/orders/:id/fulfillment',
+    matcher: '/vendor/orders/:id/fulfillments',
     middlewares: [
       validateAndTransformBody(VendorCreateFulfillment),
       checkResourceOwnershipByResourceId({
