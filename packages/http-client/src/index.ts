@@ -24544,11 +24544,10 @@ export interface VendorCreateCustomerGroup {
 }
 
 export interface VendorCreateFulfillment {
-  /** The number of items to return. Default 50. */
   requires_shipping?: boolean;
-  /** The number of items to skip before starting the response. Default 0. */
+  /** The location id. */
   location_id?: string;
-  /** Sales channels to associate the product with. */
+  /** Items to create fulfillment. */
   items?: {
     id?: string;
     quantity?: number;
@@ -25615,6 +25614,20 @@ export interface VendorOrderCountryCode {
    * The country's display name.
    */
   display_name?: string;
+}
+
+export interface VendorOrderCreateShipment {
+  /** Items in the shipment. */
+  items?: {
+    id?: string;
+    quantity?: number;
+  }[];
+  /** Labels of the shipment */
+  labels?: {
+    tracking_number?: string;
+    tracking_url?: string;
+    label_url?: string;
+  }[];
 }
 
 /** The order's details. */
@@ -58107,6 +58120,85 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Cancel order fulfillment.
+     *
+     * @tags Order
+     * @name VendorCancelOrderFulfillment
+     * @summary Cancel order fulfillment.
+     * @request POST:/vendor/orders/{id}/fulfillments/{fulfillment_id}/cancel
+     * @secure
+     */
+    vendorCancelOrderFulfillment: (id: string, fulfillmentId: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The order's details. */
+          member?: VendorOrderDetails;
+        },
+        any
+      >({
+        path: `/vendor/orders/${id}/fulfillments/${fulfillmentId}/cancel`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Mark order fulfillment shipment as delivered.
+     *
+     * @tags Order
+     * @name VendorOrderFulfillmentMarkDelivered
+     * @summary Mark order fulfillment shipment as delivered.
+     * @request POST:/vendor/orders/{id}/fulfillments/{fulfillment_id}/mark-as-delivered
+     * @secure
+     */
+    vendorOrderFulfillmentMarkDelivered: (id: string, fulfillmentId: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The order's details. */
+          member?: VendorOrderDetails;
+        },
+        any
+      >({
+        path: `/vendor/orders/${id}/fulfillments/${fulfillmentId}/mark-as-delivered`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Update order fulfillment shipment.
+     *
+     * @tags Order
+     * @name VendorUpdateOrderFulfillmentShipment
+     * @summary Update order fulfillment shipment.
+     * @request POST:/vendor/orders/{id}/fulfillments/{fulfillment_id}/shipments
+     * @secure
+     */
+    vendorUpdateOrderFulfillmentShipment: (
+      id: string,
+      fulfillmentId: string,
+      data: VendorOrderCreateShipment,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The order's details. */
+          member?: VendorOrderDetails;
+        },
+        any
+      >({
+        path: `/vendor/orders/${id}/fulfillments/${fulfillmentId}/shipments`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves the payout account for the authenticated vendor.
      *
      * @tags Payment Account
@@ -58867,7 +58959,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags Order
      * @name VendorCreateFulfillment
      * @summary Update a Product
-     * @request POST:/vendor/products/{id}/fulfillment
+     * @request POST:/vendor/products/{id}/fulfillments
      * @secure
      */
     vendorCreateFulfillment: (id: string, data: VendorCreateFulfillment, params: RequestParams = {}) =>
@@ -58878,7 +58970,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         },
         any
       >({
-        path: `/vendor/products/${id}/fulfillment`,
+        path: `/vendor/products/${id}/fulfillments`,
         method: "POST",
         body: data,
         secure: true,
