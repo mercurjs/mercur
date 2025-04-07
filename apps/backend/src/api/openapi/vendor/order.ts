@@ -1328,7 +1328,7 @@
  *     type: array
  *     description: The order change's actions.
  *     items:
- *       $ref: ./AdminOrderChangeAction.yaml
+ *       $ref: '#/components/schemas/VendorOrderChangeAction'
  *   status:
  *     type: string
  *     description: The order change's status.

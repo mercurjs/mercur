@@ -25405,6 +25405,189 @@ export interface VendorOrderAddress {
   updated_at?: string;
 }
 
+/** The order's change. */
+export interface VendorOrderChange {
+  /**
+   * id
+   * The order change's ID.
+   */
+  id?: string;
+  /**
+   * version
+   * The order change's version. This will be the order's version when the change is applied.
+   */
+  version?: number;
+  /** The order change's type. */
+  change_type?: "return" | "exchange" | "claim" | "edit";
+  /**
+   * order_id
+   * The ID of the order this change applies on.
+   */
+  order_id?: string;
+  /**
+   * return_id
+   * The ID of the associated return.
+   */
+  return_id?: string;
+  /**
+   * exchange_id
+   * The ID of the associated exchange.
+   */
+  exchange_id?: string;
+  /**
+   * claim_id
+   * The ID of the associated claim.
+   */
+  claim_id?: string;
+  /** The order change's actions. */
+  actions?: VendorOrderChangeAction[];
+  /** The order change's status. */
+  status?: "canceled" | "requested" | "pending" | "confirmed" | "declined";
+  /**
+   * requested_by
+   * The ID of the user that requested the change.
+   */
+  requested_by?: string;
+  /**
+   * requested_at
+   * The date the order change was requested.
+   * @format date-time
+   */
+  requested_at?: string;
+  /**
+   * confirmed_by
+   * The ID of the user that confirmed the order change.
+   */
+  confirmed_by?: string;
+  /**
+   * confirmed_at
+   * The date the order change was confirmed.
+   * @format date-time
+   */
+  confirmed_at?: string;
+  /**
+   * declined_by
+   * The ID of the user that declined the order change.
+   */
+  declined_by?: string;
+  /**
+   * declined_reason
+   * The reason the order change was declined.
+   */
+  declined_reason?: string;
+  /** The order change's metadata, can hold custom key-value pairs. */
+  metadata?: object;
+  /**
+   * declined_at
+   * The date the order change was declined.
+   * @format date-time
+   */
+  declined_at?: string;
+  /**
+   * canceled_by
+   * The ID of the user that canceled the order change.
+   */
+  canceled_by?: string;
+  /**
+   * canceled_at
+   * The date the order change was canceled.
+   * @format date-time
+   */
+  canceled_at?: string;
+  /**
+   * created_at
+   * The date the order change was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * updated_at
+   * The date the order change was updated.
+   * @format date-time
+   */
+  updated_at?: string;
+}
+
+/** The order change action's details. */
+export interface VendorOrderChangeAction {
+  /**
+   * id
+   * The action's ID.
+   */
+  id?: string;
+  /**
+   * order_change_id
+   * The ID of the order change that the action belongs to.
+   */
+  order_change_id?: string;
+  /**
+   * order_id
+   * The ID of the order the associated change is for.
+   */
+  order_id?: string;
+  /**
+   * return_id
+   * The ID of the associated return.
+   */
+  return_id?: string;
+  /**
+   * claim_id
+   * The ID of the associated claim.
+   */
+  claim_id?: string;
+  /**
+   * exchange_id
+   * The ID of the associated exchange.
+   */
+  exchange_id?: string;
+  /**
+   * reference
+   * The name of the table this action applies on.
+   */
+  reference?: "claim" | "exchange" | "return" | "order_shipping_method";
+  /**
+   * reference_id
+   * The ID of the record in the referenced table.
+   */
+  reference_id?: string;
+  /** The applied action. */
+  action?:
+    | "CANCEL_RETURN_ITEM"
+    | "FULFILL_ITEM"
+    | "DELIVER_ITEM"
+    | "CANCEL_ITEM_FULFILLMENT"
+    | "ITEM_ADD"
+    | "ITEM_REMOVE"
+    | "ITEM_UPDATE"
+    | "RECEIVE_DAMAGED_RETURN_ITEM"
+    | "RECEIVE_RETURN_ITEM"
+    | "RETURN_ITEM"
+    | "SHIPPING_ADD"
+    | "SHIPPING_REMOVE"
+    | "SHIP_ITEM"
+    | "WRITE_OFF_ITEM"
+    | "REINSTATE_ITEM";
+  /** The action's details. */
+  details?: object;
+  /**
+   * internal_note
+   * A note that's viewed only by admin users.
+   */
+  internal_note?: string;
+  /**
+   * created_at
+   * The date the action was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * updated_at
+   * The date the action was updated.
+   * @format date-time
+   */
+  updated_at?: string;
+}
+
 /**
  * VendorOrderCountryCode
  * The country's details.
@@ -57874,6 +58057,37 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/vendor/orders/${id}/cancel`,
         method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of order changes for the authenticated vendor.
+     *
+     * @tags Order
+     * @name VendorListOrderChanges
+     * @summary List Order Changes
+     * @request GET:/vendor/orders/{id}/changes
+     * @secure
+     */
+    vendorListOrderChanges: (
+      id: string,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          order_changes?: VendorOrderChange[];
+        },
+        any
+      >({
+        path: `/vendor/orders/${id}/changes`,
+        method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
