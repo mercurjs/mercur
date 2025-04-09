@@ -18,6 +18,13 @@ export const validateCartShippingOptionsStep = createStep(
   async (input: ValidateCartShippingOptionsInput, { container }) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
+    if (input.option_ids.length !== new Set(input.option_ids).size) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        'Some of the shipping methods are doubled!'
+      )
+    }
+
     const {
       data: [cart]
     } = await query.graph({
@@ -51,6 +58,17 @@ export const validateCartShippingOptionsStep = createStep(
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
           `Shipping option with id: ${sellerShippingOption.shipping_option_id} is not available for any of the cart items`
+        )
+      }
+    }
+
+    for (const seller of sellers) {
+      if (
+        !sellerShippingOptions.find((option) => seller === option.seller_id)
+      ) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          `Missing shipping option for seller ${seller}`
         )
       }
     }

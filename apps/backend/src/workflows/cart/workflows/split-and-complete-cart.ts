@@ -3,6 +3,7 @@ import { OrderSetWorkflowEvents } from '#/modules/marketplace/types'
 import { SELLER_MODULE } from '#/modules/seller'
 
 import {
+  MedusaError,
   Modules,
   OrderStatus,
   OrderWorkflowEvents
@@ -122,7 +123,14 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           const sellers = Array.from(sellerLineItemsMap.keys())
 
           const ordersToCreate = sellers.map((sellerId) => {
-            const sm = sellerShippingMethodsMap.get(sellerId)!
+            const sm = sellerShippingMethodsMap.get(sellerId)
+
+            if (!sm) {
+              throw new MedusaError(
+                MedusaError.Types.INVALID_DATA,
+                'Seller shipping method not found!'
+              )
+            }
 
             const items = sellerLineItemsMap.get(sellerId)!.map((item) =>
               prepareLineItemData({
