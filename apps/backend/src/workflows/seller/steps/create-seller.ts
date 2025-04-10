@@ -2,6 +2,7 @@ import { kebabCase } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SELLER_MODULE } from '../../../modules/seller'
+import SellerModuleService from '../../../modules/seller/service'
 import { CreateSellerDTO, SellerDTO } from '../../../modules/seller/types'
 
 export const createSellerStep = createStep(
