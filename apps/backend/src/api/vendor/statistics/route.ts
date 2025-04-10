@@ -56,7 +56,6 @@ export const GET = async (
     (req.validatedQuery.time_from as Date).toISOString(),
     (req.validatedQuery.time_to as Date).toISOString()
   ])
-
   const customers = await selectCustomersChartData(req.scope, seller.id, [
     (req.validatedQuery.time_from as Date).toISOString(),
     (req.validatedQuery.time_to as Date).toISOString()
