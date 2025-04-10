@@ -23,7 +23,12 @@ module.exports = defineConfig({
     { resolve: './src/modules/requests' },
     { resolve: './src/modules/reviews' },
     { resolve: './src/modules/brand' },
-    { resolve: './src/modules/taxcode' },
+    {
+      resolve: './src/modules/taxcode',
+      options: {
+        apiKey: process.env.STRIPE_SECRET_API_KEY
+      }
+    },
     { resolve: './src/modules/commission' },
     {
       resolve: './src/modules/payout',
