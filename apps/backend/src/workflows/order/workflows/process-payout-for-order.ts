@@ -1,6 +1,3 @@
-import { PAYOUT_MODULE } from '#/modules/payout'
-import { PayoutWorkflowEvents } from '#/modules/payout/types'
-
 import { Modules } from '@medusajs/framework/utils'
 import { transform, when } from '@medusajs/framework/workflows-sdk'
 import {
@@ -10,12 +7,14 @@ import {
 } from '@medusajs/medusa/core-flows'
 import { createWorkflow } from '@medusajs/workflows-sdk'
 
+import sellerOrder from '../../../links/seller-order'
+import { PAYOUT_MODULE } from '../../../modules/payout'
+import { PayoutWorkflowEvents } from '../../../modules/payout/types'
 import {
   createPayoutStep,
   validateNoExistingPayoutForOrderStep,
   validateSellerPayoutAccountStep
 } from '../steps'
-import sellerOrder from '#/links/seller-order'
 
 type ProcessPayoutForOrderWorkflowInput = {
   order_id: string
@@ -41,7 +40,7 @@ export const processPayoutForOrderWorkflow = createWorkflow(
         seller_id: transformed.seller_id,
         id: transformed.order_id,
         total: transformed.order.total,
-        currency_code: transformed.order.currency_code,
+        currency_code: transformed.order.currency_code
       }
     })
 

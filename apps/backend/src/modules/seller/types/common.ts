@@ -1,4 +1,4 @@
-import { PayoutAccountDTO } from '#/modules/payout/types'
+import { PayoutAccountDTO } from '../../../modules/payout/types'
 
 export type SellerDTO = {
   id: string

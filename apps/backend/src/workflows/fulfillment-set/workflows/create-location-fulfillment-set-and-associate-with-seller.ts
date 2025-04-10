@@ -1,5 +1,3 @@
-import { SELLER_MODULE } from '#/modules/seller'
-
 import { Modules } from '@medusajs/framework/utils'
 import { transform } from '@medusajs/framework/workflows-sdk'
 import {
@@ -7,6 +5,8 @@ import {
   createRemoteLinkStep
 } from '@medusajs/medusa/core-flows'
 import { createWorkflow } from '@medusajs/workflows-sdk'
+
+import { SELLER_MODULE } from '../../../modules/seller'
 
 type CreateFulfillmentSetAndAssociateWithSellerInput = {
   location_id: string

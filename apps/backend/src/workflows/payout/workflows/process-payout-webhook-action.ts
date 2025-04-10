@@ -1,12 +1,11 @@
+import { when } from '@medusajs/framework/workflows-sdk'
+import { createWorkflow } from '@medusajs/workflows-sdk'
+
 import {
   PayoutAccountStatus,
   PayoutWebhookAction,
   PayoutWebhookActionAndDataResponse
-} from '#/modules/payout/types'
-
-import { when } from '@medusajs/framework/workflows-sdk'
-import { createWorkflow } from '@medusajs/workflows-sdk'
-
+} from '../../../modules/payout/types'
 import { updatePayoutAccountStep } from '../steps'
 
 type ProcessPayoutWebhookActionInput = {

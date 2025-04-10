@@ -1,12 +1,12 @@
-import { PAYOUT_MODULE } from '#/modules/payout'
-import PayoutModuleService from '#/modules/payout/service'
+import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
+
+import { PAYOUT_MODULE } from '../modules/payout'
+import PayoutModuleService from '../modules/payout/service'
 import {
   PayoutWebhookActionPayload,
   PayoutWebhookEvents
-} from '#/modules/payout/types'
-import { processPayoutWebhookActionWorkflow } from '#/workflows/payout/workflows'
-
-import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
+} from '../modules/payout/types'
+import { processPayoutWebhookActionWorkflow } from '../workflows/payout/workflows'
 
 type SerializedBuffer = {
   data: ArrayBuffer

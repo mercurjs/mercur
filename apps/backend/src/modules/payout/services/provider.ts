@@ -35,7 +35,6 @@ export class PayoutProvider implements IPayoutProvider {
     this.logger_ = logger
 
     const moduleDef = configModule.modules?.[PAYOUT_MODULE]
-
     if (typeof moduleDef !== 'boolean' && moduleDef?.options) {
       this.config_ = {
         apiKey: moduleDef.options.apiKey as string,
