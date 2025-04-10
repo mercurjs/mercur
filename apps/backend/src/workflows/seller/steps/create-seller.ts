@@ -1,5 +1,3 @@
-import SellerModuleService from 'src/modules/seller/service'
-
 import { kebabCase } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 

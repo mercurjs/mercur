@@ -9,7 +9,7 @@ import {
 
 export default class StripeTaxClient {
   private stripe_: Stripe
-  constructor(apiKey: string) {
+  constructor(apiKey: string = 'sk_') {
     this.stripe_ = new Stripe(apiKey)
   }
 
