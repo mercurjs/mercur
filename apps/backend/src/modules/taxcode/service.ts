@@ -13,7 +13,7 @@ export default class TaxCodeService extends MedusaService({ TaxCode }) {
 
   constructor(_, { apiKey }: ModuleOptions) {
     super(_)
-    this.stripe_ = new Stripe(apiKey)
+    this.stripe_ = new Stripe(apiKey || 'sk_')
   }
 
   async getTaxCodes(): Promise<Stripe.TaxCode[]> {
