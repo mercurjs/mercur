@@ -1,11 +1,10 @@
-import { filterBySellerId } from '#/shared/infra/http/middlewares'
-
 import {
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
 
+import { filterBySellerId } from '../../../shared/infra/http/middlewares'
 import { vendorPayoutAccountQueryConfig } from './query-config'
 import {
   VendorCreateOnboarding,

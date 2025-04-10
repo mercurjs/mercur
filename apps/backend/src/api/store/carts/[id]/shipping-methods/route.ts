@@ -1,8 +1,8 @@
-import { addSellerShippingMethodToCartWorkflow } from '#/workflows/cart/workflows'
-
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { StoreAddCartShippingMethodsType } from '@medusajs/medusa/api/store/carts/validators'
+
+import { addSellerShippingMethodToCartWorkflow } from '../../../../../workflows/cart/workflows'
 
 export const POST = async (
   req: MedusaRequest<StoreAddCartShippingMethodsType>,

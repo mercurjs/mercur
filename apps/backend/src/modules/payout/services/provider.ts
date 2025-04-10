@@ -1,10 +1,10 @@
-import { getSmallestUnit } from '#/shared/utils'
 import Stripe from 'stripe'
 
 import { ConfigModule, Logger } from '@medusajs/framework/types'
 import { MedusaError, isPresent } from '@medusajs/framework/utils'
 
 import { PAYOUT_MODULE } from '..'
+import { getSmallestUnit } from '../../../shared/utils'
 import {
   CreatePayoutAccountInput,
   CreatePayoutAccountResponse,

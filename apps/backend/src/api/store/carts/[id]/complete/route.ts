@@ -1,7 +1,7 @@
-import { splitAndCompleteCartWorkflow } from '#/workflows/cart/workflows'
-import { getFormattedOrderSetListWorkflow } from '#/workflows/order-set/workflows'
-
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
+
+import { splitAndCompleteCartWorkflow } from '../../../../../workflows/cart/workflows'
+import { getFormattedOrderSetListWorkflow } from '../../../../../workflows/order-set/workflows'
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const cart_id = req.params.id

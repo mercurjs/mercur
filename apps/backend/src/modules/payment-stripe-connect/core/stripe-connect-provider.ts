@@ -1,4 +1,3 @@
-import { getAmountFromSmallestUnit, getSmallestUnit } from '#/shared/utils'
 import Stripe from 'stripe'
 
 import {
@@ -34,6 +33,10 @@ import {
   UpdatePaymentOutput
 } from '@medusajs/types'
 
+import {
+  getAmountFromSmallestUnit,
+  getSmallestUnit
+} from '../../../shared/utils'
 import { PaymentIntentOptions } from '../types'
 
 type Options = {

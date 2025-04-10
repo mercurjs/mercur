@@ -1,10 +1,10 @@
-import sellerPayoutAccount from '#/links/seller-payout-account'
-
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import {
   ContainerRegistrationKeys,
   MedusaError
 } from '@medusajs/framework/utils'
+
+import sellerPayoutAccount from '../../../links/seller-payout-account'
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,

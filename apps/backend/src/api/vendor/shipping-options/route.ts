@@ -1,9 +1,8 @@
-import sellerShippingOption from '#/links/seller-shipping-option'
-
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createShippingOptionsWorkflow } from '@medusajs/medusa/core-flows'
 
+import sellerShippingOption from '../../../links/seller-shipping-option'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { VendorCreateShippingOptionType } from './validators'

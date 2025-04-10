@@ -1,10 +1,10 @@
-import orderPayoutLink from '#/links/order-payout'
-
 import {
   ContainerRegistrationKeys,
   MedusaError
 } from '@medusajs/framework/utils'
 import { createStep } from '@medusajs/framework/workflows-sdk'
+
+import orderPayoutLink from '../../../links/order-payout'
 
 export const validateNoExistingPayoutForOrderStep = createStep(
   'validate-no-existing-payout-for-order',

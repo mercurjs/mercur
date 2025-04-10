@@ -1,6 +1,6 @@
-import { getFormattedOrderSetListWorkflow } from '#/workflows/order-set/workflows'
-
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+
+import { getFormattedOrderSetListWorkflow } from '../../../workflows/order-set/workflows'
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const {

@@ -1,5 +1,3 @@
-import sellerShippingOptionLink from '#/links/seller-shipping-option'
-
 import {
   createWorkflow,
   parallelize,
@@ -10,6 +8,8 @@ import {
   removeShippingMethodFromCartStep,
   useQueryGraphStep
 } from '@medusajs/medusa/core-flows'
+
+import sellerShippingOptionLink from '../../../links/seller-shipping-option'
 
 type DeleteSellerLineItemWorkflowInput = {
   cart_id: string

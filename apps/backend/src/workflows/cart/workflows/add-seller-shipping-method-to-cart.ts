@@ -1,5 +1,3 @@
-import sellerShippingOptionLink from '#/links/seller-shipping-option'
-
 import { CartShippingMethodDTO } from '@medusajs/framework/types'
 import { createWorkflow, transform } from '@medusajs/framework/workflows-sdk'
 import {
@@ -8,6 +6,7 @@ import {
   useQueryGraphStep
 } from '@medusajs/medusa/core-flows'
 
+import sellerShippingOptionLink from '../../../links/seller-shipping-option'
 import { validateCartShippingOptionsStep } from '../steps'
 
 type AddSellerShippingMethodToCartWorkflowInput = {
