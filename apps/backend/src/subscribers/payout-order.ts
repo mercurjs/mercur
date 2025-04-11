@@ -1,7 +1,7 @@
-import { PayoutWorkflowEvents } from '#/modules/payout/types'
-import { processPayoutForOrderWorkflow } from '#/workflows/order/workflows'
-
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
+
+import { PayoutWorkflowEvents } from '../modules/payout/types'
+import { processPayoutForOrderWorkflow } from '../workflows/order/workflows'
 
 export default async function payoutOrderHandler({
   event,

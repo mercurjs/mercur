@@ -1,7 +1,3 @@
-import { MARKETPLACE_MODULE } from '#/modules/marketplace'
-import { OrderSetWorkflowEvents } from '#/modules/marketplace/types'
-import { SELLER_MODULE } from '#/modules/seller'
-
 import {
   MedusaError,
   Modules,
@@ -22,6 +18,9 @@ import {
 import { CartShippingMethodDTO } from '@medusajs/types/dist/cart'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
+import { MARKETPLACE_MODULE } from '../../../modules/marketplace'
+import { OrderSetWorkflowEvents } from '../../../modules/marketplace/types'
+import { SELLER_MODULE } from '../../../modules/seller'
 import { createOrderSetStep, validateCartShippingOptionsStep } from '../steps'
 import {
   completeCartFields,

@@ -1,10 +1,10 @@
-import { getSmallestUnit } from '#/shared/utils'
 import Stripe from 'stripe'
 
 import { ConfigModule, Logger } from '@medusajs/framework/types'
 import { MedusaError, isPresent } from '@medusajs/framework/utils'
 
 import { PAYOUT_MODULE } from '..'
+import { getSmallestUnit } from '../../../shared/utils'
 import {
   CreatePayoutAccountInput,
   CreatePayoutAccountResponse,
@@ -35,7 +35,6 @@ export class PayoutProvider implements IPayoutProvider {
     this.logger_ = logger
 
     const moduleDef = configModule.modules?.[PAYOUT_MODULE]
-
     if (typeof moduleDef !== 'boolean' && moduleDef?.options) {
       this.config_ = {
         apiKey: moduleDef.options.apiKey as string,

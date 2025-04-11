@@ -1,8 +1,8 @@
-import { PAYOUT_MODULE } from '#/modules/payout'
-import PayoutModuleService from '#/modules/payout/service'
-import { CreatePayoutAccountDTO } from '#/modules/payout/types'
-
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
+
+import { PAYOUT_MODULE } from '../../../modules/payout'
+import PayoutModuleService from '../../../modules/payout/service'
+import { CreatePayoutAccountDTO } from '../../../modules/payout/types'
 
 export const createPayoutAccountStep = createStep(
   'create-payout-account',

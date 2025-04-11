@@ -1,7 +1,7 @@
-import { SellerDTO } from '#/modules/seller/types'
-
 import { MedusaContainer } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+
+import { SellerDTO } from '../../../../modules/seller/types'
 
 export const fetchSellerByAuthActorId = async (
   authActorId: string,

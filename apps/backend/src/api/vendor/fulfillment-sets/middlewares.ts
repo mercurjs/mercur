@@ -1,13 +1,12 @@
-import sellerFulfillmentSetLink from '#/links/seller-fulfillment-set'
-import sellerServiceZoneLink from '#/links/seller-service-zone'
-import { checkResourceOwnershipByResourceId } from '#/shared/infra/http/middlewares'
-
 import {
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
 
+import sellerFulfillmentSetLink from '../../../links/seller-fulfillment-set'
+import sellerServiceZoneLink from '../../../links/seller-service-zone'
+import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
 import { vendorFulfillmentSetQueryConfig } from './query-config'
 import {
   VendorCreateFulfillmentSetServiceZonesSchema,

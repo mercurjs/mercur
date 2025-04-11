@@ -1,7 +1,7 @@
-import { deleteSellerLineItemWorkflow } from '#/workflows/cart/workflows'
-
 import { MedusaRequest } from '@medusajs/framework'
 import { MedusaResponse } from '@medusajs/framework/http'
+
+import { deleteSellerLineItemWorkflow } from '../../../../../../workflows/cart/workflows'
 
 export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
   const id = req.params.line_id

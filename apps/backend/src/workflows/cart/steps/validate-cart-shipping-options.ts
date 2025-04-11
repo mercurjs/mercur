@@ -1,12 +1,12 @@
-import sellerProductLink from '#/links/seller-product'
-import sellerShippingOptionLink from '#/links/seller-shipping-option'
-
 import {
   ContainerRegistrationKeys,
   MedusaError,
   promiseAll
 } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
+
+import sellerProductLink from '../../../links/seller-product'
+import sellerShippingOptionLink from '../../../links/seller-shipping-option'
 
 type ValidateCartShippingOptionsInput = {
   cart_id: string

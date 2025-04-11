@@ -1,10 +1,9 @@
-import sellerPayoutAccountLink from '#/links/seller-payout-account'
-import { fetchSellerByAuthActorId } from '#/shared/infra/http/utils'
-import { createPayoutAccountForSellerWorkflow } from '#/workflows/seller/workflows'
-
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import sellerPayoutAccountLink from '../../../links/seller-payout-account'
+import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { createPayoutAccountForSellerWorkflow } from '../../../workflows/seller/workflows'
 import { VendorCreatePayoutAccountType } from './validators'
 
 /**

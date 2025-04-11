@@ -1,11 +1,10 @@
-import sellerServiceZoneLink from '#/links/seller-service-zone'
-
 import {
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
 
+import sellerServiceZoneLink from '../../../links/seller-service-zone'
 import sellerShippingOptionLink from '../../../links/seller-shipping-option'
 import {
   checkResourceOwnershipByResourceId,

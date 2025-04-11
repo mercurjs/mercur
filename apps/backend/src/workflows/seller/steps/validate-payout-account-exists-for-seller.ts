@@ -1,10 +1,10 @@
-import sellerPayoutAccountLink from '#/links/seller-payout-account'
-
 import {
   ContainerRegistrationKeys,
   MedusaError
 } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
+
+import sellerPayoutAccountLink from '../../../links/seller-payout-account'
 
 export const validatePayoutAccountExistsForSellerStep = createStep(
   'validate-payout-account-exists-for-seller',

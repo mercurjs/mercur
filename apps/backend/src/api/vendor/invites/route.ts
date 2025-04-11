@@ -1,9 +1,8 @@
-import { fetchSellerByAuthActorId } from '#/shared/infra/http/utils'
-import { inviteMemberWorkflow } from '#/workflows/member/workflows'
-
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { inviteMemberWorkflow } from '../../../workflows/member/workflows'
 import { VendorInviteMemberType } from './validators'
 
 /**

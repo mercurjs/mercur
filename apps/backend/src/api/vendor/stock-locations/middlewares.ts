@@ -1,9 +1,4 @@
 import {
-  checkResourceOwnershipByResourceId,
-  filterBySellerId
-} from 'src/shared/infra/http/middlewares'
-
-import {
   MiddlewareRoute,
   validateAndTransformBody,
   validateAndTransformQuery
@@ -11,6 +6,10 @@ import {
 import { createLinkBody } from '@medusajs/medusa/api/utils/validators'
 
 import sellerStockLocationLink from '../../../links/seller-stock-location'
+import {
+  checkResourceOwnershipByResourceId,
+  filterBySellerId
+} from '../../../shared/infra/http/middlewares'
 import { vendorStockLocationQueryConfig } from './query-config'
 import {
   VendorCreateStockLocation,

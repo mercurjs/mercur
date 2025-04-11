@@ -1,5 +1,3 @@
-import CommissionModuleService from '#/modules/commission/service'
-
 import { MedusaContainer } from '@medusajs/framework'
 import { OrderLineItemDTO, PriceDTO } from '@medusajs/framework/types'
 import {
@@ -10,6 +8,7 @@ import {
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { COMMISSION_MODULE } from '../../../modules/commission'
+import CommissionModuleService from '../../../modules/commission/service'
 import {
   CommissionRateDTO,
   CreateCommissionLineDTO

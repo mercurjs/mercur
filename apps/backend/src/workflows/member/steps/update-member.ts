@@ -1,8 +1,7 @@
-import SellerModuleService from 'src/modules/seller/service'
-
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SELLER_MODULE } from '../../../modules/seller'
+import SellerModuleService from '../../../modules/seller/service'
 import { MemberDTO, UpdateMemberDTO } from '../../../modules/seller/types'
 
 export const updateMemberStep = createStep(

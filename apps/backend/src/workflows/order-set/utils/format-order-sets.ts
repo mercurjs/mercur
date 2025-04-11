@@ -1,16 +1,16 @@
 import {
-  FormattedOrderSetDTO,
-  OrderSetDTO,
-  OrderSetWithOrdersDTO
-} from '#/modules/marketplace/types'
-
-import {
   OrderDTO,
   OrderDetailDTO,
   OrderStatus,
   PaymentCollectionStatus
 } from '@medusajs/framework/types'
 import { BigNumber, MathBN } from '@medusajs/framework/utils'
+
+import {
+  FormattedOrderSetDTO,
+  OrderSetDTO,
+  OrderSetWithOrdersDTO
+} from '../../../modules/marketplace/types'
 
 export const formatOrderSets = (
   orderSetsWithOrders: OrderSetWithOrdersDTO[]

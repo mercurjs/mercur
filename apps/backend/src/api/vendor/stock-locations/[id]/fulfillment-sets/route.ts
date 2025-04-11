@@ -1,12 +1,11 @@
-import { fetchSellerByAuthActorId } from '#/shared/infra/http/utils'
-import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '#/workflows/fulfillment-set/workflows'
-
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse
 } from '@medusajs/framework/http'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
+import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../../../../workflows/fulfillment-set/workflows'
 import { VendorCreateStockLocationFulfillmentSetType } from '../../validators'
 
 /**

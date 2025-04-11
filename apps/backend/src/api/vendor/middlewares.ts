@@ -1,7 +1,6 @@
-import { unlessBaseUrl } from '#/shared/infra/http/utils'
-
 import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
+import { unlessBaseUrl } from '../../shared/infra/http/utils'
 import { vendorCampaignsMiddlewares } from './campaigns/middlewares'
 import { vendorCors } from './cors'
 import { vendorCustomerGroupsMiddlewares } from './customer-groups/middlewares'
