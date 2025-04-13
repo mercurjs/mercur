@@ -59,6 +59,7 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { data: product_categories, metadata } = await query.graph({
     entity: 'product_category',
+    filters: req.filterableFields,
     fields: req.queryConfig.fields,
     pagination: req.queryConfig.pagination
   })
