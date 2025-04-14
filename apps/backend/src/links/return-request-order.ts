@@ -4,6 +4,9 @@ import OrderModule from '@medusajs/medusa/order'
 import orderReturnRequest from '../modules/order-return-request'
 
 export default defineLink(
-  orderReturnRequest.linkable.orderReturnRequest,
+  {
+    linkable: orderReturnRequest.linkable.orderReturnRequest,
+    isList: true
+  },
   OrderModule.linkable.order
 )

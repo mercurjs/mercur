@@ -3,7 +3,7 @@ import PromotionModule from '@medusajs/medusa/promotion'
 
 import SellerModule from '../modules/seller'
 
-export default defineLink(
-  SellerModule.linkable.seller,
-  PromotionModule.linkable.campaign
-)
+export default defineLink(SellerModule.linkable.seller, {
+  linkable: PromotionModule.linkable.campaign,
+  isList: true
+})

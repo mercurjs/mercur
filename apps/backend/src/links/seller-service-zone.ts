@@ -3,7 +3,7 @@ import FulfillmentModule from '@medusajs/medusa/fulfillment'
 
 import SellerModule from '../modules/seller'
 
-export default defineLink(
-  SellerModule.linkable.seller,
-  FulfillmentModule.linkable.serviceZone
-)
+export default defineLink(SellerModule.linkable.seller, {
+  linkable: FulfillmentModule.linkable.serviceZone,
+  isList: true
+})

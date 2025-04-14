@@ -3,7 +3,7 @@ import ProductModule from '@medusajs/medusa/product'
 
 import ReviewModule from '../modules/reviews'
 
-export default defineLink(
-  ProductModule.linkable.product,
-  ReviewModule.linkable.review
-)
+export default defineLink(ProductModule.linkable.product, {
+  linkable: ReviewModule.linkable.review,
+  isList: true
+})
