@@ -4,6 +4,9 @@ import ProductModule from '@medusajs/medusa/product'
 import Taxcode from '../modules/taxcode'
 
 export default defineLink(
-  ProductModule.linkable.productCategory,
+  {
+    linkable: ProductModule.linkable.productCategory,
+    isList: true
+  },
   Taxcode.linkable.taxCode
 )

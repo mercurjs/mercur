@@ -3,7 +3,7 @@ import StockLocationModule from '@medusajs/medusa/stock-location'
 
 import SellerModule from '../modules/seller'
 
-export default defineLink(
-  SellerModule.linkable.seller,
-  StockLocationModule.linkable.stockLocation
-)
+export default defineLink(SellerModule.linkable.seller, {
+  linkable: StockLocationModule.linkable.stockLocation,
+  isList: true
+})
