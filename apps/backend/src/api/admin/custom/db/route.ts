@@ -5,7 +5,6 @@ export async function GET(
   res: MedusaResponse
 ): Promise<void> {
   res.json({
-    db_url: process.env.DATABASE_URL,
-    db_name: process.env.DB_NAME
+    db_url: process.env.DATABASE_URL
   })
 }
