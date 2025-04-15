@@ -16,7 +16,8 @@ import {
   VendorCreateFulfillment,
   VendorCreateFulfillmentType,
   VendorGetOrderChangesParams,
-  VendorGetOrderParams
+  VendorGetOrderParams,
+  VendorOrderCreateShipment
 } from './validators'
 
 export const vendorOrderMiddlewares: MiddlewareRoute[] = [
@@ -74,7 +75,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ['POST'],
-    matcher: '/vendor/orders/:id/fulfillment',
+    matcher: '/vendor/orders/:id/fulfillments',
     middlewares: [
       validateAndTransformBody(VendorCreateFulfillment),
       checkResourceOwnershipByResourceId({
@@ -97,6 +98,50 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetOrderChangesParams,
         vendorOrderChangesQueryConfig.list
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerOrderLink.entryPoint,
+        filterField: 'order_id'
+      })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/orders/:id/fulfillments/:fulfillment_id/cancel',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetOrderParams,
+        vendorOrderQueryConfig.retrieve
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerOrderLink.entryPoint,
+        filterField: 'order_id'
+      })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher:
+      '/vendor/orders/:id/fulfillments/:fulfillment_id/mark-as-delivered',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetOrderParams,
+        vendorOrderQueryConfig.retrieve
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerOrderLink.entryPoint,
+        filterField: 'order_id'
+      })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/orders/:id/fulfillments/:fulfillment_id/shipments',
+    middlewares: [
+      validateAndTransformBody(VendorOrderCreateShipment),
+      validateAndTransformQuery(
+        VendorGetOrderParams,
+        vendorOrderQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerOrderLink.entryPoint,
