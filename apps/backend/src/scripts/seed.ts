@@ -56,7 +56,7 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
     serviceZone.id
   )
   logger.info('Creating seller products...')
-  await createSellerProducts(container, seller.id)
+  await createSellerProducts(container, seller.id, salesChannel.id)
   logger.info('Creating inventory levels...')
   await createInventoryItemStockLevels(container, stockLocation.id)
 

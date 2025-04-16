@@ -378,7 +378,8 @@ export async function createSellerShippingOption(
 
 export async function createSellerProducts(
   container: MedusaContainer,
-  sellerId: string
+  sellerId: string,
+  salesChannelId: string
 ) {
   const productService = container.resolve(Modules.PRODUCT)
   const categories = await productService.listProductCategories(
@@ -393,6 +394,11 @@ export async function createSellerProducts(
     categories: [
       {
         id: p.title.includes('Sneakers') ? sneakersCategory.id : topsCategory.id
+      }
+    ],
+    sales_channels: [
+      {
+        id: salesChannelId
       }
     ]
   }))
