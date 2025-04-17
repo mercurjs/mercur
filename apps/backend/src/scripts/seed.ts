@@ -14,7 +14,7 @@ import {
   createSellerStockLocation,
   createServiceZoneForFulfillmentSet,
   createStore
-} from './seed/seed-utils'
+} from './seed/seed-functions'
 
 export default async function seedMarketplaceData({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
@@ -60,6 +60,9 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
   logger.info('Creating inventory levels...')
   await createInventoryItemStockLevels(container, stockLocation.id)
 
-  logger.info('=== End ===')
+  logger.info('=== Finished ===')
   logger.info(`Publishable api key: ${apiKey.token}`)
+  logger.info(`Vendor panel access:`)
+  logger.info(`email: seller@mercurjs.com`)
+  logger.info(`pass: secret`)
 }
