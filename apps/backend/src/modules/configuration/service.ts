@@ -7,9 +7,9 @@ export const ConfigurationRuleDefaults = new Map<
   ConfigurationRuleType,
   boolean
 >([
-  [ConfigurationRuleType.GLOBAL_PRODUCT_CATALOG, true],
-  [ConfigurationRuleType.PRODUCT_REQUEST_ENABLED, false],
-  [ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL, true],
+  [ConfigurationRuleType.GLOBAL_PRODUCT_CATALOG, false],
+  [ConfigurationRuleType.PRODUCT_REQUEST_ENABLED, true],
+  [ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL, false],
   [ConfigurationRuleType.PRODUCT_IMPORT_ENABLED, true]
 ])
 
