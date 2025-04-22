@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Input, Button, toast, Switch, Label } from "@medusajs/ui";
-import { useUpsertDefaultCommisionRule } from "../../../../hooks/api/commission";
+import { useUpsertDefaultCommisionRule } from "../../../hooks/api/commission";
 import { AdminCommissionAggregate } from "@mercurjs/http-client";
 
 type Props = {

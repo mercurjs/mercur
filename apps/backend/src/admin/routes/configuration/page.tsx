@@ -12,7 +12,7 @@ import {
 import {
   useConfigurationRules,
   useUpdateConfigurationRule,
-} from "../../../hooks/api/configuration";
+} from "../../hooks/api/configuration";
 import { useState } from "react";
 import CreateConfigurationRuleForm from "./components/create-rule-form";
 import { ConfigurationRuleTooltip, RuleType } from "./components/rule-tooltip";

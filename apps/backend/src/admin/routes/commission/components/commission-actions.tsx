@@ -3,7 +3,7 @@ import { DropdownMenu, toast } from "@medusajs/ui";
 import {
   useDeleteCommisionRule,
   useUpdateCommisionRule,
-} from "../../../../hooks/api/commission";
+} from "../../../hooks/api/commission";
 
 export function CommissionActionMenu({
   id,

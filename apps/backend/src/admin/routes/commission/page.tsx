@@ -2,15 +2,15 @@ import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { DocumentText } from "@medusajs/icons";
 import { Button, Container, Drawer, Heading, Text } from "@medusajs/ui";
 import { CommissionDetailTable } from "./components/commission-detail-table";
-import { DataTable } from "../../../components/table/data-table";
-import { useCommissionRulesTableQuery } from "../../../hooks/query/use-commission-rules-table-query";
+import { DataTable } from "../../components/table/data-table";
+import { useCommissionRulesTableQuery } from "../../hooks/query/use-commission-rules-table-query";
 import {
   useCommissionRules,
   useDefaultCommissionRule,
-} from "../../../hooks/api/commission";
+} from "../../hooks/api/commission";
 import { AdminCommissionAggregate } from "@mercurjs/http-client";
-import { useDataTable } from "../../../hooks/table/use-data-table";
-import { useCommissionRulesTableColumns } from "../../../hooks/table/columns/use-commission-rules-table-columns";
+import { useDataTable } from "../../hooks/table/use-data-table";
+import { useCommissionRulesTableColumns } from "../../hooks/table/columns/use-commission-rules-table-columns";
 import CreateCommissionRuleForm from "./components/create-commission-rule-form";
 import { useState } from "react";
 import UpsertDefaultCommissionRuleForm from "./components/upsert-default-commission-rule";
