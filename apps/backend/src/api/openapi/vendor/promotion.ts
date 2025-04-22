@@ -112,3 +112,58 @@
  *           value:
  *              type: string
  */
+
+/**
+ * @schema VendorRuleValueOption
+ * type: object
+ * properties:
+ *   value:
+ *     type: string
+ *     title: value
+ *     description: The rule value's value.
+ *   label:
+ *     type: string
+ *     title: label
+ *     description: The rule value's label.
+ */
+
+/**
+ * @schema VendorRuleAttributeOption
+ * type: object
+ * properties:
+ *   id:
+ *     type: string
+ *     title: id
+ *     description: The rule attribute's ID, which is a rule's `attribute` it refers to.
+ *   value:
+ *     type: string
+ *     title: value
+ *     description: The rule value's value.
+ *   label:
+ *     type: string
+ *     title: label
+ *     description: The rule value's label.
+ *   operators:
+ *     type: array
+ *     description: The attribute's operators.
+ *   items:
+ *     $ref: "#/components/schemas/VendorBaseRuleOperatorOptions"
+ */
+
+/**
+ * @schema VendorBaseRuleOperatorOptions
+ * type: object
+ * properties:
+ *   id:
+ *     type: string
+ *     title: id
+ *     description: The operator's ID.
+ *   value:
+ *     type: string
+ *     title: value
+ *     description: The operator's value.
+ *   label:
+ *     type: string
+ *     title: label
+ *     description: The operator's label.
+ */

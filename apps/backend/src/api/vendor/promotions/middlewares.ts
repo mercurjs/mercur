@@ -9,11 +9,17 @@ import {
   checkResourceOwnershipByResourceId,
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
-import { vendorPromotionQueryConfig } from './query-config'
+import {
+  listRuleTransformQueryConfig,
+  listRuleValueTransformQueryConfig,
+  vendorPromotionQueryConfig
+} from './query-config'
 import {
   VendorBatchPromotionRules,
   VendorCreatePromotion,
-  VendorGetPromotionsParams
+  VendorGetPromotionRuleParams,
+  VendorGetPromotionsParams,
+  VendorGetPromotionsRuleValueParams
 } from './validators'
 
 export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
@@ -105,6 +111,27 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetPromotionsParams,
         vendorPromotionQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher:
+      '/vendor/promotions/rule-value-options/:rule_type/:rule_attribute_id',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetPromotionsRuleValueParams,
+        listRuleValueTransformQueryConfig
+      )
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/promotions/rule-attribute-options/:rule_type',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetPromotionRuleParams,
+        listRuleTransformQueryConfig
       )
     ]
   }
