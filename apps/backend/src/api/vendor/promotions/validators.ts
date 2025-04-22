@@ -153,3 +153,24 @@ export const VendorBatchPromotionRules = z.object({
   create: z.array(VendorCreatePromotionRule).default([]),
   delete: z.array(z.string()).default([])
 })
+
+export type VendorGetPromotionsRuleValueParamsType = z.infer<
+  typeof VendorGetPromotionsRuleValueParams
+>
+export const VendorGetPromotionsRuleValueParams = createFindParams({
+  limit: 100,
+  offset: 0
+}).merge(
+  z.object({
+    q: z.string().optional(),
+    value: z.union([z.string(), z.array(z.string())]).optional()
+  })
+)
+
+export type VendorGetPromotionRuleParamsType = z.infer<
+  typeof VendorGetPromotionRuleParams
+>
+export const VendorGetPromotionRuleParams = z.object({
+  promotion_type: z.string().optional(),
+  application_method_type: z.string().optional()
+})

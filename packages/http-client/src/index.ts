@@ -9,6 +9,82 @@
  * ---------------------------------------------------------------
  */
 
+/** The details of the items to add to a draft order. */
+export interface AdminAddDraftOrderItems {
+  /** The items to add to the draft order. */
+  items?: {
+    /**
+     * quantity
+     * The item's quantity.
+     */
+    quantity: number;
+    /**
+     * variant_id
+     * The ID of the variant to add to the draft order.
+     */
+    variant_id?: string;
+    /**
+     * title
+     * The item's title.
+     */
+    title?: string;
+    /**
+     * unit_price
+     * The item's unit price.
+     */
+    unit_price?: number;
+    /**
+     * compare_at_unit_price
+     * The original price of the item before a promotion or sale.
+     */
+    compare_at_unit_price?: number;
+    /**
+     * internal_note
+     * A note viewed only by admin users about the item.
+     */
+    internal_note?: string;
+    /**
+     * allow_backorder
+     * Whether the item can be purchased if it's out of stock.
+     */
+    allow_backorder?: boolean;
+    /** The item's metadata, can hold custom key-value pairs. */
+    metadata?: object;
+  }[];
+}
+
+/** The details of the promotions to add to a draft order. */
+export interface AdminAddDraftOrderPromotions {
+  /** The list promotion codes to add to the draft order. */
+  promo_codes: string[];
+}
+
+/** The details of the shipping method to add to a draft order. */
+export interface AdminAddDraftOrderShippingMethod {
+  /**
+   * shipping_option_id
+   * The ID of the shipping option that this method is created from.
+   */
+  shipping_option_id: string;
+  /**
+   * custom_amount
+   * A custom amount to be charged for this shipping method. If not provided, the shipping option's amount will be used.
+   */
+  custom_amount?: number;
+  /**
+   * description
+   * The shipping method's description.
+   */
+  description?: string;
+  /**
+   * internal_note
+   * A note viewed only by admin users about the shipping method.
+   */
+  internal_note?: string;
+  /** The shipping method's metadata, can hold custom key-value pairs. */
+  metadata?: object;
+}
+
 /** The API key's details. */
 export interface AdminApiKey {
   /**
@@ -1170,6 +1246,30 @@ export interface AdminCreateInventoryItem {
    */
   thumbnail?: string;
   /** The inventory item's metadata, used to store custom key-value pairs. */
+  metadata?: object;
+}
+
+/** The details of a credit line to add to an order. */
+export interface AdminCreateOrderCreditLines {
+  /**
+   * amount
+   * The amount of the credit line.
+   * @example 100
+   */
+  amount: number;
+  /**
+   * reference
+   * The name of the table that the credit line is referencing.
+   * @example "order"
+   */
+  reference: string;
+  /**
+   * reference_id
+   * The ID of a record in the table that the credit line is referencing.
+   * @example "order_123"
+   */
+  reference_id: string;
+  /** The credit line's metadata, can hold custom key-value pairs. */
   metadata?: object;
 }
 
@@ -2924,6 +3024,10 @@ export interface AdminDraftOrder {
    * The tax total of the draft order's shipping excluding promotions.
    */
   original_shipping_tax_total: number;
+  /** The region's details. */
+  region?: AdminRegion;
+  /** The draft order's credit lines. */
+  credit_lines?: OrderCreditLine[];
 }
 
 /** The list of draft orders with pagination fields. */
@@ -2945,6 +3049,514 @@ export interface AdminDraftOrderListResponse {
   count: number;
   /** The list of draft orders. */
   draft_orders: AdminDraftOrder[];
+}
+
+/** The draft order preview's details. */
+export interface AdminDraftOrderPreview {
+  /**
+   * return_requested_total
+   * The total of the requested return.
+   */
+  return_requested_total: number;
+  /** The order change's details. */
+  order_change: AdminOrderChange;
+  /** The order's items. */
+  items?: ({
+    /**
+     * id
+     * The item's ID.
+     */
+    id: string;
+    /**
+     * title
+     * The item's title.
+     */
+    title: string;
+    /**
+     * subtitle
+     * The item's subtitle.
+     */
+    subtitle: string;
+    /**
+     * thumbnail
+     * The URL of the item's thumbnail.
+     */
+    thumbnail: string;
+    /** The product variant's details. */
+    variant?: BaseProductVariant;
+    /**
+     * variant_id
+     * The ID of the associated variant.
+     */
+    variant_id: string;
+    /** The product's details. */
+    product?: AdminProduct;
+    /**
+     * product_id
+     * The ID of the associated product.
+     */
+    product_id: string;
+    /**
+     * product_title
+     * The title of the item's product.
+     */
+    product_title: string;
+    /**
+     * product_description
+     * The description of the item's product.
+     */
+    product_description: string;
+    /**
+     * product_subtitle
+     * The subtitle of the item's product.
+     */
+    product_subtitle: string;
+    /**
+     * product_type
+     * The ID of type of the item's product.
+     */
+    product_type: string;
+    /**
+     * product_collection
+     * The ID of collection of the item's product.
+     */
+    product_collection: string;
+    /**
+     * product_handle
+     * The handle of the item's product.
+     */
+    product_handle: string;
+    /**
+     * variant_sku
+     * The SKU of the item's variant.
+     */
+    variant_sku: string;
+    /**
+     * variant_barcode
+     * The barcode of the item's variant.
+     */
+    variant_barcode: string;
+    /**
+     * variant_title
+     * The title of the item's variant.
+     */
+    variant_title: string;
+    /** The option values of the item's variant as key-value pairs. The key is the title of an option, and the value is the option's value. */
+    variant_option_values: object;
+    /**
+     * requires_shipping
+     * Whether the item requires shipping.
+     */
+    requires_shipping: boolean;
+    /**
+     * is_discountable
+     * Whether the item is discountable.
+     */
+    is_discountable: boolean;
+    /**
+     * is_tax_inclusive
+     * Whether the item's price includes taxes.
+     */
+    is_tax_inclusive: boolean;
+    /**
+     * compare_at_unit_price
+     * The original price of the item before a promotion or sale.
+     */
+    compare_at_unit_price?: number;
+    /**
+     * unit_price
+     * The item's unit price.
+     */
+    unit_price: number;
+    /**
+     * quantity
+     * The item's quantity.
+     */
+    quantity: number;
+    /** The item's tax lines. */
+    tax_lines?: BaseOrderLineItemTaxLine[];
+    /** The item's adjustments. */
+    adjustments?: BaseOrderLineItemAdjustment[];
+    /** The item's detail. */
+    detail: BaseOrderItemDetail;
+    /**
+     * created_at
+     * The date the item was created.
+     * @format date-time
+     */
+    created_at: string;
+    /**
+     * updated_at
+     * The date the item was updated.
+     * @format date-time
+     */
+    updated_at: string;
+    /** The item's metadata, can hold custom key-value pairs. */
+    metadata: object;
+    /**
+     * original_total
+     * The item's total including taxes, excluding promotions.
+     */
+    original_total: number;
+    /**
+     * original_subtotal
+     * The item's total excluding taxes, including promotions.
+     */
+    original_subtotal: number;
+    /**
+     * original_tax_total
+     * The tax total of the item excluding promotions.
+     */
+    original_tax_total: number;
+    /**
+     * item_total
+     * The item's total for a single unit including taxes and promotions.
+     */
+    item_total: number;
+    /**
+     * item_subtotal
+     * The item's total for a single unit excluding taxes, including promotions.
+     */
+    item_subtotal: number;
+    /**
+     * item_tax_total
+     * The tax total for a single unit of the item including promotions.
+     */
+    item_tax_total: number;
+    /**
+     * total
+     * The item's total including taxes and promotions.
+     */
+    total: number;
+    /**
+     * subtotal
+     * The item's total excluding taxes, including promotions.
+     */
+    subtotal: number;
+    /**
+     * tax_total
+     * The tax total of the item including promotions.
+     */
+    tax_total: number;
+    /**
+     * discount_total
+     * The total of the item's discount / promotion.
+     */
+    discount_total: number;
+    /**
+     * discount_tax_total
+     * The tax total of the item's discount / promotion
+     */
+    discount_tax_total: number;
+    /**
+     * refundable_total
+     * The total refundable amount of the item's total.
+     */
+    refundable_total: number;
+    /**
+     * refundable_total_per_unit
+     * The total refundable amount of the item's total for a single unit.
+     */
+    refundable_total_per_unit: number;
+  } & {
+    /** The actions applied on an item. */
+    actions?: object[];
+  })[];
+  /** The order's shipping methods. */
+  shipping_methods?: ({
+    /**
+     * id
+     * The shipping method's ID.
+     */
+    id: string;
+    /**
+     * order_id
+     * The ID of the order this shipping method belongs to.
+     */
+    order_id: string;
+    /**
+     * name
+     * The shipping method's name.
+     */
+    name: string;
+    /**
+     * description
+     * The shipping method's description.
+     */
+    description?: string;
+    /**
+     * amount
+     * The shipping method's amount.
+     */
+    amount: number;
+    /**
+     * is_tax_inclusive
+     * Whether the shipping method's amount is tax inclusive.
+     */
+    is_tax_inclusive: boolean;
+    /**
+     * shipping_option_id
+     * The ID of the shipping option this method was created from.
+     */
+    shipping_option_id: string;
+    /** The data relevant for the fulfillment provider to process this shipment. */
+    data: object;
+    /** The shipping method's metadata, can hold custom key-value pairs. */
+    metadata: object;
+    /** The shipping method's tax lines. */
+    tax_lines?: BaseOrderShippingMethodTaxLine[];
+    /** The shipping method's adjustments. */
+    adjustments?: BaseOrderShippingMethodAdjustment[];
+    /** The shipping method's total including taxes, excluding promotions. */
+    original_total: string | number;
+    /** The shipping method's total excluding taxes, including promotions. */
+    original_subtotal: string | number;
+    /** The tax total of the shipping method excluding promotions. */
+    original_tax_total: string | number;
+    /** The shipping method's total including taxes and promotions. */
+    total: string | number;
+    /** The shipping method's total excluding taxes, including promotions. */
+    subtotal: string | number;
+    /** The tax total of the shipping method including promotions. */
+    tax_total: string | number;
+    /** The total of the shipping method's promotion. */
+    discount_total: string | number;
+    /** The tax total of the shipping method's promotion. */
+    discount_tax_total: string | number;
+    /**
+     * created_at
+     * The date the shipping method was created.
+     * @format date-time
+     */
+    created_at: string;
+    /**
+     * updated_at
+     * The date the shipping method was updated.
+     * @format date-time
+     */
+    updated_at: string;
+  } & {
+    /** The actions applied on the shipping method. */
+    actions?: object[];
+  })[];
+  /**
+   * currency_code
+   * The order's currency code.
+   */
+  currency_code: string;
+  /**
+   * version
+   * The order's version when this preview is applied.
+   */
+  version: number;
+  /**
+   * id
+   * The order's ID.
+   */
+  id: string;
+  /**
+   * region_id
+   * The ID of the order's associated region.
+   */
+  region_id: string;
+  /**
+   * customer_id
+   * The ID of the customer that placed the order.
+   */
+  customer_id: string;
+  /**
+   * sales_channel_id
+   * The ID of the sales channel that the order was placed in.
+   */
+  sales_channel_id: string;
+  /**
+   * email
+   * The email of the customer that placed the order.
+   * @format email
+   */
+  email: string;
+  /**
+   * display_id
+   * The order's display ID.
+   */
+  display_id?: number;
+  /** An order address. */
+  shipping_address?: AdminOrderAddress;
+  /** An order address. */
+  billing_address?: AdminOrderAddress;
+  /** The order's payment collections. */
+  payment_collections: AdminPaymentCollection[];
+  /** The order's payment status. */
+  payment_status:
+    | "canceled"
+    | "not_paid"
+    | "awaiting"
+    | "authorized"
+    | "partially_authorized"
+    | "captured"
+    | "partially_captured"
+    | "partially_refunded"
+    | "refunded"
+    | "requires_action";
+  /** The order's fulfillments. */
+  fulfillments?: AdminOrderFulfillment[];
+  /** The order's fulfillment status. */
+  fulfillment_status:
+    | "canceled"
+    | "not_fulfilled"
+    | "partially_fulfilled"
+    | "fulfilled"
+    | "partially_shipped"
+    | "shipped"
+    | "partially_delivered"
+    | "delivered";
+  /** The order's transactions. */
+  transactions?: BaseOrderTransaction[];
+  /** The order's summary details. */
+  summary: BaseOrderSummary;
+  /** The order's metadata, can hold custom key-value pairs. */
+  metadata?: object;
+  /**
+   * created_at
+   * The date the order was created.
+   * @format date-time
+   */
+  created_at: string;
+  /**
+   * updated_at
+   * The date the order was updated.
+   * @format date-time
+   */
+  updated_at: string;
+  /**
+   * original_item_total
+   * The total of the order's items including taxes, excluding promotions.
+   */
+  original_item_total: number;
+  /**
+   * original_item_subtotal
+   * The total of the order's items excluding taxes, including promotions.
+   */
+  original_item_subtotal: number;
+  /**
+   * original_item_tax_total
+   * The tax total of the order's items excluding promotions.
+   */
+  original_item_tax_total: number;
+  /**
+   * item_total
+   * The total of the order's items including taxes and promotions.
+   */
+  item_total: number;
+  /**
+   * item_subtotal
+   * The total of the order's items excluding taxes, including promotions.
+   */
+  item_subtotal: number;
+  /**
+   * item_tax_total
+   * The tax total of the order's items including promotions.
+   */
+  item_tax_total: number;
+  /**
+   * original_total
+   * The order's total excluding promotions, including taxes.
+   */
+  original_total: number;
+  /**
+   * original_subtotal
+   * The order's total excluding taxes, including promotions.
+   */
+  original_subtotal: number;
+  /**
+   * original_tax_total
+   * The order's tax total, excluding promotions.
+   */
+  original_tax_total: number;
+  /**
+   * total
+   * The order's total including taxes and promotions.
+   */
+  total: number;
+  /**
+   * subtotal
+   * The order's total excluding taxes, including promotions.
+   */
+  subtotal: number;
+  /**
+   * tax_total
+   * The order's tax total including promotions.
+   */
+  tax_total: number;
+  /**
+   * discount_total
+   * The order's discount or promotions total.
+   */
+  discount_total: number;
+  /**
+   * discount_tax_total
+   * The tax total of order's discount or promotion.
+   */
+  discount_tax_total: number;
+  /**
+   * gift_card_total
+   * The order's gift card total.
+   */
+  gift_card_total: number;
+  /**
+   * gift_card_tax_total
+   * The tax total of the order's gift card.
+   */
+  gift_card_tax_total: number;
+  /**
+   * shipping_total
+   * The order's shipping total including taxes and promotions.
+   */
+  shipping_total: number;
+  /**
+   * shipping_subtotal
+   * The order's shipping total excluding taxes, including promotions.
+   */
+  shipping_subtotal: number;
+  /**
+   * shipping_tax_total
+   * The tax total of the order's shipping.
+   */
+  shipping_tax_total: number;
+  /**
+   * original_shipping_total
+   * The order's shipping total including taxes, excluding promotions.
+   */
+  original_shipping_total: number;
+  /**
+   * original_shipping_subtotal
+   * The order's shipping total excluding taxes, including promotions.
+   */
+  original_shipping_subtotal: number;
+  /**
+   * original_shipping_tax_total
+   * The tax total of the order's shipping excluding promotions.
+   */
+  original_shipping_tax_total: number;
+  /** The customer's details. */
+  customer?: AdminCustomer;
+  /** The sales channel's details. */
+  sales_channel?: AdminSalesChannel;
+  /**
+   * status
+   * The order's status.
+   */
+  status: string;
+  /** The region's details. */
+  region?: AdminRegion;
+  /** The order preview's credit lines. */
+  credit_lines?: OrderCreditLine[];
+}
+
+/** The details of the preview on the draft order. */
+export interface AdminDraftOrderPreviewResponse {
+  /** The draft order preview's details. */
+  draft_order_preview: AdminDraftOrderPreview;
 }
 
 /** The draft order's details. */
@@ -4134,6 +4746,10 @@ export interface AdminOrder {
    * The order's status.
    */
   status: string;
+  /** The region's details. */
+  region?: AdminRegion;
+  /** The order's credit lines. */
+  credit_lines?: OrderCreditLine[];
 }
 
 /** An order address. */
@@ -5241,6 +5857,10 @@ export interface AdminOrderPreview {
    * The order's status.
    */
   status: string;
+  /** The region's details. */
+  region?: AdminRegion;
+  /** The order preview's credit lines. */
+  credit_lines?: OrderCreditLine[];
 }
 
 /** The preview of an order. */
@@ -5565,6 +6185,21 @@ export interface AdminPaymentSession {
   payment_collection?: object;
   /** The payment's details. */
   payment?: BasePayment;
+}
+
+/** The plugin's details. */
+export interface AdminPlugin {
+  /**
+   * name
+   * The plugin's name.
+   */
+  name: string;
+}
+
+/** The list of plugins. */
+export interface AdminPluginsListResponse {
+  /** The list of plugins. */
+  plugins: AdminPlugin[];
 }
 
 /** The details of canceling a claim. */
@@ -7746,6 +8381,12 @@ export interface AdminRegionResponse {
   region: AdminRegion;
 }
 
+/** The promotion codes to remove from the draft order. */
+export interface AdminRemoveDraftOrderPromotions {
+  /** The promotion codes to remove from the draft order. */
+  promo_codes: string[];
+}
+
 /** The reservation's details. */
 export interface AdminReservation {
   /**
@@ -9194,6 +9835,85 @@ export interface AdminUpdateDraftOrder {
   };
   /** The draft order's metadata, can hold custom key-value pairs. */
   metadata?: object;
+  /**
+   * customer_id
+   * The ID of the customer associated with the draft order.
+   */
+  customer_id?: string;
+  /**
+   * sales_channel_id
+   * The ID of the sales channel associated with the draft order.
+   */
+  sales_channel_id?: string;
+}
+
+/** The updates to make on a changed shipping method. */
+export interface AdminUpdateDraftOrderActionShippingMethod {
+  /**
+   * shipping_option_id
+   * The ID of the associated shipping option.
+   */
+  shipping_option_id: string;
+  /**
+   * custom_amount
+   * The custom amount of the shipping method. If not provided, the shipping option's amount will be used.
+   */
+  custom_amount?: number;
+  /**
+   * description
+   * The shipping method's description.
+   */
+  description?: string;
+  /**
+   * internal_note
+   * A note viewed only by admin users about the shipping method.
+   */
+  internal_note?: string;
+  /** The shipping method's metadata, can hold custom key-value pairs. */
+  metadata?: object;
+}
+
+/** The updates to make on a draft order's item. */
+export interface AdminUpdateDraftOrderItem {
+  /**
+   * quantity
+   * The item's quantity.
+   */
+  quantity: number;
+  /**
+   * unit_price
+   * The item's unit price.
+   */
+  unit_price?: number;
+  /**
+   * compare_at_unit_price
+   * The original price of the item before a promotion or sale.
+   */
+  compare_at_unit_price?: number;
+  /**
+   * internal_note
+   * A note viewed only by admin users about the item.
+   */
+  internal_note?: string;
+}
+
+/** The updates to make on a draft order's shipping method. */
+export interface AdminUpdateDraftOrderShippingMethod {
+  /**
+   * shipping_option_id
+   * The ID of the associated shipping option.
+   */
+  shipping_option_id?: string;
+  /**
+   * custom_amount
+   * The custom amount of the shipping method. If not provided, the shipping option's amount will be used.
+   */
+  custom_amount?: number;
+  /**
+   * internal_note
+   * A note viewed only by admin users about the shipping method.
+   */
+  internal_note?: string;
 }
 
 /** The details to update in the order. */
@@ -10118,9 +10838,14 @@ export interface AdminWorkflowExecutionExecution {
         noCompensation?: boolean;
         /**
          * continueOnPermanentFailure
-         * Whether the step continues executing even if its status is changed to failed.
+         * Whether the workflow should continue executing even if its status is changed to failed.
          */
         continueOnPermanentFailure?: boolean;
+        /**
+         * skipOnPermanentFailure
+         * Whether the workflow should skip subsequent steps in case of a permanent failure.
+         */
+        skipOnPermanentFailure?: boolean;
         /**
          * maxRetries
          * The maximum number of times to retry the step.
@@ -13687,7 +14412,64 @@ export interface Order {
   /** The order's transactions. */
   transactions?: OrderTransaction[];
   /** The order's summary. */
-  summary?: object;
+  summary?: {
+    /**
+     * pending_difference
+     * The remaining amount to be paid or refunded.
+     */
+    pending_difference: number;
+    /**
+     * current_order_total
+     * The order's current total.
+     */
+    current_order_total: number;
+    /**
+     * original_order_total
+     * The order's total before any changes.
+     */
+    original_order_total: number;
+    /**
+     * transaction_total
+     * The total of the transactions (payments and refunds) made on the order.
+     */
+    transaction_total: number;
+    /**
+     * paid_total
+     * The total paid amount.
+     */
+    paid_total: number;
+    /**
+     * refunded_total
+     * The total refunded amount.
+     */
+    refunded_total: number;
+    /**
+     * credit_line_total
+     * The total credit line amount.
+     */
+    credit_line_total: number;
+    /**
+     * accounting_total
+     * The total amount for accounting purposes.
+     */
+    accounting_total: number;
+    /** The summary's raw pending difference. */
+    raw_pending_difference: object;
+    /** The summary's raw current order total. */
+    raw_current_order_total: object;
+    /** The summary's raw original order total. */
+    raw_original_order_total: object;
+    /** The summary's raw transaction total. */
+    raw_transaction_total: object;
+    /** The summary's raw paid total. */
+    raw_paid_total: object;
+    /** The summary's raw refunded total. */
+    raw_refunded_total: object;
+    /** The summary's raw credit line total. */
+    raw_credit_line_total: object;
+    /** The summary's raw accounting total. */
+    raw_accounting_total: object;
+  };
   /** The order's metadata, can hold custom key-value pairs. */
   metadata?: object;
   /**
@@ -13830,6 +14612,11 @@ export interface Order {
   display_id: number;
   /** The order's credit lines, useful to add additional payment amounts for an order. */
   credit_lines?: OrderCreditLine[];
+  /**
+   * is_draft_order
+   * Whether the order is a draft order.
+   */
+  is_draft_order?: boolean;
 }
 
 /** The address's details. */
@@ -14593,6 +15380,11 @@ export interface OrderLineItem {
    * The ID of the associated product's type.
    */
   product_type_id?: string;
+  /**
+   * is_giftcard
+   * Whether the item is a gift card.
+   */
+  is_giftcard: boolean;
 }
 
 /** The line item adjustment's details. */
@@ -15958,6 +16750,12 @@ export interface StoreCartPromotion {
      */
     currency_code: string;
   };
+}
+
+/** The promotion code to remove from the cart. */
+export interface StoreCartRemovePromotion {
+  /** The promotion code to remove from the cart. */
+  promo_codes: string[];
 }
 
 /** The cart's details. */
@@ -22476,8 +23274,6 @@ export interface StoreProduct {
 
 /** The category's details. */
 export interface StoreProductCategory {
-  /** The category's products. */
-  products?: StoreProduct[];
   /**
    * id
    * The category's ID.
@@ -22531,6 +23327,8 @@ export interface StoreProductCategory {
    * @format date-time
    */
   deleted_at: string;
+  /** The category's products. */
+  products?: StoreProduct[];
 }
 
 /** The paginated list of product categories. */
@@ -24402,6 +25200,24 @@ export interface VendorApplicationMethod {
 export interface VendorAssignBrandName {
   /** The name of the brand. */
   brand_name: string;
+}
+
+export interface VendorBaseRuleOperatorOptions {
+  /**
+   * id
+   * The operator's ID.
+   */
+  id?: string;
+  /**
+   * value
+   * The operator's value.
+   */
+  value?: string;
+  /**
+   * label
+   * The operator's label.
+   */
+  label?: string;
 }
 
 export interface VendorBatchPromotionRule {
@@ -27193,6 +28009,40 @@ export interface VendorReturnsReceiveItemsAction {
   quantity?: string;
   /** A note. */
   internal_note?: string;
+}
+
+export interface VendorRuleAttributeOption {
+  /**
+   * id
+   * The rule attribute's ID, which is a rule's `attribute` it refers to.
+   */
+  id?: string;
+  /**
+   * value
+   * The rule value's value.
+   */
+  value?: string;
+  /**
+   * label
+   * The rule value's label.
+   */
+  label?: string;
+  /** The attribute's operators. */
+  operators?: any[];
+  items?: VendorBaseRuleOperatorOptions;
+}
+
+export interface VendorRuleValueOption {
+  /**
+   * value
+   * The rule value's value.
+   */
+  value?: string;
+  /**
+   * label
+   * The rule value's label.
+   */
+  label?: string;
 }
 
 /** The details of the sales channel. */
@@ -31827,7 +32677,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
         /**
@@ -33744,7 +34594,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -33775,7 +34625,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -33837,7 +34687,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -33905,7 +34755,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
         /**
@@ -34068,7 +34918,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -34100,7 +34950,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -34202,7 +35052,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -34234,7 +35084,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -34291,7 +35141,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. If a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. Without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. If a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. Without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -35451,6 +36301,322 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Convert a draft order to an order. This will finalize the draft order and create a new order with the same details.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdConvertToOrder
+     * @summary Convert a Draft Order to an Order
+     * @request POST:/admin/draft-orders/{id}/convert-to-order
+     * @secure
+     */
+    adminPostDraftOrdersIdConvertToOrder: (
+      id: string,
+      query?: {
+        /**
+         * fields
+         * Comma-separated fields that should be included in the returned data. If a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. Without prefix it will replace the entire default fields.
+         */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/convert-to-order`,
+        method: "POST",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Create an edit on a draft order. This will allow you to make changes to the draft order's items, shipping methods, or promotions before confirming them later.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEdit
+     * @summary Create a Draft Order Edit
+     * @request POST:/admin/draft-orders/{id}/edit
+     * @secure
+     */
+    adminPostDraftOrdersIdEdit: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Cancel an unconfirmed edit on a draft order.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminDeleteDraftOrdersIdEdit
+     * @summary Cancel Edit on Draft Order
+     * @request DELETE:/admin/draft-orders/{id}/edit
+     * @secure
+     */
+    adminDeleteDraftOrdersIdEdit: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Confirm an edit on a draft order. This will apply the changes made to the draft order.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEditConfirm
+     * @summary Confirm an Edit on a Draft Order
+     * @request POST:/admin/draft-orders/{id}/edit/confirm
+     * @secure
+     */
+    adminPostDraftOrdersIdEditConfirm: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/confirm`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Add an Item to a draft order.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEditItems
+     * @summary Add Item to Draft Order
+     * @request POST:/admin/draft-orders/{id}/edit/items
+     * @secure
+     */
+    adminPostDraftOrdersIdEditItems: (id: string, data: AdminAddDraftOrderItems, params: RequestParams = {}) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/items`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Update an item in a draft order.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEditItemsItemItemId
+     * @summary Update Item in Draft Order
+     * @request POST:/admin/draft-orders/{id}/edit/items/item/{item_id}
+     * @secure
+     */
+    adminPostDraftOrdersIdEditItemsItemItemId: (
+      id: string,
+      itemId: string,
+      data: AdminUpdateDraftOrderItem,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/items/item/${itemId}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Update changes made on an item (addition or update) in the draft order by the ID of the item's `ITEM_ADD` or `ITEM_UPDATE` action. Every item has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEditItemsActionId
+     * @summary Update Item Changes in Draft Order
+     * @request POST:/admin/draft-orders/{id}/edit/items/{action_id}
+     * @secure
+     */
+    adminPostDraftOrdersIdEditItemsActionId: (
+      id: string,
+      actionId: string,
+      data: AdminUpdateDraftOrderItem,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/items/${actionId}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Remove an order item from a draft order by the ID of the item's `ITEM_REMOVE` action. Every item has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminDeleteDraftOrdersIdEditItemsActionId
+     * @summary Remove Item from Draft Order
+     * @request DELETE:/admin/draft-orders/{id}/edit/items/{action_id}
+     * @secure
+     */
+    adminDeleteDraftOrdersIdEditItemsActionId: (id: string, actionId: string, params: RequestParams = {}) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/items/${actionId}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Add promotions to a draft order.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEditPromotions
+     * @summary Add Promotions to Draft Order
+     * @request POST:/admin/draft-orders/{id}/edit/promotions
+     * @secure
+     */
+    adminPostDraftOrdersIdEditPromotions: (
+      id: string,
+      data: AdminAddDraftOrderPromotions,
+      params: RequestParams = {},
+    ) =>
+      this.request<AdminDraftOrderPreviewResponse, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/promotions`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Remove specified promotions from a draft order.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminDeleteDraftOrdersIdEditPromotions
+     * @summary Remove Promotions from Draft Order
+     * @request DELETE:/admin/draft-orders/{id}/edit/promotions
+     * @secure
+     */
+    adminDeleteDraftOrdersIdEditPromotions: (
+      id: string,
+      data: AdminRemoveDraftOrderPromotions,
+      params: RequestParams = {},
+    ) =>
+      this.request<AdminDraftOrderPreviewResponse, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/promotions`,
+        method: "DELETE",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Change the status of a draft order's edit to be requested. Later, the edit can be confirmed or canceled.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEditRequest
+     * @summary Request Edit on Draft Order
+     * @request POST:/admin/draft-orders/{id}/edit/request
+     * @secure
+     */
+    adminPostDraftOrdersIdEditRequest: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/request`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Add a shipping method to a draft order.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEditShippingMethods
+     * @summary Add Shipping Method to Draft Order
+     * @request POST:/admin/draft-orders/{id}/edit/shipping-methods
+     * @secure
+     */
+    adminPostDraftOrdersIdEditShippingMethods: (
+      id: string,
+      data: AdminAddDraftOrderShippingMethod,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/shipping-methods`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Update a shipping method in a draft order
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEditShippingMethodsMethodMethodId
+     * @summary Update Shipping Method in Draft Order
+     * @request POST:/admin/draft-orders/{id}/edit/shipping-methods/method/{method_id}
+     * @secure
+     */
+    adminPostDraftOrdersIdEditShippingMethodsMethodMethodId: (
+      id: string,
+      methodId: string,
+      data: AdminUpdateDraftOrderShippingMethod,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/shipping-methods/method/${methodId}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Update changes made on a shipping method (addition or update) in a draft order using the `ID` of the method's `SHIPPING_ADD` or `SHIPPING_UPDATE` action. Every shipping method has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminPostDraftOrdersIdEditShippingMethodsActionId
+     * @summary Update Shipping Method Changes in Draft Order
+     * @request POST:/admin/draft-orders/{id}/edit/shipping-methods/{action_id}
+     * @secure
+     */
+    adminPostDraftOrdersIdEditShippingMethodsActionId: (
+      id: string,
+      actionId: string,
+      data: AdminUpdateDraftOrderActionShippingMethod,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/shipping-methods/${actionId}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Remove the shipping method in a draft order using the `ID` of the method's `SHIPPING_ADD` action. Every shipping method has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminDeleteDraftOrdersIdEditShippingMethodsActionId
+     * @summary Remove Shipping Method from Draft Order
+     * @request DELETE:/admin/draft-orders/{id}/edit/shipping-methods/{action_id}
+     * @secure
+     */
+    adminDeleteDraftOrdersIdEditShippingMethodsActionId: (id: string, actionId: string, params: RequestParams = {}) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/shipping-methods/${actionId}`,
+        method: "DELETE",
+        secure: true,
         ...params,
       }),
 
@@ -37528,7 +38694,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       data: AdminBatchInventoryItemLocationsLevel,
       params: RequestParams = {},
     ) =>
-      this.request<any, Error | string>({
+      this.request<void, Error | string>({
         path: `/admin/inventory-items/${id}/location-levels/batch`,
         method: "POST",
         body: data,
@@ -39075,6 +40241,38 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Create a credit line for an order.
+     *
+     * @tags Admin Orders
+     * @name AdminPostOrdersIdCreditLines
+     * @summary Create Credit Line for Order
+     * @request POST:/admin/orders/{id}/credit-lines
+     * @secure
+     */
+    adminPostOrdersIdCreditLines: (
+      id: string,
+      data: AdminCreateOrderCreditLines,
+      query?: {
+        /**
+         * fields
+         * Comma-separated fields that should be included in the returned data. If a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. Without prefix it will replace the entire default fields.
+         */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<AdminOrderResponse, Error | string>({
+        path: `/admin/orders/${id}/credit-lines`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Create a fulfillment for an order. The creation fails if the order is canceled.
      *
      * @tags Admin Orders
@@ -40030,6 +41228,24 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieve the list of plugins installed in the Medusa application.
+     *
+     * @tags Admin Plugins
+     * @name AdminGetPlugins
+     * @summary List Plugins
+     * @request GET:/admin/plugins
+     * @secure
+     */
+    adminGetPlugins: (params: RequestParams = {}) =>
+      this.request<AdminPluginsListResponse, Error | string>({
+        path: `/admin/plugins`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieve a list of price lists. The price lists can be filtered by fields such as `id`. The price lists can also be sorted or paginated.
      *
      * @tags Admin Price Lists
@@ -40674,7 +41890,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
         /**
@@ -40994,7 +42210,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -41025,7 +42241,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
         /**
@@ -41103,7 +42319,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -41158,7 +42374,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. NOTE: This route doesn't allow expanding custom relations.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -43063,7 +44279,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @secure
      */
     adminPostProductsImportTransactionIdConfirm: (transactionId: string, params: RequestParams = {}) =>
-      this.request<any, Error | string>({
+      this.request<void, Error | string>({
         path: `/admin/products/import/${transactionId}/confirm`,
         method: "POST",
         secure: true,
@@ -44313,6 +45529,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
          * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
          */
         $or?: object[];
+        /** Filter by a currency code. The promotions are filtered based on their application method's currency code. */
+        currency_code?: string | string[];
+        /** Filter by an application method type. The promotions are filtered based on their application method's type. */
+        application_method_type?: string | string[];
       },
       params: RequestParams = {},
     ) =>
@@ -44620,6 +45840,22 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     ) =>
       this.request<
         {
+          /**
+           * limit
+           * The maximum number of items returned.
+           */
+          limit: number;
+          /**
+           * offset
+           * The number of items skipped before retrieving the returned items.
+           */
+          offset: number;
+          /**
+           * count
+           * The total number of items.
+           */
+          count: number;
+        } & {
           /** The list of rule values. */
           values: AdminRuleValueOption[];
         },
@@ -52668,7 +53904,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Generate a reset password token for an admin user. This API route doesn't reset the admin's password or send them the reset instructions in a notification. Instead, This API route emits the `auth.password_reset` event, passing it the token as a payload. You can listen to that event in a subscriber as explained in [this guide](https://docs.medusajs.com/resources/commerce-modules/auth/reset-password), then send the user a notification. The notification is sent using a [Notification Module Provider](https://docs.medusajs.com/resources/architectural-modules/notification), and it should have the URL to reset the password in the Medusa Admin dashboard, such as `http://localhost:9000/app/reset-password?token=123`. Use the generated token to update the user's password using the [Reset Password API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerupdate).
+     * @description Generate a reset password token for an admin user. This API route doesn't reset the admin's password or send them the reset instructions in a notification. Instead, This API route emits the `auth.password_reset` event, passing it the token as a payload. You can listen to that event in a subscriber as explained in [this guide](https://docs.medusajs.com/resources/commerce-modules/auth/reset-password), then send the user a notification. The notification is sent using a [Notification Module Provider](https://docs.medusajs.com/resources/infrastructure-modules/notification), and it should have the URL to reset the password in the Medusa Admin dashboard, such as `http://localhost:9000/app/reset-password?token=123`. Use the generated token to update the user's password using the [Reset Password API route](https://docs.medusajs.com/api/admin#auth_postactor_typeauth_providerupdate).
      *
      * @tags Admin Auth
      * @name AdminPostActorTypeAuthProviderResetPassword
@@ -52770,7 +54006,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Generate a reset password token for a customer. This API route doesn't reset the customer password or send them the reset instructions in a notification. Instead, This API route emits the `auth.password_reset` event, passing it the token as a payload. You can listen to that event in a subscriber as explained in [this guide](https://docs.medusajs.com/resources/commerce-modules/auth/reset-password), then send the customer a notification. The notification is sent using a [Notification Module Provider](https://docs.medusajs.com/resources/architectural-modules/notification), and it should have a URL that accepts a `token` query parameter, allowing the customer to reset their password from the storefront. Use the generated token to update the customer's password using the [Reset Password API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerupdate).
+     * @description Generate a reset password token for a customer. This API route doesn't reset the customer password or send them the reset instructions in a notification. Instead, This API route emits the `auth.password_reset` event, passing it the token as a payload. You can listen to that event in a subscriber as explained in [this guide](https://docs.medusajs.com/resources/commerce-modules/auth/reset-password), then send the customer a notification. The notification is sent using a [Notification Module Provider](https://docs.medusajs.com/resources/infrastructure-modules/notification), and it should have a URL that accepts a `token` query parameter, allowing the customer to reset their password from the storefront. Use the generated token to update the customer's password using the [Reset Password API route](https://docs.medusajs.com/api/store#auth_postactor_typeauth_providerupdate).
      *
      * @tags Store Auth
      * @name StorePostActorTypeAuthProviderResetPassword
@@ -53200,6 +54436,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     storeDeleteCartsIdPromotions: (
       id: string,
+      data: StoreCartRemovePromotion,
       query?: {
         /**
          * fields
@@ -53219,6 +54456,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/store/carts/${id}/promotions`,
         method: "DELETE",
         query: query,
+        body: data,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -53806,7 +55045,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -53836,7 +55075,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -53865,7 +55104,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -53895,7 +55134,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
         /**
@@ -54018,7 +55257,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -54049,7 +55288,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -54147,7 +55386,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -54178,7 +55417,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /**
          * fields
-         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields. This API route restricts the fields that can be selected. Learn how to override the retrievable fields in the [Retrieve Custom Links](https://docs.medusajs.com/learn/fundamentals/api-routes/retrieve-custom-links) documentation.
          */
         fields?: string;
       },
@@ -59274,6 +60513,46 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieve a list of potential rule attributes for the promotion and application method types specified in the query parameters.
+     *
+     * @tags Promotions
+     * @name VendorGetPromotionsRuleAttributeOptionsRule
+     * @summary List Rule Attribute Options of a Rule Type
+     * @request GET:/vendor/promotions/rule-attribute-options/{rule_type}
+     * @secure
+     */
+    vendorGetPromotionsRuleAttributeOptionsRule: (
+      ruleType: "rules" | "target-rules" | "buy-rules",
+      query?: {
+        /**
+         * promotion_type
+         * The promotion type to retrieve rules for.
+         */
+        promotion_type?: "standard" | "buyget";
+        /**
+         * application_method_type
+         * The application method type to retrieve rules for.
+         */
+        application_method_type?: "fixed" | "percentage";
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The list of attributes. */
+          attributes?: VendorRuleAttributeOption[];
+        },
+        any
+      >({
+        path: `/vendor/promotions/rule-attribute-options/${ruleType}`,
+        method: "GET",
+        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
