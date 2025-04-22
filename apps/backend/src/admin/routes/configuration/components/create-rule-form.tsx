@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Select, toast, Switch, Label } from "@medusajs/ui";
-import { useCreateConfigurationRule } from "../../../../hooks/api/configuration";
+import { useCreateConfigurationRule } from "../../../hooks/api/configuration";
 
 type RuleType =
   | "global_product_catalog"

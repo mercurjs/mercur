@@ -3,9 +3,9 @@ import { Input, Button, Select, toast, Switch, Label } from "@medusajs/ui";
 import {
   useProductCategories,
   useProductTypes,
-} from "../../../../hooks/api/product";
-import { useSellers } from "../../../../hooks/api/seller";
-import { useCreateCommisionRule } from "../../../../hooks/api/commission";
+} from "../../../hooks/api/product";
+import { useSellers } from "../../../hooks/api/seller";
+import { useCreateCommisionRule } from "../../../hooks/api/commission";
 
 type Props = {
   onSuccess?: () => void;
