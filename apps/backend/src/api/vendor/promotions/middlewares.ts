@@ -1,5 +1,6 @@
 import {
   MiddlewareRoute,
+  unlessPath,
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
@@ -10,14 +11,15 @@ import {
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import {
-  listRuleTransformQueryConfig,
   listRuleValueTransformQueryConfig,
-  vendorPromotionQueryConfig
+  vendorPromotionQueryConfig,
+  vendorRuleTransformQueryConfig
 } from './query-config'
 import {
   VendorBatchPromotionRules,
   VendorCreatePromotion,
   VendorGetPromotionRuleParams,
+  VendorGetPromotionRuleTypeParams,
   VendorGetPromotionsParams,
   VendorGetPromotionsRuleValueParams
 } from './validators'
@@ -41,6 +43,23 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetPromotionsParams,
         vendorPromotionQueryConfig.retrieve
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerPromotion.entryPoint,
+        filterField: 'promotion_id'
+      })
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/promotions/:id/:rule_type',
+    middlewares: [
+      unlessPath(
+        /.*\/promotions\/rule-attribute-options/,
+        validateAndTransformQuery(
+          VendorGetPromotionRuleTypeParams,
+          vendorPromotionQueryConfig.retrieve
+        )
       ),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerPromotion.entryPoint,
@@ -131,7 +150,7 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformQuery(
         VendorGetPromotionRuleParams,
-        listRuleTransformQueryConfig
+        vendorRuleTransformQueryConfig.list
       )
     ]
   }
