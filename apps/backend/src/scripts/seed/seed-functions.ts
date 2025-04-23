@@ -18,6 +18,7 @@ import {
 } from '@medusajs/medusa/core-flows'
 
 import { SELLER_MODULE } from '../../modules/seller'
+import { createCommissionRuleWorkflow } from '../../workflows/commission/workflows'
 import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../workflows/fulfillment-set/workflows'
 import { createSellerWorkflow } from '../../workflows/seller/workflows'
 import { productsToInsert } from './seed-products'
@@ -439,4 +440,21 @@ export async function createInventoryItemStockLevels(
     }
   })
   return result
+}
+
+export async function createDefaultCommissionLevel(container: MedusaContainer) {
+  await createCommissionRuleWorkflow.run({
+    container,
+    input: {
+      name: 'default',
+      is_active: true,
+      reference: 'site',
+      reference_id: '',
+      rate: {
+        include_tax: true,
+        type: 'percentage',
+        percentage_rate: 2
+      }
+    }
+  })
 }
