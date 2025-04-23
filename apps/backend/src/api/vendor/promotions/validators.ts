@@ -6,7 +6,10 @@ import {
   ApplicationMethodType,
   PromotionType
 } from '@medusajs/framework/utils'
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import {
+  createFindParams,
+  createSelectParams
+} from '@medusajs/medusa/api/utils/validators'
 
 export type VendorGetPromotionsParamsType = z.infer<
   typeof VendorGetPromotionsParams
@@ -174,3 +177,13 @@ export const VendorGetPromotionRuleParams = z.object({
   promotion_type: z.string().optional(),
   application_method_type: z.string().optional()
 })
+
+export type VendorGetPromotionRuleTypeParamsType = z.infer<
+  typeof VendorGetPromotionRuleTypeParams
+>
+export const VendorGetPromotionRuleTypeParams = createSelectParams().merge(
+  z.object({
+    promotion_type: z.string().optional(),
+    application_method_type: z.string().optional()
+  })
+)

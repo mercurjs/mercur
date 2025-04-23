@@ -60696,6 +60696,42 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieve a list of rules in a promotion.
+     *
+     * @tags Promotions
+     * @name VendorGetPromotionsIdRuleType
+     * @summary List Rules of a Promotion
+     * @request GET:/vendor/promotions/{id}/{rule_type}
+     * @secure
+     */
+    vendorGetPromotionsIdRuleType: (
+      id: string,
+      ruleType: "rules" | "target-rules" | "buy-rules",
+      query?: {
+        /**
+         * fields
+         * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
+         */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The list of promotion rules. */
+          rules?: VendorPromotionRule[];
+        },
+        any
+      >({
+        path: `/vendor/promotions/${id}/${ruleType}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves submited requests list
      *
      * @tags Requests

@@ -36,9 +36,15 @@ export const defaultVendorPromotionRuleFields = [
   'values.value'
 ]
 
-export const listRuleTransformQueryConfig = {
-  defaults: defaultVendorPromotionRuleFields,
-  isList: true
+export const vendorRuleTransformQueryConfig = {
+  list: {
+    defaults: defaultVendorPromotionRuleFields,
+    isList: true
+  },
+  retrieve: {
+    defaults: defaultVendorPromotionRuleFields,
+    isList: false
+  }
 }
 
 export const listRuleValueTransformQueryConfig = {
