@@ -58,7 +58,7 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         /.*\/promotions\/rule-attribute-options/,
         validateAndTransformQuery(
           VendorGetPromotionRuleTypeParams,
-          vendorRuleTransformQueryConfig.retrieve
+          vendorPromotionQueryConfig.retrieve
         )
       ),
       checkResourceOwnershipByResourceId({
