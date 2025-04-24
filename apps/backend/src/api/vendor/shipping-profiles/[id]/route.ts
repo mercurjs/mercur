@@ -1,24 +1,23 @@
-import { MedusaResponse } from '@medusajs/framework'
-import { AuthenticatedMedusaRequest } from '@medusajs/framework'
+import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import {
-  deleteStockLocationsWorkflow,
-  updateStockLocationsWorkflow
+  deleteShippingProfileWorkflow,
+  updateShippingProfilesWorkflow
 } from '@medusajs/medusa/core-flows'
 
-import { VendorUpdateStockLocationType } from '../validators'
+import { VendorUpdateShippingProfileType } from '../validators'
 
 /**
- * @oas [get] /vendor/stock-locations/{id}
- * operationId: "VendorGetStockLocation"
- * summary: "Get Stock Location"
- * description: "Retrieves a Stock Location by id."
+ * @oas [get] /vendor/shipping-profiles/{id}
+ * operationId: "VendorGetShippingProfile"
+ * summary: "Get shipping profile"
+ * description: "Retrieves a shipping profile by id."
  * x-authenticated: true
  * parameters:
  *   - in: path
  *     name: id
  *     required: true
- *     description: The ID of the Stock Location
+ *     description: The ID of the shipping profile
  *     schema:
  *       type: string
  *   - in: query
@@ -34,10 +33,10 @@ import { VendorUpdateStockLocationType } from '../validators'
  *         schema:
  *           type: object
  *           properties:
- *             stock_location:
- *               $ref: "#/components/schemas/VendorStockLocation"
+ *             shipping_profile:
+ *               $ref: "#/components/schemas/VendorShippingProfile"
  * tags:
- *   - Stock Location
+ *   - Shipping
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -49,34 +48,29 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const {
-    data: [stockLocation]
-  } = await query.graph(
-    {
-      entity: 'stock_location',
-      fields: req.queryConfig.fields,
-      filters: {
-        id: req.params.id
-      }
-    },
-    { throwIfKeyNotFound: true }
-  )
-
-  res.status(200).json({
-    stock_location: stockLocation
+    data: [shipping_profile]
+  } = await query.graph({
+    entity: 'shipping_profile',
+    fields: req.queryConfig.fields,
+    filters: {
+      id: req.params.id
+    }
   })
+
+  res.json({ shipping_profile })
 }
 
 /**
- * @oas [post] /vendor/stock-locations/{id}
- * operationId: "VendorUpdateStockLocation"
- * summary: "Update Stock Location"
- * description: "Updates a Stock Location."
+ * @oas [post] /vendor/shipping-profiles/{id}
+ * operationId: "VendorUpdateShippingProfile"
+ * summary: "Update a Shipping profile"
+ * description: "Updates a Shipping profile."
  * x-authenticated: true
  * parameters:
  *   - in: path
  *     name: id
  *     required: true
- *     description: The ID of the Stock Location
+ *     description: The ID of the shipping profile
  *     schema:
  *       type: string
  *   - in: query
@@ -88,7 +82,7 @@ export const GET = async (
  *   content:
  *     application/json:
  *       schema:
- *         $ref: "#/components/schemas/VendorUpdateStockLocation"
+ *         $ref: "#/components/schemas/VendorUpdateShippingProfile"
  * responses:
  *   "200":
  *     description: OK
@@ -97,58 +91,50 @@ export const GET = async (
  *         schema:
  *           type: object
  *           properties:
- *             stock_location:
- *               $ref: "#/components/schemas/VendorStockLocation"
+ *             shipping_profile:
+ *               $ref: "#/components/schemas/VendorShippingProfile"
  * tags:
- *   - Stock Location
+ *   - Shipping
  * security:
  *   - api_token: []
  *   - cookie_auth: []
  */
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorUpdateStockLocationType>,
+  req: AuthenticatedMedusaRequest<VendorUpdateShippingProfileType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { id } = req.params
 
-  await updateStockLocationsWorkflow(req.scope).run({
-    input: {
-      selector: {
-        id: req.params.id
-      },
-      update: req.validatedBody
-    }
+  await updateShippingProfilesWorkflow.run({
+    container: req.scope,
+    input: { selector: { id }, update: req.validatedBody }
   })
 
   const {
-    data: [stockLocation]
-  } = await query.graph(
-    {
-      entity: 'stock_location',
-      fields: req.queryConfig.fields,
-      filters: {
-        id: req.params.id
-      }
-    },
-    { throwIfKeyNotFound: true }
-  )
-
-  res.status(200).json({
-    stock_location: stockLocation
+    data: [shipping_profile]
+  } = await query.graph({
+    entity: 'shipping_profile',
+    fields: req.queryConfig.fields,
+    filters: {
+      id
+    }
   })
+
+  res.json({ shipping_profile })
 }
 
 /**
- * @oas [delete] /vendor/stock-locations/{id}
- * operationId: "VendorDeleteStockLocationById"
- * summary: "Delete stock location"
- * description: "Deletes stock location by id for the authenticated vendor."
+ * @oas [delete] /vendor/shipping-profiles/{id}
+ * operationId: "VendorDeleteShippingProfileById"
+ * summary: "Delete shipping profile"
+ * description: "Deletes shipping profile by id for the authenticated vendor."
  * x-authenticated: true
  * parameters:
  *   - in: path
  *     name: id
  *     required: true
- *     description: The ID of the stock location.
+ *     description: The ID of the shipping profile.
  *     schema:
  *       type: string
  * responses:
@@ -169,7 +155,7 @@ export const POST = async (
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Stock Location
+ *   - Shipping
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -178,15 +164,16 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  await deleteStockLocationsWorkflow(req.scope).run({
-    input: {
-      ids: [req.params.id]
-    }
+  const { id } = req.params
+
+  await deleteShippingProfileWorkflow.run({
+    container: req.scope,
+    input: { ids: [id] }
   })
 
-  res.status(200).json({
-    id: req.params.id,
-    object: 'stock_location',
+  res.json({
+    id,
+    object: 'shipping_profile',
     deleted: true
   })
 }

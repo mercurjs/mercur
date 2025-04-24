@@ -432,3 +432,38 @@
  *     description: The date the price was deleted.
  *
  */
+
+/**
+ * @schema VendorShippingProfile
+ * type: object
+ * description: The shipping profile details.
+ * x-schemaName: VendorShippingProfile
+ * properties:
+ *   id:
+ *     type: string
+ *     title: id
+ *     description: The shipping profile's ID.
+ *   created_at:
+ *     type: string
+ *     format: date-time
+ *     title: created_at
+ *     description: The date the shipping profile was created.
+ *   updated_at:
+ *     type: string
+ *     format: date-time
+ *     title: updated_at
+ *     description: The date the shipping profile was updated.
+ *   deleted_at:
+ *     type: string
+ *     format: date-time
+ *     title: deleted_at
+ *     description: The date the shipping profile was deleted.
+ *   name:
+ *     type: string
+ *     title: label
+ *     description: The shipping profile name.
+ *   type:
+ *     type: string
+ *     title: description
+ *     description: The shipping profile type.
+ */

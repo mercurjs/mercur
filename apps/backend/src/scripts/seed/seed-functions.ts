@@ -104,17 +104,31 @@ export async function createRegions(container: MedusaContainer) {
   return region
 }
 
-export async function createShippingProfile(container: MedusaContainer) {
+export async function createShippingProfile(
+  container: MedusaContainer,
+  seller_id: string
+) {
   const {
     result: [shippingProfile]
   } = await createShippingProfilesWorkflow(container).run({
     input: {
       data: [
         {
-          name: 'Default',
+          name: 'Default shipping profile for seller ' + seller_id,
           type: 'default'
         }
       ]
+    }
+  })
+
+  const link = container.resolve(ContainerRegistrationKeys.LINK)
+
+  await link.create({
+    [SELLER_MODULE]: {
+      seller_id: seller_id
+    },
+    [Modules.FULFILLMENT]: {
+      shipping_profile_id: shippingProfile.id
     }
   })
 
@@ -329,12 +343,9 @@ export async function createSellerShippingOption(
   sellerId: string,
   sellerName: string,
   regionId: string,
-  serviceZoneId: string
+  serviceZoneId: string,
+  shippingProfileId: string
 ) {
-  const fulfillmentService = container.resolve(Modules.FULFILLMENT)
-
-  const [shippingProfile] = await fulfillmentService.listShippingProfiles()
-
   const {
     result: [shippingOption]
   } = await createShippingOptionsWorkflow.run({
@@ -342,7 +353,7 @@ export async function createSellerShippingOption(
     input: [
       {
         name: `${sellerName} shipping`,
-        shipping_profile_id: shippingProfile.id,
+        shipping_profile_id: shippingProfileId,
         service_zone_id: serviceZoneId,
         provider_id: 'manual_manual',
         type: {

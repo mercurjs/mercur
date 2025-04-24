@@ -25565,6 +25565,15 @@ export interface VendorCreateShippingOption {
   type: CreateShippingOptionTypeObject;
 }
 
+export interface VendorCreateShippingProfile {
+  /** Name of the shipping profile */
+  name: string;
+  /** Type of the shipping profile */
+  type: string;
+  /** Additional metadata */
+  metadata?: object | null;
+}
+
 export interface VendorCreateStockLocation {
   /** Name of the stock location */
   name: string;
@@ -28352,6 +28361,43 @@ export interface VendorShippingOptionType {
   shipping_option_id: string;
 }
 
+/** The shipping profile details. */
+export interface VendorShippingProfile {
+  /**
+   * id
+   * The shipping profile's ID.
+   */
+  id?: string;
+  /**
+   * created_at
+   * The date the shipping profile was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * updated_at
+   * The date the shipping profile was updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /**
+   * deleted_at
+   * The date the shipping profile was deleted.
+   * @format date-time
+   */
+  deleted_at?: string;
+  /**
+   * label
+   * The shipping profile name.
+   */
+  name?: string;
+  /**
+   * description
+   * The shipping profile type.
+   */
+  type?: string;
+}
+
 /** The stock location's details. */
 export interface VendorStockLocation {
   /**
@@ -28666,6 +28712,15 @@ export interface VendorUpdateShippingOption {
   /** The prices of the shipping option. */
   prices?: CreateShippingOptionPriceWithCurrency[];
   type?: CreateShippingOptionTypeObject;
+}
+
+export interface VendorUpdateShippingProfile {
+  /** Name of the shipping profile */
+  name?: string;
+  /** Type of the shipping profile */
+  type?: string;
+  /** Additional metadata */
+  metadata?: object | null;
 }
 
 export interface VendorUpdateStockLocation {
@@ -36006,7 +36061,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Create a draft order. This creates an order with the `is_draft_order` property enabled.
+     * @description Create a draft order. This creates an order with the `is_draft_order` property enabled. You can later convert the draft order to an order.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrders
@@ -36302,7 +36357,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Update a draft order's details.
+     * @description Update a draft order's details. This doesn't include updating the draft order's items, shipping methods, or promotions. To update those, you need to create an edit that you can later request or confirm.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrdersId
@@ -36362,7 +36417,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Create an edit on a draft order. This will allow you to make changes to the draft order's items, shipping methods, or promotions before confirming them later.
+     * @description Create an edit on a draft order. This will allow you to make changes to the draft order's items, shipping methods, or promotions. Once you've made the necessar changes, you can later either request the edit (which requires a confirmation from the customer), or force-confirm the edit.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrdersIdEdit
@@ -36413,11 +36468,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Add an Item to a draft order.
+     * @description Add an item to a draft order edit.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrdersIdEditItems
-     * @summary Add Item to Draft Order
+     * @summary Add Item to Draft Order Edit
      * @request POST:/admin/draft-orders/{id}/edit/items
      * @secure
      */
@@ -36432,11 +36487,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Update an item in a draft order.
+     * @description Update an existing item in a draft order edit.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrdersIdEditItemsItemItemId
-     * @summary Update Item in Draft Order
+     * @summary Update Existing Item in Draft Order Edit
      * @request POST:/admin/draft-orders/{id}/edit/items/item/{item_id}
      * @secure
      */
@@ -36456,11 +36511,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Update changes made on an item (addition or update) in the draft order by the ID of the item's `ITEM_ADD` or `ITEM_UPDATE` action. Every item has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
+     * @description Update a new item that was added to a draft order edit by the ID of the item's `ITEM_ADD` action. Every item has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrdersIdEditItemsActionId
-     * @summary Update Item Changes in Draft Order
+     * @summary Update New Item in Draft Order Edit
      * @request POST:/admin/draft-orders/{id}/edit/items/{action_id}
      * @secure
      */
@@ -36480,11 +36535,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Remove an order item from a draft order by the ID of the item's `ITEM_REMOVE` action. Every item has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
+     * @description Remove an order item from a draft order edit by the ID of the item's `ITEM_ADD` or `ITEM_UPDATE` action. Every item has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
      *
      * @tags Admin Draft Orders
      * @name AdminDeleteDraftOrdersIdEditItemsActionId
-     * @summary Remove Item from Draft Order
+     * @summary Remove Item from Draft Order Edit
      * @request DELETE:/admin/draft-orders/{id}/edit/items/{action_id}
      * @secure
      */
@@ -36497,11 +36552,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Add promotions to a draft order.
+     * @description Add promotions to a draft order edit.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrdersIdEditPromotions
-     * @summary Add Promotions to Draft Order
+     * @summary Add Promotions to Draft Order Edit
      * @request POST:/admin/draft-orders/{id}/edit/promotions
      * @secure
      */
@@ -36521,11 +36576,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Remove specified promotions from a draft order.
+     * @description Remove specified promotions from a draft order edit.
      *
      * @tags Admin Draft Orders
      * @name AdminDeleteDraftOrdersIdEditPromotions
-     * @summary Remove Promotions from Draft Order
+     * @summary Remove Promotions from Draft Order Edit
      * @request DELETE:/admin/draft-orders/{id}/edit/promotions
      * @secure
      */
@@ -36562,11 +36617,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Add a shipping method to a draft order.
+     * @description Add a shipping method to a draft order edit.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrdersIdEditShippingMethods
-     * @summary Add Shipping Method to Draft Order
+     * @summary Add Shipping Method to Draft Order Edit
      * @request POST:/admin/draft-orders/{id}/edit/shipping-methods
      * @secure
      */
@@ -36585,11 +36640,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Update a shipping method in a draft order
+     * @description Update an existing shipping method in a draft order edit.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrdersIdEditShippingMethodsMethodMethodId
-     * @summary Update Shipping Method in Draft Order
+     * @summary Update Existing Shipping Method in Draft Order Edit
      * @request POST:/admin/draft-orders/{id}/edit/shipping-methods/method/{method_id}
      * @secure
      */
@@ -36609,11 +36664,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Remove the shipping method in a draft order that is being edited.
+     * @description Remove an existing shipping method from a draft order edit.
      *
      * @tags Admin Draft Orders
      * @name AdminDeleteDraftOrdersIdEditShippingMethodsMethodMethodId
-     * @summary Remove Shipping Method from Draft Order
+     * @summary Remove Shipping Method from Draft Order Edit
      * @request DELETE:/admin/draft-orders/{id}/edit/shipping-methods/method/{method_id}
      * @secure
      */
@@ -36630,11 +36685,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Update changes made on a shipping method (addition or update) in a draft order using the `ID` of the method's `SHIPPING_ADD` or `SHIPPING_UPDATE` action. Every shipping method has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
+     * @description Update a new shipping method that was added to a draft order edit using the `ID` of the method's `SHIPPING_ADD` action. Every shipping method has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
      *
      * @tags Admin Draft Orders
      * @name AdminPostDraftOrdersIdEditShippingMethodsActionId
-     * @summary Update Shipping Method Changes in Draft Order
+     * @summary Update New Shipping Method in Draft Order Edit
      * @request POST:/admin/draft-orders/{id}/edit/shipping-methods/{action_id}
      * @secure
      */
@@ -36654,7 +36709,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Remove the shipping method in a draft order using the `ID` of the method's `SHIPPING_ADD` action. Every shipping method has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
+     * @description Remove a shipping method that was added to a draft order edit using the `ID` of the method's `SHIPPING_ADD` action. Every shipping method has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
      *
      * @tags Admin Draft Orders
      * @name AdminDeleteDraftOrdersIdEditShippingMethodsActionId
@@ -58759,6 +58814,32 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a list of available Fulfillment Provider Options.
+     *
+     * @tags Stock Location
+     * @name VendorListFulfillmentProviderOptions
+     * @summary List Fulfillment Provider Options
+     * @request GET:/vendor/fulfillment-providers/{id}/options
+     * @secure
+     */
+    vendorListFulfillmentProviderOptions: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          fulfillment_options?: {
+            id?: string;
+            is_return?: boolean;
+          }[];
+        },
+        any
+      >({
+        path: `/vendor/fulfillment-providers/${id}/options`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Deletes a Fulfillment Set.
      *
      * @tags Fulfillment Set
@@ -61870,6 +61951,165 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a list of shipping profiles.
+     *
+     * @tags Shipping
+     * @name VendorListShippingProfiles
+     * @summary List shipping profiles
+     * @request GET:/vendor/shipping-profiles
+     * @secure
+     */
+    vendorListShippingProfiles: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          shipping_profiles?: VendorShippingProfile[];
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a Shipping profile.
+     *
+     * @tags Shipping
+     * @name VendorCreateShippingProfile
+     * @summary Create a Shipping profile
+     * @request POST:/vendor/shipping-profiles
+     * @secure
+     */
+    vendorCreateShippingProfile: (
+      data: VendorCreateShippingProfile,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The shipping profile details. */
+          shipping_profile?: VendorShippingProfile;
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a shipping profile by id.
+     *
+     * @tags Shipping
+     * @name VendorGetShippingProfile
+     * @summary Get shipping profile
+     * @request GET:/vendor/shipping-profiles/{id}
+     * @secure
+     */
+    vendorGetShippingProfile: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The shipping profile details. */
+          shipping_profile?: VendorShippingProfile;
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates a Shipping profile.
+     *
+     * @tags Shipping
+     * @name VendorUpdateShippingProfile
+     * @summary Update a Shipping profile
+     * @request POST:/vendor/shipping-profiles/{id}
+     * @secure
+     */
+    vendorUpdateShippingProfile: (
+      id: string,
+      data: VendorUpdateShippingProfile,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The shipping profile details. */
+          shipping_profile?: VendorShippingProfile;
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles/${id}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes shipping profile by id for the authenticated vendor.
+     *
+     * @tags Shipping
+     * @name VendorDeleteShippingProfileById
+     * @summary Delete shipping profile
+     * @request DELETE:/vendor/shipping-profiles/{id}
+     * @secure
+     */
+    vendorDeleteShippingProfileById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted resource */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves store statistics.
      *
      * @tags Seller
@@ -62027,6 +62267,34 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes stock location by id for the authenticated vendor.
+     *
+     * @tags Stock Location
+     * @name VendorDeleteStockLocationById
+     * @summary Delete stock location
+     * @request DELETE:/vendor/stock-locations/{id}
+     * @secure
+     */
+    vendorDeleteStockLocationById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted resource */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/stock-locations/${id}`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
