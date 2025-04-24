@@ -26,3 +26,5 @@ build
 !.yarn/versions
 
 .medusa
+
+static/

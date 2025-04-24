@@ -20,6 +20,11 @@ export const VendorGetSellerParams = createSelectParams()
  *     type: string
  *     description: The name of the seller.
  *     minLength: 1
+ *   type:
+ *     type: string
+ *     enum: [manufacturer, reseller]
+ *     description: The type of the seller.
+ *     default: reseller
  *   description:
  *     type: string
  *     nullable: true
@@ -88,6 +93,7 @@ export type VendorCreateSellerType = z.infer<typeof VendorCreateSeller>
 export const VendorCreateSeller = z
   .object({
     name: z.preprocess((val: string) => val?.trim(), z.string().min(1)),
+    type: z.enum(['manufacturer', 'reseller']).default('reseller'),
     description: z.string().nullish().optional(),
     photo: z.string().nullish().optional(),
     email: z.string().email().nullish(),
