@@ -25565,6 +25565,15 @@ export interface VendorCreateShippingOption {
   type: CreateShippingOptionTypeObject;
 }
 
+export interface VendorCreateShippingProfile {
+  /** Name of the shipping profile */
+  name: string;
+  /** Type of the shipping profile */
+  type: string;
+  /** Additional metadata */
+  metadata?: object | null;
+}
+
 export interface VendorCreateStockLocation {
   /** Name of the stock location */
   name: string;
@@ -28352,6 +28361,43 @@ export interface VendorShippingOptionType {
   shipping_option_id: string;
 }
 
+/** The shipping profile details. */
+export interface VendorShippingProfile {
+  /**
+   * id
+   * The shipping profile's ID.
+   */
+  id?: string;
+  /**
+   * created_at
+   * The date the shipping profile was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * updated_at
+   * The date the shipping profile was updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /**
+   * deleted_at
+   * The date the shipping profile was deleted.
+   * @format date-time
+   */
+  deleted_at?: string;
+  /**
+   * label
+   * The shipping profile name.
+   */
+  name?: string;
+  /**
+   * description
+   * The shipping profile type.
+   */
+  type?: string;
+}
+
 /** The stock location's details. */
 export interface VendorStockLocation {
   /**
@@ -28666,6 +28712,15 @@ export interface VendorUpdateShippingOption {
   /** The prices of the shipping option. */
   prices?: CreateShippingOptionPriceWithCurrency[];
   type?: CreateShippingOptionTypeObject;
+}
+
+export interface VendorUpdateShippingProfile {
+  /** Name of the shipping profile */
+  name?: string;
+  /** Type of the shipping profile */
+  type?: string;
+  /** Additional metadata */
+  metadata?: object | null;
 }
 
 export interface VendorUpdateStockLocation {
@@ -61896,6 +61951,165 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a list of shipping profiles.
+     *
+     * @tags Shipping
+     * @name VendorListShippingProfiles
+     * @summary List shipping profiles
+     * @request GET:/vendor/shipping-profiles
+     * @secure
+     */
+    vendorListShippingProfiles: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          shipping_profiles?: VendorShippingProfile[];
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a Shipping profile.
+     *
+     * @tags Shipping
+     * @name VendorCreateShippingProfile
+     * @summary Create a Shipping profile
+     * @request POST:/vendor/shipping-profiles
+     * @secure
+     */
+    vendorCreateShippingProfile: (
+      data: VendorCreateShippingProfile,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The shipping profile details. */
+          shipping_profile?: VendorShippingProfile;
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a shipping profile by id.
+     *
+     * @tags Shipping
+     * @name VendorGetShippingProfile
+     * @summary Get shipping profile
+     * @request GET:/vendor/shipping-profiles/{id}
+     * @secure
+     */
+    vendorGetShippingProfile: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The shipping profile details. */
+          shipping_profile?: VendorShippingProfile;
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates a Shipping profile.
+     *
+     * @tags Shipping
+     * @name VendorUpdateShippingProfile
+     * @summary Update a Shipping profile
+     * @request POST:/vendor/shipping-profiles/{id}
+     * @secure
+     */
+    vendorUpdateShippingProfile: (
+      id: string,
+      data: VendorUpdateShippingProfile,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The shipping profile details. */
+          shipping_profile?: VendorShippingProfile;
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles/${id}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes shipping profile by id for the authenticated vendor.
+     *
+     * @tags Shipping
+     * @name VendorDeleteShippingProfileById
+     * @summary Delete shipping profile
+     * @request DELETE:/vendor/shipping-profiles/{id}
+     * @secure
+     */
+    vendorDeleteShippingProfileById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted resource */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/shipping-profiles/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves store statistics.
      *
      * @tags Seller
@@ -62053,6 +62267,34 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes stock location by id for the authenticated vendor.
+     *
+     * @tags Stock Location
+     * @name VendorDeleteStockLocationById
+     * @summary Delete stock location
+     * @request DELETE:/vendor/stock-locations/{id}
+     * @secure
+     */
+    vendorDeleteStockLocationById: (id: string, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** The ID of the deleted resource */
+          id?: string;
+          /** The type of the object that was deleted */
+          object?: string;
+          /** Whether or not the items were deleted */
+          deleted?: boolean;
+        },
+        any
+      >({
+        path: `/vendor/stock-locations/${id}`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
