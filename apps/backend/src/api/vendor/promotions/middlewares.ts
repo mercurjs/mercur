@@ -21,7 +21,8 @@ import {
   VendorGetPromotionRuleParams,
   VendorGetPromotionRuleTypeParams,
   VendorGetPromotionsParams,
-  VendorGetPromotionsRuleValueParams
+  VendorGetPromotionsRuleValueParams,
+  VendorUpdatePromotion
 } from './validators'
 
 export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
@@ -60,6 +61,21 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
           VendorGetPromotionRuleTypeParams,
           vendorPromotionQueryConfig.retrieve
         )
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerPromotion.entryPoint,
+        filterField: 'promotion_id'
+      })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/promotions/:id',
+    middlewares: [
+      validateAndTransformBody(VendorUpdatePromotion),
+      validateAndTransformQuery(
+        VendorGetPromotionsParams,
+        vendorPromotionQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerPromotion.entryPoint,
