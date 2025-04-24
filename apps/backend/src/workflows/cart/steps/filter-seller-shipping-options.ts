@@ -53,7 +53,7 @@ export const filterSellerShippingOptionsStep = createStep(
 
     const { data: sellerShippingOptions } = await query.graph({
       entity: sellerShippingOption.entryPoint,
-      fields: ['shipping_option_id'],
+      fields: ['shipping_option_id', 'seller.name', 'seller.id'],
       filters: {
         seller_id: sellersToFindShippingOptions
       }
@@ -63,9 +63,18 @@ export const filterSellerShippingOptionsStep = createStep(
       (so) => so.shipping_option_id
     )
 
-    const optionsAvailable = input.shipping_options.filter((option) =>
-      applicableShippingOptions.includes(option.id)
-    )
+    const optionsAvailable = input.shipping_options
+      .filter((option) => applicableShippingOptions.includes(option.id))
+      .map((option) => {
+        const relation = sellerShippingOptions.find(
+          (o) => o.shipping_option_id === option.id
+        )
+        return {
+          ...option,
+          seller_name: relation.seller.name,
+          seller_id: relation.seller.id
+        }
+      })
     return new StepResponse(optionsAvailable)
   }
 )
