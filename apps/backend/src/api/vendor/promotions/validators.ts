@@ -4,6 +4,7 @@ import {
   ApplicationMethodAllocation,
   ApplicationMethodTargetType,
   ApplicationMethodType,
+  PromotionStatus,
   PromotionType
 } from '@medusajs/framework/utils'
 import {
@@ -110,6 +111,9 @@ export const VendorCreateApplicationMethod = z
  *     type: boolean
  *     description: Whether the promotion is applied automatically.
  *     default: false
+ *   campaign_id:
+ *     type: string
+ *     description: The campaign id.
  *   type:
  *     type: string
  *     enum: [standard]
@@ -156,6 +160,75 @@ export const VendorBatchPromotionRules = z.object({
   create: z.array(VendorCreatePromotionRule).default([]),
   delete: z.array(z.string()).default([])
 })
+
+/**
+ * @schema VendorUpdateApplicationMethod
+ * type: object
+ * properties:
+ *   description:
+ *     type: string
+ *     description: Description of the promotion.
+ *   value:
+ *     type: number
+ *     description: The percentage value of the promotion.
+ *   max_quantity:
+ *     type: string
+ *     description: The max quantity of the items.
+ *   currency_code:
+ *     type: string
+ *     description: The currency code.
+ *   apply_to_quantity:
+ *     type: string
+ *     description: Apply to quantity of the items.
+ *   buy_rules_min_quantity:
+ *     type: string
+ *     description: Buy ruyles min quantity of the items.
+ */
+export type VendorUpdateApplicationMethodType = z.infer<
+  typeof VendorUpdateApplicationMethod
+>
+export const VendorUpdateApplicationMethod = z
+  .object({
+    description: z.string().nullish(),
+    value: z.number().optional(),
+    max_quantity: z.number().nullish(),
+    currency_code: z.string().nullish(),
+    apply_to_quantity: z.number().nullish(),
+    buy_rules_min_quantity: z.number().nullish()
+  })
+  .strict()
+
+/**
+ * @schema VendorUpdatePromotion
+ * type: object
+ * properties:
+ *   code:
+ *     type: string
+ *     description: The code of the promotion.
+ *   is_automatic:
+ *     type: boolean
+ *     description: Whether the promotion is applied automatically.
+ *     default: false
+ *   campaign_id:
+ *     type: string
+ *     description: The campaign id.
+ *   status:
+ *     type: string
+ *     enum: [draft,active,inactive]
+ *     description: The status of the promotion.
+ *   application_method:
+ *     $ref: "#/components/schemas/VendorUpdateApplicationMethod"
+ */
+export type VendorUpdatePromotionType = z.infer<typeof VendorUpdatePromotion>
+export const VendorUpdatePromotion = z
+  .object({
+    code: z.string().optional(),
+    is_automatic: z.boolean().optional(),
+    status: z.nativeEnum(PromotionStatus).optional(),
+    campaign_id: z.string().nullish(),
+    application_method: VendorUpdateApplicationMethod.optional()
+  })
+  .strict()
 
 export type VendorGetPromotionsRuleValueParamsType = z.infer<
   typeof VendorGetPromotionsRuleValueParams

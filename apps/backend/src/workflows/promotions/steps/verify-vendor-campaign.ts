@@ -1,4 +1,3 @@
-import { CreatePromotionDTO } from '@medusajs/framework/types'
 import {
   ContainerRegistrationKeys,
   MedusaError
@@ -10,7 +9,10 @@ import sellerCampaign from '../../../links/seller-campaign'
 export const verifyVendorCampaignStep = createStep(
   'verify-vendor-campaign',
   async (
-    input: { promotion: CreatePromotionDTO; seller_id: string },
+    input: {
+      promotion: { campaign_id?: string | null }
+      seller_id: string
+    },
     { container }
   ) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)

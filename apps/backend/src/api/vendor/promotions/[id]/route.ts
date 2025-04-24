@@ -2,6 +2,10 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { deletePromotionsWorkflow } from '@medusajs/medusa/core-flows'
 
+import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils'
+import { updateVendorPromotionWorkflow } from '../../../../workflows/promotions/workflows'
+import { VendorUpdatePromotionType } from '../validators'
+
 /**
  * @oas [get] /vendor/promotions/{id}
  * operationId: "VendorGetPromotionById"
@@ -104,4 +108,73 @@ export const DELETE = async (
   })
 
   res.json({ id, object: 'promotion', deleted: true })
+}
+
+/**
+ * @oas [post] /vendor/promotions/{id}
+ * operationId: "VendorUpdatePromotion"
+ * summary: "Update promotion"
+ * description: "Updates a new promotion for the authenticated vendor."
+ * x-authenticated: true
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the promotion.
+ *     schema:
+ *       type: string
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/VendorUpdatePromotion"
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             promotion:
+ *               $ref: "#/components/schemas/VendorPromotion"
+ * tags:
+ *   - Promotion
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
+export const POST = async (
+  req: AuthenticatedMedusaRequest<VendorUpdatePromotionType>,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const seller = await fetchSellerByAuthActorId(
+    req.auth_context.actor_id,
+    req.scope
+  )
+
+  await updateVendorPromotionWorkflow.run({
+    container: req.scope,
+    input: {
+      promotion: {
+        id: req.params.id,
+        ...req.validatedBody
+      },
+      seller_id: seller.id
+    }
+  })
+
+  const {
+    data: [promotion]
+  } = await query.graph({
+    entity: 'promotion',
+    fields: req.queryConfig.fields,
+    filters: {
+      id: req.params.id
+    }
+  })
+
+  res.status(200).json({ promotion })
 }
