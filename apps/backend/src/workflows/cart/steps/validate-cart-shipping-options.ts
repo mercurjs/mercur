@@ -62,17 +62,6 @@ export const validateCartShippingOptionsStep = createStep(
       }
     }
 
-    for (const seller of sellers) {
-      if (
-        !sellerShippingOptions.find((option) => seller === option.seller_id)
-      ) {
-        throw new MedusaError(
-          MedusaError.Types.INVALID_DATA,
-          `Missing shipping option for seller ${seller}`
-        )
-      }
-    }
-
     return new StepResponse({
       sellerProducts,
       sellerShippingOptions
