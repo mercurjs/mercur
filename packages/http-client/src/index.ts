@@ -10806,12 +10806,12 @@ export interface AdminWorkflowExecutionExecution {
       invoke?: {
         /** The invokation step's state. */
         state:
+          | "failed"
           | "not_started"
           | "invoking"
           | "compensating"
           | "done"
           | "reverted"
-          | "failed"
           | "dormant"
           | "skipped"
           | "skipped_failure"
@@ -10841,11 +10841,8 @@ export interface AdminWorkflowExecutionExecution {
          * Whether the workflow should continue executing even if its status is changed to failed.
          */
         continueOnPermanentFailure?: boolean;
-        /**
-         * skipOnPermanentFailure
-         * Whether the workflow should skip subsequent steps in case of a permanent failure.
-         */
-        skipOnPermanentFailure?: boolean;
+        /** The ID of the step to skip to in case of a permanent failure. */
+        skipOnPermanentFailure?: string | boolean;
         /**
          * maxRetries
          * The maximum number of times to retry the step.
@@ -10882,12 +10879,12 @@ export interface AdminWorkflowExecutionExecution {
       compensate?: {
         /** The compensation function's state. */
         state:
+          | "failed"
           | "not_started"
           | "invoking"
           | "compensating"
           | "done"
           | "reverted"
-          | "failed"
           | "dormant"
           | "skipped"
           | "skipped_failure"
@@ -25484,6 +25481,8 @@ export interface VendorCreatePromotion {
    * @default false
    */
   is_automatic?: boolean;
+  /** The campaign id. */
+  campaign_id?: string;
   /** The type of the promotion. */
   type?: "standard";
   application_method?: VendorCreateApplicationMethod;
@@ -28388,6 +28387,21 @@ export interface VendorStore {
   supported_currencies?: VendorCurrency[];
 }
 
+export interface VendorUpdateApplicationMethod {
+  /** Description of the promotion. */
+  description?: string;
+  /** The percentage value of the promotion. */
+  value?: number;
+  /** The max quantity of the items. */
+  max_quantity?: string;
+  /** The currency code. */
+  currency_code?: string;
+  /** Apply to quantity of the items. */
+  apply_to_quantity?: string;
+  /** Buy ruyles min quantity of the items. */
+  buy_rules_min_quantity?: string;
+}
+
 export interface VendorUpdateCampaign {
   /** The campaign's name. */
   name?: string;
@@ -28548,6 +28562,21 @@ export type VendorUpdateProduct = UpdateProduct & {
 export interface VendorUpdateProductStatus {
   /** The status of the product. */
   status?: "draft" | "proposed" | "published" | "rejected";
+}
+
+export interface VendorUpdatePromotion {
+  /** The code of the promotion. */
+  code?: string;
+  /**
+   * Whether the promotion is applied automatically.
+   * @default false
+   */
+  is_automatic?: boolean;
+  /** The campaign id. */
+  campaign_id?: string;
+  /** The status of the promotion. */
+  status?: "draft" | "active" | "inactive";
+  application_method?: VendorUpdateApplicationMethod;
 }
 
 export interface VendorUpdateReservation {
@@ -36580,6 +36609,27 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Remove the shipping method in a draft order that is being edited.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminDeleteDraftOrdersIdEditShippingMethodsMethodMethodId
+     * @summary Remove Shipping Method from Draft Order
+     * @request DELETE:/admin/draft-orders/{id}/edit/shipping-methods/method/{method_id}
+     * @secure
+     */
+    adminDeleteDraftOrdersIdEditShippingMethodsMethodMethodId: (
+      id: string,
+      methodId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}/edit/shipping-methods/method/${methodId}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
      * @description Update changes made on a shipping method (addition or update) in a draft order using the `ID` of the method's `SHIPPING_ADD` or `SHIPPING_UPDATE` action. Every shipping method has an `actions` property, whose value is an array of actions. You can check the action's name using its `action` property, and use the value of the `id` property.
      *
      * @tags Admin Draft Orders
@@ -36608,7 +36658,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      *
      * @tags Admin Draft Orders
      * @name AdminDeleteDraftOrdersIdEditShippingMethodsActionId
-     * @summary Remove Shipping Method from Draft Order
+     * @summary Remove New Shipping Method from Draft Order
      * @request DELETE:/admin/draft-orders/{id}/edit/shipping-methods/{action_id}
      * @secure
      */
@@ -60585,6 +60635,32 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates a new promotion for the authenticated vendor.
+     *
+     * @tags Promotion
+     * @name VendorUpdatePromotion
+     * @summary Update promotion
+     * @request POST:/vendor/promotions/{id}
+     * @secure
+     */
+    vendorUpdatePromotion: (id: string, data: VendorUpdatePromotion, params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Promotion object */
+          promotion?: VendorPromotion;
+        },
+        any
+      >({
+        path: `/vendor/promotions/${id}`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
