@@ -59948,6 +59948,78 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a list of product collections.
+     *
+     * @tags Product
+     * @name VendorListProductCollections
+     * @summary List product collections
+     * @request GET:/vendor/product-collections
+     * @secure
+     */
+    vendorListProductCollections: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          product_collections?: VendorProductCollection[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/product-collections`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves product collection by id.
+     *
+     * @tags Product
+     * @name VendorGetProductCollectionById
+     * @summary Get product collection
+     * @request GET:/vendor/product-collections/{id}
+     * @secure
+     */
+    vendorGetProductCollectionById: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product collection object with its properties */
+          product_collection?: VendorProductCollection;
+        },
+        any
+      >({
+        path: `/vendor/product-collections/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves a list of product tags.
      *
      * @tags Product
