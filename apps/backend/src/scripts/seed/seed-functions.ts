@@ -179,6 +179,22 @@ export async function createProductCategories(container: MedusaContainer) {
           is_active: true
         },
         {
+          name: 'Sandals',
+          is_active: true
+        },
+        {
+          name: 'Boots',
+          is_active: true
+        },
+        {
+          name: 'Sport',
+          is_active: true
+        },
+        {
+          name: 'Accessories',
+          is_active: true
+        },
+        {
           name: 'Tops',
           is_active: true
         }
@@ -194,7 +210,22 @@ export async function createProductCollections(container: MedusaContainer) {
     input: {
       collections: [
         {
-          title: 'Tops'
+          title: 'Luxury'
+        },
+        {
+          title: 'Vintage'
+        },
+        {
+          title: 'Casual'
+        },
+        {
+          title: 'Soho'
+        },
+        {
+          title: 'Streetwear'
+        },
+        {
+          title: 'Y2K'
         }
       ]
     }
@@ -394,20 +425,28 @@ export async function createSellerProducts(
   salesChannelId: string
 ) {
   const productService = container.resolve(Modules.PRODUCT)
+  const collections = await productService.listProductCollections(
+    {},
+    { select: ['id', 'title'] }
+  )
   const categories = await productService.listProductCategories(
     {},
     { select: ['id', 'name'] }
   )
-  const topsCategory = categories.find((c) => c.name === 'Tops')!
-  const sneakersCategory = categories.find((c) => c.name === 'Sneakers')!
+
+  const randomCategory = () =>
+    categories[Math.floor(Math.random() * categories.length)]
+  const randomCollection = () =>
+    collections[Math.floor(Math.random() * collections.length)]
 
   const toInsert = productsToInsert.map((p) => ({
     ...p,
     categories: [
       {
-        id: p.title.includes('Sneakers') ? sneakersCategory.id : topsCategory.id
+        id: randomCategory().id
       }
     ],
+    collection_id: randomCollection().id,
     sales_channels: [
       {
         id: salesChannelId
