@@ -19,7 +19,7 @@ export const Seller = model.define('seller', {
   state: model.text().nullable(),
   postal_code: model.text().nullable(),
   country_code: model.text().nullable(),
-  tax_id: model.text().nullable(),
+  gstin: model.text().nullable(),
   members: model.hasMany(() => Member),
   invites: model.hasMany(() => MemberInvite),
   onboarding: model.hasOne(() => SellerOnboarding).nullable(),

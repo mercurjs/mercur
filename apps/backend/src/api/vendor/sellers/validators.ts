@@ -59,10 +59,10 @@ export const VendorGetSellerParams = createSelectParams()
  *     type: string
  *     nullable: true
  *     description: Seller country code.
- *   tax_id:
+ *   gstin:
  *     type: string
  *     nullable: true
- *     description: Seller tax id.
+ *     description: Seller gstin.
  *   member:
  *     type: object
  *     required:
@@ -103,7 +103,7 @@ export const VendorCreateSeller = z
     state: z.string().nullish().optional(),
     postal_code: z.string().nullish().optional(),
     country_code: z.string().nullish().optional(),
-    tax_id: z.string().nullish().optional(),
+    gstin: z.string().nullish().optional(),
     member: z.object({
       name: z.string(),
       email: z.string().email(),
@@ -159,10 +159,10 @@ export const VendorCreateSeller = z
  *     type: string
  *     nullable: true
  *     description: Seller country code.
- *   tax_id:
+ *   gstin:
  *     type: string
  *     nullable: true
- *     description: Seller tax id.
+ *     description: Seller gstin.
  */
 export type VendorUpdateSellerType = z.infer<typeof VendorUpdateSeller>
 export const VendorUpdateSeller = z
@@ -179,7 +179,7 @@ export const VendorUpdateSeller = z
     state: z.string().optional(),
     postal_code: z.string().optional(),
     country_code: z.string().optional(),
-    tax_id: z.string().optional()
+    gstin: z.string().optional()
   })
   .strict()
 
