@@ -128,8 +128,8 @@
           "nullable": true,
           "mappedType": "text"
         },
-        "tax_id": {
-          "name": "tax_id",
+        "gstin": {
+          "name": "gstin",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
