@@ -231,7 +231,7 @@ export type CreateProductVariantType = z.infer<typeof CreateProductVariant>
 export const CreateProductVariant = z
   .object({
     title: z.string(),
-    sku: z.string().optional(),
+    sku: z.string().transform(val => val?.trim() || undefined).optional(),
     ean: z.string().optional(),
     upc: z.string().optional(),
     barcode: z.string().optional(),
