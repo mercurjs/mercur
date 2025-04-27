@@ -1,20 +1,15 @@
 import { z } from 'zod'
 
-import {
-  createFindParams,
-  createSelectParams
-} from '@medusajs/medusa/api/utils/validators'
-
-const VendorGetShippingOptionParams = createSelectParams()
-const VendorGetShippingFindParams = createFindParams({ offset: 0, limit: 50 })
-
-export const VendorGetShippingParams = VendorGetShippingOptionParams.merge(
-  VendorGetShippingFindParams
-)
+import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
 export type VendorGetShippingParamsType = z.infer<
-  typeof VendorGetShippingParams
+  typeof VendorGetShippingFindParams
 >
+
+export const VendorGetShippingFindParams = createFindParams({
+  offset: 0,
+  limit: 50
+})
 
 /* Shipping options */
 
