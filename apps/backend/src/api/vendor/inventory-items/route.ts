@@ -37,7 +37,7 @@ export const GET = async (
   const inventoryItemIds = links.map((link) => link.inventory_item_id)
   const { data: inventory_items, metadata } = await query.graph({
     entity: 'inventory_item',
-    fields: ['*'],
+    fields: req.queryConfig.fields,
     filters: {
       id: { $in: inventoryItemIds }
     },

@@ -18,7 +18,7 @@ export const vendorInventoryItemFields = [
   "stocked_quantity",
   "created_at",
   "updated_at",
-  "*location_levels",
+  "*location_levels"
 ]
 
 export const vendorInventoryItemQueryConfig = {
@@ -33,15 +33,15 @@ export const vendorInventoryItemQueryConfig = {
 }
 
 export const vendorInventoryLevelFields = [
-  'id',
-  'inventory_item_id',
-  'location_id',
-  'available_quantity',
-  'stocked_quantity',
-  'reserved_quantity',
-  'incoming_quantity',
-  '*stock_locations',
-  '*stock_locations.address'
+  "id",
+  "inventory_item_id",
+  "location_id",
+  "available_quantity",
+  "stocked_quantity",
+  "reserved_quantity",
+  "incoming_quantity",
+  "*stock_locations",
+  "*stock_locations.address"
 ]
 
 export const vendorInventoryLevelQueryConfig = {
