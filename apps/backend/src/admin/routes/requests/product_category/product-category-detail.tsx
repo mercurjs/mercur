@@ -4,7 +4,6 @@ import { AdminRequest } from "@mercurjs/http-client";
 import { useState } from "react";
 import { formatDate } from "../../../lib/date";
 import { ProductCategoryDTO } from "@medusajs/framework/types";
-import { useProductCategory } from "../../../hooks/api/product_category";
 import { ResolveRequestPrompt } from "../components/resolve-request";
 
 type Props = {
@@ -21,14 +20,6 @@ export function ProductCategoryRequestDetail({ request, open, close }: Props) {
 
   const [promptOpen, setPromptOpen] = useState(false);
   const [requestAccept, setRequestAccept] = useState(false);
-
-  let parent_category_name = "-";
-  if (requestData.parent_category_id) {
-    const { product_category } = useProductCategory(
-      requestData.parent_category_id,
-    );
-    parent_category_name = product_category?.name || "-";
-  }
 
   const handlePrompt = (_: string, accept: boolean) => {
     setRequestAccept(accept);
@@ -69,12 +60,6 @@ export function ProductCategoryRequestDetail({ request, open, close }: Props) {
             <legend className="mb-2">Submitted by</legend>
             <Container>
               <Text>{request.seller?.name}</Text>
-            </Container>
-          </fieldset>
-          <fieldset className="mt-2">
-            <legend className="mb-2">Parent category name</legend>
-            <Container>
-              <Text>{parent_category_name}</Text>
             </Container>
           </fieldset>
           <Container className="mt-4 bg-gray-200">

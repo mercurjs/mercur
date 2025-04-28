@@ -54,7 +54,7 @@ const ProductCategoryRequest = z.object({
     name: z.string(),
     handle: z.string(),
     description: z.string().optional(),
-    parent_category_id: z.string().nullable()
+    parent_category_id: z.string().nullable().default(null)
   })
 })
 
