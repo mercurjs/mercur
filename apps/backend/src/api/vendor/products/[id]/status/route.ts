@@ -59,7 +59,7 @@ export const POST = async (
     req.scope.resolve<ConfigurationModuleService>(CONFIGURATION_MODULE)
 
   if (
-    req.validatedBody.status !== 'proposed' &&
+    !['proposed', 'draft'].includes(req.validatedBody.status) &&
     (await configuration.isRuleEnabled(
       ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL
     ))

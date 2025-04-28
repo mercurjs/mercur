@@ -48,7 +48,7 @@ export default async function productUpdatedHandler({
     })
   }
 
-  if (foundRequest.status === 'draft' && product.status === 'proposed') {
+  if (product.status === 'proposed') {
     await updateRequestWorkflow.run({
       container,
       input: {
