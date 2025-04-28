@@ -50,7 +50,9 @@ export async function calculateWishlistProductsPrice(
     (wishlist) => wishlist.products
   )
 
-  const priceSetIds = allProducts.map((p) => p.price_set_id).filter(Boolean)
+  const priceSetIds = allProducts
+    .map((p) => p.price_set_id)
+    .filter(Boolean) as string[]
 
   const pricingModuleService = container.resolve<IPricingModuleService>(
     Modules.PRICING
@@ -58,7 +60,7 @@ export async function calculateWishlistProductsPrice(
 
   const calculatedPrices = await pricingModuleService.calculatePrices(
     { id: priceSetIds },
-    { context: { currency_code: allProducts[0]?.currency_code } }
+    { context: { currency_code: allProducts[0]?.currency_code || 'eur' } }
   )
 
   const calculatedPriceMap = new Map(
@@ -69,7 +71,8 @@ export async function calculateWishlistProductsPrice(
     ...wishlist,
     products: wishlist.products.map((product) => ({
       ...product,
-      calculated_amount: calculatedPriceMap.get(product.price_set_id) || null
+      calculated_amount:
+        calculatedPriceMap.get(product.price_set_id as string) || null
     }))
   }))
 }
