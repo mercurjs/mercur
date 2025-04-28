@@ -1,10 +1,13 @@
 import { z } from 'zod'
 
+import { AdditionalData } from '@medusajs/framework/types'
 import { ProductStatus } from '@medusajs/framework/utils'
-import { createFindParams, WithAdditionalData } from '@medusajs/medusa/api/utils/validators'
+import {
+  WithAdditionalData,
+  createFindParams
+} from '@medusajs/medusa/api/utils/validators'
 
 import { IdAssociation } from '../../../shared/infra/http/utils'
-import { AdditionalData } from '@medusajs/framework/types'
 
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>
 export const VendorGetProductParams = createFindParams({
@@ -489,7 +492,8 @@ export const UpdateProductVariant = z
  *         id:
  *           type: string
  */
-export type VendorCreateProductType = z.infer<typeof CreateProduct> & AdditionalData
+export type VendorCreateProductType = z.infer<typeof CreateProduct> &
+  AdditionalData
 export const CreateProduct = z
   .object({
     title: z.string(),
@@ -528,11 +532,11 @@ export const CreateProduct = z
  *   - $ref: "#/components/schemas/CreateProduct"
  *   - type: object
  *     properties:
-  *      additional_data:
-  *        type: object
-  *        description: Additional data to use in products hooks.
-  *        additionalProperties: true
- * 
+ *      additional_data:
+ *        type: object
+ *        description: Additional data to use in products hooks.
+ *        additionalProperties: true
+ *
  */
 export const VendorCreateProduct = WithAdditionalData(CreateProduct)
 
@@ -662,7 +666,8 @@ export const VendorCreateProduct = WithAdditionalData(CreateProduct)
  *         id:
  *           type: string
  */
-export type VendorUpdateProductType = z.infer<typeof UpdateProduct> & AdditionalData
+export type VendorUpdateProductType = z.infer<typeof UpdateProduct> &
+  AdditionalData
 export const UpdateProduct = z
   .object({
     title: z.string().optional(),
@@ -700,11 +705,11 @@ export const UpdateProduct = z
  *   - $ref: "#/components/schemas/UpdateProduct"
  *   - type: object
  *     properties:
-  *      additional_data:
-  *        type: object
-  *        description: Additional data to use in products hooks.
-  *        additionalProperties: true
- * 
+ *      additional_data:
+ *        type: object
+ *        description: Additional data to use in products hooks.
+ *        additionalProperties: true
+ *
  */
 export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
 
