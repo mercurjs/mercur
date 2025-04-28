@@ -4,11 +4,6 @@ import {
   ProductVariantDTO
 } from '@medusajs/framework/types'
 
-export type WishlistProductVariant = {
-  id: string
-  prices: unknown
-}
-
 export interface WishlistProductVariantDTO extends ProductVariantDTO {
   prices: PriceDTO[]
 }
