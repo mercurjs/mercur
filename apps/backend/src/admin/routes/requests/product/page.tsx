@@ -55,21 +55,21 @@ const ProductRequestsPage = () => {
               return <ProductRequestsRow request={request} />;
             })}
           </Table.Body>
-          <Table.Pagination
-            canNextPage={PAGE_SIZE * (currentPage + 1) < count!}
-            canPreviousPage={currentPage > 0}
-            previousPage={() => {
-              setCurrentPage(currentPage - 1);
-            }}
-            nextPage={() => {
-              setCurrentPage(currentPage + 1);
-            }}
-            count={count!}
-            pageCount={Math.ceil(count! / PAGE_SIZE)}
-            pageIndex={currentPage}
-            pageSize={PAGE_SIZE}
-          />
         </Table>
+        <Table.Pagination
+          canNextPage={PAGE_SIZE * (currentPage + 1) < count!}
+          canPreviousPage={currentPage > 0}
+          previousPage={() => {
+            setCurrentPage(currentPage - 1);
+          }}
+          nextPage={() => {
+            setCurrentPage(currentPage + 1);
+          }}
+          count={count!}
+          pageCount={Math.ceil(count! / PAGE_SIZE)}
+          pageIndex={currentPage}
+          pageSize={PAGE_SIZE}
+        />
       </div>
     </Container>
   );
