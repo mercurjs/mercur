@@ -5,7 +5,10 @@ import { createShippingOptionsWorkflow } from '@medusajs/medusa/core-flows'
 import sellerShippingOption from '../../../links/seller-shipping-option'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
-import { VendorCreateShippingOptionType } from './validators'
+import {
+  VendorCreateShippingOptionType,
+  VendorGetShippingParamsType
+} from './validators'
 
 /**
  * @oas [post] /vendor/shipping-options
@@ -113,7 +116,7 @@ export const POST = async (
  *   - cookie_auth: []
  */
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<VendorGetShippingParamsType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
