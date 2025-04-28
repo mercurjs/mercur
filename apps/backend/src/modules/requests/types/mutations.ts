@@ -16,6 +16,12 @@ export type UpdateRequestDTO = {
   status: RequestStatus
 }
 
+export type UpdateRequestDataDTO = {
+  id: string
+  type: string
+  data: any
+}
+
 export type AcceptRequestDTO = {
   id: string
   reviewer_id: string
