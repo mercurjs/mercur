@@ -97,7 +97,9 @@ const SellerRequestsPage = () => {
               );
             })}
           </Table.Body>
-          <Table.Pagination
+        </Table>
+        <Table.Pagination
+          className="w-full"
             canNextPage={PAGE_SIZE * (currentPage + 1) < count!}
             canPreviousPage={currentPage > 0}
             previousPage={() => {
@@ -110,8 +112,7 @@ const SellerRequestsPage = () => {
             pageCount={Math.ceil(count! / PAGE_SIZE)}
             pageIndex={currentPage}
             pageSize={PAGE_SIZE}
-          />
-        </Table>
+        />
       </div>
     </Container>
   );
