@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 import { AdditionalData } from '@medusajs/framework/types'
-import { ProductStatus } from '@medusajs/framework/utils'
 import {
   WithAdditionalData,
   createFindParams
@@ -412,7 +411,7 @@ export const UpdateProductVariant = z
  *     description: A unique handle to identify the product.
  *   status:
  *     type: string
- *     enum: [draft, proposed, published, rejected]
+ *     enum: [draft, proposed]
  *     description: The status of the product.
  *     default: draft
  *   external_id:
@@ -504,7 +503,7 @@ export const CreateProduct = z
     images: z.array(z.object({ url: z.string() })).optional(),
     thumbnail: z.string().optional(),
     handle: z.string().optional(),
-    status: z.nativeEnum(ProductStatus).optional().default(ProductStatus.DRAFT),
+    status: z.enum(['draft', 'proposed']).optional().default('draft'),
     external_id: z.string().optional(),
     type_id: z.string().optional(),
     collection_id: z.string().optional(),
@@ -721,12 +720,12 @@ export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
  * properties:
  *   status:
  *     type: string
- *     enum: [draft, proposed, published, rejected]
+ *     enum: [draft, proposed, published]
  *     description: The status of the product.
  */
 export type VendorUpdateProductStatusType = z.infer<
   typeof VendorUpdateProductStatus
 >
 export const VendorUpdateProductStatus = z.object({
-  status: z.nativeEnum(ProductStatus)
+  status: z.enum(['draft', 'proposed', 'published'])
 })

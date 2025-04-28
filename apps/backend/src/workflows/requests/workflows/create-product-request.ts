@@ -42,7 +42,8 @@ export const createProductRequestWorkflow = createWorkflow(
         ...input.data,
         data: {
           ...productPayload,
-          product_id: product[0].id
+          product_id: product[0].id,
+          status: productPayload.status === 'draft' ? 'draft' : 'pending'
         }
       })
     )

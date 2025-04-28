@@ -11,8 +11,8 @@ export type CreateRequestDTO = {
 
 export type UpdateRequestDTO = {
   id: string
-  reviewer_id: string
-  reviewer_note: string
+  reviewer_id?: string
+  reviewer_note?: string
   status: RequestStatus
 }
 
