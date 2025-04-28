@@ -14,7 +14,7 @@ import { vendorShippingOptionQueryConfig } from './query-config'
 import {
   VendorCreateShippingOption,
   VendorCreateShippingOptionType,
-  VendorGetShippingParams,
+  VendorGetShippingFindParams,
   VendorUpdateShippingOption
 } from './validators'
 
@@ -24,7 +24,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     matcher: '/vendor/shipping-options',
     middlewares: [
       validateAndTransformQuery(
-        VendorGetShippingParams,
+        VendorGetShippingFindParams,
         vendorShippingOptionQueryConfig.list
       ),
       filterBySellerId()
@@ -41,7 +41,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
         resourceId: (req) => req.validatedBody.service_zone_id
       }),
       validateAndTransformQuery(
-        VendorGetShippingParams,
+        VendorGetShippingFindParams,
         vendorShippingOptionQueryConfig.retrieve
       )
     ]
@@ -55,7 +55,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
         filterField: 'shipping_option_id'
       }),
       validateAndTransformQuery(
-        VendorGetShippingParams,
+        VendorGetShippingFindParams,
         vendorShippingOptionQueryConfig.retrieve
       )
     ]
@@ -70,7 +70,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
       }),
       validateAndTransformBody(VendorUpdateShippingOption),
       validateAndTransformQuery(
-        VendorGetShippingParams,
+        VendorGetShippingFindParams,
         vendorShippingOptionQueryConfig.retrieve
       )
     ]
