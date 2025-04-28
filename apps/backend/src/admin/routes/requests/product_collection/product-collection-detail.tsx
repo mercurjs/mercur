@@ -66,7 +66,7 @@ export function ProductCollectionRequestDetail({
               <Text>{request.seller?.name}</Text>
             </Container>
           </fieldset>
-          <Container className="mt-4 bg-gray-200">
+          <Container className="mt-4">
             <div className="flex items-center gap-2">
               <InformationCircle />
               <Text className="font-semibold">Request information</Text>
