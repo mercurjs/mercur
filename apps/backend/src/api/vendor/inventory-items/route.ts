@@ -35,12 +35,21 @@ export const GET = async (
   })
   // Then query inventory items directly with sorting
   const inventoryItemIds = links.map((link) => link.inventory_item_id)
+  
+  // Build filters object conditionally
+  const filters: any = {
+    id: { $in: inventoryItemIds }
+  }
+  
+  // Only add q filter if it exists
+  if (req.filterableFields?.q) {
+    filters.q = req.filterableFields.q
+  }
+
   const { data: inventory_items, metadata } = await query.graph({
     entity: 'inventory_item',
     fields: req.queryConfig.fields,
-    filters: {
-      id: { $in: inventoryItemIds }
-    },
+    filters,
     pagination: req.queryConfig.pagination,
   })
 
