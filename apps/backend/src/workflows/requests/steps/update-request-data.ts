@@ -12,6 +12,13 @@ export const updateRequestDataStep = createStep(
 
     const existingRequest = await service.retrieveRequest(input.id)
 
+    if (!['pending', 'draft'].includes(existingRequest.status)) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        'Request is already reviewed!'
+      )
+    }
+
     if (existingRequest.type !== input.type) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,

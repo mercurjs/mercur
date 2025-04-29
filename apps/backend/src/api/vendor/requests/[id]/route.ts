@@ -107,7 +107,7 @@ export const POST = async (
     container: req.scope,
     input: {
       id: req.params.id,
-      ...req.validatedBody
+      ...req.validatedBody.request
     }
   })
 
