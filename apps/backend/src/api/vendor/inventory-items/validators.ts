@@ -5,7 +5,7 @@ import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
 export const VendorGetInventoryItemsParamsFields = z.object({
   q: z.string().optional(),
-  id: z.union([z.string(), z.array(z.string())]).optional()
+  inventory_item_id: z.union([z.string(), z.array(z.string())]).optional()
 })
 
 export type VendorGetInventoryItemsParamsType = z.infer<
