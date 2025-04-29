@@ -41,12 +41,7 @@ export const GET = async (
     filters: {
       id: { $in: inventoryItemIds }
     },
-    pagination: {
-      ...req.queryConfig.pagination,
-      order: {
-        title: 'ASC' // Now you can sort directly
-      }
-    }
+    pagination: req.queryConfig.pagination,
   })
 
   res.json({
