@@ -1,4 +1,7 @@
-import { createRemoteLinkStep } from '@medusajs/medusa/core-flows'
+import {
+  createRemoteLinkStep,
+  emitEventStep
+} from '@medusajs/medusa/core-flows'
 import {
   WorkflowResponse,
   createHook,
@@ -7,7 +10,10 @@ import {
 } from '@medusajs/workflows-sdk'
 
 import { REQUESTS_MODULE } from '../../../modules/requests'
-import { CreateRequestDTO } from '../../../modules/requests/types'
+import {
+  CreateRequestDTO,
+  SellerRequest
+} from '../../../modules/requests/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { createRequestStep } from '../steps'
 
@@ -31,10 +37,16 @@ export const createRequestWorkflow = createWorkflow(
 
     createRemoteLinkStep(link)
 
+    emitEventStep({
+      eventName: SellerRequest.CREATED,
+      data: input.data
+    })
+
     const requestCreatedHook = createHook('requestCreated', {
       requestId: request.id,
       sellerId: input.seller_id
     })
+
     return new WorkflowResponse(request, {
       hooks: [requestCreatedHook]
     })
