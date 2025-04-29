@@ -156,12 +156,12 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const { option_id } = req.params
+  const { id } = req.params
   await deleteShippingOptionsWorkflow(req.scope).run({
     input: {
-      ids: [option_id]
+      ids: [id]
     }
   })
 
-  res.json({ id: option_id, object: 'shipping_option', deleted: true })
+  res.json({ id, object: 'shipping_option', deleted: true })
 }
