@@ -1,9 +1,10 @@
 {
-    "semi": false,
-    "singleQuote": true,
-    "tabWidth": 2,
-    "printWidth": 80,
-    "trailingComma": "none",
+  "semi": false,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "printWidth": 80,
+  "trailingComma": "es5",
+  "arrowParens": "always",
     "importOrder": [
         "^@medusajs/(.*)$",
         "^@mercurjs/(.*)$",
