@@ -1,7 +1,6 @@
+import { AdminGetInventoryItemsParams } from '@medusajs/medusa/api/admin/inventory-items/validators'
 import { z } from 'zod'
 
-import { applyAndAndOrOperators } from '@medusajs/medusa/api/utils/common-validators/common'
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
 export const VendorGetInventoryItemsParamsFields = z.object({
   q: z.string().optional(),
@@ -11,13 +10,7 @@ export const VendorGetInventoryItemsParamsFields = z.object({
 export type VendorGetInventoryItemsParamsType = z.infer<
   typeof VendorGetInventoryItemsParams
 >
-export const VendorGetInventoryItemsParams = createFindParams({
-  offset: 0,
-  limit: 50
-})
-  .merge(VendorGetInventoryItemsParamsFields)
-  .merge(applyAndAndOrOperators(VendorGetInventoryItemsParamsFields))
-  .strict()
+export const VendorGetInventoryItemsParams = AdminGetInventoryItemsParams
 
 /**
  * @schema VendorUpdateInventoryLevel

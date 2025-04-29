@@ -18,18 +18,18 @@ export const vendorInventoryItemFields = [
   "stocked_quantity",
   "created_at",
   "updated_at",
-  "*location_levels"
+  "*location_levels",
 ]
 
 export const vendorInventoryItemQueryConfig = {
   list: {
     defaults: vendorInventoryItemFields,
-    isList: true
+    isList: true,
   },
   retrieve: {
     defaults: vendorInventoryItemFields,
-    isList: false
-  }
+    isList: false,
+  },
 }
 
 export const vendorInventoryLevelFields = [
@@ -41,16 +41,16 @@ export const vendorInventoryLevelFields = [
   "reserved_quantity",
   "incoming_quantity",
   "*stock_locations",
-  "*stock_locations.address"
+  "*stock_locations.address",
 ]
 
 export const vendorInventoryLevelQueryConfig = {
   list: {
     defaults: vendorInventoryLevelFields,
-    isList: true
+    isList: true,
   },
   retrieve: {
     defaults: vendorInventoryLevelFields,
-    isList: false
-  }
+    isList: false,
+  },
 }
