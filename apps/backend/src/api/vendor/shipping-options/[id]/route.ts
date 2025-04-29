@@ -97,7 +97,7 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   await updateShippingOptionsWorkflow(req.scope).run({
-    input: [{ id: req.params.option_id, ...req.validatedBody }]
+    input: [{ id: req.params.id, ...req.validatedBody }]
   })
 
   const {
