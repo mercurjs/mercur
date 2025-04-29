@@ -28625,11 +28625,6 @@ export interface VendorUpdatePromotion {
   application_method?: VendorUpdateApplicationMethod;
 }
 
-export interface VendorUpdateRequestData {
-  /** The resource to be updated */
-  request: ProductCollectionRequest | ProductCategoryRequest | ReviewRemoveRequest | ProductTypeRequest;
-}
-
 export interface VendorUpdateReservation {
   /** The description of the reservation. */
   description?: string;
@@ -61055,41 +61050,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates specified request payload.
-     *
-     * @tags Requests
-     * @name VendorUpdateRequestData
-     * @summary Update request data
-     * @request POST:/vendor/requests/{id}
-     * @secure
-     */
-    vendorUpdateRequestData: (
-      id: string,
-      data: VendorUpdateRequestData,
-      query?: {
-        /** The comma-separated fields to include in the response */
-        fields?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          /** A request object */
-          request?: VendorRequest;
-        },
-        any
-      >({
-        path: `/vendor/requests/${id}`,
-        method: "POST",
-        query: query,
-        body: data,
-        secure: true,
-        type: ContentType.Json,
         format: "json",
         ...params,
       }),
