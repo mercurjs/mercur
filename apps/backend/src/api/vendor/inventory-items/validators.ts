@@ -152,3 +152,91 @@ export const VendorUpdateInventoryItem = z
     metadata: z.record(z.unknown()).nullish()
   })
   .strict()
+
+/**
+ * @schema VendorBatchInventoryLocationLevel
+ * type: object
+ * properties:
+ *   inventory_item_id:
+ *     type: string
+ *     description: The inventory item id.
+ *   stocked_quantity:
+ *     type: number
+ *     description: The quantity of the InventoryItem in StockLocation.
+ *   location_id:
+ *     type: string
+ *     description: The stock location id.
+ *   incoming_quantity:
+ *     type: number
+ *     description: The quantity incoming_quantity.
+ */
+const VendorBatchInventoryLocationLevel = z
+  .object({
+    inventory_item_id: z.string(),
+    location_id: z.string(),
+    stocked_quantity: z.number().min(0).optional(),
+    incoming_quantity: z.number().min(0).optional()
+  })
+  .strict()
+
+/**
+ * @schema VendorBatchInventoryItemLevels
+ * type: object
+ * properties:
+ *   create:
+ *     type: array
+ *     description: Levels to create
+ *     items:
+ *       $ref: "#/components/schemas/VendorBatchInventoryLocationLevel"
+ *   update:
+ *     type: array
+ *     description: Levels to update
+ *     items:
+ *       $ref: "#/components/schemas/VendorBatchInventoryLocationLevel"
+ *   delete:
+ *     type: array
+ *     description: Levels to delete
+ *     items:
+ *       type: string
+ */
+export type VendorBatchInventoryItemLevelsType = z.infer<
+  typeof VendorBatchInventoryItemLevels
+>
+export const VendorBatchInventoryItemLevels = z
+  .object({
+    create: z.array(VendorBatchInventoryLocationLevel).optional(),
+    update: z.array(VendorBatchInventoryLocationLevel).optional(),
+    delete: z.array(z.string()).optional(),
+    force: z.boolean().optional()
+  })
+  .strict()
+
+/**
+ * @schema VendorBatchInventoryItemLocationsLevel
+ * type: object
+ * properties:
+ *   create:
+ *     type: array
+ *     description: Levels to create
+ *     items:
+ *       $ref: "#/components/schemas/VendorCreateInventoryLevel"
+ *   update:
+ *     type: array
+ *     description: Levels to update
+ *     items:
+ *       $ref: "#/components/schemas/VendorBatchInventoryLocationLevel"
+ *   delete:
+ *     type: array
+ *     description: Levels to delete
+ *     items:
+ *       type: string
+ */
+export type VendorBatchInventoryItemLocationsLevelType = z.infer<
+  typeof VendorBatchInventoryItemLocationsLevel
+>
+export const VendorBatchInventoryItemLocationsLevel = z.object({
+  create: z.array(VendorCreateInventoryLocationLevel).optional(),
+  update: z.array(VendorBatchInventoryLocationLevel).optional(),
+  delete: z.array(z.string()).optional(),
+  force: z.boolean().optional()
+})

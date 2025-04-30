@@ -25217,6 +25217,35 @@ export interface VendorBaseRuleOperatorOptions {
   label?: string;
 }
 
+export interface VendorBatchInventoryItemLevels {
+  /** Levels to create */
+  create?: VendorBatchInventoryLocationLevel[];
+  /** Levels to update */
+  update?: VendorBatchInventoryLocationLevel[];
+  /** Levels to delete */
+  delete?: string[];
+}
+
+export interface VendorBatchInventoryItemLocationsLevel {
+  /** Levels to create */
+  create?: VendorCreateInventoryLevel[];
+  /** Levels to update */
+  update?: VendorBatchInventoryLocationLevel[];
+  /** Levels to delete */
+  delete?: string[];
+}
+
+export interface VendorBatchInventoryLocationLevel {
+  /** The inventory item id. */
+  inventory_item_id?: string;
+  /** The quantity of the InventoryItem in StockLocation. */
+  stocked_quantity?: number;
+  /** The stock location id. */
+  location_id?: string;
+  /** The quantity incoming_quantity. */
+  incoming_quantity?: number;
+}
+
 export interface VendorBatchPromotionRule {
   /** Rules to create. */
   create?: VendorCreatePromotionRule[];
@@ -59047,6 +59076,25 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Batch updates InventoryItem levels
+     *
+     * @tags Product
+     * @name VendorBatchInventoryItemLevels
+     * @summary Update inventory item levels
+     * @request POST:/vendor/inventory-items/location-levels/batch
+     * @secure
+     */
+    vendorBatchInventoryItemLevels: (data: VendorBatchInventoryItemLevels, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/vendor/inventory-items/location-levels/batch`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
      * @description Retrieves InventoryItem of specified id
      *
      * @tags Product
@@ -59111,6 +59159,29 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     vendorCreateInventoryLevel: (id: string, data: VendorCreateInventoryLevel, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/vendor/inventory-items/${id}/location-levels`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Batch updates InventoryItem levels
+     *
+     * @tags Product
+     * @name VendorBatchInventoryItemLocationsLevels
+     * @summary Update inventory item levels
+     * @request POST:/vendor/inventory-items/{id}/location-levels/batch
+     * @secure
+     */
+    vendorBatchInventoryItemLocationsLevels: (
+      id: string,
+      data: VendorBatchInventoryItemLocationsLevel,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/vendor/inventory-items/${id}/location-levels/batch`,
         method: "POST",
         body: data,
         secure: true,

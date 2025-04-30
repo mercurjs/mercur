@@ -15,6 +15,8 @@ import {
   vendorInventoryLevelQueryConfig
 } from './query-config'
 import {
+  VendorBatchInventoryItemLevels,
+  VendorBatchInventoryItemLocationsLevel,
   VendorCreateInventoryLocationLevel,
   VendorGetInventoryItemsParams,
   VendorUpdateInventoryItem,
@@ -32,6 +34,11 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
       ),
       filterBySellerId()
     ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/inventory-items/location-levels/batch',
+    middlewares: [validateAndTransformBody(VendorBatchInventoryItemLevels)]
   },
   {
     method: ['GET'],
@@ -89,6 +96,13 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         entryPoint: sellerInventoryItem.entryPoint,
         filterField: 'inventory_item_id'
       })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/inventory-items/:id/location-levels/batch',
+    middlewares: [
+      validateAndTransformBody(VendorBatchInventoryItemLocationsLevel)
     ]
   },
   {
