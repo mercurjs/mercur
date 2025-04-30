@@ -1,7 +1,13 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import {
+  ContainerRegistrationKeys,
+  MedusaError
+} from '@medusajs/framework/utils'
 import { updateProductsWorkflow } from '@medusajs/medusa/core-flows'
 
+import { CONFIGURATION_MODULE } from '../../../../../modules/configuration'
+import ConfigurationModuleService from '../../../../../modules/configuration/service'
+import { ConfigurationRuleType } from '../../../../../modules/configuration/types'
 import { VendorUpdateProductStatusType } from '../../validators'
 
 /**
@@ -49,6 +55,20 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const configuration =
+    req.scope.resolve<ConfigurationModuleService>(CONFIGURATION_MODULE)
+
+  if (
+    !['proposed', 'draft'].includes(req.validatedBody.status) &&
+    (await configuration.isRuleEnabled(
+      ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL
+    ))
+  ) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      'This feature is disabled!'
+    )
+  }
 
   const { result } = await updateProductsWorkflow(req.scope).run({
     input: {

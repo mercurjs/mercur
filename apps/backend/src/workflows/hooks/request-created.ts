@@ -20,6 +20,7 @@ createProductRequestWorkflow.hooks.productRequestCreated(
     const request = await service.retrieveRequest(requestId)
 
     if (
+      request.status !== 'draft' &&
       !(await configuration.isRuleEnabled(
         ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL
       ))

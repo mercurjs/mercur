@@ -29,8 +29,11 @@ export default async function productUpdatedHandler({
     }
   })
 
+  if (!foundRequest) {
+    return
+  }
+
   if (
-    foundRequest &&
     foundRequest.status === 'pending' &&
     ['published', 'rejected'].includes(product.status)
   ) {
@@ -41,6 +44,16 @@ export default async function productUpdatedHandler({
         reviewer_id: 'system',
         reviewer_note: 'auto',
         status: product.status === 'published' ? 'accepted' : 'rejected'
+      }
+    })
+  }
+
+  if (product.status === 'proposed') {
+    await updateRequestWorkflow.run({
+      container,
+      input: {
+        id: foundRequest.id,
+        status: 'pending'
       }
     })
   }

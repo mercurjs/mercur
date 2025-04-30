@@ -231,10 +231,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         entryPoint: sellerProductLink.entryPoint,
         filterField: 'product_id'
       }),
-      checkConfigurationRule(
-        ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL,
-        false
-      ),
       validateAndTransformBody(VendorUpdateProductStatus),
       validateAndTransformQuery(
         VendorGetProductParams,

@@ -10,7 +10,10 @@ import {
 } from '@medusajs/workflows-sdk'
 
 import { REQUESTS_MODULE } from '../../../modules/requests'
-import { CreateRequestDTO } from '../../../modules/requests/types'
+import {
+  CreateRequestDTO,
+  RequestStatus
+} from '../../../modules/requests/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { createRequestStep } from '../steps'
 
@@ -23,7 +26,7 @@ export const createProductRequestWorkflow = createWorkflow(
   }) {
     const productPayload = transform(input, (input) => ({
       ...input.data.data,
-      status: 'proposed'
+      status: input.data.data.status === 'draft' ? 'draft' : 'proposed'
     }))
 
     const product = createProductsWorkflow.runAsStep({
@@ -43,7 +46,11 @@ export const createProductRequestWorkflow = createWorkflow(
         data: {
           ...productPayload,
           product_id: product[0].id
-        }
+        },
+        status:
+          productPayload.status === 'draft'
+            ? ('draft' as RequestStatus)
+            : ('pending' as RequestStatus)
       })
     )
 

@@ -70,10 +70,14 @@ export async function GET(
   res: MedusaResponse
 ): Promise<void> {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
   const { data: requests, metadata } = await query.graph({
     entity: 'request',
     fields: req.queryConfig.fields,
-    filters: req.filterableFields,
+    filters: {
+      ...req.filterableFields,
+      status: req.filterableFields.status || { $ne: 'draft' }
+    },
     pagination: req.queryConfig.pagination
   })
 
