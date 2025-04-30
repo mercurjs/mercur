@@ -1,8 +1,12 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { createReservationsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerInventoryItem from '../../../links/seller-inventory-item'
-import { VendorGetReservationParamsType } from './validators'
+import {
+  VendorCreateReservationType,
+  VendorGetReservationParamsType
+} from './validators'
 
 /**
  * @oas [get] /vendor/reservations
@@ -83,4 +87,62 @@ export const GET = async (
     offset: metadata?.skip,
     limit: metadata?.take
   })
+}
+
+/**
+ * @oas [post] /vendor/reservations
+ * operationId: "VendorCreateReservation"
+ * summary: "Create reservation"
+ * description: "Creates new reservation"
+ * x-authenticated: true
+ * parameters:
+ *   - name: fields
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Comma-separated fields to include in the response.
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/VendorCreateReservation"
+ * responses:
+ *   "201":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             reservation:
+ *               $ref: "#/components/schemas/VendorReservation"
+ * tags:
+ *   - Reservations
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
+export const POST = async (
+  req: AuthenticatedMedusaRequest<VendorCreateReservationType>,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { result } = await createReservationsWorkflow.run({
+    container: req.scope,
+    input: { reservations: [req.validatedBody] }
+  })
+
+  const {
+    data: [reservation]
+  } = await query.graph({
+    entity: 'reservation',
+    fields: req.queryConfig.fields,
+    filters: {
+      id: result[0].id
+    }
+  })
+
+  res.status(201).json({ reservation })
 }

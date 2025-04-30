@@ -13,10 +13,13 @@ import {
 } from '@medusajs/framework/utils'
 
 import sellerInventoryItem from '../../../links/seller-inventory-item'
+import sellerStockLocation from '../../../links/seller-stock-location'
 import { filterBySellerId } from '../../../shared/infra/http/middlewares'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { vendorReservationQueryConfig } from './query-config'
 import {
+  VendorCreateReservation,
+  VendorCreateReservationType,
   VendorGetReservationParams,
   VendorUpdateReservation
 } from './validators'
@@ -74,6 +77,53 @@ const checkReservationOwnership = () => {
   }
 }
 
+const canCreateReservation = () => {
+  return async (
+    req: AuthenticatedMedusaRequest<VendorCreateReservationType>,
+    res: MedusaResponse,
+    next: NextFunction
+  ) => {
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+    const seller = await fetchSellerByAuthActorId(
+      req.auth_context.actor_id,
+      req.scope
+    )
+
+    const {
+      data: [item]
+    } = await query.graph({
+      entity: sellerInventoryItem.entryPoint,
+      fields: ['id'],
+      filters: {
+        inventory_item_id: req.validatedBody.inventory_item_id,
+        seller_id: seller.id
+      }
+    })
+
+    const {
+      data: [location]
+    } = await query.graph({
+      entity: sellerStockLocation.entryPoint,
+      fields: ['id'],
+      filters: {
+        stock_location_id: req.validatedBody.location_id,
+        seller_id: seller.id
+      }
+    })
+
+    if (!seller || !item || !location) {
+      res.status(403).json({
+        message: 'You are not allowed to perform this action',
+        type: MedusaError.Types.NOT_ALLOWED
+      })
+      return
+    }
+
+    next()
+  }
+}
+
 export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
   {
     method: ['GET'],
@@ -84,6 +134,18 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
         vendorReservationQueryConfig.list
       ),
       filterBySellerId()
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/reservations',
+    middlewares: [
+      validateAndTransformBody(VendorCreateReservation),
+      validateAndTransformQuery(
+        VendorGetReservationParams,
+        vendorReservationQueryConfig.retrieve
+      ),
+      canCreateReservation()
     ]
   },
   {
