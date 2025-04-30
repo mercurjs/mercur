@@ -24599,7 +24599,7 @@ export interface CreateProduct {
    * The status of the product.
    * @default "draft"
    */
-  status?: "draft" | "proposed" | "published" | "rejected";
+  status?: "draft" | "proposed";
   /** The external ID of the product. */
   external_id?: string;
   /** The ID of the product type. */
@@ -25504,6 +25504,19 @@ export interface VendorCreatePromotionRule {
 export interface VendorCreateRequest {
   /** The resource to be created by request */
   request: ProductCollectionRequest | ProductCategoryRequest | ReviewRemoveRequest | ProductTypeRequest;
+}
+
+export interface VendorCreateReservation {
+  /** The description of the reservation. */
+  description?: string;
+  /** The location id of the reservation. */
+  location_id?: string;
+  /** The inventory item id of the reservation. */
+  inventory_item_id?: string;
+  /** The line item id of the reservation. */
+  line_item_id?: string;
+  /** The number of items in the reservation. */
+  quantity?: number;
 }
 
 export interface VendorCreateSeller {
@@ -28654,7 +28667,7 @@ export type VendorUpdateProduct = UpdateProduct & {
 
 export interface VendorUpdateProductStatus {
   /** The status of the product. */
-  status?: "draft" | "proposed" | "published" | "rejected";
+  status?: "draft" | "proposed" | "published";
 }
 
 export interface VendorUpdatePromotion {
@@ -61249,6 +61262,40 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates new reservation
+     *
+     * @tags Reservations
+     * @name VendorCreateReservation
+     * @summary Create reservation
+     * @request POST:/vendor/reservations
+     * @secure
+     */
+    vendorCreateReservation: (
+      data: VendorCreateReservation,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The reservation's details. */
+          reservation?: VendorReservation;
+        },
+        any
+      >({
+        path: `/vendor/reservations`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
