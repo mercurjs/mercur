@@ -27795,6 +27795,53 @@ export interface VendorReceiveReturnItems {
 }
 
 /**
+ * Region
+ * Region object
+ */
+export interface VendorRegion {
+  /** The unique identifier of the item. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** The name of the region. */
+  name?: string;
+  /** The currency of the region. */
+  currency_code?: string;
+  /** Whether taxes are applied automatically during checkout. */
+  automatic_taxes?: boolean;
+  /** The type of the promotion. */
+  type?: string;
+  countries?: VendorRegionCountry[];
+}
+
+/**
+ * Region country
+ * Region country object
+ */
+export interface VendorRegionCountry {
+  /** The unique identifier of the item. */
+  id?: string;
+  /** Name of the country */
+  name?: string;
+  /** Display name of the country */
+  display_name?: string;
+  /** ISO_2 code */
+  iso_2?: string;
+  /** ISO_3 code */
+  iso_3?: string;
+  /** Numcode */
+  num_code?: string;
+}
+
+/**
  * Request
  * A request object
  */
@@ -60953,6 +61000,78 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         any
       >({
         path: `/vendor/promotions/${id}/${ruleType}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of regions.
+     *
+     * @tags Region
+     * @name VendorListRegions
+     * @summary List regions
+     * @request GET:/vendor/regions
+     * @secure
+     */
+    vendorListRegions: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          regions?: VendorRegion[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/regions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves region by id.
+     *
+     * @tags Region
+     * @name VendorGetRegionById
+     * @summary Get region
+     * @request GET:/vendor/regions/{id}
+     * @secure
+     */
+    vendorGetRegionById: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** Region object */
+          region?: VendorRegion;
+        },
+        any
+      >({
+        path: `/vendor/regions/${id}`,
         method: "GET",
         query: query,
         secure: true,
