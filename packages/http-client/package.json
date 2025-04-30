@@ -12,6 +12,7 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "swagger-typescript-api": "^13.0.23"
+    "swagger-typescript-api": "^13.0.23",
+    "qs": "^6.14.0"
   }
 }
