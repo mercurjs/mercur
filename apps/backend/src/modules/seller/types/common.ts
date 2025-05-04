@@ -13,7 +13,7 @@ export type SellerDTO = {
   state: string | null
   postal_code: string | null
   country_code: string | null
-  tax_id: string | null
+  gstin: string | null
   handle: string
   photo: string | null
   type: 'manufacturer' | 'reseller'
