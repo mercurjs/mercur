@@ -1,12 +1,22 @@
 import { z } from 'zod'
 
-import { createSelectParams } from '@medusajs/medusa/api/utils/validators'
+import { applyAndAndOrOperators } from '@medusajs/medusa/api/utils/common-validators/common'
+import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
 export type VendorGetStockLocationParamsType = z.infer<
   typeof VendorGetStockLocationParams
 >
 
-export const VendorGetStockLocationParams = createSelectParams()
+export const VendorGetStockLocationsParamsDirectFields = z.object({
+  stock_location_id: z.union([z.string(), z.array(z.string())]).optional()
+})
+
+export const VendorGetStockLocationParams = createFindParams({
+  limit: 20,
+  offset: 0
+})
+  .merge(VendorGetStockLocationsParamsDirectFields)
+  .merge(applyAndAndOrOperators(VendorGetStockLocationsParamsDirectFields))
 
 /**
  * @schema UpsertStockLocationAddress

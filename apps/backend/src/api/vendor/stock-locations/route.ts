@@ -115,15 +115,19 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: sellerLocations } = await query.graph({
+  const { data: sellerLocations, metadata } = await query.graph({
     entity: sellerStockLocationLink.entryPoint,
     fields: req.queryConfig.fields.map((field) => `stock_location.${field}`),
-    filters: req.filterableFields
+    filters: req.filterableFields,
+    pagination: req.queryConfig.pagination
   })
 
   res.status(200).json({
     stock_locations: sellerLocations.map(
       (sellerLocation) => sellerLocation.stock_location
-    )
+    ),
+    count: metadata?.count,
+    offset: metadata?.skip,
+    limit: metadata?.take
   })
 }
