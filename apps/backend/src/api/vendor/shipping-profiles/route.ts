@@ -54,7 +54,14 @@ export const POST = async (
 
   const { result } = await createShippingProfilesWorkflow.run({
     container: req.scope,
-    input: { data: [req.validatedBody] }
+    input: {
+      data: [
+        {
+          type: req.validatedBody.type,
+          name: `${seller.id}:${req.validatedBody.name}`
+        }
+      ]
+    }
   })
 
   const {

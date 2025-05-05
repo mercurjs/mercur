@@ -1,6 +1,10 @@
 import { transform } from '@medusajs/framework/workflows-sdk'
 import { setAuthAppMetadataStep } from '@medusajs/medusa/core-flows'
-import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
+import {
+  WorkflowResponse,
+  createHook,
+  createWorkflow
+} from '@medusajs/workflows-sdk'
 
 import { CreateMemberDTO, CreateSellerDTO } from '../../../modules/seller/types'
 import { createMemberStep } from '../../member/steps'
@@ -34,6 +38,9 @@ export const createSellerWorkflow = createWorkflow(
       value: member.id
     })
 
-    return new WorkflowResponse(seller)
+    const sellerCreatedHook = createHook('sellerCreated', {
+      sellerId: seller.id
+    })
+    return new WorkflowResponse(seller, { hooks: [sellerCreatedHook] })
   }
 )
