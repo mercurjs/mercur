@@ -27,16 +27,18 @@ export const validateVendorPriceListPricesStep = createStep(
       }
     })
 
+    const productIds = [...new Set(products.map((p) => p.product_id))]
+
     const { data: relations } = await query.graph({
       entity: sellerProduct.entryPoint,
       fields: ['id'],
       filters: {
         seller_id: input.seller_id,
-        product_id: products.map((p) => p.product_id)
+        product_id: productIds
       }
     })
 
-    if (relations.length !== products.length) {
+    if (relations.length !== productIds.length) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
         'Price lists can be applied only to seller own products!'
