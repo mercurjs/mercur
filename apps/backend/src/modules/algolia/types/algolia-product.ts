@@ -9,6 +9,7 @@ export const AlgoliaProductValidator = z.object({
   description: z.string().nullable(),
   thumbnail: z.string().nullable(),
   average_rating: z.coerce.number().nullable().default(null),
+  supported_countries: z.array(z.string()).nullable().default([]),
   options: z.array(z.record(z.string())).nullable().default(null),
   images: z
     .array(
@@ -47,17 +48,7 @@ export const AlgoliaProductValidator = z.object({
       })
     )
     .optional(),
-  variants: z
-    .array(
-      z.record(
-        z.union([
-          z.string(),
-          z.array(z.object({ amount: z.number(), currency_code: z.string() }))
-        ])
-      )
-    )
-    .nullable()
-    .default(null),
+  variants: z.any().nullable().default(null),
   brand: z
     .object({
       name: z.string()
@@ -75,4 +66,45 @@ export const AlgoliaProductValidator = z.object({
   width: z.coerce.number().nullable().optional(),
   origin_country: z.string().nullable().optional(),
   material: z.string().nullable().optional()
+})
+
+export const AlgoliaVariantValidator = z.object({
+  id: z.string(),
+  title: z.string().nullish(),
+  sku: z.string().nullish(),
+  barcode: z.string().nullish(),
+  ean: z.string().nullish(),
+  ups: z.string().nullish(),
+  allow_backorder: z.boolean(),
+  manage_inventory: z.boolean(),
+  hs_code: z.string().nullish(),
+  origin_country: z.string().nullish(),
+  mid_code: z.string().nullish(),
+  material: z.string().nullish(),
+  weight: z.number().nullish(),
+  length: z.number().nullish(),
+  height: z.number().nullish(),
+  wifth: z.number().nullish(),
+  variant_rank: z.number().nullish(),
+  options: z.array(
+    z.object({
+      id: z.string(),
+      value: z.string(),
+      option: z.object({
+        id: z.string(),
+        title: z.string()
+      })
+    })
+  ),
+  prices: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string().nullish(),
+      currency_code: z.string(),
+      min_quantity: z.number().nullish(),
+      max_quantity: z.number().nullish(),
+      rules_count: z.number(),
+      amount: z.number()
+    })
+  )
 })
