@@ -2,6 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { createProductVariantsWorkflow } from '@medusajs/medusa/core-flows'
 
+import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
 import { CreateProductVariantType } from '../../validators'
 
 /**
@@ -50,6 +51,11 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const seller = await fetchSellerByAuthActorId(
+    req.auth_context.actor_id,
+    req.scope
+  )
+
   await createProductVariantsWorkflow.run({
     container: req.scope,
     input: {
@@ -58,7 +64,10 @@ export const POST = async (
           ...req.validatedBody,
           product_id: req.params.id
         }
-      ]
+      ],
+      additional_data: {
+        seller_id: seller.id
+      }
     }
   })
 
