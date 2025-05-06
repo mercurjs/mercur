@@ -47,6 +47,7 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
   logger.info('Creating service zone...')
   const serviceZone = await createServiceZoneForFulfillmentSet(
     container,
+    seller.id,
     stockLocation.fulfillment_sets[0].id
   )
   logger.info('Creating seller shipping profile...')

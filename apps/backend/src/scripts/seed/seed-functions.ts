@@ -340,6 +340,7 @@ export async function createSellerStockLocation(
 
 export async function createServiceZoneForFulfillmentSet(
   container: MedusaContainer,
+  sellerId: string,
   fulfillmentSetId: string
 ) {
   await createServiceZonesWorkflow.run({
@@ -363,6 +364,16 @@ export async function createServiceZoneForFulfillmentSet(
   const [zone] = await fulfillmentService.listServiceZones({
     fulfillment_set: {
       id: fulfillmentSetId
+    }
+  })
+
+  const link = container.resolve(ContainerRegistrationKeys.LINK)
+  await link.create({
+    [SELLER_MODULE]: {
+      seller_id: sellerId
+    },
+    [Modules.FULFILLMENT]: {
+      service_zone_id: zone.id
     }
   })
 
