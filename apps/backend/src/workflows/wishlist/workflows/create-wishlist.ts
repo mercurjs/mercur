@@ -1,17 +1,16 @@
-import { CreateWishlistDTO } from '#/modules/wishlist/types/mutations'
-
 import {
   WorkflowResponse,
   createWorkflow
 } from '@medusajs/framework/workflows-sdk'
 
-import { createWishlistStep } from '../steps'
+import { CreateWishlistDTO } from '../../../modules/wishlist/types/mutations'
+import { createWishlistEntryStep } from '../steps'
 
-export const createWishlistWorkflow = createWorkflow(
+export const createWishlistEntryWorkflow = createWorkflow(
   {
     name: 'create-wishlist'
   },
   function (input: CreateWishlistDTO) {
-    return new WorkflowResponse(createWishlistStep(input))
+    return new WorkflowResponse(createWishlistEntryStep(input))
   }
 )

@@ -1,10 +1,10 @@
-import { WISHLIST_MODULE } from '#/modules/wishlist'
-import { DeleteWishlistDTO } from '#/modules/wishlist/types/mutations'
-
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-export const deleteWishlistStep = createStep(
+import { WISHLIST_MODULE } from '../../../modules/wishlist'
+import { DeleteWishlistDTO } from '../../../modules/wishlist/types/mutations'
+
+export const deleteWishlistEntryStep = createStep(
   'delete-wishlist',
   async (input: DeleteWishlistDTO, { container }) => {
     const { id, reference_id } = input

@@ -1,6 +1,6 @@
-import { deleteWishlistWorkflow } from '#/workflows/wishlist/workflows'
-
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+
+import { deleteWishlistEntryWorkflow } from '../../../../../../workflows/wishlist/workflows'
 
 /**
  * @oas [delete] /store/wishlist/{id}/product/{reference_id}
@@ -15,6 +15,12 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
  *     description: The ID of the wishlist entry to delete.
  *     schema:
  *       type: string
+ *   - name: reference_id
+ *     in: path
+ *     required: true
+ *     description: The ID of the wishlist entry to delete.
+ *     schema:
+ *       type: string
  * responses:
  *   "200":
  *     description: OK
@@ -23,17 +29,17 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
  *         schema:
  *           type: object
  *           properties:
- *             object:
- *               type: object
- *               description: Id of the wishlsit nad reference id.
- *             object:
+ *             id:
  *               type: string
- *               description: The type of the object that was deleted.
- *               example: wishlist
+ *               description: Id of the wishlsit nad reference id.
+ *             reference_id:
+ *               type: string
+ *             object:
+ *              type: string
+ *              description: The type of resource
  *             deleted:
  *               type: boolean
- *               description: Whether the wishlist entry was successfully deleted.
- *               example: true
+ *               description: Indicates if the wishlist entry was deleted.
  * tags:
  *   - Wishlist
  * security:
@@ -45,7 +51,7 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  await deleteWishlistWorkflow.run({
+  await deleteWishlistEntryWorkflow.run({
     container: req.scope,
     input: req.params
   })

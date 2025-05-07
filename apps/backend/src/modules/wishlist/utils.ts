@@ -33,15 +33,15 @@ export async function calculateWishlistProductsPrice(
     return {
       id: wishlist.id,
       products: wishlist.products.map((product) => {
-        const { variants, ...productData } = product
-        const variant = variants?.[0]
-        const price = variant?.prices?.[0]
+        const { variants, ...productData } = product ?? {}
+        const variant = variants?.[0] || null
+        const price = variant?.prices?.[0] || null
 
         return {
           ...productData,
-          variant_id: variant?.id || null,
-          price_set_id: price?.price_set_id || null,
-          currency_code: price?.currency_code || null
+          variant_id: variant?.id,
+          price_set_id: price?.price_set_id,
+          currency_code: price?.currency_code
         }
       })
     }

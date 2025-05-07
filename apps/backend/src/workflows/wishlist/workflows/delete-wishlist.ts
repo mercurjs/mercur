@@ -1,17 +1,16 @@
-import { DeleteWishlistDTO } from '#/modules/wishlist/types/mutations'
-
 import {
   WorkflowResponse,
   createWorkflow
 } from '@medusajs/framework/workflows-sdk'
 
-import { deleteWishlistStep } from '../steps'
+import { DeleteWishlistDTO } from '../../../modules/wishlist/types/mutations'
+import { deleteWishlistEntryStep } from '../steps'
 
-export const deleteWishlistWorkflow = createWorkflow(
+export const deleteWishlistEntryWorkflow = createWorkflow(
   {
     name: 'delete-wishlist'
   },
   function (input: DeleteWishlistDTO) {
-    return new WorkflowResponse(deleteWishlistStep(input))
+    return new WorkflowResponse(deleteWishlistEntryStep(input))
   }
 )

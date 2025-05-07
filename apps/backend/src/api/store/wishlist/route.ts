@@ -1,7 +1,3 @@
-import customerWishlist from '#/links/customer-wishlist'
-import { calculateWishlistProductsPrice } from '#/modules/wishlist/utils'
-import { createWishlistWorkflow } from '#/workflows/wishlist/workflows'
-
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -9,6 +5,9 @@ import {
 } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import customerWishlist from '../../../links/customer-wishlist'
+import { calculateWishlistProductsPrice } from '../../../modules/wishlist/utils'
+import { createWishlistEntryWorkflow } from '../../../workflows/wishlist/workflows'
 import { StoreCreateWishlistType } from './validators'
 
 /**
@@ -37,8 +36,21 @@ import { StoreCreateWishlistType } from './validators'
  *         schema:
  *           type: object
  *           properties:
- *             wishlist:
- *               $ref: "#/components/schemas/Wishlist"
+ *             id:
+ *               type: string
+ *               description: Id of the wishlsit nad reference id.
+ *             created_at:
+ *               type: string
+ *               format: date-time
+ *               description: The date with timezone at which the resource was created.
+ *             updated_at:
+ *               type: string
+ *               format: date-time
+ *               description: The date with timezone at which the resource was last updated.
+ *             deleted_at:
+ *               type: string
+ *               format: date-time
+ *               description: The date with timezone at which the resource was deleted.
  * tags:
  *   - Wishlist
  * security:
@@ -50,7 +62,7 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<StoreCreateWishlistType>,
   res: MedusaResponse
 ) => {
-  const { result } = await createWishlistWorkflow.run({
+  const { result } = await createWishlistEntryWorkflow.run({
     container: req.scope,
     input: {
       ...req.validatedBody,
