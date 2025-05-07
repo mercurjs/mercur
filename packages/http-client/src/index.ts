@@ -24599,7 +24599,7 @@ export interface CreateProduct {
    * The status of the product.
    * @default "draft"
    */
-  status?: "draft" | "proposed" | "published" | "rejected";
+  status?: "draft" | "proposed";
   /** The external ID of the product. */
   external_id?: string;
   /** The ID of the product type. */
@@ -25217,6 +25217,35 @@ export interface VendorBaseRuleOperatorOptions {
   label?: string;
 }
 
+export interface VendorBatchInventoryItemLevels {
+  /** Levels to create */
+  create?: VendorBatchInventoryLocationLevel[];
+  /** Levels to update */
+  update?: VendorBatchInventoryLocationLevel[];
+  /** Levels to delete */
+  delete?: string[];
+}
+
+export interface VendorBatchInventoryItemLocationsLevel {
+  /** Levels to create */
+  create?: VendorCreateInventoryLevel[];
+  /** Levels to update */
+  update?: VendorBatchInventoryLocationLevel[];
+  /** Levels to delete */
+  delete?: string[];
+}
+
+export interface VendorBatchInventoryLocationLevel {
+  /** The inventory item id. */
+  inventory_item_id?: string;
+  /** The quantity of the InventoryItem in StockLocation. */
+  stocked_quantity?: number;
+  /** The stock location id. */
+  location_id?: string;
+  /** The quantity incoming_quantity. */
+  incoming_quantity?: number;
+}
+
 export interface VendorBatchPromotionRule {
   /** Rules to create. */
   create?: VendorCreatePromotionRule[];
@@ -25483,6 +25512,7 @@ export interface VendorCreatePromotion {
   is_automatic?: boolean;
   /** The campaign id. */
   campaign_id?: string;
+  campaign?: VendorCreateCampaign;
   /** The type of the promotion. */
   type?: "standard";
   application_method?: VendorCreateApplicationMethod;
@@ -25504,6 +25534,19 @@ export interface VendorCreatePromotionRule {
 export interface VendorCreateRequest {
   /** The resource to be created by request */
   request: ProductCollectionRequest | ProductCategoryRequest | ReviewRemoveRequest | ProductTypeRequest;
+}
+
+export interface VendorCreateReservation {
+  /** The description of the reservation. */
+  description?: string;
+  /** The location id of the reservation. */
+  location_id?: string;
+  /** The inventory item id of the reservation. */
+  inventory_item_id?: string;
+  /** The line item id of the reservation. */
+  line_item_id?: string;
+  /** The number of items in the reservation. */
+  quantity?: number;
 }
 
 export interface VendorCreateSeller {
@@ -27795,6 +27838,53 @@ export interface VendorReceiveReturnItems {
 }
 
 /**
+ * Region
+ * Region object
+ */
+export interface VendorRegion {
+  /** The unique identifier of the item. */
+  id?: string;
+  /**
+   * The date with timezone at which the resource was created.
+   * @format date-time
+   */
+  created_at?: string;
+  /**
+   * The date with timezone at which the resource was last updated.
+   * @format date-time
+   */
+  updated_at?: string;
+  /** The name of the region. */
+  name?: string;
+  /** The currency of the region. */
+  currency_code?: string;
+  /** Whether taxes are applied automatically during checkout. */
+  automatic_taxes?: boolean;
+  /** The type of the promotion. */
+  type?: string;
+  countries?: VendorRegionCountry[];
+}
+
+/**
+ * Region country
+ * Region country object
+ */
+export interface VendorRegionCountry {
+  /** The unique identifier of the item. */
+  id?: string;
+  /** Name of the country */
+  name?: string;
+  /** Display name of the country */
+  display_name?: string;
+  /** ISO_2 code */
+  iso_2?: string;
+  /** ISO_3 code */
+  iso_3?: string;
+  /** Numcode */
+  num_code?: string;
+}
+
+/**
  * Request
  * A request object
  */
@@ -28607,7 +28697,7 @@ export type VendorUpdateProduct = UpdateProduct & {
 
 export interface VendorUpdateProductStatus {
   /** The status of the product. */
-  status?: "draft" | "proposed" | "published" | "rejected";
+  status?: "draft" | "proposed" | "published";
 }
 
 export interface VendorUpdatePromotion {
@@ -28623,6 +28713,11 @@ export interface VendorUpdatePromotion {
   /** The status of the promotion. */
   status?: "draft" | "active" | "inactive";
   application_method?: VendorUpdateApplicationMethod;
+}
+
+export interface VendorUpdateRequestData {
+  /** The resource to be updated */
+  request: ProductCollectionRequest | ProductCategoryRequest | ReviewRemoveRequest | ProductTypeRequest;
 }
 
 export interface VendorUpdateReservation {
@@ -28733,8 +28828,6 @@ export interface VendorUpdateStockLocation {
   metadata?: object | null;
 }
 
-import qs from "qs";
-
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -28818,7 +28911,10 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    return qs.stringify(query);
+    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
+    return keys
+      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
+      .join("&");
   }
 
   protected addQueryParams(rawQuery?: QueryParamsType): string {
@@ -58981,6 +59077,25 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Batch updates InventoryItem levels
+     *
+     * @tags Product
+     * @name VendorBatchInventoryItemLevels
+     * @summary Update inventory item levels
+     * @request POST:/vendor/inventory-items/location-levels/batch
+     * @secure
+     */
+    vendorBatchInventoryItemLevels: (data: VendorBatchInventoryItemLevels, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/vendor/inventory-items/location-levels/batch`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
      * @description Retrieves InventoryItem of specified id
      *
      * @tags Product
@@ -59045,6 +59160,29 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     vendorCreateInventoryLevel: (id: string, data: VendorCreateInventoryLevel, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/vendor/inventory-items/${id}/location-levels`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Batch updates InventoryItem levels
+     *
+     * @tags Product
+     * @name VendorBatchInventoryItemLocationsLevels
+     * @summary Update inventory item levels
+     * @request POST:/vendor/inventory-items/{id}/location-levels/batch
+     * @secure
+     */
+    vendorBatchInventoryItemLocationsLevels: (
+      id: string,
+      data: VendorBatchInventoryItemLocationsLevel,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/vendor/inventory-items/${id}/location-levels/batch`,
         method: "POST",
         body: data,
         secure: true,
@@ -59939,6 +60077,78 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         any
       >({
         path: `/vendor/product-categories/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of product collections.
+     *
+     * @tags Product
+     * @name VendorListProductCollections
+     * @summary List product collections
+     * @request GET:/vendor/product-collections
+     * @secure
+     */
+    vendorListProductCollections: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          product_collections?: VendorProductCollection[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/product-collections`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves product collection by id.
+     *
+     * @tags Product
+     * @name VendorGetProductCollectionById
+     * @summary Get product collection
+     * @request GET:/vendor/product-collections/{id}
+     * @secure
+     */
+    vendorGetProductCollectionById: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A product collection object with its properties */
+          product_collection?: VendorProductCollection;
+        },
+        any
+      >({
+        path: `/vendor/product-collections/${id}`,
         method: "GET",
         query: query,
         secure: true,
@@ -60888,6 +61098,78 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a list of regions.
+     *
+     * @tags Region
+     * @name VendorListRegions
+     * @summary List regions
+     * @request GET:/vendor/regions
+     * @secure
+     */
+    vendorListRegions: (
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          regions?: VendorRegion[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/regions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves region by id.
+     *
+     * @tags Region
+     * @name VendorGetRegionById
+     * @summary Get region
+     * @request GET:/vendor/regions/{id}
+     * @secure
+     */
+    vendorGetRegionById: (
+      id: string,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** Region object */
+          region?: VendorRegion;
+        },
+        any
+      >({
+        path: `/vendor/regions/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves submited requests list
      *
      * @tags Requests
@@ -60982,6 +61264,41 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Updates specified request payload.
+     *
+     * @tags Requests
+     * @name VendorUpdateRequestData
+     * @summary Update request data
+     * @request POST:/vendor/requests/{id}
+     * @secure
+     */
+    vendorUpdateRequestData: (
+      id: string,
+      data: VendorUpdateRequestData,
+      query?: {
+        /** The comma-separated fields to include in the response */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** A request object */
+          request?: VendorRequest;
+        },
+        any
+      >({
+        path: `/vendor/requests/${id}`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves a list of reservations for the authenticated vendor.
      *
      * @tags Reservations
@@ -61017,6 +61334,40 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates new reservation
+     *
+     * @tags Reservations
+     * @name VendorCreateReservation
+     * @summary Create reservation
+     * @request POST:/vendor/reservations
+     * @secure
+     */
+    vendorCreateReservation: (
+      data: VendorCreateReservation,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The reservation's details. */
+          reservation?: VendorReservation;
+        },
+        any
+      >({
+        path: `/vendor/reservations`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

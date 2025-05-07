@@ -1,4 +1,4 @@
-import { CreatePromotionDTO } from '@medusajs/framework/types'
+import { CreatePromotionDTO, LinkDefinition } from '@medusajs/framework/types'
 import { Modules } from '@medusajs/framework/utils'
 import {
   createPromotionsWorkflow,
@@ -32,18 +32,31 @@ export const createVendorPromotionWorkflow = createWorkflow(
       }
     })
 
-    const links = transform({ input, promotions }, ({ input, promotions }) =>
-      promotions.map((p) => {
-        return {
+    const links = transform({ input, promotions }, ({ input, promotions }) => {
+      const promo = promotions[0]
+      const link: LinkDefinition[] = [
+        {
           [SELLER_MODULE]: {
             seller_id: input.seller_id
           },
           [Modules.PROMOTION]: {
-            promotion_id: p.id
+            promotion_id: promo.id
           }
         }
-      })
-    )
+      ]
+
+      if (promo.campaign) {
+        link.push({
+          [SELLER_MODULE]: {
+            seller_id: input.seller_id
+          },
+          [Modules.PROMOTION]: {
+            campaign_id: promo.campaign.id
+          }
+        })
+      }
+      return link
+    })
 
     createRemoteLinkStep(links)
     return new WorkflowResponse(promotions)

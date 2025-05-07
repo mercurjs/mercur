@@ -12,6 +12,8 @@ import {
   createSelectParams
 } from '@medusajs/medusa/api/utils/validators'
 
+import { VendorCreateCampaign } from '../campaigns/validators'
+
 export type VendorGetPromotionsParamsType = z.infer<
   typeof VendorGetPromotionsParams
 >
@@ -114,6 +116,8 @@ export const VendorCreateApplicationMethod = z
  *   campaign_id:
  *     type: string
  *     description: The campaign id.
+ *   campaign:
+ *     $ref: "#/components/schemas/VendorCreateCampaign"
  *   type:
  *     type: string
  *     enum: [standard]
@@ -133,6 +137,7 @@ export const VendorCreatePromotion = z
     is_automatic: z.boolean().default(false),
     type: z.literal(PromotionType.STANDARD),
     campaign_id: z.string().nullish(),
+    campaign: VendorCreateCampaign.optional(),
     application_method: VendorCreateApplicationMethod,
     rules: z.array(VendorCreatePromotionRule).optional()
   })
