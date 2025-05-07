@@ -86,10 +86,10 @@ export const POST = async (
 }
 
 /**
- * @oas [get] /store/wishlists
- * operationId: "StoreGetMyWishlists"
- * summary: "Get wishlists of the current user"
- * description: "Retrieves the wishlists created by the authenticated user."
+ * @oas [get] /store/wishlist
+ * operationId: "StoreGetMyWishlist"
+ * summary: "Get wishlist of the current user"
+ * description: "Retrieves the wishlist created by the authenticated user."
  * x-authenticated: true
  * parameters:
  *   - name: offset
