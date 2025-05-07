@@ -1,6 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { getRuleAttributesMap } from '@medusajs/medusa/api/admin/promotions/utils/rule-attributes-map'
 import { validateRuleType } from '@medusajs/medusa/api/admin/promotions/utils/validate-rule-type'
+
+import { getRuleAttributesMap } from '../../utils'
 
 /**
  * @oas [get] /vendor/promotions/rule-attribute-options/{rule_type}
