@@ -3,6 +3,10 @@ export enum SellerRequestUpdatedEvent {
   REJECTED = 'requests.seller.rejected'
 }
 
+export enum SellerRequest {
+  CREATED = 'requests.seller.created'
+}
+
 export enum ProductCategoryRequestUpdatedEvent {
   ACCEPTED = 'requests.product_category.accepted',
   REJECTED = 'requests.product_category.rejected'
