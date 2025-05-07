@@ -23,6 +23,7 @@ module.exports = defineConfig({
     { resolve: './src/modules/requests' },
     { resolve: './src/modules/reviews' },
     { resolve: './src/modules/brand' },
+    { resolve: './src/modules/wishlist' },
     {
       resolve: './src/modules/taxcode',
       options: {
