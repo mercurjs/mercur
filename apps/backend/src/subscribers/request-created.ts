@@ -1,8 +1,8 @@
-import { HumanizeTypes } from '#/modules/requests/enum/humanize_types'
-import { RequestDTO, SellerRequest } from '#/modules/requests/types'
-
 import { Modules } from '@medusajs/framework/utils'
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/medusa'
+
+import { HumanizeTypes } from '../modules/requests/enum/humanize_types'
+import { RequestDTO, SellerRequest } from '../modules/requests/types'
 
 export default async function requestCreatedAdminNotifyHandler({
   event,
