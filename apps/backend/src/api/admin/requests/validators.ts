@@ -14,7 +14,8 @@ export const AdminGetRequestsParams = createFindParams({
       'product',
       'seller',
       'review_remove',
-      'product_type'
+      'product_type',
+      'product_tag'
     ])
     .optional(),
   status: z.enum(['accepted', 'rejected', 'pending']).optional()

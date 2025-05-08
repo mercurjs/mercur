@@ -3,10 +3,6 @@ import {
   MedusaResponse,
   refetchEntities
 } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import { createProductTagsWorkflow } from '@medusajs/medusa/core-flows'
-
-import { VendorCreateProductTagType } from './validators'
 
 /**
  * @oas [get] /vendor/product-tags
@@ -77,62 +73,4 @@ export const GET = async (
     offset: metadata?.skip,
     limit: metadata?.take
   })
-}
-
-/**
- * @oas [post] /vendor/product-tags
- * operationId: "VendorCreateProductTag"
- * summary: "Create product tag"
- * description: "Creates new product tag"
- * x-authenticated: true
- * parameters:
- *   - name: fields
- *     in: query
- *     schema:
- *       type: string
- *     required: false
- *     description: Comma-separated fields to include in the response.
- * requestBody:
- *   content:
- *     application/json:
- *       schema:
- *         $ref: "#/components/schemas/VendorCreateProductTag"
- * responses:
- *   "201":
- *     description: OK
- *     content:
- *       application/json:
- *         schema:
- *           type: object
- *           properties:
- *             product_tag:
- *               $ref: "#/components/schemas/VendorProductTag"
- * tags:
- *   - Product
- * security:
- *   - api_token: []
- *   - cookie_auth: []
- */
-export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorCreateProductTagType>,
-  res: MedusaResponse
-) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const { result } = await createProductTagsWorkflow.run({
-    container: req.scope,
-    input: { product_tags: [req.validatedBody] }
-  })
-
-  const {
-    data: [product_tag]
-  } = await query.graph({
-    entity: 'product_tag',
-    fields: req.queryConfig.fields,
-    filters: {
-      id: result[0].id
-    }
-  })
-
-  res.status(201).json({ product_tag })
 }
