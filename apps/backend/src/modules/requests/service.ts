@@ -4,6 +4,7 @@ import {
   acceptProductCategoryRequestWorkflow,
   acceptProductCollectionRequestWorkflow,
   acceptProductRequestWorkflow,
+  acceptProductTagRequestWorkflow,
   acceptProductTypeRequestWorkflow,
   acceptReviewRemoveRequestWorkflow,
   acceptSellerCreationRequestWorkflow
@@ -36,6 +37,10 @@ class RequestsModuleService extends MedusaService({
 
     if (type === 'product_type') {
       return acceptProductTypeRequestWorkflow
+    }
+
+    if (type === 'product_tag') {
+      return acceptProductTagRequestWorkflow
     }
 
     return null
