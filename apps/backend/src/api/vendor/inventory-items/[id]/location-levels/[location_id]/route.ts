@@ -2,7 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { updateInventoryLevelsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { VendorUpdateInventoryLevel } from '../../../validators'
+import { VendorUpdateInventoryLevelType } from '../../../validators'
 
 /**
  * @oas [post] /vendor/inventory-items/{id}/location-levels/{location_id}
@@ -38,7 +38,7 @@ import { VendorUpdateInventoryLevel } from '../../../validators'
  *   - cookie_auth: []
  */
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorUpdateInventoryLevel>,
+  req: AuthenticatedMedusaRequest<VendorUpdateInventoryLevelType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)

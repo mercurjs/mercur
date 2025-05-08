@@ -31,7 +31,7 @@ export const VendorGetInventoryItemsParams = createFindParams({
  *     title: reserved_quantity
  *     description: The quantity reserved from the available stocked_quantity.
  */
-export type VendorUpdateInventoryLevel = z.infer<
+export type VendorUpdateInventoryLevelType = z.infer<
   typeof VendorUpdateInventoryLevel
 >
 export const VendorUpdateInventoryLevel = z.object({

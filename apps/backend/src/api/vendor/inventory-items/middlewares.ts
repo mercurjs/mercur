@@ -1,4 +1,5 @@
 import {
+  unlessPath,
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
@@ -109,39 +110,60 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ['GET'],
     matcher: '/vendor/inventory-items/:id/location-levels/:location_id',
     middlewares: [
-      validateAndTransformQuery(
-        VendorGetInventoryItemsParams,
-        vendorInventoryLevelQueryConfig.retrieve
+      unlessPath(
+        /.*\/location-levels\/batch/,
+        validateAndTransformQuery(
+          VendorGetInventoryItemsParams,
+          vendorInventoryLevelQueryConfig.retrieve
+        )
       ),
-      checkResourceOwnershipByResourceId({
-        entryPoint: sellerInventoryItem.entryPoint,
-        filterField: 'inventory_item_id'
-      }),
-      checkResourceOwnershipByResourceId({
-        entryPoint: sellerStockLocation.entryPoint,
-        filterField: 'stock_location_id',
-        resourceId: (req) => req.params.location_id
-      })
+      unlessPath(
+        /.*\/location-levels\/batch/,
+        checkResourceOwnershipByResourceId({
+          entryPoint: sellerInventoryItem.entryPoint,
+          filterField: 'inventory_item_id'
+        })
+      ),
+      unlessPath(
+        /.*\/location-levels\/batch/,
+        checkResourceOwnershipByResourceId({
+          entryPoint: sellerStockLocation.entryPoint,
+          filterField: 'stock_location_id',
+          resourceId: (req) => req.params.location_id
+        })
+      )
     ]
   },
   {
     method: ['POST'],
     matcher: '/vendor/inventory-items/:id/location-levels/:location_id',
     middlewares: [
-      validateAndTransformQuery(
-        VendorGetInventoryItemsParams,
-        vendorInventoryLevelQueryConfig.retrieve
+      unlessPath(
+        /.*\/location-levels\/batch/,
+        validateAndTransformQuery(
+          VendorGetInventoryItemsParams,
+          vendorInventoryLevelQueryConfig.retrieve
+        )
       ),
-      validateAndTransformBody(VendorUpdateInventoryLevel),
-      checkResourceOwnershipByResourceId({
-        entryPoint: sellerInventoryItem.entryPoint,
-        filterField: 'inventory_item_id'
-      }),
-      checkResourceOwnershipByResourceId({
-        entryPoint: sellerStockLocation.entryPoint,
-        filterField: 'stock_location_id',
-        resourceId: (req) => req.params.location_id
-      })
+      unlessPath(
+        /.*\/location-levels\/batch/,
+        validateAndTransformBody(VendorUpdateInventoryLevel)
+      ),
+      unlessPath(
+        /.*\/location-levels\/batch/,
+        checkResourceOwnershipByResourceId({
+          entryPoint: sellerInventoryItem.entryPoint,
+          filterField: 'inventory_item_id'
+        })
+      ),
+      unlessPath(
+        /.*\/location-levels\/batch/,
+        checkResourceOwnershipByResourceId({
+          entryPoint: sellerStockLocation.entryPoint,
+          filterField: 'stock_location_id',
+          resourceId: (req) => req.params.location_id
+        })
+      )
     ]
   }
 ]
