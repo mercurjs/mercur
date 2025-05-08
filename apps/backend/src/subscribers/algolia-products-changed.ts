@@ -13,17 +13,17 @@ export default async function productsChangedHandler({
   container
 }: SubscriberArgs<{ ids: string[] }>) {
   const algolia = container.resolve<AlgoliaModuleService>(ALGOLIA_MODULE)
+
   const { published, other } = await filterProductsByStatus(
     container,
     event.data.ids
   )
 
-  const productsToInsert = await findAndTransformAlgoliaProducts(
-    container,
-    published
-  )
-  await algolia.batchUpsert(IndexType.PRODUCT, productsToInsert)
-  await algolia.batchDelete(IndexType.PRODUCT, other)
+  const productsToInsert = published.length
+    ? await findAndTransformAlgoliaProducts(container, published)
+    : []
+
+  await algolia.batch(IndexType.PRODUCT, productsToInsert, other)
 }
 
 export const config: SubscriberConfig = {
