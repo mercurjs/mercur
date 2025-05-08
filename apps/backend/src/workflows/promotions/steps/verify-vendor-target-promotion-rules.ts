@@ -15,6 +15,18 @@ export const verifyVendorTargetPromotionRulesStep = createStep(
   ) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
+    const nonProductAttributes =
+      input.rules
+        ?.map((p) => p.attribute)
+        .filter((attr) => attr !== 'items.product.id') || []
+
+    if (nonProductAttributes.length) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        'Invalid attribute!'
+      )
+    }
+
     const products = input.rules?.map((p) => p.values).flat() || []
 
     const { data: relations } = await query.graph({
