@@ -8,6 +8,11 @@ export const VendorGetPriceListPricesParams = createFindParams({
   limit: 50
 })
 
+export const VendorGetPriceListProductsParams = createFindParams({
+  offset: 0,
+  limit: 50
+})
+
 /**
  * @schema VendorCreatePriceListPrice
  * type: object
