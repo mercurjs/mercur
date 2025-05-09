@@ -1,5 +1,7 @@
+import { SellerTeamInviteEvent } from '#/modules/requests/types'
+
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { inviteMemberWorkflow } from '../../../workflows/member/workflows'
@@ -40,7 +42,8 @@ export const POST = async (
 
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,
-    req.scope
+    req.scope,
+    ['id', 'name']
   )
 
   const { result: created } = await inviteMemberWorkflow(req.scope).run({
@@ -61,6 +64,28 @@ export const POST = async (
     { throwIfKeyNotFound: true }
   )
 
+  const {
+    data: [member]
+  } = await query.graph(
+    {
+      entity: 'member',
+      fields: req.queryConfig.fields,
+      filters: { id: req.auth_context.actor_id }
+    },
+    { throwIfKeyNotFound: true }
+  )
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: SellerTeamInviteEvent.CREATED,
+    data: {
+      user_name: member.email || seller.name,
+      store_name: seller.name,
+      host: req.headers.host,
+      id: invite.id,
+      email: invite.email
+    }
+  })
   res.status(201).json({ invite })
 }
 
