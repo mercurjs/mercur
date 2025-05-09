@@ -6,11 +6,13 @@ import {
 
 import sellerPriceList from '../../../links/seller-price-list'
 import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
+import { vendorProductQueryConfig } from '../products/query-config'
 import { vendorPriceListQueryConfig } from './query-config'
 import {
   VendorCreatePriceList,
   VendorCreatePriceListPrice,
   VendorGetPriceListPricesParams,
+  VendorGetPriceListProductsParams,
   VendorUpdatePriceList
 } from './validators'
 
@@ -84,6 +86,20 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
         vendorPriceListQueryConfig.retrieve
       ),
       validateAndTransformBody(VendorCreatePriceListPrice),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerPriceList.entryPoint,
+        filterField: 'price_list_id'
+      })
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/price-lists/:id/products',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetPriceListProductsParams,
+        vendorProductQueryConfig.list
+      ),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerPriceList.entryPoint,
         filterField: 'price_list_id'
