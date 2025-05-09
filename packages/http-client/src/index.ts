@@ -60309,6 +60309,47 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieves a list of products in the given price list.
+     *
+     * @tags Price Lists
+     * @name VendorListProductsInPriceList
+     * @summary List Products in a given price list
+     * @request GET:/vendor/price-lists/{id}/products
+     * @secure
+     */
+    vendorListProductsInPriceList: (
+      id: string,
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          products?: VendorProduct[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/price-lists/${id}/products`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves a list of product categories.
      *
      * @tags Product
