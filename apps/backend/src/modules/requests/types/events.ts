@@ -21,3 +21,7 @@ export enum ProductRequestUpdatedEvent {
   ACCEPTED = 'requests.product.accepted',
   REJECTED = 'requests.product.rejected'
 }
+
+export enum SellerTeamInviteEvent {
+  CREATED = 'seller.team.invite.created'
+}

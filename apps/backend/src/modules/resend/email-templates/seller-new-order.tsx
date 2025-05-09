@@ -1,78 +1,103 @@
 interface EmailTemplateProps {
   data: {
-		user_name: string,
-		host: string,
-		order_id: string,
-		profit: number,
-		order: {
-			id: string,
-			display_id: string,
-			trackingNumber: string,
-			subtotal: number,
-			shipping: number,
-			fee: number,
-			items: {
-				name: string,
-				price: number,
-				quantity: number,
-			}[],
-			currency_code: string,
-			item_total: number,
-			shipping_methods: {
-				amount: number,
-				name: string
-			}[],
-			total: number
-			email: string
-			shipping_address: {
-				first_name: string,
-				last_name: string,
-				company: string,
-				address_1: string,
-				address_2: string,
-				city: string,
-				province: string,
-				postal_code: string,
-				phone: string
-			}
-		}
-	}
+    order: {
+      id: string,
+      display_id: number | string,
+      items: any[],
+      customer: {
+        first_name: string,
+        last_name: string,
+        id: string
+      },
+      seller: {
+        email: string,
+        name: string,
+        id: string
+      }
+    }
+  }
 }
 
 export const SellerNewOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({ data }) => {
+  const { order } = data;
+
   return (
-    <div>
-      <h1>
-        {data.user_name} has placed an order for {data.order.items[0].name}
+    <div style={{
+      maxWidth: 600,
+      margin: '0 auto',
+      fontFamily: 'Arial, sans-serif',
+      color: '#222',
+      background: '#fff',
+      padding: 24,
+      borderRadius: 10
+    }}>
+      <h1 style={{ fontSize: '2rem', marginBottom: 8 }}>
+        Hello, {order.seller.name}!
+        <br />
+        You have received a new order!
       </h1>
-      <p>
-        New Order #{data.order.display_id} for {data.order.items[0].name}.{data.user_name} has just ordered {data.order.items[0].name}.
-        Here are the details:
+      <p style={{ fontSize: '1.1rem', marginBottom: 24 }}>
+        Order <b>#{order.display_id}</b> has just been placed by {order.customer.first_name} {order.customer.last_name}.
       </p>
-
-      <div>
-        <p>Item: {data.order.items[0].name}</p>
-        <p>Unit Price: {data.order.items[0].price}</p>
-        <p>Quantity: {data.order.items[0].quantity}</p>
+      <h3 style={{ marginTop: 32, marginBottom: 12 }}>Order items:</h3>
+      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 32 }}>
+        <thead>
+          <tr>
+            <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}>Product</th>
+            <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #eee' }}>Amount</th>
+            <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #eee' }}>Qty</th>
+            <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #eee' }}>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {order.items.map((item: any, idx: number) => (
+            <tr key={item.id || idx} style={{ borderBottom: '1px solid #f3f3f3' }}>
+              <td style={{ padding: '12px 8px', verticalAlign: 'top' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {item.thumbnail && (
+                    <img
+                      src={item.thumbnail}
+                      alt={item.product_title}
+                      style={{
+                        width: 48,
+                        height: 48,
+                        objectFit: 'cover',
+                        borderRadius: 6,
+                        marginRight: 12,
+                        border: '1px solid #eee'
+                      }}
+                    />
+                  )}
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{item.product_title}</div>
+                    <div style={{ fontSize: 13, color: '#555' }}>
+                      Variant: {item.variant_title}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td style={{ textAlign: 'right', padding: '12px 8px', verticalAlign: 'top' }}>
+                {item.unit_price} eur
+              </td>
+              <td style={{ textAlign: 'right', padding: '12px 8px', verticalAlign: 'top' }}>
+                {item.quantity}
+              </td>
+              <td style={{ textAlign: 'right', padding: '12px 8px', verticalAlign: 'top' }}>
+                {item.unit_price * item.quantity} eur
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div style={{ fontSize: 13, color: '#888', marginBottom: 24 }}>
+        You received this email because you are a seller on the Mercur marketplace.<br />
+        If you have any questions, please contact our support team.
       </div>
-
-      <div>
-        <p>Subtotal: {data.order.subtotal}</p>
-        <p>Shipping: {data.order.shipping}</p>
-        <p>Total Amount: {data.order.total}</p>
-
-        <p>Fee: {data.order.fee}</p>
-        <p>You Will Earn: {data.profit}</p>
-      </div>
-
-      <div>
-        <p>
-          You should now ship the products to {data.user_name}. The shipping address can be found in the order details.
-          Once you have shipped the order, don’t forget to mark it as shipped in the order details to receive your
-          payment. If the order is not marked as shipped within two weeks, it will automatically expire, and you won’t
-          receive any payment. Best regards, The Mercur Team mercurjs.com
-        </p>
+      <div style={{ marginTop: 32 }}>
+        <div>Best regards,</div>
+        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>mercur.js</div>
       </div>
     </div>
-  )
-}
+  );
+};
