@@ -10,13 +10,13 @@ import {
   createSalesChannelsWorkflow,
   createServiceZonesWorkflow,
   createShippingOptionsWorkflow,
-  createShippingProfilesWorkflow,
   createStockLocationsWorkflow,
   createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
   updateStoresWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import sellerShippingProfile from '../../links/seller-shipping-profile'
 import { SELLER_MODULE } from '../../modules/seller'
 import { createCommissionRuleWorkflow } from '../../workflows/commission/workflows'
 import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../workflows/fulfillment-set/workflows'
@@ -102,37 +102,6 @@ export async function createRegions(container: MedusaContainer) {
   })
 
   return region
-}
-
-export async function createShippingProfile(
-  container: MedusaContainer,
-  seller_id: string
-) {
-  const {
-    result: [shippingProfile]
-  } = await createShippingProfilesWorkflow(container).run({
-    input: {
-      data: [
-        {
-          name: 'Default shipping profile for seller ' + seller_id,
-          type: 'default'
-        }
-      ]
-    }
-  })
-
-  const link = container.resolve(ContainerRegistrationKeys.LINK)
-
-  await link.create({
-    [SELLER_MODULE]: {
-      seller_id: seller_id
-    },
-    [Modules.FULFILLMENT]: {
-      shipping_profile_id: shippingProfile.id
-    }
-  })
-
-  return shippingProfile
 }
 
 export async function createPublishableKey(
@@ -385,9 +354,19 @@ export async function createSellerShippingOption(
   sellerId: string,
   sellerName: string,
   regionId: string,
-  serviceZoneId: string,
-  shippingProfileId: string
+  serviceZoneId: string
 ) {
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const {
+    data: [shippingProfile]
+  } = await query.graph({
+    entity: sellerShippingProfile.entryPoint,
+    fields: ['shipping_profile_id'],
+    filters: {
+      seller_id: sellerId
+    }
+  })
+
   const {
     result: [shippingOption]
   } = await createShippingOptionsWorkflow.run({
@@ -395,7 +374,7 @@ export async function createSellerShippingOption(
     input: [
       {
         name: `${sellerName} shipping`,
-        shipping_profile_id: shippingProfileId,
+        shipping_profile_id: shippingProfile.shipping_profile_id,
         service_zone_id: serviceZoneId,
         provider_id: 'manual_manual',
         type: {

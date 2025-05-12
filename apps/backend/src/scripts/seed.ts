@@ -14,7 +14,6 @@ import {
   createSellerShippingOption,
   createSellerStockLocation,
   createServiceZoneForFulfillmentSet,
-  createShippingProfile,
   createStore
 } from './seed/seed-functions'
 
@@ -50,16 +49,13 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
     seller.id,
     stockLocation.fulfillment_sets[0].id
   )
-  logger.info('Creating seller shipping profile...')
-  const shippingProfile = await createShippingProfile(container, seller.id)
   logger.info('Creating seller shipping option...')
   await createSellerShippingOption(
     container,
     seller.id,
     seller.name,
     region.id,
-    serviceZone.id,
-    shippingProfile.id
+    serviceZone.id
   )
   logger.info('Creating seller products...')
   await createSellerProducts(container, seller.id, salesChannel.id)
