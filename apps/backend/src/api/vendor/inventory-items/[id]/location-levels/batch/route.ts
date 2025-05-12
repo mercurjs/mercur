@@ -5,7 +5,10 @@ import {
 } from '@medusajs/framework/http'
 
 import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
-import { validateOwnership } from '../../../utils'
+import {
+  prepareBatchInventoryLevelDeletePayload,
+  validateOwnership
+} from '../../../utils'
 import { VendorBatchInventoryItemLocationsLevelType } from '../../../validators'
 
 /**
@@ -43,7 +46,11 @@ export const POST = async (
 
   const batchInput = {
     input: {
-      delete: req.validatedBody.delete ?? [],
+      delete: await prepareBatchInventoryLevelDeletePayload(
+        req.scope,
+        id,
+        req.validatedBody.delete
+      ),
       create:
         req.validatedBody.create?.map((c) => ({
           ...c,
