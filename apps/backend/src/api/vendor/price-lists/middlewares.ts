@@ -6,11 +6,14 @@ import {
 
 import sellerPriceList from '../../../links/seller-price-list'
 import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
+import { vendorProductQueryConfig } from '../products/query-config'
 import { vendorPriceListQueryConfig } from './query-config'
 import {
   VendorCreatePriceList,
   VendorCreatePriceListPrice,
   VendorGetPriceListPricesParams,
+  VendorGetPriceListProductsParams,
+  VendorRemoveProductsFromPriceList,
   VendorUpdatePriceList
 } from './validators'
 
@@ -84,6 +87,35 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
         vendorPriceListQueryConfig.retrieve
       ),
       validateAndTransformBody(VendorCreatePriceListPrice),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerPriceList.entryPoint,
+        filterField: 'price_list_id'
+      })
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/price-lists/:id/products',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetPriceListProductsParams,
+        vendorProductQueryConfig.list
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerPriceList.entryPoint,
+        filterField: 'price_list_id'
+      })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/price-lists/:id/products',
+    middlewares: [
+      validateAndTransformBody(VendorRemoveProductsFromPriceList),
+      validateAndTransformQuery(
+        VendorGetPriceListPricesParams,
+        vendorPriceListQueryConfig.retrieve
+      ),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerPriceList.entryPoint,
         filterField: 'price_list_id'

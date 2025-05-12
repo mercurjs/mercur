@@ -8,6 +8,11 @@ export const VendorGetPriceListPricesParams = createFindParams({
   limit: 50
 })
 
+export const VendorGetPriceListProductsParams = createFindParams({
+  offset: 0,
+  limit: 50
+})
+
 /**
  * @schema VendorCreatePriceListPrice
  * type: object
@@ -147,4 +152,21 @@ export const VendorUpdatePriceList = z.object({
   status: z.nativeEnum(PriceListStatus).optional(),
   type: z.nativeEnum(PriceListType).optional(),
   rules: z.record(z.string(), z.array(z.string())).optional()
+})
+
+/**
+ * @schema VendorRemoveProductsFromPriceList
+ * type: object
+ * properties:
+ *   remove:
+ *     type: array
+ *     description: Products ids to remove from the price list
+ *     items:
+ *       type: string
+ */
+export type VendorRemoveProductsFromPriceListType = z.infer<
+  typeof VendorRemoveProductsFromPriceList
+>
+export const VendorRemoveProductsFromPriceList = z.object({
+  remove: z.array(z.string()).min(1)
 })

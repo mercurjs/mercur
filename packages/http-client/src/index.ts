@@ -27950,6 +27950,11 @@ export interface VendorRegionCountry {
   num_code?: string;
 }
 
+export interface VendorRemoveProductsFromPriceList {
+  /** Products ids to remove from the price list */
+  remove?: string[];
+}
+
 /**
  * Request
  * A request object
@@ -60342,6 +60347,82 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/vendor/price-lists/${id}/prices/${priceId}`,
         method: "DELETE",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of products in the given price list.
+     *
+     * @tags Price Lists
+     * @name VendorListProductsInPriceList
+     * @summary List Products in a given price list
+     * @request GET:/vendor/price-lists/{id}/products
+     * @secure
+     */
+    vendorListProductsInPriceList: (
+      id: string,
+      query?: {
+        /** The number of items to skip before starting to collect the result set. */
+        offset?: number;
+        /** The number of items to return. */
+        limit?: number;
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          products?: VendorProduct[];
+          /** The total number of items available */
+          count?: number;
+          /** The number of items skipped before these items */
+          offset?: number;
+          /** The number of items per page */
+          limit?: number;
+        },
+        any
+      >({
+        path: `/vendor/price-lists/${id}/products`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates price list price
+     *
+     * @tags Price Lists
+     * @name VendorRemoveProductsFromPriceList
+     * @summary Update price list
+     * @request POST:/vendor/price-lists/{id}/products
+     * @secure
+     */
+    vendorRemoveProductsFromPriceList: (
+      id: string,
+      data: VendorRemoveProductsFromPriceList,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The price list's details. */
+          price_list?: VendorPriceList;
+        },
+        any
+      >({
+        path: `/vendor/price-lists/${id}/products`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
