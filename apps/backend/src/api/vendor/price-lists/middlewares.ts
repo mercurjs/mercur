@@ -13,6 +13,7 @@ import {
   VendorCreatePriceListPrice,
   VendorGetPriceListPricesParams,
   VendorGetPriceListProductsParams,
+  VendorRemoveProductsFromPriceList,
   VendorUpdatePriceList
 } from './validators'
 
@@ -99,6 +100,21 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetPriceListProductsParams,
         vendorProductQueryConfig.list
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerPriceList.entryPoint,
+        filterField: 'price_list_id'
+      })
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/price-lists/:id/products',
+    middlewares: [
+      validateAndTransformBody(VendorRemoveProductsFromPriceList),
+      validateAndTransformQuery(
+        VendorGetPriceListPricesParams,
+        vendorPriceListQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerPriceList.entryPoint,
