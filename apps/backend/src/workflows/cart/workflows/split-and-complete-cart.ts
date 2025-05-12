@@ -16,7 +16,11 @@ import {
   validateCartPaymentsStep
 } from '@medusajs/medusa/core-flows'
 import { CartShippingMethodDTO } from '@medusajs/types/dist/cart'
-import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
+import {
+  WorkflowResponse,
+  createHook,
+  createWorkflow
+} from '@medusajs/workflows-sdk'
 
 import { MARKETPLACE_MODULE } from '../../../modules/marketplace'
 import { OrderSetWorkflowEvents } from '../../../modules/marketplace/types'
@@ -38,9 +42,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
     name: 'split-and-complete-cart',
     idempotent: true
   },
-  function (
-    input: SplitAndCompleteCartWorkflowInput
-  ): WorkflowResponse<{ id: string }> {
+  function (input: SplitAndCompleteCartWorkflowInput) {
     const existingOrderSet = useRemoteQueryStep({
       entry_point: 'order_set',
       fields: ['id', 'cart_id'],
@@ -296,6 +298,14 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         orderSet ? orderSet.id : existingOrderSet.id
     )
 
-    return new WorkflowResponse({ id: orderSetId })
+    const orderSetCreatedHook = createHook('orderSetCreated', {
+      orderSetId
+    })
+    return new WorkflowResponse(
+      { id: orderSetId },
+      {
+        hooks: [orderSetCreatedHook]
+      }
+    )
   }
 )
