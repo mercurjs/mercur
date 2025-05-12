@@ -8,7 +8,7 @@ import { VendorUpdateCustomerGroupsType } from '../../validators'
 
 /**
  * @oas [post] /vendor/customers/{id}/customer-groups
- * operationId: "VendorLinkCustomerToCustomerGroups
+ * operationId: "VendorLinkCustomerToCustomerGroups"
  * summary: "Link customers to customer group"
  * description: "Adds or removes customer groups to a customer"
  * x-authenticated: true
@@ -32,8 +32,8 @@ import { VendorUpdateCustomerGroupsType } from '../../validators'
  *         schema:
  *           type: object
  *           properties:
- *             customer_group:
- *               $ref: "#/components/schemas/VendorCustomerGroup"
+ *             customer:
+ *               $ref: "#/components/schemas/VendorCustomer"
  * tags:
  *   - Seller
  * security:
