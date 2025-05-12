@@ -175,7 +175,9 @@ export const POST = async (
     }
   })
 
-  const { data: price_list } = await query.graph({
+  const {
+    data: [price_list]
+  } = await query.graph({
     entity: 'price_list',
     fields: req.queryConfig.fields,
     filters: {
