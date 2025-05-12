@@ -1,5 +1,9 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { fetchPriceListPriceIdsForProduct } from '@medusajs/medusa/api/admin/price-lists/helpers'
+import { batchPriceListPricesWorkflow } from '@medusajs/medusa/core-flows'
+
+import { VendorRemoveProductsFromPriceListType } from '../../validators'
 
 /**
  * @oas [get] /vendor/price-lists/{id}/products
@@ -103,4 +107,81 @@ export const GET = async (
     offset: metadata?.skip,
     limit: metadata?.take
   })
+}
+
+/**
+ * @oas [post] /vendor/price-lists/{id}/products
+ * operationId: "VendorRemoveProductsFromPriceList"
+ * summary: "Update price list"
+ * description: "Updates price list price"
+ * x-authenticated: true
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     description: The ID of the price list.
+ *     schema:
+ *       type: string
+ *   - name: fields
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Comma-separated fields to include in the response.
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/VendorRemoveProductsFromPriceList"
+ * responses:
+ *   "200":
+ *     description: OK
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             price_list:
+ *               $ref: "#/components/schemas/VendorPriceList"
+ * tags:
+ *   - Price Lists
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
+export const POST = async (
+  req: AuthenticatedMedusaRequest<VendorRemoveProductsFromPriceListType>,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { id } = req.params
+  const { remove } = req.validatedBody
+
+  const productPriceIds = await fetchPriceListPriceIdsForProduct(
+    id,
+    remove,
+    req.scope
+  )
+
+  await batchPriceListPricesWorkflow.run({
+    container: req.scope,
+    input: {
+      data: {
+        id,
+        create: [],
+        update: [],
+        delete: productPriceIds
+      }
+    }
+  })
+
+  const { data: price_list } = await query.graph({
+    entity: 'price_list',
+    fields: req.queryConfig.fields,
+    filters: {
+      id: req.params.id
+    }
+  })
+
+  res.json({ price_list })
 }

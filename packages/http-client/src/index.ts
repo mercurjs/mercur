@@ -27950,6 +27950,11 @@ export interface VendorRegionCountry {
   num_code?: string;
 }
 
+export interface VendorRemoveProductsFromPriceList {
+  /** Products ids to remove from the price list */
+  remove?: string[];
+}
+
 /**
  * Request
  * A request object
@@ -60345,6 +60350,41 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates price list price
+     *
+     * @tags Price Lists
+     * @name VendorRemoveProductsFromPriceList
+     * @summary Update price list
+     * @request POST:/vendor/price-lists/{id}/products
+     * @secure
+     */
+    vendorRemoveProductsFromPriceList: (
+      id: string,
+      data: VendorRemoveProductsFromPriceList,
+      query?: {
+        /** Comma-separated fields to include in the response. */
+        fields?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** The price list's details. */
+          price_list?: VendorPriceList;
+        },
+        any
+      >({
+        path: `/vendor/price-lists/${id}/products`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
