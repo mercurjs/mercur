@@ -83,3 +83,29 @@ export async function validateOwnership(
     )
   }
 }
+
+export async function prepareBatchInventoryLevelDeletePayload(
+  container: MedusaContainer,
+  inventory_item_id: string,
+  delete_ids?: string[]
+) {
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+  let ilev = delete_ids?.filter((id) => id.startsWith('ilev_')) || []
+  const sloc = delete_ids?.filter((id) => id.startsWith('sloc_')) || []
+
+  if (sloc.length) {
+    const { data: levels } = await query.graph({
+      entity: 'inventory_level',
+      fields: ['id'],
+      filters: {
+        inventory_item_id,
+        location_id: sloc
+      }
+    })
+
+    ilev = ilev.concat(levels.map((level) => level.id))
+  }
+
+  return ilev
+}
