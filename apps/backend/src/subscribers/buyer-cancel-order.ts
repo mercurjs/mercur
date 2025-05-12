@@ -10,7 +10,9 @@ export default async function buyerCancelOrderHandler({
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: orders } = await query.graph({
+  const {
+    data: [order]
+  } = await query.graph({
     entity: 'order',
     fields: [
       'id',
@@ -25,7 +27,6 @@ export default async function buyerCancelOrderHandler({
     }
   })
 
-  const order = orders[0]
   if (!order) {
     console.error('Order not found:', event.data.id)
     return

@@ -10,7 +10,9 @@ export default async function buyerAccountCreatedHandler({
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: customers } = await query.graph({
+  const {
+    data: [customer]
+  } = await query.graph({
     entity: 'customer',
     fields: ['id', 'email', 'first_name', 'last_name'],
     filters: {
@@ -18,7 +20,6 @@ export default async function buyerAccountCreatedHandler({
     }
   })
 
-  const customer = customers[0]
   if (!customer) {
     console.error('Customer not found:', event.data.id)
     return

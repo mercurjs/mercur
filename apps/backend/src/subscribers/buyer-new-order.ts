@@ -15,7 +15,9 @@ export default async function orderCreatedHandler({
   const notificationService = container.resolve(Modules.NOTIFICATION)
 
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
-  const { data: orders } = await query.graph({
+  const {
+    data: [order]
+  } = await query.graph({
     entity: 'order',
     fields: [
       '*',
@@ -29,7 +31,6 @@ export default async function orderCreatedHandler({
     }
   })
 
-  const order = orders[0]
   if (!order) {
     return
   }
