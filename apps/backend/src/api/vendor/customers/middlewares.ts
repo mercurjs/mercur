@@ -1,4 +1,8 @@
-import { MiddlewareRoute, validateAndTransformQuery } from '@medusajs/framework'
+import {
+  MiddlewareRoute,
+  validateAndTransformBody,
+  validateAndTransformQuery
+} from '@medusajs/framework'
 
 import {
   vendorCustomerOrdersQueryConfig,
@@ -6,7 +10,8 @@ import {
 } from './query-config'
 import {
   VendorGetCustomerOrdersParams,
-  VendorGetCustomersParams
+  VendorGetCustomersParams,
+  VendorUpdateCustomerGroups
 } from './validators'
 
 export const vendorCustomersMiddlewares: MiddlewareRoute[] = [
@@ -37,6 +42,17 @@ export const vendorCustomersMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetCustomerOrdersParams,
         vendorCustomerOrdersQueryConfig.list
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/customers/:id/customer-groups',
+    middlewares: [
+      validateAndTransformBody(VendorUpdateCustomerGroups),
+      validateAndTransformQuery(
+        VendorGetCustomersParams,
+        vendorCustomerQueryConfig.retrieve
       )
     ]
   }

@@ -28621,6 +28621,14 @@ export interface VendorUpdateCampaign {
   };
 }
 
+/** Update customers customer groups */
+export interface VendorUpdateCustomersCustomerGroups {
+  /** Customer group ids to add. */
+  add?: string[];
+  /** Customer group ids to remove. */
+  remove?: string[];
+}
+
 /**
  * VendorUpdateInventoryItem
  * The inventory item's details.
@@ -59119,6 +59127,36 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/vendor/customers/${id}`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Adds or removes customer groups to a customer
+     *
+     * @tags Seller
+     * @name VendorLinkCustomerToCustomerGroups
+     * @summary Link customers to customer group
+     * @request POST:/vendor/customers/{id}/customer-groups
+     * @secure
+     */
+    vendorLinkCustomerToCustomerGroups: (
+      id: string,
+      data: VendorUpdateCustomersCustomerGroups,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** Customer who placed an order in sellers store. */
+          customer?: VendorCustomer;
+        },
+        any
+      >({
+        path: `/vendor/customers/${id}/customer-groups`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
