@@ -54,22 +54,24 @@ async function calculatePercentageCommission(
 
   const priceService = container.resolve(Modules.PRICING)
 
-  const minPriceSet = await priceService.retrievePriceSet(
-    rate.min_price_set_id!,
-    { relations: ['prices'] }
-  )
+  const minPriceSet = rate.min_price_set_id
+    ? await priceService.retrievePriceSet(rate.min_price_set_id!, {
+        relations: ['prices']
+      })
+    : undefined
 
-  const maxPriceSet = await priceService.retrievePriceSet(
-    rate.max_price_set_id!,
-    { relations: ['prices'] }
-  )
+  const maxPriceSet = rate.max_price_set_id
+    ? await priceService.retrievePriceSet(rate.max_price_set_id!, {
+        relations: ['prices']
+      })
+    : undefined
 
   const minValue =
-    (minPriceSet.prices?.find((p) => p.currency_code === currency) as PriceDTO)
+    (minPriceSet?.prices?.find((p) => p.currency_code === currency) as PriceDTO)
       ?.amount || MathBN.convert(0)
 
   const maxValue =
-    (maxPriceSet.prices?.find((p) => p.currency_code === currency) as PriceDTO)
+    (maxPriceSet?.prices?.find((p) => p.currency_code === currency) as PriceDTO)
       ?.amount || MathBN.convert(Number.POSITIVE_INFINITY)
 
   return MathBN.max(minValue, MathBN.min(maxValue, commissionValue))
