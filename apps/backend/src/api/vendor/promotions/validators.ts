@@ -113,6 +113,10 @@ export const VendorCreateApplicationMethod = z
  *     type: boolean
  *     description: Whether the promotion is applied automatically.
  *     default: false
+ *   status:
+ *     type: string
+ *     enum: [draft,active,inactive]
+ *     description: The status of the promotion.
  *   campaign_id:
  *     type: string
  *     description: The campaign id.
@@ -134,6 +138,7 @@ export type VendorCreatePromotionType = z.infer<typeof VendorCreatePromotion>
 export const VendorCreatePromotion = z
   .object({
     code: z.string(),
+    status: z.nativeEnum(PromotionStatus).default(PromotionStatus.DRAFT),
     is_automatic: z.boolean().default(false),
     type: z.literal(PromotionType.STANDARD),
     campaign_id: z.string().nullish(),

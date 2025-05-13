@@ -25571,6 +25571,8 @@ export interface VendorCreatePromotion {
    * @default false
    */
   is_automatic?: boolean;
+  /** The status of the promotion. */
+  status?: "draft" | "active" | "inactive";
   /** The campaign id. */
   campaign_id?: string;
   campaign?: VendorCreateCampaign;
