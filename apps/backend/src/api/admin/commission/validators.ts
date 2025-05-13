@@ -18,7 +18,7 @@ export const CommissionRateType = z.enum(['flat', 'percentage'])
  */
 const Price = z.object({
   amount: z.number(),
-  currency_code: z.string().default('USD')
+  currency_code: z.string().refine((z) => z.toLowerCase())
 })
 
 /**
@@ -36,11 +36,17 @@ const Price = z.object({
  *     type: boolean
  *     description: The description of the product.
  *   price_set:
- *     $ref: "#/components/schemas/AdminCommissionRatePrice"
+ *     type: array
+ *     items:
+ *      $ref: "#/components/schemas/AdminCommissionRatePrice"
  *   min_price_set:
- *     $ref: "#/components/schemas/AdminCommissionRatePrice"
+ *     type: array
+ *     items:
+ *      $ref: "#/components/schemas/AdminCommissionRatePrice"
  *   max_price_set:
- *     $ref: "#/components/schemas/AdminCommissionRatePrice"
+ *     type: array
+ *     items:
+ *      $ref: "#/components/schemas/AdminCommissionRatePrice"
  */
 export type AdminCreateCommissionRateType = z.infer<
   typeof AdminCreateCommissionRate
@@ -49,9 +55,9 @@ export const AdminCreateCommissionRate = z.object({
   type: CommissionRateType,
   percentage_rate: z.number().min(0).max(100).optional(),
   include_tax: z.boolean(),
-  price_set: Price.optional(),
-  max_price_set: Price.optional(),
-  min_price_set: Price.optional()
+  price_set: z.array(Price).optional(),
+  max_price_set: z.array(Price).optional(),
+  min_price_set: z.array(Price).optional()
 })
 
 export type AdminCommissionRuleParamsType = z.infer<
@@ -162,7 +168,10 @@ export const AdminUpsertDefaultCommissionRule = z.object({
 })
 
 export const validateCommissionRate = (rate: AdminCreateCommissionRateType) => {
-  if (rate.type === 'flat' && !rate.price_set) {
+  if (
+    rate.type === 'flat' &&
+    (!rate.price_set || rate.price_set.length === 0)
+  ) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
       'Flat rate requires fee value'
@@ -173,13 +182,6 @@ export const validateCommissionRate = (rate: AdminCreateCommissionRateType) => {
       MedusaError.Types.INVALID_DATA,
       'Percentage rate requires percent value'
     )
-  }
-  if (
-    rate.max_price_set &&
-    rate.min_price_set &&
-    rate.max_price_set.amount <= rate.min_price_set.amount
-  ) {
-    throw new MedusaError(MedusaError.Types.INVALID_DATA, 'Invalid price range')
   }
 }
 

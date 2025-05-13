@@ -24417,9 +24417,9 @@ export interface AdminCreateCommissionRate {
   percentage_rate?: number;
   /** The description of the product. */
   include_tax?: boolean;
-  price_set?: AdminCommissionRatePrice;
-  min_price_set?: AdminCommissionRatePrice;
-  max_price_set?: AdminCommissionRatePrice;
+  price_set?: AdminCommissionRatePrice[];
+  min_price_set?: AdminCommissionRatePrice[];
+  max_price_set?: AdminCommissionRatePrice[];
 }
 
 export interface AdminCreateCommissionRule {

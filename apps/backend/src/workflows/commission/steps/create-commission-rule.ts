@@ -18,7 +18,7 @@ export const createCommissionRuleStep = createStep(
     const price_set_id = input.rate.price_set
       ? (
           await pricingService.createPriceSets({
-            prices: [input.rate.price_set]
+            prices: input.rate.price_set
           })
         ).id
       : null
@@ -26,7 +26,7 @@ export const createCommissionRuleStep = createStep(
     const min_price_set_id = input.rate.min_price_set
       ? (
           await pricingService.createPriceSets({
-            prices: [input.rate.min_price_set]
+            prices: input.rate.min_price_set
           })
         ).id
       : null
@@ -34,7 +34,7 @@ export const createCommissionRuleStep = createStep(
     const max_price_set_id = input.rate.max_price_set
       ? (
           await pricingService.createPriceSets({
-            prices: [input.rate.max_price_set]
+            prices: input.rate.max_price_set
           })
         ).id
       : null

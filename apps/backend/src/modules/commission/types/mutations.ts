@@ -9,9 +9,9 @@ export type CreateCommissionRateDTO = {
   type: string
   percentage_rate?: number
   include_tax: boolean
-  price_set?: Price
-  min_price_set?: Price
-  max_price_set?: Price
+  price_set?: Price[]
+  min_price_set?: Price[]
+  max_price_set?: Price[]
 }
 
 export type CreateCommissionRuleDTO = {
