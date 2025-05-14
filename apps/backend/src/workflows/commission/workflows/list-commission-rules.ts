@@ -23,10 +23,6 @@ export const listCommissionRulesWorkflow = createWorkflow(
 
     const result = transform({ data, references }, ({ data, references }) => {
       return data.commission_rules.map((rule) => {
-        const fee_value =
-          rule.type === 'flat'
-            ? `${rule.price_amount} ${rule.price_currency}`
-            : `${rule.percentage_rate}%`
         let ref_value = ''
 
         if (rule.reference === 'seller') {
@@ -65,7 +61,6 @@ export const listCommissionRulesWorkflow = createWorkflow(
 
         return {
           ...rule,
-          fee_value,
           ref_value
         }
       })

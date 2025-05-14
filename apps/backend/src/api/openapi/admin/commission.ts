@@ -1,4 +1,18 @@
 /**
+ * @schema AdminCommissionPriceValue
+ * title: "AdminCommissionPriceValue"
+ * description: "Commission price value"
+ * required:
+ *   - amount
+ *   - currency_code
+ * properties:
+ *   amount:
+ *     type: number
+ *   currency_code:
+ *     type: string
+ */
+
+/**
  * @schema AdminCommissionRate
  * title: "CommissionRate"
  * description: "Commission rate object"
@@ -97,37 +111,34 @@
  *   percentage_rate:
  *     type: number
  *     description: Percent of commission.
- *   price_id:
+ *   price_set_id:
  *     type: string
- *     description: Flat rate price id
- *   price_currency:
+ *     description: Flat rate price set id
+ *   price_set:
+ *     type: array
+ *     description: Flat rate price set
+ *     items:
+ *       $ref: '#/components/schemas/AdminCommissionPriceValue'
+ *   min_price_set_id:
  *     type: string
- *     description: Flat rate price currency code
- *   price_amount:
+ *     description: Min price set id
+ *   min_price_set:
+ *     type: array
+ *     description: Min price set
+ *     items:
+ *       $ref: '#/components/schemas/AdminCommissionPriceValue'
+ *   max_price_set_id:
  *     type: string
- *     description: Flat rate price amount
- *   min_price_id:
- *     type: string
- *     description: Min price id
- *   min_price_currency:
- *     type: string
- *     description: Min price currency code
- *   min_price_amount:
- *     type: string
- *     description: Min price amount
- *   max_price_id:
- *     type: string
- *     description: Max price id
- *   max_price_currency:
- *     type: string
- *     description: Max price currency code
- *   max_price_amount:
- *     type: string
- *     description: Max price amount
- *   fee_value:
- *     type: string
- *     description: Aggregated fee value
+ *     description: Max price set id
+ *   max_price_set:
+ *     type: array
+ *     description: Max price set
+ *     items:
+ *       $ref: '#/components/schemas/AdminCommissionPriceValue'
  *   ref_value:
  *     type: string
  *     description: Aggregated reference value
+ *   fee_value:
+ *     type: string
+ *     description: Aggregated fee value
  */

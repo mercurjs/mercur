@@ -852,6 +852,11 @@ export interface AdminClaimListResponse {
   count: number;
   /** The list of claims. */
   claims: AdminClaim[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The created claim's details. */
@@ -974,6 +979,11 @@ export interface AdminCollectionListResponse {
   count: number;
   /** The list of product collections. */
   collections: AdminCollection[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The collection's details. */
@@ -991,22 +1001,6 @@ export interface AdminCreateApiKey {
   title: string;
   /** The API key's type. Use `secret` for a user's API key; Use `publishable` for Publishable API keys. */
   type: "publishable" | "secret";
-}
-
-/** the product collection's details. */
-export interface AdminCreateCollection {
-  /**
-   * title
-   * The collection's title.
-   */
-  title: string;
-  /**
-   * handle
-   * The collection's handle.
-   */
-  handle?: string;
-  /** The collection's metadata, used to store custom key-value pairs. */
-  metadata?: object;
 }
 
 /** The customer group's details. */
@@ -2112,6 +2106,11 @@ export interface AdminCreateTaxRegion {
   };
   /** The tax region's metadata, used to store custom key-value pairs. */
   metadata?: object;
+  /**
+   * provider_id
+   * The ID of the tax provider used to calculate the tax rate in this tax region.
+   */
+  provider_id?: string;
 }
 
 /** The details of the variant-inventory item association. */
@@ -2233,6 +2232,11 @@ export interface AdminCurrencyListResponse {
   count: number;
   /** The list of currencies. */
   currencies: AdminCurrency[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The currency's details. */
@@ -3052,6 +3056,11 @@ export interface AdminDraftOrderListResponse {
   count: number;
   /** The list of draft orders. */
   draft_orders: AdminDraftOrder[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The draft order preview's details. */
@@ -4051,6 +4060,11 @@ export interface AdminFulfillmentProviderListResponse {
   count: number;
   /** The list of fulfillment providers. */
   fulfillment_providers: AdminFulfillmentProvider[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The fulfillment option's details. */
@@ -4086,6 +4100,11 @@ export interface AdminFulfillmentProviderOptionsListResponse {
   count: number;
   /** The list of fulfillment options. */
   fulfillment_options: AdminFulfillmentProviderOption[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** A fulfillment's details. */
@@ -4529,6 +4548,11 @@ export interface AdminNotificationListResponse {
   count: number;
   /** The list of notifications. */
   notifications: AdminNotification[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The notification's details. */
@@ -7100,6 +7124,11 @@ export interface AdminPriceListListResponse {
   count: number;
   /** The list of price lists. */
   price_lists: AdminPriceList[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The details of a price list's price. */
@@ -7258,6 +7287,11 @@ export interface AdminPricePreferenceListResponse {
   count: number;
   /** The list of price preferences. */
   price_preferences: AdminPricePreference[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The price preference's details. */
@@ -7513,6 +7547,11 @@ export interface AdminProductCategoryListResponse {
   count: number;
   /** The list of product categories. */
   product_categories: AdminProductCategory[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The product category's details. */
@@ -7770,6 +7809,11 @@ export interface AdminProductTagListResponse {
   count: number;
   /** The list of product tags. */
   product_tags: AdminProductTag[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The product tag's details. */
@@ -7851,6 +7895,11 @@ export interface AdminProductTypeListResponse {
   count: number;
   /** The list of product types. */
   product_types: AdminProductType[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The product type's details. */
@@ -8666,6 +8715,11 @@ export interface AdminReturnReasonListResponse {
   count: number;
   /** The list of return reasons. */
   return_reasons: AdminReturnReason[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The return reason's details. */
@@ -9348,6 +9402,11 @@ export interface AdminStockLocationListResponse {
   count: number;
   /** The list of stock locations. */
   stock_locations: AdminStockLocation[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The stock location's details. */
@@ -9465,12 +9524,32 @@ export interface AdminStoreListResponse {
   count: number;
   /** The list of stores. */
   stores: AdminStore[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The store's details. */
 export interface AdminStoreResponse {
   /** The store's details. */
   store: AdminStore;
+}
+
+/** The tax provider's details. */
+export interface AdminTaxProvider {
+  /**
+   * id
+   * The tax provider's ID.
+   * @example "tp_taxjar_taxjar"
+   */
+  id: string;
+  /**
+   * is_enabled
+   * Whether the tax provider is enabled in the Medusa application.
+   */
+  is_enabled: boolean;
 }
 
 /** The tax rate's details. */
@@ -9692,22 +9771,6 @@ export interface AdminUpdateApiKey {
    * The API key's title.
    */
   title: string;
-}
-
-/** The details to update in a collection. */
-export interface AdminUpdateCollection {
-  /**
-   * title
-   * The collection's title.
-   */
-  title?: string;
-  /**
-   * handle
-   * The collection's handle.
-   */
-  handle?: string;
-  /** The collection's metadata, can hold custom key-value pairs. */
-  metadata?: object;
 }
 
 /** The details to update in a customer group. */
@@ -10588,6 +10651,11 @@ export interface AdminUpdateTaxRegion {
   province_code?: string;
   /** The tax region's metadata, can hold custom key-value pairs. */
   metadata?: object;
+  /**
+   * provider_id
+   * The ID of the tax provider to use when calculating taxes for this tax region.
+   */
+  provider_id?: string;
 }
 
 /** The properties to update in a user. */
@@ -10755,6 +10823,11 @@ export interface AdminUserListResponse {
   count: number;
   /** The list of users. */
   users: AdminUser[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The user's details. */
@@ -12122,7 +12195,7 @@ export interface BaseOrderAddress {
   /**
    * province
    * The address's lower-case ISO 3166-2 province code.
-   * @example "US-CA"
+   * @example "us-ca"
    */
   province?: string;
   /**
@@ -17350,6 +17423,11 @@ export interface StoreCurrencyListResponse {
   count: number;
   /** The list of currencies. */
   currencies: StoreCurrency[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The currency's details. */
@@ -17539,6 +17617,11 @@ export interface StoreCustomerAddressListResponse {
   count: number;
   /** The list of addresses. */
   addresses: StoreCustomerAddress[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The address's details. */
@@ -23368,6 +23451,11 @@ export interface StoreProductCategoryListResponse {
   count: number;
   /** The list of product categories. */
   product_categories: StoreProductCategory[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The product category's details. */
@@ -23556,6 +23644,11 @@ export interface StoreProductTagListResponse {
   count: number;
   /** The list of product tags. */
   product_tags: StoreProductTag[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The product tag's details. */
@@ -23617,6 +23710,11 @@ export interface StoreProductTypeListResponse {
   count: number;
   /** The list of product types. */
   product_types: StoreProductType[];
+  /**
+   * estimate_count
+   * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+   */
+  estimate_count?: number;
 }
 
 /** The product type's details. */
@@ -23840,53 +23938,20 @@ export interface StoreRequestOrderTransfer {
 
 /** The return's details. */
 export interface StoreReturn {
+  /** The return's items. */
+  items: StoreReturnItem[];
+  /** The return's status. */
+  status?: "received" | "canceled" | "requested" | "open" | "partially_received";
   /**
    * id
    * The return's ID.
    */
   id: string;
   /**
-   * order_id
-   * The ID of the order this return is created for.
-   */
-  order_id: string;
-  /**
-   * status
-   * The return's status.
-   */
-  status?: string;
-  /**
-   * exchange_id
-   * The ID of the associated exchange.
-   */
-  exchange_id?: string;
-  /**
-   * location_id
-   * The ID of the location the items are returned to.
-   */
-  location_id?: string;
-  /**
-   * claim_id
-   * The ID of the associated claim.
-   */
-  claim_id?: string;
-  /**
    * display_id
    * The return's display ID.
    */
   display_id: number;
-  /**
-   * refund_amount
-   * The return's refunded amount.
-   */
-  refund_amount?: number;
-  /** The return's items. */
-  items: StoreReturnItem[];
-  /**
-   * received_at
-   * The date the return was received.
-   */
-  received_at: string;
   /**
    * created_at
    * The date the return was created.
@@ -23894,10 +23959,40 @@ export interface StoreReturn {
    */
   created_at: string;
   /**
+   * order_id
+   * The ID of the order this return belongs to.
+   */
+  order_id: string;
+  /**
+   * location_id
+   * The ID of the location the return items are being returned to.
+   */
+  location_id?: string;
+  /**
    * canceled_at
-   * The date the return was updated.
+   * The date the return was canceled.
    */
   canceled_at: string;
+  /**
+   * exchange_id
+   * The ID of the associated exchange.
+   */
+  exchange_id?: string;
+  /**
+   * claim_id
+   * The ID of the associated claim.
+   */
+  claim_id?: string;
+  /**
+   * refund_amount
+   * The amount to be refunded.
+   */
+  refund_amount?: number;
+  /**
+   * received_at
+   * The date the return items were received.
+   */
+  received_at: string;
 }
 
 /** The return item's details. */
@@ -24319,28 +24414,31 @@ export interface AdminCommissionAggregate {
   include_tax?: boolean;
   /** Percent of commission. */
   percentage_rate?: number;
-  /** Flat rate price id */
-  price_id?: string;
-  /** Flat rate price currency code */
-  price_currency?: string;
-  /** Flat rate price amount */
-  price_amount?: string;
-  /** Min price id */
-  min_price_id?: string;
-  /** Min price currency code */
-  min_price_currency?: string;
-  /** Min price amount */
-  min_price_amount?: string;
-  /** Max price id */
-  max_price_id?: string;
-  /** Max price currency code */
-  max_price_currency?: string;
-  /** Max price amount */
-  max_price_amount?: string;
-  /** Aggregated fee value */
-  fee_value?: string;
+  /** Flat rate price set id */
+  price_set_id?: string;
+  /** Flat rate price set */
+  price_set?: AdminCommissionPriceValue[];
+  /** Min price set id */
+  min_price_set_id?: string;
+  /** Min price set */
+  min_price_set?: AdminCommissionPriceValue[];
+  /** Max price set id */
+  max_price_set_id?: string;
+  /** Max price set */
+  max_price_set?: AdminCommissionPriceValue[];
   /** Aggregated reference value */
   ref_value?: string;
+  /** Aggregated fee value */
+  fee_value?: string;
+}
+
+/**
+ * AdminCommissionPriceValue
+ * Commission price value
+ */
+export interface AdminCommissionPriceValue {
+  amount: number;
+  currency_code: string;
 }
 
 /**
@@ -24417,9 +24515,9 @@ export interface AdminCreateCommissionRate {
   percentage_rate?: number;
   /** The description of the product. */
   include_tax?: boolean;
-  price_set?: AdminCommissionRatePrice;
-  min_price_set?: AdminCommissionRatePrice;
-  max_price_set?: AdminCommissionRatePrice;
+  price_set?: AdminCommissionRatePrice[];
+  min_price_set?: AdminCommissionRatePrice[];
+  max_price_set?: AdminCommissionRatePrice[];
 }
 
 export interface AdminCreateCommissionRule {
@@ -32070,7 +32168,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @secure
      */
     adminPostCollections: (
-      data: AdminCreateCollection,
+      data: {
+        /**
+         * title
+         * The collection's title.
+         */
+        title: string;
+        /**
+         * handle
+         * The collection's handle.
+         */
+        handle?: string;
+        /** The collection's metadata. Can hold custom key-value pairs. */
+        metadata?: object;
+      } & {
+        /** Pass additional custom data to the API route. This data is passed to the underlying workflow under the `additional_data` parameter. */
+        additional_data?: object;
+      },
       query?: {
         /**
          * fields
@@ -32131,7 +32245,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     adminPostCollectionsId: (
       id: string,
-      data: AdminUpdateCollection,
+      data: {
+        /**
+         * title
+         * The collection's title.
+         */
+        title?: string;
+        /**
+         * handle
+         * The collection's handle.
+         */
+        handle?: string;
+        /** The collection's metadata. */
+        metadata?: object;
+      } & {
+        /** Pass additional custom data to the API route. This data is passed to the underlying workflow under the `additional_data` parameter. */
+        additional_data?: object;
+      },
       query?: {
         /**
          * fields
@@ -39797,7 +39927,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Cancel an order edit.
+     * @description Cancel a requested order edit.
      *
      * @tags Admin Order Edits
      * @name AdminDeleteOrderEditsId
@@ -51464,6 +51594,93 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description Retrieve a list of tax providers installed in the Medusa application through Tax Module Providers. The tax providers can be filtered by fields such as `id`. The tax providers can also be sorted or paginated.
+     *
+     * @tags Admin Tax Providers
+     * @name AdminGetTaxProviders
+     * @summary List Tax Providers
+     * @request GET:/admin/tax-providers
+     * @secure
+     */
+    adminGetTaxProviders: (
+      query?: {
+        /**
+         * fields
+         * Comma-separated fields that should be included in the returned data. If a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. Without prefix it will replace the entire default fields.
+         */
+        fields?: string;
+        /**
+         * offset
+         * The number of items to skip when retrieving a list.
+         */
+        offset?: number;
+        /**
+         * limit
+         * Limit the number of items returned in the list.
+         */
+        limit?: number;
+        /**
+         * order
+         * The field to sort the data by. By default, the sort order is ascending. To change the order to descending, prefix the field name with `-`.
+         */
+        order?: string;
+        /** Filter by a tax provider's ID. */
+        id?: string | string[];
+        /**
+         * is_enabled
+         * Filter by whether the tax provider is enabled.
+         */
+        is_enabled?: boolean;
+        /**
+         * $and
+         * Join query parameters with an AND condition. Each object's content is the same type as the expected query parameters.
+         */
+        $and?: object[];
+        /**
+         * $or
+         * Join query parameters with an OR condition. Each object's content is the same type as the expected query parameters.
+         */
+        $or?: object[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /**
+           * limit
+           * The maximum number of items retrieved.
+           */
+          limit: number;
+          /**
+           * offset
+           * The number of items skipped before retrieving the returned items.
+           */
+          offset: number;
+          /**
+           * count
+           * The total number of items available.
+           */
+          count: number;
+          /**
+           * estimate_count
+           * The estimated count retrieved from the PostgreSQL query planner, which may be inaccurate.
+           */
+          estimate_count?: number;
+        } & {
+          /** The list of tax providers. */
+          tax_providers: AdminTaxProvider[];
+        },
+        Error | string
+      >({
+        path: `/admin/tax-providers`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieve a list of tax rates. The tax rates can be filtered by fields such as `id`. The tax rates can also be sorted or paginated.
      *
      * @tags Admin Tax Rates
@@ -52713,6 +52930,18 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
          * Comma-separated fields that should be included in the returned data. if a field is prefixed with `+` it will be added to the default fields, using `-` will remove it from the default fields. without prefix it will replace the entire default fields.
          */
         fields?: string;
+        /**
+         * province_code
+         * Filter by a tax region's province code.
+         */
+        province_code?: string;
+        /**
+         * provider_id
+         * Filter by a tax provider ID to retrieve the tax regions using it.
+         */
+        provider_id?: string;
+        /** Filter by a tax region's metadata. Refer to the [Object Query Parameter](https://docs.medusajs.com/api/admin#object) section to learn how to filter by object fields. */
+        metadata?: object;
       },
       params: RequestParams = {},
     ) =>
@@ -53323,6 +53552,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         transaction_id?: string | string[];
         /** Filter by a workflow ID. */
         workflow_id?: string | string[];
+        /**
+         * q
+         * Search query to filter by a workflow execution's searchable fields.
+         */
+        q?: string;
       },
       params: RequestParams = {},
     ) =>
@@ -58044,24 +58278,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Create a return for an order's items. The admin receives the return and process it from their side.
-     *
-     * @tags Store Return
-     * @name StorePostReturn
-     * @summary Create Return
-     * @request POST:/store/return
-     */
-    storePostReturn: (data: StoreCreateReturn, params: RequestParams = {}) =>
-      this.request<StoreReturnResponse, Error | string>({
-        path: `/store/return`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
      * @description Retrieve a list of return reasons. The return reasons can be sorted or paginated.
      *
      * @tags Store Return Reasons
@@ -58147,6 +58363,24 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/store/return-reasons/${id}`,
         method: "GET",
         query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Create a return for an order's items. The admin receives the return and process it from their side.
+     *
+     * @tags Store Returns
+     * @name StorePostReturns
+     * @summary Create Return
+     * @request POST:/store/returns
+     */
+    storePostReturns: (data: StoreCreateReturn, params: RequestParams = {}) =>
+      this.request<StoreReturnResponse, Error | string>({
+        path: `/store/returns`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

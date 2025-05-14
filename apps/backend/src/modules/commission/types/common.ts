@@ -38,6 +38,8 @@ export type CommissionCalculationContext = {
   seller_id: string
 }
 
+type Price = { amount: number; currency_code: string }
+
 export type AdminCommissionAggregate = {
   id: string
   name: string
@@ -47,15 +49,12 @@ export type AdminCommissionAggregate = {
   include_tax: boolean
   is_active: boolean
   ref_value: string
-  fee_value: string
-  price_id: string | null
-  price_currency: string | null
-  price_amount: number | null
-  min_price_id: string | null
-  min_price_currency: string | null
-  min_price_amount: number | null
-  max_price_id: string | null
-  max_price_currency: string | null
-  max_price_amount: number | null
+  price_set_id: string | null
+  price_set: Price[]
+  min_price_set_id: string | null
+  min_price_set: Price[]
+  max_price_set_id: string | null
+  max_price_set: Price[]
   percentage_rate: number | null
+  fee_value: string
 }

@@ -6,27 +6,34 @@ import {
 } from "../../../hooks/api/product";
 import { useSellers } from "../../../hooks/api/seller";
 import { useCreateCommisionRule } from "../../../hooks/api/commission";
+import { useStores } from "../../../hooks/api/stores";
 
 type Props = {
   onSuccess?: () => void;
 };
 
+type Price = { amount: number, currency_code: string}
+
 const CreateCommissionRuleForm = ({ onSuccess }: Props) => {
   const [name, setName] = useState("");
   const [reference, setReference] = useState("seller");
   const [rateType, setRateType] = useState("flat");
-  const [rateValue, setRateValue] = useState(0);
+  const [ratePercentValue, setRatePercentValue] = useState(0);
+  const [rateFlatValue, setRateFlatValue] = useState<Price[]>([]);
   const [includeTax, setIncludeTax] = useState(false);
-  const [minCommission, setMinCommission] = useState<number | null>(null);
-  const [maxCommission, setMaxCommission] = useState<number | null>(null);
+  const [currencies, setCurrencies] = useState<string[]>([])
+  const [minCommissionEnabled, setMinCommissionEnabled] = useState<boolean>(false)
+  const [maxCommissionEnabled, setMaxCommissionEnabled] = useState<boolean>(false)
+  const [minCommission, setMinCommission] = useState<Price[]>([]);
+  const [maxCommission, setMaxCommission] = useState<Price[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const { product_types } = useProductTypes({ fields: "id,value", limit: 999 });
+  const { product_types } = useProductTypes({ fields: "id,value", limit: 9999 });
   const { product_categories } = useProductCategories({
     fields: "id,name",
-    limit: 999,
+    limit: 9999,
   });
-  const { sellers } = useSellers({ fields: "id,name", limit: 999 });
+  const { sellers } = useSellers({ fields: "id,name", limit: 9999 });
 
   const [showSellers, setShowSellers] = useState(false);
   const [showProductTypes, setShowProductTypes] = useState(false);
@@ -37,6 +44,14 @@ const CreateCommissionRuleForm = ({ onSuccess }: Props) => {
   const [category, setCategory] = useState("");
 
   const { mutateAsync: createCommissionRule } = useCreateCommisionRule({});
+
+  const { stores } = useStores()
+  
+  useEffect(()=>{
+    if(stores && stores[0]) {
+      setCurrencies(stores[0].supported_currencies.map(c => c.currency_code))
+    }
+  }, [stores])
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -69,11 +84,11 @@ const CreateCommissionRuleForm = ({ onSuccess }: Props) => {
         is_active: true,
         rate: {
           type: rateType as "flat" | "percentage",
-          percentage_rate: rateType === "percentage" ? rateValue : undefined,
+          percentage_rate: rateType === "percentage" ? ratePercentValue : undefined,
           include_tax: includeTax,
-          price_set: rateType === "flat" ? { amount: rateValue } : undefined,
-          min_price_set: minCommission ? { amount: minCommission } : undefined,
-          max_price_set: maxCommission ? { amount: maxCommission } : undefined,
+          price_set: rateType === "flat" ? rateFlatValue : undefined,
+          min_price_set: minCommissionEnabled ? minCommission : undefined,
+          max_price_set: maxCommissionEnabled ? maxCommission : undefined,
         },
       };
 
@@ -235,54 +250,90 @@ const CreateCommissionRuleForm = ({ onSuccess }: Props) => {
       </fieldset>
       <fieldset className="my-4">
         <legend className="mb-2">
-          Fee ({rateType === "flat" ? "USD" : "%"})
+          Fee value
         </legend>
-        <Input
-          name="rate_value"
-          type="number"
-          value={rateValue}
-          onChange={(e) => setRateValue(parseFloat(e.target.value))}
-        />
+        {rateType === "percentage" && 
+          <Input
+            name="rate_percent_value"
+            type="number"
+            value={ratePercentValue}
+            onChange={(e) => setRatePercentValue(parseFloat(e.target.value))}
+          />
+        }
+        {rateType === "flat" && currencies && currencies.map(currency => {
+          return  <>
+            <Label>{currency.toUpperCase()}</Label>
+            <Input
+              name={"rate_flat_val" + {currency}}
+              type="number"
+              value={rateFlatValue.filter(v => v.currency_code === currency)[0]?.amount || 0}
+              onChange={(e) => setRateFlatValue((prevValue)=>{
+                return [ 
+                  ...prevValue.filter(v=>v.currency_code !== currency), 
+                  {currency_code: currency, amount: parseFloat(e.target.value)}
+                ]
+              })}
+            />
+          </>
+        })}
       </fieldset>
       {rateType === "percentage" && (
         <>
           <fieldset className="my-4">
             <div className="flex items-center gap-x-2">
-              <Label>Minimum commission value (USD)</Label>
+              <Label>Minimum commission value</Label>
               <Switch
                 id="min_com"
+                checked={minCommissionEnabled}
                 onCheckedChange={(val) => {
-                  setMinCommission(val ? 0 : null);
+                  setMinCommissionEnabled(val);
                 }}
               />
             </div>
-            {minCommission !== null && (
-              <Input
-                name="min_com_val"
-                type="number"
-                value={minCommission || 0}
-                onChange={(e) => setMinCommission(parseFloat(e.target.value))}
-              />
-            )}
+            {minCommissionEnabled && currencies && currencies.map(currency => {
+              return  <>
+                    <Label>{currency.toUpperCase()}</Label>
+                    <Input
+                      name={"min_com_val" + {currency}}
+                      type="number"
+                      value={minCommission.filter(v => v.currency_code === currency)[0]?.amount || 0}
+                      onChange={(e) => setMinCommission((prevValue)=>{
+                        return [ 
+                          ...prevValue.filter(v=>v.currency_code !== currency), 
+                          {currency_code: currency, amount: parseFloat(e.target.value)}
+                        ]
+                      })}
+                    />
+                </>
+            })}
           </fieldset>
           <fieldset className="my-4">
             <div className="flex items-center gap-x-2">
-              <Label>Maximum commission value (USD)</Label>
+              <Label>Maximum commission value</Label>
               <Switch
                 id="max_com"
+                checked={maxCommissionEnabled}
                 onCheckedChange={(val) => {
-                  setMaxCommission(val ? 0 : null);
+                  setMaxCommissionEnabled(val);
                 }}
               />
             </div>
-            {maxCommission !== null && (
-              <Input
-                name="max_com_val"
-                type="number"
-                value={maxCommission || 0}
-                onChange={(e) => setMaxCommission(parseFloat(e.target.value))}
-              />
-            )}
+            {maxCommissionEnabled && currencies && currencies.map(currency => {
+              return  <>
+                    <Label>{currency.toUpperCase()}</Label>
+                    <Input
+                      name={"max_com_val" + {currency}}
+                      type="number"
+                      value={maxCommission.filter(v => v.currency_code === currency)[0]?.amount || 0}
+                      onChange={(e) => setMaxCommission((prevValue)=>{
+                        return [ 
+                          ...prevValue.filter(v=>v.currency_code !== currency), 
+                          {currency_code: currency, amount: parseFloat(e.target.value)}
+                        ]
+                      })}
+                    />
+                </>
+            })}
           </fieldset>
         </>
       )}
