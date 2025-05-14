@@ -15,7 +15,11 @@ import {
   useRemoteQueryStep,
   validateCartPaymentsStep
 } from '@medusajs/medusa/core-flows'
-import { CartShippingMethodDTO } from '@medusajs/types/dist/cart'
+import { UsageComputedActions } from '@medusajs/types'
+import {
+  CartShippingMethodDTO,
+  CartWorkflowDTO
+} from '@medusajs/types/dist/cart'
 import {
   WorkflowResponse,
   createHook,
@@ -25,6 +29,7 @@ import {
 import { MARKETPLACE_MODULE } from '../../../modules/marketplace'
 import { OrderSetWorkflowEvents } from '../../../modules/marketplace/types'
 import { SELLER_MODULE } from '../../../modules/seller'
+import { registerUsageStep } from '../../promotions/steps'
 import { createOrderSetStep, validateCartShippingOptionsStep } from '../steps'
 import {
   completeCartFields,
@@ -142,9 +147,18 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
                 isTaxInclusive: item.is_tax_inclusive,
                 quantity: item.quantity,
                 metadata: item?.metadata,
-                taxLines: item.tax_lines ?? []
+                taxLines: item.tax_lines ?? [],
+                adjustments: item.adjustments ?? []
               })
             )
+
+            const itemAdjustments = items
+              .map((item) => item.adjustments ?? [])
+              .flat(1)
+
+            const promoCodes = [...itemAdjustments]
+              .map((adjustment) => adjustment.code)
+              .filter(Boolean)
 
             return {
               region_id: cart.region?.id,
@@ -157,6 +171,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
               billing_address: cart.billing_address,
               no_notification: false,
               items,
+              promo_codes: promoCodes,
               shipping_methods: [
                 {
                   name: sm.name,
@@ -179,6 +194,39 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           }
         }
       )
+
+      const promotionUsage = transform(
+        { cart },
+        ({ cart }: { cart: CartWorkflowDTO }) => {
+          const promotionUsage: UsageComputedActions[] = []
+
+          const itemAdjustments = (cart.items ?? [])
+            .map((item) => item.adjustments ?? [])
+            .flat(1)
+
+          const shippingAdjustments = (cart.shipping_methods ?? [])
+            .map((item) => item.adjustments ?? [])
+            .flat(1)
+
+          for (const adjustment of itemAdjustments) {
+            promotionUsage.push({
+              amount: adjustment.amount,
+              code: adjustment.code!
+            })
+          }
+
+          for (const adjustment of shippingAdjustments) {
+            promotionUsage.push({
+              amount: adjustment.amount,
+              code: adjustment.code!
+            })
+          }
+
+          return promotionUsage
+        }
+      )
+
+      registerUsageStep(promotionUsage)
 
       const orderSet = createOrderSetStep({
         cart_id: cart.id,
