@@ -1,11 +1,13 @@
 import { Table, StatusBadge } from "@medusajs/ui";
-import { AdminCommissionAggregate } from "@mercurjs/http-client";
+import { AdminCommissionAggregate, AdminCommissionPriceValue } from "@mercurjs/http-client";
 
-const getFormattedPrice = (amount: string | null | undefined, currency: string | null | undefined) => {
-  if(!amount || !currency) {
+const getFormattedPriceValue = (values: AdminCommissionPriceValue[] | undefined) => {
+  if(!values) {
     return '-'
   }
-  return `${amount} ${currency}`
+
+  const prices = values.map(p => `${p.amount}${p.currency_code?.toUpperCase()}`)
+  return prices?.join('/') || '-'
 }
 
 export const CommissionDetailTable = ({
@@ -19,15 +21,15 @@ export const CommissionDetailTable = ({
         <Table.Body>
           <Table.Row>
             <Table.Cell>Default commission</Table.Cell>
-            <Table.Cell>{commissionRule?.fee_value}</Table.Cell>
+            <Table.Cell>{commissionRule?.fee_value} </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Minimum commission per order</Table.Cell>
-            <Table.Cell>{getFormattedPrice(commissionRule?.min_price_amount, commissionRule?.min_price_currency)}</Table.Cell>
+            <Table.Cell>{getFormattedPriceValue(commissionRule?.min_price_set)}</Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Maximum commission per order</Table.Cell>
-            <Table.Cell>{getFormattedPrice(commissionRule?.max_price_amount, commissionRule?.max_price_currency)}</Table.Cell>
+            <Table.Cell>{getFormattedPriceValue(commissionRule?.max_price_set)}</Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Commission charged including tax</Table.Cell>

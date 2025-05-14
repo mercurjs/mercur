@@ -1,6 +1,35 @@
+import { MedusaContainer } from '@medusajs/framework'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-const DEFAULT_CURRENCY = 'USD'
+async function selectPriceSetPrices(
+  container: MedusaContainer,
+  price_set_id: string
+) {
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const {
+    data: [price]
+  } = await query.graph({
+    entity: 'price_set',
+    fields: ['*', 'prices.*'],
+    filters: {
+      id: price_set_id
+    }
+  })
+
+  return price
+    ? {
+        id: price.id,
+        prices: price.prices.map((p) => ({
+          currency_code: p.currency_code,
+          amount: p.amount
+        }))
+      }
+    : {
+        id: null,
+        prices: []
+      }
+}
 
 export const findCommissionRulesStep = createStep(
   'find-commission-rules',
@@ -14,94 +43,78 @@ export const findCommissionRulesStep = createStep(
     },
     { container }
   ) => {
-    const knex = container.resolve('__pg_connection__')
+    const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
-    let query = knex('commission_rule')
-      .select(
-        'commission_rule.id',
-        'commission_rule.name',
-        'commission_rule.reference',
-        'commission_rule.reference_id',
-        'commission_rule.is_active',
-        'commission_rate.type',
-        'commission_rate.percentage_rate',
-        'commission_rate.include_tax',
-        'price.id AS price_id',
-        'price.currency_code AS price_currency',
-        'price.amount AS price_amount',
-        'min_price.id AS min_price_id',
-        'min_price.currency_code AS min_price_currency',
-        'min_price.amount AS min_price_amount',
-        'max_price.id AS max_price_id',
-        'max_price.currency_code AS max_price_currency',
-        'max_price.amount AS max_price_amount'
-      )
-      .whereNull('commission_rule.deleted_at')
-      .leftJoin(
-        'commission_rate',
-        'commission_rule.id',
-        'commission_rate.rule_id'
-      )
-      .leftJoin('price', function () {
-        this.on(
-          'commission_rate.price_set_id',
-          '=',
-          'price.price_set_id'
-        ).andOn('price.currency_code', '=', knex.raw('?', [DEFAULT_CURRENCY]))
-      })
-      .leftJoin('price AS min_price', function () {
-        this.on(
-          'commission_rate.min_price_set_id',
-          '=',
-          'min_price.price_set_id'
-        ).andOn(
-          'min_price.currency_code',
-          '=',
-          knex.raw('?', [DEFAULT_CURRENCY])
+    const filters = input.ids
+      ? { id: input.ids }
+      : { reference: { $ne: 'site' } }
+
+    const { data: commissions, metadata } = await query.graph({
+      entity: 'commission_rule',
+      fields: ['*', 'rate.*'],
+      filters: filters,
+      pagination: input.pagination
+    })
+
+    const commission_rules: any[] = []
+
+    for (const commission of commissions) {
+      const aggregate = {
+        id: commission.id,
+        name: commission.name,
+        reference: commission.reference,
+        reference_id: commission.reference_id,
+        is_active: commission.is_active,
+        type: commission.rate.type,
+        include_tax: commission.rate.include_tax,
+        percentage_rate: commission.rate.percentage_rate,
+        price_set_id: null,
+        price_set: [],
+        min_price_set_id: null,
+        min_price_set: [],
+        max_price_set_id: null,
+        max_price_set: [],
+        fee_value: `${commission.rate.percentage_rate}%`
+      }
+
+      if (commission.rate.min_price_set_id) {
+        const minPrice = await selectPriceSetPrices(
+          container,
+          commission.rate.min_price_set_id
         )
-      })
-      .leftJoin('price AS max_price', function () {
-        this.on(
-          'commission_rate.max_price_set_id',
-          '=',
-          'max_price.price_set_id'
-        ).andOn(
-          'max_price.currency_code',
-          '=',
-          knex.raw('?', [DEFAULT_CURRENCY])
+
+        aggregate.min_price_set_id = minPrice.id
+        aggregate.min_price_set = minPrice.prices
+      }
+
+      if (commission.rate.max_price_set_id) {
+        const maxPrice = await selectPriceSetPrices(
+          container,
+          commission.rate.max_price_set_id
         )
-      })
 
-    let countQuery = knex('commission_rule')
-      .count('commission_rule.id')
-      .whereNull('commission_rule.deleted_at')
+        aggregate.max_price_set_id = maxPrice.id
+        aggregate.max_price_set = maxPrice.prices
+      }
 
-    if (!input.ids) {
-      query = query.whereNot(
-        'commission_rule.reference',
-        '=',
-        knex.raw('?', ['site'])
-      )
-      countQuery = countQuery.whereNot(
-        'commission_rule.reference',
-        '=',
-        knex.raw('?', ['site'])
-      )
+      if (commission.rate.type === 'flat') {
+        const price = await selectPriceSetPrices(
+          container,
+          commission.rate.price_set_id
+        )
+
+        aggregate.price_set_id = price.id
+        aggregate.price_set = price.prices
+
+        aggregate.fee_value =
+          price.prices
+            .map((p) => `${p.amount}${p.currency_code?.toUpperCase()}`)
+            .join('/') || '-'
+      }
+
+      commission_rules.push(aggregate)
     }
 
-    if (input.ids) {
-      query = query.whereIn('commission_rule.id', input.ids)
-    }
-
-    if (input.pagination) {
-      query = query
-        .offset(input.pagination?.skip || 0)
-        .limit(input.pagination?.take || 50)
-    }
-
-    const commission_rules = await query
-    const [{ count }] = await countQuery
-
-    return new StepResponse({ commission_rules, count: Number(count) })
+    return new StepResponse({ commission_rules, count: metadata?.count || 0 })
   }
 )
