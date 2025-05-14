@@ -35,6 +35,27 @@ async function selectProductSupportedCountries(
     : []
 }
 
+async function selectProductSeller(
+  container: MedusaContainer,
+  product_id: string
+) {
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [product]
+  } = await query.graph({
+    entity: sellerProduct.entryPoint,
+    fields: ['seller_id', 'seller.handle'],
+    filters: {
+      product_id
+    }
+  })
+
+  return product
+    ? { id: product.seller_id, handle: product.seller.handle }
+    : null
+}
+
 export async function filterProductsByStatus(
   container: MedusaContainer,
   ids: string[] = []
@@ -99,6 +120,7 @@ export async function findAndTransformAlgoliaProducts(
       container,
       product.id
     )
+    product.seller = await selectProductSeller(container, product.id)
 
     product.options = product.options
       ?.map((option) => {

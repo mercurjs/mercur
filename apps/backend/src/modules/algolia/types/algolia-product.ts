@@ -65,7 +65,13 @@ export const AlgoliaProductValidator = z.object({
   height: z.coerce.number().nullable().optional(),
   width: z.coerce.number().nullable().optional(),
   origin_country: z.string().nullable().optional(),
-  material: z.string().nullable().optional()
+  material: z.string().nullable().optional(),
+  seller: z
+    .object({
+      id: z.string(),
+      handle: z.string().nullish()
+    })
+    .nullable()
 })
 
 export const AlgoliaVariantValidator = z.object({
