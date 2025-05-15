@@ -27,11 +27,13 @@ async function selectProductSupportedCountries(
   })
 
   return sellerProductRelation
-    ? sellerProductRelation.seller.service_zones.flatMap((sz) =>
-        sz.geo_zones
-          .filter((gz) => gz.type === 'country')
-          .map((gz) => gz.country_code)
-      )
+    ? sellerProductRelation.seller.service_zones.flatMap((sz) => {
+        return sz && sz.geo_zones
+          ? sz.geo_zones
+              .filter((gz) => gz.type === 'country')
+              .map((gz) => gz.country_code)
+          : []
+      })
     : []
 }
 
