@@ -1,4 +1,38 @@
 /**
+ * @schema VendorOrderCommissionValue
+ * type: object
+ * properties:
+ *   amount:
+ *     type: number
+ *     title: amount
+ *     description: Total commission value of the order
+ *   currency_code:
+ *     type: string
+ *     title: currency_code
+ *     description: The order's currency code.
+ */
+
+/**
+ * @schema VendorOrderCommissionLine
+ * type: object
+ * properties:
+ *   id:
+ *     type: string
+ *     description: Commission line id
+ *   item_line_id:
+ *     type: string
+ *     description: Order line item id that commission line relates to
+ *   amount:
+ *     type: number
+ *     title: amount
+ *     description: Commission value of the order line
+ *   currency_code:
+ *     type: string
+ *     title: currency_code
+ *     description: The currency code.
+ */
+
+/**
  * @schema VendorOrderDetails
  * type: object
  * description: The order's details.
@@ -60,6 +94,13 @@
  *     description: The order's shipping methods.
  *     items:
  *       $ref: '#/components/schemas/VendorOrderShippingMethod'
+ *   commission_value:
+ *     $ref: '#/components/schemas/VendorOrderCommissionValue'
+ *   commission_lines:
+ *     type: array
+ *     description: The commission breakdown.
+ *     items:
+ *       $ref: '#/components/schemas/VendorOrderCommissionLine'
  *   payment_status:
  *     type: string
  *     description: The order's payment status.
