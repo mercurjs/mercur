@@ -26609,6 +26609,36 @@ export interface VendorOrderChangeAction {
   updated_at?: string;
 }
 
+export interface VendorOrderCommissionLine {
+  /** Commission line id */
+  id?: string;
+  /** Order line item id that commission line relates to */
+  item_line_id?: string;
+  /**
+   * amount
+   * Commission value of the order line
+   */
+  amount?: number;
+  /**
+   * currency_code
+   * The currency code.
+   */
+  currency_code?: string;
+}
+
+export interface VendorOrderCommissionValue {
+  /**
+   * amount
+   * Total commission value of the order
+   */
+  amount?: number;
+  /**
+   * currency_code
+   * The order's currency code.
+   */
+  currency_code?: string;
+}
+
 /**
  * VendorOrderCountryCode
  * The country's details.
@@ -26718,6 +26748,9 @@ export interface VendorOrderDetails {
   items?: VendorOrderLineItem[];
   /** The order's shipping methods. */
   shipping_methods?: VendorOrderShippingMethod[];
+  commission_value?: VendorOrderCommissionValue;
+  /** The commission breakdown. */
+  commission_lines?: VendorOrderCommissionLine[];
   /** The order's payment status. */
   payment_status?:
     | "canceled"
