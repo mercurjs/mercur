@@ -27,7 +27,7 @@ import {
 
 export const cancelValidateOrder = createStep(
   'cancel-validate-order',
-  ({ order }: CancelValidateOrderStepInput) => {
+  async ({ order }: CancelValidateOrderStepInput) => {
     const order_ = order as OrderDTO & {
       payment_collections: PaymentCollectionDTO[]
       fulfillments: FulfillmentDTO[]
@@ -40,22 +40,12 @@ export const cancelValidateOrder = createStep(
       )
     }
 
-    const throwErrorIf = (
-      arr: unknown[],
-      pred: (obj: any) => boolean,
-      type: string
-    ) => {
-      if (arr?.some(pred)) {
-        throw new MedusaError(
-          MedusaError.Types.NOT_ALLOWED,
-          `All ${type} must be canceled before canceling an order`
-        )
-      }
+    if (order_.fulfillments.some((o) => !o.canceled_at)) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_ALLOWED,
+        `All fulfillments must be canceled before canceling an order`
+      )
     }
-
-    const notCanceled = (o) => !o.canceled_at
-
-    throwErrorIf(order_.fulfillments, notCanceled, 'fulfillments')
   }
 )
 
@@ -89,6 +79,6 @@ export const cancelOrderWorkflow = createWorkflow(
       })
     )
 
-    return new WorkflowResponse(void 0)
+    return new WorkflowResponse(order.id)
   }
 )

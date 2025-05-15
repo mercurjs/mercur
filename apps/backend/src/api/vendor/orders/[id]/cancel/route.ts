@@ -1,6 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import { cancelOrderWorkflow } from '@medusajs/medusa/core-flows'
+
+import { cancelOrderWorkflow } from '../../../../../workflows/order/workflows/cancel-order'
 
 /**
  * @oas [post] /vendor/orders/{id}/cancel
