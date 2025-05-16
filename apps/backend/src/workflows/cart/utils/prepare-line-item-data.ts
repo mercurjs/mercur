@@ -1,6 +1,7 @@
 import {
   BigNumberInput,
   CartLineItemDTO,
+  CreateOrderAdjustmentDTO,
   CreateOrderLineItemTaxLineDTO,
   InventoryItemDTO,
   ProductVariantDTO
@@ -25,6 +26,7 @@ interface Input {
     }
   }
   taxLines?: CreateOrderLineItemTaxLineDTO[]
+  adjustments?: CreateOrderAdjustmentDTO[]
   cartId?: string
 }
 
@@ -37,7 +39,8 @@ export function prepareLineItemData(data: Input) {
     quantity,
     metadata,
     cartId,
-    taxLines
+    taxLines,
+    adjustments
   } = data
 
   if (!variant.product) {
@@ -108,11 +111,25 @@ export function prepareLineItemData(data: Input) {
     lineItem.tax_lines = prepareTaxLinesData(taxLines)
   }
 
+  if (adjustments) {
+    lineItem.adjustments = prepareAdjustmentsData(adjustments)
+  }
+
   if (cartId) {
     lineItem.cart_id = cartId
   }
 
   return lineItem
+}
+
+export function prepareAdjustmentsData(data: CreateOrderAdjustmentDTO[]) {
+  return data.map((d) => ({
+    code: d.code,
+    amount: d.amount,
+    description: d.description,
+    promotion_id: d.promotion_id,
+    provider_id: d.promotion_id
+  }))
 }
 
 export function prepareTaxLinesData(data: CreateOrderLineItemTaxLineDTO[]) {
