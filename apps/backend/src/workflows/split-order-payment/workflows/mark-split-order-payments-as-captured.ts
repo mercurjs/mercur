@@ -24,6 +24,7 @@ export const markSplitOrderPaymentsAsCapturedWorkflow = createWorkflow(
       const entities = payments.data
       return entities.map((p) => ({
         id: p.id,
+        status: 'captured',
         captured_amount: p.authorized_amount
       }))
     })

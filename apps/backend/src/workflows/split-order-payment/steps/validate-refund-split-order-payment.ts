@@ -19,6 +19,10 @@ export const validateRefundSplitOrderPaymentStep = createStep(
       .minus(input.amount)
       .toNumber()
 
+    const refundedAmount = MathBN.convert(input.amount)
+      .plus(payment.refunded_amount)
+      .toNumber()
+
     const status =
       payment.captured_amount == amountLeft ? 'refunded' : 'partially_refunded'
 
@@ -31,7 +35,7 @@ export const validateRefundSplitOrderPaymentStep = createStep(
 
     return new StepResponse({
       id: input.id,
-      refunded_amount: amountLeft,
+      refunded_amount: refundedAmount,
       status
     })
   }

@@ -25,6 +25,8 @@ import {
   useQueryGraphStep
 } from '@medusajs/medusa/core-flows'
 
+import { refundSplitOrderPaymentWorkflow } from '../../split-order-payment/workflows'
+
 export const cancelValidateOrder = createStep(
   'cancel-validate-order',
   async ({ order }: CancelValidateOrderStepInput) => {
@@ -54,7 +56,13 @@ export const cancelOrderWorkflow = createWorkflow(
   (input: WorkflowData<OrderWorkflow.CancelOrderWorkflowInput>) => {
     const orderQuery = useQueryGraphStep({
       entity: 'orders',
-      fields: ['id', 'status', 'items.id', 'fulfillments.canceled_at'],
+      fields: [
+        'id',
+        'status',
+        'items.id',
+        'fulfillments.canceled_at',
+        'split_order_payment.*'
+      ],
       filters: { id: input.order_id },
       options: { throwIfKeyNotFound: true }
     }).config({ name: 'get-cart' })
@@ -73,6 +81,12 @@ export const cancelOrderWorkflow = createWorkflow(
     parallelize(
       deleteReservationsByLineItemsStep(lineItemIds),
       cancelOrdersStep({ orderIds: [order.id] }),
+      refundSplitOrderPaymentWorkflow.runAsStep({
+        input: {
+          id: order.split_order_payment.id,
+          amount: order.split_order_payment.captured_amount
+        }
+      }),
       emitEventStep({
         eventName: OrderWorkflowEvents.CANCELED,
         data: { id: order.id }

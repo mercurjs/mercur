@@ -244,9 +244,11 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         ({ createdOrders, payment }) => {
           return createdOrders.map((order) => ({
             order_id: order.id,
-            status: 'authorized',
+            status: 'pending',
             currency_code: order.currency_code,
-            authorized_amount: MathBN.convert(order.total).toNumber(),
+            authorized_amount: MathBN.convert(
+              order.summary?.accounting_total || 0
+            ).toNumber(),
             payment_collection_id: payment!.payment_collection_id
           }))
         }

@@ -1,5 +1,9 @@
+import { NextFunction } from 'express'
+
 import {
   AuthenticatedMedusaRequest,
+  MedusaRequest,
+  MedusaResponse,
   MiddlewareRoute,
   validateAndTransformBody,
   validateAndTransformQuery
@@ -20,6 +24,30 @@ import {
   VendorOrderCreateShipment
 } from './validators'
 
+const transformPaymentFilters = () => {
+  return async (
+    req: MedusaRequest,
+    _res: MedusaResponse,
+    next: NextFunction
+  ) => {
+    if (!req.queryConfig || !req.queryConfig.fields) {
+      return next()
+    }
+
+    const fields = req.queryConfig.fields.filter(
+      (f) => !f.includes('payment_collections')
+    )
+
+    if (fields.length !== req.queryConfig.fields.length) {
+      fields.push('split_order_payment.*')
+    }
+
+    req.queryConfig.fields = fields
+
+    return next()
+  }
+}
+
 export const vendorOrderMiddlewares: MiddlewareRoute[] = [
   {
     method: ['GET'],
@@ -28,7 +56,8 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.list
-      )
+      ),
+      transformPaymentFilters()
     ]
   },
   {
@@ -39,6 +68,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
+      transformPaymentFilters(),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerOrderLink.entryPoint,
         filterField: 'order_id'
@@ -53,6 +83,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
+      transformPaymentFilters(),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerOrderLink.entryPoint,
         filterField: 'order_id'
@@ -67,6 +98,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
+      transformPaymentFilters(),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerOrderLink.entryPoint,
         filterField: 'order_id'
@@ -99,6 +131,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderChangesParams,
         vendorOrderChangesQueryConfig.list
       ),
+      transformPaymentFilters(),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerOrderLink.entryPoint,
         filterField: 'order_id'
@@ -113,6 +146,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
+      transformPaymentFilters(),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerOrderLink.entryPoint,
         filterField: 'order_id'
@@ -128,6 +162,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
+      transformPaymentFilters(),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerOrderLink.entryPoint,
         filterField: 'order_id'
@@ -143,6 +178,7 @@ export const vendorOrderMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
+      transformPaymentFilters(),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerOrderLink.entryPoint,
         filterField: 'order_id'

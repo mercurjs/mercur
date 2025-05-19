@@ -12,9 +12,9 @@ import { markSplitOrderPaymentsAsCapturedWorkflow } from '../workflows/split-ord
 export default async function orderSetPlacedHandler({
   event,
   container
-}: SubscriberArgs<{ orderSetId: string }>) {
+}: SubscriberArgs<{ id: string }>) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
-  const { orderSetId } = event.data
+  const { id: orderSetId } = event.data
 
   const {
     data: [order_set]
@@ -30,7 +30,7 @@ export default async function orderSetPlacedHandler({
     data: [payment_collection]
   } = await query.graph({
     entity: 'payment_collection',
-    fields: ['payments.*'],
+    fields: ['status', 'payments.*'],
     filters: {
       id: order_set.payment_collection_id
     }
@@ -47,10 +47,10 @@ export default async function orderSetPlacedHandler({
     }
   })
 
-  if (result.captured_amount !== result.amount) {
+  if (!result.captured_at) {
     throw new MedusaError(
-      MedusaError.Types.PAYMENT_REQUIRES_MORE_ERROR,
-      'Invalid capture amount!'
+      MedusaError.Types.PAYMENT_AUTHORIZATION_ERROR,
+      'Payment failed!'
     )
   }
 
