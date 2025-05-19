@@ -1,6 +1,5 @@
 import {
   WorkflowResponse,
-  createHook,
   createWorkflow,
   transform
 } from '@medusajs/framework/workflows-sdk'
@@ -8,6 +7,7 @@ import {
 import { RefundSplitOrderPaymentsDTO } from '../../../modules/split-order-payment/types'
 import { updateSplitOrderPaymentsStep } from '../steps'
 import { validateRefundSplitOrderPaymentStep } from '../steps/validate-refund-split-order-payment'
+import { partialPaymentRefundWorkflow } from './partial-payment-refund'
 
 export const refundSplitOrderPaymentWorkflow = createWorkflow(
   {
@@ -16,15 +16,9 @@ export const refundSplitOrderPaymentWorkflow = createWorkflow(
   function (input: RefundSplitOrderPaymentsDTO) {
     const updatePayload = validateRefundSplitOrderPaymentStep(input)
     const splitOrderPayment = updateSplitOrderPaymentsStep(
-      transform(updatePayload, (updatePayload) => updatePayload[0])
+      transform(updatePayload, (updatePayload) => [updatePayload])
     )
-
-    const splitPaymentRefundedHook = createHook('splitPaymentRefunded', {
-      id: splitOrderPayment[0].id,
-      amount: input.amount
-    })
-    return new WorkflowResponse(splitOrderPayment, {
-      hooks: [splitPaymentRefundedHook]
-    })
+    partialPaymentRefundWorkflow.runAsStep({ input })
+    return new WorkflowResponse(splitOrderPayment)
   }
 )

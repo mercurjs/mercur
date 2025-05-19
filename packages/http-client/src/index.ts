@@ -26695,8 +26695,7 @@ export interface VendorOrderCreateShipment {
 
 /** The order's details. */
 export interface VendorOrderDetails {
-  /** The order's payment collections. */
-  payment_collections?: VendorOrderPaymentCollection[];
+  split_order_payment?: VendorSplitOrderPayment;
   /** The order's fulfillments. */
   fulfillments?: VendorOrderFulfillment[];
   /** An order address. */
@@ -26754,12 +26753,12 @@ export interface VendorOrderDetails {
   /** The order's payment status. */
   payment_status?:
     | "canceled"
+    | "pending"
     | "not_paid"
     | "awaiting"
     | "authorized"
     | "partially_authorized"
     | "captured"
-    | "partially_captured"
     | "partially_refunded"
     | "refunded"
     | "requires_action";
@@ -28690,6 +28689,33 @@ export interface VendorShippingProfile {
    * The shipping profile type.
    */
   type?: string;
+}
+
+export interface VendorSplitOrderPayment {
+  /** Split order payment id */
+  id?: string;
+  /** Payment status */
+  status?: string;
+  /**
+   * amount
+   * Authorized amount
+   */
+  authorized_amount?: number;
+  /**
+   * amount
+   * Captured amount
+   */
+  captured_amount?: number;
+  /**
+   * amount
+   * Refunded amount
+   */
+  refunded_amount?: number;
+  /**
+   * currency_code
+   * The currency code.
+   */
+  currency_code?: string;
 }
 
 /** The stock location's details. */

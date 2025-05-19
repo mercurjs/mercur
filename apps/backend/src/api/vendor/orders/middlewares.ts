@@ -34,15 +34,9 @@ const transformPaymentFilters = () => {
       return next()
     }
 
-    const fields = req.queryConfig.fields.filter(
-      (f) => !f.includes('payment_collections')
-    )
-
-    if (fields.length !== req.queryConfig.fields.length) {
-      fields.push('split_order_payment.*')
-    }
-
-    req.queryConfig.fields = fields
+    req.queryConfig.fields = req.queryConfig.fields
+      .filter((f) => !f.includes('payment_collections'))
+      .concat(['split_order_payment.*'])
 
     return next()
   }

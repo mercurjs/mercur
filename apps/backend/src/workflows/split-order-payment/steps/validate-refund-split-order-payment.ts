@@ -23,10 +23,9 @@ export const validateRefundSplitOrderPaymentStep = createStep(
       .plus(payment.refunded_amount)
       .toNumber()
 
-    const status =
-      payment.captured_amount == amountLeft ? 'refunded' : 'partially_refunded'
+    const status = MathBN.gt(amountLeft, 0) ? 'partially_refunded' : 'refunded'
 
-    if (input.amount <= 0 || amountLeft < 0) {
+    if (input.amount <= 0 || MathBN.lt(amountLeft, 0)) {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
         'Invalid refund amount!'
