@@ -43,11 +43,11 @@ export const getVendorOrdersListWorkflow = createWorkflow(
       const data = orders_.rows ? orders_.rows : orders_
 
       for (const order of data) {
-        const order_ = order
+        delete order.summary
 
-        order_.payment_status = order_.split_order_payment?.status
-        order_.fulfillment_status = getLastFulfillmentStatus(
-          order_
+        order.payment_status = order.split_order_payment?.status
+        order.fulfillment_status = getLastFulfillmentStatus(
+          order
         ) as OrderDetailDTO['fulfillment_status']
       }
 
