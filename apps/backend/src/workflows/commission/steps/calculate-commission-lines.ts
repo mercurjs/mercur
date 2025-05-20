@@ -42,13 +42,12 @@ async function calculatePercentageCommission(
   currency: string,
   container: MedusaContainer
 ) {
-  const taxValue = item.tax_total
-  const totalPrice = item.is_tax_inclusive
-    ? item.item_total
-    : MathBN.add(item.subtotal, taxValue)
+  const total = MathBN.convert(item.total)
+  const taxValue = MathBN.convert(item.tax_total)
+  const calculationBase = rate.include_tax ? total : total.minus(taxValue)
 
   const commissionValue = MathBN.mult(
-    rate.include_tax ? totalPrice : MathBN.sub(totalPrice, taxValue),
+    calculationBase,
     MathBN.div(rate.percentage_rate!, 100)
   )
 
