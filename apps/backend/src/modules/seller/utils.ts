@@ -33,8 +33,7 @@ export async function selectSellerCustomers(
       'order.id',
       'seller_seller_order_order.order_id'
     )
-    .where('seller_id', seller_id)
-    .groupBy('customer_id')) as { count: string }[]
+    .where('seller_id', seller_id)) as { count: string }[]
 
   return { customers, count: parseInt(countResult[0]?.count || '0') }
 }
