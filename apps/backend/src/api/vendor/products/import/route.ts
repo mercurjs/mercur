@@ -26,7 +26,8 @@ export const POST = async (
     container: req.scope,
     input: {
       file_content: input.buffer.toString('utf-8'),
-      seller_id: seller.id
+      seller_id: seller.id,
+      submitter_id: req.auth_context.actor_id
     }
   })
 
