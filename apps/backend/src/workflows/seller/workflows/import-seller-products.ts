@@ -54,20 +54,20 @@ export const importSellerProductsWorkflow = createWorkflow(
     const requests = createRequestStep(requestsPayload)
 
     const link = transform({ requests, input }, ({ requests, input }) => {
-      return requests.map((r) => ({
+      return requests.map(({ id }) => ({
         [SELLER_MODULE]: {
           seller_id: input.seller_id
         },
         [REQUESTS_MODULE]: {
-          request_id: r.id
+          request_id: id
         }
       }))
     })
 
     const events = transform(requests, (requests) => {
-      return requests.map((r) => ({
+      return requests.map(({ id }) => ({
         name: ProductRequestUpdatedEvent.CREATED,
-        data: { id: r.id }
+        data: { id }
       }))
     })
 
