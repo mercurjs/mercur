@@ -1,13 +1,18 @@
+import { z } from 'zod'
+
+import { ProductStatus } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { VendorCreateProduct } from '../../../api/vendor/products/validators'
+import { CreateProduct } from '../../../api/vendor/products/validators'
 
 export const validateProductsToImportStep = createStep(
   'validate-products-to-import',
   async (products: unknown[]) => {
     const toCreate = products.map((product) => ({
-      ...VendorCreateProduct().parse(product),
-      status: 'proposed'
+      ...CreateProduct.extend({
+        status: z.string().optional()
+      }).parse(product),
+      status: 'proposed' as ProductStatus
     }))
 
     return new StepResponse(toCreate)

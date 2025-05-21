@@ -1,7 +1,6 @@
 import {
   createProductsWorkflow,
-  createRemoteLinkStep,
-  emitEventStep
+  createRemoteLinkStep
 } from '@medusajs/medusa/core-flows'
 import {
   WorkflowResponse,
@@ -13,10 +12,12 @@ import {
 import { REQUESTS_MODULE } from '../../../modules/requests'
 import {
   CreateRequestDTO,
+  ProductRequestUpdatedEvent,
   RequestStatus,
   SellerRequest
 } from '../../../modules/requests/types'
 import { SELLER_MODULE } from '../../../modules/seller'
+import { emitMultipleEventsStep } from '../../common/steps'
 import { createRequestStep } from '../steps'
 
 export const createProductRequestWorkflow = createWorkflow(
@@ -65,7 +66,7 @@ export const createProductRequestWorkflow = createWorkflow(
             seller_id: input.seller_id
           },
           [REQUESTS_MODULE]: {
-            request_id: request.id
+            request_id: request[0].id
           }
         }
       ]
@@ -73,13 +74,19 @@ export const createProductRequestWorkflow = createWorkflow(
 
     createRemoteLinkStep(link)
 
-    emitEventStep({
-      eventName: SellerRequest.CREATED,
-      data: { ...input.data, sellerId: input.seller_id }
-    })
+    emitMultipleEventsStep([
+      {
+        name: SellerRequest.CREATED,
+        data: { ...input.data, sellerId: input.seller_id }
+      },
+      {
+        name: ProductRequestUpdatedEvent.CREATED,
+        data: { id: request[0].id }
+      }
+    ])
 
     const productRequestCreatedHook = createHook('productRequestCreated', {
-      requestId: request.id,
+      requestId: request[0].id,
       sellerId: input.seller_id
     })
     return new WorkflowResponse(request, {

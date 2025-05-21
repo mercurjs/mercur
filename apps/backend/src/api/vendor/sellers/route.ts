@@ -72,7 +72,9 @@ export const POST = async (
     throw new MedusaError(MedusaError.Types.CONFLICT, 'Request already exists!')
   }
 
-  const { result: request } = await createSellerCreationRequestWorkflow.run({
+  const {
+    result: [request]
+  } = await createSellerCreationRequestWorkflow.run({
     input: {
       data: {
         seller: sellerData,

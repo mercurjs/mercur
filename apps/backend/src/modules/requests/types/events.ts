@@ -18,6 +18,7 @@ export enum ProductCollectionRequestUpdatedEvent {
 }
 
 export enum ProductRequestUpdatedEvent {
+  CREATED = 'requests.product.created',
   ACCEPTED = 'requests.product.accepted',
   REJECTED = 'requests.product.rejected'
 }
