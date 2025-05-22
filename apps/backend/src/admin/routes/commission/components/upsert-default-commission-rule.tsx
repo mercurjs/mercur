@@ -37,6 +37,10 @@ const UpsertDefaultCommissionRuleForm = ({ onSuccess, rule }: Props) => {
     }
   }, [stores])
 
+  useEffect(()=>{
+    setRateFlatValue(currencies.map(currency_code => ({currency_code, amount: 0})))
+  }, [currencies])
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
