@@ -3,7 +3,6 @@ import { model } from '@medusajs/framework/utils'
 import { MemberInvite } from './invite'
 import { Member } from './member'
 import { SellerOnboarding } from './onboarding'
-import { SellerVerification } from './verification'
 
 export const Seller = model.define('seller', {
   id: model.id({ prefix: 'sel' }).primaryKey(),
@@ -20,8 +19,9 @@ export const Seller = model.define('seller', {
   postal_code: model.text().nullable(),
   country_code: model.text().nullable(),
   gstin: model.text().nullable(),
+  verification_status: model.enum(['pending', 'in_progress', 'verified', 'rejected']).default('pending'),
+  status: model.enum(['active', 'inactive']).default('inactive'),
   members: model.hasMany(() => Member),
   invites: model.hasMany(() => MemberInvite),
   onboarding: model.hasOne(() => SellerOnboarding).nullable(),
-  verification: model.hasOne(() => SellerVerification).nullable()
 })
