@@ -1,6 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import { cancelOrderWorkflow } from '@medusajs/medusa/core-flows'
+
+import { getVendorOrdersListWorkflow } from '../../../../../workflows/order/workflows'
+import { cancelOrderWorkflow } from '../../../../../workflows/order/workflows/cancel-order'
 
 /**
  * @oas [post] /vendor/orders/{id}/cancel
@@ -35,7 +36,6 @@ export const POST = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { id } = req.params
 
   await cancelOrderWorkflow(req.scope).run({
@@ -46,12 +46,15 @@ export const POST = async (
   })
 
   const {
-    data: [order]
-  } = await query.graph({
-    entity: 'order',
-    fields: req.queryConfig.fields,
-    filters: {
-      id
+    result: [order]
+  } = await getVendorOrdersListWorkflow(req.scope).run({
+    input: {
+      fields: req.queryConfig.fields,
+      variables: {
+        filters: {
+          id
+        }
+      }
     }
   })
 

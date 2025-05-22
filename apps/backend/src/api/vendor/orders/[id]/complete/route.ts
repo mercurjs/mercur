@@ -1,6 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { completeOrderWorkflow } from '@medusajs/medusa/core-flows'
+
+import { getVendorOrdersListWorkflow } from '../../../../../workflows/order/workflows'
 
 /**
  * @oas [post] /vendor/orders/{id}/complete
@@ -35,7 +36,6 @@ export const POST = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { id } = req.params
 
   await completeOrderWorkflow(req.scope).run({
@@ -45,12 +45,15 @@ export const POST = async (
   })
 
   const {
-    data: [order]
-  } = await query.graph({
-    entity: 'order',
-    fields: req.queryConfig.fields,
-    filters: {
-      id
+    result: [order]
+  } = await getVendorOrdersListWorkflow(req.scope).run({
+    input: {
+      fields: req.queryConfig.fields,
+      variables: {
+        filters: {
+          id
+        }
+      }
     }
   })
 
