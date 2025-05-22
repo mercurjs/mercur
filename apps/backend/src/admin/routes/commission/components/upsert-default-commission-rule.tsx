@@ -12,15 +12,17 @@ type Props = {
 type Price = { amount: number, currency_code: string}
 
 const UpsertDefaultCommissionRuleForm = ({ onSuccess, rule }: Props) => {
+
+
   const [rateType, setRateType] = useState(rule?.type || "flat");
   const [ratePercentValue, setRatePercentValue] = useState(Number(rule?.percentage_rate) || 0);
-  const [rateFlatValue, setRateFlatValue] = useState<Price[]>([]);
+  const [rateFlatValue, setRateFlatValue] = useState<Price[]>(rule?.price_set || []);
   const [includeTax, setIncludeTax] = useState(rule?.include_tax || false);
   const [currencies, setCurrencies] = useState<string[]>([])
-  const [minCommissionEnabled, setMinCommissionEnabled] = useState<boolean>(false)
-  const [maxCommissionEnabled, setMaxCommissionEnabled] = useState<boolean>(false)
-  const [minCommission, setMinCommission] = useState<Price[]>([]);
-  const [maxCommission, setMaxCommission] = useState<Price[]>([]);
+  const [minCommissionEnabled, setMinCommissionEnabled] = useState<boolean>(!!rule?.min_price_set)
+  const [maxCommissionEnabled, setMaxCommissionEnabled] = useState<boolean>(!!rule?.max_price_set)
+  const [minCommission, setMinCommission] = useState<Price[]>(rule?.min_price_set || []);
+  const [maxCommission, setMaxCommission] = useState<Price[]>(rule?.max_price_set || []);
   const [loading, setLoading] = useState(false);
 
   const { mutateAsync: upsertCommissionRule } = useUpsertDefaultCommisionRule(
@@ -34,10 +36,6 @@ const UpsertDefaultCommissionRuleForm = ({ onSuccess, rule }: Props) => {
      setCurrencies(stores[0].supported_currencies.map(c => c.currency_code))
     }
   }, [stores])
-
-  useEffect(()=>{
-    setRateFlatValue(currencies.map(currency_code => ({currency_code, amount: 0})))
-  }, [currencies])
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
