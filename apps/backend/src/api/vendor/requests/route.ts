@@ -122,7 +122,7 @@ export const POST = async (
     entity: 'request',
     fields: req.queryConfig.fields,
     filters: {
-      id: result.id
+      id: result[0].id
     }
   })
 

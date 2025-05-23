@@ -5,7 +5,10 @@ import {
 import { MiddlewareRoute } from '@medusajs/framework/http'
 
 import sellerShippingProfile from '../../../links/seller-shipping-profile'
-import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
+import {
+  checkResourceOwnershipByResourceId,
+  filterBySellerId
+} from '../../../shared/infra/http/middlewares'
 import { shippingProfilesQueryConfig } from './query-config'
 import {
   VendorCreateShippingProfile,
@@ -32,7 +35,8 @@ export const vendorShippingProfilesMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetShippingProfilesParams,
         shippingProfilesQueryConfig.list
-      )
+      ),
+      filterBySellerId()
     ]
   },
   {

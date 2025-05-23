@@ -33,15 +33,40 @@
  */
 
 /**
+ * @schema VendorSplitOrderPayment
+ * type: object
+ * properties:
+ *   id:
+ *     type: string
+ *     description: Split order payment id
+ *   status:
+ *     type: string
+ *     description: Payment status
+ *   authorized_amount:
+ *     type: number
+ *     title: amount
+ *     description: Authorized amount
+ *   captured_amount:
+ *     type: number
+ *     title: amount
+ *     description: Captured amount
+ *   refunded_amount:
+ *     type: number
+ *     title: amount
+ *     description: Refunded amount
+ *   currency_code:
+ *     type: string
+ *     title: currency_code
+ *     description: The currency code.
+ */
+
+/**
  * @schema VendorOrderDetails
  * type: object
  * description: The order's details.
  * properties:
- *   payment_collections:
- *     type: array
- *     description: The order's payment collections.
- *     items:
- *       $ref: '#/components/schemas/VendorOrderPaymentCollection'
+ *   split_order_payment:
+ *     $ref: '#/components/schemas/VendorSplitOrderPayment'
  *   fulfillments:
  *     type: array
  *     description: The order's fulfillments.
@@ -106,12 +131,12 @@
  *     description: The order's payment status.
  *     enum:
  *       - canceled
+ *       - pending
  *       - not_paid
  *       - awaiting
  *       - authorized
  *       - partially_authorized
  *       - captured
- *       - partially_captured
  *       - partially_refunded
  *       - refunded
  *       - requires_action

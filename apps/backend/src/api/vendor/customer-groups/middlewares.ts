@@ -5,7 +5,10 @@ import {
 } from '@medusajs/framework'
 
 import sellerCustomerGroup from '../../../links/seller-customer-group'
-import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
+import {
+  checkResourceOwnershipByResourceId,
+  filterBySellerId
+} from '../../../shared/infra/http/middlewares'
 import { vendorCustomerGroupsQueryConfig } from './query-config'
 import {
   VendorCreateCustomerGroup,
@@ -21,7 +24,8 @@ export const vendorCustomerGroupsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetCustomerGroupsParams,
         vendorCustomerGroupsQueryConfig.list
-      )
+      ),
+      filterBySellerId()
     ]
   },
   {
@@ -63,30 +67,30 @@ export const vendorCustomerGroupsMiddlewares: MiddlewareRoute[] = [
     method: ['POST'],
     matcher: '/vendor/customer-groups/:id',
     middlewares: [
-      checkResourceOwnershipByResourceId({
-        entryPoint: sellerCustomerGroup.entryPoint,
-        filterField: 'customer_group_id'
-      }),
       validateAndTransformBody(VendorCreateCustomerGroup),
       validateAndTransformQuery(
         VendorGetCustomerGroupsParams,
         vendorCustomerGroupsQueryConfig.retrieve
-      )
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerCustomerGroup.entryPoint,
+        filterField: 'customer_group_id'
+      })
     ]
   },
   {
     method: ['POST'],
     matcher: '/vendor/customer-groups/:id/customers',
     middlewares: [
-      checkResourceOwnershipByResourceId({
-        entryPoint: sellerCustomerGroup.entryPoint,
-        filterField: 'customer_group_id'
-      }),
       validateAndTransformBody(VendorLinkCustomersToGroup),
       validateAndTransformQuery(
         VendorGetCustomerGroupsParams,
         vendorCustomerGroupsQueryConfig.retrieve
-      )
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerCustomerGroup.entryPoint,
+        filterField: 'customer_group_id'
+      })
     ]
   }
 ]

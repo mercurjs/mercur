@@ -1,4 +1,5 @@
 import {
+  MedusaRequest,
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
@@ -53,7 +54,8 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
       }),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerServiceZoneLink.entryPoint,
-        filterField: 'service_zone_id'
+        filterField: 'service_zone_id',
+        resourceId: (req: MedusaRequest) => req.params.zone_id
       }),
       validateAndTransformBody(VendorUpdateServiceZone),
       validateAndTransformQuery(
@@ -72,7 +74,8 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
       }),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerServiceZoneLink.entryPoint,
-        filterField: 'service_zone_id'
+        filterField: 'service_zone_id',
+        resourceId: (req: MedusaRequest) => req.params.zone_id
       })
     ]
   }

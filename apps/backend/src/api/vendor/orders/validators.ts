@@ -18,6 +18,8 @@ export const VendorGetOrderParams = createFindParams({
       .optional(),
     fulfillment_status: z.string().optional(),
     payment_status: z.string().optional(),
+    region_id: z.string().optional(),
+    sales_channel_id: z.string().optional(),
     q: z.string().optional()
   })
 )
