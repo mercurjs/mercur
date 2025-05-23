@@ -122,17 +122,10 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context.actor_id,
-    req.scope
-  )
-
   const { data: shipping_profiles, metadata } = await query.graph({
     entity: sellerShippingProfile.entryPoint,
     fields: req.queryConfig.fields.map((field) => `shipping_profile.${field}`),
-    filters: {
-      seller_id: seller.id
-    },
+    filters: req.filterableFields,
     pagination: req.queryConfig.pagination
   })
 

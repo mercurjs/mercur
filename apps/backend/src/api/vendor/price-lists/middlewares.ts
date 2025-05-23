@@ -5,7 +5,10 @@ import {
 } from '@medusajs/framework'
 
 import sellerPriceList from '../../../links/seller-price-list'
-import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
+import {
+  checkResourceOwnershipByResourceId,
+  filterBySellerId
+} from '../../../shared/infra/http/middlewares'
 import { vendorProductQueryConfig } from '../products/query-config'
 import { vendorPriceListQueryConfig } from './query-config'
 import {
@@ -25,7 +28,8 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetPriceListPricesParams,
         vendorPriceListQueryConfig.list
-      )
+      ),
+      filterBySellerId()
     ]
   },
   {

@@ -1,4 +1,4 @@
-import { kebabCase } from '@medusajs/framework/utils'
+import { toHandle } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SELLER_MODULE } from '../../../modules/seller'
@@ -12,7 +12,7 @@ export const createSellerStep = createStep(
 
     const seller: SellerDTO = await service.createSellers({
       ...input,
-      handle: kebabCase(input.name)
+      handle: toHandle(input.name)
     })
 
     return new StepResponse(seller, seller.id)
