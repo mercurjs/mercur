@@ -110,10 +110,12 @@ This is the first major release of Mercur, an open-source marketplace platform b
 ### Current Limitations
 
 ⚠️ **Beta Status**: This release is under heavy testing and may contain bugs
+
 - Edge cases in multi-vendor order processing requiring additional refinement
 - Commission calculation in specific currency scenarios needs further testing
 - Some API endpoints need additional input validation
 
 ### Coming Soon (v1.0)
+
 - Enhanced seller management in Admin panel
 - Extended documentation
