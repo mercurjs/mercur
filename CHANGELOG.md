@@ -91,7 +91,7 @@ This is the first major release of Mercur, an open-source marketplace platform b
 - **Algolia Product Updates** ([#95](https://github.com/mercurjs/mercur/pull/95))
 - **Product Variants Formatting** ([#90](https://github.com/mercurjs/mercur/pull/90))
 - **Product Default Options** ([#61](https://github.com/mercurjs/mercur/pull/61))
-- **HTTP Client Query Parameters** ([#191](https://github.com/mercurjs/mercur/pull/191)) - Thanks to Nicolas Gorga for this contribution
+- **HTTP Client Query Parameters** ([#191](https://github.com/mercurjs/mercur/pull/191)) - Thanks to @NicolasGorga for this contribution
 - **Unrecognized Field Error** ([#172](https://github.com/mercurjs/mercur/pull/172))
 - **Query Parameters for Vendor Categories** ([#171](https://github.com/mercurjs/mercur/pull/171))
 - **OAS Documentation** ([#201](https://github.com/mercurjs/mercur/pull/201))
