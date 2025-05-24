@@ -179,7 +179,8 @@ export const VendorUpdateSeller = z
     state: z.string().optional(),
     postal_code: z.string().optional(),
     country_code: z.string().optional(),
-    gstin: z.string().optional()
+    gstin: z.string().optional(),
+    handle: z.string().optional()
   })
   .strict()
 
