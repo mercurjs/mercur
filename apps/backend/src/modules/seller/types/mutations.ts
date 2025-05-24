@@ -20,7 +20,7 @@ export interface UpdateSellerDTO {
   state?: string
   postal_code?: string
   country_code?: string
-  tax_id?: string
+  gstin?: string
   handle?: string
   photo?: string
   type?: 'manufacturer' | 'reseller'
