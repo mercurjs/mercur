@@ -213,6 +213,15 @@
           "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_seller_handle_unique\" ON \"seller\" (handle) WHERE deleted_at IS NULL"
         },
         {
+          "keyName": "IDX_seller_gstin_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_seller_gstin_unique\" ON \"seller\" (gstin) WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "IDX_seller_deleted_at",
           "columnNames": [],
           "composite": false,

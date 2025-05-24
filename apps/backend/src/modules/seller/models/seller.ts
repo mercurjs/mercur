@@ -18,7 +18,7 @@ export const Seller = model.define('seller', {
   state: model.text().nullable(),
   postal_code: model.text().nullable(),
   country_code: model.text().nullable(),
-  gstin: model.text().nullable(),
+  gstin: model.text().unique().nullable(),
   verification_status: model.enum(['pending', 'in_progress', 'verified', 'rejected']).default('pending'),
   status: model.enum(['active', 'inactive']).default('inactive'),
   members: model.hasMany(() => Member),
