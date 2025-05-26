@@ -55,6 +55,45 @@ export const VendorCreatePriceListPrice = z.object({
 })
 
 /**
+ * @schema VendorUpdatePriceListPrice
+ * type: object
+ * properties:
+ *   variant_id:
+ *     type: string
+ *     title: variant_id
+ *     description: The ID of the product variant this price list is for.
+ *   rules:
+ *     type: object
+ *     description: The price's rules.
+ *   currency_code:
+ *     type: string
+ *     title: currency_code
+ *     description: The price's currency code.
+ *     example: usd
+ *   amount:
+ *     type: number
+ *     title: amount
+ *     description: The price's amount.
+ *   min_quantity:
+ *     type: number
+ *     title: min_quantity
+ *     description: The minimum quantity that must be available in the cart for the price to be applied.
+ *   max_quantity:
+ *     type: number
+ *     title: max_quantity
+ *     description: The maximum quantity allowed to be available in the cart for the price to be applied.
+ */
+export const VendorUpdatePriceListPrice = z.object({
+  id: z.string(),
+  currency_code: z.string().optional(),
+  amount: z.number().optional(),
+  variant_id: z.string(),
+  min_quantity: z.number().nullish(),
+  max_quantity: z.number().nullish(),
+  rules: z.record(z.string(), z.string()).optional()
+})
+
+/**
  * @schema VendorCreatePriceList
  * type: object
  * properties:
@@ -164,9 +203,11 @@ export const VendorUpdatePriceList = z.object({
  *     items:
  *       type: string
  */
-export type VendorRemoveProductsFromPriceListType = z.infer<
-  typeof VendorRemoveProductsFromPriceList
+export type VendorUpdateProductsOnPriceListType = z.infer<
+  typeof VendorUpdateProductsOnPriceList
 >
-export const VendorRemoveProductsFromPriceList = z.object({
-  remove: z.array(z.string()).min(1)
+export const VendorUpdateProductsOnPriceList = z.object({
+  remove: z.array(z.string()).optional(),
+  create: z.array(VendorCreatePriceListPrice).optional(),
+  update: z.array(VendorUpdatePriceListPrice).optional()
 })
