@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { RuleOperator } from '@medusajs/framework/utils'
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
 export type VendorGetShippingParamsType = z.infer<
@@ -61,6 +62,32 @@ const CreateShippingOptionTypeObject = z
   .strict()
 
 /**
+ * @schema VendorCreateShippingOptionRule
+ * type: object
+ * required:
+ *   - operator
+ *   - attribute
+ *   - value
+ * properties:
+ *   operator:
+ *     type: string
+ *     description: The operator of the rule.
+ *   attribute:
+ *     type: string
+ *     description: The attribute of the rule.
+ *   value:
+ *     type: string
+ *     description: The value of the rule.
+ */
+const VendorCreateShippingOptionRule = z
+  .object({
+    operator: z.nativeEnum(RuleOperator),
+    attribute: z.string(),
+    value: z.string().or(z.array(z.string()))
+  })
+  .strict()
+
+/**
  * @schema VendorCreateShippingOption
  * type: object
  * required:
@@ -84,6 +111,10 @@ const CreateShippingOptionTypeObject = z
  *     description: The prices of the shipping option.
  *     items:
  *       $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *   rules:
+ *     type: array
+ *     items:
+ *       $ref: "#/components/schemas/VendorCreateShippingOptionRule"
  *   type:
  *     $ref: "#/components/schemas/CreateShippingOptionTypeObject"
  */
@@ -98,7 +129,8 @@ export const VendorCreateShippingOption = z
     data: z.record(z.unknown()).optional(),
     provider_id: z.string(),
     prices: CreateShippingOptionPriceWithCurrency.array(),
-    type: CreateShippingOptionTypeObject
+    type: CreateShippingOptionTypeObject,
+    rules: VendorCreateShippingOptionRule.array().optional()
   })
   .strict()
 
@@ -120,6 +152,10 @@ export const VendorCreateShippingOption = z
  *     description: The prices of the shipping option.
  *     items:
  *       $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *   rules:
+ *     type: array
+ *     items:
+ *       $ref: "#/components/schemas/VendorCreateShippingOptionRule"
  *   type:
  *     $ref: "#/components/schemas/CreateShippingOptionTypeObject"
  */
@@ -133,6 +169,7 @@ export const VendorUpdateShippingOption = z
     shipping_profile_id: z.string().optional(),
     provider_id: z.string().optional(),
     prices: CreateShippingOptionPriceWithCurrency.array().optional(),
-    type: CreateShippingOptionTypeObject.optional()
+    type: CreateShippingOptionTypeObject.optional(),
+    rules: VendorCreateShippingOptionRule.array().optional()
   })
   .strict()

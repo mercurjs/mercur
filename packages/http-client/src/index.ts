@@ -25771,7 +25771,17 @@ export interface VendorCreateShippingOption {
   provider_id: string;
   /** The prices of the shipping option. */
   prices: CreateShippingOptionPriceWithCurrency[];
+  rules?: VendorCreateShippingOptionRule[];
   type: CreateShippingOptionTypeObject;
+}
+
+export interface VendorCreateShippingOptionRule {
+  /** The operator of the rule. */
+  operator: string;
+  /** The attribute of the rule. */
+  attribute: string;
+  /** The value of the rule. */
+  value: string;
 }
 
 export interface VendorCreateShippingProfile {
@@ -29049,6 +29059,7 @@ export interface VendorUpdateShippingOption {
   provider_id?: string;
   /** The prices of the shipping option. */
   prices?: CreateShippingOptionPriceWithCurrency[];
+  rules?: VendorCreateShippingOptionRule[];
   type?: CreateShippingOptionTypeObject;
 }
 
