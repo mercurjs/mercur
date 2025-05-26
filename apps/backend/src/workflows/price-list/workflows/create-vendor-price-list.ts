@@ -23,7 +23,7 @@ export const createVendorPriceListWorkflow = createWorkflow(
     seller_id: string
   }) {
     validateVendorPriceListPricesStep({
-      prices: price_lists_data.prices,
+      create: price_lists_data.prices,
       seller_id
     })
 

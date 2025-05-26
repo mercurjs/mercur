@@ -16,8 +16,8 @@ import {
   VendorCreatePriceListPrice,
   VendorGetPriceListPricesParams,
   VendorGetPriceListProductsParams,
-  VendorRemoveProductsFromPriceList,
-  VendorUpdatePriceList
+  VendorUpdatePriceList,
+  VendorUpdateProductsOnPriceList
 } from './validators'
 
 export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
@@ -115,7 +115,7 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
     method: ['POST'],
     matcher: '/vendor/price-lists/:id/products',
     middlewares: [
-      validateAndTransformBody(VendorRemoveProductsFromPriceList),
+      validateAndTransformBody(VendorUpdateProductsOnPriceList),
       validateAndTransformQuery(
         VendorGetPriceListPricesParams,
         vendorPriceListQueryConfig.retrieve

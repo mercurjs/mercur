@@ -18,7 +18,7 @@ export const createVendorPriceListPricesWorkflow = createWorkflow(
     price_list_id: string
     seller_id: string
   }) {
-    validateVendorPriceListPricesStep({ prices, seller_id })
+    validateVendorPriceListPricesStep({ create: prices, seller_id })
     const result = createPriceListPricesWorkflow.runAsStep({
       input: {
         data: [
