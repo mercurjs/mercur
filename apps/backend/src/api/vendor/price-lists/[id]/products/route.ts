@@ -166,12 +166,10 @@ export const POST = async (
   await batchVendorPriceListPricesWorkflow.run({
     container: req.scope,
     input: {
-      data: {
-        id,
-        create,
-        update,
-        delete: productPriceIds
-      }
+      id,
+      create,
+      update,
+      delete: productPriceIds
     }
   })
 
