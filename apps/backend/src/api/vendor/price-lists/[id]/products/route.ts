@@ -1,9 +1,9 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { fetchPriceListPriceIdsForProduct } from '@medusajs/medusa/api/admin/price-lists/helpers'
-import { batchPriceListPricesWorkflow } from '@medusajs/medusa/core-flows'
 
-import { VendorRemoveProductsFromPriceListType } from '../../validators'
+import { batchVendorPriceListPricesWorkflow } from '../../../../../workflows/price-list/workflows'
+import { VendorUpdateProductsOnPriceListType } from '../../validators'
 
 /**
  * @oas [get] /vendor/price-lists/{id}/products
@@ -150,26 +150,26 @@ export const GET = async (
  *   - cookie_auth: []
  */
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorRemoveProductsFromPriceListType>,
+  req: AuthenticatedMedusaRequest<VendorUpdateProductsOnPriceListType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { id } = req.params
-  const { remove } = req.validatedBody
+  const { remove, create, update } = req.validatedBody
 
   const productPriceIds = await fetchPriceListPriceIdsForProduct(
     id,
-    remove,
+    remove || [],
     req.scope
   )
 
-  await batchPriceListPricesWorkflow.run({
+  await batchVendorPriceListPricesWorkflow.run({
     container: req.scope,
     input: {
       data: {
         id,
-        create: [],
-        update: [],
+        create,
+        update,
         delete: productPriceIds
       }
     }
