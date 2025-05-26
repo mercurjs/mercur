@@ -155,11 +155,11 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { id } = req.params
-  const { remove, create, update } = req.validatedBody
+  const { remove = [], create = [], update = [] } = req.validatedBody
 
   const productPriceIds = await fetchPriceListPriceIdsForProduct(
     id,
-    remove || [],
+    remove,
     req.scope
   )
 
