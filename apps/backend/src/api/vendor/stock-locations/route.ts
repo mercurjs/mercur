@@ -3,6 +3,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createStockLocationsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerStockLocationLink from '../../../links/seller-stock-location'
+import { IntermediateEvents } from '../../../modules/algolia/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { VendorCreateStockLocationType } from './validators'
@@ -62,6 +63,12 @@ export const POST = async (
     [Modules.STOCK_LOCATION]: {
       stock_location_id: result[0].id
     }
+  })
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.STOCK_LOCATION_CHANGED,
+    data: { id: result[0].id }
   })
 
   const {
