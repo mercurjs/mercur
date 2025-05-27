@@ -2,7 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { updateServiceZonesWorkflow } from '@medusajs/medusa/core-flows'
 
-import { AlgoliaEvents } from '../../../../../../modules/algolia/types'
+import { IntermediateEvents } from '../../../../../../modules/algolia/types'
 import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
 import { deleteVendorServiceZonesWorkflow } from '../../../../../../workflows/fulfillment-set/workflows'
 import { VendorUpdateServiceZoneType } from '../../../validators'
@@ -65,7 +65,7 @@ export const POST = async (
   })
 
   await eventBus.emit({
-    name: AlgoliaEvents.SERVICE_ZONE_CHANGED,
+    name: IntermediateEvents.SERVICE_ZONE_CHANGED,
     data: { id: req.params.zone_id }
   })
 

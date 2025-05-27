@@ -3,7 +3,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import sellerProduct from '../links/seller-product'
 import sellerServiceZone from '../links/seller-service-zone'
-import { AlgoliaEvents } from '../modules/algolia/types'
+import { AlgoliaEvents, IntermediateEvents } from '../modules/algolia/types'
 
 export default async function serviceZoneChangedHandler({
   event,
@@ -43,7 +43,7 @@ export default async function serviceZoneChangedHandler({
 }
 
 export const config: SubscriberConfig = {
-  event: AlgoliaEvents.SERVICE_ZONE_CHANGED,
+  event: IntermediateEvents.SERVICE_ZONE_CHANGED,
   context: {
     subscriberId: 'service-zone-changed-handler'
   }

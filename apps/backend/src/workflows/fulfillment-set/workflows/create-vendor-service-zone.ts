@@ -10,7 +10,7 @@ import {
   createServiceZonesWorkflow
 } from '@medusajs/medusa/core-flows'
 
-import { AlgoliaEvents } from '../../../modules/algolia/types'
+import { IntermediateEvents } from '../../../modules/algolia/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { emitMultipleEventsStep } from '../../common/steps'
 
@@ -34,7 +34,7 @@ export const createVendorServiceZonesWorkflow = createWorkflow(
 
     const events = transform(zones, (zones) =>
       zones.map((z) => ({
-        name: AlgoliaEvents.SERVICE_ZONE_CHANGED,
+        name: IntermediateEvents.SERVICE_ZONE_CHANGED,
         data: { id: z.id }
       }))
     )

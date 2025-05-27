@@ -9,7 +9,7 @@ import {
   dismissRemoteLinkStep
 } from '@medusajs/medusa/core-flows'
 
-import { AlgoliaEvents } from '../../../modules/algolia/types'
+import { IntermediateEvents } from '../../../modules/algolia/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { emitMultipleEventsStep } from '../../common/steps'
 
@@ -37,7 +37,7 @@ export const deleteVendorServiceZonesWorkflow = createWorkflow(
 
     const events = transform(ids, (ids) =>
       ids.map((id) => ({
-        name: AlgoliaEvents.SERVICE_ZONE_CHANGED,
+        name: IntermediateEvents.SERVICE_ZONE_CHANGED,
         data: { id }
       }))
     )
