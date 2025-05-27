@@ -29131,6 +29131,8 @@ export interface Wishlist {
   }[];
 }
 
+import qs from "qs";
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -29214,10 +29216,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
-    return keys
-      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
-      .join("&");
+    return qs.stringify(query);
   }
 
   protected addQueryParams(rawQuery?: QueryParamsType): string {
