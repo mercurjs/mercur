@@ -1,10 +1,10 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import {
-  deleteServiceZonesWorkflow,
-  updateServiceZonesWorkflow
-} from '@medusajs/medusa/core-flows'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
+import { updateServiceZonesWorkflow } from '@medusajs/medusa/core-flows'
 
+import { AlgoliaEvents } from '../../../../../../modules/algolia/types'
+import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
+import { deleteVendorServiceZonesWorkflow } from '../../../../../../workflows/fulfillment-set/workflows'
 import { VendorUpdateServiceZoneType } from '../../../validators'
 
 /**
@@ -52,14 +52,21 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
 
-  await updateServiceZonesWorkflow(req.scope).run({
+  await updateServiceZonesWorkflow.run({
+    container: req.scope,
     input: {
       selector: {
         id: req.params.zone_id
       },
       update: req.validatedBody
     }
+  })
+
+  await eventBus.emit({
+    name: AlgoliaEvents.SERVICE_ZONE_CHANGED,
+    data: { id: req.params.zone_id }
   })
 
   const {
@@ -127,9 +134,16 @@ export const DELETE = async (
   res: MedusaResponse
 ) => {
   const { zone_id } = req.params
-  await deleteServiceZonesWorkflow(req.scope).run({
+
+  const seller = await fetchSellerByAuthActorId(
+    req.auth_context.actor_id,
+    req.scope
+  )
+  await deleteVendorServiceZonesWorkflow.run({
+    container: req.scope,
     input: {
-      ids: [zone_id]
+      ids: [zone_id],
+      seller_id: seller.id
     }
   })
 
