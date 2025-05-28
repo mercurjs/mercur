@@ -5,7 +5,6 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
-    redis_url: process.env.REDIS_URL,
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -80,6 +79,18 @@ module.exports = defineConfig({
             options: {
               channels: ['feed']
             }
+          },
+          {
+            resolve: "@medusajs/medusa/cache-redis",
+            options: {
+              redisUrl: process.env.CACHE_REDIS_URL,
+            },
+          },
+          {
+            resolve: "@medusajs/medusa/event-bus-redis",
+            options: {
+              redisUrl: process.env.EVENTS_REDIS_URL,
+            },
           }
         ]
       }
