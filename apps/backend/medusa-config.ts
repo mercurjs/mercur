@@ -35,15 +35,6 @@ module.exports = defineConfig({
         redisUrl: process.env.REDIS_URL,
       },
     },
-    {
-      resolve: "@medusajs/workflow-engine-redis",
-      key: "workflowEngineRedis",
-      options: {
-        redis: {
-          url: process.env.REDIS_URL,
-        },
-      },
-    },
     { resolve: './src/modules/marketplace' },
     { resolve: './src/modules/configuration' },
     { resolve: './src/modules/order-return-request' },
