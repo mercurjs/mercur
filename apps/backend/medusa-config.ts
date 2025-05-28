@@ -21,7 +21,7 @@ module.exports = defineConfig({
   modules: [
     { resolve: './src/modules/seller' },
     {
-      resolve: "@medusajs/event-bus-redis",
+      resolve: "@medusajs/medusa/event-bus-redis",
       /** 👇 เพิ่ม key ตรงนี้ **/
       key: "eventBusRedis",
       options: {
@@ -29,7 +29,7 @@ module.exports = defineConfig({
       },
     },
     {
-      resolve: "@medusajs/cache-redis",
+      resolve: "@medusajs/medusa/cache-redis",
       key: "cacheRedis",
       options: {
         redisUrl: process.env.REDIS_URL,
