@@ -2075,6 +2075,13 @@
   dependencies:
     ioredis "^5.4.1"
 
+"@medusajs/cache-redis@^2.8.3":
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/@medusajs/cache-redis/-/cache-redis-2.8.3.tgz#0c0e5fc280f5381e2ea60088c87a08a1f071dd6e"
+  integrity sha512-CKwkGF4g7ba50m48vYOoaFyuWp9sIuBMVczw64v64Exupz4RhFJ6j9bA9luP8G/ndyxBsc6/CBVC9bGj9iqMmA==
+  dependencies:
+    ioredis "^5.4.1"
+
 "@medusajs/cart@2.7.0":
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/@medusajs/cart/-/cart-2.7.0.tgz#5480f762da9e3ec10e66ce799d51e86efbb68dee"
@@ -2181,6 +2188,14 @@
     bullmq "5.13.0"
     ioredis "^5.4.1"
 
+"@medusajs/event-bus-redis@^2.8.3":
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/@medusajs/event-bus-redis/-/event-bus-redis-2.8.3.tgz#836a6753ecdc7bd016a121afc90c33697a86c4c6"
+  integrity sha512-96w2OSMF1K+FJsMW70x0eGGdOuVPngIazbXkGqUYq1Yc0ewQ3KNTzzhyC3E3qHHfyN64t7d45WF97t8wRN+e9w==
+  dependencies:
+    bullmq "5.13.0"
+    ioredis "^5.4.1"
+
 "@medusajs/file-local@2.7.0":
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/@medusajs/file-local/-/file-local-2.7.0.tgz#f2e65b0e906614fe8693bed5e3f3096b01b4eb75"
@@ -2277,6 +2292,13 @@
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/@medusajs/locking-redis/-/locking-redis-2.7.0.tgz#e444c449453524ac8a811b946eae578170a2ad80"
   integrity sha512-33/TsYbW0npM9E0Nrw/s+mu7NmzuTgxKLhKjWwxJFYhtVQbIzqll3jcaWrYdpGu9x34vXV72xS9FWgybSDTw+Q==
+  dependencies:
+    ioredis "^5.4.1"
+
+"@medusajs/locking-redis@^2.8.3":
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/@medusajs/locking-redis/-/locking-redis-2.8.3.tgz#b957ab416a7ee55d6e4e6fdc9c3e21375e8d1d6d"
+  integrity sha512-IJZ7HuxO7zop8aqeXjG0gyfGOBxEokjbwIG6MS7r5UEkXBrxZBpcAPEFReZOlIEMwqd39V9cB8QoGuO6HtFrkg==
   dependencies:
     ioredis "^5.4.1"
 
@@ -2552,6 +2574,15 @@
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/@medusajs/workflow-engine-redis/-/workflow-engine-redis-2.7.0.tgz#3150b9f084e1b1270e919fa6057df982dd1342d9"
   integrity sha512-wITWgzhTpnKT/u8isOoRhWD0rwUiE3ZVgGDQIJot5soWNzDiB/0x3l3v3pzx9WUY2f3XK6T7otm9wUYpZnf79A==
+  dependencies:
+    bullmq "5.13.0"
+    ioredis "^5.4.1"
+    ulid "^2.3.0"
+
+"@medusajs/workflow-engine-redis@^2.8.3":
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/@medusajs/workflow-engine-redis/-/workflow-engine-redis-2.8.3.tgz#467218012a9ced80b0bb7328708ce7c43b0ba71b"
+  integrity sha512-9xQiWE2jDCZ7WDCI+YglSYBnkxnH9Ul2IsYJJaUqKLVmxQRST0SYl8tGIhn1K9CgqlWe3LWVC46J6I6QvN/Jdw==
   dependencies:
     bullmq "5.13.0"
     ioredis "^5.4.1"
@@ -12566,7 +12597,16 @@ string-length@^4.0.1:
     char-regex "^1.0.2"
     strip-ansi "^6.0.0"
 
-"string-width-cjs@npm:string-width@^4.2.0", string-width@^4.0.0, string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.2, string-width@^4.2.3:
+"string-width-cjs@npm:string-width@^4.2.0":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
+  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
+  dependencies:
+    emoji-regex "^8.0.0"
+    is-fullwidth-code-point "^3.0.0"
+    strip-ansi "^6.0.1"
+
+string-width@^4.0.0, string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.2, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -12630,7 +12670,14 @@ string_decoder@~1.1.1:
   dependencies:
     safe-buffer "~5.1.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
+  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
+  dependencies:
+    ansi-regex "^5.0.1"
+
+strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
@@ -13492,7 +13539,7 @@ wordwrap@^1.0.0:
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-1.0.0.tgz#27584810891456a4171c8d0226441ade90cbcaeb"
   integrity sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==
 
-"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
@@ -13505,6 +13552,15 @@ wrap-ansi@^6.0.1, wrap-ansi@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-6.2.0.tgz#e9393ba07102e6c91a3b221478f0257cd2856e53"
   integrity sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==
+  dependencies:
+    ansi-styles "^4.0.0"
+    string-width "^4.1.0"
+    strip-ansi "^6.0.0"
+
+wrap-ansi@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
+  integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
   dependencies:
     ansi-styles "^4.0.0"
     string-width "^4.1.0"

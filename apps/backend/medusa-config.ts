@@ -20,6 +20,37 @@ module.exports = defineConfig({
   },
   modules: [
     { resolve: './src/modules/seller' },
+    {
+      resolve: "@medusajs/event-bus-redis",
+      /** 👇 เพิ่ม key ตรงนี้ **/
+      key: "eventBusRedis",
+      options: {
+        redisUrl: process.env.REDIS_URL,
+      },
+    },
+    {
+      resolve: "@medusajs/cache-redis",
+      key: "cacheRedis",
+      options: {
+        redisUrl: process.env.REDIS_URL,
+      },
+    },
+    {
+      resolve: "@medusajs/workflow-engine-redis",
+      key: "workflowEngineRedis",
+      options: {
+        redis: {
+          url: process.env.REDIS_URL,
+        },
+      },
+    },
+    {
+      resolve: "@medusajs/locking-redis",
+      key: "lockingRedis",
+      options: {
+        redisUrl: process.env.REDIS_URL,
+      },
+    },
     { resolve: './src/modules/marketplace' },
     { resolve: './src/modules/configuration' },
     { resolve: './src/modules/order-return-request' },
