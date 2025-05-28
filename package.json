@@ -16,5 +16,8 @@
     "lint": "turbo run lint",
     "codegen": "turbo run codegen",
     "generate:oas": "turbo run generate:oas"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
