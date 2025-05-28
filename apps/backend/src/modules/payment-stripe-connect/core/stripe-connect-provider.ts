@@ -37,7 +37,7 @@ import {
   getAmountFromSmallestUnit,
   getSmallestUnit
 } from '../../../shared/utils'
-import { PaymentIntentOptions } from '../types'
+import { ErrorCodes, ErrorIntentStatus, PaymentIntentOptions } from '../types'
 
 type Options = {
   apiKey: string
@@ -64,22 +64,26 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
   ): Promise<GetPaymentStatusOutput> {
     const id = input.data?.id as string
     const paymentIntent = await this.client_.paymentIntents.retrieve(id)
+    const dataResponse = paymentIntent as unknown as Record<string, unknown>
 
     switch (paymentIntent.status) {
       case 'requires_payment_method':
       case 'requires_confirmation':
       case 'processing':
-        return { status: PaymentSessionStatus.PENDING }
+        return { status: PaymentSessionStatus.PENDING, data: dataResponse }
       case 'requires_action':
-        return { status: PaymentSessionStatus.REQUIRES_MORE }
+        return {
+          status: PaymentSessionStatus.REQUIRES_MORE,
+          data: dataResponse
+        }
       case 'canceled':
-        return { status: PaymentSessionStatus.CANCELED }
+        return { status: PaymentSessionStatus.CANCELED, data: dataResponse }
       case 'requires_capture':
-        return { status: PaymentSessionStatus.AUTHORIZED }
+        return { status: PaymentSessionStatus.AUTHORIZED, data: dataResponse }
       case 'succeeded':
-        return { status: PaymentSessionStatus.CAPTURED }
+        return { status: PaymentSessionStatus.CAPTURED, data: dataResponse }
       default:
-        return { status: PaymentSessionStatus.PENDING }
+        return { status: PaymentSessionStatus.PENDING, data: dataResponse }
     }
   }
 
@@ -144,10 +148,15 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     }
   }
 
-  authorizePayment(
+  async authorizePayment(
     data: AuthorizePaymentInput
   ): Promise<AuthorizePaymentOutput> {
-    return this.getPaymentStatus(data)
+    const result = await this.getPaymentStatus(data)
+    if (result.status === PaymentSessionStatus.CAPTURED) {
+      return { status: PaymentSessionStatus.AUTHORIZED, data: result.data }
+    }
+
+    return result
   }
 
   async cancelPayment({
@@ -175,6 +184,11 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
       const data = (await this.client_.paymentIntents.capture(id)) as any
       return { data }
     } catch (error) {
+      if (error.code === ErrorCodes.PAYMENT_INTENT_UNEXPECTED_STATE) {
+        if (error.payment_intent?.status === ErrorIntentStatus.SUCCEEDED) {
+          return { data: error.payment_intent }
+        }
+      }
       throw this.buildError('An error occurred in capturePayment', error)
     }
   }
@@ -210,7 +224,7 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
       const intent = (await this.client_.paymentIntents.retrieve(id)) as any
 
       intent.amount = getAmountFromSmallestUnit(intent.amount, intent.currency)
-
+      console.log('Stripe - retrieving', intent)
       return { data: intent }
     } catch (e) {
       throw this.buildError('An error occurred in retrievePayment', e)
