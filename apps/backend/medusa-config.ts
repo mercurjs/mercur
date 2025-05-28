@@ -44,13 +44,6 @@ module.exports = defineConfig({
         },
       },
     },
-    {
-      resolve: "@medusajs/locking-redis",
-      key: "lockingRedis",
-      options: {
-        redisUrl: process.env.REDIS_URL,
-      },
-    },
     { resolve: './src/modules/marketplace' },
     { resolve: './src/modules/configuration' },
     { resolve: './src/modules/order-return-request' },
