@@ -10,12 +10,23 @@ import { FilterRequests, FilterState } from "../components/filter-requests";
 import { AdminRequest } from "@mercurjs/http-client";
 import { RequestMenu } from "../components/request-menu";
 import { useNavigate } from "react-router-dom";
+import { ProductSummaryDetail } from "./product-summary";
 
 const PAGE_SIZE = 20;
 
 const ProductRequestsPage = () => {
   const [currentFilter, setCurrentFilter] = useState<FilterState>("");
   const [currentPage, setCurrentPage] = useState<number>(0);
+
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailRequest, setDetailRequest] = useState<AdminRequest | undefined>(
+    undefined,
+  );
+
+  const handleDetail = (request: AdminRequest) => {
+    setDetailRequest(request);
+    setDetailOpen(true);
+  };  
 
   const { requests, isLoading, count } = useVendorRequests({
     limit: PAGE_SIZE,
@@ -29,7 +40,13 @@ const ProductRequestsPage = () => {
       <div className="flex items-center justify-between px-6 py-4">
         <div>
           <Heading>Product requests</Heading>
-
+          <ProductSummaryDetail
+            request={detailRequest}
+            open={detailOpen}
+            close={() => {
+              setDetailOpen(false);
+            }}
+          />
           <FilterRequests
             onChange={(val) => {
               setCurrentFilter(val);
@@ -52,7 +69,7 @@ const ProductRequestsPage = () => {
           </Table.Header>
           <Table.Body>
             {requests?.map((request) => {
-              return <ProductRequestsRow request={request} />;
+              return <ProductRequestsRow request={request} handleDetail={handleDetail} />;
             })}
           </Table.Body>
         </Table>
@@ -75,7 +92,7 @@ const ProductRequestsPage = () => {
   );
 };
 
-const ProductRequestsRow = ({ request }: { request: AdminRequest }) => {
+const ProductRequestsRow = ({ request, handleDetail }: { request: AdminRequest, handleDetail: (request: AdminRequest)=>void }) => {
   const navigate = useNavigate();
   const requestData = request.data as ProductDTO;
   return (
@@ -102,7 +119,10 @@ const ProductRequestsRow = ({ request }: { request: AdminRequest }) => {
             request={request}
           />
         ) : (
-          <></>
+          <RequestMenu
+            handleDetail={handleDetail}
+            request={request}
+          />
         )}
       </Table.Cell>
     </Table.Row>

@@ -1,10 +1,9 @@
 import { Button, Container, Drawer, Text } from "@medusajs/ui";
 import { InformationCircle } from "@medusajs/icons";
 import { AdminRequest } from "@mercurjs/http-client";
-import { useState } from "react";
 import { formatDate } from "../../../lib/date";
-import { ProductCollectionDTO } from "@medusajs/framework/types";
-import { ResolveRequestPrompt } from "../components/resolve-request";
+import { ProductDTO } from "@medusajs/framework/types";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   request?: AdminRequest;
@@ -12,44 +11,24 @@ type Props = {
   close: () => void;
 };
 
-export function ProductCollectionRequestDetail({
-  request,
-  open,
-  close,
-}: Props) {
+export function ProductSummaryDetail({ request, open, close }: Props) {
   if (!request) {
     return null;
   }
-  const requestData = request.data as ProductCollectionDTO;
 
-  const [promptOpen, setPromptOpen] = useState(false);
-  const [requestAccept, setRequestAccept] = useState(false);
-
-  const handlePrompt = (_: string, accept: boolean) => {
-    setRequestAccept(accept);
-    setPromptOpen(true);
-  };
+  const product_id = (request.data as any).product_id || ''
+  const navigate = useNavigate();
+  const requestData = request.data as ProductDTO;
 
   return (
     <Drawer open={open} onOpenChange={close}>
-      <ResolveRequestPrompt
-        close={() => {
-          setPromptOpen(false);
-        }}
-        open={promptOpen}
-        id={request.id!}
-        accept={requestAccept}
-        onSuccess={() => {
-          close();
-        }}
-      />
       <Drawer.Content>
         <Drawer.Header>
-          <Drawer.Title>Product category request</Drawer.Title>
+          <Drawer.Title>Product request</Drawer.Title>
         </Drawer.Header>
         <Drawer.Body className="p-4">
           <fieldset>
-            <legend className="mb-2">Collection title</legend>
+            <legend className="mb-2">Product title</legend>
             <Container>
               <Text>{requestData.title}</Text>
             </Container>
@@ -79,26 +58,13 @@ export function ProductCollectionRequestDetail({
           </Container>
         </Drawer.Body>
         <Drawer.Footer>
-          {request.status === 'pending' && <>
-            <Button
-              onClick={() => {
-                handlePrompt(request.id!, true);
-              }}
-            >
-              Accept
-            </Button>
-            <Button
-              onClick={() => {
-                handlePrompt(request.id!, false);
-              }}
-              variant="danger"
-            >
-              Reject
-            </Button>
-            <Button variant="secondary" onClick={close}>
-              Cancel
-            </Button>
-          </>}
+          <Button
+            onClick={() => {
+              navigate(`/products/${product_id}`);
+            }}
+          >
+            See full product
+          </Button>
         </Drawer.Footer>
       </Drawer.Content>
     </Drawer>

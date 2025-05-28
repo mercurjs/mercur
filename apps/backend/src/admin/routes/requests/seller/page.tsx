@@ -84,14 +84,10 @@ const SellerRequestsPage = () => {
                     {getRequestStatusBadge(request.status!)}
                   </Table.Cell>
                   <Table.Cell>
-                    {request.status === "pending" ? (
-                      <RequestMenu
-                        handleDetail={handleDetail}
-                        request={request}
-                      />
-                    ) : (
-                      <></>
-                    )}
+                    <RequestMenu
+                      handleDetail={handleDetail}
+                      request={request}
+                    />
                   </Table.Cell>
                 </Table.Row>
               );
