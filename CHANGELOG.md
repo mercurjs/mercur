@@ -1,0 +1,124 @@
+# Changelog
+
+All notable changes to Mercur will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.9.0] - 2025-05-23
+
+### Initial Release - Marketplace Platform
+
+This is the first major release of Mercur, an open-source marketplace platform built on Medusa.js 2.0. Version 0.9.0 includes most features planned for the 1.0 MVP release but is currently under heavy testing and bug fixing.
+
+### Added
+
+- **Initial Medusa API Setup** ([#1](https://github.com/mercurjs/mercur/pull/1) @vholik)
+- **Seller Registration & Onboarding** ([#92](https://github.com/mercurjs/mercur/pull/92) @slusarczykmichal, [#38](https://github.com/mercurjs/mercur/pull/38) @mjaskot)
+- **Team Management System** with member invitations and role-based access
+- **Commission System** ([#40](https://github.com/mercurjs/mercur/pull/40) @slusarczykmichal)
+- **Stripe Connect Integration** ([#36](https://github.com/mercurjs/mercur/pull/36) @vholik)
+- **Multi-vendor Order Processing** ([#34](https://github.com/mercurjs/mercur/pull/34) @slusarczykmichal)
+- **Vendor Panel Orders** ([#42](https://github.com/mercurjs/mercur/pull/42) @vholik)
+- **Vendor Fulfillments** ([#148](https://github.com/mercurjs/mercur/pull/148) @slusarczykmichal)
+- **Order Return Request** ([#49](https://github.com/mercurjs/mercur/pull/49) @slusarczykmichal)
+- **Vendor Return Management** ([#124](https://github.com/mercurjs/mercur/pull/124) @slusarczykmichal)
+- **Product Categories & Collections**
+- **Brand Entity & Management** ([#87](https://github.com/mercurjs/mercur/pull/87) @slusarczykmichal)
+- **Inventory Management** ([#33](https://github.com/mercurjs/mercur/pull/33) @slusarczykmichal)
+- **Batch Stock Editing** ([#187](https://github.com/mercurjs/mercur/pull/187) @slusarczykmichal)
+- **Product Tags/Types** ([#105](https://github.com/mercurjs/mercur/pull/105) @slusarczykmichal)
+- **Variant/Options Management** ([#106](https://github.com/mercurjs/mercur/pull/106) @slusarczykmichal)
+- **Product Draft Mode** ([#185](https://github.com/mercurjs/mercur/pull/185) @slusarczykmichal)
+- **Product Import/Export** ([#134](https://github.com/mercurjs/mercur/pull/134) @slusarczykmichal)
+- **Algolia Search Integration** ([#81](https://github.com/mercurjs/mercur/pull/81) @slusarczykmichal)
+- **Wishlist Module** ([#177](https://github.com/mercurjs/mercur/pull/177) @mwestrjs)
+- **Resend Email Integration** ([#73](https://github.com/mercurjs/mercur/pull/73) @slusarczykmichal, [#35](https://github.com/mercurjs/mercur/pull/35) @mjaskot)
+- **TalkJS Conversation Endpoint** ([#196](https://github.com/mercurjs/mercur/pull/196) @slusarczykmichal)
+- **Stripe Tax Provider** ([#53](https://github.com/mercurjs/mercur/pull/53) @slusarczykmichal)
+- **Seller/Product Review System** ([#57](https://github.com/mercurjs/mercur/pull/57) @slusarczykmichal)
+- **Request & Approval System** ([#48](https://github.com/mercurjs/mercur/pull/48) @slusarczykmichal)
+- **Edit Request System** ([#184](https://github.com/mercurjs/mercur/pull/184) @slusarczykmichal)
+- **Requests Admin Panel** ([#69](https://github.com/mercurjs/mercur/pull/69) @slusarczykmichal)
+- **Customer Groups Management** ([#136](https://github.com/mercurjs/mercur/pull/136) @slusarczykmichal)
+- **Vendor Promotions** ([#103](https://github.com/mercurjs/mercur/pull/103), [#164](https://github.com/mercurjs/mercur/pull/164) @slusarczykmichal)
+- **Vendor Campaigns** ([#111](https://github.com/mercurjs/mercur/pull/111) @slusarczykmichal)
+- **Vendor Price Lists** ([#109](https://github.com/mercurjs/mercur/pull/109) @slusarczykmichal)
+- **Reservation Management** ([#112](https://github.com/mercurjs/mercur/pull/112) @slusarczykmichal, [#190](https://github.com/mercurjs/mercur/pull/190) @slusarczykmichal)
+- **Global Product Catalog** ([#64](https://github.com/mercurjs/mercur/pull/64) @slusarczykmichal)
+- **Admin Product Catalog Settings** ([#52](https://github.com/mercurjs/mercur/pull/52) @slusarczykmichal)
+- **Charts Data Endpoint** ([#113](https://github.com/mercurjs/mercur/pull/113) @slusarczykmichal)
+- **Sales Channels Route** ([#93](https://github.com/mercurjs/mercur/pull/93) @slusarczykmichal)
+- **Team Member Email** ([#77](https://github.com/mercurjs/mercur/pull/77) @slusarczykmichal)
+- **Vendor File Uploads** ([#107](https://github.com/mercurjs/mercur/pull/107) @slusarczykmichal)
+- **Extended Seller Info** ([#110](https://github.com/mercurjs/mercur/pull/110) @slusarczykmichal, [#91](https://github.com/mercurjs/mercur/pull/91) @slusarczykmichal)
+- **Seed Script** ([#160](https://github.com/mercurjs/mercur/pull/160) @slusarczykmichal)
+
+### Changed
+
+- **Medusa Upgrade to 2.7.0** ([#159](https://github.com/mercurjs/mercur/pull/159) @slusarczykmichal)
+- **Medusa Upgrade to 2.6.1** ([#122](https://github.com/mercurjs/mercur/pull/122) @slusarczykmichal)
+- **Medusa Upgrade to 2.4.0** ([#115](https://github.com/mercurjs/mercur/pull/115) @slusarczykmichal)
+- **Enhanced Algolia Data** ([#199](https://github.com/mercurjs/mercur/pull/199) @slusarczykmichal)
+- **Product Request Refactoring** ([#149](https://github.com/mercurjs/mercur/pull/149) @slusarczykmichal, [#137](https://github.com/mercurjs/mercur/pull/137) @slusarczykmichal)
+- **Dashboard Layout Improvements** ([#166](https://github.com/mercurjs/mercur/pull/166) @slusarczykmichal)
+- **Documentation Updates** ([#70](https://github.com/mercurjs/mercur/pull/70) @slusarczykmichal, [#18](https://github.com/mercurjs/mercur/pull/18) @haf)
+
+### Fixed
+
+- **Zero Percent Commission Support** ([#235](https://github.com/mercurjs/mercur/pull/235) @WojciechPlodzien, [#228](https://github.com/mercurjs/mercur/pull/228) @slusarczykmichal)
+- **Default Values in Commission Editor** ([#234](https://github.com/mercurjs/mercur/pull/234) @WojciechPlodzien, [#230](https://github.com/mercurjs/mercur/pull/230) @slusarczykmichal)
+- **Commission Hook Mounting** ([#213](https://github.com/mercurjs/mercur/pull/213) @slusarczykmichal)
+- **Commission in Order Payouts** ([#217](https://github.com/mercurjs/mercur/pull/217) @slusarczykmichal)
+- **Commission Calculation Step** ([#121](https://github.com/mercurjs/mercur/pull/121) @NicolasGorga)
+- **Order Query in Payout Workflow** ([#123](https://github.com/mercurjs/mercur/pull/123) @NicolasGorga)
+- **Stripe Payout Account** ([#119](https://github.com/mercurjs/mercur/pull/119) @vholik)
+- **Customer Selection with Groups** ([#233](https://github.com/mercurjs/mercur/pull/233) @WojciechPlodzien, [#227](https://github.com/mercurjs/mercur/pull/227) @slusarczykmichal)
+- **Promotions in Cart Splitting** ([#215](https://github.com/mercurjs/mercur/pull/215) @slusarczykmichal)
+- **Service Zone Editing** ([#223](https://github.com/mercurjs/mercur/pull/223) @slusarczykmichal)
+- **Invalid Promotion Rule Attributes** ([#202](https://github.com/mercurjs/mercur/pull/202) @slusarczykmichal)
+- **Shipping Options List** ([#170](https://github.com/mercurjs/mercur/pull/170) @slusarczykmichal)
+- **Promotion Rules Batch Actions** ([#139](https://github.com/mercurjs/mercur/pull/139) @slusarczykmichal)
+- **Multi-vendor Cart Completion** ([#89](https://github.com/mercurjs/mercur/pull/89) @LukaszMielczarek)
+- **Product Import Request Creation** ([#224](https://github.com/mercurjs/mercur/pull/224) @slusarczykmichal)
+- **Batch Location Level Acceptance** ([#211](https://github.com/mercurjs/mercur/pull/211) @slusarczykmichal)
+- **Price List Product Fetching** ([#207](https://github.com/mercurjs/mercur/pull/207) @slusarczykmichal)
+- **Default Shipping Profile Assignment** ([#204](https://github.com/mercurjs/mercur/pull/204) @slusarczykmichal)
+- **Inventory Item Seller Link** ([#200](https://github.com/mercurjs/mercur/pull/200) @slusarczykmichal)
+- **Seller Stock Locations** ([#188](https://github.com/mercurjs/mercur/pull/188) @mwestrjs)
+- **Algolia Upsert Logic** ([#146](https://github.com/mercurjs/mercur/pull/146) @slusarczykmichal)
+- **Additional Data in Product Flows** ([#145](https://github.com/mercurjs/mercur/pull/145) @NicolasGorga, [#140](https://github.com/mercurjs/mercur/pull/140) @NicolasGorga)
+- **Algolia Product Updates** ([#95](https://github.com/mercurjs/mercur/pull/95) @slusarczykmichal)
+- **Product Variants Formatting** ([#90](https://github.com/mercurjs/mercur/pull/90) @pfulara)
+- **Product Default Options** ([#61](https://github.com/mercurjs/mercur/pull/61) @NicolasGorga)
+- **HTTP Client Query Parameters** ([#191](https://github.com/mercurjs/mercur/pull/191) @NicolasGorga)
+- **Unrecognized Field Error** ([#172](https://github.com/mercurjs/mercur/pull/172) @mwestrjs)
+- **Query Parameters for Vendor Categories** ([#171](https://github.com/mercurjs/mercur/pull/171) @NicolasGorga)
+- **OAS Documentation** ([#201](https://github.com/mercurjs/mercur/pull/201) @mwestrjs)
+- **File Paths** ([#154](https://github.com/mercurjs/mercur/pull/154) @slusarczykmichal)
+- **Type Errors** ([#131](https://github.com/mercurjs/mercur/pull/131) @slusarczykmichal)
+- **Type Problems and Unnecessary Checks** ([#126](https://github.com/mercurjs/mercur/pull/126) @slusarczykmichal)
+- **Wrong API Route File Name** ([#85](https://github.com/mercurjs/mercur/pull/85) @LukaszMielczarek)
+- **Min/Max OAS Constraints Syntax** ([#83](https://github.com/mercurjs/mercur/pull/83) @NicolasGorga)
+- **Custom OAS Fixes** ([#80](https://github.com/mercurjs/mercur/pull/80) @NicolasGorga)
+- **Shipping Options OAS Route** ([#78](https://github.com/mercurjs/mercur/pull/78) @slusarczykmichal)
+- **HTTP Client** ([#46](https://github.com/mercurjs/mercur/pull/46) @vholik)
+- **Request Info Background Color** ([#179](https://github.com/mercurjs/mercur/pull/179) @pfulara)
+- **Seller ID Fetching** ([#68](https://github.com/mercurjs/mercur/pull/68) @dominicrathbone)
+
+## Contributors
+
+Thanks to all contributors:
+
+@pfulara, @slusarczykmichal, @vholik, @NicolasGorga, @WojciechPlodzien, @dominicrathbone, @haf, @LukaszMielczarek, @mjaskot, @mwestrjs
+
+### Current Limitations
+
+⚠️ **Beta Status**: This release is under heavy testing and may contain bugs
+- Edge cases in multi-vendor order processing requiring additional refinement
+- Commission calculation in specific currency scenarios needs further testing
+- Some API endpoints need additional input validation
+
+### Coming Soon (v1.0)
+- Enhanced seller management in Admin panel
+- Extended documentation

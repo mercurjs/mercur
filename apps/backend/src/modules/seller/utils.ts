@@ -7,10 +7,11 @@ export async function selectSellerCustomers(
   pagination: { skip: number; take: number },
   fields: string[] = ['*']
 ) {
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
   const customers = await knex
-    .select(fields)
+    .select('id')
     .from('customer')
     .whereIn('customer.id', function () {
       this.distinct('customer_id')
@@ -21,22 +22,18 @@ export async function selectSellerCustomers(
           'seller_seller_order_order.order_id'
         )
         .where('seller_id', seller_id)
-        .limit(pagination.take)
-        .offset(pagination.skip)
     })
 
-  const countResult = (await knex
-    .countDistinct('customer_id')
-    .from('order')
-    .leftJoin(
-      'seller_seller_order_order',
-      'order.id',
-      'seller_seller_order_order.order_id'
-    )
-    .where('seller_id', seller_id)
-    .groupBy('customer_id')) as { count: string }[]
+  const { data, metadata } = await query.graph({
+    entity: 'customer',
+    fields,
+    filters: {
+      id: customers.map((c) => c.id)
+    },
+    pagination
+  })
 
-  return { customers, count: parseInt(countResult[0]?.count || '0') }
+  return { customers: data, count: metadata?.count }
 }
 
 export async function selectCustomerOrders(

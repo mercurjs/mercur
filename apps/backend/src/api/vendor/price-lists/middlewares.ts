@@ -5,7 +5,10 @@ import {
 } from '@medusajs/framework'
 
 import sellerPriceList from '../../../links/seller-price-list'
-import { checkResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares'
+import {
+  checkResourceOwnershipByResourceId,
+  filterBySellerId
+} from '../../../shared/infra/http/middlewares'
 import { vendorProductQueryConfig } from '../products/query-config'
 import { vendorPriceListQueryConfig } from './query-config'
 import {
@@ -13,8 +16,8 @@ import {
   VendorCreatePriceListPrice,
   VendorGetPriceListPricesParams,
   VendorGetPriceListProductsParams,
-  VendorRemoveProductsFromPriceList,
-  VendorUpdatePriceList
+  VendorUpdatePriceList,
+  VendorUpdateProductsOnPriceList
 } from './validators'
 
 export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
@@ -25,7 +28,8 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetPriceListPricesParams,
         vendorPriceListQueryConfig.list
-      )
+      ),
+      filterBySellerId()
     ]
   },
   {
@@ -111,7 +115,7 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
     method: ['POST'],
     matcher: '/vendor/price-lists/:id/products',
     middlewares: [
-      validateAndTransformBody(VendorRemoveProductsFromPriceList),
+      validateAndTransformBody(VendorUpdateProductsOnPriceList),
       validateAndTransformQuery(
         VendorGetPriceListPricesParams,
         vendorPriceListQueryConfig.retrieve

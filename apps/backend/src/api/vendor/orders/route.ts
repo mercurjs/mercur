@@ -1,10 +1,9 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { OrderDTO } from '@medusajs/framework/types'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import { getOrdersListWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerOrderLink from '../../../links/seller-order'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { getVendorOrdersListWorkflow } from '../../../workflows/order/workflows'
 import { VendorGetOrderParamsType } from './validators'
 
 /**
@@ -119,7 +118,7 @@ export const GET = async (
     }
   })
 
-  const { result } = await getOrdersListWorkflow(req.scope).run({
+  const { result } = await getVendorOrdersListWorkflow(req.scope).run({
     input: {
       fields: req.queryConfig.fields,
       variables: {
@@ -132,15 +131,12 @@ export const GET = async (
     }
   })
 
-  const { rows, metadata } = result as {
-    rows: OrderDTO[]
-    metadata: any
-  }
+  const { rows, metadata } = result as any
 
   res.json({
     orders: rows,
-    count: metadata!.count,
-    offset: metadata!.skip,
-    limit: metadata!.take
+    count: metadata?.count,
+    offset: metadata?.skip,
+    limit: metadata?.take
   })
 }

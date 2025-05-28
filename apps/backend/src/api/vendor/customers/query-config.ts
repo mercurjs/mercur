@@ -21,6 +21,7 @@ export const vendorCustomersFields = [
   'first_name',
   'last_name',
   'has_account',
+  'groups.id',
   'created_at',
   'updated_at',
   'deleted_at'

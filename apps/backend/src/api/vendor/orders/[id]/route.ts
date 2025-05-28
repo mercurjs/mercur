@@ -1,8 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { OrderDTO } from '@medusajs/framework/types'
-import { getOrdersListWorkflow } from '@medusajs/medusa/core-flows'
 
 import { listOrderCommissionLinesWorkflow } from '../../../../workflows/commission/workflows'
+import { getVendorOrdersListWorkflow } from '../../../../workflows/order/workflows'
 
 /**
  * @oas [get] /vendor/orders/{id}
@@ -39,7 +39,7 @@ export const GET = async (
 ) => {
   const { id } = req.params
 
-  const { result } = await getOrdersListWorkflow(req.scope).run({
+  const { result } = await getVendorOrdersListWorkflow(req.scope).run({
     input: {
       fields: req.queryConfig.fields,
       variables: {
