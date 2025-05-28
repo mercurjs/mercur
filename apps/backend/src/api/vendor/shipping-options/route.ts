@@ -3,6 +3,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createShippingOptionsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerShippingOption from '../../../links/seller-shipping-option'
+import { IntermediateEvents } from '../../../modules/algolia/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import {
@@ -66,6 +67,12 @@ export const POST = async (
     [Modules.FULFILLMENT]: {
       shipping_option_id: result[0].id
     }
+  })
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.SHIPPING_OPTION_CHANGED,
+    data: { id: result[0].id }
   })
 
   const {

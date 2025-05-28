@@ -1,11 +1,12 @@
 import { MedusaResponse } from '@medusajs/framework'
 import { AuthenticatedMedusaRequest } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import {
   deleteStockLocationsWorkflow,
   updateStockLocationsWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import { IntermediateEvents } from '../../../../modules/algolia/types'
 import { VendorUpdateStockLocationType } from '../validators'
 
 /**
@@ -120,6 +121,12 @@ export const POST = async (
     }
   })
 
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.STOCK_LOCATION_CHANGED,
+    data: { id: req.params.id }
+  })
+
   const {
     data: [stockLocation]
   } = await query.graph(
@@ -182,6 +189,12 @@ export const DELETE = async (
     input: {
       ids: [req.params.id]
     }
+  })
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.STOCK_LOCATION_CHANGED,
+    data: { id: req.params.id }
   })
 
   res.status(200).json({

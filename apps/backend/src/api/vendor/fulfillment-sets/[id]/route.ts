@@ -1,5 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { Modules } from '@medusajs/framework/utils'
 import { deleteFulfillmentSetsWorkflow } from '@medusajs/medusa/core-flows'
+
+import { IntermediateEvents } from '../../../../modules/algolia/types'
 
 /**
  * @oas [delete] /vendor/fulfillment-sets/{id}
@@ -47,6 +50,12 @@ export const DELETE = async (
     input: {
       ids: [req.params.id]
     }
+  })
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.FULFULLMENT_SET_CHANGED,
+    data: { id: req.params.id }
   })
 
   res.json({
