@@ -28928,6 +28928,37 @@ export interface VendorUpdatePriceList {
   type?: "sale" | "override";
 }
 
+export interface VendorUpdatePriceListPrice {
+  /**
+   * variant_id
+   * The ID of the product variant this price list is for.
+   */
+  variant_id?: string;
+  /** The price's rules. */
+  rules?: object;
+  /**
+   * currency_code
+   * The price's currency code.
+   * @example "usd"
+   */
+  currency_code?: string;
+  /**
+   * amount
+   * The price's amount.
+   */
+  amount?: number;
+  /**
+   * min_quantity
+   * The minimum quantity that must be available in the cart for the price to be applied.
+   */
+  min_quantity?: number;
+  /**
+   * max_quantity
+   * The maximum quantity allowed to be available in the cart for the price to be applied.
+   */
+  max_quantity?: number;
+}
+
 export type VendorUpdateProduct = UpdateProduct & {
   /** Additional data to use in products hooks. */
   additional_data?: Record<string, any>;
