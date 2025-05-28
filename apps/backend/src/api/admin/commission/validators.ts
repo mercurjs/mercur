@@ -177,7 +177,10 @@ export const validateCommissionRate = (rate: AdminCreateCommissionRateType) => {
       'Flat rate requires fee value'
     )
   }
-  if (rate.type === 'percentage' && !rate.percentage_rate) {
+  if (
+    rate.type === 'percentage' &&
+    typeof rate.percentage_rate === 'undefined'
+  ) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
       'Percentage rate requires percent value'

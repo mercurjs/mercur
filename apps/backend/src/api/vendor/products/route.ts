@@ -146,7 +146,7 @@ export const POST = async (
     }
   })
 
-  const { product_id } = result.data
+  const { product_id } = result[0].data
 
   if (brand_name) {
     await assignBrandToProductWorkflow.run({

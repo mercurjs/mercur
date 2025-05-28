@@ -29,7 +29,7 @@ export const createRequestWorkflow = createWorkflow(
             seller_id: input.seller_id
           },
           [REQUESTS_MODULE]: {
-            request_id: request.id
+            request_id: request[0].id
           }
         }
       ]
@@ -43,10 +43,9 @@ export const createRequestWorkflow = createWorkflow(
     })
 
     const requestCreatedHook = createHook('requestCreated', {
-      requestId: request.id,
+      requestId: request[0].id,
       sellerId: input.seller_id
     })
-
     return new WorkflowResponse(request, {
       hooks: [requestCreatedHook]
     })

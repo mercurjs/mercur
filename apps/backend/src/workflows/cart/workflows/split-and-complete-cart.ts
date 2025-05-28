@@ -1,4 +1,5 @@
 import {
+  MathBN,
   MedusaError,
   Modules,
   OrderStatus,
@@ -30,6 +31,7 @@ import { MARKETPLACE_MODULE } from '../../../modules/marketplace'
 import { OrderSetWorkflowEvents } from '../../../modules/marketplace/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { registerUsageStep } from '../../promotions/steps'
+import { createSplitOrderPaymentsStep } from '../../split-order-payment/steps'
 import { createOrderSetStep, validateCartShippingOptionsStep } from '../steps'
 import {
   completeCartFields,
@@ -237,6 +239,20 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
 
       const createdOrders = createOrdersStep(ordersToCreate)
 
+      const splitPaymentsToCreate = transform(
+        { createdOrders, payment },
+        ({ createdOrders, payment }) => {
+          return createdOrders.map((order) => ({
+            order_id: order.id,
+            status: 'pending',
+            currency_code: order.currency_code,
+            authorized_amount: MathBN.convert(
+              order.summary?.accounting_total || 0
+            ).toNumber(),
+            payment_collection_id: payment!.payment_collection_id
+          }))
+        }
+      )
       const reservationItemsData = transform(
         { createdOrders },
         ({ createdOrders }) =>
@@ -325,6 +341,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
       }))
 
       parallelize(
+        createSplitOrderPaymentsStep(splitPaymentsToCreate),
         createRemoteLinkStep(links),
         reserveInventoryStep(formatedInventoryItems),
         updateCartsStep([updateCartInput]),
