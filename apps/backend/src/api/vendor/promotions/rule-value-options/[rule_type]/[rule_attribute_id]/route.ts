@@ -7,6 +7,9 @@ import { ruleQueryConfigurations } from '@medusajs/medusa/api/admin/promotions/u
 import { validateRuleAttribute } from '@medusajs/medusa/api/admin/promotions/utils/validate-rule-attribute'
 import { validateRuleType } from '@medusajs/medusa/api/admin/promotions/utils/validate-rule-type'
 
+import sellerProduct from '../../../../../../links/seller-product'
+import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
+
 /**
  * @oas [get] /vendor/promotions/rule-attribute-options/{rule_type}
  * operationId: VendorGetPromotionsRuleAttributeOptionsRule
@@ -73,6 +76,7 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const {
     rule_type: ruleType,
     rule_attribute_id: ruleAttributeId,
@@ -96,6 +100,22 @@ export const GET = async (
     ruleAttributeId,
     applicationMethodType
   })
+
+  if (queryConfig.entryPoint === 'product') {
+    const seller = await fetchSellerByAuthActorId(
+      req.auth_context.actor_id,
+      req.scope
+    )
+    const { data: products } = await query.graph({
+      entity: sellerProduct.entryPoint,
+      fields: ['product_id'],
+      filters: {
+        seller_id: seller.id
+      }
+    })
+
+    filterableFields['id'] = products.map((p) => p.product_id)
+  }
 
   const { rows } = await remoteQuery(
     remoteQueryObjectFromString({
