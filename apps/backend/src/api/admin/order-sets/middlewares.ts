@@ -14,5 +14,15 @@ export const orderSetsMiddlewares: MiddlewareRoute[] = [
         adminOrderSetQueryConfig.list
       )
     ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/admin/order-sets/:id',
+    middlewares: [
+      validateAndTransformQuery(
+        AdminOrderSetParams,
+        adminOrderSetQueryConfig.retrieve
+      )
+    ]
   }
 ]
