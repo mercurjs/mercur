@@ -74,7 +74,6 @@ export const checkResourceOwnershipByResourceId = <Body>({
       }
     })
 
-    console.log(resource)
     if (!resource) {
       res.status(404).json({
         message: `${entryPoint} with ${filterField}: ${id} not found`,
@@ -82,8 +81,6 @@ export const checkResourceOwnershipByResourceId = <Body>({
       })
       return
     }
-
-    console.log(member.seller.id)
 
     if (member.seller.id !== resource.seller_id) {
       res.status(403).json({

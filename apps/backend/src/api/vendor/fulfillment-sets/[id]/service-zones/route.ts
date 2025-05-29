@@ -1,9 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
-import { createServiceZonesWorkflow } from '@medusajs/medusa/core-flows'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { SELLER_MODULE } from '../../../../../modules/seller'
 import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
+import { createVendorServiceZonesWorkflow } from '../../../../../workflows/fulfillment-set/workflows'
 import { VendorCreateServiceZoneType } from '../../validators'
 
 /**
@@ -45,27 +44,16 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const remoteLink = req.scope.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,
     req.scope
   )
 
-  const {
-    result: [serviceZone]
-  } = await createServiceZonesWorkflow(req.scope).run({
+  await createVendorServiceZonesWorkflow(req.scope).run({
     input: {
-      data: [{ fulfillment_set_id: req.params.id, ...req.validatedBody }]
-    }
-  })
-
-  await remoteLink.create({
-    [SELLER_MODULE]: {
+      data: [{ fulfillment_set_id: req.params.id, ...req.validatedBody }],
       seller_id: seller.id
-    },
-    [Modules.FULFILLMENT]: {
-      service_zone_id: serviceZone.id
     }
   })
 

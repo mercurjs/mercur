@@ -2,8 +2,9 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse
 } from '@medusajs/framework/http'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
+import { IntermediateEvents } from '../../../../../modules/algolia/types'
 import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
 import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../../../../workflows/fulfillment-set/workflows'
 import { VendorCreateStockLocationFulfillmentSetType } from '../../validators'
@@ -69,6 +70,12 @@ export const POST = async (
       },
       seller_id: seller.id
     }
+  })
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.STOCK_LOCATION_CHANGED,
+    data: { id: req.params.id }
   })
 
   const {
