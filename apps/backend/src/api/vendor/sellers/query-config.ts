@@ -1,5 +1,6 @@
 export const vendorSellerFields = [
   'id',
+  'store_status',
   'name',
   'handle',
   'description',
