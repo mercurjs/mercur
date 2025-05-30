@@ -1,16 +1,19 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import {
+  ContainerRegistrationKeys,
+  ProductStatus
+} from '@medusajs/framework/utils'
 import { updateProductsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerProduct from '../links/seller-product'
 import { StoreStatus } from '../modules/seller/types'
+import { SellerEvents } from '../modules/seller/types/events'
 
-type ProductStatus = 'draft' | 'proposed' | 'published' | 'rejected'
-
-const STORE_STATUS_TO_PRODUCT_STATUS: Record<StoreStatus, ProductStatus> = {
-  [StoreStatus.ACTIVE]: 'published',
-  [StoreStatus.INACTIVE]: 'draft',
-  [StoreStatus.SUSPENDED]: 'draft'
+const STORE_STATUS_TO_PRODUCT_STATUS: Partial<
+  Record<StoreStatus, ProductStatus>
+> = {
+  [StoreStatus.INACTIVE]: ProductStatus.DRAFT,
+  [StoreStatus.SUSPENDED]: ProductStatus.DRAFT
 }
 
 export default async function sellerStatusChangedHandler({
@@ -49,8 +52,8 @@ export default async function sellerStatusChangedHandler({
 }
 
 export const config: SubscriberConfig = {
-  event: 'seller.status_changed',
+  event: SellerEvents.STORE_STATUS_CHANGED,
   context: {
-    subscriberId: 'seller-status-changed-handler'
+    subscriberId: 'seller-store-status-changed-handler'
   }
 }
