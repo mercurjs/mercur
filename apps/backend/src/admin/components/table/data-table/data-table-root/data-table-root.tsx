@@ -176,7 +176,7 @@ export const DataTableRoot = <TData,>({
                                 : undefined,
                             }}
                             className={clx({
-                              "bg-ui-bg-base sticky left-0 after:absolute after:inset-y-0 after:right-0 after:h-full after:w-px after:bg-transparent after:content-['']":
+                              "sticky left-0 after:absolute after:inset-y-0 after:right-0 after:h-full after:w-px after:bg-transparent after:content-['']":
                                 isStickyHeader,
                               "left-[68px]":
                                 isStickyHeader && hasSelect && !isSelectHeader,

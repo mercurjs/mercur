@@ -6,26 +6,52 @@ import {
   Heading,
   Input,
   Label,
-  StatusBadge,
-  Table,
   Text,
   toast,
 } from "@medusajs/ui";
-import { useState } from "react";
-import { validateEmail } from "./helpers";
+import { useMemo, useState } from "react";
+import { useSellersTableQuery, validateEmail } from "./helpers";
 import { useInviteSeller, useSellers } from "../../hooks/api/seller";
-import { useNavigate } from "react-router-dom";
 import { ActionsButton } from "../../common/ActionsButton";
 import { PencilSquare, Shopping, User } from "@medusajs/icons";
+import { useSellersTableColumns } from "./helpers/use-seller-table-columns";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
+import { VendorSeller } from "@mercurjs/http-client";
+import { useDataTable } from "../../hooks/table/use-data-table";
+import { DataTable } from "../../components/table/data-table";
 
-const ConfigurationRulesPage = () => {
+const PAGE_SIZE = 10
+
+const SellersListPage = () => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const { sellers, isLoading } = useSellers({fields: "id,email,name,created_at,status"});
+  const { searchParams, raw } = useSellersTableQuery({
+    pageSize: PAGE_SIZE,
+    offset: 0,
+  })
+  
+  const { sellers, isLoading } = useSellers({
+    fields: "id,email,name,created_at,status"},
+    undefined,
+    {
+      q: searchParams.q,
+      order: searchParams.order
+    });
+
 
   const { mutateAsync: inviteSeller } = useInviteSeller();
 
-  const navigate = useNavigate();
+
+  const columns = useColumns()
+
+  const { table } = useDataTable({
+    data: sellers as VendorSeller[],
+    columns: columns as ColumnDef<VendorSeller, any>[],
+    count: sellers?.length || 0,
+    enablePagination: true,
+    pageSize: PAGE_SIZE,
+    getRowId: (row) => row?.id || "",
+  })
 
 
   const handleInvite = async () => {
@@ -35,7 +61,7 @@ const ConfigurationRulesPage = () => {
         return;
       }
 
-      await inviteSeller({ email });
+      await inviteSeller(email);
       toast.success("Invited!");
       setOpen(false);
       setEmail("");
@@ -43,7 +69,6 @@ const ConfigurationRulesPage = () => {
       toast.error("Error!");
     }
   };
-
 
 
   return (
@@ -83,70 +108,22 @@ const ConfigurationRulesPage = () => {
         </Drawer>
       </div>
       <div className="flex size-full flex-col overflow-hidden">
-        {isLoading && <Text>Loading...</Text>}
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Email</Table.HeaderCell>
-              <Table.HeaderCell>Name</Table.HeaderCell>
-              <Table.HeaderCell>Account Status</Table.HeaderCell>
-              <Table.HeaderCell>Created</Table.HeaderCell>
-              <Table.HeaderCell></Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {sellers?.map(seller => (
-              <Table.Row key={seller.id}>
-                <Table.Cell
-                  onClick={() => navigate(`/admin/sellers/${seller.id}`)}
-                  className="cursor-pointer"
-                >
-                  {seller.email}
-                </Table.Cell>
-                <Table.Cell
-                  onClick={() => navigate(`/admin/sellers/${seller.id}`)}
-                  className="cursor-pointer"
-                >
-                 {seller.name}
-                </Table.Cell>
-                <Table.Cell
-                  onClick={() => navigate(`/admin/sellers/${seller.id}`)}
-                  className="cursor-pointer"
-                >
-                  <StatusBadge color={seller.account_status === "active" ? "green" : "grey"}>
-                    {seller.account_status}
-                  </StatusBadge>
-                </Table.Cell>
-                <Table.Cell
-                  onClick={() => navigate(`/admin/sellers/${seller.id}`)}
-                  className="cursor-pointer"
-                >
-                  {new Date(seller.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </Table.Cell>
-                <Table.Cell className="flex justify-end items-center">
-                 <ActionsButton
-                  actions={[
-                    {
-                      label: "View",
-                      onClick: () => null,
-                      icon: <PencilSquare />
-                    },
-                    {
-                      label: "Suspend account",
-                      onClick: () => null,
-                      icon: <User />
-                    }
-                  ]}
-                />
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+        <DataTable
+          table={table}
+          columns={columns as ColumnDef<VendorSeller, any>[]}
+          count={sellers?.length || 0}
+          pageSize={10}
+          isLoading={isLoading}
+          queryObject={raw}  
+          search
+          pagination
+          navigateTo={(row) => `/admin/sellers/${row.id}`}
+          orderBy={[
+            { key: "email", label: "Email" },
+            { key: "name", label: "Name" },
+            { key: "created_at", label: "Created" },
+          ]}
+        />
       </div>
     </Container>
   );
@@ -157,4 +134,39 @@ export const config = defineRouteConfig({
   icon: Shopping,
 });
 
-export default ConfigurationRulesPage;
+const columnHelper = createColumnHelper<VendorSeller>()
+
+const useColumns = () => {
+  const base = useSellersTableColumns()
+
+  const columns = useMemo(
+    () => [
+      ...base,
+      columnHelper.display({
+        id: "actions",
+        cell: () => {
+          return (
+          <ActionsButton
+            actions={[
+              {
+                label: "View",
+                onClick: () => null,
+                icon: <PencilSquare />
+              },
+              {
+                label: "Suspend account",
+                onClick: () => null,
+                icon: <User />
+              }
+              ]}
+            />
+          )
+        },
+      }),
+    ],
+    [base]
+  )
+
+  return columns
+}
+export default SellersListPage;
