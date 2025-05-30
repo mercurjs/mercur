@@ -1,7 +1,14 @@
 import { PayoutAccountDTO } from '../../../modules/payout/types'
 
+export enum StoreStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED'
+}
+
 export type SellerDTO = {
   id: string
+  store_status: StoreStatus
   created_at: Date
   updated_at: Date
   name: string

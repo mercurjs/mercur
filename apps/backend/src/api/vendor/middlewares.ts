@@ -1,6 +1,9 @@
 import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
-import { checkSellerActive } from '../../shared/infra/http/middlewares/check-seller-active'
+import {
+  checkSellerApproved,
+  storeActiveGuard
+} from '../../shared/infra/http/middlewares'
 import { unlessBaseUrl } from '../../shared/infra/http/utils'
 import { vendorCampaignsMiddlewares } from './campaigns/middlewares'
 import { vendorCors } from './cors'
@@ -65,14 +68,15 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       unlessBaseUrl(
         /^\/vendor\/(sellers|invites\/accept)$/,
-        checkSellerActive(['bearer', 'session'])
+        checkSellerApproved(['bearer', 'session'])
       ),
       unlessBaseUrl(
         /^\/vendor\/(sellers|invites\/accept)$/,
         authenticate('seller', ['bearer', 'session'], {
           allowUnregistered: false
         })
-      )
+      ),
+      unlessBaseUrl(/^\/vendor\/(orders|fulfillment)/, storeActiveGuard)
     ]
   },
   ...vendorMeMiddlewares,

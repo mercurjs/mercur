@@ -9,7 +9,7 @@ import {
 } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-export function checkSellerActive(authTypes: AuthType[]) {
+export function checkSellerApproved(authTypes: AuthType[]) {
   return async (
     req: MedusaRequest,
     res: MedusaResponse,
