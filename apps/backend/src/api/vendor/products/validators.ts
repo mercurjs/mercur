@@ -3,16 +3,13 @@ import { z } from 'zod'
 import { AdditionalData } from '@medusajs/framework/types'
 import {
   WithAdditionalData,
-  createFindParams
 } from '@medusajs/medusa/api/utils/validators'
 
 import { IdAssociation } from '../../../shared/infra/http/utils'
+import { AdminGetProductsParams } from '@medusajs/medusa/api/admin/products/validators'
 
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>
-export const VendorGetProductParams = createFindParams({
-  offset: 0,
-  limit: 50
-})
+export const VendorGetProductParams = AdminGetProductsParams
 
 /* Options */
 

@@ -1,6 +1,7 @@
 import multer from 'multer'
 
 import {
+  maybeApplyLinkFilter,
   unlessPath,
   validateAndTransformBody,
   validateAndTransformQuery
@@ -26,6 +27,7 @@ import {
   VendorUpdateProduct,
   VendorUpdateProductStatus
 } from './validators'
+import { maybeApplyPriceListsFilter } from '@medusajs/medusa/api/admin/products/utils/index'
 
 const canVendorCreateProduct = [
   checkConfigurationRule(ConfigurationRuleType.GLOBAL_PRODUCT_CATALOG, false),
@@ -43,7 +45,18 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductParams,
         vendorProductQueryConfig.list
       ),
-      filterBySellerId()
+      filterBySellerId(),
+      maybeApplyLinkFilter({
+        entryPoint: sellerProductLink.entryPoint,
+        resourceId: 'product_id',
+        filterableField: 'seller_id'
+      }),
+      maybeApplyLinkFilter({
+        entryPoint: "product_sales_channel",
+        resourceId: "product_id",
+        filterableField: "sales_channel_id",
+      }),
+      maybeApplyPriceListsFilter()
     ]
   },
   {
