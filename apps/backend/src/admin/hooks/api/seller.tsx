@@ -1,28 +1,48 @@
-import { api } from "../../lib/client";
-import { QueryKey, UseQueryOptions, useQuery } from "@tanstack/react-query";
+import {
+  QueryKey,
+  UseQueryOptions,
+  useMutation,
+  useQuery
+} from '@tanstack/react-query'
 
-import { queryKeysFactory } from "../../lib/query-keys-factory";
-import { VendorSeller } from "@mercurjs/http-client";
+import { VendorSeller } from '@mercurjs/http-client'
 
-export const sellerQueryKeys = queryKeysFactory("seller");
+import { mercurQuery } from '../../lib/client'
+import { queryKeysFactory } from '../../lib/query-keys-factory'
+
+export const sellerQueryKeys = queryKeysFactory('seller')
 
 export const useSellers = (
-  query?: Parameters<typeof api.admin.adminListSellers>[0],
+  query?: Record<string, string | number>,
   options?: Omit<
     UseQueryOptions<
-      Parameters<typeof api.admin.adminListSellers>[0],
+      Record<string, string | number>,
       Error,
       { sellers: VendorSeller[] },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: sellerQueryKeys.list(query),
-    queryFn: () => api.admin.adminListSellers(query).then((res) => res.data),
-    ...options,
-  });
+    queryFn: () =>
+      mercurQuery('/admin/sellers', {
+        method: 'GET',
+        query
+      }),
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
+
+export const useInviteSeller = () => {
+  return useMutation({
+    mutationFn: (email: string) =>
+      mercurQuery('/admin/sellers/invite', {
+        method: 'POST',
+        body: email
+      })
+  })
+}
