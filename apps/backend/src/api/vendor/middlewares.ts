@@ -1,8 +1,7 @@
 import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
-import { StoreStatus } from '../../modules/seller/types'
-import { checkSellerStatus } from '../../shared/infra/http/middlewares'
 import { checkSellerApproved } from '../../shared/infra/http/middlewares/check-seller-approved'
+import { checkStoreStatus } from '../../shared/infra/http/middlewares/check-store-status'
 import { unlessBaseUrl } from '../../shared/infra/http/utils'
 import { vendorCampaignsMiddlewares } from './campaigns/middlewares'
 import { vendorCors } from './cors'
@@ -75,10 +74,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
           allowUnregistered: false
         })
       ),
-      unlessBaseUrl(
-        /^\/vendor\/(orders|fulfillment|shipping)/,
-        checkSellerStatus([StoreStatus.ACTIVE])
-      )
+      unlessBaseUrl(/^\/vendor\/(orders|fulfillment)/, checkStoreStatus)
     ]
   },
   ...vendorMeMiddlewares,
