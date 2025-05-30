@@ -14,6 +14,7 @@ import {
   AdminGetSellerCustomerGroupsParams,
   AdminGetSellerOrdersParams,
   AdminGetSellerProductsParams,
+  AdminInviteSeller,
   AdminSellerParams,
   AdminUpdateSeller
 } from './validators'
@@ -94,5 +95,10 @@ export const sellerMiddlewares: MiddlewareRoute[] = [
         )
       )
     ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/admin/sellers/invite',
+    middlewares: [validateAndTransformBody(AdminInviteSeller)]
   }
 ]
