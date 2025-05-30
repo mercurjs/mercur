@@ -11,7 +11,7 @@ import { fetchSellerByAuthActorId } from '../utils/seller'
  * - Allows GET operations for any store status
  * - Blocks all other operations with 403 Forbidden
  */
-export const checkStoreStatus = async (
+export const storeActiveGuard = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse,
   next: NextFunction
