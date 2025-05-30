@@ -2,6 +2,7 @@ import { ExecArgs } from '@medusajs/framework/types'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import {
+  createConfigurationRules,
   createDefaultCommissionLevel,
   createInventoryItemStockLevels,
   createProductCategories,
@@ -29,6 +30,8 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
   const apiKey = await createPublishableKey(container, salesChannel.id)
   logger.info('Creating store data...')
   await createStore(container, salesChannel.id, region.id)
+  logger.info('Creating configuration rules...')
+  await createConfigurationRules(container)
 
   logger.info('=== Example data ===')
   logger.info('Creating product categories...')

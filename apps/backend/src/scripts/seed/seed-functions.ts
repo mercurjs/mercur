@@ -17,8 +17,11 @@ import {
 } from '@medusajs/medusa/core-flows'
 
 import sellerShippingProfile from '../../links/seller-shipping-profile'
+import { ConfigurationRuleDefaults } from '../../modules/configuration/service'
+import ConfigurationModuleService from '../../modules/configuration/service'
 import { SELLER_MODULE } from '../../modules/seller'
 import { createCommissionRuleWorkflow } from '../../workflows/commission/workflows'
+import { createConfigurationRuleWorkflow } from '../../workflows/configuration/workflows'
 import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../workflows/fulfillment-set/workflows'
 import { createSellerWorkflow } from '../../workflows/seller/workflows'
 import { productsToInsert } from './seed-products'
@@ -497,4 +500,26 @@ export async function createDefaultCommissionLevel(container: MedusaContainer) {
       }
     }
   })
+}
+
+export async function createConfigurationRules(container: MedusaContainer) {
+  const configurationService = container.resolve<ConfigurationModuleService>(
+    'configurationModuleService'
+  )
+
+  for (const [ruleType, isEnabled] of ConfigurationRuleDefaults) {
+    const [existingRule] = await configurationService.listConfigurationRules({
+      rule_type: ruleType
+    })
+
+    if (!existingRule) {
+      await createConfigurationRuleWorkflow.run({
+        container,
+        input: {
+          rule_type: ruleType,
+          is_enabled: isEnabled
+        }
+      })
+    }
+  }
 }
