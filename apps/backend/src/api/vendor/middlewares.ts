@@ -76,7 +76,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
         })
       ),
       unlessBaseUrl(
-        /^\/vendor\/orders/,
+        /^\/vendor\/(orders|fulfillment|shipping)/,
         checkSellerStatus([StoreStatus.ACTIVE])
       )
     ]

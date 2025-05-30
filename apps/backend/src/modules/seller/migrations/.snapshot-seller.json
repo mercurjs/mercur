@@ -15,6 +15,21 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "store_status": {
+          "name": "store_status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'ACTIVE'",
+          "enumItems": [
+            "ACTIVE",
+            "INACTIVE",
+            "SUSPENDED"
+          ],
+          "mappedType": "enum"
+        },
         "name": {
           "name": "name",
           "type": "text",
