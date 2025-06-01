@@ -1,8 +1,13 @@
-import { defineConfig, loadEnv } from '@medusajs/framework/utils'
+import {
+  ContainerRegistrationKeys,
+  Modules,
+  defineConfig,
+  loadEnv
+} from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
-console.log("🔧 redisUrl loaded:", process.env.REDIS_URL)
+console.log('🔧 redisUrl loaded:', process.env.REDIS_URL)
 
 module.exports = defineConfig({
   projectConfig: {
@@ -21,19 +26,19 @@ module.exports = defineConfig({
   modules: [
     { resolve: './src/modules/seller' },
     {
-      resolve: "@medusajs/medusa/event-bus-redis",
+      resolve: '@medusajs/medusa/event-bus-redis',
       /** 👇 เพิ่ม key ตรงนี้ **/
-      key: "eventBusRedis",
+      key: 'eventBusRedis',
       options: {
-        redisUrl: process.env.REDIS_URL,
-      },
+        redisUrl: process.env.REDIS_URL
+      }
     },
     {
-      resolve: "@medusajs/medusa/cache-redis",
-      key: "cacheRedis",
+      resolve: '@medusajs/medusa/cache-redis',
+      key: 'cacheRedis',
       options: {
-        redisUrl: process.env.REDIS_URL,
-      },
+        redisUrl: process.env.REDIS_URL
+      }
     },
     { resolve: './src/modules/marketplace' },
     { resolve: './src/modules/configuration' },
@@ -96,6 +101,29 @@ module.exports = defineConfig({
             id: 'local',
             options: {
               channels: ['feed']
+            }
+          }
+        ]
+      }
+    },
+    {
+      resolve: '@medusajs/medusa/auth',
+      options: {
+        providers: [
+          // default provider
+          {
+            resolve: '@medusajs/medusa/auth-emailpass',
+            dependencies: [Modules.CACHE, ContainerRegistrationKeys.LOGGER],
+            id: 'emailpass'
+          },
+
+          {
+            resolve: './src/modules/my-auth',
+            id: 'my-auth',
+            dependencies: [Modules.CACHE, ContainerRegistrationKeys.LOGGER],
+            options: {
+              clientId: process.env.CLIENT_ID,
+              callbackUrl: process.env.CALLBACK_URL
             }
           }
         ]
