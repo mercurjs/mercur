@@ -50,3 +50,8 @@ export const AdminUpdateSeller = z
     tax_id: z.string().optional()
   })
   .strict()
+export type AdminInviteSellerType = z.infer<typeof AdminInviteSeller>
+export const AdminInviteSeller = z.object({
+  email: z.string().email(),
+  registration_url: z.string().default('http://localhost:5173/register')
+})

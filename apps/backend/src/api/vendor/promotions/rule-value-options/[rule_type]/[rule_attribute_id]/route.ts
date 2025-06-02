@@ -7,6 +7,7 @@ import { ruleQueryConfigurations } from '@medusajs/medusa/api/admin/promotions/u
 import { validateRuleAttribute } from '@medusajs/medusa/api/admin/promotions/utils/validate-rule-attribute'
 import { validateRuleType } from '@medusajs/medusa/api/admin/promotions/utils/validate-rule-type'
 
+import sellerCustomerGroup from '../../../../../../links/seller-customer-group'
 import sellerProduct from '../../../../../../links/seller-product'
 import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
 
@@ -101,11 +102,12 @@ export const GET = async (
     applicationMethodType
   })
 
+  const seller = await fetchSellerByAuthActorId(
+    req.auth_context.actor_id,
+    req.scope
+  )
+
   if (queryConfig.entryPoint === 'product') {
-    const seller = await fetchSellerByAuthActorId(
-      req.auth_context.actor_id,
-      req.scope
-    )
     const { data: products } = await query.graph({
       entity: sellerProduct.entryPoint,
       fields: ['product_id'],
@@ -115,6 +117,18 @@ export const GET = async (
     })
 
     filterableFields['id'] = products.map((p) => p.product_id)
+  }
+
+  if (queryConfig.entryPoint === 'customer_group') {
+    const { data: groups } = await query.graph({
+      entity: sellerCustomerGroup.entryPoint,
+      fields: ['customer_group_id'],
+      filters: {
+        seller_id: seller.id
+      }
+    })
+
+    filterableFields['id'] = groups.map((p) => p.customer_group_id)
   }
 
   const { rows } = await remoteQuery(
