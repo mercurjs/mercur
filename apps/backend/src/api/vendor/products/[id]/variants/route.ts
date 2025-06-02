@@ -1,10 +1,13 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { AuthenticatedMedusaRequest, MedusaResponse, refetchEntities } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { createProductVariantsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
 import { CreateProductVariantType } from '../../validators'
-
+import { remapVariantResponse } from '../../helpers'
+import { remapKeysForVariant } from '../../helpers'
+import { wrapVariantsWithTotalInventoryQuantity } from '@medusajs/medusa/api/utils/middlewares/products/variant-inventory-quantity'
+import { HttpTypes } from '@medusajs/framework/types'
 /**
  * @oas [post] /vendor/products/{id}/variants
  * operationId: "VendorCreateVariantForProductById"
@@ -83,4 +86,40 @@ export const POST = async (
   )
 
   res.json({ product })
+}
+
+export const GET = async (
+  req: AuthenticatedMedusaRequest<HttpTypes.AdminProductVariantParams>,
+  res: MedusaResponse<HttpTypes.AdminProductVariantListResponse>
+) => {
+  const productId = req.params.id
+
+  const withInventoryQuantity = req.queryConfig.fields.some((field) =>
+    field.includes("inventory_quantity")
+  )
+
+  if (withInventoryQuantity) {
+    req.queryConfig.fields = req.queryConfig.fields.filter(
+      (field) => !field.includes("inventory_quantity")
+    )
+  }
+
+  const { rows: variants, metadata } = await refetchEntities(
+    "variant",
+    { ...req.filterableFields, product_id: productId },
+    req.scope,
+    remapKeysForVariant(req.queryConfig.fields ?? []),
+    req.queryConfig.pagination
+  )
+
+  if (withInventoryQuantity) {
+    await wrapVariantsWithTotalInventoryQuantity(req, variants || [])
+  }
+
+  res.json({
+    variants: variants.map(remapVariantResponse),
+    count: metadata.count,
+    offset: metadata.skip,
+    limit: metadata.take,
+  })
 }
