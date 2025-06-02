@@ -32,7 +32,11 @@ import { OrderSetWorkflowEvents } from '../../../modules/marketplace/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { registerUsageStep } from '../../promotions/steps'
 import { createSplitOrderPaymentsStep } from '../../split-order-payment/steps'
-import { createOrderSetStep, validateCartShippingOptionsStep } from '../steps'
+import {
+  createOrderSetStep,
+  validateCartSellersStep,
+  validateCartShippingOptionsStep
+} from '../steps'
 import {
   completeCartFields,
   prepareConfirmInventoryInput,
@@ -50,6 +54,8 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
     idempotent: true
   },
   function (input: SplitAndCompleteCartWorkflowInput) {
+    validateCartSellersStep(input)
+
     const existingOrderSet = useRemoteQueryStep({
       entry_point: 'order_set',
       fields: ['id', 'cart_id'],
