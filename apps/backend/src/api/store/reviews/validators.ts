@@ -15,6 +15,9 @@ export const StoreGetReviewsParams = createFindParams({
  * x-resourceId: StoreCreateReview
  * type: object
  * properties:
+ *   order_id:
+ *     type: string
+ *     description: The unique identifier of the order.
  *   reference:
  *     type: string
  *     enum: [seller, product]
@@ -34,6 +37,7 @@ export const StoreGetReviewsParams = createFindParams({
  */
 export type StoreCreateReviewType = z.infer<typeof StoreCreateReview>
 export const StoreCreateReview = z.object({
+  order_id: z.string(),
   reference: z.enum(['seller', 'product']),
   reference_id: z.string(),
   rating: z.number().int().min(1).max(5),
