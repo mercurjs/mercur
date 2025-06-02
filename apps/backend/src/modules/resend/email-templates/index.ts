@@ -9,6 +9,8 @@ import { SellerAccountRejectedEmailTemplate } from './seller-account-rejected'
 import { SellerAccountSubmissionEmailTemplate } from './seller-account-updates-submission'
 import { SellerCanceledOrderEmailTemplate } from './seller-canceled-order'
 import { SellerNewOrderEmailTemplate } from './seller-new-order'
+import { SellerProductApprovedEmailTemplate } from './seller-product-approved'
+import { SellerProductRejectedEmailTemplate } from './seller-product-rejected'
 import { SellerOrderShippingEmailTemplate } from './seller-shipping-order'
 import { SellerTeamInviteEmailTemplate } from './seller-team-invite'
 import { SellerEmailVerifyEmailTemplate } from './seller-verify-email'
@@ -27,5 +29,7 @@ export const emailTemplates = {
   sellerOrderShippingEmailTemplate: SellerOrderShippingEmailTemplate,
   sellerTeamInviteEmailTemplate: SellerTeamInviteEmailTemplate,
   sellerVerifyEmailTemplate: SellerEmailVerifyEmailTemplate,
-  newSellerInvitation: NewSellerInviteEmailTemplate
+  newSellerInvitation: NewSellerInviteEmailTemplate,
+  sellerProductRejectedEmailTemplate: SellerProductRejectedEmailTemplate,
+  sellerProductApprovedEmailTemplate: SellerProductApprovedEmailTemplate
 }
