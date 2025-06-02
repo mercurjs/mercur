@@ -108,6 +108,26 @@ export const useSellers = (
   }
 }
 
+export const useSeller = (id: string) => {
+  return useQuery({
+    queryKey: sellerQueryKeys.detail(id),
+    queryFn: () =>
+      mercurQuery(`/admin/sellers/${id}`, {
+        method: 'GET',
+        query: {
+          fields: 'id,email,name,created_at,status,description,handle,phone'
+        }
+      })
+  })
+}
+
+export const useSellerOrders = (id: string) => {
+  return useQuery({
+    queryKey: ['seller-orders', id],
+    queryFn: () => mercurQuery(`/admin/sellers/${id}/orders`, { method: 'GET' })
+  })
+}
+
 export const useInviteSeller = () => {
   return useMutation({
     mutationFn: (email: string) =>

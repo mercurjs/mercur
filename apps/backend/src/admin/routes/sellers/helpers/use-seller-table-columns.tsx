@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 
 import { VendorSeller } from '@mercurjs/http-client'
 import { SellerStatusBadge } from '../../../components/seller-status-badge/SellerStatusBagde'
+import { formatDate } from '../../../lib/date'
 
 const columnHelper = createColumnHelper<VendorSeller>()
 
@@ -27,12 +28,7 @@ export const useSellersTableColumns = () => {
       columnHelper.display({
         id: 'created_at',
         header: 'Created',
-        cell: ({ row }) =>
-          new Date(row.original.created_at).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-          })
+        cell: ({ row }) => formatDate(row.original.created_at)
       })
     ],
     []

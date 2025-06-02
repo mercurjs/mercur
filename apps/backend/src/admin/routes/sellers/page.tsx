@@ -73,7 +73,7 @@ const SellersListPage = () => {
 
   return (
     <Container>
-      <div className="flex items-center justify-between px-6 py-4">
+      <div className="flex items-center justify-between">
         <div>
           <Heading>Sellers</Heading>
         </div>
@@ -117,7 +117,7 @@ const SellersListPage = () => {
           queryObject={raw}  
           search
           pagination
-          navigateTo={(row) => `/admin/sellers/${row.id}`}
+          navigateTo={(row) => `/sellers/${row.id}`}
           orderBy={[
             { key: "email", label: "Email" },
             { key: "name", label: "Name" },
