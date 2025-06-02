@@ -31,6 +31,6 @@ export default async function sellerRequestAcceptedHandler({
 export const config: SubscriberConfig = {
   event: SellerRequestUpdatedEvent.ACCEPTED,
   context: {
-    subscriberId: 'seller-request-accepted-handler'
+    subscriberId: 'seller-account-request-accepted-handler'
   }
 }
