@@ -149,7 +149,7 @@ const useColumns = () => {
           <ActionsButton
             actions={[
               {
-                label: "View",
+                label: "Edit",
                 onClick: () => null,
                 icon: <PencilSquare />
               },

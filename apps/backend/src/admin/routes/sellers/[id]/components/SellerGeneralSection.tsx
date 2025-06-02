@@ -2,8 +2,12 @@ import { Container, Divider, Heading, Text } from "@medusajs/ui";
 import { SellerStatusBadge } from "../../../../components/seller-status-badge/SellerStatusBagde";
 import { ActionsButton } from "../../../../common/ActionsButton";
 import { PencilSquare, User } from "@medusajs/icons";
+import { useNavigate } from "react-router-dom";
 
 export const SellerGeneralSection = ({ seller }: { seller: any }) => {
+
+  const navigate = useNavigate();
+
   return (
     <>
       <div>
@@ -15,8 +19,8 @@ export const SellerGeneralSection = ({ seller }: { seller: any }) => {
               <ActionsButton
                 actions={[
                   {
-                    label: "View",
-                    onClick: () => null,
+                    label: "Edit",
+                    onClick: () => navigate(`/sellers/${seller.id}/edit`),
                     icon: <PencilSquare />
                   },
                   {

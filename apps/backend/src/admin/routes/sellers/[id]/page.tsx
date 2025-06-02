@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useSeller, useSellerOrders } from "../../../hooks/api/seller";
+import { useSeller, useSellerCustomerGroups, useSellerOrders, useSellerProducts } from "../../../hooks/api/seller";
 import { SellerGeneralSection } from "./components/SellerGeneralSection";
 import { SellerOrdersSection } from "./components/SellerOrdersSection";
 
@@ -12,7 +12,11 @@ const SellerDetailPage = () => {
 
   const { data: orders, isLoading: ordersLoading } = useSellerOrders(id!);
 
-  console.log(orders, ordersLoading)
+  const { data: products, isLoading: productsLoading } = useSellerProducts(id!);
+
+  const { data: customerGroups, isLoading: customerGroupsLoading } = useSellerCustomerGroups(id!);
+
+  console.log(orders, products, customerGroups)
 
   if (isLoading) {  
     return <div>Loading...</div>;
