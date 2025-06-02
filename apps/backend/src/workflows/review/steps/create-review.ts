@@ -9,7 +9,7 @@ export const createReviewStep = createStep(
   'create-review',
   async (input: CreateReviewDTO, { container }) => {
     const service = container.resolve<ReviewModuleService>(REVIEW_MODULE)
-    const link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+    const link = container.resolve(ContainerRegistrationKeys.LINK)
 
     const review = await service.createReviews(input)
 
@@ -17,6 +17,14 @@ export const createReviewStep = createStep(
       {
         [Modules.CUSTOMER]: {
           customer_id: input.customer_id
+        },
+        [REVIEW_MODULE]: {
+          review_id: review.id
+        }
+      },
+      {
+        [Modules.ORDER]: {
+          order_id: input.order_id
         },
         [REVIEW_MODULE]: {
           review_id: review.id
