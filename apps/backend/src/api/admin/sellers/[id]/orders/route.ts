@@ -10,17 +10,17 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: sellerProducts, metadata } = await query.graph({
+  const { data: sellerOrders, metadata } = await query.graph({
     entity: sellerOrder.entryPoint,
     fields: req.queryConfig.fields.map((field) => `order.${field}`),
     filters: {
-      id: req.params.id
+      seller_id: req.params.id
     },
     pagination: req.queryConfig.pagination
   })
 
   res.json({
-    products: sellerProducts.map((product) => product.product),
+    orders: sellerOrders.map((order) => order.order),
     count: metadata!.count,
     offset: metadata!.skip,
     limit: metadata!.take
