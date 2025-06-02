@@ -5,7 +5,7 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
-import { MiddlewareRoute } from '@medusajs/medusa'
+import { DEFAULT_BATCH_ENDPOINTS_SIZE_LIMIT, MiddlewareRoute } from '@medusajs/medusa'
 
 import sellerProductLink from '../../../links/seller-product'
 import { ConfigurationRuleType } from '../../../modules/configuration/types'
@@ -14,7 +14,7 @@ import {
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import { checkConfigurationRule } from '../../../shared/infra/http/middlewares'
-import { vendorProductQueryConfig } from './query-config'
+import { vendorProductQueryConfig, vendorProductVariantQueryConfig } from './query-config'
 import {
   CreateProductOption,
   CreateProductVariant,
@@ -23,9 +23,13 @@ import {
   VendorAssignBrandName,
   VendorCreateProduct,
   VendorGetProductParams,
+  VendorGetProductVariantsParams,
   VendorUpdateProduct,
   VendorUpdateProductStatus
 } from './validators'
+import { AdminBatchUpdateProductVariant } from '@medusajs/medusa/api/admin/products/validators'
+import { createBatchBody } from '@medusajs/medusa/api/utils/validators'
+import { AdminGetProductVariantParams } from '@medusajs/medusa/api/admin/products/validators'
 
 const canVendorCreateProduct = [
   checkConfigurationRule(ConfigurationRuleType.GLOBAL_PRODUCT_CATALOG, false),
@@ -149,6 +153,20 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     ]
   },
   {
+    method: ['GET'],
+    matcher: '/vendor/products/:id/variants',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: 'product_id'
+      }),
+      validateAndTransformQuery(
+        VendorGetProductVariantsParams,
+        vendorProductVariantQueryConfig.list
+      ),
+    ]
+  },
+  {
     method: ['POST'],
     matcher: '/vendor/products/:id/variants/:variant_id',
     middlewares: [
@@ -237,5 +255,21 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.retrieve
       )
     ]
-  }
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/products/:id/variants/batch",
+    bodyParser: {
+      sizeLimit: DEFAULT_BATCH_ENDPOINTS_SIZE_LIMIT,
+    },
+    middlewares: [
+      validateAndTransformBody(
+        createBatchBody(CreateProductVariant, AdminBatchUpdateProductVariant)
+      ),
+      validateAndTransformQuery(
+        AdminGetProductVariantParams,
+        vendorProductVariantQueryConfig.retrieve
+      ),
+    ],
+  },
 ]
