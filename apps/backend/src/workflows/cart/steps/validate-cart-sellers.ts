@@ -1,4 +1,4 @@
-import { CartDTO } from '@medusajs/framework/types'
+import { CartLineItemDTO } from '@medusajs/framework/types'
 import {
   ContainerRegistrationKeys,
   MedusaError
@@ -8,24 +8,18 @@ import { createStep } from '@medusajs/framework/workflows-sdk'
 import sellerProduct from '../../../links/seller-product'
 import { StoreStatus } from '../../../modules/seller/types'
 
+type LineItemWithProductId = Pick<CartLineItemDTO, 'product_id'>
+
 export const validateCartSellersStep = createStep(
   'validate-cart-sellers',
-  async (input: { id: string }, { container }) => {
+  async (input: { line_items: LineItemWithProductId[] }, { container }) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
-    const {
-      data: [cart]
-    } = (await query.graph({
-      entity: 'cart',
-      fields: ['items.product_id'],
-      filters: { id: input.id }
-    })) as { data: CartDTO[] }
-
-    if (!cart?.items?.length) {
+    if (!input.line_items?.length) {
       return
     }
 
-    const productIds = cart.items.map((item) => item.product_id)
+    const productIds = input.line_items.map((item) => item.product_id)
 
     const { data: sellerProducts } = await query.graph({
       entity: sellerProduct.entryPoint,

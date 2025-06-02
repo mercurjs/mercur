@@ -1,33 +1,17 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
-import {
-  ContainerRegistrationKeys,
-  ProductStatus
-} from '@medusajs/framework/utils'
-import { updateProductsWorkflow } from '@medusajs/medusa/core-flows'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import sellerProduct from '../links/seller-product'
+import { AlgoliaEvents } from '../modules/algolia/types'
 import { StoreStatus } from '../modules/seller/types'
 import { SellerEvents } from '../modules/seller/types/events'
-
-const STORE_STATUS_TO_PRODUCT_STATUS: Partial<
-  Record<StoreStatus, ProductStatus>
-> = {
-  [StoreStatus.INACTIVE]: ProductStatus.DRAFT,
-  [StoreStatus.SUSPENDED]: ProductStatus.DRAFT
-}
 
 export default async function sellerStatusChangedHandler({
   event,
   container
 }: SubscriberArgs<{ id: string; store_status: StoreStatus }>) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
-
-  const targetProductStatus =
-    STORE_STATUS_TO_PRODUCT_STATUS[event.data.store_status]
-
-  if (!targetProductStatus) {
-    return
-  }
+  const eventBus = container.resolve(Modules.EVENT_BUS)
 
   const { data: products } = await query.graph({
     entity: sellerProduct.entryPoint,
@@ -41,12 +25,10 @@ export default async function sellerStatusChangedHandler({
     return
   }
 
-  await updateProductsWorkflow(container).run({
-    input: {
-      update: { status: targetProductStatus },
-      selector: {
-        id: products.map((p) => p.id)
-      }
+  await eventBus.emit({
+    name: AlgoliaEvents.PRODUCTS_CHANGED,
+    data: {
+      ids: products.map((p) => p.product_id)
     }
   })
 }

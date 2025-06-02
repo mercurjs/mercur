@@ -54,8 +54,6 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
     idempotent: true
   },
   function (input: SplitAndCompleteCartWorkflowInput) {
-    validateCartSellersStep(input)
-
     const existingOrderSet = useRemoteQueryStep({
       entry_point: 'order_set',
       fields: ['id', 'cart_id'],
@@ -78,6 +76,12 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         },
         list: false
       }).config({ name: 'cart-query' })
+
+      validateCartSellersStep(
+        transform({ cart }, ({ cart }) => ({
+          line_items: cart.items
+        }))
+      )
 
       const validateCartShippingOptionsInput = transform(
         { cart },
