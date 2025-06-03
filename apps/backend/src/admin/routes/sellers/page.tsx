@@ -15,7 +15,7 @@ import { useInviteSeller, useSellers } from "../../hooks/api/seller";
 import { ActionsButton } from "../../common/ActionsButton";
 import { PencilSquare, Shopping, User } from "@medusajs/icons";
 import { useSellersTableColumns } from "./helpers/use-seller-table-columns";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
+import { createColumnHelper } from "@tanstack/react-table"
 import { VendorSeller } from "@mercurjs/http-client";
 import { useDataTable } from "../../hooks/table/use-data-table";
 import { DataTable } from "../../components/table/data-table";
@@ -45,8 +45,8 @@ const SellersListPage = () => {
   const columns = useColumns()
 
   const { table } = useDataTable({
-    data: sellers as VendorSeller[],
-    columns: columns as ColumnDef<VendorSeller, any>[],
+    data: sellers,
+    columns,
     count: sellers?.length || 0,
     enablePagination: true,
     pageSize: PAGE_SIZE,
@@ -110,7 +110,7 @@ const SellersListPage = () => {
       <div className="flex size-full flex-col overflow-hidden">
         <DataTable
           table={table}
-          columns={columns as ColumnDef<VendorSeller, any>[]}
+          columns={columns}
           count={sellers?.length || 0}
           pageSize={10}
           isLoading={isLoading}

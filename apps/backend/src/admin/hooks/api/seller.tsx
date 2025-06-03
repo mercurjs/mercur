@@ -13,6 +13,7 @@ import { queryKeysFactory } from '../../lib/query-keys-factory'
 export const sellerQueryKeys = queryKeysFactory('seller')
 
 type SortableFields = 'email' | 'name' | 'created_at'
+type SortableOrderFields = 'display_id' | 'created_at' | 'updated_at'
 
 const sortSellers = (sellers: VendorSeller[], order: string) => {
   const field = order.startsWith('-')
@@ -33,6 +34,44 @@ const sortSellers = (sellers: VendorSeller[], order: string) => {
       const aDate = new Date(String(aValue)).getTime()
       const bDate = new Date(String(bValue)).getTime()
       return isDesc ? bDate - aDate : aDate - bDate
+    }
+
+    // Handle string comparison
+    const aString = String(aValue).toLowerCase()
+    const bString = String(bValue).toLowerCase()
+
+    if (aString < bString) return isDesc ? 1 : -1
+    if (aString > bString) return isDesc ? -1 : 1
+    return 0
+  })
+}
+
+const sortOrders = (orders: any[], order: string) => {
+  const field = order.startsWith('-')
+    ? (order.slice(1) as SortableOrderFields)
+    : (order as SortableOrderFields)
+  const isDesc = order.startsWith('-')
+
+  return [...orders].sort((a, b) => {
+    let aValue: string | number | null | undefined = a[field]
+    let bValue: string | number | null | undefined = b[field]
+
+    // Handle null/undefined values
+    if (!aValue && aValue !== '') return isDesc ? -1 : 1
+    if (!bValue && bValue !== '') return isDesc ? 1 : -1
+
+    // Special handling for dates
+    if (field === 'created_at' || field === 'updated_at') {
+      const aDate = new Date(String(aValue)).getTime()
+      const bDate = new Date(String(bValue)).getTime()
+      return isDesc ? bDate - aDate : aDate - bDate
+    }
+
+    // Handle display_id as number
+    if (field === 'display_id') {
+      const aNum = Number(aValue)
+      const bNum = Number(bValue)
+      return isDesc ? bNum - aNum : aNum - bNum
     }
 
     // Handle string comparison
@@ -121,10 +160,56 @@ export const useSeller = (id: string) => {
   })
 }
 
-export const useSellerOrders = (id: string) => {
-  return useQuery({
-    queryKey: ['seller-orders', id],
-    queryFn: () => mercurQuery(`/admin/sellers/${id}/orders`, { method: 'GET' })
+export const useSellerOrders = (
+  id: string,
+  query?: Record<string, string | number>,
+  filters?: Record<string, string | number>
+) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['seller-orders', id, query],
+    queryFn: () =>
+      mercurQuery(`/admin/sellers/${id}/orders`, {
+        method: 'GET',
+        query
+      })
+  })
+
+  if (!data?.orders) {
+    return { data, isLoading }
+  }
+
+  let processedOrders = [...data.orders]
+
+  // Apply sorting if present
+  if (filters?.order) {
+    const order = String(filters.order)
+    const validOrders = [
+      'display_id',
+      '-display_id',
+      'created_at',
+      '-created_at',
+      'updated_at',
+      '-updated_at'
+    ] as const
+
+    if (validOrders.includes(order as (typeof validOrders)[number])) {
+      processedOrders = sortOrders(processedOrders, order)
+    }
+  }
+
+  return {
+    data: {
+      ...data,
+      orders: processedOrders
+    },
+    isLoading
+  }
+}
+
+export const useUpdateSeller = () => {
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      mercurQuery(`/admin/sellers/${id}`, { method: 'POST', body: data })
   })
 }
 

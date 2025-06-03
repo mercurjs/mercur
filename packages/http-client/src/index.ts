@@ -25056,6 +25056,8 @@ export interface StoreCreateOrderReturnRequest {
  * A schema for creating a review.
  */
 export interface StoreCreateReview {
+  /** The unique identifier of the order. */
+  order_id?: string;
   /** Indicates if review reference is seller or product */
   reference?: "seller" | "product";
   /** The unique identifier of reference. */
