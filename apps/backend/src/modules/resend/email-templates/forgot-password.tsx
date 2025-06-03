@@ -1,7 +1,6 @@
 interface EmailTemplateProps {
   data: {
-		host: string,
-		resetPasswordToken: string
+		url: string,
 	}
 }
 
@@ -14,7 +13,7 @@ export const ForgotPasswordEmailTemplate: React.FC<Readonly<EmailTemplateProps>>
         new password. Please note, the link is valid for the next 24 hours only.
       </p>
       <div>
-        <a href={`${data.host}/resetPassword?resetPasswordToken=${data.resetPasswordToken}`}>
+        <a href={`${data.url}`}>
           <button>Reset Password</button>
         </a>
       </div>
