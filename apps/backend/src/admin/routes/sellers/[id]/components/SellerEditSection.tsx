@@ -1,4 +1,4 @@
-import { Button, Drawer } from "@medusajs/ui";
+import {  Drawer } from "@medusajs/ui";
 
 export const SellerEditSection = ({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) => {
     return (
