@@ -10,10 +10,10 @@ import {
 export default async function passwordResetHandler({
   event,
   container
-}: SubscriberArgs<{ entity_id: string; actorType: string; token: string }>) {
+}: SubscriberArgs<{ entity_id: string; actor_type: string; token: string }>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
 
-  const hostType = actorTypeToHost[event.data.actorType]
+  const hostType = actorTypeToHost[event.data.actor_type]
   if (!hostType) {
     return
   }
