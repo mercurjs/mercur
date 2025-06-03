@@ -62,3 +62,8 @@ export interface AcceptMemberInviteDTO {
 export interface UpdateMemberInviteDTO extends Partial<MemberInviteDTO> {
   id: string
 }
+
+export interface CreateSellerInvitationDTO {
+  email: string
+  registration_url: string
+}

@@ -7,6 +7,10 @@ import {
 } from '@medusajs/medusa/api/utils/validators'
 
 import { IdAssociation } from '../../../shared/infra/http/utils'
+import { AdminBatchVariantInventoryItemsType } from '@medusajs/medusa/api/admin/products/validators'
+import { AdminGetProductVariantsParams } from '@medusajs/medusa/api/admin/products/validators'
+
+export const VendorGetProductVariantsParams = AdminGetProductVariantsParams
 
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>
 export const VendorGetProductParams = createFindParams({
@@ -729,3 +733,5 @@ export type VendorUpdateProductStatusType = z.infer<
 export const VendorUpdateProductStatus = z.object({
   status: z.enum(['draft', 'proposed', 'published'])
 })
+
+export type VendorBatchVariantInventoryItemsType = AdminBatchVariantInventoryItemsType

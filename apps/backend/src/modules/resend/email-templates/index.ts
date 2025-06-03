@@ -3,6 +3,7 @@ import { BuyerCancelOrderEmailTemplate } from './buyer-cancel-order'
 import { BuyerNewOrderEmailTemplate } from './buyer-new-order'
 import { BuyerOrderShippedEmailTemplate } from './buyer-shipped-order'
 import { ForgotPasswordEmailTemplate } from './forgot-password'
+import { NewSellerInviteEmailTemplate } from './new-seller-invitation'
 import { SellerAccountApprovedEmailTemplate } from './seller-account-approved'
 import { SellerAccountRejectedEmailTemplate } from './seller-account-rejected'
 import { SellerAccountSubmissionEmailTemplate } from './seller-account-updates-submission'
@@ -25,5 +26,6 @@ export const emailTemplates = {
   sellerNewOrderEmailTemplate: SellerNewOrderEmailTemplate,
   sellerOrderShippingEmailTemplate: SellerOrderShippingEmailTemplate,
   sellerTeamInviteEmailTemplate: SellerTeamInviteEmailTemplate,
-  sellerVerifyEmailTemplate: SellerEmailVerifyEmailTemplate
+  sellerVerifyEmailTemplate: SellerEmailVerifyEmailTemplate,
+  newSellerInvitation: NewSellerInviteEmailTemplate
 }
