@@ -25,6 +25,7 @@ import { createConfigurationRuleWorkflow } from '../../workflows/configuration/w
 import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../workflows/fulfillment-set/workflows'
 import { createSellerWorkflow } from '../../workflows/seller/workflows'
 import { productsToInsert } from './seed-products'
+import {CONFIGURATION_MODULE} from "../../modules/configuration";
 
 const countries = ['be', 'de', 'dk', 'se', 'fr', 'es', 'it', 'pl', 'cz', 'nl']
 
@@ -504,7 +505,7 @@ export async function createDefaultCommissionLevel(container: MedusaContainer) {
 
 export async function createConfigurationRules(container: MedusaContainer) {
   const configurationService = container.resolve<ConfigurationModuleService>(
-    'configurationModuleService'
+    CONFIGURATION_MODULE
   )
 
   for (const [ruleType, isEnabled] of ConfigurationRuleDefaults) {
