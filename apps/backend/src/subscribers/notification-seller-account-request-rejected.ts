@@ -28,6 +28,6 @@ export default async function sellerRequestRejectedHandler({
 export const config: SubscriberConfig = {
   event: SellerRequestUpdatedEvent.REJECTED,
   context: {
-    subscriberId: 'seller-request-rejected-handler'
+    subscriberId: 'seller-account-request-rejected-handler'
   }
 }
