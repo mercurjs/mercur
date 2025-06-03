@@ -1,3 +1,5 @@
+import { AdminRequestCreatedEmailTemplate } from './admin-request-created'
+import { AdminSellerRequestCreatedEmailTemplate } from './admin-seller-request-created'
 import { BuyerAccountCreatedEmailTemplate } from './buyer-account-created'
 import { BuyerCancelOrderEmailTemplate } from './buyer-cancel-order'
 import { BuyerNewOrderEmailTemplate } from './buyer-new-order'
@@ -31,5 +33,7 @@ export const emailTemplates = {
   sellerVerifyEmailTemplate: SellerEmailVerifyEmailTemplate,
   newSellerInvitation: NewSellerInviteEmailTemplate,
   sellerProductRejectedEmailTemplate: SellerProductRejectedEmailTemplate,
-  sellerProductApprovedEmailTemplate: SellerProductApprovedEmailTemplate
+  sellerProductApprovedEmailTemplate: SellerProductApprovedEmailTemplate,
+  adminRequestCreatedEmailTemplate: AdminRequestCreatedEmailTemplate,
+  adminSellerRequestCreatedEmailTemplate: AdminSellerRequestCreatedEmailTemplate
 }

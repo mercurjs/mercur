@@ -14,5 +14,7 @@ export enum ResendNotificationTemplates {
   FORGOT_PASSWORD = 'forgotPasswordEmailTemplate',
   NEW_SELLER_INVITATION = 'newSellerInvitation',
   SELLER_PRODUCT_APPROVED = 'sellerProductApprovedEmailTemplate',
-  SELLER_PRODUCT_REJECTED = 'sellerProductRejectedEmailTemplate'
+  SELLER_PRODUCT_REJECTED = 'sellerProductRejectedEmailTemplate',
+  ADMIN_REQUEST_CREATED = 'adminRequestCreatedEmailTemplate',
+  ADMIN_SELLER_REQUEST_CREATED = 'adminSellerRequestCreatedEmailTemplate'
 }
