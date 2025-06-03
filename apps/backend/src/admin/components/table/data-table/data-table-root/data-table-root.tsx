@@ -228,6 +228,8 @@ export const DataTableRoot = <TData,>({
                       const visibleCells = row.getVisibleCells()
                       const isSelectCell = cell.column.id === "select"
 
+                      const isActionCell = cell.column.id === "actions"
+
                       const firstCell = visibleCells.findIndex(
                         (h) => h.column.id !== "select"
                       )
@@ -256,7 +258,7 @@ export const DataTableRoot = <TData,>({
                       )
 
                       const isTabableLink = isFirstCell && !!to
-                      const shouldRenderAsLink = !!to && !isSelectCell
+                      const shouldRenderAsLink = !!to && !isSelectCell && !isActionCell
 
                       return (
                         <Table.Cell

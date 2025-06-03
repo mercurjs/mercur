@@ -14,6 +14,8 @@ export const sellerQueryKeys = queryKeysFactory('seller')
 
 type SortableFields = 'email' | 'name' | 'created_at'
 type SortableOrderFields = 'display_id' | 'created_at' | 'updated_at'
+type SortableProductFields = 'title' | 'created_at' | 'updated_at'
+type SortableCustomerGroupFields = 'name' | 'created_at' | 'updated_at'
 
 const sortSellers = (sellers: VendorSeller[], order: string) => {
   const field = order.startsWith('-')
@@ -72,6 +74,68 @@ const sortOrders = (orders: any[], order: string) => {
       const aNum = Number(aValue)
       const bNum = Number(bValue)
       return isDesc ? bNum - aNum : aNum - bNum
+    }
+
+    // Handle string comparison
+    const aString = String(aValue).toLowerCase()
+    const bString = String(bValue).toLowerCase()
+
+    if (aString < bString) return isDesc ? 1 : -1
+    if (aString > bString) return isDesc ? -1 : 1
+    return 0
+  })
+}
+
+const sortProducts = (products: any[], order: string) => {
+  const field = order.startsWith('-')
+    ? (order.slice(1) as SortableProductFields)
+    : (order as SortableProductFields)
+  const isDesc = order.startsWith('-')
+
+  return [...products].sort((a, b) => {
+    let aValue: string | number | null | undefined = a[field]
+    let bValue: string | number | null | undefined = b[field]
+
+    // Handle null/undefined values
+    if (!aValue && aValue !== '') return isDesc ? -1 : 1
+    if (!bValue && bValue !== '') return isDesc ? 1 : -1
+
+    // Special handling for dates
+    if (field === 'created_at' || field === 'updated_at') {
+      const aDate = new Date(String(aValue)).getTime()
+      const bDate = new Date(String(bValue)).getTime()
+      return isDesc ? bDate - aDate : aDate - bDate
+    }
+
+    // Handle string comparison
+    const aString = String(aValue).toLowerCase()
+    const bString = String(bValue).toLowerCase()
+
+    if (aString < bString) return isDesc ? 1 : -1
+    if (aString > bString) return isDesc ? -1 : 1
+    return 0
+  })
+}
+
+const sortCustomerGroups = (customerGroups: any[], order: string) => {
+  const field = order.startsWith('-')
+    ? (order.slice(1) as SortableCustomerGroupFields)
+    : (order as SortableCustomerGroupFields)
+  const isDesc = order.startsWith('-')
+
+  return [...customerGroups].sort((a, b) => {
+    let aValue: string | number | null | undefined = a[field]
+    let bValue: string | number | null | undefined = b[field]
+
+    // Handle null/undefined values
+    if (!aValue && aValue !== '') return isDesc ? -1 : 1
+    if (!bValue && bValue !== '') return isDesc ? 1 : -1
+
+    // Special handling for dates
+    if (field === 'created_at' || field === 'updated_at') {
+      const aDate = new Date(String(aValue)).getTime()
+      const bDate = new Date(String(bValue)).getTime()
+      return isDesc ? bDate - aDate : aDate - bDate
     }
 
     // Handle string comparison
@@ -154,7 +218,8 @@ export const useSeller = (id: string) => {
       mercurQuery(`/admin/sellers/${id}`, {
         method: 'GET',
         query: {
-          fields: 'id,email,name,created_at,status,description,handle,phone'
+          fields:
+            'id,email,name,created_at,status,description,handle,phone,address_line,city,country_code,postal_code,tax_id'
         }
       })
   })
@@ -180,6 +245,23 @@ export const useSellerOrders = (
 
   let processedOrders = [...data.orders]
 
+  if (!filters?.q) {
+    return {
+      data: { ...data, orders: processedOrders },
+      isLoading
+    }
+  }
+
+  if (filters?.q) {
+    const searchTerm = String(filters.q).toLowerCase()
+    processedOrders = processedOrders.filter(
+      (order) =>
+        order.customer?.first_name?.toLowerCase().includes(searchTerm) ||
+        order.customer?.last_name?.toLowerCase().includes(searchTerm) ||
+        order.customer?.email?.toLowerCase().includes(searchTerm)
+    )
+  }
+
   // Apply sorting if present
   if (filters?.order) {
     const order = String(filters.order)
@@ -197,10 +279,18 @@ export const useSellerOrders = (
     }
   }
 
+  // Apply offset pagination if present
+  if (filters?.offset !== undefined) {
+    const offset = Number(filters.offset) || 0
+    const limit = Number(filters.limit) || 10
+    processedOrders = processedOrders.slice(offset, offset + limit)
+  }
+
   return {
     data: {
       ...data,
-      orders: processedOrders
+      orders: processedOrders,
+      count: processedOrders.length
     },
     isLoading
   }
@@ -213,20 +303,140 @@ export const useUpdateSeller = () => {
   })
 }
 
-export const useSellerProducts = (id: string) => {
-  return useQuery({
-    queryKey: ['seller-products', id],
+export const useSellerProducts = (
+  id: string,
+  query?: Record<string, string | number>,
+  filters?: Record<string, string | number>
+) => {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['seller-products', id, query],
     queryFn: () =>
-      mercurQuery(`/admin/sellers/${id}/products`, { method: 'GET' })
+      mercurQuery(`/admin/sellers/${id}/products`, { method: 'GET', query })
   })
+
+  if (!data?.products) {
+    return { data, isLoading, refetch }
+  }
+
+  let processedProducts = [...data.products]
+
+  // Apply search filter if present
+  if (filters?.q) {
+    const searchTerm = String(filters.q).toLowerCase()
+    processedProducts = processedProducts.filter((product) =>
+      product.title?.toLowerCase().includes(searchTerm)
+    )
+  }
+
+  // Apply sorting if present
+  if (filters?.order) {
+    const order = String(filters.order)
+    const validOrders = [
+      'title',
+      '-title',
+      'created_at',
+      '-created_at',
+      'updated_at',
+      '-updated_at'
+    ] as const
+
+    if (validOrders.includes(order as (typeof validOrders)[number])) {
+      processedProducts = sortProducts(processedProducts, order)
+    }
+  }
+
+  // Apply offset pagination if present
+  if (filters?.offset !== undefined) {
+    const offset = Number(filters.offset) || 0
+    const limit = Number(filters.limit) || 10
+    processedProducts = processedProducts.slice(offset, offset + limit)
+  }
+
+  return {
+    data: {
+      ...data,
+      products: processedProducts
+    },
+    count: processedProducts.length,
+    isLoading,
+    refetch
+  }
 }
 
-export const useSellerCustomerGroups = (id: string) => {
-  return useQuery({
-    queryKey: ['seller-customer-groups', id],
+export const useSellerCustomerGroups = (
+  id: string,
+  query?: Record<string, string | number>,
+  filters?: Record<string, string | number>
+) => {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['seller-customer-groups', id, query],
     queryFn: () =>
-      mercurQuery(`/admin/sellers/${id}/customer-groups`, { method: 'GET' })
+      mercurQuery(`/admin/sellers/${id}/customer-groups`, {
+        method: 'GET',
+        query
+      })
   })
+
+  if (!data?.customer_groups) {
+    return {
+      data,
+      isLoading,
+      refetch
+    }
+  }
+
+  let processedCustomerGroups = [
+    ...data.customer_groups.filter((group: any) => !!group)
+  ]
+
+  // Apply search filter if present
+  if (filters?.q) {
+    const searchTerm = String(filters.q).toLowerCase()
+    processedCustomerGroups = processedCustomerGroups.filter((group) =>
+      group.name?.toLowerCase().includes(searchTerm)
+    )
+  }
+
+  // Apply sorting if present
+  if (filters?.order) {
+    const order = String(filters.order)
+    const validOrders = [
+      'name',
+      '-name',
+      'created_at',
+      '-created_at',
+      'updated_at',
+      '-updated_at'
+    ] as const
+
+    if (validOrders.includes(order as (typeof validOrders)[number])) {
+      processedCustomerGroups = sortCustomerGroups(
+        processedCustomerGroups,
+        order
+      )
+    }
+  }
+
+  // Apply offset pagination if present
+  if (filters?.offset !== undefined) {
+    const offset = Number(filters.offset) || 0
+    const limit = Number(filters.limit) || 10
+    processedCustomerGroups = processedCustomerGroups.slice(
+      offset,
+      offset + limit
+    )
+  }
+
+  return {
+    data: {
+      ...data,
+      customer_groups: processedCustomerGroups,
+      count: processedCustomerGroups.length
+    },
+    count: processedCustomerGroups.length,
+    isLoading,
+    refetch
+  }
 }
 
 export const useInviteSeller = () => {

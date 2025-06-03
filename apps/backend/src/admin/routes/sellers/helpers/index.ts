@@ -61,7 +61,10 @@ export const useSellersTableQuery = ({ prefix, pageSize = 20 }: any) => {
   }
 }
 
-export const useSellerOrdersTableQuery = ({ prefix, pageSize = 20 }: any) => {
+export const useSellerOrdersTableQuery = ({
+  prefix = 'so',
+  pageSize = 20
+}: any) => {
   const queryObject = useQueryParams(
     ['offset', 'q', 'created_at', 'status', 'id', 'order'],
     prefix

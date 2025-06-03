@@ -74,7 +74,7 @@ export const SellerGeneralSection = ({ seller }: { seller: any }) => {
             <Divider />
             <div className="px-8 py-4 flex">
               <Text className="font-medium text-ui-fg-subtle w-1/2">Address</Text>
-              <Text className="w-1/2">{seller.address}</Text>
+              <Text className="w-1/2">{seller.address_line}</Text>
             </div>
             <Divider />
             <div className="px-8 py-4 flex">
@@ -89,7 +89,7 @@ export const SellerGeneralSection = ({ seller }: { seller: any }) => {
             <Divider />
             <div className="px-8 py-4 flex">
               <Text className="font-medium text-ui-fg-subtle w-1/2">Country</Text>
-              <Text className="w-1/2">{seller.country}</Text>
+              <Text className="w-1/2">{seller.country_code}</Text>
             </div>
             <Divider />
             <div className="px-8 py-4 flex">

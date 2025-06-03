@@ -11,10 +11,10 @@ export const SellerEditForm = ({ seller }: { seller: any }) => {
       email: seller?.email,
       phone: seller?.phone,
       description: seller?.description,
-      address: seller?.address,
+      address_line: seller?.address_line,
       city: seller?.city,
       state: seller?.state,
-      country: seller?.country,
+      country_code: seller?.country_code,
       postal_code: seller?.postal_code,
       tax_id: seller?.tax_id,
     },
@@ -50,7 +50,7 @@ export const SellerEditForm = ({ seller }: { seller: any }) => {
         <Heading>Address</Heading>
         <Label>
           Address 
-          <Input {...form.register("address")} placeholder="Address" className="my-2" />
+          <Input {...form.register("address_line")} placeholder="Address" className="my-2" />
         </Label>
         <Label>
           Postal Code 
@@ -62,7 +62,7 @@ export const SellerEditForm = ({ seller }: { seller: any }) => {
         </Label>
         <Label>
           Country 
-          <Input {...form.register("country")} placeholder="Country" className="my-2" />
+          <Input {...form.register("country_code")} placeholder="Country" className="my-2" />
         </Label>
         <Label>
           TaxID 
