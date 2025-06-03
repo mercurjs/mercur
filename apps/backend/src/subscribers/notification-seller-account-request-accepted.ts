@@ -3,7 +3,7 @@ import { Modules } from '@medusajs/framework/utils'
 
 import {
   RequestDTO,
-  SellerRequestUpdatedEvent
+  SellerAccountRequestUpdatedEvent
 } from '../modules/requests/types'
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
 
@@ -29,7 +29,7 @@ export default async function sellerRequestAcceptedHandler({
 }
 
 export const config: SubscriberConfig = {
-  event: SellerRequestUpdatedEvent.ACCEPTED,
+  event: SellerAccountRequestUpdatedEvent.ACCEPTED,
   context: {
     subscriberId: 'seller-account-request-accepted-handler'
   }

@@ -2,7 +2,7 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { Modules } from '@medusajs/framework/utils'
 
 import { RequestDTO } from '../modules/requests/types'
-import { SellerRequestUpdatedEvent } from '../modules/requests/types/events'
+import { SellerAccountRequestUpdatedEvent } from '../modules/requests/types/events'
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
 
 export default async function sellerRequestRejectedHandler({
@@ -26,7 +26,7 @@ export default async function sellerRequestRejectedHandler({
 }
 
 export const config: SubscriberConfig = {
-  event: SellerRequestUpdatedEvent.REJECTED,
+  event: SellerAccountRequestUpdatedEvent.REJECTED,
   context: {
     subscriberId: 'seller-account-request-rejected-handler'
   }

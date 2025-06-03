@@ -2,12 +2,13 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import { ProductRequestUpdatedEvent } from '../modules/requests/types'
+import { sendVendorUIRequestNotification } from '../modules/requests/utils/notifications'
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
 
 export default async function sellerProductRequestRejectedHandler({
   event,
   container
-}: SubscriberArgs<{ request_id: string }>) {
+}: SubscriberArgs<{ id: string }>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -17,7 +18,7 @@ export default async function sellerProductRequestRejectedHandler({
     entity: 'request',
     fields: ['*'],
     filters: {
-      id: event.data.request_id
+      id: event.data.id
     }
   })
 
@@ -47,6 +48,13 @@ export default async function sellerProductRequestRejectedHandler({
       subject: 'Mercur - Product rejected!'
     },
     data: { data: { product_title: productRequest.data.title } }
+  })
+
+  await sendVendorUIRequestNotification({
+    container,
+    requestId: event.data.id,
+    requestType: 'product',
+    template: 'seller_product_request_rejected_notification'
   })
 }
 
