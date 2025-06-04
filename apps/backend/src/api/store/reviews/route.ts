@@ -128,7 +128,8 @@ export const GET = async (
     entity: customerReview.entryPoint,
     fields: req.queryConfig.fields.map((field) => `review.${field}`),
     filters: {
-      customer_id: req.auth_context.actor_id
+      customer_id: req.auth_context.actor_id,
+      deleted_at: { $eq: null }
     },
     pagination: req.queryConfig.pagination
   })

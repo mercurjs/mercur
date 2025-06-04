@@ -151,7 +151,8 @@ export const GET = async (
       'wishlist.products.variants.prices.*'
     ],
     filters: {
-      customer_id: req.auth_context.actor_id
+      customer_id: req.auth_context.actor_id,
+      deleted_at: { $eq: null }
     },
     pagination: req.queryConfig.pagination
   })
