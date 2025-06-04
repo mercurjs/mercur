@@ -35,52 +35,53 @@ export const SellerEditForm = ({ seller }: { seller: any }) => {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <div>
-        <Heading>Edit seller</Heading>
-        <Label>
-          Name 
-          <Input {...form.register("name")} placeholder="Name" className="my-2" />
-        </Label>
-        <Label>
-          Email 
-          <Input {...form.register("email")} placeholder="Email" className="my-2" />
-        </Label>
-        <Label>
-          Phone 
-          <Input {...form.register("phone")} placeholder="Phone" className="my-2" />
-        </Label>
-        <Label>
-          Description 
-          <Textarea {...form.register("description")} placeholder="Description" className="my-2" />
-        </Label>
+      <div className="flex flex-col gap-4">
+        <div>
+          <Heading>Edit seller</Heading>
+          <Label>
+            Name 
+            <Input {...form.register("name")} placeholder="Name" className="my-2" />
+          </Label>
+          <Label>
+            Email 
+            <Input {...form.register("email")} placeholder="Email" className="my-2" />
+          </Label>
+          <Label>
+            Phone 
+            <Input {...form.register("phone")} placeholder="Phone" className="my-2" />
+          </Label>
+          <Label>
+            Description 
+            <Textarea {...form.register("description")} placeholder="Description" className="my-2" />
+          </Label>
+        </div>
+        <div>
+          <Heading>Address</Heading>
+          <Label>
+            Address 
+            <Input {...form.register("address_line")} placeholder="Address" className="my-2" />
+          </Label>
+          <Label>
+            Postal Code 
+            <Input {...form.register("postal_code")} placeholder="Postal Code" className="my-2" />
+          </Label>
+          <Label>
+            City 
+            <Input {...form.register("city")} placeholder="City" className="my-2" />
+          </Label>
+          <Label>
+            Country 
+            <Input {...form.register("country_code")} placeholder="Country" className="my-2" />
+          </Label>
+          <Label>
+            TaxID 
+            <Input {...form.register("tax_id")} placeholder="TaxID" className="my-2" />
+          </Label>
+        </div>
+        <div className="flex justify-end">
+        <Button type="submit">Save</Button>
+        </div>
       </div>
-      <div>
-        <Heading>Address</Heading>
-        <Label>
-          Address 
-          <Input {...form.register("address_line")} placeholder="Address" className="my-2" />
-        </Label>
-        <Label>
-          Postal Code 
-          <Input {...form.register("postal_code")} placeholder="Postal Code" className="my-2" />
-        </Label>
-        <Label>
-          City 
-          <Input {...form.register("city")} placeholder="City" className="my-2" />
-        </Label>
-        <Label>
-          Country 
-          <Input {...form.register("country_code")} placeholder="Country" className="my-2" />
-        </Label>
-        <Label>
-          TaxID 
-          <Input {...form.register("tax_id")} placeholder="TaxID" className="my-2" />
-        </Label>
-      </div>
-      <div className="flex justify-end">
-      <Button type="submit">Save</Button>
-      </div>
-      
     </form>
   );
 };

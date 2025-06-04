@@ -460,6 +460,8 @@ export const useOrderSet = (id: string) => {
   return useQuery({
     queryKey: ['order-set', id],
     queryFn: () =>
-      mercurQuery(`/admin/order-sets?order_id=${id}`, { method: 'GET' })
+      mercurQuery(`/admin/order-sets?order_id=${id}`, {
+        method: 'GET'
+      })
   })
 }

@@ -7,6 +7,8 @@ export const PaymentStatusBadge = ({ status }: { status: string }) => {
       return <StatusCell color='orange'>{formattedStatus}</StatusCell>
     case 'Captured':
       return <StatusCell color='green'>{formattedStatus}</StatusCell>
+    case 'Completed':
+      return <StatusCell color='green'>{formattedStatus}</StatusCell>
     case 'Cancelled':
       return <StatusCell color='red'>{formattedStatus}</StatusCell>
     default:

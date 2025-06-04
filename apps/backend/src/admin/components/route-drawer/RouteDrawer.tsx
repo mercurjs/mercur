@@ -15,8 +15,8 @@ export const RouteDrawer = ({
         <Drawer.Header>
           <Drawer.Title>{header}</Drawer.Title>
         </Drawer.Header>
-        <Drawer.Body>
-          <div className="flex flex-col gap-4 p-4">
+        <Drawer.Body className="overflow-y-auto h-full">
+          <div className="flex flex-col gap-4 px-4">
             {children}
           </div>
         </Drawer.Body>
