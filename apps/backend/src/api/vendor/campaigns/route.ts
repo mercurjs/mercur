@@ -64,7 +64,7 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: campaigns, metadata } = await query.graph({
+  const { data: relations, metadata } = await query.graph({
     entity: sellerCampaign.entryPoint,
     fields: req.queryConfig.fields.map((field) => `campaign.${field}`),
     filters: {
@@ -76,9 +76,13 @@ export const GET = async (
     pagination: req.queryConfig.pagination
   })
 
+  const activeCampaigns = relations
+    .map((relation) => relation.campaign)
+    .filter((campaign) => !!campaign)
+
   res.json({
-    campaigns: campaigns.map((relation) => relation.campaign),
-    count: metadata?.count,
+    campaigns: activeCampaigns,
+    count: activeCampaigns.length,
     offset: metadata?.skip,
     limit: metadata?.take
   })
