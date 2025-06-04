@@ -112,7 +112,8 @@ export const GET = async (
       entity: sellerProduct.entryPoint,
       fields: ['product_id'],
       filters: {
-        seller_id: seller.id
+        seller_id: seller.id,
+        deleted_at: { $eq: null }
       }
     })
 
@@ -124,7 +125,8 @@ export const GET = async (
       entity: sellerCustomerGroup.entryPoint,
       fields: ['customer_group_id'],
       filters: {
-        seller_id: seller.id
+        seller_id: seller.id,
+        deleted_at: { $eq: null }
       }
     })
 
