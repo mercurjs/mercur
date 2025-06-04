@@ -76,7 +76,10 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
           allowUnregistered: false
         })
       ),
-      unlessBaseUrl(/^\/vendor\/(sellers|orders|fulfillment)/, storeActiveGuard)
+      unlessBaseUrl(
+        /^\/vendor\/(sellers|orders|fulfillment|invites\/accept)/,
+        storeActiveGuard
+      )
     ]
   },
   ...vendorMeMiddlewares,
