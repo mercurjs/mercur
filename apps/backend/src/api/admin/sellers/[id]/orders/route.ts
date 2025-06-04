@@ -15,7 +15,10 @@ export const GET = async (
     entity: sellerOrder.entryPoint,
     fields: ['order_id'],
     filters: {
-      seller_id: req.params.id
+      seller_id: req.params.id,
+      deleted_at: {
+        $eq: null
+      }
     }
   })
 
