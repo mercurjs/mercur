@@ -455,3 +455,11 @@ export const useInviteSeller = () => {
       })
   })
 }
+
+export const useOrderSet = (id: string) => {
+  return useQuery({
+    queryKey: ['order-set', id],
+    queryFn: () =>
+      mercurQuery(`/admin/order-sets?order_id=${id}`, { method: 'GET' })
+  })
+}

@@ -31,7 +31,6 @@ export const SellerGeneralSection = ({ seller }: { seller: any }) => {
     }
   }
 
-  console.log({ seller })
 
   return (
     <>

@@ -21,6 +21,7 @@ import { VendorSeller } from "@mercurjs/http-client";
 import { useDataTable } from "../../hooks/table/use-data-table";
 import { DataTable } from "../../components/table/data-table";
 import { useInviteSeller, useSellers, useUpdateSeller } from "../../hooks/api/seller";
+import { useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 10
 
@@ -49,8 +50,6 @@ const SellersListPage = () => {
     }) as SellersResponse;
 
   const { mutateAsync: inviteSeller } = useInviteSeller();
-
-
 
   const columns = useColumns()
 
@@ -151,6 +150,8 @@ const useColumns = () => {
 
   const dialog = usePrompt()
 
+  const navigate = useNavigate()
+
   const { mutateAsync: suspendSeller } = useUpdateSeller();
 
   const handleSuspend = async (seller: SellersProps) => {
@@ -185,7 +186,7 @@ const useColumns = () => {
             actions={[
               {
                 label: "Edit",
-                onClick: () => null,
+                onClick: () => navigate(`/sellers/${row.original.id}/edit`),
                 icon: <PencilSquare />
               },
               {
