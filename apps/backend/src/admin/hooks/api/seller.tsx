@@ -2,7 +2,8 @@ import {
   QueryKey,
   UseQueryOptions,
   useMutation,
-  useQuery
+  useQuery,
+  useQueryClient
 } from '@tanstack/react-query'
 
 import { VendorSeller } from '@mercurjs/http-client'
@@ -162,7 +163,7 @@ export const useSellers = (
   filters?: Record<string, string | number>
 ) => {
   const { data, ...other } = useQuery({
-    queryKey: sellerQueryKeys.list(query),
+    queryKey: sellerQueryKeys.list(),
     queryFn: () =>
       mercurQuery('/admin/sellers', {
         method: 'GET',
@@ -219,7 +220,7 @@ export const useSeller = (id: string) => {
         method: 'GET',
         query: {
           fields:
-            'id,email,name,created_at,status,description,handle,phone,address_line,city,country_code,postal_code,tax_id'
+            'id,email,name,created_at,store_status,description,handle,phone,address_line,city,country_code,postal_code,tax_id'
         }
       })
   })
@@ -297,9 +298,15 @@ export const useSellerOrders = (
 }
 
 export const useUpdateSeller = () => {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
-      mercurQuery(`/admin/sellers/${id}`, { method: 'POST', body: data })
+      mercurQuery(`/admin/sellers/${id}`, { method: 'POST', body: data }),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: sellerQueryKeys.list() })
+      queryClient.invalidateQueries({ queryKey: sellerQueryKeys.detail(id) })
+    }
   })
 }
 

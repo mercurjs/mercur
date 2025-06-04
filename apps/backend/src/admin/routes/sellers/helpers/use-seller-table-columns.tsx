@@ -21,9 +21,9 @@ export const useSellersTableColumns = () => {
         cell: ({ row }) => row.original.name
       }),
       columnHelper.display({
-        id: 'status',
+        id: 'store_status',
         header: 'Account Status',
-        cell: ({row}) => <SellerStatusBadge status={row.original.status || 'pending' } />
+        cell: ({row}) => <SellerStatusBadge status={row.original.store_status || '-' } />
       }),
       columnHelper.display({
         id: 'created_at',

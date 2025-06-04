@@ -8,10 +8,11 @@ import {
   Label,
   Text,
   toast,
+  usePrompt,
 } from "@medusajs/ui";
 import { useMemo, useState } from "react";
 import { useSellersTableQuery, validateEmail } from "./helpers";
-import { useInviteSeller, useSellers } from "../../hooks/api/seller";
+
 import { ActionsButton } from "../../common/ActionsButton";
 import { PencilSquare, Shopping, User } from "@medusajs/icons";
 import { useSellersTableColumns } from "./helpers/use-seller-table-columns";
@@ -19,8 +20,16 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { VendorSeller } from "@mercurjs/http-client";
 import { useDataTable } from "../../hooks/table/use-data-table";
 import { DataTable } from "../../components/table/data-table";
+import { useInviteSeller, useSellers, useUpdateSeller } from "../../hooks/api/seller";
 
 const PAGE_SIZE = 10
+
+type SellersProps = VendorSeller & { store_status: string }
+
+type SellersResponse = {
+  sellers?: SellersProps[],
+  isLoading: boolean
+}
 
 const SellersListPage = () => {
   const [open, setOpen] = useState(false);
@@ -30,16 +39,17 @@ const SellersListPage = () => {
     offset: 0,
   })
   
+  
   const { sellers, isLoading } = useSellers({
-    fields: "id,email,name,created_at,status"},
+    fields: "id,email,name,created_at,store_status"},
     undefined,
     {
       q: searchParams.q,
       order: searchParams.order
-    });
-
+    }) as SellersResponse;
 
   const { mutateAsync: inviteSeller } = useInviteSeller();
+
 
 
   const columns = useColumns()
@@ -136,7 +146,32 @@ export const config = defineRouteConfig({
 
 const columnHelper = createColumnHelper<VendorSeller>()
 
+
 const useColumns = () => {
+
+  const dialog = usePrompt()
+
+  const { mutateAsync: suspendSeller } = useUpdateSeller();
+
+  const handleSuspend = async (seller: SellersProps) => {
+    const res = await dialog({
+      title: seller.store_status === "SUSPENDED" ? "Activate account" : "Suspend account",
+      description: seller.store_status === "SUSPENDED" ? "Are you sure you want to activate this account?" : "Are you sure you want to suspend this account?",
+      verificationText: seller.email || seller.name || "",
+    })
+
+    if (!res) {
+      return
+    }
+
+    if (seller.store_status === "SUSPENDED") {
+      await suspendSeller({ id:seller.id, data: { store_status: "ACTIVE" } });
+    } else {
+      await suspendSeller({ id:seller.id, data: { store_status: "SUSPENDED" } });
+    }
+    
+  };
+
   const base = useSellersTableColumns()
 
   const columns = useMemo(
@@ -144,7 +179,7 @@ const useColumns = () => {
       ...base,
       columnHelper.display({
         id: "actions",
-        cell: () => {
+        cell: ({row}) => {
           return (
           <ActionsButton
             actions={[
@@ -154,8 +189,9 @@ const useColumns = () => {
                 icon: <PencilSquare />
               },
               {
-                label: "Suspend account",
-                onClick: () => null,
+                // @ts-ignore
+                label: row.original.store_status === "SUSPENDED" ? "Activate account" : "Suspend account",
+                onClick: () => handleSuspend(row.original as SellersProps),
                 icon: <User />
               }
               ]}

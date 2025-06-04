@@ -1,12 +1,37 @@
-import { Container, Divider, Heading, Text } from "@medusajs/ui";
+import { Container, Divider, Heading, Text, usePrompt } from "@medusajs/ui";
 import { SellerStatusBadge } from "../../../../components/seller-status-badge/SellerStatusBagde";
 import { ActionsButton } from "../../../../common/ActionsButton";
 import { PencilSquare, User } from "@medusajs/icons";
 import { useNavigate } from "react-router-dom";
+import { useUpdateSeller } from "../../../../hooks/api/seller";
 
 export const SellerGeneralSection = ({ seller }: { seller: any }) => {
 
   const navigate = useNavigate();
+
+  const { mutateAsync: suspendSeller } = useUpdateSeller();
+
+  const dialog = usePrompt()
+  
+  const handleSuspend = async () => {
+    const res = await dialog({
+      title: seller.store_status === "SUSPENDED" ? "Activate account" : "Suspend account",
+      description: seller.store_status === "SUSPENDED" ? "Are you sure you want to activate this account?" : "Are you sure you want to suspend this account?",
+      verificationText: seller.email || seller.name || "",
+    })
+
+    if (!res) {
+      return
+    }
+
+    if (seller.store_status === "SUSPENDED") {
+      await suspendSeller({ id: seller.id, data: { store_status: "ACTIVE" } });
+    } else {
+      await suspendSeller({ id: seller.id, data: { store_status: "SUSPENDED" } });
+    }
+  }
+
+  console.log({ seller })
 
   return (
     <>
@@ -15,7 +40,7 @@ export const SellerGeneralSection = ({ seller }: { seller: any }) => {
           <div className="flex items-center justify-between">
             <Heading>{seller.email || seller.name}</Heading>
             <div className="flex items-center gap-2">
-              <SellerStatusBadge status={seller.status || 'pending'} />
+              <SellerStatusBadge status={seller.store_status || 'pending'} />
               <ActionsButton
                 actions={[
                   {
@@ -24,8 +49,8 @@ export const SellerGeneralSection = ({ seller }: { seller: any }) => {
                     icon: <PencilSquare />
                   },
                   {
-                    label: "Suspend account",
-                    onClick: () => null,
+                    label: seller.store_status === "SUSPENDED" ? "Activate account" : "Suspend account",
+                    onClick: () => handleSuspend(),
                     icon: <User />
                   }
                 ]}

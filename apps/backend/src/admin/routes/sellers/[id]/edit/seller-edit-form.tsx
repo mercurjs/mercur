@@ -1,28 +1,36 @@
-import { Button, Heading, Input, Label, Textarea } from "@medusajs/ui";
+import { Button, Heading, Input, Label, Textarea, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useUpdateSeller } from "../../../../hooks/api/seller";
+import { useNavigate } from "react-router-dom";
 
 export const SellerEditForm = ({ seller }: { seller: any }) => {
 
-    const { mutate: updateSeller } = useUpdateSeller();
+  const { mutate: updateSeller } = useUpdateSeller();
+
+  const navigate = useNavigate();
+
   const form = useForm({
     defaultValues: {
-      name: seller?.name,
-      email: seller?.email,
-      phone: seller?.phone,
-      description: seller?.description,
-      address_line: seller?.address_line,
-      city: seller?.city,
-      state: seller?.state,
-      country_code: seller?.country_code,
-      postal_code: seller?.postal_code,
-      tax_id: seller?.tax_id,
+      name: seller?.name || undefined,
+      email: seller?.email || '',
+      phone: seller?.phone || undefined,
+      description: seller?.description || undefined,
+      address_line: seller?.address_line || undefined,
+      city: seller?.city || undefined,
+      state: seller?.state || undefined,
+      country_code: seller?.country_code || undefined,
+      postal_code: seller?.postal_code || undefined,
+      tax_id: seller?.tax_id || undefined,
     },
   });
 
   const onSubmit = async(data: any) => {
-    await updateSeller({ id: seller.id, data: { fields: data } })
-    // console.log(data);
+    if (!data.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      toast.error("Invalid email address");
+      return;
+    }
+    await updateSeller({ id: seller.id, data })
+    navigate(`/sellers/${seller.id}`)
   };
 
   return (
@@ -69,7 +77,10 @@ export const SellerEditForm = ({ seller }: { seller: any }) => {
           <Input {...form.register("tax_id")} placeholder="TaxID" className="my-2" />
         </Label>
       </div>
+      <div className="flex justify-end">
       <Button type="submit">Save</Button>
+      </div>
+      
     </form>
   );
 };
