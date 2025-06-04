@@ -24,6 +24,7 @@ export default async function sellerNewOrderHandler({
       'items.*',
       'seller.email',
       'seller.name',
+      'seller.id',
       'customer.first_name',
       'customer.last_name'
     ],
@@ -43,22 +44,34 @@ export default async function sellerNewOrderHandler({
     return
   }
 
-  await notificationService.createNotifications({
-    to: sellerEmail,
-    channel: 'email',
-    template: ResendNotificationTemplates.SELLER_NEW_ORDER,
-    content: {
-      subject: `New order #${order.display_id} received`
+  const customer_name = `${order.customer?.first_name || ''} ${order.customer?.last_name || ''}`
+  await notificationService.createNotifications([
+    {
+      to: sellerEmail,
+      channel: 'email',
+      template: ResendNotificationTemplates.SELLER_NEW_ORDER,
+      content: {
+        subject: `New order #${order.display_id} received`
+      },
+      data: {
+        data: {
+          order_id: order.id,
+          order,
+          customer_name,
+          seller_name: order.seller?.name || ''
+        }
+      }
     },
-    data: {
+    {
+      to: order.seller?.id,
+      channel: 'seller_feed',
+      template: 'seller_new_order_notification',
       data: {
         order_id: order.id,
-        order,
-        customer_name: `${order.customer?.first_name || ''} ${order.customer?.last_name || ''}`,
-        seller_name: order.seller?.name || ''
+        customer_name
       }
     }
-  })
+  ])
 }
 
 export const config: SubscriberConfig = {

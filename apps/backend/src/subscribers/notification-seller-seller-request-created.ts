@@ -12,6 +12,11 @@ export default async function requestCreatedSellerAccountUpdatesNotifyHandler({
     provider_identity_id: string
     member: { name: string }
   }
+
+  if (event.data.type !== 'seller') {
+    return
+  }
+
   const notificationService = container.resolve(Modules.NOTIFICATION)
 
   await notificationService.createNotifications({
@@ -20,6 +25,11 @@ export default async function requestCreatedSellerAccountUpdatesNotifyHandler({
     template: ResendNotificationTemplates.SELLER_ACCOUNT_UPDATES_SUBMISSION,
     content: {
       subject: 'Your submission has been received'
+    },
+    data: {
+      data: {
+        user_name: requestData.member.name
+      }
     }
   })
 }

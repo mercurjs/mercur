@@ -2,12 +2,9 @@ import { Modules } from '@medusajs/framework/utils'
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/medusa'
 
 import { HumanizeTypes } from '../modules/requests/enum/humanize_types'
-import { RequestDTO, SellerRequest } from '../modules/requests/types'
+import { RequestDTO, RequestUpdated } from '../modules/requests/types'
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
-import {
-  fetchAdminEmails,
-  fetchSellerByAuthActorId
-} from '../shared/infra/http/utils'
+import { fetchAdminEmails } from '../shared/infra/http/utils'
 
 export default async function requestCreatedAdminNotifyHandler({
   event,
@@ -15,7 +12,7 @@ export default async function requestCreatedAdminNotifyHandler({
 }: SubscriberArgs<RequestDTO>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const {
-    data: { type }
+    data: { type, data }
   } = event
 
   await notificationService.createNotifications({
@@ -34,12 +31,6 @@ export default async function requestCreatedAdminNotifyHandler({
 
   if (type === 'seller') {
     const admins = await fetchAdminEmails(container)
-    const seller = await fetchSellerByAuthActorId(
-      event.data.submitter_id,
-      container,
-      ['name']
-    )
-
     const notifications = admins.map((email) => ({
       to: email,
       channel: 'email',
@@ -49,7 +40,7 @@ export default async function requestCreatedAdminNotifyHandler({
       },
       data: {
         data: {
-          seller_name: seller.name
+          seller_name: (data as any).seller.name || ''
         }
       }
     }))
@@ -59,7 +50,7 @@ export default async function requestCreatedAdminNotifyHandler({
 }
 
 export const config: SubscriberConfig = {
-  event: SellerRequest.CREATED,
+  event: RequestUpdated.CREATED,
   context: {
     subscriberId: 'request-created-admin-notify-handler'
   }

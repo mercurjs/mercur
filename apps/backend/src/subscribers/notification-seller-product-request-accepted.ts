@@ -1,15 +1,29 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
+import { CONFIGURATION_MODULE } from '../modules/configuration'
+import ConfigurationModuleService from '../modules/configuration/service'
+import { ConfigurationRuleType } from '../modules/configuration/types'
 import { ProductRequestUpdatedEvent } from '../modules/requests/types'
+import { sendVendorUIRequestNotification } from '../modules/requests/utils/notifications'
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
 
 export default async function sellerProductRequestAcceptedHandler({
   event,
   container
-}: SubscriberArgs<{ request_id: string }>) {
+}: SubscriberArgs<{ id: string }>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const configurationService =
+    container.resolve<ConfigurationModuleService>(CONFIGURATION_MODULE)
+
+  if (
+    !configurationService.isRuleEnabled(
+      ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL
+    )
+  ) {
+    return
+  }
 
   const {
     data: [productRequest]
@@ -17,7 +31,7 @@ export default async function sellerProductRequestAcceptedHandler({
     entity: 'request',
     fields: ['*'],
     filters: {
-      id: event.data.request_id
+      id: event.data.id
     }
   })
 
@@ -38,6 +52,13 @@ export default async function sellerProductRequestAcceptedHandler({
   if (!member || !member.email) {
     return
   }
+
+  await sendVendorUIRequestNotification({
+    container,
+    requestId: event.data.id,
+    requestType: 'product',
+    template: 'seller_product_request_accepted_notification'
+  })
 
   await notificationService.createNotifications({
     to: member.email,
