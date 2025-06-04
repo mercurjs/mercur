@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
+import { StoreStatus } from '../../../modules/seller/types'
+
 export type AdminSellerParamsType = z.infer<typeof AdminSellerParams>
 export const AdminSellerParams = createFindParams({
   offset: 0,
@@ -47,9 +49,11 @@ export const AdminUpdateSeller = z
     state: z.string().optional(),
     postal_code: z.string().optional(),
     country_code: z.string().optional(),
-    tax_id: z.string().optional()
+    tax_id: z.string().optional(),
+    store_status: z.nativeEnum(StoreStatus).optional()
   })
   .strict()
+
 export type AdminInviteSellerType = z.infer<typeof AdminInviteSeller>
 export const AdminInviteSeller = z.object({
   email: z.string().email(),
