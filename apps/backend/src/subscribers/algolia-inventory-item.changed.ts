@@ -12,7 +12,7 @@ export default async function inventoryItemChangedHandler({
 
   const { data: items } = await query.graph({
     entity: 'inventory_item',
-    fields: ['variant.product_id'],
+    fields: ['variants.product_id'],
     filters: {
       id: event.data.id
     }
