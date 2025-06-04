@@ -32,7 +32,11 @@ import { OrderSetWorkflowEvents } from '../../../modules/marketplace/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { registerUsageStep } from '../../promotions/steps'
 import { createSplitOrderPaymentsStep } from '../../split-order-payment/steps'
-import { createOrderSetStep, validateCartShippingOptionsStep } from '../steps'
+import {
+  createOrderSetStep,
+  validateCartSellersStep,
+  validateCartShippingOptionsStep
+} from '../steps'
 import {
   completeCartFields,
   prepareConfirmInventoryInput,
@@ -72,6 +76,12 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         },
         list: false
       }).config({ name: 'cart-query' })
+
+      validateCartSellersStep(
+        transform({ cart }, ({ cart }) => ({
+          line_items: cart.items
+        }))
+      )
 
       const validateCartShippingOptionsInput = transform(
         { cart },

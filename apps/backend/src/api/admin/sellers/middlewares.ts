@@ -41,7 +41,7 @@ export const sellerMiddlewares: MiddlewareRoute[] = [
     ]
   },
   {
-    method: ['GET'],
+    method: ['POST'],
     matcher: '/admin/sellers/:id',
     middlewares: [
       unlessPath(
