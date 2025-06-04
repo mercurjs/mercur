@@ -14,7 +14,10 @@ export const GET = async (
     entity: sellerCustomerGroup.entryPoint,
     fields: req.queryConfig.fields.map((field) => `customer_group.${field}`),
     filters: {
-      seller_id: req.params.id
+      seller_id: req.params.id,
+      deleted_at: {
+        $eq: null
+      }
     },
     pagination: req.queryConfig.pagination
   })
