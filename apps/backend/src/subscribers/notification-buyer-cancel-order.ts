@@ -43,6 +43,7 @@ export default async function buyerCancelOrderHandler({
       data: {
         order: {
           id: order.id,
+          display_id: order.display_id,
           item: order.items
         }
       }
