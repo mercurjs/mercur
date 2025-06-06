@@ -1,10 +1,11 @@
-import { emitEventStep } from '@medusajs/medusa/core-flows'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
 import {
   CreateRequestDTO,
+  RequestUpdated,
   SellerRequest
 } from '../../../modules/requests/types'
+import { emitMultipleEventsStep } from '../../common/steps'
 import { createRequestStep } from '../steps'
 
 export const createSellerCreationRequestWorkflow = createWorkflow(
@@ -12,11 +13,16 @@ export const createSellerCreationRequestWorkflow = createWorkflow(
   function (input: CreateRequestDTO) {
     const request = createRequestStep(input)
 
-    emitEventStep({
-      eventName: SellerRequest.CREATED,
-      data: input
-    })
-
+    emitMultipleEventsStep([
+      {
+        name: SellerRequest.CREATED,
+        data: input
+      },
+      {
+        name: RequestUpdated.CREATED,
+        data: input
+      }
+    ])
     return new WorkflowResponse(request)
   }
 )
