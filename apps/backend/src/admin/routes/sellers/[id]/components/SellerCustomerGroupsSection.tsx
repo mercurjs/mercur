@@ -10,6 +10,7 @@ import { formatDate } from "../../../../lib/date";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../../../lib/client";
 import { toast } from "@medusajs/ui";
+import { useCustomerGroupTableFilters } from "../../helpers/use-customer-groups-table-filters";
 
 const PAGE_SIZE = 10
 const PREFIX = 'scg'
@@ -24,6 +25,7 @@ export const SellerCustomerGroupsSection = ({ seller_customer_groups, refetch }:
   })
 
   const columns = useColumns(refetch)
+  const filters = useCustomerGroupTableFilters()
 
   const { table } = useDataTable({
     data: customer_groups,
@@ -43,6 +45,7 @@ export const SellerCustomerGroupsSection = ({ seller_customer_groups, refetch }:
       </div>
       <Divider />
       <DataTable
+        filters={filters}
         table={table}
         columns={columns}
         count={count}
