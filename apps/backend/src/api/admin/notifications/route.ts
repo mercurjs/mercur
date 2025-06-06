@@ -11,7 +11,7 @@ export const GET = async (
 ) => {
   const { rows: notifications, metadata } = await refetchEntities(
     'notification',
-    { ...req.filterableFields, channel: { $ne: 'seller_feed' } },
+    { ...req.filterableFields, channel: 'feed' },
     req.scope,
     req.queryConfig.fields,
     req.queryConfig.pagination
