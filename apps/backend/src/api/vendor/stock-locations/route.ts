@@ -3,6 +3,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createStockLocationsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerStockLocationLink from '../../../links/seller-stock-location'
+import { IntermediateEvents } from '../../../modules/algolia/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { VendorCreateStockLocationType } from './validators'
@@ -64,6 +65,12 @@ export const POST = async (
     }
   })
 
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.STOCK_LOCATION_CHANGED,
+    data: { id: result[0].id }
+  })
+
   const {
     data: [stockLocation]
   } = await query.graph({
@@ -118,7 +125,12 @@ export const GET = async (
   const { data: sellerLocations, metadata } = await query.graph({
     entity: sellerStockLocationLink.entryPoint,
     fields: req.queryConfig.fields.map((field) => `stock_location.${field}`),
-    filters: req.filterableFields,
+    filters: {
+      ...req.filterableFields,
+      deleted_at: {
+        $eq: null
+      }
+    },
     pagination: req.queryConfig.pagination
   })
 

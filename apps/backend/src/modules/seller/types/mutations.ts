@@ -1,4 +1,4 @@
-import { MemberInviteDTO, MemberRole, SellerDTO } from './common'
+import { MemberInviteDTO, MemberRole, SellerDTO, StoreStatus } from './common'
 
 export interface CreateSellerDTO
   extends Omit<
@@ -22,6 +22,7 @@ export interface UpdateSellerDTO {
   tax_id?: string
   handle?: string
   photo?: string
+  store_status?: StoreStatus
 }
 
 export interface CreateMemberDTO {
@@ -59,4 +60,9 @@ export interface AcceptMemberInviteDTO {
 
 export interface UpdateMemberInviteDTO extends Partial<MemberInviteDTO> {
   id: string
+}
+
+export interface CreateSellerInvitationDTO {
+  email: string
+  registration_url: string
 }

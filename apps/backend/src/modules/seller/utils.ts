@@ -100,9 +100,13 @@ export async function selectCustomersChartData(
   const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
   const result = await knex
-    .with('customer_orders', (qb) => {
-      qb.distinct('customer_id')
-        .select('seller_seller_order_order.created_at as order_date')
+    .with('customer_first_orders', (qb) => {
+      qb.select('customer_id')
+        .select(
+          knex.raw(
+            'MIN(seller_seller_order_order.created_at) as first_order_date'
+          )
+        )
         .from('order')
         .leftJoin(
           'seller_seller_order_order',
@@ -110,11 +114,12 @@ export async function selectCustomersChartData(
           'seller_seller_order_order.order_id'
         )
         .where('seller_id', seller_id)
-        .andWhereBetween('seller_seller_order_order.created_at', time_range)
+        .groupBy('customer_id')
     })
-    .select(knex.raw(`DATE_TRUNC('DAY', "order_date") AS date`))
+    .select(knex.raw(`DATE_TRUNC('DAY', "first_order_date") AS date`))
     .count('*')
-    .from('customer_orders')
+    .from('customer_first_orders')
+    .whereBetween('first_order_date', time_range)
     .groupByRaw('date')
     .orderByRaw('date asc')
 

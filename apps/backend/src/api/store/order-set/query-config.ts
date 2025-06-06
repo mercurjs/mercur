@@ -34,11 +34,11 @@ export const defaultStoreRetrieveOrderSetFields = [
 
 export const orderSetQueryConfig = {
   retrieve: {
-    defaults: defaultStoreRetrieveOrderSetFields,
+    defaults: [],
     isList: false
   },
   list: {
-    defaults: defaultStoreRetrieveOrderSetFields,
+    defaults: [],
     isList: true
   }
 }

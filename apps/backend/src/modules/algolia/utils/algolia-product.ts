@@ -10,31 +10,52 @@ import sellerProduct from '../../../links/seller-product'
 import { getAvgRating } from '../../reviews/utils'
 import { AlgoliaProductValidator, AlgoliaVariantValidator } from '../types'
 
-async function selectProductSupportedCountries(
+async function selectProductVariantsSupportedCountries(
   container: MedusaContainer,
   product_id: string
 ) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
-
-  const {
-    data: [sellerProductRelation]
-  } = await query.graph({
-    entity: sellerProduct.entryPoint,
-    fields: ['seller.service_zones.geo_zones.*'],
+  const { data: variants } = await query.graph({
+    entity: 'product_variant',
+    fields: ['inventory_items.inventory.location_levels.location_id'],
     filters: {
       product_id
     }
   })
 
-  return sellerProductRelation
-    ? sellerProductRelation.seller.service_zones.flatMap((sz) => {
-        return sz && sz.geo_zones
-          ? sz.geo_zones
-              .filter((gz) => gz.type === 'country')
-              .map((gz) => gz.country_code)
-          : []
-      })
-    : []
+  let location_ids = []
+
+  for (const variant of variants) {
+    const inventory_items =
+      variant.inventory_items?.map((item) => item.inventory) || []
+    const locations = inventory_items
+      .flatMap((inventory_item) => inventory_item.location_levels || [])
+      .map((level) => level.location_id)
+
+    location_ids = location_ids.concat(locations)
+  }
+
+  const { data: stock_locations } = await query.graph({
+    entity: 'stock_location',
+    fields: ['fulfillment_sets.service_zones.geo_zones.country_code'],
+    filters: {
+      id: location_ids
+    }
+  })
+
+  let country_codes = []
+
+  for (const location of stock_locations) {
+    const fulfillmentSets =
+      location.fulfillment_sets?.flatMap((set) => set.service_zones || []) || []
+    const codes = fulfillmentSets
+      .flatMap((sz) => sz.geo_zones || [])
+      .map((gz) => gz.country_code)
+
+    country_codes = country_codes.concat(codes)
+  }
+
+  return [...new Set(country_codes)]
 }
 
 async function selectProductSeller(
@@ -47,14 +68,18 @@ async function selectProductSeller(
     data: [product]
   } = await query.graph({
     entity: sellerProduct.entryPoint,
-    fields: ['seller_id', 'seller.handle'],
+    fields: ['seller_id', 'seller.handle', 'seller.store_status'],
     filters: {
       product_id
     }
   })
 
   return product
-    ? { id: product.seller_id, handle: product.seller.handle }
+    ? {
+        id: product.seller_id,
+        handle: product.seller.handle,
+        store_status: product.seller.store_status
+      }
     : null
 }
 
@@ -118,7 +143,7 @@ export async function findAndTransformAlgoliaProducts(
       'product',
       product.id
     )
-    product.supported_countries = await selectProductSupportedCountries(
+    product.supported_countries = await selectProductVariantsSupportedCountries(
       container,
       product.id
     )

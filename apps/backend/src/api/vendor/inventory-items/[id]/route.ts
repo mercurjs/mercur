@@ -1,7 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { updateInventoryItemsWorkflow } from '@medusajs/medusa/core-flows'
 
+import { IntermediateEvents } from '../../../../modules/algolia/types'
 import { VendorUpdateInventoryItemType } from '../validators'
 
 /**
@@ -85,6 +86,12 @@ export const POST = async (
     input: {
       updates: [{ id, ...req.validatedBody }]
     }
+  })
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.INVENTORY_ITEM_CHANGED,
+    data: { id }
   })
 
   const {

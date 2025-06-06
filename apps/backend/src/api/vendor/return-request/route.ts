@@ -54,7 +54,12 @@ export const GET = async (
     fields: req.queryConfig.fields.map(
       (field) => `order_return_request.${field}`
     ),
-    filters: req.filterableFields,
+    filters: {
+      ...req.filterableFields,
+      deleted_at: {
+        $eq: null
+      }
+    },
     pagination: req.queryConfig.pagination
   })
 

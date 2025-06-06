@@ -80,27 +80,33 @@ export function ReviewRemoveRequestDetail({
               <Text className="font-semibold">Request information</Text>
             </div>
             <Text>{`Submitted on ${formatDate(request.created_at)}`}</Text>
+            {request.reviewer_id && <Text>{`Reviewed on ${formatDate(request.updated_at)}`}</Text>}
+            {request.reviewer_note &&
+              <Text>{`Reviewer note: ${request.reviewer_note}`}</Text>
+            }
           </Container>
         </Drawer.Body>
         <Drawer.Footer>
-          <Button
-            onClick={() => {
-              handlePrompt(request.id!, true);
-            }}
-          >
-            Accept
-          </Button>
-          <Button
-            onClick={() => {
-              handlePrompt(request.id!, false);
-            }}
-            variant="danger"
-          >
-            Reject
-          </Button>
-          <Button variant="secondary" onClick={close}>
-            Cancel
-          </Button>
+          {request.status === 'pending' && <>
+            <Button
+              onClick={() => {
+                handlePrompt(request.id!, true);
+              }}
+            >
+              Accept
+            </Button>
+            <Button
+              onClick={() => {
+                handlePrompt(request.id!, false);
+              }}
+              variant="danger"
+            >
+              Reject
+            </Button>
+            <Button variant="secondary" onClick={close}>
+              Cancel
+            </Button>
+          </>}
         </Drawer.Footer>
       </Drawer.Content>
     </Drawer>

@@ -94,14 +94,10 @@ const OrderReturnRequestsPage = () => {
                     {getRequestStatusBadge(request.status!)}
                   </Table.Cell>
                   <Table.Cell>
-                    {["escalated", "pending"].includes(request.status!) ? (
-                      <ReturnRequestMenu
-                        handleDetail={handleDetail}
-                        request={request}
-                      />
-                    ) : (
-                      <></>
-                    )}
+                    <ReturnRequestMenu
+                      handleDetail={handleDetail}
+                      request={request}
+                    />
                   </Table.Cell>
                 </Table.Row>
               );

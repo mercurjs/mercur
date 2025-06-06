@@ -14,7 +14,7 @@ import {
   CreateRequestDTO,
   ProductRequestUpdatedEvent,
   RequestStatus,
-  SellerRequest
+  RequestUpdated
 } from '../../../modules/requests/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { emitMultipleEventsStep } from '../../common/steps'
@@ -76,7 +76,7 @@ export const createProductRequestWorkflow = createWorkflow(
 
     emitMultipleEventsStep([
       {
-        name: SellerRequest.CREATED,
+        name: RequestUpdated.CREATED,
         data: { ...input.data, sellerId: input.seller_id }
       },
       {

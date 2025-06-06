@@ -3,6 +3,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createShippingOptionsWorkflow } from '@medusajs/medusa/core-flows'
 
 import sellerShippingOption from '../../../links/seller-shipping-option'
+import { IntermediateEvents } from '../../../modules/algolia/types'
 import { SELLER_MODULE } from '../../../modules/seller'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import {
@@ -68,6 +69,12 @@ export const POST = async (
     }
   })
 
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.SHIPPING_OPTION_CHANGED,
+    data: { id: result[0].id }
+  })
+
   const {
     data: [shipping_option]
   } = await query.graph(
@@ -124,7 +131,12 @@ export const GET = async (
   const { data: sellerShippingOptions, metadata } = await query.graph({
     entity: sellerShippingOption.entryPoint,
     fields: req.queryConfig.fields.map((field) => `shipping_option.${field}`),
-    filters: req.filterableFields,
+    filters: {
+      ...req.filterableFields,
+      deleted_at: {
+        $eq: null
+      }
+    },
     pagination: req.queryConfig.pagination
   })
 

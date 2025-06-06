@@ -176,7 +176,7 @@ export const DataTableRoot = <TData,>({
                                 : undefined,
                             }}
                             className={clx({
-                              "bg-ui-bg-base sticky left-0 after:absolute after:inset-y-0 after:right-0 after:h-full after:w-px after:bg-transparent after:content-['']":
+                              "sticky left-0 after:absolute after:inset-y-0 after:right-0 after:h-full after:w-px after:bg-transparent after:content-['']":
                                 isStickyHeader,
                               "left-[68px]":
                                 isStickyHeader && hasSelect && !isSelectHeader,
@@ -228,6 +228,8 @@ export const DataTableRoot = <TData,>({
                       const visibleCells = row.getVisibleCells()
                       const isSelectCell = cell.column.id === "select"
 
+                      const isActionCell = cell.column.id === "actions"
+
                       const firstCell = visibleCells.findIndex(
                         (h) => h.column.id !== "select"
                       )
@@ -256,7 +258,7 @@ export const DataTableRoot = <TData,>({
                       )
 
                       const isTabableLink = isFirstCell && !!to
-                      const shouldRenderAsLink = !!to && !isSelectCell
+                      const shouldRenderAsLink = !!to && !isSelectCell && !isActionCell
 
                       return (
                         <Table.Cell

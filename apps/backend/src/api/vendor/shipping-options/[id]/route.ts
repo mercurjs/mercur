@@ -1,10 +1,11 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import {
   deleteShippingOptionsWorkflow,
   updateShippingOptionsWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import { IntermediateEvents } from '../../../../modules/algolia/types'
 import { VendorUpdateShippingOptionType } from '../validators'
 
 /**
@@ -100,6 +101,12 @@ export const POST = async (
     input: [{ id: req.params.id, ...req.validatedBody }]
   })
 
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.SHIPPING_OPTION_CHANGED,
+    data: { id: req.params.id }
+  })
+
   const {
     data: [shippingOption]
   } = await query.graph(
@@ -161,6 +168,12 @@ export const DELETE = async (
     input: {
       ids: [id]
     }
+  })
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.SHIPPING_OPTION_CHANGED,
+    data: { id }
   })
 
   res.json({ id, object: 'shipping_option', deleted: true })
