@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This is the first major release of Mercur, an open-source marketplace platform built on Medusa.js 2.0. Version 0.9.0 includes most features planned for the 1.0 MVP release but is currently under heavy testing and bug fixing.
 
 ### Added
-
 - **Initial Medusa API Setup** ([#1](https://github.com/mercurjs/mercur/pull/1) @vholik)
 - **Seller Registration & Onboarding** ([#92](https://github.com/mercurjs/mercur/pull/92) @slusarczykmichal, [#38](https://github.com/mercurjs/mercur/pull/38) @mjaskot)
 - **Team Management System** with member invitations and role-based access
@@ -91,7 +90,7 @@ This is the first major release of Mercur, an open-source marketplace platform b
 - **Algolia Product Updates** ([#95](https://github.com/mercurjs/mercur/pull/95))
 - **Product Variants Formatting** ([#90](https://github.com/mercurjs/mercur/pull/90))
 - **Product Default Options** ([#61](https://github.com/mercurjs/mercur/pull/61))
-- **HTTP Client Query Parameters** ([#191](https://github.com/mercurjs/mercur/pull/191)) - Thanks to Nicolas Gorga for this contribution
+- **HTTP Client Query Parameters** ([#191](https://github.com/mercurjs/mercur/pull/191)) - Thanks to @NicolasGorga for this contribution
 - **Unrecognized Field Error** ([#172](https://github.com/mercurjs/mercur/pull/172))
 - **Query Parameters for Vendor Categories** ([#171](https://github.com/mercurjs/mercur/pull/171))
 - **OAS Documentation** ([#201](https://github.com/mercurjs/mercur/pull/201))
@@ -122,6 +121,5 @@ Thanks to all contributors:
 - Some API endpoints need additional input validation
 
 ### Coming Soon (v1.0)
-
 - Enhanced seller management in Admin panel
 - Extended documentation
