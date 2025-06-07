@@ -54,8 +54,11 @@ export const SellerOrderShippingEmailTemplate: React.FC<Readonly<EmailTemplatePr
         </div>
       </p>
       <p>Thank you for updating the status of the order. If you have any questions, please contact our support team.</p>
-      <p>Best regards, The Mercur Team</p>
-      <p>mercur.js</p>
+      <div style={{ marginTop: 32 }}>
+        <div>Best regards,</div>
+        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>mercurjs.com</div>
+      </div>
     </div>
   )
 }

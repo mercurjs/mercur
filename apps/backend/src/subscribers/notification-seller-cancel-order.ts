@@ -4,7 +4,7 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
 import { Hosts, buildHostAddress } from '../shared/infra/http/utils'
 
-export default async function buyerCancelOrderHandler({
+export default async function sellerCancelOrderHandler({
   event,
   container
 }: SubscriberArgs<{ id: string }>) {
@@ -21,7 +21,8 @@ export default async function buyerCancelOrderHandler({
       'display_id',
       'items.*',
       'customer.first_name',
-      'customer.last_name'
+      'customer.last_name',
+      'seller.*'
     ],
     filters: {
       id: event.data.id
@@ -34,9 +35,9 @@ export default async function buyerCancelOrderHandler({
   }
 
   await notificationService.createNotifications({
-    to: order.email,
+    to: order.seller.email,
     channel: 'email',
-    template: ResendNotificationTemplates.BUYER_CANCELED_ORDER,
+    template: ResendNotificationTemplates.SELLER_CANCELED_ORDER,
     content: {
       subject: `Your order #${order.display_id} has been canceled`
     },
@@ -48,8 +49,8 @@ export default async function buyerCancelOrderHandler({
           item: order.items
         },
         order_address: buildHostAddress(
-          Hosts.STOREFRONT,
-          `/user/orders/${order.id}`
+          Hosts.VENDOR_PANEL,
+          `/orders/${order.id}`
         ).toString()
       }
     }
@@ -59,6 +60,6 @@ export default async function buyerCancelOrderHandler({
 export const config: SubscriberConfig = {
   event: 'order.canceled',
   context: {
-    subscriberId: 'notification-buyer-cancel-order'
+    subscriberId: 'notification-seller-cancel-order'
   }
 }

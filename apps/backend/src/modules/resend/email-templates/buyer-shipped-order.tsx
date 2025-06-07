@@ -59,8 +59,13 @@ export const BuyerOrderShippedEmailTemplate: React.FC<Readonly<EmailTemplateProp
 
       <p>
         You received this email because you made a purchase or sale on the Mercur marketplace. If you have any
-        questions, please contact our support team. Best regards, The Mercur Team mercurjs.com
+        questions, please contact our support team.
       </p>
+      <div style={{ marginTop: 32 }}>
+        <div>Best regards,</div>
+        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>mercurjs.com</div>
+      </div>
     </div>
   )
 }
