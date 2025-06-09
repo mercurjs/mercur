@@ -2,6 +2,7 @@ import { Container, Drawer, Text, Button } from "@medusajs/ui";
 import { useNavigate } from "react-router-dom";
 
 import { CommissionLine } from "../types";
+import { formatDate } from "../../../lib/date";
 
 type Props = {
   line?: CommissionLine;
@@ -53,14 +54,34 @@ export function CommissionLineDetail({ line, open, close }: Props) {
               </div>
             </Container>
           </fieldset>
-          <fieldset className="mt-2">
-            <legend className="mt-4">Commission value</legend>
+           <fieldset className="mt-2">
+            <legend className="mt-4">Calculated commission value</legend>
             <Container>
               <div className="flex items-center justify-between">
                 <Text>{`${line.value} ${line.currency_code.toUpperCase()}`}</Text>
               </div>
             </Container>
           </fieldset>
+          <fieldset className="mt-2">
+            <legend className="mt-4">Rate details</legend>
+            <Container>
+              <div className="flex flex-col gap-2">
+                <Text>{`Rule name: ${line.rule.name}`}</Text>
+                <Text>{`Reference: ${line.rule.reference}`}</Text>
+                <Text>{`Type: ${line.rule.rate.type}`}</Text>
+                {line.rule.rate.type === 'percentage' && (
+                  <>
+                    <Text>{`Rate value: ${line.rule.rate.percentage_rate}%`}</Text>
+                    <Text>{`Include tax: ${line.rule.rate.include_tax ? 'Yes' : 'No'}`}</Text>
+                  </>
+                )}
+                {line.rule.deleted_at !== null && (
+                  <Text size="large" weight="plus">{`Rule was deleted at ${formatDate(line.rule.deleted_at)}!`}</Text>
+                )}
+              </div>
+            </Container>
+          </fieldset>
+         
         </Drawer.Body>
       </Drawer.Content>
     </Drawer>

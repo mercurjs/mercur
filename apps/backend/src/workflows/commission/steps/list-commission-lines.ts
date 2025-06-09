@@ -66,6 +66,17 @@ export const listCommissionLinesStep = createStep(
     if (input.expand) {
       const itemIds = commissionLines.map((line) => line.item_line_id)
 
+      const ruleIds = commissionLines.map((line) => line.rule_id)
+
+      const { data: rules } = await query.graph({
+        entity: 'commission_rule',
+        fields: ['*', 'rate.*'],
+        filters: {
+          id: ruleIds
+        },
+        withDeleted: true
+      })
+
       const { data: orders } = await query.graph({
         entity: 'order',
         fields: ['*', 'seller.id', 'seller.name', 'items.id'],
@@ -80,9 +91,11 @@ export const listCommissionLinesStep = createStep(
         const order = orders.find((o) =>
           o.items.some((i) => i.id === line.item_line_id)
         )
+        const rule = rules.find((r) => r.id === line.rule_id)
         return {
           ...line,
-          order
+          order,
+          rule
         }
       })
 

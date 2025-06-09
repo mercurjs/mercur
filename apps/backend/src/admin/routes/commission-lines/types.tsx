@@ -1,16 +1,3 @@
-export interface RawValue {
-  value: string
-  precision: number
-}
-
-export interface Address {
-  id: string
-}
-
-export interface OrderItem {
-  id: string
-}
-
 export interface Seller {
   id: string
   name: string
@@ -30,15 +17,32 @@ export interface Order {
   no_notification: boolean
   metadata: null
   canceled_at: string | null
-  shipping_address: Address
-  billing_address: Address
   created_at: string
   updated_at: string
   deleted_at: string | null
   shipping_address_id: string
   billing_address_id: string
-  items: OrderItem[]
+  items: { id: string }[]
   seller: Seller
+}
+
+export interface Rate {
+  id: string
+  type: string
+  percentage_rate: number
+  include_tax: boolean
+}
+
+export interface Rule {
+  id: string
+  name: string
+  reference: string
+  reference_id: string
+  is_active: boolean
+  rate: Rate
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
 }
 
 export interface CommissionLine {
@@ -46,10 +50,10 @@ export interface CommissionLine {
   item_line_id: string
   rule_id: string
   currency_code: string
-  raw_value: RawValue
   created_at: string
   updated_at: string
   deleted_at: string | null
   value: number
   order: Order
+  rule: Rule
 }
