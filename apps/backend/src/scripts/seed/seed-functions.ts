@@ -377,20 +377,12 @@ export async function createSeller(container: MedusaContainer) {
       email: 'oddy@gmail.com',
       password: 'admin',
       type: 'Manufacturer',
-      member: {
-        email: 'oddy@gmail.com',
-        name: 'Oddy Jeans'
-      }
     },
     {
       name: 'Karnika',
       email: 'karnika@gmail.com',
       password: 'admin',
       type: 'Manufacturer',
-      member: {
-        email: 'karnika@gmail.com',
-        name: 'Karnika'
-      }
     }
 
   ]
@@ -411,11 +403,8 @@ export async function createSeller(container: MedusaContainer) {
       input: {
         auth_identity_id: authIdentity?.id,
         member: {
-          name: seller.member.name,
-          email: seller.member.email
-        },
-        seller: {
-          name: seller.name
+          name: seller.name,
+          email: seller.email
         }
       }
     })
