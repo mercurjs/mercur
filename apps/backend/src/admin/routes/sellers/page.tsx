@@ -70,7 +70,7 @@ const SellersListPage = () => {
         return;
       }
 
-      await inviteSeller(email);
+      await inviteSeller({ email });
       toast.success("Invited!");
       setOpen(false);
       setEmail("");
