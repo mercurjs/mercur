@@ -57,7 +57,7 @@ export const POST = async (
       entity: 'payout_account',
       fields: req.queryConfig.fields,
       filters: {
-        onboarding_id: result.id
+        id: result.payout_account_id
       }
     },
     { throwIfKeyNotFound: true }

@@ -13,6 +13,7 @@ import {
   CreatePayoutAccountDTO,
   CreatePayoutDTO,
   IPayoutProvider,
+  PayoutAccountStatus,
   PayoutWebhookActionPayload
 } from './types'
 
@@ -68,6 +69,42 @@ class PayoutModuleService extends MedusaService({
       await this.deletePayoutAccounts(result.id, sharedContext)
       throw error
     }
+  }
+
+  @InjectTransactionManager()
+  async syncStripeAccount(
+    account_id: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>
+  ) {
+    const payout_account = await this.retrievePayoutAccount(account_id)
+    const stripe_account = await this.provider_.getAccount(
+      payout_account.reference_id
+    )
+
+    const status =
+      stripe_account.details_submitted &&
+      stripe_account.payouts_enabled &&
+      stripe_account.charges_enabled &&
+      stripe_account.tos_acceptance &&
+      stripe_account.tos_acceptance?.date !== null
+
+    await this.updatePayoutAccounts(
+      {
+        id: account_id,
+        data: stripe_account as unknown as Record<string, unknown>,
+        status: status
+          ? PayoutAccountStatus.ACTIVE
+          : PayoutAccountStatus.PENDING
+      },
+      sharedContext
+    )
+
+    const updated = await this.retrievePayoutAccount(
+      account_id,
+      undefined,
+      sharedContext
+    )
+    return updated
   }
 
   @InjectTransactionManager()

@@ -155,6 +155,16 @@ export class PayoutProvider implements IPayoutProvider {
     }
   }
 
+  async getAccount(accountId: string): Promise<Stripe.Account> {
+    try {
+      const account = await this.client_.accounts.retrieve(accountId)
+      return account
+    } catch (error) {
+      const message = error?.message ?? 'Error occured while getting account'
+      throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, message)
+    }
+  }
+
   async getWebhookActionAndData(payload: PayoutWebhookActionPayload) {
     const signature = payload.headers['stripe-signature'] as string
 

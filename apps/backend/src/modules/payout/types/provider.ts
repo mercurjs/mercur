@@ -1,3 +1,5 @@
+import Stripe from 'stripe'
+
 import { BigNumberInput } from '@medusajs/framework/types'
 
 import { PayoutWebhookAction } from './events'
@@ -52,6 +54,7 @@ export interface IPayoutProvider {
     accountId: string,
     context: Record<string, unknown>
   ): Promise<InitializeOnboardingResponse>
+  getAccount(accountId: string): Promise<Stripe.Account>
   getWebhookActionAndData(
     payload: PayoutWebhookActionPayload
   ): Promise<PayoutWebhookActionAndDataResponse>
