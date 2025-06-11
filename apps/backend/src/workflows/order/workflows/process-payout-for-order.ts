@@ -7,7 +7,6 @@ import {
 } from '@medusajs/medusa/core-flows'
 import { createWorkflow } from '@medusajs/workflows-sdk'
 
-import sellerOrder from '../../../links/seller-order'
 import { PAYOUT_MODULE } from '../../../modules/payout'
 import { PayoutWorkflowEvents } from '../../../modules/payout/types'
 import {
@@ -22,26 +21,27 @@ type ProcessPayoutForOrderWorkflowInput = {
 }
 
 export const processPayoutForOrderWorkflow = createWorkflow(
-  { name: 'process-payout-for-order', idempotent: true },
+  { name: 'process-payout-for-order' },
   function (input: ProcessPayoutForOrderWorkflowInput) {
     validateNoExistingPayoutForOrderStep(input.order_id)
 
     const { data: orders } = useQueryGraphStep({
-      entity: sellerOrder.entryPoint,
-      fields: ['seller_id', 'order.total', 'order.currency_code'],
+      entity: 'order',
+      fields: ['seller.id', 'total', 'currency_code'],
       filters: {
-        order_id: input.order_id
+        id: input.order_id
       },
       options: { throwIfKeyNotFound: true }
     }).config({ name: 'query-order' })
 
     const order = transform(orders, (orders) => {
       const transformed = orders[0]
+
       return {
-        seller_id: transformed.seller_id,
-        id: transformed.order_id,
-        total: transformed.order.total,
-        currency_code: transformed.order.currency_code
+        seller_id: transformed.seller.id,
+        id: transformed.id,
+        total: transformed.total,
+        currency_code: transformed.currency_code
       }
     })
 
