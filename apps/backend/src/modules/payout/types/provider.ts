@@ -12,6 +12,12 @@ export type ProcessPayoutInput = {
   source_transaction: string
 }
 
+export type ReversePayoutInput = {
+  transfer_id: string
+  amount: BigNumberInput
+  currency: string
+}
+
 export type ProcessPayoutResponse = {
   data: Record<string, unknown>
 }
@@ -48,6 +54,7 @@ export interface IPayoutProvider {
   createPayoutAccount(
     input: CreatePayoutAccountInput
   ): Promise<CreatePayoutAccountResponse>
+  reversePayout(input: ReversePayoutInput): Promise<Stripe.TransferReversal>
   /**
    * Initialize the onboarding process for a payout account.
    */

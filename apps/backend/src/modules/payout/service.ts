@@ -4,14 +4,16 @@ import { Context } from '@medusajs/framework/types'
 import {
   InjectTransactionManager,
   MedusaContext,
+  MedusaError,
   MedusaService
 } from '@medusajs/framework/utils'
 
-import { Onboarding, Payout, PayoutAccount } from './models'
+import { Onboarding, Payout, PayoutAccount, PayoutReversal } from './models'
 import {
   CreateOnboardingDTO,
   CreatePayoutAccountDTO,
   CreatePayoutDTO,
+  CreatePayoutReversalDTO,
   IPayoutProvider,
   PayoutAccountStatus,
   PayoutWebhookActionPayload
@@ -23,6 +25,7 @@ type InjectedDependencies = {
 
 class PayoutModuleService extends MedusaService({
   Payout,
+  PayoutReversal,
   PayoutAccount,
   Onboarding
 }) {
@@ -183,6 +186,39 @@ class PayoutModuleService extends MedusaService({
     )
 
     return payout
+  }
+
+  @InjectTransactionManager()
+  async createPayoutReversal(
+    input: CreatePayoutReversalDTO,
+    @MedusaContext() sharedContext?: Context<EntityManager>
+  ) {
+    const payout = await this.retrievePayout(input.payout_id)
+
+    if (!payout || !payout.data || !payout.data.id) {
+      throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Payout not found')
+    }
+
+    const transfer_id = payout.data.id as string
+
+    const transferReversal = await this.provider_.reversePayout({
+      transfer_id,
+      amount: input.amount,
+      currency: input.currency_code
+    })
+
+    // @ts-expect-error BigNumber incompatible interface
+    const payoutReversal = await this.createPayoutReversals(
+      {
+        data: transferReversal as unknown as Record<string, unknown>,
+        amount: input.amount,
+        currency_code: input.currency_code,
+        payout: payout.id
+      },
+      sharedContext
+    )
+
+    return payoutReversal
   }
 
   async getWebhookActionAndData(input: PayoutWebhookActionPayload) {

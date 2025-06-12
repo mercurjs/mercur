@@ -13,7 +13,8 @@ import {
   PayoutWebhookAction,
   PayoutWebhookActionPayload,
   ProcessPayoutInput,
-  ProcessPayoutResponse
+  ProcessPayoutResponse,
+  ReversePayoutInput
 } from '../types'
 
 type InjectedDependencies = {
@@ -163,6 +164,22 @@ export class PayoutProvider implements IPayoutProvider {
       return account
     } catch (error) {
       const message = error?.message ?? 'Error occured while getting account'
+      throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, message)
+    }
+  }
+
+  async reversePayout(input: ReversePayoutInput) {
+    try {
+      const reversal = await this.client_.transfers.createReversal(
+        input.transfer_id,
+        {
+          amount: getSmallestUnit(input.amount, input.currency)
+        }
+      )
+
+      return reversal
+    } catch (error) {
+      const message = error?.message ?? 'Error occured while reversing payout'
       throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, message)
     }
   }
