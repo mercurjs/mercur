@@ -59,7 +59,8 @@ export const getFormattedOrderSetListWorkflow = createWorkflow(
         'orders.shipping_subtotal',
         'orders.shipping_tax_total',
         'orders.items.*',
-        'orders.customer.*'
+        'orders.customer.*',
+        'orders.fulfillments.*'
       ])
     })
 

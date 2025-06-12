@@ -11,6 +11,7 @@ import {
   OrderSetDTO,
   OrderSetWithOrdersDTO
 } from '../../../modules/marketplace/types'
+import { getLastFulfillmentStatus } from '../../order/utils/aggregate-status'
 
 export const formatOrderSets = (
   orderSetsWithOrders: OrderSetWithOrdersDTO[]
@@ -38,10 +39,17 @@ export const formatOrderSets = (
 
     const subtotal = MathBN.sub(total, taxTotal)
 
+    const payment_status = getPaymentStatus(orderSet)
+
     return {
       ...orderSet,
+      orders: orderSet.orders.map((order) => ({
+        ...order,
+        fulfillment_status: getLastFulfillmentStatus(order),
+        payment_status
+      })),
       status: getStatus(orderSet.orders),
-      payment_status: getPaymentStatus(orderSet),
+      payment_status,
       fulfillment_status: getFulfillmentStatus(orderSet.orders),
       tax_total: new BigNumber(taxTotal),
       shipping_tax_total: new BigNumber(shippingTaxTotal),
