@@ -153,7 +153,13 @@ class PayoutModuleService extends MedusaService({
     input: CreatePayoutDTO,
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
-    const { amount, currency_code, account_id, transaction_id } = input
+    const {
+      amount,
+      currency_code,
+      account_id,
+      transaction_id,
+      source_transaction
+    } = input
 
     const payoutAccount = await this.retrievePayoutAccount(account_id)
 
@@ -161,7 +167,8 @@ class PayoutModuleService extends MedusaService({
       account_reference_id: payoutAccount.reference_id,
       amount,
       currency: currency_code,
-      transaction_id
+      transaction_id,
+      source_transaction
     })
 
     // @ts-expect-error BigNumber incompatible interface

@@ -27,7 +27,12 @@ export const processPayoutForOrderWorkflow = createWorkflow(
 
     const { data: orders } = useQueryGraphStep({
       entity: 'order',
-      fields: ['seller.id', 'total', 'currency_code'],
+      fields: [
+        'seller.id',
+        'total',
+        'currency_code',
+        'payment_collections.payment_sessions.*'
+      ],
       filters: {
         id: input.order_id
       },
@@ -41,7 +46,10 @@ export const processPayoutForOrderWorkflow = createWorkflow(
         seller_id: transformed.seller.id,
         id: transformed.id,
         total: transformed.total,
-        currency_code: transformed.currency_code
+        currency_code: transformed.currency_code,
+        source_transaction:
+          transformed.payment_collections[0].payment_sessions[0].data
+            .latest_charge
       }
     })
 
@@ -63,7 +71,8 @@ export const processPayoutForOrderWorkflow = createWorkflow(
       transaction_id: order.id,
       amount: payout_total,
       currency_code: order.currency_code,
-      account_id: seller.payout_account.id
+      account_id: seller.payout_account.id,
+      source_transaction: order.source_transaction
     })
 
     when({ createPayoutErr }, ({ createPayoutErr }) => !createPayoutErr).then(

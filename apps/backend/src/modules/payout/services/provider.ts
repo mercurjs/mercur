@@ -51,7 +51,8 @@ export class PayoutProvider implements IPayoutProvider {
     amount,
     currency,
     account_reference_id,
-    transaction_id
+    transaction_id,
+    source_transaction
   }: ProcessPayoutInput): Promise<ProcessPayoutResponse> {
     try {
       this.logger_.info(
@@ -64,6 +65,7 @@ export class PayoutProvider implements IPayoutProvider {
           destination: account_reference_id,
           amount: getSmallestUnit(amount, currency),
           transfer_group: transaction_id,
+          source_transaction,
           metadata: {
             transaction_id
           }

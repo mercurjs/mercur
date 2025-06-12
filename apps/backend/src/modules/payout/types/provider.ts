@@ -9,6 +9,7 @@ export type ProcessPayoutInput = {
   currency: string
   account_reference_id: string
   transaction_id: string
+  source_transaction: string
 }
 
 export type ProcessPayoutResponse = {
