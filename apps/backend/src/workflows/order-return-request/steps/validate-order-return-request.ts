@@ -60,7 +60,7 @@ export const validateOrderReturnRequestStep = createStep(
       entity: 'return_reason',
       fields: ['id'],
       filters: {
-        id: { in: reason_ids }
+        id: reason_ids
       }
     })
 
