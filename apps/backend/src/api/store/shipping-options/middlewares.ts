@@ -1,4 +1,8 @@
-import { MiddlewareRoute, validateAndTransformQuery } from '@medusajs/framework'
+import {
+  MiddlewareRoute,
+  authenticate,
+  validateAndTransformQuery
+} from '@medusajs/framework'
 
 import {
   listTransformQueryConfig,
@@ -24,6 +28,7 @@ export const storeShippingOptionRoutesMiddlewares: MiddlewareRoute[] = [
     method: ['GET'],
     matcher: '/store/shipping-options/return',
     middlewares: [
+      authenticate('customer', ['bearer', 'session']),
       validateAndTransformQuery(
         StoreGetReturnShippingOptions,
         storeGetReturnShippingOptionsQueryConfig.list
