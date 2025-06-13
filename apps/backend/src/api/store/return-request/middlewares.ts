@@ -1,11 +1,15 @@
 import {
   AuthenticatedMedusaRequest,
   MiddlewareRoute,
-  authenticate
+  authenticate,
+  validateAndTransformBody
 } from '@medusajs/framework'
 
 import { checkCustomerResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares/check-customer-ownership'
-import { StoreCreateReturnRequestType } from './validators'
+import {
+  StoreCreateReturnRequest,
+  StoreCreateReturnRequestType
+} from './validators'
 
 export const storeOrderReturnRequestsMiddlewares: MiddlewareRoute[] = [
   {
@@ -17,6 +21,7 @@ export const storeOrderReturnRequestsMiddlewares: MiddlewareRoute[] = [
     method: ['POST'],
     matcher: '/store/return-request',
     middlewares: [
+      validateAndTransformBody(StoreCreateReturnRequest),
       checkCustomerResourceOwnershipByResourceId({
         entryPoint: 'order',
         resourceId: (
