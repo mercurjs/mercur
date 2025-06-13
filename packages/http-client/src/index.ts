@@ -14704,6 +14704,12 @@ export interface Order {
    * Whether the order is a draft order.
    */
   is_draft_order?: boolean;
+  /**
+   * deleted_at
+   * The date the order was deleted.
+   * @format date-time
+   */
+  deleted_at?: string;
 }
 
 /** The address's details. */
@@ -25048,6 +25054,8 @@ export interface StoreCreateOrderReturnRequest {
   line_items?: {
     line_item_id?: string;
     quantity?: number;
+    /** ID of the reason for return */
+    reason_id?: string;
   }[];
 }
 
@@ -29201,8 +29209,6 @@ export interface Wishlist {
   }[];
 }
 
-import qs from "qs";
-
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -29286,7 +29292,10 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    return qs.stringify(query);
+    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
+    return keys
+      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
+      .join("&");
   }
 
   protected addQueryParams(rawQuery?: QueryParamsType): string {
@@ -36888,6 +36897,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Delete a draft order.
+     *
+     * @tags Admin Draft Orders
+     * @name AdminDeleteDraftOrdersId
+     * @summary Delete a Draft Order
+     * @request DELETE:/admin/draft-orders/{id}
+     * @secure
+     */
+    adminDeleteDraftOrdersId: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error | string>({
+        path: `/admin/draft-orders/${id}`,
+        method: "DELETE",
+        secure: true,
         ...params,
       }),
 
@@ -58587,7 +58613,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Retrieves requests list
+     * @description Retrieves a list of return requests for the authenticated customer
      *
      * @tags OrderReturnRequest
      * @name StoreListOrderReturnRequests
@@ -58597,14 +58623,18 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     storeListOrderReturnRequests: (
       query?: {
-        /** Comma-separated fields to include in the response. */
+        /** Comma-separated fields to include in the response */
         fields?: string;
+        /** The number of requests to return */
+        limit?: number;
+        /** The number of requests to skip */
+        offset?: number;
       },
       params: RequestParams = {},
     ) =>
       this.request<
         {
-          order_return_request?: OrderReturnRequest[];
+          order_return_requests?: OrderReturnRequest[];
           /** The total number of requests */
           count?: number;
           /** The number of requests skipped */
@@ -58623,7 +58653,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Creates a new order return request for the authenticated customer.
+     * @description Creates a new order return request for the authenticated customer
      *
      * @tags OrderReturnRequest
      * @name StoreCreateOrderReturnRequest
@@ -58635,7 +58665,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<
         {
           /** A return request object with its properties */
-          invite?: OrderReturnRequest;
+          order_return_request?: OrderReturnRequest;
         },
         any
       >({
@@ -58917,6 +58947,47 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a list of return shipping options for a specific order
+     *
+     * @tags Shipping Options
+     * @name GetReturnShippingOptions
+     * @summary Get Return Shipping Options
+     * @request GET:/store/shipping-options/return
+     */
+    getReturnShippingOptions: (
+      query: {
+        /** The ID of the order to get return shipping options for */
+        order_id: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          shipping_options?: {
+            /** The ID of the shipping option */
+            id?: string;
+            /** The name of the shipping option */
+            name?: string;
+            /** The type of price calculation */
+            price_type?: "flat_rate" | "calculated";
+            /** The amount to charge for the shipping option */
+            amount?: number;
+            /** Additional data about the shipping option */
+            data?: object;
+            /** Requirements for the shipping option */
+            requirements?: object;
+          }[];
+        },
+        any
+      >({
+        path: `/store/shipping-options/return`,
+        method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),

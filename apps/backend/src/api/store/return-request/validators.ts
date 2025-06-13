@@ -26,6 +26,9 @@ import { z } from 'zod'
  *           type: string
  *         quantity:
  *           type: number
+ *         reason_id:
+ *           type: string
+ *           description: ID of the reason for return
  */
 export type StoreCreateReturnRequestType = z.infer<
   typeof StoreCreateReturnRequest

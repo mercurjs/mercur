@@ -9,7 +9,7 @@ import { StoreCreateReturnRequestType } from './validators'
  * @oas [get] /store/return-request
  * operationId: "StoreListOrderReturnRequests"
  * summary: "List return requests"
- * description: "Retrieves requests list"
+ * description: "Retrieves a list of return requests for the authenticated customer"
  * x-authenticated: true
  * parameters:
  *   - name: fields
@@ -17,7 +17,19 @@ import { StoreCreateReturnRequestType } from './validators'
  *     schema:
  *       type: string
  *     required: false
- *     description: Comma-separated fields to include in the response.
+ *     description: Comma-separated fields to include in the response
+ *   - name: limit
+ *     in: query
+ *     schema:
+ *       type: integer
+ *     required: false
+ *     description: The number of requests to return
+ *   - name: offset
+ *     in: query
+ *     schema:
+ *       type: integer
+ *     required: false
+ *     description: The number of requests to skip
  * responses:
  *   "200":
  *     description: OK
@@ -26,7 +38,7 @@ import { StoreCreateReturnRequestType } from './validators'
  *         schema:
  *           type: object
  *           properties:
- *             order_return_request:
+ *             order_return_requests:
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/OrderReturnRequest"
@@ -73,7 +85,7 @@ export async function GET(
  * @oas [post] /store/return-request
  * operationId: "StoreCreateOrderReturnRequest"
  * summary: "Create an order return request"
- * description: "Creates a new order return request for the authenticated customer."
+ * description: "Creates a new order return request for the authenticated customer"
  * x-authenticated: true
  * requestBody:
  *   content:
@@ -88,7 +100,7 @@ export async function GET(
  *         schema:
  *           type: object
  *           properties:
- *             invite:
+ *             order_return_request:
  *               $ref: "#/components/schemas/OrderReturnRequest"
  * tags:
  *   - OrderReturnRequest
