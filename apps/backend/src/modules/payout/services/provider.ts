@@ -65,7 +65,6 @@ export class PayoutProvider implements IPayoutProvider {
           currency,
           destination: account_reference_id,
           amount: getSmallestUnit(amount, currency),
-          transfer_group: transaction_id,
           source_transaction,
           metadata: {
             transaction_id
