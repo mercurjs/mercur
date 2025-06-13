@@ -11,7 +11,7 @@ export const storeOrderReturnRequestsMiddlewares: MiddlewareRoute[] = [
   {
     method: ['ALL'],
     matcher: '/store/return-request/*',
-    middlewares: [authenticate('user', ['bearer', 'session'])]
+    middlewares: [authenticate('customer', ['bearer', 'session'])]
   },
   {
     method: ['POST'],

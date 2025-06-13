@@ -5,6 +5,7 @@ import {
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { CreateOrderReturnRequestDTO } from '../../../modules/order-return-request/types'
+import { listSellerReturnShippingOptionsForOrderWorkflow } from '../../cart/workflows'
 
 export const validateOrderReturnRequestStep = createStep(
   'validate-order-return-request',
@@ -30,6 +31,41 @@ export const validateOrderReturnRequestStep = createStep(
           'Invalid line item'
         )
       }
+    }
+
+    const { result: availableShippingOptions } =
+      await listSellerReturnShippingOptionsForOrderWorkflow.run({
+        container,
+        input: {
+          order_id: input.order_id
+        }
+      })
+
+    if (
+      !availableShippingOptions
+        .map((option) => option.id)
+        .includes(input.shipping_option_id)
+    ) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        'Invalid shipping option'
+      )
+    }
+
+    const reason_ids = [
+      ...new Set(input.line_items.map((item) => item.reason_id))
+    ]
+
+    const { data: reasons } = await query.graph({
+      entity: 'return_reason',
+      fields: ['id'],
+      filters: {
+        id: { in: reason_ids }
+      }
+    })
+
+    if (reasons.length !== reason_ids.length) {
+      throw new MedusaError(MedusaError.Types.INVALID_DATA, 'Invalid reason')
     }
 
     return new StepResponse(true)
