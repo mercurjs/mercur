@@ -126,6 +126,7 @@ export async function POST(
 
   const { result: order_return_request } =
     await createOrderReturnRequestWorkflow.run({
+      container: req.scope,
       input: {
         data: { ...req.validatedBody, customer_id: req.auth_context.actor_id },
         seller_id: resource.seller_id
