@@ -40,6 +40,13 @@ export default async function sellerProductRequestRejectedHandler({
     return
   }
 
+  await sendVendorUIRequestNotification({
+    container,
+    requestId: event.data.id,
+    requestType: 'product',
+    template: 'seller_product_request_rejected_notification'
+  })
+
   await notificationService.createNotifications({
     to: member.email,
     channel: 'email',
@@ -48,13 +55,6 @@ export default async function sellerProductRequestRejectedHandler({
       subject: 'Mercur - Product rejected!'
     },
     data: { data: { product_title: productRequest.data.title } }
-  })
-
-  await sendVendorUIRequestNotification({
-    container,
-    requestId: event.data.id,
-    requestType: 'product',
-    template: 'seller_product_request_rejected_notification'
   })
 }
 

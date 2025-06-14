@@ -1,4 +1,3 @@
-// backend/apps/backend/src/subscribers/order-created.ts
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import {
   ContainerRegistrationKeys,
@@ -7,6 +6,7 @@ import {
 } from '@medusajs/framework/utils'
 
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
+import { Hosts, buildHostAddress } from '../shared/infra/http/utils'
 
 export default async function orderCreatedHandler({
   event,
@@ -24,7 +24,8 @@ export default async function orderCreatedHandler({
       'customer.*',
       'items.*',
       'shipping_address.*',
-      'shipping_methods.*'
+      'shipping_methods.*',
+      'summary.*'
     ],
     filters: {
       id: event.data.id
@@ -46,10 +47,14 @@ export default async function orderCreatedHandler({
       data: {
         user_name: order.customer?.first_name || 'Customer',
         order_id: order.id,
+        order_address: buildHostAddress(
+          Hosts.STOREFRONT,
+          `/user/orders/${order.id}`
+        ).toString(),
         order: {
           ...order,
           display_id: order.display_id,
-          item_total: order.items?.length || 0
+          total: order.summary?.current_order_total || 0
         }
       }
     }
