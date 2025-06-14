@@ -145,7 +145,7 @@ const Commission = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "Commission",
+  label: "Commission settings",
   icon: DocumentText,
 });
 

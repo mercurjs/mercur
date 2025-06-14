@@ -3,20 +3,21 @@ import {
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
-  useQuery,
-} from "@tanstack/react-query";
+  useQuery
+} from '@tanstack/react-query'
 
 import {
   AdminCommissionAggregate,
   AdminCommissionRule,
   AdminCreateCommissionRule,
-  AdminUpsertDefaultCommissionRule,
-} from "@mercurjs/http-client";
+  AdminUpsertDefaultCommissionRule
+} from '@mercurjs/http-client'
 
-import { api } from "../../lib/client";
-import { queryKeysFactory } from "../../lib/query-keys-factory";
+import { api, mercurQuery } from '../../lib/client'
+import { queryKeysFactory } from '../../lib/query-keys-factory'
+import { CommissionLine } from '../../routes/commission-lines/types'
 
-export const commissionRulesQueryKeys = queryKeysFactory("commission_rule");
+export const commissionRulesQueryKeys = queryKeysFactory('commission_rule')
 
 export const useCommissionRules = (
   query?: Parameters<typeof api.admin.adminListCommissionRules>[0],
@@ -27,18 +28,18 @@ export const useCommissionRules = (
       { commission_rules: AdminCommissionAggregate[]; count?: number },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: commissionRulesQueryKeys.list(query),
     queryFn: () =>
       api.admin.adminListCommissionRules(query).then((res) => res.data),
-    ...options,
-  });
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
 
 export const useDefaultCommissionRule = (
   options?: Omit<
@@ -48,18 +49,18 @@ export const useDefaultCommissionRule = (
       { commission_rule?: AdminCommissionAggregate },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
-    queryKey: commissionRulesQueryKeys.detail(""),
+    queryKey: commissionRulesQueryKeys.detail(''),
     queryFn: () =>
       api.admin.adminGetDefaultCommissionRule().then((res) => res.data),
-    ...options,
-  });
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
 
 export const useCommissionRule = (
   id: string,
@@ -70,83 +71,102 @@ export const useCommissionRule = (
       { commission_rule?: AdminCommissionAggregate },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: commissionRulesQueryKeys.detail(id),
     queryFn: () =>
       api.admin.adminGetCommissionRuleById(id).then((res) => res.data),
-    ...options,
-  });
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
 
 export const useCreateCommisionRule = (
   options: UseMutationOptions<
     { commission_rule?: AdminCommissionRule },
     Error,
     AdminCreateCommissionRule
-  >,
+  >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       api.admin.adminCreateCommissionRule(payload).then((res) => res.data),
-    ...options,
-  });
-};
+    ...options
+  })
+}
 
 export const useUpdateCommisionRule = (
   options: UseMutationOptions<
     { commission_rule?: AdminCommissionRule },
     Error,
     { id: string; is_active: boolean }
-  >,
+  >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       api.admin
         .adminUpdateCommissionRuleById(payload.id, {
-          is_active: payload.is_active,
+          is_active: payload.is_active
         })
         .then((res) => res.data),
-    ...options,
-  });
-};
+    ...options
+  })
+}
 
 export const useUpsertDefaultCommisionRule = (
   options: UseMutationOptions<
     { commission_rule?: AdminCommissionRule },
     Error,
     AdminUpsertDefaultCommissionRule
-  >,
+  >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       api.admin
         .adminUpsertDefaultCommissionRule(payload)
         .then((res) => res.data),
-    ...options,
-  });
-};
+    ...options
+  })
+}
 
 export const useDeleteCommisionRule = (
   options: UseMutationOptions<
     {
-      id?: string;
-      object?: string;
-      deleted?: boolean;
+      id?: string
+      object?: string
+      deleted?: boolean
     },
     Error,
     { id: string }
-  >,
+  >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       api.admin
         .adminDeleteCommissionRuleById(payload.id)
         .then((res) => res.data),
-    ...options,
-  });
-};
+    ...options
+  })
+}
+
+export const useListCommissionLines = (
+  query?: Record<string, string | number>
+) => {
+  return useQuery<
+    {
+      commission_lines: CommissionLine[]
+      count: number
+    },
+    Error
+  >({
+    queryKey: ['commission-lines', query],
+    queryFn: () =>
+      mercurQuery(`/admin/commission/commission-lines`, {
+        method: 'GET',
+        query
+      })
+  })
+}

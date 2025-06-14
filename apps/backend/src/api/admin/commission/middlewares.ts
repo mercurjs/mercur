@@ -1,53 +1,67 @@
 import {
   validateAndTransformBody,
-  validateAndTransformQuery,
-} from "@medusajs/framework";
-import { MiddlewareRoute } from "@medusajs/medusa";
+  validateAndTransformQuery
+} from '@medusajs/framework'
+import { MiddlewareRoute } from '@medusajs/medusa'
 
-import { adminCommissionRuleQueryConfig } from "./query-config";
+import {
+  adminCommissionLinesQueryConfig,
+  adminCommissionRuleQueryConfig
+} from './query-config'
 import {
   AdminCommissionRuleParams,
-  AdminUpsertDefaultCommissionRule,
-  AdminUpdateCommissionRule,
   AdminCreateCommissionRule,
-} from "./validators";
+  AdminGetCommissionLinesParams,
+  AdminUpdateCommissionRule,
+  AdminUpsertDefaultCommissionRule
+} from './validators'
 
 export const commissionMiddlewares: MiddlewareRoute[] = [
   {
-    method: ["GET"],
-    matcher: "/admin/commission/rules",
+    method: ['GET'],
+    matcher: '/admin/commission/rules',
     middlewares: [
       validateAndTransformQuery(
         AdminCommissionRuleParams,
-        adminCommissionRuleQueryConfig.list,
-      ),
-    ],
+        adminCommissionRuleQueryConfig.list
+      )
+    ]
   },
   {
-    method: ["POST"],
-    matcher: "/admin/commission/rules",
+    method: ['GET'],
+    matcher: '/admin/commission/commission-lines',
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetCommissionLinesParams,
+        adminCommissionLinesQueryConfig.list
+      )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/admin/commission/rules',
     middlewares: [
       validateAndTransformQuery(
         AdminCommissionRuleParams,
-        adminCommissionRuleQueryConfig.retrieve,
+        adminCommissionRuleQueryConfig.retrieve
       ),
-      validateAndTransformBody(AdminCreateCommissionRule),
-    ],
+      validateAndTransformBody(AdminCreateCommissionRule)
+    ]
   },
   {
-    method: ["POST"],
-    matcher: "/admin/commission/rules/:id",
+    method: ['POST'],
+    matcher: '/admin/commission/rules/:id',
     middlewares: [
       validateAndTransformQuery(
         AdminCommissionRuleParams,
-        adminCommissionRuleQueryConfig.retrieve,
+        adminCommissionRuleQueryConfig.retrieve
       ),
-      validateAndTransformBody(AdminUpdateCommissionRule),
-    ],
+      validateAndTransformBody(AdminUpdateCommissionRule)
+    ]
   },
   {
-    method: ["POST"],
-    matcher: "/admin/commission/default",
-    middlewares: [validateAndTransformBody(AdminUpsertDefaultCommissionRule)],
-  },
-];
+    method: ['POST'],
+    matcher: '/admin/commission/default',
+    middlewares: [validateAndTransformBody(AdminUpsertDefaultCommissionRule)]
+  }
+]

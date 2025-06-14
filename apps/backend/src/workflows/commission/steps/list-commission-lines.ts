@@ -1,47 +1,107 @@
-import {
-  BigNumber,
-  ContainerRegistrationKeys,
-  MathBN
-} from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
+import sellerOrder from '../../../links/seller-order'
+import { COMMISSION_MODULE } from '../../../modules/commission'
+import CommissionModuleService from '../../../modules/commission/service'
+
+type Input = {
+  expand: boolean
+  pagination: {
+    skip: number
+    take: number
+  }
+  filters: {
+    start_date?: Date
+    end_date?: Date
+    seller_id?: string
+  }
+}
+
 export const listCommissionLinesStep = createStep(
-  'list-order-commission-lines',
-  async (
-    input: {
-      order_id: string
-    },
-    { container }
-  ) => {
+  'list-commission-lines',
+  async (input: Input, { container }) => {
+    const { pagination, filters } = input
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    const service =
+      container.resolve<CommissionModuleService>(COMMISSION_MODULE)
 
-    const {
-      data: [order]
-    } = await query.graph({
-      entity: 'order',
-      fields: ['items.id', 'currency_code'],
-      filters: {
-        id: input.order_id
+    const createdFilter: { $gte?: Date; $lte?: Date } = {}
+    const itemLineIdFilter: { $in?: string[] } = {}
+
+    if (filters.start_date) {
+      createdFilter.$gte = filters.start_date
+    }
+
+    if (filters.end_date) {
+      createdFilter.$lte = filters.end_date
+    }
+
+    if (filters.seller_id) {
+      const { data: sellerOrders } = await query.graph({
+        entity: sellerOrder.entryPoint,
+        fields: ['*', 'order.items.id'],
+        filters: {
+          seller_id: filters.seller_id,
+          created_at: createdFilter
+        }
+      })
+
+      itemLineIdFilter.$in = sellerOrders
+        .flatMap((o) => o.order.items)
+        .map((i) => i.id)
+    }
+
+    const [commissionLines, count] = await service.listAndCountCommissionLines(
+      {
+        item_line_id: itemLineIdFilter,
+        created_at: createdFilter
+      },
+      {
+        take: pagination.take,
+        skip: pagination.skip
       }
-    })
+    )
 
-    const order_line_items = order.items.map((i) => i.id)
+    if (input.expand) {
+      const itemIds = commissionLines.map((line) => line.item_line_id)
 
-    const { data: commission_lines } = await query.graph({
-      entity: 'commission_line',
-      fields: ['*'],
-      filters: {
-        item_line_id: order_line_items
-      }
-    })
+      const ruleIds = commissionLines.map((line) => line.rule_id)
 
-    const amount: BigNumber = commission_lines.reduce((acc, current) => {
-      return MathBN.add(acc, current.value)
-    }, MathBN.convert(0))
+      const { data: rules } = await query.graph({
+        entity: 'commission_rule',
+        fields: ['*', 'rate.*'],
+        filters: {
+          id: ruleIds
+        },
+        withDeleted: true
+      })
 
-    return new StepResponse({
-      commission_value: { amount, currency_code: order.currency_code },
-      commission_lines
-    })
+      const { data: orders } = await query.graph({
+        entity: 'order',
+        fields: ['*', 'seller.id', 'seller.name', 'items.id'],
+        filters: {
+          items: {
+            id: itemIds
+          }
+        }
+      })
+
+      const expandedLines = commissionLines.map((line) => {
+        const order = orders.find((o) =>
+          o.items.some((i) => i.id === line.item_line_id)
+        )
+        const rule = rules.find((r) => r.id === line.rule_id)
+        return {
+          ...line,
+          order,
+          rule
+        }
+      })
+
+      return new StepResponse({ lines: expandedLines, count })
+    }
+
+    return new StepResponse({ lines: commissionLines, count })
   }
 )
