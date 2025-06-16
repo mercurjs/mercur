@@ -6,6 +6,7 @@ import { StepResponse } from '@medusajs/workflows-sdk'
 
 import sellerShippingProfile from '../../links/seller-shipping-profile'
 import { AlgoliaEvents } from '../../modules/algolia/types'
+import { productsCreatedHookHandler } from '../../modules/attribute/utils'
 import { SELLER_MODULE } from '../../modules/seller'
 
 const getVariantInventoryItemIds = async (
@@ -76,6 +77,12 @@ const assignDefaultSellerShippingProfile = async (
 
 createProductsWorkflow.hooks.productsCreated(
   async ({ products, additional_data }, { container }) => {
+    await productsCreatedHookHandler({
+      products,
+      additional_data,
+      container
+    })
+
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     if (!additional_data?.seller_id) {
