@@ -68,16 +68,10 @@ class AttributeModuleService extends MedusaService({
     input: UpdateAttributeDTO[],
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
-    // When debugging this, it only seems to have the id proprty returned
-    // so i refetch the entities
     const upsertedValues = await this.attributePossibleValueRepository_.upsert(
       input.flatMap((element) => element.possible_values),
       sharedContext
     )
-
-    // const upsertedValues = await this.listAttributePossibleValues({
-    //   id: upsertedValuesWithoutFields.map(val => val.id)
-    // }, undefined, sharedContext)
 
     const attributesInput = input.map((toUpdate) => {
       const { ...attribute } = toUpdate

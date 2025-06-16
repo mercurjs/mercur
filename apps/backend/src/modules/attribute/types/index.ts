@@ -1,1 +1,2 @@
-export * from './attribute'
+export * from './mutations'
+export * from './common'

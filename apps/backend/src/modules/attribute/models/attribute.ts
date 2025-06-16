@@ -1,5 +1,6 @@
 import { model } from '@medusajs/framework/utils'
 
+import { AttributeUIComponent } from '../types'
 import AttributePossibleValue from './attribute-possible-value'
 import AttributeValue from './attribute-value'
 
@@ -10,6 +11,9 @@ const Attribute = model
     description: model.text().nullable(),
     handle: model.text().unique(),
     metadata: model.json().nullable(),
+    ui_component: model
+      .enum(Object.values(AttributeUIComponent))
+      .default(AttributeUIComponent.SELECT),
     values: model.hasMany(() => AttributeValue),
     possible_values: model.hasMany(() => AttributePossibleValue)
   })
