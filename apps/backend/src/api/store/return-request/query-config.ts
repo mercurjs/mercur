@@ -15,11 +15,11 @@ export const storeReturnOrderRequestFields = [
 
 export const storeReturnOrderRequestQueryConfig = {
   list: {
-    defaults: storeReturnOrderRequestFields,
+    defaults: [],
     isList: true
   },
   retrieve: {
-    defaults: storeReturnOrderRequestFields,
+    defaults: [],
     isList: false
   }
 }

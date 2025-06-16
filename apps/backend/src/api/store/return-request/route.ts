@@ -3,6 +3,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import sellerOrder from '../../../links/seller-order'
 import { createOrderReturnRequestWorkflow } from '../../../workflows/order-return-request/workflows'
+import { storeReturnOrderRequestFields } from './query-config'
 import { StoreCreateReturnRequestType } from './validators'
 
 /**
@@ -65,7 +66,7 @@ export async function GET(
 
   const { data: order_return_requests, metadata } = await query.graph({
     entity: 'order_return_request',
-    fields: req.queryConfig.fields,
+    fields: storeReturnOrderRequestFields,
     filters: {
       ...req.filterableFields,
       customer_id: req.auth_context.actor_id

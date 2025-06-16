@@ -1,5 +1,15 @@
 import { z } from 'zod'
 
+import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+
+export type StoreGetOrderReturnRequestParamsType = z.infer<
+  typeof StoreGetOrderReturnRequestParams
+>
+export const StoreGetOrderReturnRequestParams = createFindParams({
+  offset: 0,
+  limit: 50
+})
+
 /**
  * @schema StoreCreateOrderReturnRequest
  * title: "Create Order Return Request"

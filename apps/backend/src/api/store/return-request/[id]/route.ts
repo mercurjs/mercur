@@ -1,6 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import { storeReturnOrderRequestFields } from '../query-config'
+
 /**
  * @oas [get] /store/return-request/{id}
  * operationId: "StoreGetOrderReturnRequestById"
@@ -46,7 +48,7 @@ export const GET = async (
     data: [order_return_request]
   } = await query.graph({
     entity: 'order_return_request',
-    fields: req.queryConfig.fields,
+    fields: storeReturnOrderRequestFields,
     filters: {
       id: req.params.id,
       customer_id: req.auth_context.actor_id
