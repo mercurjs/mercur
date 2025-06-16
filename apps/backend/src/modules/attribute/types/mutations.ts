@@ -31,7 +31,7 @@ export interface CreateAttributeDTO {
   handle?: string
   metadata?: Record<string, unknown>
   ui_component: AttributeUIComponent
-  possible_values?: CreateAttributeValueDTO[]
+  possible_values?: Omit<CreateAttributeValueDTO, 'attribute_id'>[]
   product_category_ids?: string[]
 }
 
