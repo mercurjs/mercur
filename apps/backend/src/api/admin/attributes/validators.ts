@@ -28,8 +28,6 @@ export const AdminGetAttributeParams = createSelectParams()
 export const GetAttributesParams = z.object({
   id: z.string().optional(),
   name: z.string().optional(),
-  is_variant_defining: z.boolean().optional(),
-  is_filterable: z.boolean().optional(),
   handle: z.string().optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),

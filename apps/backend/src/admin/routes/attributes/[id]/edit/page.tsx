@@ -21,7 +21,7 @@ const EditAttributePage = () => {
     id ?? "",
     {
       fields:
-        "name, description, handle, is_variant_defining, is_filterable, ui_component, product_categories.name, possible_values.*",
+        "name, description, handle, ui_component, product_categories.name, possible_values.*",
     },
     { enabled: !!id }
   );

@@ -1,4 +1,4 @@
-export const defaultAdminAttributeFields = [
+export const defaultVendorAttributeFields = [
   'id',
   'name',
   'description',
@@ -11,7 +11,7 @@ export const defaultAdminAttributeFields = [
 ]
 
 export const retrieveAttributeQueryConfig = {
-  defaults: defaultAdminAttributeFields,
+  defaults: defaultVendorAttributeFields,
   isList: false
 }
 
@@ -21,7 +21,7 @@ export const listAttributeQueryConfig = {
   isList: true
 }
 
-export const defaultAdminAttributeValueFields = [
+export const defaultVendorAttributeValueFields = [
   'id',
   'value',
   'rank',
@@ -29,7 +29,7 @@ export const defaultAdminAttributeValueFields = [
 ]
 
 export const retrieveAttributeValueQueryConfig = {
-  defaults: defaultAdminAttributeValueFields,
+  defaults: defaultVendorAttributeValueFields,
   isList: false
 }
 

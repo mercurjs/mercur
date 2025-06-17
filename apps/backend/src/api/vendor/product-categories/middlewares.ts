@@ -1,5 +1,7 @@
 import { MiddlewareRoute, validateAndTransformQuery } from '@medusajs/framework'
 
+import { retrieveAttributeQueryConfig } from '../attributes/query-config'
+import { VendorGetAttributesParams } from '../attributes/validators'
 import { vendorProductCategoryQueryConfig } from './query-config'
 import { VendorGetProductCategoriesParams } from './validators'
 
@@ -21,6 +23,16 @@ export const vendorProductCategoriesMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetProductCategoriesParams,
         vendorProductCategoryQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/product-categories/:id/attributes',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetAttributesParams,
+        retrieveAttributeQueryConfig
       )
     ]
   }
