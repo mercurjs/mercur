@@ -9,6 +9,17 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const {
+    data: [product]
+  } = await query.graph({
+    entity: 'product',
+    fields: ['categories.id'],
+    filters: {
+      id: req.params.id
+    }
+  })
+  const categoryIds = product.categories.map((category) => category.id)
+
   const { data: attributes } = await query.graph({
     entity: categoryAttribute.entryPoint,
     fields: ['attribute_id']
@@ -29,7 +40,7 @@ export const GET = async (
     entity: categoryAttribute.entryPoint,
     fields: req.queryConfig.fields.map((field) => `attribute.${field}`),
     filters: {
-      product_category_id: [req.params.id]
+      product_category_id: categoryIds
     }
   })
 

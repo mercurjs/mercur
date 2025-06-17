@@ -7,6 +7,7 @@ import {
   validateAndTransformQuery
 } from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
+import { maybeApplyPriceListsFilter } from '@medusajs/medusa/api/admin/products/utils/index'
 
 import sellerProductLink from '../../../links/seller-product'
 import { ConfigurationRuleType } from '../../../modules/configuration/types'
@@ -15,6 +16,8 @@ import {
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import { checkConfigurationRule } from '../../../shared/infra/http/middlewares'
+import { retrieveAttributeQueryConfig } from '../attributes/query-config'
+import { VendorGetAttributesParams } from '../attributes/validators'
 import { vendorProductQueryConfig } from './query-config'
 import {
   CreateProductOption,
@@ -27,7 +30,6 @@ import {
   VendorUpdateProduct,
   VendorUpdateProductStatus
 } from './validators'
-import { maybeApplyPriceListsFilter } from '@medusajs/medusa/api/admin/products/utils/index'
 
 const canVendorCreateProduct = [
   checkConfigurationRule(ConfigurationRuleType.GLOBAL_PRODUCT_CATALOG, false),
@@ -52,9 +54,9 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         filterableField: 'seller_id'
       }),
       maybeApplyLinkFilter({
-        entryPoint: "product_sales_channel",
-        resourceId: "product_id",
-        filterableField: "sales_channel_id",
+        entryPoint: 'product_sales_channel',
+        resourceId: 'product_id',
+        filterableField: 'sales_channel_id'
       }),
       maybeApplyPriceListsFilter()
     ]
@@ -248,6 +250,16 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/products/:id/applicable-attributes',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetAttributesParams,
+        retrieveAttributeQueryConfig
       )
     ]
   }

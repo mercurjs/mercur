@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import categoryAttribute from '../../../links/category-attribute'
 import { createAttributesWorkflow } from '../../../workflows/attribute/workflows'
 import {
   AdminCreateAttributeType,
@@ -12,6 +13,18 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  if (req.filterableFields.is_global) {
+    delete req.filterableFields.is_global
+    const { data: attributes } = await query.graph({
+      entity: categoryAttribute.entryPoint,
+      fields: ['attribute_id']
+    })
+    const attributeIds = attributes.map((attribute) => attribute.attribute_id)
+    req.filterableFields['id'] = {
+      $nin: attributeIds
+    }
+  }
 
   const { data: attributes, metadata } = await query.graph({
     entity: 'attribute',

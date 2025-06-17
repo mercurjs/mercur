@@ -29,6 +29,7 @@ export const GetAttributesParams = z.object({
   id: z.string().optional(),
   name: z.string().optional(),
   handle: z.string().optional(),
+  is_global: z.boolean().default(false),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
   deleted_at: createOperatorMap().optional(),
