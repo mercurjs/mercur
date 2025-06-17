@@ -36,10 +36,10 @@ const SellerDetailPage = () => {
   const { data, isLoading } = useSeller(id!);
 
   const { data: orders, isLoading: ordersLoading } = useSellerOrders(id!, {fields:
-    'id,display_id,created_at,*customer,currency_code,total,fulfillment_status,payment_status,status'}, orderSearchParams);
+    'id,display_id,created_at,updated_at,*customer,currency_code,total,fulfillment_status,payment_status,status,region_id,sales_channel_id'}, orderSearchParams);
 
   const { data: products, isLoading: productsLoading, refetch: productsRefetch } = useSellerProducts(id!, {
-    fields: "*collection"
+    fields: "*collection,+type_id,+tag_id,+sales_channel_id,+status,+created_at,+updated_at"
   }, productSearchParams);
 
   const { data: customerGroups, isLoading: customerGroupsLoading, refetch: customerGroupsRefetch } = useSellerCustomerGroups(id!, {

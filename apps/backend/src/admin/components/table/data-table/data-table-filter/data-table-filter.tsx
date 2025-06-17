@@ -8,6 +8,7 @@ import { DataTableFilterContext, useDataTableFilterContext } from "./context"
 import { NumberFilter } from "./number-filter"
 import { SelectFilter } from "./select-filter"
 import { StringFilter } from "./string-filter"
+import { DateFilter } from "./date-filter"
 
 type Option = {
   label: string
@@ -135,6 +136,16 @@ export const DataTableFilter = ({
                   options={filter.options}
                   multiple={filter.multiple}
                   searchable={filter.searchable}
+                  openOnMount={filter.openOnMount}
+                />
+              )
+            case "date":
+              return (
+                <DateFilter
+                  key={filter.key}
+                  filter={filter}
+                  prefix={prefix}
+                  readonly={readonly}
                   openOnMount={filter.openOnMount}
                 />
               )

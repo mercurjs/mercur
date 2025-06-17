@@ -8,6 +8,7 @@ import { getStylizedAmount, useSellerOrdersTableQuery } from "../../helpers";
 import { PaymentStatusBadge } from "../../../../components/payments-status-badge/payment-status-badge";
 import { OrderStatusBadge } from "../../../../components/order-status-badge/order-status-badge";
 import { FulfillmentStatusBadge } from "../../../../components/fulfillmen t-status-badge/fulfillment-status-badge";
+import { useOrderTableFilters } from "../../helpers/user-order-table-filters";
 
 const PAGE_SIZE = 10
 const PREFIX = 'so'
@@ -22,6 +23,7 @@ export const SellerOrdersSection = ({ seller_orders }: { seller_orders: any }) =
   })
 
   const columns = useColumns()
+  const filters = useOrderTableFilters()
 
   const { table } = useDataTable({
     data: orders,
@@ -43,6 +45,7 @@ export const SellerOrdersSection = ({ seller_orders }: { seller_orders: any }) =
         table={table}
         columns={columns}
         count={count}
+        filters={filters}
         pageSize={PAGE_SIZE}
         isLoading={false}
         queryObject={raw}
