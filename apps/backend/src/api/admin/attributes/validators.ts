@@ -73,7 +73,7 @@ export const AdminUpdateAttribute = z
     handle: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
     ui_component: z.nativeEnum(AttributeUIComponent).optional(),
-    product_category_ids: z.array(z.object({ id: z.string() })).optional(),
+    product_category_ids: z.array(z.string()).optional(),
     possible_values: z.array(AdminUpdateAttributeValue).optional()
   })
   .strict()

@@ -1,5 +1,6 @@
 import { MiddlewareRoute } from '@medusajs/framework'
 
+import { attributeMiddlewares } from './attributes/middlewares'
 import { commissionMiddlewares } from './commission/middlewares'
 import { configurationMiddleware } from './configuration/middlewares'
 import { orderSetsMiddlewares } from './order-sets/middlewares'
@@ -15,5 +16,6 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...returnRequestsMiddlewares,
   ...commissionMiddlewares,
   ...sellerMiddlewares,
-  ...reviewsMiddlewares
+  ...reviewsMiddlewares,
+  ...attributeMiddlewares
 ]

@@ -44,7 +44,10 @@ export const POST = async (
       attributes: [
         {
           ...req.validatedBody,
-          id: attributeId
+          id: attributeId,
+          product_category_ids:
+            req.validatedBody.product_category_ids?.map((id) => ({ id })) ||
+            undefined
         }
       ]
     }

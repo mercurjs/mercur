@@ -16,7 +16,7 @@ import {
   AdminUpdateAttributeValue
 } from './validators'
 
-export const adminAttributeRoutesMiddlewares: MiddlewareRoute[] = [
+export const attributeMiddlewares: MiddlewareRoute[] = [
   {
     method: ['GET'],
     matcher: '/admin/attributes',

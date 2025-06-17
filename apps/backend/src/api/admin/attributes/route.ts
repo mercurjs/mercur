@@ -33,6 +33,8 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  console.log(req.validatedBody)
+
   const { result } = await createAttributesWorkflow(req.scope).run({
     input: { attributes: [req.validatedBody] }
   })

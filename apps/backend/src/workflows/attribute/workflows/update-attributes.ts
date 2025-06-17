@@ -72,11 +72,11 @@ export const updateAttributesWorkflow = createWorkflow(
 
         return currentCategoriesLinks.map(
           ({ attribute_id, product_category_id }) => ({
-            [ATTRIBUTE_MODULE]: {
-              attribute_id
-            },
             [Modules.PRODUCT]: {
               product_category_id
+            },
+            [ATTRIBUTE_MODULE]: {
+              attribute_id
             }
           })
         )
@@ -92,11 +92,11 @@ export const updateAttributesWorkflow = createWorkflow(
           .filter((attribute) => attribute.product_category_ids)
           .flatMap((attribute) =>
             attribute.product_category_ids!.map((attrCat) => ({
+              [Modules.PRODUCT]: {
+                product_category_id: attrCat.id
+              },
               [ATTRIBUTE_MODULE]: {
                 attribute_id: attribute.id
-              },
-              [Modules.PRODUCT]: {
-                product_category_id: attrCat
               }
             }))
           )
