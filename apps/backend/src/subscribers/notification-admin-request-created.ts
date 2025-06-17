@@ -4,7 +4,11 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/medusa'
 import { HumanizeTypes } from '../modules/requests/enum/humanize_types'
 import { RequestDTO, RequestUpdated } from '../modules/requests/types'
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
-import { fetchAdminEmails } from '../shared/infra/http/utils'
+import {
+  Hosts,
+  buildHostAddress,
+  fetchAdminEmails
+} from '../shared/infra/http/utils'
 
 export default async function requestCreatedAdminNotifyHandler({
   event,
@@ -40,7 +44,11 @@ export default async function requestCreatedAdminNotifyHandler({
       },
       data: {
         data: {
-          seller_name: (data as any).seller.name || ''
+          seller_name: (data as any).seller.name || '',
+          request_address: buildHostAddress(
+            Hosts.BACKEND,
+            `/admin/requests/seller`
+          ).toString()
         }
       }
     }))

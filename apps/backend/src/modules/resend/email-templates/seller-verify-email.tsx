@@ -18,8 +18,11 @@ export const SellerEmailVerifyEmailTemplate: React.FC<Readonly<EmailTemplateProp
 				Please <a href={data.link}>click here</a> to verify your email.
       </p>
       <p>Thank you for choosing us. We are excited about you joining us and will support you every step of the way.</p>
-      <p>Best regards, The Mercur Team</p>
-      <p>mercur.js</p>
+      <div style={{ marginTop: 32 }}>
+        <div>Best regards,</div>
+        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>mercurjs.com</div>
+      </div>
     </div>
   )
 }

@@ -1,13 +1,12 @@
 interface EmailTemplateProps {
   data: {
     user_name: string,
-    host: string,
+    order_address: string,
     order_id: string,
     order: {
       display_id: string,
       items: any[],
       currency_code: string,
-      item_total: number,
       shipping_methods: {
         amount: number,
         name: string
@@ -48,11 +47,10 @@ export const BuyerNewOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> 
       </h1>
       <p style={{ fontSize: '1.1rem', marginBottom: 24 }}>
         Thank you for placing order #{order.display_id}.<br />
-        We have received a total of {order.item_total}.
       </p>
       <div style={{ marginBottom: 24 }}>
         <a
-          href={`${data.host}/orders/${data.order_id}`}
+          href={data.order_address}
           style={{
             display: 'inline-block',
             padding: '10px 24px',
@@ -68,7 +66,7 @@ export const BuyerNewOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> 
         </a>
         <div style={{ fontSize: 13, color: '#555', marginTop: 8 }}>
           If you can’t click the button, here’s your link: <br />
-          <span style={{ color: '#0070f3' }}>{data.host}/orders/{data.order_id}</span>
+          <span style={{ color: '#0070f3' }}>{data.order_address}</span>
         </div>
       </div>
       <h3 style={{ marginTop: 32, marginBottom: 12 }}>Here’s the breakdown:</h3>
@@ -117,12 +115,6 @@ export const BuyerNewOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> 
           ))}
         </tbody>
         <tfoot>
-          <tr>
-            <td><b>Items:</b></td>
-            <td colSpan={3}>
-              {order.item_total} {order.currency_code}
-            </td>
-          </tr>
           <tr>
             <td><b>Delivery:</b></td>
             <td colSpan={3}>
