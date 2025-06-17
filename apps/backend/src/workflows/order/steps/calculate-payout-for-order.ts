@@ -1,8 +1,4 @@
-import {
-  BigNumber,
-  ContainerRegistrationKeys,
-  MathBN
-} from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, MathBN } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SplitOrderPaymentDTO } from '../../../modules/split-order-payment/types'
@@ -37,18 +33,18 @@ export const calculatePayoutForOrderStep = createStep(
       }
     })
 
-    const total_commission: BigNumber = commission_lines.reduce(
-      (acc, current) => {
-        return MathBN.add(acc, current.value)
-      },
-      MathBN.convert(0)
-    )
+    const total_commission = commission_lines.reduce((acc, current) => {
+      return MathBN.add(acc, current.value)
+    }, MathBN.convert(0))
 
     const orderPayment: SplitOrderPaymentDTO = order.split_order_payment
 
-    const payout_total = MathBN.convert(orderPayment.captured_amount)
-      .minus(orderPayment.refunded_amount)
-      .minus(total_commission.numeric)
+    const captured_amount = MathBN.convert(orderPayment.captured_amount)
+    const refunded_amount = MathBN.convert(orderPayment.refunded_amount)
+
+    const payout_total = captured_amount
+      .minus(refunded_amount)
+      .minus(total_commission)
 
     return new StepResponse(payout_total)
   }
