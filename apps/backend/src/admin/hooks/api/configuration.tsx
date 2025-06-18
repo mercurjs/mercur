@@ -8,7 +8,10 @@ import {
 
 import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
-import { AdminCreateRule, ConfigurationRule } from './types'
+import {
+  AdminCreateRule,
+  ConfigurationRule
+} from '../../routes/configuration/types'
 
 export const configurationQueryKeys = queryKeysFactory('configuration_rules')
 

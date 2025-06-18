@@ -48,6 +48,7 @@ const UpsertDefaultCommissionRuleForm = ({ onSuccess, rule }: Props) => {
     try {
       const rule_payload = {
         is_active: true,
+        name: "Default commission rule",
         rate: {
           type: rateType as "flat" | "percentage",
           percentage_rate: rateType === "percentage" ? ratePercentValue : undefined,
