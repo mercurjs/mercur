@@ -6,10 +6,9 @@ import {
   useQueryClient
 } from '@tanstack/react-query'
 
-import { VendorSeller } from '@mercurjs/http-client'
-
 import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
+import { VendorSeller } from '../../routes/sellers/types'
 
 export const sellerQueryKeys = queryKeysFactory('seller')
 

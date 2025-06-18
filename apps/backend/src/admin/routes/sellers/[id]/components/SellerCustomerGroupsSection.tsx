@@ -8,7 +8,7 @@ import { ActionsButton } from "../../../../common/ActionsButton";
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { formatDate } from "../../../../lib/date";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../../../lib/client";
+import { mercurQuery } from "../../../../lib/client";
 import { toast } from "@medusajs/ui";
 import { useCustomerGroupTableFilters } from "../../helpers/use-customer-groups-table-filters";
 
@@ -85,7 +85,9 @@ const useColumns = (refetch: () => void) => {
     }
 
     try {
-      await api.admin.adminDeleteCustomerGroupsId(customer_group.id)
+      await mercurQuery(`/admin/customer-groups/${customer_group.id}`, {
+        method: 'DELETE',
+      })
       toast.success("Customer group deleted successfully", {
         description: `${customer_group.name} deleted successfully`,
       })

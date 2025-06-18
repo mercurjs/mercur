@@ -9,8 +9,7 @@ import { FilterRequests, FilterState } from "../components/filter-requests";
 
 import { ReviewRemoveRequestDetail } from "./review-remove-detail";
 import { RequestMenu } from "../components/request-menu";
-import { AdminRequest } from "@mercurjs/http-client";
-import { ReviewRemoveRequest } from "../types";
+import { AdminRequest, ReviewRemoveRequest } from "../types";
 
 const PAGE_SIZE = 20;
 
