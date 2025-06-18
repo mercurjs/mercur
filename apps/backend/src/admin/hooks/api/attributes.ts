@@ -140,3 +140,28 @@ export const useUpdateAttributePossibleValue = (
     ...options
   })
 }
+
+export const useProductApplicableAttributes = (
+  product_id: string,
+  query?: any,
+  options?: Omit<
+    UseQueryOptions<
+      PaginatedResponse<{ attributes: AttributeDTO[] }>,
+      FetchError,
+      PaginatedResponse<{ attributes: AttributeDTO[] }>,
+      QueryKey
+    >,
+    'queryFn' | 'queryKey'
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryKey: attributeQueryKeys.list(query),
+    queryFn: () =>
+      mercurQuery(`/admin/products/${product_id}/applicable-attributes`, {
+        method: 'GET',
+        query
+      }),
+    ...options
+  })
+  return { ...data, ...rest }
+}
