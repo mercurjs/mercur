@@ -6,9 +6,11 @@ import { formatDate } from "../../../lib/date";
 import { useState } from "react";
 import { getRequestStatusBadge } from "../utils/get-status-badge";
 import { FilterRequests, FilterState } from "../components/filter-requests";
-import { AdminRequest, ReviewRemoveRequest } from "@mercurjs/http-client";
+
 import { ReviewRemoveRequestDetail } from "./review-remove-detail";
 import { RequestMenu } from "../components/request-menu";
+import { AdminRequest } from "@mercurjs/http-client";
+import { ReviewRemoveRequest } from "../types";
 
 const PAGE_SIZE = 20;
 

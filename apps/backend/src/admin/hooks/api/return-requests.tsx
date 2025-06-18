@@ -10,9 +10,8 @@ import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
 import {
   AdminOrderReturnRequest,
-  AdminUpdateOrderReturnRequest,
-  OrderReturnRequest
-} from '../../routes/return-requests/types'
+  AdminUpdateOrderReturnRequest
+} from '../../routes/requests/types'
 
 export const returnRequestsQueryKeys = queryKeysFactory('return-request')
 
@@ -43,7 +42,7 @@ export const useReturnRequests = (
 
 export const useReviewReturnRequest = (
   options: UseMutationOptions<
-    { orderReturnRequest?: OrderReturnRequest },
+    { orderReturnRequest?: AdminOrderReturnRequest },
     Error,
     { id: string; payload: AdminUpdateOrderReturnRequest }
   >

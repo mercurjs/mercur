@@ -19,7 +19,7 @@ import {
 export const commissionRulesQueryKeys = queryKeysFactory('commission_rule')
 
 export const useCommissionRules = (
-  query?: Record<string, string | number>,
+  query?: any,
   options?: Omit<
     UseQueryOptions<
       Record<string, string | number>,

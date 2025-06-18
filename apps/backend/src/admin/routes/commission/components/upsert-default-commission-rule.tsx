@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Input, Button, toast, Switch, Label } from "@medusajs/ui";
 import { useUpsertDefaultCommisionRule } from "../../../hooks/api/commission";
-import { AdminCommissionAggregate } from "@mercurjs/http-client";
 import { useStores } from "../../../hooks/api/stores";
+import { AdminCommissionAggregate } from "../types";
 
 type Props = {
   onSuccess?: () => void;

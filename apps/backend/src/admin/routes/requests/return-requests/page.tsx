@@ -10,7 +10,7 @@ import {
   FilterState,
 } from "../components/filter-return-requests";
 import { ReturnRequestDetail } from "./return-detail";
-import { AdminOrderReturnRequest } from "@mercurjs/http-client";
+import { AdminOrderReturnRequest } from "../types";
 import { ReturnRequestMenu } from "../components/return-request-menu";
 
 const PAGE_SIZE = 20;
