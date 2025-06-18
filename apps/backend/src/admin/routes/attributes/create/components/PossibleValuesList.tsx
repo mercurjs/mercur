@@ -2,7 +2,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Button, Input, Text } from '@medusajs/ui'
-import { Plus, X, EllipsisHorizontal } from '@medusajs/icons'
+import { Plus, XMark, EllipsisHorizontal } from '@medusajs/icons'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 
 type AttributeValueType = {
@@ -59,7 +59,7 @@ const SortableItem = ({ id, index, onRemove }: SortableItemProps) => {
         onClick={onRemove}
         className="text-ui-fg-subtle hover:text-ui-fg-base"
       >
-        <X />
+        <XMark />
       </button>
     </div>
   )
