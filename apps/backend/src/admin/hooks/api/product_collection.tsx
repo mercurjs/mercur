@@ -1,11 +1,11 @@
-import { QueryKey, UseQueryOptions, useQuery } from "@tanstack/react-query";
+import { QueryKey, UseQueryOptions, useQuery } from '@tanstack/react-query'
 
-import { api } from "../../lib/client";
-import { queryKeysFactory } from "../../lib/query-keys-factory";
-import { AdminCollection } from "@mercurjs/http-client";
+import { ProductCollectionDTO } from '@medusajs/framework/types'
 
-export const productCollectionQueryKeys =
-  queryKeysFactory("product_collection");
+import { mercurQuery } from '../../lib/client'
+import { queryKeysFactory } from '../../lib/query-keys-factory'
+
+export const productCollectionQueryKeys = queryKeysFactory('product_collection')
 
 export const useProductCollection = (
   id: string,
@@ -13,17 +13,20 @@ export const useProductCollection = (
     UseQueryOptions<
       unknown,
       Error,
-      { product_collection?: AdminCollection },
+      { product_collection?: ProductCollectionDTO },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: productCollectionQueryKeys.detail(id),
-    queryFn: () => api.admin.adminGetCollectionsId(id).then((res) => res.data),
-    ...options,
-  });
+    queryFn: () =>
+      mercurQuery(`/admin/product-categories/${id}`, {
+        method: 'GET'
+      }),
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}

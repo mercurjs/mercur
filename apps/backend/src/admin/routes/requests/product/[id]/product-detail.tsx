@@ -179,8 +179,8 @@ const ProductOrganizationInfo = ({ product }: { product: ProductDTO }) => {
 
   if (product.tags && product.tags.length) {
     const tagIds = product.tags.map((t) => t.id);
-    const { tags } = useProductTags({ id: tagIds });
-    tags?.forEach((t) => productTags.push({ id: t.id, value: t.value }));
+    const { product_tags } = useProductTags({ id: tagIds });
+    product_tags?.forEach((t) => productTags.push({ id: t.id, value: t.value }));
   }
 
   return (
