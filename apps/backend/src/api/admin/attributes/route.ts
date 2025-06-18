@@ -45,9 +45,6 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  console.log(req.validatedBody)
-
   const { result } = await createAttributesWorkflow(req.scope).run({
     input: { attributes: [req.validatedBody] }
   })
