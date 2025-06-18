@@ -33,7 +33,7 @@ export const useAttributes = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: attributeQueryKeys.list(query),
+    queryKey: attributeQueryKeys.list(),
     queryFn: () =>
       mercurQuery('/admin/attributes', {
         method: 'GET',

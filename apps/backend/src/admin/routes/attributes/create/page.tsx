@@ -1,4 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   FocusModal,
   Heading,
@@ -11,10 +12,12 @@ import { AdminProductCategory } from "@medusajs/types";
 import { AttributeForm, CreateAttributeFormSchema } from "../components/AttributeForm";
 import { z } from "zod";
 import { mercurQuery } from "../../../lib/client";
+import { attributeQueryKeys } from "../../../hooks/api/attributes";
 
 const CreateAttributePage = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<AdminProductCategory[]>([]);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -37,6 +40,8 @@ const CreateAttributePage = () => {
         method: "POST",
         body: payload,
       });
+
+      queryClient.invalidateQueries({ queryKey: attributeQueryKeys.list() });
 
       toast.success("Attribute created!");
       navigate(-1);

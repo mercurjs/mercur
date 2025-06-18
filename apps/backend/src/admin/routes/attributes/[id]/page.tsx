@@ -1,4 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Container,
   Heading,
@@ -14,12 +15,14 @@ import { SectionRow } from "../../../components/section-row";
 import { PossibleValuesTable } from "../components/possible-values-table";
 
 import { SingleColumnLayout } from "../../../layouts/single-column";
-import { useAttribute } from "../../../hooks/api/attributes";
+import { attributeQueryKeys, useAttribute } from "../../../hooks/api/attributes";
 import { mercurQuery } from "../../../lib/client";
 
 const AttributeDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const { attribute, isLoading } = useAttribute(id ?? "", {
     fields: 'name, description, handle, product_categories.name, possible_values.*'
@@ -55,6 +58,7 @@ const AttributeDetailPage = () => {
         method: "DELETE",
       });
       toast.success("Attribute deleted!");
+      queryClient.invalidateQueries({ queryKey: attributeQueryKeys.list() });
       navigate("/attributes");
     } catch (error) {
       toast.error((error as Error).message);
