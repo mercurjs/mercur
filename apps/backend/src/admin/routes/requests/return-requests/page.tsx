@@ -96,6 +96,7 @@ const OrderReturnRequestsPage = () => {
                   <Table.Cell>
                     <ReturnRequestMenu
                       handleDetail={handleDetail}
+                      // @ts-expect-error - Date type
                       request={request}
                     />
                   </Table.Cell>
