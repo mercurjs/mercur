@@ -14,21 +14,22 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  if (req.filterableFields.is_global) {
-    delete req.filterableFields.is_global
+  const { is_global, ...filterableFields } = req.filterableFields
+
+  if (is_global) {
     const { data: attributes } = await query.graph({
       entity: categoryAttribute.entryPoint,
       fields: ['attribute_id']
     })
     const attributeIds = attributes.map((attribute) => attribute.attribute_id)
-    req.filterableFields['id'] = {
+    filterableFields['id'] = {
       $nin: attributeIds
     }
   }
 
   const { data: attributes, metadata } = await query.graph({
     entity: 'attribute',
-    filters: req.filterableFields,
+    filters: filterableFields,
     ...req.queryConfig
   })
 
