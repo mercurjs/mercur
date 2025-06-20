@@ -4,6 +4,7 @@ import {
   Label,
   Select,
   Textarea,
+  Switch,
 } from "@medusajs/ui";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,6 +43,7 @@ export const AttributeForm = ({
       description: initialData?.description || "",
       handle: initialData?.handle || "",
       ui_component: mode === 'update' ? undefined : initialData?.ui_component || AttributeUIComponent.SELECT,
+      is_filterable: initialData?.is_filterable ?? true,
       //@ts-ignore
       possible_values: initialData?.possible_values || [],
       product_category_ids: initialData?.product_categories?.map(c => c.id) || [],
@@ -94,6 +96,17 @@ export const AttributeForm = ({
                 {form.formState.errors.description.message}
               </Text>
             )}
+          </div>
+
+          <div className="flex items-center gap-2">
+              <Switch
+                id="is_filterable"
+                checked={form.watch("is_filterable")}
+                onCheckedChange={(checked) =>
+                  form.setValue("is_filterable", checked)
+                }
+              />
+              <Label size="small" htmlFor="is_filterable">Filterable</Label>
           </div>
 
 
