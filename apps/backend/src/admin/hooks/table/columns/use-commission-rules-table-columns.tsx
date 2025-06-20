@@ -6,8 +6,8 @@ import {
   TextHeader,
 } from "../../../components/table/table-cells/common/text-cell";
 import { StatusCell } from "../../../components/table/table-cells/common/status-cell";
-import { AdminCommissionAggregate } from "@mercurjs/http-client";
 import { CommissionActionMenu } from "../../../routes/commission/components/commission-actions";
+import { AdminCommissionAggregate } from "../../../routes/commission/types";
 
 const columnHelper = createColumnHelper<AdminCommissionAggregate>();
 

@@ -4,15 +4,18 @@ import { Context } from '@medusajs/framework/types'
 import {
   InjectTransactionManager,
   MedusaContext,
+  MedusaError,
   MedusaService
 } from '@medusajs/framework/utils'
 
-import { Onboarding, Payout, PayoutAccount } from './models'
+import { Onboarding, Payout, PayoutAccount, PayoutReversal } from './models'
 import {
   CreateOnboardingDTO,
   CreatePayoutAccountDTO,
   CreatePayoutDTO,
+  CreatePayoutReversalDTO,
   IPayoutProvider,
+  PayoutAccountStatus,
   PayoutWebhookActionPayload
 } from './types'
 
@@ -22,6 +25,7 @@ type InjectedDependencies = {
 
 class PayoutModuleService extends MedusaService({
   Payout,
+  PayoutReversal,
   PayoutAccount,
   Onboarding
 }) {
@@ -71,6 +75,42 @@ class PayoutModuleService extends MedusaService({
   }
 
   @InjectTransactionManager()
+  async syncStripeAccount(
+    account_id: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>
+  ) {
+    const payout_account = await this.retrievePayoutAccount(account_id)
+    const stripe_account = await this.provider_.getAccount(
+      payout_account.reference_id
+    )
+
+    const status =
+      stripe_account.details_submitted &&
+      stripe_account.payouts_enabled &&
+      stripe_account.charges_enabled &&
+      stripe_account.tos_acceptance &&
+      stripe_account.tos_acceptance?.date !== null
+
+    await this.updatePayoutAccounts(
+      {
+        id: account_id,
+        data: stripe_account as unknown as Record<string, unknown>,
+        status: status
+          ? PayoutAccountStatus.ACTIVE
+          : PayoutAccountStatus.PENDING
+      },
+      sharedContext
+    )
+
+    const updated = await this.retrievePayoutAccount(
+      account_id,
+      undefined,
+      sharedContext
+    )
+    return updated
+  }
+
+  @InjectTransactionManager()
   async initializeOnboarding(
     { context, payout_account_id }: CreateOnboardingDTO,
     @MedusaContext() sharedContext?: Context<EntityManager>
@@ -116,7 +156,13 @@ class PayoutModuleService extends MedusaService({
     input: CreatePayoutDTO,
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
-    const { amount, currency_code, account_id, transaction_id } = input
+    const {
+      amount,
+      currency_code,
+      account_id,
+      transaction_id,
+      source_transaction
+    } = input
 
     const payoutAccount = await this.retrievePayoutAccount(account_id)
 
@@ -124,7 +170,8 @@ class PayoutModuleService extends MedusaService({
       account_reference_id: payoutAccount.reference_id,
       amount,
       currency: currency_code,
-      transaction_id
+      transaction_id,
+      source_transaction
     })
 
     // @ts-expect-error BigNumber incompatible interface
@@ -139,6 +186,39 @@ class PayoutModuleService extends MedusaService({
     )
 
     return payout
+  }
+
+  @InjectTransactionManager()
+  async createPayoutReversal(
+    input: CreatePayoutReversalDTO,
+    @MedusaContext() sharedContext?: Context<EntityManager>
+  ) {
+    const payout = await this.retrievePayout(input.payout_id)
+
+    if (!payout || !payout.data || !payout.data.id) {
+      throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Payout not found')
+    }
+
+    const transfer_id = payout.data.id as string
+
+    const transferReversal = await this.provider_.reversePayout({
+      transfer_id,
+      amount: input.amount,
+      currency: input.currency_code
+    })
+
+    // @ts-expect-error BigNumber incompatible interface
+    const payoutReversal = await this.createPayoutReversals(
+      {
+        data: transferReversal as unknown as Record<string, unknown>,
+        amount: input.amount,
+        currency_code: input.currency_code,
+        payout: payout.id
+      },
+      sharedContext
+    )
+
+    return payoutReversal
   }
 
   async getWebhookActionAndData(input: PayoutWebhookActionPayload) {

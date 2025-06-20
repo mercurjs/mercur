@@ -1,7 +1,3 @@
-import { Api } from '@mercurjs/http-client'
-
-export const api = new Api()
-
 export const mercurQuery = async (
   url: string,
   {

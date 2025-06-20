@@ -6,10 +6,9 @@ import {
   useQueryClient
 } from '@tanstack/react-query'
 
-import { VendorSeller } from '@mercurjs/http-client'
-
 import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
+import { VendorSeller } from '../../routes/sellers/types'
 
 export const sellerQueryKeys = queryKeysFactory('seller')
 
@@ -229,7 +228,7 @@ export const useSeller = (id: string) => {
 export const useSellerOrders = (
   id: string,
   query?: Record<string, string | number>,
-  filters?: Record<string, string | number>
+  filters?: any
 ) => {
   const { data, isLoading } = useQuery({
     queryKey: ['seller-orders', id, query],
@@ -246,13 +245,7 @@ export const useSellerOrders = (
 
   let processedOrders = [...data.orders]
 
-  if (!filters?.q) {
-    return {
-      data: { ...data, orders: processedOrders },
-      isLoading
-    }
-  }
-
+  // Apply search filter if present
   if (filters?.q) {
     const searchTerm = String(filters.q).toLowerCase()
     processedOrders = processedOrders.filter(
@@ -261,6 +254,61 @@ export const useSellerOrders = (
         order.customer?.last_name?.toLowerCase().includes(searchTerm) ||
         order.customer?.email?.toLowerCase().includes(searchTerm)
     )
+  }
+
+  // Filter by region_id
+  if (filters?.region_id && Array.isArray(filters.region_id)) {
+    processedOrders = processedOrders.filter(
+      (order) => order.region_id && filters.region_id.includes(order.region_id)
+    )
+  }
+
+  // Filter by sales_channel_id
+  if (filters?.sales_channel_id && Array.isArray(filters.sales_channel_id)) {
+    processedOrders = processedOrders.filter(
+      (order) =>
+        order.sales_channel_id &&
+        filters.sales_channel_id.includes(order.sales_channel_id)
+    )
+  }
+
+  // Filter by created_at date ranges
+  if (filters?.created_at) {
+    const dateFilter = filters.created_at as any
+    if (dateFilter.$gte) {
+      const filterDate = new Date(dateFilter.$gte)
+      processedOrders = processedOrders.filter((order) => {
+        const orderCreatedAt = new Date(order.created_at || '')
+        return orderCreatedAt >= filterDate
+      })
+    }
+    if (dateFilter.$lte) {
+      const filterDate = new Date(dateFilter.$lte)
+      processedOrders = processedOrders.filter((order) => {
+        const orderCreatedAt = new Date(order.created_at || '')
+        return orderCreatedAt <= filterDate
+      })
+    }
+  }
+
+  // Filter by updated_at date ranges
+  if (filters?.updated_at) {
+    const dateFilter = filters.updated_at as any
+
+    if (dateFilter.$gte) {
+      const filterDate = new Date(dateFilter.$gte)
+      processedOrders = processedOrders.filter((order) => {
+        const orderUpdatedAt = new Date(order.updated_at || '')
+        return orderUpdatedAt >= filterDate
+      })
+    }
+    if (dateFilter.$lte) {
+      const filterDate = new Date(dateFilter.$lte)
+      processedOrders = processedOrders.filter((order) => {
+        const orderUpdatedAt = new Date(order.updated_at || '')
+        return orderUpdatedAt <= filterDate
+      })
+    }
   }
 
   // Apply sorting if present
@@ -280,17 +328,13 @@ export const useSellerOrders = (
     }
   }
 
-  // Apply offset pagination if present
-  if (filters?.offset !== undefined) {
-    const offset = Number(filters.offset) || 0
-    const limit = Number(filters.limit) || 10
-    processedOrders = processedOrders.slice(offset, offset + limit)
-  }
+  const offset = Number(filters.offset) || 0
+  const limit = Number(filters.limit) || 10
 
   return {
     data: {
       ...data,
-      orders: processedOrders,
+      orders: processedOrders.slice(offset, offset + limit),
       count: processedOrders.length
     },
     isLoading
@@ -313,7 +357,7 @@ export const useUpdateSeller = () => {
 export const useSellerProducts = (
   id: string,
   query?: Record<string, string | number>,
-  filters?: Record<string, string | number>
+  filters?: any
 ) => {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['seller-products', id, query],
@@ -335,6 +379,74 @@ export const useSellerProducts = (
     )
   }
 
+  // Filter by tag_id
+  if (filters?.tag_id && Array.isArray(filters.tag_id)) {
+    processedProducts = processedProducts.filter((product) =>
+      product.tags?.some((tag: any) => filters.tag_id.includes(tag.id))
+    )
+  }
+
+  // Filter by type_id
+  if (filters?.type_id && Array.isArray(filters.type_id)) {
+    processedProducts = processedProducts.filter((product) =>
+      filters.type_id.includes(product.type_id)
+    )
+  }
+
+  // Filter by sales_channel_id
+  if (filters?.sales_channel_id && Array.isArray(filters.sales_channel_id)) {
+    processedProducts = processedProducts.filter((product) =>
+      product.sales_channels?.some((channel: any) =>
+        filters.sales_channel_id.includes(channel.id)
+      )
+    )
+  }
+
+  // Filter by status
+  if (filters?.status && Array.isArray(filters.status)) {
+    processedProducts = processedProducts.filter((product) =>
+      filters.status.includes(product.status)
+    )
+  }
+
+  // Filter by created_at date ranges
+  if (filters?.created_at) {
+    const dateFilter = filters.created_at as any
+    if (dateFilter.$gte) {
+      const filterDate = new Date(dateFilter.$gte)
+      processedProducts = processedProducts.filter((product) => {
+        const productCreatedAt = new Date(product.created_at || '')
+        return productCreatedAt >= filterDate
+      })
+    }
+    if (dateFilter.$lte) {
+      const filterDate = new Date(dateFilter.$lte)
+      processedProducts = processedProducts.filter((product) => {
+        const productCreatedAt = new Date(product.created_at || '')
+        return productCreatedAt <= filterDate
+      })
+    }
+  }
+
+  // Filter by updated_at date ranges
+  if (filters?.updated_at) {
+    const dateFilter = filters.updated_at as any
+    if (dateFilter.$gte) {
+      const filterDate = new Date(dateFilter.$gte)
+      processedProducts = processedProducts.filter((product) => {
+        const productUpdatedAt = new Date(product.updated_at || '')
+        return productUpdatedAt >= filterDate
+      })
+    }
+    if (dateFilter.$lte) {
+      const filterDate = new Date(dateFilter.$lte)
+      processedProducts = processedProducts.filter((product) => {
+        const productUpdatedAt = new Date(product.updated_at || '')
+        return productUpdatedAt <= filterDate
+      })
+    }
+  }
+
   // Apply sorting if present
   if (filters?.order) {
     const order = String(filters.order)
@@ -352,19 +464,16 @@ export const useSellerProducts = (
     }
   }
 
-  // Apply offset pagination if present
-  if (filters?.offset !== undefined) {
-    const offset = Number(filters.offset) || 0
-    const limit = Number(filters.limit) || 10
-    processedProducts = processedProducts.slice(offset, offset + limit)
-  }
+  // Apply pagination
+  const offset = Number(filters?.offset) || 0
+  const limit = Number(filters?.limit) || 10
 
   return {
     data: {
       ...data,
-      products: processedProducts
+      products: processedProducts.slice(offset, offset + limit),
+      count: processedProducts.length
     },
-    count: processedProducts.length,
     isLoading,
     refetch
   }
@@ -404,6 +513,44 @@ export const useSellerCustomerGroups = (
     )
   }
 
+  // Filter by created_at date ranges
+  if (filters?.created_at) {
+    const dateFilter = filters.created_at as any
+    if (dateFilter.$gte) {
+      const filterDate = new Date(dateFilter.$gte)
+      processedCustomerGroups = processedCustomerGroups.filter((group) => {
+        const groupCreatedAt = new Date(group.created_at || '')
+        return groupCreatedAt >= filterDate
+      })
+    }
+    if (dateFilter.$lte) {
+      const filterDate = new Date(dateFilter.$lte)
+      processedCustomerGroups = processedCustomerGroups.filter((group) => {
+        const groupCreatedAt = new Date(group.created_at || '')
+        return groupCreatedAt <= filterDate
+      })
+    }
+  }
+
+  // Filter by updated_at date ranges
+  if (filters?.updated_at) {
+    const dateFilter = filters.updated_at as any
+    if (dateFilter.$gte) {
+      const filterDate = new Date(dateFilter.$gte)
+      processedCustomerGroups = processedCustomerGroups.filter((group) => {
+        const groupUpdatedAt = new Date(group.updated_at || '')
+        return groupUpdatedAt >= filterDate
+      })
+    }
+    if (dateFilter.$lte) {
+      const filterDate = new Date(dateFilter.$lte)
+      processedCustomerGroups = processedCustomerGroups.filter((group) => {
+        const groupUpdatedAt = new Date(group.updated_at || '')
+        return groupUpdatedAt <= filterDate
+      })
+    }
+  }
+
   // Apply sorting if present
   if (filters?.order) {
     const order = String(filters.order)
@@ -424,20 +571,13 @@ export const useSellerCustomerGroups = (
     }
   }
 
-  // Apply offset pagination if present
-  if (filters?.offset !== undefined) {
-    const offset = Number(filters.offset) || 0
-    const limit = Number(filters.limit) || 10
-    processedCustomerGroups = processedCustomerGroups.slice(
-      offset,
-      offset + limit
-    )
-  }
+  const offset = Number(filters?.offset) || 0
+  const limit = Number(filters?.limit) || 10
 
   return {
     data: {
       ...data,
-      customer_groups: processedCustomerGroups,
+      customer_groups: processedCustomerGroups.slice(offset, offset + limit),
       count: processedCustomerGroups.length
     },
     count: processedCustomerGroups.length,
@@ -448,10 +588,16 @@ export const useSellerCustomerGroups = (
 
 export const useInviteSeller = () => {
   return useMutation({
-    mutationFn: (email: string) =>
+    mutationFn: ({
+      email,
+      registration_url = undefined
+    }: {
+      email: string
+      registration_url?: string
+    }) =>
       mercurQuery('/admin/sellers/invite', {
         method: 'POST',
-        body: email
+        body: { email, registration_url }
       })
   })
 }

@@ -1,6 +1,6 @@
 import { DropdownMenu } from "@medusajs/ui";
 import { EllipsisHorizontal, Eye } from "@medusajs/icons";
-import { AdminRequest } from "@mercurjs/http-client";
+import { AdminRequest } from "../types";
 
 type Props = {
   handleDetail: (request: AdminRequest) => void;

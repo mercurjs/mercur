@@ -36,7 +36,8 @@ export const vendorReturnRequestsMiddlewares: MiddlewareRoute[] = [
         vendorReturnOrderRequestQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerReturnRequest.entryPoint
+        entryPoint: sellerReturnRequest.entryPoint,
+        filterField: 'order_return_request_id'
       })
     ]
   },
@@ -50,7 +51,8 @@ export const vendorReturnRequestsMiddlewares: MiddlewareRoute[] = [
       ),
       validateAndTransformBody(VendorUpdateOrderReturnRequest),
       checkResourceOwnershipByResourceId({
-        entryPoint: sellerReturnRequest.entryPoint
+        entryPoint: sellerReturnRequest.entryPoint,
+        filterField: 'order_return_request_id'
       })
     ]
   }

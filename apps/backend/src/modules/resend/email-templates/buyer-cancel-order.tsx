@@ -1,6 +1,6 @@
 interface EmailTemplateProps {
   data: {
-    host: string,
+    order_address: string,
     order: {
       id: string,
       display_id?: string,
@@ -86,7 +86,7 @@ export const BuyerCancelOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps
 
       <div style={{ marginBottom: 24 }}>
         <a
-          href={`${data.host}/orders/${order.id}`}
+          href={data.order_address}
           style={{
             display: 'inline-block',
             padding: '10px 24px',
@@ -102,7 +102,7 @@ export const BuyerCancelOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps
         </a>
         <div style={{ fontSize: 13, color: '#555', marginTop: 8 }}>
           If you can’t click the button, here’s your link: <br />
-          <span style={{ color: '#0070f3' }}>{`${data.host}/orders/${order.id}`}</span>
+          <span style={{ color: '#0070f3' }}>{data.order_address}</span>
         </div>
       </div>
 

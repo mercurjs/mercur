@@ -1,9 +1,12 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import sellerPayoutAccountLink from '../../../links/seller-payout-account'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
-import { createPayoutAccountForSellerWorkflow } from '../../../workflows/seller/workflows'
+import {
+  createPayoutAccountForSellerWorkflow,
+  syncStripeAccountWorkflow
+} from '../../../workflows/seller/workflows'
+import { refetchPayoutAccount } from './utils'
 import { VendorCreatePayoutAccountType } from './validators'
 
 /**
@@ -38,21 +41,29 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const {
-    data: [sellerPayoutAccount]
-  } = await query.graph(
-    {
-      entity: sellerPayoutAccountLink.entryPoint,
-      fields: req.queryConfig.fields.map((field) => `payout_account.${field}`),
-      filters: req.filterableFields
-    },
-    { throwIfKeyNotFound: true }
+  let { payout_account } = await refetchPayoutAccount(
+    req.scope,
+    req.queryConfig.fields.map((field) => `payout_account.${field}`),
+    req.filterableFields
   )
 
+  if (payout_account.status !== 'active') {
+    await syncStripeAccountWorkflow.run({
+      container: req.scope,
+      input: payout_account.id
+    })
+
+    const refreshed = await refetchPayoutAccount(
+      req.scope,
+      req.queryConfig.fields.map((field) => `payout_account.${field}`),
+      req.filterableFields
+    )
+
+    payout_account = refreshed.payout_account
+  }
+
   res.json({
-    payout_account: sellerPayoutAccount.payout_account
+    payout_account
   })
 }
 

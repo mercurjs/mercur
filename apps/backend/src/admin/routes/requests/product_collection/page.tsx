@@ -7,9 +7,9 @@ import { formatDate } from "../../../lib/date";
 import { useState } from "react";
 import { getRequestStatusBadge } from "../utils/get-status-badge";
 import { FilterRequests, FilterState } from "../components/filter-requests";
-import { AdminRequest } from "@mercurjs/http-client";
 import { ProductCollectionRequestDetail } from "./product-collection-detail";
 import { RequestMenu } from "../components/request-menu";
+import { AdminRequest } from "../types";
 
 const PAGE_SIZE = 20;
 

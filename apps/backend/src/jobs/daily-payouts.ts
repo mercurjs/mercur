@@ -1,6 +1,7 @@
 import {
   IEventBusModuleService,
-  MedusaContainer
+  MedusaContainer,
+  Message
 } from '@medusajs/framework/types'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
@@ -8,6 +9,7 @@ import { PayoutWorkflowEvents } from '../modules/payout/types'
 
 const BATCH_SIZE = 100
 const RETRY_COUNT = 3
+const DELAY_MS = 1200
 
 export default async function dailyPayoutsJob(container: MedusaContainer) {
   const pgConnection = container.resolve(
@@ -16,8 +18,9 @@ export default async function dailyPayoutsJob(container: MedusaContainer) {
   const eventBus: IEventBusModuleService = container.resolve(Modules.EVENT_BUS)
 
   let hasMore = true
-
   let offset = 0
+
+  const events: Message<{ order_id: string }>[] = []
 
   while (hasMore) {
     const orders = await pgConnection
@@ -29,16 +32,19 @@ export default async function dailyPayoutsJob(container: MedusaContainer) {
       .offset(offset)
 
     if (orders.length > 0) {
+      let order_count = 0
       for (const order of orders) {
-        await eventBus.emit({
+        events.push({
           data: {
             order_id: order.id
           },
           name: PayoutWorkflowEvents.RECEIVED,
           options: {
-            attempts: RETRY_COUNT
+            attempts: RETRY_COUNT,
+            delay: (DELAY_MS * order_count * offset) / BATCH_SIZE
           }
         })
+        order_count++
       }
 
       offset = offset + orders.length
@@ -46,6 +52,8 @@ export default async function dailyPayoutsJob(container: MedusaContainer) {
       hasMore = false
     }
   }
+
+  await eventBus.emit(events, { delay: DELAY_MS })
 }
 
 export const config = {

@@ -1,10 +1,11 @@
-import { QueryKey, UseQueryOptions, useQuery } from "@tanstack/react-query";
+import { QueryKey, UseQueryOptions, useQuery } from '@tanstack/react-query'
 
-import { api } from "../../lib/client";
-import { queryKeysFactory } from "../../lib/query-keys-factory";
-import { ProductTypeDTO } from "@medusajs/framework/types";
+import { ProductTypeDTO } from '@medusajs/framework/types'
 
-export const productTypeQueryKeys = queryKeysFactory("product_type");
+import { mercurQuery } from '../../lib/client'
+import { queryKeysFactory } from '../../lib/query-keys-factory'
+
+export const productTypeQueryKeys = queryKeysFactory('product_type')
 
 export const useProductType = (
   id: string,
@@ -15,15 +16,41 @@ export const useProductType = (
       { product_type?: ProductTypeDTO },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: productTypeQueryKeys.detail(id),
-    queryFn: () => api.admin.adminGetProductTypesId(id).then((res) => res.data),
+    queryFn: () =>
+      mercurQuery(`/admin/product-types/${id}`, {
+        method: 'GET'
+      }),
+    ...options
+  })
 
-    ...options,
-  });
+  return { ...data, ...other }
+}
 
-  return { ...data, ...other };
-};
+export const useProductTypes = (
+  query?: Record<string, unknown>,
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      Error,
+      { product_types: ProductTypeDTO[] },
+      QueryKey
+    >,
+    'queryFn' | 'queryKey'
+  >
+) => {
+  const { data, ...other } = useQuery({
+    queryKey: productTypeQueryKeys.list(query),
+    queryFn: () =>
+      mercurQuery(`/admin/product-types`, {
+        method: 'GET'
+      }),
+    ...options
+  })
+
+  return { ...data, ...other }
+}

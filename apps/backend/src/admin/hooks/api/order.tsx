@@ -1,24 +1,50 @@
-import { QueryKey, UseQueryOptions, useQuery } from "@tanstack/react-query";
+import { QueryKey, UseQueryOptions, useQuery } from '@tanstack/react-query'
 
-import { AdminOrder } from "@mercurjs/http-client";
+import { mercurQuery } from '../../lib/client'
+import { queryKeysFactory } from '../../lib/query-keys-factory'
+import {
+  OrderListResponse,
+  OrderQueryParams,
+  OrderResponse
+} from '../../routes/orders/types'
 
-import { api } from "../../lib/client";
-import { queryKeysFactory } from "../../lib/query-keys-factory";
+export const orderQueryKeys = queryKeysFactory('order')
 
-export const orderQueryKeys = queryKeysFactory("order");
+export const useOrders = (
+  query?: Record<string, string | number>,
+  options?: Omit<
+    UseQueryOptions<OrderQueryParams, Error, OrderListResponse, QueryKey>,
+    'queryFn' | 'queryKey'
+  >
+) => {
+  const { data, ...other } = useQuery({
+    queryKey: orderQueryKeys.list(query),
+    queryFn: () =>
+      mercurQuery('/admin/orders', {
+        method: 'GET',
+        query
+      }),
+    ...options
+  })
+
+  return { ...data, ...other }
+}
 
 export const useOrder = (
   id: string,
   options?: Omit<
-    UseQueryOptions<unknown, Error, { order: AdminOrder }, QueryKey>,
-    "queryFn" | "queryKey"
-  >,
+    UseQueryOptions<unknown, Error, OrderResponse, QueryKey>,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: orderQueryKeys.detail(id),
-    queryFn: () => api.admin.adminGetOrdersId(id).then((res) => res.data),
-    ...options,
-  });
+    queryFn: () =>
+      mercurQuery(`/admin/orders/${id}`, {
+        method: 'GET'
+      }),
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}

@@ -10,16 +10,18 @@ export const storeReturnOrderRequestFields = [
   'admin_reviewer_date',
   'status',
   'line_items.*',
-  'order.*'
+  'order.*',
+  'order.items.*',
+  'order.seller.*'
 ]
 
 export const storeReturnOrderRequestQueryConfig = {
   list: {
-    defaults: storeReturnOrderRequestFields,
+    defaults: [],
     isList: true
   },
   retrieve: {
-    defaults: storeReturnOrderRequestFields,
+    defaults: [],
     isList: false
   }
 }

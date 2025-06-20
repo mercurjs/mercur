@@ -3,54 +3,56 @@ import {
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
-  useQuery,
-} from "@tanstack/react-query";
+  useQuery
+} from '@tanstack/react-query'
 
+import { mercurQuery } from '../../lib/client'
+import { queryKeysFactory } from '../../lib/query-keys-factory'
 import {
   AdminOrderReturnRequest,
-  AdminUpdateOrderReturnRequest,
-  OrderReturnRequest,
-} from "@mercurjs/http-client";
+  AdminUpdateOrderReturnRequest
+} from '../../routes/requests/types'
 
-import { api } from "../../lib/client";
-import { queryKeysFactory } from "../../lib/query-keys-factory";
-
-export const configurationQueryKeys = queryKeysFactory("retunr-requests");
+export const returnRequestsQueryKeys = queryKeysFactory('return-request')
 
 export const useReturnRequests = (
-  query?: Parameters<typeof api.admin.adminListOrderReturnRequests>[0],
+  query?: Record<string, unknown>,
   options?: Omit<
     UseQueryOptions<
-      Parameters<typeof api.admin.adminListOrderReturnRequests>[0],
+      unknown,
       Error,
       { order_return_request: AdminOrderReturnRequest[]; count?: number },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
-    queryKey: configurationQueryKeys.list(query),
+    queryKey: returnRequestsQueryKeys.list(query),
     queryFn: () =>
-      api.admin.adminListOrderReturnRequests(query).then((res) => res.data),
-    ...options,
-  });
+      mercurQuery('/admin/return-request', {
+        method: 'GET',
+        query
+      }),
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
 
 export const useReviewReturnRequest = (
   options: UseMutationOptions<
-    { orderReturnRequest?: OrderReturnRequest },
+    { orderReturnRequest?: AdminOrderReturnRequest },
     Error,
     { id: string; payload: AdminUpdateOrderReturnRequest }
-  >,
+  >
 ) => {
   return useMutation({
     mutationFn: ({ id, payload }) =>
-      api.admin
-        .adminUpdateOrderReturnRequestById(id, payload)
-        .then((res) => res.data),
-    ...options,
-  });
-};
+      mercurQuery(`/admin/return-request/${id}`, {
+        method: 'POST',
+        body: payload
+      }),
+    ...options
+  })
+}

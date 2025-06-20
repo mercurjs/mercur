@@ -44,12 +44,11 @@ export const BuyerAccountCreatedEmailTemplate: React.FC<Readonly<EmailTemplatePr
       >
         Visit Mercur
       </a>
-      <p style={{ marginTop: '32px', color: '#555' }}>
-        Best regards,<br />
-        <b>The Mercur Team</b>
-        <br />
-        <span style={{ color: '#888' }}>mercur.js</span>
-      </p>
+      <div style={{ marginTop: 32 }}>
+        <div>Best regards,</div>
+        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>mercurjs.com</div>
+      </div>
     </div>
   )
 }

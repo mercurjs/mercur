@@ -39,8 +39,7 @@
     "awilix": "^8.0.1",
     "pg": "^8.13.0",
     "resend": "^4.1.2",
-    "stripe": "^17.4.0",
-    "@mercurjs/http-client": "*"
+    "stripe": "^17.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

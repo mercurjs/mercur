@@ -24,3 +24,17 @@ export const StoreGetShippingOptions = createFindParams({
 })
   .merge(StoreGetShippingOptionsFields)
   .merge(applyAndAndOrOperators(StoreGetShippingOptionsFields))
+
+export type StoreGetReturnShippingOptionsParamsType = z.infer<
+  typeof StoreGetReturnShippingOptions
+>
+export const StoreGetReturnShippingOptions = createFindParams({
+  offset: 0,
+  limit: 50
+}).merge(
+  z
+    .object({
+      order_id: z.string()
+    })
+    .strict()
+)

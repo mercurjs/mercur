@@ -1,11 +1,13 @@
 import multer from 'multer'
 
 import {
+  maybeApplyLinkFilter,
   unlessPath,
   validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework'
 import { MiddlewareRoute } from '@medusajs/medusa'
+import { maybeApplyPriceListsFilter } from '@medusajs/medusa/api/admin/products/utils/index'
 
 import sellerProductLink from '../../../links/seller-product'
 import { ConfigurationRuleType } from '../../../modules/configuration/types'
@@ -14,6 +16,8 @@ import {
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import { checkConfigurationRule } from '../../../shared/infra/http/middlewares'
+import { retrieveAttributeQueryConfig } from '../attributes/query-config'
+import { VendorGetAttributesParams } from '../attributes/validators'
 import { vendorProductQueryConfig } from './query-config'
 import {
   CreateProductOption,
@@ -43,7 +47,18 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductParams,
         vendorProductQueryConfig.list
       ),
-      filterBySellerId()
+      filterBySellerId(),
+      maybeApplyLinkFilter({
+        entryPoint: sellerProductLink.entryPoint,
+        resourceId: 'product_id',
+        filterableField: 'seller_id'
+      }),
+      maybeApplyLinkFilter({
+        entryPoint: 'product_sales_channel',
+        resourceId: 'product_id',
+        filterableField: 'sales_channel_id'
+      }),
+      maybeApplyPriceListsFilter()
     ]
   },
   {
@@ -235,6 +250,16 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
+      )
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/products/:id/applicable-attributes',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetAttributesParams,
+        retrieveAttributeQueryConfig
       )
     ]
   }

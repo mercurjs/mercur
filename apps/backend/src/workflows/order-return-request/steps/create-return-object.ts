@@ -35,7 +35,11 @@ export const createReturnObjectStep = createStep(
           option_id: order_return_request.shipping_option_id
         },
         items: order_return_request.line_items.map((item) => {
-          return { id: item.line_item_id, quantity: item.quantity }
+          return {
+            id: item.line_item_id,
+            quantity: item.quantity,
+            reason_id: item.reason_id
+          }
         })
       }
     })

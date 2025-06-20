@@ -1,9 +1,9 @@
 import { Button, Container, Drawer, Text } from "@medusajs/ui";
 import { InformationCircle } from "@medusajs/icons";
-import { AdminRequest } from "@mercurjs/http-client";
 import { formatDate } from "../../../lib/date";
 import { ProductDTO } from "@medusajs/framework/types";
 import { useNavigate } from "react-router-dom";
+import { AdminRequest } from "../types";
 
 type Props = {
   request?: AdminRequest;

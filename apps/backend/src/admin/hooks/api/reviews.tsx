@@ -1,9 +1,16 @@
 import { QueryKey, UseQueryOptions, useQuery } from '@tanstack/react-query'
 
-import { Review } from '@mercurjs/http-client'
-
-import { api } from '../../lib/client'
+import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
+
+export interface Review {
+  id: string
+  rating: number
+  reference: 'seller' | 'product'
+  customer_id: string
+  customer_note?: string | null
+  seller_note?: string | null
+}
 
 export const reviewsQueryKeys = queryKeysFactory('reviews')
 
@@ -16,7 +23,10 @@ export const useReview = (
 ) => {
   const { data, ...other } = useQuery({
     queryKey: reviewsQueryKeys.detail(id),
-    queryFn: () => api.admin.adminGetReviewById(id).then((res) => res.data),
+    queryFn: () =>
+      mercurQuery(`/admin/reviews/${id}`, {
+        method: 'GET'
+      }),
     ...options
   })
 

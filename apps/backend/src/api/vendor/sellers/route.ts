@@ -77,7 +77,7 @@ export const POST = async (
   } = await createSellerCreationRequestWorkflow.run({
     input: {
       data: {
-        seller: sellerData,
+        seller: { ...sellerData, email: sellerData.email || member.email },
         member,
         auth_identity_id: req.auth_context?.auth_identity_id,
         provider_identity_id: identity.entity_id

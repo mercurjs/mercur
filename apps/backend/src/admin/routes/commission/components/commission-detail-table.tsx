@@ -1,5 +1,6 @@
 import { Table, StatusBadge } from "@medusajs/ui";
-import { AdminCommissionAggregate, AdminCommissionPriceValue } from "@mercurjs/http-client";
+import { AdminCommissionAggregate, AdminCommissionPriceValue } from "../types";
+
 
 const getFormattedPriceValue = (values: AdminCommissionPriceValue[] | undefined) => {
   if(!values) {
