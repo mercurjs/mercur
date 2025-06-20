@@ -25,6 +25,7 @@ module.exports = defineConfig({
     { resolve: './src/modules/brand' },
     { resolve: './src/modules/wishlist' },
     { resolve: './src/modules/split-order-payment' },
+    { resolve: './src/modules/attribute' },
     {
       resolve: './src/modules/taxcode',
       options: {

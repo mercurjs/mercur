@@ -56,6 +56,16 @@ export const AlgoliaProductValidator = z.object({
       name: z.string()
     })
     .optional(),
+  attribute_values: z
+    .array(
+      z.object({
+        name: z.string(),
+        value: z.string(),
+        is_filterable: z.boolean(),
+        ui_component: z.string()
+      })
+    )
+    .optional(),
   sku: z.string().nullable().optional(),
   ean: z.string().nullable().optional(),
   upc: z.string().nullable().optional(),
