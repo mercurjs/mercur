@@ -1,4 +1,5 @@
 export type CreateReviewDTO = {
+  order_id: string
   reference: 'product' | 'seller'
   reference_id: string
   rating: number

@@ -1,11 +1,13 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { Modules } from '@medusajs/framework/utils'
 
-import { RequestDTO } from '../modules/requests/types'
-import { SellerRequestUpdatedEvent } from '../modules/requests/types/events'
+import {
+  RequestDTO,
+  SellerAccountRequestUpdatedEvent
+} from '../modules/requests/types'
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
 
-export default async function sellerRequestRejectedHandler({
+export default async function sellerRequestAcceptedHandler({
   event,
   container
 }: SubscriberArgs<RequestDTO>) {
@@ -18,16 +20,17 @@ export default async function sellerRequestRejectedHandler({
   await notificationService.createNotifications({
     to: requestData.provider_identity_id,
     channel: 'email',
-    template: ResendNotificationTemplates.SELLER_ACCOUNT_UPDATES_REJECTION,
+    template: ResendNotificationTemplates.SELLER_ACCOUNT_UPDATES_APPROVAL,
     content: {
-      subject: 'Mercur - Seller account rejected!'
-    }
+      subject: 'Mercur - Seller account approved!'
+    },
+    data: { data: { user_name: requestData.member.name } }
   })
 }
 
 export const config: SubscriberConfig = {
-  event: SellerRequestUpdatedEvent.REJECTED,
+  event: SellerAccountRequestUpdatedEvent.ACCEPTED,
   context: {
-    subscriberId: 'seller-request-rejected-handler'
+    subscriberId: 'seller-account-request-accepted-handler'
   }
 }

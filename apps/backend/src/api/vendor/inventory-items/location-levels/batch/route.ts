@@ -1,6 +1,8 @@
 import { batchInventoryItemLevelsWorkflow } from '@medusajs/core-flows'
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { Modules } from '@medusajs/framework/utils'
 
+import { IntermediateEvents } from '../../../../../modules/algolia/types'
 import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
 import { validateOwnership } from '../../utils'
 import { VendorBatchInventoryItemLevelsType } from '../../validators'
@@ -29,6 +31,7 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorBatchInventoryItemLevelsType>,
   res: MedusaResponse
 ) => {
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,
     req.scope
@@ -38,6 +41,15 @@ export const POST = async (
   const output = await batchInventoryItemLevelsWorkflow.run({
     container: req.scope,
     input: req.validatedBody
+  })
+
+  await eventBus.emit({
+    name: IntermediateEvents.INVENTORY_ITEM_CHANGED,
+    data: {
+      id: output.result.created
+        .map((item) => item.id)
+        .concat(output.result.deleted)
+    }
   })
 
   res.json({

@@ -3,7 +3,9 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse
 } from '@medusajs/framework/http'
+import { Modules } from '@medusajs/framework/utils'
 
+import { IntermediateEvents } from '../../../../../../modules/algolia/types'
 import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
 import {
   prepareBatchInventoryLevelDeletePayload,
@@ -74,6 +76,12 @@ export const POST = async (
   const output = await batchInventoryItemLevelsWorkflow.run({
     container: req.scope,
     ...batchInput
+  })
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({
+    name: IntermediateEvents.INVENTORY_ITEM_CHANGED,
+    data: { id }
   })
 
   res.status(200).json({

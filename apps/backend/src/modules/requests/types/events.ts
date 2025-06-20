@@ -1,10 +1,14 @@
-export enum SellerRequestUpdatedEvent {
+export enum SellerAccountRequestUpdatedEvent {
   ACCEPTED = 'requests.seller.accepted',
   REJECTED = 'requests.seller.rejected'
 }
 
 export enum SellerRequest {
   CREATED = 'requests.seller.created'
+}
+
+export enum RequestUpdated {
+  CREATED = 'requests.*.created'
 }
 
 export enum ProductCategoryRequestUpdatedEvent {
@@ -25,4 +29,14 @@ export enum ProductRequestUpdatedEvent {
 
 export enum SellerTeamInviteEvent {
   CREATED = 'seller.team.invite.created'
+}
+
+export enum ProductTypeRequestUpdatedEvent {
+  ACCEPTED = 'requests.product_type.accepted',
+  REJECTED = 'requests.product_type.rejected'
+}
+
+export enum ProductTagRequestUpdatedEvent {
+  ACCEPTED = 'requests.product_tag.accepted',
+  REJECTED = 'requests.product_tag.rejected'
 }

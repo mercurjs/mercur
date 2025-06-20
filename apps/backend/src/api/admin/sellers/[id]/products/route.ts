@@ -13,7 +13,12 @@ export const GET = async (
   const { data: sellerProducts, metadata } = await query.graph({
     entity: sellerProduct.entryPoint,
     fields: req.queryConfig.fields.map((field) => `product.${field}`),
-    filters: req.filterableFields,
+    filters: {
+      seller_id: req.params.id,
+      deleted_at: {
+        $eq: null
+      }
+    },
     pagination: req.queryConfig.pagination
   })
 

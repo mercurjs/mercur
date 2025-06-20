@@ -15,6 +15,7 @@ import { vendorInventoryItemsMiddlewares } from './inventory-items/middlewares'
 import { vendorInvitesMiddlewares } from './invites/middlewares'
 import { vendorMeMiddlewares } from './me/middlewares'
 import { vendorMembersMiddlewares } from './members/middlewares'
+import { vendorNotificationMiddlewares } from './notifications/middlewares'
 import { vendorOrderMiddlewares } from './orders/middlewares'
 import { vendorPayoutAccountMiddlewares } from './payout-account/middlewares'
 import { vendorPayoutMiddlewares } from './payouts/middlewares'
@@ -76,7 +77,10 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
           allowUnregistered: false
         })
       ),
-      unlessBaseUrl(/^\/vendor\/(orders|fulfillment)/, storeActiveGuard)
+      unlessBaseUrl(
+        /^\/vendor\/(sellers|orders|fulfillment|invites\/accept)/,
+        storeActiveGuard
+      )
     ]
   },
   ...vendorMeMiddlewares,
@@ -112,5 +116,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorFulfillmentProvidersMiddlewares,
   ...vendorReturnsMiddlewares,
   ...vendorShippingProfilesMiddlewares,
-  ...vendorRegionsMiddlewares
+  ...vendorRegionsMiddlewares,
+  ...vendorNotificationMiddlewares
 ]
