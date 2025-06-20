@@ -1,10 +1,16 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk";
 import { Container, Heading, Table } from "@medusajs/ui";
-
 import { useProduct } from "../hooks/api/product";
+import { useEffect } from "react";
 
 const ProductAttributeValuesWidget = (props: any) => {
-  const { product } = useProduct(props.data.id);
+  const { product } = useProduct(props.data.id, {
+    fields: 'attribute_values.*,attribute_values.attribute.*'
+  });
+
+  useEffect(() => {
+    console.log(product)
+  }, [product])
 
   return (
     <div>
