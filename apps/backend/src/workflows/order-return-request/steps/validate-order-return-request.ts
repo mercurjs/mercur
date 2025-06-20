@@ -4,6 +4,7 @@ import {
 } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
+import returnRequestOrder from '../../../links/return-request-order'
 import { CreateOrderReturnRequestDTO } from '../../../modules/order-return-request/types'
 import { listSellerReturnShippingOptionsForOrderWorkflow } from '../../cart/workflows'
 
@@ -11,6 +12,23 @@ export const validateOrderReturnRequestStep = createStep(
   'validate-order-return-request',
   async (input: CreateOrderReturnRequestDTO, { container }) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+    const {
+      data: [returnRequest]
+    } = await query.graph({
+      entity: returnRequestOrder.entryPoint,
+      fields: ['return_request_id'],
+      filters: {
+        order_id: input.order_id
+      }
+    })
+
+    if (returnRequest) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_ARGUMENT,
+        'Order return request already exists'
+      )
+    }
 
     const {
       data: [order]
