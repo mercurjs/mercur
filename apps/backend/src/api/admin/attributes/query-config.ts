@@ -3,6 +3,7 @@ export const defaultAdminAttributeFields = [
   'name',
   'description',
   'handle',
+  'is_filterable',
   'ui_component',
   'metadata',
   '*possible_values',

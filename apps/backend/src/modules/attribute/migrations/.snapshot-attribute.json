@@ -33,6 +33,16 @@
           "nullable": true,
           "mappedType": "text"
         },
+        "is_filterable": {
+          "name": "is_filterable",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "mappedType": "boolean"
+        },
         "handle": {
           "name": "handle",
           "type": "text",

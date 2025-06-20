@@ -70,6 +70,7 @@ export const AdminUpdateAttribute = z
     name: z.string().optional(),
     description: z.string().optional(),
     handle: z.string().optional(),
+    is_filterable: z.boolean().optional(),
     metadata: z.record(z.unknown()).optional(),
     ui_component: z.nativeEnum(AttributeUIComponent).optional(),
     product_category_ids: z.array(z.string()).optional(),
@@ -81,6 +82,7 @@ export type AdminCreateAttributeType = z.infer<typeof CreateAttribute>
 export const CreateAttribute = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
+  is_filterable: z.boolean().optional(),
   ui_component: z
     .nativeEnum(AttributeUIComponent)
     .default(AttributeUIComponent.SELECT),

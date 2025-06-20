@@ -9,6 +9,7 @@ const Attribute = model
     id: model.id({ prefix: 'attr' }).primaryKey(),
     name: model.text().searchable(),
     description: model.text().nullable(),
+    is_filterable: model.boolean().default(true),
     handle: model.text().unique(),
     metadata: model.json().nullable(),
     ui_component: model

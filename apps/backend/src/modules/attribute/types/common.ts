@@ -25,6 +25,7 @@ export interface AttributeDTO {
   name: string
   description: string
   handle: string
+  is_filterable: boolean
   ui_component: AttributeUIComponent
   metadata?: Record<string, unknown>
   possible_values?: AttributePossibleValueDTO[]
