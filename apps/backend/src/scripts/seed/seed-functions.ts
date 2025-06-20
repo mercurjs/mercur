@@ -26,7 +26,6 @@ import { createConfigurationRuleWorkflow } from '../../workflows/configuration/w
 import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../workflows/fulfillment-set/workflows'
 import { createSellerWorkflow } from '../../workflows/seller/workflows'
 import { productsToInsert } from './seed-products'
-import {CONFIGURATION_MODULE} from "../../modules/configuration";
 
 const countries = ['be', 'de', 'dk', 'se', 'fr', 'es', 'it', 'pl', 'cz', 'nl']
 
