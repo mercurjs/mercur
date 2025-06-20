@@ -6,18 +6,20 @@ import {
   useQuery
 } from '@tanstack/react-query'
 
-import { AdminCreateRule, ConfigurationRule } from '@mercurjs/http-client'
-
-import { api } from '../../lib/client'
+import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
+import {
+  AdminCreateRule,
+  ConfigurationRule
+} from '../../routes/configuration/types'
 
 export const configurationQueryKeys = queryKeysFactory('configuration_rules')
 
 export const useConfigurationRules = (
-  query?: Parameters<typeof api.admin.adminListRules>[0],
+  query?: Record<string, string | number>,
   options?: Omit<
     UseQueryOptions<
-      Parameters<typeof api.admin.adminListRules>[0],
+      Record<string, string | number>,
       Error,
       { configuration_rules: ConfigurationRule[] },
       QueryKey
@@ -27,7 +29,11 @@ export const useConfigurationRules = (
 ) => {
   const { data, ...other } = useQuery({
     queryKey: configurationQueryKeys.list(query),
-    queryFn: () => api.admin.adminListRules(query).then((res) => res.data),
+    queryFn: () =>
+      mercurQuery('/admin/configuration', {
+        method: 'GET',
+        query
+      }),
     ...options
   })
 
@@ -43,7 +49,10 @@ export const useCreateConfigurationRule = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      api.admin.adminCreateRule(payload).then((res) => res.data),
+      mercurQuery('/admin/configuration', {
+        method: 'POST',
+        body: payload
+      }),
     ...options
   })
 }
@@ -57,7 +66,10 @@ export const useUpdateConfigurationRule = (
 ) => {
   return useMutation({
     mutationFn: ({ id, is_enabled }) =>
-      api.admin.adminUpdateRule(id, { is_enabled }).then((res) => res.data),
+      mercurQuery(`/admin/configuration/${id}`, {
+        method: 'POST',
+        body: { is_enabled }
+      }),
     ...options
   })
 }

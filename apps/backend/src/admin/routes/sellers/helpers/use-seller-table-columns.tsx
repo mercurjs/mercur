@@ -1,9 +1,9 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 
-import { VendorSeller } from '@mercurjs/http-client'
 import { SellerStatusBadge } from '../../../components/seller-status-badge/SellerStatusBagde'
 import { formatDate } from '../../../lib/date'
+import { VendorSeller } from '../types'
 
 const columnHelper = createColumnHelper<VendorSeller>()
 

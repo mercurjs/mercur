@@ -1,19 +1,19 @@
 import { QueryKey, UseQueryOptions, useQuery } from '@tanstack/react-query'
 
-import { AdminProductTag } from '@mercurjs/http-client'
+import { ProductTagDTO } from '@medusajs/framework/types'
 
-import { api } from '../../lib/client'
+import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
 
 export const productTagsQueryKeys = queryKeysFactory('product_tags')
 
 export const useProductTags = (
-  query?: Parameters<typeof api.admin.adminGetProductTags>[0],
+  query?: Record<string, unknown>,
   options?: Omit<
     UseQueryOptions<
-      Parameters<typeof api.admin.adminGetProductTags>[0],
+      Record<string, unknown>,
       Error,
-      { product_tags: AdminProductTag[] },
+      { product_tags: ProductTagDTO[] },
       QueryKey
     >,
     'queryFn' | 'queryKey'
@@ -21,7 +21,10 @@ export const useProductTags = (
 ) => {
   const { data, ...other } = useQuery({
     queryKey: productTagsQueryKeys.list(query),
-    queryFn: () => api.admin.adminGetProductTags().then((res) => res.data),
+    queryFn: () =>
+      mercurQuery(`/admin/product-tags`, {
+        method: 'GET'
+      }),
     ...options
   })
 

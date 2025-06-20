@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { Input, Button, Select, toast, Switch, Label } from "@medusajs/ui";
-import {
-  useProductCategories,
-  useProductTypes,
-} from "../../../hooks/api/product";
+
 import { useSellers } from "../../../hooks/api/seller";
 import { useCreateCommisionRule } from "../../../hooks/api/commission";
 import { useStores } from "../../../hooks/api/stores";
+import { useProductTypes } from "../../../hooks/api/product_type";
+import { useProductCategories } from "../../../hooks/api/product_category";
 
 type Props = {
   onSuccess?: () => void;

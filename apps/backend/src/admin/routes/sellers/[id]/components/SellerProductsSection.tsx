@@ -10,7 +10,7 @@ import { Thumbnail } from "../../../../components/thumbnail/thumbnail";
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { api } from "../../../../lib/client";
+import { mercurQuery } from "../../../../lib/client";
 import { useProductTableFilters } from "../../helpers/use-product-table-filters";
 
 const PAGE_SIZE = 10
@@ -88,7 +88,9 @@ const useColumns = (refetch: () => void) => {
     }
 
     try {
-      await api.admin.adminDeleteProductsId(product.id)
+      await mercurQuery(`/admin/products/${product.id}`, {
+        method: 'DELETE',
+      })
       toast.success(t("products.toasts.delete.success.header"), {
         description: t("products.toasts.delete.success.description", {
           title: product.title,

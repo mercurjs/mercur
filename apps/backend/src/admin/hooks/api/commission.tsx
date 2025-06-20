@@ -6,26 +6,25 @@ import {
   useQuery
 } from '@tanstack/react-query'
 
-import {
-  AdminCommissionAggregate,
-  AdminCommissionRule,
-  AdminCreateCommissionRule,
-  AdminUpsertDefaultCommissionRule
-} from '@mercurjs/http-client'
-
-import { api, mercurQuery } from '../../lib/client'
+import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
 import { CommissionLine } from '../../routes/commission-lines/types'
+import {
+  CommissionRule,
+  CreateCommissionRule,
+  UpdateCommissionRule,
+  UpsertDefaultCommissionRule
+} from '../../routes/commission/types'
 
 export const commissionRulesQueryKeys = queryKeysFactory('commission_rule')
 
 export const useCommissionRules = (
-  query?: Parameters<typeof api.admin.adminListCommissionRules>[0],
+  query?: any,
   options?: Omit<
     UseQueryOptions<
-      Parameters<typeof api.admin.adminListCommissionRules>[0],
+      Record<string, string | number>,
       Error,
-      { commission_rules: AdminCommissionAggregate[]; count?: number },
+      { commission_rules: CommissionRule[]; count?: number },
       QueryKey
     >,
     'queryFn' | 'queryKey'
@@ -34,7 +33,10 @@ export const useCommissionRules = (
   const { data, ...other } = useQuery({
     queryKey: commissionRulesQueryKeys.list(query),
     queryFn: () =>
-      api.admin.adminListCommissionRules(query).then((res) => res.data),
+      mercurQuery('/admin/commission/rules', {
+        method: 'GET',
+        query
+      }),
     ...options
   })
 
@@ -46,7 +48,7 @@ export const useDefaultCommissionRule = (
     UseQueryOptions<
       unknown,
       Error,
-      { commission_rule?: AdminCommissionAggregate },
+      { commission_rule?: CommissionRule },
       QueryKey
     >,
     'queryFn' | 'queryKey'
@@ -55,7 +57,9 @@ export const useDefaultCommissionRule = (
   const { data, ...other } = useQuery({
     queryKey: commissionRulesQueryKeys.detail(''),
     queryFn: () =>
-      api.admin.adminGetDefaultCommissionRule().then((res) => res.data),
+      mercurQuery('/admin/commission/default', {
+        method: 'GET'
+      }),
     ...options
   })
 
@@ -68,7 +72,7 @@ export const useCommissionRule = (
     UseQueryOptions<
       unknown,
       Error,
-      { commission_rule?: AdminCommissionAggregate },
+      { commission_rule?: CommissionRule },
       QueryKey
     >,
     'queryFn' | 'queryKey'
@@ -77,7 +81,9 @@ export const useCommissionRule = (
   const { data, ...other } = useQuery({
     queryKey: commissionRulesQueryKeys.detail(id),
     queryFn: () =>
-      api.admin.adminGetCommissionRuleById(id).then((res) => res.data),
+      mercurQuery(`/admin/commission/rules/${id}`, {
+        method: 'GET'
+      }),
     ...options
   })
 
@@ -86,48 +92,51 @@ export const useCommissionRule = (
 
 export const useCreateCommisionRule = (
   options: UseMutationOptions<
-    { commission_rule?: AdminCommissionRule },
+    { commission_rule?: CommissionRule },
     Error,
-    AdminCreateCommissionRule
+    CreateCommissionRule
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      api.admin.adminCreateCommissionRule(payload).then((res) => res.data),
+      mercurQuery('/admin/commission/rules', {
+        method: 'POST',
+        body: payload
+      }),
     ...options
   })
 }
 
 export const useUpdateCommisionRule = (
   options: UseMutationOptions<
-    { commission_rule?: AdminCommissionRule },
+    { commission_rule?: CommissionRule },
     Error,
-    { id: string; is_active: boolean }
+    { id: string } & UpdateCommissionRule
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      api.admin
-        .adminUpdateCommissionRuleById(payload.id, {
-          is_active: payload.is_active
-        })
-        .then((res) => res.data),
+      mercurQuery(`/admin/commission/rules/${payload.id}`, {
+        method: 'POST',
+        body: { is_active: payload.is_active }
+      }),
     ...options
   })
 }
 
 export const useUpsertDefaultCommisionRule = (
   options: UseMutationOptions<
-    { commission_rule?: AdminCommissionRule },
+    { commission_rule?: CommissionRule },
     Error,
-    AdminUpsertDefaultCommissionRule
+    UpsertDefaultCommissionRule
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      api.admin
-        .adminUpsertDefaultCommissionRule(payload)
-        .then((res) => res.data),
+      mercurQuery('/admin/commission/default', {
+        method: 'POST',
+        body: payload
+      }),
     ...options
   })
 }
@@ -145,9 +154,9 @@ export const useDeleteCommisionRule = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      api.admin
-        .adminDeleteCommissionRuleById(payload.id)
-        .then((res) => res.data),
+      mercurQuery(`/admin/commission/rules/${payload.id}`, {
+        method: 'DELETE'
+      }),
     ...options
   })
 }

@@ -8,8 +8,8 @@ import { useState } from "react";
 import { getRequestStatusBadge } from "../utils/get-status-badge";
 import { FilterRequests, FilterState } from "../components/filter-requests";
 import { SellerRequestDetail } from "./seller-detail";
-import { AdminRequest } from "@mercurjs/http-client";
 import { RequestMenu } from "../components/request-menu";
+import { AdminRequest } from "../types";
 
 const PAGE_SIZE = 20;
 

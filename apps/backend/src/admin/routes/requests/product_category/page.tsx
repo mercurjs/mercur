@@ -9,7 +9,7 @@ import { getRequestStatusBadge } from "../utils/get-status-badge";
 import { FilterRequests, FilterState } from "../components/filter-requests";
 import { ProductCategoryRequestDetail } from "./product-category-detail";
 import { RequestMenu } from "../components/request-menu";
-import { AdminRequest } from "@mercurjs/http-client";
+import { AdminRequest } from "../types";
 
 const PAGE_SIZE = 20;
 
