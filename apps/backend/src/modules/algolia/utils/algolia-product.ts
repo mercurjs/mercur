@@ -68,14 +68,18 @@ async function selectProductSeller(
     data: [product]
   } = await query.graph({
     entity: sellerProduct.entryPoint,
-    fields: ['seller_id', 'seller.handle'],
+    fields: ['seller_id', 'seller.handle', 'seller.store_status'],
     filters: {
       product_id
     }
   })
 
   return product
-    ? { id: product.seller_id, handle: product.seller.handle }
+    ? {
+        id: product.seller_id,
+        handle: product.seller.handle,
+        store_status: product.seller.store_status
+      }
     : null
 }
 

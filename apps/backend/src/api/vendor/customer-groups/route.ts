@@ -65,7 +65,12 @@ export const GET = async (
     entity: sellerCustomerGroup.entryPoint,
     fields: req.queryConfig.fields.map((field) => `customer_group.${field}`),
     pagination: req.queryConfig.pagination,
-    filters: req.filterableFields
+    filters: {
+      ...req.filterableFields,
+      deleted_at: {
+        $eq: null
+      }
+    }
   })
 
   res.json({

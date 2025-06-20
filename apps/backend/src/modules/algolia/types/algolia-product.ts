@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { StoreStatus } from '../../seller/types'
+
 export type AlgoliaProduct = z.infer<typeof AlgoliaProductValidator>
 export const AlgoliaProductValidator = z.object({
   id: z.string(),
@@ -69,7 +71,8 @@ export const AlgoliaProductValidator = z.object({
   seller: z
     .object({
       id: z.string(),
-      handle: z.string().nullish()
+      handle: z.string().nullish(),
+      store_status: z.nativeEnum(StoreStatus).nullish()
     })
     .nullable()
 })

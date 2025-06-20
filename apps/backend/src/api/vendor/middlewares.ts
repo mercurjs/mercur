@@ -1,6 +1,9 @@
 import { MiddlewareRoute, authenticate } from '@medusajs/framework'
 
-import { checkSellerActive } from '../../shared/infra/http/middlewares/check-seller-active'
+import {
+  checkSellerApproved,
+  storeActiveGuard
+} from '../../shared/infra/http/middlewares'
 import { unlessBaseUrl } from '../../shared/infra/http/utils'
 import { vendorCampaignsMiddlewares } from './campaigns/middlewares'
 import { vendorCors } from './cors'
@@ -12,6 +15,7 @@ import { vendorInventoryItemsMiddlewares } from './inventory-items/middlewares'
 import { vendorInvitesMiddlewares } from './invites/middlewares'
 import { vendorMeMiddlewares } from './me/middlewares'
 import { vendorMembersMiddlewares } from './members/middlewares'
+import { vendorNotificationMiddlewares } from './notifications/middlewares'
 import { vendorOrderMiddlewares } from './orders/middlewares'
 import { vendorPayoutAccountMiddlewares } from './payout-account/middlewares'
 import { vendorPayoutMiddlewares } from './payouts/middlewares'
@@ -65,13 +69,17 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       unlessBaseUrl(
         /^\/vendor\/(sellers|invites\/accept)$/,
-        checkSellerActive(['bearer', 'session'])
+        checkSellerApproved(['bearer', 'session'])
       ),
       unlessBaseUrl(
         /^\/vendor\/(sellers|invites\/accept)$/,
         authenticate('seller', ['bearer', 'session'], {
           allowUnregistered: false
         })
+      ),
+      unlessBaseUrl(
+        /^\/vendor\/(sellers|orders|fulfillment|invites\/accept)/,
+        storeActiveGuard
       )
     ]
   },
@@ -108,5 +116,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorFulfillmentProvidersMiddlewares,
   ...vendorReturnsMiddlewares,
   ...vendorShippingProfilesMiddlewares,
-  ...vendorRegionsMiddlewares
+  ...vendorRegionsMiddlewares,
+  ...vendorNotificationMiddlewares
 ]

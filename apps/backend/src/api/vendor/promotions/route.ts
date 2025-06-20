@@ -67,7 +67,12 @@ export const GET = async (
   const { data: promotions, metadata } = await query.graph({
     entity: sellerPromotion.entryPoint,
     fields: req.queryConfig.fields.map((field) => `promotion.${field}`),
-    filters: req.filterableFields,
+    filters: {
+      ...req.filterableFields,
+      deleted_at: {
+        $eq: null
+      }
+    },
     pagination: req.queryConfig.pagination
   })
 

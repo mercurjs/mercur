@@ -2,6 +2,7 @@ import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import sellerOrder from '../../../../../links/seller-order'
+import { getVendorOrdersListWorkflow } from '../../../../../workflows/order/workflows'
 import { AdminGetSellerOrdersParamsType } from '../../validators'
 
 export const GET = async (
@@ -10,17 +11,36 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: sellerProducts, metadata } = await query.graph({
+  const { data: orderRelations } = await query.graph({
     entity: sellerOrder.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `order.${field}`),
-    filters: req.filterableFields,
-    pagination: req.queryConfig.pagination
+    fields: ['order_id'],
+    filters: {
+      seller_id: req.params.id,
+      deleted_at: {
+        $eq: null
+      }
+    }
   })
 
+  const { result } = await getVendorOrdersListWorkflow(req.scope).run({
+    input: {
+      fields: req.queryConfig.fields,
+      variables: {
+        filters: {
+          ...req.filterableFields,
+          id: orderRelations.map((relation) => relation.order_id)
+        },
+        ...req.queryConfig.pagination
+      }
+    }
+  })
+
+  const { rows, metadata } = result as any
+
   res.json({
-    products: sellerProducts.map((product) => product.product),
-    count: metadata!.count,
-    offset: metadata!.skip,
-    limit: metadata!.take
+    orders: rows,
+    count: metadata?.count,
+    offset: metadata?.skip,
+    limit: metadata?.take
   })
 }
