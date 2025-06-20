@@ -127,7 +127,11 @@ export async function findAndTransformAlgoliaProducts(
       'brand.name',
       'options.*',
       'options.values.*',
-      'images.*'
+      'images.*',
+      'attribute_values.value',
+      'attribute_values.attribute.name',
+      'attribute_values.attribute.is_filterable',
+      'attribute_values.attribute.ui_component'
     ],
     filters: ids.length
       ? {
@@ -167,6 +171,15 @@ export async function findAndTransformAlgoliaProducts(
         }, variant)
       })
       .flat()
+
+    product.attribute_values = product.attribute_values?.map((attribute) => {
+      return {
+        name: attribute.attribute.name,
+        value: attribute.value,
+        is_filterable: attribute.attribute.is_filterable,
+        ui_component: attribute.attribute.ui_component
+      }
+    })
   }
 
   return z.array(AlgoliaProductValidator).parse(products)

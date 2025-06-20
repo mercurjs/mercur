@@ -17,9 +17,9 @@ const ProductAttributeValuesWidget = (props: any) => {
             <Table>
               <Table.Body>
                 {product?.attribute_values?.map((attribute: any) => (
-                  <Table.Row key={attribute.id}>
-                    <Table.Cell>{attribute.attribute.name}</Table.Cell>
-                    <Table.Cell>{attribute.value}</Table.Cell>
+                  <Table.Row key={attribute?.id}>
+                    <Table.Cell>{attribute?.attribute?.name}</Table.Cell>
+                    <Table.Cell>{attribute?.value}</Table.Cell>
                   </Table.Row>
                 ))}
               </Table.Body>
