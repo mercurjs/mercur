@@ -104,7 +104,7 @@ export function ReturnRequestDetail({ request, open, close }: Props) {
           </Container>
         </Drawer.Body>
         <Drawer.Footer>
-          {request.status === 'pending' && <>
+          {request.status === 'pending' || request.status === 'escalated' && <>
             <Button
               onClick={() => {
                 handlePrompt(request.id!, true);
