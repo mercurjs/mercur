@@ -1,4 +1,5 @@
 ![Mercur Main Cover](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png)
+
 <div align="center">
   <h1>Mercur <br> Open Source Marketplace Platform</h1> 
   <!-- Shields.io Badges -->
@@ -41,7 +42,7 @@ Mercur is a platform to start, customize, manage, and scale your marketplace for
 # Ready-to-go marketplace features
 
 <b>Storefronts for Marketplace </b> <br>
-Customizable storefronts designed for B2B and B2C with all elements including browsing and buying products across multiple vendors at once. 
+Customizable storefronts designed for B2B and B2C with all elements including browsing and buying products across multiple vendors at once.
 
 Discover <a href="https://github.com/mercurjs/b2c-marketplace-storefront">B2C Storefront Repository</a> - <a href="https://b2c.mercurjs.com/">🛍️ Check demo </a>
 
@@ -52,10 +53,9 @@ Control over whole marketplace: setting product categories, vendors, commissions
 A powerful dashboard giving sellers complete control over their products, orders, and store management in one intuitive interface.
 
 <b>Integrations</b> <br>
-Built-in integration with Stripe for payments and Resend for communication needs. More integrations coming soon. 
+Built-in integration with Stripe for payments and Resend for communication needs. More integrations coming soon.
 
 ![Mercur](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a1020f202572832c954ead_6b96703adfe74613f85133f83a19b1f0_Fleek%20Tilt%20-%20Readme.png)
-
 
 &nbsp;
 
@@ -87,17 +87,11 @@ DATABASE_URL=postgres://postgres:postgres@localhost:5432/$DB_NAME
 # Setup database and run migrations
 yarn medusa db:create && yarn medusa db:migrate && yarn run seed
 
-# Generate OpenAPI client
-yarn generate:oas
-
 # Create admin user
 npx medusa user --email <email> --password <password>
 
 # Go to root folder
 cd ../..
-
-# Generate http-client interfaces
-yarn codegen
 
 # Start Mercur
 yarn dev
