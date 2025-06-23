@@ -209,3 +209,17 @@ export const validateCommissionRule = (obj: AdminCreateCommissionRuleType) => {
     )
   }
 }
+
+export const AdminGetCommissionLinesParams = createFindParams({
+  limit: 15,
+  offset: 0
+}).merge(
+  z.object({
+    start_date: z.coerce.date().optional(),
+    end_date: z.coerce.date().optional(),
+    seller_id: z.string().optional()
+  })
+)
+export type AdminGetCommissionLinesParamsType = z.infer<
+  typeof AdminGetCommissionLinesParams
+>

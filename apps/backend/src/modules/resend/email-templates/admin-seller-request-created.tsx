@@ -1,5 +1,6 @@
 interface EmailTemplateProps {
   data: {
+    request_address: string,
     seller_name: string
   }
 }
@@ -21,6 +22,12 @@ export const AdminSellerRequestCreatedEmailTemplate: React.FC<Readonly<EmailTemp
       <p style={{ fontSize: '1.1rem', marginBottom: 16 }}>
         {data.seller_name} has requested to join the platform. Please review the request and approve it in admin panel.
       </p>
+
+      <div>
+        <a href={data.request_address}>
+          <button>Review Request</button>
+        </a>
+      </div>
       <div style={{ marginTop: 32 }}>
         <div>Best regards,</div>
         <div style={{ fontWeight: 600 }}>The Mercur Team</div>

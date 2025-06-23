@@ -13,7 +13,8 @@ import {
   PayoutWebhookAction,
   PayoutWebhookActionPayload,
   ProcessPayoutInput,
-  ProcessPayoutResponse
+  ProcessPayoutResponse,
+  ReversePayoutInput
 } from '../types'
 
 type InjectedDependencies = {
@@ -51,7 +52,8 @@ export class PayoutProvider implements IPayoutProvider {
     amount,
     currency,
     account_reference_id,
-    transaction_id
+    transaction_id,
+    source_transaction
   }: ProcessPayoutInput): Promise<ProcessPayoutResponse> {
     try {
       this.logger_.info(
@@ -63,7 +65,7 @@ export class PayoutProvider implements IPayoutProvider {
           currency,
           destination: account_reference_id,
           amount: getSmallestUnit(amount, currency),
-          transfer_group: transaction_id,
+          source_transaction,
           metadata: {
             transaction_id
           }
@@ -151,6 +153,32 @@ export class PayoutProvider implements IPayoutProvider {
     } catch (error) {
       const message =
         error?.message ?? 'Error occured while initializing onboarding'
+      throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, message)
+    }
+  }
+
+  async getAccount(accountId: string): Promise<Stripe.Account> {
+    try {
+      const account = await this.client_.accounts.retrieve(accountId)
+      return account
+    } catch (error) {
+      const message = error?.message ?? 'Error occured while getting account'
+      throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, message)
+    }
+  }
+
+  async reversePayout(input: ReversePayoutInput) {
+    try {
+      const reversal = await this.client_.transfers.createReversal(
+        input.transfer_id,
+        {
+          amount: getSmallestUnit(input.amount, input.currency)
+        }
+      )
+
+      return reversal
+    } catch (error) {
+      const message = error?.message ?? 'Error occured while reversing payout'
       throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, message)
     }
   }

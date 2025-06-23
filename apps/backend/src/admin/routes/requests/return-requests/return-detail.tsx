@@ -1,11 +1,11 @@
 import { Button, Container, Drawer, Text } from "@medusajs/ui";
 import { InformationCircle } from "@medusajs/icons";
-import { AdminOrder, AdminOrderReturnRequest } from "@mercurjs/http-client";
 
 import { useState } from "react";
 import { formatDate } from "../../../lib/date";
 import { useOrder } from "../../../hooks/api/order";
 import { ResolveReturnRequestPrompt } from "../components/resolve-return-request";
+import { AdminOrderReturnRequest } from "../types";
 
 type Props = {
   request?: AdminOrderReturnRequest;
@@ -104,7 +104,7 @@ export function ReturnRequestDetail({ request, open, close }: Props) {
           </Container>
         </Drawer.Body>
         <Drawer.Footer>
-          {request.status === 'pending' && <>
+          {request.status === 'pending' || request.status === 'escalated' && <>
             <Button
               onClick={() => {
                 handlePrompt(request.id!, true);
@@ -135,11 +135,11 @@ const ItemRow = ({
   line_item_id,
   quantity,
 }: {
-  order: AdminOrder;
+  order: any;
   line_item_id: string;
   quantity: number;
 }) => {
-  const item = order?.items.find((i) => i.id === line_item_id);
+  const item = order?.items.find((i: any) => i.id === line_item_id);
   return (
     <>
       <Text>

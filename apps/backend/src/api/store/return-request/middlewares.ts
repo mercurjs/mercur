@@ -1,22 +1,34 @@
 import {
   AuthenticatedMedusaRequest,
   MiddlewareRoute,
-  authenticate
+  validateAndTransformBody,
+  validateAndTransformQuery
 } from '@medusajs/framework'
 
 import { checkCustomerResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares/check-customer-ownership'
-import { StoreCreateReturnRequestType } from './validators'
+import { storeReturnOrderRequestQueryConfig } from './query-config'
+import {
+  StoreCreateReturnRequest,
+  StoreCreateReturnRequestType,
+  StoreGetOrderReturnRequestParams
+} from './validators'
 
 export const storeOrderReturnRequestsMiddlewares: MiddlewareRoute[] = [
   {
-    method: ['ALL'],
-    matcher: '/store/return-request/*',
-    middlewares: [authenticate('user', ['bearer', 'session'])]
+    method: ['GET'],
+    matcher: '/store/return-request',
+    middlewares: [
+      validateAndTransformQuery(
+        StoreGetOrderReturnRequestParams,
+        storeReturnOrderRequestQueryConfig.list
+      )
+    ]
   },
   {
     method: ['POST'],
     matcher: '/store/return-request',
     middlewares: [
+      validateAndTransformBody(StoreCreateReturnRequest),
       checkCustomerResourceOwnershipByResourceId({
         entryPoint: 'order',
         resourceId: (
@@ -33,7 +45,11 @@ export const storeOrderReturnRequestsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       checkCustomerResourceOwnershipByResourceId({
         entryPoint: 'order_return_request'
-      })
+      }),
+      validateAndTransformQuery(
+        StoreGetOrderReturnRequestParams,
+        storeReturnOrderRequestQueryConfig.retrieve
+      )
     ]
   }
 ]

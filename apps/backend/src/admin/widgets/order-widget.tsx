@@ -18,10 +18,7 @@ const OrderWidget =  () => {
 
   const { order_sets } = data || {}
 
-
   const { orders } = order_sets?.[0] || {}
-
-  console.log(orders)
 
   return (
     <Container>

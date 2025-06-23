@@ -17,11 +17,11 @@ import { ActionsButton } from "../../common/ActionsButton";
 import { PencilSquare, Shopping, User } from "@medusajs/icons";
 import { useSellersTableColumns } from "./helpers/use-seller-table-columns";
 import { createColumnHelper } from "@tanstack/react-table"
-import { VendorSeller } from "@mercurjs/http-client";
 import { useDataTable } from "../../hooks/table/use-data-table";
 import { DataTable } from "../../components/table/data-table";
 import { useInviteSeller, useSellers, useUpdateSeller } from "../../hooks/api/seller";
 import { useNavigate } from "react-router-dom";
+import { VendorSeller } from "./types";
 
 const PAGE_SIZE = 10
 
@@ -70,7 +70,7 @@ const SellersListPage = () => {
         return;
       }
 
-      await inviteSeller(email);
+      await inviteSeller({ email });
       toast.success("Invited!");
       setOpen(false);
       setEmail("");
@@ -190,7 +190,6 @@ const useColumns = () => {
                 icon: <PencilSquare />
               },
               {
-                // @ts-ignore
                 label: row.original.store_status === "SUSPENDED" ? "Activate account" : "Suspend account",
                 onClick: () => handleSuspend(row.original as SellersProps),
                 icon: <User />

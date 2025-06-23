@@ -2,6 +2,7 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import { ResendNotificationTemplates } from '../modules/resend/types/templates'
+import { Hosts, buildHostAddress } from '../shared/infra/http/utils'
 
 export default async function buyerCancelOrderHandler({
   event,
@@ -43,8 +44,13 @@ export default async function buyerCancelOrderHandler({
       data: {
         order: {
           id: order.id,
+          display_id: order.display_id,
           item: order.items
-        }
+        },
+        order_address: buildHostAddress(
+          Hosts.STOREFRONT,
+          `/user/orders/${order.id}`
+        ).toString()
       }
     }
   })
@@ -53,6 +59,6 @@ export default async function buyerCancelOrderHandler({
 export const config: SubscriberConfig = {
   event: 'order.canceled',
   context: {
-    subscriberId: 'buyer-cancel-order-handler'
+    subscriberId: 'notification-buyer-cancel-order'
   }
 }

@@ -16,7 +16,7 @@
     "build": "turbo run build",
     "format": "turbo run format",
     "lint": "turbo run lint",
-    "codegen": "turbo run codegen",
+    "codegen": "cd .",
     "generate:oas": "turbo run generate:oas"
   }
 }

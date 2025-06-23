@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Select, toast, Switch, Label } from "@medusajs/ui";
 import { useCreateConfigurationRule } from "../../../hooks/api/configuration";
+import { ConfigurationRuleType } from "../types";
 
 type RuleType =
   | "global_product_catalog"
@@ -24,7 +25,7 @@ const CreateConfigurationRuleForm = ({ onSuccess }: Props) => {
 
     try {
       await createRule({
-        rule_type: type,
+        rule_type: type as ConfigurationRuleType,
         is_enabled: enabled,
       });
       onSuccess?.();

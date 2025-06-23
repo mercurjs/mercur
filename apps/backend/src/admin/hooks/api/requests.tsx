@@ -3,66 +3,75 @@ import {
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
-  useQuery,
-} from "@tanstack/react-query";
+  useQuery
+} from '@tanstack/react-query'
 
-import { AdminRequest, AdminReviewRequest } from "@mercurjs/http-client";
+import { mercurQuery } from '../../lib/client'
+import { queryKeysFactory } from '../../lib/query-keys-factory'
+import { AdminRequest, AdminReviewRequest } from '../../routes/requests/types'
 
-import { api } from "../../lib/client";
-import { queryKeysFactory } from "../../lib/query-keys-factory";
-
-export const requestsQueryKeys = queryKeysFactory("requests");
+export const requestsQueryKeys = queryKeysFactory('requests')
 
 export const useVendorRequests = (
-  query?: Parameters<typeof api.admin.adminListRequests>[0],
+  query?: any,
   options?: Omit<
     UseQueryOptions<
-      Parameters<typeof api.admin.adminListRequests>[0],
+      any,
       Error,
       {
-        requests: AdminRequest[];
-        count?: number;
+        requests: AdminRequest[]
+        count?: number
       },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: requestsQueryKeys.list(query),
-    queryFn: () => api.admin.adminListRequests(query).then((res) => res.data),
-    ...options,
-  });
+    queryFn: () =>
+      mercurQuery('/admin/requests', {
+        method: 'GET',
+        query
+      }),
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
 
 export const useVendorRequest = (
   id: string,
   options?: Omit<
     UseQueryOptions<unknown, Error, { request?: AdminRequest }, QueryKey>,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: requestsQueryKeys.detail(id),
-    queryFn: () => api.admin.adminGetRequestById(id).then((res) => res.data),
-    ...options,
-  });
+    queryFn: () =>
+      mercurQuery(`/admin/requests/${id}`, {
+        method: 'GET'
+      }),
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
 
 export const useReviewRequest = (
   options: UseMutationOptions<
     { id?: string; status?: string },
     Error,
     { id: string; payload: AdminReviewRequest }
-  >,
+  >
 ) => {
   return useMutation({
     mutationFn: ({ id, payload }) =>
-      api.admin.adminReviewRequestById(id, payload).then((res) => res.data),
-    ...options,
-  });
-};
+      mercurQuery(`/admin/requests/${id}`, {
+        method: 'POST',
+        body: payload
+      }),
+    ...options
+  })
+}

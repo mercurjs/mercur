@@ -8,12 +8,12 @@ import {
   useCommissionRules,
   useDefaultCommissionRule,
 } from "../../hooks/api/commission";
-import { AdminCommissionAggregate } from "@mercurjs/http-client";
 import { useDataTable } from "../../hooks/table/use-data-table";
 import { useCommissionRulesTableColumns } from "../../hooks/table/columns/use-commission-rules-table-columns";
 import CreateCommissionRuleForm from "./components/create-commission-rule-form";
 import { useState } from "react";
 import UpsertDefaultCommissionRuleForm from "./components/upsert-default-commission-rule";
+import { AdminCommissionAggregate } from "./types";
 
 const PAGE_SIZE = 50;
 
@@ -145,7 +145,7 @@ const Commission = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "Commission",
+  label: "Commission settings",
   icon: DocumentText,
 });
 

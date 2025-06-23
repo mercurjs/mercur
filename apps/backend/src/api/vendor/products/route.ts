@@ -5,7 +5,6 @@ import {
 } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import sellerProductLink from '../../../links/seller-product'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { assignBrandToProductWorkflow } from '../../../workflows/brand/workflows'
 import { createProductRequestWorkflow } from '../../../workflows/requests/workflows'
@@ -79,19 +78,14 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: sellerProducts, metadata } = await query.graph({
-    entity: sellerProductLink.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `product.${field}`),
-    filters: {
-      ...req.filterableFields,
-      deleted_at: {
-        $eq: null
-      }
-    },
+    entity: 'product',
+    fields: req.queryConfig.fields,
+    filters: req.filterableFields,
     pagination: req.queryConfig.pagination
   })
 
   res.json({
-    products: sellerProducts.map((product) => product.product),
+    products: sellerProducts,
     count: metadata!.count,
     offset: metadata!.skip,
     limit: metadata!.take

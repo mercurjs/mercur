@@ -4,5 +4,6 @@ export const HumanizeTypes = {
   product: 'Product',
   seller: 'Seller',
   review_remove: 'Review Remove',
-  product_type: 'Product Type'
+  product_type: 'Product Type',
+  product_tag: 'Product Tag'
 }

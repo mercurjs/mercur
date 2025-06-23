@@ -6,7 +6,7 @@ export enum Hosts {
 
 export const defaultHosts = {
   [Hosts.VENDOR_PANEL]: 'http://localhost:5173',
-  [Hosts.STOREFRONT]: 'http://localhost:7001',
+  [Hosts.STOREFRONT]: 'http://localhost:3000',
   [Hosts.BACKEND]: 'http://localhost:9000'
 }
 

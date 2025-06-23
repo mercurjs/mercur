@@ -3,63 +3,68 @@ import {
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
-  useQuery,
-} from "@tanstack/react-query";
+  useQuery
+} from '@tanstack/react-query'
 
+import { mercurQuery } from '../../lib/client'
+import { queryKeysFactory } from '../../lib/query-keys-factory'
+import { CommissionLine } from '../../routes/commission-lines/types'
 import {
-  AdminCommissionAggregate,
-  AdminCommissionRule,
-  AdminCreateCommissionRule,
-  AdminUpsertDefaultCommissionRule,
-} from "@mercurjs/http-client";
+  CommissionRule,
+  CreateCommissionRule,
+  UpdateCommissionRule,
+  UpsertDefaultCommissionRule
+} from '../../routes/commission/types'
 
-import { api } from "../../lib/client";
-import { queryKeysFactory } from "../../lib/query-keys-factory";
-
-export const commissionRulesQueryKeys = queryKeysFactory("commission_rule");
+export const commissionRulesQueryKeys = queryKeysFactory('commission_rule')
 
 export const useCommissionRules = (
-  query?: Parameters<typeof api.admin.adminListCommissionRules>[0],
+  query?: any,
   options?: Omit<
     UseQueryOptions<
-      Parameters<typeof api.admin.adminListCommissionRules>[0],
+      Record<string, string | number>,
       Error,
-      { commission_rules: AdminCommissionAggregate[]; count?: number },
+      { commission_rules: CommissionRule[]; count?: number },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: commissionRulesQueryKeys.list(query),
     queryFn: () =>
-      api.admin.adminListCommissionRules(query).then((res) => res.data),
-    ...options,
-  });
+      mercurQuery('/admin/commission/rules', {
+        method: 'GET',
+        query
+      }),
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
 
 export const useDefaultCommissionRule = (
   options?: Omit<
     UseQueryOptions<
       unknown,
       Error,
-      { commission_rule?: AdminCommissionAggregate },
+      { commission_rule?: CommissionRule },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
-    queryKey: commissionRulesQueryKeys.detail(""),
+    queryKey: commissionRulesQueryKeys.detail(''),
     queryFn: () =>
-      api.admin.adminGetDefaultCommissionRule().then((res) => res.data),
-    ...options,
-  });
+      mercurQuery('/admin/commission/default', {
+        method: 'GET'
+      }),
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
 
 export const useCommissionRule = (
   id: string,
@@ -67,86 +72,110 @@ export const useCommissionRule = (
     UseQueryOptions<
       unknown,
       Error,
-      { commission_rule?: AdminCommissionAggregate },
+      { commission_rule?: CommissionRule },
       QueryKey
     >,
-    "queryFn" | "queryKey"
-  >,
+    'queryFn' | 'queryKey'
+  >
 ) => {
   const { data, ...other } = useQuery({
     queryKey: commissionRulesQueryKeys.detail(id),
     queryFn: () =>
-      api.admin.adminGetCommissionRuleById(id).then((res) => res.data),
-    ...options,
-  });
+      mercurQuery(`/admin/commission/rules/${id}`, {
+        method: 'GET'
+      }),
+    ...options
+  })
 
-  return { ...data, ...other };
-};
+  return { ...data, ...other }
+}
 
 export const useCreateCommisionRule = (
   options: UseMutationOptions<
-    { commission_rule?: AdminCommissionRule },
+    { commission_rule?: CommissionRule },
     Error,
-    AdminCreateCommissionRule
-  >,
+    CreateCommissionRule
+  >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      api.admin.adminCreateCommissionRule(payload).then((res) => res.data),
-    ...options,
-  });
-};
+      mercurQuery('/admin/commission/rules', {
+        method: 'POST',
+        body: payload
+      }),
+    ...options
+  })
+}
 
 export const useUpdateCommisionRule = (
   options: UseMutationOptions<
-    { commission_rule?: AdminCommissionRule },
+    { commission_rule?: CommissionRule },
     Error,
-    { id: string; is_active: boolean }
-  >,
+    { id: string } & UpdateCommissionRule
+  >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      api.admin
-        .adminUpdateCommissionRuleById(payload.id, {
-          is_active: payload.is_active,
-        })
-        .then((res) => res.data),
-    ...options,
-  });
-};
+      mercurQuery(`/admin/commission/rules/${payload.id}`, {
+        method: 'POST',
+        body: { is_active: payload.is_active }
+      }),
+    ...options
+  })
+}
 
 export const useUpsertDefaultCommisionRule = (
   options: UseMutationOptions<
-    { commission_rule?: AdminCommissionRule },
+    { commission_rule?: CommissionRule },
     Error,
-    AdminUpsertDefaultCommissionRule
-  >,
+    UpsertDefaultCommissionRule
+  >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      api.admin
-        .adminUpsertDefaultCommissionRule(payload)
-        .then((res) => res.data),
-    ...options,
-  });
-};
+      mercurQuery('/admin/commission/default', {
+        method: 'POST',
+        body: payload
+      }),
+    ...options
+  })
+}
 
 export const useDeleteCommisionRule = (
   options: UseMutationOptions<
     {
-      id?: string;
-      object?: string;
-      deleted?: boolean;
+      id?: string
+      object?: string
+      deleted?: boolean
     },
     Error,
     { id: string }
-  >,
+  >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      api.admin
-        .adminDeleteCommissionRuleById(payload.id)
-        .then((res) => res.data),
-    ...options,
-  });
-};
+      mercurQuery(`/admin/commission/rules/${payload.id}`, {
+        method: 'DELETE'
+      }),
+    ...options
+  })
+}
+
+export const useListCommissionLines = (
+  query?: Record<string, string | number>
+) => {
+  return useQuery<
+    {
+      commission_lines: CommissionLine[]
+      count: number
+    },
+    Error
+  >({
+    queryKey: ['commission-lines', query],
+    queryFn: () =>
+      mercurQuery(`/admin/commission/commission-lines`, {
+        method: 'GET',
+        query
+      })
+  })
+}

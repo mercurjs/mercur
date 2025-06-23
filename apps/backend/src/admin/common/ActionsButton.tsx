@@ -6,7 +6,7 @@ export const ActionsButton = ({actions}: {actions: {label: string, onClick: () =
   const [open, setOpen] = useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenu.Trigger><Button variant="transparent" className="h-10 w-10" onClick={() => setOpen(true)}><EllipsisHorizontal /></Button></DropdownMenu.Trigger>
+      <DropdownMenu.Trigger asChild><Button variant="transparent" className="h-8 w-12 p-0" onClick={() => setOpen(true)}><EllipsisHorizontal /></Button></DropdownMenu.Trigger>
       <DropdownMenu.Content>
         {actions.map(({ label, onClick, icon}) => (
           <DropdownMenu.Item key={label} onClick={onClick} className="flex items-center gap-2">

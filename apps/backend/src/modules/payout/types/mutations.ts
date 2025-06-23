@@ -25,4 +25,11 @@ export type CreatePayoutDTO = {
   currency_code: string
   account_id: string
   transaction_id: string
+  source_transaction: string
+}
+
+export type CreatePayoutReversalDTO = {
+  payout_id: string
+  amount: BigNumberInput
+  currency_code: string
 }
