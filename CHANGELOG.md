@@ -5,6 +5,66 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-06-23
+
+### Release 1.0 - B2C Marketplace
+
+This release marks the official 1.0 version of Mercur, with significant improvements to the marketplace platform including enhanced seller management, product features, and numerous bug fixes.
+
+### Added
+
+- **Product Attributes** ([#316](https://github.com/mercurjs/mercur/pull/316) @slusarczykmichal)
+- **Seller Management API** ([#259](https://github.com/mercurjs/mercur/pull/259) @slusarczykmichal)
+- **Invite Seller to Platform** ([#257](https://github.com/mercurjs/mercur/pull/257) @slusarczykmichal)
+- **Vendor Panel UI Notifications** ([#284](https://github.com/mercurjs/mercur/pull/284) @slusarczykmichal)
+- **Order Sets List** ([#252](https://github.com/mercurjs/mercur/pull/252), [#262](https://github.com/mercurjs/mercur/pull/262) @slusarczykmichal, @WojciechPlodzien)
+- **Enable Filtering Order Set by Order ID** ([#256](https://github.com/mercurjs/mercur/pull/256) @slusarczykmichal)
+- **Customer Returns List** ([#306](https://github.com/mercurjs/mercur/pull/306) @slusarczykmichal)
+- **Commissions API & Admin Dashboard** ([#298](https://github.com/mercurjs/mercur/pull/298) @slusarczykmichal)
+- **Seed Default Configuration Rules** ([#267](https://github.com/mercurjs/mercur/pull/267) @slusarczykmichal)
+- **Seller Suspension Logic** ([#266](https://github.com/mercurjs/mercur/pull/266) @slusarczykmichal)
+- **Remove Shipping Methods from Cart** ([#247](https://github.com/mercurjs/mercur/pull/247) @slusarczykmichal)
+
+### Changed
+
+- **Password Reset Emails Refactoring** ([#278](https://github.com/mercurjs/mercur/pull/278) @slusarczykmichal)
+- **Orders Format Change** ([#277](https://github.com/mercurjs/mercur/pull/277) @slusarczykmichal)
+- **Notification Cleanup** ([#276](https://github.com/mercurjs/mercur/pull/276) @slusarczykmichal)
+- **Remove HTTP Client** ([#313](https://github.com/mercurjs/mercur/pull/313) @slusarczykmichal)
+- **Change Supported Countries** ([#265](https://github.com/mercurjs/mercur/pull/265) @slusarczykmichal)
+- **Update README** ([#318](https://github.com/mercurjs/mercur/pull/318) @slusarczykmichal)
+
+### Fixed
+
+- **Product Search and Filters** ([#255](https://github.com/mercurjs/mercur/pull/255) @NicolasGorga)
+- **More Information on Requests Page** ([#254](https://github.com/mercurjs/mercur/pull/254) @slusarczykmichal)
+- **Show Only Current Seller Product When Creating Promotion** ([#253](https://github.com/mercurjs/mercur/pull/253), [#264](https://github.com/mercurjs/mercur/pull/264) @slusarczykmichal, @WojciechPlodzien)
+- **Stripe Provider** ([#251](https://github.com/mercurjs/mercur/pull/251) @slusarczykmichal)
+- **Create Additional Subscribers** ([#249](https://github.com/mercurjs/mercur/pull/249) @slusarczykmichal)
+- **Vendor Update Price List** ([#245](https://github.com/mercurjs/mercur/pull/245) @slusarczykmichal)
+- **Add Rules to Shipping Options** ([#243](https://github.com/mercurjs/mercur/pull/243) @slusarczykmichal)
+- **Filter Out Deleted Linked Entities** ([#286](https://github.com/mercurjs/mercur/pull/286) @slusarczykmichal)
+- **Update Configuration Module Import in Seed-Functions** ([#279](https://github.com/mercurjs/mercur/pull/279) @cesarve77)
+- **One Review Per Order** ([#273](https://github.com/mercurjs/mercur/pull/273) @slusarczykmichal)
+- **Filter Customer Groups in Promotions** ([#260](https://github.com/mercurjs/mercur/pull/260) @slusarczykmichal)
+- **Duplicate Order Return Requests** ([#314](https://github.com/mercurjs/mercur/pull/314) @slusarczykmichal)
+- **Create Payout Reversal** ([#312](https://github.com/mercurjs/mercur/pull/312) @slusarczykmichal)
+- **Stripe Connect Updates** ([#311](https://github.com/mercurjs/mercur/pull/311) @slusarczykmichal)
+- **Seller Return Shipping Options** ([#308](https://github.com/mercurjs/mercur/pull/308) @slusarczykmichal)
+- **Provide Statuses with Order Sets** ([#307](https://github.com/mercurjs/mercur/pull/307) @slusarczykmichal)
+- **Mark Order as Completed After Shipping is Created** ([#304](https://github.com/mercurjs/mercur/pull/304) @slusarczykmichal)
+- **If No Seller Email Provided Use Member Email** ([#303](https://github.com/mercurjs/mercur/pull/303) @slusarczykmichal)
+- **Notifications** ([#297](https://github.com/mercurjs/mercur/pull/297) @slusarczykmichal)
+- **Outstanding Amount** ([#291](https://github.com/mercurjs/mercur/pull/291) @slusarczykmichal)
+- **Do Not Show Admin Notifications from Seller Feed** ([#289](https://github.com/mercurjs/mercur/pull/289) @slusarczykmichal)
+- **Trigger Algolia Update After Modifying Inventory Items** ([#288](https://github.com/mercurjs/mercur/pull/288) @slusarczykmichal)
+
+## Contributors
+
+Thanks to all contributors:
+
+@pfulara, @slusarczykmichal, @WojciechPlodzien, @NicolasGorga, @cesarve77
+
 ## [0.9.0] - 2025-05-23
 
 ### Initial Release - Marketplace Platform
