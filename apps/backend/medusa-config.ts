@@ -34,7 +34,7 @@ module.exports = defineConfig({
     },
     { resolve: './src/modules/commission' },
     {
-      resolve: './src/modules/payout',
+      resolve: '@mercurjs/payout',
       options: {
         apiKey: process.env.STRIPE_SECRET_API_KEY,
         webhookSecret: process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET

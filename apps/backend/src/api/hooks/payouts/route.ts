@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { Modules } from '@medusajs/framework/utils'
 
-import { PayoutWebhookEvents } from '../../../modules/payout/types'
+import { PayoutWebhookEvents } from '@mercurjs/framework'
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const eventBus = req.scope.resolve(Modules.EVENT_BUS)

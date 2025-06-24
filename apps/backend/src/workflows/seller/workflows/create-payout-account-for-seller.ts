@@ -1,10 +1,10 @@
 import { createRemoteLinkStep } from '@medusajs/medusa/core-flows'
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
+import { CreatePayoutAccountDTO } from '@mercurjs/framework'
+import { PAYOUT_MODULE } from '@mercurjs/payout'
 import { SELLER_MODULE } from '@mercurjs/seller'
 
-import { PAYOUT_MODULE } from '../../../modules/payout'
-import { CreatePayoutAccountDTO } from '../../../modules/payout/types'
 import {
   createPayoutAccountStep,
   validateNoExistingPayoutAccountForSellerStep

@@ -2,8 +2,7 @@ import { createStep } from '@medusajs/framework/workflows-sdk'
 import { MedusaError } from '@medusajs/utils'
 
 import { SellerWithPayoutAccountDTO } from '@mercurjs/framework'
-
-import { PayoutAccountStatus } from '../../../modules/payout/types'
+import { PayoutAccountStatus } from '@mercurjs/framework'
 
 export const validateSellerPayoutAccountStep = createStep(
   'validate-seller-payout-account',

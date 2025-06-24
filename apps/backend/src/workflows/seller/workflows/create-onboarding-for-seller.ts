@@ -1,6 +1,7 @@
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { CreateOnboardingDTO } from '../../../modules/payout/types'
+import { CreateOnboardingDTO } from '@mercurjs/framework'
+
 import {
   createPayoutOnboardingStep,
   validatePayoutAccountExistsForSellerStep
