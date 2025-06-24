@@ -1,7 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { getOrdersListWorkflow } from '@medusajs/medusa/core-flows'
 
-import { selectCustomerOrders } from '../../../../../modules/seller/utils'
+import { selectCustomerOrders } from '@mercurjs/seller'
+
 import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
 
 /**

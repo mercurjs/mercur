@@ -7,9 +7,10 @@ import {
 } from '@medusajs/framework/workflows-sdk'
 import { createRemoteLinkStep } from '@medusajs/medusa/core-flows'
 
+import { SELLER_MODULE } from '@mercurjs/seller'
+
 import { ORDER_RETURN_MODULE } from '../../../modules/order-return-request'
 import { CreateOrderReturnRequestDTO } from '../../../modules/order-return-request/types'
-import { SELLER_MODULE } from '../../../modules/seller'
 import {
   createOrderReturnRequestStep,
   validateOrderReturnRequestStep

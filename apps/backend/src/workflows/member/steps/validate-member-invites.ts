@@ -1,8 +1,7 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { SELLER_MODULE } from '../../../modules/seller'
-import SellerModuleService from '../../../modules/seller/service'
-import { AcceptMemberInviteDTO } from '../../../modules/seller/types'
+import { AcceptMemberInviteDTO } from '@mercurjs/framework'
+import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
 export const validateMemberInviteStep = createStep(
   'validate-member-invite',

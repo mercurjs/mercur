@@ -1,7 +1,8 @@
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
+import { SELLER_MODULE } from '@mercurjs/seller'
+
 import returnRequestOrder from '../../links/return-request-order'
-import { SELLER_MODULE } from '../../modules/seller'
 import { updateOrderReturnRequestWorkflow } from '../order-return-request/workflows'
 
 updateOrderReturnRequestWorkflow.hooks.orderReturnRequestUpdated(

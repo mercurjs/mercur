@@ -3,7 +3,7 @@ import { LinkDefinition } from '@medusajs/framework/types'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createProductVariantsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { SELLER_MODULE } from '../../modules/seller'
+import { SELLER_MODULE } from '@mercurjs/seller'
 
 const getVariantInventoryItemIds = async (
   variantId: string,

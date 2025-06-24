@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { StoreStatus } from '../../seller/types'
+import { StoreStatus } from '@mercurjs/framework'
 
 export type AlgoliaProduct = z.infer<typeof AlgoliaProductValidator>
 export const AlgoliaProductValidator = z.object({

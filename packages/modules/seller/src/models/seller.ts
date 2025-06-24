@@ -1,12 +1,12 @@
-import { model } from '@medusajs/framework/utils'
+import { model } from "@medusajs/framework/utils";
 
-import { StoreStatus } from '../types'
-import { MemberInvite } from './invite'
-import { Member } from './member'
-import { SellerOnboarding } from './onboarding'
+import { StoreStatus } from "@mercurjs/framework";
+import { MemberInvite } from "./invite";
+import { Member } from "./member";
+import { SellerOnboarding } from "./onboarding";
 
-export const Seller = model.define('seller', {
-  id: model.id({ prefix: 'sel' }).primaryKey(),
+export const Seller = model.define("seller", {
+  id: model.id({ prefix: "sel" }).primaryKey(),
   store_status: model.enum(StoreStatus).default(StoreStatus.ACTIVE),
   name: model.text().searchable(),
   handle: model.text().unique(),
@@ -22,5 +22,5 @@ export const Seller = model.define('seller', {
   tax_id: model.text().nullable(),
   members: model.hasMany(() => Member),
   invites: model.hasMany(() => MemberInvite),
-  onboarding: model.hasOne(() => SellerOnboarding).nullable()
-})
+  onboarding: model.hasOne(() => SellerOnboarding).nullable(),
+});

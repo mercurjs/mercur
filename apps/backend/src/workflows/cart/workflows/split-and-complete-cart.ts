@@ -27,9 +27,10 @@ import {
   createWorkflow
 } from '@medusajs/workflows-sdk'
 
+import { SELLER_MODULE } from '@mercurjs/seller'
+
 import { MARKETPLACE_MODULE } from '../../../modules/marketplace'
 import { OrderSetWorkflowEvents } from '../../../modules/marketplace/types'
-import { SELLER_MODULE } from '../../../modules/seller'
 import { registerUsageStep } from '../../promotions/steps'
 import { createSplitOrderPaymentsStep } from '../../split-order-payment/steps'
 import {

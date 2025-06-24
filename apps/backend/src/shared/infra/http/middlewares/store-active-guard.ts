@@ -2,7 +2,8 @@ import { NextFunction } from 'express'
 
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 
-import { StoreStatus } from '../../../../modules/seller/types'
+import { StoreStatus } from '@mercurjs/framework'
+
 import { fetchSellerByAuthActorId } from '../utils/seller'
 
 /**

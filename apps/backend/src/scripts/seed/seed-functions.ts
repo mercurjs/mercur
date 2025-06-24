@@ -21,9 +21,9 @@ import {
   ConfigurationModuleService,
   ConfigurationRuleDefaults
 } from '@mercurjs/configuration'
+import { SELLER_MODULE } from '@mercurjs/seller'
 
 import sellerShippingProfile from '../../links/seller-shipping-profile'
-import { SELLER_MODULE } from '../../modules/seller'
 import { createCommissionRuleWorkflow } from '../../workflows/commission/workflows'
 import { createConfigurationRuleWorkflow } from '../../workflows/configuration/workflows'
 import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../workflows/fulfillment-set/workflows'

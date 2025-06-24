@@ -9,6 +9,8 @@ import {
   transform
 } from '@medusajs/workflows-sdk'
 
+import { SELLER_MODULE } from '@mercurjs/seller'
+
 import { REQUESTS_MODULE } from '../../../modules/requests'
 import {
   CreateRequestDTO,
@@ -16,7 +18,6 @@ import {
   RequestStatus,
   RequestUpdated
 } from '../../../modules/requests/types'
-import { SELLER_MODULE } from '../../../modules/seller'
 import { emitMultipleEventsStep } from '../../common/steps'
 import { createRequestStep } from '../steps'
 
