@@ -1,3 +1,4 @@
+![Mercur Main Cover](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png)
 <div align="center">
   <h1>Mercur <br> Open Source Marketplace Platform</h1> 
   <!-- Shields.io Badges -->
