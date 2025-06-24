@@ -22,7 +22,7 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/configuration' },
     { resolve: './src/modules/order-return-request' },
     { resolve: './src/modules/requests' },
-    { resolve: './src/modules/brand' },
+    { resolve: '@mercurjs/brand' },
     { resolve: './src/modules/wishlist' },
     { resolve: './src/modules/split-order-payment' },
     { resolve: './src/modules/attribute' },
