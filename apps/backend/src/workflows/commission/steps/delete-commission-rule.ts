@@ -1,7 +1,7 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { COMMISSION_MODULE } from '../../../modules/commission'
-import CommissionModuleService from '../../../modules/commission/service'
+import { COMMISSION_MODULE } from '@mercurjs/commission'
+import { CommissionModuleService } from '@mercurjs/commission'
 
 export const deleteCommissionRuleStep = createStep(
   'delete-commission-rule',

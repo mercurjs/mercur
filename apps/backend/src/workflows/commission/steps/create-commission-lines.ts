@@ -1,8 +1,8 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { COMMISSION_MODULE } from '../../../modules/commission'
-import CommissionModuleService from '../../../modules/commission/service'
-import { CreateCommissionLineDTO } from '../../../modules/commission/types'
+import { COMMISSION_MODULE } from '@mercurjs/commission'
+import { CommissionModuleService } from '@mercurjs/commission'
+import { CreateCommissionLineDTO } from '@mercurjs/framework'
 
 export const createCommissionLinesStep = createStep(
   'create-commission-lines',

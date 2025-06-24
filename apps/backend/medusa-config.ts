@@ -32,7 +32,7 @@ module.exports = defineConfig({
         apiKey: process.env.STRIPE_SECRET_API_KEY
       }
     },
-    { resolve: './src/modules/commission' },
+    { resolve: '@mercurjs/commission' },
     {
       resolve: '@mercurjs/payout',
       options: {
