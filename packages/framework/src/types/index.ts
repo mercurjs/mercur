@@ -8,3 +8,4 @@ export * from "./commission";
 export * from "./wishlist";
 export * from "./attribute";
 export * from "./order-return-request";
+export * from "./requests";

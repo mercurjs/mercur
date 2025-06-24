@@ -9,15 +9,15 @@ import {
   transform
 } from '@medusajs/workflows-sdk'
 
-import { SELLER_MODULE } from '@mercurjs/seller'
-
-import { REQUESTS_MODULE } from '../../../modules/requests'
 import {
   CreateRequestDTO,
   ProductRequestUpdatedEvent,
   RequestStatus,
   RequestUpdated
-} from '../../../modules/requests/types'
+} from '@mercurjs/framework'
+import { REQUESTS_MODULE } from '@mercurjs/requests'
+import { SELLER_MODULE } from '@mercurjs/seller'
+
 import { emitMultipleEventsStep } from '../../common/steps'
 import { createRequestStep } from '../steps'
 

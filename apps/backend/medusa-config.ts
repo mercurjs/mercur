@@ -21,7 +21,7 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/marketplace' },
     { resolve: '@mercurjs/configuration' },
     { resolve: '@mercurjs/order-return-request' },
-    { resolve: './src/modules/requests' },
+    { resolve: '@mercurjs/requests' },
     { resolve: '@mercurjs/brand' },
     { resolve: '@mercurjs/wishlist' },
     { resolve: './src/modules/split-order-payment' },
