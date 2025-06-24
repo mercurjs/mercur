@@ -5,3 +5,4 @@ export * from "./payout";
 export * from "./marketplace";
 export * from "./brand";
 export * from "./commission";
+export * from "./wishlist";
