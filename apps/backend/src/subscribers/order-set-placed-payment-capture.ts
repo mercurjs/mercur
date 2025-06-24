@@ -6,7 +6,8 @@ import {
 import { SubscriberArgs } from '@medusajs/medusa'
 import { capturePaymentWorkflow } from '@medusajs/medusa/core-flows'
 
-import { OrderSetWorkflowEvents } from '../modules/marketplace/types'
+import { OrderSetWorkflowEvents } from '@mercurjs/framework'
+
 import { markSplitOrderPaymentsAsCapturedWorkflow } from '../workflows/split-order-payment/workflows'
 
 export default async function orderSetPlacedHandler({

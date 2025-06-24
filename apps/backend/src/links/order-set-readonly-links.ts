@@ -1,7 +1,7 @@
 import { MedusaModule } from '@medusajs/framework/modules-sdk'
 import { Modules } from '@medusajs/framework/utils'
 
-import { MARKETPLACE_MODULE } from '../modules/marketplace'
+import { MARKETPLACE_MODULE } from '@mercurjs/marketplace'
 
 MedusaModule.setCustomLink({
   isLink: true,

@@ -1,8 +1,8 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { MARKETPLACE_MODULE } from '../../../modules/marketplace'
-import MarketplaceModuleService from '../../../modules/marketplace/service'
-import { CreateOrderSetDTO } from '../../../modules/marketplace/types'
+import { CreateOrderSetDTO } from '@mercurjs/framework'
+import { MARKETPLACE_MODULE } from '@mercurjs/marketplace'
+import { MarketplaceModuleService } from '@mercurjs/marketplace'
 
 export const createOrderSetStep = createStep(
   'create-order-set',

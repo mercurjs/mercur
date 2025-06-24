@@ -33,6 +33,7 @@
     "@medusajs/medusa": "2.7.0",
     "@mercurjs/framework": "*",
     "@mercurjs/configuration": "*",
+    "@mercurjs/marketplace": "*",
     "@mercurjs/seller": "*",
     "@mercurjs/reviews": "*",
     "@mercurjs/payout": "*",
