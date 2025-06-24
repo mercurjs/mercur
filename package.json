@@ -5,12 +5,17 @@
   "devDependencies": {
     "turbo": "^2.3.3"
   },
+  "bin": {
+    "mercur-exec": "./index.js"
+  },
   "packageManager": "yarn@1.22.21",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "packages/modules/*"
   ],
   "scripts": {
+    "mercur-exec": "turbo run dev",
     "postinstall": "npx patch-package",
     "dev": "turbo run dev",
     "build": "turbo run build",

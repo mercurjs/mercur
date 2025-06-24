@@ -5,9 +5,10 @@ import {
 } from '@medusajs/framework/utils'
 import { updateProductsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { CONFIGURATION_MODULE } from '../../../../../modules/configuration'
-import ConfigurationModuleService from '../../../../../modules/configuration/service'
-import { ConfigurationRuleType } from '../../../../../modules/configuration/types'
+import { CONFIGURATION_MODULE } from '@mercurjs/configuration'
+import { ConfigurationModuleService } from '@mercurjs/configuration'
+import { ConfigurationRuleType } from '@mercurjs/framework'
+
 import { VendorUpdateProductStatusType } from '../../validators'
 
 /**

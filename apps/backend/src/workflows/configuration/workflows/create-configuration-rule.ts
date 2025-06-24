@@ -1,6 +1,7 @@
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { CreateConfigurationRuleDTO } from '../../../modules/configuration/types'
+import { CreateConfigurationRuleDTO } from '@mercurjs/framework'
+
 import { createConfigurationRuleStep } from '../steps'
 
 export const createConfigurationRuleWorkflow = createWorkflow(
