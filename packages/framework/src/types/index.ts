@@ -9,3 +9,4 @@ export * from "./wishlist";
 export * from "./attribute";
 export * from "./order-return-request";
 export * from "./requests";
+export * from "./split-order-payment";

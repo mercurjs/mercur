@@ -24,7 +24,7 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/requests' },
     { resolve: '@mercurjs/brand' },
     { resolve: '@mercurjs/wishlist' },
-    { resolve: './src/modules/split-order-payment' },
+    { resolve: '@mercurjs/split-order-payment' },
     { resolve: '@mercurjs/attribute' },
     {
       resolve: './src/modules/taxcode',

@@ -43,6 +43,7 @@
     "@mercurjs/attribute": "*",
     "@mercurjs/order-return-request": "*",
     "@mercurjs/requests": "*",
+    "@mercurjs/split-order-payment": "*",
     "@mikro-orm/core": "6.4.3",
     "@mikro-orm/knex": "6.4.3",
     "@mikro-orm/migrations": "6.4.3",

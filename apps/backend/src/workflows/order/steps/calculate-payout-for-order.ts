@@ -1,7 +1,7 @@
 import { ContainerRegistrationKeys, MathBN } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { SplitOrderPaymentDTO } from '../../../modules/split-order-payment/types'
+import { SplitOrderPaymentDTO } from '@mercurjs/framework'
 
 export const calculatePayoutForOrderStep = createStep(
   'calculate-payout-for-order',
