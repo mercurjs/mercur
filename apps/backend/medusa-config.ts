@@ -20,7 +20,7 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/reviews' },
     { resolve: '@mercurjs/marketplace' },
     { resolve: '@mercurjs/configuration' },
-    { resolve: './src/modules/order-return-request' },
+    { resolve: '@mercurjs/order-return-request' },
     { resolve: './src/modules/requests' },
     { resolve: '@mercurjs/brand' },
     { resolve: '@mercurjs/wishlist' },
