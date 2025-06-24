@@ -6,8 +6,9 @@ import {
   arrayDifference
 } from '@medusajs/framework/utils'
 
+import { getAvgRating } from '@mercurjs/reviews'
+
 import sellerProduct from '../../../links/seller-product'
-import { getAvgRating } from '../../reviews/utils'
 import { AlgoliaProductValidator, AlgoliaVariantValidator } from '../types'
 
 async function selectProductVariantsSupportedCountries(

@@ -34,6 +34,7 @@
     "@mercurjs/framework": "*",
     "@mercurjs/configuration": "*",
     "@mercurjs/seller": "*",
+    "@mercurjs/reviews": "*",
     "@mikro-orm/core": "6.4.3",
     "@mikro-orm/knex": "6.4.3",
     "@mikro-orm/migrations": "6.4.3",

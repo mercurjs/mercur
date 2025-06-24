@@ -17,11 +17,11 @@ module.exports = defineConfig({
   },
   modules: [
     { resolve: '@mercurjs/seller' },
+    { resolve: '@mercurjs/reviews' },
     { resolve: './src/modules/marketplace' },
     { resolve: '@mercurjs/configuration' },
     { resolve: './src/modules/order-return-request' },
     { resolve: './src/modules/requests' },
-    { resolve: './src/modules/reviews' },
     { resolve: './src/modules/brand' },
     { resolve: './src/modules/wishlist' },
     { resolve: './src/modules/split-order-payment' },

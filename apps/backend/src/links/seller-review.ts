@@ -1,8 +1,7 @@
 import { defineLink } from '@medusajs/framework/utils'
 
+import ReviewModule from '@mercurjs/reviews'
 import SellerModule from '@mercurjs/seller'
-
-import ReviewModule from '../modules/reviews'
 
 export default defineLink(SellerModule.linkable.seller, {
   linkable: ReviewModule.linkable.review,
