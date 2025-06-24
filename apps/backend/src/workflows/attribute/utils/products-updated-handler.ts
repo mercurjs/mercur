@@ -2,12 +2,13 @@ import { MedusaContainer } from '@medusajs/framework'
 import { ProductDTO } from '@medusajs/framework/types'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import { ProductAttributeValueDTO } from '@mercurjs/framework'
+
 import productAttributeValue from '../../../links/product-attribute-value'
 import {
   createAttributeValueWorkflow,
   deleteAttributeValueWorkflow
 } from '../../../workflows/attribute/workflows'
-import { ProductAttributeValueDTO } from '../types'
 
 export const productsUpdatedHookHandler = async ({
   products,

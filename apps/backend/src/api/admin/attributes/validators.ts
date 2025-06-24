@@ -8,7 +8,14 @@ import {
   createSelectParams
 } from '@medusajs/medusa/api/utils/validators'
 
-import { AttributeUIComponent } from '../../../modules/attribute/types'
+enum AttributeUIComponent {
+  SELECT = 'select',
+  MULTIVALUE = 'multivalue',
+  UNIT = 'unit',
+  TOGGLE = 'toggle',
+  TEXTAREA = 'text_area',
+  COLOR_PICKER = 'color_picker'
+}
 
 export type AdminGetAttributeValueParamsType = z.infer<
   typeof AdminGetAttributeValueParams

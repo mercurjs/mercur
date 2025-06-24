@@ -8,7 +8,7 @@ import { SELLER_MODULE } from '@mercurjs/seller'
 
 import sellerShippingProfile from '../../links/seller-shipping-profile'
 import { AlgoliaEvents } from '../../modules/algolia/types'
-import { productsCreatedHookHandler } from '../../modules/attribute/utils'
+import { productsCreatedHookHandler } from '../attribute/utils'
 
 const getVariantInventoryItemIds = async (
   variantId: string,

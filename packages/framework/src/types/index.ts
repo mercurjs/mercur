@@ -6,3 +6,4 @@ export * from "./marketplace";
 export * from "./brand";
 export * from "./commission";
 export * from "./wishlist";
+export * from "./attribute";

@@ -10,8 +10,8 @@ import {
   MedusaErrorTypes
 } from '@medusajs/framework/utils'
 
-import Attribute from '../models/attribute'
-import { ProductAttributeValueDTO } from '../types'
+import Attribute from '@mercurjs/attribute/src/models/attribute'
+import { ProductAttributeValueDTO } from '@mercurjs/framework'
 
 export const validateAttributeValuesToLink = async ({
   attributeValues,
