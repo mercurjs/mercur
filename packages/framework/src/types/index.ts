@@ -11,3 +11,4 @@ export * from "./order-return-request";
 export * from "./requests";
 export * from "./split-order-payment";
 export * from "./algolia";
+export * from "./payment-stripe-connect";

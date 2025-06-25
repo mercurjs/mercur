@@ -52,7 +52,7 @@ module.exports = defineConfig({
       options: {
         providers: [
           {
-            resolve: './src/modules/payment-stripe-connect',
+            resolve: '@mercurjs/payment-stripe-connect',
             id: 'stripe-connect',
             options: {
               apiKey: process.env.STRIPE_SECRET_API_KEY
