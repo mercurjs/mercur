@@ -1,7 +1,7 @@
 import { defineLink } from '@medusajs/framework/utils'
 import ProductModule from '@medusajs/medusa/product'
 
-import Taxcode from '../modules/taxcode'
+import Taxcode from '@mercurjs/taxcode'
 
 export default defineLink(
   {

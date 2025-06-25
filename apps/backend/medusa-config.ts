@@ -27,7 +27,7 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/split-order-payment' },
     { resolve: '@mercurjs/attribute' },
     {
-      resolve: './src/modules/taxcode',
+      resolve: '@mercurjs/taxcode',
       options: {
         apiKey: process.env.STRIPE_SECRET_API_KEY
       }
