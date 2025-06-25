@@ -1,45 +1,43 @@
-import Stripe from 'stripe'
+import Stripe from "stripe";
 
 import {
   ITaxProvider,
   RemoteQueryFunction,
-  TaxTypes
-} from '@medusajs/framework/types'
-import { MathBN } from '@medusajs/framework/utils'
-import { Logger } from '@medusajs/medusa'
+  TaxTypes,
+} from "@medusajs/framework/types";
+import { MathBN } from "@medusajs/framework/utils";
+import { Logger } from "@medusajs/medusa";
 
-import { getSmallestUnit } from '../../shared/utils'
-import StripeTaxClient from './client'
-import { StripeTaxCalculationResponseValidator } from './validators'
+import { getSmallestUnit } from "@mercurjs/framework";
+import StripeTaxClient from "./client";
+import { StripeTaxCalculationResponseValidator } from "./validators";
 
 type InjectedDependencies = {
-  logger: Logger
-  remoteQuery: Omit<RemoteQueryFunction, symbol>
-}
+  logger: Logger;
+  remoteQuery: Omit<RemoteQueryFunction, symbol>;
+};
 
 type Options = {
-  apiKey: string
-  defaultTaxcode: string
-}
+  apiKey: string;
+  defaultTaxcode: string;
+};
 
 export default class StripeTaxProvider implements ITaxProvider {
-  static identifier = 'stripe-tax-provider'
+  static identifier = "stripe-tax-provider";
 
-  private readonly client_: StripeTaxClient
-  private defaultTaxcode_: string
+  private readonly client_: StripeTaxClient;
+  private defaultTaxcode_: string;
 
-  private logger_: Logger
-  private remoteQuery_: Omit<RemoteQueryFunction, symbol>
+  private remoteQuery_: Omit<RemoteQueryFunction, symbol>;
 
-  constructor({ logger, remoteQuery }: InjectedDependencies, options: Options) {
-    this.defaultTaxcode_ = options.defaultTaxcode
-    this.client_ = new StripeTaxClient(options.apiKey)
-    this.logger_ = logger
-    this.remoteQuery_ = remoteQuery
+  constructor({ remoteQuery }: InjectedDependencies, options: Options) {
+    this.defaultTaxcode_ = options.defaultTaxcode;
+    this.client_ = new StripeTaxClient(options.apiKey);
+    this.remoteQuery_ = remoteQuery;
   }
 
   getIdentifier(): string {
-    return StripeTaxProvider.identifier
+    return StripeTaxProvider.identifier;
   }
 
   async getTaxLines(
@@ -48,31 +46,31 @@ export default class StripeTaxProvider implements ITaxProvider {
     { address }: TaxTypes.TaxCalculationContext
   ): Promise<(TaxTypes.ItemTaxLineDTO | TaxTypes.ShippingTaxLineDTO)[]> {
     if (itemLines.length === 0) {
-      return []
+      return [];
     }
 
     const currency =
-      itemLines[0].line_item.currency_code?.toLowerCase() || 'eur'
+      itemLines[0].line_item.currency_code?.toLowerCase() || "eur";
 
     const shipping = shippingLines.reduce((acc, l) => {
-      return (acc = acc.plus(MathBN.convert(l.shipping_line.unit_price || 0)))
-    }, MathBN.convert(0))
+      return (acc = acc.plus(MathBN.convert(l.shipping_line.unit_price || 0)));
+    }, MathBN.convert(0));
 
-    const line_items: Stripe.Tax.CalculationCreateParams.LineItem[] = []
+    const line_items: Stripe.Tax.CalculationCreateParams.LineItem[] = [];
     for (const item of itemLines) {
-      const tax_code = await this.getProductTaxCode_(item.line_item.product_id)
+      const tax_code = await this.getProductTaxCode_(item.line_item.product_id);
 
-      const quantity = MathBN.convert(item.line_item.quantity || 0)
+      const quantity = MathBN.convert(item.line_item.quantity || 0);
       const amount = MathBN.convert(
         item.line_item.unit_price || 0
-      ).multipliedBy(quantity)
+      ).multipliedBy(quantity);
 
       line_items.push({
         reference: item.line_item.id,
         amount: getSmallestUnit(amount, currency),
         quantity: quantity.toNumber(),
-        tax_code
-      })
+        tax_code,
+      });
     }
 
     const calculationResponse = await this.client_.getCalculation({
@@ -84,16 +82,16 @@ export default class StripeTaxProvider implements ITaxProvider {
           line1: address.address_1,
           line2: address.address_2,
           postal_code: address.postal_code,
-          state: address.province_code
-        }
+          state: address.province_code,
+        },
       },
       shipping_cost: { amount: getSmallestUnit(shipping, currency) },
       line_items,
-      expand: ['line_items.data.tax_breakdown']
-    })
+      expand: ["line_items.data.tax_breakdown"],
+    });
 
     const calculation =
-      StripeTaxCalculationResponseValidator.parse(calculationResponse)
+      StripeTaxCalculationResponseValidator.parse(calculationResponse);
 
     const itemTaxLines: TaxTypes.ItemTaxLineDTO[] = calculation.line_items
       ? calculation.line_items?.data.map((item) => {
@@ -104,41 +102,41 @@ export default class StripeTaxProvider implements ITaxProvider {
             ).toNumber(),
             code: item.tax_code,
             provider_id: this.getIdentifier(),
-            name: `Stripe-${item.tax_code}`
-          }
+            name: `Stripe-${item.tax_code}`,
+          };
         })
-      : []
+      : [];
 
     const shippingTaxLines: TaxTypes.ShippingTaxLineDTO[] = shippingLines.map(
       (i) => {
         return {
           shipping_line_id: i.shipping_line.id,
-          code: 'SHIPPING',
-          name: 'SHIPPING',
+          code: "SHIPPING",
+          name: "SHIPPING",
           provider_id: this.getIdentifier(),
           rate: MathBN.convert(
             calculation.shipping_cost.tax_breakdown[0].tax_rate_details[0]
               .percentage_decimal || 0
-          ).toNumber()
-        }
+          ).toNumber(),
+        };
       }
-    )
-    return [...itemTaxLines, ...shippingTaxLines]
+    );
+    return [...itemTaxLines, ...shippingTaxLines];
   }
 
   private async getProductTaxCode_(productId: string) {
     const {
-      data: [product]
+      data: [product],
     } = await this.remoteQuery_.graph({
-      entity: 'product',
-      fields: ['categories.tax_code.code'],
-      filters: { id: productId }
-    })
+      entity: "product",
+      fields: ["categories.tax_code.code"],
+      filters: { id: productId },
+    });
 
     if (!product || product.categories.length !== 1) {
-      return this.defaultTaxcode_
+      return this.defaultTaxcode_;
     }
 
-    return product.categories[0].tax_code?.code || this.defaultTaxcode_
+    return product.categories[0].tax_code?.code || this.defaultTaxcode_;
   }
 }
