@@ -5,7 +5,8 @@ import {
   OrderWorkflowEvents
 } from '@medusajs/framework/utils'
 
-import { ResendNotificationTemplates } from '../modules/resend/types/templates'
+import { ResendNotificationTemplates } from '@mercurjs/resend'
+
 import { Hosts, buildHostAddress } from '../shared/infra/http/utils'
 
 export default async function orderCreatedHandler({

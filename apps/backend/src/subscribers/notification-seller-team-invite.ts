@@ -2,8 +2,7 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { Modules } from '@medusajs/framework/utils'
 
 import { SellerTeamInviteEvent } from '@mercurjs/framework'
-
-import { ResendNotificationTemplates } from '../modules/resend/types/templates'
+import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 export default async function sellerTeamInviteHandler({
   event,

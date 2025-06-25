@@ -10,8 +10,7 @@ import {
   ProductRequestUpdatedEvent
 } from '@mercurjs/framework'
 import { sendVendorUIRequestNotification } from '@mercurjs/requests'
-
-import { ResendNotificationTemplates } from '../modules/resend/types/templates'
+import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 export default async function sellerProductRequestAcceptedHandler({
   event,

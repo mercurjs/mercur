@@ -5,8 +5,7 @@ import {
   RequestDTO,
   SellerAccountRequestUpdatedEvent
 } from '@mercurjs/framework'
-
-import { ResendNotificationTemplates } from '../modules/resend/types/templates'
+import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 export default async function sellerRequestAcceptedHandler({
   event,
