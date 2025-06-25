@@ -41,7 +41,7 @@ module.exports = defineConfig({
       }
     },
     {
-      resolve: './src/modules/algolia',
+      resolve: '@mercurjs/algolia',
       options: {
         apiKey: process.env.ALGOLIA_API_KEY,
         appId: process.env.ALGOLIA_APP_ID
