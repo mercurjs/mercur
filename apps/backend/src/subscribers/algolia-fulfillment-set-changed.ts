@@ -1,9 +1,10 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
+import { AlgoliaEvents, IntermediateEvents } from '@mercurjs/framework'
+
 import sellerFulfillmentSet from '../links/seller-fulfillment-set'
 import sellerProduct from '../links/seller-product'
-import { AlgoliaEvents, IntermediateEvents } from '../modules/algolia/types'
 
 export default async function fulfillmentSetChangedHandler({
   event,

@@ -2,9 +2,9 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import { SellerEvents, StoreStatus } from '@mercurjs/framework'
+import { AlgoliaEvents } from '@mercurjs/framework'
 
 import sellerProduct from '../links/seller-product'
-import { AlgoliaEvents } from '../modules/algolia/types'
 
 export default async function sellerStatusChangedHandler({
   event,

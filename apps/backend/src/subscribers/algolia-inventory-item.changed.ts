@@ -1,7 +1,7 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
-import { AlgoliaEvents, IntermediateEvents } from '../modules/algolia/types'
+import { AlgoliaEvents, IntermediateEvents } from '@mercurjs/framework'
 
 export default async function inventoryItemChangedHandler({
   event,

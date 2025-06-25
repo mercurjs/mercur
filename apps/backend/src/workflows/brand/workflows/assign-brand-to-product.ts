@@ -10,8 +10,8 @@ import {
 } from '@medusajs/medusa/core-flows'
 
 import { BRAND_MODULE } from '@mercurjs/brand'
+import { AlgoliaEvents } from '@mercurjs/framework'
 
-import { AlgoliaEvents } from '../../../modules/algolia/types'
 import { createBrandStep } from '../steps'
 
 type WorkflowData = { product_id: string; brand_name: string }

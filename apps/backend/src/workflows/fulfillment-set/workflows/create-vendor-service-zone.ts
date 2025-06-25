@@ -10,9 +10,9 @@ import {
   createServiceZonesWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import { IntermediateEvents } from '@mercurjs/framework'
 import { SELLER_MODULE } from '@mercurjs/seller'
 
-import { IntermediateEvents } from '../../../modules/algolia/types'
 import { emitMultipleEventsStep } from '../../common/steps'
 
 type WorkflowData = { seller_id: string; data: CreateServiceZoneDTO[] }

@@ -9,11 +9,10 @@ import {
   emitEventStep
 } from '@medusajs/medusa/core-flows'
 
-import { CreateReviewDTO } from '@mercurjs/framework'
+import { AlgoliaEvents, CreateReviewDTO } from '@mercurjs/framework'
 import { REVIEW_MODULE } from '@mercurjs/reviews'
 import { SELLER_MODULE } from '@mercurjs/seller'
 
-import { AlgoliaEvents } from '../../../modules/algolia/types'
 import { createReviewStep, validateReviewStep } from '../steps'
 
 export const createReviewWorkflow = createWorkflow(
