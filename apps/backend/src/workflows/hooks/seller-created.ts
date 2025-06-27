@@ -1,7 +1,8 @@
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createShippingProfilesWorkflow } from '@medusajs/medusa/core-flows'
 
-import { SELLER_MODULE } from '../../modules/seller'
+import { SELLER_MODULE } from '@mercurjs/seller'
+
 import { createSellerWorkflow } from '../seller/workflows'
 
 createSellerWorkflow.hooks.sellerCreated(

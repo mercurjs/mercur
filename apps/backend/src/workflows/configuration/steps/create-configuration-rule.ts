@@ -1,8 +1,8 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { CONFIGURATION_MODULE } from '../../../modules/configuration'
-import ConfigurationModuleService from '../../../modules/configuration/service'
-import { CreateConfigurationRuleDTO } from '../../../modules/configuration/types'
+import { CONFIGURATION_MODULE } from '@mercurjs/configuration'
+import { ConfigurationModuleService } from '@mercurjs/configuration'
+import { CreateConfigurationRuleDTO } from '@mercurjs/framework'
 
 export const createConfigurationRuleStep = createStep(
   'create-configuration-rule',

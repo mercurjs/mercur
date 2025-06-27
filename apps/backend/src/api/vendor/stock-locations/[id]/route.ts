@@ -6,7 +6,8 @@ import {
   updateStockLocationsWorkflow
 } from '@medusajs/medusa/core-flows'
 
-import { IntermediateEvents } from '../../../../modules/algolia/types'
+import { IntermediateEvents } from '@mercurjs/framework'
+
 import { VendorUpdateStockLocationType } from '../validators'
 
 /**

@@ -1,7 +1,7 @@
 import { ExecArgs } from '@medusajs/framework/types'
 
-import { TAX_CODE_MODULE } from '../modules/taxcode'
-import TaxCodeService from '../modules/taxcode/service'
+import { TAX_CODE_MODULE } from '@mercurjs/taxcode'
+import { TaxCodeService } from '@mercurjs/taxcode'
 
 export default async function seedTaxCodes({ container }: ExecArgs) {
   const taxCodeService = container.resolve<TaxCodeService>(TAX_CODE_MODULE)

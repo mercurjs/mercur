@@ -1,15 +1,17 @@
 import { ExecArgs } from '@medusajs/framework/types'
 
-import { ALGOLIA_MODULE } from '../modules/algolia'
-import AlgoliaModuleService, {
+import { ALGOLIA_MODULE } from '@mercurjs/algolia'
+import {
+  AlgoliaModuleService,
   defaultProductSettings,
   defaultReviewSettings
-} from '../modules/algolia/service'
-import { IndexType } from '../modules/algolia/types'
+} from '@mercurjs/algolia'
+import { IndexType } from '@mercurjs/framework'
+
 import {
   findAndTransformAlgoliaProducts,
   findAndTransformAlgoliaReviews
-} from '../modules/algolia/utils'
+} from '../subscribers/utils'
 
 export default async function syncExistingProductsWithAlgolia({
   container

@@ -4,8 +4,9 @@ import {
 } from '@medusajs/framework/utils'
 import { createStep } from '@medusajs/framework/workflows-sdk'
 
+import { CreateReviewDTO } from '@mercurjs/framework'
+
 import orderReview from '../../../links/order-review'
-import { CreateReviewDTO } from '../../../modules/reviews/types'
 
 export const validateReviewStep = createStep(
   'validate-review',

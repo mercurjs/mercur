@@ -5,8 +5,8 @@ import {
 } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { ResendNotificationTemplates } from '../../../modules/resend/types/templates'
-import { CreateSellerInvitationDTO } from '../../../modules/seller/types'
+import { CreateSellerInvitationDTO } from '@mercurjs/framework'
+import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 export const sendSellerInvitationEmailStep = createStep(
   'send-seller-invitation-email',

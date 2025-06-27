@@ -1,6 +1,7 @@
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { UpdateSellerDTO } from '../../../modules/seller/types'
+import { UpdateSellerDTO } from '@mercurjs/framework'
+
 import { updateSellerStep } from '../steps'
 
 export const updateSellerWorkflow = createWorkflow(

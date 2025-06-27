@@ -1,8 +1,7 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 
-import { ALGOLIA_MODULE } from '../modules/algolia'
-import AlgoliaModuleService from '../modules/algolia/service'
-import { AlgoliaEvents, IndexType } from '../modules/algolia/types'
+import { ALGOLIA_MODULE, AlgoliaModuleService } from '@mercurjs/algolia'
+import { AlgoliaEvents, IndexType } from '@mercurjs/framework'
 
 export default async function productsDeletedHandler({
   event,

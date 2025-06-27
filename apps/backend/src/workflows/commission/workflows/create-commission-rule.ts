@@ -1,6 +1,7 @@
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { CreateCommissionRuleDTO } from '../../../modules/commission/types'
+import { CreateCommissionRuleDTO } from '@mercurjs/framework'
+
 import { checkForDuplicateStep, createCommissionRuleStep } from '../steps'
 
 export const createCommissionRuleWorkflow = createWorkflow(

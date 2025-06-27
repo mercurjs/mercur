@@ -1,9 +1,9 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
-import { ProductRequestUpdatedEvent } from '../modules/requests/types'
-import { sendVendorUIRequestNotification } from '../modules/requests/utils/notifications'
-import { ResendNotificationTemplates } from '../modules/resend/types/templates'
+import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
+import { sendVendorUIRequestNotification } from '@mercurjs/requests'
+import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 export default async function sellerProductRequestRejectedHandler({
   event,

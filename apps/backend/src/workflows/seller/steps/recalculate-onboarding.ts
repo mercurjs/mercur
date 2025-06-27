@@ -3,11 +3,11 @@ import { z } from 'zod'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
+import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
+
 import sellerPayoutAccount from '../../../links/seller-payout-account'
 import sellerProduct from '../../../links/seller-product'
 import sellerStockLocation from '../../../links/seller-stock-location'
-import { SELLER_MODULE } from '../../../modules/seller'
-import SellerModuleService from '../../../modules/seller/service'
 
 export const recalculateOnboardingStep = createStep(
   'recalculate-onboarding',

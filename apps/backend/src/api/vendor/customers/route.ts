@@ -1,6 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 
-import { selectSellerCustomers } from '../../../modules/seller/utils'
+import { selectSellerCustomers } from '@mercurjs/seller'
+
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 
 /**

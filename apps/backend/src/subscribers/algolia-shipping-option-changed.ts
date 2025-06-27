@@ -1,9 +1,10 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
+import { AlgoliaEvents, IntermediateEvents } from '@mercurjs/framework'
+
 import sellerProduct from '../links/seller-product'
 import sellerShippingOption from '../links/seller-shipping-option'
-import { AlgoliaEvents, IntermediateEvents } from '../modules/algolia/types'
 
 export default async function shippingOptionChangedHandler({
   event,

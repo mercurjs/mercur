@@ -1,9 +1,8 @@
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { ALGOLIA_MODULE } from '../../../modules/algolia'
-import AlgoliaModuleService from '../../../modules/algolia/service'
-import { AlgoliaEvents, IndexType } from '../../../modules/algolia/types'
+import { ALGOLIA_MODULE, AlgoliaModuleService } from '@mercurjs/algolia'
+import { AlgoliaEvents, IndexType } from '@mercurjs/framework'
 
 const CHUNK_SIZE = 100
 

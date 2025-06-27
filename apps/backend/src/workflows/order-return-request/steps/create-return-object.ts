@@ -2,8 +2,9 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { createAndCompleteReturnOrderWorkflow } from '@medusajs/medusa/core-flows'
 
+import { OrderReturnRequestDTO } from '@mercurjs/framework'
+
 import returnRequestOrder from '../../../links/return-request-order'
-import { OrderReturnRequestDTO } from '../../../modules/order-return-request/types'
 
 export const createReturnObjectStep = createStep(
   'create-return-object',

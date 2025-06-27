@@ -1,6 +1,7 @@
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { UpdateRequestDataDTO } from '../../../modules/requests/types'
+import { UpdateRequestDataDTO } from '@mercurjs/framework'
+
 import { updateRequestDataStep } from '../steps'
 
 export const updateRequestDataWorkflow = createWorkflow(

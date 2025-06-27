@@ -5,7 +5,8 @@ import {
   PayoutAccountStatus,
   PayoutWebhookAction,
   PayoutWebhookActionAndDataResponse
-} from '../../../modules/payout/types'
+} from '@mercurjs/framework'
+
 import { updatePayoutAccountStep } from '../steps'
 
 type ProcessPayoutWebhookActionInput = {

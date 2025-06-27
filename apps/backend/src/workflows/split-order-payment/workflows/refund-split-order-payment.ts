@@ -4,7 +4,8 @@ import {
   transform
 } from '@medusajs/framework/workflows-sdk'
 
-import { RefundSplitOrderPaymentsDTO } from '../../../modules/split-order-payment/types'
+import { RefundSplitOrderPaymentsDTO } from '@mercurjs/framework'
+
 import { updateSplitOrderPaymentsStep } from '../steps'
 import { validateRefundSplitOrderPaymentStep } from '../steps/validate-refund-split-order-payment'
 import { partialPaymentRefundWorkflow } from './partial-payment-refund'

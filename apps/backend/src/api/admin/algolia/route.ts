@@ -1,8 +1,8 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 
-import { ALGOLIA_MODULE } from '../../../modules/algolia'
-import AlgoliaModuleService from '../../../modules/algolia/service'
-import { IndexType } from '../../../modules/algolia/types'
+import { ALGOLIA_MODULE, AlgoliaModuleService } from '@mercurjs/algolia'
+import { IndexType } from '@mercurjs/framework'
+
 import { syncAlgoliaWorkflow } from '../../../workflows/algolia/workflows'
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {

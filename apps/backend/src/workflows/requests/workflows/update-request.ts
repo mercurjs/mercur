@@ -6,7 +6,8 @@ import {
   transform
 } from '@medusajs/workflows-sdk'
 
-import { UpdateRequestDTO } from '../../../modules/requests/types'
+import { UpdateRequestDTO } from '@mercurjs/framework'
+
 import { updateRequestStep } from '../steps'
 
 export const updateRequestWorkflow = createWorkflow(

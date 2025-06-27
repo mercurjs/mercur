@@ -7,9 +7,10 @@ import {
 } from '@medusajs/framework'
 import { MedusaError } from '@medusajs/framework/utils'
 
-import { CONFIGURATION_MODULE } from '../../../../modules/configuration'
-import ConfigurationModuleService from '../../../../modules/configuration/service'
-import { ConfigurationRuleType } from '../../../../modules/configuration/types'
+import { CONFIGURATION_MODULE } from '@mercurjs/configuration'
+import { ConfigurationModuleService } from '@mercurjs/configuration'
+
+import { ConfigurationRuleType } from '../../../../admin/routes/configuration/types'
 
 export function getRuleValue(
   container: MedusaContainer,

@@ -11,9 +11,10 @@ import {
   useQueryGraphStep
 } from '@medusajs/medusa/core-flows'
 
+import { ATTRIBUTE_MODULE } from '@mercurjs/attribute'
+import { UpdateAttributeDTO } from '@mercurjs/framework'
+
 import attributeProductCategory from '../../../links/category-attribute'
-import { ATTRIBUTE_MODULE } from '../../../modules/attribute'
-import { UpdateAttributeDTO } from '../../../modules/attribute/types'
 import { updateAttributesStep } from '../steps'
 
 const updateAttributesWorkflowId = 'update-attributes'

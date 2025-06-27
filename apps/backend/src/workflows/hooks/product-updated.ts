@@ -1,8 +1,9 @@
 import { Modules } from '@medusajs/framework/utils'
 import { updateProductsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { AlgoliaEvents } from '../../modules/algolia/types'
-import { productsUpdatedHookHandler } from '../../modules/attribute/utils/products-updated-handler'
+import { AlgoliaEvents } from '@mercurjs/framework'
+
+import { productsUpdatedHookHandler } from '../attribute/utils'
 
 updateProductsWorkflow.hooks.productsUpdated(
   async ({ products, additional_data }, { container }) => {

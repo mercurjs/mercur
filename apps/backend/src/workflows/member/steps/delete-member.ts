@@ -1,9 +1,8 @@
 import { MedusaError } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { SELLER_MODULE } from '../../../modules/seller'
-import SellerModuleService from '../../../modules/seller/service'
-import { MemberRole } from '../../../modules/seller/types'
+import { MemberRole } from '@mercurjs/framework'
+import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
 export const deleteMemberStep = createStep(
   'delete-member',

@@ -1,6 +1,7 @@
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { AcceptRequestDTO } from '../../../modules/requests/types'
+import { AcceptRequestDTO } from '@mercurjs/framework'
+
 import { deleteReviewWorkflow } from '../../review/workflows'
 import { updateRequestWorkflow } from './update-request'
 

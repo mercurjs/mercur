@@ -1,8 +1,8 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { REQUESTS_MODULE } from '../modules/requests'
-import RequestsModuleService from '../modules/requests/service'
+import { REQUESTS_MODULE, RequestsModuleService } from '@mercurjs/requests'
+
 import { updateRequestWorkflow } from '../workflows/requests/workflows'
 
 export default async function productUpdatedHandler({

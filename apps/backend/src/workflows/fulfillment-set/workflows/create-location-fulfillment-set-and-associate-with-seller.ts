@@ -6,7 +6,7 @@ import {
 } from '@medusajs/medusa/core-flows'
 import { createWorkflow } from '@medusajs/workflows-sdk'
 
-import { SELLER_MODULE } from '../../../modules/seller'
+import { SELLER_MODULE } from '@mercurjs/seller'
 
 type CreateFulfillmentSetAndAssociateWithSellerInput = {
   location_id: string

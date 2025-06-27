@@ -9,8 +9,9 @@ import {
   emitEventStep
 } from '@medusajs/medusa/core-flows'
 
-import { AlgoliaEvents } from '../../../modules/algolia/types'
-import { BRAND_MODULE } from '../../../modules/brand'
+import { BRAND_MODULE } from '@mercurjs/brand'
+import { AlgoliaEvents } from '@mercurjs/framework'
+
 import { createBrandStep } from '../steps'
 
 type WorkflowData = { product_id: string; brand_name: string }

@@ -16,11 +16,14 @@ import {
   updateStoresWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import {
+  CONFIGURATION_MODULE,
+  ConfigurationModuleService,
+  ConfigurationRuleDefaults
+} from '@mercurjs/configuration'
+import { SELLER_MODULE } from '@mercurjs/seller'
+
 import sellerShippingProfile from '../../links/seller-shipping-profile'
-import { CONFIGURATION_MODULE } from '../../modules/configuration'
-import { ConfigurationRuleDefaults } from '../../modules/configuration/service'
-import ConfigurationModuleService from '../../modules/configuration/service'
-import { SELLER_MODULE } from '../../modules/seller'
 import { createCommissionRuleWorkflow } from '../../workflows/commission/workflows'
 import { createConfigurationRuleWorkflow } from '../../workflows/configuration/workflows'
 import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../workflows/fulfillment-set/workflows'

@@ -6,7 +6,8 @@ import {
   createWorkflow
 } from '@medusajs/workflows-sdk'
 
-import { CreateMemberDTO, CreateSellerDTO } from '../../../modules/seller/types'
+import { CreateMemberDTO, CreateSellerDTO } from '@mercurjs/framework'
+
 import { createMemberStep } from '../../member/steps'
 import { createSellerOnboardingStep, createSellerStep } from '../steps'
 

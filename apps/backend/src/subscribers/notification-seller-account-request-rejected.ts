@@ -1,9 +1,11 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { Modules } from '@medusajs/framework/utils'
 
-import { RequestDTO } from '../modules/requests/types'
-import { SellerAccountRequestUpdatedEvent } from '../modules/requests/types/events'
-import { ResendNotificationTemplates } from '../modules/resend/types/templates'
+import {
+  RequestDTO,
+  SellerAccountRequestUpdatedEvent
+} from '@mercurjs/framework'
+import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 export default async function sellerRequestRejectedHandler({
   event,

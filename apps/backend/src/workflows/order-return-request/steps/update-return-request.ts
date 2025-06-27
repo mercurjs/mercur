@@ -1,12 +1,14 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { ORDER_RETURN_MODULE } from '../../../modules/order-return-request'
-import OrderReturnModuleService from '../../../modules/order-return-request/service'
 import {
   AdminUpdateOrderReturnRequestDTO,
   OrderReturnRequestDTO,
   VendorUpdateOrderReturnRequestDTO
-} from '../../../modules/order-return-request/types'
+} from '@mercurjs/framework'
+import {
+  ORDER_RETURN_MODULE,
+  OrderReturnModuleService
+} from '@mercurjs/order-return-request'
 
 export const updateOrderReturnRequestStep = createStep(
   'update-order-return-request',

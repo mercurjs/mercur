@@ -4,8 +4,9 @@ import {
 } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
+import { CreateOrderReturnRequestDTO } from '@mercurjs/framework'
+
 import returnRequestOrder from '../../../links/return-request-order'
-import { CreateOrderReturnRequestDTO } from '../../../modules/order-return-request/types'
 import { listSellerReturnShippingOptionsForOrderWorkflow } from '../../cart/workflows'
 
 export const validateOrderReturnRequestStep = createStep(

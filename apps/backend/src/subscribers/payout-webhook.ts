@@ -1,11 +1,12 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 
-import { PAYOUT_MODULE } from '../modules/payout'
-import PayoutModuleService from '../modules/payout/service'
 import {
   PayoutWebhookActionPayload,
   PayoutWebhookEvents
-} from '../modules/payout/types'
+} from '@mercurjs/framework'
+import { PAYOUT_MODULE } from '@mercurjs/payout'
+import { PayoutModuleService } from '@mercurjs/payout'
+
 import { processPayoutWebhookActionWorkflow } from '../workflows/payout/workflows'
 
 type SerializedBuffer = {

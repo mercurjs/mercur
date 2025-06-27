@@ -1,7 +1,7 @@
 import { Modules } from '@medusajs/framework/utils'
 import { updateCollectionsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { AlgoliaEvents } from '../../modules/algolia/types/events'
+import { AlgoliaEvents } from '@mercurjs/framework'
 
 updateCollectionsWorkflow.hooks.collectionsUpdated(
   async ({ collections }, { container }) => {

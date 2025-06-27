@@ -1,11 +1,13 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { SPLIT_ORDER_PAYMENT_MODULE } from '../../../modules/split-order-payment'
-import SplitOrderPaymentModuleService from '../../../modules/split-order-payment/service'
 import {
   SplitOrderPaymentDTO,
   UpdateSplitOrderPaymentsDTO
-} from '../../../modules/split-order-payment/types'
+} from '@mercurjs/framework'
+import {
+  SPLIT_ORDER_PAYMENT_MODULE,
+  SplitOrderPaymentModuleService
+} from '@mercurjs/split-order-payment'
 
 export const updateSplitOrderPaymentsStep = createStep(
   'update-split-order-payments',

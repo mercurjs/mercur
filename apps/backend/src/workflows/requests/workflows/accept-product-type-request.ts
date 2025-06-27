@@ -4,7 +4,8 @@ import {
 } from '@medusajs/framework/workflows-sdk'
 import { createProductTypesWorkflow } from '@medusajs/medusa/core-flows'
 
-import { AcceptRequestDTO } from '../../../modules/requests/types'
+import { AcceptRequestDTO } from '@mercurjs/framework'
+
 import { updateRequestWorkflow } from './update-request'
 
 export const acceptProductTypeRequestWorkflow = createWorkflow(
