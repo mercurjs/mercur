@@ -5764,6 +5764,13 @@
   dependencies:
     "@swc/counter" "^0.1.3"
 
+"@talkjs/react@^0.1.11":
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/@talkjs/react/-/react-0.1.11.tgz#541296c677c57af3f8468cf14372bb2ee245eb53"
+  integrity sha512-ZJ6vL7Qz5DfPiLZZeISLDXDCpYCdsDQXxR9t8ohNuQ0m1gWqjvaYA8btBZoUYI1dADtgegyVzlu4jZkXkNP1Vg==
+  dependencies:
+    fast-deep-equal "^3.1.3"
+
 "@tanstack/query-core@5.64.2":
   version "5.64.2"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.64.2.tgz#be06e7c7966d14ea3e7c82bea1086b463f2f6809"
@@ -12798,6 +12805,11 @@ tailwindcss@^3.3.6:
     postcss-selector-parser "^6.1.2"
     resolve "^1.22.8"
     sucrase "^3.35.0"
+
+talkjs@^0.38.0:
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/talkjs/-/talkjs-0.38.0.tgz#ae6657ea5da00637135f81572e7d6809fe868cfb"
+  integrity sha512-b1FlKxRwrIXwtwhm+sDPw/agTlJCxCXiaaE+ZgGIW45GwfWPIHsymSDv5hucVwOCGWh2W2hZPLUAkLvt2BDB5g==
 
 tarn@^3.0.2:
   version "3.0.2"
