@@ -3,6 +3,7 @@
     "lib": ["ES2021"],
     "target": "ES2021",
     "outDir": "${configDir}/dist",
+    "jsx": "react-jsx",
     "esModuleInterop": true,
     "declaration": true,
     "declarationMap": true,
