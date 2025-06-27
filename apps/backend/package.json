@@ -35,11 +35,13 @@
     "@mikro-orm/knex": "6.4.3",
     "@mikro-orm/migrations": "6.4.3",
     "@mikro-orm/postgresql": "6.4.3",
+    "@talkjs/react": "^0.1.11",
     "algoliasearch": "^5.20.2",
     "awilix": "^8.0.1",
     "pg": "^8.13.0",
     "resend": "^4.1.2",
-    "stripe": "^17.4.0"
+    "stripe": "^17.4.0",
+    "talkjs": "^0.38.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
