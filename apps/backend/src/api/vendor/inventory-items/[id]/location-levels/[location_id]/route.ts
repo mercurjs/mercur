@@ -34,7 +34,7 @@ import { VendorUpdateInventoryLevelType } from '../../../validators'
  *   "202":
  *     description: Accepted
  * tags:
- *   - Product
+ *   - Vendor Inventory Items
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -102,7 +102,7 @@ export const POST = async (
  *   "200":
  *     description: Inventory level
  * tags:
- *   - Product
+ *   - Vendor Inventory Items
  * security:
  *   - api_token: []
  *   - cookie_auth: []

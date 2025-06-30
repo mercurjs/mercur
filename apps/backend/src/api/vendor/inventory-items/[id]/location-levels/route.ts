@@ -23,7 +23,7 @@ import { VendorCreateInventoryLocationLevelType } from '../../validators'
  *   "200":
  *     description: Ok
  * tags:
- *   - Product
+ *   - Vendor Inventory Items
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -69,7 +69,7 @@ export const GET = async (
  *   "201":
  *     description: Ok
  * tags:
- *   - Product
+ *   - Vendor Inventory Items
  * security:
  *   - api_token: []
  *   - cookie_auth: []

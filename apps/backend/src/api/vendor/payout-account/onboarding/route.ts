@@ -27,7 +27,7 @@ import { VendorCreateOnboardingType } from '../validators'
  *             payout_account:
  *               $ref: "#/components/schemas/VendorPayoutAccount"
  * tags:
- *   - Payment Account
+ *   - Vendor Payout Account
  * security:
  *   - api_token: []
  *   - cookie_auth: []
