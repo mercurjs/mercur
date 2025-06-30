@@ -142,3 +142,39 @@
  *     type: string
  *     description: Aggregated fee value
  */
+
+/**
+ * @schema AdminCommissionLine
+ * title: "CommissionLine"
+ * description: "Commission line object"
+ * properties:
+ *   id:
+ *     type: string
+ *     description: The unique identifier of the commission line.
+ *   item_line_id:
+ *     type: string
+ *     description: The ID of the order item line this commission applies to.
+ *   rule_id:
+ *     type: string
+ *     description: The ID of the commission rule that generated this line.
+ *   currency_code:
+ *     type: string
+ *     description: The currency code for the commission value.
+ *   value:
+ *     type: number
+ *     description: The commission amount.
+ *   created_at:
+ *     type: string
+ *     format: date-time
+ *     description: The date with timezone at which the resource was created.
+ *   updated_at:
+ *     type: string
+ *     format: date-time
+ *     description: The date with timezone at which the resource was last updated.
+ *   order:
+ *     type: object
+ *     description: The order associated with this commission line (when expanded).
+ *   rule:
+ *     type: object
+ *     description: The commission rule associated with this line (when expanded).
+ */
