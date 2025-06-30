@@ -24,7 +24,7 @@
 
 Mercur is a platform to start, customize, manage, and scale your marketplace for every business model with a modern technology stack.
 
-## Announcing Mercur 1.0 
+## Announcing Mercur 1.0
 
 After months of development, testing, and close collaboration with early adopters, we’re excited to announce the official release of **Mercur 1.0** - the first truly limitless marketplace platform. Version 1.0 is fully open source and ready to be self-hosted, giving you **full control over infrastructure, customizations, and data**.
 
@@ -80,6 +80,9 @@ cd mercur
 
 # Install dependencies
 yarn install
+
+# Build packages
+yarn build
 
 # Go to backend folder
 cd apps/backend
