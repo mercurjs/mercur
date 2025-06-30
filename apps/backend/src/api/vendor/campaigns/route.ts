@@ -117,7 +117,7 @@ export const GET = async (
  *             campaign:
  *               $ref: "#/components/schemas/VendorCampaign"
  * tags:
- *   - Promotion
+ *   - Vendor Campaigns
  * security:
  *   - api_token: []
  *   - cookie_auth: []

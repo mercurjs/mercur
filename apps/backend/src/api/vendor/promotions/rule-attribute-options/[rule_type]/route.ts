@@ -48,7 +48,7 @@ import { getRuleAttributesMap } from '../../utils'
  *   - cookie_auth: []
  *   - jwt_token: []
  * tags:
- *   - Promotions
+ *   - Vendor Promotions
  * responses:
  *   "200":
  *     description: OK

@@ -36,7 +36,6 @@ import { VendorUpdateReviewType } from '../../../validators'
  *               $ref: "#/components/schemas/Review"
  * tags:
  *   - Vendor Reviews
- *   - Review
  * security:
  *   - api_token: []
  *   - cookie_auth: []

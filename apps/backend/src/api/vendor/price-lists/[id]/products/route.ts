@@ -58,7 +58,7 @@ import { VendorUpdateProductsOnPriceListType } from '../../validators'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Price Lists
+ *   - Vendor Price Lists
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -144,7 +144,7 @@ export const GET = async (
  *             price_list:
  *               $ref: "#/components/schemas/VendorPriceList"
  * tags:
- *   - Price Lists
+ *   - Vendor Price Lists
  * security:
  *   - api_token: []
  *   - cookie_auth: []

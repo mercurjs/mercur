@@ -39,7 +39,7 @@ import { VendorAssignBrandNameType } from '../../validators'
  *             product:
  *               $ref: "#/components/schemas/VendorProduct"
  * tags:
- *   - Product
+ *   - Vendor Products
  * security:
  *   - api_token: []
  *   - cookie_auth: []

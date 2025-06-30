@@ -44,7 +44,7 @@ import { VendorCreateStockLocationFulfillmentSetType } from '../../validators'
  *             stock_location:
  *               $ref: "#/components/schemas/VendorStockLocation"
  * tags:
- *   - Stock Location
+ *   - Vendor Stock Locations
  * security:
  *   - api_token: []
  *   - cookie_auth: []

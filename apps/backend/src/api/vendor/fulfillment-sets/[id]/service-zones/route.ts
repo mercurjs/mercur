@@ -34,7 +34,7 @@ import { VendorCreateServiceZoneType } from '../../validators'
  *             fulfillment_set:
  *               $ref: "#/components/schemas/VendorFulfillmentSet"
  * tags:
- *   - Fulfillment Set
+ *   - Vendor Fulfillment Sets
  * security:
  *   - api_token: []
  *   - cookie_auth: []
