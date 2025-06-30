@@ -9,7 +9,7 @@ import { StoreGetReturnShippingOptionsParamsType } from '../validators'
  * summary: "Get Return Shipping Options"
  * description: "Retrieves a list of return shipping options for a specific order"
  * tags:
- *   - Shipping Options
+ *   - Store Shipping Options
  * parameters:
  *   - name: order_id
  *     in: query

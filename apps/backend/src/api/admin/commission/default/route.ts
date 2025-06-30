@@ -35,7 +35,7 @@ import {
  *             commission_rule:
  *               $ref: "#/components/schemas/AdminCommissionRule"
  * tags:
- *   - Admin
+ *   - Admin Commission
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -95,7 +95,7 @@ export async function POST(
  *             commission_rule:
  *               $ref: "#/components/schemas/AdminCommissionAggregate"
  * tags:
- *   - Admin
+ *   - Admin Commission
  * security:
  *   - api_token: []
  *   - cookie_auth: []

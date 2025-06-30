@@ -53,7 +53,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *               type: integer
  *               description: The number of reviews per page
  * tags:
- *   - Admin
+ *   - Admin Reviews
  * security:
  *   - api_token: []
  *   - cookie_auth: []

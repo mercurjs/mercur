@@ -57,7 +57,7 @@ import { getFormattedOrderSetListWorkflow } from '../../../workflows/order-set/w
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Admin
+ *   - Admin Order Sets
  * security:
  *   - api_token: []
  *   - cookie_auth: []

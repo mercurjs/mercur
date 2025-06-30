@@ -52,7 +52,7 @@ import { HttpTypes } from '@medusajs/framework/types'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Admin
+ *   - Admin Notifications
  * security:
  *   - api_token: []
  *   - cookie_auth: []

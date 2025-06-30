@@ -54,7 +54,7 @@ import {
  *               type: string
  *               example: "Attribute with id 'attr_123' not found"
  * tags:
- *   - Admin
+ *   - Admin Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -166,7 +166,7 @@ export const GET = async (
  *               type: string
  *               example: "Attribute with id 'attr_123' not found"
  * tags:
- *   - Admin
+ *   - Admin Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -254,7 +254,7 @@ export const POST = async (
  *               type: boolean
  *               example: true
  * tags:
- *   - Admin
+ *   - Admin Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []

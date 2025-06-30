@@ -70,7 +70,7 @@ import { AdminGetSellerOrdersParamsType } from '../../validators'
  *               type: string
  *               example: "Seller not found"
  * tags:
- *   - Admin
+ *   - Admin Sellers
  * security:
  *   - api_token: []
  *   - cookie_auth: []

@@ -104,7 +104,7 @@ import {
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Admin
+ *   - Admin Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -223,7 +223,7 @@ export const GET = async (
  *               type: string
  *               example: "Possible values are required when ui_component is SELECT"
  * tags:
- *   - Admin
+ *   - Admin Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []

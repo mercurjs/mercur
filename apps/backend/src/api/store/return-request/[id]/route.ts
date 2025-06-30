@@ -33,7 +33,7 @@ import { storeReturnOrderRequestFields } from '../query-config'
  *             orderReturnRequest:
  *               $ref: "#/components/schemas/OrderReturnRequest"
  * tags:
- *   - OrderReturnRequest
+ *   - Store Return Request
  * security:
  *   - api_token: []
  *   - cookie_auth: []

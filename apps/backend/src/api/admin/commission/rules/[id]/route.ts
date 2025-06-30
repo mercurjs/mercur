@@ -40,7 +40,7 @@ import { AdminUpdateCommissionRuleType } from '../../validators'
  *             commission_rule:
  *               $ref: "#/components/schemas/AdminCommissionRule"
  * tags:
- *   - Admin
+ *   - Admin Commission
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -102,7 +102,7 @@ export async function POST(
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Admin
+ *   - Admin Commission
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -147,7 +147,7 @@ export async function DELETE(
  *             commission_rule:
  *               $ref: "#/components/schemas/AdminCommissionAggregate"
  * tags:
- *   - Admin
+ *   - Admin Commission
  * security:
  *   - api_token: []
  *   - cookie_auth: []

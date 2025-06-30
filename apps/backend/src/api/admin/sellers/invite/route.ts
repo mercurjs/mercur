@@ -47,7 +47,7 @@ import { AdminInviteSellerType } from '../validators'
  *               type: string
  *               example: "Invalid email format"
  * tags:
- *   - Admin
+ *   - Admin Sellers
  * security:
  *   - api_token: []
  *   - cookie_auth: []

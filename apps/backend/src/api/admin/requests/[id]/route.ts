@@ -40,7 +40,7 @@ import { AdminReviewRequestType } from '../validators'
  *               type: string
  *               enum: [accepted,rejected]
  * tags:
- *   - Admin
+ *   - Admin Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -142,7 +142,7 @@ export async function POST(
  *             request:
  *               $ref: "#/components/schemas/AdminRequest"
  * tags:
- *   - Admin
+ *   - Admin Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []

@@ -53,7 +53,7 @@ import {
  *               type: string
  *               example: "Attribute possible value not found"
  * tags:
- *   - Admin
+ *   - Admin Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -138,7 +138,7 @@ export const GET = async (
  *               type: string
  *               example: "Attribute possible value not found"
  * tags:
- *   - Admin
+ *   - Admin Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []

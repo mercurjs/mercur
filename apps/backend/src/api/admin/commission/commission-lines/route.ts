@@ -70,7 +70,7 @@ import { AdminGetCommissionLinesParamsType } from '../validators'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Admin
+ *   - Admin Commission
  * security:
  *   - api_token: []
  *   - cookie_auth: []

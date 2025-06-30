@@ -31,7 +31,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *             review:
  *               $ref: "#/components/schemas/Review"
  * tags:
- *   - Admin
+ *   - Admin Reviews
  * security:
  *   - api_token: []
  *   - cookie_auth: []

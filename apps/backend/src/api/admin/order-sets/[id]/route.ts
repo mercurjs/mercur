@@ -42,7 +42,7 @@ import { getFormattedOrderSetListWorkflow } from '../../../../workflows/order-se
  *               type: string
  *               example: "Order set not found"
  * tags:
- *   - Admin
+ *   - Admin Order Sets
  * security:
  *   - api_token: []
  *   - cookie_auth: []

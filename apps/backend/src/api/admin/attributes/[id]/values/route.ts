@@ -60,7 +60,7 @@ import {
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Admin
+ *   - Admin Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -131,7 +131,7 @@ export const GET = async (
  *             attribute_possible_value:
  *               $ref: "#/components/schemas/AttributePossibleValue"
  * tags:
- *   - Admin
+ *   - Admin Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []

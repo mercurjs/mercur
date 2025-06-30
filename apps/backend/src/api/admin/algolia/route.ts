@@ -24,7 +24,7 @@ import { syncAlgoliaWorkflow } from '../../../workflows/algolia/workflows'
  *               description: Confirmation message that sync is in progress
  *               example: "Sync in progress"
  * tags:
- *   - Admin
+ *   - Admin Algolia
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -66,7 +66,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
  *                   type: string
  *                   description: The name of the product index
  * tags:
- *   - Admin
+ *   - Admin Algolia
  * security:
  *   - api_token: []
  *   - cookie_auth: []
