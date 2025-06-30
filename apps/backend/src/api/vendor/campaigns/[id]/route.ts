@@ -37,7 +37,7 @@ import { VendorUpdateCampaignType } from '../validators'
  *             campaign:
  *               $ref: "#/components/schemas/VendorCampaign"
  * tags:
- *   - Promotion
+ *   - Vendor Campaigns
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -92,7 +92,7 @@ export const GET = async (
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Promotion
+ *   - Vendor Campaigns
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -146,7 +146,7 @@ export const DELETE = async (
  *             campaign:
  *               $ref: "#/components/schemas/VendorCampaign"
  * tags:
- *   - Promotion
+ *   - Vendor Campaigns
  * security:
  *   - api_token: []
  *   - cookie_auth: []

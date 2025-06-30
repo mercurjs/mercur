@@ -94,7 +94,7 @@ import { VendorGetOrderParamsType } from './validators'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Order
+ *   - Vendor Orders
  * security:
  *   - api_token: []
  *   - cookie_auth: []

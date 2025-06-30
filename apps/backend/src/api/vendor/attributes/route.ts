@@ -73,7 +73,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Vendor
+ *   - Vendor Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []

@@ -34,7 +34,7 @@ import {
  *             shipping_option:
  *               $ref: "#/components/schemas/VendorShippingOption"
  * tags:
- *   - Shipping Option
+ *   - Vendor Shipping Options
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -118,7 +118,7 @@ export const POST = async (
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Shipping Option
+ *   - Vendor Shipping Options
  * security:
  *   - api_token: []
  *   - cookie_auth: []

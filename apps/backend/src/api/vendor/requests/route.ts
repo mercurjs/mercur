@@ -41,7 +41,7 @@ import { VendorCreateRequestType } from './validators'
  *               type: integer
  *               description: The number of requests per page
  * tags:
- *   - Requests
+ *   - Vendor Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -94,7 +94,7 @@ export const GET = async (
  *             request:
  *               $ref: "#/components/schemas/VendorRequest"
  * tags:
- *   - Requests
+ *   - Vendor Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []

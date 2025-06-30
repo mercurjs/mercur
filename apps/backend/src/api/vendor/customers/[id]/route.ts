@@ -25,7 +25,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *             customer:
  *               $ref: "#/components/schemas/VendorCustomer"
  * tags:
- *   - Seller
+ *   - Vendor Customers
  * security:
  *   - api_token: []
  *   - cookie_auth: []

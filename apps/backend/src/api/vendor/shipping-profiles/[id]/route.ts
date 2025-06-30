@@ -36,7 +36,7 @@ import { VendorUpdateShippingProfileType } from '../validators'
  *             shipping_profile:
  *               $ref: "#/components/schemas/VendorShippingProfile"
  * tags:
- *   - Shipping
+ *   - Vendor Shipping Profiles
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -94,7 +94,7 @@ export const GET = async (
  *             shipping_profile:
  *               $ref: "#/components/schemas/VendorShippingProfile"
  * tags:
- *   - Shipping
+ *   - Vendor Shipping Profiles
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -155,7 +155,7 @@ export const POST = async (
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Shipping
+ *   - Vendor Shipping Profiles
  * security:
  *   - api_token: []
  *   - cookie_auth: []

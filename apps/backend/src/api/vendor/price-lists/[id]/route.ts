@@ -31,7 +31,7 @@ import { VendorUpdatePriceListType } from '../validators'
  *             price_list:
  *               $ref: "#/components/schemas/VendorPriceList"
  * tags:
- *   - Price Lists
+ *   - Vendor Price Lists
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -90,7 +90,7 @@ export const GET = async (
  *             price_list:
  *               $ref: "#/components/schemas/VendorPriceList"
  * tags:
- *   - Price Lists
+ *   - Vendor Price Lists
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -150,7 +150,7 @@ export const POST = async (
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Price Lists
+ *   - Vendor Price Lists
  * security:
  *   - api_token: []
  *   - cookie_auth: []

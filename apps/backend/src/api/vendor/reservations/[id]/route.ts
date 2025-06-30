@@ -45,7 +45,7 @@ import { VendorUpdateReservationType } from '../validators'
  *             reservation:
  *               $ref: "#/components/schemas/VendorReservation"
  * tags:
- *   - Reservations
+ *   - Vendor Reservations
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -105,7 +105,7 @@ export const GET = async (
  *             reservation:
  *               $ref: "#/components/schemas/VendorReservation"
  * tags:
- *   - Reservations
+ *   - Vendor Reservations
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -192,7 +192,7 @@ export const POST = async (
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Reservations
+ *   - Vendor Reservations
  * security:
  *   - api_token: []
  *   - cookie_auth: []

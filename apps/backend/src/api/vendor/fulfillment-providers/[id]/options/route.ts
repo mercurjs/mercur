@@ -32,7 +32,7 @@ import { Modules } from '@medusajs/framework/utils'
  *                     is_return:
  *                       type: boolean
  * tags:
- *   - Stock Location
+ *   - Vendor Fulfillment Providers
  * security:
  *   - api_token: []
  *   - cookie_auth: []

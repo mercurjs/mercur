@@ -53,7 +53,7 @@ import { VendorCreateCampaignType } from './validators'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Promotion
+ *   - Vendor Campaigns
  * security:
  *   - api_token: []
  *   - cookie_auth: []

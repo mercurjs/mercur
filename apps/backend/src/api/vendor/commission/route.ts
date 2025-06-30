@@ -80,7 +80,7 @@ import { listCommissionLinesWorkflow } from '../../../workflows/commission/workf
  *               type: string
  *               example: "Forbidden"
  * tags:
- *   - Vendor
+ *   - Vendor Commission
  * security:
  *   - api_token: []
  *   - cookie_auth: []

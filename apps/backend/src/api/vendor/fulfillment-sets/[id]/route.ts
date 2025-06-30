@@ -37,7 +37,7 @@ import { IntermediateEvents } from '@mercurjs/framework'
  *               description: Whether or not the items were deleted.
  *               default: true
  * tags:
- *   - Fulfillment Set
+ *   - Vendor Fulfillment Sets
  * security:
  *   - api_token: []
  *   - cookie_auth: []

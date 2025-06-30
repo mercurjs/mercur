@@ -83,7 +83,7 @@ import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
  *               type: string
  *               example: "Forbidden"
  * tags:
- *   - Vendor
+ *   - Vendor Notifications
  * security:
  *   - api_token: []
  *   - cookie_auth: []

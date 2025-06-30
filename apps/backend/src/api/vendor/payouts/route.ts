@@ -85,7 +85,7 @@ import sellerPayoutAccount from '../../../links/seller-payout-account'
  *               type: string
  *               example: "Payout account is not connected to the seller"
  * tags:
- *   - Vendor
+ *   - Vendor Payouts
  * security:
  *   - api_token: []
  *   - cookie_auth: []

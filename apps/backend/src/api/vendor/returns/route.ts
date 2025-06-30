@@ -50,7 +50,7 @@ import sellerReturn from '../../../links/seller-return'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Return
+ *   - Vendor Returns
  * security:
  *   - api_token: []
  *   - cookie_auth: []

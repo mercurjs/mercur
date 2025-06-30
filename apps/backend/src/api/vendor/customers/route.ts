@@ -48,7 +48,7 @@ import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Seller
+ *   - Vendor Customers
  * security:
  *   - api_token: []
  *   - cookie_auth: []

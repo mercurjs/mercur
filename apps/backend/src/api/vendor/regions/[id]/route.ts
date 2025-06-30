@@ -30,7 +30,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *             region:
  *               $ref: "#/components/schemas/VendorRegion"
  * tags:
- *   - Region
+ *   - Vendor Regions
  * security:
  *   - api_token: []
  *   - cookie_auth: []

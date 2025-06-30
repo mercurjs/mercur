@@ -38,7 +38,7 @@ import sellerReturnRequest from '../../../links/seller-return-request'
  *               type: integer
  *               description: The number of requests per page
  * tags:
- *   - OrderReturnRequest
+ *   - Vendor Return Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []

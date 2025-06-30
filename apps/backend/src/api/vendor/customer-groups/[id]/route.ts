@@ -36,7 +36,7 @@ import { VendorCreateCustomerGroupType } from '../validators'
  *             member:
  *               $ref: "#/components/schemas/VendorCustomerGroup"
  * tags:
- *   - Seller
+ *   - Vendor Customer Groups
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -91,7 +91,7 @@ export const GET = async (
  *             customer_group:
  *               $ref: "#/components/schemas/VendorCustomerGroup"
  * tags:
- *   - Seller
+ *   - Vendor Customer Groups
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -157,7 +157,7 @@ export const POST = async (
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Seller
+ *   - Vendor Customer Groups
  * security:
  *   - api_token: []
  *   - cookie_auth: []

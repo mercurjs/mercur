@@ -36,7 +36,7 @@ import { VendorCreateShippingProfileType } from './validators'
  *             shipping_profile:
  *               $ref: "#/components/schemas/VendorShippingProfile"
  * tags:
- *   - Shipping
+ *   - Vendor Shipping Profiles
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -112,7 +112,7 @@ export const POST = async (
  *               items:
  *                 $ref: "#/components/schemas/VendorShippingProfile"
  * tags:
- *   - Shipping
+ *   - Vendor Shipping Profiles
  * security:
  *   - api_token: []
  *   - cookie_auth: []

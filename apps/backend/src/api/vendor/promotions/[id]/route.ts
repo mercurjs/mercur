@@ -36,7 +36,7 @@ import { VendorUpdatePromotionType } from '../validators'
  *             promotion:
  *               $ref: "#/components/schemas/VendorPromotion"
  * tags:
- *   - Promotion
+ *   - Vendor Promotions
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -91,7 +91,7 @@ export const GET = async (
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Promotion
+ *   - Vendor Promotions
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -139,7 +139,7 @@ export const DELETE = async (
  *             promotion:
  *               $ref: "#/components/schemas/VendorPromotion"
  * tags:
- *   - Promotion
+ *   - Vendor Promotions
  * security:
  *   - api_token: []
  *   - cookie_auth: []

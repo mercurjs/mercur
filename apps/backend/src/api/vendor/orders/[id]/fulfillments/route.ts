@@ -32,7 +32,7 @@ import { VendorCreateFulfillmentType } from '../../validators'
  *             fulfillment:
  *               $ref: "#/components/schemas/VendorOrderFulfillment"
  * tags:
- *   - Order
+ *   - Vendor Orders
  * security:
  *   - api_token: []
  *   - cookie_auth: []

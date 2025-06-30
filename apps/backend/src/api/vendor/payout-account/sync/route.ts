@@ -53,7 +53,7 @@ import { syncStripeAccountWorkflow } from '../../../../workflows/seller/workflow
  *               type: string
  *               example: "Payout account not found"
  * tags:
- *   - Vendor
+ *   - Vendor Payout Account
  * security:
  *   - api_token: []
  *   - cookie_auth: []

@@ -41,7 +41,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *               type: string
  *               example: "Attribute not found"
  * tags:
- *   - Vendor
+ *   - Vendor Attributes
  * security:
  *   - api_token: []
  *   - cookie_auth: []

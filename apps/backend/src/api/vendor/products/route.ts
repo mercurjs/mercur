@@ -66,7 +66,7 @@ import {
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Product
+ *   - Vendor Products
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -114,7 +114,7 @@ export const GET = async (
  *             product:
  *               $ref: "#/components/schemas/VendorProduct"
  * tags:
- *   - Product
+ *   - Vendor Products
  * security:
  *   - api_token: []
  *   - cookie_auth: []
