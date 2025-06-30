@@ -70,3 +70,4 @@ export const useUpdateProduct = (
     ...options
   })
 }
+

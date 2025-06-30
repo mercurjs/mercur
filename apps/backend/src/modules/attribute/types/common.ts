@@ -1,10 +1,10 @@
 export enum AttributeUIComponent {
   SELECT = 'select',
-  // MULTIVALUE = 'multivalue',
+  MULTIVALUE = 'multivalue',
   UNIT = 'unit',
   TOGGLE = 'toggle',
-  TEXTAREA = 'text_area'
-  // COLOR_PICKER = 'color_picker'
+  TEXTAREA = 'text_area',
+  COLOR_PICKER = 'color_picker'
 }
 
 export interface ProductAttributeValueDTO {
