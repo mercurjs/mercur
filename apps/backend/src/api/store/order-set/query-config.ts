@@ -30,7 +30,8 @@ export const defaultStoreRetrieveOrderSetFields = [
   'orders.shipping_tax_total',
   'orders.shipping_address.*',
   'orders.items.*',
-  'orders.seller.*'
+  'orders.seller.*',
+  'orders.fulfillments.labels.*'
 ]
 
 export const orderSetQueryConfig = {

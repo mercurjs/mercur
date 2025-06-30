@@ -8,7 +8,7 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER)
-  const { TALK_JS_APP_ID, TALK_JS_SECRET_API_KEY } = process.env
+  const { VITE_TALK_JS_APP_ID, VITE_TALK_JS_SECRET_API_KEY } = process.env
 
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,
@@ -17,10 +17,10 @@ export const GET = async (
 
   try {
     const response = await fetch(
-      `https://api.talkjs.com/v1/${TALK_JS_APP_ID}/users/${seller.id}/conversations`,
+      `https://api.talkjs.com/v1/${VITE_TALK_JS_APP_ID}/users/${seller.id}/conversations`,
       {
         headers: {
-          Authorization: `Bearer ${TALK_JS_SECRET_API_KEY}`
+          Authorization: `Bearer ${VITE_TALK_JS_SECRET_API_KEY}`
         }
       }
     )
