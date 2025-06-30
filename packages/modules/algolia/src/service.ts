@@ -48,16 +48,6 @@ class AlgoliaModuleService {
     });
   }
 
-  getAppId() {
-    return this.options_.appId
-  }
-
-  checkIndex(index: IndexType) {
-    return this.algolia_.indexExists({
-      indexName: index
-    })
-  }
-
   updateSettings(index: IndexType, settings: IndexSettings) {
     return this.algolia_.setSettings({
       indexName: index,
