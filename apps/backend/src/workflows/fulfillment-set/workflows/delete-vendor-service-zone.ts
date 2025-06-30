@@ -9,8 +9,9 @@ import {
   dismissRemoteLinkStep
 } from '@medusajs/medusa/core-flows'
 
-import { IntermediateEvents } from '../../../modules/algolia/types'
-import { SELLER_MODULE } from '../../../modules/seller'
+import { IntermediateEvents } from '@mercurjs/framework'
+import { SELLER_MODULE } from '@mercurjs/seller'
+
 import { emitMultipleEventsStep } from '../../common/steps'
 
 type WorkflowData = { ids: string[]; seller_id: string }

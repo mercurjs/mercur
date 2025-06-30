@@ -1,12 +1,12 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
-import { CONFIGURATION_MODULE } from '../modules/configuration'
-import ConfigurationModuleService from '../modules/configuration/service'
-import { ConfigurationRuleType } from '../modules/configuration/types'
-import { REQUESTS_MODULE } from '../modules/requests'
-import RequestsModuleService from '../modules/requests/service'
-import { ProductRequestUpdatedEvent } from '../modules/requests/types'
+import { CONFIGURATION_MODULE } from '@mercurjs/configuration'
+import { ConfigurationModuleService } from '@mercurjs/configuration'
+import { ConfigurationRuleType } from '@mercurjs/framework'
+import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
+import { REQUESTS_MODULE, RequestsModuleService } from '@mercurjs/requests'
+
 import { acceptProductRequestWorkflow } from '../workflows/requests/workflows'
 
 export default async function productRequestCreatedHandler({

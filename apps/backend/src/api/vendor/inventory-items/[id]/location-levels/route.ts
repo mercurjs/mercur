@@ -2,7 +2,8 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createInventoryLevelsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { IntermediateEvents } from '../../../../../modules/algolia/types'
+import { IntermediateEvents } from '@mercurjs/framework'
+
 import { VendorCreateInventoryLocationLevelType } from '../../validators'
 
 /**

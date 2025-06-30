@@ -9,7 +9,8 @@ import {
   updateProductsWorkflow
 } from '@medusajs/medusa/core-flows'
 
-import { getAvgRating } from '../../../../modules/reviews/utils'
+import { getAvgRating } from '@mercurjs/reviews'
+
 import {
   VendorGetProductParamsType,
   VendorUpdateProductType

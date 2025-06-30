@@ -1,9 +1,9 @@
 import { Modules } from '@medusajs/framework/utils'
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/medusa'
 
-import { HumanizeTypes } from '../modules/requests/enum/humanize_types'
-import { RequestDTO, RequestUpdated } from '../modules/requests/types'
-import { ResendNotificationTemplates } from '../modules/resend/types/templates'
+import { HumanizeTypes, RequestDTO, RequestUpdated } from '@mercurjs/framework'
+import { ResendNotificationTemplates } from '@mercurjs/resend'
+
 import {
   Hosts,
   buildHostAddress,

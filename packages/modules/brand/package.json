@@ -1,0 +1,45 @@
+{
+    "name": "@mercurjs/brand",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "!dist/**/__tests__",
+        "!dist/**/__mocks__",
+        "!dist/**/__fixtures__"
+    ],
+    "engines": {
+        "node": ">=20"
+    },
+    "license": "MIT",
+    "scripts": {
+        "build": "rimraf dist && tsc --build",
+        "migration:initial": " MIKRO_ORM_CLI_CONFIG=./mikro-orm.config.dev.ts medusa-mikro-orm migration:create --initial",
+        "migration:create": " MIKRO_ORM_CLI_CONFIG=./mikro-orm.config.dev.ts medusa-mikro-orm migration:create",
+        "migration:up": " MIKRO_ORM_CLI_CONFIG=./mikro-orm.config.dev.ts medusa-mikro-orm migration:up",
+        "orm:cache:clear": " MIKRO_ORM_CLI_CONFIG=./mikro-orm.config.dev.ts medusa-mikro-orm cache:clear"
+    },
+    "devDependencies": {
+        "@medusajs/framework": "2.8.5",
+        "@medusajs/test-utils": "2.8.5",
+        "@mercurjs/framework": "*",
+        "@mikro-orm/cli": "6.4.3",
+        "@mikro-orm/core": "6.4.3",
+        "@mikro-orm/migrations": "6.4.3",
+        "@mikro-orm/postgresql": "6.4.3",
+        "@swc/core": "^1.7.28",
+        "@swc/jest": "^0.2.36",
+        "jest": "^29.7.0",
+        "rimraf": "^3.0.2",
+        "tsc-alias": "^1.8.6",
+        "typescript": "^5.6.2"
+    },
+    "peerDependencies": {
+        "@medusajs/framework": "2.8.5",
+        "@mikro-orm/core": "6.4.3",
+        "@mikro-orm/migrations": "6.4.3",
+        "@mikro-orm/postgresql": "6.4.3",
+        "awilix": "^8.0.1"
+    }
+}

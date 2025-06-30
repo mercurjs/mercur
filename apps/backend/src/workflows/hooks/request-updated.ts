@@ -1,7 +1,7 @@
 import { updateProductsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { REQUESTS_MODULE } from '../../modules/requests'
-import RequestsModuleService from '../../modules/requests/service'
+import { REQUESTS_MODULE, RequestsModuleService } from '@mercurjs/requests'
+
 import { updateRequestWorkflow } from '../requests/workflows'
 
 updateRequestWorkflow.hooks.requestUpdated(async ({ id }, { container }) => {

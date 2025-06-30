@@ -10,7 +10,7 @@ import {
   transform
 } from '@medusajs/workflows-sdk'
 
-import { SELLER_MODULE } from '../../../modules/seller'
+import { SELLER_MODULE } from '@mercurjs/seller'
 
 export const createVendorCampaignWorkflow = createWorkflow(
   'create-vendor-campaign',

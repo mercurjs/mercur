@@ -1,7 +1,7 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 
-import { ProductTagRequestUpdatedEvent } from '../modules/requests/types'
-import { sendVendorUIRequestNotification } from '../modules/requests/utils/notifications'
+import { ProductTagRequestUpdatedEvent } from '@mercurjs/framework'
+import { sendVendorUIRequestNotification } from '@mercurjs/requests'
 
 export default async function sellerProductTagRequestAcceptedHandler({
   event,

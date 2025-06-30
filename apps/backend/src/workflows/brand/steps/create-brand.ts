@@ -1,8 +1,8 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { BRAND_MODULE } from '../../../modules/brand'
-import BrandModuleService from '../../../modules/brand/service'
-import { CreateBrandDTO } from '../../../modules/brand/types/mutations'
+import { BRAND_MODULE } from '@mercurjs/brand'
+import { BrandModuleService } from '@mercurjs/brand'
+import { CreateBrandDTO } from '@mercurjs/framework'
 
 export const createBrandStep = createStep(
   'create-brand',

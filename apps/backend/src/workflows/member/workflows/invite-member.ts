@@ -1,6 +1,7 @@
 import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
-import { CreateMemberInviteDTO } from '../../../modules/seller/types'
+import { CreateMemberInviteDTO } from '@mercurjs/framework'
+
 import { createMemberInviteStep } from '../steps'
 
 export const inviteMemberWorkflow = createWorkflow(

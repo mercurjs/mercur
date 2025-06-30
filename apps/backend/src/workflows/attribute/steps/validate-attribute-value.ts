@@ -5,8 +5,9 @@ import {
 } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
+import { CreateProductAttributeValueDTO } from '@mercurjs/framework'
+
 import productAttributeValue from '../../../links/product-attribute-value'
-import { CreateProductAttributeValueDTO } from '../../../modules/attribute/types'
 
 export const validateAttributeValueStepId = 'validate-attribute-value'
 

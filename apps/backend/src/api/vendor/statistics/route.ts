@@ -3,7 +3,8 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import {
   selectCustomersChartData,
   selectOrdersChartData
-} from '../../../modules/seller/utils'
+} from '@mercurjs/seller'
+
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 
 /**

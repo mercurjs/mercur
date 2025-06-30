@@ -8,7 +8,8 @@ import {
 import {
   AdminUpdateOrderReturnRequestDTO,
   VendorUpdateOrderReturnRequestDTO
-} from '../../../modules/order-return-request/types'
+} from '@mercurjs/framework'
+
 import { createReturnObjectStep, updateOrderReturnRequestStep } from '../steps'
 
 export const updateOrderReturnRequestWorkflow = createWorkflow(

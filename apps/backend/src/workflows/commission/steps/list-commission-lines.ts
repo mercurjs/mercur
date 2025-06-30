@@ -1,9 +1,10 @@
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
+import { COMMISSION_MODULE } from '@mercurjs/commission'
+import { CommissionModuleService } from '@mercurjs/commission'
+
 import sellerOrder from '../../../links/seller-order'
-import { COMMISSION_MODULE } from '../../../modules/commission'
-import CommissionModuleService from '../../../modules/commission/service'
 
 type Input = {
   expand: boolean

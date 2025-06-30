@@ -1,9 +1,8 @@
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { REVIEW_MODULE } from '../../../modules/reviews'
-import ReviewModuleService from '../../../modules/reviews/service'
-import { CreateReviewDTO } from '../../../modules/reviews/types'
+import { CreateReviewDTO } from '@mercurjs/framework'
+import { REVIEW_MODULE, ReviewModuleService } from '@mercurjs/reviews'
 
 export const createReviewStep = createStep(
   'create-review',

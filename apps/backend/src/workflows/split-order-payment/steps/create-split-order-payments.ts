@@ -2,12 +2,14 @@ import { LinkDefinition } from '@medusajs/framework/types'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
-import { SPLIT_ORDER_PAYMENT_MODULE } from '../../../modules/split-order-payment'
-import SplitOrderPaymentModuleService from '../../../modules/split-order-payment/service'
 import {
   CreateSplitOrderPaymentsDTO,
   SplitOrderPaymentDTO
-} from '../../../modules/split-order-payment/types'
+} from '@mercurjs/framework'
+import {
+  SPLIT_ORDER_PAYMENT_MODULE,
+  SplitOrderPaymentModuleService
+} from '@mercurjs/split-order-payment'
 
 export const createSplitOrderPaymentsStep = createStep(
   'create-split-order-payments',

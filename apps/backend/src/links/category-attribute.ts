@@ -1,7 +1,7 @@
 import { defineLink } from '@medusajs/framework/utils'
 import ProductModule from '@medusajs/medusa/product'
 
-import AttributeModule from '../modules/attribute'
+import AttributeModule from '@mercurjs/attribute'
 
 export default defineLink(
   {
