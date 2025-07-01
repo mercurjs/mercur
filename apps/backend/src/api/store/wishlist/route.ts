@@ -53,7 +53,7 @@ import { StoreCreateWishlistType } from './validators'
  *               format: date-time
  *               description: The date with timezone at which the resource was deleted.
  * tags:
- *   - Wishlist
+ *   - Store Wishlist
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -133,7 +133,7 @@ export const POST = async (
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Wishlist
+ *   - Store Wishlist
  * security:
  *   - api_token: []
  *   - cookie_auth: []

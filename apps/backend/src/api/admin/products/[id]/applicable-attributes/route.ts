@@ -46,7 +46,7 @@ import categoryAttribute from '../../../../../links/category-attribute'
  *               type: string
  *               example: "Product not found"
  * tags:
- *   - Admin
+ *   - Admin Products
  * security:
  *   - api_token: []
  *   - cookie_auth: []
