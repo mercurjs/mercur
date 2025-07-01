@@ -35,7 +35,7 @@ import { VendorUpdateCustomerGroupsType } from '../../validators'
  *             customer:
  *               $ref: "#/components/schemas/VendorCustomer"
  * tags:
- *   - Seller
+ *   - Vendor Customers
  * security:
  *   - api_token: []
  *   - cookie_auth: []

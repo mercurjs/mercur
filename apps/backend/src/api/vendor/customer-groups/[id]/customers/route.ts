@@ -36,7 +36,7 @@ import { VendorLinkCustomersToGroupType } from '../../validators'
  *             customer_group:
  *               $ref: "#/components/schemas/VendorCustomerGroup"
  * tags:
- *   - Seller
+ *   - Vendor Customer Groups
  * security:
  *   - api_token: []
  *   - cookie_auth: []
