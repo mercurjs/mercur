@@ -55,7 +55,7 @@ import {
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Reservations
+ *   - Vendor Reservations
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -118,7 +118,7 @@ export const GET = async (
  *             reservation:
  *               $ref: "#/components/schemas/VendorReservation"
  * tags:
- *   - Reservations
+ *   - Vendor Reservations
  * security:
  *   - api_token: []
  *   - cookie_auth: []

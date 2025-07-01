@@ -39,7 +39,7 @@ import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
  *               items:
  *                 $ref: "#/components/schemas/VendorDateStatistics"
  * tags:
- *   - Seller
+ *   - Vendor Statistics
  * security:
  *   - api_token: []
  *   - cookie_auth: []

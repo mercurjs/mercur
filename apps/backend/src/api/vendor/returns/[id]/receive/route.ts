@@ -34,7 +34,7 @@ import { VendorReceiveReturnSchemaType } from '../../validators'
  *       schema:
  *         $ref: "#/components/schemas/VendorReceiveReturn"
  * tags:
- *   - Return
+ *   - Vendor Returns
  * responses:
  *   "200":
  *     description: OK

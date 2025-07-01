@@ -57,7 +57,7 @@ import { VendorGetMemberParamsType } from './validators'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Member
+ *   - Vendor Members
  * security:
  *   - api_token: []
  *   - cookie_auth: []

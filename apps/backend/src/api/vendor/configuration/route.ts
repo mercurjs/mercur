@@ -22,7 +22,7 @@ import { ConfigurationRuleDefaults } from '@mercurjs/configuration'
  *               items:
  *                 $ref: "#/components/schemas/ConfigurationRule"
  * tags:
- *   - Seller
+ *   - Vendor Configuration
  * security:
  *   - api_token: []
  *   - cookie_auth: []

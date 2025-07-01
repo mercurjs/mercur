@@ -45,7 +45,7 @@ import { AdminCreateRuleType } from './validators'
  *               type: integer
  *               description: The number of requests per page
  * tags:
- *   - Admin
+ *   - Admin Configuration
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -89,7 +89,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
  *             configuration_rule:
  *               $ref: "#/components/schemas/ConfigurationRule"
  * tags:
- *   - Admin
+ *   - Admin Configuration
  * security:
  *   - api_token: []
  *   - cookie_auth: []

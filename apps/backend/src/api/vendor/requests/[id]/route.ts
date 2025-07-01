@@ -34,7 +34,7 @@ import { VendorUpdateRequestDataType } from '../validators'
  *             request:
  *               $ref: "#/components/schemas/VendorRequest"
  * tags:
- *   - Requests
+ *   - Vendor Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -92,7 +92,7 @@ export const GET = async (
  *             request:
  *               $ref: "#/components/schemas/VendorRequest"
  * tags:
- *   - Requests
+ *   - Vendor Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []

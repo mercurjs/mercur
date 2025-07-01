@@ -60,7 +60,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *               type: integer
  *               description: The number of requests per page
  * tags:
- *   - Admin
+ *   - Admin Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []

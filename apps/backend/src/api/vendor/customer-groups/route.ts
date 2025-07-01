@@ -50,7 +50,7 @@ import { VendorCreateCustomerGroupType } from './validators'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Seller
+ *   - Vendor Customer Groups
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -103,7 +103,7 @@ export const GET = async (
  *             customer_group:
  *               $ref: "#/components/schemas/VendorCustomerGroup"
  * tags:
- *   - Seller
+ *   - Vendor Customer Groups
  * security:
  *   - api_token: []
  *   - cookie_auth: []

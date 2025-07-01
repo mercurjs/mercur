@@ -36,7 +36,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *               items:
  *                 $ref: "#/components/schemas/VendorOrderChange"
  * tags:
- *   - Order
+ *   - Vendor Orders
  * security:
  *   - api_token: []
  *   - cookie_auth: []

@@ -35,8 +35,7 @@ import { VendorUpdateReviewType } from '../../../validators'
  *             product:
  *               $ref: "#/components/schemas/Review"
  * tags:
- *   - Seller
- *   - Review
+ *   - Vendor Reviews
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -98,7 +97,7 @@ export const GET = async (
  *             product:
  *               $ref: "#/components/schemas/Review"
  * tags:
- *   - Seller
+ *   - Vendor Reviews
  *   - Review
  * security:
  *   - api_token: []

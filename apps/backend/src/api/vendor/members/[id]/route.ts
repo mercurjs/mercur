@@ -34,7 +34,7 @@ import { VendorUpdateMemberType } from '../validators'
  *             member:
  *               $ref: "#/components/schemas/VendorMember"
  * tags:
- *   - Member
+ *   - Vendor Members
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -91,7 +91,7 @@ export const POST = async (
  *             member:
  *               $ref: "#/components/schemas/VendorMember"
  * tags:
- *   - Member
+ *   - Vendor Members
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -148,7 +148,7 @@ export const GET = async (
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Member
+ *   - Vendor Members
  * security:
  *   - api_token: []
  *   - cookie_auth: []

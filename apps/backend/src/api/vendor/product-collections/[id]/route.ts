@@ -30,7 +30,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *             product_collection:
  *               $ref: "#/components/schemas/VendorProductCollection"
  * tags:
- *   - Product
+ *   - Vendor Product Collections
  * security:
  *   - api_token: []
  *   - cookie_auth: []

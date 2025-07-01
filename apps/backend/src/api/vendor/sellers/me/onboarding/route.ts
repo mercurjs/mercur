@@ -21,8 +21,7 @@ import { recalculateOnboardingWorkflow } from '../../../../../workflows/seller/w
  *             onboarding:
  *               $ref: "#/components/schemas/VendorSellerOnboarding"
  * tags:
- *   - Seller
- *   - Onboarding
+ *   - Vendor Onboarding
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -67,8 +66,7 @@ export const GET = async (
  *             onboarding:
  *               $ref: "#/components/schemas/VendorSellerOnboarding"
  * tags:
- *   - Seller
- *   - Onboarding
+ *   - Vendor Onboarding
  * security:
  *   - api_token: []
  *   - cookie_auth: []

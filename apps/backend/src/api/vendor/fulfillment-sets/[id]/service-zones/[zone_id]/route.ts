@@ -43,7 +43,7 @@ import { VendorUpdateServiceZoneType } from '../../../validators'
  *             fulfillment_set:
  *               $ref: "#/components/schemas/VendorFulfillmentSet"
  * tags:
- *   - Fulfillment Set
+ *   - Vendor Fulfillment Sets
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -125,7 +125,7 @@ export const POST = async (
  *               description: Whether or not the items were deleted.
  *               default: true
  * tags:
- *   - Service Zone
+ *   - Vendor Fulfillment Sets
  * security:
  *   - api_token: []
  *   - cookie_auth: []

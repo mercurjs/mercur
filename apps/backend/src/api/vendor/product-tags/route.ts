@@ -50,7 +50,7 @@ import {
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Product
+ *   - Vendor Product Tags
  * security:
  *   - api_token: []
  *   - cookie_auth: []

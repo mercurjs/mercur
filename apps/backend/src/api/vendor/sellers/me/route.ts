@@ -22,7 +22,7 @@ import { VendorUpdateSellerType } from '../validators'
  *             seller:
  *               $ref: "#/components/schemas/VendorSeller"
  * tags:
- *   - Seller
+ *   - Vendor Sellers
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -62,7 +62,7 @@ export const GET = async (
  *             seller:
  *               $ref: "#/components/schemas/VendorSeller"
  * tags:
- *   - Seller
+ *   - Vendor Sellers
  * security:
  *   - api_token: []
  *   - cookie_auth: []

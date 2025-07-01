@@ -37,7 +37,7 @@ import { VendorBatchPromotionRulesType } from '../../../validators'
  *             promotion:
  *               $ref: "#/components/schemas/VendorPromotion"
  * tags:
- *   - Promotion
+ *   - Vendor Promotions
  * security:
  *   - api_token: []
  *   - cookie_auth: []

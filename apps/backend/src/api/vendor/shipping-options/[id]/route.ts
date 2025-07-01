@@ -33,7 +33,7 @@ import { VendorUpdateShippingOptionType } from '../validators'
  *             shipping_option:
  *               $ref: "#/components/schemas/VendorShippingOption"
  * tags:
- *   - Shipping Option
+ *   - Vendor Shipping Options
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -87,7 +87,7 @@ export const GET = async (
  *             shipping_option:
  *               $ref: "#/components/schemas/VendorShippingOption"
  * tags:
- *   - Shipping Option
+ *   - Vendor Shipping Options
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -155,7 +155,7 @@ export const POST = async (
  *               description: Whether or not the items were deleted.
  *               default: true
  * tags:
- *   - Shipping Option
+ *   - Vendor Shipping Options
  * security:
  *   - api_token: []
  *   - cookie_auth: []

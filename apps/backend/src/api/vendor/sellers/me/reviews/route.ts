@@ -31,8 +31,7 @@ import sellerReview from '../../../../../links/seller-review'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Seller
- *   - Review
+ *   - Vendor Reviews
  * security:
  *   - api_token: []
  *   - cookie_auth: []

@@ -35,7 +35,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *             member:
  *               $ref: "#/components/schemas/VendorOrderDetails"
  * tags:
- *   - Order
+ *   - Vendor Orders
  * security:
  *   - api_token: []
  *   - cookie_auth: []

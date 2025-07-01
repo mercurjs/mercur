@@ -53,7 +53,7 @@ import { StoreCreateReturnRequestType } from './validators'
  *               type: integer
  *               description: The number of requests per page
  * tags:
- *   - OrderReturnRequest
+ *   - Store Return Request
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -104,7 +104,7 @@ export async function GET(
  *             order_return_request:
  *               $ref: "#/components/schemas/OrderReturnRequest"
  * tags:
- *   - OrderReturnRequest
+ *   - Store Return Request
  * security:
  *   - api_token: []
  *   - cookie_auth: []

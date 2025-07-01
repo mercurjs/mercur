@@ -28,7 +28,7 @@ import { getVendorOrdersListWorkflow } from '../../../../workflows/order/workflo
  *             order:
  *               $ref: "#/components/schemas/VendorOrderDetails"
  * tags:
- *   - Order
+ *   - Vendor Orders
  * security:
  *   - api_token: []
  *   - cookie_auth: []

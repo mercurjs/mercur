@@ -32,7 +32,7 @@ import { AdminUpdateRuleType } from '../validators'
  *             configuration_rule:
  *               $ref: "#/components/schemas/ConfigurationRule"
  * tags:
- *   - Admin
+ *   - Admin Configuration
  * security:
  *   - api_token: []
  *   - cookie_auth: []

@@ -42,7 +42,7 @@ import { batchPriceListPricesWorkflow } from '@medusajs/medusa/core-flows'
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Price Lists
+ *   - Vendor Price Lists
  * security:
  *   - api_token: []
  *   - cookie_auth: []

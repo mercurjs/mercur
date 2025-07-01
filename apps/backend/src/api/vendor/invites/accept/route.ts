@@ -33,7 +33,7 @@ import { VendorAcceptMemberInviteType } from '../validators'
  *             invite:
  *               $ref: "#/components/schemas/VendorMemberInvite"
  * tags:
- *   - Member
+ *   - Vendor Invites
  * security:
  *   - api_token: []
  *   - cookie_auth: []

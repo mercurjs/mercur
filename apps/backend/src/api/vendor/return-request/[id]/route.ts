@@ -37,7 +37,7 @@ import { VendorUpdateOrderReturnRequestType } from '../validators'
  *             orderReturnRequest:
  *               $ref: "#/components/schemas/OrderReturnRequest"
  * tags:
- *   - OrderReturnRequest
+ *   - Vendor Return Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -90,7 +90,7 @@ export const GET = async (
  *             orderReturnRequest:
  *               $ref: "#/components/schemas/OrderReturnRequest"
  * tags:
- *   - OrderReturnRequest
+ *   - Vendor Return Requests
  * security:
  *   - api_token: []
  *   - cookie_auth: []

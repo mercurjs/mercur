@@ -34,7 +34,7 @@ import { StoreCreateReviewType, StoreGetReviewsParamsType } from './validators'
  *             product:
  *               $ref: "#/components/schemas/Review"
  * tags:
- *   - Review
+ *   - Store Reviews
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -113,7 +113,7 @@ export const POST = async (
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Review
+ *   - Store Reviews
  * security:
  *   - api_token: []
  *   - cookie_auth: []

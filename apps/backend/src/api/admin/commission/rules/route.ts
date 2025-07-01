@@ -33,7 +33,7 @@ import {
  *             commission_rule:
  *               $ref: "#/components/schemas/AdminCommissionRule"
  * tags:
- *   - Admin
+ *   - Admin Commission
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -109,7 +109,7 @@ export async function POST(
  *               description: The number of items per page
  *
  * tags:
- *   - Admin
+ *   - Admin Commission
  * security:
  *   - api_token: []
  *   - cookie_auth: []

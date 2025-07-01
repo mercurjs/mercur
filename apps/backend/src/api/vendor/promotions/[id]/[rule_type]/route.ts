@@ -52,7 +52,7 @@ import { validateRuleType } from '@medusajs/medusa/api/admin/promotions/utils/va
  *   - cookie_auth: []
  *   - jwt_token: []
  * tags:
- *   - Promotions
+ *   - Vendor Promotions
  * responses:
  *   "200":
  *     description: OK

@@ -29,7 +29,7 @@ import { VendorCreateSellerType } from './validators'
  *             request:
  *               $ref: "#/components/schemas/VendorRequest"
  * tags:
- *   - Seller
+ *   - Vendor Sellers
  * security:
  *   - api_token: []
  *   - cookie_auth: []

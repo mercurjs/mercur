@@ -29,7 +29,7 @@ import { VendorInviteMemberType } from './validators'
  *             invite:
  *               $ref: "#/components/schemas/VendorMemberInvite"
  * tags:
- *   - Member
+ *   - Vendor Invites
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -138,7 +138,7 @@ export const POST = async (
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Member
+ *   - Vendor Invites
  * security:
  *   - api_token: []
  *   - cookie_auth: []

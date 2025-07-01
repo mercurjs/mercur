@@ -27,7 +27,7 @@ import { confirmReturnReceiveWorkflow } from '@medusajs/medusa/core-flows'
  *   - cookie_auth: []
  *   - jwt_token: []
  * tags:
- *   - Return
+ *   - Vendor Returns
  * responses:
  *   "200":
  *     description: OK

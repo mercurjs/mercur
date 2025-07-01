@@ -53,7 +53,7 @@ import { VendorCreatePromotionType } from './validators'
  *               type: integer
  *               description: The number of items per page
  * tags:
- *   - Promotion
+ *   - Vendor Promotions
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -106,7 +106,7 @@ export const GET = async (
  *             promotion:
  *               $ref: "#/components/schemas/VendorPromotion"
  * tags:
- *   - Promotion
+ *   - Vendor Promotions
  * security:
  *   - api_token: []
  *   - cookie_auth: []

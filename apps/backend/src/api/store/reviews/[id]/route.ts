@@ -42,7 +42,7 @@ import { StoreGetReviewsParamsType, StoreUpdateReviewType } from '../validators'
  *             product:
  *               $ref: "#/components/schemas/Review"
  * tags:
- *   - Review
+ *   - Store Reviews
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -105,7 +105,7 @@ export const POST = async (
  *               type: boolean
  *               description: Whether or not the items were deleted
  * tags:
- *   - Review
+ *   - Store Reviews
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -157,7 +157,7 @@ export const DELETE = async (
  *             product:
  *               $ref: "#/components/schemas/Review"
  * tags:
- *   - Review
+ *   - Store Reviews
  * security:
  *   - api_token: []
  *   - cookie_auth: []

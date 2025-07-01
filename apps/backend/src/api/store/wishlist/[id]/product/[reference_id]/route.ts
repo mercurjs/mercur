@@ -41,7 +41,7 @@ import { deleteWishlistEntryWorkflow } from '../../../../../../workflows/wishlis
  *               type: boolean
  *               description: Indicates if the wishlist entry was deleted.
  * tags:
- *   - Wishlist
+ *   - Store Wishlist
  * security:
  *   - api_token: []
  *   - cookie_auth: []

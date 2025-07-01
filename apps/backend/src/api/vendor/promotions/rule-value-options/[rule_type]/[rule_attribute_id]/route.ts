@@ -56,7 +56,7 @@ import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/ut
  *   - cookie_auth: []
  *   - jwt_token: []
  * tags:
- *   - Promotions
+ *   - Vendor Promotions
  * responses:
  *   "200":
  *     description: OK
