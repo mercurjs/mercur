@@ -23,39 +23,41 @@ export default async function productUpdatedHandler({
     }
   })
 
-  const [foundRequest] = await requestService.listRequests({
+  const foundRequests = await requestService.listRequests({
     data: {
       product_id: event.data.id
     }
   })
 
-  if (!foundRequest) {
+  if (!foundRequests || foundRequests.length === 0) {
     return
   }
 
-  if (
-    foundRequest.status === 'pending' &&
-    ['published', 'rejected'].includes(product.status)
-  ) {
-    await updateRequestWorkflow.run({
-      container,
-      input: {
-        id: foundRequest.id,
-        reviewer_id: 'system',
-        reviewer_note: 'auto',
-        status: product.status === 'published' ? 'accepted' : 'rejected'
-      }
-    })
-  }
+  for (const foundRequest of foundRequests) {
+    if (
+      foundRequest.status === 'pending' &&
+      ['published', 'rejected'].includes(product.status)
+    ) {
+      await updateRequestWorkflow.run({
+        container,
+        input: {
+          id: foundRequest.id,
+          reviewer_id: 'system',
+          reviewer_note: 'auto',
+          status: product.status === 'published' ? 'accepted' : 'rejected'
+        }
+      })
+    }
 
-  if (product.status === 'proposed') {
-    await updateRequestWorkflow.run({
-      container,
-      input: {
-        id: foundRequest.id,
-        status: 'pending'
-      }
-    })
+    if (product.status === 'proposed') {
+      await updateRequestWorkflow.run({
+        container,
+        input: {
+          id: foundRequest.id,
+          status: 'pending'
+        }
+      })
+    }
   }
 }
 

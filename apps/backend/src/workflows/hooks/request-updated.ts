@@ -1,7 +1,6 @@
-import { updateProductsWorkflow } from '@medusajs/medusa/core-flows'
-
 import { REQUESTS_MODULE, RequestsModuleService } from '@mercurjs/requests'
 
+import { updateProductStatusWorkflow } from '../product/workflows'
 import { updateRequestWorkflow } from '../requests/workflows'
 
 updateRequestWorkflow.hooks.requestUpdated(async ({ id }, { container }) => {
@@ -9,16 +8,15 @@ updateRequestWorkflow.hooks.requestUpdated(async ({ id }, { container }) => {
 
   const request = await service.retrieveRequest(id)
 
-  if (request.type === 'product' && request.status === 'rejected') {
-    await updateProductsWorkflow.run({
+  if (
+    ['product', 'product_update'].includes(request.type) &&
+    request.status === 'rejected'
+  ) {
+    await updateProductStatusWorkflow.run({
       container,
       input: {
-        selector: {
-          id: request.data.product_id
-        },
-        update: {
-          status: 'rejected'
-        }
+        id: request.data.product_id,
+        status: 'rejected'
       }
     })
   }

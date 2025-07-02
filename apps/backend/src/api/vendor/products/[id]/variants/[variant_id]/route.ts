@@ -8,6 +8,9 @@ import {
   updateProductVariantsWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
+import { fetchProductDetails } from '../../../../../../shared/infra/http/utils/products'
+import { createProductUpdateRequestWorkflow } from '../../../../../../workflows/requests/workflows/create-product-update-request'
 import { UpdateProductVariantType } from '../../../validators'
 
 /**
@@ -142,6 +145,7 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id
   const variantId = req.params.variant_id
+  const productDetails = await fetchProductDetails(productId, req.scope)
 
   await updateProductVariantsWorkflow.run({
     container: req.scope,
@@ -150,6 +154,29 @@ export const POST = async (
       selector: { id: variantId, product_id: productId }
     }
   })
+
+  if (!['draft', 'proposed'].includes(productDetails.status)) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { prices, ...rest } = req.validatedBody
+    // Check if there are other changes than prices
+    if (rest) {
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+      await createProductUpdateRequestWorkflow.run({
+        container: req.scope,
+        input: {
+          data: {
+            data: { product_id: req.params.id, title: productDetails.title },
+            submitter_id: req.auth_context.actor_id,
+            type: 'product_update'
+          },
+          seller_id: seller.id
+        }
+      })
+    }
+  }
 
   const {
     data: [product]
