@@ -125,9 +125,9 @@ export const GET = async (
       entity: sellerCustomerGroup.entryPoint,
       fields: ['customer_group_id'],
       filters: {
-        seller_id: seller.id,
-        withDeleted: true
-      }
+        seller_id: seller.id
+      },
+      withDeleted: true
     })
 
     filterableFields['id'] = groups.map((p) => p.customer_group_id)
