@@ -27,10 +27,10 @@
     "generate:oas": "medusa-oas oas --type combined --paths ./src/api"
   },
   "dependencies": {
-    "@medusajs/admin-sdk": "2.8.5",
-    "@medusajs/cli": "2.8.5",
-    "@medusajs/framework": "2.8.5",
-    "@medusajs/medusa": "2.8.5",
+    "@medusajs/admin-sdk": "2.8.6",
+    "@medusajs/cli": "2.8.6",
+    "@medusajs/framework": "2.8.6",
+    "@medusajs/medusa": "2.8.6",
     "@mercurjs/framework": "*",
     "@mercurjs/configuration": "*",
     "@mercurjs/marketplace": "*",
@@ -63,8 +63,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@medusajs/medusa-oas-cli": "2.8.5",
-    "@medusajs/test-utils": "2.8.5",
+    "@medusajs/medusa-oas-cli": "2.8.6",
+    "@medusajs/test-utils": "2.8.6",
     "@mikro-orm/cli": "6.4.3",
     "@swc/core": "1.5.7",
     "@swc/jest": "^0.2.36",

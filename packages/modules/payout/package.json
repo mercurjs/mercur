@@ -21,8 +21,8 @@
         "orm:cache:clear": " MIKRO_ORM_CLI_CONFIG=./mikro-orm.config.dev.ts medusa-mikro-orm cache:clear"
     },
     "devDependencies": {
-        "@medusajs/framework": "2.8.5",
-        "@medusajs/test-utils": "2.8.5",
+        "@medusajs/framework": "2.8.6",
+        "@medusajs/test-utils": "2.8.6",
         "@mercurjs/framework": "*",
         "@mikro-orm/cli": "6.4.3",
         "@mikro-orm/core": "6.4.3",
@@ -36,7 +36,7 @@
         "typescript": "^5.6.2"
     },
     "peerDependencies": {
-        "@medusajs/framework": "2.8.5",
+        "@medusajs/framework": "2.8.6",
         "@mikro-orm/core": "6.4.3",
         "@mikro-orm/migrations": "6.4.3",
         "@mikro-orm/postgresql": "6.4.3",
