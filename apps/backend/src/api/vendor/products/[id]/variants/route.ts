@@ -3,6 +3,8 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { createProductVariantsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
+import { fetchProductDetails } from '../../../../../shared/infra/http/utils/products'
+import { createProductUpdateRequestWorkflow } from '../../../../../workflows/requests/workflows/create-product-update-request'
 import { CreateProductVariantType } from '../../validators'
 
 /**
@@ -70,6 +72,21 @@ export const POST = async (
       }
     }
   })
+
+  const productDetails = await fetchProductDetails(req.params.id, req.scope)
+  if (!['draft', 'proposed'].includes(productDetails.status)) {
+    await createProductUpdateRequestWorkflow.run({
+      container: req.scope,
+      input: {
+        data: {
+          data: { product_id: req.params.id, title: productDetails.title },
+          submitter_id: req.auth_context.actor_id,
+          type: 'product_update'
+        },
+        seller_id: seller.id
+      }
+    })
+  }
 
   const {
     data: [product]

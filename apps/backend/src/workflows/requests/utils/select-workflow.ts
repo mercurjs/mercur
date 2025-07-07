@@ -21,6 +21,10 @@ export const getRequestWorkflowByType = (type: string) => {
     return acceptProductRequestWorkflow
   }
 
+  if (type === 'product_update') {
+    return acceptProductRequestWorkflow
+  }
+
   if (type === 'seller') {
     return acceptSellerCreationRequestWorkflow
   }
