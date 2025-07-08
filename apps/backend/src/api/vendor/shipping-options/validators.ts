@@ -131,13 +131,13 @@ const VendorCreateShippingOptionRule = z
  *     type: array
  *     description: The prices of the shipping option.
  *     items:
- *       $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
- *   rules:
- *     type: array
- *     items:
  *       oneOf:
  *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
  *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithRegion"
+ *   rules:
+ *     type: array
+ *     items:
+ *       $ref: "#/components/schemas/VendorCreateShippingOptionRule"
  *   type:
  *     $ref: "#/components/schemas/CreateShippingOptionTypeObject"
  */
@@ -176,7 +176,9 @@ export const VendorCreateShippingOption = z
  *     type: array
  *     description: The prices of the shipping option.
  *     items:
- *       $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *       oneOf:
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithRegion"
  *   rules:
  *     type: array
  *     items:
@@ -193,7 +195,11 @@ export const VendorUpdateShippingOption = z
     name: z.string().optional(),
     shipping_profile_id: z.string().optional(),
     provider_id: z.string().optional(),
-    prices: CreateShippingOptionPriceWithCurrency.array().optional(),
+    prices: CreateShippingOptionPriceWithCurrency.or(
+      CreateShippingOptionPriceWithRegion
+    )
+      .array()
+      .optional(),
     type: CreateShippingOptionTypeObject.optional(),
     rules: VendorCreateShippingOptionRule.array().optional()
   })
