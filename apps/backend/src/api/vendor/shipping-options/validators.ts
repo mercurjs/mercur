@@ -36,6 +36,27 @@ const CreateShippingOptionPriceWithCurrency = z
   .strict()
 
 /**
+ * @schema CreateShippingOptionPriceWithRegion
+ * type: object
+ * required:
+ *   - region_id
+ *   - amount
+ * properties:
+ *   region_id:
+ *     type: string
+ *     description: The region ID for the price.
+ *   amount:
+ *     type: number
+ *     description: The amount of the price.
+ */
+export const CreateShippingOptionPriceWithRegion = z
+  .object({
+    region_id: z.string(),
+    amount: z.number()
+  })
+  .strict()
+
+/**
  * @schema CreateShippingOptionTypeObject
  * type: object
  * required:
@@ -114,7 +135,9 @@ const VendorCreateShippingOptionRule = z
  *   rules:
  *     type: array
  *     items:
- *       $ref: "#/components/schemas/VendorCreateShippingOptionRule"
+ *       oneOf:
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithRegion"
  *   type:
  *     $ref: "#/components/schemas/CreateShippingOptionTypeObject"
  */
@@ -128,7 +151,9 @@ export const VendorCreateShippingOption = z
     shipping_profile_id: z.string(),
     data: z.record(z.unknown()).optional(),
     provider_id: z.string(),
-    prices: CreateShippingOptionPriceWithCurrency.array(),
+    prices: CreateShippingOptionPriceWithCurrency.or(
+      CreateShippingOptionPriceWithRegion
+    ).array(),
     type: CreateShippingOptionTypeObject,
     rules: VendorCreateShippingOptionRule.array().optional()
   })
