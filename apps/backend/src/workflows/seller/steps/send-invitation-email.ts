@@ -8,6 +8,8 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { CreateSellerInvitationDTO } from '@mercurjs/framework'
 import { ResendNotificationTemplates } from '@mercurjs/resend'
 
+import { Hosts, buildHostAddress } from '../../../shared/infra/http/utils/hosts'
+
 export const sendSellerInvitationEmailStep = createStep(
   'send-seller-invitation-email',
   async (input: CreateSellerInvitationDTO, { container }) => {
@@ -24,7 +26,7 @@ export const sendSellerInvitationEmailStep = createStep(
         },
         data: {
           data: {
-            url: input.registration_url
+            url: buildHostAddress(Hosts.VENDOR_PANEL, '/register')
           }
         }
       })
