@@ -137,7 +137,9 @@ const VendorCreateShippingOptionRule = z
  *   rules:
  *     type: array
  *     items:
- *       $ref: "#/components/schemas/VendorCreateShippingOptionRule"
+ *       oneOf:
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithRegion"
  *   type:
  *     $ref: "#/components/schemas/CreateShippingOptionTypeObject"
  */
