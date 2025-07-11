@@ -5,7 +5,7 @@ import { Inbox, Session } from "@talkjs/react"
 import { useCallback } from "react"
 import Talk from "talkjs"
 
-const TALK_JS_APP_ID = import.meta.env.VITE_TALK_JS_APP_ID || ""
+const TALK_JS_APP_ID = import.meta.env.DEV ? import.meta.env.VITE_TALK_JS_APP_ID || "" : process.env.VITE_TALK_JS_APP_ID || ""
 
 const MessagesPage = () => {
   const syncUser = useCallback(
