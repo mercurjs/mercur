@@ -8,6 +8,7 @@ import Talk from "talkjs"
 const TALK_JS_APP_ID = import.meta.env.DEV ? import.meta.env.VITE_TALK_JS_APP_ID || "" : process.env.VITE_TALK_JS_APP_ID || ""
 
 const MessagesPage = () => {
+  console.log({ dev_mode: import.meta.env.DEV})
   const syncUser = useCallback(
     () =>
       new Talk.User({
