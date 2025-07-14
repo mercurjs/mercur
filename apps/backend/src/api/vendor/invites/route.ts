@@ -81,7 +81,7 @@ export const POST = async (
     data: {
       user_name: member.email || seller.name,
       store_name: seller.name,
-      host: req.headers.host,
+      token: created.token,
       id: invite.id,
       email: invite.email
     }
