@@ -5,6 +5,9 @@ import {
 
 import { deleteReviewStep } from '../steps'
 
+/**
+ * Deletes a review and returns the deleted review.
+ */
 export const deleteReviewWorkflow = createWorkflow(
   {
     name: 'delete-review'

@@ -12,6 +12,9 @@ export const updateAttributePossibleValueWorkflowId =
 
 type WorkflowInput = UpdateAttributeValueDTO
 
+/**
+ * Updates attribute possible value and returns the updated value.
+ */
 export const updateAttributePossibleValueWorkflow = createWorkflow(
   updateAttributePossibleValueWorkflowId,
   (input: WorkflowInput) => {

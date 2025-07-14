@@ -4,6 +4,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { DeleteWishlistDTO } from '@mercurjs/framework'
 import { WISHLIST_MODULE } from '@mercurjs/wishlist'
 
+/**
+ * Deletes wishlist entry by removing product link.
+ */
 export const deleteWishlistEntryStep = createStep(
   'delete-wishlist',
   async (input: DeleteWishlistDTO, { container }) => {

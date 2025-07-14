@@ -8,6 +8,9 @@ import { AcceptRequestDTO } from '@mercurjs/framework'
 
 import { updateRequestWorkflow } from './update-request'
 
+/**
+ * Accepts product tag request and creates the tag.
+ */
 export const acceptProductTagRequestWorkflow = createWorkflow(
   'accept-product-tag-request',
   function (input: AcceptRequestDTO) {

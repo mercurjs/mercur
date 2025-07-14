@@ -3,6 +3,9 @@ import { updateProductTagsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { AlgoliaEvents } from '@mercurjs/framework'
 
+/**
+ * Emits Algolia products changed event when product tags are updated.
+ */
 updateProductTagsWorkflow.hooks.productTagsUpdated(
   async ({ product_tags }, { container }) => {
     const productIds = product_tags

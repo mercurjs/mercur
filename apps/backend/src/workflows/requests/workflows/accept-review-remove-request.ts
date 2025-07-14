@@ -5,6 +5,9 @@ import { AcceptRequestDTO } from '@mercurjs/framework'
 import { deleteReviewWorkflow } from '../../review/workflows'
 import { updateRequestWorkflow } from './update-request'
 
+/**
+ * Accepts review removal request and deletes the review.
+ */
 export const acceptReviewRemoveRequestWorkflow = createWorkflow(
   'accept-review-remove-request',
   function (input: AcceptRequestDTO) {

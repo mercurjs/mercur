@@ -4,6 +4,9 @@ import { CreateOnboardingDTO } from '@mercurjs/framework'
 import { PAYOUT_MODULE } from '@mercurjs/payout'
 import { PayoutModuleService } from '@mercurjs/payout'
 
+/**
+ * Initializes payout onboarding process for seller.
+ */
 export const createPayoutOnboardingStep = createStep(
   'create-payout-onboarding',
   async (input: CreateOnboardingDTO, { container }) => {

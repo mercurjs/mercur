@@ -2,6 +2,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Soft deletes member invitation with restore capability.
+ */
 export const deleteMemberInvitesStep = createStep(
   'delete-member-invites',
   async (id: string, { container }) => {

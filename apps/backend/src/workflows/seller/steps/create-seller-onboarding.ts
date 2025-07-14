@@ -3,6 +3,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { SellerDTO } from '@mercurjs/framework'
 import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Creates seller onboarding record for tracking progress.
+ */
 export const createSellerOnboardingStep = createStep(
   'create-seller-onboarding',
   async (input: SellerDTO, { container }) => {

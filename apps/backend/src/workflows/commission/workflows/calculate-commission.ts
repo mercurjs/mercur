@@ -8,6 +8,9 @@ type WorkflowInput = {
   seller_id: string
 }
 
+/**
+ * Calculates and creates commission lines for order and seller.
+ */
 export const calculateCommissionWorkflow = createWorkflow(
   'calculate-commission-workflow',
   function (input: WorkflowInput) {

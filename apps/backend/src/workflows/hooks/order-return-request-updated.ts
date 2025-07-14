@@ -5,6 +5,9 @@ import { SELLER_MODULE } from '@mercurjs/seller'
 import returnRequestOrder from '../../links/return-request-order'
 import { updateOrderReturnRequestWorkflow } from '../order-return-request/workflows'
 
+/**
+ * Links seller to order returns when return request is updated.
+ */
 updateOrderReturnRequestWorkflow.hooks.orderReturnRequestUpdated(
   async ({ requestId }, { container }) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)

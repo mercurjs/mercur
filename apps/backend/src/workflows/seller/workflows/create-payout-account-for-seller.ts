@@ -15,6 +15,9 @@ type CreatePayoutAccountForSellerInput = {
   seller_id: string
 }
 
+/**
+ * Creates payout account for seller with validation and linking.
+ */
 export const createPayoutAccountForSellerWorkflow = createWorkflow(
   {
     name: 'create-payout-account-for-seller',

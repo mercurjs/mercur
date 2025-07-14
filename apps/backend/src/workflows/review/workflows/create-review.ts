@@ -15,6 +15,9 @@ import { SELLER_MODULE } from '@mercurjs/seller'
 
 import { createReviewStep, validateReviewStep } from '../steps'
 
+/**
+ * Creates a review, links it, and emits Algolia event.
+ */
 export const createReviewWorkflow = createWorkflow(
   {
     name: 'create-review'

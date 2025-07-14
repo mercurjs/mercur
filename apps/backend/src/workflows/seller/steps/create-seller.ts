@@ -4,6 +4,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { CreateSellerDTO, SellerDTO } from '@mercurjs/framework'
 import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Creates a seller record with generated handle from name.
+ */
 export const createSellerStep = createStep(
   'create-seller',
   async (input: CreateSellerDTO, { container }) => {

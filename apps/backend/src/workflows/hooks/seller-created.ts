@@ -5,6 +5,9 @@ import { SELLER_MODULE } from '@mercurjs/seller'
 
 import { createSellerWorkflow } from '../seller/workflows'
 
+/**
+ * Creates default shipping profile and links it to newly created seller.
+ */
 createSellerWorkflow.hooks.sellerCreated(
   async ({ sellerId }, { container }) => {
     const link = container.resolve(ContainerRegistrationKeys.LINK)

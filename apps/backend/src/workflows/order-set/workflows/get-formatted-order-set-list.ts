@@ -8,6 +8,9 @@ import { useQueryGraphStep } from '@medusajs/medusa/core-flows'
 
 import { formatOrderSets } from '../utils'
 
+/**
+ * Retrieves and formats order set list with comprehensive fields.
+ */
 export const getFormattedOrderSetListWorkflow = createWorkflow(
   'get-formatted-order-set-list',
   function (input: {

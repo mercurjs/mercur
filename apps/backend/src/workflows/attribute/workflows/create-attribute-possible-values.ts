@@ -13,6 +13,9 @@ const createAttributePossibleValuesWorkflowId =
 export type CreateAttributePossibleValuesWorkflowInput =
   CreateAttributeValueDTO[]
 
+/**
+ * Creates multiple attribute possible values in batch.
+ */
 export const createAttributePossibleValuesWorkflow = createWorkflow(
   createAttributePossibleValuesWorkflowId,
   (input: CreateAttributePossibleValuesWorkflowInput) => {

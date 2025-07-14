@@ -10,6 +10,9 @@ import { UpdateRequestDTO } from '@mercurjs/framework'
 
 import { updateRequestStep } from '../steps'
 
+/**
+ * Updates a request and emits status-specific events.
+ */
 export const updateRequestWorkflow = createWorkflow(
   'update-request',
   function (input: UpdateRequestDTO) {

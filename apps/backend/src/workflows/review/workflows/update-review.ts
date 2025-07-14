@@ -8,6 +8,9 @@ import { AlgoliaEvents, UpdateReviewDTO } from '@mercurjs/framework'
 
 import { updateReviewStep } from '../steps'
 
+/**
+ * Updates a review and emits Algolia event.
+ */
 export const updateReviewWorkflow = createWorkflow(
   {
     name: 'update-review'

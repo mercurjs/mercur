@@ -3,6 +3,9 @@ import { updateCollectionsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { AlgoliaEvents } from '@mercurjs/framework'
 
+/**
+ * Emits Algolia products changed event when collections are updated.
+ */
 updateCollectionsWorkflow.hooks.collectionsUpdated(
   async ({ collections }, { container }) => {
     const productIds = collections

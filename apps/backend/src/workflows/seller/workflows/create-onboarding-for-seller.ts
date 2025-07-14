@@ -12,6 +12,9 @@ type CreateOnboardingForSellerInput = {
   seller_id: string
 }
 
+/**
+ * Creates payout onboarding for seller with account validation.
+ */
 export const createOnboardingForSellerWorkflow = createWorkflow(
   'create-onboarding-for-seller',
   function (input: CreateOnboardingForSellerInput) {

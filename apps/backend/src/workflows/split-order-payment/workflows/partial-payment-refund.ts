@@ -19,6 +19,9 @@ import { RefundSplitOrderPaymentsDTO } from '@mercurjs/framework'
 
 import orderSplitOrderPayment from '../../../links/order-split-order-payment'
 
+/**
+ * Validates and selects payment for refund with amount validation.
+ */
 export const selectAndValidatePaymentRefundStep = createStep(
   'select-and-validate-payment-refund-step',
   async function (input: RefundSplitOrderPaymentsDTO, { container }) {
@@ -90,6 +93,9 @@ export const selectAndValidatePaymentRefundStep = createStep(
   }
 )
 
+/**
+ * Processes partial payment refund with transaction recording.
+ */
 export const partialPaymentRefundWorkflow = createWorkflow(
   {
     name: 'partial-payment-refund'

@@ -9,6 +9,9 @@ import {
 import { emitMultipleEventsStep } from '../../common/steps'
 import { createRequestStep } from '../steps'
 
+/**
+ * Creates seller creation request with multiple event emissions.
+ */
 export const createSellerCreationRequestWorkflow = createWorkflow(
   'create-seller-creation-request',
   function (input: CreateRequestDTO) {

@@ -10,6 +10,9 @@ import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 import { Hosts, buildHostAddress } from '../../../shared/infra/http/utils/hosts'
 
+/**
+ * Sends seller invitation email with registration link.
+ */
 export const sendSellerInvitationEmailStep = createStep(
   'send-seller-invitation-email',
   async (input: CreateSellerInvitationDTO, { container }) => {

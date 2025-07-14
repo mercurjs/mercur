@@ -13,6 +13,9 @@ import { createAttributeValueStep, validateAttributeValueStep } from '../steps'
 
 export const createAttributeValueWorkflowId = 'create-attribute-value'
 
+/**
+ * Creates attribute value with product linking and validation.
+ */
 export const createAttributeValueWorkflow = createWorkflow(
   createAttributeValueWorkflowId,
   (input: CreateProductAttributeValueDTO) => {

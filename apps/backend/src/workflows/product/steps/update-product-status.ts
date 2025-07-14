@@ -1,6 +1,9 @@
 import { Modules, ProductStatus } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
+/**
+ * Updates product status in the product service.
+ */
 export const updateProductStatusStep = createStep(
   'update-product-status',
   async (input: { id: string; status: ProductStatus }, { container }) => {

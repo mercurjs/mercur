@@ -3,6 +3,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { CreateMemberInviteDTO } from '@mercurjs/framework'
 import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Creates member invitation with rollback deletion capability.
+ */
 export const createMemberInviteStep = createStep(
   'create-member-invite',
   async (input: CreateMemberInviteDTO, { container }) => {

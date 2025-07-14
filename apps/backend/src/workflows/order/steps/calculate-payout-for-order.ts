@@ -3,6 +3,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SplitOrderPaymentDTO } from '@mercurjs/framework'
 
+/**
+ * Calculates payout amount for order after deducting commissions.
+ */
 export const calculatePayoutForOrderStep = createStep(
   'calculate-payout-for-order',
   async (

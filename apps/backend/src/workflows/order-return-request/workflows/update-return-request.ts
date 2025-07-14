@@ -13,6 +13,9 @@ import {
 import { updateOrderReturnRequestStep } from '../steps'
 import { proceedReturnRequestWorkflow } from './proceed-return-request'
 
+/**
+ * Updates return request and creates return object when refunded.
+ */
 export const updateOrderReturnRequestWorkflow = createWorkflow(
   'update-order-return-request',
   function (

@@ -7,6 +7,9 @@ import { CreateWishlistDTO } from '@mercurjs/framework'
 
 import { createWishlistEntryStep } from '../steps'
 
+/**
+ * Creates wishlist entry and returns the created entry.
+ */
 export const createWishlistEntryWorkflow = createWorkflow(
   {
     name: 'create-wishlist'

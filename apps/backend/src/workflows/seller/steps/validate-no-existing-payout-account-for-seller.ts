@@ -6,6 +6,9 @@ import { createStep } from '@medusajs/framework/workflows-sdk'
 
 import sellerPayoutAccountLink from '../../../links/seller-payout-account'
 
+/**
+ * Validates that seller has no existing payout account.
+ */
 export const validateNoExistingPayoutAccountForSellerStep = createStep(
   'validate-no-existing-payout-account-for-seller',
   async (sellerId: string, { container }) => {

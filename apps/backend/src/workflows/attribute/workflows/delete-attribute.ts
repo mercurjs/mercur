@@ -11,6 +11,9 @@ type DeleteAttributeWorkflowInput = {
   id: string
 }
 
+/**
+ * Deletes attribute and returns the deleted attribute.
+ */
 export const deleteAttributeWorkflow = createWorkflow(
   deleteAttributeWorkflowId,
   (input: DeleteAttributeWorkflowInput) => {

@@ -3,6 +3,9 @@ import { REQUESTS_MODULE, RequestsModuleService } from '@mercurjs/requests'
 import { updateProductStatusWorkflow } from '../product/workflows'
 import { updateRequestWorkflow } from '../requests/workflows'
 
+/**
+ * Handles request updates and triggers product status changes when requests are rejected.
+ */
 updateRequestWorkflow.hooks.requestUpdated(async ({ id }, { container }) => {
   const service = container.resolve<RequestsModuleService>(REQUESTS_MODULE)
 

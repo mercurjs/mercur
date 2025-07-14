@@ -20,6 +20,9 @@ type CreateAttributesWorkflowInput = {
   attributes: CreateAttributeDTO[]
 }
 
+/**
+ * Creates attributes with product category linking.
+ */
 export const createAttributesWorkflow = createWorkflow(
   createAttributesWorkflowId,
   (input: WorkflowData<CreateAttributesWorkflowInput>) => {

@@ -23,6 +23,9 @@ export type UpdateAttributesWorkflowInput = {
   attributes: UpdateAttributeDTO[]
 }
 
+/**
+ * Updates attributes with category link management.
+ */
 export const updateAttributesWorkflow = createWorkflow(
   updateAttributesWorkflowId,
   (input: UpdateAttributesWorkflowInput) => {

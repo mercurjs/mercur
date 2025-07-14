@@ -16,6 +16,9 @@ import { createBrandStep } from '../steps'
 
 type WorkflowData = { product_id: string; brand_name: string }
 
+/**
+ * Assigns a brand to a product and emits update event.
+ */
 export const assignBrandToProductWorkflow = createWorkflow(
   'assign-brand-to-product',
   function (input: WorkflowData) {

@@ -5,6 +5,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { CreateProduct } from '../../../api/vendor/products/validators'
 
+/**
+ * Validates and transforms products for import with proposed status.
+ */
 export const validateProductsToImportStep = createStep(
   'validate-products-to-import',
   async (products: unknown[]) => {

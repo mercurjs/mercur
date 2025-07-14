@@ -2,6 +2,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Soft deletes seller with restore capability on rollback.
+ */
 export const deleteSellerStep = createStep(
   'delete-seller',
   async (id: string, { container }) => {

@@ -3,6 +3,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { MemberDTO, UpdateMemberDTO } from '@mercurjs/framework'
 import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Updates member information with rollback capability.
+ */
 export const updateMemberStep = createStep(
   'update-member',
   async (input: UpdateMemberDTO, { container }) => {

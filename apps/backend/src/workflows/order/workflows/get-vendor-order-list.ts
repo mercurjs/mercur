@@ -13,6 +13,9 @@ import {
 
 import { getLastFulfillmentStatus } from '../utils/aggregate-status'
 
+/**
+ * Retrieves vendor orders list with aggregated status and payment information.
+ */
 export const getVendorOrdersListWorkflow = createWorkflow(
   'get-vendor-orders-list',
   (input: WorkflowData<GetOrdersListWorkflowInput>) => {

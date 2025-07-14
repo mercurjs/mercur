@@ -7,6 +7,9 @@ import { DeleteWishlistDTO } from '@mercurjs/framework'
 
 import { deleteWishlistEntryStep } from '../steps'
 
+/**
+ * Deletes wishlist entry and returns the deleted entry.
+ */
 export const deleteWishlistEntryWorkflow = createWorkflow(
   {
     name: 'delete-wishlist'

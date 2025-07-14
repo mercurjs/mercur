@@ -8,6 +8,9 @@ import { AcceptRequestDTO } from '@mercurjs/framework'
 
 import { updateRequestWorkflow } from './update-request'
 
+/**
+ * Accepts product type request and creates the type.
+ */
 export const acceptProductTypeRequestWorkflow = createWorkflow(
   'accept-product-type-request',
   function (input: AcceptRequestDTO) {

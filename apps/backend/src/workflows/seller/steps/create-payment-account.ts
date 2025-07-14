@@ -4,6 +4,9 @@ import { CreatePayoutAccountDTO } from '@mercurjs/framework'
 import { PAYOUT_MODULE } from '@mercurjs/payout'
 import { PayoutModuleService } from '@mercurjs/payout'
 
+/**
+ * Creates payout account with rollback deletion capability.
+ */
 export const createPayoutAccountStep = createStep(
   'create-payout-account',
   async (input: CreatePayoutAccountDTO, { container }) => {

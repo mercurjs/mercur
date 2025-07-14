@@ -5,6 +5,9 @@ import {
   getOrderDetailWorkflow
 } from '@medusajs/medusa/core-flows'
 
+/**
+ * Completes order when shipment is created and payment is captured.
+ */
 createOrderShipmentWorkflow.hooks.shipmentCreated(
   async ({ shipment }, { container }) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)

@@ -12,6 +12,9 @@ import {
 
 import { SELLER_MODULE } from '@mercurjs/seller'
 
+/**
+ * Creates vendor campaign with seller linking.
+ */
 export const createVendorCampaignWorkflow = createWorkflow(
   'create-vendor-campaign',
   function (input: { campaign: CreateCampaignDTO; seller_id: string }) {

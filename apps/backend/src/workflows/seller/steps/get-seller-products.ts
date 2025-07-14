@@ -39,6 +39,9 @@ export const exportProductFields = [
   'variants.options.*'
 ]
 
+/**
+ * Retrieves all products associated with a specific seller.
+ */
 export const getSellerProductsStep = createStep(
   'get-seller-products',
   async (seller_id: string, { container }) => {

@@ -6,6 +6,9 @@ import { createStep } from '@medusajs/framework/workflows-sdk'
 
 import orderPayoutLink from '../../../links/order-payout'
 
+/**
+ * Validates that no payout already exists for the given order.
+ */
 export const validateNoExistingPayoutForOrderStep = createStep(
   'validate-no-existing-payout-for-order',
   async (id: string, { container }) => {

@@ -4,6 +4,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { UpdateRequestDataDTO } from '@mercurjs/framework'
 import { REQUESTS_MODULE, RequestsModuleService } from '@mercurjs/requests'
 
+/**
+ * Updates request data with validation for status and type consistency.
+ */
 export const updateRequestDataStep = createStep(
   'update-request-data',
   async (input: UpdateRequestDataDTO, { container }) => {

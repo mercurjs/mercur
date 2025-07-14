@@ -5,6 +5,9 @@ import { createProductVariantsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { SELLER_MODULE } from '@mercurjs/seller'
 
+/**
+ * Retrieves inventory item IDs for a given product variant.
+ */
 const getVariantInventoryItemIds = async (
   variantId: string,
   container: MedusaContainer
@@ -23,6 +26,9 @@ const getVariantInventoryItemIds = async (
     .flat(2)
 }
 
+/**
+ * Links seller to inventory items when product variants are created.
+ */
 createProductVariantsWorkflow.hooks.productVariantsCreated(
   async ({ product_variants, additional_data }, { container }) => {
     if (!additional_data?.seller_id) {

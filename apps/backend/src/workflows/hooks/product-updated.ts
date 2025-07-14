@@ -5,6 +5,9 @@ import { AlgoliaEvents } from '@mercurjs/framework'
 
 import { productsUpdatedHookHandler } from '../attribute/utils'
 
+/**
+ * Handles product updates with attribute processing and Algolia sync.
+ */
 updateProductsWorkflow.hooks.productsUpdated(
   async ({ products, additional_data }, { container }) => {
     await productsUpdatedHookHandler({

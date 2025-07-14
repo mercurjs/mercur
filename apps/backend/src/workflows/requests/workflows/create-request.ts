@@ -15,6 +15,9 @@ import { SELLER_MODULE } from '@mercurjs/seller'
 
 import { createRequestStep } from '../steps'
 
+/**
+ * Creates a request and links it to the seller with event emission.
+ */
 export const createRequestWorkflow = createWorkflow(
   'create-request',
   function (input: { data: CreateRequestDTO; seller_id: string }) {

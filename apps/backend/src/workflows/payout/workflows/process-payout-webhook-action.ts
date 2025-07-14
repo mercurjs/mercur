@@ -14,6 +14,9 @@ type ProcessPayoutWebhookActionInput = {
   data: PayoutWebhookActionAndDataResponse['data']
 }
 
+/**
+ * Processes payout webhook actions and updates account status accordingly.
+ */
 export const processPayoutWebhookActionWorkflow = createWorkflow(
   'process-payout-action',
   function (input: ProcessPayoutWebhookActionInput) {

@@ -11,6 +11,9 @@ type CreatePayoutReversalStepInput = {
   currency_code: string
 }
 
+/**
+ * Creates a payout reversal record for refunded transactions.
+ */
 export const createPayoutReversalStep = createStep(
   'create-payout-reversal',
   async (input: CreatePayoutReversalStepInput, { container }) => {

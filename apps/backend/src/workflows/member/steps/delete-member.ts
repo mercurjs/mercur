@@ -4,6 +4,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { MemberRole } from '@mercurjs/framework'
 import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Soft deletes member with owner validation and restore capability.
+ */
 export const deleteMemberStep = createStep(
   'delete-member',
   async (id: string, { container }) => {

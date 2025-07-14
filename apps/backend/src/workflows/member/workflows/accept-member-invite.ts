@@ -12,6 +12,9 @@ type AcceptMemberInviteWorkflowInput = {
   authIdentityId: string
 }
 
+/**
+ * Accepts member invitation and creates member with auth metadata.
+ */
 export const acceptMemberInvitesWorkflow = createWorkflow(
   'accept-member-invite',
   function (input: AcceptMemberInviteWorkflowInput) {

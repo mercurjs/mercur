@@ -1,9 +1,11 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { CreatePayoutDTO, PayoutDTO } from '@mercurjs/framework'
-import { PAYOUT_MODULE } from '@mercurjs/payout'
-import { PayoutModuleService } from '@mercurjs/payout'
+import { PAYOUT_MODULE, PayoutModuleService } from '@mercurjs/payout'
 
+/**
+ * Creates a payout record for the specified transaction details.
+ */
 export const createPayoutStep = createStep(
   'create-payout',
   async (input: CreatePayoutDTO, { container }) => {

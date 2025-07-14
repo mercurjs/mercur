@@ -6,6 +6,9 @@ import { createWorkflow, transform, when } from '@medusajs/workflows-sdk'
 
 import { verifyVendorTargetPromotionRulesStep } from '../steps'
 
+/**
+ * Batches vendor promotion rules with target rule validation.
+ */
 export const batchVendorPromotionRulesWorkflow = createWorkflow(
   'batch-vendor-promotion-rules',
   function (input: {

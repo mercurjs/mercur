@@ -6,6 +6,9 @@ type Input = {
   data: Record<string, any>
 }
 
+/**
+ * Emits multiple events in parallel using event bus.
+ */
 export const emitMultipleEventsStep = createStep(
   'emit-multiple-events',
   async (input: Input[], { container }) => {

@@ -16,6 +16,9 @@ import { emitMultipleEventsStep } from '../../common/steps'
 
 type WorkflowData = { ids: string[]; seller_id: string }
 
+/**
+ * Deletes vendor service zones and removes seller links.
+ */
 export const deleteVendorServiceZonesWorkflow = createWorkflow(
   'delete-vendor-service-zones',
   function ({ ids, seller_id }: WorkflowData) {

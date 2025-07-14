@@ -6,6 +6,9 @@ import { AcceptRequestDTO } from '@mercurjs/framework'
 
 import { updateRequestWorkflow } from './update-request'
 
+/**
+ * Accepts product category request and creates the category.
+ */
 export const acceptProductCategoryRequestWorkflow = createWorkflow(
   'accept-product-category-request',
   function (input: AcceptRequestDTO) {

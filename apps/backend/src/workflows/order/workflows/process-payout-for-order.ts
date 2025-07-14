@@ -21,6 +21,9 @@ type ProcessPayoutForOrderWorkflowInput = {
   order_id: string
 }
 
+/**
+ * Processes payout for an order with validation and event emission.
+ */
 export const processPayoutForOrderWorkflow = createWorkflow(
   { name: 'process-payout-for-order' },
   function (input: ProcessPayoutForOrderWorkflowInput) {

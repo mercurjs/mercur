@@ -3,6 +3,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { PAYOUT_MODULE } from '@mercurjs/payout'
 import { PayoutModuleService } from '@mercurjs/payout'
 
+/**
+ * Synchronizes Stripe account data with payout service.
+ */
 export const syncStripeAccountStep = createStep(
   'sync-stripe-account',
   async (account_id: string, { container }) => {

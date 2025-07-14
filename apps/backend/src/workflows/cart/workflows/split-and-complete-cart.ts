@@ -49,6 +49,9 @@ type SplitAndCompleteCartWorkflowInput = {
   id: string
 }
 
+/**
+ * Splits cart by seller and creates separate orders with payments.
+ */
 export const splitAndCompleteCartWorkflow = createWorkflow(
   {
     name: 'split-and-complete-cart',

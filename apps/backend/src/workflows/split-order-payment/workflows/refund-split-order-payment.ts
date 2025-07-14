@@ -10,6 +10,9 @@ import { updateSplitOrderPaymentsStep } from '../steps'
 import { validateRefundSplitOrderPaymentStep } from '../steps/validate-refund-split-order-payment'
 import { partialPaymentRefundWorkflow } from './partial-payment-refund'
 
+/**
+ * Refunds split order payment with validation and partial refund.
+ */
 export const refundSplitOrderPaymentWorkflow = createWorkflow(
   {
     name: 'refund-split-order-payment'

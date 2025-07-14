@@ -14,6 +14,9 @@ import { SELLER_MODULE } from '@mercurjs/seller'
 
 import { validateVendorPriceListPricesStep } from '../steps'
 
+/**
+ * Creates vendor price list with seller linking and validation.
+ */
 export const createVendorPriceListWorkflow = createWorkflow(
   'create-vendor-price-list',
   function ({

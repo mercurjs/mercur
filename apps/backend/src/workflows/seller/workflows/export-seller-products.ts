@@ -6,6 +6,9 @@ import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
 import { getSellerProductsStep } from '../steps'
 
+/**
+ * Exports seller products to CSV format with file details.
+ */
 export const exportSellerProductsWorkflow = createWorkflow(
   'export-seller-products',
   function (seller_id: string) {

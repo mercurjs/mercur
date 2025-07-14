@@ -15,6 +15,9 @@ type WorkflowInput = {
   update: UpdatePriceListPriceWorkflowDTO[]
 }
 
+/**
+ * Batches vendor price list prices with seller validation.
+ */
 export const batchVendorPriceListPricesWorkflow = createWorkflow(
   'batch-vendor-price-list-prices',
   function (input: WorkflowInput) {

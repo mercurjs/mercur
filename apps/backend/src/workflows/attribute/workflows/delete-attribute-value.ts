@@ -18,6 +18,9 @@ export const deleteAttributeValueWorkflowId = 'delete-attribute-value'
 
 export type DeleteAttributeValueWorkflowInput = string | string[]
 
+/**
+ * Deletes attribute values and removes product links.
+ */
 export const deleteAttributeValueWorkflow = createWorkflow(
   deleteAttributeValueWorkflowId,
   (input: DeleteAttributeValueWorkflowInput) => {

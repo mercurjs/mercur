@@ -17,6 +17,9 @@ import { emitMultipleEventsStep } from '../../common/steps'
 import { createRequestStep } from '../../requests/steps'
 import { validateProductsToImportStep } from '../steps'
 
+/**
+ * Imports seller products from CSV with validation and request creation.
+ */
 export const importSellerProductsWorkflow = createWorkflow(
   'import-seller-products',
   function (input: {

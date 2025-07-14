@@ -16,6 +16,9 @@ type WorkflowInput = {
   created_by: string
   seller_id: string
 }
+/**
+ * Creates customer group and links it to seller.
+ */
 export const createSellerCustomerGroupWorkflow = createWorkflow(
   'create-seller-customer-group',
   function (input: WorkflowInput) {

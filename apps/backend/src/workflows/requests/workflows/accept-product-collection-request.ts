@@ -6,6 +6,9 @@ import { AcceptRequestDTO } from '@mercurjs/framework'
 
 import { updateRequestWorkflow } from './update-request'
 
+/**
+ * Accepts product collection request and creates the collection.
+ */
 export const acceptProductCollectionRequestWorkflow = createWorkflow(
   'accept-product-collection-request',
   function (input: AcceptRequestDTO) {

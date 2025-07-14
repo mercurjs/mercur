@@ -3,6 +3,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { AcceptMemberInviteDTO } from '@mercurjs/framework'
 import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Validates member invitation token and returns invite details.
+ */
 export const validateMemberInviteStep = createStep(
   'validate-member-invite',
   async (input: AcceptMemberInviteDTO, { container }) => {

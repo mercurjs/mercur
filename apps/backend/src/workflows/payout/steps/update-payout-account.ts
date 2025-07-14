@@ -1,9 +1,11 @@
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { PayoutAccountDTO, UpdatePayoutAccountDTO } from '@mercurjs/framework'
-import { PAYOUT_MODULE } from '@mercurjs/payout'
-import { PayoutModuleService } from '@mercurjs/payout'
+import { PAYOUT_MODULE, PayoutModuleService } from '@mercurjs/payout'
 
+/**
+ * Updates payout account status in the payout service.
+ */
 export const updatePayoutAccountStep = createStep(
   'update-payout-account',
   async (input: UpdatePayoutAccountDTO, { container }) => {

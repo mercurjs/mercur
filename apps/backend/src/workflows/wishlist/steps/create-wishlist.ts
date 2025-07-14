@@ -6,6 +6,9 @@ import { WISHLIST_MODULE } from '@mercurjs/wishlist'
 import { WishlistModuleService } from '@mercurjs/wishlist'
 import { getWishlistFromCustomerId } from '@mercurjs/wishlist'
 
+/**
+ * Creates wishlist entry with customer and product linking.
+ */
 export const createWishlistEntryStep = createStep(
   'create-wishlist',
   async (input: CreateWishlistDTO, { container }) => {

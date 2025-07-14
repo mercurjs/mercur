@@ -5,6 +5,9 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { SellerDTO, SellerEvents, UpdateSellerDTO } from '@mercurjs/framework'
 import { SELLER_MODULE, SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Updates seller information with handle generation and event emission.
+ */
 export const updateSellerStep = createStep(
   'update-seller',
   async (input: UpdateSellerDTO, { container }) => {

@@ -5,6 +5,9 @@ import {
 } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
+/**
+ * Calculates total commission amount for order line items.
+ */
 export const calculateTotalCommissionStep = createStep(
   'calculate-total-commission',
   async (

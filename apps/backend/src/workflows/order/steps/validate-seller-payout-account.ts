@@ -4,6 +4,9 @@ import { MedusaError } from '@medusajs/utils'
 import { SellerWithPayoutAccountDTO } from '@mercurjs/framework'
 import { PayoutAccountStatus } from '@mercurjs/framework'
 
+/**
+ * Validates that seller has an active payout account configured.
+ */
 export const validateSellerPayoutAccountStep = createStep(
   'validate-seller-payout-account',
   async (seller: SellerWithPayoutAccountDTO) => {

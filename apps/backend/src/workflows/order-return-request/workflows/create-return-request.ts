@@ -16,6 +16,9 @@ import {
   validateOrderReturnRequestStep
 } from '../steps'
 
+/**
+ * Creates order return request with seller and order linking.
+ */
 export const createOrderReturnRequestWorkflow = createWorkflow(
   'create-order-return-request',
   function (input: { data: CreateOrderReturnRequestDTO; seller_id: string }) {

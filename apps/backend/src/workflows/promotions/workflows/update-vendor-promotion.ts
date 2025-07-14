@@ -4,6 +4,9 @@ import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
 import { verifyVendorCampaignStep } from '../steps'
 
+/**
+ * Updates vendor promotion with campaign validation.
+ */
 export const updateVendorPromotionWorkflow = createWorkflow(
   'update-vendor-promotion',
   function (input: { promotion: UpdatePromotionDTO; seller_id: string }) {

@@ -7,6 +7,9 @@ import { createPriceListPricesWorkflow } from '@medusajs/medusa/core-flows'
 
 import { validateVendorPriceListPricesStep } from '../steps'
 
+/**
+ * Creates vendor price list prices with seller validation.
+ */
 export const createVendorPriceListPricesWorkflow = createWorkflow(
   'create-vendor-prices-list',
   function ({

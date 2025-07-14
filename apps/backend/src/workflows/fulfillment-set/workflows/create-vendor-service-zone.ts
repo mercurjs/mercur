@@ -17,6 +17,9 @@ import { emitMultipleEventsStep } from '../../common/steps'
 
 type WorkflowData = { seller_id: string; data: CreateServiceZoneDTO[] }
 
+/**
+ * Creates vendor service zones with seller linking and events.
+ */
 export const createVendorServiceZonesWorkflow = createWorkflow(
   'create-vendor-service-zones',
   function ({ data, seller_id }: WorkflowData) {

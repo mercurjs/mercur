@@ -4,6 +4,9 @@ import { CreateMemberDTO, MemberDTO } from '@mercurjs/framework'
 import { SELLER_MODULE } from '@mercurjs/seller'
 import { SellerModuleService } from '@mercurjs/seller'
 
+/**
+ * Creates a member record in the seller service with rollback capability.
+ */
 export const createMemberStep = createStep(
   'create-member',
   async (input: CreateMemberDTO, { container }) => {

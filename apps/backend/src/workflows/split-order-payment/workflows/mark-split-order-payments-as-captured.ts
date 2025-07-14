@@ -7,6 +7,9 @@ import { useQueryGraphStep } from '@medusajs/medusa/core-flows'
 
 import { updateSplitOrderPaymentsStep } from '../steps'
 
+/**
+ * Marks split order payments as captured with amount update.
+ */
 export const markSplitOrderPaymentsAsCapturedWorkflow = createWorkflow(
   {
     name: 'mark-split-order-payments-as-captured'

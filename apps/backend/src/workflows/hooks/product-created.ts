@@ -10,6 +10,9 @@ import { SELLER_MODULE } from '@mercurjs/seller'
 import sellerShippingProfile from '../../links/seller-shipping-profile'
 import { productsCreatedHookHandler } from '../attribute/utils'
 
+/**
+ * Retrieves inventory item IDs for a given product variant.
+ */
 const getVariantInventoryItemIds = async (
   variantId: string,
   container: MedusaContainer
@@ -28,6 +31,9 @@ const getVariantInventoryItemIds = async (
     .flat(2)
 }
 
+/**
+ * Assigns default seller shipping profile to a product if none exists.
+ */
 const assignDefaultSellerShippingProfile = async (
   container: MedusaContainer,
   product_id: string,
@@ -76,6 +82,9 @@ const assignDefaultSellerShippingProfile = async (
   })
 }
 
+/**
+ * Handles product creation with seller linking and inventory management.
+ */
 createProductsWorkflow.hooks.productsCreated(
   async ({ products, additional_data }, { container }) => {
     await productsCreatedHookHandler({

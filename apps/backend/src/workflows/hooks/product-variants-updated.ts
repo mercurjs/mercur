@@ -3,6 +3,9 @@ import { updateProductVariantsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { AlgoliaEvents } from '@mercurjs/framework'
 
+/**
+ * Emits Algolia products changed event when product variants are updated.
+ */
 updateProductVariantsWorkflow.hooks.productVariantsUpdated(
   async ({ product_variants }, { container }) => {
     await container.resolve(Modules.EVENT_BUS).emit({

@@ -15,6 +15,9 @@ import { SELLER_MODULE } from '@mercurjs/seller'
 import { verifyVendorCampaignStep, verifyVendorPromotionStep } from '../steps'
 import { verifyVendorTargetPromotionRulesStep } from '../steps/verify-vendor-target-promotion-rules'
 
+/**
+ * Creates vendor promotion with validation and seller linking.
+ */
 export const createVendorPromotionWorkflow = createWorkflow(
   'create-vendor-promotion',
   function (input: { promotion: CreatePromotionDTO; seller_id: string }) {

@@ -17,6 +17,9 @@ type CreateSellerWorkflowInput = {
   auth_identity_id: string
 }
 
+/**
+ * Creates a seller with member account and onboarding setup.
+ */
 export const createSellerWorkflow = createWorkflow(
   'create-seller',
   function (input: CreateSellerWorkflowInput) {

@@ -9,6 +9,9 @@ import sellerPayoutAccount from '../../../links/seller-payout-account'
 import sellerProduct from '../../../links/seller-product'
 import sellerStockLocation from '../../../links/seller-stock-location'
 
+/**
+ * Recalculates seller onboarding progress based on completion criteria.
+ */
 export const recalculateOnboardingStep = createStep(
   'recalculate-onboarding',
   async (seller_id: string, { container }) => {

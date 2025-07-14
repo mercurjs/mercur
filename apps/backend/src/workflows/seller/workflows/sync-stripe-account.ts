@@ -5,6 +5,9 @@ import {
 
 import { syncStripeAccountStep } from '../steps'
 
+/**
+ * Synchronizes seller's Stripe account information.
+ */
 export const syncStripeAccountWorkflow = createWorkflow(
   'sync-stripe-account',
   function (account_id: string) {

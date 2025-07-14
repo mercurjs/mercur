@@ -4,6 +4,9 @@ import sellerOrder from '../../links/seller-order'
 import { splitAndCompleteCartWorkflow } from '../cart/workflows'
 import { calculateCommissionWorkflow } from '../commission/workflows'
 
+/**
+ * Calculates commission for all orders in newly created order set.
+ */
 splitAndCompleteCartWorkflow.hooks.orderSetCreated(
   async ({ orderSetId }, { container }) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)

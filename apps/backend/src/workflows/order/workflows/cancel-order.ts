@@ -28,6 +28,9 @@ import {
 import { createPayoutReversalStep } from '../../payout/steps'
 import { refundSplitOrderPaymentWorkflow } from '../../split-order-payment/workflows'
 
+/**
+ * Validates order can be canceled and checks fulfillment status.
+ */
 export const cancelValidateOrder = createStep(
   'cancel-validate-order',
   async ({ order }: CancelValidateOrderStepInput) => {
@@ -52,6 +55,9 @@ export const cancelValidateOrder = createStep(
   }
 )
 
+/**
+ * Cancels an order with refunds, payout reversals, and inventory updates.
+ */
 export const cancelOrderWorkflow = createWorkflow(
   'cancel-single-order',
   (input: WorkflowData<OrderWorkflow.CancelOrderWorkflowInput>) => {
