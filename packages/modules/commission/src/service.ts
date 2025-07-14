@@ -7,11 +7,24 @@ import {
   CommissionRuleDTO,
 } from "@mercurjs/framework";
 
+/**
+ * @class CommissionModuleService
+ * @description The commission module service.
+ */
 class CommissionModuleService extends MedusaService({
   CommissionRate,
   CommissionRule,
   CommissionLine,
 }) {
+  /**
+ * *
+ * This method "selects an active commission rule using reference identifiers"
+ * 
+ * @param {string} reference - Identifier for the commission rule search criteria
+ * @param {string} reference_id - Unique identifier for the commission rule search criteria
+ * @returns {Promise<any>} Represents the completion of an asynchronous operation
+
+ */
   private async selectCommissionRule(reference: string, reference_id: string) {
     const [rule] = await this.listCommissionRules(
       { reference, reference_id, is_active: true, deleted_at: null },

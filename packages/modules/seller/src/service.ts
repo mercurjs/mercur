@@ -13,10 +13,24 @@ import { SELLER_MODULE } from ".";
 import { Member, MemberInvite, Seller, SellerOnboarding } from "./models";
 import { MemberInviteDTO } from "@mercurjs/framework";
 
+/**
+ * @interface InjectedDependencies
+ * @description Represents the injected dependencies for the seller module service.
+ * 
+ * @property {ConfigModule} configModule - The configmodule of the injected dependencies
+
+ */
 type InjectedDependencies = {
   configModule: ConfigModule;
 };
 
+/**
+ * @interface SellerModuleConfig
+ * @description Represents the seller module config.
+ * 
+ * @property {number} validInviteDuration - The valid invite duration of the seller module config
+
+ */
 type SellerModuleConfig = {
   validInviteDuration: number;
 };
@@ -24,6 +38,10 @@ type SellerModuleConfig = {
 // 7 days in ms
 const DEFAULT_VALID_INVITE_DURATION = 1000 * 60 * 60 * 24 * 7;
 
+/**
+ * @class SellerModuleService
+ * @description Represents the seller module service.
+ */
 class SellerModuleService extends MedusaService({
   MemberInvite,
   Member,
@@ -51,6 +69,14 @@ class SellerModuleService extends MedusaService({
     };
   }
 
+  /**
+ * @method validateInviteToken
+ * @description This method validates the integrity and expiration of an invite token
+ * 
+ * @param {string} token - Unique identifier for a membership invitation
+ * @returns {Promise<any>} Represents the completion of an asynchronous operation
+
+ */
   async validateInviteToken(token: string) {
     const jwtSecret = this.httpConfig_.jwtSecret;
     const decoded: JwtPayload = jwt.verify(token, jwtSecret, {
@@ -76,6 +102,15 @@ class SellerModuleService extends MedusaService({
     return invite;
   }
 
+  /**
+ * @method createMemberInvites
+ * @description This method creates member invites.
+ * 
+ * @param {any} input - Details for generating new member invitations
+ * @param {Context} sharedContext - Medusa framework's execution context
+ * @returns {Promise<MemberInviteDTO[]>} The created member invites.
+
+ */
   @InjectTransactionManager()
   // @ts-expect-error: createInvites method already exists
   async createMemberInvites(
@@ -114,6 +149,14 @@ class SellerModuleService extends MedusaService({
     return updates;
   }
 
+  /**
+ * @method generateToken
+ * @description This method creates a secure token for a given ID
+ * 
+ * @param {{ id: string; }} data - Credentials for secure authentication token generation
+ * @returns {string} Generates a secure token for user authentication.
+
+ */
   private generateToken(data: { id: string }): string {
     const jwtSecret = this.httpConfig_.jwtSecret as string;
     return jwt.sign(data, jwtSecret, {
@@ -121,6 +164,14 @@ class SellerModuleService extends MedusaService({
     });
   }
 
+  /**
+ * @method isOnboardingCompleted
+ * @description This method represents the completion of an asynchronous operation
+ * 
+ * @param {string} seller_id - Unique identifier for the seller in query.
+ * @returns {Promise<boolean>} Represents the completion of an asynchronous operation
+
+ */
   async isOnboardingCompleted(seller_id: string): Promise<boolean> {
     const { onboarding } = await this.retrieveSeller(seller_id, {
       relations: ["onboarding"],

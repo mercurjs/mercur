@@ -19,10 +19,20 @@ import {
   PayoutWebhookActionPayload,
 } from "@mercurjs/framework";
 
+/**
+ * @interface InjectedDependencies
+ * @description Represents the dependencies for the payout module service.
+ * @property {IPayoutProvider} payoutProvider - The associated payout provider.
+
+ */
 type InjectedDependencies = {
   payoutProvider: IPayoutProvider;
 };
 
+/**
+ * @class PayoutModuleService
+ * @description Represents the payout module service.
+ */
 class PayoutModuleService extends MedusaService({
   Payout,
   PayoutReversal,
@@ -36,6 +46,15 @@ class PayoutModuleService extends MedusaService({
     this.provider_ = payoutProvider;
   }
 
+  /**
+ * *
+ * This method creates a payout account.
+ * 
+ * @param {CreatePayoutAccountDTO} __0 - The payout account to be created.
+ * @param {Context<SqlEntityManager<AbstractSqlDriver<AbstractSqlConnection, AbstractSqlPlatform>>>} sharedContext - Medusa transaction and entity management context
+ * @returns {Promise<any>} The created payout account.
+
+ */
   @InjectTransactionManager()
   async createPayoutAccount(
     { context }: CreatePayoutAccountDTO,
@@ -74,6 +93,15 @@ class PayoutModuleService extends MedusaService({
     }
   }
 
+  /**
+ * @method syncStripeAccount
+ * @description This method synchronizes a Stripe account with the payout account status
+ * 
+ * @param {string} account_id - Unique identifier for the seller's Stripe account.
+ * @param {Context<SqlEntityManager<AbstractSqlDriver<AbstractSqlConnection, AbstractSqlPlatform>>>} sharedContext - Shared execution context for database transactions
+ * @returns {Promise<any>} Represents the completion of an asynchronous operation
+
+ */
   @InjectTransactionManager()
   async syncStripeAccount(
     account_id: string,
@@ -110,6 +138,15 @@ class PayoutModuleService extends MedusaService({
     return updated;
   }
 
+  /**
+ * @method initializeOnboarding
+ * @description This method begins onboarding for a new payout account
+ * 
+ * @param {CreateOnboardingDTO} __0 - The onboarding to be created.
+ * @param {Context<SqlEntityManager<AbstractSqlDriver<AbstractSqlConnection, AbstractSqlPlatform>>>} sharedContext - Common operational context across onboarding actions
+ * @returns {Promise<any>} Represents the completion of an asynchronous operation
+
+ */
   @InjectTransactionManager()
   async initializeOnboarding(
     { context, payout_account_id }: CreateOnboardingDTO,
@@ -151,6 +188,15 @@ class PayoutModuleService extends MedusaService({
     );
   }
 
+  /**
+ * @method createPayout
+ * @description This method creates a payout.
+ * 
+ * @param {CreatePayoutDTO} input - The payout to be created.
+ * @param {Context<SqlEntityManager<AbstractSqlDriver<AbstractSqlConnection, AbstractSqlPlatform>>>} sharedContext - Shared Medusa transaction environment
+ * @returns {Promise<any>} The created payout.
+
+ */
   @InjectTransactionManager()
   async createPayout(
     input: CreatePayoutDTO,
@@ -188,6 +234,15 @@ class PayoutModuleService extends MedusaService({
     return payout;
   }
 
+  /**
+ * @method createPayoutReversal
+ * @description This method creates a payout reversal.
+ * 
+ * @param {CreatePayoutReversalDTO} input - The payout reversal to be created.
+ * @param {Context<SqlEntityManager<AbstractSqlDriver<AbstractSqlConnection, AbstractSqlPlatform>>>} sharedContext - Shared transactional environment for database operations
+ * @returns {Promise<any>} The created payout reversal.
+
+ */
   @InjectTransactionManager()
   async createPayoutReversal(
     input: CreatePayoutReversalDTO,
@@ -221,6 +276,14 @@ class PayoutModuleService extends MedusaService({
     return payoutReversal;
   }
 
+  /**
+ * @method getWebhookActionAndData
+ * @description This method retrieves webhook action and associated details based on payload
+ * 
+ * @param {PayoutWebhookActionPayload} input - Payload from a payout-related webhook event
+ * @returns {Promise<PayoutWebhookActionAndDataResponse>} Represents the completion of an asynchronous operation
+
+ */
   async getWebhookActionAndData(input: PayoutWebhookActionPayload) {
     return await this.provider_.getWebhookActionAndData(input);
   }

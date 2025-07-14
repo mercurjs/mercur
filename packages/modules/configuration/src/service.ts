@@ -13,9 +13,21 @@ export const ConfigurationRuleDefaults = new Map<
   [ConfigurationRuleType.PRODUCT_IMPORT_ENABLED, true],
 ]);
 
+/**
+ * @class ConfigurationModuleService
+ * @description The configuration module service.
+ */
 class ConfigurationModuleService extends MedusaService({
   ConfigurationRule,
 }) {
+  /**
+ * *
+ * This method checks if a rule is enabled based on its type.
+ * 
+ * @param {ConfigurationRuleType} type - Rule type being evaluated for activation status
+ * @returns {Promise<boolean>} The activation status of the rule.
+
+ */
   async isRuleEnabled(type: ConfigurationRuleType): Promise<boolean> {
     const [rule] = await this.listConfigurationRules({
       rule_type: type,

@@ -1,9 +1,15 @@
-import { MedusaService } from '@medusajs/framework/utils'
+import { MedusaService } from "@medusajs/framework/utils";
 
-import { Wishlist } from './models/wishlist'
+import { Wishlist } from "./models/wishlist";
 
+/**
+ * @class WishlistModuleService
+ * @description Represents the wishlist module service.
+ *
+ * This service provides functionality for managing wishlists.
+ */
 class WishlistModuleService extends MedusaService({
-  Wishlist
+  Wishlist,
 }) {}
 
-export default WishlistModuleService
+export default WishlistModuleService;

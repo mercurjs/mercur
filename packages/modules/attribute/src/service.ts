@@ -15,11 +15,34 @@ import AttributeValue from "./models/attribute-value";
 type Attribute = InferTypeOf<typeof Attribute>;
 type AttributePossibleValue = InferTypeOf<typeof AttributePossibleValue>;
 
+/**
+ * *
+ * @interface
+ * 
+ * The injected dependencies.
+ * @property {DAL.RepositoryService<InferTypeOf<any>>} attributeRepository - The attributerepository of the injected dependencies
+ * @property {DAL.RepositoryService<InferTypeOf<any>>} attributePossibleValueRepository - The attributepossiblevaluerepository of the injected dependencies
+
+ */
 type InjectedDependencies = {
+  /**
+ * *
+ * The attribute repository.
+
+ */
   attributeRepository: DAL.RepositoryService<Attribute>;
+  /**
+ * *
+ * The attribute possible value repository.
+
+ */
   attributePossibleValueRepository: DAL.RepositoryService<AttributePossibleValue>;
 };
 
+/**
+ * @class AttributeModuleService
+ * @description The attribute module service.
+ */
 class AttributeModuleService extends MedusaService({
   Attribute,
   AttributeValue,
@@ -62,6 +85,15 @@ class AttributeModuleService extends MedusaService({
     );
   }
 
+  /**
+ * *
+ * This method updates a existing attribute with upsert or replace possible values_.
+ * 
+ * @param {UpdateAttributeDTO[]} input - The attributes to update in the attributes.
+ * @param {Context<SqlEntityManager<AbstractSqlDriver<AbstractSqlConnection, AbstractSqlPlatform>>>} sharedContext - Shared transaction and entity management context
+ * @returns {Promise<any>} The updated attribute with upsert or replace possible values_.
+
+ */
   @InjectTransactionManager()
   protected async updateAttributeWithUpsertOrReplacePossibleValues_(
     input: UpdateAttributeDTO[],

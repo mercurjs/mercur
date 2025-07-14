@@ -12,22 +12,42 @@ import { getSmallestUnit } from "@mercurjs/framework";
 import StripeTaxClient from "./client";
 import { StripeTaxCalculationResponseValidator } from "./validators";
 
+/**
+ * @interface InjectedDependencies
+ * @description Represents the injected dependencies for the stripe tax provider.
+ * 
+ * @property {coreLogger} logger - The logger of the injected dependencies
+ * @property {Omit<RemoteQueryFunction, symbol>} remoteQuery - The remotequery of the injected dependencies
+
+ */
 type InjectedDependencies = {
   logger: Logger;
   remoteQuery: Omit<RemoteQueryFunction, symbol>;
 };
 
+/**
+ * @interface Options
+ * @description Represents the options for the stripe tax provider.
+ * 
+ * @property {string} apiKey - The apikey of the options
+ * @property {string} defaultTaxcode - The defaulttaxcode of the options
+
+ */
 type Options = {
   apiKey: string;
   defaultTaxcode: string;
 };
 
+/**
+ * @class StripeTaxProvider
+ * @description Represents the stripe tax provider.
+ *
+ * This provider provides functionality for calculating taxes using the Stripe API.
+ */
 export default class StripeTaxProvider implements ITaxProvider {
   static identifier = "stripe-tax-provider";
-
   private readonly client_: StripeTaxClient;
   private defaultTaxcode_: string;
-
   private remoteQuery_: Omit<RemoteQueryFunction, symbol>;
 
   constructor({ remoteQuery }: InjectedDependencies, options: Options) {
@@ -36,10 +56,27 @@ export default class StripeTaxProvider implements ITaxProvider {
     this.remoteQuery_ = remoteQuery;
   }
 
+  /**
+ * @method getIdentifier
+ * @description This method "supplies StripeTaxProvider's unique identifier"
+ * 
+ * @returns {string} Result of the function
+
+ */
   getIdentifier(): string {
     return StripeTaxProvider.identifier;
   }
 
+  /**
+ * @method getTaxLines
+ * @description This method represents the completion of an asynchronous operation
+ * 
+ * @param {TaxTypes.ItemTaxCalculationLine[]} itemLines - The itemlines
+ * @param {TaxTypes.ShippingTaxCalculationLine[]} shippingLines - The shippinglines
+ * @param {TaxTypes.TaxCalculationContext} __2 - Destination for tax calculation
+ * @returns {Promise<any[]>} Result of the function
+
+ */
   async getTaxLines(
     itemLines: TaxTypes.ItemTaxCalculationLine[],
     shippingLines: TaxTypes.ShippingTaxCalculationLine[],
@@ -124,6 +161,14 @@ export default class StripeTaxProvider implements ITaxProvider {
     return [...itemTaxLines, ...shippingTaxLines];
   }
 
+  /**
+ * @method getProductTaxCode_
+ * @description This method retrieves the product's tax code by its ID
+ * 
+ * @param {string} productId - The product's ID.
+ * @returns {Promise<any>} Result of the function
+
+ */
   private async getProductTaxCode_(productId: string) {
     const {
       data: [product],

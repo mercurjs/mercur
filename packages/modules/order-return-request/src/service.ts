@@ -1,10 +1,14 @@
-import { MedusaService } from '@medusajs/framework/utils'
+import { MedusaService } from "@medusajs/framework/utils";
 
-import { OrderReturnRequest, OrderReturnRequestLineItem } from './models'
+import { OrderReturnRequest, OrderReturnRequestLineItem } from "./models";
 
+/**
+ * @class OrderReturnModuleService
+ * @description The order return module service.
+ */
 class OrderReturnModuleService extends MedusaService({
   OrderReturnRequest,
-  OrderReturnRequestLineItem
+  OrderReturnRequestLineItem,
 }) {}
 
-export default OrderReturnModuleService
+export default OrderReturnModuleService;

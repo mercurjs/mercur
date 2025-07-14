@@ -1,127 +1,192 @@
-import { MedusaContainer } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { MedusaContainer } from "@medusajs/framework";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
+/**
+ * *
+ * This function retrieves customers associated with a specific seller ID
+ * 
+ * @param {MedusaContainer} container - Medusa's components and resource access coordinator
+ * @param {string} seller_id - Identifier for the seller in transactions
+ * @param {{ skip: number; take: number; }} pagination - Controls the range of customer records retrieved
+ * @param {string[]} fields - The fields
+ * @returns {Promise<{ customers: any; count: any; }>} Result of the function
+
+ */
 export async function selectSellerCustomers(
   container: MedusaContainer,
   seller_id: string,
-  pagination: { skip: number; take: number },
-  fields: string[] = ['*']
+  pagination: {
+    skip: number;
+    take: number;
+  },
+  fields: string[] = ["*"]
 ) {
-  const query = container.resolve(ContainerRegistrationKeys.QUERY)
-  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+  const query = container.resolve(ContainerRegistrationKeys.QUERY);
+  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION);
 
   const customers = await knex
-    .select('id')
-    .from('customer')
-    .whereIn('customer.id', function () {
-      this.distinct('customer_id')
-        .from('order')
+    .select("id")
+    .from("customer")
+    .whereIn("customer.id", function () {
+      this.distinct("customer_id")
+        .from("order")
         .leftJoin(
-          'seller_seller_order_order',
-          'order.id',
-          'seller_seller_order_order.order_id'
+          "seller_seller_order_order",
+          "order.id",
+          "seller_seller_order_order.order_id"
         )
-        .where('seller_id', seller_id)
-    })
+        .where("seller_id", seller_id);
+    });
 
   const { data, metadata } = await query.graph({
-    entity: 'customer',
+    entity: "customer",
     fields,
     filters: {
-      id: customers.map((c) => c.id)
+      id: customers.map((c) => c.id),
     },
-    pagination
-  })
+    pagination,
+  });
 
-  return { customers: data, count: metadata?.count }
+  return { customers: data, count: metadata?.count };
 }
 
+/**
+ * *
+ * This function Lists orders for a customer linked to a specific seller with pagination.
+ * 
+ * @param {MedusaContainer} container - Medusa infrastructure for order retrieval operations
+ * @param {string} seller_id - Identifier of the seller associated with the order
+ * @param {string} customer_id - Purchaser identifier in transactions
+ * @param {{ skip: number; take: number; }} pagination - Settings for browsing order records
+ * @param {string[]} fields - The fields
+ * @returns {Promise<{ orders: any; count: number; }>} Result of the function
+
+ */
 export async function selectCustomerOrders(
   container: MedusaContainer,
   seller_id: string,
   customer_id: string,
-  pagination: { skip: number; take: number },
-  fields: string[] = ['*']
+  pagination: {
+    skip: number;
+    take: number;
+  },
+  fields: string[] = ["*"]
 ) {
-  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION);
 
   const orders = await knex
     .select(fields.map((f) => `order.${f}`))
-    .from('order')
+    .from("order")
     .leftJoin(
-      'seller_seller_order_order',
-      'order.id',
-      'seller_seller_order_order.order_id'
+      "seller_seller_order_order",
+      "order.id",
+      "seller_seller_order_order.order_id"
     )
-    .where('order.customer_id', customer_id)
-    .andWhere('seller_seller_order_order.seller_id', seller_id)
+    .where("order.customer_id", customer_id)
+    .andWhere("seller_seller_order_order.seller_id", seller_id)
     .limit(pagination.take)
-    .offset(pagination.skip)
+    .offset(pagination.skip);
 
   const countResult = (await knex
-    .countDistinct('order.id')
-    .from('order')
+    .countDistinct("order.id")
+    .from("order")
     .leftJoin(
-      'seller_seller_order_order',
-      'order.id',
-      'seller_seller_order_order.order_id'
+      "seller_seller_order_order",
+      "order.id",
+      "seller_seller_order_order.order_id"
     )
-    .where('order.customer_id', customer_id)
-    .andWhere('seller_seller_order_order.seller_id', seller_id)) as {
-    count: string
-  }[]
+    .where("order.customer_id", customer_id)
+    .andWhere("seller_seller_order_order.seller_id", seller_id)) as {
+    count: string;
+  }[];
 
-  return { orders, count: parseInt(countResult[0]?.count || '0') }
+  return { orders, count: parseInt(countResult[0]?.count || "0") };
 }
 
+/**
+ * selectOrdersChartData
+ * @description This function represents the completion of an asynchronous operation
+ * 
+ * @param {MedusaContainer} container - Medusa core infrastructure for database interactions
+ * @param {string} seller_id - Identifier for the merchant extracting order insights
+ * @param {[string, string]} time_range - Start and end dates to filter orders by creation time.
+ * @returns {Promise<{ date: Date; count: string; }[]>} Result of the function
+
+ */
 export async function selectOrdersChartData(
   container: MedusaContainer,
   seller_id: string,
   time_range: [string, string]
-): Promise<{ date: Date; count: string }[]> {
-  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+): Promise<
+  {
+    date: Date;
+    count: string;
+  }[]
+> {
+  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION);
 
-  const result = await knex('seller_seller_order_order')
+  const result = await knex("seller_seller_order_order")
     .select(knex.raw(`DATE_TRUNC('DAY', "created_at") AS date`))
-    .count('*')
-    .where('seller_id', seller_id)
-    .andWhereBetween('created_at', time_range)
-    .groupByRaw('date')
-    .orderByRaw('date asc')
+    .count("*")
+    .where("seller_id", seller_id)
+    .andWhereBetween("created_at", time_range)
+    .groupByRaw("date")
+    .orderByRaw("date asc");
 
-  return result as unknown as { date: Date; count: string }[]
+  return result as unknown as {
+    date: Date;
+    count: string;
+  }[];
 }
 
+/**
+ * selectCustomersChartData
+ * @description Selects customers chart data
+ * 
+ * @param {MedusaContainer} container - Medusa infrastructure for database access and service operations
+ * @param {string} seller_id - Unique identifier for the seller of interest
+ * @param {[string, string]} time_range - Span for analyzing customer acquisition trends
+ * @returns {Promise<{ date: Date; count: string; }[]>} Result of the function
+
+ */
 export async function selectCustomersChartData(
   container: MedusaContainer,
   seller_id: string,
   time_range: [string, string]
-): Promise<{ date: Date; count: string }[]> {
-  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+): Promise<
+  {
+    date: Date;
+    count: string;
+  }[]
+> {
+  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION);
 
   const result = await knex
-    .with('customer_first_orders', (qb) => {
-      qb.select('customer_id')
+    .with("customer_first_orders", (qb) => {
+      qb.select("customer_id")
         .select(
           knex.raw(
-            'MIN(seller_seller_order_order.created_at) as first_order_date'
+            "MIN(seller_seller_order_order.created_at) as first_order_date"
           )
         )
-        .from('order')
+        .from("order")
         .leftJoin(
-          'seller_seller_order_order',
-          'order.id',
-          'seller_seller_order_order.order_id'
+          "seller_seller_order_order",
+          "order.id",
+          "seller_seller_order_order.order_id"
         )
-        .where('seller_id', seller_id)
-        .groupBy('customer_id')
+        .where("seller_id", seller_id)
+        .groupBy("customer_id");
     })
     .select(knex.raw(`DATE_TRUNC('DAY', "first_order_date") AS date`))
-    .count('*')
-    .from('customer_first_orders')
-    .whereBetween('first_order_date', time_range)
-    .groupByRaw('date')
-    .orderByRaw('date asc')
+    .count("*")
+    .from("customer_first_orders")
+    .whereBetween("first_order_date", time_range)
+    .groupByRaw("date")
+    .orderByRaw("date asc");
 
-  return result as unknown as { date: Date; count: string }[]
+  return result as unknown as {
+    date: Date;
+    count: string;
+  }[];
 }

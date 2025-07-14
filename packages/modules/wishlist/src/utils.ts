@@ -4,6 +4,15 @@ import { Modules } from "@medusajs/framework/utils";
 
 import { WishlistItem } from "@mercurjs/framework";
 
+/**
+ * getWishlistFromCustomerId
+ * @description This method retrieves a wishlist linked to a specific customer ID
+ * 
+ * @param {MedusaContainer} container - Medusa infrastructure and services nexus
+ * @param {string} customerId - The customer's ID.
+ * @returns {Promise<any>} Result of the function
+
+ */
 export async function getWishlistFromCustomerId(
   container: MedusaContainer,
   customerId: string
@@ -23,6 +32,15 @@ export async function getWishlistFromCustomerId(
   return wishlist;
 }
 
+/**
+ * *
+ * This function "determines total price for products in wishlists"
+ * 
+ * @param {MedusaContainer} container - Medusa core framework for executing business logic
+ * @param {WishlistItem[]} wishlists - The wishlists
+ * @returns {Promise<{ products: { calculated_amount: unknown; variant_id: any; price_set_id: any; currency_code: any; }[]; id: string; }[]>} Result of the function
+
+ */
 export async function calculateWishlistProductsPrice(
   container: MedusaContainer,
   wishlists: WishlistItem[]

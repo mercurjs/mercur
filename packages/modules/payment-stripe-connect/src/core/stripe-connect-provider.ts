@@ -40,11 +40,22 @@ import {
   PaymentIntentOptions,
 } from "@mercurjs/framework";
 
+/**
+ * @interface
+ * @description Represents the options for the Stripe Connect provider.
+ * @property {string} apiKey - The apikey of the options
+ * @property {string} webhookSecret - The webhooksecret of the options
+
+ */
 type Options = {
   apiKey: string;
   webhookSecret: string;
 };
 
+/**
+ * @class StripeConnectProvider
+ * @description Represents the Stripe Connect provider.
+ */
 abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
   private readonly options_: Options;
   private readonly client_: Stripe;
@@ -59,6 +70,14 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
 
   abstract get paymentIntentOptions(): PaymentIntentOptions;
 
+  /**
+ * @method getPaymentStatus
+ * @description This method represents the completion of an asynchronous operation
+ * 
+ * @param {GetPaymentStatusInput} input - The data to get the payment status.
+ * @returns {Promise<GetPaymentStatusOutput>} Payment status.
+
+ */
   async getPaymentStatus(
     input: GetPaymentStatusInput
   ): Promise<GetPaymentStatusOutput> {
@@ -87,6 +106,15 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     }
   }
 
+  /**
+ * @method initiatePayment
+ * @description This method initiates a payment in a provider.
+ * 
+ * @param {InitiatePaymentInput} input - The data used initiate a payment in a provider when a payment
+ * session is created.
+ * @returns {Promise<InitiatePaymentOutput>} Initiated payment.
+
+ */
   async initiatePayment(
     input: InitiatePaymentInput
   ): Promise<InitiatePaymentOutput> {
@@ -148,6 +176,14 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     }
   }
 
+  /**
+ * @method authorizePayment
+ * @description This method authorizes a payment.
+ * 
+ * @param {AuthorizePaymentInput} data - The data to authorize a payment.
+ * @returns {Promise<AuthorizePaymentOutput>} Authorized payment.
+
+ */
   async authorizePayment(
     data: AuthorizePaymentInput
   ): Promise<AuthorizePaymentOutput> {
@@ -159,6 +195,14 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     return result;
   }
 
+  /**
+ * @method cancelPayment
+ * @description This method cancels a payment.
+ * 
+ * @param {CancelPaymentInput} __0 - The data to cancel a payment.
+ * @returns {Promise<CancelPaymentOutput>} Canceled payment.
+
+ */
   async cancelPayment({
     data: paymentSessionData,
   }: CancelPaymentInput): Promise<CancelPaymentOutput> {
@@ -176,6 +220,14 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     }
   }
 
+  /**
+ * @method capturePayment
+ * @description This method captures a payment.
+ * 
+ * @param {CapturePaymentInput} __0 - The data to capture a payment.
+ * @returns {Promise<CapturePaymentOutput>} Captured payment.
+
+ */
   async capturePayment({
     data: paymentSessionData,
   }: CapturePaymentInput): Promise<CapturePaymentOutput> {
@@ -193,10 +245,26 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     }
   }
 
+  /**
+ * @method deletePayment
+ * @description This method deletes a payment by its ID.
+ * 
+ * @param {DeletePaymentInput} data - The data to delete a payment.
+ * @returns {Promise<DeletePaymentOutput>} Deleted payment.
+
+ */
   deletePayment(data: DeletePaymentInput): Promise<DeletePaymentOutput> {
     return this.cancelPayment(data);
   }
 
+  /**
+ * @method refundPayment
+ * @description This method refunds a payment.
+ * 
+ * @param {RefundPaymentInput} - The data to refund a payment.
+ * @returns {Promise<RefundPaymentOutput>} Refunded payment.
+
+ */
   async refundPayment({
     data: paymentSessionData,
     amount,
@@ -216,6 +284,14 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     return { data: paymentSessionData };
   }
 
+  /**
+ * @method retrievePayment
+ * @description This method retrieves a payment by its ID.
+ * 
+ * @param {RetrievePaymentInput} __0 - The data to retrieve a payment.
+ * @returns {Promise<RetrievePaymentOutput>} The retrieved payment.
+
+ */
   async retrievePayment({
     data: paymentSessionData,
   }: RetrievePaymentInput): Promise<RetrievePaymentOutput> {
@@ -231,6 +307,14 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     }
   }
 
+  /**
+ * @method updatePayment
+ * @description This method updates a existing payment.
+ * 
+ * @param {UpdatePaymentInput} input - The attributes to update a payment related to a payment session in a provider.
+ * @returns {Promise<UpdatePaymentOutput>} The updated payment.
+
+ */
   async updatePayment(input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
     const { data, amount, currency_code } = input;
 
@@ -252,6 +336,15 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     }
   }
 
+  /**
+ * @method updatePaymentData
+ * @description This method updates a existing payment datum.
+ * 
+ * @param {string} sessionId - The session's ID.
+ * @param {Record<string, unknown>} data - Construct a type with a set of properties K of type T
+ * @returns {Promise<any>} The updated payment datum.
+
+ */
   async updatePaymentData(sessionId: string, data: Record<string, unknown>) {
     try {
       // Prevent from updating the amount from here as it should go through
@@ -271,6 +364,14 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     }
   }
 
+  /**
+ * @method getWebhookActionAndData
+ * @description This method represents the completion of an asynchronous operation
+ * 
+ * @param {ProviderWebhookPayload} webhookData - Payload from an external payment provider
+ * @returns {Promise<WebhookActionResult>} Webhook action and data.
+
+ */
   async getWebhookActionAndData(
     webhookData: ProviderWebhookPayload["payload"]
   ): Promise<WebhookActionResult> {
@@ -311,6 +412,14 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     }
   }
 
+  /**
+ * @method constructWebhookEvent
+ * @description This method constructs a Stripe event from webhook payload
+ * 
+ * @param {ProviderWebhookPayload} data - Webhook content from a payment provider.
+ * @returns {Event} Generates a webhook event based on provided request details and secret.
+
+ */
   constructWebhookEvent(data: ProviderWebhookPayload["payload"]): Stripe.Event {
     const signature = data.headers["stripe-signature"] as string;
 
@@ -321,6 +430,15 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
     );
   }
 
+  /**
+ * @method buildError
+ * @description This method creates a MedusaError for payment authorization issues
+ * 
+ * @param {string} message - A brief description of the failure scenario.
+ * @param {Error} error - A failure or issue encountered during processing.
+ * @returns {any} Delivers a structured summary of encountered issues for debugging and logging purposes.
+
+ */
   private buildError(message: string, error: Error) {
     return new MedusaError(
       MedusaError.Types.PAYMENT_AUTHORIZATION_ERROR,

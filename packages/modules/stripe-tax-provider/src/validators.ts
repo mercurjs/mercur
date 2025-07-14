@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 const TaxBreakdownObject = z.object({
   amount: z.number(),
@@ -8,10 +8,10 @@ const TaxBreakdownObject = z.object({
     z.object({
       display_name: z.string(),
       percentage_decimal: z.string(),
-      tax_type: z.string()
+      tax_type: z.string(),
     })
-  )
-})
+  ),
+});
 
 export const StripeTaxCalculationResponseValidator = z.object({
   id: z.string(),
@@ -26,19 +26,25 @@ export const StripeTaxCalculationResponseValidator = z.object({
         tax_behavior: z.string(),
         tax_breakdown: z.array(TaxBreakdownObject),
         tax_code: z.string(),
-        quantity: z.number()
+        quantity: z.number(),
       })
-    )
+    ),
   }),
   shipping_cost: z.object({
     amount: z.number(),
     amount_tax: z.number(),
     tax_code: z.string(),
     tax_behavior: z.string(),
-    tax_breakdown: z.array(TaxBreakdownObject)
-  })
-})
+    tax_breakdown: z.array(TaxBreakdownObject),
+  }),
+});
 
+/**
+ * @interface StripeTaxCalculationResponse
+ * @description Represents the stripe tax calculation response.
+ *
+ * This interface defines the structure for the stripe tax calculation response.
+ */
 export type StripeTaxCalculationResponse = z.infer<
   typeof StripeTaxCalculationResponseValidator
->
+>;

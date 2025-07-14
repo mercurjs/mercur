@@ -1,9 +1,13 @@
-import { MedusaService } from '@medusajs/framework/utils'
+import { MedusaService } from "@medusajs/framework/utils";
 
-import { Review } from './models/review'
+import { Review } from "./models/review";
 
+/**
+ * @class ReviewModuleService
+ * @description Represents the review module service.
+ */
 class ReviewModuleService extends MedusaService({
-  Review
+  Review,
 }) {}
 
-export default ReviewModuleService
+export default ReviewModuleService;
