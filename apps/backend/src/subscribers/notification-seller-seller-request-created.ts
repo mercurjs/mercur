@@ -4,13 +4,22 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/medusa'
 import { RequestDTO, SellerRequest } from '@mercurjs/framework'
 import { ResendNotificationTemplates } from '@mercurjs/resend'
 
+/**
+ * *
+ * Subscriber for event: SellerRequest.CREATED. Alerts sellers via email when their account update request is received.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function requestCreatedSellerAccountUpdatesNotifyHandler({
   event,
   container
 }: SubscriberArgs<RequestDTO>) {
   const requestData = event.data.data as {
     provider_identity_id: string
-    member: { name: string }
+    member: {
+      name: string
+    }
   }
 
   if (event.data.type !== 'seller') {

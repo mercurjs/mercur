@@ -8,10 +8,21 @@ import {
   buildResetPasswordUrl
 } from '../shared/infra/http/utils/hosts'
 
+/**
+ * *
+ * Subscriber for event: AuthWorkflowEvents.PASSWORD_RESET. Sends a password reset email when a password reset is initiated.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function passwordResetHandler({
   event,
   container
-}: SubscriberArgs<{ entity_id: string; actor_type: string; token: string }>) {
+}: SubscriberArgs<{
+  entity_id: string
+  actor_type: string
+  token: string
+}>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
 
   const hostType = actorTypeToHost[event.data.actor_type]

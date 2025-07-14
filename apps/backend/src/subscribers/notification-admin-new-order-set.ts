@@ -3,10 +3,19 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/medusa'
 
 import { OrderSetWorkflowEvents } from '@mercurjs/framework'
 
+/**
+ * *
+ * Subscriber for event: OrderSetWorkflowEvents.PLACED. Alerts administrators when a new order involving multiple sellers is placed.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function newOrderSetAdminNotifyHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const { id: orderSetId } = event.data

@@ -7,6 +7,13 @@ import {
 } from '@mercurjs/framework'
 import { ResendNotificationTemplates } from '@mercurjs/resend'
 
+/**
+ * 
+ * Subscriber for event: SellerAccountRequestUpdatedEvent.REJECTED. Notifies sellers via email when their account request is rejected.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function sellerRequestRejectedHandler({
   event,
   container
@@ -14,7 +21,9 @@ export default async function sellerRequestRejectedHandler({
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const requestData = event.data.data as {
     provider_identity_id: string
-    member: { name: string }
+    member: {
+      name: string
+    }
   }
 
   await notificationService.createNotifications({

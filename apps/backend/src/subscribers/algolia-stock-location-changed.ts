@@ -6,10 +6,19 @@ import { AlgoliaEvents, IntermediateEvents } from '@mercurjs/framework'
 import sellerProduct from '../links/seller-product'
 import sellerStockLocation from '../links/seller-stock-location'
 
+/**
+ * *
+ * Subscriber for event: IntermediateEvents.STOCK_LOCATION_CHANGED. Broadcasts product changes to Algolia when stock locations are updated.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function stockLocationChangedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const stock_location_id = event.data.id
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const eventBus = container.resolve(Modules.EVENT_BUS)

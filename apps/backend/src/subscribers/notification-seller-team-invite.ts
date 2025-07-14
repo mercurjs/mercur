@@ -6,6 +6,13 @@ import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 import { buildInviteUrl } from '../shared/infra/http/utils'
 
+/**
+ * *
+ * Subscriber for event: SellerTeamInviteEvent.CREATED. "sends an invitation email to a new team member on creation"
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function sellerTeamInviteHandler({
   event,
   container

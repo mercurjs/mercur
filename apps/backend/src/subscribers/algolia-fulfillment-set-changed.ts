@@ -6,10 +6,19 @@ import { AlgoliaEvents, IntermediateEvents } from '@mercurjs/framework'
 import sellerFulfillmentSet from '../links/seller-fulfillment-set'
 import sellerProduct from '../links/seller-product'
 
+/**
+ * *
+ * Subscriber for event: IntermediateEvents.FULFULLMENT_SET_CHANGED. Broadcasts updates to Algolia when a fulfillment set status is modified.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function fulfillmentSetChangedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const fulfillment_set_id = event.data.id
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const eventBus = container.resolve(Modules.EVENT_BUS)

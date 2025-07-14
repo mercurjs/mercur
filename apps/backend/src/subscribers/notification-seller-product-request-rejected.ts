@@ -5,10 +5,19 @@ import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
 import { sendVendorUIRequestNotification } from '@mercurjs/requests'
 import { ResendNotificationTemplates } from '@mercurjs/resend'
 
+/**
+ * *
+ * Subscriber for event: ProductRequestUpdatedEvent.REJECTED. Alerts sellers via email when their product submission is rejected.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function sellerProductRequestRejectedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
 

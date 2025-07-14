@@ -6,10 +6,19 @@ import { AlgoliaEvents, IntermediateEvents } from '@mercurjs/framework'
 import sellerProduct from '../links/seller-product'
 import sellerShippingOption from '../links/seller-shipping-option'
 
+/**
+ * *
+ * Subscriber for event: IntermediateEvents.SHIPPING_OPTION_CHANGED. Updates search index when shipping options change for a seller's products.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function shippingOptionChangedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const shipping_option_id = event.data.id
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const eventBus = container.resolve(Modules.EVENT_BUS)

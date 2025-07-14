@@ -12,10 +12,19 @@ import {
 import { sendVendorUIRequestNotification } from '@mercurjs/requests'
 import { ResendNotificationTemplates } from '@mercurjs/resend'
 
+/**
+ * *
+ * Subscriber for event: ProductRequestUpdatedEvent.ACCEPTED. Notifies sellers via email when their product request is approved.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function sellerProductRequestAcceptedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const configurationService =

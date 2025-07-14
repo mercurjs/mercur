@@ -14,6 +14,15 @@ import { getAvgRating } from '@mercurjs/reviews'
 
 import sellerProduct from '../../links/seller-product'
 
+/**
+ * *
+ * This function "gathers supported countries for product variant stock locations"
+ * 
+ * @param {MedusaContainer} container - Medusa's core processing and querying capabilities
+ * @param {string} product_id - Unique identifier for the item to be analyzed across countries.
+ * @returns {Promise<any[]>} Represents the completion of an asynchronous operation
+
+ */
 async function selectProductVariantsSupportedCountries(
   container: MedusaContainer,
   product_id: string
@@ -62,6 +71,15 @@ async function selectProductVariantsSupportedCountries(
   return [...new Set(country_codes)]
 }
 
+/**
+ * *
+ * This function "retrieves seller details for a specific product ID"
+ * 
+ * @param {MedusaContainer} container - The core context for executing queries
+ * @param {string} product_id - Unique identifier for the product in question
+ * @returns {Promise<{ id: any; handle: any; store_status: any; }>} Represents the completion of an asynchronous operation
+
+ */
 async function selectProductSeller(
   container: MedusaContainer,
   product_id: string
@@ -87,6 +105,15 @@ async function selectProductSeller(
     : null
 }
 
+/**
+ * *
+ * This function "segregates products into published and other categories by IDs"
+ * 
+ * @param {MedusaContainer} container - Medusa's service and repository access gateway
+ * @param {string[]} ids - The IDs of the "/ users/mslusarczyk/ desktop/mercur/apps/backend/src/subscribers/utils/algolia-product".
+ * @returns {Promise<{ published: any; other: any; }>} Represents the completion of an asynchronous operation
+
+ */
 export async function filterProductsByStatus(
   container: MedusaContainer,
   ids: string[] = []
@@ -110,6 +137,15 @@ export async function filterProductsByStatus(
   }
 }
 
+/**
+ * *
+ * This function "transforms product IDs for Algolia search enhancements"
+ * 
+ * @param {MedusaContainer} container - The ecosystem facilitating product data transformation tasks
+ * @param {string[]} ids - The IDs of the "/ users/mslusarczyk/ desktop/mercur/apps/backend/src/subscribers/utils/algolia-product".
+ * @returns {Promise<{ id: string; description: string; handle: string; seller: { id: string; handle?: string; store_status?: StoreStatus; }; title: string; subtitle: string; thumbnail: string; average_rating: number; ... 21 more ...; material?: string; }[]>} Represents the completion of an asynchronous operation
+
+ */
 export async function findAndTransformAlgoliaProducts(
   container: MedusaContainer,
   ids: string[] = []

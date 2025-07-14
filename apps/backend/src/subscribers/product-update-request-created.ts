@@ -9,10 +9,19 @@ import { REQUESTS_MODULE, RequestsModuleService } from '@mercurjs/requests'
 
 import { acceptProductRequestWorkflow } from '../workflows/requests/workflows'
 
+/**
+ * 
+ * Subscriber for event: ProductUpdateRequestUpdatedEvent.CREATED. Initiates product update workflows upon new request creation.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function productUpdateRequestCreatedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const { id } = event.data
   const service = container.resolve<RequestsModuleService>(REQUESTS_MODULE)
   const configuration =

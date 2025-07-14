@@ -10,10 +10,19 @@ import { OrderSetWorkflowEvents } from '@mercurjs/framework'
 
 import { markSplitOrderPaymentsAsCapturedWorkflow } from '../workflows/split-order-payment/workflows'
 
+/**
+ * *
+ * Subscriber for event: OrderSetWorkflowEvents.PLACED. Initiates payment capture for placed orders.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function orderSetPlacedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const { id: orderSetId } = event.data
 

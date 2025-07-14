@@ -6,10 +6,19 @@ import { AlgoliaEvents, IntermediateEvents } from '@mercurjs/framework'
 import sellerProduct from '../links/seller-product'
 import sellerServiceZone from '../links/seller-service-zone'
 
+/**
+ * *
+ * Subscriber for event: IntermediateEvents.SERVICE_ZONE_CHANGED. Broadcasts product changes to search index on service zone adjustment.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function serviceZoneChangedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const service_zone_id = event.data.id
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const eventBus = container.resolve(Modules.EVENT_BUS)

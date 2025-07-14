@@ -6,10 +6,20 @@ import { AlgoliaEvents } from '@mercurjs/framework'
 
 import sellerProduct from '../links/seller-product'
 
+/**
+ * *
+ * Subscriber for event: SellerEvents.STORE_STATUS_CHANGED. Broadcasts store status updates to product indexing system.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function sellerStatusChangedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string; store_status: StoreStatus }>) {
+}: SubscriberArgs<{
+  id: string
+  store_status: StoreStatus
+}>) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const eventBus = container.resolve(Modules.EVENT_BUS)
 

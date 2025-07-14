@@ -3,10 +3,19 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import { AlgoliaEvents, IntermediateEvents } from '@mercurjs/framework'
 
+/**
+ * *
+ * Subscriber for event: IntermediateEvents.INVENTORY_ITEM_CHANGED. Broadcasts product updates to search service upon inventory modifications.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function inventoryItemChangedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string | string[] }>) {
+}: SubscriberArgs<{
+  id: string | string[]
+}>) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const eventBus = container.resolve(Modules.EVENT_BUS)
 

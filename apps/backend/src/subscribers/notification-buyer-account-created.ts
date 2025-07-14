@@ -3,10 +3,19 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import { ResendNotificationTemplates } from '@mercurjs/resend'
 
+/**
+ * *
+ * "Activates email notifications when a new buyer account is created"
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function buyerAccountCreatedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
 

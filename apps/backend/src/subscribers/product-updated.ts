@@ -5,10 +5,19 @@ import { REQUESTS_MODULE, RequestsModuleService } from '@mercurjs/requests'
 
 import { updateRequestWorkflow } from '../workflows/requests/workflows'
 
+/**
+ * 
+ * "Updates request statuses based on product state changes."
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function productUpdatedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const requestService =
     container.resolve<RequestsModuleService>(REQUESTS_MODULE)
 

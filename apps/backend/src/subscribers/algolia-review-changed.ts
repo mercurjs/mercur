@@ -13,10 +13,19 @@ import { getAvgRating } from '@mercurjs/reviews'
 import productReview from '../links/product-review'
 import sellerReview from '../links/seller-review'
 
+/**
+ * *
+ * Subscriber for event: AlgoliaEvents.REVIEW_CHANGED. "Updates search index ratings and visibility upon review modifications"
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function reviewChangedHandler({
   event,
   container
-}: SubscriberArgs<{ review: ReviewDTO }>) {
+}: SubscriberArgs<{
+  review: ReviewDTO
+}>) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const algolia = container.resolve<AlgoliaModuleService>(ALGOLIA_MODULE)
 

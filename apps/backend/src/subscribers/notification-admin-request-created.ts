@@ -10,6 +10,13 @@ import {
   fetchAdminEmails
 } from '../shared/infra/http/utils'
 
+/**
+ * *
+ * Subscriber for event: RequestUpdated.CREATED. Alerts administrators when a new request is initiated by a seller.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function requestCreatedAdminNotifyHandler({
   event,
   container

@@ -9,10 +9,19 @@ import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 import { Hosts, buildHostAddress } from '../shared/infra/http/utils'
 
+/**
+ * *
+ * Subscriber for event: OrderWorkflowEvents.PLACED. Initiates order confirmation notifications upon new order placement.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function orderCreatedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
 
   const query = container.resolve(ContainerRegistrationKeys.QUERY)

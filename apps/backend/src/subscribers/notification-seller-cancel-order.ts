@@ -5,10 +5,19 @@ import { ResendNotificationTemplates } from '@mercurjs/resend'
 
 import { Hosts, buildHostAddress } from '../shared/infra/http/utils'
 
+/**
+ * 
+ * Alerts sellers via email when an order is canceled.
+ * @param {SubscriberArgs} - Event data and container for the subscriber
+ * @returns {Promise<void>} Resolves when the subscriber processing is complete
+
+ */
 export default async function sellerCancelOrderHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{
+  id: string
+}>) {
   const notificationService = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
