@@ -1,4 +1,22 @@
+/**
+ * *
+ * @enum Index types
+ */
 export enum IndexType {
-  PRODUCT = 'products',
-  REVIEW = 'reviews'
+  /**
+ * *
+ * SUMMARY
+ * 
+ * @defaultValue 'products'
+
+ */
+  PRODUCT = "products",
+  /**
+ * *
+ * SUMMARY
+ * 
+ * @defaultValue 'reviews'
+
+ */
+  REVIEW = "reviews",
 }

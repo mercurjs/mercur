@@ -1,3 +1,12 @@
+/**
+ * *
+ * @enum Order set workflow events
+ */
 export enum OrderSetWorkflowEvents {
-  PLACED = 'order_set.placed'
+  /**
+   * *
+   * The order set placed event.
+   * @defaultValue 'order_set.placed'
+   */
+  PLACED = "order_set.placed",
 }
