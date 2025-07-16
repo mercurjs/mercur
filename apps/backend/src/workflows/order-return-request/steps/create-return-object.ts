@@ -9,8 +9,11 @@ import returnRequestOrder from '../../../links/return-request-order'
 export const createReturnObjectStep = createStep(
   'create-return-object',
   async (request: OrderReturnRequestDTO, { container }) => {
-    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    if (request.status !== 'refunded') {
+      return new StepResponse()
+    }
 
+    const query = container.resolve(ContainerRegistrationKeys.QUERY)
     const {
       data: [{ order_id, order_return_request }]
     } = await query.graph({
