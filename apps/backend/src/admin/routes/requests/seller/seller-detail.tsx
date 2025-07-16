@@ -46,19 +46,19 @@ export function SellerRequestDetail({ request, open, close }: Props) {
           <fieldset>
             <legend className="mb-2">Seller name</legend>
             <Container>
-              <Text>{requestData.seller.name}</Text>
+              <Text>{requestData?.seller?.name ?? ''}</Text>
             </Container>
           </fieldset>
           <fieldset className="mt-2">
             <legend className="mb-2">Member</legend>
             <Container>
-              <Text>{`${requestData.member.name}`}</Text>
+              <Text>{`${requestData?.member?.name ?? ''}`}</Text>
             </Container>
           </fieldset>
           <fieldset className="mt-2">
             <legend className="mb-2">Email</legend>
             <Container>
-              <Text>{requestData.provider_identity_id}</Text>
+              <Text>{requestData?.provider_identity_id ?? 'N/A'}</Text>
             </Container>
           </fieldset>
           <Container className="mt-4">
