@@ -42,7 +42,8 @@ export const proceedReturnRequestWorkflow = createWorkflow(
             items: order.order_return_request.line_items.map((item) => {
               return {
                 id: item.line_item_id,
-                quantity: item.quantity
+                quantity: item.quantity,
+                reason_id: item.reason_id
               }
             })
           }
