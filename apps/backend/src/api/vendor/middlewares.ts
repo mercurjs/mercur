@@ -65,7 +65,11 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   {
     matcher: '/vendor/invites/accept',
     method: ['POST'],
-    middlewares: [authenticate('seller', ['bearer', 'session'])]
+    middlewares: [
+      authenticate('seller', ['bearer', 'session'], {
+        allowUnregistered: true
+      })
+    ]
   },
   {
     matcher: '/vendor/*',

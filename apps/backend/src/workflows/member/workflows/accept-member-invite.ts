@@ -36,6 +36,6 @@ export const acceptMemberInvitesWorkflow = createWorkflow(
       value: member.id
     })
 
-    return new WorkflowResponse(member)
+    return new WorkflowResponse(invite)
   }
 )
