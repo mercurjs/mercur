@@ -21,8 +21,8 @@ type SellerModuleConfig = {
   validInviteDuration: number;
 };
 
-// 7 days
-const DEFAULT_VALID_INVITE_DURATION = 60 * 60 * 24 * 7000;
+// 7 days in ms
+const DEFAULT_VALID_INVITE_DURATION = 1000 * 60 * 60 * 24 * 7;
 
 class SellerModuleService extends MedusaService({
   MemberInvite,
@@ -117,7 +117,7 @@ class SellerModuleService extends MedusaService({
   private generateToken(data: { id: string }): string {
     const jwtSecret = this.httpConfig_.jwtSecret as string;
     return jwt.sign(data, jwtSecret, {
-      expiresIn: this.config_.validInviteDuration,
+      expiresIn: this.config_.validInviteDuration / 1000,
     });
   }
 
