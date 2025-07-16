@@ -17,6 +17,9 @@ export const VendorGetOrderReturnRequestParams = createSelectParams()
  *   vendor_reviewer_note:
  *     type: string
  *     description: Reviewer note.
+ *   location_id:
+ *     type: string
+ *     description: Location ID to use for the return.
  *   status:
  *     type: string
  *     enum:
@@ -31,6 +34,7 @@ export type VendorUpdateOrderReturnRequestType = z.infer<
 export const VendorUpdateOrderReturnRequest = z
   .object({
     vendor_reviewer_note: z.string(),
-    status: z.enum(['refunded', 'withdrawn', 'escalated'])
+    status: z.enum(['refunded', 'withdrawn', 'escalated']),
+    location_id: z.string().optional()
   })
   .strict()

@@ -7,7 +7,6 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 import { CreateOrderReturnRequestDTO } from '@mercurjs/framework'
 
 import returnRequestOrder from '../../../links/return-request-order'
-import { listSellerReturnShippingOptionsForOrderWorkflow } from '../../cart/workflows'
 
 export const validateOrderReturnRequestStep = createStep(
   'validate-order-return-request',
@@ -50,25 +49,6 @@ export const validateOrderReturnRequestStep = createStep(
           'Invalid line item'
         )
       }
-    }
-
-    const { result: availableShippingOptions } =
-      await listSellerReturnShippingOptionsForOrderWorkflow.run({
-        container,
-        input: {
-          order_id: input.order_id
-        }
-      })
-
-    if (
-      !availableShippingOptions
-        .map((option) => option.id)
-        .includes(input.shipping_option_id)
-    ) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        'Invalid shipping option'
-      )
     }
 
     const reason_ids = [

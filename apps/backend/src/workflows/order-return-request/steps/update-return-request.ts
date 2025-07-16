@@ -22,6 +22,6 @@ export const updateOrderReturnRequestStep = createStep(
     const request: OrderReturnRequestDTO =
       await service.updateOrderReturnRequests(input)
 
-    return new StepResponse(request, request.id)
+    return new StepResponse(request[0], request[0].id)
   }
 )

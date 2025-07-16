@@ -18,7 +18,7 @@ export async function GET(
   )
 
   res.json({
-    stock_locations: filteredStockLocations,
+    stock_locations: stockLocations, //filteredStockLocations,
     count: metadata?.count,
     offset: metadata?.skip,
     limit: metadata?.take

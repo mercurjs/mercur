@@ -46,7 +46,7 @@ export type StoreCreateReturnRequestType = z.infer<
 export const StoreCreateReturnRequest = z
   .object({
     order_id: z.string(),
-    shipping_option_id: z.string(),
+    shipping_option_id: z.string().optional(),
     line_items: z.array(
       z.object({
         line_item_id: z.string(),
