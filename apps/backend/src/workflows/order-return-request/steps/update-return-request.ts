@@ -19,9 +19,18 @@ export const updateOrderReturnRequestStep = createStep(
     const service =
       container.resolve<OrderReturnModuleService>(ORDER_RETURN_MODULE)
 
+    const previousData = await service.retrieveOrderReturnRequest(input.id)
+
     const request: OrderReturnRequestDTO =
       await service.updateOrderReturnRequests(input)
 
-    return new StepResponse(request[0], request[0].id)
+    return new StepResponse(request[0], previousData)
+  },
+  async (previousData: OrderReturnRequestDTO, { container }) => {
+    const service =
+      container.resolve<OrderReturnModuleService>(ORDER_RETURN_MODULE)
+
+    // @ts-expect-error - incomplete type
+    await service.updateOrderReturnRequests(previousData)
   }
 )
