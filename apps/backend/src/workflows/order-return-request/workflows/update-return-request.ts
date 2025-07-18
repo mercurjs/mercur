@@ -18,12 +18,11 @@ export const updateOrderReturnRequestWorkflow = createWorkflow(
   function (
     input: VendorUpdateOrderReturnRequestDTO | AdminUpdateOrderReturnRequestDTO
   ) {
-    const request = updateOrderReturnRequestStep(input)
-
-    when(request, (request) => request.status === 'refunded').then(() => {
-      proceedReturnRequestWorkflow.runAsStep({ input: request })
+    when(input, (input) => input.status === 'refunded').then(() => {
+      proceedReturnRequestWorkflow.runAsStep({ input })
     })
 
+    const request = updateOrderReturnRequestStep(input)
     const orderReturnRequestUpdatedHook = createHook(
       'orderReturnRequestUpdated',
       {
