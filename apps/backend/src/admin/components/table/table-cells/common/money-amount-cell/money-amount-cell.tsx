@@ -1,5 +1,5 @@
 import { clx } from "@medusajs/ui"
-import { getStylizedAmount } from "../../../../../lib/money-amount-helpers"
+import { getStylizedAmount } from '../../../../../routes/seller/helpers'
 import { PlaceholderCell } from "../placeholder-cell"
 
 type MoneyAmountCellProps = {
