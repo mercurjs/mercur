@@ -36,6 +36,27 @@ const CreateShippingOptionPriceWithCurrency = z
   .strict()
 
 /**
+ * @schema CreateShippingOptionPriceWithRegion
+ * type: object
+ * required:
+ *   - region_id
+ *   - amount
+ * properties:
+ *   region_id:
+ *     type: string
+ *     description: The region ID for the price.
+ *   amount:
+ *     type: number
+ *     description: The amount of the price.
+ */
+export const CreateShippingOptionPriceWithRegion = z
+  .object({
+    region_id: z.string(),
+    amount: z.number()
+  })
+  .strict()
+
+/**
  * @schema CreateShippingOptionTypeObject
  * type: object
  * required:
@@ -110,7 +131,9 @@ const VendorCreateShippingOptionRule = z
  *     type: array
  *     description: The prices of the shipping option.
  *     items:
- *       $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *       oneOf:
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithRegion"
  *   rules:
  *     type: array
  *     items:
@@ -128,7 +151,9 @@ export const VendorCreateShippingOption = z
     shipping_profile_id: z.string(),
     data: z.record(z.unknown()).optional(),
     provider_id: z.string(),
-    prices: CreateShippingOptionPriceWithCurrency.array(),
+    prices: CreateShippingOptionPriceWithCurrency.or(
+      CreateShippingOptionPriceWithRegion
+    ).array(),
     type: CreateShippingOptionTypeObject,
     rules: VendorCreateShippingOptionRule.array().optional()
   })
@@ -151,7 +176,9 @@ export const VendorCreateShippingOption = z
  *     type: array
  *     description: The prices of the shipping option.
  *     items:
- *       $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *       oneOf:
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithCurrency"
+ *         - $ref: "#/components/schemas/CreateShippingOptionPriceWithRegion"
  *   rules:
  *     type: array
  *     items:
@@ -168,7 +195,11 @@ export const VendorUpdateShippingOption = z
     name: z.string().optional(),
     shipping_profile_id: z.string().optional(),
     provider_id: z.string().optional(),
-    prices: CreateShippingOptionPriceWithCurrency.array().optional(),
+    prices: CreateShippingOptionPriceWithCurrency.or(
+      CreateShippingOptionPriceWithRegion
+    )
+      .array()
+      .optional(),
     type: CreateShippingOptionTypeObject.optional(),
     rules: VendorCreateShippingOptionRule.array().optional()
   })

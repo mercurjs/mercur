@@ -43,9 +43,8 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { id } = req.params
 
-  await acceptMemberInvitesWorkflow(req.scope).run({
+  const { result } = await acceptMemberInvitesWorkflow(req.scope).run({
     input: {
       invite: req.validatedBody,
       authIdentityId: req.auth_context.auth_identity_id
@@ -58,7 +57,7 @@ export const POST = async (
     {
       entity: 'member_invite',
       fields: req.queryConfig.fields,
-      filters: { id }
+      filters: { id: result.id }
     },
     { throwIfKeyNotFound: true }
   )

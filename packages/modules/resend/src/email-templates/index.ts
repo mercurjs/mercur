@@ -11,6 +11,7 @@ import { SellerAccountRejectedEmailTemplate } from "./seller-account-rejected";
 import { SellerAccountSubmissionEmailTemplate } from "./seller-account-updates-submission";
 import { SellerCanceledOrderEmailTemplate } from "./seller-canceled-order";
 import { SellerNewOrderEmailTemplate } from "./seller-new-order";
+import { SellerPayoutSummaryEmailTemplate } from "./seller-payout-summary";
 import { SellerProductApprovedEmailTemplate } from "./seller-product-approved";
 import { SellerProductRejectedEmailTemplate } from "./seller-product-rejected";
 import { SellerOrderShippingEmailTemplate } from "./seller-shipping-order";
@@ -37,4 +38,5 @@ export const emailTemplates: any = {
   adminRequestCreatedEmailTemplate: AdminRequestCreatedEmailTemplate,
   adminSellerRequestCreatedEmailTemplate:
     AdminSellerRequestCreatedEmailTemplate,
+  sellerPayoutSummaryEmailTemplate: SellerPayoutSummaryEmailTemplate,
 };

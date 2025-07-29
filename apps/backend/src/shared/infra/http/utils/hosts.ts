@@ -35,3 +35,10 @@ export const buildResetPasswordUrl = (hostType: Hosts, token?: string) => {
 
   return url
 }
+
+export const buildInviteUrl = (token: string) => {
+  const url = buildHostAddress(Hosts.VENDOR_PANEL, '/invite')
+  url.searchParams.set('token', token)
+
+  return url
+}

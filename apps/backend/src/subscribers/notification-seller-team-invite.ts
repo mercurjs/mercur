@@ -4,13 +4,15 @@ import { Modules } from '@medusajs/framework/utils'
 import { SellerTeamInviteEvent } from '@mercurjs/framework'
 import { ResendNotificationTemplates } from '@mercurjs/resend'
 
+import { buildInviteUrl } from '../shared/infra/http/utils'
+
 export default async function sellerTeamInviteHandler({
   event,
   container
 }: SubscriberArgs<{
   user_name: string
   store_name: string
-  host: string
+  token: string
   id: string
   email: string
 }>) {
@@ -28,7 +30,7 @@ export default async function sellerTeamInviteHandler({
       data: {
         user_name: invite.user_name,
         store_name: invite.store_name,
-        host: invite.host,
+        host: buildInviteUrl(invite.token).toString(),
         id: invite.id,
         email: invite.email
       }

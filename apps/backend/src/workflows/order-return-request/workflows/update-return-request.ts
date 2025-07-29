@@ -10,19 +10,19 @@ import {
   VendorUpdateOrderReturnRequestDTO
 } from '@mercurjs/framework'
 
-import { createReturnObjectStep, updateOrderReturnRequestStep } from '../steps'
+import { updateOrderReturnRequestStep } from '../steps'
+import { proceedReturnRequestWorkflow } from './proceed-return-request'
 
 export const updateOrderReturnRequestWorkflow = createWorkflow(
   'update-order-return-request',
   function (
     input: VendorUpdateOrderReturnRequestDTO | AdminUpdateOrderReturnRequestDTO
   ) {
-    const request = updateOrderReturnRequestStep(input)
-
-    when(request, (request) => request.status === 'refunded').then(() => {
-      createReturnObjectStep(request)
+    when(input, (input) => input.status === 'refunded').then(() => {
+      proceedReturnRequestWorkflow.runAsStep({ input })
     })
 
+    const request = updateOrderReturnRequestStep(input)
     const orderReturnRequestUpdatedHook = createHook(
       'orderReturnRequestUpdated',
       {

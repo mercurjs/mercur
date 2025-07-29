@@ -195,6 +195,15 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "reason_id": {
+          "name": "reason_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
         "quantity": {
           "name": "quantity",
           "type": "integer",

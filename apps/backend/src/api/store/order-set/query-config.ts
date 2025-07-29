@@ -4,6 +4,7 @@ export const defaultStoreRetrieveOrderSetFields = [
   'created_at',
   'display_id',
   'orders.id',
+  'orders.display_id',
   'orders.currency_code',
   'orders.created_at',
   'orders.updated_at',
