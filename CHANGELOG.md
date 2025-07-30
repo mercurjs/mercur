@@ -5,6 +5,22 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-07-30
+
+### Release 1.0.1 - B2C Marketplace
+
+### Changed
+
+- **Extract modules** ([#323](https://github.com/mercurjs/mercur/pull/323) @slusarczykmichal)
+- **Docs: update OAS** ([#326](https://github.com/mercurjs/mercur/pull/326) @slusarczykmichal)
+- **Version: bump to medusa 2.8.6** ([#333](https://github.com/mercurjs/mercur/pull/333) @slusarczykmichal)
+
+### Fixed
+
+- **Product update request** ([#340](https://github.com/mercurjs/mercur/pull/340) @WojciechPlodzien)
+- **Seller detail page** ([#359](https://github.com/mercurjs/mercur/pull/359) @slusarczykmichal)
+- **Move withDeleted out of filters to prevent query error** ([#361](https://github.com/mercurjs/mercur/pull/361) @slusarczykmichal)
+
 ## [1.0.0] - 2025-06-23
 
 ### Release 1.0 - B2C Marketplace
