@@ -1,57 +1,99 @@
-services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    container_name: medusa_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: medusa-store
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - medusa_network
+version: '3.8'
 
-  # Redis
+services:
+  # Redis service for caching and session management
   redis:
-    image: redis:7-alpine
-    container_name: medusa_redis
+    image: redis:7.2-alpine
+    container_name: plug-dev-redis
     restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-defaultpassword}
+    volumes:
+      - redis_data:/data
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
-      - medusa_network
+      - plug-dev-network
 
-  # Medusa Server
-  # This service runs the Medusa backend application
-  # and the admin dashboard.
-  medusa:
-    build: .
-    container_name: plug-back-end
+  # Main Medusa backend service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: plug-backend-dev
     restart: unless-stopped
-    depends_on:
-      - postgres
-      - redis
     ports:
       - "9000:9000"
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/medusa-store
-      - REDIS_URL=redis://redis:6379
-    env_file:
-      - .env
+      - NODE_ENV=production
+      - PORT=9000
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-defaultpassword}@redis:6379
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - STRIPE_SECRET_API_KEY=${STRIPE_SECRET_API_KEY}
+      - STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET=${STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL}
+      - ALGOLIA_APP_ID=${ALGOLIA_APP_ID}
+      - ALGOLIA_API_KEY=${ALGOLIA_API_KEY}
+      - VITE_TALK_JS_APP_ID=${VITE_TALK_JS_APP_ID}
+      - VITE_TALK_JS_SECRET_API_KEY=${VITE_TALK_JS_SECRET_API_KEY}
+      - STORE_CORS=${STORE_CORS:-http://localhost:3000}
+      - ADMIN_CORS=${ADMIN_CORS:-http://localhost:9000}
+      - VENDOR_CORS=${VENDOR_CORS:-http://localhost:5173}
+      - AUTH_CORS=${AUTH_CORS:-http://localhost:9000,http://localhost:5173,http://localhost:3000}
+      - VENDOR_PANEL_URL=${VENDOR_PANEL_URL:-http://localhost:5173}
+      - STOREFRONT_URL=${STOREFRONT_URL:-http://localhost:7001}
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:9000}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     volumes:
-      - .:/app
-      - /app/node_modules
+      - backend_uploads:/server/apps/backend/uploads
+      - backend_logs:/server/apps/backend/logs
     networks:
-      - medusa_network
+      - plug-dev-network
+
+  # Nginx reverse proxy (optional but recommended for production)
+  nginx:
+    image: nginx:alpine
+    container_name: plug-dev-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - plug-dev-network
 
 volumes:
-  postgres_data:
+  redis_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_logs:
+    driver: local
+  nginx_logs:
+    driver: local
 
 networks:
-  plug_network:
+  plug-dev-network:
     driver: bridge
