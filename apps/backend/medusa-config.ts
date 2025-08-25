@@ -13,6 +13,11 @@ module.exports = defineConfig({
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET || 'supersecret',
       cookieSecret: process.env.COOKIE_SECRET || 'supersecret'
+    },
+    cookieOptions: {
+
+      secure: false, // allow HTTP
+      sameSite: 'lax' // or "strict", if appropriate
     }
   },
   modules: [
