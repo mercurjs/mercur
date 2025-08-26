@@ -2,7 +2,7 @@ FROM node:20-alpine AS base
 
 FROM base AS builder
 RUN apk update
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat curl
 WORKDIR /server
 
 # Copy everything and let turbo prune handle the optimization
@@ -30,6 +30,9 @@ RUN yarn turbo build --filter=api...
 
 FROM base AS runner
 WORKDIR /server
+
+# Install curl for health checks
+RUN apk update && apk add --no-cache curl
 
 # Don't run production as root
 RUN addgroup --system --gid 1001 medusa
