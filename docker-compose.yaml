@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Redis service for caching and session management
   redis:
@@ -12,13 +10,15 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-defaultpassword}", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
     networks:
       - plug-dev-network
+    env_file:
+      - ./apps/backend/.env
 
   # Main Medusa backend service
   backend:
@@ -51,6 +51,8 @@ services:
       - VENDOR_PANEL_URL=${VENDOR_PANEL_URL:-http://localhost:5173}
       - STOREFRONT_URL=${STOREFRONT_URL:-http://localhost:7001}
       - BACKEND_URL=${BACKEND_URL:-http://localhost:9000}
+      - DB_NAME=${DB_NAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-defaultpassword}
     depends_on:
       redis:
         condition: service_healthy
@@ -63,6 +65,8 @@ services:
     volumes:
       - backend_uploads:/server/apps/backend/uploads
       - backend_logs:/server/apps/backend/logs
+    env_file:
+      - ./apps/backend/.env
     networks:
       - plug-dev-network
 
