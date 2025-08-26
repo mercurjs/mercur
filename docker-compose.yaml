@@ -17,8 +17,6 @@ services:
       start_period: 30s
     networks:
       - plug-dev-network
-    env_file:
-      - ./apps/backend/.env
 
   # Main Medusa backend service
   backend:
@@ -65,8 +63,6 @@ services:
     volumes:
       - backend_uploads:/server/apps/backend/uploads
       - backend_logs:/server/apps/backend/logs
-    env_file:
-      - ./apps/backend/.env
     networks:
       - plug-dev-network
 
