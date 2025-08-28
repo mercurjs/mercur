@@ -115,6 +115,9 @@ export const GET = async (
  *           is_filterable:
  *             type: boolean
  *             description: Whether the attribute can be used for filtering products.
+ *           is_required:
+ *             type: boolean
+ *             description: Whether the attribute is required for products.
  *           ui_component:
  *             type: string
  *             enum: [select, multivalue, unit, toggle, text_area, color_picker]

@@ -1,4 +1,4 @@
-import { toHandle } from '@medusajs/framework/utils'
+import { MedusaError, toHandle } from '@medusajs/framework/utils'
 import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { ATTRIBUTE_MODULE, AttributeModuleService } from '@mercurjs/attribute'
@@ -15,6 +15,17 @@ export const createAttributesStep = createStep(
   createAttributesStepId,
   async (data: CreateAttributeStepInput, { container }) => {
     const service = container.resolve<AttributeModuleService>(ATTRIBUTE_MODULE)
+
+    const existingAttributes = await service.listAttributes({
+      name: data.map((attribute) => attribute.name)
+    })
+
+    if (existingAttributes.length) {
+      throw new MedusaError(
+        MedusaError.Types.CONFLICT,
+        `Attributes ${existingAttributes.map((attribute) => attribute.name).join(', ')} already exist`
+      )
+    }
 
     const validated = data.map((attribute) => {
       return {

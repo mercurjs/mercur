@@ -1,7 +1,9 @@
 import { MedusaContainer, ProductDTO } from '@medusajs/framework/types'
+import { MedusaError, arrayDifference } from '@medusajs/framework/utils'
 
 import { ProductAttributeValueDTO } from '@mercurjs/framework'
 
+import { getApplicableAttributes } from '../../../shared/infra/http/utils/products'
 import { createAttributeValueWorkflow } from '../../../workflows/attribute/workflows'
 
 export const productsCreatedHookHandler = async ({
@@ -15,23 +17,40 @@ export const productsCreatedHookHandler = async ({
 }) => {
   const attributeValues = (additional_data?.values ??
     []) as ProductAttributeValueDTO[]
-  const productIds = products.map((prod) => prod.id)
 
   if (!attributeValues.length) {
     return []
   }
 
-  await Promise.all(
-    productIds.flatMap((prodId) =>
-      attributeValues.map(async (attrVal) => {
-        return createAttributeValueWorkflow(container).run({
-          input: {
-            attribute_id: attrVal.attribute_id,
-            value: attrVal.value,
-            product_id: prodId
-          }
-        })
-      })
+  for (const product of products) {
+    const requiredAttributes = (
+      await getApplicableAttributes(container, product.id, [
+        'id',
+        'name',
+        'is_required'
+      ])
+    ).filter((attr) => attr.is_required)
+
+    const missingAttributes = arrayDifference(
+      requiredAttributes.map((attr) => attr.id),
+      attributeValues.map((attr) => attr.attribute_id)
     )
-  )
+
+    if (missingAttributes.length) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `Missing required attributes for product ${product.title}: ${missingAttributes.join(', ')}`
+      )
+    }
+
+    for (const attrVal of attributeValues) {
+      await createAttributeValueWorkflow(container).run({
+        input: {
+          attribute_id: attrVal.attribute_id,
+          value: attrVal.value,
+          product_id: product.id
+        }
+      })
+    }
+  }
 }
