@@ -31,6 +31,9 @@ export function Register() {
         last_name: lastName || undefined,
       })
 
+      // Exchange registration token for an authenticated token with actor context
+      await sdk.auth.refresh()
+
       await refreshCustomer()
     } catch (e: any) {
       Alert.alert('Registration failed', e?.message ?? 'Unknown error')
