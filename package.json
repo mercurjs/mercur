@@ -16,18 +16,6 @@
       "packages/modules/*"
     ],
     "nohoist": [
-      "apps/marketplace",
-      "apps/marketplace/**",
-      "apps/marketplace/**/react",
-      "apps/marketplace/**/react-dom",
-      "apps/marketplace/**/@types/react",
-      "apps/marketplace/**/@types/react-dom",
-      "apps/customer",
-      "apps/customer/**",
-      "apps/customer/**/react",
-      "apps/customer/**/react-dom",
-      "apps/customer/**/@types/react",
-      "apps/customer/**/@types/react-dom",
       "apps/nosh",
       "apps/nosh/**",
       "apps/nosh/**/react",

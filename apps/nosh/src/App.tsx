@@ -6,7 +6,8 @@ import * as React from 'react';
 import { useColorScheme } from 'react-native';
 
 import { Colors } from './constants/Colors';
-import { Navigation } from './navigation';
+import { RootNavigationSwitcher } from './navigation';
+import { CustomerProvider } from './providers/customer';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,18 +34,30 @@ export function App() {
         };
 
   return (
-    <Navigation
-      theme={theme}
-      linking={{
-        enabled: 'auto',
-        prefixes: [
-          // Change the scheme to match your app's scheme defined in app.json
-          'helloworld://',
-        ],
-      }}
-      onReady={() => {
-        SplashScreen.hideAsync();
-      }}
-    />
+    <CustomerProvider>
+      <RootNavigationSwitcher
+        theme={theme}
+        linking={{
+          enabled: 'auto',
+          prefixes: ['nosh://'],
+          // Support incoming links for password reset flows
+          // Example: nosh://reset-password/confirm?token=...&email=...
+          // and nosh://reset-password
+          // and nosh://register
+          config: {
+            initialRouteName: 'Login',
+            screens: {
+              Login: 'login',
+              Register: 'register',
+              RequestReset: 'reset-password',
+              ResetPassword: 'reset-password/confirm',
+            },
+          },
+        }}
+        onReady={() => {
+          SplashScreen.hideAsync();
+        }}
+      />
+    </CustomerProvider>
   );
 }

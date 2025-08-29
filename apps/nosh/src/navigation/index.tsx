@@ -1,11 +1,15 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStaticNavigation, StaticParamList } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform } from 'react-native';
+import { useCustomer } from '@/providers/customer';
 
 import { Explore } from './screens/Explore';
 import { Home } from './screens/Home';
 import { NotFound } from './screens/NotFound';
+import { Login } from './screens/Login';
+import { Register } from './screens/Register';
+import { RequestReset } from './screens/RequestReset';
+import { ResetPassword } from './screens/ResetPassword';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -32,13 +36,6 @@ const HomeTabs = createBottomTabNavigator({
     headerShown: false,
     tabBarButton: HapticTab,
     tabBarBackground: TabBarBackground,
-    tabBarStyle: Platform.select({
-      ios: {
-        // Use a transparent background on iOS to show the blur effect
-        possition: 'absolute',
-      },
-      default: {},
-    }),
   },
 });
 
@@ -63,6 +60,45 @@ const RootStack = createNativeStackNavigator({
 });
 
 export const Navigation = createStaticNavigation(RootStack);
+
+const AuthStack = createNativeStackNavigator({
+  screens: {
+    Login: {
+      screen: Login,
+      options: {
+        title: 'Sign in',
+      },
+    },
+    Register: {
+      screen: Register,
+      options: {
+        title: 'Create account',
+      },
+      linking: { path: 'register' },
+    },
+    RequestReset: {
+      screen: RequestReset,
+      options: {
+        title: 'Reset password',
+      },
+      linking: { path: 'reset-password' },
+    },
+    ResetPassword: {
+      screen: ResetPassword,
+      options: {
+        title: 'Set new password',
+      },
+      linking: { path: 'reset-password/confirm' },
+    },
+  },
+});
+
+export function RootNavigationSwitcher({ theme, linking, onReady }: any) {
+  const { isLoggedIn, isLoading } = useCustomer();
+  const Navigator = isLoggedIn ? createStaticNavigation(RootStack) : createStaticNavigation(AuthStack);
+  if (isLoading) return null;
+  return <Navigator theme={theme} linking={linking} onReady={onReady} />;
+}
 
 type RootStackParamList = StaticParamList<typeof RootStack>;
 

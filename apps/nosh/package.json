@@ -4,14 +4,22 @@
   "main": "index.tsx",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "run:ios": "expo run:ios",
+    "run:android": "expo run:android",
+    "prebuild:ios": "npx expo prebuild --platform ios",
+    "prebuild:android": "npx expo prebuild --platform android",
     "web": "expo start --web",
     "reset-project": "node ./src/scripts/reset-project.js"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.0",
     "@expo/vector-icons": "^14.1.0",
+    "@hookform/resolvers": "^3.10.0",
+    "@medusajs/js-sdk": "^2.10.1",
+    "@medusajs/types": "^2.10.1",
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
@@ -40,6 +48,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "dotenv": "^16.4.5",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"
