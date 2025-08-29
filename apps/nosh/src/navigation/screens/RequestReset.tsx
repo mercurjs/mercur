@@ -11,17 +11,9 @@ export function RequestReset() {
     setIsSubmitting(true)
     try {
       // The route always returns success to avoid email enumeration.
-      // SDK method name may vary with versions; use requestPasswordReset if available.
-      // @ts-ignore
-      if (sdk.store?.auth?.requestPasswordReset) {
-        // @ts-ignore
-        await sdk.store.auth.requestPasswordReset({ identifier: email })
-      } else {
-        // Fallback to manual call when SDK sugar is missing
-        await sdk.client.request('POST', '/auth/customer/emailpass/reset-password', {
-          body: { identifier: email },
-        })
-      }
+      await sdk.auth.resetPassword("customer", "emailpass", {
+        identifier: email,
+      })
       Alert.alert('Check your email', 'If the email exists, a reset link was sent.')
     } catch (e: any) {
       // Still show success per docs

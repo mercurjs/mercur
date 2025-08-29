@@ -8,12 +8,22 @@
   "bin": {
     "mercur-exec": "./index.js"
   },
-  "packageManager": "yarn@1.22.21",
+  "packageManager": "yarn@4.9.4",
   "workspaces": {
     "packages": [
       "apps/*",
       "packages/*",
-      "packages/modules/*"
+      "packages/modules/*",
+      "vendor/nosh/packages/universal-components/alf",
+      "vendor/nosh/packages/universal-components/utils",
+      "vendor/nosh/packages/universal-components/storage",
+      "vendor/nosh/packages/ui-shared-utils",
+      "vendor/nosh/packages/figma-tokens",
+      "vendor/nosh/packages/backend-admin-sdk",
+      "vendor/nosh/packages/backend-customer-sdk",
+      "vendor/nosh/packages/backend-db-types",
+      "vendor/nosh/packages/math",
+      "vendor/nosh/packages/shared-types"
     ],
     "nohoist": [
       "apps/nosh",
@@ -30,6 +40,8 @@
       "apps/nosh/**/react-native-web"
     ]
   },
+  "installConfig": { "hoistingLimits": "workspaces" },
+  "prefer-workspace-packages": true,
   "scripts": {
     "mercur-exec": "turbo run dev",
     "dev": "turbo run dev",

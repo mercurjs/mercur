@@ -15,7 +15,7 @@ export function Login() {
     if (isSubmitting) return
     setIsSubmitting(true)
     try {
-      await sdk.store.auth.authenticate({ email, password })
+      await sdk.auth.login("customer", "emailpass", { email, password })
       await refreshCustomer()
     } catch (e: any) {
       Alert.alert('Login failed', e?.message ?? 'Unknown error')

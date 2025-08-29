@@ -16,24 +16,12 @@ export function Register() {
     setIsSubmitting(true)
     try {
       try {
-        // Obtain registration token (JS SDK stores it internally)
-        // If identity exists with different password, this will throw
-        // Docs: https://docs.medusajs.com/resources/storefront-development/customers/register
-        // Prefer SDK sugar if available
-        // @ts-ignore: method availability depends on SDK version
-        if (sdk.store?.auth?.register) {
-          // @ts-ignore
-          await sdk.store.auth.register({ email, password })
-        } else {
-          // Manual call to registration route when SDK sugar isn't available
-          await sdk.client.request('POST', '/auth/customer/emailpass/register', {
-            body: { email, password },
-          })
-        }
+        // Register the customer identity
+        await sdk.auth.register("customer", "emailpass", { email, password })
       } catch (err: any) {
         // If register failed due to existing identity, try login
         // This allows admin identities to also become customers
-        await sdk.store.auth.authenticate({ email, password })
+        await sdk.auth.login("customer", "emailpass", { email, password })
       }
 
       // Create the customer using the authenticated context
