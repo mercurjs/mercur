@@ -9,18 +9,51 @@
     "mercur-exec": "./index.js"
   },
   "packageManager": "yarn@1.22.21",
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "packages/modules/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*",
+      "packages/modules/*"
+    ],
+    "nohoist": [
+      "apps/marketplace",
+      "apps/marketplace/**",
+      "apps/marketplace/**/react",
+      "apps/marketplace/**/react-dom",
+      "apps/marketplace/**/@types/react",
+      "apps/marketplace/**/@types/react-dom",
+      "apps/customer",
+      "apps/customer/**",
+      "apps/customer/**/react",
+      "apps/customer/**/react-dom",
+      "apps/customer/**/@types/react",
+      "apps/customer/**/@types/react-dom",
+      "apps/nosh",
+      "apps/nosh/**",
+      "apps/nosh/**/react",
+      "apps/nosh/**/react-dom",
+      "apps/nosh/**/react-native",
+      "apps/nosh/**/@types/react",
+      "apps/nosh/**/@types/react-dom",
+      "apps/nosh/**/expo",
+      "apps/nosh/**/expo-*",
+      "apps/nosh/**/react-native-reanimated",
+      "apps/nosh/**/react-native-gesture-handler",
+      "apps/nosh/**/react-native-web"
+    ]
+  },
   "scripts": {
     "mercur-exec": "turbo run dev",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "format": "turbo run format",
     "lint": "turbo run lint",
-    "codegen": "cd .",
+    "codegen": "turbo run generate:sdk",
     "generate:oas": "turbo run generate:oas"
+  },
+  "resolutions": {
+    "zod": "3.25.8",
+    "@medusajs/ui": "4.0.16",
+    "@radix-ui/react-popover": "1.1.5"
   }
 }
