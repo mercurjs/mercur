@@ -1,11 +1,10 @@
-import { Medusa } from "@medusajs/js-sdk"
-import type { MedusaClient } from "@medusajs/js-sdk"
+import Medusa from "@medusajs/js-sdk"
 import { medusaEnv, assertMedusaEnv } from "./config"
 import { createAsyncStorageAdapter } from "./medusa-storage"
 
-let sdkSingleton: MedusaClient | null = null
+let sdkSingleton: Medusa | null = null
 
-export function getMedusaClient(): MedusaClient {
+export function getMedusaClient(): Medusa {
   if (sdkSingleton) return sdkSingleton
 
   assertMedusaEnv()

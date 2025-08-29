@@ -24,7 +24,7 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "@react-navigation/native-stack": "^7.3.16",
-    "expo": "52.0.0",
+    "expo": "~52.0.47",
     "expo-asset": "~11.0.5",
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.8",
@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@types/react": "~18.3.12",
+    "babel-plugin-module-resolver": "^5.0.0",
     "dotenv": "^16.4.5",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~8.0.1",
