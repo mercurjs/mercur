@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { Alert, Button, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Link } from '@react-navigation/native'
+import { Alert, Button, SafeAreaView, StyleSheet, Text, TextInput, View, Pressable } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import { sdk } from '@/lib/sdk'
 import { useCustomer } from '@/providers/customer'
 
 export function Login() {
+  const navigation = useNavigation()
   const { refreshCustomer } = useCustomer()
   const [email, setEmail] = useState('test@example.com')
   const [password, setPassword] = useState('password')
@@ -47,13 +48,15 @@ export function Login() {
         <View style={{ height: 8 }} />
         <Text>
           Don't have an account?{' '}
-          {/* @ts-ignore - static linking names resolved by createStaticNavigation */}
-          <Link to={{ screen: 'Register' }}>Create account</Link>
+          <Pressable onPress={() => navigation.navigate('Register' as never)}>
+            <Text style={styles.linkText}>Create account</Text>
+          </Pressable>
         </Text>
         <Text>
           Forgot password?{' '}
-          {/* @ts-ignore */}
-          <Link to={{ screen: 'RequestReset' }}>Reset it</Link>
+          <Pressable onPress={() => navigation.navigate('RequestReset' as never)}>
+            <Text style={styles.linkText}>Reset it</Text>
+          </Pressable>
         </Text>
       </View>
     </SafeAreaView>
@@ -70,6 +73,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
+  },
+  linkText: {
+    color: '#007AFF',
+    textDecorationLine: 'underline',
   },
 })
 

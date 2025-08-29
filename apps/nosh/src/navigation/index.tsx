@@ -95,15 +95,23 @@ const AuthStack = createNativeStackNavigator({
 
 export function RootNavigationSwitcher({ theme, linking, onReady }: any) {
   const { isLoggedIn, isLoading } = useCustomer();
-  const Navigator = isLoggedIn ? createStaticNavigation(RootStack) : createStaticNavigation(AuthStack);
+  
   if (isLoading) return null;
-  return <Navigator theme={theme} linking={linking} onReady={onReady} />;
+  
+  if (isLoggedIn) {
+    const AuthenticatedNavigator = createStaticNavigation(RootStack);
+    return <AuthenticatedNavigator theme={theme} linking={linking} onReady={onReady} />;
+  } else {
+    const UnauthenticatedNavigator = createStaticNavigation(AuthStack);
+    return <UnauthenticatedNavigator theme={theme} linking={linking} onReady={onReady} />;
+  }
 }
 
 type RootStackParamList = StaticParamList<typeof RootStack>;
+type AuthStackParamList = StaticParamList<typeof AuthStack>;
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList, AuthStackParamList {}
   }
 }

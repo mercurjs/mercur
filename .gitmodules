@@ -1,0 +1,4 @@
+[submodule "vendor/nosh"]
+	path = vendor/nosh
+	url = git@github.com:Palette-Labs-Inc/nosh.git
+	branch = main
