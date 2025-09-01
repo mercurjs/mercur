@@ -4,6 +4,7 @@ export const defaultAdminAttributeFields = [
   'description',
   'handle',
   'ui_component',
+  'is_required',
   'metadata',
   '*possible_values',
   'product_categories.id',
