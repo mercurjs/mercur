@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { SingleColumnLayout } from "../../layouts/single-column";
 import { useAttributeTableColumns } from "../../hooks/table/columns/use-attribute-table-columns";
 
-import { AttributeDTO } from "../../../modules/attribute/types";
+import { AttributeDTO } from "@mercurjs/framework";
 import { useAttributes } from "../../hooks/api/attributes";
 
 const AttributesPage = () => {
