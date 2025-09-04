@@ -1,7 +1,7 @@
 
 import { Badge, createDataTableColumnHelper } from "@medusajs/ui";
 import { useMemo } from "react";
-import { AttributeDTO } from "../../../../modules/attribute/types";
+import { AttributeDTO } from "@mercurjs/framework";
 
 
 const columnHelper = createDataTableColumnHelper<AttributeDTO>();
@@ -15,6 +15,12 @@ export const useAttributeTableColumns = () => {
       columnHelper.accessor("handle", {
         header: "Handle",
       }),
+      columnHelper.accessor("is_filterable", {
+        header: "Filterable",
+        cell: (info) => {
+          return <Badge size="xsmall" color={info.getValue() ? "green" : "grey"}>{info.getValue() ? "Yes" : "No"}</Badge>;
+        },
+      }),
       columnHelper.accessor("product_categories", {
         header: "Global",
         cell: (info) => {
@@ -24,6 +30,12 @@ export const useAttributeTableColumns = () => {
               {isGlobal ? "Yes" : "No"}
             </Badge>
           );
+        },
+      }),
+      columnHelper.accessor("is_required", {
+        header: "Required",
+        cell: (info) => {
+          return <Badge size="xsmall" color={info.getValue() ? "green" : "grey"}>{info.getValue() ? "Yes" : "No"}</Badge>;
         },
       }),
       columnHelper.accessor("possible_values", {
