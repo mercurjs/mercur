@@ -53,6 +53,7 @@ export const AttributeForm = ({
       handle: initialData?.handle || "",
       ui_component: mode === 'update' ? undefined : initialData?.ui_component || AttributeUIComponent.SELECT,
       is_filterable: initialData?.is_filterable ?? true,
+      is_required: initialData?.is_required ?? false,
       //@ts-ignore
       possible_values: initialData?.possible_values || [],
       product_category_ids: initialData?.product_categories?.map(c => c.id) || [],
@@ -84,7 +85,7 @@ export const AttributeForm = ({
               )}
             </div>
             <div>
-              <Label size="small" htmlFor="handle">Handle</Label>
+              <Label size="small" htmlFor="handle">Handle <span className="text-ui-fg-subtle text-xs">(Optional)</span></Label>
               <Input size="small" id="handle" className="mt-1" {...form.register("handle")} />
               {form.formState.errors.handle && (
                 <Text className="text-red-500 text-sm mt-1">
@@ -95,7 +96,7 @@ export const AttributeForm = ({
           </div>
 
           <div>
-            <Label size="small" htmlFor="description">Description</Label>
+            <Label size="small" htmlFor="description">Description <span className="text-ui-fg-subtle text-xs">(Optional)</span></Label>
             <Textarea className="mt-1"
               id="description"
               {...form.register("description")}
@@ -107,17 +108,43 @@ export const AttributeForm = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+                    <div className="bg-ui-bg-component p-3 rounded-lg shadow-elevation-card-rest">
+            <div className="flex gap-3">
               <Switch
                 id="is_filterable"
                 checked={form.watch("is_filterable")}
                 onCheckedChange={(checked) =>
                   form.setValue("is_filterable", checked)
                 }
+                className="mt-1"
               />
-              <Label size="small" htmlFor="is_filterable">Filterable</Label>
+              <div>
+                <Label size="small" htmlFor="is_filterable">Yes, this is a filterable attribute</Label>
+                <Text className="text-ui-fg-subtle text-xs mt-1">
+                  If checked, buyers will be able to filter products using this attribute.
+                </Text>
+              </div>
+            </div>
           </div>
 
+          <div className="bg-ui-bg-component p-3 rounded-lg shadow-elevation-card-rest">
+            <div className="flex gap-3">
+              <Switch
+                id="is_required"
+                checked={form.watch("is_required")}
+                onCheckedChange={(checked) =>
+                  form.setValue("is_required", checked)
+                }
+                className="mt-1"
+              />
+              <div>
+                <Label size="small" htmlFor="is_required">Yes, this is a mandatory attribute</Label>
+                <Text className="text-ui-fg-subtle text-xs mt-1">
+                  If checked, vendors must set a value to this attribute for products.
+                </Text>
+              </div>
+            </div>
+          </div>
 
           {(
             <div>
