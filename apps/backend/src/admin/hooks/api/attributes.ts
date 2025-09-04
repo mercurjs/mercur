@@ -13,7 +13,7 @@ import { PaginatedResponse } from '@medusajs/types'
 import {
   AttributeDTO,
   AttributePossibleValueDTO
-} from '../../../modules/attribute/types'
+} from '@mercurjs/framework'
 import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
 
@@ -33,7 +33,7 @@ export const useAttributes = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: attributeQueryKeys.list(),
+    queryKey: attributeQueryKeys.list(query),
     queryFn: () =>
       mercurQuery('/admin/attributes', {
         method: 'GET',
