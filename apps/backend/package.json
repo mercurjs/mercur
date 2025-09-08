@@ -13,7 +13,7 @@
     "medusa"
   ],
   "scripts": {
-    "build": "medusa build && ln -s .medusa/server/public/ public",
+    "build": "medusa build && node -e \"const fs=require('fs');const path=require('path');const target='.medusa/server/public/';const link='public';try{if(fs.existsSync(link))fs.rmSync(link,{recursive:true,force:true});fs.symlinkSync(target,link,process.platform==='win32'?'junction':'dir');console.log('✔ Symlink created:',link,'→',target);}catch(e){console.error('✖ Failed to create symlink:',e.message);process.exit(1);}\"",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start --types=false",
     "dev": "medusa develop --types=false",
