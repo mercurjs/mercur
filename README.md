@@ -67,6 +67,14 @@ Built-in integration with Stripe for payments and Resend for communication needs
 
 &nbsp;
 
+## Prerequisites
+
+- [Node.js v20+ ↗](https://nodejs.org/en/download)  
+- [PostgreSQL ↗](https://www.postgresql.org/download/)  
+- [Git CLI ↗](https://git-scm.com/downloads)
+
+&nbsp;
+
 ## Quickstart
 
 #### Setup Medusa project
@@ -109,12 +117,6 @@ yarn dev
 ```
 
 &nbsp;
-
-## Prerequisites
-
-- [Node.js v20+ ↗](https://nodejs.org/en/download)  
-- [PostgreSQL ↗](https://www.postgresql.org/download/)  
-- [Git CLI ↗](https://git-scm.com/downloads)  
 
 # Resources
 
