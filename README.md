@@ -112,9 +112,9 @@ yarn dev
 
 ## Prerequisites
 
-- Node.js v20+
-- PostgreSQL
-- Git CLI
+- [Node.js v20+ ↗](https://nodejs.org/en/download)  
+- [PostgreSQL ↗](https://www.postgresql.org/download/)  
+- [Git CLI ↗](https://git-scm.com/downloads)  
 
 # Resources
 
