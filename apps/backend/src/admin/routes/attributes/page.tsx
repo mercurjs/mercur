@@ -32,7 +32,7 @@ const AttributesPage = () => {
 
   // Sorting state
   const [sorting, setSorting] = useState<{
-    field: 'name' | 'handle' | 'ui_component' | null;
+    field: 'name' | 'created_at' | 'updated_at' | null;
     order: 'asc' | 'desc';
   }>({
     field: null,
@@ -43,7 +43,7 @@ const AttributesPage = () => {
   const { attributes: allAttributes, isLoading } = useAttributes({
     limit: 1000, // Get all records
     offset: 0,
-    fields: "id,name,description,handle,ui_component,is_filterable,is_required,product_categories.id,product_categories.name,possible_values.*",
+    fields: "id,name,description,handle,ui_component,is_filterable,is_required,product_categories.id,product_categories.name,possible_values.*,created_at,updated_at",
   })
 
   const { columns, modal } = useAttributeTableColumns()
@@ -78,7 +78,7 @@ const AttributesPage = () => {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
   };
 
-  const handleSortFieldChange = (field: 'name' | 'handle' | 'ui_component') => {
+  const handleSortFieldChange = (field: 'name' | 'created_at' | 'updated_at') => {
     setSorting(prev => ({
       ...prev,
       field: prev.field === field ? null : field
@@ -123,6 +123,14 @@ const AttributesPage = () => {
           case 'name':
             aValue = (a.name || '').toLowerCase().trim();
             bValue = (b.name || '').toLowerCase().trim();
+            break;
+          case 'created_at':
+            aValue = (a.created_at || '').trim();
+            bValue = (b.created_at || '').trim();
+            break;
+          case 'updated_at':
+            aValue = (a.updated_at || '').trim();
+            bValue = (b.updated_at || '').trim();
             break;
           default:
             return 0;
@@ -295,6 +303,14 @@ const AttributesPage = () => {
                       <DropdownMenu.Item onClick={() => handleSortFieldChange('name')}>
                         {sorting.field === 'name' ? <span className="mr-2">•</span> : <span className="ml-4" />}
                         Name
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item onClick={() => handleSortFieldChange('created_at')}>
+                        {sorting.field === 'created_at' ? <span className="mr-2">•</span> : <span className="ml-4" />}
+                        Created At
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item onClick={() => handleSortFieldChange('updated_at')}>
+                        {sorting.field === 'updated_at' ? <span className="mr-2">•</span> : <span className="ml-4" />}
+                        Updated At
                       </DropdownMenu.Item>
                     </div>
                     <DropdownMenu.Separator />
