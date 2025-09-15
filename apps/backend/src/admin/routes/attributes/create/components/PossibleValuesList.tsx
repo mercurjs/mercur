@@ -2,7 +2,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Button, Input, IconButton, Label } from '@medusajs/ui'
-import { Plus, XMark, DotsSix } from '@medusajs/icons'
+import { XMark, DotsSix } from '@medusajs/icons'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 
 type AttributeValueType = {
