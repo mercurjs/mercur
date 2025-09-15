@@ -127,7 +127,7 @@ const MultiSelectCategory: React.FC<MultiSelectCategoryProps> = ({
                   onClick={() => handleItemClick(category.id)}
                 >
                   <div className="flex items-center hover:bg-ui-bg-base-hover flex-1 px-2 mr-2 py-1.5 rounded-md relative">
-                    {isSelected && <span className="absolute left-3 top-1/2 -translate-y-1/2 w-1 h-1 bg-white rounded-full" />}
+                    {isSelected && <span className="absolute left-3 top-1/2 -translate-y-1/2 w-1 h-1 bg-ui-fg-base rounded-full" />}
                     <Text className="ml-6">{category.name}</Text>
                   </div>
                   {hasChildrenNode && (
