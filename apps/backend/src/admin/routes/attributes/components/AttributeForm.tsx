@@ -59,7 +59,7 @@ export const AttributeForm = ({
       name: initialData?.name || "",
       description: initialData?.description || "",
       handle: initialData?.handle || "",
-      ui_component: mode === 'update' ? undefined : initialData?.ui_component || AttributeUIComponent.SELECT,
+      ui_component: initialData?.ui_component || AttributeUIComponent.SELECT,
       is_filterable: initialData?.is_filterable ?? true,
       is_required: initialData?.is_required ?? false,
       is_global: initialData?.is_global ?? false,
@@ -276,13 +276,11 @@ export const AttributeForm = ({
         </InlineTip>
       )}
 
-      <div>
-        {form.watch("ui_component") === AttributeUIComponent.SELECT || form.watch("ui_component") === AttributeUIComponent.MULTIVALUE && (
-          <div>
-            <PossibleValuesList />
-          </div>
-        )}
-      </div>
+      {(form.watch("ui_component") === AttributeUIComponent.SELECT || form.watch("ui_component") === AttributeUIComponent.MULTIVALUE) && (
+        <div>
+          <PossibleValuesList />
+        </div>
+      )}
     </div>
   );
 
