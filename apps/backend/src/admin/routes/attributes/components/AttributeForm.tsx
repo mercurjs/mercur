@@ -227,13 +227,14 @@ export const AttributeForm = ({
                 </Text>
               )}
             </div>
-            <div className="mt-3">
-              <InlineTip label="Warning" variant="warning" >
-                All child categories of the selected category will automatically inherit its attributes.
-              </InlineTip>
-            </div>
+
           </div>
         )}
+        <div className={`mt-3 ${!(showCategorySection || (form.watch("product_category_ids")?.length || 0) > 0) && 'collapse'}`}>
+          <InlineTip label="Warning" variant="warning">
+            All child categories of the selected category will automatically inherit its attributes.
+          </InlineTip>
+        </div>
       </div>
     </div>
   );
