@@ -36,7 +36,6 @@ export const GetAttributesParams = z.object({
   id: z.string().optional(),
   name: z.string().optional(),
   handle: z.string().optional(),
-  is_global: z.boolean().default(false),
   is_required: z.boolean().optional(),
   is_filterable: z.boolean().optional(),
   created_at: createOperatorMap().optional(),
@@ -81,7 +80,6 @@ export const AdminUpdateAttribute = z
     handle: z.string().optional(),
     is_filterable: z.boolean().optional(),
     is_required: z.boolean().optional(),
-    is_global: z.boolean().optional(),
     metadata: z.record(z.unknown()).optional(),
     ui_component: z.nativeEnum(AttributeUIComponent).optional(),
     product_category_ids: z.array(z.string()).optional(),
@@ -95,7 +93,6 @@ export const CreateAttribute = z.object({
   description: z.string().optional(),
   is_filterable: z.boolean().optional(),
   is_required: z.boolean().optional(),
-  is_global: z.boolean().optional(),
   ui_component: z
     .nativeEnum(AttributeUIComponent)
     .default(AttributeUIComponent.SELECT),
@@ -115,18 +112,6 @@ export const AdminCreateAttribute = WithAdditionalData(
       {
         message: 'Possible values are required when ui_component is SELECT',
         path: ['possible_values']
-      }
-    ).refine(
-      (data) => {
-        if (data.is_global) {
-          return !data.product_category_ids || data.product_category_ids.length === 0;
-        } else {
-          return data.product_category_ids && data.product_category_ids.length > 0;
-        }
-      },
-      {
-        message: 'Global attributes cannot have categories assigned, and non-global attributes must have at least one category',
-        path: ['product_category_ids']
       }
     )
   }

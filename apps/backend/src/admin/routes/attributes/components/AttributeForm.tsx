@@ -10,7 +10,7 @@ import {
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AttributeDTO } from "@mercurjs/framework";
 import { AdminUpdateAttribute, CreateAttribute } from "../../../../api/admin/attributes/validators";
 import { AdminProductCategory } from "@medusajs/types";
@@ -52,6 +52,9 @@ export const AttributeForm = ({
   activeTab = "details",
   onFormStateChange
 }: AttributeFormProps) => {
+  const [showCategorySection, setShowCategorySection] = useState(
+    (initialData?.product_categories?.length || 0) > 0
+  );
 
   const form = useForm<CreateFormValues | UpdateFormValues>({
     resolver: zodResolver(mode === 'create' ? CreateAttributeFormSchema : UdpateAttributeFormSchema),
@@ -62,7 +65,6 @@ export const AttributeForm = ({
       ui_component: initialData?.ui_component || AttributeUIComponent.SELECT,
       is_filterable: initialData?.is_filterable ?? true,
       is_required: initialData?.is_required ?? false,
-      is_global: initialData?.is_global ?? false,
       //@ts-ignore
       possible_values: initialData?.possible_values || [],
       product_category_ids: initialData?.product_categories?.map(c => c.id) || [],
@@ -186,11 +188,13 @@ export const AttributeForm = ({
           <div className="flex gap-3">
             <Switch
               id="is_global"
-              checked={form.watch("is_global")}
+              checked={!form.watch("product_category_ids")?.length && !showCategorySection}
               onCheckedChange={(checked) => {
-                form.setValue("is_global", checked);
                 if (checked) {
                   form.setValue("product_category_ids", []);
+                  setShowCategorySection(false);
+                } else {
+                  setShowCategorySection(true);
                 }
               }}
               className="mt-1"
@@ -204,7 +208,7 @@ export const AttributeForm = ({
           </div>
         </div>
 
-        {!form.watch("is_global") && (
+        {(showCategorySection || (form.watch("product_category_ids")?.length || 0) > 0) && (
           <div>
             <Label size="small" htmlFor="product_categories">
               Category
