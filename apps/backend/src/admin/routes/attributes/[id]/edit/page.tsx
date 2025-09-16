@@ -33,7 +33,7 @@ const EditAttributePage = () => {
     id ?? "",
     {
       fields:
-        "name,description,handle,ui_component,product_categories.name,possible_values.*,is_filterable",
+        "name,description,handle,ui_component,product_categories.name,possible_values.*,is_filterable,is_required",
     },
     { enabled: !!id }
   );
