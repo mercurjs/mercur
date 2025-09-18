@@ -11,7 +11,6 @@ const Attribute = model
     description: model.text().nullable(),
     is_filterable: model.boolean().default(true),
     is_required: model.boolean().default(false),
-    is_global: model.boolean().default(false),
     handle: model.text().unique(),
     metadata: model.json().nullable(),
     ui_component: model

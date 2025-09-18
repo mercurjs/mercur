@@ -14,7 +14,6 @@ export interface UpdateAttributeDTO {
   handle?: string
   is_filterable?: boolean
   is_required?: boolean
-  is_global?: boolean
   metadata?: Record<string, unknown>
   possible_values?: UpsertAttributeValueDTO[]
   product_category_ids?: { id: string }[]
@@ -34,7 +33,6 @@ export interface CreateAttributeDTO {
   handle?: string
   is_filterable?: boolean
   is_required?: boolean
-  is_global?: boolean
   metadata?: Record<string, unknown>
   ui_component: AttributeUIComponent
   possible_values?: Omit<CreateAttributeValueDTO, 'attribute_id'>[]
