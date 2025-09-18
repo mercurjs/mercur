@@ -25,7 +25,7 @@ const AttributeDetailPage = () => {
   const queryClient = useQueryClient();
 
   const { attribute, isLoading } = useAttribute(id ?? "", {
-    fields: 'name, description, handle, product_categories.name, possible_values.*'
+    fields: 'name, description, handle, product_categories.name, possible_values.*,is_filterable,is_required,ui_component'
   }, { enabled: !!id })
 
   if (isLoading) {
@@ -91,6 +91,9 @@ const AttributeDetailPage = () => {
 
         <SectionRow title="Description" value={attribute.description} />
         <SectionRow title="Handle" value={attribute.handle} />
+        <SectionRow title="Type" value={attribute.ui_component} />
+        <SectionRow title="Filterable" value={attribute.is_filterable ? "True" : "False"} />
+        <SectionRow title="Required" value={attribute.is_required ? "True" : "False"} />
         <SectionRow
           title="Global"
           value={!attribute.product_categories?.length ? "True" : "False"}

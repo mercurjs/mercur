@@ -10,13 +10,14 @@ const Attribute = model
     name: model.text().searchable(),
     description: model.text().nullable(),
     is_filterable: model.boolean().default(true),
+    is_required: model.boolean().default(false),
     handle: model.text().unique(),
     metadata: model.json().nullable(),
     ui_component: model
       .enum(Object.values(AttributeUIComponent))
       .default(AttributeUIComponent.SELECT),
     values: model.hasMany(() => AttributeValue),
-    possible_values: model.hasMany(() => AttributePossibleValue),
+    possible_values: model.hasMany(() => AttributePossibleValue)
   })
   .cascades({
     delete: ["values", "possible_values"],
