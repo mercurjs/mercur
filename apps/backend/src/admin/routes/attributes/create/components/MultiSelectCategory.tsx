@@ -19,8 +19,10 @@ const MultiSelectCategory: React.FC<MultiSelectCategoryProps> = ({
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLDivElement>(null)
+  const badgesContainerRef = useRef<HTMLDivElement>(null)
   const [currentParentId, setCurrentParentId] = useState<string | null>(null)
   const [pathHistory, setPathHistory] = useState<(string | null)[]>([])
+  const [visibleBadgesCount, setVisibleBadgesCount] = useState(0)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -38,6 +40,65 @@ const MultiSelectCategory: React.FC<MultiSelectCategoryProps> = ({
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
+
+  // Calculate how many badges can fit
+  const calculateVisibleBadges = () => {
+    if (value.length === 0 || !badgesContainerRef.current) {
+      setVisibleBadgesCount(0)
+      return
+    }
+
+    const container = badgesContainerRef.current
+    const containerWidth = container.offsetWidth
+    const padding = 24 // px-3 on both sides
+    const gap = 8 // gap-2
+    const availableWidth = containerWidth - padding
+
+    // Estimate badge width based on category name length
+    const estimateBadgeWidth = (categoryName: string) => {
+      // Base width for badge structure + text width estimation
+      const baseWidth = 32 // Base badge width (padding, icon, etc.)
+      const charWidth = 8 // Approximate character width
+      return baseWidth + (categoryName.length * charWidth)
+    }
+
+    let totalWidth = 0
+    let count = 0
+
+    for (let i = 0; i < value.length; i++) {
+      const category = categories.find(cat => cat.id === value[i])
+      const categoryName = category?.name || 'Unknown'
+      const badgeWidth = estimateBadgeWidth(categoryName) > 200 ? 200 : estimateBadgeWidth(categoryName)
+
+      if (totalWidth + badgeWidth + (count > 0 ? gap : 0) <= availableWidth) {
+        totalWidth += badgeWidth + (count > 0 ? gap : 0)
+        count++
+      } else {
+        break
+      }
+    }
+
+    setVisibleBadgesCount(count)
+  }
+
+  useEffect(() => {
+    calculateVisibleBadges()
+  }, [value, categories])
+
+  // Handle resize events
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      calculateVisibleBadges()
+    })
+
+    if (badgesContainerRef.current) {
+      resizeObserver.observe(badgesContainerRef.current)
+    }
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [value, categories])
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev)
@@ -86,23 +147,45 @@ const MultiSelectCategory: React.FC<MultiSelectCategoryProps> = ({
           }`}
         onClick={handleToggle}
       >
-        <div className="flex items-center gap-2 px-3 py-2">
+        <div ref={badgesContainerRef} className="flex items-center gap-2 px-3 py-2 flex-1 min-w-0">
           {value.length > 0 ? (
             <>
-              <button type="button" onClick={(e) => { e.stopPropagation(); onChange([]) }}>
-                <Badge size="small" className="w-fit">
-                  {value.length}
-                  <XMarkMini></XMarkMini>
+              {value.slice(0, visibleBadgesCount).map((categoryId) => {
+                const category = categories.find(cat => cat.id === categoryId)
+                return (
+                  <button
+                    key={categoryId}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onChange(value.filter(id => id !== categoryId)) }}
+                    className="flex-shrink-0"
+                  >
+                    <Badge size="small" className="w-fit">
+                      <span className="text-ellipsis truncate max-w-[200px]">{category?.name || 'Unknown'}</span>
+                      <XMarkMini />
+                    </Badge>
+                  </button>
+                )
+              })}
+              {value.length > visibleBadgesCount && (
+                <Badge size="small" className="w-fit flex-shrink-0 bg-transparent border-none text-ui-fg-subtle px-0 txt-compact-small-plus">
+                  +{value.length - visibleBadgesCount}
                 </Badge>
-              </button>
+              )}
             </>
           ) : (
             <Text className="text-ui-fg-subtle">Select categories</Text>
           )}
         </div>
-        <span className="flex h-full w-10 items-center justify-center border-l border-ui-border-base">
-          <TrianglesMini></TrianglesMini>
-        </span>
+        <div className="flex h-full items-center justify-center">
+          {value.length > 0 && (
+            <button type="button" className="flex h-full w-8 items-center justify-center" onClick={(e) => { e.stopPropagation(); onChange([]) }}>
+              <XMarkMini className="text-ui-fg-muted" />
+            </button>
+          )}
+          <span className="flex h-full w-8 items-center justify-center">
+            <TrianglesMini className="text-ui-fg-muted" />
+          </span>
+        </div>
       </div>
 
       {isOpen && (
