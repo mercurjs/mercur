@@ -42,6 +42,7 @@ interface AttributeFormProps {
     detailsStatus: "not-started" | "in-progress" | "completed";
     typeStatus: "not-started" | "in-progress" | "completed";
   }) => void;
+  onFormRef?: (form: any) => void;
 }
 
 export const AttributeForm = ({
@@ -50,7 +51,8 @@ export const AttributeForm = ({
   categories,
   mode = 'create',
   activeTab = "details",
-  onFormStateChange
+  onFormStateChange,
+  onFormRef
 }: AttributeFormProps) => {
   const [showCategorySection, setShowCategorySection] = useState(
     (initialData?.product_categories?.length || 0) > 0
@@ -106,6 +108,12 @@ export const AttributeForm = ({
       onFormStateChange(statuses);
     }
   }, [form.watch(), onFormStateChange]);
+
+  useEffect(() => {
+    if (onFormRef) {
+      onFormRef(form);
+    }
+  }, [form, onFormRef]);
 
   const renderDetailsTab = () => (
     <div className="grid gap-6">
