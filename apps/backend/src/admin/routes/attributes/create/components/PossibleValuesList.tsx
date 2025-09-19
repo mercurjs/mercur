@@ -1,8 +1,8 @@
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Button, Input, Text } from '@medusajs/ui'
-import { Plus, XMark, EllipsisHorizontal } from '@medusajs/icons'
+import { Button, Input, IconButton, Label } from '@medusajs/ui'
+import { XMark, DotsSix } from '@medusajs/icons'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 
 type AttributeValueType = {
@@ -40,27 +40,30 @@ const SortableItem = ({ id, index, onRemove }: SortableItemProps) => {
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-2 p-2 bg-ui-bg-subtle rounded-md mb-2"
+      className="flex items-center gap-2 p-2 bg-ui-bg-component border border-ui-border-base rounded-xl mb-2"
     >
       <button
         className="cursor-grab active:cursor-grabbing"
         {...attributes}
         {...listeners}
       >
-        <EllipsisHorizontal className="text-ui-fg-subtle" />
+        <DotsSix className="text-ui-fg-subtle" />
       </button>
-      <Input
-        className={"flex-1"}
-        aria-invalid={!!fieldError}
-        placeholder="Enter value"
-        {...register(`possible_values.${index}.value`)}
-      />
-      <button
+      <div className="flex-1">
+        <Input
+          className="flex-1"
+          aria-invalid={!!fieldError}
+          placeholder="Enter value"
+          {...register(`possible_values.${index}.value`)}
+        />
+      </div>
+      <IconButton
+        variant="transparent"
+        size="small"
         onClick={onRemove}
-        className="text-ui-fg-subtle hover:text-ui-fg-base"
       >
         <XMark />
-      </button>
+      </IconButton>
     </div>
   )
 }
@@ -85,13 +88,13 @@ const PossibleValuesList = () => {
     if (over && active.id !== over.id) {
       const oldIndex = fields.findIndex((field) => field.id === active.id)
       const newIndex = fields.findIndex((field) => field.id === over.id)
-      
+
       // Get current form values
       const currentValues = getValues('possible_values') as AttributeValueType[]
-      
+
       // Create new array with reordered items
       const reorderedValues = arrayMove(currentValues, oldIndex, newIndex)
-      
+
       // Update all fields with their new positions and ranks
       reorderedValues.forEach((value, index) => {
         update(index, {
@@ -112,17 +115,16 @@ const PossibleValuesList = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Text className="text-ui-fg-subtle">Possible Values</Text>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between pb-1">
+        <Label>Possible Values</Label>
         <Button
           type="button"
           variant="secondary"
           size="small"
           onClick={handleAddValue}
         >
-          <Plus className="mr-2" />
-          Add Value
+          Add
         </Button>
       </div>
 

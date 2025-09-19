@@ -36,7 +36,8 @@ export const GetAttributesParams = z.object({
   id: z.string().optional(),
   name: z.string().optional(),
   handle: z.string().optional(),
-  is_global: z.boolean().default(false),
+  is_required: z.boolean().optional(),
+  is_filterable: z.boolean().optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
   deleted_at: createOperatorMap().optional(),
@@ -78,6 +79,7 @@ export const AdminUpdateAttribute = z
     description: z.string().optional(),
     handle: z.string().optional(),
     is_filterable: z.boolean().optional(),
+    is_required: z.boolean().optional(),
     metadata: z.record(z.unknown()).optional(),
     ui_component: z.nativeEnum(AttributeUIComponent).optional(),
     product_category_ids: z.array(z.string()).optional(),
@@ -90,6 +92,7 @@ export const CreateAttribute = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   is_filterable: z.boolean().optional(),
+  is_required: z.boolean().optional(),
   ui_component: z
     .nativeEnum(AttributeUIComponent)
     .default(AttributeUIComponent.SELECT),

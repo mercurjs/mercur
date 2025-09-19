@@ -1,14 +1,17 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import { FocusModal, Heading, Button, toast } from "@medusajs/ui";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  FocusModal,
+  Button,
+  toast,
+  ProgressTabs,
+} from "@medusajs/ui";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { AdminProductCategory } from "@medusajs/types";
-import {
-  AttributeForm,
-  CreateAttributeFormSchema,
-} from "../../components/AttributeForm";
+import { AttributeForm, CreateAttributeFormSchema } from "../../components/AttributeForm";
 import { z } from "zod";
-import { useAttribute, useUpdateAttribute } from "../../../../hooks/api/attributes";
+import { useAttribute, useUpdateAttribute, attributeQueryKeys } from "../../../../hooks/api/attributes";
 import { mercurQuery } from "../../../../lib/client";
 
 
@@ -16,12 +19,21 @@ const EditAttributePage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [categories, setCategories] = useState<AdminProductCategory[]>([]);
+  const [activeTab, setActiveTab] = useState<"details" | "type">("details");
+  const [tabStatuses, setTabStatuses] = useState<{
+    detailsStatus: "not-started" | "in-progress" | "completed";
+    typeStatus: "not-started" | "in-progress" | "completed";
+  }>({
+    detailsStatus: "completed", // Edit mode starts with completed status
+    typeStatus: "completed",    // Edit mode starts with completed status
+  });
+  const queryClient = useQueryClient();
 
   const { attribute, isLoading } = useAttribute(
     id ?? "",
     {
       fields:
-        "name,description,handle,ui_component,product_categories.name,possible_values.*,is_filterable",
+        "name,description,handle,ui_component,product_categories.name,possible_values.*,is_filterable,is_required",
     },
     { enabled: !!id }
   );
@@ -31,7 +43,7 @@ const EditAttributePage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-         const response = await mercurQuery("/admin/product-categories", {
+        const response = await mercurQuery("/admin/product-categories", {
           method: "GET",
         });
         setCategories(response.product_categories);
@@ -42,20 +54,19 @@ const EditAttributePage = () => {
     fetchCategories();
   }, []);
 
-  const handleSave = async (
-    data: z.infer<typeof CreateAttributeFormSchema>
-  ) => {
-    const { ...payload } = data;
-    await mutateAsync(payload, {
-      onSuccess: () => {
-        toast.success("Attribute updated!");
-        navigate(-1);
-      },
-      onError: (error) => {
-        toast.error((error as Error).message);
-        console.error(error);
-      },
-    });
+  const handleSave = async (data: z.infer<typeof CreateAttributeFormSchema>) => {
+    try {
+      const { ...payload } = data;
+      await mutateAsync(payload);
+
+      queryClient.invalidateQueries({ queryKey: attributeQueryKeys.lists() });
+
+      toast.success("Attribute updated!");
+      navigate(-1);
+    } catch (error) {
+      toast.error((error as Error).message);
+      console.error(error);
+    }
   };
 
   const handleClose = () => {
@@ -78,19 +89,33 @@ const EditAttributePage = () => {
       }}
     >
       <FocusModal.Content>
-        <FocusModal.Header>
-          <Heading>Edit Attribute</Heading>
-        </FocusModal.Header>
-        <FocusModal.Body className="flex flex-col items-center py-16">
-          <div>
-            <AttributeForm
-              initialData={attribute}
-              //@ts-expect-error correct data type will be received here
-              onSubmit={handleSave}
-              categories={categories}
-            />
-          </div>
-        </FocusModal.Body>
+        <ProgressTabs value={activeTab} onValueChange={(value) => setActiveTab(value as "details" | "type")} className="w-full h-full">
+          <FocusModal.Header className="flex items-center justify-between w-full py-0 h-fit">
+            <div className="w-full border-l h-full">
+              <ProgressTabs.List className="justify-start flex w-full items-center">
+                <ProgressTabs.Trigger value="details" status={tabStatuses.detailsStatus}>
+                  Details
+                </ProgressTabs.Trigger>
+                <ProgressTabs.Trigger value="type" status={tabStatuses.typeStatus}>
+                  Type
+                </ProgressTabs.Trigger>
+              </ProgressTabs.List>
+            </div>
+          </FocusModal.Header>
+          <FocusModal.Body className="flex flex-col items-center py-16">
+            <div>
+              <AttributeForm
+                initialData={attribute}
+                //@ts-expect-error correct data type will be received here
+                onSubmit={handleSave}
+                onCancel={handleClose}
+                categories={categories}
+                activeTab={activeTab}
+                onFormStateChange={setTabStatuses}
+              />
+            </div>
+          </FocusModal.Body>
+        </ProgressTabs>
         <FocusModal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Cancel

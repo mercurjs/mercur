@@ -8,12 +8,11 @@ import {
 } from '@tanstack/react-query'
 
 import { FetchError } from '@medusajs/js-sdk'
-import { PaginatedResponse } from '@medusajs/types'
 
 import {
   AttributeDTO,
   AttributePossibleValueDTO
-} from '../../../modules/attribute/types'
+} from '@mercurjs/framework'
 import { mercurQuery } from '../../lib/client'
 import { queryKeysFactory } from '../../lib/query-keys-factory'
 
@@ -24,16 +23,16 @@ export const useAttributes = (
   query?: any,
   options?: Omit<
     UseQueryOptions<
-      PaginatedResponse<{ attributes: AttributeDTO[] }>,
+      { attributes: AttributeDTO[]; count: number; offset: number; limit: number },
       FetchError,
-      PaginatedResponse<{ attributes: AttributeDTO[] }>,
+      { attributes: AttributeDTO[]; count: number; offset: number; limit: number },
       QueryKey
     >,
     'queryFn' | 'queryKey'
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: attributeQueryKeys.list(),
+    queryKey: attributeQueryKeys.list(query),
     queryFn: () =>
       mercurQuery('/admin/attributes', {
         method: 'GET',
@@ -46,7 +45,7 @@ export const useAttributes = (
 
 export const useAttribute = (
   id: string,
-  query?: Record<string, unknown>,
+  query?: Record<string, string | number>,
   options?: Omit<
     UseQueryOptions<
       { attribute: AttributeDTO },
@@ -58,7 +57,7 @@ export const useAttribute = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: attributeQueryKeys.detail(id, query),
+    queryKey: attributeQueryKeys.detail(id),
     queryFn: () =>
       mercurQuery(`/admin/attributes/${id}`, {
         method: 'GET',
@@ -146,9 +145,9 @@ export const useProductApplicableAttributes = (
   query?: any,
   options?: Omit<
     UseQueryOptions<
-      PaginatedResponse<{ attributes: AttributeDTO[] }>,
+      { attributes: AttributeDTO[] },
       FetchError,
-      PaginatedResponse<{ attributes: AttributeDTO[] }>,
+      { attributes: AttributeDTO[] },
       QueryKey
     >,
     'queryFn' | 'queryKey'
