@@ -89,7 +89,7 @@ export const AdminUpdateAttribute = z
 
 export type AdminCreateAttributeType = z.infer<typeof CreateAttribute>
 export const CreateAttribute = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, { message: 'Attribute name is required' }),
   description: z.string().optional(),
   is_filterable: z.boolean().optional(),
   is_required: z.boolean().optional(),
