@@ -7,12 +7,14 @@ type MultiSelectCategoryProps = {
   categories: AdminProductCategory[]
   value: string[]
   onChange: (value: string[]) => void
+  "aria-invalid"?: boolean
 }
 
 const MultiSelectCategory: React.FC<MultiSelectCategoryProps> = ({
   categories,
   value,
   onChange,
+  "aria-invalid": ariaInvalid = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -78,7 +80,10 @@ const MultiSelectCategory: React.FC<MultiSelectCategoryProps> = ({
     <div className="relative">
       <div
         ref={triggerRef}
-        className="relative flex h-10 w-full cursor-pointer items-center justify-between overflow-hidden rounded-md border border-ui-border-base bg-ui-bg-field text-ui-fg-base shadow-sm transition-colors duration-150 ease-in-out hover:bg-ui-bg-field-hover focus-within:border-ui-border-interactive focus-within:ring-1 focus-within:ring-ui-ring-interactive"
+        className={`relative flex h-10 w-full cursor-pointer items-center justify-between overflow-hidden rounded-md border bg-ui-bg-field text-ui-fg-base shadow-sm transition-colors duration-150 ease-in-out hover:bg-ui-bg-field-hover focus-within:ring-1 ${ariaInvalid
+          ? '!shadow-borders-error'
+          : 'border-ui-border-base focus-within:border-ui-border-interactive focus-within:ring-ui-ring-interactive'
+          }`}
         onClick={handleToggle}
       >
         <div className="flex items-center gap-2 px-3 py-2">
