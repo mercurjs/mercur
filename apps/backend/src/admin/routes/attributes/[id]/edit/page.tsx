@@ -27,6 +27,7 @@ const EditAttributePage = () => {
     detailsStatus: "completed", // Edit mode starts with completed status
     typeStatus: "completed",    // Edit mode starts with completed status
   });
+  const [formRef, setFormRef] = useState<any>(null);
   const queryClient = useQueryClient();
 
   const { attribute, isLoading } = useAttribute(
@@ -73,6 +74,27 @@ const EditAttributePage = () => {
     navigate(-1);
   };
 
+  const handleContinueOrSave = async () => {
+    if (activeTab === "details") {
+      if (formRef) {
+        const isValid = await formRef.trigger(["name", "description", "handle"]);
+        if (isValid) {
+          setActiveTab("type");
+        }
+      }
+    } else {
+      if (formRef) {
+        const isValid = await formRef.trigger();
+        if (isValid) {
+          const form = document.getElementById("attribute-form") as HTMLFormElement;
+          if (form) {
+            form.requestSubmit();
+          }
+        }
+      }
+    }
+  };
+
   if (isLoading) {
     return null;
   }
@@ -113,6 +135,7 @@ const EditAttributePage = () => {
               categories={categories}
               activeTab={activeTab}
               onFormStateChange={setTabStatuses}
+              onFormRef={setFormRef}
             />
           </div>
         </FocusModal.Body>
@@ -120,8 +143,8 @@ const EditAttributePage = () => {
           <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
-          <Button type="submit" form="attribute-form">
-            Save
+          <Button onClick={handleContinueOrSave}>
+            {activeTab === "details" ? "Continue" : "Save"}
           </Button>
         </FocusModal.Footer>
       </FocusModal.Content>

@@ -25,6 +25,7 @@ const CreateAttributePage = () => {
     detailsStatus: "not-started",
     typeStatus: "not-started",
   });
+  const [formRef, setFormRef] = useState<any>(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -63,6 +64,27 @@ const CreateAttributePage = () => {
     navigate(-1);
   };
 
+  const handleContinueOrSave = async () => {
+    if (activeTab === "details") {
+      if (formRef) {
+        const isValid = await formRef.trigger(["name", "description", "handle"]);
+        if (isValid) {
+          setActiveTab("type");
+        }
+      }
+    } else {
+      if (formRef) {
+        const isValid = await formRef.trigger();
+        if (isValid) {
+          const form = document.getElementById("attribute-form") as HTMLFormElement;
+          if (form) {
+            form.requestSubmit();
+          }
+        }
+      }
+    }
+  };
+
   return (
     <FocusModal
       open={true}
@@ -94,6 +116,7 @@ const CreateAttributePage = () => {
               categories={categories}
               activeTab={activeTab}
               onFormStateChange={setTabStatuses}
+              onFormRef={setFormRef}
             />
           </div>
         </FocusModal.Body>
@@ -101,8 +124,8 @@ const CreateAttributePage = () => {
           <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
-          <Button type="submit" form="attribute-form">
-            Save
+          <Button onClick={handleContinueOrSave}>
+            {activeTab === "details" ? "Continue" : "Save"}
           </Button>
         </FocusModal.Footer>
       </FocusModal.Content>
