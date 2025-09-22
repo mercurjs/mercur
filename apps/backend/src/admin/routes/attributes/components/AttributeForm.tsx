@@ -6,6 +6,7 @@ import {
   Textarea,
   Switch,
   InlineTip,
+  Hint
 } from "@medusajs/ui";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -75,8 +76,40 @@ export const AttributeForm = ({
     },
   });
 
+  // Add custom validation for category selection
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'product_category_ids') {
+        const isGlobal = !value.product_category_ids?.length && !showCategorySection;
+        const hasCategories = (value.product_category_ids?.length || 0) > 0;
+
+        if (!isGlobal && !hasCategories) {
+          form.setError('product_category_ids', {
+            type: 'manual',
+            message: 'Please select at least one category'
+          });
+        } else {
+          form.clearErrors('product_category_ids');
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
+      const isGlobal = !data.product_category_ids?.length && !showCategorySection;
+      const hasCategories = (data.product_category_ids?.length || 0) > 0;
+
+      if (!isGlobal && !hasCategories) {
+        form.setError('product_category_ids', {
+          type: 'manual',
+          message: 'Please select at least one category'
+        });
+        return;
+      }
+
       await onSubmit(data);
     } catch (error) {
       console.error(error);
@@ -120,11 +153,11 @@ export const AttributeForm = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label size="small" htmlFor="name">Name</Label>
-          <Input size="small" id="name" className="mt-1" {...form.register("name")} />
+          <Input size="small" id="name" className="mt-1" aria-invalid={!!form.formState.errors.name} {...form.register("name")} />
           {form.formState.errors.name && (
-            <Text className="text-red-500 text-sm mt-1">
+            <Hint variant="error" className="mt-2">
               {form.formState.errors.name.message}
-            </Text>
+            </Hint>
           )}
         </div>
         <div>
@@ -228,11 +261,12 @@ export const AttributeForm = ({
                 onChange={(value) =>
                   form.setValue("product_category_ids", value)
                 }
+                aria-invalid={!!form.formState.errors.product_category_ids}
               />
               {form.formState.errors.product_category_ids && (
-                <Text className="text-red-500 text-sm mt-1">
+                <Hint variant="error" className="mt-2">
                   {form.formState.errors.product_category_ids.message}
-                </Text>
+                </Hint>
               )}
             </div>
 
