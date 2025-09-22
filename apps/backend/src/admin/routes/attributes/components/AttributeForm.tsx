@@ -240,8 +240,8 @@ export const AttributeForm = ({
   );
 
   const renderTypeTab = () => (
-    <div className="grid gap-6 w-[720px]">
-      <div>
+    <div className="flex flex-col gap-6 w-[720px]">
+      <div className="flex-shrink-0">
         <Label size="small" htmlFor="ui_component">Type</Label>
         <Select
           value={form.watch("ui_component")}
@@ -276,9 +276,11 @@ export const AttributeForm = ({
       </div>
 
       {form.watch("ui_component") === AttributeUIComponent.SELECT && (
-        <InlineTip label="Tip" variant="info" >
-          When creating Single Select vendor will be able to choose only one value. This type of attribute will be good for product specifications.
-        </InlineTip>
+        <div className="flex-shrink-0">
+          <InlineTip label="Tip" variant="info" >
+            When creating Single Select vendor will be able to choose only one value. This type of attribute will be good for product specifications.
+          </InlineTip>
+        </div>
       )}
 
       {(form.watch("ui_component") === AttributeUIComponent.SELECT || form.watch("ui_component") === AttributeUIComponent.MULTIVALUE) && (

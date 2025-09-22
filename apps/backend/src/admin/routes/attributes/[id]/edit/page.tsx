@@ -89,8 +89,8 @@ const EditAttributePage = () => {
       }}
     >
       <FocusModal.Content>
-        <ProgressTabs value={activeTab} onValueChange={(value) => setActiveTab(value as "details" | "type")} className="w-full h-full">
-          <FocusModal.Header className="flex items-center justify-between w-full py-0 h-fit">
+        <FocusModal.Header className="flex items-center justify-between w-full py-0 h-fit">
+          <ProgressTabs value={activeTab} onValueChange={(value) => setActiveTab(value as "details" | "type")} className="w-full h-full">
             <div className="w-full border-l h-full">
               <ProgressTabs.List className="justify-start flex w-full items-center">
                 <ProgressTabs.Trigger value="details" status={tabStatuses.detailsStatus}>
@@ -101,21 +101,21 @@ const EditAttributePage = () => {
                 </ProgressTabs.Trigger>
               </ProgressTabs.List>
             </div>
-          </FocusModal.Header>
-          <FocusModal.Body className="flex flex-col items-center py-16">
-            <div>
-              <AttributeForm
-                initialData={attribute}
-                //@ts-expect-error correct data type will be received here
-                onSubmit={handleSave}
-                onCancel={handleClose}
-                categories={categories}
-                activeTab={activeTab}
-                onFormStateChange={setTabStatuses}
-              />
-            </div>
-          </FocusModal.Body>
-        </ProgressTabs>
+          </ProgressTabs>
+        </FocusModal.Header>
+        <FocusModal.Body className="flex flex-col items-center pt-16 h-full overflow-y-auto">
+          <div className="w-full flex h-full justify-center">
+            <AttributeForm
+              initialData={attribute}
+              //@ts-expect-error correct data type will be received here
+              onSubmit={handleSave}
+              onCancel={handleClose}
+              categories={categories}
+              activeTab={activeTab}
+              onFormStateChange={setTabStatuses}
+            />
+          </div>
+        </FocusModal.Body>
         <FocusModal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Cancel
