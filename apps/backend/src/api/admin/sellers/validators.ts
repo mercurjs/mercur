@@ -1,3 +1,4 @@
+import { Hosts, buildHostAddress } from '#/shared/infra/http/utils'
 import { z } from 'zod'
 
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
@@ -57,5 +58,7 @@ export const AdminUpdateSeller = z
 export type AdminInviteSellerType = z.infer<typeof AdminInviteSeller>
 export const AdminInviteSeller = z.object({
   email: z.string().email(),
-  registration_url: z.string().default('http://localhost:5173/register')
+  registration_url: z
+    .string()
+    .default(buildHostAddress(Hosts.VENDOR_PANEL, '/register').toString())
 })
