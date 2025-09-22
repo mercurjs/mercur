@@ -67,8 +67,12 @@ const CreateAttributePage = () => {
   const handleContinueOrSave = async () => {
     if (activeTab === "details") {
       if (formRef) {
-        const isValid = await formRef.trigger(["name", "description", "handle"]);
-        if (isValid) {
+        const isValid = await formRef.trigger(["name", "description", "handle", "product_category_ids"]);
+
+        // Also manually validate categories using the function attached to formRef
+        const categoryValid = formRef.validateCategories ? formRef.validateCategories() : true;
+
+        if (isValid && categoryValid) {
           setActiveTab("type");
         }
       }
