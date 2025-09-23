@@ -1,11 +1,13 @@
-import { Container, Heading,  DataTable, createDataTableColumnHelper, DataTablePaginationState, DropdownMenu, Button } from "@medusajs/ui"
+import { Container, Heading, DataTable, createDataTableColumnHelper, DataTablePaginationState, DropdownMenu, Button, usePrompt } from "@medusajs/ui"
 import { useState } from "react"
 import { useDataTable } from "@medusajs/ui"
-import { format } from "date-fns"
-import { EllipsisHorizontal } from "@medusajs/icons"
+import { EllipsisHorizontal, PencilSquare, Trash } from "@medusajs/icons"
 import { useNavigate, useParams } from "react-router-dom"
 import { toast } from "@medusajs/ui"
-import { AttributeDTO } from "../../../../modules/attribute/types"
+import { AttributeDTO } from "@mercurjs/framework"
+import { mercurQuery } from "../../../lib/client"
+import { useQueryClient } from "@tanstack/react-query"
+import { attributeQueryKeys } from "../../../hooks/api/attributes"
 
 type PossibleValue = { id: string; value: string; rank: number; created_at: string }
 
@@ -25,6 +27,44 @@ export const PossibleValuesTable = ({ attribute }: PossibleValuesTableProps) => 
 
   const navigate = useNavigate()
   const { id: attributeId } = useParams()
+  const prompt = usePrompt()
+  const queryClient = useQueryClient()
+
+  const handleDeleteValue = async (possibleValue: PossibleValue) => {
+    const confirmed = await prompt({
+      title: "Delete Possible Value",
+      description: `You are about to delete the value "${possibleValue.value}" from possible values of attribute "${attribute.name}". This action cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    })
+
+    if (!confirmed || !attributeId) return
+
+    try {
+      const updatedPossibleValues = attribute.possible_values?.filter(
+        (value: any) => value.id !== possibleValue.id
+      ) || []
+
+      // Update the attribute with the filtered possible_values
+      await mercurQuery(`/admin/attributes/${attributeId}`, {
+        method: 'POST',
+        body: {
+          possible_values: updatedPossibleValues
+        }
+      })
+
+      toast.success("Possible value deleted successfully!")
+
+      queryClient.invalidateQueries({
+        queryKey: attributeQueryKeys.detail(attributeId)
+      })
+      queryClient.invalidateQueries({
+        queryKey: attributeQueryKeys.list()
+      })
+    } catch (error) {
+      toast.error((error as Error).message)
+    }
+  }
 
   const possibleValuesColumnHelper = createDataTableColumnHelper<PossibleValue>()
 
@@ -36,10 +76,6 @@ export const PossibleValuesTable = ({ attribute }: PossibleValuesTableProps) => 
     possibleValuesColumnHelper.accessor("rank", {
       header: "Rank",
       cell: (info) => info.getValue(),
-    }),
-    possibleValuesColumnHelper.accessor("created_at", {
-      header: "Created At",
-      cell: (info) => format(new Date(info.getValue()), "MMM dd, yyyy p"),
     }),
     possibleValuesColumnHelper.display({
       id: "actions",
@@ -62,8 +98,13 @@ export const PossibleValuesTable = ({ attribute }: PossibleValuesTableProps) => 
                       toast.error("Attribute ID not found.")
                     }
                   }}
-                >
-                  Edit
+                > <span className="flex items-center gap-2">
+                    <PencilSquare /> Edit</span>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onClick={() => handleDeleteValue(possibleValue)}
+                > <span className="flex items-center gap-2">
+                    <Trash /> Delete</span>
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>
@@ -75,7 +116,7 @@ export const PossibleValuesTable = ({ attribute }: PossibleValuesTableProps) => 
 
   const possibleValuesTable = useDataTable({
     columns: possibleValuesColumns,
-    data: attribute?.possible_values?.filter((value) =>
+    data: attribute?.possible_values?.filter((value: any) =>
       value.value.toLowerCase().includes(possibleValuesSearch.toLowerCase())
     ).slice(
       possibleValuesPagination.pageIndex * possibleValuesPagination.pageSize,
