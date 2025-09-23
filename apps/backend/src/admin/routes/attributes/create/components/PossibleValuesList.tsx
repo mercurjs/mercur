@@ -34,7 +34,7 @@ const SortableItem = ({ id, index, onRemove }: SortableItemProps) => {
     transition,
   }
 
-  const fieldError = errors.possible_values?.[index]?.value
+  const fieldError = errors.possible_values?.[index]?.value as any
 
   return (
     <div
@@ -115,8 +115,8 @@ const PossibleValuesList = () => {
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between pb-1">
+    <div className="space-y-2 flex flex-col h-full">
+      <div className="flex items-center justify-between pb-1 flex-shrink-0">
         <Label>Possible Values</Label>
         <Button
           type="button"
@@ -128,25 +128,27 @@ const PossibleValuesList = () => {
         </Button>
       </div>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={fields.map((field) => field.id)}
-          strategy={verticalListSortingStrategy}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
         >
-          {fields.map((field, index) => (
-            <SortableItem
-              key={field.id}
-              id={field.id}
-              index={index}
-              onRemove={() => remove(index)}
-            />
-          ))}
-        </SortableContext>
-      </DndContext>
+          <SortableContext
+            items={fields.map((field) => field.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {fields.map((field, index) => (
+              <SortableItem
+                key={field.id}
+                id={field.id}
+                index={index}
+                onRemove={() => remove(index)}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
+      </div>
     </div>
   )
 }

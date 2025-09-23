@@ -67,8 +67,12 @@ const CreateAttributePage = () => {
   const handleContinueOrSave = async () => {
     if (activeTab === "details") {
       if (formRef) {
-        const isValid = await formRef.trigger(["name", "description", "handle"]);
-        if (isValid) {
+        const isValid = await formRef.trigger(["name", "description", "handle", "product_category_ids"]);
+
+        // Also manually validate categories using the function attached to formRef
+        const categoryValid = formRef.validateCategories ? formRef.validateCategories() : true;
+
+        if (isValid && categoryValid) {
           setActiveTab("type");
         }
       }
@@ -93,8 +97,8 @@ const CreateAttributePage = () => {
       }}
     >
       <FocusModal.Content>
-        <ProgressTabs value={activeTab} onValueChange={(value) => setActiveTab(value as "details" | "type")} className="w-full h-full overflow-y-auto">
-          <FocusModal.Header className="flex items-center justify-between bg-ui-bg-base w-full py-0 h-fit sticky top-0 z-10">
+        <FocusModal.Header className="flex items-center justify-between bg-ui-bg-base w-full py-0 h-fit sticky top-0 z-10">
+          <ProgressTabs value={activeTab} onValueChange={(value) => setActiveTab(value as "details" | "type")} className="w-full h-full">
             <div className="w-full border-l h-full">
               <ProgressTabs.List className="justify-start flex w-full items-center">
                 <ProgressTabs.Trigger value="details" status={tabStatuses.detailsStatus}>
@@ -105,21 +109,21 @@ const CreateAttributePage = () => {
                 </ProgressTabs.Trigger>
               </ProgressTabs.List>
             </div>
-          </FocusModal.Header>
-          <FocusModal.Body className="flex flex-col items-center py-16">
-            <div>
-              <AttributeForm
-                //@ts-expect-error The received values will be for create form
-                onSubmit={handleSave}
-                onCancel={handleClose}
-                categories={categories}
-                activeTab={activeTab}
-                onFormStateChange={setTabStatuses}
-                onFormRef={setFormRef}
-              />
-            </div>
-          </FocusModal.Body>
-        </ProgressTabs>
+          </ProgressTabs>
+        </FocusModal.Header>
+        <FocusModal.Body className="flex flex-col items-center pt-16 h-full overflow-y-auto">
+          <div className="w-full flex justify-center">
+            <AttributeForm
+              //@ts-expect-error The received values will be for create form
+              onSubmit={handleSave}
+              onCancel={handleClose}
+              categories={categories}
+              activeTab={activeTab}
+              onFormStateChange={setTabStatuses}
+              onFormRef={setFormRef}
+            />
+          </div>
+        </FocusModal.Body>
         <FocusModal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Cancel
