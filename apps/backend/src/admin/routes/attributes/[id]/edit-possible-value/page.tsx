@@ -150,8 +150,7 @@ const EditPossibleValuePage = () => {
                       </Text>
                     )}
                   </div>
-
-                  <MetadataEditor form={form} />
+                  {/* <MetadataEditor form={form} /> */}
                 </div>
               </form>
             </Drawer.Body>
