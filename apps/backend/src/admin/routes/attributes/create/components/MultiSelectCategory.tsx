@@ -68,7 +68,7 @@ const MultiSelectCategory: React.FC<MultiSelectCategoryProps> = ({
     for (let i = 0; i < value.length; i++) {
       const category = categories.find(cat => cat.id === value[i])
       const categoryName = category?.name || 'Unknown'
-      const badgeWidth = estimateBadgeWidth(categoryName) > 200 ? 200 : estimateBadgeWidth(categoryName)
+      const badgeWidth = estimateBadgeWidth(categoryName) > 200 ? 235 : estimateBadgeWidth(categoryName)
 
       if (totalWidth + badgeWidth + (count > 0 ? gap : 0) <= availableWidth) {
         totalWidth += badgeWidth + (count > 0 ? gap : 0)

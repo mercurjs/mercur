@@ -10,7 +10,7 @@ import {
   Badge,
 } from "@medusajs/ui";
 import { useParams, useNavigate } from "react-router-dom";
-import { EllipsisHorizontal } from "@medusajs/icons";
+import { EllipsisHorizontal, PencilSquare, Trash } from "@medusajs/icons";
 import { SectionRow } from "../../../components/section-row";
 import { PossibleValuesTable } from "../components/possible-values-table";
 
@@ -79,10 +79,14 @@ const AttributeDetailPage = () => {
               </DropdownMenu.Trigger>
               <DropdownMenu.Content align="end">
                 <DropdownMenu.Item onClick={handleEdit}>
-                  Edit
+                  <span className="flex items-center gap-2">
+                    <PencilSquare /> Edit
+                  </span>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item onClick={handleDelete}>
-                  Delete
+                  <span className="flex items-center gap-2">
+                    <Trash /> Delete
+                  </span>
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>

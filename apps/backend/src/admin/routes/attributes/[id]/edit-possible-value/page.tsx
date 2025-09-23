@@ -35,7 +35,7 @@ const EditPossibleValuePage = () => {
     enabled: !!attributeId,
   })
 
-  const { mutateAsync, isPending } = useUpdateAttributePossibleValue(attributeId!, possibleValueId!) 
+  const { mutateAsync, isPending } = useUpdateAttributePossibleValue(attributeId!, possibleValueId!)
 
   const possibleValue = attribute?.possible_values?.find((pv: { id: string }) => pv.id === possibleValueId)
 
@@ -76,7 +76,7 @@ const EditPossibleValuePage = () => {
         metadata:
           Object.keys(transformedMetadata).length > 0
             ? transformedMetadata
-            : null,
+            : undefined,
       },
       {
         onSuccess: () => {
@@ -150,8 +150,7 @@ const EditPossibleValuePage = () => {
                       </Text>
                     )}
                   </div>
-
-                  <MetadataEditor form={form} />
+                  {/* <MetadataEditor form={form} /> */}
                 </div>
               </form>
             </Drawer.Body>
