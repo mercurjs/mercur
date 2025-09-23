@@ -11,7 +11,7 @@ import {
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { AttributeDTO } from "@mercurjs/framework";
 import { AdminUpdateAttribute, CreateAttribute } from "../../../../api/admin/attributes/validators";
 import { AdminProductCategory } from "@medusajs/types";
@@ -76,33 +76,46 @@ export const AttributeForm = ({
     },
   });
 
+  const formRef = useRef(form);
+  formRef.current = form;
+
+  const validateCategorySelection = useCallback(() => {
+    const currentValue = formRef.current.getValues('product_category_ids');
+    const hasCategories = (currentValue?.length || 0) > 0;
+
+    // Category section is shown if showCategorySection is true OR if there are categories
+    const categorySectionVisible = showCategorySection || hasCategories;
+
+    // If category section is visible but no categories selected, show error
+    if (categorySectionVisible && !hasCategories) {
+      formRef.current.setError('product_category_ids', {
+        type: 'manual',
+        message: 'Please select at least one category'
+      });
+      return false;
+    } else {
+      formRef.current.clearErrors('product_category_ids');
+      return true;
+    }
+  }, [showCategorySection]);
+
   // Add custom validation for category selection
   useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
+    const subscription = formRef.current.watch((_, { name }) => {
       if (name === 'product_category_ids') {
-        const isGlobal = !value.product_category_ids?.length && !showCategorySection;
-        const hasCategories = (value.product_category_ids?.length || 0) > 0;
-
-        if (!isGlobal && !hasCategories) {
-          form.setError('product_category_ids', {
-            type: 'manual',
-            message: 'Please select at least one category'
-          });
-        } else {
-          form.clearErrors('product_category_ids');
-        }
+        validateCategorySelection();
       }
     });
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [validateCategorySelection]);
 
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
-      const isGlobal = !data.product_category_ids?.length && !showCategorySection;
       const hasCategories = (data.product_category_ids?.length || 0) > 0;
+      const categorySectionVisible = showCategorySection || hasCategories;
 
-      if (!isGlobal && !hasCategories) {
+      if (categorySectionVisible && !hasCategories) {
         form.setError('product_category_ids', {
           type: 'manual',
           message: 'Please select at least one category'
@@ -144,9 +157,15 @@ export const AttributeForm = ({
 
   useEffect(() => {
     if (onFormRef) {
-      onFormRef(form);
+      // Attach the validation function to the form object
+      const formWithValidation = {
+        ...form,
+        validateCategories: validateCategorySelection
+      };
+      onFormRef(formWithValidation);
     }
-  }, [form, onFormRef]);
+  }, [form, onFormRef, validateCategorySelection]);
+
 
   const renderDetailsTab = () => (
     <div className="grid gap-6">
@@ -282,8 +301,8 @@ export const AttributeForm = ({
   );
 
   const renderTypeTab = () => (
-    <div className="grid gap-6 w-[720px]">
-      <div>
+    <div className="flex flex-col gap-6 w-[720px]">
+      <div className="flex-shrink-0">
         <Label size="small" htmlFor="ui_component">Type</Label>
         <Select
           value={form.watch("ui_component")}
@@ -318,9 +337,11 @@ export const AttributeForm = ({
       </div>
 
       {form.watch("ui_component") === AttributeUIComponent.SELECT && (
-        <InlineTip label="Tip" variant="info" >
-          When creating Single Select vendor will be able to choose only one value. This type of attribute will be good for product specifications.
-        </InlineTip>
+        <div className="flex-shrink-0">
+          <InlineTip label="Tip" variant="info" >
+            When creating Single Select vendor will be able to choose only one value. This type of attribute will be good for product specifications.
+          </InlineTip>
+        </div>
       )}
 
       {(form.watch("ui_component") === AttributeUIComponent.SELECT || form.watch("ui_component") === AttributeUIComponent.MULTIVALUE) && (
