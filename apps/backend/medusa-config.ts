@@ -15,30 +15,14 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || 'supersecret'
     }
   },
-  modules: [
-    { resolve: '@mercurjs/seller' },
-    { resolve: '@mercurjs/reviews' },
-    { resolve: '@mercurjs/marketplace' },
-    { resolve: '@mercurjs/configuration' },
-    { resolve: '@mercurjs/order-return-request' },
-    { resolve: '@mercurjs/requests' },
-    { resolve: '@mercurjs/brand' },
-    { resolve: '@mercurjs/wishlist' },
-    { resolve: '@mercurjs/split-order-payment' },
-    { resolve: '@mercurjs/attribute' },
+  plugins: [
     {
-      resolve: '@mercurjs/taxcode',
-      options: {
-        apiKey: process.env.STRIPE_SECRET_API_KEY
-      }
+      resolve: '@mercurjs/b2c-core',
+      options: {}
     },
-    { resolve: '@mercurjs/commission' },
     {
-      resolve: '@mercurjs/payout',
-      options: {
-        apiKey: process.env.STRIPE_SECRET_API_KEY,
-        webhookSecret: process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET
-      }
+      resolve: '@mercurjs/commission',
+      options: {}
     },
     {
       resolve: '@mercurjs/algolia',
@@ -46,7 +30,9 @@ module.exports = defineConfig({
         apiKey: process.env.ALGOLIA_API_KEY,
         appId: process.env.ALGOLIA_APP_ID
       }
-    },
+    }
+  ],
+  modules: [
     {
       resolve: '@medusajs/medusa/payment',
       options: {
@@ -66,7 +52,7 @@ module.exports = defineConfig({
       options: {
         providers: [
           {
-            resolve: '@mercurjs/resend',
+            resolve: '@mercurjs/resend/providers/resend',
             id: 'resend',
             options: {
               channels: ['email'],
