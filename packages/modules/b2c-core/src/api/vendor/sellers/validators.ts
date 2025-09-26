@@ -1,12 +1,12 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 import {
   createFindParams,
-  createSelectParams
-} from '@medusajs/medusa/api/utils/validators'
+  createSelectParams,
+} from "@medusajs/medusa/api/utils/validators";
 
-export type VendorGetSellerParamsType = z.infer<typeof VendorGetSellerParams>
-export const VendorGetSellerParams = createSelectParams()
+export type VendorGetSellerParamsType = z.infer<typeof VendorGetSellerParams>;
+export const VendorGetSellerParams = createSelectParams();
 
 /**
  * @schema VendorCreateSeller
@@ -84,7 +84,7 @@ export const VendorGetSellerParams = createSelectParams()
  *         description: URL to the member's photo.
  */
 
-export type VendorCreateSellerType = z.infer<typeof VendorCreateSeller>
+export type VendorCreateSellerType = z.infer<typeof VendorCreateSeller>;
 export const VendorCreateSeller = z
   .object({
     name: z.preprocess((val: string) => val?.trim(), z.string().min(1)),
@@ -103,10 +103,10 @@ export const VendorCreateSeller = z
       email: z.string().email(),
       bio: z.string().nullish().optional(),
       phone: z.string().nullish().optional(),
-      photo: z.string().nullish().optional()
-    })
+      photo: z.string().nullish().optional(),
+    }),
   })
-  .strict()
+  .strict();
 
 /**
  * @schema VendorUpdateSeller
@@ -158,7 +158,7 @@ export const VendorCreateSeller = z
  *     nullable: true
  *     description: Seller tax id.
  */
-export type VendorUpdateSellerType = z.infer<typeof VendorUpdateSeller>
+export type VendorUpdateSellerType = z.infer<typeof VendorUpdateSeller>;
 export const VendorUpdateSeller = z
   .object({
     name: z
@@ -173,34 +173,11 @@ export const VendorUpdateSeller = z
     state: z.string().optional(),
     postal_code: z.string().optional(),
     country_code: z.string().optional(),
-    tax_id: z.string().optional()
+    tax_id: z.string().optional(),
   })
-  .strict()
-
-export type VendorGetReviewsParamsType = z.infer<typeof VendorGetReviewsParams>
-export const VendorGetReviewsParams = createFindParams({
-  offset: 0,
-  limit: 50
-})
-
-/**
- * @schema VendorUpdateReview
- * title: "Update Review"
- * description: "A schema for the review update."
- * x-resourceId: VendorUpdateReview
- * type: object
- * properties:
- *   seller_note:
- *     type: string
- *     description: The seller response to a review.
- *     maxLength: 300
- */
-export type VendorUpdateReviewType = z.infer<typeof VendorUpdateReview>
-export const VendorUpdateReview = z.object({
-  seller_note: z.string().max(300)
-})
+  .strict();
 
 export type VendorGetOnboardingParamsType = z.infer<
   typeof VendorGetOnboardingParams
->
-export const VendorGetOnboardingParams = createSelectParams()
+>;
+export const VendorGetOnboardingParams = createSelectParams();

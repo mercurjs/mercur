@@ -34,6 +34,7 @@
     "@mercurjs/framework": "*",
     "@mercurjs/b2c-core": "*",
     "@mercurjs/commission": "*",
+    "@mercurjs/reviews": "*",
     "@mercurjs/algolia": "*",
     "@mercurjs/resend": "*",
     "@mercurjs/stripe-tax-provider": "*",

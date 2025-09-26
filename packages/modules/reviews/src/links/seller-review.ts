@@ -1,24 +1,9 @@
 import { defineLink } from "@medusajs/framework/utils";
 
 import ReviewModule from "../modules/reviews";
+import { SellerModuleSellerLinkable } from "@mercurjs/framework";
 
-const linkable = {
-  toJSON: () => ({
-    serviceName: "seller",
-    field: "seller",
-    linkable: "seller_id",
-    primaryKey: "id",
-  }),
-  id: {
-    linkable: "seller_id",
-    primaryKey: "id",
-    serviceName: "seller",
-    field: "seller",
-    entity: "Seller",
-  },
-};
-
-export default defineLink(linkable, {
+export default defineLink(SellerModuleSellerLinkable, {
   linkable: ReviewModule.linkable.review,
   isList: true,
 });

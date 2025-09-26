@@ -46,3 +46,7 @@ export enum ProductTagRequestUpdatedEvent {
   ACCEPTED = "requests.product_tag.accepted",
   REJECTED = "requests.product_tag.rejected",
 }
+
+export enum RemoveReviewRequestUpdatedEvent {
+  REMOVED = "requests.review.removed",
+}

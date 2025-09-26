@@ -11,7 +11,6 @@ export * from "./order-set";
 export * from "./product";
 export * from "./promotions";
 export * from "./requests";
-export * from "./review";
 export * from "./seller";
 export * from "./split-order-payment";
 export * from "./wishlist";

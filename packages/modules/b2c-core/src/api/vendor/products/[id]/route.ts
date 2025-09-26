@@ -9,8 +9,6 @@ import {
   updateProductsWorkflow,
 } from "@medusajs/medusa/core-flows";
 
-import { getAvgRating } from "../../../../modules/reviews";
-
 import { fetchSellerByAuthActorId } from "../../../../shared/infra/http/utils";
 import { fetchProductDetails } from "../../../../shared/infra/http/utils/products";
 import { createProductUpdateRequestWorkflow } from "../../../../workflows/requests/workflows/create-product-update-request";
@@ -71,9 +69,7 @@ export const GET = async (
     { throwIfKeyNotFound: true }
   );
 
-  const rating = await getAvgRating(req.scope, "product", req.params.id);
-
-  res.json({ product: { ...product, rating } });
+  res.json({ product });
 };
 
 /**

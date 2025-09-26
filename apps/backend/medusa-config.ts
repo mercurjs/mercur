@@ -30,6 +30,10 @@ module.exports = defineConfig({
         apiKey: process.env.ALGOLIA_API_KEY,
         appId: process.env.ALGOLIA_APP_ID
       }
+    },
+    {
+      resolve: '@mercurjs/reviews',
+      options: {}
     }
   ],
   modules: [
