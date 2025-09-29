@@ -10,7 +10,6 @@ export * from "./order-return-request";
 export * from "./order-set";
 export * from "./product";
 export * from "./promotions";
-export * from "./requests";
 export * from "./seller";
 export * from "./split-order-payment";
 export * from "./wishlist";

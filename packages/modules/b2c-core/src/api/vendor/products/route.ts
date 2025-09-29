@@ -3,14 +3,15 @@ import {
   MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework";
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
 import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
-import { createProductRequestWorkflow } from "../../../workflows/requests/workflows";
 import {
   VendorCreateProductType,
   VendorGetProductParamsType,
 } from "./validators";
+import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
+import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
 
 /**
  * @oas [get] /vendor/products
@@ -131,20 +132,39 @@ export const POST = async (
 
   const { additional_data, ...validatedBody } = req.validatedBody;
 
-  const { result } = await createProductRequestWorkflow.run({
+  const {
+    result: [createdProduct],
+  } = await createProductsWorkflow.run({
     container: req.scope,
     input: {
-      seller_id: seller.id,
-      data: {
-        data: validatedBody,
-        type: "product",
-        submitter_id: req.auth_context.actor_id,
-      },
-      additional_data,
+      products: [
+        {
+          ...validatedBody,
+          status: validatedBody.status === "draft" ? "draft" : "proposed",
+        },
+      ],
+      additional_data: { ...additional_data, seller_id: seller.id },
     },
   });
 
-  const { product_id } = result[0].data;
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS);
+  await eventBus.emit({
+    name: ProductRequestUpdatedEvent.TO_CREATE,
+    data: {
+      seller_id: seller.id,
+      data: {
+        data: {
+          ...createdProduct,
+          product_id: createdProduct.id,
+        },
+        submitter_id: req.auth_context.actor_id,
+        type: "product",
+        status: validatedBody.status === "draft" ? "draft" : "proposed",
+      },
+    },
+  });
+
+  const product_id = createdProduct.id;
 
   const {
     data: [product],

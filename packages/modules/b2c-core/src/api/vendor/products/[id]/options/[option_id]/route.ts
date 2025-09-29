@@ -5,6 +5,7 @@ import {
 import {
   ContainerRegistrationKeys,
   MedusaError,
+  Modules,
 } from "@medusajs/framework/utils";
 import {
   deleteProductOptionsWorkflow,
@@ -13,8 +14,8 @@ import {
 
 import { fetchSellerByAuthActorId } from "../../../../../../shared/infra/http/utils";
 import { fetchProductDetails } from "../../../../../../shared/infra/http/utils/products";
-import { createProductUpdateRequestWorkflow } from "../../../../../../workflows/requests/workflows/create-product-update-request";
 import { UpdateProductOptionType } from "../../../validators";
+import { ProductUpdateRequestUpdatedEvent } from "@mercurjs/framework";
 
 /**
  * @oas [delete] /vendor/products/{id}/options/{option_id}
@@ -164,9 +165,10 @@ export const POST = async (
       req.auth_context.actor_id,
       req.scope
     );
-    await createProductUpdateRequestWorkflow.run({
-      container: req.scope,
-      input: {
+    const eventBus = req.scope.resolve(Modules.EVENT_BUS);
+    await eventBus.emit({
+      name: ProductUpdateRequestUpdatedEvent.TO_CREATE,
+      data: {
         data: {
           data: { product_id: req.params.id, title: productDetails.title },
           submitter_id: req.auth_context.actor_id,

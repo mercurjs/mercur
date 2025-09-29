@@ -1,11 +1,15 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+import {
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework";
 import {
   ContainerRegistrationKeys,
-  MedusaError
-} from '@medusajs/framework/utils'
+  MedusaError,
+  Modules,
+} from "@medusajs/framework/utils";
 
-import { createSellerCreationRequestWorkflow } from '../../../workflows/requests/workflows'
-import { VendorCreateSellerType } from './validators'
+import { VendorCreateSellerType } from "./validators";
+import { SellerRequest } from "@mercurjs/framework";
 
 /**
  * @oas [post] /vendor/sellers
@@ -41,52 +45,54 @@ export const POST = async (
   if (req.auth_context?.actor_id) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
-      'Request already authenticated as a seller.'
-    )
+      "Request already authenticated as a seller."
+    );
   }
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { member, ...sellerData } = req.validatedBody
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const { member, ...sellerData } = req.validatedBody;
 
   const {
-    data: [identity]
+    data: [identity],
   } = await query.graph({
-    entity: 'provider_identity',
-    fields: ['id', 'entity_id'],
+    entity: "provider_identity",
+    fields: ["id", "entity_id"],
     filters: {
-      auth_identity_id: req.auth_context?.auth_identity_id
-    }
-  })
+      auth_identity_id: req.auth_context?.auth_identity_id,
+    },
+  });
 
   const {
-    data: [existingRequest]
+    data: [existingRequest],
   } = await query.graph({
-    entity: 'request',
-    fields: ['id'],
+    entity: "request",
+    fields: ["id"],
     filters: {
       submitter_id: identity.id,
-      type: 'seller'
-    }
-  })
+      type: "seller",
+    },
+  });
 
   if (existingRequest) {
-    throw new MedusaError(MedusaError.Types.CONFLICT, 'Request already exists!')
+    throw new MedusaError(
+      MedusaError.Types.CONFLICT,
+      "Request already exists!"
+    );
   }
 
-  const {
-    result: [request]
-  } = await createSellerCreationRequestWorkflow.run({
-    input: {
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS);
+  await eventBus.emit({
+    name: SellerRequest.TO_CREATE,
+    data: {
       data: {
         seller: { ...sellerData, email: sellerData.email || member.email },
         member,
         auth_identity_id: req.auth_context?.auth_identity_id,
-        provider_identity_id: identity.entity_id
+        provider_identity_id: identity.entity_id,
       },
-      type: 'seller',
-      submitter_id: identity.id
+      type: "seller",
+      submitter_id: identity.id,
     },
-    container: req.scope
-  })
+  });
 
-  res.status(201).json({ request })
-}
+  res.status(201).json({ ok: true });
+};

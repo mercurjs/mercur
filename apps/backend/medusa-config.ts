@@ -34,6 +34,10 @@ module.exports = defineConfig({
     {
       resolve: '@mercurjs/reviews',
       options: {}
+    },
+    {
+      resolve: '@mercurjs/requests',
+      options: {}
     }
   ],
   modules: [

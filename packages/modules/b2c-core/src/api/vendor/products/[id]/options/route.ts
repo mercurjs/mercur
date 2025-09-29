@@ -1,11 +1,14 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import { createProductOptionsWorkflow } from '@medusajs/medusa/core-flows'
+import {
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework";
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { createProductOptionsWorkflow } from "@medusajs/medusa/core-flows";
 
-import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
-import { fetchProductDetails } from '../../../../../shared/infra/http/utils/products'
-import { createProductUpdateRequestWorkflow } from '../../../../../workflows/requests/workflows/create-product-update-request'
-import { CreateProductOptionType } from '../../validators'
+import { fetchSellerByAuthActorId } from "../../../../../shared/infra/http/utils";
+import { fetchProductDetails } from "../../../../../shared/infra/http/utils/products";
+import { CreateProductOptionType } from "../../validators";
+import { ProductUpdateRequestUpdatedEvent } from "@mercurjs/framework";
 
 /**
  * @oas [post] /vendor/products/{id}/options
@@ -51,49 +54,50 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<CreateProductOptionType>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const productId = req.params.id
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const productId = req.params.id;
 
   await createProductOptionsWorkflow(req.scope).run({
     input: {
       product_options: [
         {
           ...req.validatedBody,
-          product_id: productId
-        }
-      ]
-    }
-  })
+          product_id: productId,
+        },
+      ],
+    },
+  });
 
-  const productDetails = await fetchProductDetails(req.params.id, req.scope)
-  if (!['draft', 'proposed'].includes(productDetails.status)) {
+  const productDetails = await fetchProductDetails(req.params.id, req.scope);
+  if (!["draft", "proposed"].includes(productDetails.status)) {
     const seller = await fetchSellerByAuthActorId(
       req.auth_context.actor_id,
       req.scope
-    )
-    await createProductUpdateRequestWorkflow.run({
-      container: req.scope,
-      input: {
+    );
+    const eventBus = req.scope.resolve(Modules.EVENT_BUS);
+    await eventBus.emit({
+      name: ProductUpdateRequestUpdatedEvent.TO_CREATE,
+      data: {
         data: {
           data: { product_id: req.params.id, title: productDetails.title },
           submitter_id: req.auth_context.actor_id,
-          type: 'product_update'
+          type: "product_update",
         },
-        seller_id: seller.id
-      }
-    })
+        seller_id: seller.id,
+      },
+    });
   }
 
   const {
-    data: [product]
+    data: [product],
   } = await query.graph(
     {
-      entity: 'product',
+      entity: "product",
       fields: req.queryConfig.fields,
-      filters: { id: req.params.id }
+      filters: { id: req.params.id },
     },
     { throwIfKeyNotFound: true }
-  )
+  );
 
-  res.json({ product })
-}
+  res.json({ product });
+};

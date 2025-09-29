@@ -1,6 +1,6 @@
 import {
   createProductsWorkflow,
-  createRemoteLinkStep,
+  emitEventStep,
   parseProductCsvStep,
 } from "@medusajs/medusa/core-flows";
 import {
@@ -9,12 +9,11 @@ import {
   transform,
 } from "@medusajs/workflows-sdk";
 
-import { ProductRequestUpdatedEvent, RequestStatus } from "@mercurjs/framework";
-import { REQUESTS_MODULE } from "../../../modules/requests";
-import { SELLER_MODULE } from "../../../modules/seller";
+import {
+  ImportSellerProductsRequestUpdatedEvent,
+  RequestStatus,
+} from "@mercurjs/framework";
 
-import { emitMultipleEventsStep } from "../../common/steps";
-import { createRequestStep } from "../../requests/steps";
 import { validateProductsToImportStep } from "../steps";
 
 export const importSellerProductsWorkflow = createWorkflow(
@@ -49,28 +48,19 @@ export const importSellerProductsWorkflow = createWorkflow(
       }
     );
 
-    const requests = createRequestStep(requestsPayload);
+    const eventPayload = transform(
+      { requestsPayload, input },
+      ({ requestsPayload, input }) => ({
+        request_payloads: requestsPayload,
+        seller_id: input.seller_id,
+        submitter_id: input.submitter_id,
+      })
+    );
 
-    const link = transform({ requests, input }, ({ requests, input }) => {
-      return requests.map(({ id }) => ({
-        [SELLER_MODULE]: {
-          seller_id: input.seller_id,
-        },
-        [REQUESTS_MODULE]: {
-          request_id: id,
-        },
-      }));
+    emitEventStep({
+      eventName: ImportSellerProductsRequestUpdatedEvent.TO_CREATE,
+      data: eventPayload,
     });
-
-    const events = transform(requests, (requests) => {
-      return requests.map(({ id }) => ({
-        name: ProductRequestUpdatedEvent.CREATED,
-        data: { id },
-      }));
-    });
-
-    createRemoteLinkStep(link);
-    emitMultipleEventsStep(events);
 
     return new WorkflowResponse(created);
   }
