@@ -35,6 +35,7 @@
     "@medusajs/test-utils": "2.4.0",
     "@medusajs/ui": "4.0.4",
     "@medusajs/icons": "2.4.0",
+    "@mercurjs/framework": "*",
     "@mikro-orm/cli": "6.4.3",
     "@mikro-orm/core": "6.4.3",
     "@mikro-orm/knex": "6.4.3",

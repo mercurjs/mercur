@@ -37,6 +37,7 @@
     },
     "peerDependencies": {
         "@medusajs/framework": "2.8.6",
+        "@mercurjs/framework": "*",
         "@mikro-orm/core": "6.4.3",
         "@mikro-orm/migrations": "6.4.3",
         "@mikro-orm/postgresql": "6.4.3",
