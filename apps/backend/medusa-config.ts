@@ -41,20 +41,20 @@ module.exports = defineConfig({
     }
   ],
   modules: [
-    {
-      resolve: '@medusajs/medusa/payment',
-      options: {
-        providers: [
-          {
-            resolve: '@mercurjs/payment-stripe-connect',
-            id: 'stripe-connect',
-            options: {
-              apiKey: process.env.STRIPE_SECRET_API_KEY
-            }
-          }
-        ]
-      }
-    },
+    // {
+    //   resolve: '@medusajs/medusa/payment',
+    //   options: {
+    //     providers: [
+    //       {
+    //         resolve: '@mercurjs/payment-stripe-connect',
+    //         id: 'stripe-connect',
+    //         options: {
+    //           apiKey: process.env.STRIPE_SECRET_API_KEY
+    //         }
+    //       }
+    //     ]
+    //   }
+    // },
     {
       resolve: '@medusajs/medusa/notification',
       options: {
