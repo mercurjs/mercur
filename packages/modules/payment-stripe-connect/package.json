@@ -23,7 +23,6 @@
     "devDependencies": {
         "@medusajs/framework": "2.8.6",
         "@medusajs/test-utils": "2.8.6",
-        "@mercurjs/framework": "*",
         "@mikro-orm/cli": "6.4.3",
         "@mikro-orm/core": "6.4.3",
         "@mikro-orm/migrations": "6.4.3",
@@ -36,6 +35,7 @@
         "typescript": "^5.6.2"
     },
     "peerDependencies": {
+        "@mercurjs/framework": "*",
         "@medusajs/framework": "2.8.6",
         "@mikro-orm/core": "6.4.3",
         "@mikro-orm/migrations": "6.4.3",
