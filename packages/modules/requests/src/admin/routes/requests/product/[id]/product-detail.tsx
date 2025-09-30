@@ -26,7 +26,7 @@ export const ProductRequestDetail = ({ id }: { id: string }) => {
   };
 
   if (!request || isLoading || isError) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
 
   return (
@@ -89,7 +89,7 @@ export const ProductRequestDetail = ({ id }: { id: string }) => {
         </>
       }
     />
-  )
+  );
 };
 
 const ProductOptionsInfo = ({ product }: { product: ProductDTO }) => {
@@ -180,7 +180,9 @@ const ProductOrganizationInfo = ({ product }: { product: ProductDTO }) => {
   if (product.tags && product.tags.length) {
     const tagIds = product.tags.map((t) => t.id);
     const { product_tags } = useProductTags({ id: tagIds });
-    product_tags?.forEach((t) => productTags.push({ id: t.id, value: t.value }));
+    product_tags?.forEach((t) =>
+      productTags.push({ id: t.id, value: t.value })
+    );
   }
 
   return (

@@ -97,33 +97,38 @@ export function ReturnRequestDetail({ request, open, close }: Props) {
             </div>
             <Text>{`Submitted on ${formatDate(request.created_at)}`}</Text>
             <Text>{`Escalated on ${formatDate(request.vendor_reviewer_date)}`}</Text>
-            {request.admin_reviewer_id && <Text>{`Reviewed on ${formatDate(request.admin_reviewer_date)}`}</Text>}
-            {request.admin_reviewer_note &&
+            {request.admin_reviewer_id && (
+              <Text>{`Reviewed on ${formatDate(request.admin_reviewer_date)}`}</Text>
+            )}
+            {request.admin_reviewer_note && (
               <Text>{`Reviewer note: ${request.admin_reviewer_note}`}</Text>
-            }
+            )}
           </Container>
         </Drawer.Body>
         <Drawer.Footer>
-          {request.status === 'pending' || request.status === 'escalated' && <>
-            <Button
-              onClick={() => {
-                handlePrompt(request.id!, true);
-              }}
-            >
-              Accept
-            </Button>
-            <Button
-              onClick={() => {
-                handlePrompt(request.id!, false);
-              }}
-              variant="danger"
-            >
-              Reject
-            </Button>
-            <Button variant="secondary" onClick={close}>
-              Cancel
-            </Button>
-          </>}
+          {request.status === "pending" ||
+            (request.status === "escalated" && (
+              <>
+                <Button
+                  onClick={() => {
+                    handlePrompt(request.id!, true);
+                  }}
+                >
+                  Accept
+                </Button>
+                <Button
+                  onClick={() => {
+                    handlePrompt(request.id!, false);
+                  }}
+                  variant="danger"
+                >
+                  Reject
+                </Button>
+                <Button variant="secondary" onClick={close}>
+                  Cancel
+                </Button>
+              </>
+            ))}
         </Drawer.Footer>
       </Drawer.Content>
     </Drawer>
