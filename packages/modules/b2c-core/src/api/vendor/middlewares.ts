@@ -30,7 +30,6 @@ import { vendorProductsMiddlewares } from "./products/middlewares";
 import { vendorPromotionsMiddlewares } from "./promotions/middlewares";
 import { vendorRegionsMiddlewares } from "./regions/middlewares";
 import { vendorReservationsMiddlewares } from "./reservations/middlewares";
-import { vendorReturnRequestsMiddlewares } from "./return-request/middlewares";
 import { vendorReturnsMiddlewares } from "./returns/middlewares";
 import { vendorSalesChannelMiddlewares } from "./sales-channels/middlewares";
 import { vendorSellersMiddlewares } from "./sellers/middlewares";
@@ -100,7 +99,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorInventoryItemsMiddlewares,
   ...vendorPayoutMiddlewares,
   ...vendorOrderMiddlewares,
-  ...vendorReturnRequestsMiddlewares,
   ...vendorInventoryItemsMiddlewares,
   ...vendorSalesChannelMiddlewares,
   ...vendorCustomersMiddlewares,

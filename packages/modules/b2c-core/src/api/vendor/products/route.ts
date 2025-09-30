@@ -159,7 +159,7 @@ export const POST = async (
         },
         submitter_id: req.auth_context.actor_id,
         type: "product",
-        status: validatedBody.status === "draft" ? "draft" : "proposed",
+        status: createdProduct.status === "draft" ? "draft" : "pending",
       },
     },
   });

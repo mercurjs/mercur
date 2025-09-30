@@ -9,6 +9,7 @@ import {
 import {
   AdminUpdateOrderReturnRequestDTO,
   VendorUpdateOrderReturnRequestDTO,
+  SELLER_MODULE,
 } from "@mercurjs/framework";
 
 import { updateOrderReturnRequestStep } from "../steps";
@@ -18,7 +19,6 @@ import {
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows";
 import returnRequestOrder from "../../../links/return-request-order";
-import { SELLER_MODULE } from "../../../modules/seller";
 import { Modules } from "@medusajs/framework/utils";
 
 export const updateOrderReturnRequestWorkflow = createWorkflow(

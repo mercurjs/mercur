@@ -1,9 +1,9 @@
 import { defineLink } from "@medusajs/framework/utils";
 
 import orderReturnRequest from "../modules/order-return-request";
-import SellerModule from "../modules/seller";
+import { SellerModuleSellerLinkable } from "@mercurjs/framework";
 
-export default defineLink(SellerModule.linkable.seller, {
+export default defineLink(SellerModuleSellerLinkable, {
   linkable: orderReturnRequest.linkable.orderReturnRequest,
   isList: true,
 });

@@ -6,7 +6,6 @@ export * from "./configuration";
 export * from "./customer-groups";
 export * from "./fulfillment-set";
 export * from "./order";
-export * from "./order-return-request";
 export * from "./order-set";
 export * from "./product";
 export * from "./promotions";

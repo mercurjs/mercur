@@ -1,35 +1,36 @@
 import {
   MiddlewareRoute,
   validateAndTransformBody,
-  validateAndTransformQuery
-} from '@medusajs/framework'
+  validateAndTransformQuery,
+} from "@medusajs/framework";
 
-import sellerReturnRequest from '../../../links/seller-return-request'
-import {
-  checkResourceOwnershipByResourceId,
-  filterBySellerId
-} from '../../../shared/infra/http/middlewares'
-import { vendorReturnOrderRequestQueryConfig } from './query-config'
+import sellerReturnRequest from "../../../links/seller-return-request";
+
+import { vendorReturnOrderRequestQueryConfig } from "./query-config";
 import {
   VendorGetOrderReturnRequestParams,
-  VendorUpdateOrderReturnRequest
-} from './validators'
+  VendorUpdateOrderReturnRequest,
+} from "./validators";
+import {
+  filterBySellerId,
+  checkResourceOwnershipByResourceId,
+} from "@mercurjs/framework";
 
 export const vendorReturnRequestsMiddlewares: MiddlewareRoute[] = [
   {
-    method: ['GET'],
-    matcher: '/vendor/return-request',
+    method: ["GET"],
+    matcher: "/vendor/return-request",
     middlewares: [
       validateAndTransformQuery(
         VendorGetOrderReturnRequestParams,
         vendorReturnOrderRequestQueryConfig.list
       ),
-      filterBySellerId()
-    ]
+      filterBySellerId(),
+    ],
   },
   {
-    method: ['GET'],
-    matcher: '/vendor/return-request/:id',
+    method: ["GET"],
+    matcher: "/vendor/return-request/:id",
     middlewares: [
       validateAndTransformQuery(
         VendorGetOrderReturnRequestParams,
@@ -37,13 +38,13 @@ export const vendorReturnRequestsMiddlewares: MiddlewareRoute[] = [
       ),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerReturnRequest.entryPoint,
-        filterField: 'order_return_request_id'
-      })
-    ]
+        filterField: "order_return_request_id",
+      }),
+    ],
   },
   {
-    method: ['POST'],
-    matcher: '/vendor/return-request/:id',
+    method: ["POST"],
+    matcher: "/vendor/return-request/:id",
     middlewares: [
       validateAndTransformQuery(
         VendorGetOrderReturnRequestParams,
@@ -52,8 +53,8 @@ export const vendorReturnRequestsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorUpdateOrderReturnRequest),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerReturnRequest.entryPoint,
-        filterField: 'order_return_request_id'
-      })
-    ]
-  }
-]
+        filterField: "order_return_request_id",
+      }),
+    ],
+  },
+];
