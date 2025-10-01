@@ -1,7 +1,4 @@
-import {
-  createProductsWorkflow,
-  createRemoteLinkStep,
-} from "@medusajs/medusa/core-flows";
+import { createRemoteLinkStep } from "@medusajs/medusa/core-flows";
 import {
   WorkflowResponse,
   createHook,
@@ -12,7 +9,6 @@ import {
 import {
   CreateRequestDTO,
   ProductRequestUpdatedEvent,
-  RequestStatus,
   RequestUpdated,
   SELLER_MODULE,
 } from "@mercurjs/framework";

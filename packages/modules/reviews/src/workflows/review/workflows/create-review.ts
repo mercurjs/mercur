@@ -1,6 +1,7 @@
 import { Modules } from "@medusajs/framework/utils";
 import {
   WorkflowResponse,
+  createHook,
   createWorkflow,
   transform,
 } from "@medusajs/framework/workflows-sdk";
@@ -52,6 +53,12 @@ export const createReviewWorkflow = createWorkflow(
       eventName: AlgoliaEvents.REVIEW_CHANGED,
       data: { review },
     });
-    return new WorkflowResponse(review);
+
+    const reviewCreatedHook = createHook("reviewCreated", {
+      review_id: review.id,
+    });
+    return new WorkflowResponse(review, {
+      hooks: [reviewCreatedHook],
+    });
   }
 );

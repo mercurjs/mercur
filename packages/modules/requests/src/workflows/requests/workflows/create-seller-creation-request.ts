@@ -1,4 +1,8 @@
-import { WorkflowResponse, createWorkflow } from "@medusajs/workflows-sdk";
+import {
+  WorkflowResponse,
+  createHook,
+  createWorkflow,
+} from "@medusajs/workflows-sdk";
 
 import {
   CreateRequestDTO,
@@ -24,6 +28,15 @@ export const createSellerCreationRequestWorkflow = createWorkflow(
         data: input,
       },
     ]);
-    return new WorkflowResponse(request);
+
+    const sellerCreationRequestCreatedHook = createHook(
+      "sellerCreationRequestCreated",
+      {
+        requestId: request[0].id,
+      }
+    );
+    return new WorkflowResponse(request, {
+      hooks: [sellerCreationRequestCreatedHook],
+    });
   }
 );

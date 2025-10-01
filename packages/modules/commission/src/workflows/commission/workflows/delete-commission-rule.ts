@@ -1,10 +1,21 @@
-import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
+import {
+  WorkflowResponse,
+  createHook,
+  createWorkflow,
+} from "@medusajs/workflows-sdk";
 
-import { deleteCommissionRuleStep } from '../steps'
+import { deleteCommissionRuleStep } from "../steps";
 
 export const deleteCommissionRuleWorkflow = createWorkflow(
-  'delete-commission-rule',
+  "delete-commission-rule",
   function (id: string) {
-    return new WorkflowResponse(deleteCommissionRuleStep(id))
+    deleteCommissionRuleStep(id);
+
+    const commissionRuleDeletedHook = createHook("commissionRuleDeleted", {
+      commission_rule_id: id,
+    });
+    return new WorkflowResponse(id, {
+      hooks: [commissionRuleDeletedHook],
+    });
   }
-)
+);
