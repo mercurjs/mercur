@@ -11,9 +11,9 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 export default async function sellerCreationRequestAcceptedHandler({
   event,
   container,
-}: SubscriberArgs<{ request: RequestDTO }>) {
+}: SubscriberArgs<RequestDTO>) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
-  const { request } = event.data;
+  const request = event.data;
 
   const { result: seller } = await createSellerWorkflow.run({
     container,
