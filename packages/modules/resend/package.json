@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/resend",
-  "version": "0.0.1",
+  "version": "2.0.0",
   "description": "A starter for Medusa plugins.",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
