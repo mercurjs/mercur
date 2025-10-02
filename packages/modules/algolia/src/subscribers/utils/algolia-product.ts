@@ -76,7 +76,7 @@ async function selectProductSeller(
     },
   });
 
-  return product
+  return product && product.seller
     ? {
         id: product.seller.id,
         handle: product.seller.handle,
