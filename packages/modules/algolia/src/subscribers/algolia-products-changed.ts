@@ -8,7 +8,7 @@ import {
   findAndTransformAlgoliaProducts,
 } from "../subscribers/utils";
 
-export default async function productsChangedHandler({
+export default async function algoliaProductsChangedHandler({
   event,
   container,
 }: SubscriberArgs<{ ids: string[] }>) {
