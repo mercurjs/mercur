@@ -24,13 +24,10 @@ export default async function productUpdateRequestToCreateHandler({
       ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL
     )
   ) {
-    console.log("Creating product update request to create");
     await createProductUpdateRequestWorkflow.run({
       container,
       input,
     });
-  } else {
-    console.log("Not creating product update request to create");
   }
 }
 
