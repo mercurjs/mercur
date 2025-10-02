@@ -1,4 +1,4 @@
-import { Tooltip } from "@medusajs/ui";
+import { Tooltip, TooltipProvider } from "@medusajs/ui";
 import { InformationCircleSolid } from "@medusajs/icons";
 
 export type RuleType =
@@ -16,14 +16,16 @@ const getTooltipContent = (type: RuleType) => {
     case "require_product_approval":
       return "Indicates whether seller-added products require admin approval before becoming ready to list";
     case "product_import_enabled":
-      return "Allow sellers to import products via csv file"
+      return "Allow sellers to import products via csv file";
   }
 };
 
 export const ConfigurationRuleTooltip = ({ type }: { type: RuleType }) => {
   return (
-    <Tooltip content={getTooltipContent(type)}>
-      <InformationCircleSolid />
-    </Tooltip>
+    <TooltipProvider>
+      <Tooltip content={getTooltipContent(type)}>
+        <InformationCircleSolid />
+      </Tooltip>
+    </TooltipProvider>
   );
 };
