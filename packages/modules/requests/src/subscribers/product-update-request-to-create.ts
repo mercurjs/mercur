@@ -1,6 +1,8 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 
 import {
+  checkConfigurationRule,
+  ConfigurationRuleType,
   CreateRequestDTO,
   ProductUpdateRequestUpdatedEvent,
 } from "@mercurjs/framework";
@@ -16,10 +18,20 @@ export default async function productUpdateRequestToCreateHandler({
 }>) {
   const input = event.data;
 
-  await createProductUpdateRequestWorkflow.run({
-    container,
-    input,
-  });
+  if (
+    await checkConfigurationRule(
+      container,
+      ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL
+    )
+  ) {
+    console.log("Creating product update request to create");
+    await createProductUpdateRequestWorkflow.run({
+      container,
+      input,
+    });
+  } else {
+    console.log("Not creating product update request to create");
+  }
 }
 
 export const config: SubscriberConfig = {

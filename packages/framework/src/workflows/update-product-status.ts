@@ -10,10 +10,13 @@ export const updateProductStatusStep = createStep(
   "update-product-status",
   async (input: { id: string; status: ProductStatus }, { container }) => {
     const service = container.resolve(Modules.PRODUCT);
+    const knex = container.resolve("__pg_connection__");
 
-    const product = await service.updateProducts(input.id, {
+    await knex("product").where("id", input.id).update({
       status: input.status,
     });
+
+    const product = await service.retrieveProduct(input.id);
 
     return new StepResponse(product, product.id);
   }
