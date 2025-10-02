@@ -78,7 +78,7 @@ async function selectProductSeller(
 
   return product
     ? {
-        id: product.seller_id,
+        id: product.seller.id,
         handle: product.seller.handle,
         store_status: product.seller.store_status,
       }
