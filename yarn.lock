@@ -13845,6 +13845,13 @@ stripe@^17.4.0:
     "@types/node" ">=8.1.0"
     qs "^6.11.0"
 
+stripe@^19.1.0:
+  version "19.1.0"
+  resolved "https://registry.yarnpkg.com/stripe/-/stripe-19.1.0.tgz#c9dfe8f27c57262fbc4afd07cfb26f718cc1e903"
+  integrity sha512-FjgIiE98dMMTNssfdjMvFdD4eZyEzdWAOwPYqzhPRNZeg9ggFWlPXmX1iJKD5pPIwZBaPlC3SayQQkwsPo6/YQ==
+  dependencies:
+    qs "^6.11.0"
+
 strnum@^1.0.5, strnum@^1.1.1:
   version "1.1.2"
   resolved "https://registry.npmjs.org/strnum/-/strnum-1.1.2.tgz"
