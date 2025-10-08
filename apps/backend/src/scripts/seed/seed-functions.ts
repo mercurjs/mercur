@@ -13,7 +13,8 @@ import {
   createStockLocationsWorkflow,
   createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
-  updateStoresWorkflow
+  updateStoresWorkflow,
+  updateTaxRegionsWorkflow
 } from '@medusajs/medusa/core-flows'
 
 import {
@@ -102,10 +103,17 @@ export async function createRegions(container: MedusaContainer) {
     }
   })
 
-  await createTaxRegionsWorkflow(container).run({
+  const { result: taxRegions } = await createTaxRegionsWorkflow(container).run({
     input: countries.map((country_code) => ({
       country_code
     }))
+  })
+
+  await updateTaxRegionsWorkflow(container).run({
+    input: taxRegions.map((taxRegion => ({
+      id: taxRegion.id,
+      provider_id: 'tp_system'
+    })))
   })
 
   return region
