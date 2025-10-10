@@ -1,21 +1,19 @@
-import { updateProductsWorkflow } from '@medusajs/medusa/core-flows'
-import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
+import { WorkflowResponse, createWorkflow } from "@medusajs/workflows-sdk";
 
-import { AcceptRequestDTO } from '@mercurjs/framework'
+import { AcceptRequestDTO, updateProductStatusStep } from "@mercurjs/framework";
 
-import { updateRequestWorkflow } from './update-request'
+import { updateRequestWorkflow } from "./update-request";
+import { ProductStatus } from "@medusajs/framework/utils";
 
 export const acceptProductRequestWorkflow = createWorkflow(
-  'accept-product-request',
+  "accept-product-request",
   function (input: AcceptRequestDTO) {
-    const product = updateProductsWorkflow.runAsStep({
-      input: {
-        selector: { id: input.data.product_id },
-        update: { status: 'published' }
-      }
-    })
+    const product = updateProductStatusStep({
+      id: input.data.product_id,
+      status: ProductStatus.PUBLISHED,
+    });
 
-    updateRequestWorkflow.runAsStep({ input })
-    return new WorkflowResponse(product)
+    updateRequestWorkflow.runAsStep({ input });
+    return new WorkflowResponse(product);
   }
-)
+);
