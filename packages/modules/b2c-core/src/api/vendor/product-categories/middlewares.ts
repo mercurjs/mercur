@@ -1,7 +1,19 @@
-import { MiddlewareRoute, validateAndTransformQuery } from '@medusajs/framework'
+import {
+  MiddlewareRoute,
+  maybeApplyLinkFilter,
+  validateAndTransformQuery
+} from '@medusajs/framework'
 
-import { vendorProductCategoryQueryConfig } from './query-config'
-import { VendorGetProductCategoriesParams } from './validators'
+import sellerProduct from '../../../links/seller-product'
+import { filterBySellerId } from '../../../shared/infra/http/middlewares'
+import {
+  vendorProductCategoryProductsQueryConfig,
+  vendorProductCategoryQueryConfig
+} from './query-config'
+import {
+  VendorGetProductCategoriesParams,
+  VendorGetProductCategoriesProductsParams
+} from './validators'
 
 export const vendorProductCategoriesMiddlewares: MiddlewareRoute[] = [
   {
@@ -22,6 +34,22 @@ export const vendorProductCategoriesMiddlewares: MiddlewareRoute[] = [
         VendorGetProductCategoriesParams,
         vendorProductCategoryQueryConfig.retrieve
       )
+    ]
+  },
+  {
+    method: ['GET'],
+    matcher: '/vendor/product-categories/:id/products',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetProductCategoriesProductsParams,
+        vendorProductCategoryProductsQueryConfig.list
+      ),
+      filterBySellerId(),
+      maybeApplyLinkFilter({
+        entryPoint: sellerProduct.entryPoint,
+        resourceId: 'product_id',
+        filterableField: 'seller_id'
+      })
     ]
   }
 ]

@@ -17,3 +17,24 @@ export const vendorProductCollectionQueryConfig = {
     isList: false
   }
 }
+
+export const vendorProductCollectionsProductsFields = [
+  'id',
+  'title',
+  'status',
+  'thumbnail',
+  'handle',
+  'collection.id',
+  'collection.title',
+  'variants.id'
+]
+export const vendorProductCollectionsProductsQueryConfig = {
+  list: {
+    defaults: vendorProductCollectionsProductsFields,
+    isList: true
+  },
+  retrieve: {
+    defaults: vendorProductCollectionsProductsFields,
+    isList: false
+  }
+}
