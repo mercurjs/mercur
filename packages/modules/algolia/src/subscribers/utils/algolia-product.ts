@@ -123,6 +123,7 @@ export async function findAndTransformAlgoliaProducts(
       "tags.value",
       "type.value",
       "variants.*",
+      "variants.product_variant_images.*",
       "variants.options.*",
       "variants.options.prices.*",
       "variants.prices.*",

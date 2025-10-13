@@ -4,6 +4,8 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createProductVariantsWorkflow } from "@medusajs/medusa/core-flows";
 
 import { SELLER_MODULE } from "../../modules/seller";
+import { PRODUCT_VARIANT_IMAGE } from "../../modules/product-variant-image";
+import ProductVariantImageModuleService from "../../modules/product-variant-image/service";
 
 const getVariantInventoryItemIds = async (
   variantId: string,
@@ -23,8 +25,52 @@ const getVariantInventoryItemIds = async (
     .flat(2);
 };
 
+const createProductVariantImages = async (
+  variantId: string,
+  images: string[],
+  container: MedusaContainer
+) => {
+  const productVariantImageService: ProductVariantImageModuleService =
+    container.resolve(PRODUCT_VARIANT_IMAGE);
+  const linkService = container.resolve(ContainerRegistrationKeys.LINK);
+
+  const links: LinkDefinition[] = [];
+
+  const productVariantImages =
+    await productVariantImageService.createProductVariantImages(
+      images.map((image, index) => ({
+        url: image,
+        variant_id: variantId,
+        rank: index,
+      }))
+    );
+
+  for (const image of productVariantImages) {
+    links.push({
+      [Modules.PRODUCT]: {
+        product_variant_id: variantId,
+      },
+      [PRODUCT_VARIANT_IMAGE]: {
+        product_variant_image_id: image.id,
+      },
+    });
+  }
+
+  await linkService.create(links);
+
+  return productVariantImages;
+};
+
 createProductVariantsWorkflow.hooks.productVariantsCreated(
   async ({ product_variants, additional_data }, { container }) => {
+    if (additional_data?.images) {
+      createProductVariantImages(
+        product_variants[0].id,
+        additional_data.images as string[],
+        container
+      );
+    }
+
     if (!additional_data?.seller_id) {
       return;
     }

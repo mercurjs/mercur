@@ -32,7 +32,7 @@
     "@medusajs/framework": "2.8.6",
     "@medusajs/medusa": "2.8.6",
     "@mercurjs/framework": "*",
-    "@mercurjs/b2c-core": "*",
+    "@mercurjs/b2b-core": "*",
     "@mercurjs/commission": "*",
     "@mercurjs/reviews": "*",
     "@mercurjs/requests": "*",
