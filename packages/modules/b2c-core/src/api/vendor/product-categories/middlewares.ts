@@ -1,10 +1,5 @@
-import {
-  MiddlewareRoute,
-  maybeApplyLinkFilter,
-  validateAndTransformQuery
-} from '@medusajs/framework'
+import { MiddlewareRoute, validateAndTransformQuery } from '@medusajs/framework'
 
-import sellerProduct from '../../../links/seller-product'
 import { filterBySellerId } from '../../../shared/infra/http/middlewares'
 import {
   vendorProductCategoryProductsQueryConfig,
@@ -44,12 +39,7 @@ export const vendorProductCategoriesMiddlewares: MiddlewareRoute[] = [
         VendorGetProductCategoriesProductsParams,
         vendorProductCategoryProductsQueryConfig.list
       ),
-      filterBySellerId(),
-      maybeApplyLinkFilter({
-        entryPoint: sellerProduct.entryPoint,
-        resourceId: 'product_id',
-        filterableField: 'seller_id'
-      })
+      filterBySellerId()
     ]
   }
 ]

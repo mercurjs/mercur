@@ -13,5 +13,5 @@ export type VendorGetProductCategoriesProductsParamsType = z.infer<
 >
 export const VendorGetProductCategoriesProductsParams = createFindParams({
   offset: 0,
-  limit: 50
+  limit: 10
 })
