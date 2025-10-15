@@ -1,13 +1,11 @@
 import multer from "multer";
 
 import {
-  maybeApplyLinkFilter,
   unlessPath,
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework";
 import { MiddlewareRoute } from "@medusajs/medusa";
-import { maybeApplyPriceListsFilter } from "@medusajs/medusa/api/admin/products/utils/index";
 
 import { ConfigurationRuleType } from "@mercurjs/framework";
 
@@ -48,17 +46,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.list
       ),
       filterBySellerId(),
-      maybeApplyLinkFilter({
-        entryPoint: sellerProductLink.entryPoint,
-        resourceId: "product_id",
-        filterableField: "seller_id",
-      }),
-      maybeApplyLinkFilter({
-        entryPoint: "product_sales_channel",
-        resourceId: "product_id",
-        filterableField: "sales_channel_id",
-      }),
-      maybeApplyPriceListsFilter(),
     ],
   },
   {

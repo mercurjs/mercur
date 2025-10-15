@@ -12,6 +12,7 @@ import {
 } from "./validators";
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
 import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
+import { filterProductsBySeller } from "./utils";
 
 /**
  * @oas [get] /vendor/products
@@ -77,18 +78,27 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-  const { data: sellerProducts, metadata } = await query.graph({
+  const { productIds, count } = await filterProductsBySeller(
+    req.scope,
+    req.filterableFields.seller_id as string,
+    req.queryConfig.pagination?.skip || 0,
+    req.queryConfig.pagination?.take || 10,
+    req.filterableFields.sales_channel_id as string
+  );
+
+  const { data: sellerProducts } = await query.graph({
     entity: "product",
     fields: req.queryConfig.fields,
-    filters: req.filterableFields,
-    pagination: req.queryConfig.pagination,
+    filters: {
+      id: productIds,
+    },
   });
 
   res.json({
     products: sellerProducts,
-    count: metadata!.count,
-    offset: metadata!.skip,
-    limit: metadata!.take,
+    count: count,
+    offset: req.queryConfig.pagination?.skip || 0,
+    limit: req.queryConfig.pagination?.take || 10,
   });
 };
 
