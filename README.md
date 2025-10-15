@@ -69,43 +69,32 @@ Built-in integration with Stripe for payments and Resend for communication needs
 
 ## Quickstart
 
-#### Setup Medusa project
+**Step 1**: Install `mercur-cli` using NPM:
 
 ```bash
-# Clone the repository
-git clone https://github.com/mercurjs/mercur.git
+npm i -g mercur-cli
+```
 
-# Change directory
-cd mercur
+**Step 2**: Run CLI installation:
 
-# Install dependencies
-yarn install
+```bash
+mercur-cli install
+```
 
-# Build packages
-yarn build
+or
 
-# Go to backend folder
-cd apps/backend
+```bash
+npx mercur-cli install
+```
 
-# Clone .env.template
-cp .env.template .env
+The script will guide you through the installation process. You will have to enter project name and database connection parameters. Also, you'll be asked if you want to install Mercur Storefront and Vendor panel.
 
-# In the .env file replace user, password, address and port parameters in the DATABASE_URL variable with your values
-DATABASE_URL=postgres://[user]:[password]@[address]:[port]/$DB_NAME
-# For example:
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/$DB_NAME
+**Step 3**: After installation is done, move to the project catalog and start the servers:
 
-# Setup database and run migrations
-yarn medusa db:create && yarn medusa db:migrate && yarn run seed
+```bash
+cd <yourProjectName>
 
-# Create admin user
-npx medusa user --email <email> --password <password>
-
-# Go to root folder
-cd ../..
-
-# Start Mercur
-yarn dev
+mercur-cli dev
 ```
 
 &nbsp;

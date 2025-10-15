@@ -20,7 +20,8 @@
     "noImplicitThis": true,
     "allowJs": true,
     "skipLibCheck": true,
-    "incremental": false
+    "incremental": false,
+    "jsx": "react-jsx"
   },
   "include": ["${configDir}/src"],
   "exclude": ["${configDir}/dist", "${configDir}/node_modules"]

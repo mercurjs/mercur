@@ -5,6 +5,7 @@ export enum SellerAccountRequestUpdatedEvent {
 
 export enum SellerRequest {
   CREATED = "requests.seller.created",
+  TO_CREATE = "requests.seller.to_create",
 }
 
 export enum RequestUpdated {
@@ -25,12 +26,18 @@ export enum ProductRequestUpdatedEvent {
   CREATED = "requests.product.created",
   ACCEPTED = "requests.product.accepted",
   REJECTED = "requests.product.rejected",
+  TO_CREATE = "requests.product.to_create",
 }
 
 export enum ProductUpdateRequestUpdatedEvent {
   CREATED = "requests.product_update.created",
   ACCEPTED = "requests.product_update.accepted",
   REJECTED = "requests.product_update.rejected",
+  TO_CREATE = "requests.product_update.to_create",
+}
+
+export enum ImportSellerProductsRequestUpdatedEvent {
+  TO_CREATE = "requests.import_seller_products.to_create",
 }
 
 export enum SellerTeamInviteEvent {
@@ -45,4 +52,8 @@ export enum ProductTypeRequestUpdatedEvent {
 export enum ProductTagRequestUpdatedEvent {
   ACCEPTED = "requests.product_tag.accepted",
   REJECTED = "requests.product_tag.rejected",
+}
+
+export enum RemoveReviewRequestUpdatedEvent {
+  REMOVED = "requests.review.removed",
 }
