@@ -32,7 +32,8 @@ export const defaultStoreRetrieveOrderSetFields = [
   'orders.shipping_address.*',
   'orders.items.*',
   'orders.seller.*',
-  'orders.fulfillments.labels.*'
+  'orders.fulfillments.labels.*',
+  'orders.order_return_requests.*'
 ]
 
 export const orderSetQueryConfig = {
