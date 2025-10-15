@@ -36,10 +36,10 @@
     "@medusajs/admin-sdk": "2.8.6",
     "@medusajs/cli": "2.8.6",
     "@medusajs/framework": "2.8.6",
+    "@medusajs/icons": "2.8.6",
     "@medusajs/medusa": "2.8.6",
     "@medusajs/test-utils": "2.8.6",
     "@medusajs/ui": "4.0.4",
-    "@medusajs/icons": "2.8.6",
     "@mercurjs/framework": "*",
     "@mikro-orm/cli": "6.4.3",
     "@mikro-orm/core": "6.4.3",
@@ -64,10 +64,10 @@
     "@medusajs/admin-sdk": "2.8.6",
     "@medusajs/cli": "2.8.6",
     "@medusajs/framework": "2.8.6",
-    "@medusajs/test-utils": "2.8.6",
-    "@medusajs/medusa": "2.8.6",
-    "@medusajs/ui": "4.0.3",
     "@medusajs/icons": "2.8.6",
+    "@medusajs/medusa": "2.8.6",
+    "@medusajs/test-utils": "2.8.6",
+    "@medusajs/ui": "4.0.3",
     "@mercurjs/framework": "*",
     "@mikro-orm/cli": "6.4.3",
     "@mikro-orm/core": "6.4.3",
@@ -79,5 +79,8 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "algoliasearch": "^5.40.0"
   }
 }

@@ -31,10 +31,10 @@
     "@medusajs/admin-sdk": "2.4.0",
     "@medusajs/cli": "2.4.0",
     "@medusajs/framework": "2.4.0",
+    "@medusajs/icons": "2.4.0",
     "@medusajs/medusa": "2.4.0",
     "@medusajs/test-utils": "2.4.0",
     "@medusajs/ui": "4.0.4",
-    "@medusajs/icons": "2.4.0",
     "@mercurjs/framework": "*",
     "@mikro-orm/cli": "6.4.3",
     "@mikro-orm/core": "6.4.3",
@@ -45,12 +45,12 @@
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.25",
-    "resend": "^4.1.2",
     "awilix": "^8.0.1",
     "pg": "^8.13.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "resend": "^4.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
     "vite": "^5.2.11",
@@ -60,21 +60,24 @@
     "@medusajs/admin-sdk": "2.4.0",
     "@medusajs/cli": "2.4.0",
     "@medusajs/framework": "2.4.0",
-    "@medusajs/test-utils": "2.4.0",
-    "@medusajs/medusa": "2.4.0",
-    "@medusajs/ui": "4.0.3",
     "@medusajs/icons": "2.4.0",
+    "@medusajs/medusa": "2.4.0",
+    "@medusajs/test-utils": "2.4.0",
+    "@medusajs/ui": "4.0.3",
+    "@mercurjs/framework": "*",
     "@mikro-orm/cli": "6.4.3",
     "@mikro-orm/core": "6.4.3",
     "@mikro-orm/knex": "6.4.3",
     "@mikro-orm/migrations": "6.4.3",
     "@mikro-orm/postgresql": "6.4.3",
-    "@mercurjs/framework": "*",
-    "resend": "^4.1.2",
     "awilix": "^8.0.1",
-    "pg": "^8.13.0"
+    "pg": "^8.13.0",
+    "resend": "^4.1.2"
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "resend": "^4.1.2"
   }
 }
