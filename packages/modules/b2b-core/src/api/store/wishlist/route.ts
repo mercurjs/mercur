@@ -3,9 +3,16 @@ import {
   MedusaResponse,
   container,
 } from "@medusajs/framework";
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import {
+  ContainerRegistrationKeys,
+  getTotalVariantAvailability,
+  getVariantAvailability,
+} from "@medusajs/framework/utils";
 
-import { calculateWishlistProductsPrice } from "../../../modules/wishlist/utils";
+import {
+  calculateWishlistProductsPrice,
+  getTotalVariantAvailabilityForWishlist,
+} from "../../../modules/wishlist/utils";
 
 import customerWishlist from "../../../links/customer-wishlist";
 import { createWishlistEntryWorkflow } from "../../../workflows/wishlist/workflows";
@@ -149,7 +156,7 @@ export const GET = async (
     entity: customerWishlist.entryPoint,
     fields: [
       ...req.queryConfig.fields.map((field) => `wishlist.products.${field}`),
-      "wishlist.products.variants.prices.*",
+      "wishlist.products.variants.*",
     ],
     filters: {
       customer_id: req.auth_context.actor_id,
@@ -161,9 +168,13 @@ export const GET = async (
     container,
     wishlists
   );
+  const [wishlistProducts] = await getTotalVariantAvailabilityForWishlist(
+    formattedWithPrices as any[],
+    query
+  );
 
   res.json({
-    wishlists: formattedWithPrices,
+    wishlists: wishlistProducts,
     count: metadata?.count,
     offset: metadata?.skip,
     limit: metadata?.take,
