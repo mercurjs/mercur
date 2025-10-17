@@ -16,7 +16,7 @@
     "build": "medusa build && ln -s .medusa/server/public/ public",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start --types=false",
-    "dev": "CHOKIDAR_USEPOLLING=1 CHOKIDAR_INTERVAL=300 nodemon --verbose --legacy-watch --signal SIGTERM -e js,json,ts -w src -w ../../packages/modules/b2b-core --exec \"medusa develop --types=false\"",
+    "dev": "CHOKIDAR_USEPOLLING=1 CHOKIDAR_INTERVAL=300 nodemon --verbose --legacy-watch --signal SIGTERM -e js,json,ts -w src -w ../../packages/modules --exec \"medusa develop --types=false\"",
     "db:migrate": "medusa db:migrate",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
