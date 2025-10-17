@@ -17,7 +17,7 @@ module.exports = defineConfig({
   },
   plugins: [
     {
-      resolve: '@mercurjs/b2c-core',
+      resolve: '@mercurjs/b2b-core',
       options: {}
     },
     {
