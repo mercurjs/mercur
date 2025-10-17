@@ -1,8 +1,11 @@
 import { MedusaContainer } from "@medusajs/framework";
 import { IPricingModuleService } from "@medusajs/framework/types";
-import { Modules } from "@medusajs/framework/utils";
+import {
+  getTotalVariantAvailability,
+  Modules,
+} from "@medusajs/framework/utils";
 
-import { WishlistItem } from "@mercurjs/framework";
+import { Wishlist, WishlistItem } from "@mercurjs/framework";
 
 export async function getWishlistFromCustomerId(
   container: MedusaContainer,
@@ -23,6 +26,41 @@ export async function getWishlistFromCustomerId(
   return wishlist;
 }
 
+export async function getTotalVariantAvailabilityForWishlist(
+  wishlists: Wishlist[],
+  query: any
+) {
+  return await Promise.all(
+    wishlists.map(async (wishlist) => {
+      const variantIds = wishlist.products
+        .map((p) => p.variants.map((v) => v.id))
+        .flat();
+
+      const availability = await getTotalVariantAvailability(query, {
+        variant_ids: variantIds,
+      });
+
+      const formattedWishlist = wishlist.products
+        .map((p) => {
+          p.variants = p.variants.map((variant) => {
+            if (!variant.manage_inventory) {
+              return variant;
+            }
+
+            return {
+              ...variant,
+              inventory_quantity: availability[variant.id].availability,
+            };
+          });
+          return p;
+        })
+        .flat();
+
+      return formattedWishlist;
+    })
+  );
+}
+
 export async function calculateWishlistProductsPrice(
   container: MedusaContainer,
   wishlists: WishlistItem[]
@@ -39,7 +77,7 @@ export async function calculateWishlistProductsPrice(
 
         return {
           ...productData,
-          variant_id: variant?.id,
+          variants: variants,
           price_set_id: price?.price_set_id,
           currency_code: price?.currency_code,
         };
