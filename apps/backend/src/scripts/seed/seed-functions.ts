@@ -13,21 +13,22 @@ import {
   createStockLocationsWorkflow,
   createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
-  updateStoresWorkflow
+  updateStoresWorkflow,
+  updateTaxRegionsWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import { SELLER_MODULE } from '@mercurjs/b2c-core/modules/seller'
 import {
-  CONFIGURATION_MODULE,
-  ConfigurationModuleService,
-  ConfigurationRuleDefaults
-} from '@mercurjs/configuration'
-import { SELLER_MODULE } from '@mercurjs/seller'
+  createConfigurationRuleWorkflow,
+  createLocationFulfillmentSetAndAssociateWithSellerWorkflow,
+  createSellerWorkflow
+} from '@mercurjs/b2c-core/workflows'
+import { createCommissionRuleWorkflow } from '@mercurjs/commission/workflows'
+import {
+  ConfigurationRuleDefaults,
+  SELLER_SHIPPING_PROFILE_LINK
+} from '@mercurjs/framework'
 
-import sellerShippingProfile from '../../links/seller-shipping-profile'
-import { createCommissionRuleWorkflow } from '../../workflows/commission/workflows'
-import { createConfigurationRuleWorkflow } from '../../workflows/configuration/workflows'
-import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../workflows/fulfillment-set/workflows'
-import { createSellerWorkflow } from '../../workflows/seller/workflows'
 import { productsToInsert } from './seed-products'
 
 const countries = ['be', 'de', 'dk', 'se', 'fr', 'es', 'it', 'pl', 'cz', 'nl']
@@ -102,10 +103,17 @@ export async function createRegions(container: MedusaContainer) {
     }
   })
 
-  await createTaxRegionsWorkflow(container).run({
+  const { result: taxRegions } = await createTaxRegionsWorkflow(container).run({
     input: countries.map((country_code) => ({
       country_code
     }))
+  })
+
+  await updateTaxRegionsWorkflow(container).run({
+    input: taxRegions.map((taxRegion => ({
+      id: taxRegion.id,
+      provider_id: 'tp_system'
+    })))
   })
 
   return region
@@ -367,7 +375,7 @@ export async function createSellerShippingOption(
   const {
     data: [shippingProfile]
   } = await query.graph({
-    entity: sellerShippingProfile.entryPoint,
+    entity: SELLER_SHIPPING_PROFILE_LINK,
     fields: ['shipping_profile_id'],
     filters: {
       seller_id: sellerId
@@ -507,22 +515,13 @@ export async function createDefaultCommissionLevel(container: MedusaContainer) {
 }
 
 export async function createConfigurationRules(container: MedusaContainer) {
-  const configurationService =
-    container.resolve<ConfigurationModuleService>(CONFIGURATION_MODULE)
-
   for (const [ruleType, isEnabled] of ConfigurationRuleDefaults) {
-    const [existingRule] = await configurationService.listConfigurationRules({
-      rule_type: ruleType
+    await createConfigurationRuleWorkflow.run({
+      container,
+      input: {
+        rule_type: ruleType,
+        is_enabled: isEnabled
+      }
     })
-
-    if (!existingRule) {
-      await createConfigurationRuleWorkflow.run({
-        container,
-        input: {
-          rule_type: ruleType,
-          is_enabled: isEnabled
-        }
-      })
-    }
   }
 }
