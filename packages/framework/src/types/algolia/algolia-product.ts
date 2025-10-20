@@ -99,6 +99,14 @@ export const AlgoliaVariantValidator = z.object({
   height: z.number().nullish(),
   wifth: z.number().nullish(),
   variant_rank: z.number().nullish(),
+  product_variant_images: z
+    .array(
+      z.object({
+        id: z.string(),
+        url: z.string(),
+      })
+    )
+    .optional(),
   options: z.array(
     z.object({
       id: z.string(),
