@@ -5,6 +5,7 @@ import { BuyerCancelOrderEmailTemplate } from "./buyer-cancel-order";
 import { BuyerNewOrderEmailTemplate } from "./buyer-new-order";
 import { BuyerOrderShippedEmailTemplate } from "./buyer-shipped-order";
 import { ForgotPasswordEmailTemplate } from "./forgot-password";
+import { NewAdminInviteEmailTemplate } from "./new-admin-invitation";
 import { NewSellerInviteEmailTemplate } from "./new-seller-invitation";
 import { SellerAccountApprovedEmailTemplate } from "./seller-account-approved";
 import { SellerAccountRejectedEmailTemplate } from "./seller-account-rejected";
@@ -33,6 +34,7 @@ export const emailTemplates: any = {
   sellerTeamInviteEmailTemplate: SellerTeamInviteEmailTemplate,
   sellerVerifyEmailTemplate: SellerEmailVerifyEmailTemplate,
   newSellerInvitation: NewSellerInviteEmailTemplate,
+  newAdminInvitation: NewAdminInviteEmailTemplate,
   sellerProductRejectedEmailTemplate: SellerProductRejectedEmailTemplate,
   sellerProductApprovedEmailTemplate: SellerProductApprovedEmailTemplate,
   adminRequestCreatedEmailTemplate: AdminRequestCreatedEmailTemplate,
