@@ -75,12 +75,6 @@ export async function createStore(
     input: {
       selector: { id: store.id },
       update: {
-        supported_currencies: [
-          {
-            currency_code: 'eur',
-            is_default: true
-          }
-        ],
         default_sales_channel_id: salesChannelId,
         default_region_id: regionId
       }
@@ -110,10 +104,10 @@ export async function createRegions(container: MedusaContainer) {
   })
 
   await updateTaxRegionsWorkflow(container).run({
-    input: taxRegions.map((taxRegion => ({
+    input: taxRegions.map((taxRegion) => ({
       id: taxRegion.id,
       provider_id: 'tp_system'
-    })))
+    }))
   })
 
   return region
