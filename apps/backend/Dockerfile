@@ -51,6 +51,4 @@ COPY --from=installer /app .
 
 WORKDIR /app/apps/backend
 
-RUN yarn db:migrate
-
 CMD ["yarn", "start"]
