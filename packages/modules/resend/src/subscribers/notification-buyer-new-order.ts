@@ -27,6 +27,7 @@ export default async function orderCreatedHandler({
       "shipping_address.*",
       "shipping_methods.*",
       "summary.*",
+      "order_set.*"
     ],
     filters: {
       id: event.data.id,
@@ -50,7 +51,7 @@ export default async function orderCreatedHandler({
         order_id: order.id,
         order_address: buildHostAddress(
           Hosts.STOREFRONT,
-          `/user/orders/${order.id}`
+          `/user/orders/${order.order_set.id ?? order.id}`
         ).toString(),
         order: {
           ...order,
