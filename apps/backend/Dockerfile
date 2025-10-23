@@ -43,6 +43,7 @@ FROM base AS installer
 RUN apk update
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
+RUN yarn global add turbo
 
 # Set environment variables from build args
 ENV ADMIN_CORS=$ADMIN_CORS
