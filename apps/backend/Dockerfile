@@ -125,4 +125,6 @@ RUN chown -R medusa:medusa /app/apps/backend
 USER medusa
 COPY --from=installer /app .
 
+WORKDIR /app/apps/backend
+
 CMD ["yarn", "start"]
