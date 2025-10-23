@@ -6,6 +6,7 @@ import {
   acceptProductTypeRequestWorkflow,
   acceptReviewRemoveRequestWorkflow,
   acceptSellerCreationRequestWorkflow,
+  updateRequestWorkflow,
 } from "../workflows";
 
 const workflowMap: Record<string, any> = {
@@ -21,4 +22,4 @@ const workflowMap: Record<string, any> = {
 };
 
 export const getRequestWorkflowByType = (type: string) =>
-  workflowMap[type] ?? null;
+  workflowMap[type] ?? updateRequestWorkflow;
