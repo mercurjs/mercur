@@ -12,6 +12,7 @@ export const AdminGetRequestsParams = createFindParams({
       'product_collection',
       'product_category',
       'product',
+      'product_import',
       'seller',
       'review_remove',
       'product_type',
