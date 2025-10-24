@@ -24,7 +24,8 @@
     "format": "prettier --write .",
     "lint": "eslint ./src ",
     "lint:fix": "eslint ./src --fix ",
-    "generate:oas": "medusa-oas oas --type combined --paths ./src/api"
+    "generate:oas": "medusa-oas oas --type combined --paths ./src/api",
+    "create:test:user": "medusa user -e test@mercur.com -p test1234"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.7.0",
