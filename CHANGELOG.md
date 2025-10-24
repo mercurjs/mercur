@@ -11,27 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Added Stripe connection trigger**
+- **Added Stripe connection trigger** (@vholik)
 
 ### Changed
 
-- **Extracted Admin Panel into a separate repository**
+- **Extracted Admin Panel into a separate repository** (@mikolvj)
 
 ### Fixed
 
-- **Vendors can now see correct inventory on product details pages (Issue [#175])**
-- **Vendors can now edit stock locations without issues**
-- **Storefront now displays correct delivery amount for each order**
-- **Storefront now displays full product names and selected variants at checkout**
-- **Storefront now displays promotion codes correctly in the cart**
-- **Storefront now validates product stock levels and prevents adding out-of-stock products to cart**
-- **Improved product quantity selection in cart**
-- **Improved variant selection on storefront product pages**
-- **Product listing pagination now works correctly on storefront**
-- **Product listing price filter now works correctly on storefront**
-- **Fixed blinking error messages at checkout**
-- **Fixed errors on message page in Admin Panel**
-- **Fixed screen swiping issues in product detail page specific section**
+- **Vendors can now see correct inventory on product details pages (Issue [#175])** (@AlanJanicki)
+- **Vendors can now edit stock locations without issues** (@AlanJanicki)
+- **Storefront now displays correct delivery amount for each order** (@AlanJanicki)
+- **Storefront now displays full product names and selected variants at checkout** (@Si3r4dz)
+- **Storefront now displays promotion codes correctly in the cart** (@Si3r4dz)
+- **Storefront now validates product stock levels and prevents adding out-of-stock products to cart** (@AlanJanicki, @pfulara)
+- **Improved product quantity selection in cart** (@Si3r4dz)
+- **Improved variant selection on storefront product pages** (@AlanJanicki)
+- **Product listing price filter now works correctly on storefront** (@AlanJanicki)
+- **Fixed blinking error messages at checkout** (@AlanJanicki)
+- **Fixed errors on message page in Admin Panel** (@AlanJanicki)
+- **Fixed screen swiping issues in product detail page specific section** (@Si3r4dz)
 
 ## [1.1.0] - 2025-09-19
 
