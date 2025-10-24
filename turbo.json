@@ -1,26 +1,22 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "tasks": {
-    "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**"
-      ]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "generate:oas": {
-      "cache": false
-    },
-    "lint": {
-      "cache": false
-    },
-    "format": {
-      "cache": false
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": ["dist/**", ".medusa/**", "public/**"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"generate:oas": {
+			"cache": false
+		},
+		"lint": {
+			"cache": false
+		},
+		"format": {
+			"cache": false
+		}
+	}
 }

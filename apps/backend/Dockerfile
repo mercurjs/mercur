@@ -84,7 +84,9 @@ COPY --from=builder /app/out/full/ .
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
 
-RUN turbo build
+# Build the API
+WORKDIR /app/apps/backend
+RUN yarn build
 
 FROM base AS runner
 WORKDIR /app
@@ -123,8 +125,16 @@ RUN mkdir -p /app/apps/backend/static
 RUN chown -R medusa:medusa /app/apps/backend
 
 USER medusa
-COPY --from=installer /app .
 
-WORKDIR /app/apps/backend
+# Copy built application from installer stage
+COPY --from=installer /app/apps/backend/.medusa/server ./
+COPY --from=installer /app/node_modules ./node_modules
+COPY --from=installer /app/apps/backend/package.json ./package.json
+
+# Copy necessary config files
+COPY --from=installer /app/apps/backend/medusa-config.ts ./medusa-config.ts
+COPY --from=installer /app/apps/backend/tsconfig.json ./tsconfig.json
+
+WORKDIR /app
 
 CMD ["yarn", "start"]
