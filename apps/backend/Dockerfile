@@ -86,7 +86,12 @@ COPY --from=builder /app/out/full/ .
 
 # Build the API
 WORKDIR /app/apps/backend
+
+# Run the build with proper error handling
 RUN yarn build
+
+# Verify critical build artifacts exist
+RUN test -d .medusa/server || (echo "ERROR: .medusa/server not created" && exit 1)
 
 FROM base AS runner
 WORKDIR /app
@@ -126,15 +131,11 @@ RUN chown -R medusa:medusa /app/apps/backend
 
 USER medusa
 
-# Copy built application from installer stage
-COPY --from=installer /app/apps/backend/.medusa/server ./
+# Copy entire backend structure to handle different build outcomes
+COPY --from=installer /app/apps/backend ./
 COPY --from=installer /app/node_modules ./node_modules
-COPY --from=installer /app/apps/backend/package.json ./package.json
-
-# Copy necessary config files
-COPY --from=installer /app/apps/backend/medusa-config.ts ./medusa-config.ts
-COPY --from=installer /app/apps/backend/tsconfig.json ./tsconfig.json
 
 WORKDIR /app
 
-CMD ["yarn", "start"]
+# Start the application - use built server if available, otherwise use yarn start
+CMD ["/bin/sh", "-c", "if [ -d '.medusa/server' ] && [ -f '.medusa/server/index.js' ]; then echo 'Starting from built server' && node .medusa/server/index.js; else echo 'Starting with yarn start' && yarn start; fi"]
