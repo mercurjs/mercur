@@ -3,15 +3,26 @@
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": ["dist/**", ".medusa/**", "public/**"]
+			"outputs": ["dist/**"]
 		},
+
+		"test": {
+			"cache": false
+		},
+
 		"dev": {
 			"cache": false,
 			"persistent": true
 		},
+
 		"generate:oas": {
 			"cache": false
 		},
+		"codegen": {
+			"cache": false,
+			"dependsOn": ["generate:oas"]
+		},
+
 		"lint": {
 			"cache": false
 		},

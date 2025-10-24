@@ -3,7 +3,37 @@ FROM node:20-alpine AS base
 # The web Dockerfile is copy-pasted into our main docs at /docs/handbook/deploying-with-docker.
 # Make sure you update this Dockerfile, the Dockerfile in the web workspace and copy that over to Dockerfile in the docs.
 
-# Accept build arguments for environment variables
+FROM base AS builder
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk update
+RUN apk add --no-cache libc6-compat
+# Set working directory
+WORKDIR /app
+RUN yarn global add turbo
+COPY . .
+RUN turbo prune api --docker
+
+# Add lockfile and package.json's of isolated subworkspace
+FROM base AS installer
+RUN apk update
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# First install dependencies (as they change less often)
+COPY --from=builder /app/out/json/ .
+RUN yarn install
+
+# Build the project and its dependencies
+COPY --from=builder /app/out/full/ .
+
+# Uncomment and use build args to enable remote caching
+# ARG TURBO_TEAM
+# ENV TURBO_TEAM=$TURBO_TEAM
+
+# ARG TURBO_TOKEN
+# ENV TURBO_TOKEN=$TURBO_TOKEN
+
+# All environment variables configuration
 ARG ADMIN_CORS
 ARG ALGOLIA_API_KEY
 ARG ALGOLIA_APP_ID
@@ -27,23 +57,6 @@ ARG VENDOR_CORS
 ARG VENDOR_PANEL_URL
 ARG VITE_TALK_JS_APP_ID
 ARG VITE_TALK_JS_SECRET_API_KEY
-
-FROM base AS builder
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk update
-RUN apk add --no-cache libc6-compat
-# Set working directory
-WORKDIR /app
-RUN yarn global add turbo
-COPY . .
-RUN turbo prune api --docker
-
-# Add lockfile and package.json's of isolated subworkspace
-FROM base AS installer
-RUN apk update
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-RUN yarn global add turbo
 
 # Set environment variables from build args
 ENV ADMIN_CORS=$ADMIN_CORS
@@ -70,28 +83,7 @@ ENV VENDOR_PANEL_URL=$VENDOR_PANEL_URL
 ENV VITE_TALK_JS_APP_ID=$VITE_TALK_JS_APP_ID
 ENV VITE_TALK_JS_SECRET_API_KEY=$VITE_TALK_JS_SECRET_API_KEY
 
-# First install dependencies (as they change less often)
-COPY --from=builder /app/out/json/ .
-RUN yarn install
-
-# Build the project and its dependencies
-COPY --from=builder /app/out/full/ .
-
-# Uncomment and use build args to enable remote caching
-# ARG TURBO_TEAM
-# ENV TURBO_TEAM=$TURBO_TEAM
-
-# ARG TURBO_TOKEN
-# ENV TURBO_TOKEN=$TURBO_TOKEN
-
-# Build the API
-WORKDIR /app/apps/backend
-
-# Run the build with proper error handling
-RUN yarn build
-
-# Verify critical build artifacts exist
-RUN test -d .medusa/server || (echo "ERROR: .medusa/server not created" && exit 1)
+RUN yarn turbo build
 
 FROM base AS runner
 WORKDIR /app
@@ -130,12 +122,8 @@ RUN mkdir -p /app/apps/backend/static
 RUN chown -R medusa:medusa /app/apps/backend
 
 USER medusa
+COPY --from=installer /app .
 
-# Copy entire backend structure to handle different build outcomes
-COPY --from=installer /app/apps/backend ./
-COPY --from=installer /app/node_modules ./node_modules
+WORKDIR /app/apps/backend
 
-WORKDIR /app
-
-# Start the application - use built server if available, otherwise use yarn start
-CMD ["/bin/sh", "-c", "if [ -d '.medusa/server' ] && [ -f '.medusa/server/index.js' ]; then echo 'Starting from built server' && node .medusa/server/index.js; else echo 'Starting with yarn start' && yarn start; fi"]
+CMD ["yarn", "start"]
