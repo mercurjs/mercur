@@ -13,6 +13,7 @@ export enum ResendNotificationTemplates {
   SELLER_VERIFY_EMAIL_TEMPLATE = "sellerVerifyEmailTemplate",
   FORGOT_PASSWORD = "forgotPasswordEmailTemplate",
   NEW_SELLER_INVITATION = "newSellerInvitation",
+  NEW_ADMIN_INVITATION = "newAdminInvitation",
   SELLER_PRODUCT_APPROVED = "sellerProductApprovedEmailTemplate",
   SELLER_PRODUCT_REJECTED = "sellerProductRejectedEmailTemplate",
   ADMIN_REQUEST_CREATED = "adminRequestCreatedEmailTemplate",
