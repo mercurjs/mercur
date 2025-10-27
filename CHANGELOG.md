@@ -32,6 +32,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Fixed errors on message page in Admin Panel** (@AlanJanicki)
 - **Fixed screen swiping issues in product detail page specific section** (@Si3r4dz)
 
+
+## [1.3.0] 2025-10-15
+
+### Release 1.3.0 - B2C Marketplace
+
+### Changed
+
+- **Mercur v1.3.0 introduces a fundamental architectural shift to a plugin-based system, transforming how Mercur is installed and maintained.**
+- **Cleaner separation between Medusa core and Mercur extensions**
+- **Easier updates and maintenance through modular architecture**
+- **Independent versioning for different components
+Details: divide Mercur into plugins by @rigbyms in https://github.com/mercurjs/mercur/pull/410
+Read more in our [docs page](https://docs.mercurjs.com/components/backend).**
+
+### Enhanced CLI tooling:
+
+- **New Mercur CLI (https://www.npmjs.com/package/mercur-cli) for automated setup**
+- **Handles Medusa instance creation**
+- **Automatic Mercur integration**
+- **Simplified configuration process**
+
+### Others:
+- **Fix: Link tax regions to system tax provider by @NicolasGorga in https://github.com/mercurjs/mercur/pull/405**
+
+
 ## [1.1.0] - 2025-09-19
 
 ### Release 1.1.0 - B2C Marketplace
