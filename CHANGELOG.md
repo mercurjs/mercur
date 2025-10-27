@@ -5,6 +5,33 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-10-27
+
+### Release 1.4.0 - B2C Marketplace
+
+### Added
+
+- **Added Stripe connection trigger** (@vholik)
+
+### Changed
+
+- **Extracted Admin Panel into a separate repository** (@mikolvj)
+
+### Fixed
+
+- **Vendors can now see correct inventory on product details pages (Issue [#175])** (@AlanJanicki)
+- **Vendors can now edit stock locations without issues** (@AlanJanicki)
+- **Storefront now displays correct delivery amount for each order** (@AlanJanicki)
+- **Storefront now displays full product names and selected variants at checkout** (@Si3r4dz)
+- **Storefront now displays promotion codes correctly in the cart** (@Si3r4dz)
+- **Storefront now validates product stock levels and prevents adding out-of-stock products to cart** (@AlanJanicki, @pfulara)
+- **Improved product quantity selection in cart** (@Si3r4dz)
+- **Improved variant selection on storefront product pages** (@AlanJanicki)
+- **Product listing price filter now works correctly on storefront** (@AlanJanicki)
+- **Fixed blinking error messages at checkout** (@AlanJanicki)
+- **Fixed errors on message page in Admin Panel** (@AlanJanicki)
+- **Fixed screen swiping issues in product detail page specific section** (@Si3r4dz)
+
 ## [1.1.0] - 2025-09-19
 
 ### Release 1.1.0 - B2C Marketplace
@@ -37,8 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Marketplace administrators can now review vendors' product updates before publishing them** ([#340](https://github.com/mercurjs/mercur/pull/340) @WojciechPlodzien)
 - **The vendor details page was fixed as it was not loading properly in rare cases** ([#359](https://github.com/mercurjs/mercur/pull/359) @slusarczykmichal)
 - **Fixed vendor reviews query to prevent query errors** ([#361](https://github.com/mercurjs/mercur/pull/361) @slusarczykmichal)
-
-
 
 ## [1.0.0] - 2025-06-23
 
