@@ -146,7 +146,7 @@ export async function findAndTransformAlgoliaProducts(
     context: {
       variants: {
         calculated_price: QueryContext({
-          currency_code: region?.currency_code ?? 'aud'
+          currency_code: region?.currency_code ?? 'eur'
         })
       }
     },
