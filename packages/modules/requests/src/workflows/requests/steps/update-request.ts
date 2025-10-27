@@ -13,6 +13,6 @@ export const updateRequestStep = createStep(
 
     const request = await service.updateRequests(input);
 
-    return new StepResponse(request[0], request[0].id);
+    return new StepResponse(request, request.id);
   }
 );
