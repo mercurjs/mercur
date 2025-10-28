@@ -8,6 +8,7 @@ import { Link } from "@medusajs/framework/modules-sdk";
 import { SECONDARY_CATEGORY_MODULE } from "../../modules/secondary_categories";
 import { getSecondaryCategories } from "./product-created";
 import SecondaryCategoryModuleService from "../../modules/secondary_categories/service";
+import secondaryCategoryProduct from "../../links/secondary-category-product";
 
 type ProductLike = { id: string };
 type SecCatEntry = {
@@ -25,6 +26,7 @@ export const updateProductSubcategories = async (
   const link: Link = container.resolve(ContainerRegistrationKeys.LINK);
   const secondaryCategoryService: SecondaryCategoryModuleService =
     container.resolve(SECONDARY_CATEGORY_MODULE);
+  const query = container.resolve(ContainerRegistrationKeys.QUERY);
 
   const entries = additional_data?.secondary_categories ?? [];
   if (!entries.length || !products?.length) return;
@@ -54,20 +56,35 @@ export const updateProductSubcategories = async (
       if (toRemoveIds.length) {
         await Promise.all(
           toRemoveIds.map(async (secId) => {
-            const [secondaryCategory] =
+            const secondaryCategories =
               await secondaryCategoryService.listSecondaryCategories({
-                category_id: secId,
-              });
+                category_id: secId
+              })
+
+            const {
+              data: [secondaryCategoryLink]
+            } = await query.graph({
+              entity: secondaryCategoryProduct.entryPoint,
+              fields: ['secondary_category_id'],
+              filters: {
+                secondary_category_id: secondaryCategories.map(
+                  (secondaryCategory) => secondaryCategory.id
+                ),
+                product_id: product.id
+              }
+            })
+
             link
               .dismiss({
                 [Modules.PRODUCT]: { product_id: product.id },
                 [SECONDARY_CATEGORY_MODULE]: {
-                  secondary_category_id: secondaryCategory.id,
-                },
+                  secondary_category_id:
+                    secondaryCategoryLink.secondary_category_id
+                }
               })
-              .catch(() => {});
+              .catch(() => {})
           })
-        );
+        )
       }
 
       if (confirmedAddIds.length) {
