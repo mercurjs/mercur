@@ -28,6 +28,10 @@ export default async function sellerProductRequestAcceptedHandler({
     return;
   }
 
+  if (productRequest.reviewer_id === "system") {
+    return;
+  }
+
   const {
     data: [member],
   } = await query.graph({
