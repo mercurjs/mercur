@@ -120,4 +120,38 @@ export const AlgoliaVariantValidator = z.object({
       amount: z.number(),
     })
   ),
+  calculated_price: z
+  .object({
+    id: z.string(),
+    is_calculated_price_price_list: z.boolean(),
+    is_calculated_price_tax_inclusive: z.boolean(),
+    calculated_amount: z.number(),
+    raw_calculated_amount: z.object({
+      value: z.string(),
+      precision: z.number(),
+    }),
+    is_original_price_price_list: z.boolean(),
+    is_original_price_tax_inclusive: z.boolean(),
+    original_amount: z.number(),
+    raw_original_amount: z.object({
+      value: z.string(),
+      precision: z.number(),
+    }),
+    currency_code: z.string(),
+    calculated_price: z.object({
+      id: z.string(),
+      price_list_id: z.string().nullish(),
+      price_list_type: z.string().nullish(),
+      min_quantity: z.number().nullish(),
+      max_quantity: z.number().nullish(),
+    }),
+    original_price: z.object({
+      id: z.string(),
+      price_list_id: z.string().nullish(),
+      price_list_type: z.string().nullish(),
+      min_quantity: z.number().nullish(),
+      max_quantity: z.number().nullish(),
+    }),
+  })
+  .nullish(),
 });
