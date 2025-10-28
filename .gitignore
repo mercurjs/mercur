@@ -39,3 +39,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+#from yarn build
+apps/backend/public
