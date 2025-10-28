@@ -27,15 +27,21 @@ export default async function orderCreatedHandler({
       "shipping_address.*",
       "shipping_methods.*",
       "summary.*",
+      "order_set.*"
     ],
     filters: {
       id: event.data.id,
     },
   });
 
-  if (!order) {
+  if (!order ) {
     return;
   }
+
+  const orderUrl = buildHostAddress(
+    Hosts.STOREFRONT,
+    `/user/orders/${order.order_set.id ?? order.id}`
+  ).toString();
 
   await notificationService.createNotifications({
     to: order.email,
@@ -48,10 +54,7 @@ export default async function orderCreatedHandler({
       data: {
         user_name: order.customer?.first_name || "Customer",
         order_id: order.id,
-        order_address: buildHostAddress(
-          Hosts.STOREFRONT,
-          `/user/orders/${order.id}`
-        ).toString(),
+        order_address: orderUrl,
         order: {
           ...order,
           display_id: order.display_id,
