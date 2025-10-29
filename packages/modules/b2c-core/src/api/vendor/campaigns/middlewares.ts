@@ -15,6 +15,7 @@ import {
   VendorGetCampaignsParams,
   VendorUpdateCampaign
 } from './validators'
+import { createLinkBody } from '@medusajs/medusa/api/utils/validators'
 
 export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
   {
@@ -77,5 +78,16 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
         vendorCampaignQueryConfig.retrieve
       )
     ]
-  }
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/campaigns/:id/promotions",
+    middlewares: [
+      validateAndTransformBody(createLinkBody()),
+      validateAndTransformQuery(
+        VendorGetCampaignsParams,
+        vendorCampaignQueryConfig.retrieve
+      ),
+    ],
+  },
 ]
