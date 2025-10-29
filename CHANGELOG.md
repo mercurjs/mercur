@@ -5,6 +5,12 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2025-10-29
+
+### Fixed
+
+- **Fixed incorrect migration script (Issue [#439])**
+
 ## [1.4.0] - 2025-10-27
 
 ### Release 1.4.0 - B2C Marketplace
@@ -32,7 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Fixed errors on message page in Admin Panel** (@AlanJanicki)
 - **Fixed screen swiping issues in product detail page specific section** (@Si3r4dz)
 
-
 ## [1.3.0] 2025-10-15
 
 ### Release 1.3.0 - B2C Marketplace
@@ -43,8 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Cleaner separation between Medusa core and Mercur extensions**
 - **Easier updates and maintenance through modular architecture**
 - **Independent versioning for different components
-Details: divide Mercur into plugins by @rigbyms in https://github.com/mercurjs/mercur/pull/410
-Read more in our [docs page](https://docs.mercurjs.com/components/backend).**
+  Details: divide Mercur into plugins by @rigbyms in https://github.com/mercurjs/mercur/pull/410
+  Read more in our [docs page](https://docs.mercurjs.com/components/backend).**
 
 ### Enhanced CLI tooling:
 
@@ -54,8 +59,8 @@ Read more in our [docs page](https://docs.mercurjs.com/components/backend).**
 - **Simplified configuration process**
 
 ### Others:
-- **Fix: Link tax regions to system tax provider by @NicolasGorga in https://github.com/mercurjs/mercur/pull/405**
 
+- **Fix: Link tax regions to system tax provider by @NicolasGorga in https://github.com/mercurjs/mercur/pull/405**
 
 ## [1.1.0] - 2025-09-19
 
