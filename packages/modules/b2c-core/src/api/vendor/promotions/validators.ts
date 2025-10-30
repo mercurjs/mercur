@@ -1,26 +1,33 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 import {
   ApplicationMethodAllocation,
   ApplicationMethodTargetType,
   ApplicationMethodType,
   PromotionStatus,
-  PromotionType
-} from '@medusajs/framework/utils'
+  PromotionType,
+  RuleType,
+} from "@medusajs/framework/utils";
+import {
+  ApplicationMethodTargetTypeValues,
+  ApplicationMethodTypeValues,
+  PromotionTypeValues,
+  RuleTypeValues,
+} from "@medusajs/types";
 import {
   createFindParams,
-  createSelectParams
-} from '@medusajs/medusa/api/utils/validators'
+  createSelectParams,
+} from "@medusajs/medusa/api/utils/validators";
 
-import { VendorCreateCampaign } from '../campaigns/validators'
+import { VendorCreateCampaign } from "../campaigns/validators";
 
 export type VendorGetPromotionsParamsType = z.infer<
   typeof VendorGetPromotionsParams
->
+>;
 export const VendorGetPromotionsParams = createFindParams({
   offset: 0,
-  limit: 50
-})
+  limit: 50,
+});
 
 /**
  * @schema VendorCreatePromotionRule
@@ -44,12 +51,12 @@ export const VendorGetPromotionsParams = createFindParams({
  */
 export const VendorCreatePromotionRule = z
   .object({
-    operator: z.enum(['in', 'eq']),
+    operator: z.enum(["in", "eq"]),
     description: z.string().nullish(),
     attribute: z.string(),
-    values: z.union([z.string(), z.array(z.string())])
+    values: z.union([z.string(), z.array(z.string())]),
   })
-  .strict()
+  .strict();
 
 /**
  * @schema VendorCreateApplicationMethod
@@ -98,9 +105,9 @@ export const VendorCreateApplicationMethod = z
     allocation: z.nativeEnum(ApplicationMethodAllocation),
     target_rules: z.array(VendorCreatePromotionRule),
     apply_to_quantity: z.number().nullish(),
-    buy_rules_min_quantity: z.number().nullish()
+    buy_rules_min_quantity: z.number().nullish(),
   })
-  .strict()
+  .strict();
 
 /**
  * @schema VendorCreatePromotion
@@ -134,7 +141,7 @@ export const VendorCreateApplicationMethod = z
  *     items:
  *       $ref: "#/components/schemas/VendorCreatePromotionRule"
  */
-export type VendorCreatePromotionType = z.infer<typeof VendorCreatePromotion>
+export type VendorCreatePromotionType = z.infer<typeof VendorCreatePromotion>;
 export const VendorCreatePromotion = z
   .object({
     code: z.string(),
@@ -144,9 +151,9 @@ export const VendorCreatePromotion = z
     campaign_id: z.string().nullish(),
     campaign: VendorCreateCampaign.optional(),
     application_method: VendorCreateApplicationMethod,
-    rules: z.array(VendorCreatePromotionRule).optional()
+    rules: z.array(VendorCreatePromotionRule).optional(),
   })
-  .strict()
+  .strict();
 
 /**
  * @schema VendorBatchPromotionRule
@@ -165,11 +172,11 @@ export const VendorCreatePromotion = z
  */
 export type VendorBatchPromotionRulesType = z.infer<
   typeof VendorBatchPromotionRules
->
+>;
 export const VendorBatchPromotionRules = z.object({
   create: z.array(VendorCreatePromotionRule).default([]),
-  delete: z.array(z.string()).default([])
-})
+  delete: z.array(z.string()).default([]),
+});
 
 /**
  * @schema VendorUpdateApplicationMethod
@@ -196,7 +203,7 @@ export const VendorBatchPromotionRules = z.object({
  */
 export type VendorUpdateApplicationMethodType = z.infer<
   typeof VendorUpdateApplicationMethod
->
+>;
 export const VendorUpdateApplicationMethod = z
   .object({
     description: z.string().nullish(),
@@ -204,9 +211,9 @@ export const VendorUpdateApplicationMethod = z
     max_quantity: z.number().nullish(),
     currency_code: z.string().nullish(),
     apply_to_quantity: z.number().nullish(),
-    buy_rules_min_quantity: z.number().nullish()
+    buy_rules_min_quantity: z.number().nullish(),
   })
-  .strict()
+  .strict();
 
 /**
  * @schema VendorUpdatePromotion
@@ -229,44 +236,51 @@ export const VendorUpdateApplicationMethod = z
  *   application_method:
  *     $ref: "#/components/schemas/VendorUpdateApplicationMethod"
  */
-export type VendorUpdatePromotionType = z.infer<typeof VendorUpdatePromotion>
+export type VendorUpdatePromotionType = z.infer<typeof VendorUpdatePromotion>;
 export const VendorUpdatePromotion = z
   .object({
     code: z.string().optional(),
     is_automatic: z.boolean().optional(),
     status: z.nativeEnum(PromotionStatus).optional(),
     campaign_id: z.string().nullish(),
-    application_method: VendorUpdateApplicationMethod.optional()
+    application_method: VendorUpdateApplicationMethod.optional(),
   })
-  .strict()
+  .strict();
 
 export type VendorGetPromotionsRuleValueParamsType = z.infer<
   typeof VendorGetPromotionsRuleValueParams
->
+>;
 export const VendorGetPromotionsRuleValueParams = createFindParams({
   limit: 100,
-  offset: 0
+  offset: 0,
 }).merge(
   z.object({
     q: z.string().optional(),
-    value: z.union([z.string(), z.array(z.string())]).optional()
+    value: z.union([z.string(), z.array(z.string())]).optional(),
   })
-)
+);
 
 export type VendorGetPromotionRuleParamsType = z.infer<
   typeof VendorGetPromotionRuleParams
->
+>;
 export const VendorGetPromotionRuleParams = z.object({
-  promotion_type: z.string().optional(),
-  application_method_type: z.string().optional()
-})
+  promotion_type: z.nativeEnum(PromotionType).optional(),
+  application_method_type: z.nativeEnum(ApplicationMethodType).optional(),
+});
 
 export type VendorGetPromotionRuleTypeParamsType = z.infer<
   typeof VendorGetPromotionRuleTypeParams
->
+>;
 export const VendorGetPromotionRuleTypeParams = createSelectParams().merge(
   z.object({
-    promotion_type: z.string().optional(),
-    application_method_type: z.string().optional()
+    promotion_type: z.nativeEnum(PromotionType).optional(),
+    application_method_type: z.nativeEnum(ApplicationMethodType).optional(),
   })
-)
+);
+
+export const VendorGetPromotionsRuleValuePathParams = z.object({
+  rule_type: z.nativeEnum(RuleType),
+  rule_attribute_id: z.string(),
+  promotion_type: z.nativeEnum(PromotionType).optional(),
+  application_method_type: z.nativeEnum(ApplicationMethodType).optional(),
+});
