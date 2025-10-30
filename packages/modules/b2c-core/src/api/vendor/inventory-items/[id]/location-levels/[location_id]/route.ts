@@ -195,6 +195,7 @@ export const DELETE = async (
   await deleteInventoryLevelWorkflow.run({
     input: {
       id: [levelId],
+      force: true,
     },
   })
 
