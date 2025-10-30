@@ -1,14 +1,17 @@
 import { MedusaContainer } from "@medusajs/framework";
-import { LinkDefinition } from "@medusajs/framework/types";
+import { LinkDefinition, ProductDTO } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
-import { StepResponse } from "@medusajs/workflows-sdk";
+import { StepResponse, WorkflowData } from "@medusajs/workflows-sdk";
 
 import { AlgoliaEvents } from "@mercurjs/framework";
 import { SELLER_MODULE } from "../../modules/seller";
 
 import sellerShippingProfile from "../../links/seller-shipping-profile";
 import { productsCreatedHookHandler } from "../attribute/utils";
+import { SECONDARY_CATEGORY_MODULE } from "../../modules/secondary_categories";
+import SecondaryCategoryModuleService from "../../modules/secondary_categories/service";
+import { ISecondaryCategory } from "../../modules/secondary_categories/types/ISecondaryCategory";
 
 const getVariantInventoryItemIds = async (
   variantId: string,
@@ -76,8 +79,96 @@ const assignDefaultSellerShippingProfile = async (
   });
 };
 
+export const getSecondaryCategories = async (
+  secondaryCategoriesIds: string[],
+  container
+) => {
+  const secondaryCategoryService: SecondaryCategoryModuleService =
+    container.resolve(SECONDARY_CATEGORY_MODULE);
+
+  const existingCategories =
+    await secondaryCategoryService.listSecondaryCategories({
+      category_id: secondaryCategoriesIds,
+    });
+
+  const existingMap = new Map<string, ISecondaryCategory>(
+    existingCategories.map((cat: ISecondaryCategory) => [cat.id, cat])
+  );
+
+  const results = [] as ISecondaryCategory[];
+
+  for (const id of secondaryCategoriesIds) {
+    if (existingMap.has(id)) {
+      results.push(existingMap.get(id)!);
+    } else {
+      const created = await secondaryCategoryService.createSecondaryCategories({
+        category_id: id,
+      });
+      results.push(created);
+    }
+  }
+
+  return results;
+};
+
+const createSecondaryCategories = async (
+  products: WorkflowData<ProductDTO[]>,
+  additional_data: {
+    secondary_categories: {
+      handle: string;
+      secondary_categories_ids: string[];
+    }[];
+  },
+  container: MedusaContainer
+) => {
+  const links: LinkDefinition[] = [];
+  products.map(async (product) => {
+    if ((additional_data as any)?.secondary_categories?.length > 0) {
+      const secondaryCategoriesIds =
+        additional_data.secondary_categories.find(
+          (s) => s.handle === product.handle
+        )?.secondary_categories_ids ?? [];
+
+      const mappedSecondaryCategories = await getSecondaryCategories(
+        secondaryCategoriesIds,
+        container
+      );
+
+      mappedSecondaryCategories.map((secondaryCategory) => {
+        links.push({
+          [Modules.PRODUCT]: {
+            product_id: product.id,
+          },
+          [SECONDARY_CATEGORY_MODULE]: {
+            secondary_category_id: secondaryCategory.id,
+          },
+        });
+      });
+
+      return links;
+    }
+  });
+
+  return links;
+};
+
 createProductsWorkflow.hooks.productsCreated(
-  async ({ products, additional_data }, { container }) => {
+  async (
+    {
+      products,
+      additional_data,
+    }: {
+      products: WorkflowData<ProductDTO[]>;
+      additional_data: {
+        seller_id: string | null;
+        secondary_categories: {
+          handle: string;
+          secondary_categories_ids: string[];
+        }[];
+      };
+    },
+    { container }
+  ) => {
     await productsCreatedHookHandler({
       products,
       additional_data,
@@ -92,14 +183,16 @@ createProductsWorkflow.hooks.productsCreated(
 
     const variants = products.map((p) => p.variants).flat();
 
-    const remoteLinks: LinkDefinition[] = products.map((product) => ({
-      [SELLER_MODULE]: {
-        seller_id: additional_data.seller_id,
-      },
-      [Modules.PRODUCT]: {
-        product_id: product.id,
-      },
-    }));
+    const remoteLinks: LinkDefinition[] = products.map((product) => {
+      return {
+        [SELLER_MODULE]: {
+          seller_id: additional_data.seller_id,
+        },
+        [Modules.PRODUCT]: {
+          product_id: product.id,
+        },
+      };
+    });
 
     for (const variant of variants) {
       if (variant.manage_inventory) {
@@ -121,6 +214,12 @@ createProductsWorkflow.hooks.productsCreated(
       }
     }
 
+    const secondaryCategories = await createSecondaryCategories(
+      products,
+      additional_data,
+      container
+    );
+
     await Promise.all(
       products.map((p) =>
         assignDefaultSellerShippingProfile(
@@ -131,7 +230,7 @@ createProductsWorkflow.hooks.productsCreated(
       )
     );
 
-    await remoteLink.create(remoteLinks);
+    await remoteLink.create([...remoteLinks, ...secondaryCategories]);
 
     await container.resolve(Modules.EVENT_BUS).emit({
       name: AlgoliaEvents.PRODUCTS_CHANGED,
