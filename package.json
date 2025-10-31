@@ -21,6 +21,9 @@
     "format": "turbo run format",
     "lint": "turbo run lint",
     "codegen": "cd .",
-    "generate:oas": "turbo run generate:oas"
+    "generate:oas": "turbo run generate:oas",
+    "clean:dirs": "rimraf --glob \"node_modules\" \"**/node_modules\" \"**/.turbo\" \"**/.medusa\" \"**/dist\"",
+    "reinstall": "yarn",
+    "clean-build": "yarn clean:dirs && yarn cache clean --force && yarn reinstall && yarn build"
   }
 }
