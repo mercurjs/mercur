@@ -104,6 +104,7 @@ mercur-cli dev
 - Node.js v20+
 - PostgreSQL
 - Git CLI
+- Nodemon
 
 # Resources
 
