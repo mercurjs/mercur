@@ -15,6 +15,9 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || 'supersecret'
     }
   },
+  featureFlags: {
+    index: true
+  },
   plugins: [
     {
       resolve: '@mercurjs/b2c-core',
@@ -82,6 +85,9 @@ module.exports = defineConfig({
           }
         ]
       }
+    },
+    {
+      resolve: '@medusajs/index'
     }
   ]
 })
