@@ -133,7 +133,6 @@ export async function findAndTransformAlgoliaProducts(
       'variants.options.*',
       'variants.options.prices.*',
       'variants.prices.*',
-      'variants.calculated_price.*',
       'options.*',
       'options.values.*',
       'images.*',
@@ -142,13 +141,6 @@ export async function findAndTransformAlgoliaProducts(
       'attribute_values.attribute.is_filterable',
       'attribute_values.attribute.ui_component'
     ],
-    context: {
-      variants: {
-        calculated_price: QueryContext({
-          currency_code: region?.currency_code ?? 'eur'
-        })
-      }
-    },
     filters: ids.length
       ? {
           id: ids,
