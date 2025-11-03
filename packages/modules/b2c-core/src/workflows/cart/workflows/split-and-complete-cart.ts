@@ -350,9 +350,9 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
 
       const orderEvents = transform({ createdOrders }, ({ createdOrders }) => ({
         eventName: OrderWorkflowEvents.PLACED,
-        data: createdOrders.map((order) => ({
-          id: order.id,
-        })),
+        data: {
+          order_ids: createdOrders.map((order) => order.id),
+        },
       }));
 
       parallelize(
