@@ -5,6 +5,48 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2025-11-03
+
+### Release 1.4.2 - B2C Marketplace
+
+### Changed
+
+- **Improved add-to-cart load time on Storefront** (@AlanJanicki)
+
+### Fixed
+
+#### Vendor Panel
+
+- **Vendors can now see the correct list of products (Issue [#173])** (@katPanek, @AlanJanicki)
+- **Vendors can now see the current product price during price list creation** (@AlanJanicki)
+- **Vendors can now see correct order item prices on the order details page** (@AlanJanicki)
+- **Vendors can now edit shipping options without issues** (@katPanek, @AlanJanicki)
+- **Vendors can now edit product attributes without issues (Issue [#380])** (@itariv, @AlanJanicki)
+- **Vendors can now edit additional product attributes without issues** (@kilias07)
+- **Vendors can now manage inventory item locations without issues** (@AlanJanicki)
+- **Fixed UI issue with suspended account** (@AlanJanicki)
+- **Fixed price lists table item status** (@katPanek)
+- **Fixed product variant edit drawer** (@katPanek)
+
+#### Admin Panel
+
+- **Admin can now manage refund reasons without issues (Issue [#440])** (@mikolvj)
+- **Fixed UI issue in the seller edition drawer** (@sylwia-werner)
+- **Fixed sellers table pagination** (@sylwia-werner)
+- **Fixed user invitation email issues** (@jakub-borek)
+
+#### Storefront
+
+- **Storefront listings now display new products without issues** (@itariv)
+- **Fixed UI issue on the review details page** (@AlanJanicki)
+- **Fixed UI issue with the product reviews section** (@AlanJanicki)
+- **Fixed cart first step saving issues** (@AlanJanicki)
+- **Fixed product carousel on the product details page** (@AlanJanicki)
+
+#### Other
+
+- **Fixed link targets in the order confirmation email template** (@itariv, @AlanJanicki)
+
 ## [1.4.1] - 2025-10-29
 
 ### Fixed

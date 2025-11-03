@@ -10,6 +10,8 @@ import {
   AlgoliaProductValidator,
   AlgoliaVariantValidator,
 } from "@mercurjs/framework";
+import { QueryContext } from "@medusajs/framework/utils";
+import { Modules } from "@medusajs/framework/utils";
 
 async function selectProductVariantsSupportedCountries(
   container: MedusaContainer,
@@ -113,34 +115,39 @@ export async function findAndTransformAlgoliaProducts(
   ids: string[] = []
 ) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
+
+  const regionService = container.resolve(Modules.REGION)
+
+  const [region] = await regionService.listRegions()
+
   const { data: products } = await query.graph({
-    entity: "product",
+    entity: 'product',
     fields: [
-      "*",
-      "categories.name",
-      "categories.id",
-      "collection.title ",
-      "tags.value",
-      "type.value",
-      "variants.*",
-      "variants.options.*",
-      "variants.options.prices.*",
-      "variants.prices.*",
-      "options.*",
-      "options.values.*",
-      "images.*",
-      "attribute_values.value",
-      "attribute_values.attribute.name",
-      "attribute_values.attribute.is_filterable",
-      "attribute_values.attribute.ui_component",
+      '*',
+      'categories.name',
+      'categories.id',
+      'collection.title ',
+      'tags.value',
+      'type.value',
+      'variants.*',
+      'variants.options.*',
+      'variants.options.prices.*',
+      'variants.prices.*',
+      'options.*',
+      'options.values.*',
+      'images.*',
+      'attribute_values.value',
+      'attribute_values.attribute.name',
+      'attribute_values.attribute.is_filterable',
+      'attribute_values.attribute.ui_component'
     ],
     filters: ids.length
       ? {
           id: ids,
-          status: "published",
+          status: 'published'
         }
-      : { status: "published" },
-  });
+      : { status: 'published' }
+  })
 
   for (const product of products) {
     product.average_rating = 0;

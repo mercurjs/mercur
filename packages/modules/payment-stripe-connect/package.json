@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/payment-stripe-connect",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "author": "MercurJS <hello@mercurjs.com> (https://mercurjs.com)",
   "repository": {
     "type": "git",
@@ -35,12 +35,12 @@
     "prepublishOnly": "medusa plugin:build"
   },
   "devDependencies": {
-    "@medusajs/admin-sdk": "2.8.6",
-    "@medusajs/cli": "2.8.6",
-    "@medusajs/framework": "2.8.6",
-    "@medusajs/icons": "2.8.6",
-    "@medusajs/medusa": "2.8.6",
-    "@medusajs/test-utils": "2.8.6",
+    "@medusajs/admin-sdk": "2.9.0",
+    "@medusajs/cli": "2.9.0",
+    "@medusajs/framework": "2.9.0",
+    "@medusajs/icons": "2.9.0",
+    "@medusajs/medusa": "2.9.0",
+    "@medusajs/test-utils": "2.9.0",
     "@medusajs/ui": "4.0.4",
     "@mercurjs/framework": "*",
     "@mikro-orm/cli": "6.4.3",
@@ -62,12 +62,12 @@
     "vite": "^5.2.11"
   },
   "peerDependencies": {
-    "@medusajs/admin-sdk": "2.8.6",
-    "@medusajs/cli": "2.8.6",
-    "@medusajs/framework": "2.8.6",
-    "@medusajs/icons": "2.8.6",
-    "@medusajs/medusa": "2.8.6",
-    "@medusajs/test-utils": "2.8.6",
+    "@medusajs/admin-sdk": "2.9.0",
+    "@medusajs/cli": "2.9.0",
+    "@medusajs/framework": "2.9.0",
+    "@medusajs/icons": "2.9.0",
+    "@medusajs/medusa": "2.9.0",
+    "@medusajs/test-utils": "2.9.0",
     "@medusajs/ui": "4.0.3",
     "@mercurjs/framework": "*",
     "@mikro-orm/cli": "6.4.3",

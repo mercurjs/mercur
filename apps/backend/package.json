@@ -14,6 +14,7 @@
   ],
   "scripts": {
     "build": "medusa build && ln -s .medusa/server/public/ public",
+    "build:windows": "medusa build && node -e \"const fs=require('fs');const path=require('path');const target='.medusa/server/public/';const link='public';try{if(fs.existsSync(link))fs.rmSync(link,{recursive:true,force:true});fs.symlinkSync(target,link,process.platform==='win32'?'junction':'dir');console.log('✔ Symlink created:',link,'→',target);}catch(e){console.error('✖ Failed to create symlink:',e.message);process.exit(1);}\"",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start --types=false",
     "dev": "medusa develop --types=false",
@@ -27,10 +28,10 @@
     "generate:oas": "medusa-oas oas --type combined --paths ./src/api"
   },
   "dependencies": {
-    "@medusajs/admin-sdk": "2.8.6",
-    "@medusajs/cli": "2.8.6",
-    "@medusajs/framework": "2.8.6",
-    "@medusajs/medusa": "2.8.6",
+    "@medusajs/admin-sdk": "2.9.0",
+    "@medusajs/cli": "2.9.0",
+    "@medusajs/framework": "2.9.0",
+    "@medusajs/medusa": "2.9.0",
     "@mercurjs/framework": "*",
     "@mercurjs/b2c-core": "*",
     "@mercurjs/commission": "*",
@@ -54,8 +55,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@medusajs/medusa-oas-cli": "2.8.6",
-    "@medusajs/test-utils": "2.8.6",
+    "@medusajs/medusa-oas-cli": "2.9.0",
+    "@medusajs/test-utils": "2.9.0",
     "@mikro-orm/cli": "6.4.3",
     "@swc/core": "1.5.7",
     "@swc/jest": "^0.2.36",
@@ -67,6 +68,7 @@
     "eslint": "^9.15.0",
     "globals": "^15.12.0",
     "jest": "^29.7.0",
+    "nodemon": "^3.1.0",
     "prettier": "^3.3.3",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",

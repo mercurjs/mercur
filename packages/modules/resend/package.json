@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/resend",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "author": "MercurJS <hello@mercurjs.com> (https://mercurjs.com)",
   "repository": {
     "type": "git",
@@ -30,12 +30,12 @@
     "prepublishOnly": "medusa plugin:build"
   },
   "devDependencies": {
-    "@medusajs/admin-sdk": "2.4.0",
-    "@medusajs/cli": "2.4.0",
-    "@medusajs/framework": "2.4.0",
-    "@medusajs/icons": "2.4.0",
-    "@medusajs/medusa": "2.4.0",
-    "@medusajs/test-utils": "2.4.0",
+    "@medusajs/admin-sdk": "2.9.0",
+    "@medusajs/cli": "2.9.0",
+    "@medusajs/framework": "2.9.0",
+    "@medusajs/icons": "2.9.0",
+    "@medusajs/medusa": "2.9.0",
+    "@medusajs/test-utils": "2.9.0",
     "@medusajs/ui": "4.0.4",
     "@mercurjs/framework": "*",
     "@mikro-orm/cli": "6.4.3",
@@ -59,12 +59,12 @@
     "yalc": "^1.0.0-pre.53"
   },
   "peerDependencies": {
-    "@medusajs/admin-sdk": "2.4.0",
-    "@medusajs/cli": "2.4.0",
-    "@medusajs/framework": "2.4.0",
-    "@medusajs/icons": "2.4.0",
-    "@medusajs/medusa": "2.4.0",
-    "@medusajs/test-utils": "2.4.0",
+    "@medusajs/admin-sdk": "2.9.0",
+    "@medusajs/cli": "2.9.0",
+    "@medusajs/framework": "2.9.0",
+    "@medusajs/icons": "2.9.0",
+    "@medusajs/medusa": "2.9.0",
+    "@medusajs/test-utils": "2.9.0",
     "@medusajs/ui": "4.0.3",
     "@mercurjs/framework": "*",
     "@mikro-orm/cli": "6.4.3",
