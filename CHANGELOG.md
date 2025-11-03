@@ -47,6 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Fixed link targets in the order confirmation email template** (@itariv, @AlanJanicki)
 
+## [1.4.1] - 2025-10-29
+
+### Fixed
+
+- **Fixed incorrect migration script (Issue [#439])**
+
 ## [1.4.0] - 2025-10-27
 
 ### Release 1.4.0 - B2C Marketplace
