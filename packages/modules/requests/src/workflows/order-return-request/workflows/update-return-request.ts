@@ -42,7 +42,7 @@ export const updateOrderReturnRequestWorkflow = createWorkflow(
     });
 
     const links = transform(order, (order) => {
-      const returns = order.data[0].returns;
+      const returns = order.data[0].order.returns;
       const toLink = Array.isArray(returns) ? returns : [returns];
       const seller = order.data[0].order_return_request.seller.id;
 
