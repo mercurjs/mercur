@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "mercur",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "devDependencies": {
     "turbo": "^2.3.3"
   },
