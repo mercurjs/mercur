@@ -12,6 +12,7 @@ export const VendorGetRequestsParams = createFindParams({
   type: z
     .enum([
       'product_collection',
+      'product_collection_update',
       'product_category',
       'product',
       'review_remove',
@@ -85,6 +86,41 @@ const ProductCollectionRequest = z.object({
   data: z.object({
     title: z.string(),
     handle: z.string()
+  })
+})
+
+/**
+ * @schema ProductCollectionUpdateRequest
+ * type: object
+ * required:
+ *   - type
+ *   - data
+ * properties:
+ *   type:
+ *     type: string
+ *     description: The type of the request
+ *     enum: [product_collection_update]
+ *   data:
+ *     type: object
+ *     required:
+ *       - collection_id
+ *     properties:
+ *       collection_id:
+ *         type: string
+ *         description: The ID of the existing collection to update
+ *       title:
+ *         type: string
+ *         description: The new title of the product collection
+ *       handle:
+ *         type: string
+ *         description: The new handle of the product collection
+ */
+const ProductCollectionUpdateRequest = z.object({
+  type: z.literal('product_collection_update'),
+  data: z.object({
+    collection_id: z.string(),
+    title: z.string().optional(),
+    handle: z.string().optional()
   })
 })
 
@@ -196,6 +232,7 @@ export const VendorCreateRequest = z.object({
   request: z.discriminatedUnion('type', [
     ProductCategoryRequest,
     ProductCollectionRequest,
+    ProductCollectionUpdateRequest,
     ReviewRemoveRequest,
     ProductTypeRequest,
     ProductTagRequest
