@@ -66,6 +66,9 @@ export const GET = async (
 
   // Extract seller_id from filterable fields
   const { seller_id, ...customerGroupFilters } = req.filterableFields
+  console.log('filterableFields', req.filterableFields)
+  console.log('seller_id', seller_id)
+  console.log('queryConfig', req.queryConfig)
 
   // Build filters - use index method which supports filtering by linked entities
   const filters: any = {
@@ -82,12 +85,16 @@ export const GET = async (
     }
   }
 
+  console.log('filters', filters)
+
   const { data: customer_groups, metadata } = await query.index({
     entity: 'customer_group',
     fields: req.queryConfig.fields,
     pagination: req.queryConfig.pagination,
     filters
   })
+
+  console.log(customer_groups)
 
   res.json({
     customer_groups,

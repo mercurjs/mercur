@@ -35,7 +35,10 @@ export const VendorCustomerInGroupFilters = z.object({
 export const VendorGetCustomerGroupsParamsFields = z.object({
   q: z.string().optional(),
   id: z.union([z.string(), z.array(z.string())]).optional(),
-  name: z.union([z.string(), z.array(z.string())]).optional(),
+  name: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .or(createOperatorMap()),
   customers: z
     .union([z.string(), z.array(z.string()), VendorCustomerInGroupFilters])
     .optional(),
