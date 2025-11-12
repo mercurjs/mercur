@@ -1,6 +1,7 @@
 import {
   acceptProductCategoryRequestWorkflow,
   acceptProductCollectionRequestWorkflow,
+  acceptProductCollectionUpdateRequestWorkflow,
   acceptProductRequestWorkflow,
   acceptProductTagRequestWorkflow,
   acceptProductTypeRequestWorkflow,
@@ -11,6 +12,10 @@ import {
 export const getRequestWorkflowByType = (type: string) => {
   if (type === 'product_collection') {
     return acceptProductCollectionRequestWorkflow
+  }
+
+  if (type === 'product_collection_update') {
+    return acceptProductCollectionUpdateRequestWorkflow
   }
 
   if (type === 'product_category') {
