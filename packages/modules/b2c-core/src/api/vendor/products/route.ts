@@ -1,18 +1,21 @@
+import { wrap } from '@mikro-orm/core'
+
 import {
   AuthenticatedMedusaRequest,
   MedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+  MedusaResponse
+} from '@medusajs/framework'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
+import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
+import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
+
+import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { filterProductsBySeller } from './utils'
 import {
   VendorCreateProductType,
-  VendorGetProductParamsType,
-} from "./validators";
-import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
-import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
-import { filterProductsBySeller } from "./utils";
+  VendorGetProductParamsType
+} from './validators'
 
 /**
  * @oas [get] /vendor/products
@@ -76,7 +79,7 @@ export const GET = async (
   req: MedusaRequest<VendorGetProductParamsType>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { productIds, count } = await filterProductsBySeller(
     req.scope,
@@ -84,23 +87,27 @@ export const GET = async (
     req.queryConfig.pagination?.skip || 0,
     req.queryConfig.pagination?.take || 10,
     req.filterableFields.sales_channel_id as string
-  );
+  )
 
   const { data: sellerProducts } = await query.graph({
-    entity: "product",
+    entity: 'product',
     fields: req.queryConfig.fields,
     filters: {
-      id: productIds,
+      id: productIds
     },
-  });
+    pagination: req.queryConfig.pagination
+  })
+
+  // To keep ordering of the array, we need to convert the products to plain objects
+  const plainProducts = sellerProducts.map((product) => ({ ...product }))
 
   res.json({
-    products: sellerProducts,
+    products: plainProducts,
     count: count,
     offset: req.queryConfig.pagination?.skip || 0,
-    limit: req.queryConfig.pagination?.take || 10,
-  });
-};
+    limit: req.queryConfig.pagination?.take || 10
+  })
+}
 
 /**
  * @oas [post] /vendor/products
@@ -133,31 +140,31 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateProductType>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const seller = await fetchSellerByAuthActorId(
     req.auth_context?.actor_id,
     req.scope
-  );
+  )
 
-  const { additional_data, ...validatedBody } = req.validatedBody;
+  const { additional_data, ...validatedBody } = req.validatedBody
 
   const {
-    result: [createdProduct],
+    result: [createdProduct]
   } = await createProductsWorkflow.run({
     container: req.scope,
     input: {
       products: [
         {
           ...validatedBody,
-          status: validatedBody.status === "draft" ? "draft" : "proposed",
-        },
+          status: validatedBody.status === 'draft' ? 'draft' : 'proposed'
+        }
       ],
-      additional_data: { ...additional_data, seller_id: seller.id },
-    },
-  });
+      additional_data: { ...additional_data, seller_id: seller.id }
+    }
+  })
 
-  const eventBus = req.scope.resolve(Modules.EVENT_BUS);
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
   await eventBus.emit({
     name: ProductRequestUpdatedEvent.TO_CREATE,
     data: {
@@ -165,27 +172,27 @@ export const POST = async (
       data: {
         data: {
           ...createdProduct,
-          product_id: createdProduct.id,
+          product_id: createdProduct.id
         },
         submitter_id: req.auth_context.actor_id,
-        type: "product",
-        status: createdProduct.status === "draft" ? "draft" : "pending",
-      },
-    },
-  });
+        type: 'product',
+        status: createdProduct.status === 'draft' ? 'draft' : 'pending'
+      }
+    }
+  })
 
-  const product_id = createdProduct.id;
+  const product_id = createdProduct.id
 
   const {
-    data: [product],
+    data: [product]
   } = await query.graph(
     {
-      entity: "product",
+      entity: 'product',
       fields: req.queryConfig.fields,
-      filters: { id: product_id },
+      filters: { id: product_id }
     },
     { throwIfKeyNotFound: true }
-  );
+  )
 
-  res.status(201).json({ product });
-};
+  res.status(201).json({ product })
+}
