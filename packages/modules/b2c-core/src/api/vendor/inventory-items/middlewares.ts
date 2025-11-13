@@ -165,5 +165,15 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         })
       )
     ]
-  }
+  },
+  {
+    method: ["DELETE"],
+    matcher: "/vendor/inventory-items/:id/location-levels/:location_id",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetInventoryItemsParams,
+        vendorInventoryLevelQueryConfig.retrieve
+      ),
+    ],
+  },
 ]
