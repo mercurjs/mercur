@@ -16,6 +16,12 @@ import { VendorCreateCampaignType } from "./validators";
  * description: "Retrieves a list of campaigns for the authenticated vendor."
  * x-authenticated: true
  * parameters:
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search query to filter campaigns by name (case-insensitive).
  *   - name: offset
  *     in: query
  *     schema:
