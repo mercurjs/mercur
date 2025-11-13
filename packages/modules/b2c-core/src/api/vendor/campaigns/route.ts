@@ -3,6 +3,9 @@ import {
   MedusaResponse,
 } from "@medusajs/framework";
 import { ContainerRegistrationKeys, omitDeep } from "@medusajs/framework/utils";
+import { fetchSellerByAuthActorId } from "@mercurjs/framework";
+import { createVendorCampaignWorkflow } from "../../../workflows/campaigns/workflows";
+import { VendorCreateCampaignType } from "./validators";
 
 /**
  * @oas [get] /vendor/campaigns
@@ -111,4 +114,65 @@ export const GET = async (
   })
 };
 
+/**
+ * @oas [post] /vendor/campaigns
+ * operationId: "VendorCreateCampaign"
+ * summary: "Create campaign"
+ * description: "Creates a new campaign for the authenticated vendor."
+ * x-authenticated: true
+ * parameters:
+ *   - name: fields
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Comma-separated fields to include in the response.
+ * requestBody:
+ *   content:
+ *     application/json:
+ *       schema:
+ *         $ref: "#/components/schemas/VendorCreateCampaign"
+ * responses:
+ *   "201":
+ *     description: Created
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             campaign:
+ *               $ref: "#/components/schemas/VendorCampaign"
+ * tags:
+ *   - Vendor Campaigns
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
+ */
+export const POST = async (
+  req: AuthenticatedMedusaRequest<VendorCreateCampaignType>,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const seller = await fetchSellerByAuthActorId(
+    req.auth_context?.actor_id,
+    req.scope
+  );
+
+  const { result } = await createVendorCampaignWorkflow.run({
+    container: req.scope,
+    input: { campaign: req.validatedBody, seller_id: seller.id },
+  });
+
+  const {
+    data: [campaign],
+  } = await query.graph({
+    entity: "campaign",
+    fields: req.queryConfig.fields,
+    filters: {
+      id: result[0].id,
+    },
+  });
+
+  res.status(201).json({ campaign });
+};
 
