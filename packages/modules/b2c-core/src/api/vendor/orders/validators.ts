@@ -9,7 +9,8 @@ import {
 export type VendorGetOrderParamsType = z.infer<typeof VendorGetOrderParams>
 export const VendorGetOrderParams = createFindParams({
   offset: 0,
-  limit: 50
+  limit: 50,
+  order: '-created_at'
 }).merge(
   z.object({
     created_at: createOperatorMap().optional(),
