@@ -47,6 +47,7 @@ This release focuses on stability improvements across the Vendor Panel, Storefro
 
 - **Completed a set of TypeScript cleanups improving code clarity and stability across the app** (@sylwia-werner)
 
+
 ## [1.4.2] - 2025-11-03
 
 ### Release 1.4.2 - B2C Marketplace
