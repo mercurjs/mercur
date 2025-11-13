@@ -5,6 +5,7 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    databaseLogging: true,
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -14,6 +15,9 @@ module.exports = defineConfig({
       jwtSecret: process.env.JWT_SECRET || 'supersecret',
       cookieSecret: process.env.COOKIE_SECRET || 'supersecret'
     }
+  },
+  featureFlags: {
+    index: true
   },
   plugins: [
     {
@@ -82,6 +86,9 @@ module.exports = defineConfig({
           }
         ]
       }
+    },
+    {
+      resolve: '@medusajs/index'
     }
   ]
 })

@@ -1,13 +1,13 @@
+import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import {
-  AuthenticatedMedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework";
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+  ContainerRegistrationKeys,
+  remoteQueryObjectFromString
+} from '@medusajs/framework/utils'
 
-import sellerCustomerGroup from "../../../links/seller-customer-group";
-import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
-import { createSellerCustomerGroupWorkflow } from "../../../workflows/customer-groups/workflows";
-import { VendorCreateCustomerGroupType } from "./validators";
+import sellerCustomerGroup from '../../../links/seller-customer-group'
+import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+import { createSellerCustomerGroupWorkflow } from '../../../workflows/customer-groups/workflows'
+import { VendorCreateCustomerGroupType } from './validators'
 
 /**
  * @oas [get] /vendor/customer-groups
@@ -62,27 +62,65 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: customer_groups, metadata } = await query.graph({
-    entity: sellerCustomerGroup.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `customer_group.${field}`),
+  // Extract seller_id from filterable fields
+  const { seller_id, ...customerGroupFilters } = req.filterableFields
+  console.log('filterableFields', req.filterableFields)
+  console.log('seller_id', seller_id)
+  console.log('queryConfig', req.queryConfig)
+
+  // Build filters - use index method which supports filtering by linked entities
+  const filters: any = {
+    ...customerGroupFilters,
+    deleted_at: {
+      $eq: null
+    }
+  }
+
+  // Add seller filter if provided - filter by linked seller
+  if (seller_id) {
+    filters.seller = {
+      id: seller_id
+    }
+  }
+
+  console.log('filters', filters)
+
+  const { data: customer_groups, metadata } = await query.index({
+    entity: 'customer_group',
+    fields: req.queryConfig.fields,
     pagination: req.queryConfig.pagination,
-    filters: {
-      ...req.filterableFields,
-      deleted_at: {
-        $eq: null,
-      },
-    },
-  });
+    filters
+  })
+
+  console.log(customer_groups)
 
   res.json({
     customer_groups,
-    count: metadata?.count,
-    offset: metadata?.skip,
-    limit: metadata?.take,
-  });
-};
+    count: metadata?.estimate_count ?? customer_groups.length,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? customer_groups.length
+  })
+  // const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  // const { data: customer_groups, metadata } = await query.graph({
+  //   entity: sellerCustomerGroup.entryPoint,
+  //   fields: req.queryConfig.fields.map((field) => `customer_group.${field}`),
+  //   pagination: req.queryConfig.pagination,
+  //   filters: {
+  //     ...req.filterableFields,
+  //     deleted_at: {
+  //       $eq: null
+  //     }
+  //   }
+  // })
+  // res.json({
+  //   customer_groups,
+  //   count: metadata?.count,
+  //   offset: metadata?.skip,
+  //   limit: metadata?.take
+  // })
+}
 
 /**
  * @oas [post] /vendor/customer-groups
@@ -118,7 +156,7 @@ export const POST = async (
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,
     req.scope
-  );
+  )
 
   const { result: customer_group } =
     await createSellerCustomerGroupWorkflow.run({
@@ -126,11 +164,11 @@ export const POST = async (
       input: {
         ...req.validatedBody,
         created_by: req.auth_context.actor_id,
-        seller_id: seller.id,
-      },
-    });
+        seller_id: seller.id
+      }
+    })
 
   res.status(201).json({
-    customer_group,
-  });
-};
+    customer_group
+  })
+}
