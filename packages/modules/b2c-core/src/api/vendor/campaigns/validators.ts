@@ -3,13 +3,19 @@ import { z } from 'zod'
 import { CampaignBudgetType, isPresent } from '@medusajs/framework/utils'
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
+export const VendorGetCampaignsParamsFields = z.object({
+  q: z.string().optional()
+})
+
 export type VendorGetCampaignsParamsType = z.infer<
   typeof VendorGetCampaignsParams
 >
 export const VendorGetCampaignsParams = createFindParams({
-  offset: 0,
-  limit: 50
+  limit: 50,
+  offset: 0
 })
+  .merge(VendorGetCampaignsParamsFields)
+  .strict()
 
 /**
  * @schema VendorCreateCampaignBudget

@@ -2,8 +2,9 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework";
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys, omitDeep } from "@medusajs/framework/utils";
 
+import { CampaignDTO } from "@medusajs/framework/types";
 import sellerCampaign from "../../../links/seller-campaign";
 import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
 import { createVendorCampaignWorkflow } from "../../../workflows/campaigns/workflows";
@@ -16,6 +17,12 @@ import { VendorCreateCampaignType } from "./validators";
  * description: "Retrieves a list of campaigns for the authenticated vendor."
  * x-authenticated: true
  * parameters:
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search query to filter campaigns by name (case-insensitive).
  *   - name: offset
  *     in: query
  *     schema:
@@ -71,7 +78,7 @@ export const GET = async (
     entity: sellerCampaign.entryPoint,
     fields: req.queryConfig.fields.map((field) => `campaign.${field}`),
     filters: {
-      ...req.filterableFields,
+      ...omitDeep(req.filterableFields, ['q']),
       deleted_at: {
         $eq: null,
       },
@@ -79,9 +86,26 @@ export const GET = async (
     pagination: req.queryConfig.pagination,
   });
 
+  const searchQuery = req.validatedQuery?.q as string | undefined;
+  const searchTerm = searchQuery?.toLowerCase();
+
   const activeCampaigns = relations
-    .map((relation) => relation.campaign)
-    .filter((campaign) => !!campaign);
+    .map((relation) => relation.campaign as CampaignDTO)
+    .filter((campaign) => {
+      if (!campaign) {
+        return false;
+      }
+
+      if (!searchTerm) {
+        return true;
+      }
+
+      const nameMatch = campaign.name?.toLowerCase().includes(searchTerm);
+      const descriptionMatch = campaign.description?.toLowerCase().includes(searchTerm);
+      const identifierMatch = campaign.campaign_identifier?.toLowerCase().includes(searchTerm);
+
+      return nameMatch || descriptionMatch || identifierMatch;
+    });
 
   res.json({
     campaigns: activeCampaigns,
