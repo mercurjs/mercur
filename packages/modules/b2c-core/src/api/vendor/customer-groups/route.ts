@@ -1,10 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import {
   ContainerRegistrationKeys,
-  remoteQueryObjectFromString
 } from '@medusajs/framework/utils'
 
-import sellerCustomerGroup from '../../../links/seller-customer-group'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { createSellerCustomerGroupWorkflow } from '../../../workflows/customer-groups/workflows'
 import { VendorCreateCustomerGroupType } from './validators'
@@ -64,13 +62,8 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Extract seller_id from filterable fields
   const { seller_id, ...customerGroupFilters } = req.filterableFields
-  console.log('filterableFields', req.filterableFields)
-  console.log('seller_id', seller_id)
-  console.log('queryConfig', req.queryConfig)
 
-  // Build filters - use index method which supports filtering by linked entities
   const filters: any = {
     ...customerGroupFilters,
     deleted_at: {
@@ -78,14 +71,11 @@ export const GET = async (
     }
   }
 
-  // Add seller filter if provided - filter by linked seller
   if (seller_id) {
     filters.seller = {
       id: seller_id
     }
   }
-
-  console.log('filters', filters)
 
   const { data: customer_groups, metadata } = await query.index({
     entity: 'customer_group',
@@ -94,32 +84,12 @@ export const GET = async (
     filters
   })
 
-  console.log(customer_groups)
-
   res.json({
     customer_groups,
     count: metadata?.estimate_count ?? customer_groups.length,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? customer_groups.length
   })
-  // const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  // const { data: customer_groups, metadata } = await query.graph({
-  //   entity: sellerCustomerGroup.entryPoint,
-  //   fields: req.queryConfig.fields.map((field) => `customer_group.${field}`),
-  //   pagination: req.queryConfig.pagination,
-  //   filters: {
-  //     ...req.filterableFields,
-  //     deleted_at: {
-  //       $eq: null
-  //     }
-  //   }
-  // })
-  // res.json({
-  //   customer_groups,
-  //   count: metadata?.count,
-  //   offset: metadata?.skip,
-  //   limit: metadata?.take
-  // })
 }
 
 /**
