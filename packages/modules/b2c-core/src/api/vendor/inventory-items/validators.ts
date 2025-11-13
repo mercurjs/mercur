@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { applyAndAndOrOperators } from '@medusajs/medusa/api/utils/common-validators/common'
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import { HttpTypes } from '@medusajs/framework/types'
 
 export const VendorGetInventoryItemsParamsFields = z.object({
   q: z.string().optional(),
@@ -240,3 +241,5 @@ export const VendorBatchInventoryItemLocationsLevel = z.object({
   delete: z.array(z.string()).optional(),
   force: z.boolean().optional()
 })
+
+export type VendorInventoryLevelDeleteResponse = HttpTypes.AdminInventoryLevelDeleteResponse

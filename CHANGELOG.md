@@ -5,6 +5,49 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2025-11-13
+
+### Release 1.4.3
+
+This release focuses on stability improvements across the Vendor Panel, Storefront checkout flow, product management, attributes, and internal TypeScript consistency. It also includes several UI and build-pipeline refinements to improve reliability and day-to-day operations.
+
+### Fixed
+
+#### Checkout & Storefront
+
+- **Fixed an issue where shipping options were incorrectly displayed as returns**
+- **Resolved a problem requiring users to re-select a payment method even if one had already been chosen** (@itariv)
+- **Fixed an error triggered when selecting certain delivery options during checkout** (@AlanJanicki)
+- **Thumbnail images on the product listing page now display correctly** (@mikolvj)
+
+#### Vendor Panel
+
+- **Updated Medusa version to 2.10.2 in order to achieve improved sorting and filtering logic** (@tomaszdworniczak)
+- **Updated default order sorting to show the oldest orders first** (@itariv)
+- **Fixed validation errors when managing products** (@mikolvj)
+- **Restored the ability to remove a location from a product** (@itariv)
+- **Fixed duplicate product titles in order details** (@mikolvj)
+- **Resolved issues preventing users from adding reviews to their orders** (@itariv)
+- **Fixed an error displayed when opening the order edit view**
+- **Corrected display issues where all shipping methods appeared simultaneously** (@mikolvj)
+- **Fixed shipping-option pricing not being saved correctly** (@mikolvj)
+- **Resolved an error in the Customer Group edit view** (@itariv)
+- **Fixed an error when adding conditions related to promotion item targeting** (@itariv)
+
+#### Attributes & Admin
+
+- **Improved clarity of possible attribute values during editing**
+- **Updated toast notifications for both existing and newly created attributes for consistency and clarity**
+
+#### Product Listing (PLP)
+
+- **Ensured product information updates correctly on the PLP without requiring manual refresh**
+
+#### TypeScript & Code Quality
+
+- **Completed a set of TypeScript cleanups improving code clarity and stability across the app** (@sylwia-werner)
+
+
 ## [1.4.2] - 2025-11-03
 
 ### Release 1.4.2 - B2C Marketplace
