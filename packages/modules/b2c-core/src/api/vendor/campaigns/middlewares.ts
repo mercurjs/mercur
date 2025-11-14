@@ -5,12 +5,15 @@ import {
 } from '@medusajs/framework'
 
 import sellerCampaign from '../../../links/seller-campaign'
+import sellerPromotion from '../../../links/seller-promotion'
 import {
   checkResourceOwnershipByResourceId,
   filterBySellerId
 } from '../../../shared/infra/http/middlewares'
 import { vendorCampaignQueryConfig } from './query-config'
 import {
+  VendorAssignCampaignPromotions,
+  VendorAssignCampaignPromotionsType,
   VendorCreateCampaign,
   VendorGetCampaignsParams,
   VendorUpdateCampaign
@@ -77,5 +80,28 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
         vendorCampaignQueryConfig.retrieve
       )
     ]
-  }
+  },
+  {
+    method: ['POST'],
+    matcher: '/vendor/campaigns/:id/promotions',
+    middlewares: [
+      validateAndTransformBody(VendorAssignCampaignPromotions),
+      validateAndTransformQuery(
+        VendorGetCampaignsParams,
+        vendorCampaignQueryConfig.retrieve
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerCampaign.entryPoint,
+        filterField: 'campaign_id'
+      }),
+      checkResourceOwnershipByResourceId<VendorAssignCampaignPromotionsType>({
+        entryPoint: sellerPromotion.entryPoint,
+        filterField: 'promotion_id',
+        resourceId: (req) => {
+          const body = (req.validatedBody ?? req.body) as VendorAssignCampaignPromotionsType
+          return [...(body?.add || []), ...(body?.remove || [])]
+        }
+      })
+    ],
+  },
 ]
