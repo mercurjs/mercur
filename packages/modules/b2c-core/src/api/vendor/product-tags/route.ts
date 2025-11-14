@@ -1,8 +1,8 @@
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
-  refetchEntities
-} from '@medusajs/framework'
+} from "@medusajs/framework";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 /**
  * @oas [get] /vendor/product-tags
@@ -59,18 +59,18 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const { rows: product_tags, metadata } = await refetchEntities(
-    'product_tag',
-    req.filterableFields,
-    req.scope,
-    req.queryConfig.fields,
-    req.queryConfig.pagination
-  )
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const { data: product_tags, metadata } = await query.graph({
+    entity: "product_tag",
+    fields: req.queryConfig.fields,
+    filters: req.filterableFields,
+    pagination: req.queryConfig.pagination,
+  });
 
   res.json({
     product_tags,
-    count: metadata?.count,
-    offset: metadata?.skip,
-    limit: metadata?.take
-  })
-}
+    count: metadata?.count || 0,
+    offset: metadata?.skip || 0,
+    limit: metadata?.take || 0,
+  });
+};
