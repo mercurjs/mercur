@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { CampaignBudgetType, isPresent } from '@medusajs/framework/utils'
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import { createFindParams, createLinkBody } from '@medusajs/medusa/api/utils/validators'
 
 export type VendorGetCampaignsParamsType = z.infer<
   typeof VendorGetCampaignsParams
@@ -10,6 +10,13 @@ export const VendorGetCampaignsParams = createFindParams({
   offset: 0,
   limit: 50
 })
+
+
+export const VendorAssignCampaignPromotions = createLinkBody();
+
+export type VendorAssignCampaignPromotionsType = z.infer<
+  typeof VendorAssignCampaignPromotions
+>;
 
 /**
  * @schema VendorCreateCampaignBudget
