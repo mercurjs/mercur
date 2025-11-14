@@ -2,6 +2,7 @@ import {
   AuthenticatedMedusaRequest,
   MedusaRequest,
   MedusaResponse,
+  refetchEntities,
 } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
@@ -13,6 +14,7 @@ import {
   VendorCreateProductType,
   VendorGetProductParamsType,
 } from "./validators";
+import { remapKeysForProduct } from "@medusajs/medusa/api/admin/products/helpers";
 
 /**
  * @oas [get] /vendor/products
@@ -87,10 +89,13 @@ export const GET = async (
     req.queryConfig.pagination?.order as OrderObject | undefined
   );
 
-  const { data: sellerProducts } = await query.graph({
+  const {seller_id, ...productFilterableFields} = req.filterableFields
+
+  const { data: sellerProducts, metadata } = await query.graph({
     entity: "product",
     fields: req.queryConfig.fields,
     filters: {
+      ...productFilterableFields,
       id: productIds,
     },
     pagination: {
