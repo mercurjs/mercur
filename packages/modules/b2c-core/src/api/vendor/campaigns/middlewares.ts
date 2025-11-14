@@ -5,15 +5,8 @@ import {
 } from '@medusajs/framework'
 
 import sellerCampaign from '../../../links/seller-campaign'
-import sellerPromotion from '../../../links/seller-promotion'
-import {
-  checkResourceOwnershipByResourceId,
-  filterBySellerId
-} from '../../../shared/infra/http/middlewares'
 import { vendorCampaignQueryConfig } from './query-config'
 import {
-  VendorAssignCampaignPromotions,
-  VendorAssignCampaignPromotionsType,
   VendorCreateCampaign,
   VendorGetCampaignsParams,
   VendorUpdateCampaign

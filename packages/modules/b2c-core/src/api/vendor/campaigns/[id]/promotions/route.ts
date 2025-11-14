@@ -1,13 +1,13 @@
 import { addOrRemoveCampaignPromotionsWorkflow } from "@medusajs/core-flows"
 import {
-    AuthenticatedMedusaRequest,
-    MedusaResponse,
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import {
-    VendorAssignCampaignPromotionsType,
-    VendorGetCampaignsParamsType,
+  VendorAssignCampaignPromotionsType,
+  VendorGetCampaignsParamsType,
 } from "../../validators"
 
 /**
