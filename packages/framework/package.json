@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@medusajs/framework": "2.10.2",
+    "@medusajs/index": "2.10.2",
     "@medusajs/test-utils": "2.10.2",
     "@mikro-orm/cli": "6.4.3",
     "@mikro-orm/core": "6.4.3",

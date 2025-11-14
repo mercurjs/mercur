@@ -2,54 +2,55 @@ import {
   AuthenticatedMedusaRequest,
   MiddlewareRoute,
   validateAndTransformBody,
-  validateAndTransformQuery,
-} from "@medusajs/framework";
+  validateAndTransformQuery
+} from '@medusajs/framework'
 
-import { checkCustomerResourceOwnershipByResourceId } from "@mercurjs/framework";
-import { storeReturnOrderRequestQueryConfig } from "./query-config";
+import { checkCustomerResourceOwnershipByResourceId } from '@mercurjs/framework'
+
+import { storeReturnOrderRequestQueryConfig } from './query-config'
 import {
   StoreCreateReturnRequest,
   StoreCreateReturnRequestType,
-  StoreGetOrderReturnRequestParams,
-} from "./validators";
+  StoreGetOrderReturnRequestParams
+} from './validators'
 
 export const storeOrderReturnRequestsMiddlewares: MiddlewareRoute[] = [
   {
-    method: ["GET"],
-    matcher: "/store/return-request",
+    method: ['GET'],
+    matcher: '/store/return-request',
     middlewares: [
       validateAndTransformQuery(
         StoreGetOrderReturnRequestParams,
         storeReturnOrderRequestQueryConfig.list
-      ),
-    ],
+      )
+    ]
   },
   {
-    method: ["POST"],
-    matcher: "/store/return-request",
+    method: ['POST'],
+    matcher: '/store/return-request',
     middlewares: [
       validateAndTransformBody(StoreCreateReturnRequest),
       checkCustomerResourceOwnershipByResourceId({
-        entryPoint: "order",
+        entryPoint: 'order',
         resourceId: (
           req: AuthenticatedMedusaRequest<StoreCreateReturnRequestType>
         ) => {
-          return req.validatedBody.order_id;
-        },
-      }),
-    ],
+          return req.validatedBody.order_id
+        }
+      })
+    ]
   },
   {
-    method: ["GET"],
-    matcher: "/store/return-request/:id",
+    method: ['GET'],
+    matcher: '/store/return-request/:id',
     middlewares: [
       checkCustomerResourceOwnershipByResourceId({
-        entryPoint: "order_return_request",
+        entryPoint: 'order_return_request'
       }),
       validateAndTransformQuery(
         StoreGetOrderReturnRequestParams,
         storeReturnOrderRequestQueryConfig.retrieve
-      ),
-    ],
-  },
-];
+      )
+    ]
+  }
+]
