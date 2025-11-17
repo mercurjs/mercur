@@ -1,5 +1,10 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import {
+  ApplicationMethodTypeValues,
+  PromotionTypeValues,
+  RuleTypeValues
+} from '@medusajs/framework/types'
+import {
   ContainerRegistrationKeys,
   remoteQueryObjectFromString
 } from '@medusajs/framework/utils'
@@ -96,10 +101,10 @@ export const GET = async (
 
   validateRuleType(ruleType as any)
   validateRuleAttribute({
-    promotionType: promotionType as any,
-    ruleType: ruleType as any,
+    promotionType: promotionType as PromotionTypeValues,
+    ruleType: ruleType as RuleTypeValues,
     ruleAttributeId,
-    applicationMethodType: applicationMethodType as any
+    applicationMethodType: applicationMethodType as ApplicationMethodTypeValues
   })
 
   const seller = await fetchSellerByAuthActorId(
