@@ -26,3 +26,9 @@ build
 !.yarn/versions
 
 .medusa
+
+public
+
+.yalc
+yalc.lock
+static/*

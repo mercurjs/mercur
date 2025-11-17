@@ -1,0 +1,89 @@
+{
+  "name": "mercurjs-payment-adyen-connect",
+  "version": "1.0.3",
+  "author": "Luka Giorgadze <luka.giorgadze@checkatrade.com> (https://shop.checkatrade.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/checkatrade-labs/mercur"
+  },
+  "license": "MIT",
+  "keywords": [
+    "mercur",
+    "marketplace",
+    "medusajs",
+    "mercurjs"
+  ],
+  "files": [
+    ".medusa/server"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./workflows": "./.medusa/server/src/workflows/index.js",
+    "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./providers/*": "./.medusa/server/src/providers/*/index.js",
+    "./admin": {
+      "import": "./.medusa/server/src/admin/index.mjs",
+      "require": "./.medusa/server/src/admin/index.js",
+      "default": "./.medusa/server/src/admin/index.js"
+    },
+    "./*": "./.medusa/server/src/*.js"
+  },
+  "scripts": {
+    "build": "medusa plugin:build",
+    "dev": "medusa plugin:develop",
+    "prepublishOnly": "medusa plugin:build"
+  },
+  "devDependencies": {
+    "@medusajs/admin-sdk": "2.10.2",
+    "@medusajs/cli": "2.10.2",
+    "@medusajs/framework": "2.10.2",
+    "@medusajs/icons": "2.10.2",
+    "@medusajs/medusa": "2.10.2",
+    "@medusajs/test-utils": "2.10.2",
+    "@medusajs/ui": "4.0.25",
+    "@mercurjs/framework": "*",
+    "@mikro-orm/cli": "6.4.3",
+    "@mikro-orm/core": "6.4.3",
+    "@mikro-orm/knex": "6.4.3",
+    "@mikro-orm/migrations": "6.4.3",
+    "@mikro-orm/postgresql": "6.4.3",
+    "@swc/core": "1.5.7",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.2.25",
+    "awilix": "^8.0.1",
+    "pg": "^8.13.0",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2",
+    "vite": "^5.2.11"
+  },
+  "peerDependencies": {
+    "@medusajs/admin-sdk": "2.10.2",
+    "@medusajs/cli": "2.10.2",
+    "@medusajs/framework": "2.10.2",
+    "@medusajs/icons": "2.10.2",
+    "@medusajs/medusa": "2.10.2",
+    "@medusajs/test-utils": "2.10.2",
+    "@medusajs/ui": "4.0.25",
+    "@mercurjs/framework": "*",
+    "@mikro-orm/cli": "6.4.3",
+    "@mikro-orm/core": "6.4.3",
+    "@mikro-orm/knex": "6.4.3",
+    "@mikro-orm/migrations": "6.4.3",
+    "@mikro-orm/postgresql": "6.4.3",
+    "awilix": "^8.0.1",
+    "pg": "^8.13.0",
+    "stripe": "^17.4.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@adyen/api-library": "^30.0.0",
+    "stripe": "^17.4.0"
+  }
+}

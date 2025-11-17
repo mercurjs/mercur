@@ -4,6 +4,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils'
 import { createOnboardingForSellerWorkflow } from '../../../../workflows/seller/workflows'
 import { VendorCreateOnboardingType } from '../validators'
+import { PaymentProvider } from '../types'
 
 /**
  * @oas [post] /vendor/payout-account/onboarding
@@ -45,6 +46,7 @@ export const POST = async (
   const { result } = await createOnboardingForSellerWorkflow(req.scope).run({
     context: { transactionId: seller.id },
     input: {
+      payment_provider_id: req.validatedBody.payment_provider_id as PaymentProvider,
       seller_id: seller.id,
       context: req.validatedBody.context ?? {}
     }

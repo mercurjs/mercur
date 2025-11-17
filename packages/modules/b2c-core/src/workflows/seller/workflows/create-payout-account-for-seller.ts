@@ -9,10 +9,12 @@ import {
   createPayoutAccountStep,
   validateNoExistingPayoutAccountForSellerStep,
 } from "../steps";
+import { PaymentProvider } from "../../../api/vendor/payout-account/types";
 
 type CreatePayoutAccountForSellerInput = {
   context: CreatePayoutAccountDTO["context"];
   seller_id: string;
+  payment_provider_id: PaymentProvider;
 };
 
 export const createPayoutAccountForSellerWorkflow = createWorkflow(
@@ -21,9 +23,15 @@ export const createPayoutAccountForSellerWorkflow = createWorkflow(
     idempotent: true,
   },
   function (input: CreatePayoutAccountForSellerInput) {
-    validateNoExistingPayoutAccountForSellerStep(input.seller_id);
+    validateNoExistingPayoutAccountForSellerStep({
+      seller_id: input.seller_id,
+      payment_provider_id: input.payment_provider_id,
+    });
 
-    const payoutAccount = createPayoutAccountStep({ context: input.context });
+    const payoutAccount = createPayoutAccountStep({
+      context: input.context,
+      payment_provider_id: input.payment_provider_id,
+    });
 
     createRemoteLinkStep([
       {

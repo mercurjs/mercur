@@ -7,7 +7,7 @@ export * from "./recalculate-onboarding";
 export * from "./export-seller-products";
 export * from "./import-seller-products";
 export * from "./invite-seller";
-export * from "./sync-stripe-account";
+export * from "./sync-payout-account";
 export * from "./accept-member-invite";
 export * from "./delete-member-invite";
 export * from "./delete-member";

@@ -9,7 +9,7 @@ export * from "./create-seller-onboarding";
 export * from "./recalculate-onboarding";
 export * from "./get-seller-products";
 export * from "./validate-products-to-import";
-export * from "./sync-stripe-account";
+export * from "./sync-payout-account";
 export * from "./create-member";
 export * from "./validate-member-invites";
 export * from "./delete-member";
