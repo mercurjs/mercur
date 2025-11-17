@@ -2,10 +2,8 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework";
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-
-import sellerCampaign from "../../../links/seller-campaign";
-import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
+import { ContainerRegistrationKeys, omitDeep } from "@medusajs/framework/utils";
+import { fetchSellerByAuthActorId } from "@mercurjs/framework";
 import { createVendorCampaignWorkflow } from "../../../workflows/campaigns/workflows";
 import { VendorCreateCampaignType } from "./validators";
 
@@ -16,6 +14,12 @@ import { VendorCreateCampaignType } from "./validators";
  * description: "Retrieves a list of campaigns for the authenticated vendor."
  * x-authenticated: true
  * parameters:
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search query to filter campaigns by name (case-insensitive).
  *   - name: offset
  *     in: query
  *     schema:
@@ -67,28 +71,47 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-  const { data: relations, metadata } = await query.graph({
-    entity: sellerCampaign.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `campaign.${field}`),
-    filters: {
-      ...req.filterableFields,
-      deleted_at: {
-        $eq: null,
-      },
+  const filters: Record<string, any> = {
+    ...omitDeep(req.filterableFields, ['q', 'seller_id']),
+    deleted_at: {
+      $eq: null,
     },
-    pagination: req.queryConfig.pagination,
-  });
+  }
 
-  const activeCampaigns = relations
-    .map((relation) => relation.campaign)
-    .filter((campaign) => !!campaign);
+  if(req.filterableFields?.seller_id) {
+    filters.seller = {
+      id: req.filterableFields.seller_id,
+    }
+  }
+
+  if(req.filterableFields?.q) {
+    filters.$or = [
+      {
+        name: {
+          $ilike: `%${req.filterableFields.q}%`,
+        },
+      },
+      {
+        campaign_identifier: {
+          $ilike: `%${req.filterableFields.q}%`,
+        },
+      },
+    ]
+  }
+
+  const { data: relations, metadata } = await query.index({
+    entity: 'campaign',
+    fields: [...req.queryConfig.fields, 'seller.id'],
+    filters,
+    pagination: req.queryConfig.pagination,
+  })
 
   res.json({
-    campaigns: activeCampaigns,
-    count: activeCampaigns.length,
-    offset: metadata?.skip,
-    limit: metadata?.take,
-  });
+    campaigns: relations,
+    count: relations.length,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? relations.length,
+  })
 };
 
 /**
@@ -152,3 +175,4 @@ export const POST = async (
 
   res.status(201).json({ campaign });
 };
+
