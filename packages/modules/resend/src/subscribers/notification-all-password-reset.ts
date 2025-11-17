@@ -3,7 +3,7 @@ import { AuthWorkflowEvents, Modules } from "@medusajs/framework/utils";
 
 import { ResendNotificationTemplates } from "../providers/resend";
 
-import { actorTypeToHost, buildResetPasswordUrl } from "@mercurjs/framework";
+import { actorTypeToHost, buildResetPasswordUrl, fetchStoreData } from "@mercurjs/framework";
 
 export default async function passwordResetHandler({
   event,
@@ -16,16 +16,20 @@ export default async function passwordResetHandler({
     return;
   }
 
+  const storeData = await fetchStoreData(container);
+
   await notificationService.createNotifications({
     to: event.data.entity_id,
     channel: "email",
     template: ResendNotificationTemplates.FORGOT_PASSWORD,
     content: {
-      subject: "Mercur - Reset password request",
+      subject: `${storeData.store_name} - Reset password request`,
     },
     data: {
       data: {
         url: buildResetPasswordUrl(hostType, event.data.token).toString(),
+        store_name: storeData.store_name,
+        storefront_url: storeData.storefront_url,
       },
     },
   });

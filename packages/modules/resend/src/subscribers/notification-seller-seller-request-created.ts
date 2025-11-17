@@ -1,7 +1,7 @@
 import { Modules } from "@medusajs/framework/utils";
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/medusa";
 
-import { RequestDTO, SellerRequest } from "@mercurjs/framework";
+import { RequestDTO, SellerRequest, fetchStoreData } from "@mercurjs/framework";
 import { ResendNotificationTemplates } from "../providers/resend";
 
 export default async function requestCreatedSellerAccountUpdatesNotifyHandler({
@@ -18,6 +18,7 @@ export default async function requestCreatedSellerAccountUpdatesNotifyHandler({
   }
 
   const notificationService = container.resolve(Modules.NOTIFICATION);
+  const storeData = await fetchStoreData(container);
 
   await notificationService.createNotifications({
     to: requestData.provider_identity_id,
@@ -29,6 +30,8 @@ export default async function requestCreatedSellerAccountUpdatesNotifyHandler({
     data: {
       data: {
         user_name: requestData.member.name,
+        store_name: storeData.store_name,
+        storefront_url: storeData.storefront_url,
       },
     },
   });

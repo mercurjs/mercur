@@ -28,6 +28,8 @@ interface EmailTemplateProps {
 				phone: string
 			}
 		}
+		store_name: string
+		storefront_url: string
 	}
 }
 
@@ -58,13 +60,13 @@ export const BuyerOrderShippedEmailTemplate: React.FC<Readonly<EmailTemplateProp
       </p>
 
       <p>
-        You received this email because you made a purchase or sale on the Mercur marketplace. If you have any
+        You received this email because you made a purchase or sale on the {data.store_name} marketplace. If you have any
         questions, please contact our support team.
       </p>
       <div style={{ marginTop: 32 }}>
         <div>Best regards,</div>
-        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
-        <div style={{ color: '#888', marginTop: 4 }}>mercurjs.com</div>
+        <div style={{ fontWeight: 600 }}>The {data.store_name} Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>{data.storefront_url}</div>
       </div>
     </div>
   )
