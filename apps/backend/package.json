@@ -29,10 +29,10 @@
     "generate:oas": "medusa-oas oas --type combined --paths ./src/api"
   },
   "dependencies": {
-    "@medusajs/admin-sdk": "2.11.0",
-    "@medusajs/cli": "2.11.0",
-    "@medusajs/framework": "2.11.0",
-    "@medusajs/medusa": "2.11.0",
+    "@medusajs/admin-sdk": "2.11.3",
+    "@medusajs/cli": "2.11.3",
+    "@medusajs/framework": "2.11.3",
+    "@medusajs/medusa": "2.11.3",
     "@mercurjs/framework": "*",
     "@mercurjs/b2c-core": "*",
     "@mercurjs/commission": "*",
@@ -50,8 +50,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@medusajs/medusa-oas-cli": "2.11.0",
-    "@medusajs/test-utils": "2.11.0",
+    "@medusajs/medusa-oas-cli": "2.11.3",
+    "@medusajs/test-utils": "2.11.3",
     "@swc/core": "1.5.7",
     "@swc/jest": "^0.2.36",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
