@@ -17,6 +17,47 @@ export const VendorGetCampaignsParams = createFindParams({
   .merge(VendorGetCampaignsParamsFields)
   .strict()
 
+const dateFilterSchema = z
+  .preprocess(
+    (val) => {
+      if (typeof val === 'string') {
+        try {
+          return JSON.parse(val)
+        } catch {
+          return val
+        }
+      }
+      return val
+    },
+    z
+      .object({
+        $gte: z.string().optional(),
+        $lte: z.string().optional(),
+        $gt: z.string().optional(),
+        $lt: z.string().optional(),
+        $eq: z.string().optional(),
+        $ne: z.string().optional()
+      })
+      .optional()
+  )
+  .optional()
+
+export const VendorGetCampaignByIdParamsFields = z.object({
+  q: z.string().optional(),
+  created_at: dateFilterSchema,
+  updated_at: dateFilterSchema
+})
+
+export type VendorGetCampaignByIdParamsType = z.infer<
+  typeof VendorGetCampaignByIdParams
+>
+export const VendorGetCampaignByIdParams = createFindParams({
+  limit: 50,
+  offset: 0
+})
+  .merge(VendorGetCampaignByIdParamsFields)
+  .strict()
+
 /**
  * @schema VendorCreateCampaignBudget
  * type: object
