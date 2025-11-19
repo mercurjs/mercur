@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, defineConfig, loadEnv } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
@@ -78,6 +78,39 @@ module.exports = defineConfig({
             id: 'local',
             options: {
               channels: ['feed', 'seller_feed']
+            }
+          }
+        ]
+      }
+    },
+    {
+      resolve: '@medusajs/medusa/auth',
+      dependencies: [ContainerRegistrationKeys.LOGGER],
+      options: {
+        providers: [
+          {
+            resolve: '@mercurjs/b2c-core/providers/auth-email',
+            id: 'emailpassword',
+            options: {
+              password: {
+                minLength: parseInt(process.env.AUTH_PASSWORD_MIN_LENGTH || '8', 10),
+                requireUppercase: process.env.AUTH_PASSWORD_REQUIRE_UPPERCASE === 'true',
+                requireLowercase: process.env.AUTH_PASSWORD_REQUIRE_LOWERCASE === 'true',
+                requireNumbers: process.env.AUTH_PASSWORD_REQUIRE_NUMBERS === 'true',
+                requireSpecialChars: process.env.AUTH_PASSWORD_REQUIRE_SPECIAL_CHARS === 'true'
+              },
+              email: {
+                lowercase: process.env.AUTH_EMAIL_LOWERCASE !== 'false',
+                stripPlusSuffix: process.env.AUTH_EMAIL_STRIP_PLUS_SUFFIX === 'true'
+              },
+              name: {
+                minLength: parseInt(process.env.AUTH_NAME_MIN_LENGTH || '1', 10),
+                maxLength: process.env.AUTH_NAME_MAX_LENGTH ? parseInt(process.env.AUTH_NAME_MAX_LENGTH, 10) : undefined
+              },
+              surname: {
+                minLength: parseInt(process.env.AUTH_SURNAME_MIN_LENGTH || '1', 10),
+                maxLength: process.env.AUTH_SURNAME_MAX_LENGTH ? parseInt(process.env.AUTH_SURNAME_MAX_LENGTH, 10) : undefined
+              }
             }
           }
         ]
