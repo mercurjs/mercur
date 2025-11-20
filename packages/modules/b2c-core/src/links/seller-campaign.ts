@@ -4,10 +4,7 @@ import PromotionModule from "@medusajs/medusa/promotion";
 import SellerModule from "../modules/seller";
 
 export default defineLink(
-  {
-    linkable: SellerModule.linkable.seller,
-    filterable: ["id"],
-  },
+  SellerModule.linkable.seller,
   {
     linkable: PromotionModule.linkable.campaign,
     isList: true,
