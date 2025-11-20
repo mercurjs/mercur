@@ -6,6 +6,7 @@ import { ContainerRegistrationKeys, omitDeep } from "@medusajs/framework/utils";
 import { fetchSellerByAuthActorId } from "@mercurjs/framework";
 import { createVendorCampaignWorkflow } from "../../../workflows/campaigns/workflows";
 import { VendorCreateCampaignType } from "./validators";
+import sellerCampaign from "../../../links/seller-campaign";
 
 /**
  * @oas [get] /vendor/campaigns
@@ -71,47 +72,28 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-  const filters: Record<string, any> = {
-    ...omitDeep(req.filterableFields, ['q', 'seller_id']),
-    deleted_at: {
-      $eq: null,
+  const { data: relations, metadata } = await query.graph({
+    entity: sellerCampaign.entryPoint,
+    fields: req.queryConfig.fields.map((field) => `campaign.${field}`),
+    filters: {
+      ...req.filterableFields,
+      deleted_at: {
+        $eq: null,
+      },
     },
-  }
-
-  if(req.filterableFields?.seller_id) {
-    filters.seller = {
-      id: req.filterableFields.seller_id,
-    }
-  }
-
-  if(req.filterableFields?.q) {
-    filters.$or = [
-      {
-        name: {
-          $ilike: `%${req.filterableFields.q}%`,
-        },
-      },
-      {
-        campaign_identifier: {
-          $ilike: `%${req.filterableFields.q}%`,
-        },
-      },
-    ]
-  }
-
-  const { data: relations, metadata } = await query.index({
-    entity: 'campaign',
-    fields: [...req.queryConfig.fields, 'seller.id'],
-    filters,
     pagination: req.queryConfig.pagination,
-  })
+  });
+
+  const activeCampaigns = relations
+    .map((relation) => relation.campaign)
+    .filter((campaign) => !!campaign);
 
   res.json({
-    campaigns: relations,
-    count: relations.length,
-    offset: metadata?.skip ?? 0,
-    limit: metadata?.take ?? relations.length,
-  })
+    campaigns: activeCampaigns,
+    count: activeCampaigns.length,
+    offset: metadata?.skip,
+    limit: metadata?.take,
+  });
 };
 
 /**

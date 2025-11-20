@@ -55,8 +55,9 @@ export const VendorGetCustomerGroupsParams = createFindParams({
   offset: 0,
   limit: 50
 })
-  .merge(VendorGetCustomerGroupsParamsFields)
-  .merge(applyAndAndOrOperators(VendorGetCustomerGroupsParamsFields))
+  // TODO: will be used when we'll get back to using index module
+  // .merge(VendorGetCustomerGroupsParamsFields)
+  // .merge(applyAndAndOrOperators(VendorGetCustomerGroupsParamsFields))
 
 /**
  * @schema VendorCreateCustomerGroup

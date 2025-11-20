@@ -14,8 +14,9 @@ export const VendorGetCampaignsParams = createFindParams({
   limit: 50,
   offset: 0
 })
-  .merge(VendorGetCampaignsParamsFields)
-  .strict()
+  // TODO: will be used when we'll get back to using index module
+  // .merge(VendorGetCampaignsParamsFields)
+  // .strict()
 
 /**
  * @schema VendorCreateCampaignBudget
