@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { CampaignBudgetType, isPresent } from '@medusajs/framework/utils'
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import { createFindParams, createLinkBody } from '@medusajs/medusa/api/utils/validators'
 
 export const VendorGetCampaignsParamsFields = z.object({
   q: z.string().optional()
@@ -17,6 +17,13 @@ export const VendorGetCampaignsParams = createFindParams({
   // TODO: will be used when we'll get back to using index module
   // .merge(VendorGetCampaignsParamsFields)
   // .strict()
+
+
+export const VendorAssignCampaignPromotions = createLinkBody();
+
+export type VendorAssignCampaignPromotionsType = z.infer<
+  typeof VendorAssignCampaignPromotions
+>;
 
 /**
  * @schema VendorCreateCampaignBudget
