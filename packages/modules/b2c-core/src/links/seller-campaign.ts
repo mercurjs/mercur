@@ -8,6 +8,5 @@ export default defineLink(
   {
     linkable: PromotionModule.linkable.campaign,
     isList: true,
-    filterable: ["id", "name", "campaign_identifier", "deleted_at"],
   }
 );

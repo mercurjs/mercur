@@ -99,7 +99,7 @@ export const GET = async (
     delete filterableFields.value
   }
 
-  validateRuleType(ruleType as any)
+  validateRuleType(ruleType)
   validateRuleAttribute({
     promotionType: promotionType as PromotionTypeValues,
     ruleType: ruleType as RuleTypeValues,
