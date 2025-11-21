@@ -55,7 +55,7 @@ class AlgoliaModuleService {
   }
 
   batch(type: IndexType, toAdd: AlgoliaEntity[], toDelete: string[]) {
-    const requests: BatchRequest[] = toAdd.map((entity) => {
+    let requests: BatchRequest[] = toAdd.map((entity) => {
       return {
         action: "addObject" as Action,
         objectID: entity.id,
@@ -63,7 +63,7 @@ class AlgoliaModuleService {
       };
     });
 
-    requests.concat(
+    requests = requests.concat(
       toDelete.map((id) => {
         return {
           action: "deleteObject" as Action,

@@ -6,5 +6,5 @@ export const AlgoliaSellerValidator = z.object({
   name: z.string(),
   handle: z.string(),
   description: z.string().nullable(),
-  photo: z.string().nullable()
+  photo: z.string().url().nullable()
 })
