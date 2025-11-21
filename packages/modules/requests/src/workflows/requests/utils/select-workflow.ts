@@ -1,50 +1,25 @@
 import {
   acceptProductCategoryRequestWorkflow,
-  acceptProductCollectionRequestWorkflow,
   acceptProductCollectionUpdateRequestWorkflow,
   acceptProductRequestWorkflow,
   acceptProductTagRequestWorkflow,
   acceptProductTypeRequestWorkflow,
   acceptReviewRemoveRequestWorkflow,
-  acceptSellerCreationRequestWorkflow
-} from '../workflows'
+  acceptSellerCreationRequestWorkflow,
+  updateRequestWorkflow
+} from "../workflows";
 
-export const getRequestWorkflowByType = (type: string) => {
-  if (type === 'product_collection') {
-    return acceptProductCollectionRequestWorkflow
-  }
+const workflowMap: Record<string, any> = {
+  product: acceptProductRequestWorkflow,
+  product_import: acceptProductRequestWorkflow,
+  product_update: acceptProductRequestWorkflow,
+  product_collection_update: acceptProductCollectionUpdateRequestWorkflow,
+  product_category: acceptProductCategoryRequestWorkflow,
+  product_type: acceptProductTypeRequestWorkflow,
+  product_tag: acceptProductTagRequestWorkflow,
+  seller: acceptSellerCreationRequestWorkflow,
+  review_remove: acceptReviewRemoveRequestWorkflow,
+};
 
-  if (type === 'product_collection_update') {
-    return acceptProductCollectionUpdateRequestWorkflow
-  }
-
-  if (type === 'product_category') {
-    return acceptProductCategoryRequestWorkflow
-  }
-
-  if (type === 'product') {
-    return acceptProductRequestWorkflow
-  }
-
-  if (type === 'product_update') {
-    return acceptProductRequestWorkflow
-  }
-
-  if (type === 'seller') {
-    return acceptSellerCreationRequestWorkflow
-  }
-
-  if (type === 'review_remove') {
-    return acceptReviewRemoveRequestWorkflow
-  }
-
-  if (type === 'product_type') {
-    return acceptProductTypeRequestWorkflow
-  }
-
-  if (type === 'product_tag') {
-    return acceptProductTagRequestWorkflow
-  }
-
-  return null
-}
+export const getRequestWorkflowByType = (type: string) =>
+  workflowMap[type] ?? updateRequestWorkflow;
