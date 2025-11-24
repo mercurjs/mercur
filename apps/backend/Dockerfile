@@ -50,4 +50,4 @@ WORKDIR /app/apps/backend
 EXPOSE 9000
 
 # Run migrations, optionally seed demo data (controlled by SEED_DEMO_DATA env), and start server
-CMD ["sh", "-c", "yarn db:migrate && if [ \"$SEED_DEMO_DATA\" = \"true\" ]; then echo '🌱 Seeding demo data...' && yarn seed || echo '⚠️  Seed failed or already done'; fi && yarn start"]
+CMD ["sh", "-c", "yarn db:migrate && if [ \"$SEED_DEMO_DATA\" = \"true\" ]; then yarn seed || true; fi && yarn start"]
