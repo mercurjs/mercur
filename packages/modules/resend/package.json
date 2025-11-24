@@ -30,6 +30,7 @@
     "prepublishOnly": "medusa plugin:build"
   },
   "devDependencies": {
+    "@medusa/index": "2.11.3",
     "@medusajs/admin-sdk": "2.11.3",
     "@medusajs/cli": "2.11.3",
     "@medusajs/framework": "2.11.3",

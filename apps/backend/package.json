@@ -29,6 +29,7 @@
     "generate:oas": "medusa-oas oas --type combined --paths ./src/api"
   },
   "dependencies": {
+    "@medusa/index": "2.11.3",
     "@medusajs/admin-sdk": "2.11.3",
     "@medusajs/cli": "2.11.3",
     "@medusajs/framework": "2.11.3",
@@ -36,8 +37,6 @@
     "@mercurjs/framework": "*",
     "@mercurjs/b2c-core": "*",
     "@mercurjs/commission": "*",
-    "@mercurjs/framework": "*",
-    "@mercurjs/payment-stripe-connect": "*",
     "@mercurjs/requests": "*",
     "@mercurjs/resend": "*",
     "@mercurjs/reviews": "*",
