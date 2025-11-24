@@ -32,7 +32,7 @@
     "orm:cache:clear": " MIKRO_ORM_CLI_CONFIG=./mikro-orm.config.dev.ts medusa-mikro-orm cache:clear"
   },
   "devDependencies": {
-    "@medusa/index": "2.11.3",
+    "@medusajs/index": "2.11.3",
     "@medusajs/framework": "2.11.3",
     "@medusajs/test-utils": "2.11.3",
     "@swc/core": "^1.7.28",
