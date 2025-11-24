@@ -78,8 +78,6 @@ export async function POST(
   }
 
   try {
-    console.log(`\n📂 Starting CSV import for actor: ${actorId}`)
-
     // 1. Get seller from actor_id (member)
     const sellerModule = req.scope.resolve<SellerModuleService>(SELLER_MODULE)
     
@@ -103,7 +101,6 @@ export async function POST(
     }
 
     const sellerId = sellers[0].id
-    console.log(`   Seller ID: ${sellerId}`)
 
     // 2. Get file from request (uploaded by multer middleware)
     const file = (req as any).file
@@ -114,8 +111,6 @@ export async function POST(
         'No CSV file provided. Please upload a file.'
       )
     }
-
-    console.log(`   File: ${file.originalname} (${file.size} bytes)`)
 
     // 3. Get seller's default stock location
     const stockLocationModule = req.scope.resolve(Modules.STOCK_LOCATION)
@@ -131,7 +126,6 @@ export async function POST(
     }
 
     const stockLocationId = stockLocations[0].id
-    console.log(`   Using stock location: ${stockLocationId}`)
 
     // 3. Get default sales channel
     const salesChannelModule = req.scope.resolve(Modules.SALES_CHANNEL)
@@ -145,7 +139,6 @@ export async function POST(
     }
 
     const salesChannelId = salesChannels[0].id
-    console.log(`   Using sales channel: ${salesChannelId}`)
 
     // 4. Get default region (GB)
     const regionModule = req.scope.resolve(Modules.REGION)
@@ -159,7 +152,6 @@ export async function POST(
     }
 
     const regionId = regions[0].id
-    console.log(`   Using region: ${regionId} (GBP)`)
 
     // 5. Parse CSV file
     const rows: CSVRow[] = []
@@ -173,30 +165,26 @@ export async function POST(
           rows.push(row)
         })
         .on('end', () => {
-          console.log(`   ✅ Parsed ${rows.length} rows from CSV`)
           resolve()
         })
         .on('error', (error) => {
-          console.error(`   ❌ CSV parsing error:`, error)
+          console.error('CSV parsing error:', error)
           reject(error)
         })
     })
 
     // 6. Group by Parent SKU
     const groups = groupByParentSKU(rows)
-    console.log(`   📦 Grouped into ${groups.length} parent products`)
 
     // 7. Validate groups
     const validGroups = groups.filter(group => {
       const validation = validateParentGroup(group)
       if (!validation.valid) {
-        console.warn(`   ⚠️  Skipping ${group.parentSKU}: ${validation.errors.join(', ')}`)
+        console.warn(`Skipping ${group.parentSKU}: ${validation.errors.join(', ')}`)
         return false
       }
       return true
     })
-
-    console.log(`   ✅ ${validGroups.length} valid groups ready for import`)
 
     if (validGroups.length === 0) {
       throw new MedusaError(
@@ -218,13 +206,11 @@ export async function POST(
     )
 
     // 9. Trigger Algolia reindex for imported products
-    console.log('   📊 Triggering Algolia reindex...')
     try {
       const { syncAlgoliaWorkflow } = await import('@mercurjs/algolia/workflows')
       await syncAlgoliaWorkflow.run({ container: req.scope })
-      console.log('   ✅ Algolia reindex completed')
     } catch (algoliaError: any) {
-      console.warn('   ⚠️  Algolia reindex failed (non-critical):', algoliaError.message)
+      console.warn('Algolia reindex failed (non-critical):', algoliaError.message)
     }
 
     // 10. Return results
