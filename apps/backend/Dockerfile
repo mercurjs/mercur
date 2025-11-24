@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 # The web Dockerfile is copy-pasted into our main docs at /docs/handbook/deploying-with-docker.
 # Make sure you update this Dockerfile, the Dockerfile in the web workspace and copy that over to Dockerfile in the docs.
@@ -26,17 +26,13 @@ RUN yarn install
 # Build the project and its dependencies
 COPY --from=builder /app/out/full/ .
 
-# Uncomment and use build args to enable remote caching
-# ARG TURBO_TEAM
-# ENV TURBO_TEAM=$TURBO_TEAM
-
-# ARG TURBO_TOKEN
-# ENV TURBO_TOKEN=$TURBO_TOKEN
-
 RUN yarn turbo build
 
 FROM base AS runner
 WORKDIR /app
+
+# Install wget for healthcheck
+RUN apk add --no-cache wget
 
 # Don't run production as root
 RUN addgroup --system --gid 1001 medusa
@@ -47,10 +43,11 @@ RUN mkdir -p /app/apps/backend/static
 RUN chown -R medusa:medusa /app/apps/backend
 
 USER medusa
-COPY --from=installer /app .
+COPY --from=installer --chown=medusa:medusa /app .
 
 WORKDIR /app/apps/backend
 
-RUN yarn db:migrate
+EXPOSE 9000
 
-CMD ["yarn", "start"]
+# Run migrations, optionally seed demo data (controlled by SEED_DEMO_DATA env), and start server
+CMD ["sh", "-c", "yarn db:migrate && if [ \"$SEED_DEMO_DATA\" = \"true\" ]; then echo '🌱 Seeding demo data...' && yarn seed || echo '⚠️  Seed failed or already done'; fi && yarn start"]
