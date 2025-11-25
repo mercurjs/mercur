@@ -10,7 +10,9 @@ module.exports = defineConfig({
     databaseUrl: process.env.DATABASE_URL,
     databaseDriverOptions: {
       connection: { 
-        ssl: false
+        ssl: {
+          rejectUnauthorized: false
+        }
       }
     },
     http: {
