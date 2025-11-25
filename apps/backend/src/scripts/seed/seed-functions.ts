@@ -18,6 +18,8 @@ import {
 } from '@medusajs/medusa/core-flows'
 
 import { SELLER_MODULE } from '@mercurjs/b2c-core/modules/seller'
+import { CONFIGURATION_MODULE } from '@mercurjs/b2c-core/modules/configuration'
+import { COMMISSION_MODULE } from '@mercurjs/commission/modules/commission'
 import {
   createConfigurationRuleWorkflow,
   createLocationFulfillmentSetAndAssociateWithSellerWorkflow,
@@ -30,8 +32,9 @@ import {
 } from '@mercurjs/framework'
 
 import { productsToInsert } from './seed-products'
+import { PRODUCT_TYPE_TO_CATEGORY } from '../../lib/category-mapping'
 
-const countries = ['be', 'de', 'dk', 'se', 'fr', 'es', 'it', 'pl', 'cz', 'nl']
+const countries = ['gb']
 
 export async function createSalesChannel(container: MedusaContainer) {
   const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL)
@@ -76,20 +79,35 @@ export async function createStore(
       selector: { id: store.id },
       update: {
         default_sales_channel_id: salesChannelId,
-        default_region_id: regionId
+        default_region_id: regionId,
+        supported_currencies: [
+          {
+            currency_code: 'gbp',
+            is_default: true
+          }
+        ]
       }
     }
   })
 }
 export async function createRegions(container: MedusaContainer) {
+  const regionService = container.resolve(Modules.REGION)
+  
+  // Check if region already exists
+  const existingRegions = await regionService.listRegions({ name: 'United Kingdom' })
+  if (existingRegions && existingRegions.length > 0) {
+    console.log('Region "United Kingdom" already exists, skipping creation')
+    return existingRegions[0]
+  }
+
   const {
     result: [region]
   } = await createRegionsWorkflow(container).run({
     input: {
       regions: [
         {
-          name: 'Europe',
-          currency_code: 'eur',
+          name: 'United Kingdom',
+          currency_code: 'gbp',
           countries,
           payment_providers: ['pp_system_default']
         }
@@ -149,41 +167,171 @@ export async function createPublishableKey(
 }
 
 export async function createProductCategories(container: MedusaContainer) {
-  const { result } = await createProductCategoriesWorkflow(container).run({
-    input: {
-      product_categories: [
-        {
-          name: 'Sneakers',
-          is_active: true
-        },
-        {
-          name: 'Sandals',
-          is_active: true
-        },
-        {
-          name: 'Boots',
-          is_active: true
-        },
-        {
-          name: 'Sport',
-          is_active: true
-        },
-        {
-          name: 'Accessories',
-          is_active: true
-        },
-        {
-          name: 'Tops',
-          is_active: true
-        }
-      ]
+  const productModule = container.resolve(Modules.PRODUCT)
+  
+  // Build category hierarchy from mapping
+  const categoryHierarchy = new Map<string, Set<string>>() // level1 -> level2[]
+  const subcategoryHierarchy = new Map<string, Set<string>>() // level2 -> level3[]
+  
+  for (const [productType, mapping] of Object.entries(PRODUCT_TYPE_TO_CATEGORY)) {
+    // Add level1
+    if (!categoryHierarchy.has(mapping.level1)) {
+      categoryHierarchy.set(mapping.level1, new Set())
     }
-  })
+    categoryHierarchy.get(mapping.level1)!.add(mapping.level2)
+    
+    // Add level2 -> level3
+    const level2Key = `${mapping.level1}::${mapping.level2}`
+    if (!subcategoryHierarchy.has(level2Key)) {
+      subcategoryHierarchy.set(level2Key, new Set())
+    }
+    subcategoryHierarchy.get(level2Key)!.add(mapping.level3)
+  }
 
-  return result
+  // Helper to generate handle
+  const toHandle = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+  // Check existing categories
+  const existingCategories = await productModule.listProductCategories({}, { take: 9999 })
+  const existingByName = new Map(existingCategories.map((c: any) => [c.name, c]))
+  const existingByHandle = new Set(existingCategories.map((c: any) => c.handle))
+
+  console.log(`Found ${existingCategories.length} existing categories`)
+
+  // Level 1: Create all top-level categories
+  const level1ToCreate = Array.from(categoryHierarchy.keys()).filter(name => {
+    const hasName = existingByName.has(name)
+    const handle = toHandle(name)
+    const hasHandle = existingByHandle.has(handle)
+    if (hasName || hasHandle) {
+      console.log(`   ℹ️  Skipping "${name}" (handle: ${handle}, hasName: ${hasName}, hasHandle: ${hasHandle})`)
+    }
+    return !hasName && !hasHandle
+  })
+  
+  if (level1ToCreate.length > 0) {
+    const { result: level1Result } = await createProductCategoriesWorkflow(container).run({
+      input: {
+        product_categories: level1ToCreate.map(name => ({
+          name,
+          handle: toHandle(name),
+          is_active: true,
+          is_internal: false
+        }))
+      }
+    })
+    console.log(`✅ Created ${level1Result.length} level 1 categories`)
+    level1Result.forEach((c: any) => {
+      existingByName.set(c.name, c)
+      existingByHandle.add(c.handle)
+    })
+  } else {
+    console.log(`ℹ️  All level 1 categories already exist`)
+  }
+
+  // Level 2: Create all subcategories
+  const level2ToCreate: Array<{ name: string; parent: string }> = []
+  
+  for (const [level1Name, level2Names] of categoryHierarchy.entries()) {
+    const parentCategory = existingByName.get(level1Name)
+    if (!parentCategory) {
+      console.warn(`⚠️  Parent category "${level1Name}" not found, skipping subcategories`)
+      continue
+    }
+    
+    for (const level2Name of level2Names) {
+      if (!existingByName.has(level2Name) && !existingByHandle.has(toHandle(level2Name))) {
+        level2ToCreate.push({ name: level2Name, parent: parentCategory.id })
+      }
+    }
+  }
+
+  if (level2ToCreate.length > 0) {
+    const { result: level2Result } = await createProductCategoriesWorkflow(container).run({
+      input: {
+        product_categories: level2ToCreate.map(({ name, parent }) => ({
+          name,
+          handle: toHandle(name),
+          parent_category_id: parent,
+          is_active: true,
+          is_internal: false
+        }))
+      }
+    })
+    console.log(`✅ Created ${level2Result.length} level 2 categories`)
+    level2Result.forEach((c: any) => {
+      existingByName.set(c.name, c)
+      existingByHandle.add(c.handle)
+    })
+  } else {
+    console.log(`ℹ️  All level 2 categories already exist`)
+  }
+
+  // Level 3: Create all product type categories
+  const level3ToCreate: Array<{ name: string; parent: string }> = []
+  
+  for (const [level2Key, level3Names] of subcategoryHierarchy.entries()) {
+    const [level1Name, level2Name] = level2Key.split('::')
+    const parentCategory = existingByName.get(level2Name)
+    
+    if (!parentCategory) {
+      console.warn(`⚠️  Parent category "${level2Name}" not found, skipping product types`)
+      continue
+    }
+    
+    for (const level3Name of level3Names) {
+      if (!existingByName.has(level3Name) && !existingByHandle.has(toHandle(level3Name))) {
+        level3ToCreate.push({ name: level3Name, parent: parentCategory.id })
+      }
+    }
+  }
+
+  if (level3ToCreate.length > 0) {
+    // Create in batches to avoid overwhelming the system
+    const batchSize = 50
+    let totalCreated = 0
+    
+    for (let i = 0; i < level3ToCreate.length; i += batchSize) {
+      const batch = level3ToCreate.slice(i, i + batchSize)
+      const { result: level3Result } = await createProductCategoriesWorkflow(container).run({
+        input: {
+          product_categories: batch.map(({ name, parent }) => ({
+            name,
+            handle: toHandle(name),
+            parent_category_id: parent,
+            is_active: true,
+            is_internal: false
+          }))
+        }
+      })
+      totalCreated += level3Result.length
+      level3Result.forEach((c: any) => {
+        existingByName.set(c.name, c)
+        existingByHandle.add(c.handle)
+      })
+      console.log(`   Created ${totalCreated}/${level3ToCreate.length} level 3 categories...`)
+    }
+    console.log(`✅ Created ${totalCreated} level 3 categories`)
+  } else {
+    console.log(`ℹ️  All level 3 categories already exist`)
+  }
+
+  const finalCategories = await productModule.listProductCategories({}, { take: 9999 })
+  console.log(`✅ Total categories in database: ${finalCategories.length}`)
+
+  return finalCategories
 }
 
 export async function createProductCollections(container: MedusaContainer) {
+  const productModule = container.resolve(Modules.PRODUCT)
+  
+  // Check if collections already exist
+  const existingCollections = await productModule.listProductCollections({})
+  if (existingCollections && existingCollections.length > 0) {
+    console.log('Product collections already exist, skipping creation')
+    return existingCollections
+  }
+
   const { result } = await createCollectionsWorkflow(container).run({
     input: {
       collections: [
@@ -212,8 +360,49 @@ export async function createProductCollections(container: MedusaContainer) {
   return result
 }
 
+export async function createProductTypes(container: MedusaContainer) {
+  const productModule = container.resolve(Modules.PRODUCT)
+  
+  // Get all unique product types from category mapping
+  const productTypes = Object.keys(PRODUCT_TYPE_TO_CATEGORY)
+
+  const existingTypes = await productModule.listProductTypes({})
+  const existingTypeValues = new Set(existingTypes.map((type: any) => type.value))
+
+  const createdTypes: any[] = []
+  let skippedCount = 0
+
+  for (const type of productTypes) {
+    if (!existingTypeValues.has(type)) {
+      const created = await productModule.createProductTypes({
+        value: type
+      })
+      createdTypes.push(created)
+    } else {
+      skippedCount++
+    }
+  }
+
+  if (createdTypes.length > 0) {
+    console.log(`✅ Created ${createdTypes.length} product types`)
+  }
+  if (skippedCount > 0) {
+    console.log(`ℹ️  Skipped ${skippedCount} existing product types`)
+  }
+
+  return [...existingTypes, ...createdTypes]
+}
+
 export async function createSeller(container: MedusaContainer) {
   const authService = container.resolve(Modules.AUTH)
+  const sellerService = container.resolve(SELLER_MODULE) as any
+
+  // Check if seller already exists by handle
+  const existingSellers = await sellerService.listSellers({ handle: 'mercurjs-store' })
+  if (existingSellers && existingSellers.length > 0) {
+    console.log('Seller already exists, skipping creation')
+    return existingSellers[0]
+  }
 
   const { authIdentity } = await authService.register('emailpass', {
     body: {
@@ -244,6 +433,25 @@ export async function createSellerStockLocation(
   sellerId: string,
   salesChannelId: string
 ) {
+  const stockLocationModule = container.resolve(Modules.STOCK_LOCATION)
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  
+  // Check if stock location already exists for this seller
+  const {
+    data: existingStockLocations
+  } = await query.graph({
+    entity: 'stock_location',
+    fields: ['*', 'fulfillment_sets.*'],
+    filters: {
+      name: `Stock Location for seller ${sellerId}`
+    }
+  })
+  
+  if (existingStockLocations && existingStockLocations.length > 0) {
+    console.log('Stock location for seller already exists, skipping creation')
+    return existingStockLocations[0]
+  }
+
   const link = container.resolve(ContainerRegistrationKeys.LINK)
   const {
     result: [stock]
@@ -253,9 +461,10 @@ export async function createSellerStockLocation(
         {
           name: `Stock Location for seller ${sellerId}`,
           address: {
-            address_1: 'Random Strasse',
-            city: 'Berlin',
-            country_code: 'de'
+            address_1: 'Oxford Street',
+            city: 'London',
+            country_code: 'gb',
+            postal_code: 'W1D 1BS'
           }
         }
       ]
@@ -301,8 +510,6 @@ export async function createSellerStockLocation(
     }
   })
 
-  const query = container.resolve(ContainerRegistrationKeys.QUERY)
-
   const {
     data: [stockLocation]
   } = await query.graph({
@@ -321,13 +528,27 @@ export async function createServiceZoneForFulfillmentSet(
   sellerId: string,
   fulfillmentSetId: string
 ) {
+  const fulfillmentService = container.resolve(Modules.FULFILLMENT)
+
+  // Check if service zone already exists for this fulfillment set
+  const existingZones = await fulfillmentService.listServiceZones({
+    fulfillment_set: {
+      id: fulfillmentSetId
+    }
+  })
+  
+  if (existingZones && existingZones.length > 0) {
+    console.log('Service zone for fulfillment set already exists, skipping creation')
+    return existingZones[0]
+  }
+
   await createServiceZonesWorkflow.run({
     container,
     input: {
       data: [
         {
           fulfillment_set_id: fulfillmentSetId,
-          name: `Europe`,
+          name: `United Kingdom`,
           geo_zones: countries.map((c) => ({
             type: 'country',
             country_code: c
@@ -336,8 +557,6 @@ export async function createServiceZoneForFulfillmentSet(
       ]
     }
   })
-
-  const fulfillmentService = container.resolve(Modules.FULFILLMENT)
 
   const [zone] = await fulfillmentService.listServiceZones({
     fulfillment_set: {
@@ -396,7 +615,7 @@ export async function createSellerShippingOption(
           { attribute: 'is_return', value: 'false', operator: 'eq' }
         ],
         prices: [
-          { currency_code: 'eur', amount: 10 },
+          { currency_code: 'gbp', amount: 10 },
           { amount: 10, region_id: regionId }
         ],
         price_type: 'flat',
@@ -424,6 +643,14 @@ export async function createSellerProducts(
   salesChannelId: string
 ) {
   const productService = container.resolve(Modules.PRODUCT)
+  
+  // Check if products already exist
+  const existingProducts = await productService.listProducts({})
+  if (existingProducts && existingProducts.length > 0) {
+    console.log('Products already exist, skipping creation')
+    return existingProducts
+  }
+
   const collections = await productService.listProductCollections(
     {},
     { select: ['id', 'title'] }
@@ -471,6 +698,16 @@ export async function createInventoryItemStockLevels(
   stockLocationId: string
 ) {
   const inventoryService = container.resolve(Modules.INVENTORY)
+  
+  // Check if inventory levels already exist
+  const existingLevels = await inventoryService.listInventoryLevels({
+    location_id: stockLocationId
+  })
+  if (existingLevels && existingLevels.length > 0) {
+    console.log('Inventory levels already exist, skipping creation')
+    return existingLevels
+  }
+
   const items = await inventoryService.listInventoryItems(
     {},
     { select: ['id'] }
@@ -492,6 +729,15 @@ export async function createInventoryItemStockLevels(
 }
 
 export async function createDefaultCommissionLevel(container: MedusaContainer) {
+  const commissionService = container.resolve(COMMISSION_MODULE) as any
+  
+  // Check if default commission rule already exists
+  const existingRules = await commissionService.listCommissionRules({ name: 'default' })
+  if (existingRules && existingRules.length > 0) {
+    console.log('Default commission rule already exists, skipping creation')
+    return
+  }
+
   await createCommissionRuleWorkflow.run({
     container,
     input: {
@@ -508,8 +754,53 @@ export async function createDefaultCommissionLevel(container: MedusaContainer) {
   })
 }
 
+export async function createAdminUser(container: MedusaContainer) {
+  const userService = container.resolve(Modules.USER)
+  const authService = container.resolve(Modules.AUTH)
+  
+  // Check if admin user already exists
+  const existingUsers = await userService.listUsers({ email: 'admin@medusa-test.com' })
+  if (existingUsers && existingUsers.length > 0) {
+    console.log('Admin user already exists, skipping creation')
+    return existingUsers[0]
+  }
+
+  // Create auth identity first
+  const { authIdentity } = await authService.register('emailpass', {
+    body: {
+      email: 'admin@medusa-test.com',
+      password: 'supersecret'
+    }
+  })
+
+  // Create user linked to auth identity
+  const user = await userService.createUsers({
+    email: 'admin@medusa-test.com',
+    first_name: 'Admin',
+    last_name: 'User',
+    metadata: {
+      auth_identity_id: authIdentity?.id
+    }
+  })
+
+  console.log('✅ Admin user created: admin@medusa-test.com')
+  return user
+}
+
 export async function createConfigurationRules(container: MedusaContainer) {
+  const configurationService = container.resolve(CONFIGURATION_MODULE) as any
+  
+  // Get existing configuration rules
+  const existingRules = await configurationService.listConfigurationRules({})
+  const existingRuleTypes = new Set(existingRules.map((rule: any) => rule.rule_type))
+  
   for (const [ruleType, isEnabled] of ConfigurationRuleDefaults) {
+    // Skip if rule already exists
+    if (existingRuleTypes.has(ruleType)) {
+      console.log(`Configuration rule "${ruleType}" already exists, skipping`)
+      continue
+    }
+    
     await createConfigurationRuleWorkflow.run({
       container,
       input: {

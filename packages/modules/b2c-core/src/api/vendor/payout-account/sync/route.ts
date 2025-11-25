@@ -4,7 +4,7 @@ import {
   MedusaError
 } from '@medusajs/framework/utils'
 
-import { syncStripeAccountWorkflow } from '../../../../workflows/seller/workflows'
+import { syncPayoutAccountWorkflow } from '../../../../workflows/seller/workflows'
 
 /**
  * @oas [post] /vendor/payout-account/sync
@@ -80,7 +80,7 @@ export const POST = async (
     )
   }
 
-  const { result: payout_account } = await syncStripeAccountWorkflow.run({
+  const { result: payout_account } = await syncPayoutAccountWorkflow.run({
     container: req.scope,
     input: member.seller.payout_account.id
   })

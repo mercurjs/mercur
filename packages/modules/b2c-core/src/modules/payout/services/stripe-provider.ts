@@ -28,7 +28,7 @@ type StripeConnectConfig = {
   webhookSecret: string;
 };
 
-export class PayoutProvider implements IPayoutProvider {
+export class StripePayoutProvider implements IPayoutProvider {
   protected readonly config_: StripeConnectConfig;
   protected readonly logger_: Logger;
   protected readonly client_: Stripe;
@@ -89,6 +89,7 @@ export class PayoutProvider implements IPayoutProvider {
   }
 
   async createPayoutAccount({
+    payment_provider_id,
     context,
     account_id,
   }: CreatePayoutAccountInput): Promise<CreatePayoutAccountResponse> {
@@ -110,6 +111,8 @@ export class PayoutProvider implements IPayoutProvider {
           account_id,
         },
       });
+
+      this.logger_.info(`[Stripe] Account created: ${account.id}`);
 
       return {
         data: account as unknown as Record<string, unknown>,
@@ -160,17 +163,19 @@ export class PayoutProvider implements IPayoutProvider {
     }
   }
 
-  async getAccount(accountId: string): Promise<Stripe.Account> {
+  async getAccount(accountId: string): Promise<Record<string, unknown>> {
     try {
       const account = await this.client_.accounts.retrieve(accountId);
-      return account;
+      return account as unknown as Record<string, unknown>;
     } catch (error) {
       const message = error?.message ?? "Error occured while getting account";
       throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, message);
     }
   }
 
-  async reversePayout(input: ReversePayoutInput) {
+  async reversePayout(
+    input: ReversePayoutInput
+  ): Promise<Record<string, unknown>> {
     try {
       const reversal = await this.client_.transfers.createReversal(
         input.transfer_id,
@@ -179,7 +184,7 @@ export class PayoutProvider implements IPayoutProvider {
         }
       );
 
-      return reversal;
+      return reversal as unknown as Record<string, unknown>;
     } catch (error) {
       const message = error?.message ?? "Error occured while reversing payout";
       throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, message);

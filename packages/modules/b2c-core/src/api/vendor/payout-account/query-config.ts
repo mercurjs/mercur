@@ -4,12 +4,13 @@ export const vendorPayoutAccountFields = [
   'reference_id',
   'data',
   'context',
-  '*onboarding'
+  'payment_provider_id',
+  '*onboarding',
 ]
 
 export const vendorPayoutAccountQueryConfig = {
   retrieve: {
     defaults: vendorPayoutAccountFields,
-    isList: false
+    isList: true
   }
 }

@@ -314,7 +314,7 @@ abstract class StripeConnectProvider extends AbstractPaymentProvider<Options> {
 
   constructWebhookEvent(data: ProviderWebhookPayload["payload"]): Stripe.Event {
     const signature = data.headers["stripe-signature"] as string;
-
+ 
     return this.client_.webhooks.constructEvent(
       data.rawData as string | Buffer,
       signature,

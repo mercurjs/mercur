@@ -7,6 +7,7 @@ import {
   createInventoryItemStockLevels,
   createProductCategories,
   createProductCollections,
+  createProductTypes,
   createPublishableKey,
   createRegions,
   createSalesChannel,
@@ -15,7 +16,8 @@ import {
   createSellerShippingOption,
   createSellerStockLocation,
   createServiceZoneForFulfillmentSet,
-  createStore
+  createStore,
+  createAdminUser
 } from './seed/seed-functions'
 
 export default async function seedMarketplaceData({ container }: ExecArgs) {
@@ -38,6 +40,8 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
   await createProductCategories(container)
   logger.info('Creating product collections...')
   await createProductCollections(container)
+  logger.info('Creating product types...')
+  await createProductTypes(container)
   logger.info('Creating seller...')
   const seller = await createSeller(container)
   logger.info('Creating seller stock location...')
@@ -66,10 +70,15 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
   await createInventoryItemStockLevels(container, stockLocation.id)
   logger.info('Creating default commission...')
   await createDefaultCommissionLevel(container)
+  logger.info('Creating admin user...')
+  await createAdminUser(container)
 
   logger.info('=== Finished ===')
   logger.info(`Publishable api key: ${apiKey.token}`)
   logger.info(`Vendor panel access:`)
   logger.info(`email: seller@mercurjs.com`)
   logger.info(`pass: secret`)
+  logger.info(`Admin panel access:`)
+  logger.info(`email: admin@medusa-test.com`)
+  logger.info(`pass: supersecret`)
 }

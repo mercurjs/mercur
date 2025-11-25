@@ -123,19 +123,34 @@ export async function findAndTransformAlgoliaProducts(
   const { data: products } = await query.graph({
     entity: 'product',
     fields: [
-      '*',
+      'id',
+      'title',
+      'subtitle',
+      'description',
+      'handle',
+      'thumbnail',
+      'status',
+      'created_at',
+      'updated_at',
+      'metadata',
       'categories.name',
       'categories.id',
-      'collection.title ',
+      'collection.title',
+      'collection.id',
       'tags.value',
       'type.value',
-      'variants.*',
-      'variants.options.*',
-      'variants.options.prices.*',
-      'variants.prices.*',
-      'options.*',
-      'options.values.*',
-      'images.*',
+      'type.id',
+      'variants.id',
+      'variants.title',
+      'variants.sku',
+      'variants.metadata',
+      'variants.options.option.title',
+      'variants.options.value',
+      'variants.prices.amount',
+      'variants.prices.currency_code',
+      'options.id',
+      'options.title',
+      'options.values.value',
       'attribute_values.value',
       'attribute_values.attribute.name',
       'attribute_values.attribute.is_filterable',
@@ -157,6 +172,12 @@ export async function findAndTransformAlgoliaProducts(
     );
     product.seller = await selectProductSeller(container, product.id);
 
+    // Trim description to 500 characters to reduce size
+    if (product.description && product.description.length > 500) {
+      product.description = product.description.substring(0, 500) + '...';
+    }
+
+    // Transform options to simple key-value pairs
     product.options = product.options
       ?.map((option) => {
         return option.values.map((value) => {
@@ -166,16 +187,44 @@ export async function findAndTransformAlgoliaProducts(
         });
       })
       .flat();
+    
+    // Validate and transform variants
     product.variants = z.array(AlgoliaVariantValidator).parse(product.variants);
-    product.variants = product.variants
+    
+    // Limit to first 20 variants to avoid record size issues
+    const variantsToIndex = product.variants.slice(0, 20);
+    
+    product.variants = variantsToIndex
       ?.map((variant) => {
+        // Only keep essential variant data for Algolia
+        const transformedVariant = {
+          id: variant.id,
+          title: variant.title,
+          sku: variant.sku,
+          // Keep prices for price display and filtering
+          prices: variant.prices?.map(price => ({
+            amount: price.amount,
+            currency_code: price.currency_code,
+          })) || [],
+          // Limit metadata to essential fields only
+          metadata: {
+            colour: variant.metadata?.colour,
+            size: variant.metadata?.size,
+            unit_count_type: variant.metadata?.unit_count_type,
+          },
+        };
+        
+        // Add option values as flat properties
         return variant.options?.reduce((entry, item) => {
-          entry[item.option.title.toLowerCase()] = item.value;
+          if (item.option && item.option.title) {
+            entry[item.option.title.toLowerCase()] = item.value;
+          }
           return entry;
-        }, variant);
+        }, transformedVariant);
       })
       .flat();
 
+    // Transform attribute values
     product.attribute_values = product.attribute_values?.map((attribute) => {
       return {
         name: attribute.attribute.name,

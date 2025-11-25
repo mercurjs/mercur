@@ -1,4 +1,4 @@
-import { Modules } from "@medusajs/framework/utils";
+import { MathBN, Modules } from "@medusajs/framework/utils";
 import { transform, when } from "@medusajs/framework/workflows-sdk";
 import {
   createRemoteLinkStep,
@@ -26,6 +26,7 @@ export const processPayoutForOrderWorkflow = createWorkflow(
   function (input: ProcessPayoutForOrderWorkflowInput) {
     validateNoExistingPayoutForOrderStep(input.order_id);
 
+    
     const { data: orders } = useQueryGraphStep({
       entity: "order",
       fields: [
@@ -51,6 +52,7 @@ export const processPayoutForOrderWorkflow = createWorkflow(
         source_transaction:
           transformed.payment_collections[0].payment_sessions[0].data
             .latest_charge,
+        payment_session: transformed.payment_collections[0].payment_sessions[0]
       };
     });
 
@@ -66,13 +68,15 @@ export const processPayoutForOrderWorkflow = createWorkflow(
 
     validateSellerPayoutAccountStep(seller);
 
-    const payout_total = calculatePayoutForOrderStep(input);
+    const { payout_total, total_commission } = calculatePayoutForOrderStep(input);   
 
     const { payout, err: createPayoutErr } = createPayoutStep({
       transaction_id: order.id,
       amount: payout_total,
+      commission_amount: total_commission,
       currency_code: order.currency_code,
       account_id: seller.payout_account.id,
+      payment_session: order.payment_session,
       source_transaction: order.source_transaction,
     });
 

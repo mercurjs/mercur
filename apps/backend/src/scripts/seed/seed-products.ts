@@ -25,7 +25,7 @@ export const productsToInsert = [
         prices: [
           {
             amount: 99,
-            currency_code: 'eur'
+            currency_code: 'gbp'
           }
         ],
         options: {

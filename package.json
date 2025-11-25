@@ -3,6 +3,7 @@
   "name": "mercur",
   "version": "1.4.3",
   "devDependencies": {
+    "ts-node": "^10.9.2",
     "turbo": "^2.3.3"
   },
   "bin": {

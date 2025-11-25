@@ -46,6 +46,6 @@ export const calculatePayoutForOrderStep = createStep(
       .minus(refunded_amount)
       .minus(total_commission)
 
-    return new StepResponse(payout_total)
+    return new StepResponse({payout_total, total_commission})
   }
 )

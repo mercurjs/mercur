@@ -8,6 +8,7 @@ import { PAYOUT_MODULE } from "../modules/payout";
 import { PayoutModuleService } from "../modules/payout";
 
 import { processPayoutWebhookActionWorkflow } from "../workflows/payout/workflows";
+import { PaymentProvider } from "../api/vendor/payout-account/types";
 
 type SerializedBuffer = {
   data: ArrayBuffer;
@@ -28,7 +29,20 @@ export default async function payoutWebhookHandler({
     );
   }
 
-  const actionAndData = await payoutService.getWebhookActionAndData(input);
+  // Determine payment provider from headers
+  // Stripe uses 'stripe-signature', Adyen uses 'hmac' or other headers
+  let payment_provider_id = PaymentProvider.STRIPE_CONNECT; // Default to Stripe for backwards compatibility
+
+  if (input.headers?.["stripe-signature"]) {
+    payment_provider_id = PaymentProvider.STRIPE_CONNECT;
+  } else if (input.headers?.["hmac"] || input.headers?.["adyen-signature"]) {
+    payment_provider_id = PaymentProvider.ADYEN_CONNECT;
+  }
+
+  const actionAndData = await payoutService.getWebhookActionAndData(
+    payment_provider_id,
+    input
+  );
 
   if (!actionAndData) {
     return;

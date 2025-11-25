@@ -88,8 +88,8 @@ export const AlgoliaVariantValidator = z.object({
   barcode: z.string().nullish(),
   ean: z.string().nullish(),
   ups: z.string().nullish(),
-  allow_backorder: z.boolean(),
-  manage_inventory: z.boolean(),
+  allow_backorder: z.boolean().optional(),
+  manage_inventory: z.boolean().optional(),
   hs_code: z.string().nullish(),
   origin_country: z.string().nullish(),
   mid_code: z.string().nullish(),
@@ -99,25 +99,26 @@ export const AlgoliaVariantValidator = z.object({
   height: z.number().nullish(),
   wifth: z.number().nullish(),
   variant_rank: z.number().nullish(),
+  metadata: z.record(z.unknown()).nullish(),
   options: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().optional(),
       value: z.string(),
       option: z.object({
-        id: z.string(),
+        id: z.string().optional(),
         title: z.string(),
-      }),
+      }).nullable().optional(),
     })
-  ),
+  ).optional(),
   prices: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().optional(),
       title: z.string().nullish(),
       currency_code: z.string(),
       min_quantity: z.number().nullish(),
       max_quantity: z.number().nullish(),
-      rules_count: z.number(),
+      rules_count: z.number().optional(),
       amount: z.number(),
     })
-  ),
+  ).optional(),
 });

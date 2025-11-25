@@ -11,7 +11,7 @@ export const refetchPayoutAccount = async (
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
   const {
-    data: [sellerPayoutAccount]
+    data: sellerPayoutAccount
   } = await query.graph(
     {
       entity: sellerPayoutAccountLink.entryPoint,
