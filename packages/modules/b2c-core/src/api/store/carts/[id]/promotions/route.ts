@@ -12,7 +12,7 @@ export const POST = async (
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
     const seller = await fetchSellerByAuthActorId(
-      req.auth_context.actor_id,
+      req.auth_context?.actor_id,
       req.scope
     )
 
