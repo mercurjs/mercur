@@ -1,12 +1,12 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework'
 
 /**
- * GET /admin/seed/categories/ui
+ * GET /seed-ui
  * 
- * Simple HTML page to seed categories
+ * Public HTML page to seed categories
  * Just navigate to this URL and it will automatically run the seeding
  * 
- * Example: http://localhost:9000/admin/seed/categories/ui
+ * Example: http://localhost:9000/seed-ui
  */
 export async function GET(
   req: MedusaRequest,
@@ -18,7 +18,7 @@ export async function GET(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seed Categories - Medusa Admin</title>
+  <title>Seed Categories - Medusa</title>
   <style>
     * {
       margin: 0;
@@ -223,12 +223,11 @@ export async function GET(
       retryBtn.style.display = 'none';
       
       try {
-        const response = await fetch('/admin/seed/categories', {
+        const response = await fetch('/seed/categories', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-          },
-          credentials: 'include'
+          }
         });
         
         if (!response.ok) {
