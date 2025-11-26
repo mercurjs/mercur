@@ -1,4 +1,4 @@
-import { CreatePromotionDTO, LinkDefinition } from "@medusajs/framework/types";
+import { CreatePromotionDTO, CreatePromotionRuleDTO, LinkDefinition } from "@medusajs/framework/types";
 import { Modules } from "@medusajs/framework/utils";
 import {
   createPromotionsWorkflow,
@@ -30,9 +30,24 @@ export const createVendorPromotionWorkflow = createWorkflow(
       }))
     );
 
+    const promotionWithVendorRule = transform(input, ({ promotion, seller_id }) => ({
+      ...promotion,
+      application_method: {
+        ...promotion.application_method,
+        target_rules: [
+          ...(promotion.application_method?.target_rules || []),
+          {
+            attribute: "items.product.seller.id",
+            operator: "eq",
+            values: [seller_id],
+          } as CreatePromotionRuleDTO,
+        ],
+      },
+    }));
+
     const promotions = createPromotionsWorkflow.runAsStep({
       input: {
-        promotionsData: [input.promotion],
+        promotionsData: [promotionWithVendorRule],
       },
     });
 

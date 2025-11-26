@@ -1,37 +1,21 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
-import { ContainerRegistrationKeys, MedusaError, PromotionActions } from "@medusajs/framework/utils"
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework"
+import { ContainerRegistrationKeys, PromotionActions } from "@medusajs/framework/utils"
 import { StoreAddCartPromotionsType } from "@medusajs/medusa/api/store/carts/validators"
-import { updateCartPromotionsWorkflow } from "@medusajs/medusa/core-flows"
-import { fetchSellerByAuthActorId } from "@mercurjs/framework"
-import { validateSellerPromotions } from "../../../../../modules/seller"
+import { updateCartPromotionsInSellerContextWorkflow } from "../../../../../workflows/promotions/workflows/update-cart-promotions-in-seller-context"
 
 export const POST = async (
-    req: AuthenticatedMedusaRequest<StoreAddCartPromotionsType>,
+    req: MedusaRequest,
     res: MedusaResponse
   ) => {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    const { promo_codes } = req.validatedBody as StoreAddCartPromotionsType;
 
-    const seller = await fetchSellerByAuthActorId(
-      req.auth_context?.actor_id,
-      req.scope
-    )
-
-    const validatePromotions = await validateSellerPromotions(
-      req.validatedBody.promo_codes,
-      req.scope,
-      seller.id
-    )
-
-    if (!validatePromotions.valid) {
-      throw new MedusaError(MedusaError.Types.INVALID_DATA, 'Some of the promotion codes are invalid')
-    }
-
-    await updateCartPromotionsWorkflow.run({
+    await updateCartPromotionsInSellerContextWorkflow(req.scope).run({
       input: {
         cart_id: req.params.id,
-        promo_codes: req.validatedBody.promo_codes,
+        promo_codes: promo_codes,
         action:
-            req.validatedBody.promo_codes.length > 0
+            promo_codes.length > 0
                 ? PromotionActions.ADD
                 : PromotionActions.REPLACE,
         },

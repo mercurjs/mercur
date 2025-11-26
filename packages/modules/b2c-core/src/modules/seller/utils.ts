@@ -126,34 +126,3 @@ export async function selectCustomersChartData(
 
   return result as unknown as { date: Date; count: string }[]
 }
-
-export async function validateSellerPromotions(
-  promo_codes: string[],
-  container: MedusaContainer,
-  seller_id: string
-): Promise<{ valid: boolean; invalidCodes: string[] }> {
-  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
-
-  const sellerPromotionCodes = await knex
-    .select('promotion.code')
-    .from('seller_seller_promotion_promotion')
-    .leftJoin(
-      'promotion',
-      'seller_seller_promotion_promotion.promotion_id',
-      'promotion.id'
-    )
-    .where('seller_seller_promotion_promotion.seller_id', seller_id)
-    .whereIn('promotion.code', promo_codes)
-    .whereNull('promotion.deleted_at')
-
-  const foundCodes = sellerPromotionCodes.map((row) => row.code)
-
-  const invalidCodes = promo_codes.filter(
-    (code) => !foundCodes.includes(code)
-  )
-
-  return {
-    valid: invalidCodes.length === 0,
-    invalidCodes
-  }
-}
