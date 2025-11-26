@@ -4,11 +4,11 @@ import { StoreAddCartPromotionsType } from "@medusajs/medusa/api/store/carts/val
 import { updateCartPromotionsInSellerContextWorkflow } from "../../../../../workflows/promotions/workflows/update-cart-promotions-in-seller-context"
 
 export const POST = async (
-    req: MedusaRequest,
+    req: MedusaRequest<StoreAddCartPromotionsType>,
     res: MedusaResponse
   ) => {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-    const { promo_codes } = req.validatedBody as StoreAddCartPromotionsType;
+    const { promo_codes } = req.validatedBody;
 
     await updateCartPromotionsInSellerContextWorkflow(req.scope).run({
       input: {
