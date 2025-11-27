@@ -5,6 +5,59 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] - 2025-11-27
+
+### Release 1.4.4
+
+### Fixed
+
+#### Admin Panel
+- **Improved stability across Commission Rules and Commission Lines, fixing validation issues and several view crashes.**
+- **Fixed loading issues in Shipping Option Types, which previously displayed an error instead of loading.**
+- **Corrected behaviour of the "Buy X Get Y" promotion type.**
+- **Standardized numerical formatting in "In stock" fields to prevent inconsistent values.**
+- **Added missing validation for the Product Attributes → Description field.**
+- **Restored the missing Message component across various Admin screens.**
+- **Updated and improved the Sellers module.**
+- **Updated the Promotions module to ensure consistent behaviour.**
+- **Updated the Products & Inventory module for better reliability.**
+- **Updated the login flow and UI, including improved structure for automated testing.**
+
+#### Vendor Panel
+- **Fixed missing Inventory Items when switching between product variants.**
+- **Fixed the issue where vendors were unable to remove a collection.**
+- **Fixed errors occurring when editing collections.**
+- **Corrected issues when managing product tags.**
+- **Ensured products can be added to price lists even when pricing fields were previously missing.**
+- **Fixed sorting problems on the vendor category view.**
+- **Campaigns are now correctly visible in the vendor panel.**
+- **Removed an unnecessary warning popup that appeared after saving changes on the product detail page.**
+- **Fixed incorrect URL parsing that caused navigation inconsistencies.**
+
+#### Storefront (B2C)
+- **Fixed empty-cart issues that occurred after adding products to the cart.**
+- **Fixed problems removing products from the cart.**
+- **Prevented checkout from starting when the cart is empty.**
+- **Fixed the search icon so that it properly triggers the search action.**
+- **Corrected responsive behaviour of the seller logo on product pages.**
+- **Fixed empty "More from this seller" sections.**
+- **Corrected issues where multiple products on listing pages could not be opened.**
+
+#### Shared Frontend / System-Level
+- **Improved shared UI components and error states.**
+- **Various frontend stability improvements across modules.**
+
+### Contributors:
+
+@itariv
+@kacpergumieniuk
+@kactok
+@mikolvj
+@tomaszdworniczak
+@milosz-w-rigby
+@sylwia-werner
+@AlanJanicki
+
 ## [1.4.3] - 2025-11-13
 
 ### Release 1.4.3
