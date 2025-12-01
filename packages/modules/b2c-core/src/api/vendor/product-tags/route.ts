@@ -59,13 +59,13 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const { rows: product_tags, metadata } = await refetchEntities(
-    'product_tag',
-    req.filterableFields,
-    req.scope,
-    req.queryConfig.fields,
-    req.queryConfig.pagination
-  )
+  const { data: product_tags, metadata } = await refetchEntities({
+    entity: 'product_tag',
+    idOrFilter: req.filterableFields,
+    scope: req.scope,
+    fields: req.queryConfig.fields,
+    pagination: req.queryConfig.pagination
+  })
 
   res.json({
     product_tags,

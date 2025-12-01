@@ -23,6 +23,7 @@ export default async function buyerCancelOrderHandler({
       "items.*",
       "customer.first_name",
       "customer.last_name",
+      "order_set.*",
     ],
     filters: {
       id: event.data.id,
@@ -35,6 +36,10 @@ export default async function buyerCancelOrderHandler({
   }
 
   const storeData = await fetchStoreData(container);
+  const orderUrl = buildHostAddress(
+    Hosts.STOREFRONT,
+    `/user/orders/${order.order_set.id ?? order.id}`
+  ).toString();
 
   await notificationService.createNotifications({
     to: order.email,
@@ -50,10 +55,7 @@ export default async function buyerCancelOrderHandler({
           display_id: order.display_id,
           item: order.items,
         },
-        order_address: buildHostAddress(
-          Hosts.STOREFRONT,
-          `/user/orders/${order.id}`
-        ).toString(),
+        order_address: orderUrl,
         store_name: storeData.store_name,
         storefront_url: storeData.storefront_url,
       },

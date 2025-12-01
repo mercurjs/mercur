@@ -82,6 +82,9 @@ module.exports = defineConfig({
           }
         ]
       }
+    },
+    {
+      resolve: '@medusajs/index'
     }
   ]
 })

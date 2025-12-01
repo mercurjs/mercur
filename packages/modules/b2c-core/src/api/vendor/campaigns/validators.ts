@@ -3,13 +3,61 @@ import { z } from 'zod'
 import { CampaignBudgetType, isPresent } from '@medusajs/framework/utils'
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
+export const VendorGetCampaignsParamsFields = z.object({
+  q: z.string().optional()
+})
+
 export type VendorGetCampaignsParamsType = z.infer<
   typeof VendorGetCampaignsParams
 >
 export const VendorGetCampaignsParams = createFindParams({
-  offset: 0,
-  limit: 50
+  limit: 50,
+  offset: 0
 })
+  // TODO: will be used when we'll get back to using index module
+  // .merge(VendorGetCampaignsParamsFields)
+  // .strict()
+
+const dateFilterSchema = z
+  .preprocess(
+    (val) => {
+      if (typeof val === 'string') {
+        try {
+          return JSON.parse(val)
+        } catch {
+          return val
+        }
+      }
+      return val
+    },
+    z
+      .object({
+        $gte: z.string().optional(),
+        $lte: z.string().optional(),
+        $gt: z.string().optional(),
+        $lt: z.string().optional(),
+        $eq: z.string().optional(),
+        $ne: z.string().optional()
+      })
+      .optional()
+  )
+  .optional()
+
+export const VendorGetCampaignByIdParamsFields = z.object({
+  q: z.string().optional(),
+  created_at: dateFilterSchema,
+  updated_at: dateFilterSchema
+})
+
+export type VendorGetCampaignByIdParamsType = z.infer<
+  typeof VendorGetCampaignByIdParams
+>
+export const VendorGetCampaignByIdParams = createFindParams({
+  limit: 50,
+  offset: 0
+})
+  .merge(VendorGetCampaignByIdParamsFields)
+  .strict()
 
 /**
  * @schema VendorCreateCampaignBudget

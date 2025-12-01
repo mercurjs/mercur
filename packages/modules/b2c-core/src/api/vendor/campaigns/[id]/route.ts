@@ -5,13 +5,17 @@ import {
   updateCampaignsWorkflow
 } from '@medusajs/medusa/core-flows'
 
-import { VendorUpdateCampaignType } from '../validators'
+import { getFilteredCampaignPromotions } from '../helpers'
+import {
+  VendorGetCampaignByIdParamsType,
+  VendorUpdateCampaignType
+} from '../validators'
 
 /**
  * @oas [get] /vendor/campaigns/{id}
  * operationId: "VendorGetCampaignById"
  * summary: "Get campaign"
- * description: "Retrieves campaign by id for the authenticated vendor."
+ * description: "Retrieves campaign by id for the authenticated vendor. Supports filtering, searching, and sorting of associated promotions."
  * x-authenticated: true
  * parameters:
  *   - in: path
@@ -25,7 +29,58 @@ import { VendorUpdateCampaignType } from '../validators'
  *     schema:
  *       type: string
  *     required: false
- *     description: Comma-separated fields to include in the response.
+ *     description: Comma-separated fields to include in the response. Use `*promotions` or `promotions.*` to include promotions.
+ *     example: "*promotions"
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search query to filter promotions by code (case-insensitive partial match).
+ *     example: "test"
+ *   - name: created_at
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: |
+ *       Filter promotions by created_at date. Must be a JSON object (URL-encoded) with comparison operators.
+ *       Supported operators: `$gte`, `$lte`, `$gt`, `$lt`, `$eq`, `$ne`.
+ *       Example: `{"$gte":"2025-11-19T11:00:00.000Z"}` (URL-encoded: `%7B%22%24gte%22%3A%222025-11-19T11%3A00%3A00.000Z%22%7D`)
+ *     example: '{"$gte":"2025-11-19T11:00:00.000Z"}'
+ *   - name: updated_at
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: |
+ *       Filter promotions by updated_at date. Must be a JSON object (URL-encoded) with comparison operators.
+ *       Supported operators: `$gte`, `$lte`, `$gt`, `$lt`, `$eq`, `$ne`.
+ *       Example: `{"$gte":"2025-11-19T11:00:00.000Z"}` (URL-encoded: `%7B%22%24gte%22%3A%222025-11-19T11%3A00%3A00.000Z%22%7D`)
+ *     example: '{"$gte":"2025-11-19T11:00:00.000Z"}'
+ *   - name: order
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: |
+ *       Sort promotions by property. Prefix with `-` for descending order.
+ *       Examples: `code`, `-code`, `created_at`, `-created_at`, `updated_at`, `-updated_at`
+ *     example: "-code"
+ *   - name: offset
+ *     in: query
+ *     schema:
+ *       type: number
+ *     required: false
+ *     description: The number of promotions to skip before starting to collect the result set.
+ *     example: 0
+ *   - name: limit
+ *     in: query
+ *     schema:
+ *       type: number
+ *     required: false
+ *     description: The number of promotions to return.
+ *     example: 50
  * responses:
  *   "200":
  *     description: OK
@@ -43,7 +98,7 @@ import { VendorUpdateCampaignType } from '../validators'
  *   - cookie_auth: []
  */
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<{}, VendorGetCampaignByIdParamsType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -57,6 +112,18 @@ export const GET = async (
       id: req.params.id
     }
   })
+
+  if (campaign) {
+    const promotions = await getFilteredCampaignPromotions(
+      req.scope,
+      req.params.id,
+      req.validatedQuery,
+      req.queryConfig.fields || [],
+      req.queryConfig.pagination
+    )
+
+    campaign.promotions = promotions ?? []
+  }
 
   res.json({ campaign })
 }
