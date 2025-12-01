@@ -5,14 +5,14 @@ import {
 } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
+import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
+import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
 import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
+import { filterProductsBySeller, OrderObject } from "./utils";
 import {
   VendorCreateProductType,
   VendorGetProductParamsType,
 } from "./validators";
-import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
-import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
-import { filterProductsBySeller } from "./utils";
 
 /**
  * @oas [get] /vendor/products
@@ -83,7 +83,8 @@ export const GET = async (
     req.filterableFields.seller_id as string,
     req.queryConfig.pagination?.skip || 0,
     req.queryConfig.pagination?.take || 10,
-    req.filterableFields.sales_channel_id as string
+    req.filterableFields.sales_channel_id as string,
+    req.queryConfig.pagination?.order as OrderObject | undefined
   );
 
   const { data: sellerProducts } = await query.graph({
@@ -92,6 +93,9 @@ export const GET = async (
     filters: {
       id: productIds,
     },
+    pagination: {
+      order: req.queryConfig.pagination?.order
+    }
   });
 
   res.json({
@@ -99,6 +103,7 @@ export const GET = async (
     count: count,
     offset: req.queryConfig.pagination?.skip || 0,
     limit: req.queryConfig.pagination?.take || 10,
+    order: req.queryConfig.pagination?.order
   });
 };
 

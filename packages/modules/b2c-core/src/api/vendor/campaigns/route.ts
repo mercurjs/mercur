@@ -2,12 +2,11 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework";
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-
-import sellerCampaign from "../../../links/seller-campaign";
-import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
+import { ContainerRegistrationKeys, omitDeep } from "@medusajs/framework/utils";
+import { fetchSellerByAuthActorId } from "@mercurjs/framework";
 import { createVendorCampaignWorkflow } from "../../../workflows/campaigns/workflows";
 import { VendorCreateCampaignType } from "./validators";
+import sellerCampaign from "../../../links/seller-campaign";
 
 /**
  * @oas [get] /vendor/campaigns
@@ -16,6 +15,12 @@ import { VendorCreateCampaignType } from "./validators";
  * description: "Retrieves a list of campaigns for the authenticated vendor."
  * x-authenticated: true
  * parameters:
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search query to filter campaigns by name (case-insensitive).
  *   - name: offset
  *     in: query
  *     schema:
@@ -152,3 +157,4 @@ export const POST = async (
 
   res.status(201).json({ campaign });
 };
+

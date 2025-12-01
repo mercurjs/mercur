@@ -5,6 +5,58 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] - 2025-11-27
+
+### Release 1.4.4
+
+Mercur 1.4.4 focuses on smoother day-to-day operations across the Admin Panel, Vendor Panel,
+and Storefront. This release includes dozens of fixes and refinements that improve product
+management, checkout behaviour, promotions, and UI flows across the entire stack.
+
+### What's fixed
+
+#### Admin Panel
+##### General fixes & improvements
+
+- **Improved stability within Commission Rules and Commission Lines, resolving validation issues and several view crashes.**
+- **Fixed loading problems in Shipping Option Types that previously showed an error instead of loading.**
+- **Corrected the behaviour of the "Buy X Get Y" promotion type.**
+- **Standardised numerical formatting in the In stock fields.**
+- **Added missing validation for the Product Attributes → Description field.**
+- **Restored the missing Message component across multiple Admin screens.**
+##### Modules updated
+- **Sellers module updated and refined.**
+- **Promotions module adjusted for more consistent behaviour.**
+- **The Products & Inventory module has improved for better reliability.**
+##### Authentication
+- **Updated the login flow and UI, including an improved automated-testing structure.**
+#### Vendor Panel
+##### Product & inventory
+- **Inventory Items now display correctly when switching between product variants.**
+- **Vendors can remove collections again.**
+- **Fixed errors that occurred when editing collections.**
+- **Corrected issues when managing product tags.**
+- **Products can now be added to price lists even if pricing fields were previously missing.**
+- **Fixed sorting issues on the vendor category view.**
+##### Campaigns
+- **Campaigns are now correctly visible in the vendor panel.**
+##### UX / flow
+- **Removed an unnecessary warning pop-up that appeared after saving changes on the product detail page.**
+- **Fixed incorrect URL parsing that caused inconsistent navigation.**
+#### Storefront
+##### Cart & checkout
+- **Fixed empty-cart issues that occurred after adding products to the cart.**
+- **Corrected problems when removing products from the cart.**
+- **Prevented checkout from starting when the cart is empty.**
+##### PDP / PLP / UI
+- **Fixed the search icon so it properly triggers the search action.**
+- **Corrected the responsive behaviour of the seller logo on product pages.**
+- **Restored previously empty "More from this seller" sections.**
+- **Fixed issues where multiple products on listing pages could not be opened.**
+##### Other fixes - Shared Frontend / System-Level
+- **Improved shared UI components and error states.**
+- **Various frontend stability improvements across modules.**
+
 ## [1.4.3] - 2025-11-13
 
 ### Release 1.4.3
