@@ -74,7 +74,7 @@ export const BuyerNewOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps>> 
         <thead>
           <tr>
             <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}>Product</th>
-            <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #eee' }}>Amount</th>
+            <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #eee' }}>Price</th>
             <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #eee' }}>Qty</th>
             <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #eee' }}>Total</th>
           </tr>
