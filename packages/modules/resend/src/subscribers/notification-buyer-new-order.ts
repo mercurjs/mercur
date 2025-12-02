@@ -7,7 +7,7 @@ import {
 
 import { ResendNotificationTemplates } from "../providers/resend";
 
-import { Hosts, buildHostAddress } from "@mercurjs/framework";
+import { Hosts, buildHostAddress, fetchStoreData } from "@mercurjs/framework";
 
 export default async function orderCreatedHandler({
   event,
@@ -38,6 +38,8 @@ export default async function orderCreatedHandler({
     return;
   }
 
+  const storeData = await fetchStoreData(container);
+
   const orderUrl = buildHostAddress(
     Hosts.STOREFRONT,
     `/user/orders/${order.order_set.id ?? order.id}`
@@ -60,6 +62,8 @@ export default async function orderCreatedHandler({
           display_id: order.display_id,
           total: order.summary?.current_order_total || 0,
         },
+        store_name: storeData.store_name,
+        storefront_url: storeData.storefront_url,
       },
     },
   });

@@ -6,6 +6,7 @@ import {
 } from "@medusajs/framework/utils";
 
 import { ResendNotificationTemplates } from "../providers/resend";
+import { fetchStoreData } from "@mercurjs/framework";
 
 export default async function sellerNewOrderHandler({
   event,
@@ -44,6 +45,8 @@ export default async function sellerNewOrderHandler({
     return;
   }
 
+  const storeData = await fetchStoreData(container);
+
   const customer_name = `${order.customer?.first_name || ""} ${order.customer?.last_name || ""}`;
   await notificationService.createNotifications([
     {
@@ -68,6 +71,8 @@ export default async function sellerNewOrderHandler({
           order,
           customer_name,
           seller_name: order.seller?.name || "",
+          store_name: storeData.store_name,
+          storefront_url: storeData.storefront_url,
         },
       },
     },

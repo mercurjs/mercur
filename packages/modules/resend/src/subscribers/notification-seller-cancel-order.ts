@@ -3,7 +3,7 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
 import { ResendNotificationTemplates } from "../providers/resend";
 
-import { Hosts, buildHostAddress } from "@mercurjs/framework";
+import { Hosts, buildHostAddress, fetchStoreData } from "@mercurjs/framework";
 
 export default async function sellerCancelOrderHandler({
   event,
@@ -35,6 +35,8 @@ export default async function sellerCancelOrderHandler({
     return;
   }
 
+  const storeData = await fetchStoreData(container);
+
   await notificationService.createNotifications({
     to: order.seller.email,
     channel: "email",
@@ -53,6 +55,8 @@ export default async function sellerCancelOrderHandler({
           Hosts.VENDOR_PANEL,
           `/orders/${order.id}`
         ).toString(),
+        store_name: storeData.store_name,
+        storefront_url: storeData.storefront_url,
       },
     },
   });
