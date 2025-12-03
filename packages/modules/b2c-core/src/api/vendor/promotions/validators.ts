@@ -273,8 +273,6 @@ export const VendorGetPromotionRuleTypeParams = createSelectParams().merge(
   })
 );
 
-// Custom validator for rule_type that accepts both hyphenated and underscored formats
-// and normalizes to Medusa's RuleType enum standard (underscores)
 export const VendorRuleTypePathParam = z
   .string()
   .refine(

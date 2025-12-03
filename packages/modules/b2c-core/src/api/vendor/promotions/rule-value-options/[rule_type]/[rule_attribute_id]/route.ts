@@ -92,7 +92,6 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-  // Get normalized rule_type (middleware transforms target-rules → target_rules)
   const ruleType = req.normalized_rule_type || req.params.rule_type;
   const { rule_attribute_id: ruleAttributeId } = req.params;
   const {
@@ -116,8 +115,6 @@ export const GET = async (
     delete filterableFields.value;
   }
 
-  // Validate that the attribute exists in our vendor rule attributes map
-  // Note: ruleType is already normalized by middleware (target-rules → target_rules)
   const ruleAttributesMap = getRuleAttributesMap({
     promotionType: promotionType as string,
     applicationMethodType: applicationMethodType as string,

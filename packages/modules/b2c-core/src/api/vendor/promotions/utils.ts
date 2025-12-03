@@ -118,8 +118,8 @@ export const getRuleAttributesMap = ({
 }) => {
   const map = {
     rules: [...ruleAttributes],
-    target_rules: [...commonAttributes], // ← Zmienione na podkreślenia
-    buy_rules: [...commonAttributes], // ← Zmienione na podkreślenia
+    target_rules: [...commonAttributes],
+    buy_rules: [...commonAttributes],
   };
 
   if (applicationMethodType === ApplicationMethodType.FIXED) {
@@ -129,8 +129,8 @@ export const getRuleAttributesMap = ({
   }
 
   if (promotionType === PromotionType.BUYGET) {
-    map["buy_rules"].push(...buyGetBuyRules); // ← Zmienione na podkreślenia
-    map["target_rules"].push(...buyGetTargetRules); // ← Zmienione na podkreślenia
+    map["buy_rules"].push(...buyGetBuyRules);
+    map["target_rules"].push(...buyGetTargetRules);
   }
 
   return map;

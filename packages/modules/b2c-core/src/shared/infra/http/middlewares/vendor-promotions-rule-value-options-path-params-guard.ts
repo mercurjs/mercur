@@ -21,7 +21,6 @@ export const vendorPromotionsRuleValueOptionsPathParamsGuard = async (
   }
   req.normalized_rule_type = result.data.rule_type;
 
-  // Also try to update params directly (may fail if frozen)
   try {
     req.params.rule_type = result.data.rule_type;
   } catch (e) {
