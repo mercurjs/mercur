@@ -10,6 +10,8 @@ export const StoreSearchProductsSchema = z.object({
   facets: z.array(z.string()).optional(),
   maxValuesPerFacet: z.coerce.number().int().min(1).max(1000).optional(),
   currency_code: z.string().length(3).optional(),
-  region_id: z.string().optional()
+  region_id: z.string().optional(),
+  customer_id: z.string().optional(),
+  customer_group_id: z.array(z.string()).optional()
 })
 

@@ -52,6 +52,14 @@ type AlgoliaHit = {
  *           region_id:
  *             type: string
  *             description: Region ID for price calculation
+ *           customer_id:
+ *             type: string
+ *             description: Customer ID for customer-specific price calculation
+ *           customer_group_id:
+ *             type: array
+ *             items:
+ *               type: string
+ *             description: Customer group IDs for group-specific price calculation
  * responses:
  *   "200":
  *     description: OK
@@ -100,7 +108,9 @@ export const POST = async (
     facets,
     maxValuesPerFacet,
     currency_code,
-    region_id
+    region_id,
+    customer_id,
+    customer_group_id
   } = req.validatedBody
 
   const searchParams: Record<string, unknown> = {
@@ -142,12 +152,17 @@ export const POST = async (
     })
   }
 
+  const hasPricingContext =
+    currency_code || region_id || customer_id || customer_group_id
+
   const contextParams: Record<string, unknown> = {}
-  if (currency_code || region_id) {
+  if (hasPricingContext) {
     contextParams.variants = {
       calculated_price: QueryContext({
         ...(currency_code && { currency_code }),
-        ...(region_id && { region_id })
+        ...(region_id && { region_id }),
+        ...(customer_id && { customer_id }),
+        ...(customer_group_id && { customer_group_id })
       })
     }
   }
@@ -162,9 +177,7 @@ export const POST = async (
       'variants.*',
       'variants.options.*',
       'variants.prices.*',
-      ...(currency_code || region_id
-        ? ['variants.calculated_price.*']
-        : []),
+      ...(hasPricingContext ? ['variants.calculated_price.*'] : []),
       'categories.*',
       'collection.*',
       'type.*',
