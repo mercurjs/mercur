@@ -46,11 +46,13 @@ export const productsUpdatedHookHandler = async ({
 
         return Promise.all(
           attributeValues.map(async (attrVal) => {
-            const unchangedProductValue = productValues.find(
-              (prodVal) =>
-                prodVal.attribute_value.value === attrVal.value &&
-                prodVal.attribute_value.attribute_id === attrVal.attribute_id
-            )
+            const unchangedProductValue = productValues
+              .filter((prodVal) => prodVal.attribute_value) // Filter out null values
+              .find(
+                (prodVal) =>
+                  prodVal.attribute_value.value === attrVal.value &&
+                  prodVal.attribute_value.attribute_id === attrVal.attribute_id
+              )
             if (unchangedProductValue) {
               return unchangedProductValue.attribute_value.id as string
             }
