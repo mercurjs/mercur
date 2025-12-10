@@ -8,6 +8,7 @@ import {
   fetchAdminEmails,
   Hosts,
   buildHostAddress,
+  fetchStoreData,
 } from "@mercurjs/framework";
 import { ResendNotificationTemplates } from "../providers/resend";
 
@@ -22,6 +23,7 @@ export default async function requestCreatedAdminNotifyHandler({
 
   if (type === "seller") {
     const admins = await fetchAdminEmails(container);
+    const storeData = await fetchStoreData(container);
     const notifications = admins.map((email) => ({
       to: email,
       channel: "email",
@@ -36,6 +38,8 @@ export default async function requestCreatedAdminNotifyHandler({
             Hosts.BACKEND,
             `/admin/requests/seller`
           ).toString(),
+          store_name: storeData.store_name,
+          storefront_url: storeData.storefront_url,
         },
       },
     }));

@@ -7,6 +7,8 @@ interface EmailTemplateProps {
       items: any[]
       item?: any
     }
+    store_name: string
+    storefront_url: string
   }
 }
 
@@ -81,7 +83,7 @@ export const BuyerCancelOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps
       </table>
 
       <div style={{ margin: '32px 0 16px 0', fontSize: '1rem' }}>
-        If you have any questions, please contact <b>Mercur Support</b>.
+        If you have any questions, please contact <b>{data.store_name} Support</b>.
       </div>
 
       <div style={{ marginBottom: 24 }}>
@@ -107,14 +109,14 @@ export const BuyerCancelOrderEmailTemplate: React.FC<Readonly<EmailTemplateProps
       </div>
 
       <div style={{ fontSize: 13, color: '#888', marginBottom: 24 }}>
-        You received this email because you made a purchase or sale on the Mercur marketplace.
+        You received this email because you made a purchase or sale on the {data.store_name} marketplace.
         If you have any questions, please contact our support team.
       </div>
 
       <div style={{ marginTop: 32 }}>
         <div>Best regards,</div>
-        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
-        <div style={{ color: '#888', marginTop: 4 }}>mercur.js</div>
+        <div style={{ fontWeight: 600 }}>The {data.store_name} Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>{data.storefront_url}</div>
       </div>
     </div>
   );

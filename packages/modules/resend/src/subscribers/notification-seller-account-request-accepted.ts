@@ -4,6 +4,7 @@ import { Modules } from "@medusajs/framework/utils";
 import {
   RequestDTO,
   SellerAccountRequestUpdatedEvent,
+  fetchStoreData,
 } from "@mercurjs/framework";
 import { ResendNotificationTemplates } from "../providers/resend";
 
@@ -17,14 +18,16 @@ export default async function sellerRequestAcceptedHandler({
     member: { name: string };
   };
 
+  const storeData = await fetchStoreData(container);
+
   await notificationService.createNotifications({
     to: requestData.provider_identity_id,
     channel: "email",
     template: ResendNotificationTemplates.SELLER_ACCOUNT_UPDATES_APPROVAL,
     content: {
-      subject: "Mercur - Seller account approved!",
+      subject: `${storeData.store_name} - Seller account approved!`,
     },
-    data: { data: { user_name: requestData.member.name } },
+    data: { data: { user_name: requestData.member.name, store_name: storeData.store_name, storefront_url: storeData.storefront_url } },
   });
 }
 

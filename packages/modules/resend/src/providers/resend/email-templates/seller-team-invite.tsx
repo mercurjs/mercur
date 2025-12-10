@@ -5,6 +5,8 @@ interface EmailTemplateProps {
     host: string;
     id: string;
     email: string;
+    marketplace_name: string;
+    storefront_url: string;
   };
 }
 
@@ -55,14 +57,14 @@ export const SellerTeamInviteEmailTemplate: React.FC<
       </div>
       <div style={{ fontSize: 13, color: "#888", marginBottom: 24 }}>
         You received this email because you were invited to join a team on the
-        Mercur marketplace.
+        {data.marketplace_name} marketplace.
         <br />
         If you have any questions, please contact our support team.
       </div>
       <div style={{ marginTop: 32 }}>
         <div>Best regards,</div>
-        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
-        <div style={{ color: "#888", marginTop: 4 }}>mercur.js</div>
+        <div style={{ fontWeight: 600 }}>The {data.marketplace_name} Team</div>
+        <div style={{ color: "#888", marginTop: 4 }}>{data.storefront_url}</div>
       </div>
     </div>
   );
