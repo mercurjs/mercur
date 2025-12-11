@@ -7,14 +7,17 @@ module.exports = {
       '@swc/jest',
       {
         jsc: {
-          parser: { syntax: 'typescript', decorators: true }
+          parser: { syntax: 'typescript', decorators: true },
+          target: 'es2022'
         }
       }
     ]
   },
   testEnvironment: 'node',
   moduleFileExtensions: ['js', 'ts', 'json'],
-  modulePathIgnorePatterns: ['dist/']
+  modulePathIgnorePatterns: ['dist/'],
+  setupFiles: ["./integration-tests/setup.js"],
+
 }
 
 if (process.env.TEST_TYPE === 'integration:http') {
