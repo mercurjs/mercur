@@ -2,11 +2,14 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework";
-import { ContainerRegistrationKeys, omitDeep } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { fetchSellerByAuthActorId } from "@mercurjs/framework";
-import { createVendorCampaignWorkflow } from "../../../workflows/campaigns/workflows";
-import { VendorCreateCampaignType } from "./validators";
 import sellerCampaign from "../../../links/seller-campaign";
+import { createVendorCampaignWorkflow } from "../../../workflows/campaigns/workflows";
+import {
+  VendorCreateCampaignType,
+  VendorGetCampaignsParamsType,
+} from "./validators";
 
 /**
  * @oas [get] /vendor/campaigns
@@ -67,32 +70,60 @@ import sellerCampaign from "../../../links/seller-campaign";
  *   - cookie_auth: []
  */
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<{}, VendorGetCampaignsParamsType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const searchQuery = req.validatedQuery.q;
 
-  const { data: relations, metadata } = await query.graph({
+  const {
+    q: _,
+    seller_id,
+    ...filterableFields
+  } = req.filterableFields as Record<string, unknown>;
+
+  const { data: sellerCampaigns } = await query.graph({
     entity: sellerCampaign.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `campaign.${field}`),
+    fields: ["campaign_id"],
     filters: {
-      ...req.filterableFields,
-      deleted_at: {
-        $eq: null,
-      },
+      seller_id,
+      deleted_at: { $eq: null },
     },
+  });
+
+  const campaignIds = sellerCampaigns.map((rel) => rel.campaign_id);
+
+  if (campaignIds.length === 0) {
+    return res.json({
+      campaigns: [],
+      count: 0,
+      offset: req.queryConfig.pagination?.skip ?? 0,
+      limit: req.queryConfig.pagination?.take ?? 50,
+    });
+  }
+
+  const campaignFilters: Record<string, unknown> = {
+    ...filterableFields,
+    id: campaignIds,
+    deleted_at: { $eq: null },
+  };
+
+  if (searchQuery) {
+    campaignFilters.name = { $ilike: `%${searchQuery}%` };
+  }
+
+  const { data: campaigns, metadata } = await query.graph({
+    entity: "campaign",
+    fields: req.queryConfig.fields,
+    filters: campaignFilters,
     pagination: req.queryConfig.pagination,
   });
 
-  const activeCampaigns = relations
-    .map((relation) => relation.campaign)
-    .filter((campaign) => !!campaign);
-
   res.json({
-    campaigns: activeCampaigns,
-    count: activeCampaigns.length,
-    offset: metadata?.skip,
-    limit: metadata?.take,
+    campaigns,
+    count: metadata?.count ?? campaigns.length,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? 50,
   });
 };
 
@@ -157,4 +188,3 @@ export const POST = async (
 
   res.status(201).json({ campaign });
 };
-
