@@ -91,7 +91,7 @@ export const VendorCreatePromotionRule = z
  *     description: The allocation of the application method.
  *   target_rules:
  *     type: array
- *     description: Promotion target rules.
+ *     description: Optional additional target rules. A default rule restricting the promotion to the seller's products is automatically added. Any additional rules are combined with AND logic.
  *     items:
  *       $ref: "#/components/schemas/VendorCreatePromotionRule"
  */
@@ -103,7 +103,7 @@ export const VendorCreateApplicationMethod = z
     type: z.literal(ApplicationMethodType.PERCENTAGE),
     target_type: z.literal(ApplicationMethodTargetType.ITEMS),
     allocation: z.nativeEnum(ApplicationMethodAllocation),
-    target_rules: z.array(VendorCreatePromotionRule),
+    target_rules: z.array(VendorCreatePromotionRule).optional(),
     apply_to_quantity: z.number().nullish(),
     buy_rules_min_quantity: z.number().nullish(),
   })
