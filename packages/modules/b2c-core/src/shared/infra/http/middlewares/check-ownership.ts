@@ -5,11 +5,18 @@ import {
   ContainerRegistrationKeys,
   MedusaError
 } from '@medusajs/framework/utils'
+import { LinkMethodRequest } from '@medusajs/framework/types'
 
 type CheckResourceOwnershipByResourceIdOptions<Body> = {
   entryPoint: string
   filterField?: string
   resourceId?: (req: AuthenticatedMedusaRequest<Body>) => string
+}
+
+type CheckResourcesOwnershipByResourceBatchOptions<Body> = {
+  entryPoint: string
+  filterField?: string
+  resourceIds?: (req: AuthenticatedMedusaRequest<Body>) => { add: string[], remove: string[] }
 }
 
 /**
@@ -86,6 +93,58 @@ export const checkResourceOwnershipByResourceId = <Body>({
       res.status(403).json({
         message: 'You are not allowed to perform this action',
         type: MedusaError.Types.NOT_ALLOWED
+      })
+      return
+    }
+
+    next()
+  }
+}
+
+export const checkResourcesOwnershipByResourceBatch = <Body>({
+  entryPoint,
+  filterField = 'id',
+  resourceIds = (req) => ({ add: req.validatedBody.add || [], remove: req.validatedBody.remove || [] })
+}: CheckResourcesOwnershipByResourceBatchOptions<LinkMethodRequest>) => {
+  return async (
+    req: AuthenticatedMedusaRequest<LinkMethodRequest>,
+    res: MedusaResponse,
+    next: NextFunction
+  ) => {
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+    const {
+      data: [member]
+    } = await query.graph(
+      {
+        entity: 'member',
+        fields: ['seller.id'],
+        filters: {
+          id: req.auth_context.actor_id
+        }
+      },
+      { throwIfKeyNotFound: true }
+    )
+
+    const { add, remove } = resourceIds(req)
+    const allResourceIds = add.concat(remove)
+
+
+    const {
+      data: resources
+    } = await query.graph({
+      entity: entryPoint,
+      fields: ['seller_id', filterField],
+      filters: {
+        [filterField]: allResourceIds,
+        seller_id: member.seller.id
+      }
+    })
+
+    if (!resources.some((resource) => allResourceIds.includes(resource[filterField]))) {
+      res.status(404).json({
+        message: `You are not allowed to perform this action`,
+        type: MedusaError.Types.NOT_FOUND
       })
       return
     }
