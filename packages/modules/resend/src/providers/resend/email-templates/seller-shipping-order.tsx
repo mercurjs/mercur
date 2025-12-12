@@ -28,6 +28,8 @@ interface EmailTemplateProps {
 				phone: string
 			}
 		}
+		store_name: string
+		storefront_url: string
 	}
 }
 
@@ -56,8 +58,8 @@ export const SellerOrderShippingEmailTemplate: React.FC<Readonly<EmailTemplatePr
       <p>Thank you for updating the status of the order. If you have any questions, please contact our support team.</p>
       <div style={{ marginTop: 32 }}>
         <div>Best regards,</div>
-        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
-        <div style={{ color: '#888', marginTop: 4 }}>mercurjs.com</div>
+        <div style={{ fontWeight: 600 }}>The {data.store_name} Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>{data.storefront_url}</div>
       </div>
     </div>
   )

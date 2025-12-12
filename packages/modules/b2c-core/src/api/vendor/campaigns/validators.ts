@@ -1,15 +1,60 @@
-import { z } from 'zod'
+import { z } from "zod";
 
-import { CampaignBudgetType, isPresent } from '@medusajs/framework/utils'
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import { CampaignBudgetType, isPresent } from "@medusajs/framework/utils";
+import { createFindParams } from "@medusajs/medusa/api/utils/validators";
+
+export const VendorGetCampaignsParamsFields = z.object({
+  q: z.string().optional(),
+});
 
 export type VendorGetCampaignsParamsType = z.infer<
   typeof VendorGetCampaignsParams
->
+>;
 export const VendorGetCampaignsParams = createFindParams({
+  limit: 50,
   offset: 0,
-  limit: 50
+}).merge(VendorGetCampaignsParamsFields);
+
+const dateFilterSchema = z
+  .preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return val;
+        }
+      }
+      return val;
+    },
+    z
+      .object({
+        $gte: z.string().optional(),
+        $lte: z.string().optional(),
+        $gt: z.string().optional(),
+        $lt: z.string().optional(),
+        $eq: z.string().optional(),
+        $ne: z.string().optional(),
+      })
+      .optional()
+  )
+  .optional();
+
+export const VendorGetCampaignByIdParamsFields = z.object({
+  q: z.string().optional(),
+  created_at: dateFilterSchema,
+  updated_at: dateFilterSchema,
+});
+
+export type VendorGetCampaignByIdParamsType = z.infer<
+  typeof VendorGetCampaignByIdParams
+>;
+export const VendorGetCampaignByIdParams = createFindParams({
+  limit: 50,
+  offset: 0,
 })
+  .merge(VendorGetCampaignByIdParamsFields)
+  .strict();
 
 /**
  * @schema VendorCreateCampaignBudget
@@ -30,25 +75,25 @@ export const VendorCreateCampaignBudget = z
   .object({
     type: z.nativeEnum(CampaignBudgetType),
     limit: z.number().nullish(),
-    currency_code: z.string().nullish()
+    currency_code: z.string().nullish(),
   })
   .strict()
   .refine(
     (data) =>
       data.type !== CampaignBudgetType.SPEND || isPresent(data.currency_code),
     {
-      path: ['currency_code'],
-      message: `currency_code is required when budget type is ${CampaignBudgetType.SPEND}`
+      path: ["currency_code"],
+      message: `currency_code is required when budget type is ${CampaignBudgetType.SPEND}`,
     }
   )
   .refine(
     (data) =>
       data.type !== CampaignBudgetType.USAGE || !isPresent(data.currency_code),
     {
-      path: ['currency_code'],
-      message: `currency_code should not be present when budget type is ${CampaignBudgetType.USAGE}`
+      path: ["currency_code"],
+      message: `currency_code should not be present when budget type is ${CampaignBudgetType.USAGE}`,
     }
-  )
+  );
 
 /**
  * @schema VendorCreateCampaign
@@ -72,7 +117,7 @@ export const VendorCreateCampaignBudget = z
  *   budget:
  *     $ref: "#/components/schemas/VendorCreateCampaignBudget"
  */
-export type VendorCreateCampaignType = z.infer<typeof VendorCreateCampaign>
+export type VendorCreateCampaignType = z.infer<typeof VendorCreateCampaign>;
 export const VendorCreateCampaign = z
   .object({
     name: z.string(),
@@ -80,9 +125,9 @@ export const VendorCreateCampaign = z
     description: z.string().nullish(),
     budget: VendorCreateCampaignBudget.nullish(),
     starts_at: z.coerce.date().nullish(),
-    ends_at: z.coerce.date().nullish()
+    ends_at: z.coerce.date().nullish(),
   })
-  .strict()
+  .strict();
 
 /**
  * @schema VendorUpdateCampaign
@@ -110,16 +155,16 @@ export const VendorCreateCampaign = z
  *         type: number
  *         description: The buget's limit.
  */
-export type VendorUpdateCampaignType = z.infer<typeof VendorUpdateCampaign>
+export type VendorUpdateCampaignType = z.infer<typeof VendorUpdateCampaign>;
 export const VendorUpdateCampaign = z.object({
   name: z.string().optional(),
   campaign_identifier: z.string().optional(),
   description: z.string().nullish(),
   budget: z
     .object({
-      limit: z.number().nullish()
+      limit: z.number().nullish(),
     })
     .optional(),
   starts_at: z.coerce.date().nullish(),
-  ends_at: z.coerce.date().nullish()
-})
+  ends_at: z.coerce.date().nullish(),
+});

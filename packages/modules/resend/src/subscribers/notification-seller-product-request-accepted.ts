@@ -4,6 +4,7 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import {
   ConfigurationRuleType,
   ProductRequestUpdatedEvent,
+  fetchStoreData,
 } from "@mercurjs/framework";
 import { ResendNotificationTemplates } from "../providers/resend";
 
@@ -46,14 +47,16 @@ export default async function sellerProductRequestAcceptedHandler({
     return;
   }
 
+  const storeData = await fetchStoreData(container);
+
   await notificationService.createNotifications({
     to: member.email,
     channel: "email",
     template: ResendNotificationTemplates.SELLER_PRODUCT_APPROVED,
     content: {
-      subject: "Mercur - Product approved!",
+      subject: `${storeData.store_name} - Product approved!`,
     },
-    data: { data: { product_title: productRequest.data.title } },
+    data: { data: { product_title: productRequest.data.title, store_name: storeData.store_name, storefront_url: storeData.storefront_url } },
   });
 }
 
