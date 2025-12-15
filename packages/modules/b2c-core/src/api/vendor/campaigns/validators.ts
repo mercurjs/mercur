@@ -3,6 +3,8 @@ import { z } from "zod";
 import { CampaignBudgetType, isPresent } from "@medusajs/framework/utils";
 import { createFindParams } from "@medusajs/medusa/api/utils/validators";
 
+import { dateFilterSchema } from "../../../shared/infra/http/utils";
+
 export const VendorGetCampaignsParamsFields = z.object({
   q: z.string().optional(),
 });
@@ -14,31 +16,6 @@ export const VendorGetCampaignsParams = createFindParams({
   limit: 50,
   offset: 0,
 }).merge(VendorGetCampaignsParamsFields);
-
-const dateFilterSchema = z
-  .preprocess(
-    (val) => {
-      if (typeof val === "string") {
-        try {
-          return JSON.parse(val);
-        } catch {
-          return val;
-        }
-      }
-      return val;
-    },
-    z
-      .object({
-        $gte: z.string().optional(),
-        $lte: z.string().optional(),
-        $gt: z.string().optional(),
-        $lt: z.string().optional(),
-        $eq: z.string().optional(),
-        $ne: z.string().optional(),
-      })
-      .optional()
-  )
-  .optional();
 
 export const VendorGetCampaignByIdParamsFields = z.object({
   q: z.string().optional(),
