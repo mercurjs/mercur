@@ -145,8 +145,6 @@ export const GET = async (
 ) => {
   const productId = req.params.id;
 
-  console.log(req.filterableFields);
-
   const { data: variants, metadata } = await refetchEntities({
     entity: "variant",
     idOrFilter: {
