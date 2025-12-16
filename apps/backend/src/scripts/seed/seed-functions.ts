@@ -14,7 +14,8 @@ import {
   createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
   updateStoresWorkflow,
-  updateTaxRegionsWorkflow
+  updateTaxRegionsWorkflow,
+  createUserAccountWorkflow
 } from '@medusajs/medusa/core-flows'
 
 import { SELLER_MODULE } from '@mercurjs/b2c-core/modules/seller'
@@ -32,6 +33,46 @@ import {
 import { productsToInsert } from './seed-products'
 
 const countries = ['be', 'de', 'dk', 'se', 'fr', 'es', 'it', 'pl', 'cz', 'nl']
+
+export async function createAdminUser(container: MedusaContainer) {
+  const authService = container.resolve(Modules.AUTH)
+  const userService = container.resolve(Modules.USER)
+  
+  // Check if admin user already exists
+  const [existingUser] = await userService.listUsers({
+    email: 'admin@mercurjs.com'
+  })
+  
+  if (existingUser) {
+    return existingUser
+  }
+  
+  // Create auth identity with password
+  const { authIdentity } = await authService.register('emailpass', {
+    body: {
+      email: 'admin@mercurjs.com',
+      password: 'supersecret'
+    }
+  })
+  
+  if (!authIdentity?.id) {
+    throw new Error('Failed to create admin auth identity')
+  }
+  
+  // Create admin user account
+  const { result: user } = await createUserAccountWorkflow(container).run({
+    input: {
+      userData: {
+        email: 'admin@mercurjs.com',
+        first_name: 'Admin',
+        last_name: 'User'
+      },
+      authIdentityId: authIdentity.id
+    }
+  })
+  
+  return user
+}
 
 export async function createSalesChannel(container: MedusaContainer) {
   const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL)
