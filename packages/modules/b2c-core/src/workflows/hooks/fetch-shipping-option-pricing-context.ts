@@ -3,7 +3,22 @@ import { fetchShippingOptionForOrderWorkflow } from "@medusajs/medusa/core-flows
 import { StepResponse } from "@medusajs/framework/workflows-sdk";
 
 import sellerOrder from "../../links/seller-order";
+import sellerShippingOption from "../../links/seller-shipping-option";
 import sellerStockLocation from "../../links/seller-stock-location";
+
+type SellerStockLocationWithFulfillment = {
+  stock_location_id: string;
+  stock_location: {
+    fulfillment_sets?: Array<{
+      id: string;
+      service_zones?: Array<{
+        shipping_options?: Array<{
+          id: string;
+        }>;
+      }>;
+    }>;
+  };
+};
 
 /**
  * This hook provides the pricing context for shipping options in RMA flows (claims, returns, exchanges).
@@ -36,8 +51,6 @@ fetchShippingOptionForOrderWorkflow.hooks.setPricingContext(
       return new StepResponse({});
     }
 
-    const sellerId = sellerOrderLinks[0].seller_id;
-
     const { data: shippingOptionData } = await query.graph({
       entity: "shipping_option",
       fields: [
@@ -60,18 +73,43 @@ fetchShippingOptionForOrderWorkflow.hooks.setPricingContext(
       });
     }
 
-    const { data: sellerStockLocations } = await query.graph({
-      entity: sellerStockLocation.entryPoint,
-      fields: ["stock_location_id"],
+    const { data: shippingOptionSeller } = await query.graph({
+      entity: sellerShippingOption.entryPoint,
+      fields: ["seller_id"],
       filters: {
-        seller_id: sellerId,
+        shipping_option_id: shipping_option_id,
       },
     });
 
-    if (sellerStockLocations.length) {
-      return new StepResponse({
-        location_id: sellerStockLocations[0].stock_location_id,
-      });
+    const shippingOptionSellerId = shippingOptionSeller[0]?.seller_id;
+
+    if (shippingOptionSellerId) {
+      const { data: sellerLocations } = await query.graph({
+        entity: sellerStockLocation.entryPoint,
+        fields: [
+          "stock_location_id",
+          "stock_location.fulfillment_sets.id",
+          "stock_location.fulfillment_sets.service_zones.shipping_options.id",
+        ],
+        filters: {
+          seller_id: shippingOptionSellerId,
+        },
+      }) as { data: SellerStockLocationWithFulfillment[] };
+
+      for (const location of sellerLocations) {
+        const hasShippingOption = location.stock_location?.fulfillment_sets?.some(
+          (fs) =>
+            fs.service_zones?.some((sz) =>
+              sz.shipping_options?.some((so) => so.id === shipping_option_id)
+            )
+        );
+
+        if (hasShippingOption) {
+          return new StepResponse({
+            location_id: location.stock_location_id,
+          });
+        }
+      }
     }
 
     return new StepResponse({});
