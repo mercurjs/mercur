@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { CampaignBudgetType, isPresent } from "@medusajs/framework/utils";
 import { createFindParams } from "@medusajs/medusa/api/utils/validators";
+import { dateFilterSchema } from "../../../shared/infra/http/utils/zod";
 
 import { dateFilterSchema } from "../../../shared/infra/http/utils";
 

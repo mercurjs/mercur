@@ -4,10 +4,18 @@ import { AdditionalData } from "@medusajs/framework/types";
 import { WithAdditionalData } from "@medusajs/medusa/api/utils/validators";
 
 import { IdAssociation } from "../../../shared/infra/http/utils";
-import { AdminGetProductsParams } from "@medusajs/medusa/api/admin/products/validators";
+import {
+  AdminGetProductsParams,
+  AdminGetProductVariantsParams,
+} from "@medusajs/medusa/api/admin/products/validators";
 
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>;
 export const VendorGetProductParams = AdminGetProductsParams;
+
+export type VendorGetProductVariantsParamsType = z.infer<
+  typeof VendorGetProductVariantsParams
+>;
+export const VendorGetProductVariantsParams = AdminGetProductVariantsParams;
 
 /* Options */
 

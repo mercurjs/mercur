@@ -6,14 +6,7 @@ import {
   ApplicationMethodType,
   PromotionStatus,
   PromotionType,
-  RuleType,
 } from "@medusajs/framework/utils";
-import {
-  ApplicationMethodTargetTypeValues,
-  ApplicationMethodTypeValues,
-  PromotionTypeValues,
-  RuleTypeValues,
-} from "@medusajs/types";
 import {
   createFindParams,
   createSelectParams,
@@ -257,6 +250,8 @@ export const VendorGetPromotionsRuleValueParams = createFindParams({
   z.object({
     q: z.string().optional(),
     value: z.union([z.string(), z.array(z.string())]).optional(),
+    promotion_type: z.nativeEnum(PromotionType).optional(),
+    application_method_type: z.nativeEnum(ApplicationMethodType).optional(),
   })
 );
 
@@ -278,9 +273,25 @@ export const VendorGetPromotionRuleTypeParams = createSelectParams().merge(
   })
 );
 
+export const VendorRuleTypePathParam = z
+  .string()
+  .refine(
+    (val) =>
+      [
+        "rules",
+        "target-rules",
+        "target_rules",
+        "buy-rules",
+        "buy_rules",
+      ].includes(val),
+    {
+      message:
+        "Invalid rule type. Expected 'rules' | 'target-rules' | 'buy-rules'",
+    }
+  )
+  .transform((val) => val.replace(/-/g, "_"));
+
 export const VendorGetPromotionsRuleValuePathParams = z.object({
-  rule_type: z.nativeEnum(RuleType),
+  rule_type: VendorRuleTypePathParam,
   rule_attribute_id: z.string(),
-  promotion_type: z.nativeEnum(PromotionType).optional(),
-  application_method_type: z.nativeEnum(ApplicationMethodType).optional(),
 });
