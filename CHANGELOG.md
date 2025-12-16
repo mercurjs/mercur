@@ -5,6 +5,27 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.6] - 2025-12-16
+
+### Hotfix 1.4.6
+
+#### Infrastructure
+- **Docker support and improved seeding**
+  
+  Added Docker configuration for the backend service and improved the seeding process.
+
+- **SSL connection for PostgreSQL database**
+  
+  Fixed database connection to enable SSL for PostgreSQL, ensuring secure connections in production environments.
+
+- **Simplified Dockerfile CMD**
+  
+  Refactored the CMD instruction in the backend Dockerfile for cleaner execution.
+
+- **Environment example updates**
+  
+  Updated `.env.example` with correct configuration values.
+
 ## [1.4.5] - 2025-12-10
 
 ### Release 1.4.5
