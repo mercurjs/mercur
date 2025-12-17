@@ -18,7 +18,7 @@
     "build:windows": "medusa build && node -e \"const fs=require('fs');const path=require('path');const target='.medusa/server/public/';const link='public';try{if(fs.existsSync(link))fs.rmSync(link,{recursive:true,force:true});fs.symlinkSync(target,link,process.platform==='win32'?'junction':'dir');console.log('✔ Symlink created:',link,'→',target);}catch(e){console.error('✖ Failed to create symlink:',e.message);process.exit(1);}\"",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start --types=false",
-    "dev": "medusa develop --types=false",
+    "dev": "node ./dev-runner.js",
     "db:migrate": "medusa db:migrate",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
