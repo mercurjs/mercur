@@ -34,11 +34,29 @@ export const VendorGetProductVariantsParams = AdminGetProductVariantsParams;
  *     description: The values that the product option can take (e.g. ["Small", "Medium", "Large"]).
  *     items:
  *       type: string
+ *   metadata:
+ *     type: object
+ *     description: Custom key-value pairs for additional option data. If "author" key is provided, value must be "admin" or "vendor".
  */
 export type CreateProductOptionType = z.infer<typeof CreateProductOption>;
 export const CreateProductOption = z.object({
   title: z.string(),
   values: z.array(z.string()),
+  metadata: z
+    .record(z.unknown())
+    .optional()
+    .superRefine((data, ctx) => {
+      if (data && "author" in data) {
+        const author = data.author;
+        if (author !== "admin" && author !== "vendor") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'author must be either "admin" or "vendor"',
+            path: ["author"],
+          });
+        }
+      }
+    }),
 });
 
 /**
@@ -56,12 +74,31 @@ export const CreateProductOption = z.object({
  *     description: The values that the product option can take (e.g. ["Small", "Medium", "Large"]).
  *     items:
  *       type: string
+ *   metadata:
+ *     type: object
+ *     nullable: true
+ *     description: Custom key-value pairs for additional option data. If "author" key is provided, value must be "admin" or "vendor".
  */
 export type UpdateProductOptionType = z.infer<typeof UpdateProductOption>;
 export const UpdateProductOption = z.object({
   id: z.string().optional(),
   title: z.string().optional(),
   values: z.array(z.string()).optional(),
+  metadata: z
+    .record(z.unknown())
+    .nullish()
+    .superRefine((data, ctx) => {
+      if (data && "author" in data) {
+        const author = data.author;
+        if (author !== "admin" && author !== "vendor") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'author must be either "admin" or "vendor"',
+            path: ["author"],
+          });
+        }
+      }
+    }),
 });
 
 /* Variant Prices */
