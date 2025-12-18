@@ -5,7 +5,11 @@ import {
 } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
-import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
+import {
+  batchVariantImagesWorkflow,
+  createProductsWorkflow,
+  updateProductVariantsWorkflow,
+} from "@medusajs/medusa/core-flows";
 import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
 import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
 import { filterProductsBySeller, OrderObject } from "./utils";
@@ -148,7 +152,23 @@ export const POST = async (
     req.scope
   );
 
-  const { additional_data, ...validatedBody } = req.validatedBody;
+  const { additional_data, variants_images, ...validatedBody } =
+    req.validatedBody;
+
+  // Collect all variant image URLs (images + thumbnails) and merge with product images
+  const existingImageUrls = new Set(
+    validatedBody.images?.map((img) => img.url) ?? []
+  );
+  const allVariantImageUrls = new Set<string>();
+  for (const vi of variants_images ?? []) {
+    vi.image_urls?.forEach((url) => allVariantImageUrls.add(url));
+    if (vi.thumbnail_url) allVariantImageUrls.add(vi.thumbnail_url);
+  }
+  const newVariantImages = [...allVariantImageUrls]
+    .filter((url) => !existingImageUrls.has(url))
+    .map((url) => ({ url }));
+
+  const mergedImages = [...(validatedBody.images ?? []), ...newVariantImages];
 
   const {
     result: [createdProduct],
@@ -158,12 +178,48 @@ export const POST = async (
       products: [
         {
           ...validatedBody,
+          images: mergedImages.length ? mergedImages : undefined,
           status: validatedBody.status === "draft" ? "draft" : "proposed",
         },
       ],
       additional_data: { ...additional_data, seller_id: seller.id },
     },
   });
+
+  // Associate images with variants and set thumbnails
+  if (variants_images?.length && createdProduct.variants?.length) {
+    const { variants, images = [] } = createdProduct;
+
+    for (const { variant_title, image_urls, thumbnail_url } of variants_images) {
+      const variant = variants.find((v) => v.title === variant_title);
+      if (!variant) continue;
+
+      // Associate images with variant
+      if (image_urls?.length) {
+        const imageIds = image_urls
+          .map((url) => images.find((img) => img.url === url)?.id)
+          .filter((id): id is string => !!id);
+
+        if (imageIds.length) {
+          await batchVariantImagesWorkflow.run({
+            container: req.scope,
+            input: { variant_id: variant.id, add: imageIds },
+          });
+        }
+      }
+
+      // Set variant thumbnail
+      if (thumbnail_url) {
+        await updateProductVariantsWorkflow.run({
+          container: req.scope,
+          input: {
+            selector: { id: variant.id },
+            update: { thumbnail: thumbnail_url },
+          },
+        });
+      }
+    }
+  }
 
   const eventBus = req.scope.resolve(Modules.EVENT_BUS);
   await eventBus.emit({
