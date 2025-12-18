@@ -25,6 +25,7 @@ import {
   VendorUpdatePromotion,
 } from "./validators";
 import { vendorPromotionsRuleValueOptionsPathParamsGuard } from "../../../shared/infra/http/middlewares/vendor-promotions-rule-value-options-path-params-guard";
+import { vendorPromotionsRuleAttributeOptionsPathParamsGuard } from "../../../shared/infra/http/middlewares/vendor-promotions-rule-attribute-options-path-params-guard";
 
 export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
   {
@@ -166,6 +167,7 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/promotions/rule-attribute-options/:rule_type",
     middlewares: [
+      vendorPromotionsRuleAttributeOptionsPathParamsGuard,
       validateAndTransformQuery(
         VendorGetPromotionRuleParams,
         vendorRuleTransformQueryConfig.list
