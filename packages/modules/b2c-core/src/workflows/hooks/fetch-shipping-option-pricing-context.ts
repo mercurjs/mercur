@@ -51,6 +51,16 @@ fetchShippingOptionForOrderWorkflow.hooks.setPricingContext(
       return new StepResponse({});
     }
 
+    const { data: orderData } = await query.graph({
+      entity: "order",
+      fields: ["id", "region_id"],
+      filters: {
+        id: order_id,
+      },
+    });
+
+    const regionId = (orderData[0] as any)?.region_id;
+
     const { data: shippingOptionData } = await query.graph({
       entity: "shipping_option",
       fields: [
@@ -70,6 +80,7 @@ fetchShippingOptionForOrderWorkflow.hooks.setPricingContext(
     if (locationFromOption?.id) {
       return new StepResponse({
         location_id: locationFromOption.id,
+        ...(regionId && { region_id: regionId }),
       });
     }
 
@@ -107,12 +118,15 @@ fetchShippingOptionForOrderWorkflow.hooks.setPricingContext(
         if (hasShippingOption) {
           return new StepResponse({
             location_id: location.stock_location_id,
+            ...(regionId && { region_id: regionId }),
           });
         }
       }
     }
 
-    return new StepResponse({});
+    return new StepResponse({
+      ...(regionId && { region_id: regionId }),
+    });
   }
 );
 
