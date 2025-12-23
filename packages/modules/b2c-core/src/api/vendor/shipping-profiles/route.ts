@@ -9,7 +9,10 @@ import { SELLER_MODULE } from "../../../modules/seller";
 
 import sellerShippingProfile from "../../../links/seller-shipping-profile";
 import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
-import { VendorCreateShippingProfileType } from "./validators";
+import {
+  VendorCreateShippingProfileType,
+  VendorGetShippingProfilesParamsType,
+} from "./validators";
 
 /**
  * @oas [post] /vendor/shipping-profiles
@@ -102,6 +105,26 @@ export const POST = async (
  *     description: The comma-separated fields to include in the response
  *     schema:
  *       type: string
+ *   - in: query
+ *     name: q
+ *     description: Search term to filter shipping profiles by name
+ *     schema:
+ *       type: string
+ *   - in: query
+ *     name: offset
+ *     description: The number of items to skip before starting to collect the result set
+ *     schema:
+ *       type: number
+ *   - in: query
+ *     name: limit
+ *     description: The number of items to return
+ *     schema:
+ *       type: number
+ *   - in: query
+ *     name: order
+ *     description: The order of the returned items
+ *     schema:
+ *       type: string
  * responses:
  *   "200":
  *     description: OK
@@ -114,6 +137,15 @@ export const POST = async (
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/VendorShippingProfile"
+ *             count:
+ *               type: integer
+ *               description: The total number of items available
+ *             offset:
+ *               type: integer
+ *               description: The number of items skipped before these items
+ *             limit:
+ *               type: integer
+ *               description: The number of items per page
  * tags:
  *   - Vendor Shipping Profiles
  * security:
@@ -121,27 +153,61 @@ export const POST = async (
  *   - cookie_auth: []
  */
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<{}, VendorGetShippingProfilesParamsType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const searchQuery = req.validatedQuery.q;
+
+  const {
+    q: _,
+    seller_id,
+    ...filterableFields
+  } = req.filterableFields as Record<string, unknown>;
+
+  const { data: sellerShippingProfiles } = await query.graph({
+    entity: sellerShippingProfile.entryPoint,
+    fields: ["shipping_profile_id"],
+    filters: {
+      seller_id,
+      deleted_at: { $eq: null },
+    },
+  });
+
+  const shippingProfileIds = sellerShippingProfiles.map(
+    (rel) => rel.shipping_profile_id
+  );
+
+  if (shippingProfileIds.length === 0) {
+    return res.json({
+      shipping_profiles: [],
+      count: 0,
+      offset: req.queryConfig.pagination?.skip ?? 0,
+      limit: req.queryConfig.pagination?.take ?? 20,
+    });
+  }
+
+  const shippingProfileFilters: Record<string, unknown> = {
+    ...filterableFields,
+    id: shippingProfileIds,
+    deleted_at: { $eq: null },
+  };
+
+  if (searchQuery) {
+    shippingProfileFilters.name = { $ilike: `%${searchQuery}%` };
+  }
 
   const { data: shipping_profiles, metadata } = await query.graph({
-    entity: sellerShippingProfile.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `shipping_profile.${field}`),
-    filters: {
-      ...req.filterableFields,
-      deleted_at: {
-        $eq: null,
-      },
-    },
+    entity: "shipping_profile",
+    fields: req.queryConfig.fields,
+    filters: shippingProfileFilters,
     pagination: req.queryConfig.pagination,
   });
 
   res.json({
     shipping_profiles,
-    count: metadata?.count,
-    offset: metadata?.skip,
-    limit: metadata?.take,
+    count: metadata?.count ?? shipping_profiles.length,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? 20,
   });
 };
