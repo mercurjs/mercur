@@ -26,9 +26,9 @@ export const validateAttributeValueStep = createStep(
       },
     });
 
-    const allowedValues = attribute.possible_values?.map(
-      (posVal) => posVal.value
-    );
+    const allowedValues = attribute.possible_values
+      ?.filter((posVal) => posVal != null)
+      .map((posVal) => posVal.value);
 
     if (allowedValues?.length && !allowedValues.includes(input.value)) {
       throw new MedusaError(
@@ -74,9 +74,9 @@ export const validateAttributeValueStep = createStep(
       },
     });
 
-    const attributeValues = attributeValuesProduct.map(
-      (element) => element.attribute_value
-    );
+    const attributeValues = attributeValuesProduct
+      .map((element) => element.attribute_value)
+      .filter((value) => value != null);
 
     if (
       attributeValues.some(
