@@ -6,6 +6,7 @@ import {
   vendorProductCollectionsProductsQueryConfig
 } from './query-config'
 import {
+  VendorGetProductCollectionParams,
   VendorGetProductCollectionsParams,
   VendorGetProductCollectionsProductsParams
 } from './validators'
@@ -26,7 +27,7 @@ export const vendorProductCollectionsMiddlewares: MiddlewareRoute[] = [
     matcher: '/vendor/product-collections/:id',
     middlewares: [
       validateAndTransformQuery(
-        VendorGetProductCollectionsParams,
+        VendorGetProductCollectionParams,
         vendorProductCollectionQueryConfig.retrieve
       )
     ]
