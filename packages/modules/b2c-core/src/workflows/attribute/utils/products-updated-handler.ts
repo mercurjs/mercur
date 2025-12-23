@@ -1,32 +1,32 @@
-import { MedusaContainer } from '@medusajs/framework'
-import { ProductDTO } from '@medusajs/framework/types'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { MedusaContainer } from "@medusajs/framework";
+import { ProductDTO } from "@medusajs/framework/types";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
-import { ProductAttributeValueDTO } from '@mercurjs/framework'
+import { ProductAttributeValueDTO } from "@mercurjs/framework";
 
-import productAttributeValue from '../../../links/product-attribute-value'
+import productAttributeValue from "../../../links/product-attribute-value";
 import {
   createAttributeValueWorkflow,
-  deleteAttributeValueWorkflow
-} from '../../../workflows/attribute/workflows'
+  deleteAttributeValueWorkflow,
+} from "../../../workflows/attribute/workflows";
 
 export const productsUpdatedHookHandler = async ({
   products,
   additional_data,
-  container
+  container,
 }: {
-  products: ProductDTO[]
-  additional_data: Record<string, unknown> | undefined
-  container: MedusaContainer
+  products: ProductDTO[];
+  additional_data: Record<string, unknown> | undefined;
+  container: MedusaContainer;
 }) => {
-  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const query = container.resolve(ContainerRegistrationKeys.QUERY);
 
   const attributeValues = (additional_data?.values ??
-    []) as ProductAttributeValueDTO[]
-  const productIds = products.map((prod) => prod.id)
+    []) as ProductAttributeValueDTO[];
+  const productIds = products.map((prod) => prod.id);
 
   if (!attributeValues.length) {
-    return []
+    return [];
   }
 
   const updatedValueIds = (
@@ -35,26 +35,26 @@ export const productsUpdatedHookHandler = async ({
         const { data: productValues } = await query.graph({
           entity: productAttributeValue.entryPoint,
           fields: [
-            'attribute_value.id',
-            'attribute_value.value',
-            'attribute_value.attribute_id'
+            "attribute_value.id",
+            "attribute_value.value",
+            "attribute_value.attribute_id",
           ],
           filters: {
-            product_id: prodId
-          }
-        })
+            product_id: prodId,
+          },
+        });
 
         return Promise.all(
           attributeValues.map(async (attrVal) => {
             const unchangedProductValue = productValues
-              .filter((prodVal) => prodVal.attribute_value) // Filter out null values
+              .filter((prodVal) => prodVal.attribute_value)
               .find(
                 (prodVal) =>
                   prodVal.attribute_value.value === attrVal.value &&
                   prodVal.attribute_value.attribute_id === attrVal.attribute_id
-              )
+              );
             if (unchangedProductValue) {
-              return unchangedProductValue.attribute_value.id as string
+              return unchangedProductValue.attribute_value.id as string;
             }
 
             const { result } = await createAttributeValueWorkflow(
@@ -63,32 +63,32 @@ export const productsUpdatedHookHandler = async ({
               input: {
                 attribute_id: attrVal.attribute_id,
                 value: attrVal.value,
-                product_id: prodId
-              }
-            })
-            return result.id
+                product_id: prodId,
+              },
+            });
+            return result.id;
           })
-        )
+        );
       })
     )
-  ).flat()
+  ).flat();
 
   const { data: attributeValuesToDelete } = await query.graph({
     entity: productAttributeValue.entryPoint,
-    fields: ['attribute_value_id'],
+    fields: ["attribute_value_id"],
     filters: {
       attribute_value_id: {
-        $nin: updatedValueIds
+        $nin: updatedValueIds,
       },
-      product_id: productIds
-    }
-  })
+      product_id: productIds,
+    },
+  });
 
   if (!attributeValuesToDelete.length) {
-    return
+    return;
   }
 
   await deleteAttributeValueWorkflow(container).run({
-    input: attributeValuesToDelete.map((val) => val.attribute_value_id)
-  })
-}
+    input: attributeValuesToDelete.map((val) => val.attribute_value_id),
+  });
+};

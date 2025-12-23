@@ -27,7 +27,7 @@ export const validateAttributeValueStep = createStep(
     });
 
     const allowedValues = attribute.possible_values
-      ?.filter((posVal) => posVal !== null && posVal !== undefined)
+      ?.filter((posVal) => posVal != null)
       .map((posVal) => posVal.value);
 
     if (allowedValues?.length && !allowedValues.includes(input.value)) {
@@ -76,7 +76,7 @@ export const validateAttributeValueStep = createStep(
 
     const attributeValues = attributeValuesProduct
       .map((element) => element.attribute_value)
-      .filter((value) => value !== null && value !== undefined);
+      .filter((value) => value != null);
 
     if (
       attributeValues.some(
