@@ -1,40 +1,40 @@
-import { z } from 'zod'
+import { z } from "zod";
 
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import { createFindParams } from "@medusajs/medusa/api/utils/validators";
 
-import { StoreStatus } from '@mercurjs/framework'
+import { buildHostAddress, Hosts, StoreStatus } from "@mercurjs/framework";
 
-export type AdminSellerParamsType = z.infer<typeof AdminSellerParams>
+export type AdminSellerParamsType = z.infer<typeof AdminSellerParams>;
 export const AdminSellerParams = createFindParams({
   offset: 0,
-  limit: 50
-})
+  limit: 50,
+});
 
 export type AdminGetSellerProductsParamsType = z.infer<
   typeof AdminGetSellerProductsParams
->
+>;
 export const AdminGetSellerProductsParams = createFindParams({
   offset: 0,
-  limit: 50
-})
+  limit: 50,
+});
 
 export type AdminGetSellerOrdersParamsType = z.infer<
   typeof AdminGetSellerOrdersParams
->
+>;
 export const AdminGetSellerOrdersParams = createFindParams({
   offset: 0,
-  limit: 50
-})
+  limit: 50,
+});
 
 export type AdminGetSellerCustomerGroupsParamsType = z.infer<
   typeof AdminGetSellerCustomerGroupsParams
->
+>;
 export const AdminGetSellerCustomerGroupsParams = createFindParams({
   offset: 0,
-  limit: 50
-})
+  limit: 50,
+});
 
-export type AdminUpdateSellerType = z.infer<typeof AdminUpdateSeller>
+export type AdminUpdateSellerType = z.infer<typeof AdminUpdateSeller>;
 export const AdminUpdateSeller = z
   .object({
     name: z
@@ -50,12 +50,14 @@ export const AdminUpdateSeller = z
     postal_code: z.string().optional(),
     country_code: z.string().optional(),
     tax_id: z.string().optional(),
-    store_status: z.nativeEnum(StoreStatus).optional()
+    store_status: z.nativeEnum(StoreStatus).optional(),
   })
-  .strict()
+  .strict();
 
-export type AdminInviteSellerType = z.infer<typeof AdminInviteSeller>
+export type AdminInviteSellerType = z.infer<typeof AdminInviteSeller>;
 export const AdminInviteSeller = z.object({
   email: z.string().email(),
-  registration_url: z.string().default('http://localhost:5173/register')
-})
+  registration_url: z
+    .string()
+    .default(buildHostAddress(Hosts.VENDOR_PANEL, "/register").toString()),
+});

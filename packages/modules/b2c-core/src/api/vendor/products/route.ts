@@ -87,10 +87,13 @@ export const GET = async (
     req.queryConfig.pagination?.order as OrderObject | undefined
   );
 
+  const {seller_id, ...filters} = req.filterableFields;
+
   const { data: sellerProducts } = await query.graph({
     entity: "product",
     fields: req.queryConfig.fields,
     filters: {
+      ...filters,
       id: productIds,
     },
     pagination: {

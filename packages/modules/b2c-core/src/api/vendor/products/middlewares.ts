@@ -17,7 +17,10 @@ import {
 import { checkConfigurationRule } from "../../../shared/infra/http/middlewares";
 import { retrieveAttributeQueryConfig } from "../attributes/query-config";
 import { VendorGetAttributesParams } from "../attributes/validators";
-import { vendorProductQueryConfig } from "./query-config";
+import {
+  vendorProductQueryConfig,
+  vendorProductVariantQueryConfig,
+} from "./query-config";
 import {
   CreateProductOption,
   CreateProductVariant,
@@ -25,6 +28,7 @@ import {
   UpdateProductVariant,
   VendorCreateProduct,
   VendorGetProductParams,
+  VendorGetProductVariantsParams,
   VendorUpdateProduct,
   VendorUpdateProductStatus,
 } from "./validators";
@@ -117,6 +121,20 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
           VendorGetProductParams,
           vendorProductQueryConfig.retrieve
         )
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/vendor/products/:id/variants",
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: "product_id",
+      }),
+      validateAndTransformQuery(
+        VendorGetProductVariantsParams,
+        vendorProductVariantQueryConfig.list
       ),
     ],
   },

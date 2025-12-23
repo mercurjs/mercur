@@ -46,3 +46,45 @@ export const vendorProductQueryConfig = {
     isList: false,
   },
 };
+
+export const vendorProductVariantFields = [
+  "id",
+  "product_id",
+  "thumbnail",
+  "title",
+  "sku",
+  "allow_backorder",
+  "manage_inventory",
+  "hs_code",
+  "origin_country",
+  "mid_code",
+  "material",
+  "weight",
+  "length",
+  "height",
+  "width",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+  "metadata",
+  "variant_rank",
+  "ean",
+  "upc",
+  "barcode",
+  "*prices",
+  "prices.price_rules.value",
+  "prices.price_rules.attribute",
+  "*options",
+];
+
+export const vendorProductVariantQueryConfig = {
+  list: {
+    defaults: vendorProductVariantFields,
+    isList: true,
+    defaultLimit: 50,
+  },
+  retrieve: {
+    defaults: vendorProductVariantFields,
+    isList: false,
+  },
+};

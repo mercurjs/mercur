@@ -3,6 +3,8 @@ import {
   Algoliasearch,
   BatchRequest,
   IndexSettings,
+  SearchParams,
+  SearchResponse,
   algoliasearch,
 } from "algoliasearch";
 import { IndexType, AlgoliaEntity } from "@mercurjs/framework";
@@ -134,6 +136,16 @@ class AlgoliaModuleService {
       indexName: type,
       objectID: entity.id,
       attributesToUpdate: { ...entity },
+    });
+  }
+
+  search<T = Record<string, unknown>>(
+    indexName: IndexType,
+    params: SearchParams
+  ): Promise<SearchResponse<T>> {
+    return this.algolia_.searchSingleIndex<T>({
+      indexName,
+      searchParams: params,
     });
   }
 }
