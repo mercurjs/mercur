@@ -1,7 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
-import { ContainerRegistrationKeys, MedusaError, PromotionActions } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, MedusaError, Modules, PromotionActions } from "@medusajs/framework/utils"
 import { StoreAddCartPromotionsType } from "@medusajs/medusa/api/store/carts/validators"
-import { updateCartPromotionsWorkflow } from "@medusajs/medusa/core-flows"
+import { updateCartPromotionsWorkflowId } from "@medusajs/medusa/core-flows"
 import { fetchSellerByAuthActorId } from "@mercurjs/framework"
 import { validateSellerPromotions } from "../../../../../modules/seller"
 
@@ -26,7 +26,8 @@ export const POST = async (
       throw new MedusaError(MedusaError.Types.INVALID_DATA, 'Some of the promotion codes are invalid')
     }
 
-    await updateCartPromotionsWorkflow.run({
+    const workflowEngine = req.scope.resolve(Modules.WORKFLOW_ENGINE)
+    await workflowEngine.run(updateCartPromotionsWorkflowId, {
       input: {
         cart_id: req.params.id,
         promo_codes: req.validatedBody.promo_codes,
