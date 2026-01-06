@@ -36,7 +36,7 @@ export default async function requestCreatedAdminNotifyHandler({
           seller_name: (data as any).seller.name || "",
           request_address: buildHostAddress(
             Hosts.BACKEND,
-            `/admin/requests/seller`
+            `/requests/seller`
           ).toString(),
           store_name: storeData.store_name,
           storefront_url: storeData.storefront_url,
