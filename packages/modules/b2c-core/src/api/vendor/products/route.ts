@@ -155,7 +155,33 @@ export const POST = async (
   const { additional_data, variants_images, ...validatedBody } =
     req.validatedBody;
 
-  // Collect all variant image URLs (images + thumbnails) and merge with product images
+  // Helper function to create a stable key from variant options
+  // Handles both Record<string, string> (input) and array format (created variant)
+  const createVariantKey = (
+    options?: Record<string, string> | Array<{ value: string; option?: { title?: string } | null }>
+  ): string => {
+    if (!options) return "";
+    
+    let optionsMap: Record<string, string>;
+    
+    if (Array.isArray(options)) {
+      // Convert array format to Record<string, string>
+      optionsMap = options.reduce((acc, opt) => {
+        if (opt.option?.title && opt.value) {
+          acc[opt.option.title] = opt.value;
+        }
+        return acc;
+      }, {} as Record<string, string>);
+    } else {
+      optionsMap = options;
+    }
+    
+    return Object.keys(optionsMap)
+      .sort()
+      .map((key) => `${key}:${optionsMap[key]}`)
+      .join("|");
+  };
+
   const existingImageUrls = new Set(
     validatedBody.images?.map((img) => img.url) ?? []
   );
@@ -189,15 +215,23 @@ export const POST = async (
   // Associate images with variants and set thumbnails
   if (variants_images?.length && createdProduct.variants?.length) {
     const { variants, images = [] } = createdProduct;
+    
+    // Build O(1) lookup maps
+    const variantByOptionsKey = new Map(
+      variants.map((variant) => [createVariantKey(variant.options), variant])
+    );
+    const imageUrlToId = new Map(images.map((img) => [img.url, img.id]));
 
-    for (const { variant_title, image_urls, thumbnail_url } of variants_images) {
-      const variant = variants.find((v) => v.title === variant_title);
+    for (const { variant_options, image_urls, thumbnail_url } of variants_images) {
+      const variantKey = createVariantKey(variant_options);
+      const variant = variantByOptionsKey.get(variantKey);
+      
       if (!variant) continue;
 
-      // Associate images with variant
       if (image_urls?.length) {
-        const imageIds = image_urls
-          .map((url) => images.find((img) => img.url === url)?.id)
+        const uniqueImageUrls = [...new Set(image_urls)];
+        const imageIds = uniqueImageUrls
+          .map((url) => imageUrlToId.get(url))
           .filter((id): id is string => !!id);
 
         if (imageIds.length) {
@@ -208,8 +242,7 @@ export const POST = async (
         }
       }
 
-      // Set variant thumbnail
-      if (thumbnail_url) {
+      if (thumbnail_url && imageUrlToId.has(thumbnail_url)) {
         await updateProductVariantsWorkflow.run({
           container: req.scope,
           input: {

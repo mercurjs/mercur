@@ -180,11 +180,13 @@ const UpdateVariantPrice = z.object({
  * @schema VariantImages
  * type: object
  * required:
- *   - variant_title
+ *   - variant_options
  * properties:
- *   variant_title:
- *     type: string
- *     description: The title of the variant to associate images with.
+ *   variant_options:
+ *     type: object
+ *     description: The option values that uniquely identify the variant (e.g., {"Size": "S", "Color": "Red"}).
+ *     additionalProperties:
+ *       type: string
  *   image_urls:
  *     type: array
  *     description: The URLs of images to associate with the variant.
@@ -196,7 +198,7 @@ const UpdateVariantPrice = z.object({
  */
 export type VariantImagesType = z.infer<typeof VariantImages>;
 export const VariantImages = z.object({
-  variant_title: z.string(),
+  variant_options: z.record(z.string()),
   image_urls: z.array(z.string()).optional(),
   thumbnail_url: z.string().optional(),
 });
