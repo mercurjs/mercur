@@ -20,6 +20,11 @@ type SellerStockLocationWithFulfillment = {
   };
 };
 
+type OrderData = {
+  id: string;
+  region_id: string | null;
+};
+
 /**
  * This hook provides the pricing context for shipping options in RMA flows (claims, returns, exchanges).
  * 
@@ -59,7 +64,7 @@ fetchShippingOptionForOrderWorkflow.hooks.setPricingContext(
       },
     });
 
-    const regionId = (orderData[0] as any)?.region_id;
+    const regionId = (orderData[0] as OrderData | undefined)?.region_id;
 
     const { data: shippingOptionData } = await query.graph({
       entity: "shipping_option",
