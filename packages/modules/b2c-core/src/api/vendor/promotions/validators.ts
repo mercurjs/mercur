@@ -13,6 +13,25 @@ import {
 } from "@medusajs/medusa/api/utils/validators";
 
 import { VendorCreateCampaign } from "../campaigns/validators";
+import { dateFilterSchema } from "../../../shared/infra/http/utils";
+
+export const VendorGetPromotionsParamsFields = z.object({
+  q: z.string().optional(),
+  id: z.union([z.string(), z.array(z.string())]).optional(),
+  code: z.union([z.string(), z.array(z.string())]).optional(),
+  campaign_id: z.union([z.string(), z.array(z.string())]).optional(),
+  status: z.union([
+    z.nativeEnum(PromotionStatus),
+    z.array(z.nativeEnum(PromotionStatus))
+  ]).optional(),
+  is_automatic: z.boolean().optional(),
+  type: z.union([
+    z.nativeEnum(PromotionType),
+    z.array(z.nativeEnum(PromotionType))
+  ]).optional(),
+  created_at: dateFilterSchema,
+  updated_at: dateFilterSchema,
+});
 
 export type VendorGetPromotionsParamsType = z.infer<
   typeof VendorGetPromotionsParams
@@ -20,7 +39,7 @@ export type VendorGetPromotionsParamsType = z.infer<
 export const VendorGetPromotionsParams = createFindParams({
   offset: 0,
   limit: 50,
-});
+}).merge(VendorGetPromotionsParamsFields);
 
 /**
  * @schema VendorCreatePromotionRule
