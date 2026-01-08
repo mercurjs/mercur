@@ -7,7 +7,7 @@ export default defineLink(
   { linkable: WishlistModule.linkable.wishlist, isList: true },
   {
     linkable: ProductModule.linkable.product,
-    deleteCascade: true,
+    deleteCascade: false,
     isList: true,
   }
 );
