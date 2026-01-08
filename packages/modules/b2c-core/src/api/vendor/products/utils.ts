@@ -1,5 +1,9 @@
 import { MedusaContainer } from '@medusajs/framework';
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils';
+import { batchVariantImagesWorkflow, updateProductVariantsWorkflow } from '@medusajs/medusa/core-flows';
+import { VariantImagesType } from './validators';
+
+export const VARIANT_IMAGE_METADATA_KEY = "variant_image_key";
 
 type OrderDirection = 'ASC' | 'DESC' | 'asc' | 'desc';
 export type OrderObject = Record<string, OrderDirection | Record<string, OrderDirection>>;
@@ -103,3 +107,94 @@ export const filterProductsBySeller = async (
 
   return { productIds, count: totalCount }
 }
+
+export const mergeVariantImages = (
+  existingImages: Array<{ url: string }> | undefined,
+  variantImagePayload: VariantImagesType[] | undefined
+) => {
+  const existingImageUrls = new Set(existingImages?.map((img) => img.url) ?? []);
+  const allVariantImageUrls = new Set<string>();
+  for (const vi of variantImagePayload ?? []) {
+    vi.image_urls?.forEach((url) => allVariantImageUrls.add(url));
+    if (vi.thumbnail_url) {
+      allVariantImageUrls.add(vi.thumbnail_url);
+    }
+  }
+
+  const newVariantImages = [...allVariantImageUrls]
+    .filter((url) => !existingImageUrls.has(url))
+    .map((url) => ({ url }));
+
+  return [...(existingImages ?? []), ...newVariantImages];
+};
+
+type ProductVariantWithMetadata = {
+  id: string;
+  metadata?: Record<string, unknown> | null;
+};
+
+type ProductImage = {
+  id?: string;
+  url: string;
+};
+
+export const assignVariantImages = async (
+  container: MedusaContainer,
+  variantImagePayload: VariantImagesType[] | undefined,
+  createdProduct: {
+    variants?: ProductVariantWithMetadata[];
+    images?: ProductImage[];
+  }
+) => {
+  if (!variantImagePayload?.length || !createdProduct.variants?.length) {
+    return;
+  }
+
+  const { variants, images = [] } = createdProduct;
+
+  const variantEntries = variants
+    .map((variant) => {
+      const key = variant.metadata?.[VARIANT_IMAGE_METADATA_KEY];
+      if (!key || typeof key !== "string") {
+        return undefined;
+      }
+      return [key, variant] as const;
+    })
+    .filter(
+      (entry): entry is readonly [string, ProductVariantWithMetadata] =>
+        Boolean(entry)
+    );
+  const variantByKey = new Map(variantEntries);
+  const imageUrlToId = new Map(images.map((img) => [img.url, img.id]));
+
+  for (const { variant_image_key, image_urls, thumbnail_url } of variantImagePayload) {
+    const variant = variantByKey.get(variant_image_key);
+    if (!variant) {
+      continue;
+    }
+
+    if (image_urls?.length) {
+      const uniqueImageUrls = [...new Set(image_urls)];
+      const imageIds = uniqueImageUrls
+        .map((url) => imageUrlToId.get(url))
+        .filter((id): id is string => !!id);
+
+      if (imageIds.length) {
+        await batchVariantImagesWorkflow.run({
+          container,
+          input: { variant_id: variant.id, add: imageIds },
+        });
+      }
+    }
+
+    if (thumbnail_url && imageUrlToId.has(thumbnail_url)) {
+      await updateProductVariantsWorkflow.run({
+        container,
+        input: {
+          selector: { id: variant.id },
+          update: { thumbnail: thumbnail_url },
+        },
+      });
+    }
+  }
+};
