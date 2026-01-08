@@ -1,6 +1,5 @@
 import { MedusaContainer } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import sellerPromotion from '../../links/seller-promotion';
 
 export async function selectSellerCustomers(
   container: MedusaContainer,
@@ -127,24 +126,35 @@ export async function selectCustomersChartData(
   return result as unknown as { date: Date; count: string }[]
 }
 
-export async function validateSellerPromotions(
+export async function validateSellersPromotions(
   promo_codes: string[],
   container: MedusaContainer,
-  seller_id: string
+  cart_id: string
 ): Promise<{ valid: boolean; invalidCodes: string[] }> {
+  if (!promo_codes?.length) {
+    return { valid: true, invalidCodes: [] }
+  }
+
   const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
-  const sellerPromotionCodes = await knex
-    .select('promotion.code')
-    .from('seller_seller_promotion_promotion')
-    .leftJoin(
-      'promotion',
-      'seller_seller_promotion_promotion.promotion_id',
-      'promotion.id'
+  const sellerPromotionCodes = await knex('cart_line_item as cli')
+    .distinct('promotion.code')
+    .innerJoin(
+      'seller_seller_product_product as spp',
+      'cli.product_id',
+      'spp.product_id'
     )
-    .where('seller_seller_promotion_promotion.seller_id', seller_id)
-    .whereIn('promotion.code', promo_codes)
+    .innerJoin(
+      'seller_seller_promotion_promotion as sppromo',
+      'spp.seller_id',
+      'sppromo.seller_id'
+    )
+    .innerJoin('promotion', 'sppromo.promotion_id', 'promotion.id')
+    .where('cli.cart_id', cart_id)
+    .whereNull('cli.deleted_at')
+    .whereNull('spp.deleted_at')
     .whereNull('promotion.deleted_at')
+    .whereIn('promotion.code', promo_codes)
 
   const foundCodes = sellerPromotionCodes.map((row) => row.code)
 
@@ -153,7 +163,7 @@ export async function validateSellerPromotions(
   )
 
   return {
-    valid: invalidCodes.length === 0,
+    valid: foundCodes.length > 0,
     invalidCodes
   }
 }
