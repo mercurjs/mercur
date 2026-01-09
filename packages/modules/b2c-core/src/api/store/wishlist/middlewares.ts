@@ -2,7 +2,7 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework";
-import { MiddlewareRoute } from "@medusajs/medusa";
+import { authenticate, MiddlewareRoute } from "@medusajs/medusa";
 
 import { isPresent, ProductStatus } from "@medusajs/framework/utils";
 import { listProductQueryConfig } from "@medusajs/medusa/api/store/products/query-config";
@@ -29,6 +29,7 @@ export const storeWishlistMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/store/wishlist",
     middlewares: [
+      authenticate("customer", ["bearer", "session"]),
       validateAndTransformQuery(StoreGetProductsParams, listProductQueryConfig),
       filterByValidSalesChannels(),
       maybeApplyLinkFilter({
@@ -60,6 +61,7 @@ export const storeWishlistMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/store/wishlist",
     middlewares: [
+      authenticate("customer", ["bearer", "session"]),
       validateAndTransformQuery(
         StoreGetWishlistsParams,
         storeWishlistQueryConfig.retrieve
@@ -69,12 +71,9 @@ export const storeWishlistMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ["DELETE"],
-    matcher: "/store/wishlist/:id/product/:reference_id",
+    matcher: "/store/wishlist/product/:reference_id",
     middlewares: [
-      checkCustomerResourceOwnershipByResourceId({
-        entryPoint: customerWishlist.entryPoint,
-        filterField: "wishlist_id",
-      }),
+      authenticate("customer", ["bearer", "session"]),
     ],
   },
 ];
