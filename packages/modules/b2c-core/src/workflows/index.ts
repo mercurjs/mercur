@@ -11,4 +11,5 @@ export * from "./product";
 export * from "./promotions";
 export * from "./seller";
 export * from "./split-order-payment";
+export * from "./vendor-product-attribute";
 export * from "./wishlist";

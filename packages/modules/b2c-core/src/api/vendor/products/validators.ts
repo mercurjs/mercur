@@ -9,6 +9,103 @@ import {
   AdminGetProductVariantsParams,
 } from "@medusajs/medusa/api/admin/products/validators";
 
+/* Attribute Inputs for Product Creation */
+
+const AttributeUIComponentEnum = z.enum([
+  "select",
+  "multivalue",
+  "unit",
+  "toggle",
+  "text_area",
+  "color_picker",
+]);
+
+/**
+ * @schema AdminAttributeInput
+ * type: object
+ * required:
+ *   - attribute_id
+ *   - values
+ *   - use_for_variations
+ * properties:
+ *   attribute_id:
+ *     type: string
+ *     description: The ID of the admin-defined attribute.
+ *   values:
+ *     type: array
+ *     items:
+ *       type: string
+ *     description: The values for this attribute.
+ *   use_for_variations:
+ *     type: boolean
+ *     description: Whether this attribute should create product variants.
+ */
+export type AdminAttributeInputType = z.infer<typeof AdminAttributeInput>;
+export const AdminAttributeInput = z.object({
+  attribute_id: z.string(),
+  values: z.array(z.string()).min(1),
+  use_for_variations: z.boolean(),
+});
+
+/**
+ * @schema VendorAttributeInput
+ * type: object
+ * required:
+ *   - title
+ *   - values
+ *   - use_for_variations
+ * properties:
+ *   title:
+ *     type: string
+ *     description: The title of the vendor-created attribute.
+ *   values:
+ *     type: array
+ *     items:
+ *       type: string
+ *     description: The values for this attribute.
+ *   use_for_variations:
+ *     type: boolean
+ *     description: Whether this attribute should create product variants.
+ *   ui_component:
+ *     type: string
+ *     enum: [select, multivalue, unit, toggle, text_area, color_picker]
+ *     description: The UI component to use for display.
+ *   extends_attribute_id:
+ *     type: string
+ *     description: The ID of an admin attribute this extends (for custom values on admin attributes).
+ */
+export type VendorAttributeInputType = z.infer<typeof VendorAttributeInput>;
+export const VendorAttributeInput = z.object({
+  title: z.string().min(1),
+  values: z.array(z.string()).min(1),
+  use_for_variations: z.boolean(),
+  ui_component: AttributeUIComponentEnum.optional(),
+  extends_attribute_id: z.string().optional(),
+});
+
+/**
+ * @schema ProductAttributesAdditionalData
+ * type: object
+ * properties:
+ *   admin_attributes:
+ *     type: array
+ *     items:
+ *       $ref: "#/components/schemas/AdminAttributeInput"
+ *     description: Admin-defined attributes to apply to the product.
+ *   vendor_attributes:
+ *     type: array
+ *     items:
+ *       $ref: "#/components/schemas/VendorAttributeInput"
+ *     description: Vendor-created custom attributes for the product.
+ */
+export type ProductAttributesAdditionalDataType = z.infer<
+  typeof ProductAttributesAdditionalData
+>;
+export const ProductAttributesAdditionalData = z.object({
+  admin_attributes: z.array(AdminAttributeInput).optional(),
+  vendor_attributes: z.array(VendorAttributeInput).optional(),
+});
+
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>;
 export const VendorGetProductParams = AdminGetProductsParams;
 

@@ -9,6 +9,7 @@ import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
 import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
 import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
 import { filterProductsBySeller, OrderObject } from "./utils";
+import { transformProductsWithInformationalAttributes } from "./utils/transform-product-attributes";
 import {
   VendorCreateProductType,
   VendorGetProductParamsType,
@@ -101,8 +102,12 @@ export const GET = async (
     }
   });
 
+  const transformedProducts = transformProductsWithInformationalAttributes(
+    sellerProducts as any[]
+  );
+
   res.json({
-    products: sellerProducts,
+    products: transformedProducts,
     count: count,
     offset: req.queryConfig.pagination?.skip || 0,
     limit: req.queryConfig.pagination?.take || 10,
@@ -195,5 +200,9 @@ export const POST = async (
     { throwIfKeyNotFound: true }
   );
 
-  res.status(201).json({ product });
+  const [transformedProduct] = transformProductsWithInformationalAttributes([
+    product as any,
+  ]);
+
+  res.status(201).json({ product: transformedProduct });
 };
