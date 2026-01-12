@@ -69,7 +69,7 @@ export const GET = async (
   res.json({
     product_tags,
     count: metadata?.count ?? product_tags.length,
-    offset: metadata?.skip ?? 0,
-    limit: metadata?.take ?? req.queryConfig.pagination?.take ?? 50
+    offset: metadata?.skip ?? req.queryConfig.pagination?.skip ?? 0,
+    limit: metadata?.take ?? req.queryConfig.pagination?.take ?? 0
   })
 }

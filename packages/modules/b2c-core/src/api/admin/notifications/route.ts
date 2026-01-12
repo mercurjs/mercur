@@ -73,7 +73,7 @@ export const GET = async (
   res.json({
     notifications,
     count: metadata?.count ?? notifications.length,
-    offset: metadata?.skip ?? 0,
-    limit: metadata?.take ?? 0
+    offset: metadata?.skip ?? req.queryConfig.pagination?.skip ?? 0,
+    limit: metadata?.take ?? req.queryConfig.pagination?.take ?? 0
   })
 }
