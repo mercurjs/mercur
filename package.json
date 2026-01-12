@@ -21,6 +21,6 @@
     "format": "turbo run format",
     "lint": "turbo run lint",
     "codegen": "cd .",
-    "generate:oas": "turbo run generate:oas"
+    "generate:oas": "medusa-oas oas --type combined --paths ./packages/modules/b2c-core/src ./packages/modules/commission/src ./packages/modules/algolia/src ./packages/modules/reviews/src ./packages/modules/requests/src"
   }
 }
