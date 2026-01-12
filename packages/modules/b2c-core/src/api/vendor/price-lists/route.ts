@@ -60,7 +60,6 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER)
 
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,
@@ -93,10 +92,6 @@ export const GET = async (
     id: { $in: priceListIds },
     deleted_at: { $eq: null }
   }
-
-  logger.info(
-    `Price list IDs: ${JSON.stringify({ filterableFields, priceListIds, priceListFilters })}`
-  )
 
   const { data: price_lists, metadata } = await query.graph({
     entity: 'price_list',
