@@ -4,10 +4,18 @@ import { AdditionalData } from "@medusajs/framework/types";
 import { WithAdditionalData } from "@medusajs/medusa/api/utils/validators";
 
 import { IdAssociation } from "../../../shared/infra/http/utils";
-import { AdminGetProductsParams } from "@medusajs/medusa/api/admin/products/validators";
+import {
+  AdminGetProductsParams,
+  AdminGetProductVariantsParams,
+} from "@medusajs/medusa/api/admin/products/validators";
 
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>;
 export const VendorGetProductParams = AdminGetProductsParams;
+
+export type VendorGetProductVariantsParamsType = z.infer<
+  typeof VendorGetProductVariantsParams
+>;
+export const VendorGetProductVariantsParams = AdminGetProductVariantsParams;
 
 /* Options */
 
@@ -26,11 +34,29 @@ export const VendorGetProductParams = AdminGetProductsParams;
  *     description: The values that the product option can take (e.g. ["Small", "Medium", "Large"]).
  *     items:
  *       type: string
+ *   metadata:
+ *     type: object
+ *     description: Custom key-value pairs for additional option data. If "author" key is provided, value must be "admin" or "vendor".
  */
 export type CreateProductOptionType = z.infer<typeof CreateProductOption>;
 export const CreateProductOption = z.object({
   title: z.string(),
   values: z.array(z.string()),
+  metadata: z
+    .record(z.unknown())
+    .optional()
+    .superRefine((data, ctx) => {
+      if (data && "author" in data) {
+        const author = data.author;
+        if (author !== "admin" && author !== "vendor") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'author must be either "admin" or "vendor"',
+            path: ["author"],
+          });
+        }
+      }
+    }),
 });
 
 /**
@@ -48,12 +74,31 @@ export const CreateProductOption = z.object({
  *     description: The values that the product option can take (e.g. ["Small", "Medium", "Large"]).
  *     items:
  *       type: string
+ *   metadata:
+ *     type: object
+ *     nullable: true
+ *     description: Custom key-value pairs for additional option data. If "author" key is provided, value must be "admin" or "vendor".
  */
 export type UpdateProductOptionType = z.infer<typeof UpdateProductOption>;
 export const UpdateProductOption = z.object({
   id: z.string().optional(),
   title: z.string().optional(),
   values: z.array(z.string()).optional(),
+  metadata: z
+    .record(z.unknown())
+    .nullish()
+    .superRefine((data, ctx) => {
+      if (data && "author" in data) {
+        const author = data.author;
+        if (author !== "admin" && author !== "vendor") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'author must be either "admin" or "vendor"',
+            path: ["author"],
+          });
+        }
+      }
+    }),
 });
 
 /* Variant Prices */
