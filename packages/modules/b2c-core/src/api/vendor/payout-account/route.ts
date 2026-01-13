@@ -1,5 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import {
+  ContainerRegistrationKeys,
+} from '@medusajs/framework/utils'
 
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import {
@@ -104,8 +106,10 @@ export const POST = async (
     req.scope
   )
 
+  const transactionId = `${seller.id}-${Date.now()}`
+
   const { result } = await createPayoutAccountForSellerWorkflow(req.scope).run({
-    context: { transactionId: seller.id },
+    context: { transactionId },
     input: {
       seller_id: seller.id,
       context: req.validatedBody.context ?? {}

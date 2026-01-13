@@ -3,7 +3,11 @@ import {
   MedusaRequest,
   MedusaResponse
 } from '@medusajs/framework'
-import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
+import {
+  ContainerRegistrationKeys,
+  Modules,
+  omitDeep
+} from '@medusajs/framework/utils'
 import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
@@ -99,7 +103,8 @@ export const GET = async (
     entity: 'product',
     fields: req.queryConfig.fields,
     filters: {
-      id: productIds
+      ...omitDeep(req.filterableFields, ['q']),
+      id: { $in: productIds }
     },
     pagination: {
       order: req.queryConfig.pagination?.order

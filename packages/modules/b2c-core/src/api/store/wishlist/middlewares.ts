@@ -1,44 +1,79 @@
 import {
   validateAndTransformBody,
-  validateAndTransformQuery
-} from '@medusajs/framework'
-import { MiddlewareRoute } from '@medusajs/medusa'
+  validateAndTransformQuery,
+} from "@medusajs/framework";
+import { authenticate, MiddlewareRoute } from "@medusajs/medusa";
 
-import customerWishlist from '../../../links/customer-wishlist'
-import { checkCustomerResourceOwnershipByResourceId } from '../../../shared/infra/http/middlewares/check-customer-ownership'
-import { storeWishlistQueryConfig } from './query-config'
-import { StoreCreateWishlist, StoreGetWishlistsParams } from './validators'
+import { isPresent, ProductStatus } from "@medusajs/framework/utils";
+import { listProductQueryConfig } from "@medusajs/medusa/api/store/products/query-config";
+import { StoreGetProductsParams } from "@medusajs/medusa/api/store/products/validators";
+import customerWishlist from "../../../links/customer-wishlist";
+import { checkCustomerResourceOwnershipByResourceId } from "../../../shared/infra/http/middlewares/check-customer-ownership";
+import { storeWishlistQueryConfig } from "./query-config";
+import { StoreCreateWishlist, StoreGetWishlistsParams } from "./validators";
+
+import {
+  applyDefaultFilters,
+  clearFiltersByKey,
+  maybeApplyLinkFilter,
+} from "@medusajs/framework/http";
+import {
+  filterByValidSalesChannels,
+  normalizeDataForContext,
+  setPricingContext,
+  setTaxContext,
+} from "@medusajs/medusa/api/utils/middlewares/index";
 
 export const storeWishlistMiddlewares: MiddlewareRoute[] = [
   {
-    method: ['GET'],
-    matcher: '/store/wishlist',
+    method: ["GET"],
+    matcher: "/store/wishlist",
     middlewares: [
-      validateAndTransformQuery(
-        StoreGetWishlistsParams,
-        storeWishlistQueryConfig.list
-      )
-    ]
+      authenticate("customer", ["bearer", "session"]),
+      validateAndTransformQuery(StoreGetProductsParams, listProductQueryConfig),
+      filterByValidSalesChannels(),
+      maybeApplyLinkFilter({
+        entryPoint: "product_sales_channel",
+        resourceId: "product_id",
+        filterableField: "sales_channel_id",
+      }),
+      applyDefaultFilters({
+        status: ProductStatus.PUBLISHED,
+        // TODO: the type here seems off and the implementation does not take into account $and and $or possible filters. Might be worth re working (original type used here was StoreGetProductsParamsType)
+        categories: (filters: any, fields: string[]) => {
+          const categoryIds = filters.category_id;
+          delete filters.category_id;
+
+          if (!isPresent(categoryIds)) {
+            return;
+          }
+
+          return { id: categoryIds, is_internal: false, is_active: true };
+        },
+      }),
+      normalizeDataForContext(),
+      setPricingContext(),
+      setTaxContext(),
+      clearFiltersByKey(["region_id", "country_code", "province", "cart_id"]),
+    ],
   },
   {
-    method: ['POST'],
-    matcher: '/store/wishlist',
+    method: ["POST"],
+    matcher: "/store/wishlist",
     middlewares: [
+      authenticate("customer", ["bearer", "session"]),
       validateAndTransformQuery(
         StoreGetWishlistsParams,
         storeWishlistQueryConfig.retrieve
       ),
-      validateAndTransformBody(StoreCreateWishlist)
-    ]
+      validateAndTransformBody(StoreCreateWishlist),
+    ],
   },
   {
-    method: ['DELETE'],
-    matcher: '/store/wishlist/:id/product/:reference_id',
+    method: ["DELETE"],
+    matcher: "/store/wishlist/product/:reference_id",
     middlewares: [
-      checkCustomerResourceOwnershipByResourceId({
-        entryPoint: customerWishlist.entryPoint,
-        filterField: 'wishlist_id'
-      })
-    ]
-  }
-]
+      authenticate("customer", ["bearer", "session"]),
+    ],
+  },
+];
