@@ -1,7 +1,7 @@
 import { AttributeUIComponent } from "../attribute/common";
 
 export interface CreateVendorProductAttributeDTO {
-  title: string;
+  name: string;
   value: string;
   ui_component?: AttributeUIComponent;
   extends_attribute_id?: string;
@@ -11,7 +11,7 @@ export interface CreateVendorProductAttributeDTO {
 
 export interface UpdateVendorProductAttributeDTO {
   id: string;
-  title?: string;
+  name?: string;
   value?: string;
   ui_component?: AttributeUIComponent;
   rank?: number;
@@ -31,7 +31,7 @@ export interface AdminAttributeInput {
  * Input for vendor-created attributes in product creation
  */
 export interface VendorAttributeInput {
-  title: string;
+  name: string;
   values: string[];
   use_for_variations: boolean;
   ui_component?: AttributeUIComponent;

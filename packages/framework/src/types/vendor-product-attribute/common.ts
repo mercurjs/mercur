@@ -2,7 +2,7 @@ import { AttributeUIComponent } from "../attribute/common";
 
 export interface VendorProductAttributeDTO {
   id: string;
-  title: string;
+  name: string;
   value: string;
   ui_component: AttributeUIComponent;
   extends_attribute_id?: string | null;
@@ -17,7 +17,7 @@ export interface VendorProductAttributeDTO {
  * Combines admin AttributeValues and VendorProductAttributes
  */
 export interface InformationalAttributeDTO {
-  title: string;
+  name: string;
   value: string;
   ui_component: AttributeUIComponent;
   source: "admin" | "vendor";

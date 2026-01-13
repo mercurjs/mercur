@@ -51,13 +51,13 @@ export const AdminAttributeInput = z.object({
  * @schema VendorAttributeInput
  * type: object
  * required:
- *   - title
+ *   - name
  *   - values
  *   - use_for_variations
  * properties:
- *   title:
+ *   name:
  *     type: string
- *     description: The title of the vendor-created attribute.
+ *     description: The name of the vendor-created attribute.
  *   values:
  *     type: array
  *     items:
@@ -76,7 +76,7 @@ export const AdminAttributeInput = z.object({
  */
 export type VendorAttributeInputType = z.infer<typeof VendorAttributeInput>;
 export const VendorAttributeInput = z.object({
-  title: z.string().min(1),
+  name: z.string().min(1),
   values: z.array(z.string()).min(1),
   use_for_variations: z.boolean(),
   ui_component: AttributeUIComponentEnum.optional(),

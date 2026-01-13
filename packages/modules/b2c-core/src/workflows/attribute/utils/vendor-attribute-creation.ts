@@ -11,7 +11,7 @@ export const createVendorAttributes = async (
   const creationPromises = vendorAttr.values.map((value) =>
     createVendorProductAttributeWorkflow(container).run({
       input: {
-        title: vendorAttr.title,
+        name: vendorAttr.name,
         value,
         product_id,
         seller_id: sellerId,

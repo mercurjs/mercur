@@ -17,7 +17,7 @@ export const createVendorProductAttributeWorkflowId =
   "create-vendor-product-attribute";
 
 export interface CreateVendorProductAttributeWorkflowInput {
-  title: string;
+  name: string;
   value: string;
   product_id: string;
   seller_id: string;
@@ -31,7 +31,7 @@ export const createVendorProductAttributeWorkflow = createWorkflow(
   createVendorProductAttributeWorkflowId,
   (input: CreateVendorProductAttributeWorkflowInput) => {
     const vendorProductAttributeInput = transform({ input }, ({ input }) => ({
-      title: input.title,
+      name: input.name,
       value: input.value,
       ui_component: input.ui_component,
       extends_attribute_id: input.extends_attribute_id,

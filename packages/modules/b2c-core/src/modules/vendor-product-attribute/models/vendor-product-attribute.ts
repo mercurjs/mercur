@@ -5,7 +5,7 @@ import { AttributeUIComponent } from "@mercurjs/framework";
 const VendorProductAttribute = model
   .define("vendor_product_attribute", {
     id: model.id({ prefix: "vnd_prod_attr" }).primaryKey(),
-    title: model.text(),
+    name: model.text(),
     value: model.text(),
     ui_component: model
       .enum(Object.values(AttributeUIComponent))
@@ -16,8 +16,8 @@ const VendorProductAttribute = model
   })
   .indexes([
     {
-      on: ["title"],
-      name: "IDX_vendor_product_attribute_title",
+      on: ["name"],
+      name: "IDX_vendor_product_attribute_name",
     },
   ]);
 

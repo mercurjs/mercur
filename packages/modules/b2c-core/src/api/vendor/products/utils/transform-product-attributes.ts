@@ -16,7 +16,7 @@ interface AttributeValueWithAttribute {
 
 interface VendorProductAttribute {
   id: string;
-  title: string;
+  name: string;
   value: string;
   ui_component: string;
   extends_attribute_id?: string | null;
@@ -31,7 +31,7 @@ interface ProductWithAttributes {
 const toInformationalAttributeFromAdmin = (
   attributeValue: AttributeValueWithAttribute
 ): InformationalAttributeDTO => ({
-  title: attributeValue.attribute.name,
+  name: attributeValue.attribute.name,
   value: attributeValue.value,
   ui_component: attributeValue.attribute.ui_component as AttributeUIComponent,
   source: "admin",
@@ -42,7 +42,7 @@ const toInformationalAttributeFromAdmin = (
 const toInformationalAttributeFromVendor = (
   vendorAttribute: VendorProductAttribute
 ): InformationalAttributeDTO => ({
-  title: vendorAttribute.title,
+  name: vendorAttribute.name,
   value: vendorAttribute.value,
   ui_component: vendorAttribute.ui_component as AttributeUIComponent,
   source: "vendor",
