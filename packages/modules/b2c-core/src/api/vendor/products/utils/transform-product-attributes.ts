@@ -28,49 +28,38 @@ interface ProductWithAttributes {
   [key: string]: unknown;
 }
 
-interface TransformedProduct extends Omit<ProductWithAttributes, 'attribute_values' | 'vendor_product_attributes'> {
-  informational_attributes: InformationalAttributeDTO[];
-  attribute_values?: AttributeValueWithAttribute[];
-  vendor_product_attributes?: VendorProductAttribute[];
-}
+const toInformationalAttributeFromAdmin = (
+  attributeValue: AttributeValueWithAttribute
+): InformationalAttributeDTO => ({
+  title: attributeValue.attribute.name,
+  value: attributeValue.value,
+  ui_component: attributeValue.attribute.ui_component as AttributeUIComponent,
+  source: "admin",
+  attribute_id: attributeValue.attribute.id,
+  is_filterable: attributeValue.attribute.is_filterable,
+});
 
-/**
- * Transforms a product to include a unified `informational_attributes` array
- * that merges admin AttributeValues and VendorProductAttributes
- */
+const toInformationalAttributeFromVendor = (
+  vendorAttribute: VendorProductAttribute
+): InformationalAttributeDTO => ({
+  title: vendorAttribute.title,
+  value: vendorAttribute.value,
+  ui_component: vendorAttribute.ui_component as AttributeUIComponent,
+  source: "vendor",
+  vendor_attribute_id: vendorAttribute.id,
+  extends_attribute_id: vendorAttribute.extends_attribute_id,
+  is_filterable: false,
+});
+
 export function transformProductWithInformationalAttributes<
   T extends ProductWithAttributes
 >(product: T): T & { informational_attributes: InformationalAttributeDTO[] } {
-  const informationalAttributes: InformationalAttributeDTO[] = [];
-
-  // Add admin attribute values
-  if (product.attribute_values) {
-    for (const attrVal of product.attribute_values) {
-      informationalAttributes.push({
-        title: attrVal.attribute.name,
-        value: attrVal.value,
-        ui_component: attrVal.attribute.ui_component as AttributeUIComponent,
-        source: "admin",
-        attribute_id: attrVal.attribute.id,
-        is_filterable: attrVal.attribute.is_filterable,
-      });
-    }
-  }
-
-  // Add vendor product attributes
-  if (product.vendor_product_attributes) {
-    for (const vendorAttr of product.vendor_product_attributes) {
-      informationalAttributes.push({
-        title: vendorAttr.title,
-        value: vendorAttr.value,
-        ui_component: vendorAttr.ui_component as AttributeUIComponent,
-        source: "vendor",
-        vendor_attribute_id: vendorAttr.id,
-        extends_attribute_id: vendorAttr.extends_attribute_id,
-        is_filterable: false, // Vendor attributes are not filterable
-      });
-    }
-  }
+  const informationalAttributes: InformationalAttributeDTO[] = [
+    ...(product.attribute_values?.map(toInformationalAttributeFromAdmin) ?? []),
+    ...(product.vendor_product_attributes?.map(
+      toInformationalAttributeFromVendor
+    ) ?? []),
+  ];
 
   return {
     ...product,
@@ -78,9 +67,6 @@ export function transformProductWithInformationalAttributes<
   };
 }
 
-/**
- * Transforms an array of products to include informational_attributes
- */
 export function transformProductsWithInformationalAttributes<
   T extends ProductWithAttributes
 >(products: T[]): (T & { informational_attributes: InformationalAttributeDTO[] })[] {
