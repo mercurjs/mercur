@@ -103,7 +103,7 @@ export const GET = async (
     entity: 'product',
     fields: req.queryConfig.fields,
     filters: {
-      ...omitDeep(req.filterableFields, ['q']),
+      ...omitDeep(req.filterableFields, ['q', 'seller_id']),
       id: { $in: productIds }
     },
     pagination: {
