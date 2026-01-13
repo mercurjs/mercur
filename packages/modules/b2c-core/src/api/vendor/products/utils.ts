@@ -167,11 +167,13 @@ export const assignVariantImages = async (
   const variantByKey = new Map(variantEntries);
   const imageUrlToId = new Map(images.map((img) => [img.url, img.id]));
 
-  for (const { variant_image_key, image_urls, thumbnail_url } of variantImagePayload) {
+  const tasks = variantImagePayload.map(async ({ variant_image_key, image_urls, thumbnail_url }) => {
     const variant = variantByKey.get(variant_image_key);
     if (!variant) {
-      continue;
+      return;
     }
+
+    const ops: Promise<unknown>[] = [];
 
     if (image_urls?.length) {
       const uniqueImageUrls = [...new Set(image_urls)];
@@ -180,21 +182,31 @@ export const assignVariantImages = async (
         .filter((id): id is string => !!id);
 
       if (imageIds.length) {
-        await batchVariantImagesWorkflow.run({
-          container,
-          input: { variant_id: variant.id, add: imageIds },
-        });
+        ops.push(
+          batchVariantImagesWorkflow.run({
+            container,
+            input: { variant_id: variant.id, add: imageIds },
+          })
+        );
       }
     }
 
     if (thumbnail_url && imageUrlToId.has(thumbnail_url)) {
-      await updateProductVariantsWorkflow.run({
-        container,
-        input: {
-          selector: { id: variant.id },
-          update: { thumbnail: thumbnail_url },
-        },
-      });
+      ops.push(
+        updateProductVariantsWorkflow.run({
+          container,
+          input: {
+            selector: { id: variant.id },
+            update: { thumbnail: thumbnail_url },
+          },
+        })
+      );
     }
-  }
+
+    if (ops.length) {
+      await Promise.all(ops);
+    }
+  });
+
+  await Promise.all(tasks);
 };
