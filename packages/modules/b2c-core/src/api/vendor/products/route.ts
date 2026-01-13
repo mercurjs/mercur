@@ -8,7 +8,12 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
 import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
 import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
-import { filterProductsBySeller, OrderObject } from "./utils";
+import {
+  assignVariantImages,
+  filterProductsBySeller,
+  mergeVariantImages,
+  OrderObject,
+} from "./utils";
 import {
   VendorCreateProductType,
   VendorGetProductParamsType,
@@ -148,7 +153,10 @@ export const POST = async (
     req.scope
   );
 
-  const { additional_data, ...validatedBody } = req.validatedBody;
+  const { additional_data, variants_images, ...validatedBody } =
+    req.validatedBody;
+
+  const mergedImages = mergeVariantImages(validatedBody.images, variants_images);
 
   const {
     result: [createdProduct],
@@ -158,12 +166,15 @@ export const POST = async (
       products: [
         {
           ...validatedBody,
+          images: mergedImages.length ? mergedImages : undefined,
           status: validatedBody.status === "draft" ? "draft" : "proposed",
         },
       ],
       additional_data: { ...additional_data, seller_id: seller.id },
     },
   });
+
+  await assignVariantImages(req.scope, variants_images, createdProduct);
 
   const eventBus = req.scope.resolve(Modules.EVENT_BUS);
   await eventBus.emit({
