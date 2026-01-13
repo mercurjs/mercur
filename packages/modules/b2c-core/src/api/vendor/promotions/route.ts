@@ -4,7 +4,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 import sellerPromotion from '../../../links/seller-promotion'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import { createVendorPromotionWorkflow } from '../../../workflows/promotions/workflows'
-import { VendorCreatePromotionType } from './validators'
+import { VendorCreatePromotionType, VendorGetPromotionsParamsType } from './validators'
 
 /**
  * @oas [get] /vendor/promotions
@@ -31,6 +31,50 @@ import { VendorCreatePromotionType } from './validators'
  *       type: string
  *     required: false
  *     description: Comma-separated fields to include in the response.
+ *   - name: order
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: The field to sort the data by. Prefix with `-` for descending order.
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search term to filter promotions by code.
+ *   - name: code
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Filter by promotion code.
+ *   - name: type
+ *     in: query
+ *     schema:
+ *       type: string
+ *       enum: [standard, buyget]
+ *     required: false
+ *     description: Filter by promotion type.
+ *   - name: status
+ *     in: query
+ *     schema:
+ *       type: string
+ *       enum: [draft, active, inactive]
+ *     required: false
+ *     description: Filter by promotion status.
+ *   - name: is_automatic
+ *     in: query
+ *     schema:
+ *       type: boolean
+ *     required: false
+ *     description: Filter by whether the promotion is automatic.
+ *   - name: campaign_id
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Filter by campaign ID.
  * responses:
  *   "200":
  *     description: OK
@@ -59,28 +103,60 @@ import { VendorCreatePromotionType } from './validators'
  *   - cookie_auth: []
  */
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<{}, VendorGetPromotionsParamsType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const searchQuery = req.validatedQuery.q
+
+  const {
+    q: _,
+    seller_id,
+    ...filterableFields
+  } = req.filterableFields as Record<string, unknown>
+
+  const { data: sellerPromotions } = await query.graph({
+    entity: sellerPromotion.entryPoint,
+    fields: ['promotion_id'],
+    filters: {
+      seller_id,
+      deleted_at: { $eq: null }
+    }
+  })
+
+  const promotionIds = sellerPromotions.map((rel) => rel.promotion_id)
+
+  if (promotionIds.length === 0) {
+    return res.json({
+      promotions: [],
+      count: 0,
+      offset: req.queryConfig.pagination?.skip ?? 0,
+      limit: req.queryConfig.pagination?.take ?? 50
+    })
+  }
+
+  const promotionFilters: Record<string, unknown> = {
+    ...filterableFields,
+    id: promotionIds,
+    deleted_at: { $eq: null }
+  }
+
+  if (searchQuery) {
+    promotionFilters.code = { $ilike: `%${searchQuery}%` }
+  }
 
   const { data: promotions, metadata } = await query.graph({
-    entity: sellerPromotion.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `promotion.${field}`),
-    filters: {
-      ...req.filterableFields,
-      deleted_at: {
-        $eq: null
-      }
-    },
+    entity: 'promotion',
+    fields: req.queryConfig.fields,
+    filters: promotionFilters,
     pagination: req.queryConfig.pagination
   })
 
   res.json({
-    promotions: promotions.map((relation) => relation.promotion),
-    count: metadata?.count,
-    offset: metadata?.skip,
-    limit: metadata?.take
+    promotions,
+    count: metadata?.count ?? promotions.length,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? 50
   })
 }
 

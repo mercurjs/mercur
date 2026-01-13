@@ -20,7 +20,17 @@ export type VendorGetPromotionsParamsType = z.infer<
 export const VendorGetPromotionsParams = createFindParams({
   offset: 0,
   limit: 50,
-});
+}).merge(
+  z.object({
+    q: z.string().optional(),
+    id: z.union([z.string(), z.array(z.string())]).optional(),
+    code: z.union([z.string(), z.array(z.string())]).optional(),
+    type: z.nativeEnum(PromotionType).optional(),
+    status: z.nativeEnum(PromotionStatus).optional(),
+    is_automatic: z.boolean().optional(),
+    campaign_id: z.union([z.string(), z.array(z.string())]).optional(),
+  })
+);
 
 /**
  * @schema VendorCreatePromotionRule
