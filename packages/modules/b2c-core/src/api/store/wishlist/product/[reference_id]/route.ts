@@ -1,24 +1,20 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 
-import { deleteWishlistEntryWorkflow } from '../../../../../../workflows/wishlist/workflows'
+import { deleteWishlistEntryWorkflow } from '../../../../../workflows/wishlist/workflows'
+import { getWishlistFromCustomerId } from '../../../../../modules/wishlist/utils'
+import { MedusaError } from '@medusajs/framework/utils'
 
 /**
- * @oas [delete] /store/wishlist/{id}/product/{reference_id}
+ * @oas [delete] /store/wishlist/product/{reference_id}
  * operationId: "StoreDeleteWishlist"
  * summary: "Delete a wishlist entry"
- * description: "Deletes a wishlist entry by its ID for the authenticated user."
+ * description: "Removes an item from the wishlist of the currently authenticated user. The wishlist is resolved from the logged-in customer."
  * x-authenticated: true
  * parameters:
- *   - name: id
- *     in: path
- *     required: true
- *     description: The ID of the wishlist entry to delete.
- *     schema:
- *       type: string
  *   - name: reference_id
  *     in: path
  *     required: true
- *     description: The ID of the wishlist entry to delete.
+ *     description: ID of the product (wishlist entry) to remove.
  *     schema:
  *       type: string
  * responses:
@@ -51,13 +47,26 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
+  const wishlist = await getWishlistFromCustomerId(
+    req.scope,
+    req.auth_context.actor_id
+  )
+
+  if (!wishlist) {
+    throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Wishlist not found for current customer')
+  }
+
   await deleteWishlistEntryWorkflow.run({
     container: req.scope,
-    input: req.params
+    input: {
+      id: wishlist.id,
+      reference_id: req.params.reference_id
+    }
   })
 
   res.json({
-    ...req.params,
+    id: wishlist.id,
+    reference_id: req.params.reference_id,
     object: 'wishlist',
     deleted: true
   })

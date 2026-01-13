@@ -16,6 +16,7 @@ import {
   verifyVendorTargetPromotionRulesStep,
   verifyVendorCampaignStep,
   verifyVendorPromotionStep,
+  injectSellerProductRuleStep,
 } from "../steps";
 
 export const createVendorPromotionWorkflow = createWorkflow(
@@ -23,16 +24,19 @@ export const createVendorPromotionWorkflow = createWorkflow(
   function (input: { promotion: CreatePromotionDTO; seller_id: string }) {
     verifyVendorCampaignStep(input);
     verifyVendorPromotionStep(input);
+
     verifyVendorTargetPromotionRulesStep(
       transform(input, (input) => ({
-        rules: input.promotion.application_method.target_rules,
+        rules: input.promotion.application_method?.target_rules,
         seller_id: input.seller_id,
       }))
     );
 
+    const promotionWithDefaultRule = injectSellerProductRuleStep(input);
+
     const promotions = createPromotionsWorkflow.runAsStep({
       input: {
-        promotionsData: [input.promotion],
+        promotionsData: [promotionWithDefaultRule],
       },
     });
 

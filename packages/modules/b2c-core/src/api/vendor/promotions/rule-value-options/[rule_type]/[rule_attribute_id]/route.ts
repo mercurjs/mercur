@@ -1,20 +1,18 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import {
-  ApplicationMethodTypeValues,
-  PromotionTypeValues,
-  RuleTypeValues
-} from '@medusajs/framework/types'
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework";
 import {
   ContainerRegistrationKeys,
-  remoteQueryObjectFromString
-} from '@medusajs/framework/utils'
-import { ruleQueryConfigurations } from '@medusajs/medusa/api/admin/promotions/utils/rule-query-configuration'
-import { validateRuleAttribute } from '@medusajs/medusa/api/admin/promotions/utils/validate-rule-attribute'
-import { validateRuleType } from '@medusajs/medusa/api/admin/promotions/utils/validate-rule-type'
+  remoteQueryObjectFromString,
+} from "@medusajs/framework/utils";
+import { ruleQueryConfigurations } from "@medusajs/medusa/api/admin/promotions/utils/rule-query-configuration";
 
-import sellerCustomerGroup from '../../../../../../links/seller-customer-group'
-import sellerProduct from '../../../../../../links/seller-product'
-import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
+import sellerCustomerGroup from "../../../../../../links/seller-customer-group";
+import sellerProduct from "../../../../../../links/seller-product";
+import "../../../../../../shared/infra/http/middlewares/types";
+import { fetchSellerByAuthActorId } from "../../../../../../shared/infra/http/utils";
+import { getRuleAttributesMap } from "../../../utils";
 
 /**
  * @oas [get] /vendor/promotions/rule-attribute-options/{rule_type}
@@ -78,64 +76,93 @@ import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/ut
  *                 $ref: "#/components/schemas/VendorRuleAttributeOption"
  *
  */
+
+const vendorRuleQueryConfigurations = {
+  ...ruleQueryConfigurations,
+  product: {
+    entryPoint: "product",
+    valueAttr: "id",
+    labelAttr: "title",
+  },
+};
+
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+
+  const ruleType = req.normalized_rule_type || req.params.rule_type;
+  const { rule_attribute_id: ruleAttributeId } = req.params;
   const {
-    rule_type: ruleType,
-    rule_attribute_id: ruleAttributeId,
     promotion_type: promotionType,
-    application_method_type: applicationMethodType
-  } = req.params
-  const queryConfig = ruleQueryConfigurations[ruleAttributeId]
-  const remoteQuery = req.scope.resolve(ContainerRegistrationKeys.REMOTE_QUERY)
-  const filterableFields = req.filterableFields
+    application_method_type: applicationMethodType,
+  } = req.query;
+  const queryConfig = vendorRuleQueryConfigurations[ruleAttributeId];
+  const remoteQuery = req.scope.resolve(ContainerRegistrationKeys.REMOTE_QUERY);
+  const filterableFields = req.filterableFields;
 
-  if (filterableFields.value) {
-    filterableFields[queryConfig.valueAttr] = filterableFields.value
-
-    delete filterableFields.value
+  if (!queryConfig) {
+    return res.status(400).json({
+      type: "invalid_data",
+      message: `Invalid rule attribute - ${ruleAttributeId}`,
+    });
   }
 
-  validateRuleType(ruleType)
-  validateRuleAttribute({
-    promotionType: promotionType as PromotionTypeValues,
-    ruleType: ruleType as RuleTypeValues,
-    ruleAttributeId,
-    applicationMethodType: applicationMethodType as ApplicationMethodTypeValues
-  })
+  if (filterableFields.value) {
+    filterableFields[queryConfig.valueAttr] = filterableFields.value;
+
+    delete filterableFields.value;
+  }
+
+  const ruleAttributesMap = getRuleAttributesMap({
+    promotionType: promotionType as string,
+    applicationMethodType: applicationMethodType as string,
+  });
+  const validAttributes = ruleAttributesMap[ruleType] || [];
+  const isValidAttribute = validAttributes.some(
+    (attr) => attr.id === ruleAttributeId
+  );
+
+  if (!isValidAttribute) {
+    return res.status(400).json({
+      type: "invalid_data",
+      message: `Invalid rule attribute - ${ruleAttributeId}. Valid attributes for ${ruleType}: ${validAttributes.map((a) => a.id).join(", ")}`,
+    });
+  }
+
+  delete filterableFields.promotion_type;
+  delete filterableFields.application_method_type;
 
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,
     req.scope
-  )
+  );
 
-  if (queryConfig.entryPoint === 'product') {
+  if (queryConfig.entryPoint === "product") {
     const { data: products } = await query.graph({
       entity: sellerProduct.entryPoint,
-      fields: ['product_id'],
+      fields: ["product_id"],
       filters: {
-        seller_id: seller.id
+        seller_id: seller.id,
       },
-      withDeleted: true
-    })
+      withDeleted: true,
+    });
 
-    filterableFields['id'] = products.map((p) => p.product_id)
+    filterableFields["id"] = products.map((p) => p.product_id);
   }
 
-  if (queryConfig.entryPoint === 'customer_group') {
+  if (queryConfig.entryPoint === "customer_group") {
     const { data: groups } = await query.graph({
       entity: sellerCustomerGroup.entryPoint,
-      fields: ['customer_group_id'],
+      fields: ["customer_group_id"],
       filters: {
-        seller_id: seller.id
+        seller_id: seller.id,
       },
-      withDeleted: true
-    })
+      withDeleted: true,
+    });
 
-    filterableFields['id'] = groups.map((p) => p.customer_group_id)
+    filterableFields["id"] = groups.map((p) => p.customer_group_id);
   }
 
   const { rows } = await remoteQuery(
@@ -143,18 +170,18 @@ export const GET = async (
       entryPoint: queryConfig.entryPoint,
       variables: {
         filters: filterableFields,
-        ...req.queryConfig.pagination
+        ...req.queryConfig.pagination,
       },
-      fields: [queryConfig.labelAttr, queryConfig.valueAttr]
+      fields: [queryConfig.labelAttr, queryConfig.valueAttr],
     })
-  )
+  );
 
   const values = rows.map((r) => ({
     label: r[queryConfig.labelAttr],
-    value: r[queryConfig.valueAttr]
-  }))
+    value: r[queryConfig.valueAttr],
+  }));
 
   res.json({
-    values
-  })
-}
+    values,
+  });
+};
