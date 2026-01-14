@@ -15,6 +15,7 @@ import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import {
   OrderObject,
+  assignVariantImages,
   filterProductsBySeller,
   mergeVariantImages
 } from './utils'
@@ -182,6 +183,8 @@ export const POST = async (
       additional_data: { ...additional_data, seller_id: seller.id }
     }
   })
+
+  await assignVariantImages(req.scope, variants_images, createdProduct)
 
   const eventBus = req.scope.resolve(Modules.EVENT_BUS)
   await eventBus.emit({
