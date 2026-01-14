@@ -786,3 +786,51 @@ export type VendorUpdateProductStatusType = z.infer<
 export const VendorUpdateProductStatus = z.object({
   status: z.enum(["draft", "proposed", "published"]),
 });
+
+/* Bulk Update Products */
+
+/**
+ * @schema VendorBulkUpdateProductItem
+ * type: object
+ * required:
+ *   - id
+ * properties:
+ *   id:
+ *     type: string
+ *     description: The ID of the product to update.
+ *   title:
+ *     type: string
+ *     description: The title of the product.
+ *   status:
+ *     type: string
+ *     enum: [draft, proposed, published]
+ *     description: The status of the product.
+ *   discountable:
+ *     type: boolean
+ *     description: Whether the product can be discounted.
+ */
+export const VendorBulkUpdateProductItem = z.object({
+  id: z.string(),
+  title: z.string().optional(),
+  status: z.enum(["draft", "proposed", "published"]).optional(),
+  discountable: z.boolean().optional(),
+});
+
+/**
+ * @schema VendorBulkUpdateProducts
+ * type: object
+ * required:
+ *   - products
+ * properties:
+ *   products:
+ *     type: array
+ *     description: The products to update in bulk.
+ *     items:
+ *       $ref: "#/components/schemas/VendorBulkUpdateProductItem"
+ */
+export type VendorBulkUpdateProductsType = z.infer<
+  typeof VendorBulkUpdateProducts
+>;
+export const VendorBulkUpdateProducts = z.object({
+  products: z.array(VendorBulkUpdateProductItem).min(1),
+});
