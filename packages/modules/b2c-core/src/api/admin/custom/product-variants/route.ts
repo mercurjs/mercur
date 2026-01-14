@@ -1,10 +1,10 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 
-import { listFilteredProductVariantsWorkflow } from "../../../workflows/product-variants";
+import { listFilteredProductVariantsWorkflow } from "../../../../workflows/product-variants";
 import type { AdminGetProductVariantsParamsType } from "./validators";
 
 /**
- * @oas [get] /admin/product-variants-filtered
+ * @oas [get] /admin/custom/product-variants
  * operationId: "AdminListProductVariantsFiltered"
  * summary: "List Product Variants (Filtered)"
  * description: "Retrieves a filtered list of product variants with advanced filtering options (seller, price, inventory)."

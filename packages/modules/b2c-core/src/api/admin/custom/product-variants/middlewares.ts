@@ -7,7 +7,7 @@ import { AdminGetProductVariantsParams } from "./validators";
 export const adminProductVariantsFilteredMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
-    matcher: "/admin/product-variants-filtered",
+    matcher: "/admin/custom/product-variants",
     middlewares: [
       validateAndTransformQuery(
         AdminGetProductVariantsParams,

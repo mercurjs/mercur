@@ -2,18 +2,12 @@ import { deduplicate } from "@medusajs/framework/utils";
 import {
   WorkflowResponse,
   createWorkflow,
-  parallelize,
   transform,
   when,
 } from "@medusajs/framework/workflows-sdk";
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows";
 
-import {
-  filterVariantsByInventoryStep,
-  filterVariantsByPriceStep,
-  filterVariantsBySellerStep,
-  intersectFilterResultsStep,
-} from "../steps";
+import { filterVariantsCombinedStep } from "../steps";
 
 export interface ListFilteredProductVariantsInput {
   seller_id?: string;
@@ -31,48 +25,35 @@ export interface ListFilteredProductVariantsInput {
 export const listFilteredProductVariantsWorkflow = createWorkflow(
   "list-filtered-product-variants",
   (input: ListFilteredProductVariantsInput) => {
-    const [sellerFilterResult, priceFilterResult, inventoryFilterResult] =
-      parallelize(
-        when({ input }, ({ input }) => !!input.seller_id).then(() => {
-          return filterVariantsBySellerStep({
-            sellerId: input.seller_id!,
-          });
-        }),
-        when({ input }, ({ input }) => input.has_price !== undefined).then(
-          () => {
-            return filterVariantsByPriceStep({
-              hasPrice: input.has_price!,
-            });
-          }
-        ),
-        when({ input }, ({ input }) => input.has_inventory !== undefined).then(
-          () => {
-            return filterVariantsByInventoryStep({
-              hasInventory: input.has_inventory!,
-            });
-          }
-        )
+    const hasFilters = transform({ input }, ({ input }) => {
+      return (
+        !!input.seller_id ||
+        input.has_price !== undefined ||
+        input.has_inventory !== undefined
       );
+    });
 
-    const filterResults = transform(
-      {
-        sellerFilterResult,
-        priceFilterResult,
-        inventoryFilterResult,
-      },
-      (data) => {
-        return [
-          data.sellerFilterResult,
-          data.priceFilterResult,
-          data.inventoryFilterResult,
-        ];
-      }
-    );
+    const filterResult = when(
+      { hasFilters },
+      ({ hasFilters }) => hasFilters
+    ).then(() => {
+      return filterVariantsCombinedStep({
+        seller_id: input.seller_id,
+        has_price: input.has_price,
+        has_inventory: input.has_inventory,
+      });
+    });
 
-    const { finalVariantIds } = intersectFilterResultsStep({ filterResults });
+    const finalVariantIds = transform({ filterResult }, ({ filterResult }) => {
+      return filterResult?.variantIds ?? null;
+    });
 
     const isEmpty = transform({ finalVariantIds }, ({ finalVariantIds }) => {
-      return Array.isArray(finalVariantIds) && finalVariantIds.length === 0;
+      return (
+        finalVariantIds !== null &&
+        Array.isArray(finalVariantIds) &&
+        finalVariantIds.length === 0
+      );
     });
 
     const emptyResponse = when({ isEmpty }, ({ isEmpty }) => isEmpty).then(
@@ -95,7 +76,6 @@ export const listFilteredProductVariantsWorkflow = createWorkflow(
           { input, finalVariantIds },
           ({ input, finalVariantIds }) => {
             const filters: Record<string, unknown> = {};
-
 
             if (finalVariantIds !== null) {
               filters.id = finalVariantIds;
