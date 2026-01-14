@@ -137,33 +137,55 @@ export async function validateSellersPromotions(
 
   const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
-  const sellerPromotionCodes = await knex('cart_line_item as cli')
-    .distinct('promotion.code')
+  const promotions = await knex('promotion')
+    .select('id', 'code')
+    .whereIn('promotion.code', promo_codes)
+    .whereNull('promotion.deleted_at')
+
+  const existingCodes = promotions.map((p) => p.code)
+  const missingCodes = promo_codes.filter((code) => !existingCodes.includes(code))
+
+  const cartSellers = await knex('cart_line_item as cli')
+    .distinct('spp.seller_id')
     .innerJoin(
       'seller_seller_product_product as spp',
       'cli.product_id',
       'spp.product_id'
     )
-    .innerJoin(
-      'seller_seller_promotion_promotion as sppromo',
-      'spp.seller_id',
-      'sppromo.seller_id'
-    )
-    .innerJoin('promotion', 'sppromo.promotion_id', 'promotion.id')
     .where('cli.cart_id', cart_id)
     .whereNull('cli.deleted_at')
     .whereNull('spp.deleted_at')
-    .whereNull('promotion.deleted_at')
-    .whereIn('promotion.code', promo_codes)
 
-  const foundCodes = sellerPromotionCodes.map((row) => row.code)
+  const cartSellerIds = cartSellers.map((row) => row.seller_id)
 
-  const invalidCodes = promo_codes.filter(
-    (code) => !foundCodes.includes(code)
+  const sellerPromotionLinks = await knex(
+    'seller_seller_promotion_promotion as sppromo'
   )
+    .join('promotion', 'promotion.id', 'sppromo.promotion_id')
+    .select('promotion.code', 'sppromo.seller_id')
+    .whereIn('promotion.code', promo_codes)
+    .whereNull('promotion.deleted_at')
+
+  const codesWithSeller = new Map<string, Set<string>>()
+  sellerPromotionLinks.forEach((row) => {
+    if (!codesWithSeller.has(row.code)) {
+      codesWithSeller.set(row.code, new Set())
+    }
+    codesWithSeller.get(row.code)!.add(row.seller_id)
+  })
+
+  const invalidSellerCodes = existingCodes.filter((code) => {
+    const sellers = codesWithSeller.get(code)
+    if (!sellers || sellers.size === 0) {
+      return false // admin/global promo – no seller restriction
+    }
+    return !cartSellerIds.some((id) => sellers.has(id))
+  })
+
+  const invalidCodes = [...new Set([...missingCodes, ...invalidSellerCodes])]
 
   return {
-    valid: foundCodes.length > 0,
+    valid: invalidCodes.length === 0,
     invalidCodes
   }
 }
