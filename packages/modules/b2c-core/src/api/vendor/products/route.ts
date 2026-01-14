@@ -13,7 +13,11 @@ import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
 
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
-import { OrderObject, filterProductsBySeller } from './utils'
+import {
+  OrderObject,
+  filterProductsBySeller,
+  mergeVariantImages
+} from './utils'
 import {
   VendorCreateProductType,
   VendorGetProductParamsType
@@ -158,7 +162,10 @@ export const POST = async (
     req.scope
   )
 
-  const { additional_data, ...validatedBody } = req.validatedBody
+  const { additional_data, variants_images, ...validatedBody } =
+    req.validatedBody
+
+  const mergedImages = mergeVariantImages(validatedBody.images, variants_images)
 
   const {
     result: [createdProduct]
@@ -168,6 +175,7 @@ export const POST = async (
       products: [
         {
           ...validatedBody,
+          images: mergedImages.length ? mergedImages : undefined,
           status: validatedBody.status === 'draft' ? 'draft' : 'proposed'
         }
       ],
