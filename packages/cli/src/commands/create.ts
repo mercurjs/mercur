@@ -20,6 +20,7 @@ import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
 
 const DEFAULT_BRANCH = "main";
+const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
   basic: "basic",
@@ -44,6 +45,8 @@ export const create = new Command()
   .option("--skip-db", "skip database configuration.", false)
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
   .action(async (name, opts) => {
+    validateNodeVersion();
+
     try {
       // Prompt for project name if not provided.
       let projectName = name;
@@ -259,4 +262,19 @@ function createTerminalLink(text: string, url: string) {
   return terminalLink(text, url, {
     fallback: (text, url) => `${text}: ${url}`,
   });
+}
+
+function getNodeVersion(): number {
+  const [major] = process.versions.node.split(".").map(Number);
+  return major;
+}
+
+function validateNodeVersion(): void {
+  const nodeVersion = getNodeVersion();
+  if (nodeVersion < MIN_SUPPORTED_NODE_VERSION) {
+    logger.error(
+      `Mercur requires at least v${MIN_SUPPORTED_NODE_VERSION} of Node.js. You're using v${nodeVersion}. Please install at least v${MIN_SUPPORTED_NODE_VERSION} and try again: https://nodejs.org/en/download`
+    );
+    process.exit(1);
+  }
 }
