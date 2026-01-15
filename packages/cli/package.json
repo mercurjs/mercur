@@ -10,7 +10,9 @@
   "files": [
     "dist"
   ],
-  "bin": "./dist/index.js",
+  "bin": {
+    "mercurjs": "./dist/index.js"
+  },
   "exports": {
     ".": "./dist/index.js"
   },
