@@ -36,7 +36,7 @@ function getScriptKind(filename: string): ScriptKind {
 
 export async function transformImports(opts: TransformOpts): Promise<string> {
   const ext = path.extname(opts.filename).toLowerCase();
-  if (![".tsx", ".ts", ".jsx", ".js"].includes(ext)) {
+  if (![".tsx", ".ts"].includes(ext)) {
     return opts.raw;
   }
 

@@ -10,7 +10,6 @@ import { fetchRegistry, fetchRegistryLocal } from "./fetcher";
 import { parseRegistryAndItemFromString } from "./parser";
 import {
   type RegistryItem,
-  type RegistryItemCategory,
   registryItemSchema,
   registryResolvedItemsTreeSchema,
 } from "./schema";
@@ -22,7 +21,6 @@ const registryItemWithSourceSchema = registryItemSchema.extend({
 
 export function resolveRegistryItemsFromRegistries(
   items: string[],
-  type: RegistryItemCategory,
   config: Config
 ) {
   const registryHeaders: Record<string, Record<string, string>> = {};
@@ -33,27 +31,11 @@ export function resolveRegistryItemsFromRegistries(
     return resolvedItems;
   }
 
-  // Get the default registry (first one in the config) for unnamespaced dependencies
-  const defaultRegistry = Object.keys(config.registries)[0];
-
   for (let i = 0; i < resolvedItems.length; i++) {
-    let item = resolvedItems[i];
-    let itemType = type;
-
-    // If item doesn't start with @ but has a type prefix (e.g., "tools:test-tool"),
-    // add the default registry namespace to resolve it
-    if (!item.startsWith("@") && item.includes(":") && defaultRegistry) {
-      const colonIndex = item.indexOf(":");
-      const prefix = item.substring(0, colonIndex);
-      if (prefix === "agents" || prefix === "tools" || prefix === "prompts") {
-        // Transform "tools:test-tool" to "@defaultRegistry/test-tool" and extract type
-        const itemName = item.substring(colonIndex + 1);
-        item = `${defaultRegistry}/${itemName}`;
-        itemType = prefix as RegistryItemCategory;
-      }
-    }
-
-    const resolved = buildUrlAndHeadersForRegistryItem(item, itemType, config);
+    const resolved = buildUrlAndHeadersForRegistryItem(
+      resolvedItems[i],
+      config
+    );
 
     if (resolved) {
       resolvedItems[i] = resolved.url;
@@ -69,11 +51,7 @@ export function resolveRegistryItemsFromRegistries(
   return resolvedItems;
 }
 
-export async function fetchRegistryItems(
-  items: string[],
-  type: RegistryItemCategory,
-  config: Config
-) {
+export async function fetchRegistryItems(items: string[], config: Config) {
   const results = await Promise.all(
     items.map(async (item) => {
       if (isLocalFile(item)) {
@@ -90,7 +68,7 @@ export async function fetchRegistryItems(
       }
 
       if (item.startsWith("@") && config?.registries) {
-        const paths = resolveRegistryItemsFromRegistries([item], type, config);
+        const paths = resolveRegistryItemsFromRegistries([item], config);
         const [result] = await fetchRegistry(paths);
         try {
           return registryItemSchema.parse(result);
@@ -99,50 +77,20 @@ export async function fetchRegistryItems(
         }
       }
 
-      // Handle type:item format (e.g., "agents:lib/context", "tools:bash")
-      let itemType = type;
-      let itemName = item;
-      const colonIndex = item.indexOf(":");
-      if (colonIndex > 0) {
-        const prefix = item.substring(0, colonIndex);
-        if (
-          prefix === "modules" ||
-          prefix === "workflows" ||
-          prefix === "api" ||
-          prefix === "links" ||
-          prefix === "vendorPages" ||
-          prefix === "adminPages" ||
-          prefix === "lib"
-        ) {
-          itemType = prefix;
-          itemName = item.substring(colonIndex + 1);
-        }
-      }
-
-      const path = `${itemType}/${itemName}.json`;
-      const [result] = await fetchRegistry([path]);
-      try {
-        return registryItemSchema.parse(result);
-      } catch (error) {
-        throw new RegistryParseError(item, error);
-      }
+      throw new RegistryParseError(item, new Error("Invalid registry item"));
     })
   );
 
   return results;
 }
 
-export async function resolveRegistryTree(
-  names: string[],
-  type: RegistryItemCategory,
-  config: Config
-) {
+export async function resolveRegistryTree(names: string[], config: Config) {
   let payload: z.infer<typeof registryItemWithSourceSchema>[] = [];
   const allDependencyItems: z.infer<typeof registryItemWithSourceSchema>[] = [];
 
   const uniqueNames = Array.from(new Set(names));
 
-  const results = await fetchRegistryItems(uniqueNames, type, config);
+  const results = await fetchRegistryItems(uniqueNames, config);
 
   const resultMap = new Map<string, RegistryItem>();
   for (let i = 0; i < results.length; i++) {
@@ -174,14 +122,12 @@ export async function resolveRegistryTree(
       } else {
         resolvedDependencies = resolveRegistryItemsFromRegistries(
           item.registryDependencies,
-          type,
           config
         );
       }
 
       const { items } = await resolveDependenciesRecursively(
         resolvedDependencies,
-        type,
         config,
         new Set(uniqueNames)
       );
@@ -216,7 +162,6 @@ export async function resolveRegistryTree(
 
 async function resolveDependenciesRecursively(
   dependencies: string[],
-  type: RegistryItemCategory,
   config: Config,
   visited: Set<string> = new Set()
 ) {
@@ -236,23 +181,18 @@ async function resolveDependenciesRecursively(
       }
     }
 
-    const [item] = await fetchRegistryItems([dep], type, config);
+    const [item] = await fetchRegistryItems([dep], config);
     if (!item) continue;
 
     items.push({ ...item, _source: dep });
 
     if (item.registryDependencies) {
       const resolvedDeps = config?.registries
-        ? resolveRegistryItemsFromRegistries(
-            item.registryDependencies,
-            type,
-            config
-          )
+        ? resolveRegistryItemsFromRegistries(item.registryDependencies, config)
         : item.registryDependencies;
 
       const nested = await resolveDependenciesRecursively(
         resolvedDeps,
-        type,
         config,
         visited
       );

@@ -2,10 +2,10 @@ import { type Change, diffLines } from "diff";
 import { existsSync, promises as fs, statSync } from "fs";
 import path, { basename } from "path";
 import prompts from "prompts";
-import type { RegistryItem, RegistryItemCategory } from "../registry/schema";
+import type { RegistryItem } from "../registry/schema";
 import type { Config } from "../schema";
 import { isContentSame } from "./compare";
-import { getRelativePath, getTargetDir } from "./file-type";
+import { getRelativePath, getFileType } from "./file-type";
 import { getProjectInfo } from "./get-project-info";
 import { highlighter } from "./highlighter";
 import { logger } from "./logger";
@@ -14,7 +14,6 @@ import { transformImports } from "./transform-import";
 
 export async function updateFiles(
   files: RegistryItem["files"],
-  type: RegistryItemCategory,
   config: Config,
   options: {
     overwrite?: boolean;
@@ -51,7 +50,7 @@ export async function updateFiles(
   const filesDeclined: string[] = [];
 
   for (const file of files) {
-    const fileType = getTargetDir(file, type);
+    const fileType = getFileType(file);
     const relativePath = getRelativePath(file.path);
     const basePath = options.path || config.resolvedPaths[fileType];
 

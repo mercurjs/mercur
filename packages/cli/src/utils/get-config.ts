@@ -1,5 +1,4 @@
 import { cosmiconfig } from "cosmiconfig";
-import path from "path";
 import { loadConfig } from "tsconfig-paths";
 import { BUILTIN_REGISTRIES, ConfigParseError } from "../registry";
 import {
@@ -10,13 +9,13 @@ import {
 } from "../schema";
 import { resolveImport } from "./resolve-import";
 
-export const DEFAULT_WORKFLOWS = "@/apps/api/src/workflows";
-export const DEFAULT_API = "@/apps/api/src/api";
-export const DEFAULT_LINKS = "@/apps/api/src/links";
-export const DEFAULT_MODULES = "@/apps/api/src/modules";
-export const DEFAULT_VENDOR_PAGES = "@/apps/vendor/src/pages";
-export const DEFAULT_ADMIN_PAGES = "@/apps/admin/src/pages";
-export const DEFAULT_LIB = "@/apps/api/src/lib";
+export const DEFAULT_WORKFLOWS = "@/src/workflows";
+export const DEFAULT_API = "@/src/api";
+export const DEFAULT_LINKS = "@/src/links";
+export const DEFAULT_MODULES = "@/src/modules";
+export const DEFAULT_VENDOR_PAGES = "@workspace/apps/vendor/src/pages";
+export const DEFAULT_ADMIN_PAGES = "@workspace/apps/admin/src/pages";
+export const DEFAULT_LIB = "@/src/lib";
 
 export const explorer = cosmiconfig("blocks", {
   searchPlaces: ["blocks.json"],
@@ -54,27 +53,13 @@ export async function resolveConfigPaths(
     ...config,
     resolvedPaths: {
       cwd,
-      workflows:
-        (await resolveImport(config.aliases.workflows, tsConfig)) ||
-        path.resolve(cwd, "apps/api/src/workflows"),
-      api:
-        (await resolveImport(config.aliases.api, tsConfig)) ||
-        path.resolve(cwd, "apps/api/src/api"),
-      links:
-        (await resolveImport(config.aliases.links, tsConfig)) ||
-        path.resolve(cwd, "apps/api/src/links"),
-      modules:
-        (await resolveImport(config.aliases.modules, tsConfig)) ||
-        path.resolve(cwd, "apps/api/src/modules"),
-      vendorPages:
-        (await resolveImport(config.aliases.vendorPages, tsConfig)) ||
-        path.resolve(cwd, "apps/vendor/src/pages"),
-      adminPages:
-        (await resolveImport(config.aliases.adminPages, tsConfig)) ||
-        path.resolve(cwd, "apps/admin/src/pages"),
-      lib:
-        (await resolveImport(config.aliases.lib, tsConfig)) ||
-        path.resolve(cwd, "apps/api/src/lib"),
+      workflows: await resolveImport(config.aliases.workflows, tsConfig),
+      api: await resolveImport(config.aliases.api, tsConfig),
+      links: await resolveImport(config.aliases.links, tsConfig),
+      modules: await resolveImport(config.aliases.modules, tsConfig),
+      vendorPages: await resolveImport(config.aliases.vendorPages, tsConfig),
+      adminPages: await resolveImport(config.aliases.adminPages, tsConfig),
+      lib: await resolveImport(config.aliases.lib, tsConfig),
     },
   });
 }

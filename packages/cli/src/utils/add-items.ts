@@ -10,7 +10,6 @@ import { updateFiles } from "./update-files";
 
 export async function addBlocks(
   items: string[],
-  type: RegistryItemCategory,
   config: Config,
   options: {
     overwrite?: boolean;
@@ -34,11 +33,7 @@ export async function addBlocks(
     silent: options.silent,
   })?.start();
 
-  const tree = await resolveRegistryTree(
-    items,
-    type,
-    configWithDefaults(config)
-  );
+  const tree = await resolveRegistryTree(items, configWithDefaults(config));
 
   if (!tree) {
     registrySpinner?.fail();
@@ -47,17 +42,12 @@ export async function addBlocks(
 
   registrySpinner?.succeed();
 
-  const { filesCreated, filesUpdated } = await updateFiles(
-    tree.files,
-    type,
-    config,
-    {
-      overwrite: options.overwrite,
-      silent: options.silent,
-      path: options.path,
-      yes: options.yes,
-    }
-  );
+  const { filesCreated, filesUpdated } = await updateFiles(tree.files, config, {
+    overwrite: options.overwrite,
+    silent: options.silent,
+    path: options.path,
+    yes: options.yes,
+  });
 
   // Only install dependencies if files were actually created or updated
   if (filesCreated.length || filesUpdated.length) {

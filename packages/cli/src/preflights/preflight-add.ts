@@ -7,18 +7,7 @@ import { getProjectInfo } from "../utils/get-project-info";
 
 export const addOptionsSchema = z.object({
   cwd: z.string(),
-  items: z.array(z.string()).optional(),
-  type: z
-    .enum([
-      "workflows",
-      "api",
-      "links",
-      "modules",
-      "vendorPages",
-      "adminPages",
-      "lib",
-    ])
-    .optional(),
+  blocks: z.array(z.string()).optional(),
   yes: z.boolean(),
   overwrite: z.boolean(),
   silent: z.boolean(),

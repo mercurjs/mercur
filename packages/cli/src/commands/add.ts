@@ -14,17 +14,6 @@ import { handleError } from "../utils/handle-error";
 
 export const addOptionsSchema = z.object({
   blocks: z.array(z.string()).optional(),
-  type: z
-    .enum([
-      "workflows",
-      "api",
-      "links",
-      "modules",
-      "vendorPages",
-      "adminPages",
-      "lib",
-    ])
-    .optional(),
   yes: z.boolean(),
   overwrite: z.boolean(),
   cwd: z.string(),
@@ -33,9 +22,8 @@ export const addOptionsSchema = z.object({
 
 export const add = new Command()
   .name("add")
-  .description("add an agent, tool, or prompt to your project")
+  .description("add blocks to your project")
   .argument("[blocks...]", "names of blocks to add")
-  .option("-t, --type <type>", "the type of item to add.")
   .option("-y, --yes", "skip confirmation prompt.", false)
   .option("-o, --overwrite", "overwrite existing files.", false)
   .option(
@@ -97,7 +85,7 @@ export const add = new Command()
         );
       }
 
-      await addBlocks(options.blocks, options.type, config, {
+      await addBlocks(options.blocks, config, {
         overwrite: options.overwrite,
         silent: options.silent,
         yes: options.yes,

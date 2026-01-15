@@ -4,19 +4,18 @@ import { REGISTRY_URL } from "./constants";
 import { expandEnvVars } from "./env";
 import { RegistryNotConfiguredError } from "./errors";
 import { parseRegistryAndItemFromString } from "./parser";
-import type { RegistryItemCategory, registryConfigItemSchema } from "./schema";
+import type { registryConfigItemSchema } from "./schema";
 import { isLocalFile, isUrl } from "./utils";
 import { validateRegistryConfig } from "./validator";
 
 const NAME_PLACEHOLDER = "{name}";
-const TYPE_PLACEHOLDER = "{type}";
-const DEFAULT_PLACEHOLDER = `${TYPE_PLACEHOLDER}/${NAME_PLACEHOLDER}.json`;
+const DEFAULT_PLACEHOLDER = `${NAME_PLACEHOLDER}.json`;
 const ENV_VAR_PATTERN = /\${(\w+)}/g;
 const QUERY_PARAM_SEPARATOR = "?";
 const QUERY_PARAM_DELIMITER = "&";
 
 function hasPlaceholders(url: string) {
-  return url.includes(NAME_PLACEHOLDER) && url.includes(TYPE_PLACEHOLDER);
+  return url.includes(NAME_PLACEHOLDER);
 }
 
 function appendPlaceholdersIfNeeded(url: string): string {
@@ -29,7 +28,6 @@ function appendPlaceholdersIfNeeded(url: string): string {
 
 export function buildUrlAndHeadersForRegistryItem(
   name: string,
-  type: RegistryItemCategory,
   config?: Config
 ) {
   const { registry, item } = parseRegistryAndItemFromString(name);
@@ -47,29 +45,24 @@ export function buildUrlAndHeadersForRegistryItem(
   validateRegistryConfig(registry, registryConfig);
 
   return {
-    url: buildUrlFromRegistryConfig(item, type, registryConfig, config),
+    url: buildUrlFromRegistryConfig(item, registryConfig, config),
     headers: buildHeadersFromRegistryConfig(registryConfig),
   };
 }
 
 export function buildUrlFromRegistryConfig(
   item: string,
-  type: RegistryItemCategory,
   registryConfig: z.infer<typeof registryConfigItemSchema>,
   _config?: Config
 ) {
   if (typeof registryConfig === "string") {
     const urlWithPlaceholders = appendPlaceholdersIfNeeded(registryConfig);
-    const url = urlWithPlaceholders
-      .replace(NAME_PLACEHOLDER, item)
-      .replace(TYPE_PLACEHOLDER, type);
+    const url = urlWithPlaceholders.replace(NAME_PLACEHOLDER, item);
     return expandEnvVars(url);
   }
 
   const urlWithPlaceholders = appendPlaceholdersIfNeeded(registryConfig.url);
-  let baseUrl = urlWithPlaceholders
-    .replace(NAME_PLACEHOLDER, item)
-    .replace(TYPE_PLACEHOLDER, type);
+  let baseUrl = urlWithPlaceholders.replace(NAME_PLACEHOLDER, item);
   baseUrl = expandEnvVars(baseUrl);
 
   if (!registryConfig.params) {
