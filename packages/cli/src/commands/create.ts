@@ -133,11 +133,11 @@ export const create = new Command()
           });
           if (dbResult.success) {
             dbSpinner.succeed(
-              `Database "${dbResult.dbName}" created successfully.`
+              `Database "${dbResult.dbName}" setup successfully.`
             );
             dbConnectionString = dbResult.connectionString;
           } else {
-            dbSpinner.fail("Failed to create database.");
+            dbSpinner.fail("Failed to setup database.");
           }
         } else {
           logger.info("Database setup skipped.");
