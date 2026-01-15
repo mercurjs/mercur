@@ -216,18 +216,22 @@ async function installDeps({
   projectDir: string;
   packageManager: Awaited<ReturnType<typeof getPackageManager>>;
 }): Promise<boolean> {
-  let installCmd = "npm install";
+  let cmd = "npm";
+  let args = ["install"];
 
   if (packageManager === "yarn") {
-    installCmd = "yarn";
+    cmd = "yarn";
+    args = [];
   } else if (packageManager === "pnpm") {
-    installCmd = "pnpm install";
+    cmd = "pnpm";
+    args = ["install"];
   } else if (packageManager === "bun") {
-    installCmd = "bun install";
+    cmd = "bun";
+    args = ["install"];
   }
 
   try {
-    await execa({ cwd: path.resolve(projectDir) })`${installCmd}`;
+    await execa(cmd, args, { cwd: path.resolve(projectDir) });
     return true;
   } catch (err: unknown) {
     logger.error(
