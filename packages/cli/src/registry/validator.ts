@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import type { Config } from "../schema";
-import { buildUrlAndHeadersForRegistryItem } from "./builder";
+import { buildUrlAndHeadersForRegistryBlock } from "./builder";
 import { configWithDefaults } from "./config";
 import { clearRegistryContext } from "./context";
 import { extractEnvVars } from "./env";
@@ -53,12 +53,12 @@ export function validateRegistryConfig(
   }
 }
 
-export function validateRegistryConfigForItems(
-  items: string[],
+export function validateRegistryConfigForBlocks(
+  blocks: string[],
   config?: Config
 ): void {
-  for (const item of items) {
-    buildUrlAndHeadersForRegistryItem(item, configWithDefaults(config));
+  for (const item of blocks) {
+    buildUrlAndHeadersForRegistryBlock(item, configWithDefaults(config));
   }
 
   clearRegistryContext();

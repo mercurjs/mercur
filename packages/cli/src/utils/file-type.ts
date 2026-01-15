@@ -21,5 +21,8 @@ export function getTargetDir(file: {
  * Get the relative path by stripping the type prefix from a file path.
  */
 export function getRelativePath(filePath: string) {
-  return filePath.replace(/^(agents|tools|prompts)\//, "");
+  return filePath.replace(
+    /^(workflows|api|links|modules|vendorPages|adminPages|lib)\//,
+    ""
+  );
 }

@@ -1,5 +1,5 @@
 import type { Config } from "../schema";
-import { buildUrlAndHeadersForRegistryItem } from "./builder";
+import { buildUrlAndHeadersForRegistryBlock } from "./builder";
 import { configWithDefaults } from "./config";
 import { clearRegistryContext } from "./context";
 import {
@@ -8,7 +8,7 @@ import {
   RegistryParseError,
 } from "./errors";
 import { fetchRegistry } from "./fetcher";
-import { fetchRegistryItems, resolveRegistryTree } from "./resolver";
+import { fetchRegistryBlocks, resolveRegistryTree } from "./resolver";
 import { registrySchema } from "./schema";
 import { isUrl } from "./utils";
 
@@ -38,7 +38,7 @@ export async function getRegistry(
     registryName = `${registryName}/registry`;
   }
 
-  const urlAndHeaders = buildUrlAndHeadersForRegistryItem(
+  const urlAndHeaders = buildUrlAndHeadersForRegistryBlock(
     registryName as `@${string}`,
     configWithDefaults(config)
   );
@@ -56,8 +56,8 @@ export async function getRegistry(
   }
 }
 
-export async function getRegistryItems(
-  items: string[],
+export async function getRegistryBlocks(
+  blocks: string[],
   options?: {
     config?: Partial<Config>;
   }
@@ -66,11 +66,11 @@ export async function getRegistryItems(
 
   clearRegistryContext();
 
-  return fetchRegistryItems(items, configWithDefaults(config));
+  return fetchRegistryBlocks(blocks, configWithDefaults(config));
 }
 
-export async function resolveRegistryItems(
-  items: string[],
+export async function resolveRegistryBlocks(
+  blocks: string[],
   options?: {
     config?: Partial<Config>;
   }
@@ -78,5 +78,5 @@ export async function resolveRegistryItems(
   const { config } = options || {};
 
   clearRegistryContext();
-  return resolveRegistryTree(items, configWithDefaults(config));
+  return resolveRegistryTree(blocks, configWithDefaults(config));
 }

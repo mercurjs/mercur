@@ -1,6 +1,6 @@
 const REGISTRY_PATTERN = /^(@[a-zA-Z0-9](?:[a-zA-Z0-9-_]*[a-zA-Z0-9])?)\/(.+)$/;
 
-export function parseRegistryAndItemFromString(name: string) {
+export function parseRegistryAndBlockFromString(name: string) {
   if (!name.startsWith("@")) {
     return {
       registry: null,

@@ -3,7 +3,7 @@ import type { Config } from "../schema";
 import { REGISTRY_URL } from "./constants";
 import { expandEnvVars } from "./env";
 import { RegistryNotConfiguredError } from "./errors";
-import { parseRegistryAndItemFromString } from "./parser";
+import { parseRegistryAndBlockFromString } from "./parser";
 import type { registryConfigItemSchema } from "./schema";
 import { isLocalFile, isUrl } from "./utils";
 import { validateRegistryConfig } from "./validator";
@@ -26,11 +26,11 @@ function appendPlaceholdersIfNeeded(url: string): string {
   return `${baseUrl}${DEFAULT_PLACEHOLDER}`;
 }
 
-export function buildUrlAndHeadersForRegistryItem(
+export function buildUrlAndHeadersForRegistryBlock(
   name: string,
   config?: Config
 ) {
-  const { registry, item } = parseRegistryAndItemFromString(name);
+  const { registry, item } = parseRegistryAndBlockFromString(name);
 
   if (!registry) {
     return null;

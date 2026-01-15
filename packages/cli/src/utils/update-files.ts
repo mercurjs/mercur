@@ -2,7 +2,7 @@ import { type Change, diffLines } from "diff";
 import { existsSync, promises as fs, statSync } from "fs";
 import path, { basename } from "path";
 import prompts from "prompts";
-import type { RegistryItem } from "../registry/schema";
+import type { RegistryBlock } from "../registry/schema";
 import type { Config } from "../schema";
 import { isContentSame } from "./compare";
 import { getRelativePath, getTargetDir } from "./file-type";
@@ -13,7 +13,7 @@ import { spinner } from "./spinner";
 import { transformImports } from "./transform-import";
 
 export async function updateFiles(
-  files: RegistryItem["files"],
+  files: RegistryBlock["files"],
   config: Config,
   options: {
     overwrite?: boolean;

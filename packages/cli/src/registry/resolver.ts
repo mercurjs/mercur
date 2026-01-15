@@ -3,42 +3,42 @@ import deepmerge from "deepmerge";
 import path from "path";
 import { z } from "zod";
 import type { Config } from "../schema";
-import { buildUrlAndHeadersForRegistryItem } from "./builder";
+import { buildUrlAndHeadersForRegistryBlock } from "./builder";
 import { setRegistryHeaders } from "./context";
 import { RegistryNotConfiguredError, RegistryParseError } from "./errors";
 import { fetchRegistry, fetchRegistryLocal } from "./fetcher";
-import { parseRegistryAndItemFromString } from "./parser";
+import { parseRegistryAndBlockFromString } from "./parser";
 import {
-  type RegistryItem,
-  registryItemSchema,
+  type RegistryBlock,
+  registryBlockSchema,
   registryResolvedItemsTreeSchema,
 } from "./schema";
 import { isLocalFile, isUrl } from "./utils";
 
-const registryItemWithSourceSchema = registryItemSchema.extend({
+const registryBlockWithSourceSchema = registryBlockSchema.extend({
   _source: z.string().optional(),
 });
 
-export function resolveRegistryItemsFromRegistries(
-  items: string[],
+export function resolveRegistryBlocksFromRegistries(
+  blocks: string[],
   config: Config
 ) {
   const registryHeaders: Record<string, Record<string, string>> = {};
-  const resolvedItems = [...items];
+  const resolvedBlocks = [...blocks];
 
   if (!config?.registries) {
     setRegistryHeaders({});
-    return resolvedItems;
+    return resolvedBlocks;
   }
 
-  for (let i = 0; i < resolvedItems.length; i++) {
-    const resolved = buildUrlAndHeadersForRegistryItem(
-      resolvedItems[i],
+  for (let i = 0; i < resolvedBlocks.length; i++) {
+    const resolved = buildUrlAndHeadersForRegistryBlock(
+      resolvedBlocks[i],
       config
     );
 
     if (resolved) {
-      resolvedItems[i] = resolved.url;
+      resolvedBlocks[i] = resolved.url;
 
       if (Object.keys(resolved.headers).length > 0) {
         registryHeaders[resolved.url] = resolved.headers;
@@ -48,36 +48,36 @@ export function resolveRegistryItemsFromRegistries(
 
   setRegistryHeaders(registryHeaders);
 
-  return resolvedItems;
+  return resolvedBlocks;
 }
 
-export async function fetchRegistryItems(items: string[], config: Config) {
+export async function fetchRegistryBlocks(blocks: string[], config: Config) {
   const results = await Promise.all(
-    items.map(async (item) => {
-      if (isLocalFile(item)) {
-        return fetchRegistryLocal(item);
+    blocks.map(async (block) => {
+      if (isLocalFile(block)) {
+        return fetchRegistryLocal(block);
       }
 
-      if (isUrl(item)) {
-        const [result] = await fetchRegistry([item]);
+      if (isUrl(block)) {
+        const [result] = await fetchRegistry([block]);
         try {
-          return registryItemSchema.parse(result);
+          return registryBlockSchema.parse(result);
         } catch (error) {
-          throw new RegistryParseError(item, error);
+          throw new RegistryParseError(block, error);
         }
       }
 
-      if (item.startsWith("@") && config?.registries) {
-        const paths = resolveRegistryItemsFromRegistries([item], config);
+      if (block.startsWith("@") && config?.registries) {
+        const paths = resolveRegistryBlocksFromRegistries([block], config);
         const [result] = await fetchRegistry(paths);
         try {
-          return registryItemSchema.parse(result);
+          return registryBlockSchema.parse(result);
         } catch (error) {
-          throw new RegistryParseError(item, error);
+          throw new RegistryParseError(block, error);
         }
       }
 
-      throw new RegistryParseError(item, new Error("Invalid registry item"));
+      throw new RegistryParseError(block, new Error("Invalid registry item"));
     })
   );
 
@@ -85,14 +85,15 @@ export async function fetchRegistryItems(items: string[], config: Config) {
 }
 
 export async function resolveRegistryTree(names: string[], config: Config) {
-  let payload: z.infer<typeof registryItemWithSourceSchema>[] = [];
-  const allDependencyItems: z.infer<typeof registryItemWithSourceSchema>[] = [];
+  let payload: z.infer<typeof registryBlockWithSourceSchema>[] = [];
+  const allDependencyItems: z.infer<typeof registryBlockWithSourceSchema>[] =
+    [];
 
   const uniqueNames = Array.from(new Set(names));
 
-  const results = await fetchRegistryItems(uniqueNames, config);
+  const results = await fetchRegistryBlocks(uniqueNames, config);
 
-  const resultMap = new Map<string, RegistryItem>();
+  const resultMap = new Map<string, RegistryBlock>();
   for (let i = 0; i < results.length; i++) {
     if (results[i]) {
       resultMap.set(uniqueNames[i], results[i]);
@@ -100,7 +101,7 @@ export async function resolveRegistryTree(names: string[], config: Config) {
   }
 
   for (const [sourceName, item] of Array.from(resultMap.entries())) {
-    const itemWithSource: z.infer<typeof registryItemWithSourceSchema> = {
+    const itemWithSource: z.infer<typeof registryBlockWithSourceSchema> = {
       ...item,
       _source: sourceName,
     };
@@ -114,36 +115,36 @@ export async function resolveRegistryTree(names: string[], config: Config) {
           dep.startsWith("@")
         );
         if (namespacedDeps.length > 0) {
-          const { registry } = parseRegistryAndItemFromString(
+          const { registry } = parseRegistryAndBlockFromString(
             namespacedDeps[0]
           );
           throw new RegistryNotConfiguredError(registry);
         }
       } else {
-        resolvedDependencies = resolveRegistryItemsFromRegistries(
+        resolvedDependencies = resolveRegistryBlocksFromRegistries(
           item.registryDependencies,
           config
         );
       }
 
-      const { items } = await resolveDependenciesRecursively(
+      const { blocks } = await resolveDependenciesRecursively(
         resolvedDependencies,
         config,
         new Set(uniqueNames)
       );
-      allDependencyItems.push(...items);
+      allDependencyItems.push(...blocks);
     }
   }
 
   payload.push(...allDependencyItems);
 
-  const sourceMap = new Map<RegistryItem, string>();
+  const sourceMap = new Map<RegistryBlock, string>();
   for (const item of payload) {
     const source = item._source || item.name;
     sourceMap.set(item, source);
   }
 
-  payload = topologicalSortRegistryItems(payload, sourceMap);
+  payload = topologicalSortRegistryBlocks(payload, sourceMap);
 
   const parsed = registryResolvedItemsTreeSchema.parse({
     dependencies: deepmerge.all(payload.map((item) => item.dependencies ?? [])),
@@ -165,7 +166,7 @@ async function resolveDependenciesRecursively(
   config: Config,
   visited: Set<string> = new Set()
 ) {
-  const items: z.infer<typeof registryItemWithSourceSchema>[] = [];
+  const blocks: z.infer<typeof registryBlockWithSourceSchema>[] = [];
 
   for (const dep of dependencies) {
     if (visited.has(dep)) {
@@ -175,35 +176,38 @@ async function resolveDependenciesRecursively(
 
     // Validate namespaced dependencies
     if (dep.startsWith("@") && config?.registries) {
-      const { registry } = parseRegistryAndItemFromString(dep);
+      const { registry } = parseRegistryAndBlockFromString(dep);
       if (registry && !(registry in config.registries)) {
         throw new RegistryNotConfiguredError(registry);
       }
     }
 
-    const [item] = await fetchRegistryItems([dep], config);
-    if (!item) continue;
+    const [block] = await fetchRegistryBlocks([dep], config);
+    if (!block) continue;
 
-    items.push({ ...item, _source: dep });
+    blocks.push({ ...block, _source: dep });
 
-    if (item.registryDependencies) {
+    if (block.registryDependencies) {
       const resolvedDeps = config?.registries
-        ? resolveRegistryItemsFromRegistries(item.registryDependencies, config)
-        : item.registryDependencies;
+        ? resolveRegistryBlocksFromRegistries(
+            block.registryDependencies,
+            config
+          )
+        : block.registryDependencies;
 
       const nested = await resolveDependenciesRecursively(
         resolvedDeps,
         config,
         visited
       );
-      items.push(...nested.items);
+      blocks.push(...nested.blocks);
     }
   }
 
-  return { items };
+  return { blocks };
 }
 
-function computeItemHash(item: Pick<RegistryItem, "name">, source?: string) {
+function computeItemHash(item: Pick<RegistryBlock, "name">, source?: string) {
   const identifier = source || item.name;
 
   const hash = createHash("sha256")
@@ -237,23 +241,23 @@ function extractItemIdentifierFromDependency(dependency: string) {
     };
   }
 
-  const { item } = parseRegistryAndItemFromString(dependency);
+  const { item } = parseRegistryAndBlockFromString(dependency);
   return {
     name: item,
     hash: computeItemHash({ name: item }, dependency),
   };
 }
 
-function topologicalSortRegistryItems(
-  items: z.infer<typeof registryItemWithSourceSchema>[],
-  sourceMap: Map<RegistryItem, string>
+function topologicalSortRegistryBlocks(
+  blocks: z.infer<typeof registryBlockWithSourceSchema>[],
+  sourceMap: Map<RegistryBlock, string>
 ) {
-  const itemMap = new Map<string, RegistryItem>();
-  const hashToItem = new Map<string, RegistryItem>();
+  const itemMap = new Map<string, RegistryBlock>();
+  const hashToItem = new Map<string, RegistryBlock>();
   const inDegree = new Map<string, number>();
   const adjacencyList = new Map<string, string[]>();
 
-  for (const item of items) {
+  for (const item of blocks) {
     const source = sourceMap.get(item) || item.name;
     const hash = computeItemHash(item, source);
 
@@ -264,7 +268,7 @@ function topologicalSortRegistryItems(
   }
 
   const depToHashes = new Map<string, string[]>();
-  for (const item of items) {
+  for (const item of blocks) {
     const source = sourceMap.get(item) || item.name;
     const hash = computeItemHash(item, source);
 
@@ -281,7 +285,7 @@ function topologicalSortRegistryItems(
     }
   }
 
-  for (const item of items) {
+  for (const item of blocks) {
     const itemSource = sourceMap.get(item) || item.name;
     const itemHash = computeItemHash(item, itemSource);
 
@@ -311,7 +315,7 @@ function topologicalSortRegistryItems(
   }
 
   const queue: string[] = [];
-  const sorted: z.infer<typeof registryItemWithSourceSchema>[] = [];
+  const sorted: z.infer<typeof registryBlockWithSourceSchema>[] = [];
 
   for (const [hash, degree] of inDegree) {
     if (degree === 0) {
@@ -322,7 +326,7 @@ function topologicalSortRegistryItems(
   while (queue.length > 0) {
     const currentHash = queue.shift()!;
     const item = itemMap.get(currentHash)!;
-    sorted.push(item as z.infer<typeof registryItemWithSourceSchema>);
+    sorted.push(item as z.infer<typeof registryBlockWithSourceSchema>);
 
     for (const dependentHash of adjacencyList.get(currentHash)!) {
       const newDegree = inDegree.get(dependentHash)! - 1;
@@ -334,7 +338,7 @@ function topologicalSortRegistryItems(
     }
   }
 
-  if (sorted.length !== items.length) {
+  if (sorted.length !== blocks.length) {
     const missingHashes = Array.from(itemMap.keys()).filter(
       (hash) =>
         !sorted.some(
@@ -348,7 +352,7 @@ function topologicalSortRegistryItems(
     // Add remaining items that couldn't be sorted due to circular dependencies
     for (const [hash, item] of itemMap.entries()) {
       if (!sorted.some((s) => computeItemHash(s, sourceMap.get(s)) === hash)) {
-        sorted.push(item as z.infer<typeof registryItemWithSourceSchema>);
+        sorted.push(item as z.infer<typeof registryBlockWithSourceSchema>);
       }
     }
   }
@@ -357,10 +361,10 @@ function topologicalSortRegistryItems(
 }
 
 function deduplicateFilesByTarget(
-  filesArrays: Array<RegistryItem["files"] | undefined>
+  filesArrays: Array<RegistryBlock["files"] | undefined>
 ) {
-  const seen = new Map<string, RegistryItem["files"][number]>();
-  const result: RegistryItem["files"] = [];
+  const seen = new Map<string, RegistryBlock["files"][number]>();
+  const result: RegistryBlock["files"] = [];
 
   for (const files of filesArrays) {
     if (!files) continue;

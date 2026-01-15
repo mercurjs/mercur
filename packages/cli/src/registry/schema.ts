@@ -20,7 +20,7 @@ export const registryItemTypeSchema = z.enum([
 ]);
 
 // File with required content (for fetched items)
-export const registryItemFileSchema = z.object({
+export const registryBlockFileSchema = z.object({
   path: z.string(),
   content: z.string(),
   type: registryItemTypeSchema,
@@ -28,7 +28,7 @@ export const registryItemFileSchema = z.object({
 });
 
 // Base fields shared between index entries and full items
-const registryItemBaseSchema = z.object({
+const registryBlockBaseSchema = z.object({
   $schema: z.string().optional(),
   name: z.string(),
   type: registryItemTypeSchema,
@@ -44,24 +44,24 @@ const registryItemBaseSchema = z.object({
 });
 
 // Full registry item - has files with content
-export const registryItemSchema = registryItemBaseSchema.extend({
-  files: z.array(registryItemFileSchema),
+export const registryBlockSchema = registryBlockBaseSchema.extend({
+  files: z.array(registryBlockFileSchema),
 });
 
-export type RegistryItem = z.infer<typeof registryItemSchema>;
+export type RegistryBlock = z.infer<typeof registryBlockSchema>;
 
 // Registry index - items don't have files
 export const registrySchema = z.object({
   name: z.string(),
   homepage: z.string(),
-  items: z.array(registryItemBaseSchema),
+  items: z.array(registryBlockBaseSchema),
 });
 
 export type Registry = z.infer<typeof registrySchema>;
 
-export const registryIndexSchema = z.array(registryItemBaseSchema);
+export const registryIndexSchema = z.array(registryBlockBaseSchema);
 
-export const registryResolvedItemsTreeSchema = registryItemSchema.pick({
+export const registryResolvedItemsTreeSchema = registryBlockSchema.pick({
   dependencies: true,
   devDependencies: true,
   files: true,

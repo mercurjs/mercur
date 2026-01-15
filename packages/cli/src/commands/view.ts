@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import path from "path";
 import { z } from "zod";
-import { getRegistryItems } from "../registry/api";
+import { getRegistryBlocks } from "../registry/api";
 import { clearRegistryContext } from "../registry/context";
 import { createConfig, getConfig } from "../utils/get-config";
 import { handleError } from "../utils/handle-error";
@@ -35,7 +35,7 @@ export const view = new Command()
         });
       }
 
-      const payload = await getRegistryItems(items, {
+      const payload = await getRegistryBlocks(items, {
         config,
       });
       console.log(JSON.stringify(payload, null, 2));
