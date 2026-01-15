@@ -2,12 +2,6 @@
   "name": "mercur-app",
   "version": "0.0.1",
   "private": true,
-  "scripts": {
-    "dev": "medusa develop",
-    "build": "medusa build",
-    "start": "medusa start"
-  },
-  "dependencies": {
-    "@medusajs/medusa": "^2.0.0"
-  }
+  "scripts": {},
+  "dependencies": {}
 }
