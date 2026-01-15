@@ -20,7 +20,7 @@ export async function setupDatabase(args: {
   projectName: string;
   dbConnectionString?: string;
 }): Promise<SetupDatabaseResult> {
-  const dbName = `mercur-${args.projectName.replace(/[^a-zA-Z0-9]/g, "-")}`;
+  const dbName = args.projectName.replace(/[^a-zA-Z0-9]/g, "-");
 
   // Try to connect and create database
   const { client, dbConnectionString } = await getDbClient(args);
