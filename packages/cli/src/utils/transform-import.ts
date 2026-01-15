@@ -9,7 +9,7 @@ const project = new Project({
 });
 
 async function createTempSourceFile(filename: string) {
-  const dir = await fs.mkdtemp(path.join(tmpdir(), "awesome-ai-"));
+  const dir = await fs.mkdtemp(path.join(tmpdir(), "mercurjs-"));
   // Always use .ts extension for temp files to ensure proper parsing
   const baseName = path.basename(filename, path.extname(filename));
   return path.join(dir, `${baseName}.ts`);

@@ -162,7 +162,7 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
   ]);
 
   return rawConfigSchema.parse({
-    $schema: "https://awesome-ai.com/schema.json",
+    $schema: "https://mercurjs.com/schema.json",
     aliases: {
       workflows: options.workflows ?? "@/apps/api/src/workflows",
       api: options.api ?? "@/apps/api/src/api",
