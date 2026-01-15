@@ -14,7 +14,7 @@ import {
   mergeVariantImages,
   OrderObject,
 } from "./utils";
-import { transformProductsWithInformationalAttributes } from "./utils/transform-product-attributes";
+import { transformProductWithInformationalAttributes } from "./utils/transform-product-attributes";
 import {
   VendorCreateProductType,
   VendorGetProductParamsType,
@@ -107,12 +107,8 @@ export const GET = async (
     }
   });
 
-  const transformedProducts = transformProductsWithInformationalAttributes(
-    sellerProducts as any[]
-  );
-
   res.json({
-    products: transformedProducts,
+    products: sellerProducts,
     count: count,
     offset: req.queryConfig.pagination?.skip || 0,
     limit: req.queryConfig.pagination?.take || 10,
@@ -211,9 +207,9 @@ export const POST = async (
     { throwIfKeyNotFound: true }
   );
 
-  const [transformedProduct] = transformProductsWithInformationalAttributes([
-    product as any,
-  ]);
+  const transformedProduct = transformProductWithInformationalAttributes(
+    product as any
+  );
 
   res.status(201).json({ product: transformedProduct });
 };

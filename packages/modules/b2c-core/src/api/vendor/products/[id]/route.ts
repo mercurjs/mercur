@@ -11,6 +11,7 @@ import {
 
 import { fetchSellerByAuthActorId } from "../../../../shared/infra/http/utils";
 import { fetchProductDetails } from "../../../../shared/infra/http/utils/products";
+import { transformProductWithInformationalAttributes } from "../utils/transform-product-attributes";
 import {
   VendorGetProductParamsType,
   VendorUpdateProductType,
@@ -69,7 +70,11 @@ export const GET = async (
     { throwIfKeyNotFound: true }
   );
 
-  res.json({ product });
+  const transformedProduct = transformProductWithInformationalAttributes(
+    product as any
+  );
+
+  res.json({ product: transformedProduct });
 };
 
 /**
