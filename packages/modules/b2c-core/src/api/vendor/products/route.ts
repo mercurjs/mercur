@@ -3,7 +3,11 @@ import {
   MedusaRequest,
   MedusaResponse
 } from '@medusajs/framework'
-import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
+import {
+  ContainerRegistrationKeys,
+  Modules,
+  omitDeep
+} from '@medusajs/framework/utils'
 import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
@@ -27,6 +31,12 @@ import {
  * description: "Retrieves a list of products for the authenticated vendor."
  * x-authenticated: true
  * parameters:
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search term to filter products by title or ID.
  *   - name: offset
  *     in: query
  *     schema:
@@ -90,17 +100,16 @@ export const GET = async (
     req.queryConfig.pagination?.skip || 0,
     req.queryConfig.pagination?.take || 10,
     req.filterableFields.sales_channel_id as string,
-    req.queryConfig.pagination?.order as OrderObject | undefined
+    req.queryConfig.pagination?.order as OrderObject | undefined,
+    req.filterableFields.q as string | undefined
   )
-
-  const { seller_id, ...filters } = req.filterableFields
 
   const { data: sellerProducts } = await query.graph({
     entity: 'product',
     fields: req.queryConfig.fields,
     filters: {
-      ...filters,
-      id: productIds
+      ...omitDeep(req.filterableFields, ['q', 'seller_id']),
+      id: { $in: productIds }
     },
     pagination: {
       order: req.queryConfig.pagination?.order
