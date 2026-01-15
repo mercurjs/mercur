@@ -215,7 +215,7 @@ async function installDeps({
   projectDir: string;
   packageManager: Awaited<ReturnType<typeof getPackageManager>>;
 }): Promise<boolean> {
-  let installCmd = "npm install --legacy-peer-deps";
+  let installCmd = "npm install";
 
   if (packageManager === "yarn") {
     installCmd = "yarn";
