@@ -123,7 +123,7 @@ export const create = new Command()
         }
 
         // Database setup
-        let dbConnectionString: string | undefined;
+        let dbConnectionString: string | undefined = opts.dbConnectionString;
         if (!opts.skipDb) {
           const dbSpinner = spinner("Setting up database...").start();
           const dbResult = await setupDatabase({
