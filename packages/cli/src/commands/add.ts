@@ -35,7 +35,7 @@ export const add = new Command()
   .action(async (items, opts) => {
     try {
       const options = addOptionsSchema.parse({
-        items,
+        blocks: items,
         cwd: path.resolve(opts.cwd),
         ...opts,
       });

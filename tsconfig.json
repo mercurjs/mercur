@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@workspace/*": ["./packages/*"]
+    }
+  },
+  "include": ["src/**/*", "packages/**/*"],
+  "exclude": ["node_modules"]
+}

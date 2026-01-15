@@ -1,0 +1,19 @@
+{
+  "name": "@mercurjs",
+  "homepage": "https://mercurjs.com",
+  "items": [
+    {
+      "name": "hello-workflow",
+      "type": "registry:workflow",
+      "title": "Hello Workflow",
+      "description": "A simple test workflow",
+      "files": [
+        {
+          "path": "src/workflows/hello.ts",
+          "type": "registry:workflow",
+          "content": ""
+        }
+      ]
+    }
+  ]
+}
