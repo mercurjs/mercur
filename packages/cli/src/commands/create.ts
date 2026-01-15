@@ -139,7 +139,7 @@ export const create = new Command()
           });
           if (dbResult.success) {
             logger.success(`Database "${dbResult.dbName}" setup successfully.`);
-            dbConnectionString = dbResult.connectionString;
+            dbConnectionString = dbResult.connectionString!;
           } else {
             logger.error("Failed to setup database.");
             logger.log(feedbackOutro());

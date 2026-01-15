@@ -6,40 +6,27 @@ import path from "path";
 import pg from "pg";
 import prompts from "prompts";
 
-const DEFAULT_DB_HOST = "localhost";
+const DEFAULT_DB_HOST = "localhost12";
 const DEFAULT_DB_PORT = 5432;
 
 export interface SetupDatabaseResult {
   success: boolean;
   dbName: string;
-  connectionString?: string;
+  connectionString: string | null;
 }
 
-export async function setupDatabase({
-  projectDir,
-  projectName,
-  dbConnectionString,
-}: {
+export async function setupDatabase(args: {
   projectDir: string;
   projectName: string;
   dbConnectionString?: string;
 }): Promise<SetupDatabaseResult> {
-  const dbName = `mercur-${projectName.replace(/[^a-zA-Z0-9]/g, "-")}`;
-
-  // If connection string provided, just return it (database should already exist)
-  if (dbConnectionString) {
-    return {
-      success: true,
-      dbName,
-      connectionString: dbConnectionString,
-    };
-  }
+  const dbName = `mercur-${args.projectName.replace(/[^a-zA-Z0-9]/g, "-")}`;
 
   // Try to connect and create database
-  const { client, credentials } = await getDbClient();
+  const { client, dbConnectionString } = await getDbClient(args);
 
   if (!client) {
-    return { success: false, dbName };
+    return { success: false, dbName, connectionString: null };
   }
 
   try {
@@ -52,10 +39,7 @@ export async function setupDatabase({
       return {
         success: true,
         dbName,
-        connectionString: formatConnectionString({
-          ...credentials,
-          db: dbName,
-        }),
+        connectionString: dbConnectionString,
       };
     }
 
@@ -64,56 +48,73 @@ export async function setupDatabase({
     await client.end();
 
     // Run migrations
-    const migrated = await runMigrations({ projectDir });
+    const migrated = await runMigrations(args);
     if (!migrated) {
-      return { success: false, dbName };
+      return { success: false, dbName, connectionString: null };
     }
 
     // Seed database
-    const seeded = await seedDatabase({ projectDir });
+    const seeded = await seedDatabase(args);
     if (!seeded) {
-      return { success: false, dbName };
+      return { success: false, dbName, connectionString: null };
     }
 
     return {
       success: true,
       dbName,
-      connectionString: formatConnectionString({ ...credentials, db: dbName }),
+      connectionString: dbConnectionString,
     };
   } catch (err) {
     logger.error(
       `Error creating database${err instanceof Error ? `: ${err.message}` : ""}.`
     );
     await client.end().catch(() => {});
-    return { success: false, dbName };
+    return { success: false, dbName, connectionString: null };
   }
 }
 
-async function getDbClient(): Promise<{
+async function getDbClient({
+  dbConnectionString,
+}: {
+  dbConnectionString?: string;
+}): Promise<{
   client: pg.Client | null;
-  credentials: { user: string; password: string; host: string; port: number };
+  dbConnectionString: string | null;
 }> {
+  // If connection string provided, try to use it
+  if (dbConnectionString) {
+    try {
+      return {
+        client: new pg.Client({ connectionString: dbConnectionString }),
+        dbConnectionString,
+      };
+    } catch (error) {
+      logger.error(
+        `Invalid database connection string${error instanceof Error ? `: ${error.message}` : ""}.`
+      );
+      return { client: null, dbConnectionString: null };
+    }
+  }
+
   let postgresUsername = "postgres";
   let postgresPassword = "";
 
-  const credentials = {
-    user: postgresUsername,
-    password: postgresPassword,
-    host: DEFAULT_DB_HOST,
-    port: DEFAULT_DB_PORT,
-  };
-
-  // Try default connection first
+  // If no connection string provided, try default connection
   try {
-    const client = new pg.Client({
+    const defaultCredentials = {
       user: postgresUsername,
       password: postgresPassword,
       host: DEFAULT_DB_HOST,
       port: DEFAULT_DB_PORT,
-      database: "postgres",
-    });
+      db: "postgres",
+    };
+
+    const client = new pg.Client(defaultCredentials);
     await client.connect();
-    return { client, credentials };
+    return {
+      client,
+      dbConnectionString: formatConnectionString(defaultCredentials),
+    };
   } catch {
     // Ask for credentials
     const answers = await prompts([
@@ -131,7 +132,7 @@ async function getDbClient(): Promise<{
     ]);
 
     if (!answers.postgresUsername) {
-      return { client: null, credentials };
+      return { client: null, dbConnectionString: null };
     }
 
     postgresUsername = answers.postgresUsername;
@@ -148,17 +149,19 @@ async function getDbClient(): Promise<{
       await client.connect();
       return {
         client,
-        credentials: {
-          ...credentials,
+        dbConnectionString: formatConnectionString({
           user: postgresUsername,
           password: postgresPassword,
-        },
+          host: DEFAULT_DB_HOST,
+          port: DEFAULT_DB_PORT,
+          db: postgresUsername,
+        }),
       };
     } catch (err) {
       logger.error(
         `Couldn't connect to PostgreSQL${err instanceof Error ? `: ${err.message}` : ""}.`
       );
-      return { client: null, credentials };
+      return { client: null, dbConnectionString: null };
     }
   }
 }
