@@ -131,19 +131,17 @@ export const create = new Command()
         // Database setup
         let dbConnectionString: string | undefined = opts.dbConnectionString;
         if (!opts.skipDb) {
-          const dbSpinner = spinner("Setting up database...").start();
+          logger.info("Setting up database...");
           const dbResult = await setupDatabase({
             projectDir,
             projectName,
             dbConnectionString: opts.dbConnectionString,
           });
           if (dbResult.success) {
-            dbSpinner.succeed(
-              `Database "${dbResult.dbName}" setup successfully.`
-            );
+            logger.success(`Database "${dbResult.dbName}" setup successfully.`);
             dbConnectionString = dbResult.connectionString;
           } else {
-            dbSpinner.fail("Failed to setup database.");
+            logger.error("Failed to setup database.");
             logger.log(feedbackOutro());
             process.exit(1);
           }
