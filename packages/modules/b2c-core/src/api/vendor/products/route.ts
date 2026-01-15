@@ -159,6 +159,13 @@ export const POST = async (
 
   const mergedImages = mergeVariantImages(validatedBody.images, variants_images);
 
+  const optionsMetadata = validatedBody.options
+    ?.filter((opt) => opt.metadata)
+    .map((opt) => ({
+      title: opt.title,
+      metadata: opt.metadata!,
+    }));
+
   const {
     result: [createdProduct],
   } = await createProductsWorkflow.run({
@@ -171,7 +178,11 @@ export const POST = async (
           status: validatedBody.status === "draft" ? "draft" : "proposed",
         },
       ],
-      additional_data: { ...additional_data, seller_id: seller.id },
+      additional_data: {
+        ...additional_data,
+        seller_id: seller.id,
+        options_metadata: optionsMetadata,
+      },
     },
   });
 

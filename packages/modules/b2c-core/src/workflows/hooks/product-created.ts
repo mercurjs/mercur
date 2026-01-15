@@ -1,5 +1,9 @@
 import { MedusaContainer } from "@medusajs/framework";
-import { LinkDefinition, ProductDTO } from "@medusajs/framework/types";
+import {
+  IProductModuleService,
+  LinkDefinition,
+  ProductDTO,
+} from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
 import { StepResponse, WorkflowData } from "@medusajs/workflows-sdk";
@@ -12,6 +16,46 @@ import { productsCreatedHookHandler } from "../attribute/utils";
 import { SECONDARY_CATEGORY_MODULE } from "../../modules/secondary_categories";
 import SecondaryCategoryModuleService from "../../modules/secondary_categories/service";
 import { ISecondaryCategory } from "../../modules/secondary_categories/types/ISecondaryCategory";
+
+export type OptionMetadataInput = {
+  title: string;
+  metadata: Record<string, unknown>;
+};
+
+const updateProductOptionValuesMetadata = async (
+  products: ProductDTO[],
+  optionsMetadata: OptionMetadataInput[] | undefined,
+  container: MedusaContainer
+): Promise<void> => {
+  if (!optionsMetadata?.length) {
+    return;
+  }
+
+  const productModuleService = container.resolve<IProductModuleService>(
+    Modules.PRODUCT
+  );
+
+  const optionValueUpdates = products
+    .flatMap((product) => product.options || [])
+    .flatMap((option) => {
+      const metadataInput = optionsMetadata.find(
+        (om) => om.title === option.title
+      );
+      if (!metadataInput?.metadata) {
+        return [];
+      }
+      return (option.values || []).map((value) => ({
+        valueId: value.id,
+        metadata: metadataInput.metadata,
+      }));
+    });
+
+  await Promise.all(
+    optionValueUpdates.map(({ valueId, metadata }) =>
+      productModuleService.updateProductOptionValues(valueId, { metadata })
+    )
+  );
+};
 
 const getVariantInventoryItemIds = async (
   variantId: string,
@@ -165,6 +209,7 @@ createProductsWorkflow.hooks.productsCreated(
           handle: string;
           secondary_categories_ids: string[];
         }[];
+        options_metadata?: OptionMetadataInput[];
       };
     },
     { container }
@@ -174,6 +219,12 @@ createProductsWorkflow.hooks.productsCreated(
       additional_data,
       container,
     });
+
+    await updateProductOptionValuesMetadata(
+      products,
+      additional_data?.options_metadata,
+      container
+    );
 
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK);
 
