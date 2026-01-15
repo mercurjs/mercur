@@ -8,13 +8,16 @@
     "access": "public"
   },
   "files": [
-    "src",
-    "!src/__tests__",
-    "tsconfig.json"
+    "dist"
   ],
-  "bin": "./src/index.ts",
+  "bin": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev": "tsup --watch",
+    "build": "tsup"
   },
   "dependencies": {
     "@antfu/ni": "^27.0.1",
@@ -42,6 +45,7 @@
     "@types/prompts": "^2.4.9",
     "@types/tar": "^6.1.13",
     "@types/validate-npm-package-name": "^4.0.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "tsup": "^8.5.0"
   }
 }
