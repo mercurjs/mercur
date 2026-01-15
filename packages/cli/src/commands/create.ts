@@ -161,6 +161,8 @@ export const create = new Command()
         logger.log(successMessage(projectDir, packageManager));
         logger.log(feedbackOutro());
         logger.break();
+
+        await initGit(projectDir);
       }
     } catch (error) {
       logger.break();
@@ -269,6 +271,15 @@ function createTerminalLink(text: string, url: string) {
   return terminalLink(text, url, {
     fallback: (text, url) => `${text}: ${kleur.cyan().underline(url)}`,
   });
+}
+
+async function initGit(projectDir: string): Promise<void> {
+  try {
+    await execa("git", ["init"], { cwd: projectDir });
+    logger.info("Initialized a git repository.");
+  } catch {
+    logger.warn("Failed to initialize git repository.");
+  }
 }
 
 function getNodeVersion(): number {
