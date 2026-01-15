@@ -10,5 +10,5 @@ export const REGISTRY_URL =
 
 // Built-in registries that are always available and cannot be overridden
 export const BUILTIN_REGISTRIES: z.infer<typeof registryConfigSchema> = {
-  "@mercurjs": `${REGISTRY_URL}/{type}/{name}.json`,
+  "@mercurjs": `${REGISTRY_URL}/{name}.json`,
 };

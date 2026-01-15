@@ -3,7 +3,7 @@ import type { RegistryItemCategory } from "../registry/schema";
 /**
  * Get the target directory for a registry file based on its type.
  */
-export function getFileType(file: {
+export function getTargetDir(file: {
   type: string;
   path: string;
 }): RegistryItemCategory {
@@ -21,8 +21,5 @@ export function getFileType(file: {
  * Get the relative path by stripping the type prefix from a file path.
  */
 export function getRelativePath(filePath: string) {
-  return filePath.replace(
-    /^(workflows|api|links|modules|vendorPages|adminPages|lib)\//,
-    ""
-  );
+  return filePath.replace(/^(agents|tools|prompts)\//, "");
 }
