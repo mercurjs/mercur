@@ -3,11 +3,7 @@ import {
   MedusaRequest,
   MedusaResponse
 } from '@medusajs/framework'
-import {
-  ContainerRegistrationKeys,
-  Modules,
-  omitDeep
-} from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 
 import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
@@ -15,6 +11,7 @@ import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import {
   OrderObject,
+  ProductFilters,
   assignVariantImages,
   filterProductsBySeller,
   mergeVariantImages
@@ -94,6 +91,8 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const filters = req.filterableFields as ProductFilters
+
   const { productIds, count } = await filterProductsBySeller(
     req.scope,
     req.filterableFields.seller_id as string,
@@ -101,14 +100,13 @@ export const GET = async (
     req.queryConfig.pagination?.take || 10,
     req.filterableFields.sales_channel_id as string,
     req.queryConfig.pagination?.order as OrderObject | undefined,
-    req.filterableFields.q as string | undefined
+    filters
   )
 
   const { data: sellerProducts } = await query.graph({
     entity: 'product',
     fields: req.queryConfig.fields,
     filters: {
-      ...omitDeep(req.filterableFields, ['q', 'seller_id']),
       id: { $in: productIds }
     },
     pagination: {
@@ -118,7 +116,7 @@ export const GET = async (
 
   res.json({
     products: sellerProducts,
-    count: count,
+    count,
     offset: req.queryConfig.pagination?.skip || 0,
     limit: req.queryConfig.pagination?.take || 10,
     order: req.queryConfig.pagination?.order
