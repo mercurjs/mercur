@@ -834,3 +834,24 @@ export type VendorBulkUpdateProductsType = z.infer<
 export const VendorBulkUpdateProducts = z.object({
   products: z.array(VendorBulkUpdateProductItem).min(1),
 });
+
+/* Bulk Delete Products */
+
+/**
+ * @schema VendorBulkDeleteProducts
+ * type: object
+ * required:
+ *   - ids
+ * properties:
+ *   ids:
+ *     type: array
+ *     description: The IDs of the products to delete.
+ *     items:
+ *       type: string
+ */
+export type VendorBulkDeleteProductsType = z.infer<
+  typeof VendorBulkDeleteProducts
+>;
+export const VendorBulkDeleteProducts = z.object({
+  ids: z.array(z.string()).min(1),
+});

@@ -26,6 +26,7 @@ import {
   CreateProductVariant,
   UpdateProductOption,
   UpdateProductVariant,
+  VendorBulkDeleteProducts,
   VendorBulkUpdateProducts,
   VendorCreateProduct,
   VendorGetProductParams,
@@ -74,6 +75,13 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductParams,
         vendorProductQueryConfig.list
       ),
+    ],
+  },
+  {
+    method: ["DELETE"],
+    matcher: "/vendor/products/bulk",
+    middlewares: [
+      validateAndTransformBody(VendorBulkDeleteProducts),
     ],
   },
   {
