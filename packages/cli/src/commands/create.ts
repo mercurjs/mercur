@@ -260,7 +260,7 @@ function feedbackOutro(): string {
 
 function createTerminalLink(text: string, url: string) {
   return terminalLink(text, url, {
-    fallback: (text, url) => `${text}: ${url}`,
+    fallback: (text, url) => `${text}: ${kleur.cyan().underline(url)}`,
   });
 }
 
