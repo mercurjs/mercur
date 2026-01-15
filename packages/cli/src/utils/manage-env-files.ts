@@ -52,7 +52,12 @@ const sanitizeEnv = ({
   return updatedEnv;
 };
 
-// todo: comeback to this because we would have multiple folders for env files
+const APP_PATHS = [
+  { path: "apps/api", isApi: true },
+  { path: "apps/vendor", isApi: false },
+  { path: "apps/admin", isApi: false },
+];
+
 export async function manageEnvFiles({
   projectDir,
   databaseUri,
@@ -60,41 +65,52 @@ export async function manageEnvFiles({
   projectDir: string;
   databaseUri?: string;
 }): Promise<void> {
-  const envExamplePath = path.join(projectDir, ".env.example");
-  const envPath = path.join(projectDir, ".env");
-
-  let exampleEnv = "";
-
   try {
-    // If there's a .env.example file, use it to create or update the .env file
-    if (fs.existsSync(envExamplePath)) {
-      const envExampleContents = await fs.readFile(envExamplePath, "utf8");
+    await Promise.all(
+      APP_PATHS.map(async ({ path: appPath, isApi }) => {
+        const appDir = path.join(projectDir, appPath);
 
-      exampleEnv = sanitizeEnv({
-        contents: envExampleContents,
-        databaseUri,
-      });
-    }
+        if (!fs.existsSync(appDir)) {
+          return;
+        }
 
-    // If there's no .env file, create it using the .env.example content (if it exists)
-    if (!fs.existsSync(envPath)) {
-      const envContent = sanitizeEnv({
-        contents: exampleEnv,
-        databaseUri,
-      });
+        const envExamplePath = path.join(appDir, ".env.example");
+        const envPath = path.join(appDir, ".env");
 
-      await fs.writeFile(envPath, envContent);
-    } else {
-      // If the .env file already exists, sanitize it as-is
-      const envContents = await fs.readFile(envPath, "utf8");
+        // if not API, just copy the .env.example file
+        if (!isApi) {
+          if (fs.existsSync(envExamplePath) && !fs.existsSync(envPath)) {
+            await fs.copy(envExamplePath, envPath);
+          }
+          return;
+        }
 
-      const updatedEnvContents = sanitizeEnv({
-        contents: envContents,
-        databaseUri,
-      });
+        let exampleEnv = "";
 
-      await fs.writeFile(envPath, updatedEnvContents);
-    }
+        if (fs.existsSync(envExamplePath)) {
+          const envExampleContents = await fs.readFile(envExamplePath, "utf8");
+          exampleEnv = sanitizeEnv({
+            contents: envExampleContents,
+            databaseUri,
+          });
+        }
+
+        if (!fs.existsSync(envPath)) {
+          const envContent = sanitizeEnv({
+            contents: exampleEnv,
+            databaseUri,
+          });
+          await fs.writeFile(envPath, envContent);
+        } else {
+          const envContents = await fs.readFile(envPath, "utf8");
+          const updatedEnvContents = sanitizeEnv({
+            contents: envContents,
+            databaseUri,
+          });
+          await fs.writeFile(envPath, updatedEnvContents);
+        }
+      })
+    );
   } catch (err: unknown) {
     logger.error("Unable to manage environment files");
     if (err instanceof Error) {
