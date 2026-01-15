@@ -45,9 +45,9 @@ export const create = new Command()
   .option("--skip-db", "skip database configuration.", false)
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
   .action(async (name, opts) => {
-    validateNodeVersion();
-
     try {
+      validateNodeVersion();
+
       // Prompt for project name if not provided.
       let projectName = name;
       if (!projectName) {
@@ -275,9 +275,8 @@ function getNodeVersion(): number {
 function validateNodeVersion(): void {
   const nodeVersion = getNodeVersion();
   if (nodeVersion < MIN_SUPPORTED_NODE_VERSION) {
-    logger.error(
+    throw new Error(
       `Mercur requires at least v${MIN_SUPPORTED_NODE_VERSION} of Node.js. You're using v${nodeVersion}. Please install at least v${MIN_SUPPORTED_NODE_VERSION} and try again: https://nodejs.org/en/download`
     );
-    process.exit(1);
   }
 }
