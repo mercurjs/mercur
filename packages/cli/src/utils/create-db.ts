@@ -201,7 +201,6 @@ async function runMigrations({
   const apiDir = path.join(projectDir, "apps", "api");
   const packageManager = await getPackageManager(apiDir);
 
-  logger.info("Running migrations...");
   const migrationSpinner = spinner("Running db:migrate command...").start();
 
   try {
@@ -240,8 +239,7 @@ async function seedDatabase({
   const apiDir = path.join(projectDir, "apps", "api");
   const packageManager = await getPackageManager(apiDir);
 
-  logger.info("Seeding database...");
-  const seedSpinner = spinner("Running seed command...").start();
+  const seedSpinner = spinner("Running db:seed command...").start();
 
   try {
     let seedCmd: string[];

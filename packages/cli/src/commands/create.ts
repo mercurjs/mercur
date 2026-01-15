@@ -56,7 +56,7 @@ export const create = new Command()
           type: "text",
           name: "enteredName",
           message: "What is your project named?",
-          initial: opts.template ? `${opts.template}-app` : "my-app",
+          initial: opts.template ? `${opts.template}-app` : "my-mercur",
           format: (value: string) => value.trim(),
           validate: (name) => {
             const validation = validateProjectName(
@@ -111,9 +111,8 @@ export const create = new Command()
         const packageManager = await getPackageManager(projectDir);
 
         if (opts.noDeps) {
-          logger.info("Dependency installation skipped.");
+          logger.warn("Dependency installation skipped.");
         } else {
-          logger.info(`Using ${highlighter.info(packageManager)}.`);
           const installSpinner = spinner("Installing dependencies...").start();
           const result = await installDeps({
             projectDir,
@@ -131,22 +130,24 @@ export const create = new Command()
         // Database setup
         let dbConnectionString: string | undefined = opts.dbConnectionString;
         if (!opts.skipDb) {
-          logger.info("Setting up database...");
+          const dbSpinner = spinner("Setting up database...").start();
           const dbResult = await setupDatabase({
             projectDir,
             projectName,
             dbConnectionString: opts.dbConnectionString,
           });
           if (dbResult.success) {
-            logger.success(`Database "${dbResult.dbName}" setup successfully.`);
+            dbSpinner.succeed(
+              `Database "${dbResult.dbName}" setup successfully.`
+            );
             dbConnectionString = dbResult.connectionString!;
           } else {
-            logger.error("Failed to setup database.");
+            dbSpinner.fail("Failed to setup database.");
             logger.log(feedbackOutro());
             process.exit(1);
           }
         } else {
-          logger.info("Database setup skipped.");
+          logger.warn("Database setup skipped.");
         }
 
         await manageEnvFiles({
