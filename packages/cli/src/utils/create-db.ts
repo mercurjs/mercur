@@ -1,4 +1,8 @@
+import { getPackageManager } from "@/src/utils/get-package-manager";
 import { logger } from "@/src/utils/logger";
+import { spinner } from "@/src/utils/spinner";
+import { execa } from "execa";
+import path from "path";
 import pg from "pg";
 import prompts from "prompts";
 
@@ -12,9 +16,11 @@ export interface SetupDatabaseResult {
 }
 
 export async function setupDatabase({
+  projectDir,
   projectName,
   dbConnectionString,
 }: {
+  projectDir: string;
   projectName: string;
   dbConnectionString?: string;
 }): Promise<SetupDatabaseResult> {
@@ -46,13 +52,28 @@ export async function setupDatabase({
       return {
         success: true,
         dbName,
-        connectionString: formatConnectionString({ ...credentials, db: dbName }),
+        connectionString: formatConnectionString({
+          ...credentials,
+          db: dbName,
+        }),
       };
     }
 
     // Create the database
     await client.query(`CREATE DATABASE "${dbName}"`);
     await client.end();
+
+    // Run migrations
+    const migrated = await runMigrations({ projectDir });
+    if (!migrated) {
+      return { success: false, dbName };
+    }
+
+    // Seed database
+    const seeded = await seedDatabase({ projectDir });
+    if (!seeded) {
+      return { success: false, dbName };
+    }
 
     return {
       success: true,
@@ -167,4 +188,82 @@ function formatConnectionString({
 }): string {
   const encodedPassword = encodeURIComponent(password);
   return `postgresql://${user}:${encodedPassword}@${host}:${port}/${db}`;
+}
+
+async function runMigrations({
+  projectDir,
+}: {
+  projectDir: string;
+}): Promise<boolean> {
+  const apiDir = path.join(projectDir, "apps", "api");
+  const packageManager = await getPackageManager(apiDir);
+
+  logger.info("Running migrations...");
+  const migrationSpinner = spinner("Running db:migrate command...").start();
+
+  try {
+    let migrateCmd: string[];
+
+    if (packageManager === "yarn") {
+      migrateCmd = ["yarn", "db:migrate"];
+    } else if (packageManager === "pnpm") {
+      migrateCmd = ["pnpm", "run", "db:migrate"];
+    } else if (packageManager === "bun") {
+      migrateCmd = ["bun", "run", "db:migrate"];
+    } else {
+      migrateCmd = ["npm", "run", "db:migrate"];
+    }
+
+    await execa(migrateCmd[0], migrateCmd.slice(1), {
+      cwd: apiDir,
+    });
+
+    migrationSpinner.succeed("Migrations completed successfully.");
+    return true;
+  } catch (err) {
+    migrationSpinner.fail("Failed to run migrations.");
+    logger.error(
+      `Error running migrations${err instanceof Error ? `: ${err.message}` : ""}.`
+    );
+    return false;
+  }
+}
+
+async function seedDatabase({
+  projectDir,
+}: {
+  projectDir: string;
+}): Promise<boolean> {
+  const apiDir = path.join(projectDir, "apps", "api");
+  const packageManager = await getPackageManager(apiDir);
+
+  logger.info("Seeding database...");
+  const seedSpinner = spinner("Running seed command...").start();
+
+  try {
+    let seedCmd: string[];
+
+    if (packageManager === "yarn") {
+      seedCmd = ["yarn", "seed"];
+    } else if (packageManager === "pnpm") {
+      seedCmd = ["pnpm", "run", "seed"];
+    } else if (packageManager === "bun") {
+      seedCmd = ["bun", "run", "seed"];
+    } else {
+      seedCmd = ["npm", "run", "seed"];
+    }
+
+    await execa(seedCmd[0], seedCmd.slice(1), {
+      cwd: apiDir,
+    });
+
+    seedSpinner.succeed("Database seeded successfully.");
+    return true;
+  } catch (err) {
+    seedSpinner.fail("Failed to seed database.");
+    logger.error(
+      `Error seeding database${err instanceof Error ? `: ${err.message}` : ""}.`
+    );
+    return false;
+  }
 }

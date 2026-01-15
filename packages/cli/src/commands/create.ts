@@ -127,6 +127,7 @@ export const create = new Command()
         if (!opts.skipDb) {
           const dbSpinner = spinner("Setting up database...").start();
           const dbResult = await setupDatabase({
+            projectDir,
             projectName,
             dbConnectionString: opts.dbConnectionString,
           });
