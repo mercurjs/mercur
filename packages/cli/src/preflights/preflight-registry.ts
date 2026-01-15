@@ -1,5 +1,5 @@
 import path from "path";
-import { buildOptionsSchema } from "@/src/commands/build-registry";
+import { buildOptionsSchema } from "@/src/commands/build";
 import * as ERRORS from "@/src/utils/errors";
 import { getConfig } from "@/src/utils/get-config";
 import { highlighter } from "@/src/utils/highlighter";

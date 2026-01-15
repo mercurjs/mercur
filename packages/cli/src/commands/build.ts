@@ -22,7 +22,7 @@ export const buildOptionsSchema = z.object({
 
 export const build = new Command()
   .name("build")
-  .description("build registry")
+  .description("builds the registry")
   .argument("[registry]", "path to registry.json file", "./registry.json")
   .option(
     "-o, --output <path>",

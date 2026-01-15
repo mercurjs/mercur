@@ -2,7 +2,7 @@
 import { Command } from "commander";
 import packageJson from "../package.json";
 import { add } from "./commands/add";
-import { build } from "./commands/build-registry";
+import { build } from "./commands/build";
 import { create } from "./commands/create";
 import { diff } from "./commands/diff";
 import { info } from "./commands/info";
