@@ -109,7 +109,7 @@ export const create = new Command()
 
         const packageManager = await getPackageManager(projectDir);
 
-        if (!opts.deps) {
+        if (opts.noDeps) {
           logger.info("Dependency installation skipped.");
         } else {
           logger.info(`Using ${highlighter.info(packageManager)}.`);
@@ -184,7 +184,6 @@ async function downloadTemplate({
   projectDir: string;
   template: keyof typeof CREATE_TEMPLATES;
 }) {
-  // todo: make sure the link is correct
   const url = `https://codeload.github.com/mercurjs/mercur/tar.gz/${DEFAULT_BRANCH}`;
   const templatePath = CREATE_TEMPLATES[template];
   const filter = `mercur-${DEFAULT_BRANCH.replace(/^v/, "").replaceAll("/", "-")}/templates/${templatePath}/`;
