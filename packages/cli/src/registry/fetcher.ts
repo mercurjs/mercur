@@ -12,7 +12,7 @@ import {
   RegistryParseError,
   RegistryUnauthorizedError,
 } from "./errors";
-import { registryBlockSchema } from "./schema";
+import { registryItemSchema } from "./schema";
 import { isLocalFile } from "./utils";
 
 const fetchCache = new Map<string, Promise<unknown>>();
@@ -134,7 +134,7 @@ export async function fetchRegistryLocal(filePath: string) {
     const parsed = JSON.parse(content);
 
     try {
-      return registryBlockSchema.parse(parsed);
+      return registryItemSchema.parse(parsed);
     } catch (error) {
       throw new RegistryParseError(filePath, error);
     }

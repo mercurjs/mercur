@@ -9,13 +9,13 @@ import { RegistryNotConfiguredError, RegistryParseError } from "./errors";
 import { fetchRegistry, fetchRegistryLocal } from "./fetcher";
 import { parseRegistryAndBlockFromString } from "./parser";
 import {
-  type RegistryBlock,
-  registryBlockSchema,
+  type RegistryItem,
+  registryItemSchema,
   registryResolvedItemsTreeSchema,
 } from "./schema";
 import { isLocalFile, isUrl } from "./utils";
 
-const registryBlockWithSourceSchema = registryBlockSchema.extend({
+const registryBlockWithSourceSchema = registryItemSchema.extend({
   _source: z.string().optional(),
 });
 
@@ -61,7 +61,7 @@ export async function fetchRegistryBlocks(blocks: string[], config: Config) {
       if (isUrl(block)) {
         const [result] = await fetchRegistry([block]);
         try {
-          return registryBlockSchema.parse(result);
+          return registryItemSchema.parse(result);
         } catch (error) {
           throw new RegistryParseError(block, error);
         }
@@ -71,7 +71,7 @@ export async function fetchRegistryBlocks(blocks: string[], config: Config) {
         const paths = resolveRegistryBlocksFromRegistries([block], config);
         const [result] = await fetchRegistry(paths);
         try {
-          return registryBlockSchema.parse(result);
+          return registryItemSchema.parse(result);
         } catch (error) {
           throw new RegistryParseError(block, error);
         }
@@ -93,7 +93,7 @@ export async function resolveRegistryTree(names: string[], config: Config) {
 
   const results = await fetchRegistryBlocks(uniqueNames, config);
 
-  const resultMap = new Map<string, RegistryBlock>();
+  const resultMap = new Map<string, RegistryItem>();
   for (let i = 0; i < results.length; i++) {
     if (results[i]) {
       resultMap.set(uniqueNames[i], results[i]);
@@ -138,7 +138,7 @@ export async function resolveRegistryTree(names: string[], config: Config) {
 
   payload.push(...allDependencyItems);
 
-  const sourceMap = new Map<RegistryBlock, string>();
+  const sourceMap = new Map<RegistryItem, string>();
   for (const item of payload) {
     const source = item._source || item.name;
     sourceMap.set(item, source);
@@ -207,7 +207,7 @@ async function resolveDependenciesRecursively(
   return { blocks };
 }
 
-function computeItemHash(item: Pick<RegistryBlock, "name">, source?: string) {
+function computeItemHash(item: Pick<RegistryItem, "name">, source?: string) {
   const identifier = source || item.name;
 
   const hash = createHash("sha256")
@@ -250,10 +250,10 @@ function extractItemIdentifierFromDependency(dependency: string) {
 
 function topologicalSortRegistryBlocks(
   blocks: z.infer<typeof registryBlockWithSourceSchema>[],
-  sourceMap: Map<RegistryBlock, string>
+  sourceMap: Map<RegistryItem, string>
 ) {
-  const itemMap = new Map<string, RegistryBlock>();
-  const hashToItem = new Map<string, RegistryBlock>();
+  const itemMap = new Map<string, RegistryItem>();
+  const hashToItem = new Map<string, RegistryItem>();
   const inDegree = new Map<string, number>();
   const adjacencyList = new Map<string, string[]>();
 
@@ -361,10 +361,10 @@ function topologicalSortRegistryBlocks(
 }
 
 function deduplicateFilesByTarget(
-  filesArrays: Array<RegistryBlock["files"] | undefined>
+  filesArrays: Array<RegistryItem["files"] | undefined>
 ) {
-  const seen = new Map<string, RegistryBlock["files"][number]>();
-  const result: RegistryBlock["files"] = [];
+  const seen = new Map<string, RegistryItem["files"][number]>();
+  const result: RegistryItem["files"] = [];
 
   for (const files of filesArrays) {
     if (!files) continue;

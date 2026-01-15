@@ -1,12 +1,12 @@
 import { execa } from "execa";
-import type { RegistryBlock } from "../registry/schema";
+import type { RegistryItem } from "../registry/schema";
 import type { Config } from "../schema";
 import { getPackageManager } from "./get-package-manager";
 import { spinner } from "./spinner";
 
 export async function updateDependencies(
-  dependencies: RegistryBlock["dependencies"],
-  devDependencies: RegistryBlock["devDependencies"],
+  dependencies: RegistryItem["dependencies"],
+  devDependencies: RegistryItem["devDependencies"],
   config: Config,
   options: {
     silent?: boolean;
