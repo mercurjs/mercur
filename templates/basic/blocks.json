@@ -1,0 +1,13 @@
+{
+  "$schema": "https://mercurjs.com/schema.json",
+  "aliases": {
+    "workflows": "@/src/workflows",
+    "api": "@/src/api",
+    "links": "@/src/links",
+    "modules": "@/src/modules",
+    "vendorPages": "@workspace/apps/vendor/src/pages",
+    "adminPages": "@workspace/apps/admin/src/pages",
+    "lib": "@/src/lib"
+  },
+  "registries": {}
+}
