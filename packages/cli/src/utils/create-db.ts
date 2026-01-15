@@ -6,7 +6,7 @@ import path from "path";
 import pg from "pg";
 import prompts from "prompts";
 
-const DEFAULT_DB_HOST = "localhost12";
+const DEFAULT_DB_HOST = "localhost";
 const DEFAULT_DB_PORT = 5432;
 
 export interface SetupDatabaseResult {
