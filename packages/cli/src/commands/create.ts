@@ -122,6 +122,8 @@ export const create = new Command()
             installSpinner.succeed("Dependencies installed successfully.");
           } else {
             installSpinner.fail("Failed to install dependencies.");
+            logger.log(feedbackOutro());
+            process.exit(1);
           }
         }
 
@@ -141,6 +143,8 @@ export const create = new Command()
             dbConnectionString = dbResult.connectionString;
           } else {
             dbSpinner.fail("Failed to setup database.");
+            logger.log(feedbackOutro());
+            process.exit(1);
           }
         } else {
           logger.info("Database setup skipped.");
