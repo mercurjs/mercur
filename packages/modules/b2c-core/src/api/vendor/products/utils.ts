@@ -63,6 +63,7 @@ export type ProductFilters = {
   type_id?: string | string[]
   collection_id?: string | string[]
   category_id?: string | string[]
+  categories?: { id?: string | string[] }
   tag_id?: string | string[]
   created_at?: Record<string, string>
   updated_at?: Record<string, string>
@@ -140,10 +141,11 @@ export const filterProductsBySeller = async (
       baseQuery = baseQuery.whereIn('product.collection_id', collectionIds)
     }
 
-    if (filters.category_id) {
-      const categoryIds = Array.isArray(filters.category_id)
-        ? filters.category_id
-        : [filters.category_id]
+    const categoryIdValue = filters.category_id || filters.categories?.id
+    if (categoryIdValue) {
+      const categoryIds = Array.isArray(categoryIdValue)
+        ? categoryIdValue
+        : [categoryIdValue]
       baseQuery = baseQuery
         .innerJoin(
           'product_category_product',
