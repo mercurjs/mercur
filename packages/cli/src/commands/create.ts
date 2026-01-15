@@ -19,7 +19,7 @@ import { x } from "tar";
 import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
 
-const DEFAULT_BRANCH = "main";
+const DEFAULT_BRANCH = "new";
 const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
