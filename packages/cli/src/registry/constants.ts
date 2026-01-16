@@ -6,7 +6,7 @@ import type { registryConfigSchema } from "./schema";
 export const REGISTRY_URL =
   process.env.REGISTRY_URL ??
   // todo: change to main branch
-  "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/index.ts";
+  "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry";
 
 // Built-in registries that are always available and cannot be overridden
 export const BUILTIN_REGISTRIES: z.infer<typeof registryConfigSchema> = {
