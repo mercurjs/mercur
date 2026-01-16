@@ -74,30 +74,30 @@ export async function manageEnvFiles({
           return;
         }
 
-        const envExamplePath = path.join(appDir, ".env.example");
+        const envTemplatePath = path.join(appDir, ".env.template");
         const envPath = path.join(appDir, ".env");
 
-        // if not API, just copy the .env.example file
+        // if not API, just copy the .env.template file
         if (!isApi) {
-          if (fs.existsSync(envExamplePath) && !fs.existsSync(envPath)) {
-            await fs.copy(envExamplePath, envPath);
+          if (fs.existsSync(envTemplatePath) && !fs.existsSync(envPath)) {
+            await fs.copy(envTemplatePath, envPath);
           }
           return;
         }
 
-        let exampleEnv = "";
+        let templateEnv = "";
 
-        if (fs.existsSync(envExamplePath)) {
-          const envExampleContents = await fs.readFile(envExamplePath, "utf8");
-          exampleEnv = sanitizeEnv({
-            contents: envExampleContents,
+        if (fs.existsSync(envTemplatePath)) {
+          const envTemplateContents = await fs.readFile(envTemplatePath, "utf8");
+          templateEnv = sanitizeEnv({
+            contents: envTemplateContents,
             databaseUri,
           });
         }
 
         if (!fs.existsSync(envPath)) {
           const envContent = sanitizeEnv({
-            contents: exampleEnv,
+            contents: templateEnv,
             databaseUri,
           });
           await fs.writeFile(envPath, envContent);
