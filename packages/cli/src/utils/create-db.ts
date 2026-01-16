@@ -13,6 +13,7 @@ export interface SetupDatabaseResult {
   success: boolean;
   dbName: string;
   connectionString: string | null;
+  alreadyExists?: boolean;
 }
 
 export async function setupDatabase(args: {
@@ -34,12 +35,12 @@ export async function setupDatabase(args: {
     const exists = await doesDbExist(client, dbName);
 
     if (exists) {
-      logger.warn(`Database "${dbName}" already exists.`);
       await client.end();
       return {
         success: true,
         dbName,
         connectionString: dbConnectionString,
+        alreadyExists: true,
       };
     }
 

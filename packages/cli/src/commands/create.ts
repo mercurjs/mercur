@@ -137,9 +137,15 @@ export const create = new Command()
             dbConnectionString: opts.dbConnectionString,
           });
           if (dbResult.success) {
-            dbSpinner.succeed(
-              `Database "${dbResult.dbName}" setup successfully.`
-            );
+            if (dbResult.alreadyExists) {
+              dbSpinner.warn(
+                `Database ${highlighter.info(dbResult.dbName)} already exists. Skipping database setup.`
+              );
+            } else {
+              dbSpinner.succeed(
+                `Database ${highlighter.info(dbResult.dbName)} setup successfully.`
+              );
+            }
             dbConnectionString = dbResult.connectionString!;
           } else {
             dbSpinner.fail("Failed to setup database.");
