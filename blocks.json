@@ -9,5 +9,7 @@
     "adminPages": "@workspace/apps/admin/src/pages",
     "lib": "@/src/lib"
   },
-  "registries": {}
+  "registries": {
+    "@local": "file:///Users/jakubsieradzki/workspace/mercur/mercur/packages/registry/{name}.json"
+  }
 }
