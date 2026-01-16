@@ -10,7 +10,6 @@
     "lib": "packages/api/src/lib"
   },
   "registries": {
-    "@local": "file:///Users/jakubsieradzki/workspace/mercur/mercur/packages/registry/{name}.json",
-    "@mercurjs": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/{name}.json"
+    "@local": "file:///Users/jakubsieradzki/workspace/mercur/mercur/packages/registry/{name}.json"
   }
 }
