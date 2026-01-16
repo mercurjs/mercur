@@ -1,7 +1,7 @@
 {
   "$schema": "https://mercurjs.com/schema.json",
   "aliases": {
-    "workflows": "/src/workflows",
+    "workflows": "packages/api/src/workflows",
     "api": "packages/api/src/api",
     "links": "packages/api/src/links",
     "modules": "packages/api/src/modules",
