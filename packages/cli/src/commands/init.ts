@@ -164,13 +164,13 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
   return rawConfigSchema.parse({
     $schema: "https://mercurjs.com/schema.json",
     aliases: {
-      workflows: options.workflows ?? "@/apps/api/src/workflows",
-      api: options.api ?? "@/apps/api/src/api",
-      links: options.links ?? "@/apps/api/src/links",
-      modules: options.modules ?? "@/apps/api/src/modules",
+      workflows: options.workflows ?? "@/packages/api/src/workflows",
+      api: options.api ?? "@/packages/api/src/api",
+      links: options.links ?? "@/packages/api/src/links",
+      modules: options.modules ?? "@/packages/api/src/modules",
       vendorPages: options.vendorPages ?? "@/apps/vendor/src/pages",
       adminPages: options.adminPages ?? "@/apps/admin/src/pages",
-      lib: options.lib ?? "@/apps/api/src/lib",
+      lib: options.lib ?? "@/packages/api/src/lib",
     },
     registries: BUILTIN_REGISTRIES,
   });
