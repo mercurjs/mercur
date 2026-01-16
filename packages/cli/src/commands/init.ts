@@ -257,7 +257,7 @@ async function promptForMinimalConfig(
   );
 
   return rawConfigSchema.parse({
-    ...existingConfig,
+    $schema: existingConfig.$schema,
     aliases: {
       workflows: options.workflows ?? existingConfig.aliases.workflows,
       api: options.api ?? existingConfig.aliases.api,

@@ -9,7 +9,5 @@
     "adminPages": "apps/admin/src/pages",
     "lib": "packages/api/src/lib"
   },
-  "registries": {
-    "@local": "file:///Users/jakubsieradzki/workspace/mercur/mercur/packages/registry/{name}.json"
-  }
+  "registries": {}
 }
