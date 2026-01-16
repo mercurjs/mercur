@@ -103,74 +103,81 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
     return rawConfigSchema.parse({
       $schema: "https://mercurjs.com/schema.json",
       aliases: {
-        workflows: "@/src/workflows",
-        api: "@/src/api",
-        links: "@/src/links",
-        modules: "@/src/modules",
+        workflows: "@workspace/packages/api/src/workflows",
+        api: "@workspace/packages/api/src/api",
+        links: "@workspace/packages/api/src/links",
+        modules: "@workspace/packages/api/src/modules",
         vendorPages: "@workspace/apps/vendor/src/pages",
         adminPages: "@workspace/apps/admin/src/pages",
-        lib: "@/src/lib",
+        lib: "@workspace/packages/api/src/lib",
       },
       registries: BUILTIN_REGISTRIES,
     });
   }
 
   logger.info("");
-  const options = await prompts([
+  const options = await prompts(
+    [
+      {
+        type: "text",
+        name: "workflows",
+        message: `Configure the import alias for ${highlighter.info("workflows")}:`,
+        initial: "@workspace/packages/api/src/workflows",
+      },
+      {
+        type: "text",
+        name: "api",
+        message: `Configure the import alias for ${highlighter.info("api")}:`,
+        initial: "@workspace/packages/api/src/api",
+      },
+      {
+        type: "text",
+        name: "links",
+        message: `Configure the import alias for ${highlighter.info("links")}:`,
+        initial: "@workspace/packages/api/src/links",
+      },
+      {
+        type: "text",
+        name: "modules",
+        message: `Configure the import alias for ${highlighter.info("modules")}:`,
+        initial: "@workspace/packages/api/src/modules",
+      },
+      {
+        type: "text",
+        name: "vendorPages",
+        message: `Configure the import alias for ${highlighter.info("Vendor panel pages")}:`,
+        initial: "@workspace/apps/vendor/src/pages",
+      },
+      {
+        type: "text",
+        name: "adminPages",
+        message: `Configure the import alias for ${highlighter.info("Admin panel pages")}:`,
+        initial: "@workspace/apps/admin/src/pages",
+      },
+      {
+        type: "text",
+        name: "lib",
+        message: `Configure the import alias for ${highlighter.info("lib")}:`,
+        initial: "@workspace/packages/api/src/lib",
+      },
+    ],
     {
-      type: "text",
-      name: "workflows",
-      message: `Configure the import alias for ${highlighter.info("workflows")}:`,
-      initial: "@/src/workflows",
-    },
-    {
-      type: "text",
-      name: "api",
-      message: `Configure the import alias for ${highlighter.info("api")}:`,
-      initial: "@/src/api",
-    },
-    {
-      type: "text",
-      name: "links",
-      message: `Configure the import alias for ${highlighter.info("links")}:`,
-      initial: "@/src/links",
-    },
-    {
-      type: "text",
-      name: "modules",
-      message: `Configure the import alias for ${highlighter.info("modules")}:`,
-      initial: "@/src/modules",
-    },
-    {
-      type: "text",
-      name: "vendorPages",
-      message: `Configure the import alias for ${highlighter.info("Vendor panel pages")}:`,
-      initial: "@workspace/apps/vendor/src/pages",
-    },
-    {
-      type: "text",
-      name: "adminPages",
-      message: `Configure the import alias for ${highlighter.info("Admin panel pages")}:`,
-      initial: "@workspace/apps/admin/src/pages",
-    },
-    {
-      type: "text",
-      name: "lib",
-      message: `Configure the import alias for ${highlighter.info("lib")}:`,
-      initial: "@/src/lib",
-    },
-  ]);
+      onCancel: () => {
+        process.exit(0);
+      },
+    }
+  );
 
   return rawConfigSchema.parse({
     $schema: "https://mercurjs.com/schema.json",
     aliases: {
-      workflows: options.workflows ?? "@/packages/api/src/workflows",
-      api: options.api ?? "@/packages/api/src/api",
-      links: options.links ?? "@/packages/api/src/links",
-      modules: options.modules ?? "@/packages/api/src/modules",
-      vendorPages: options.vendorPages ?? "@/apps/vendor/src/pages",
-      adminPages: options.adminPages ?? "@/apps/admin/src/pages",
-      lib: options.lib ?? "@/packages/api/src/lib",
+      workflows: options.workflows ?? "@workspace/packages/api/src/workflows",
+      api: options.api ?? "@workspace/packages/api/src/api",
+      links: options.links ?? "@workspace/packages/api/src/links",
+      modules: options.modules ?? "@workspace/packages/api/src/modules",
+      vendorPages: options.vendorPages ?? "@workspace/apps/vendor/src/pages",
+      adminPages: options.adminPages ?? "@workspace/apps/admin/src/pages",
+      lib: options.lib ?? "@workspace/packages/api/src/lib",
     },
     registries: BUILTIN_REGISTRIES,
   });
@@ -185,62 +192,69 @@ async function promptForMinimalConfig(
     return rawConfigSchema.parse({
       $schema: "https://mercurjs.com/schema.json",
       aliases: {
-        workflows: "@/src/workflows",
-        api: "@/src/api",
-        links: "@/src/links",
-        modules: "@/src/modules",
+        workflows: "@workspace/packages/api/src/workflows",
+        api: "@workspace/packages/api/src/api",
+        links: "@workspace/packages/api/src/links",
+        modules: "@workspace/packages/api/src/modules",
         vendorPages: "@workspace/apps/vendor/src/pages",
         adminPages: "@workspace/apps/admin/src/pages",
-        lib: "@/src/lib",
+        lib: "@workspace/packages/api/src/lib",
       },
       registries: BUILTIN_REGISTRIES,
     });
   }
 
-  const options = await prompts([
+  const options = await prompts(
+    [
+      {
+        type: "text",
+        name: "workflows",
+        message: `Configure the import alias for ${highlighter.info("workflows")}:`,
+        initial: existingConfig.aliases.workflows,
+      },
+      {
+        type: "text",
+        name: "api",
+        message: `Configure the import alias for ${highlighter.info("api")}:`,
+        initial: existingConfig.aliases.api,
+      },
+      {
+        type: "text",
+        name: "links",
+        message: `Configure the import alias for ${highlighter.info("links")}:`,
+        initial: existingConfig.aliases.links,
+      },
+      {
+        type: "text",
+        name: "modules",
+        message: `Configure the import alias for ${highlighter.info("modules")}:`,
+        initial: existingConfig.aliases.modules,
+      },
+      {
+        type: "text",
+        name: "vendorPages",
+        message: `Configure the import alias for ${highlighter.info("Vendor panel pages")}:`,
+        initial: existingConfig.aliases.vendorPages,
+      },
+      {
+        type: "text",
+        name: "adminPages",
+        message: `Configure the import alias for ${highlighter.info("Admin panel pages")}:`,
+        initial: existingConfig.aliases.adminPages,
+      },
+      {
+        type: "text",
+        name: "lib",
+        message: `Configure the import alias for ${highlighter.info("lib")}:`,
+        initial: existingConfig.aliases.lib,
+      },
+    ],
     {
-      type: "text",
-      name: "workflows",
-      message: `Configure the import alias for ${highlighter.info("workflows")}:`,
-      initial: existingConfig.aliases.workflows,
-    },
-    {
-      type: "text",
-      name: "api",
-      message: `Configure the import alias for ${highlighter.info("api")}:`,
-      initial: existingConfig.aliases.api,
-    },
-    {
-      type: "text",
-      name: "links",
-      message: `Configure the import alias for ${highlighter.info("links")}:`,
-      initial: existingConfig.aliases.links,
-    },
-    {
-      type: "text",
-      name: "modules",
-      message: `Configure the import alias for ${highlighter.info("modules")}:`,
-      initial: existingConfig.aliases.modules,
-    },
-    {
-      type: "text",
-      name: "vendorPages",
-      message: `Configure the import alias for ${highlighter.info("Vendor panel pages")}:`,
-      initial: existingConfig.aliases.vendorPages,
-    },
-    {
-      type: "text",
-      name: "adminPages",
-      message: `Configure the import alias for ${highlighter.info("Admin panel pages")}:`,
-      initial: existingConfig.aliases.adminPages,
-    },
-    {
-      type: "text",
-      name: "lib",
-      message: `Configure the import alias for ${highlighter.info("lib")}:`,
-      initial: existingConfig.aliases.lib,
-    },
-  ]);
+      onCancel: () => {
+        process.exit(0);
+      },
+    }
+  );
 
   return rawConfigSchema.parse({
     ...existingConfig,
