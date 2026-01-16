@@ -1,13 +1,13 @@
 {
   "$schema": "https://mercurjs.com/schema.json",
   "aliases": {
-    "workflows": "@/src/workflows",
-    "api": "@/src/api",
-    "links": "@/src/links",
-    "modules": "@/src/modules",
-    "vendorPages": "@workspace/apps/vendor/src/pages",
-    "adminPages": "@workspace/apps/admin/src/pages",
-    "lib": "@/src/lib"
+    "workflows": "/src/workflows",
+    "api": "packages/api/src/api",
+    "links": "packages/api/src/links",
+    "modules": "packages/api/src/modules",
+    "vendorPages": "apps/vendor/src/pages",
+    "adminPages": "apps/admin/src/pages",
+    "lib": "packages/api/src/lib"
   },
   "registries": {
     "@local": "file:///Users/jakubsieradzki/workspace/mercur/mercur/packages/registry/{name}.json",

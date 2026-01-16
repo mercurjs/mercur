@@ -7,7 +7,7 @@
   "dependencies": [],
   "files": [
     {
-      "path": "src/workflows/hello.ts",
+      "path": "workflows/hello.ts",
       "content": "export function helloWorkflow() {\n  console.log(\"Hello from shared registry!\");\n}\n",
       "type": "registry:workflow"
     }
