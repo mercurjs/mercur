@@ -110,7 +110,7 @@ export const create = new Command()
         const packageManager = await getPackageManager(projectDir);
 
         if (!opts.deps) {
-          logger.warn("Dependency installation skipped.");
+          spinner("Dependency installation skipped.").warn();
         } else {
           const installSpinner = spinner("Installing dependencies...").start();
           const result = await installDeps({
@@ -120,7 +120,7 @@ export const create = new Command()
           if (result) {
             installSpinner.succeed("Dependencies installed successfully.");
           } else {
-            installSpinner.fail("Failed to install dependencies.");
+            spinner("Failed to install dependencies.").fail();
             logger.log(feedbackOutro());
             process.exit(1);
           }
@@ -152,7 +152,7 @@ export const create = new Command()
             process.exit(1);
           }
         } else {
-          logger.warn("Database setup skipped.");
+          spinner("Database setup skipped.").warn();
         }
 
         await manageEnvFiles({
@@ -283,7 +283,7 @@ async function initGit(projectDir: string): Promise<void> {
     await execa("git", ["init"], { cwd: projectDir });
     logger.info("Initialized a git repository.");
   } catch {
-    logger.warn("Failed to initialize git repository.");
+    throw new Error("Failed to initialize git repository.");
   }
 }
 
