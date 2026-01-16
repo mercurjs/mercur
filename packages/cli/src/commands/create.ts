@@ -41,7 +41,6 @@ export const create = new Command()
     "the working directory. defaults to the current directory.",
     process.cwd()
   )
-  .option("-y, --yes", "skip confirmation prompt.", true)
   .option("--no-deps", "skip installing dependencies.", false)
   .option("--skip-db", "skip database configuration.", false)
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
@@ -110,7 +109,7 @@ export const create = new Command()
 
         const packageManager = await getPackageManager(projectDir);
 
-        if (opts.noDeps) {
+        if (!opts.deps) {
           logger.warn("Dependency installation skipped.");
         } else {
           const installSpinner = spinner("Installing dependencies...").start();
