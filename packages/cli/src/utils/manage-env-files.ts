@@ -53,9 +53,9 @@ const sanitizeEnv = ({
 };
 
 const APP_PATHS = [
-  { path: "apps/api", isApi: true },
-  { path: "apps/vendor", isApi: false },
-  { path: "apps/admin", isApi: false },
+  { path: "packages/api" },
+  { path: "apps/vendor" },
+  { path: "apps/admin" },
 ];
 
 export async function manageEnvFiles({
@@ -67,7 +67,7 @@ export async function manageEnvFiles({
 }): Promise<void> {
   try {
     await Promise.all(
-      APP_PATHS.map(async ({ path: appPath, isApi }) => {
+      APP_PATHS.map(async ({ path: appPath }) => {
         const appDir = path.join(projectDir, appPath);
 
         if (!fs.existsSync(appDir)) {
@@ -77,6 +77,7 @@ export async function manageEnvFiles({
         const envTemplatePath = path.join(appDir, ".env.template");
         const envPath = path.join(appDir, ".env");
 
+        const isApi = appPath.includes("api");
         // if not API, just copy the .env.template file
         if (!isApi) {
           if (fs.existsSync(envTemplatePath) && !fs.existsSync(envPath)) {
@@ -88,7 +89,10 @@ export async function manageEnvFiles({
         let templateEnv = "";
 
         if (fs.existsSync(envTemplatePath)) {
-          const envTemplateContents = await fs.readFile(envTemplatePath, "utf8");
+          const envTemplateContents = await fs.readFile(
+            envTemplatePath,
+            "utf8"
+          );
           templateEnv = sanitizeEnv({
             contents: envTemplateContents,
             databaseUri,
