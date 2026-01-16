@@ -24,7 +24,6 @@ export const vendorProductFields = [
   "*collection",
   "*options",
   "*options.values",
-  "options.values.metadata",
   "*tags",
   "*images",
   "*variants",

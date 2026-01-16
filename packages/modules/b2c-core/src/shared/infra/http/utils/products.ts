@@ -6,6 +6,56 @@ import { AttributeDTO } from '@mercurjs/framework'
 
 import categoryAttribute from '../../../../links/category-attribute'
 
+export type OptionMetadataInput = {
+  title: string
+  metadata: Record<string, unknown>
+}
+
+/**
+ * Updates product option metadata directly via raw SQL.
+ * This bypasses Medusa's service layer which doesn't properly support
+ * metadata updates on product options.
+ *
+ * @param container - MedusaContainer
+ * @param products - Products with options to update
+ * @param optionsMetadata - Array of option titles with their metadata
+ */
+export const updateProductOptionsMetadata = async (
+  container: MedusaContainer,
+  products: ProductDTO[],
+  optionsMetadata: OptionMetadataInput[] | undefined
+): Promise<void> => {
+  if (!optionsMetadata?.length) {
+    return
+  }
+
+  const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+
+  const optionUpdates = products
+    .flatMap((product) => product.options || [])
+    .map((option) => ({
+      optionId: option.id,
+      metadata: optionsMetadata.find((om) => om.title === option.title)?.metadata
+    }))
+    .filter(
+      (update): update is { optionId: string; metadata: Record<string, unknown> } =>
+        !!update.metadata
+    )
+
+  if (!optionUpdates.length) {
+    return
+  }
+
+  await Promise.all(
+    optionUpdates.map(({ optionId, metadata }) =>
+      pgConnection.raw(
+        `UPDATE product_option SET metadata = ? WHERE id = ?`,
+        [JSON.stringify(metadata), optionId]
+      )
+    )
+  )
+}
+
 export const fetchProductDetails = async (
   product_id: string,
   scope: MedusaContainer

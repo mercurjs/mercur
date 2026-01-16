@@ -1,9 +1,5 @@
 import { MedusaContainer } from "@medusajs/framework";
-import {
-  IProductModuleService,
-  LinkDefinition,
-  ProductDTO,
-} from "@medusajs/framework/types";
+import { LinkDefinition, ProductDTO } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
 import { StepResponse, WorkflowData } from "@medusajs/workflows-sdk";
@@ -16,46 +12,10 @@ import { productsCreatedHookHandler } from "../attribute/utils";
 import { SECONDARY_CATEGORY_MODULE } from "../../modules/secondary_categories";
 import SecondaryCategoryModuleService from "../../modules/secondary_categories/service";
 import { ISecondaryCategory } from "../../modules/secondary_categories/types/ISecondaryCategory";
-
-export type OptionMetadataInput = {
-  title: string;
-  metadata: Record<string, unknown>;
-};
-
-const updateProductOptionValuesMetadata = async (
-  products: ProductDTO[],
-  optionsMetadata: OptionMetadataInput[] | undefined,
-  container: MedusaContainer
-): Promise<void> => {
-  if (!optionsMetadata?.length) {
-    return;
-  }
-
-  const productModuleService = container.resolve<IProductModuleService>(
-    Modules.PRODUCT
-  );
-
-  const optionValueUpdates = products
-    .flatMap((product) => product.options || [])
-    .flatMap((option) => {
-      const metadataInput = optionsMetadata.find(
-        (om) => om.title === option.title
-      );
-      if (!metadataInput?.metadata) {
-        return [];
-      }
-      return (option.values || []).map((value) => ({
-        valueId: value.id,
-        metadata: metadataInput.metadata,
-      }));
-    });
-
-  await Promise.all(
-    optionValueUpdates.map(({ valueId, metadata }) =>
-      productModuleService.updateProductOptionValues(valueId, { metadata })
-    )
-  );
-};
+import {
+  OptionMetadataInput,
+  updateProductOptionsMetadata,
+} from "../../shared/infra/http/utils/products";
 
 const getVariantInventoryItemIds = async (
   variantId: string,
@@ -220,10 +180,10 @@ createProductsWorkflow.hooks.productsCreated(
       container,
     });
 
-    await updateProductOptionValuesMetadata(
+    await updateProductOptionsMetadata(
+      container,
       products,
-      additional_data?.options_metadata,
-      container
+      additional_data?.options_metadata
     );
 
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK);
@@ -297,6 +257,8 @@ createProductsWorkflow.hooks.productsCreated(
     if (!productIds) {
       return;
     }
+    console.log("In compensation function");
+    console.log("productIds", productIds);
 
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK);
 
