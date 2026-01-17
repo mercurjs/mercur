@@ -1,12 +1,12 @@
 import { transform } from "@medusajs/framework/workflows-sdk";
-import { setAuthAppMetadataStep } from "@medusajs/medusa/core-flows";
+import { emitEventStep, setAuthAppMetadataStep } from "@medusajs/medusa/core-flows";
 import {
   WorkflowResponse,
   createHook,
   createWorkflow,
 } from "@medusajs/workflows-sdk";
 
-import { CreateMemberDTO, CreateSellerDTO } from "@mercurjs/framework";
+import { CreateMemberDTO, CreateSellerDTO, SellerEvents } from "@mercurjs/framework";
 
 import {
   createMemberStep,
@@ -47,6 +47,12 @@ export const createSellerWorkflow = createWorkflow(
     const sellerCreatedHook = createHook("sellerCreated", {
       sellerId: seller.id,
     });
+
+    emitEventStep({
+      eventName: SellerEvents.CREATED,
+      data: { id: seller.id },
+    });
+
     return new WorkflowResponse(seller, { hooks: [sellerCreatedHook] });
   }
 );
