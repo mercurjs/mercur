@@ -7,11 +7,9 @@
     "typescript",
     "typescriptreact"
   ],
-  "eslint.alwaysShowStatus": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
-  "editor.inlineSuggest.enabled": true
+    "source.fixAll.eslint": "always"
+  }
 }
 
 
