@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "The JSON schema reference for validation."
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the item. This is used to identify the item in the registry. It should be unique for your registry."
+    },
+    "title": {
+      "type": "string",
+      "description": "The human-readable title for your registry item. Keep it short and descriptive."
+    },
+    "author": {
+      "type": "string",
+      "minLength": 2,
+      "description": "The author of the item. Recommended format: username <url>"
+    },
+    "description": {
+      "type": "string",
+      "description": "The description of the item. This is used to provide a brief overview of the item."
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "An array of NPM dependencies required by the registry item.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "devDependencies": {
+      "type": "array",
+      "description": "An array of NPM dev dependencies required by the registry item.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "registryDependencies": {
+      "type": "array",
+      "description": "An array of registry items that this item depends on. Use the name of the item to reference @mercurjs components and urls to reference other registries.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "files": {
+      "type": "array",
+      "description": "The main payload of the registry item. This is an array of files that are part of the registry item.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The path to the file relative to the registry root."
+          },
+          "content": {
+            "type": "string",
+            "description": "The content of the file. This is populated when the item is fetched."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "registry:workflow",
+              "registry:api",
+              "registry:link",
+              "registry:module",
+              "registry:vendor",
+              "registry:admin",
+              "registry:lib"
+            ],
+            "description": "The type of the file. This determines how the file is handled when installed."
+          },
+          "target": {
+            "type": "string",
+            "description": "The target path of the file. This is the destination path in the user's project."
+          }
+        },
+        "required": ["path", "type"]
+      }
+    },
+    "meta": {
+      "type": "object",
+      "description": "Additional metadata for the registry item. This is an object with any key value pairs.",
+      "additionalProperties": true
+    },
+    "docs": {
+      "type": "string",
+      "description": "The documentation for the registry item. This is a markdown string."
+    },
+    "categories": {
+      "type": "array",
+      "description": "The categories of the registry item. Used for filtering and organization.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "workflows",
+          "api",
+          "links",
+          "modules",
+          "vendor",
+          "admin",
+          "lib"
+        ]
+      }
+    }
+  },
+  "required": ["name", "files"]
+}

@@ -22,7 +22,7 @@ export const registryItemTypeSchema = z.enum([
 // File with required content (for fetched items)
 export const registryItemFileSchema = z.object({
   path: z.string(),
-  content: z.string(),
+  content: z.string().optional(),
   type: registryItemTypeSchema,
   target: z.string().optional(),
 });
@@ -31,7 +31,6 @@ export const registryItemFileSchema = z.object({
 const registryItemBaseSchema = z.object({
   $schema: z.string().optional(),
   name: z.string(),
-  type: registryItemTypeSchema,
   title: z.string().optional(),
   author: z.string().min(2).optional(),
   description: z.string().optional(),

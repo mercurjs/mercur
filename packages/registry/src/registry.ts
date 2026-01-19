@@ -1,7 +1,7 @@
 import { Registry, registryItemSchema } from '@mercurjs/cli'
 import { z } from "zod"
 
-const blocks = [
+const blocks: Registry['items'] = [
     {
         name: "block-1",
         description: "A block with a test module, product-test link, and API route.",
