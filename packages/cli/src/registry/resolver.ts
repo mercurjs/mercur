@@ -14,6 +14,7 @@ import {
   registryResolvedItemsTreeSchema,
 } from "./schema";
 import { isLocalFile, isUrl } from "./utils";
+import { REGISTRY_URL } from "./constants";
 
 const registryBlockWithSourceSchema = registryItemSchema.extend({
   _source: z.string().optional(),
@@ -77,7 +78,14 @@ export async function fetchRegistryBlocks(blocks: string[], config: Config) {
         }
       }
 
-      throw new RegistryParseError(block, new Error("Invalid registry item"));
+
+      const path = `${REGISTRY_URL}/${block}.json`
+      const [result] = await fetchRegistry([path])
+      try {
+        return registryItemSchema.parse(result)
+      } catch (error) {
+        throw new RegistryParseError(block, error)
+      }
     })
   );
 
@@ -190,9 +198,9 @@ async function resolveDependenciesRecursively(
     if (block.registryDependencies) {
       const resolvedDeps = config?.registries
         ? resolveRegistryBlocksFromRegistries(
-            block.registryDependencies,
-            config
-          )
+          block.registryDependencies,
+          config
+        )
         : block.registryDependencies;
 
       const nested = await resolveDependenciesRecursively(
