@@ -5,8 +5,8 @@
     "api": "packages/api/src/api",
     "links": "packages/api/src/links",
     "modules": "packages/api/src/modules",
-    "vendorPages": "apps/vendor/src/pages",
-    "adminPages": "apps/admin/src/pages",
+    "vendor": "apps/vendor/src/pages",
+    "admin": "apps/admin/src/pages",
     "lib": "packages/api/src/lib"
   },
   "registries": {}

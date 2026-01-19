@@ -5,8 +5,8 @@ export type RegistryItemCategory =
   | "api"
   | "links"
   | "modules"
-  | "vendorPages"
-  | "adminPages"
+  | "vendor"
+  | "admin"
   | "lib";
 
 export const registryItemTypeSchema = z.enum([

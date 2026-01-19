@@ -342,8 +342,8 @@ The CLI uses a `blocks.json` file for configuration. This file is created when y
     "api": "@/src/api",
     "links": "@/src/links",
     "modules": "@/src/modules",
-    "vendorPages": "@workspace/apps/vendor/src/pages",
-    "adminPages": "@workspace/apps/admin/src/pages",
+    "vendor": "@workspace/apps/vendor/src/pages",
+    "admin": "@workspace/apps/admin/src/pages",
     "lib": "@/src/lib"
   }
 }
@@ -358,8 +358,8 @@ The CLI uses a `blocks.json` file for configuration. This file is created when y
 | `aliases.api`         | `string` | Import alias for API routes directory |
 | `aliases.links`       | `string` | Import alias for links directory      |
 | `aliases.modules`     | `string` | Import alias for modules directory    |
-| `aliases.vendorPages` | `string` | Import alias for vendor panel pages   |
-| `aliases.adminPages`  | `string` | Import alias for admin panel pages    |
+| `aliases.vendor`      | `string` | Import alias for vendor panel pages   |
+| `aliases.admin`       | `string` | Import alias for admin panel pages    |
 | `aliases.lib`         | `string` | Import alias for lib directory        |
 | `registries`          | `object` | Custom registry configurations        |
 
@@ -374,8 +374,8 @@ You can add custom registries to your `blocks.json`:
     "api": "@/src/api",
     "links": "@/src/links",
     "modules": "@/src/modules",
-    "vendorPages": "@workspace/apps/vendor/src/pages",
-    "adminPages": "@workspace/apps/admin/src/pages",
+    "vendor": "@workspace/apps/vendor/src/pages",
+    "admin": "@workspace/apps/admin/src/pages",
     "lib": "@/src/lib"
   },
   "registries": {

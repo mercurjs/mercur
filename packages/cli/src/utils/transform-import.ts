@@ -90,20 +90,20 @@ function updateImportAliases(moduleSpecifier: string, config: Config) {
     return config.aliases.modules;
   }
 
-  if (moduleSpecifier.startsWith("@/vendorPages/")) {
-    const rest = moduleSpecifier.replace(/^@\/vendorPages\//, "");
-    return `${config.aliases.vendorPages}/${rest}`;
+  if (moduleSpecifier.startsWith("@/vendor/")) {
+    const rest = moduleSpecifier.replace(/^@\/vendor\//, "");
+    return `${config.aliases.vendor}/${rest}`;
   }
-  if (moduleSpecifier === "@/vendorPages") {
-    return config.aliases.vendorPages;
+  if (moduleSpecifier === "@/vendor") {
+    return config.aliases.vendor;
   }
 
-  if (moduleSpecifier.startsWith("@/adminPages/")) {
-    const rest = moduleSpecifier.replace(/^@\/adminPages\//, "");
-    return `${config.aliases.adminPages}/${rest}`;
+  if (moduleSpecifier.startsWith("@/admin/")) {
+    const rest = moduleSpecifier.replace(/^@\/admin\//, "");
+    return `${config.aliases.admin}/${rest}`;
   }
-  if (moduleSpecifier === "@/adminPages") {
-    return config.aliases.adminPages;
+  if (moduleSpecifier === "@/admin") {
+    return config.aliases.admin;
   }
 
   if (moduleSpecifier.startsWith("@/lib/")) {

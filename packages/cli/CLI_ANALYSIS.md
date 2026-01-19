@@ -47,7 +47,7 @@ Creates and manages `blocks.json` configuration file for the project.
 **Flow:**
 1. Validates project directory exists
 2. Detects existing config (update) or creates new
-3. Prompts for import aliases (workflows, api, links, modules, vendorPages, adminPages, lib)
+3. Prompts for import aliases (workflows, api, links, modules, vendor, admin, lib)
 4. Resolves aliases using tsconfig-paths
 5. Writes `blocks.json`
 
@@ -241,8 +241,8 @@ Return: { files, dependencies, docs }
     api: string,          // e.g., "@/src/api"
     links: string,        // e.g., "@/src/links"
     modules: string,      // e.g., "@/src/modules"
-    vendorPages: string,  // e.g., "@workspace/apps/vendor/src/pages"
-    adminPages: string,   // e.g., "@workspace/apps/admin/src/pages"
+    vendor: string,       // e.g., "@workspace/apps/vendor/src/pages"
+    admin: string,        // e.g., "@workspace/apps/admin/src/pages"
     lib: string           // e.g., "@/src/lib"
   },
   registries: {

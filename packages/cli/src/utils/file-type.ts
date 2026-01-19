@@ -11,8 +11,8 @@ export function getTargetDir(file: {
   if (file.type === "registry:api") return "api";
   if (file.type === "registry:link") return "links";
   if (file.type === "registry:module") return "modules";
-  if (file.type === "registry:vendor") return "vendorPages";
-  if (file.type === "registry:admin") return "adminPages";
+  if (file.type === "registry:vendor") return "vendor";
+  if (file.type === "registry:admin") return "admin";
   if (file.type === "registry:lib") return "lib";
   throw new Error(`Unknown file type: ${file.type}`);
 }
@@ -22,7 +22,7 @@ export function getTargetDir(file: {
  */
 export function getRelativePath(filePath: string) {
   return filePath.replace(
-    /^(workflows|api|links|modules|vendorPages|adminPages|lib)\//,
+    /^(workflows|api|links|modules|vendor|admin|lib)\//,
     ""
   );
 }

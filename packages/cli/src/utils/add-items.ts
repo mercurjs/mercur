@@ -1,4 +1,3 @@
-import type { RegistryItemCategory } from "../registry";
 import { configWithDefaults } from "../registry/config";
 import { resolveRegistryTree } from "../registry/resolver";
 import type { Config } from "../schema";

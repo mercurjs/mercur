@@ -243,17 +243,11 @@ function determineFileType(
     return "registry:module";
   }
 
-  if (
-    moduleSpecifier.includes("/vendor") ||
-    moduleSpecifier.includes("/vendorPages/")
-  ) {
+  if (moduleSpecifier.includes("/vendor")) {
     return "registry:vendor";
   }
 
-  if (
-    moduleSpecifier.includes("/admin") ||
-    moduleSpecifier.includes("/adminPages/")
-  ) {
+  if (moduleSpecifier.includes("/admin")) {
     return "registry:admin";
   }
 
