@@ -30,7 +30,7 @@ export const diff = new Command()
   .action(async (name, opts) => {
     try {
       const options = diffOptionsSchema.parse({
-        item: name,
+        blocks: name,
         cwd: path.resolve(opts.cwd),
         type: opts.type,
       });
