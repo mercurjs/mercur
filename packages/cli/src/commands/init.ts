@@ -4,7 +4,7 @@ import path from "path";
 import prompts from "prompts";
 import { z } from "zod";
 import { preFlightInit } from "../preflights/preflight-init";
-import { BUILTIN_REGISTRIES } from "../registry/constants";
+import { BUILTIN_REGISTRIES, REGISTRY_SCHEMA_URL } from "../registry/constants";
 import { clearRegistryContext } from "../registry/context";
 import { rawConfigSchema } from "../schema";
 import { getConfig, resolveConfigPaths } from "../utils/get-config";
@@ -101,7 +101,7 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
   // Skip prompts if defaults flag is set
   if (opts.defaults) {
     return rawConfigSchema.parse({
-      $schema: "https://mercurjs.com/schema.json",
+      $schema: REGISTRY_SCHEMA_URL,
       aliases: {
         workflows: "@workspace/packages/api/src/workflows",
         api: "@workspace/packages/api/src/api",
@@ -169,7 +169,7 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
   );
 
   return rawConfigSchema.parse({
-    $schema: "https://mercurjs.com/schema.json",
+    $schema: REGISTRY_SCHEMA_URL,
     aliases: {
       workflows: options.workflows ?? "@workspace/packages/api/src/workflows",
       api: options.api ?? "@workspace/packages/api/src/api",
@@ -190,7 +190,7 @@ async function promptForMinimalConfig(
   // If --defaults is passed, use default values
   if (opts.defaults) {
     return rawConfigSchema.parse({
-      $schema: "https://mercurjs.com/schema.json",
+      $schema: REGISTRY_SCHEMA_URL,
       aliases: {
         workflows: "@workspace/packages/api/src/workflows",
         api: "@workspace/packages/api/src/api",

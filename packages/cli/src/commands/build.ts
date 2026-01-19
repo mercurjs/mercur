@@ -12,6 +12,7 @@ import { logger } from "@/src/utils/logger";
 import { spinner } from "@/src/utils/spinner";
 import { Command } from "commander";
 import { z } from "zod";
+import { REGISTRY_ITEM_SCHEMA_URL } from "../registry";
 
 export const buildOptionsSchema = z.object({
   cwd: z.string(),
@@ -27,7 +28,7 @@ export const build = new Command()
   .option(
     "-o, --output <path>",
     "destination directory for json files",
-    "./registry"
+    "./r"
   )
   .option(
     "-c, --cwd <cwd>",
@@ -122,7 +123,7 @@ async function buildRegistry(opts: z.infer<typeof buildOptionsSchema>) {
 
       // Add the schema to the registry item.
       registryItem["$schema"] =
-        "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/schema/registry-item.json";
+        REGISTRY_ITEM_SCHEMA_URL;
 
       for (const file of registryItem.files) {
         const absPath = path.resolve(resolvePaths.cwd, file.path);

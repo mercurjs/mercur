@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/schema/registry.json",
+  "aliases": {
+    "workflows": "@/workflows",
+    "api": "@/api",
+    "links": "@/links",
+    "modules": "@/modules",
+    "vendor": "@/vendor",
+    "admin": "@/admin",
+    "lib": "@/lib"
+  },
+  "registries": {}
+}

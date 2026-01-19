@@ -336,7 +336,7 @@ The CLI uses a `blocks.json` file for configuration. This file is created when y
 
 ```json
 {
-  "$schema": "https://mercurjs.com/schema.json",
+  "$schema": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/schema/registry.json",
   "aliases": {
     "workflows": "@/src/workflows",
     "api": "@/src/api",
