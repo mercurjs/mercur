@@ -51,7 +51,7 @@ export async function updateFiles(
 
   for (const file of files) {
     const fileType = getTargetDir(file);
-    const relativePath = getRelativePath(file.path);
+    const relativePath = file.target ?? getRelativePath(file.path);
     const basePath = options.path || config.resolvedPaths[fileType];
 
     let filePath = path.resolve(basePath, relativePath);
