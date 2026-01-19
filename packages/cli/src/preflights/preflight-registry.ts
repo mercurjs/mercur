@@ -18,6 +18,8 @@ export async function preFlightRegistryBuild(
     outputDir: path.resolve(options.cwd, options.outputDir),
   };
 
+
+
   // Ensure registry file exists.
   if (!fs.existsSync(resolvePaths.registryFile)) {
     errors[ERRORS.BUILD_MISSING_REGISTRY_FILE] = true;
@@ -27,6 +29,7 @@ export async function preFlightRegistryBuild(
       config: null,
     };
   }
+
 
   // Check for existing blocks.json file.
   if (!fs.existsSync(path.resolve(options.cwd, "blocks.json"))) {
@@ -43,6 +46,7 @@ export async function preFlightRegistryBuild(
 
   try {
     const config = await getConfig(options.cwd);
+
 
     return {
       errors,

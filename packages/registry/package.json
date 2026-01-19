@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "tsc",
 		"dev": "tsc --watch",
-		"build:registry": "mercurjs build ./r"
+		"build:registry": "mercurjs build"
 	},
 	"dependencies": {},
 	"devDependencies": {

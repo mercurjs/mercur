@@ -49,12 +49,15 @@ async function buildRegistry(opts: z.infer<typeof buildOptionsSchema>) {
   try {
     const options = buildOptionsSchema.parse(opts);
 
+
     const [{ errors, resolvePaths, config }, projectInfo] = await Promise.all([
       preFlightRegistryBuild(options),
       getProjectInfo(options.cwd),
     ]);
 
-    if (errors[ERRORS.MISSING_CONFIG] || !config || !projectInfo) {
+
+
+    if (errors[ERRORS.MISSING_CONFIG] || !projectInfo) {
       logger.error(
         `A ${highlighter.info(
           "blocks.json"
@@ -126,7 +129,8 @@ async function buildRegistry(opts: z.infer<typeof buildOptionsSchema>) {
         REGISTRY_ITEM_SCHEMA_URL;
 
       for (const file of registryItem.files) {
-        const absPath = path.resolve(resolvePaths.cwd, file.path);
+        const srcDir = projectInfo.isSrcDir ? "src" : "";
+        const absPath = path.resolve(resolvePaths.cwd, srcDir, file.path);
         try {
           const stat = await fs.stat(absPath);
           if (!stat.isFile()) {
