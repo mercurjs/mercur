@@ -4,13 +4,13 @@ import { BUILTIN_REGISTRIES } from "./constants";
 export function configWithDefaults(config?: Partial<Config> | Config): Config {
   const defaultConfig: RawConfig = {
     aliases: {
-      workflows: "@/workspace/packages/api/src/workflows",
-      api: "@/workspace/packages/api/src/api",
-      links: "@/workspace/packages/api/src/links",
-      modules: "@/workspace/packages/api/src/modules",
-      vendor: "@/workspace/apps/vendor/src/pages",
-      admin: "@/workspace/apps/admin/src/pages",
-      lib: "@/workspace/packages/api/src/lib",
+      workflows: "packages/api/src/workflows",
+      api: "packages/api/src/api",
+      links: "packages/api/src/links",
+      modules: "packages/api/src/modules",
+      vendor: "apps/vendor/src/pages",
+      admin: "apps/admin/src/pages",
+      lib: "packages/api/src/lib",
     },
     registries: BUILTIN_REGISTRIES,
   };

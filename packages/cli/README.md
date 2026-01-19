@@ -338,13 +338,13 @@ The CLI uses a `blocks.json` file for configuration. This file is created when y
 {
   "$schema": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/schema/registry.json",
   "aliases": {
-    "workflows": "@/workspace/packages/api/src/workflows",
-    "api": "@/workspace/packages/api/src/api",
-    "links": "@/workspace/packages/api/src/links",
-    "modules": "@/workspace/packages/api/src/modules",
-    "vendor": "@/workspace/apps/vendor/src/pages",
-    "admin": "@/workspace/apps/admin/src/pages",
-    "lib": "@/workspace/packages/api/src/lib"
+    "workflows": "packages/api/src/workflows",
+    "api": "packages/api/src/api",
+    "links": "packages/api/src/links",
+    "modules": "packages/api/src/modules",
+    "vendor": "apps/vendor/src/pages",
+    "admin": "apps/admin/src/pages",
+    "lib": "packages/api/src/lib"
   }
 }
 ```
@@ -370,13 +370,13 @@ You can add custom registries to your `blocks.json`:
 ```json
 {
   "aliases": {
-    "workflows": "@/workspace/packages/api/src/workflows",
-    "api": "@/workspace/packages/api/src/api",
-    "links": "@/workspace/packages/api/src/links",
-    "modules": "@/workspace/packages/api/src/modules",
-    "vendor": "@/workspace/apps/vendor/src/pages",
-    "admin": "@/workspace/apps/admin/src/pages",
-    "lib": "@/workspace/packages/api/src/lib"
+    "workflows": "packages/api/src/workflows",
+    "api": "packages/api/src/api",
+    "links": "packages/api/src/links",
+    "modules": "packages/api/src/modules",
+    "vendor": "apps/vendor/src/pages",
+    "admin": "apps/admin/src/pages",
+    "lib": "packages/api/src/lib"
   },
   "registries": {
     "@my-registry": "https://my-registry.com/blocks/{name}.json",
