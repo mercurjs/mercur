@@ -9,6 +9,7 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
+		"@mercurjs/cli": "*",
 		"@types/node": "^22",
 		"@types/unzipper": "^0.10.10",
 		"@medusajs/admin-sdk": "2.12.5",

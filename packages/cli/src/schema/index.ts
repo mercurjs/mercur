@@ -24,8 +24,8 @@ export const configSchema = rawConfigSchema.extend({
     api: z.string(),
     links: z.string(),
     modules: z.string(),
-    vendorPages: z.string(),
-    adminPages: z.string(),
+    vendor: z.string(),
+    admin: z.string(),
     lib: z.string(),
   }),
 });
