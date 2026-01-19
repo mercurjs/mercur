@@ -47,7 +47,6 @@
     "@types/prompts": "^2.4.9",
     "@types/tar": "^6.1.13",
     "@types/validate-npm-package-name": "^4.0.2",
-    "typescript": "5.9.3",
     "tsup": "^8.5.0"
   }
 }

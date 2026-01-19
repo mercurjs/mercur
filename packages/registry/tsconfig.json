@@ -1,12 +1,15 @@
 {
 	"compilerOptions": {
-		"lib": ["ESNext"],
-		"types": ["node"],
+		"lib": [
+			"ESNext"
+		],
+		"types": [
+			"node"
+		],
 		"target": "ESNext",
 		"module": "Preserve",
 		"moduleDetection": "force",
 		"moduleResolution": "bundler",
-		"verbatimModuleSyntax": true,
 		"noEmit": false,
 		"emitDeclarationOnly": false,
 		"strict": true,
@@ -20,14 +23,30 @@
 		"preserveWatchOutput": true,
 		"baseUrl": ".",
 		"paths": {
-			"@/workflows/*": ["./src/workflows/*"],
-			"@/api/*": ["./src/api/*"],
-			"@/links/*": ["./src/links/*"],
-			"@/modules/*": ["./src/modules/*"],
-			"@/vendor/*": ["./src/vendor/*"],
-			"@/admin/*": ["./src/admin/*"],
-			"@/lib/*": ["./src/lib/*"],
+			"@/workflows/*": [
+				"./src/workflows/*"
+			],
+			"@/api/*": [
+				"./src/api/*"
+			],
+			"@/links/*": [
+				"./src/links/*"
+			],
+			"@/modules/*": [
+				"./src/modules/*"
+			],
+			"@/vendor/*": [
+				"./src/vendor/*"
+			],
+			"@/admin/*": [
+				"./src/admin/*"
+			],
+			"@/lib/*": [
+				"./src/lib/*"
+			],
 		}
 	},
-	"include": ["src/**/*"]
+	"include": [
+		"src/**/*"
+	]
 }
