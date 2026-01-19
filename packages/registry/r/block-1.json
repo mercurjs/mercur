@@ -11,20 +11,17 @@
     {
       "path": "block-1/modules/test/index.ts",
       "content": "import { Module } from \"@medusajs/framework/utils\"\nimport TestModuleService from \"./service\"\n\nexport const TEST_MODULE = \"test\"\n\nexport default Module(TEST_MODULE, {\n  service: TestModuleService,\n})\n",
-      "type": "registry:module",
-      "target": "test/index.ts"
+      "type": "registry:module"
     },
     {
       "path": "block-1/modules/test/service.ts",
       "content": "import { MedusaService } from \"@medusajs/framework/utils\"\nimport Test from \"./models/test\"\n\nclass TestModuleService extends MedusaService({\n  Test,\n}) {}\n\nexport default TestModuleService\n",
-      "type": "registry:module",
-      "target": "test/service.ts"
+      "type": "registry:module"
     },
     {
       "path": "block-1/modules/test/models/test.ts",
       "content": "import { model } from \"@medusajs/framework/utils\"\n\nconst Test = model.define(\"test\", {\n  id: model.id().primaryKey(),\n  name: model.text(),\n})\n\nexport default Test\n",
-      "type": "registry:module",
-      "target": "test/models/test.ts"
+      "type": "registry:module"
     },
     {
       "path": "block-1/links/product-test.ts",
@@ -34,8 +31,7 @@
     {
       "path": "block-1/api/hello/test/route.ts",
       "content": "import type { MedusaRequest, MedusaResponse } from \"@medusajs/framework/http\";\n\nexport const POST = async (req: MedusaRequest, res: MedusaResponse) => {\n    res.json({\n        test: true\n    })\n}",
-      "type": "registry:api",
-      "target": "hello/test/route.ts"
+      "type": "registry:api"
     }
   ]
 }

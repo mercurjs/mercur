@@ -10,7 +10,8 @@ import { handleError } from "../utils/handle-error";
 import { highlighter } from "../utils/highlighter";
 import { logger } from "../utils/logger";
 import { transformImports } from "../utils/transform-import";
-import { getRelativePath, getTargetDir } from "../utils/file-type";
+import { resolveFilePath } from "../utils/file-type";
+import { getProjectInfo } from "../utils/get-project-info";
 
 const diffOptionsSchema = z.object({
   blocks: z.array(z.string()).optional(),
@@ -63,13 +64,14 @@ export const diff = new Command()
         process.exit(1);
       }
 
+      const projectInfo = await getProjectInfo(config.resolvedPaths.cwd);
+
       for (const block of blocks) {
         for (const file of block.files) {
-          const fileType = getTargetDir(file);
-          const filePath = path.resolve(
-            config.resolvedPaths[fileType],
-            getRelativePath(file.path)
-          );
+          const filePath = resolveFilePath(file, config, {
+            isSrcDir: projectInfo?.isSrcDir ?? false,
+            path: options.cwd
+          });
 
           if (!existsSync(filePath)) {
             logger.info(`File ${filePath} does not exist locally.`);

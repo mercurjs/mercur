@@ -89,6 +89,7 @@ export const add = new Command()
         overwrite: options.overwrite,
         silent: options.silent,
         yes: options.yes,
+        path: options.cwd,
       });
     } catch (error) {
       logger.break();

@@ -5,7 +5,7 @@ import prompts from "prompts";
 import type { RegistryItem } from "../registry/schema";
 import type { Config } from "../schema";
 import { isContentSame } from "./compare";
-import { getRelativePath, getTargetDir } from "./file-type";
+import { resolveFilePath } from "./file-type";
 import { getProjectInfo } from "./get-project-info";
 import { highlighter } from "./highlighter";
 import { logger } from "./logger";
@@ -50,16 +50,10 @@ export async function updateFiles(
   const filesDeclined: string[] = [];
 
   for (const file of files) {
-    const fileType = getTargetDir(file);
-    const relativePath = file.target ?? getRelativePath(file.path);
-    const basePath = options.path || config.resolvedPaths[fileType];
-
-    let filePath = path.resolve(basePath, relativePath);
-
-    if (projectInfo?.isSrcDir && !filePath.includes("src")) {
-      const srcPath = path.resolve(config.resolvedPaths.cwd, "src");
-      filePath = path.resolve(srcPath, relativePath);
-    }
+    const filePath = resolveFilePath(file, config, {
+      isSrcDir: projectInfo?.isSrcDir ?? false,
+      path: options.path ?? "",
+    });
 
     const fileName = basename(file.path);
     const targetDir = path.dirname(filePath);

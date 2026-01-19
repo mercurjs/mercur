@@ -11,18 +11,15 @@
       "files": [
         {
           "path": "block-1/modules/test/index.ts",
-          "type": "registry:module",
-          "target": "test/index.ts"
+          "type": "registry:module"
         },
         {
           "path": "block-1/modules/test/service.ts",
-          "type": "registry:module",
-          "target": "test/service.ts"
+          "type": "registry:module"
         },
         {
           "path": "block-1/modules/test/models/test.ts",
-          "type": "registry:module",
-          "target": "test/models/test.ts"
+          "type": "registry:module"
         },
         {
           "path": "block-1/links/product-test.ts",
@@ -30,8 +27,7 @@
         },
         {
           "path": "block-1/api/hello/test/route.ts",
-          "type": "registry:api",
-          "target": "hello/test/route.ts"
+          "type": "registry:api"
         }
       ],
       "categories": [
