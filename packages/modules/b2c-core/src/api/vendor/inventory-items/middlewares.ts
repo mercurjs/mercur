@@ -71,6 +71,20 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     ]
   },
   {
+    method: ['DELETE'],
+    matcher: '/vendor/inventory-items/:id',
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetInventoryItemsParams,
+        vendorInventoryItemQueryConfig.retrieve
+      ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerInventoryItem.entryPoint,
+        filterField: 'inventory_item_id'
+      })
+    ]
+  },
+  {
     method: ['GET'],
     matcher: '/vendor/inventory-items/:id/location-levels',
     middlewares: [

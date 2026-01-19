@@ -5,6 +5,255 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-12-18
+
+### Release 1.5.0
+
+Version 1.5.0 is a stability and correctness-focused release, addressing a broad set of issues across Admin, Vendor, and Storefront applications. The changes improve reliability of promotions and pricing, reduce UI friction, and ensure a more predictable experience for both internal users and end customers.
+
+#### Admin Panel
+
+https://github.com/mercurjs/admin-panel
+
+This release improves promotion management, data consistency, and overall stability of key admin workflows.
+
+- Improved promotion conditions handling, including fixes for missing or incorrectly selectable attributes.
+
+- Resolved multiple issues in promotion creation and editing flows to ensure all conditions and values are properly displayed and selectable.
+
+- Fixed validation and UI inconsistencies in promotion rules that could lead to incorrect configuration or blocked workflows.
+
+- Addressed problems with redundant or missing data in admin forms, improving reliability and predictability of configuration screens.
+
+- Improved error handling and feedback in cases where invalid or incomplete data was submitted.
+
+- Minor UI and usability fixes across admin views to reduce friction during daily operations.
+
+#### Vendor Panel
+
+https://github.com/mercurjs/vendor-panel
+
+This release focuses on improving price management, product configuration, and reducing disruptive UI behavior.
+
+- Fixed issues with missing or incorrect price data when adding products to price lists.
+
+- Improved handling of product attribute changes to prevent redundant confirmation modals.
+
+- Ensured current prices and attributes are consistently visible and correctly applied during product and price list management.
+
+- Resolved UI inconsistencies that could cause confusion or unnecessary interruptions when editing vendor data.
+
+- General stability improvements in vendor-facing forms and flows.
+
+#### Storefront
+
+https://github.com/mercurjs/b2c-marketplace-storefront
+
+This release brings multiple fixes that improve correctness, clarity, and user experience for end customers.
+
+- Fixed pricing and promotion-related issues to ensure correct values are displayed and applied during shopping flows.
+
+- Improved consistency of product and promotion data shown to customers.
+
+- Addressed UI and text inconsistencies to make the storefront experience clearer and less error-prone.
+
+- Resolved edge cases that could lead to incorrect behavior during browsing or checkout-related interactions.
+
+- General bug fixes and stability improvements across storefront views.
+
+## [1.4.6] - 2025-12-16
+
+### Release 1.4.6
+
+#### Infrastructure
+- **Docker support and improved seeding**
+  
+  Added Docker configuration for the backend service and improved the seeding process.
+
+- **SSL connection for PostgreSQL database**
+  
+  Fixed database connection to enable SSL for PostgreSQL, ensuring secure connections in production environments.
+
+- **Simplified Dockerfile CMD**
+  
+  Refactored the CMD instruction in the backend Dockerfile for cleaner execution.
+
+- **Environment example updates**
+  
+  Updated `.env.example` with correct configuration values.
+
+## [1.4.5] - 2025-12-10
+
+### Release 1.4.5
+
+#### Storefront
+- **Clearer promotion field in cart**
+
+  Updated the label in the cart from “Promotion codes” to “Promotion code”, matching the actual behaviour where only one code can be applied at a time.
+  
+
+- **Shipping address no longer resets when changing quantity**
+
+  Fixed an issue on checkout where changing the quantity of a product caused the selected shipping address to be cleared. The selected address now stays intact.
+
+- **Category hover behaviour aligned with design**
+
+  Restored the category hover interaction on the main page so that the extended category panel appears according to the design specification.
+
+- **Product listing shows all products, not just 20**
+
+  Removed the hard limit of 20 items on the product listing page. Users can now scroll through the full product list without hidden items disappearing.
+
+- **Stronger validation on registration form**
+
+  Added basic validation rules to the customer registration form (length and format checks for name, email, phone and password), preventing unrealistic or malformed input.
+
+- **Improved login error feedback**
+
+  Adjusted login validation so users receive clear, visually highlighted error states rather than a generic error message, making it easier to understand what went wrong.
+
+- **More understandable wording in order confirmation emails**
+
+  Replaced the ambiguous “Amount” label in order confirmation emails with clearer wording related to price, making price details easier to read and understand.
+
+- **Session expiration messaging**
+
+  When a session expires, customers now see a clear message instead of silent failures, reducing confusion and guiding them to log in again.
+
+#### Vendor Panel
+- **Product creation unblocked**
+
+  Fixed a bug that prevented vendors from finishing product creation on the Variants step and displayed a “This feature is disabled” message. Vendors can now complete the flow without issues.
+
+- **Organize view: dropdowns can be cleared**
+
+  In the product “Organize” step, vendors can now clear previously selected Type, Collection and Category values instead of being locked into the initial choice.
+
+- **Stronger password rules for vendor registration**
+
+  Introduced validation for the password field in vendor registration so very weak passwords (e.g. two characters) are no longer accepted.
+
+- **Removed images no longer appear on the storefront**
+
+  Fixed a bug where deleting a product image in the Vendor Panel did not remove it from the storefront product view. The storefront now reflects the latest vendor-side changes.
+
+- **Stable search on Product Types view**
+
+  Resolved an error that appeared when typing into the search field on the Product Types settings view. Searching now works as expected without error screens.
+
+- **Country conditions can be removed from promotions**
+
+  Corrected the promotions editor so vendors can remove country conditions using either the “X” icon or the “Clear all” action.
+
+- **Session expiration messaging for vendors**
+
+  Added dedicated messaging for expired sessions in the Vendor Panel, so vendors immediately see what happened and can log back in.
+
+#### Admin Panel
+##### Configuration & Settings
+- **Locations & Shipping settings improvements**
+
+  - The Locations & Shipping view now shows a correct count of results that matches the actual number of entries.
+
+  - Fixed inappropriate pagination behaviour so that navigation between pages correctly updates the list of locations and shipping settings.
+
+- **Shipping option creation fixes**
+
+  - Re-enabled selection of “Shipping option type” when creating shipping options, so admins can complete the setup.
+
+  - Resolved CORS-related issues when fetching shipping option types, so the list loads correctly both locally and on test/stage environments.
+
+##### Admin Flows & UX
+- **Price list creation – working pagination**
+
+  Fixed pagination on the product selection step during price list creation so switching pages updates the product list as expected.
+
+- **Activation emails for new sellers**
+
+  Ensured that when a new seller completes the registration flow, the appropriate activation email is sent as part of the onboarding process.
+
+- **Readable commission values**
+
+  Limited the number of decimal places shown in the commission “Value” column so values are displayed in a clean, human-readable format instead of very long fractional numbers.
+
+- **Session expiration messaging for admins**
+
+  Added explicit messaging when an admin session expires, helping admins quickly understand why they need to log in again.
+
+#### Backend & Developer Experience
+- **Shared Prettier configuration for frontend**
+
+  Introduced a shared Prettier configuration for frontend code (including the Admin Panel), standardizing formatting across the codebase and reducing friction in code reviews.
+
+- **Admin TypeScript errors cleanup (part 1 & 2)**
+
+  Carried out a broader TypeScript cleanup in the admin panel, resolving a large set of type errors. This improves developer experience, reduces runtime risk and makes the codebase easier to maintain.
+
+#### Automated Testing & QA
+- **Improved test data and identifiers for automation**
+
+  To support faster and more reliable regression testing, we introduced several internal updates to our test data and UI identifiers:
+
+  - Added standardized test data records used by automated end-to-end tests.
+
+  - Extended the use of consistent data-testid attributes across key UI components in the Admin Panel, Vendor Panel and Storefront.
+
+  - Aligned these attributes with our QA tooling to make automated checks more stable and easier to maintain.
+
+  These changes do not alter everyday user flows but significantly improve the quality and speed of our internal QA process and give us higher confidence in each release.
+
+## [1.4.4] - 2025-11-27
+
+### Release 1.4.4
+
+Mercur 1.4.4 focuses on smoother day-to-day operations across the Admin Panel, Vendor Panel,
+and Storefront. This release includes dozens of fixes and refinements that improve product
+management, checkout behaviour, promotions, and UI flows across the entire stack.
+
+### What's fixed
+
+#### Admin Panel
+##### General fixes & improvements
+
+- **Improved stability within Commission Rules and Commission Lines, resolving validation issues and several view crashes.**
+- **Fixed loading problems in Shipping Option Types that previously showed an error instead of loading.**
+- **Corrected the behaviour of the "Buy X Get Y" promotion type.**
+- **Standardised numerical formatting in the In stock fields.**
+- **Added missing validation for the Product Attributes → Description field.**
+- **Restored the missing Message component across multiple Admin screens.**
+##### Modules updated
+- **Sellers module updated and refined.**
+- **Promotions module adjusted for more consistent behaviour.**
+- **The Products & Inventory module has improved for better reliability.**
+##### Authentication
+- **Updated the login flow and UI, including an improved automated-testing structure.**
+#### Vendor Panel
+##### Product & inventory
+- **Inventory Items now display correctly when switching between product variants.**
+- **Vendors can remove collections again.**
+- **Fixed errors that occurred when editing collections.**
+- **Corrected issues when managing product tags.**
+- **Products can now be added to price lists even if pricing fields were previously missing.**
+- **Fixed sorting issues on the vendor category view.**
+##### Campaigns
+- **Campaigns are now correctly visible in the vendor panel.**
+##### UX / flow
+- **Removed an unnecessary warning pop-up that appeared after saving changes on the product detail page.**
+- **Fixed incorrect URL parsing that caused inconsistent navigation.**
+#### Storefront
+##### Cart & checkout
+- **Fixed empty-cart issues that occurred after adding products to the cart.**
+- **Corrected problems when removing products from the cart.**
+- **Prevented checkout from starting when the cart is empty.**
+##### PDP / PLP / UI
+- **Fixed the search icon so it properly triggers the search action.**
+- **Corrected the responsive behaviour of the seller logo on product pages.**
+- **Restored previously empty "More from this seller" sections.**
+- **Fixed issues where multiple products on listing pages could not be opened.**
+##### Other fixes - Shared Frontend / System-Level
+- **Improved shared UI components and error states.**
+- **Various frontend stability improvements across modules.**
+
 ## [1.4.3] - 2025-11-13
 
 ### Release 1.4.3

@@ -5,6 +5,7 @@ import {
 } from '@medusajs/framework'
 
 import { checkResourceOwnershipByResourceId, filterBySellerId } from '@mercurjs/framework'
+import { createLinkBody } from '@medusajs/medusa/api/utils/validators'
 import sellerCampaign from '../../../links/seller-campaign'
 import sellerPromotion from '../../../links/seller-promotion'
 import { vendorCampaignQueryConfig } from './query-config'
@@ -12,6 +13,7 @@ import {
   VendorAssignCampaignPromotions,
   VendorAssignCampaignPromotionsType,
   VendorCreateCampaign,
+  VendorGetCampaignByIdParams,
   VendorGetCampaignsParams,
   VendorUpdateCampaign
 } from './validators'
@@ -33,7 +35,7 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
     matcher: '/vendor/campaigns/:id',
     middlewares: [
       validateAndTransformQuery(
-        VendorGetCampaignsParams,
+        VendorGetCampaignByIdParams,
         vendorCampaignQueryConfig.retrieve
       ),
       checkResourceOwnershipByResourceId({

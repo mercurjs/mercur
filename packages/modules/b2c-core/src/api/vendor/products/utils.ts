@@ -1,49 +1,60 @@
-import { MedusaContainer } from '@medusajs/framework';
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils';
+import { MedusaContainer } from '@medusajs/framework'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import {
+  batchVariantImagesWorkflow,
+  updateProductVariantsWorkflow
+} from '@medusajs/medusa/core-flows'
 
-type OrderDirection = 'ASC' | 'DESC' | 'asc' | 'desc';
-export type OrderObject = Record<string, OrderDirection | Record<string, OrderDirection>>;
+import { VariantImagesType } from './validators'
+
+export const VARIANT_IMAGE_METADATA_KEY = 'variant_image_key'
+
+type OrderDirection = 'ASC' | 'DESC' | 'asc' | 'desc'
+export type OrderObject = Record<
+  string,
+  OrderDirection | Record<string, OrderDirection>
+>
 
 const cleanKey = (key: string): string => {
-  return key.split('=').pop()?.replace(/^\*/, '') || key;
-};
+  return key.split('=').pop()?.replace(/^\*/, '') || key
+}
 
 const normalizeDirection = (direction: string): 'asc' | 'desc' => {
-  return direction.toLowerCase() === 'desc' ? 'desc' : 'asc';
-};
+  return direction.toLowerCase() === 'desc' ? 'desc' : 'asc'
+}
 
 const addOrderEntry = (
   orderBy: Array<{ column: string; order: 'asc' | 'desc' }>,
   key: string,
   direction: string
 ): void => {
-  const column = key.includes('.') ? key : `product.${key}`;
-  orderBy.push({ column, order: normalizeDirection(direction) });
-};
+  const column = key.includes('.') ? key : `product.${key}`
+  orderBy.push({ column, order: normalizeDirection(direction) })
+}
 
 const parseOrderForKnex = (
   order: OrderObject | null | undefined
 ): Array<{ column: string; order: 'asc' | 'desc' }> => {
   if (!order || typeof order !== 'object') {
-    return [];
+    return []
   }
 
-  const orderBy: Array<{ column: string; order: 'asc' | 'desc' }> = [];
+  const orderBy: Array<{ column: string; order: 'asc' | 'desc' }> = []
 
   for (const [key, value] of Object.entries(order)) {
     if (typeof value === 'string') {
-      addOrderEntry(orderBy, cleanKey(key), value);
+      addOrderEntry(orderBy, cleanKey(key), value)
     } else if (value && typeof value === 'object') {
       for (const [nestedKey, nestedValue] of Object.entries(value)) {
         if (typeof nestedValue === 'string') {
-          addOrderEntry(orderBy, nestedKey, nestedValue);
+          addOrderEntry(orderBy, nestedKey, nestedValue)
         }
       }
     }
   }
 
-  return orderBy;
-};
+  return orderBy
+}
 
 export const filterProductsBySeller = async (
   container: MedusaContainer,
@@ -51,9 +62,10 @@ export const filterProductsBySeller = async (
   skip: number,
   take: number,
   salesChannelId?: string,
-  order?: OrderObject
+  order?: OrderObject,
+  q?: string
 ) => {
-  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION);
+  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
   let baseQuery = knex('product')
     .distinct('product.id')
@@ -66,7 +78,17 @@ export const filterProductsBySeller = async (
       'seller_seller_product_product.seller_id': sellerId,
       'seller_seller_product_product.deleted_at': null,
       'product.deleted_at': null
-    });
+    })
+
+  if (q) {
+    const searchTerm = `%${q}%`
+    baseQuery = baseQuery.andWhere(function () {
+      this.whereILike('product.title', searchTerm).orWhereILike(
+        'product.id',
+        searchTerm
+      )
+    })
+  }
 
   if (salesChannelId) {
     baseQuery = baseQuery
@@ -86,13 +108,16 @@ export const filterProductsBySeller = async (
   const totalCount = parseInt(count as string, 10)
 
   if (order) {
-    const parsedOrder = parseOrderForKnex(order);
+    const parsedOrder = parseOrderForKnex(order)
     if (parsedOrder.length > 0) {
-      const orderColumns = parsedOrder.map(o => o.column);
-      const selectColumns = ['product.id', ...orderColumns.filter(col => col !== 'product.id')];
-      
-      baseQuery = baseQuery.distinct(...selectColumns);
-      baseQuery = baseQuery.orderBy(parsedOrder);
+      const orderColumns = parsedOrder.map((o) => o.column)
+      const selectColumns = [
+        'product.id',
+        ...orderColumns.filter((col) => col !== 'product.id')
+      ]
+
+      baseQuery = baseQuery.distinct(...selectColumns)
+      baseQuery = baseQuery.orderBy(parsedOrder)
     }
   }
 
@@ -102,4 +127,108 @@ export const filterProductsBySeller = async (
     .pluck('product.id')
 
   return { productIds, count: totalCount }
+}
+
+export const mergeVariantImages = (
+  existingImages: Array<{ url: string }> | undefined,
+  variantImagePayload: VariantImagesType[] | undefined
+) => {
+  const existingImageUrls = new Set(existingImages?.map((img) => img.url) ?? [])
+  const allVariantImageUrls = new Set<string>()
+  for (const vi of variantImagePayload ?? []) {
+    vi.image_urls?.forEach((url) => allVariantImageUrls.add(url))
+    if (vi.thumbnail_url) {
+      allVariantImageUrls.add(vi.thumbnail_url)
+    }
+  }
+
+  const newVariantImages = [...allVariantImageUrls]
+    .filter((url) => !existingImageUrls.has(url))
+    .map((url) => ({ url }))
+
+  return [...(existingImages ?? []), ...newVariantImages]
+}
+
+type ProductVariantWithMetadata = {
+  id: string
+  metadata?: Record<string, unknown> | null
+}
+
+type ProductImage = {
+  id?: string
+  url: string
+}
+
+export const assignVariantImages = async (
+  container: MedusaContainer,
+  variantImagePayload: VariantImagesType[] | undefined,
+  createdProduct: {
+    variants?: ProductVariantWithMetadata[]
+    images?: ProductImage[]
+  }
+) => {
+  if (!variantImagePayload?.length || !createdProduct.variants?.length) {
+    return
+  }
+
+  const { variants, images = [] } = createdProduct
+
+  const variantEntries = variants
+    .map((variant) => {
+      const key = variant.metadata?.[VARIANT_IMAGE_METADATA_KEY]
+      if (!key || typeof key !== 'string') {
+        return undefined
+      }
+      return [key, variant] as const
+    })
+    .filter((entry): entry is readonly [string, ProductVariantWithMetadata] =>
+      Boolean(entry)
+    )
+  const variantByKey = new Map(variantEntries)
+  const imageUrlToId = new Map(images.map((img) => [img.url, img.id]))
+
+  const tasks = variantImagePayload.map(
+    async ({ variant_image_key, image_urls, thumbnail_url }) => {
+      const variant = variantByKey.get(variant_image_key)
+      if (!variant) {
+        return
+      }
+
+      const ops: Promise<unknown>[] = []
+
+      if (image_urls?.length) {
+        const uniqueImageUrls = [...new Set(image_urls)]
+        const imageIds = uniqueImageUrls
+          .map((url) => imageUrlToId.get(url))
+          .filter((id): id is string => !!id)
+
+        if (imageIds.length) {
+          ops.push(
+            batchVariantImagesWorkflow.run({
+              container,
+              input: { variant_id: variant.id, add: imageIds }
+            })
+          )
+        }
+      }
+
+      if (thumbnail_url && imageUrlToId.has(thumbnail_url)) {
+        ops.push(
+          updateProductVariantsWorkflow.run({
+            container,
+            input: {
+              selector: { id: variant.id },
+              update: { thumbnail: thumbnail_url }
+            }
+          })
+        )
+      }
+
+      if (ops.length) {
+        await Promise.all(ops)
+      }
+    }
+  )
+
+  await Promise.all(tasks)
 }

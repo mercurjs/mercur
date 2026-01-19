@@ -10,6 +10,7 @@ export const AdminGetRequestsParams = createFindParams({
   type: z
     .enum([
       'product_collection',
+      'product_collection_update',
       'product_category',
       'product',
       'seller',

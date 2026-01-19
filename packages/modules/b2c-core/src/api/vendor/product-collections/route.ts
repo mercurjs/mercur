@@ -25,6 +25,24 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *       type: number
  *     required: false
  *     description: The number of items to return.
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search term to filter collections by title or handle.
+ *   - name: created_at
+ *     in: query
+ *     schema:
+ *       type: object
+ *     required: false
+ *     description: Filter by creation date using operators ($lt, $gt, $lte, $gte).
+ *   - name: updated_at
+ *     in: query
+ *     schema:
+ *       type: object
+ *     required: false
+ *     description: Filter by update date using operators ($lt, $gt, $lte, $gte).
  * responses:
  *   "200":
  *     description: OK

@@ -4,10 +4,18 @@ import { AdditionalData } from "@medusajs/framework/types";
 import { WithAdditionalData } from "@medusajs/medusa/api/utils/validators";
 
 import { IdAssociation } from "../../../shared/infra/http/utils";
-import { AdminGetProductsParams } from "@medusajs/medusa/api/admin/products/validators";
+import {
+  AdminGetProductsParams,
+  AdminGetProductVariantsParams,
+} from "@medusajs/medusa/api/admin/products/validators";
 
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>;
 export const VendorGetProductParams = AdminGetProductsParams;
+
+export type VendorGetProductVariantsParamsType = z.infer<
+  typeof VendorGetProductVariantsParams
+>;
+export const VendorGetProductVariantsParams = AdminGetProductVariantsParams;
 
 /* Options */
 
@@ -26,11 +34,29 @@ export const VendorGetProductParams = AdminGetProductsParams;
  *     description: The values that the product option can take (e.g. ["Small", "Medium", "Large"]).
  *     items:
  *       type: string
+ *   metadata:
+ *     type: object
+ *     description: Custom key-value pairs for additional option data. If "author" key is provided, value must be "admin" or "vendor".
  */
 export type CreateProductOptionType = z.infer<typeof CreateProductOption>;
 export const CreateProductOption = z.object({
   title: z.string(),
   values: z.array(z.string()),
+  metadata: z
+    .record(z.unknown())
+    .optional()
+    .superRefine((data, ctx) => {
+      if (data && "author" in data) {
+        const author = data.author;
+        if (author !== "admin" && author !== "vendor") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'author must be either "admin" or "vendor"',
+            path: ["author"],
+          });
+        }
+      }
+    }),
 });
 
 /**
@@ -48,12 +74,31 @@ export const CreateProductOption = z.object({
  *     description: The values that the product option can take (e.g. ["Small", "Medium", "Large"]).
  *     items:
  *       type: string
+ *   metadata:
+ *     type: object
+ *     nullable: true
+ *     description: Custom key-value pairs for additional option data. If "author" key is provided, value must be "admin" or "vendor".
  */
 export type UpdateProductOptionType = z.infer<typeof UpdateProductOption>;
 export const UpdateProductOption = z.object({
   id: z.string().optional(),
   title: z.string().optional(),
   values: z.array(z.string()).optional(),
+  metadata: z
+    .record(z.unknown())
+    .nullish()
+    .superRefine((data, ctx) => {
+      if (data && "author" in data) {
+        const author = data.author;
+        if (author !== "admin" && author !== "vendor") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'author must be either "admin" or "vendor"',
+            path: ["author"],
+          });
+        }
+      }
+    }),
 });
 
 /* Variant Prices */
@@ -127,6 +172,33 @@ const UpdateVariantPrice = z.object({
   min_quantity: z.number().nullish(),
   max_quantity: z.number().nullish(),
   rules: z.record(z.string(), z.string()).optional(),
+});
+
+/* Variant Images */
+
+/**
+ * @schema VariantImages
+ * type: object
+ * required:
+ *   - variant_image_key
+ * properties:
+ *   variant_image_key:
+ *     type: string
+ *     description: A client-provided key that is stored in the variant metadata (metadata.variant_image_key) and used to match images to variants.
+ *   image_urls:
+ *     type: array
+ *     description: The URLs of images to associate with the variant.
+ *     items:
+ *       type: string
+ *   thumbnail_url:
+ *     type: string
+ *     description: The URL of the image to set as the variant thumbnail.
+ */
+export type VariantImagesType = z.infer<typeof VariantImages>;
+export const VariantImages = z.object({
+  variant_image_key: z.string(),
+  image_urls: z.array(z.string()).optional(),
+  thumbnail_url: z.string().optional(),
 });
 
 /* Variants */
@@ -470,6 +542,11 @@ export const UpdateProductVariant = z
  *       properties:
  *         id:
  *           type: string
+ *   variants_images:
+ *     type: array
+ *     description: Images to associate with specific variants. Since variants don't have IDs during creation, matching is done by variant title.
+ *     items:
+ *       $ref: "#/components/schemas/VariantImages"
  */
 export type VendorCreateProductType = z.infer<typeof CreateProduct> &
   AdditionalData;
@@ -501,6 +578,7 @@ export const CreateProduct = z
     material: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
     sales_channels: z.array(z.object({ id: z.string() })).optional(),
+    variants_images: z.array(VariantImages).optional(),
   })
   .strict();
 /**

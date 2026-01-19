@@ -1,7 +1,7 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
-import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
+import { ProductRequestUpdatedEvent, fetchStoreData } from "@mercurjs/framework";
 import { ResendNotificationTemplates } from "../providers/resend";
 
 export default async function sellerProductRequestRejectedHandler({
@@ -39,14 +39,16 @@ export default async function sellerProductRequestRejectedHandler({
     return;
   }
 
+  const storeData = await fetchStoreData(container);
+
   await notificationService.createNotifications({
     to: member.email,
     channel: "email",
     template: ResendNotificationTemplates.SELLER_PRODUCT_REJECTED,
     content: {
-      subject: "Mercur - Product rejected!",
+      subject: `${storeData.store_name} - Product rejected!`,
     },
-    data: { data: { product_title: productRequest.data.title } },
+    data: { data: { product_title: productRequest.data.title, store_name: storeData.store_name, storefront_url: storeData.storefront_url } },
   });
 }
 

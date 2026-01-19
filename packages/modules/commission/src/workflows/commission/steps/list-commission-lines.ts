@@ -97,7 +97,7 @@ export const listCommissionLinesStep = createStep(
         return {
           ...line,
           order,
-          rule,
+          rule: rule ?? null
         };
       });
 
