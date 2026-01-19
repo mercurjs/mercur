@@ -27,27 +27,3 @@ export function getRelativePath(filePath: string) {
   );
 }
 
-/**
- * Resolve nested file path by finding the common root between file path and target directory.
- */
-export function resolveNestedFilePath(filePath: string, targetDir: string) {
-  const fileName = filePath.split("/").pop() || filePath;
-
-  // Get path segments
-  const fileSegments = filePath.split("/").slice(0, -1); // Remove filename
-  const targetSegments = targetDir.split("/");
-
-  // Find common segments from the end of targetDir matching start of filePath
-  let commonLength = 0;
-  for (let i = 0; i < fileSegments.length && i < targetSegments.length; i++) {
-    const targetEnd = targetSegments.slice(-(i + 1)).join("/");
-    const fileStart = fileSegments.slice(0, i + 1).join("/");
-    if (targetEnd === fileStart) {
-      commonLength = i + 1;
-    }
-  }
-
-  // Build relative path from non-common segments
-  const relativeParts = fileSegments.slice(commonLength);
-  return [...relativeParts, fileName].join("/");
-}
