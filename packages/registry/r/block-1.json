@@ -30,7 +30,7 @@
     },
     {
       "path": "block-1/api/hello/test/route.ts",
-      "content": "import type { MedusaRequest, MedusaResponse } from \"@medusajs/framework/http\";\n\nexport const POST = async (req: MedusaRequest, res: MedusaResponse) => {\n    res.json({\n        test: true\n    })\n}",
+      "content": "import type { MedusaRequest, MedusaResponse } from \"@medusajs/framework/http\";\n\nexport const POST = async (req: MedusaRequest, res: MedusaResponse) => {\n    res.json({\n        test: true,\n        test2: false,\n    })\n}",
       "type": "registry:api"
     }
   ]
