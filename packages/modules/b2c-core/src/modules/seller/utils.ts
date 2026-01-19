@@ -1,6 +1,5 @@
 import { MedusaContainer } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import sellerPromotion from '../../links/seller-promotion';
 
 export async function selectSellerCustomers(
   container: MedusaContainer,
@@ -127,30 +126,63 @@ export async function selectCustomersChartData(
   return result as unknown as { date: Date; count: string }[]
 }
 
-export async function validateSellerPromotions(
+export async function validateSellersPromotions(
   promo_codes: string[],
   container: MedusaContainer,
-  seller_id: string
+  cart_id: string
 ): Promise<{ valid: boolean; invalidCodes: string[] }> {
+  if (!promo_codes?.length) {
+    return { valid: true, invalidCodes: [] }
+  }
+
   const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
-  const sellerPromotionCodes = await knex
-    .select('promotion.code')
-    .from('seller_seller_promotion_promotion')
-    .leftJoin(
-      'promotion',
-      'seller_seller_promotion_promotion.promotion_id',
-      'promotion.id'
-    )
-    .where('seller_seller_promotion_promotion.seller_id', seller_id)
+  const promotions = await knex('promotion')
+    .select('id', 'code')
     .whereIn('promotion.code', promo_codes)
     .whereNull('promotion.deleted_at')
 
-  const foundCodes = sellerPromotionCodes.map((row) => row.code)
+  const existingCodes = promotions.map((p) => p.code)
+  const missingCodes = promo_codes.filter((code) => !existingCodes.includes(code))
 
-  const invalidCodes = promo_codes.filter(
-    (code) => !foundCodes.includes(code)
+  const cartSellers = await knex('cart_line_item as cli')
+    .distinct('spp.seller_id')
+    .innerJoin(
+      'seller_seller_product_product as spp',
+      'cli.product_id',
+      'spp.product_id'
+    )
+    .where('cli.cart_id', cart_id)
+    .whereNull('cli.deleted_at')
+    .whereNull('spp.deleted_at')
+
+  const cartSellerIds = cartSellers.map((row) => row.seller_id)
+
+  const sellerPromotionLinks = await knex(
+    'seller_seller_promotion_promotion as sppromo'
   )
+    .join('promotion', 'promotion.id', 'sppromo.promotion_id')
+    .select('promotion.code', 'sppromo.seller_id')
+    .whereIn('promotion.code', promo_codes)
+    .whereNull('promotion.deleted_at')
+
+  const codesWithSeller = new Map<string, Set<string>>()
+  sellerPromotionLinks.forEach((row) => {
+    if (!codesWithSeller.has(row.code)) {
+      codesWithSeller.set(row.code, new Set())
+    }
+    codesWithSeller.get(row.code)!.add(row.seller_id)
+  })
+
+  const invalidSellerCodes = existingCodes.filter((code) => {
+    const sellers = codesWithSeller.get(code)
+    if (!sellers || sellers.size === 0) {
+      return false // admin/global promo – no seller restriction
+    }
+    return !cartSellerIds.some((id) => sellers.has(id))
+  })
+
+  const invalidCodes = [...new Set([...missingCodes, ...invalidSellerCodes])]
 
   return {
     valid: invalidCodes.length === 0,

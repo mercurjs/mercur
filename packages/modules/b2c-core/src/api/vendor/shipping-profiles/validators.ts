@@ -2,13 +2,24 @@ import { z } from 'zod'
 
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
+import { dateFilterSchema } from '../../../shared/infra/http/utils/zod'
+
 export type VendorGetShippingProfilesParamsType = z.infer<
   typeof VendorGetShippingProfilesParams
 >
 export const VendorGetShippingProfilesParams = createFindParams({
   limit: 20,
   offset: 0
-})
+}).merge(
+  z.object({
+    q: z.string().optional(),
+    id: z.union([z.string(), z.array(z.string())]).optional(),
+    name: z.union([z.string(), z.array(z.string())]).optional(),
+    type: z.union([z.string(), z.array(z.string())]).optional(),
+    created_at: dateFilterSchema,
+    updated_at: dateFilterSchema
+  })
+)
 
 /**
  * @schema VendorCreateShippingProfile
