@@ -237,13 +237,13 @@ Return: { files, dependencies, docs }
 ```typescript
 {
   aliases: {
-    workflows: string,    // e.g., "@/src/workflows"
-    api: string,          // e.g., "@/src/api"
-    links: string,        // e.g., "@/src/links"
-    modules: string,      // e.g., "@/src/modules"
-    vendor: string,       // e.g., "@workspace/apps/vendor/src/pages"
-    admin: string,        // e.g., "@workspace/apps/admin/src/pages"
-    lib: string           // e.g., "@/src/lib"
+    workflows: string,    // e.g., "@/workspace/packages/api/src/workflows"
+    api: string,          // e.g., "@/workspace/packages/api/src/api"
+    links: string,        // e.g., "@/workspace/packages/api/src/links"
+    modules: string,      // e.g., "@/workspace/packages/api/src/modules"
+    vendor: string,       // e.g., "@/workspace/apps/vendor/src/pages"
+    admin: string,        // e.g., "@/workspace/apps/admin/src/pages"
+    lib: string           // e.g., "@/workspace/packages/api/src/lib"
   },
   registries: {
     "@mercurjs": "https://...",

@@ -9,13 +9,13 @@ import {
 } from "../schema";
 import { resolveImport } from "./resolve-import";
 
-export const DEFAULT_WORKFLOWS = "@/src/workflows";
-export const DEFAULT_API = "@/src/api";
-export const DEFAULT_LINKS = "@/src/links";
-export const DEFAULT_MODULES = "@/src/modules";
-export const DEFAULT_VENDOR = "@workspace/apps/vendor/src/pages";
-export const DEFAULT_ADMIN = "@workspace/apps/admin/src/pages";
-export const DEFAULT_LIB = "@/src/lib";
+export const DEFAULT_WORKFLOWS = "@/workspace/packages/api/src/workflows";
+export const DEFAULT_API = "@/workspace/packages/api/src/api";
+export const DEFAULT_LINKS = "@/workspace/packages/api/src/links";
+export const DEFAULT_MODULES = "@/workspace/packages/api/src/modules";
+export const DEFAULT_VENDOR = "@/workspace/apps/vendor/src/pages";
+export const DEFAULT_ADMIN = "@/workspace/apps/admin/src/pages";
+export const DEFAULT_LIB = "@/workspace/packages/api/src/lib";
 
 export const explorer = cosmiconfig("blocks", {
   searchPlaces: ["blocks.json"],
