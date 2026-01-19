@@ -5,7 +5,7 @@ import prompts from "prompts";
 import type { RegistryItem } from "../registry/schema";
 import type { Config } from "../schema";
 import { isContentSame } from "./compare";
-import { getRelativePath, getTargetDir } from "./file-type";
+import { getTargetDir, resolveNestedFilePath } from "./file-type";
 import { getProjectInfo } from "./get-project-info";
 import { highlighter } from "./highlighter";
 import { logger } from "./logger";
@@ -51,18 +51,43 @@ export async function updateFiles(
 
   for (const file of files) {
     const fileType = getTargetDir(file);
-    const relativePath = file.target ?? getRelativePath(file.path);
-    const basePath = options.path || config.resolvedPaths[fileType];
+    const targetDir = config.resolvedPaths[fileType];
 
-    let filePath = path.resolve(basePath, relativePath);
+    let filePath: string;
 
-    if (projectInfo?.isSrcDir && !filePath.includes("src")) {
-      const srcPath = path.resolve(config.resolvedPaths.cwd, "src");
-      filePath = path.resolve(srcPath, relativePath);
+    // Handle custom path option
+    if (options.path) {
+      const resolvedPath = path.isAbsolute(options.path)
+        ? options.path
+        : path.join(config.resolvedPaths.cwd, options.path);
+      const fileName = path.basename(file.path);
+      filePath = path.join(resolvedPath, fileName);
+    }
+    // Handle file.target with ~/ prefix (relative to cwd)
+    else if (file.target?.startsWith("~/")) {
+      filePath = path.join(
+        config.resolvedPaths.cwd,
+        file.target.replace("~/", "")
+      );
+    }
+    // Handle explicit file.target
+    else if (file.target) {
+      filePath = projectInfo?.isSrcDir
+        ? path.join(
+            config.resolvedPaths.cwd,
+            "src",
+            file.target.replace("src/", "")
+          )
+        : path.join(config.resolvedPaths.cwd, file.target.replace("src/", ""));
+    }
+    // Default: resolve nested path within target directory
+    else {
+      const relativePath = resolveNestedFilePath(file.path, targetDir);
+      filePath = path.join(targetDir, relativePath);
     }
 
     const fileName = basename(file.path);
-    const targetDir = path.dirname(filePath);
+    const fileDir = path.dirname(filePath);
 
     const existingFile = existsSync(filePath);
 
@@ -74,7 +99,7 @@ export async function updateFiles(
 
     const content = await transformImports({
       filename: file.path,
-      raw: file.content,
+      raw: file.content ?? "",
       config,
       isRemote: false,
     });
@@ -110,8 +135,8 @@ export async function updateFiles(
       }
     }
 
-    if (!existsSync(targetDir)) {
-      await fs.mkdir(targetDir, { recursive: true });
+    if (!existsSync(fileDir)) {
+      await fs.mkdir(fileDir, { recursive: true });
     }
 
     await fs.writeFile(filePath, content, "utf-8");
