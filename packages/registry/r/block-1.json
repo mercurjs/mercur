@@ -12,31 +12,30 @@
       "path": "block-1/modules/test/index.ts",
       "content": "import { Module } from \"@medusajs/framework/utils\"\nimport TestModuleService from \"./service\"\n\nexport const TEST_MODULE = \"test\"\n\nexport default Module(TEST_MODULE, {\n  service: TestModuleService,\n})\n",
       "type": "registry:module",
-      "target": "src/modules/test/index.ts"
+      "target": "test/index.ts"
     },
     {
       "path": "block-1/modules/test/service.ts",
       "content": "import { MedusaService } from \"@medusajs/framework/utils\"\nimport Test from \"./models/test\"\n\nclass TestModuleService extends MedusaService({\n  Test,\n}) {}\n\nexport default TestModuleService\n",
       "type": "registry:module",
-      "target": "src/modules/test/service.ts"
+      "target": "test/service.ts"
     },
     {
       "path": "block-1/modules/test/models/test.ts",
       "content": "import { model } from \"@medusajs/framework/utils\"\n\nconst Test = model.define(\"test\", {\n  id: model.id().primaryKey(),\n  name: model.text(),\n})\n\nexport default Test\n",
       "type": "registry:module",
-      "target": "src/modules/test/models/test.ts"
+      "target": "test/models/test.ts"
     },
     {
       "path": "block-1/links/product-test.ts",
       "content": "import { defineLink } from \"@medusajs/framework/utils\"\nimport ProductModule from \"@medusajs/medusa/product\"\nimport TestModule from \"../modules/test\"\n\nexport default defineLink(\n  ProductModule.linkable.product,\n  TestModule.linkable.test\n)\n",
-      "type": "registry:link",
-      "target": "src/links/product-test.ts"
+      "type": "registry:link"
     },
     {
       "path": "block-1/api/hello/test/route.ts",
       "content": "import type { MedusaRequest, MedusaResponse } from \"@medusajs/framework/http\";\n\nexport const POST = async (req: MedusaRequest, res: MedusaResponse) => {\n    res.json({\n        test: true\n    })\n}",
       "type": "registry:api",
-      "target": "src/api/hello/test/route.ts"
+      "target": "hello/test/route.ts"
     }
   ]
 }
