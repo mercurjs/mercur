@@ -15,7 +15,7 @@
             "type": "array",
             "description": "The registry items.",
             "items": {
-                "$ref": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/public/schema/registry-item.json"
+                "$ref": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/schema/registry-item.json"
             },
             "minItems": 1,
             "uniqueItems": true

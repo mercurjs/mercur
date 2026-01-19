@@ -122,7 +122,7 @@ async function buildRegistry(opts: z.infer<typeof buildOptionsSchema>) {
 
       // Add the schema to the registry item.
       registryItem["$schema"] =
-        "https://mercurjs.com/schema/registry-item.json";
+        "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/schema/registry-item.json";
 
       for (const file of registryItem.files) {
         const absPath = path.resolve(resolvePaths.cwd, file.path);
@@ -173,7 +173,7 @@ async function buildRegistry(opts: z.infer<typeof buildOptionsSchema>) {
         )} items:`
       ).succeed();
       for (const item of resolvedRegistry.items) {
-        logger.log(`  - ${item.name} (${highlighter.info(item.type)})`);
+        logger.log(`  - ${item.name}`);
         for (const file of item.files ?? []) {
           logger.log(`    - ${file.path}`);
         }
