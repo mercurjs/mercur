@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "types": ["node"],
+    "target": "ESNext",
+    "module": "Preserve",
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "noEmit": false,
+    "emitDeclarationOnly": false,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "preserveWatchOutput": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/workflows/*": ["./src/workflows/*"],
+      "@/api/*": ["./src/api/*"],
+      "@/links/*": ["./src/links/*"],
+      "@/modules/*": ["./src/modules/*"],
+      "@/vendor/*": ["./src/vendor/*"],
+      "@/admin/*": ["./src/admin/*"],
+      "@/lib/*": ["./src/lib/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}

@@ -30,7 +30,7 @@ const CREATE_TEMPLATES = {
 
 export const create = new Command()
   .name("create")
-  .description("create a new project with shadcn/ui")
+  .description("create a new Mercur project")
   .argument("[name]", "the name of your project")
   .option(
     "-t, --template <template>",

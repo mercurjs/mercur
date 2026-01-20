@@ -283,7 +283,7 @@ mercurjs build [registry] [options]
 
 | Option                | Description                          | Default           |
 | --------------------- | ------------------------------------ | ----------------- |
-| `-o, --output <path>` | Destination directory for JSON files | `./registry`      |
+| `-o, --output <path>` | Destination directory for JSON files | `./r`             |
 | `-c, --cwd <path>`    | Working directory                    | Current directory |
 | `-v, --verbose`       | Verbose output                       | `false`           |
 

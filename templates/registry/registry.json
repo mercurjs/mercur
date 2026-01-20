@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/public/schema/registry.json",
+  "name": "@mercurjs",
+  "homepage": "https://mercurjs.com",
+  "items": [
+    {
+      "name": "block-1",
+      "description": "A block with a test module, product-test link, and API route.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "docs": "## Test Block Configuration\n\nAdd the test module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/test',\n    options: {\n      apiKey: process.env.TEST_API_KEY,\n    },\n  },\n]\n```\n\n## Environment Variables\n\nAdd the following to your `.env` file:\n\n```\nTEST_API_KEY=your-api-key\n```",
+      "files": [
+        {
+          "path": "block-1/modules/test/index.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "block-1/modules/test/service.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "block-1/modules/test/models/test.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "block-1/links/product-test.ts",
+          "type": "registry:link"
+        },
+        {
+          "path": "block-1/api/hello/test/route.ts",
+          "type": "registry:api"
+        }
+      ],
+      "categories": [
+        "test"
+      ]
+    }
+  ]
+}

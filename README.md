@@ -1,135 +1,144 @@
-# Turborepo starter
+![Mercur Main Cover](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png)
 
-This Turborepo starter is maintained by the Turborepo core team.
+<div align="center">
+  <h1>Mercur <br> Open Source Marketplace Platform</h1> 
+  <!-- Shields.io Badges -->
+  <a href="https://github.com/mercurjs/mercur/tree/main?tab=MIT-1-ov-file">
+    <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" />
+  </a>
+  <a href="#">
+    <img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
+  </a>
+  <a href="https://rigbyjs.com/#contact">
+    <img alt="Support" src="https://img.shields.io/badge/support-contact%20author-blueviolet.svg" />
+  </a>
+  <!-- Website Links -->
+  <p>
+    <a href="https://mercurjs.com/">Mercur</a> |   <a href="https://docs.mercurjs.com/">Docs</a> 
+  </p> 
+</div>
 
-## Using this example
+# What is Mercur?
 
-Run the following command:
+<a href="https://www.mercurjs.com/">Mercur</a> is the first
+truly limitless open source marketplace platform that
+combines the simplicity of SaaS with the freedom of open
+source. Built on
+[MedusaJS](https://github.com/medusajs/medusa), it empowers
+businesses to create custom marketplaces without choosing
+between ownership and ease of use.
 
-```sh
-npx create-turbo@latest
-```
+Mercur is a platform to start, customize, manage, and scale
+your marketplace for every business model with a modern
+technology stack.
 
-## What's inside?
+## Announcing Mercur 1.0
 
-This Turborepo includes the following packages/apps:
+After months of development, testing, and close
+collaboration with early adopters, we’re excited to announce
+the official release of **Mercur 1.0** - the first truly
+limitless marketplace platform. Version 1.0 is fully open
+source and ready to be self-hosted, giving you **full
+control over infrastructure, customizations, and data**.
 
-### Apps and Packages
+With this version, **Mercur is production-ready for B2C
+marketplaces**. The first complete version includes a vendor
+system, admin panel, and a fully built B2C Storefront. Read
+more in
+**[official release announcement](https://www.mercurjs.com/updates/mercur-1-0-release)**
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## Why Choose Mercur?
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- Full Ownership: Unlike SaaS platforms, you own your
+  marketplace with no transaction fees or vendor lock-in
+- Modern Foundation: Built on MedusaJS, offering a modern
+  tech stack that developers love
+- Beautiful by Default: Create stunning storefronts without
+  sacrificing customization
 
-### Utilities
+## Power Any Marketplace Model
 
-This Turborepo has some additional tools already setup for you:
+- Custom B2B Marketplace: Build enterprise-grade platforms
+  with specialized workflows
+- Custom B2C Marketplace: Create engaging consumer
+  marketplaces with modern UX
+- eCommerce Extension: Transform your store into a
+  marketplace (coming soon)
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+![Mercur Use Cases](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67b46aa08180d5b8499c6a15_Use-cases.jpg)
+&nbsp;
 
-### Build
+# Ready-to-go marketplace features
 
-To build all apps and packages, run the following command:
+<b>Storefronts for Marketplace </b> <br> Customizable
+storefronts designed for B2B and B2C with all elements
+including browsing and buying products across multiple
+vendors at once.
 
-```
-cd my-turborepo
+Discover
+<a href="https://github.com/mercurjs/b2c-marketplace-storefront">B2C
+Storefront Repository</a> -
+<a href="https://b2c.mercurjs.com/">🛍️ Check demo </a>
 
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+<b>Admin Panel</b> <br> Control over whole marketplace:
+setting product categories, vendors, commissions and rules
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+<b>Vendor Panel</b> <br> A powerful dashboard giving sellers
+complete control over their products, orders, and store
+management in one intuitive interface.
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Discover
+<a href="https://github.com/mercurjs/vendor-panel">Vendor
+Panel</a> - <a href="https://www.mercurjs.com/contact">
+Contact us to get demo </a>
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+<b>Integrations</b> <br> Built-in integration with Stripe
+for payments and Resend for communication needs. More
+integrations coming soon.
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+![Mercur](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a1020f202572832c954ead_6b96703adfe74613f85133f83a19b1f0_Fleek%20Tilt%20-%20Readme.png)
 
-### Develop
+&nbsp;
 
-To develop all apps and packages, run the following command:
+## Quickstart
 
-```
-cd my-turborepo
+**Step 1**: Create a new Mercur project and start the development server:
 
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+```bash
+npx @mercurjs/cli create my-marketplace
 
 ```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+**Step 2**: Start the development server:
+
+```bash
+cd my-marketplace
+npm run dev
 ```
 
-## Useful Links
+**Step 3**: Access your marketplace:
 
-Learn more about the power of Turborepo:
+- Backend API: `http://localhost:9000`
+- Admin Panel: `http://localhost:7000`
+- Vendor Panel: `http://localhost:7001`
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+&nbsp;
+
+## Prerequisites
+
+- [Node.js v20+](https://nodejs.org/en/download)
+- [PostgreSQL](https://www.postgresql.org/download/)
+- [Redis](https://redis.io/download/)
+- [Git CLI](https://git-scm.com/downloads)
+
+# Resources
+
+#### Learn more about Mercur
+
+- [Mercur Website](https://www.mercurjs.com/)
+- [Mercur Docs](https://docs.mercurjs.com/introduction)
+
+#### Learn more about Medusa
+
+- [Medusa Website](https://www.medusajs.com/)
+- [Medusa Docs](https://docs.medusajs.com/v2)

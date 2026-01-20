@@ -1,135 +1,139 @@
-# Turborepo starter
+# Mercur Basic Template
 
-This Turborepo starter is maintained by the Turborepo core team.
+This template comes configured with the bare minimum to get started building your marketplace with Mercur.
 
-## Using this example
+## Quick Start
 
-Run the following command:
+To spin up this template locally, follow these steps:
 
-```sh
-npx create-turbo@latest
+### Clone
+
+If you've already cloned this repo, skip to [Development](#development).
+
+### Development
+
+1. First [clone the repo](#clone) if you have not done so already
+
+2. Copy the example environment variables:
+
+```bash
+cd my-project
+cp packages/api/.env.template packages/api/.env
 ```
 
-## What's inside?
+3. Update the `.env` file with your database connection string and other required variables:
 
-This Turborepo includes the following packages/apps:
+```
+DATABASE_URL=postgres://user:password@localhost:5432/mercur
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your-super-secret-jwt-key
+COOKIE_SECRET=your-super-secret-cookie-key
+```
+
+4. Install dependencies and start the dev server:
+
+```bash
+npm install
+npm run dev
+```
+
+5. Open `http://localhost:9000` to access the Medusa backend
+6. Open `http://localhost:7000` to access the admin dashboard
+6. Open `http://localhost:7001` to access the vendor dashboard
+
+That's it! Follow the on-screen instructions to login and create your first admin user.
+
+## What's Inside
+
+This monorepo includes the following packages and apps:
 
 ### Apps and Packages
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `packages/api` - The Medusa backend with all marketplace functionality
+- `apps/admin` - Admin dashboard customizations
+- `apps/vendor` - Vendor portal customizations
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### Project Structure
+
+```
+├── apps/
+│   ├── admin/          # Admin dashboard extensions
+│   └── vendor/         # Vendor portal extensions
+├── packages/
+│   └── api/            # Medusa backend
+│       ├── src/
+│       │   ├── admin/       # Admin UI extensions
+│       │   ├── api/         # Custom API routes
+│       │   ├── jobs/        # Background jobs
+│       │   ├── links/       # Module links
+│       │   ├── modules/     # Custom modules
+│       │   ├── scripts/     # CLI scripts
+│       │   ├── subscribers/ # Event subscribers
+│       │   └── workflows/   # Business workflows
+│       └── medusa-config.ts
+├── blocks.json         # Mercur blocks configuration
+├── package.json
+└── turbo.json
+```
 
 ### Utilities
 
-This Turborepo has some additional tools already setup for you:
+This project has some additional tools already setup for you:
 
 - [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
+- [Turborepo](https://turborepo.dev/) for monorepo management
 - [Prettier](https://prettier.io) for code formatting
 
-### Build
+## How It Works
 
-To build all apps and packages, run the following command:
+The Mercur basic template is built on top of [Medusa](https://medusajs.com) and is pre-configured for marketplace functionality.
 
-```
-cd my-turborepo
+### Modules
 
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+Custom modules allow you to extend the core functionality. See the [Modules](https://docs.medusajs.com/learn/fundamentals/modules) docs for details.
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+### Workflows
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Workflows define multi-step business processes. See the [Workflows](https://docs.medusajs.com/learn/fundamentals/workflows) docs for details.
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+### API Routes
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+Custom API routes expose HTTP endpoints. See the [API Routes](https://docs.medusajs.com/learn/fundamentals/api-routes) docs for details.
 
-### Develop
+### Links
 
-To develop all apps and packages, run the following command:
+Links define relationships between modules. See the [Links](https://docs.medusajs.com/learn/fundamentals/links) docs for details.
 
-```
-cd my-turborepo
+## Adding Blocks
 
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+You can extend your project with pre-built blocks using the Mercur CLI:
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+npx @mercurjs/cli add block-name
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Configure your block sources in `blocks.json`:
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```json
+{
+  "aliases": {
+    "workflows": "packages/api/src/workflows",
+    "links": "packages/api/src/links",
+    "api": "packages/api/src/api",
+    "modules": "packages/api/src/modules"
+  },
+  "registries": {}
+}
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Build
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+To build all apps and packages:
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+npm run build
 ```
 
-## Useful Links
+## Questions
 
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+If you have any issues or questions start a [GitHub discussion](https://github.com/mercurjs/mercur/discussions).
