@@ -9,9 +9,7 @@
     "globals": "^15.12.0",
     "prettier": "^3.3.3",
     "turbo": "^2.3.3",
-    "typescript-eslint": "^8.15.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.5"
+    "typescript-eslint": "^8.15.0"
   },
   "bin": {
     "mercur-exec": "./index.js"
@@ -26,8 +24,8 @@
     "mercur-exec": "turbo run dev",
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx}\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "codegen": "cd .",
