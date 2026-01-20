@@ -12,10 +12,21 @@ import {
   updateProductOptionsWorkflow,
 } from "@medusajs/medusa/core-flows";
 
+import {
+  AttributeSource,
+  AttributeUIComponent,
+  ProductUpdateRequestUpdatedEvent,
+} from "@mercurjs/framework";
+
+import {
+  ATTRIBUTE_MODULE,
+  AttributeModuleService,
+} from "../../../../../../modules/attribute";
+import { SELLER_MODULE } from "../../../../../../modules/seller";
 import { fetchSellerByAuthActorId } from "../../../../../../shared/infra/http/utils";
 import { fetchProductDetails } from "../../../../../../shared/infra/http/utils/products";
+import { findOrCreateVendorAttribute } from "../../../../../../workflows/attribute/utils/find-or-create-vendor-attribute";
 import { UpdateProductOptionType } from "../../../validators";
-import { ProductUpdateRequestUpdatedEvent } from "@mercurjs/framework";
 
 /**
  * @oas [delete] /vendor/products/{id}/options/{option_id}
@@ -150,14 +161,90 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
   const productId = req.params.id;
   const optionId = req.params.option_id;
+  const { convert_to_attribute, ...updateData } = req.validatedBody;
 
-  await updateProductOptionsWorkflow.run({
-    container: req.scope,
-    input: {
-      selector: { id: optionId, product_id: productId },
-      update: req.validatedBody,
-    },
-  });
+  // Handle conversion to attribute
+  if (convert_to_attribute) {
+    const attributeService =
+      req.scope.resolve<AttributeModuleService>(ATTRIBUTE_MODULE);
+    const linkService = req.scope.resolve(ContainerRegistrationKeys.LINK);
+
+    const seller = await fetchSellerByAuthActorId(
+      req.auth_context.actor_id,
+      req.scope
+    );
+
+    // Fetch option with values
+    const {
+      data: [option],
+    } = await query.graph({
+      entity: "product_option",
+      fields: ["id", "title", "product_id", "values.id", "values.value"],
+      filters: { id: optionId },
+    });
+
+    if (!option) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        `Product option with id '${optionId}' not found`
+      );
+    }
+
+    if (option.product_id !== productId) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Option does not belong to this product"
+      );
+    }
+
+    // Extract values from option
+    const optionValues =
+      option.values?.map((v: { value: string }) => v.value) ?? [];
+
+    // Find or create vendor attribute with same name
+    const vendorAttribute = await findOrCreateVendorAttribute(req.scope, {
+      sellerId: seller.id,
+      name: option.title,
+      ui_component: AttributeUIComponent.SELECT,
+    });
+
+    // Create attribute values
+    for (const value of optionValues) {
+      const attributeValue = await attributeService.createAttributeValues({
+        value,
+        attribute_id: vendorAttribute.id,
+        source: AttributeSource.VENDOR,
+        rank: 0,
+      });
+
+      // Link to product
+      await linkService.create({
+        [Modules.PRODUCT]: { product_id: productId },
+        [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
+      });
+
+      // Link to seller
+      await linkService.create({
+        [SELLER_MODULE]: { seller_id: seller.id },
+        [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
+      });
+    }
+
+    // Delete the option (Medusa removes option values from variants)
+    await deleteProductOptionsWorkflow.run({
+      container: req.scope,
+      input: { ids: [optionId] },
+    });
+  } else {
+    // Normal update
+    await updateProductOptionsWorkflow.run({
+      container: req.scope,
+      input: {
+        selector: { id: optionId, product_id: productId },
+        update: updateData,
+      },
+    });
+  }
 
   const productDetails = await fetchProductDetails(req.params.id, req.scope);
   if (!["draft", "proposed"].includes(productDetails.status)) {

@@ -171,6 +171,9 @@ export const CreateProductOption = z.object({
  *     description: The values that the product option can take (e.g. ["Small", "Medium", "Large"]).
  *     items:
  *       type: string
+ *   convert_to_attribute:
+ *     type: boolean
+ *     description: If true, converts this option to an informational attribute (removes variants).
  *   metadata:
  *     type: object
  *     nullable: true
@@ -181,6 +184,7 @@ export const UpdateProductOption = z.object({
   id: z.string().optional(),
   title: z.string().optional(),
   values: z.array(z.string()).optional(),
+  convert_to_attribute: z.boolean().optional(),
   metadata: z
     .record(z.unknown())
     .nullish()
@@ -882,4 +886,87 @@ export type VendorUpdateProductStatusType = z.infer<
 >;
 export const VendorUpdateProductStatus = z.object({
   status: z.enum(["draft", "proposed", "published"]),
+});
+
+/* Vendor Product Attributes */
+
+/**
+ * @schema VendorAddProductAttribute
+ * type: object
+ * required:
+ *   - values
+ *   - use_for_variations
+ * properties:
+ *   attribute_id:
+ *     type: string
+ *     description: The ID of an existing admin attribute to use.
+ *   name:
+ *     type: string
+ *     description: The name for a new vendor attribute (if not using attribute_id).
+ *   values:
+ *     type: array
+ *     items:
+ *       type: string
+ *     description: The values for this attribute.
+ *   use_for_variations:
+ *     type: boolean
+ *     description: Whether this attribute should create product variants (option) or be informational.
+ *   ui_component:
+ *     type: string
+ *     enum: [select, multivalue, unit, toggle, text_area, color_picker]
+ *     description: The UI component to use for display (only for new vendor attributes).
+ */
+export type VendorAddProductAttributeType = z.infer<
+  typeof VendorAddProductAttribute
+>;
+export const VendorAddProductAttribute = z.object({
+  attribute_id: z.string().optional(),
+  name: z.string().min(1).optional(),
+  values: z.array(z.string()).min(1),
+  use_for_variations: z.boolean(),
+  ui_component: AttributeUIComponentEnum.optional(),
+});
+
+/**
+ * @schema VendorUpdateProductAttribute
+ * type: object
+ * properties:
+ *   name:
+ *     type: string
+ *     description: The name of the attribute (vendor-owned only).
+ *   ui_component:
+ *     type: string
+ *     enum: [select, multivalue, unit, toggle, text_area, color_picker]
+ *     description: The UI component to use for display (vendor-owned only).
+ *   values:
+ *     type: array
+ *     items:
+ *       type: string
+ *     description: The new set of values (replaces existing).
+ *   use_for_variations:
+ *     type: boolean
+ *     description: Toggle to convert attribute to option or vice versa.
+ */
+export type VendorUpdateProductAttributeType = z.infer<
+  typeof VendorUpdateProductAttribute
+>;
+export const VendorUpdateProductAttribute = z.object({
+  name: z.string().min(1).optional(),
+  ui_component: AttributeUIComponentEnum.optional(),
+  values: z.array(z.string()).min(1).optional(),
+  use_for_variations: z.boolean().optional(),
+});
+
+/**
+ * @deprecated Use VendorUpdateProductAttribute instead
+ */
+export type VendorUpdateVendorProductAttributeType = z.infer<
+  typeof VendorUpdateVendorProductAttribute
+>;
+export const VendorUpdateVendorProductAttribute = z.object({
+  name: z.string().min(1).optional(),
+  value: z.string().optional(),
+  ui_component: AttributeUIComponentEnum.optional(),
+  rank: z.number().optional(),
+  metadata: z.record(z.unknown()).nullish(),
 });

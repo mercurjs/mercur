@@ -26,10 +26,12 @@ import {
   CreateProductVariant,
   UpdateProductOption,
   UpdateProductVariant,
+  VendorAddProductAttribute,
   VendorCreateProduct,
   VendorGetProductParams,
   VendorGetProductVariantsParams,
   VendorUpdateProduct,
+  VendorUpdateProductAttribute,
   VendorUpdateProductStatus,
 } from "./validators";
 
@@ -251,6 +253,46 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetAttributesParams,
         retrieveAttributeQueryConfig
       ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/products/:id/attributes",
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: "product_id",
+      }),
+      validateAndTransformBody(VendorAddProductAttribute),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/products/:id/attributes/:attribute_id",
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: "product_id",
+      }),
+      validateAndTransformBody(VendorUpdateProductAttribute),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["DELETE"],
+    matcher: "/vendor/products/:id/attributes/:attribute_id",
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerProductLink.entryPoint,
+        filterField: "product_id",
+      }),
     ],
   },
 ];

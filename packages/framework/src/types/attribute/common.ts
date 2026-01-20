@@ -7,6 +7,16 @@ export enum AttributeUIComponent {
   COLOR_PICKER = "color_picker",
 }
 
+/**
+ * Attribute source constants - stored as text in DB
+ */
+export const AttributeSource = {
+  ADMIN: "admin",
+  VENDOR: "vendor",
+} as const;
+
+export type AttributeSource = (typeof AttributeSource)[keyof typeof AttributeSource];
+
 export interface ProductAttributeValueDTO {
   value: string;
   attribute_id: string;
@@ -20,6 +30,17 @@ export interface AttributePossibleValueDTO {
   metadata?: Record<string, unknown>;
 }
 
+export interface AttributeValueDTO {
+  id: string;
+  value: string;
+  rank: number;
+  source: AttributeSource;
+  metadata?: Record<string, unknown>;
+  attribute_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AttributeDTO {
   id: string;
   name: string;
@@ -27,13 +48,11 @@ export interface AttributeDTO {
   handle: string;
   is_filterable: boolean;
   is_required: boolean;
+  source: AttributeSource;
   ui_component: AttributeUIComponent;
   metadata?: Record<string, unknown>;
   possible_values?: AttributePossibleValueDTO[];
-  values?: Array<{
-    id: string;
-    value: string;
-  }>;
+  values?: AttributeValueDTO[];
   product_categories?: Array<{
     id: string;
     name: string;

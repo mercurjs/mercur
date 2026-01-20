@@ -1,123 +1,108 @@
 import {
+  AttributeSource,
   AttributeUIComponent,
   InformationalAttributeDTO,
+  InformationalAttributeValueDTO,
 } from "@mercurjs/framework";
 
+/**
+ * Attribute value with its parent attribute info from consolidated model.
+ * Both attribute and value now have source field.
+ */
 interface AttributeValueWithAttribute {
   id: string;
   value: string;
+  source: AttributeSource;
   attribute: {
     id: string;
     name: string;
     ui_component: string;
+    source: AttributeSource;
     is_filterable: boolean;
+    is_required: boolean;
   };
-}
-
-interface VendorProductAttribute {
-  id: string;
-  name: string;
-  value: string;
-  ui_component: string;
-  extends_attribute_id?: string | null;
 }
 
 interface ProductWithAttributes {
   attribute_values?: AttributeValueWithAttribute[];
-  vendor_product_attributes?: VendorProductAttribute[];
   [key: string]: unknown;
 }
 
 interface AttributeAccumulator {
-  values: string[];
+  attribute_id: string;
+  name: string;
   ui_component: AttributeUIComponent;
-  hasAdmin: boolean;
-  hasVendor: boolean;
-  attribute_id?: string;
-  vendor_attribute_ids: string[];
-  extends_attribute_id?: string | null;
+  attribute_source: AttributeSource;
   is_filterable: boolean;
+  is_required: boolean;
+  values: InformationalAttributeValueDTO[];
 }
 
-function mergeAttributes(
-  adminAttributes: AttributeValueWithAttribute[],
-  vendorAttributes: VendorProductAttribute[]
+/**
+ * Transforms product attribute values into informational attributes.
+ * Uses the consolidated Attribute model with source at both attribute and value levels.
+ *
+ * Filterability is computed as:
+ * attribute.source === "admin" && attribute.is_filterable && value.source === "admin"
+ */
+function transformAttributeValues(
+  attributeValues: AttributeValueWithAttribute[],
+  currentSellerId?: string
 ): InformationalAttributeDTO[] {
   const attributeMap = new Map<string, AttributeAccumulator>();
 
-  for (const attr of adminAttributes) {
-    const name = attr.attribute.name;
-    const existing = attributeMap.get(name);
+  for (const av of attributeValues) {
+    const attributeId = av.attribute.id;
+    const existing = attributeMap.get(attributeId);
+
+    // Compute effective filterability for this value
+    const isValueFilterable =
+      av.attribute.source === AttributeSource.ADMIN &&
+      av.attribute.is_filterable &&
+      av.source === AttributeSource.ADMIN;
+
+    // Vendor values are editable, admin values are not
+    const isEditable = av.source === AttributeSource.VENDOR;
+
+    const valueDto: InformationalAttributeValueDTO = {
+      value: av.value,
+      source: av.source,
+      attribute_value_id: av.id,
+      is_filterable: isValueFilterable,
+      is_editable: isEditable,
+    };
 
     if (existing) {
-      existing.values.push(attr.value);
-      existing.hasAdmin = true;
-      existing.attribute_id = attr.attribute.id;
-      existing.is_filterable = existing.is_filterable || attr.attribute.is_filterable;
+      existing.values.push(valueDto);
     } else {
-      attributeMap.set(name, {
-        values: [attr.value],
-        ui_component: attr.attribute.ui_component as AttributeUIComponent,
-        hasAdmin: true,
-        hasVendor: false,
-        attribute_id: attr.attribute.id,
-        vendor_attribute_ids: [],
-        is_filterable: attr.attribute.is_filterable,
-      });
-    }
-  }
-
-  for (const attr of vendorAttributes) {
-    const name = attr.name;
-    const existing = attributeMap.get(name);
-
-    if (existing) {
-      existing.values.push(attr.value);
-      existing.hasVendor = true;
-      existing.vendor_attribute_ids.push(attr.id);
-      if (attr.extends_attribute_id) {
-        existing.extends_attribute_id = attr.extends_attribute_id;
-      }
-    } else {
-      attributeMap.set(name, {
-        values: [attr.value],
-        ui_component: attr.ui_component as AttributeUIComponent,
-        hasAdmin: false,
-        hasVendor: true,
-        vendor_attribute_ids: [attr.id],
-        extends_attribute_id: attr.extends_attribute_id,
-        is_filterable: false,
+      attributeMap.set(attributeId, {
+        attribute_id: attributeId,
+        name: av.attribute.name,
+        ui_component: av.attribute.ui_component as AttributeUIComponent,
+        attribute_source: av.attribute.source,
+        is_filterable: av.attribute.is_filterable,
+        is_required: av.attribute.is_required,
+        values: [valueDto],
       });
     }
   }
 
   const result: InformationalAttributeDTO[] = [];
 
-  for (const [name, acc] of attributeMap) {
-    const source: "admin" | "vendor" | "mixed" =
-      acc.hasAdmin && acc.hasVendor ? "mixed" : acc.hasAdmin ? "admin" : "vendor";
+  for (const acc of attributeMap.values()) {
+    // Vendor can edit attribute definition only if it's vendor-created
+    const isDefinitionEditable = acc.attribute_source === AttributeSource.VENDOR;
 
-    const dto: InformationalAttributeDTO = {
-      name,
-      values: acc.values,
+    result.push({
+      attribute_id: acc.attribute_id,
+      name: acc.name,
       ui_component: acc.ui_component,
-      source,
+      attribute_source: acc.attribute_source,
       is_filterable: acc.is_filterable,
-    };
-
-    if (acc.attribute_id) {
-      dto.attribute_id = acc.attribute_id;
-    }
-
-    if (acc.vendor_attribute_ids.length > 0) {
-      dto.vendor_attribute_ids = acc.vendor_attribute_ids;
-    }
-
-    if (acc.extends_attribute_id) {
-      dto.extends_attribute_id = acc.extends_attribute_id;
-    }
-
-    result.push(dto);
+      is_required: acc.is_required,
+      is_definition_editable: isDefinitionEditable,
+      values: acc.values,
+    });
   }
 
   return result;
@@ -125,10 +110,10 @@ function mergeAttributes(
 
 export function transformProductWithInformationalAttributes<
   T extends ProductWithAttributes
->(product: T): T & { informational_attributes: InformationalAttributeDTO[] } {
-  const informationalAttributes = mergeAttributes(
+>(product: T, currentSellerId?: string): T & { informational_attributes: InformationalAttributeDTO[] } {
+  const informationalAttributes = transformAttributeValues(
     product.attribute_values ?? [],
-    product.vendor_product_attributes ?? []
+    currentSellerId
   );
 
   return {
@@ -139,6 +124,8 @@ export function transformProductWithInformationalAttributes<
 
 export function transformProductsWithInformationalAttributes<
   T extends ProductWithAttributes
->(products: T[]): (T & { informational_attributes: InformationalAttributeDTO[] })[] {
-  return products.map(transformProductWithInformationalAttributes);
+>(products: T[], currentSellerId?: string): (T & { informational_attributes: InformationalAttributeDTO[] })[] {
+  return products.map((product) =>
+    transformProductWithInformationalAttributes(product, currentSellerId)
+  );
 }

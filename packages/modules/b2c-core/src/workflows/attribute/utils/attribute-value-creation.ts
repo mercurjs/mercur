@@ -1,7 +1,7 @@
 import { MedusaError } from "@medusajs/framework/utils";
 
 import { createAttributeValueWorkflow } from "../workflows";
-import { AdminAttributeInput } from "@mercurjs/framework";
+import { AdminAttributeInput, AttributeSource } from "@mercurjs/framework";
 import { ApplicableAttribute } from "./applicable-attribute";
 import { MedusaContainer, ProductDTO } from "@medusajs/framework/types";
 
@@ -16,6 +16,9 @@ export const createAttributeValues = async (
   );
 
   const creationPromises = adminAttr.values.map((value) => {
+    // Determine if value is from admin possible_values or vendor extension
+    const isFromPossibleValues = allowedValues.size === 0 || allowedValues.has(value);
+    
     if (allowedValues.size && !allowedValues.has(value)) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
@@ -30,6 +33,7 @@ export const createAttributeValues = async (
         attribute_id: adminAttr.attribute_id,
         value,
         product_id: product.id,
+        source: isFromPossibleValues ? AttributeSource.ADMIN : AttributeSource.VENDOR,
       },
     });
   });

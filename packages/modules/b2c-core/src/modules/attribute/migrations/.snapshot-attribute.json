@@ -50,7 +50,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "true",
+          "default": "false",
           "mappedType": "boolean"
         },
         "handle": {
@@ -88,6 +88,16 @@
             "color_picker"
           ],
           "mappedType": "enum"
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'admin'",
+          "mappedType": "text"
         },
         "created_at": {
           "name": "created_at",
@@ -142,6 +152,15 @@
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_deleted_at\" ON \"attribute\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_attribute_source_name",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_source_name\" ON \"attribute\" (\"source\", \"name\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "attribute_pkey",
@@ -335,6 +354,16 @@
           "nullable": true,
           "mappedType": "json"
         },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'admin'",
+          "mappedType": "text"
+        },
         "attribute_id": {
           "name": "attribute_id",
           "type": "text",
@@ -397,6 +426,15 @@
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_value_deleted_at\" ON \"attribute_value\" (deleted_at) WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_attribute_value_attribute_source",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_value_attribute_source\" ON \"attribute_value\" (\"attribute_id\", \"source\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "attribute_value_pkey",
