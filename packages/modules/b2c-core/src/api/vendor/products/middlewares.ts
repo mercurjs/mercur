@@ -12,9 +12,10 @@ import { ConfigurationRuleType } from "@mercurjs/framework";
 import sellerProductLink from "../../../links/seller-product";
 import {
   checkResourceOwnershipByResourceId,
+  checkConfigurationRule,
   filterBySellerId,
 } from "../../../shared/infra/http/middlewares";
-import { checkConfigurationRule } from "../../../shared/infra/http/middlewares";
+
 import { retrieveAttributeQueryConfig } from "../attributes/query-config";
 import { VendorGetAttributesParams } from "../attributes/validators";
 import {

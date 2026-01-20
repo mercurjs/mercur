@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-import {
-  createFindParams,
-  createSelectParams,
-} from "@medusajs/medusa/api/utils/validators";
+import { createSelectParams } from "@medusajs/medusa/api/utils/validators";
 
 export type VendorGetSellerParamsType = z.infer<typeof VendorGetSellerParams>;
 export const VendorGetSellerParams = createSelectParams();

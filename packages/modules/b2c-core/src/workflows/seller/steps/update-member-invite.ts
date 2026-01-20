@@ -13,14 +13,14 @@ export const updateMemberInviteStep = createStep(
     );
 
     const updatedInvites: MemberInviteDTO =
-      //@ts-ignore
+      //@ts-expect-error Incompatible type
       await service.updateMemberInvites(input);
 
     return new StepResponse(updatedInvites, previousData);
   },
   async (previousData: MemberInviteDTO, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE);
-    //@ts-ignore
+    //@ts-expect-error Incompatible type
     await service.updateMemberInvites(previousData);
   }
 );

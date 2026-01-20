@@ -8,9 +8,9 @@ import {
   CreateRequestDTO,
   RequestUpdated,
   SellerRequest,
+  emitMultipleEventsStep,
 } from "@mercurjs/framework";
 
-import { emitMultipleEventsStep } from "@mercurjs/framework";
 import { createRequestStep } from "../steps";
 
 export const createSellerCreationRequestWorkflow = createWorkflow(

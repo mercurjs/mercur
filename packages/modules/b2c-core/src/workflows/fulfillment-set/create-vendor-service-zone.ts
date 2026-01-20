@@ -25,7 +25,7 @@ export const createVendorServiceZonesWorkflow = createWorkflow(
     const links = transform({ zones, seller_id }, ({ zones, seller_id }) => {
       return zones.map((zone) => ({
         [SELLER_MODULE]: {
-          seller_id: seller_id,
+          seller_id,
         },
         [Modules.FULFILLMENT]: {
           service_zone_id: zone.id,

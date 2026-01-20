@@ -3,9 +3,9 @@ import { z } from 'zod'
 import { MedusaContainer } from '@medusajs/framework'
 import {
   ContainerRegistrationKeys,
-  arrayDifference
+  arrayDifference,
 } from '@medusajs/framework/utils'
-import { Modules } from '@medusajs/framework/utils'
+
 
 import {
   AlgoliaProductValidator,
@@ -113,10 +113,6 @@ export async function findAndTransformAlgoliaProducts(
   ids: string[] = []
 ) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
-
-  const regionService = container.resolve(Modules.REGION)
-
-  const [region] = await regionService.listRegions()
 
   const { data: products } = await query.graph({
     entity: 'product',
