@@ -126,32 +126,33 @@ const createSecondaryCategories = async (
   container: MedusaContainer
 ) => {
   const links: LinkDefinition[] = [];
-  products.map(async (product) => {
-    if ((additional_data as any)?.secondary_categories?.length > 0) {
-      const secondaryCategoriesIds =
-        additional_data.secondary_categories.find(
-          (s) => s.handle === product.handle
-        )?.secondary_categories_ids ?? [];
 
-      const mappedSecondaryCategories = await getSecondaryCategories(
-        secondaryCategoriesIds,
-        container
-      );
+  await Promise.all(
+    products.map(async (product) => {
+      if ((additional_data as any)?.secondary_categories?.length > 0) {
+        const secondaryCategoriesIds =
+          additional_data.secondary_categories.find(
+            (s) => s.handle === product.handle
+          )?.secondary_categories_ids ?? [];
 
-      mappedSecondaryCategories.map((secondaryCategory) => {
-        links.push({
-          [Modules.PRODUCT]: {
-            product_id: product.id,
-          },
-          [SECONDARY_CATEGORY_MODULE]: {
-            secondary_category_id: secondaryCategory.id,
-          },
+        const mappedSecondaryCategories = await getSecondaryCategories(
+          secondaryCategoriesIds,
+          container
+        );
+
+        mappedSecondaryCategories.forEach((secondaryCategory) => {
+          links.push({
+            [Modules.PRODUCT]: {
+              product_id: product.id,
+            },
+            [SECONDARY_CATEGORY_MODULE]: {
+              secondary_category_id: secondaryCategory.id,
+            },
+          });
         });
-      });
-
-      return links;
-    }
-  });
+      }
+    })
+  );
 
   return links;
 };
