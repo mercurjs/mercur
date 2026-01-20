@@ -22,8 +22,8 @@ import { SELLER_MODULE } from "../../../../../../modules/seller";
 import { fetchSellerByAuthActorId } from "../../../../../../shared/infra/http/utils";
 import sellerAttributeLink from "../../../../../../links/seller-attribute";
 import { VendorUpdateProductAttributeType } from "../../../validators";
-import { vendorProductFields } from "../../../query-config";
 import { transformProductWithInformationalAttributes } from "../../../utils/transform-product-attributes";
+import { getProductAttributeValues } from "../utils";
 
 /**
  * @oas [post] /vendor/products/{id}/attributes/{attribute_id}
@@ -128,22 +128,15 @@ export const POST = async (
 
   // Handle conversion to option
   if (use_for_variations === true) {
-    // Get current values for this product + attribute
-    const { data: productAttrValueLinks } = await query.graph({
-      entity: "product_attribute_value",
-      fields: ["attribute_value.id", "attribute_value.value"],
-      filters: {
-        product_id,
-        "attribute_value.attribute_id": attribute_id,
-      },
-    });
+    // Get current values for this product + attribute using efficient SQL query
+    const attributeValues = await getProductAttributeValues(
+      req.scope,
+      product_id,
+      attribute_id
+    );
 
-    const currentValues = productAttrValueLinks.map(
-      (link: any) => link.attribute_value.value
-    );
-    const valueIds = productAttrValueLinks.map(
-      (link: any) => link.attribute_value.id
-    );
+    const currentValues = attributeValues.map((av) => av.value);
+    const valueIds = attributeValues.map((av) => av.attribute_value_id);
 
     // Create ProductOption
     await createProductOptionsWorkflow(req.scope).run({
@@ -180,22 +173,19 @@ export const POST = async (
 
     // Update values if provided
     if (values) {
-      // Get current values for this product + attribute
-      const { data: productAttrValueLinks } = await query.graph({
-        entity: "product_attribute_value",
-        fields: ["attribute_value.id", "attribute_value.value", "attribute_value.source"],
-        filters: {
-          product_id,
-          "attribute_value.attribute_id": attribute_id,
-        },
-      });
+      // Get current values for this product + attribute using efficient SQL query
+      const attributeValues = await getProductAttributeValues(
+        req.scope,
+        product_id,
+        attribute_id
+      );
 
       const currentValueMap = new Map(
-        productAttrValueLinks.map((link: any) => [
-          link.attribute_value.value,
+        attributeValues.map((av) => [
+          av.value,
           {
-            id: link.attribute_value.id,
-            source: link.attribute_value.source,
+            id: av.attribute_value_id,
+            source: av.source,
           },
         ])
       );
@@ -281,7 +271,7 @@ export const POST = async (
     data: [product],
   } = await query.graph({
     entity: "product",
-    fields: vendorProductFields,
+    fields: req.queryConfig.fields,
     filters: { id: product_id },
   });
 
@@ -370,26 +360,44 @@ export const DELETE = async (
     );
   }
 
-  // Get attribute values for this product
-  const { data: productAttrValueLinks } = await query.graph({
-    entity: "product_attribute_value",
-    fields: ["attribute_value.id", "attribute_value.source"],
-    filters: {
-      product_id,
-      "attribute_value.attribute_id": attribute_id,
-    },
-  });
+  // If vendor-owned attribute, verify seller ownership
+  if (attribute.source === AttributeSource.VENDOR) {
+    const {
+      data: [ownershipLink],
+    } = await query.graph({
+      entity: sellerAttributeLink.entryPoint,
+      fields: ["attribute_id"],
+      filters: {
+        seller_id: seller.id,
+        attribute_id: attribute_id,
+      },
+    });
+
+    if (!ownershipLink) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_ALLOWED,
+        "You do not own this attribute"
+      );
+    }
+  }
+
+  // Get attribute values for this product using efficient SQL query
+  const attributeValues = await getProductAttributeValues(
+    req.scope,
+    product_id,
+    attribute_id
+  );
 
   // For admin attributes, only remove vendor-sourced values
-  // For vendor attributes, remove all values
-  const valuesToRemove = productAttrValueLinks
-    .filter((link: any) => {
+  // For vendor attributes, remove all values (ownership already verified above)
+  const valuesToRemove = attributeValues
+    .filter((av) => {
       if (attribute.source === AttributeSource.VENDOR) {
         return true; // Remove all for vendor attributes
       }
-      return link.attribute_value.source === AttributeSource.VENDOR;
+      return av.source === AttributeSource.VENDOR;
     })
-    .map((link: any) => link.attribute_value.id);
+    .map((av) => av.attribute_value_id);
 
   // Remove links and delete values
   for (const valueId of valuesToRemove) {

@@ -137,7 +137,9 @@ export async function findAndTransformAlgoliaProducts(
       'options.values.*',
       'images.*',
       'attribute_values.value',
+      'attribute_values.source',
       'attribute_values.attribute.name',
+      'attribute_values.attribute.source',
       'attribute_values.attribute.is_filterable',
       'attribute_values.attribute.ui_component'
     ],
@@ -176,12 +178,18 @@ export async function findAndTransformAlgoliaProducts(
       })
       .flat();
 
-    product.attribute_values = product.attribute_values?.map((attribute) => {
+    product.attribute_values = product.attribute_values?.map((attrValue) => {
+      // Effective filterability: only admin attributes with admin values are filterable
+      const isEffectivelyFilterable =
+        attrValue.attribute.source === 'admin' &&
+        attrValue.attribute.is_filterable &&
+        attrValue.source === 'admin';
+
       return {
-        name: attribute.attribute.name,
-        value: attribute.value,
-        is_filterable: attribute.attribute.is_filterable,
-        ui_component: attribute.attribute.ui_component,
+        name: attrValue.attribute.name,
+        value: attrValue.value,
+        is_filterable: isEffectivelyFilterable,
+        ui_component: attrValue.attribute.ui_component,
       };
     });
   }

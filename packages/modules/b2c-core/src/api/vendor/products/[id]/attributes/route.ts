@@ -22,7 +22,6 @@ import { SELLER_MODULE } from "../../../../../modules/seller";
 import { fetchSellerByAuthActorId } from "../../../../../shared/infra/http/utils";
 import { findOrCreateVendorAttribute } from "../../../../../workflows/attribute/utils/find-or-create-vendor-attribute";
 import { VendorAddProductAttributeType } from "../../validators";
-import { vendorProductFields } from "../../query-config";
 import { transformProductWithInformationalAttributes } from "../../utils/transform-product-attributes";
 
 /**
@@ -206,7 +205,7 @@ export const POST = async (
     data: [product],
   } = await query.graph({
     entity: "product",
-    fields: vendorProductFields,
+    fields: req.queryConfig.fields,
     filters: { id: product_id },
   });
 

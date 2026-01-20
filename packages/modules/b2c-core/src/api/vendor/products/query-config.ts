@@ -33,8 +33,8 @@ export const vendorProductFields = [
   "*variants.options",
   "*attribute_values",
   "*attribute_values.attribute",
-  "*vendor_product_attributes",
   "*secondary_categories",
+  "secondary_categories.category.name",
 ];
 
 export const vendorProductQueryConfig = {
