@@ -127,7 +127,7 @@ export const calculateCommissionLinesStep = createStep(
         await commissionService.selectCommissionForProductLine({
           product_category_id: product.categories[0]?.id || "",
           product_type_id: item.product_type_id || "",
-          seller_id: seller_id,
+          seller_id,
         });
 
       if (commissionRule) {

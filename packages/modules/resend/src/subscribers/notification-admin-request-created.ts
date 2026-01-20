@@ -2,7 +2,6 @@ import { Modules } from "@medusajs/framework/utils";
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/medusa";
 
 import {
-  HumanizeTypes,
   RequestDTO,
   RequestUpdated,
   fetchAdminEmails,

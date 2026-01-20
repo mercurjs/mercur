@@ -1,9 +1,8 @@
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk";
 
 import { CreateWishlistDTO } from "@mercurjs/framework";
-import { WISHLIST_MODULE } from "../../../modules/wishlist";
-import { WishlistModuleService } from "../../../modules/wishlist";
+import { WISHLIST_MODULE, WishlistModuleService } from "../../../modules/wishlist";
 import { getWishlistFromCustomerId } from "../../../modules/wishlist/utils";
 
 export const createWishlistEntryStep = createStep(
