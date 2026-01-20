@@ -77,7 +77,7 @@ export const GET = async (
 
   res.json({
     customers,
-    count: count,
+    count,
     offset: req.queryConfig.pagination.skip,
     limit: req.queryConfig.pagination.take,
   });

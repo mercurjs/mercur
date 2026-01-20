@@ -1,6 +1,5 @@
 import {
   StepResponse,
-  WorkflowData,
   createStep,
 } from "@medusajs/framework/workflows-sdk";
 

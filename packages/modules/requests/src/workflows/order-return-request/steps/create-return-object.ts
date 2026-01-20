@@ -32,7 +32,7 @@ export const createReturnObjectStep = createStep(
     await createAndCompleteReturnOrderWorkflow.run({
       container,
       input: {
-        order_id: order_id,
+        order_id,
         created_by: order_return_request.customer_id,
         note: order_return_request.customer_note,
         return_shipping: {

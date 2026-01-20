@@ -12,21 +12,24 @@ export default [
       '**/build/**',
       '**/*.js',
       '**/*.mjs',
-      '**/*.cjs',
-      '!eslint.config.mjs'
+      '**/*.cjs'
     ]
   },
+  ...tseslint.configs.recommended.map((config) => ({
+    ...config,
+    files: ['**/*.ts', '**/*.tsx']
+  })),
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       globals: {
         ...globals.node
+      },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname
       }
-    }
-  },
-  ...tseslint.configs.recommended,
-  {
-    files: ['**/*.ts', '**/*.tsx'],
+    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
@@ -45,9 +48,9 @@ export default [
       'prefer-const': 'error',
       'no-var': 'error',
       'object-shorthand': ['error', 'always'],
-      'prefer-template': 'warn'
+      'prefer-template': 'warn',
+      'prefer-rest-params': 'warn'
     }
   },
   eslintConfigPrettier
 ]
-

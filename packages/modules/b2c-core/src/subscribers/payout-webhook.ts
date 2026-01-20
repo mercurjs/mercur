@@ -4,8 +4,7 @@ import {
   PayoutWebhookActionPayload,
   PayoutWebhookEvents,
 } from "@mercurjs/framework";
-import { PAYOUT_MODULE } from "../modules/payout";
-import { PayoutModuleService } from "../modules/payout";
+import { PAYOUT_MODULE, PayoutModuleService } from "../modules/payout";
 
 import { processPayoutWebhookActionWorkflow } from "../workflows/payout/workflows";
 

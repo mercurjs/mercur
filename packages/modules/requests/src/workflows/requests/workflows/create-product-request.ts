@@ -11,11 +11,11 @@ import {
   ProductRequestUpdatedEvent,
   RequestUpdated,
   SELLER_MODULE,
+  emitMultipleEventsStep,
 } from "@mercurjs/framework";
 import { REQUESTS_MODULE } from "../../../modules/requests";
 
 import { createRequestStep } from "../steps";
-import { emitMultipleEventsStep } from "@mercurjs/framework";
 
 export const createProductRequestWorkflow = createWorkflow(
   "create-product-request",

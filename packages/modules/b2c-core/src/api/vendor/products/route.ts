@@ -118,7 +118,7 @@ export const GET = async (
 
   res.json({
     products: sellerProducts,
-    count: count,
+    count,
     offset: req.queryConfig.pagination?.skip || 0,
     limit: req.queryConfig.pagination?.take || 10,
     order: req.queryConfig.pagination?.order

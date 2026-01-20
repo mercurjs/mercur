@@ -29,7 +29,7 @@ export default async function commissionOrderSetPlacedHandler({
       entity: SELLER_ORDER_LINK,
       fields: ["seller_id"],
       filters: {
-        order_id: order_id,
+        order_id,
       },
     });
 
@@ -39,7 +39,7 @@ export default async function commissionOrderSetPlacedHandler({
 
     await calculateCommissionWorkflow.run({
       input: {
-        order_id: order_id,
+        order_id,
         seller_id: seller.seller_id,
       },
       container,
