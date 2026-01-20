@@ -7,7 +7,9 @@
       "name": "block-1",
       "description": "A block with a test module, product-test link, and API route.",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "block-2"
+      ],
       "docs": "## Test Block Configuration\n\nAdd the test module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/test',\n    options: {\n      apiKey: process.env.TEST_API_KEY,\n    },\n  },\n]\n```\n\n## Environment Variables\n\nAdd the following to your `.env` file:\n\n```\nTEST_API_KEY=your-api-key\n```",
       "files": [
         {
@@ -33,6 +35,43 @@
       ],
       "categories": [
         "test"
+      ]
+    },
+    {
+      "name": "block-2",
+      "description": "A block with a sample module, product-sample link, workflow, and API route.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "docs": "## Sample Block Configuration\n\nAdd the sample module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/sample',\n    options: {\n      apiKey: process.env.SAMPLE_API_KEY,\n    },\n  },\n]\n```\n\n## Environment Variables\n\nAdd the following to your `.env` file:\n\n```\nSAMPLE_API_KEY=your-api-key\n```",
+      "files": [
+        {
+          "path": "block-2/modules/sample/index.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "block-2/modules/sample/service.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "block-2/modules/sample/models/sample.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "block-2/links/product-sample.ts",
+          "type": "registry:link"
+        },
+        {
+          "path": "block-2/workflows/hello-world/hello-world.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "block-2/api/hello/workflow/route.ts",
+          "type": "registry:api"
+        }
+      ],
+      "categories": [
+        "sample",
+        "workflow"
       ]
     }
   ]
