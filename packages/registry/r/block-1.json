@@ -3,8 +3,10 @@
   "name": "block-1",
   "description": "A block with a test module, product-test link, and API route.",
   "dependencies": [],
-  "registryDependencies": [],
-  "docs": "## Configuration\n\nAdd the test module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/test',\n    options: {\n      apiKey: process.env.TEST_API_KEY,\n    },\n  },\n]\n```\n\n## Environment Variables\n\nAdd the following to your `.env` file:\n\n```\nTEST_API_KEY=your-api-key\n```\n\n## Usage\n\nThe test module provides a service that can be injected into your API routes:\n\n```ts\nimport { MedusaRequest, MedusaResponse } from '@medusajs/framework';\nimport TestModuleService from '../../../modules/test/service';\n\nexport async function GET(req: MedusaRequest, res: MedusaResponse) {\n  const testService = req.scope.resolve<TestModuleService>('testModuleService');\n  const result = await testService.doSomething();\n  res.json(result);\n}\n```\n\n## Links\n\nThis block includes a `product-test` link that connects products to test entities.",
+  "registryDependencies": [
+    "block-2"
+  ],
+  "docs": "## Test Block Configuration\n\nAdd the test module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/test',\n    options: {\n      apiKey: process.env.TEST_API_KEY,\n    },\n  },\n]\n```\n\n## Environment Variables\n\nAdd the following to your `.env` file:\n\n```\nTEST_API_KEY=your-api-key\n```",
   "categories": [
     "test"
   ],
