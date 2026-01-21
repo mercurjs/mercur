@@ -1,6 +1,6 @@
 import type { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { canPerformAction, findLastDeliveryForItem } from "@mercurjs/framework";
+import { canPerformAction, findLastDeliveryForItem, getActionWindowDays } from "@mercurjs/framework";
 
 export async function validateExchangeEligibilityMiddleware(
   req: MedusaRequest<{ items: Array<{ id: string; quantity: number }> }>,
@@ -14,6 +14,7 @@ export async function validateExchangeEligibilityMiddleware(
     return next();
   }
 
+  const actionWindowDays = getActionWindowDays();
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
   const { data: [exchange] } = await query.graph({
@@ -73,7 +74,7 @@ export async function validateExchangeEligibilityMiddleware(
     if (!eligibility.canPerform) {
       return res.status(400).json({
         type: "not_allowed",
-        message: `Exchange window has expired for item ${requestedItem.id}. Exchanges are only available within 30 days of delivery.`
+        message: `Exchange window has expired for item ${requestedItem.id}. Exchanges are only available within ${actionWindowDays} days of delivery.`
       });
     }
   }
