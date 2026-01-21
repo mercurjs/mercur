@@ -22,7 +22,7 @@ export const toggleTelemetry = (enabled: boolean) => {
 }
 
 const isTelemetryEnabled = () => {
-    return configStore.get("telemetry_enabled")
+    return configStore.get("telemetry_enabled") || process.env.MERCUR_DISABLE_TELEMETRY === 'true'
 }
 
 export const sendTelemetryEvent = async (event: TelemetryEvent, options: { cwd: string }) => {
