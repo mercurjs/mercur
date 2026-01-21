@@ -3,6 +3,7 @@ import { pipeline } from "node:stream/promises";
 import path from "path";
 
 import { clearRegistryContext } from "@/src/registry/context";
+import { sendTelemetryEvent, setTelemetryEmail } from "@/src/telemetry";
 import { setupDatabase } from "@/src/utils/create-db";
 import { getPackageManager } from "@/src/utils/get-package-manager";
 import { handleError } from "@/src/utils/handle-error";
@@ -43,6 +44,7 @@ export const create = new Command()
   )
   .option("--no-deps", "skip installing dependencies.", false)
   .option("--skip-db", "skip database configuration.", false)
+  .option("--skip-email", "skip email prompt.", false)
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
   .action(async (name, opts) => {
     try {
@@ -96,6 +98,19 @@ export const create = new Command()
           template = selectedTemplate;
         }
 
+        if (!opts.skipEmail) {
+          const { email } = await prompts({
+            type: "text",
+            name: "email",
+            message: "Mind sharing your email? We reach out for priority support, community events, and invite-only meetups. We never spam.",
+            format: (value: string) => value.trim(),
+          });
+
+          if (email) {
+            setTelemetryEmail(email);
+          }
+        }
+
         const projectDir = path.resolve(opts.cwd, projectName);
 
         await createOrFindProjectDir(projectDir);
@@ -122,6 +137,15 @@ export const create = new Command()
           } else {
             spinner("Failed to install dependencies.").fail();
             logger.log(feedbackOutro());
+            await sendTelemetryEvent({
+              type: 'create',
+              payload: {
+                outcome: 'dependency_installation_failed',
+                packageManager,
+              }
+            }, {
+              cwd: projectDir,
+            })
             process.exit(1);
           }
         }
@@ -149,6 +173,14 @@ export const create = new Command()
           } else {
             dbSpinner.fail("Failed to setup database.");
             logger.log(feedbackOutro());
+            await sendTelemetryEvent({
+              type: 'create',
+              payload: {
+                outcome: 'database_setup_failed',
+              }
+            }, {
+              cwd: projectDir,
+            })
             process.exit(1);
           }
         } else {
@@ -168,6 +200,15 @@ export const create = new Command()
         logger.break();
 
         await initGit(projectDir);
+
+        await sendTelemetryEvent({
+          type: 'create',
+          payload: {
+            outcome: 'created'
+          }
+        }, {
+          cwd: projectDir,
+        })
       }
     } catch (error) {
       logger.break();
