@@ -34,10 +34,7 @@ export const validateOrderReturnRequestStep = createStep(
       data: [order],
     } = await query.graph({
       entity: "order",
-      fields: [
-        "id",
-        "items.id"
-      ],
+      fields: ["items.id"],
       filters: {
         id: input.order_id,
       },
