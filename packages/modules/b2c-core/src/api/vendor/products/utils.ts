@@ -62,9 +62,8 @@ export type ProductFilters = {
   status?: string | string[]
   type_id?: string | string[]
   collection_id?: string | string[]
-  category_id?: string | string[]
   categories?: { id?: string | string[] }
-  tag_id?: string | string[]
+  tags?: { id?: string | string[] }
   created_at?: Record<string, string>
   updated_at?: Record<string, string>
 }
@@ -141,11 +140,10 @@ export const filterProductsBySeller = async (
       baseQuery = baseQuery.whereIn('product.collection_id', collectionIds)
     }
 
-    const categoryIdValue = filters.category_id || filters.categories?.id
-    if (categoryIdValue) {
-      const categoryIds = Array.isArray(categoryIdValue)
-        ? categoryIdValue
-        : [categoryIdValue]
+    if (filters.categories?.id) {
+      const categoryIds = Array.isArray(filters.categories.id)
+        ? filters.categories.id
+        : [filters.categories.id]
       baseQuery = baseQuery
         .innerJoin(
           'product_category_product',
@@ -155,10 +153,10 @@ export const filterProductsBySeller = async (
         .whereIn('product_category_product.product_category_id', categoryIds)
     }
 
-    if (filters.tag_id) {
-      const tagIds = Array.isArray(filters.tag_id)
-        ? filters.tag_id
-        : [filters.tag_id]
+    if (filters.tags?.id) {
+      const tagIds = Array.isArray(filters.tags.id)
+        ? filters.tags.id
+        : [filters.tags.id]
       baseQuery = baseQuery
         .innerJoin('product_tags', 'product.id', 'product_tags.product_id')
         .whereIn('product_tags.product_tag_id', tagIds)
