@@ -49,7 +49,7 @@ export const sendTelemetryEvent = async (event: TelemetryEvent, options: { cwd: 
             email: getTelemetryEmail(),
         }
 
-        await fetch('https://telemetry.mercurjs.com/events', {
+        await fetch('https://telemetry.mercurjs.com', {
             body: JSON.stringify({ ...baseEvent, ...event }),
             headers: {
                 'Content-Type': 'application/json',
