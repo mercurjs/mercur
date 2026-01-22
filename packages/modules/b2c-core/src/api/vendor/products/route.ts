@@ -10,6 +10,7 @@ import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
 import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
 import {
   assignVariantImages,
+  fetchProductSecondaryCategoryDetails,
   filterProductsBySeller,
   mergeVariantImages,
   OrderObject,
@@ -222,5 +223,7 @@ export const POST = async (
     product as any
   );
 
-  res.status(201).json({ product: transformedProduct });
+  const secondaryCategoryDetails = await fetchProductSecondaryCategoryDetails(req.scope, product.secondary_categories);
+
+  res.status(201).json({ product: { ...transformedProduct, secondary_categories: secondaryCategoryDetails } });
 };

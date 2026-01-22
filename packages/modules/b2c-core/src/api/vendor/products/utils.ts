@@ -228,7 +228,7 @@ export const fetchProductSecondaryCategoryDetails = async (
 
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
   const { data: categories } = await query.graph({
-    entity: "category",
+    entity: "product_category",
     fields: ["id", "name"],
     filters: { id: categoryIds },
   });
