@@ -1,5 +1,5 @@
 import { DeleteResponse, PaginatedResponse } from "@medusajs/types"
-import { SellerDTO } from "./common"
+import { SellerDTO } from "../seller"
 
 export interface VendorSellerResponse {
   /**

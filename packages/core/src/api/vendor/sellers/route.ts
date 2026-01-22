@@ -3,13 +3,14 @@ import {
   MedusaResponse,
 } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
 import { VendorCreateSellerType } from "./validators"
 import { createSellerWorkflow } from "../../../workflows/seller"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateSellerType>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

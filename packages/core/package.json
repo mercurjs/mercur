@@ -1,7 +1,7 @@
 {
   "name": "@mercurjs/core",
   "version": "0.0.1",
-  "description": "A starter for Medusa plugins.",
+  "description": "Core plugin for MercurJS.",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
   "files": [

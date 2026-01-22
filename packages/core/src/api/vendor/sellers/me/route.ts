@@ -2,14 +2,15 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
 import { VendorUpdateSellerType } from "../validators"
 import { updateSellerWorkflow } from "../../../../workflows/seller"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -26,7 +27,7 @@ export const GET = async (
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateSellerType>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
