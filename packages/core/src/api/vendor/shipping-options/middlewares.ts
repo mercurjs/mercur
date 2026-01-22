@@ -1,4 +1,10 @@
-import { MiddlewareRoute } from "@medusajs/framework/http"
+import {
+  AuthenticatedMedusaRequest,
+  maybeApplyLinkFilter,
+  MedusaNextFunction,
+  MedusaResponse,
+  MiddlewareRoute,
+} from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
   validateAndTransformQuery,
@@ -19,6 +25,20 @@ import {
   VendorUpdateShippingOptionRule,
 } from "./validators"
 
+const applySellerShippingOptionLinkFilter = (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  req.filterableFields.seller_id = req.auth_context.actor_id
+
+  return maybeApplyLinkFilter({
+    entryPoint: "seller_shipping_option",
+    resourceId: "shipping_option_id",
+    filterableField: "seller_id",
+  })(req, res, next)
+}
+
 export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
@@ -28,6 +48,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
         VendorGetShippingOptionsParams,
         vendorShippingOptionQueryConfig.list
       ),
+      applySellerShippingOptionLinkFilter,
     ],
   },
   {
