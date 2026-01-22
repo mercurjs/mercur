@@ -200,7 +200,7 @@ The `registry.json` file defines your blocks:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/public/schema/registry.json",
+  "$schema": "http://registry.mercurjs.com/registry.json",
   "name": "@your-org",
   "homepage": "https://your-site.com",
   "items": [

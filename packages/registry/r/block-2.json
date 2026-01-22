@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/schema/registry-item.json",
+  "$schema": "http://registry.mercurjs.com/registry-item.json",
   "name": "block-2",
   "description": "A block with a sample module, product-sample link, workflow, and API route.",
   "dependencies": [],
