@@ -34,7 +34,6 @@ export const vendorProductFields = [
   "*attribute_values",
   "*attribute_values.attribute",
   "*secondary_categories",
-  "secondary_categories.category.name",
 ];
 
 export const vendorProductQueryConfig = {

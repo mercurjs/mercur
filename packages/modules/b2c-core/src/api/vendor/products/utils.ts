@@ -210,3 +210,36 @@ export const assignVariantImages = async (
 
   await Promise.all(tasks);
 };
+
+type SecondaryCategoryDTO = {
+  id: string;
+  category_id: string;
+};
+
+export const fetchProductSecondaryCategoryDetails = async (
+  container: MedusaContainer,
+  secondaryCategories: SecondaryCategoryDTO[]
+) => {
+  if (!secondaryCategories.length) {
+    return [];
+  }
+
+  const categoryIds = secondaryCategories.map((secondaryCategory) => secondaryCategory.category_id);
+
+  const query = container.resolve(ContainerRegistrationKeys.QUERY);
+  const { data: categories } = await query.graph({
+    entity: "category",
+    fields: ["id", "name"],
+    filters: { id: categoryIds },
+  });
+
+  const categoriesById = new Map(
+    categories.map(category => [category.id, category])
+  );
+  
+  return secondaryCategories.map(secondaryCategory => ({
+    ...secondaryCategory,
+    name: categoriesById.get(secondaryCategory.category_id)?.name,
+  }));
+  
+}

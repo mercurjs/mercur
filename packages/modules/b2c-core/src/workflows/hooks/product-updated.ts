@@ -62,7 +62,7 @@ export const updateProductSubcategories = async (
               })
 
             const {
-              data: [secondaryCategoryLink]
+              data: secondaryCategoryLinks
             } = await query.graph({
               entity: secondaryCategoryProduct.entryPoint,
               fields: ['secondary_category_id'],
@@ -74,15 +74,23 @@ export const updateProductSubcategories = async (
               }
             })
 
-            link
-              .dismiss({
-                [Modules.PRODUCT]: { product_id: product.id },
-                [SECONDARY_CATEGORY_MODULE]: {
-                  secondary_category_id:
-                    secondaryCategoryLink.secondary_category_id
-                }
-              })
-              .catch(() => {})
+            if (!secondaryCategoryLinks.length) {
+              return;
+            }
+
+            await Promise.all(
+              secondaryCategoryLinks.map((secondaryCategoryLink) =>
+                link
+                  .dismiss({
+                    [Modules.PRODUCT]: { product_id: product.id },
+                    [SECONDARY_CATEGORY_MODULE]: {
+                      secondary_category_id:
+                        secondaryCategoryLink.secondary_category_id
+                    }
+                  })
+                  .catch(() => {})
+              )
+            );
           })
         )
       }

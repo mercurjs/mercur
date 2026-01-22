@@ -17,6 +17,7 @@ import {
   VendorUpdateProductType,
 } from "../validators";
 import { ProductUpdateRequestUpdatedEvent } from "@mercurjs/framework";
+import { fetchProductSecondaryCategoryDetails } from "../utils";
 
 /**
  * @oas [get] /vendor/products/{id}
@@ -70,11 +71,13 @@ export const GET = async (
     { throwIfKeyNotFound: true }
   );
 
+  const secondaryCategoryDetails = await fetchProductSecondaryCategoryDetails(req.scope, product.secondary_categories);
+
   const transformedProduct = transformProductWithInformationalAttributes(
     product as any
   );
 
-  res.json({ product: transformedProduct });
+  res.json({ product: { ...transformedProduct, secondary_categories: secondaryCategoryDetails } });
 };
 
 /**
@@ -165,7 +168,9 @@ export const POST = async (
     { throwIfKeyNotFound: true }
   );
 
-  res.json({ product });
+  const secondaryCategoryDetails = await fetchProductSecondaryCategoryDetails(req.scope, product.secondary_categories);
+
+  res.json({ product: { ...product, secondary_categories: secondaryCategoryDetails } });
 };
 
 /**

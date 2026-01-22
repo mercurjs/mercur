@@ -96,7 +96,7 @@ export const getSecondaryCategories = async (
     });
 
   const existingMap = new Map<string, ISecondaryCategory>(
-    existingCategories.map((cat: ISecondaryCategory) => [cat.id, cat])
+    existingCategories.map((cat: ISecondaryCategory) => [cat.category_id, cat])
   );
 
   const results = [] as ISecondaryCategory[];
