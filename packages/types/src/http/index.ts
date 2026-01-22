@@ -1,5 +1,6 @@
 export * from "./collection"
 export * from "./customer"
+export * from "./fulfillment-set"
 export * from "./seller"
 export * from "./order"
 export * from "./order-group"
