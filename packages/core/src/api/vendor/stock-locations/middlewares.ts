@@ -9,10 +9,12 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
+import { createLinkBody } from "@medusajs/medusa/api/utils/validators"
 
 import { vendorStockLocationQueryConfig } from "./query-config"
 import {
   VendorCreateStockLocation,
+  VendorCreateStockLocationFulfillmentSet,
   VendorGetStockLocationParams,
   VendorGetStockLocationsParams,
   VendorUpdateStockLocation,
@@ -80,5 +82,38 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/stock-locations/:id",
     middlewares: [],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/stock-locations/:id/sales-channels",
+    middlewares: [
+      validateAndTransformBody(createLinkBody()),
+      validateAndTransformQuery(
+        VendorGetStockLocationParams,
+        vendorStockLocationQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/stock-locations/:id/fulfillment-sets",
+    middlewares: [
+      validateAndTransformBody(VendorCreateStockLocationFulfillmentSet),
+      validateAndTransformQuery(
+        VendorGetStockLocationParams,
+        vendorStockLocationQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/stock-locations/:id/fulfillment-providers",
+    middlewares: [
+      validateAndTransformBody(createLinkBody()),
+      validateAndTransformQuery(
+        VendorGetStockLocationParams,
+        vendorStockLocationQueryConfig.retrieve
+      ),
+    ],
   },
 ]
