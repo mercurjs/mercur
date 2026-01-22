@@ -2,6 +2,7 @@ import { getPackageManager } from "@/src/utils/get-package-manager";
 import { logger } from "@/src/utils/logger";
 import { spinner } from "@/src/utils/spinner";
 import { execa } from "execa";
+import type { Ora } from "ora";
 import path from "path";
 import pg from "pg";
 import prompts from "prompts";
@@ -20,11 +21,15 @@ export async function setupDatabase(args: {
   projectDir: string;
   projectName: string;
   dbConnectionString?: string;
+  spinner?: Ora;
 }): Promise<SetupDatabaseResult> {
   const dbName = args.projectName.replace(/[^a-zA-Z0-9]/g, "-");
 
   // Try to connect and create database
-  const { client, dbConnectionString } = await getDbClient(args);
+  const { client, dbConnectionString } = await getDbClient({
+    dbConnectionString: args.dbConnectionString,
+    spinner: args.spinner,
+  });
 
   if (!client) {
     return { success: false, dbName, connectionString: null };
@@ -76,8 +81,10 @@ export async function setupDatabase(args: {
 
 async function getDbClient({
   dbConnectionString,
+  spinner: spinnerRef,
 }: {
   dbConnectionString?: string;
+  spinner?: Ora;
 }): Promise<{
   client: pg.Client | null;
   dbConnectionString: string | null;
@@ -117,6 +124,9 @@ async function getDbClient({
       dbConnectionString: formatConnectionString(defaultCredentials),
     };
   } catch {
+    // Stop spinner before prompts
+    spinnerRef?.stop();
+
     // Ask for credentials
     const answers = await prompts([
       {
@@ -138,6 +148,9 @@ async function getDbClient({
 
     postgresUsername = answers.postgresUsername;
     postgresPassword = answers.postgresPassword || "";
+
+    // Restart spinner after prompts
+    spinnerRef?.start("Connecting to database...");
 
     try {
       const client = new pg.Client({

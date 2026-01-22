@@ -1,8 +1,12 @@
 import fs from "fs-extra";
 import path from "path";
 import { loadConfig } from "tsconfig-paths";
-import { type PackageJson } from "type-fest"
 import fg from "fast-glob"
+
+interface PackageJson {
+  name?: string;
+  dependencies?: Record<string, string>;
+}
 
 export type ProjectInfo = {
   isSrcDir: boolean;

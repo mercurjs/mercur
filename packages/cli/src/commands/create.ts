@@ -98,19 +98,6 @@ export const create = new Command()
           template = selectedTemplate;
         }
 
-        if (!opts.skipEmail) {
-          const { email } = await prompts({
-            type: "text",
-            name: "email",
-            message: "Mind sharing your email? We reach out for priority support, community events, and invite-only meetups. We never spam.",
-            format: (value: string) => value.trim(),
-          });
-
-          if (email) {
-            setTelemetryEmail(email);
-          }
-        }
-
         const projectDir = path.resolve(opts.cwd, projectName);
 
         await createOrFindProjectDir(projectDir);
@@ -158,6 +145,7 @@ export const create = new Command()
             projectDir,
             projectName,
             dbConnectionString: opts.dbConnectionString,
+            spinner: dbSpinner,
           });
           if (dbResult.success) {
             if (dbResult.alreadyExists) {
@@ -185,6 +173,29 @@ export const create = new Command()
           }
         } else {
           spinner("Database setup skipped.").warn();
+        }
+
+        if (!opts.skipEmail) {
+          const { wantsEmail } = await prompts({
+            type: "confirm",
+            name: "wantsEmail",
+            message: "Mind sharing your email? We reach out for priority support, community events, and invite-only meetups. We never spam.",
+            initial: false,
+          });
+
+          if (wantsEmail) {
+            const { email } = await prompts({
+              type: "text",
+              name: "email",
+              message: "Enter your email:",
+              format: (value: string) => value.trim(),
+            });
+
+            if (email) {
+              console.log('[Telemetry] Setting email:', email)
+              setTelemetryEmail(email);
+            }
+          }
         }
 
         await manageEnvFiles({

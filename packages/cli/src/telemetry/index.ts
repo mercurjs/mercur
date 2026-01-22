@@ -5,7 +5,12 @@ import { detectSystemInfo } from "./detect-system-info";
 import { getPackageManager } from "../utils/get-package-manager";
 import { hashToBase64 } from "./hash";
 import { getProjectInfo } from "../utils/get-project-info";
-import { type PackageJson } from "type-fest"
+
+interface PackageJson {
+    name?: string;
+}
+
+const TELEMETRY_URL = process.env.TELEMETRY_URL || 'https://telemetry.mercurjs.com/api/v1/events'
 
 export interface TelemetryEvent {
     type: string;
@@ -22,7 +27,7 @@ export const toggleTelemetry = (enabled: boolean) => {
 }
 
 const isTelemetryEnabled = () => {
-    return configStore.get("telemetry_enabled") || process.env.MERCUR_DISABLE_TELEMETRY === 'true'
+    return configStore.get("telemetry_enabled") && process.env.MERCUR_DISABLE_TELEMETRY !== 'true'
 }
 
 export const sendTelemetryEvent = async (event: TelemetryEvent, options: { cwd: string }) => {
@@ -49,14 +54,14 @@ export const sendTelemetryEvent = async (event: TelemetryEvent, options: { cwd: 
             email: getTelemetryEmail(),
         }
 
-        await fetch('https://telemetry.mercurjs.com/api/v1/events', {
+        await fetch(TELEMETRY_URL, {
             body: JSON.stringify({ ...baseEvent, ...event }),
             headers: {
                 'Content-Type': 'application/json',
             },
             method: 'post',
         })
-    } catch {
+    } catch (error) {
         // Eat any errors in sending telemetry event
     }
 }
@@ -80,27 +85,22 @@ const getGitID = () => {
 
 const getProjectId = (
     packageJson: PackageJson,
-): { projectId: string; } => {
+): { gitId?: string; packageJsonId?: string; cwdId?: string; } => {
     const gitID = getGitID()
     if (gitID) {
-        return { projectId: hashToBase64(gitID), }
+        return { gitId: hashToBase64(gitID), }
     }
 
     const packageJSONID = packageJson.name
     if (packageJSONID) {
-        return { projectId: hashToBase64(packageJSONID), }
+        return { packageJsonId: hashToBase64(packageJSONID), }
     }
 
     const cwd = process.cwd()
-    return { projectId: hashToBase64(cwd), }
+    return { cwdId: hashToBase64(cwd), }
 }
 
 
 export const getTelemetryEmail = () => {
-    const telemetryEmail = configStore.get("telemetry_email")
-    if (telemetryEmail) {
-        return { projectId: hashToBase64(telemetryEmail), }
-    }
-
-    return null
+    return configStore.get("telemetry_email") || null
 }
