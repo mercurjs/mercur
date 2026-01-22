@@ -1,15 +1,15 @@
-import { PaginatedResponse, ReturnReasonDTO } from "@medusajs/types"
+import { PaginatedResponse, OrderReturnReasonDTO } from "@medusajs/types"
 
 export interface VendorReturnReasonResponse {
   /**
    * The return reason's details.
    */
-  return_reason: ReturnReasonDTO
+  return_reason: OrderReturnReasonDTO
 }
 
 export type VendorReturnReasonListResponse = PaginatedResponse<{
   /**
    * The list of return reasons.
    */
-  return_reasons: ReturnReasonDTO[]
+  return_reasons: OrderReturnReasonDTO[]
 }>

@@ -1,3 +1,4 @@
+export * from "./campaign"
 export * from "./collection"
 export * from "./currency"
 export * from "./customer"
