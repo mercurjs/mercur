@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/mercurjs/mercur/new/packages/registry/schema/registry.json",
+  "$schema": "https://registry.mercurjs.com/registry.json",
   "aliases": {
     "workflows": "@/workflows",
     "api": "@/api",
