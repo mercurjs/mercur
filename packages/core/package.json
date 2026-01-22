@@ -28,6 +28,7 @@
     "prepublishOnly": "medusa plugin:build"
   },
   "devDependencies": {
+    "@mercurjs/types": "*",
     "@medusajs/admin-sdk": "2.12.4",
     "@medusajs/cli": "2.12.4",
     "@medusajs/framework": "2.12.4",
