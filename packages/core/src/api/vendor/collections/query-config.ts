@@ -1,21 +1,14 @@
-export const defaultVendorProductCategoryFields = [
+export const defaultVendorCollectionFields = [
   "id",
-  "name",
-  "description",
+  "title",
   "handle",
-  "rank",
-  "parent_category_id",
-  "is_active",
-  "is_internal",
   "created_at",
   "updated_at",
   "metadata",
-  "*parent_category",
-  "*category_children",
 ]
 
 export const retrieveTransformQueryConfig = {
-  defaults: defaultVendorProductCategoryFields,
+  defaults: defaultVendorCollectionFields,
   isList: false,
 }
 
@@ -24,4 +17,3 @@ export const listTransformQueryConfig = {
   defaultLimit: 10,
   isList: true,
 }
-

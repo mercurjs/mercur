@@ -29,18 +29,3 @@ export const VendorGetProductCategoriesParams = createFindParams({
   })
 )
 
-export type VendorGetProductCategoryProductsParamsType = z.infer<
-  typeof VendorGetProductCategoryProductsParams
->
-export const VendorGetProductCategoryProductsParams = createFindParams({
-  offset: 0,
-  limit: 10,
-})
-
-export type VendorBatchProductsToCategoryType = z.infer<
-  typeof VendorBatchProductsToCategory
->
-export const VendorBatchProductsToCategory = z.object({
-  add: z.array(z.string()).optional(),
-  remove: z.array(z.string()).optional(),
-})

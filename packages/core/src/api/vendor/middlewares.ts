@@ -1,5 +1,6 @@
 import { MiddlewareRoute, authenticate } from "@medusajs/framework"
 
+import { vendorCollectionsMiddlewares } from "./collections/middlewares"
 import { vendorOrdersMiddlewares } from "./orders/middlewares"
 import { vendorProductCategoriesMiddlewares } from "./product-categories/middlewares"
 import { vendorProductTypesMiddlewares } from "./product-types/middlewares"
@@ -23,6 +24,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
       }),
     ],
   },
+  ...vendorCollectionsMiddlewares,
   ...vendorOrdersMiddlewares,
   ...vendorProductCategoriesMiddlewares,
   ...vendorProductTypesMiddlewares,
