@@ -5,6 +5,7 @@ import { vendorOrdersMiddlewares } from "./orders/middlewares"
 import { vendorProductCategoriesMiddlewares } from "./product-categories/middlewares"
 import { vendorProductsMiddlewares } from "./products/middlewares"
 import { vendorProductTypesMiddlewares } from "./product-types/middlewares"
+import { vendorSalesChannelsMiddlewares } from "./sales-channels/middlewares"
 import { vendorSellersMiddlewares } from "./sellers/middlewares"
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
@@ -30,5 +31,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorProductCategoriesMiddlewares,
   ...vendorProductsMiddlewares,
   ...vendorProductTypesMiddlewares,
+  ...vendorSalesChannelsMiddlewares,
   ...vendorSellersMiddlewares,
 ]
