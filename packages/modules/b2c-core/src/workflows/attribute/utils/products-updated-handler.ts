@@ -62,7 +62,7 @@ export const productsUpdatedHookHandler = async ({
             ).run({
               input: {
                 attribute_id: attrVal.attribute_id,
-                value: attrVal.value,
+                value: String(attrVal.value),
                 product_id: prodId,
               },
             });

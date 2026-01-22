@@ -4,7 +4,7 @@ export interface CreateAttributeValueDTO {
   value: string
   rank: number
   attribute_id: string
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown> | null
 }
 
 export interface UpdateAttributeDTO {
@@ -14,7 +14,8 @@ export interface UpdateAttributeDTO {
   handle?: string
   is_filterable?: boolean
   is_required?: boolean
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown> | null
+  ui_component?: AttributeUIComponent
   possible_values?: UpsertAttributeValueDTO[]
   product_category_ids?: { id: string }[]
 }
@@ -23,7 +24,7 @@ export interface UpsertAttributeValueDTO {
   id?: string
   value?: string
   rank?: number
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown> | null
   attribute_id?: string
 }
 

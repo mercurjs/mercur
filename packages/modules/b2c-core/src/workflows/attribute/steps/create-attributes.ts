@@ -5,7 +5,7 @@ import {
   ATTRIBUTE_MODULE,
   AttributeModuleService,
 } from "../../../modules/attribute";
-import { CreateAttributeDTO } from "@mercurjs/framework";
+import { AttributeUIComponent, CreateAttributeDTO } from "@mercurjs/framework";
 
 export const createAttributesStepId = "create-attributes";
 
@@ -35,10 +35,23 @@ export const createAttributesStep = createStep(
         ...attribute,
         handle: attribute.handle || toHandle(attribute.name),
       };
+    }).map((attribute) => {
+      if (attribute.ui_component === AttributeUIComponent.TOGGLE) {
+        return {
+          ...attribute,
+          possible_values: [
+            { value: "true", rank: 0 },
+            { value: "false", rank: 1 },
+          ],
+        };
+      }
+      return attribute;
     });
+
 
     //@ts-expect-error Possible values
     const created = (await service.createAttributes(validated)) as any[];
+
     return new StepResponse(
       created,
       created.map((attribute) => attribute.id)
