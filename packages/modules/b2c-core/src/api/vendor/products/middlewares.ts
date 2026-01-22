@@ -27,6 +27,7 @@ import {
   CreateProductVariant,
   UpdateProductOption,
   UpdateProductVariant,
+  VendorBatchVariantImages,
   VendorCreateProduct,
   VendorGetProductParams,
   VendorGetProductVariantsParams,
@@ -252,6 +253,13 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetAttributesParams,
         retrieveAttributeQueryConfig
       ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/products/:id/variants/:variant_id/media",
+    middlewares: [
+      validateAndTransformBody(VendorBatchVariantImages),
     ],
   },
 ];
