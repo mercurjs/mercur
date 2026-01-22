@@ -1,5 +1,5 @@
 {
-  "$schema": "http://registry.mercurjs.com/registry.json",
+  "$schema": "https://registry.mercurjs.com/registry.json",
   "name": "@mercurjs",
   "homepage": "https://mercurjs.com",
   "items": [
