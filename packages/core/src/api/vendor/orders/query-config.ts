@@ -18,6 +18,7 @@ export const vendorOrderFields = [
   "*billing_address",
   "*shipping_methods",
   "*payment_collections",
+  "*fulfillments",
   "*summary",
 ]
 
@@ -29,5 +30,28 @@ export const vendorOrderQueryConfig = {
   retrieve: {
     defaults: vendorOrderFields,
     isList: false,
+  },
+}
+
+export const vendorOrderChangesFields = [
+  "id",
+  "order_id",
+  "version",
+  "change_type",
+  "status",
+  "created_by",
+  "confirmed_by",
+  "canceled_by",
+  "created_at",
+  "updated_at",
+  "confirmed_at",
+  "canceled_at",
+  "*actions",
+]
+
+export const vendorOrderChangesQueryConfig = {
+  list: {
+    defaults: vendorOrderChangesFields,
+    isList: true,
   },
 }

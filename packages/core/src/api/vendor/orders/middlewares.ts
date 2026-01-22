@@ -5,10 +5,22 @@ import {
   MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
-import { validateAndTransformQuery } from "@medusajs/framework"
+import {
+  validateAndTransformBody,
+  validateAndTransformQuery,
+} from "@medusajs/framework"
 
-import { vendorOrderQueryConfig } from "./query-config"
-import { VendorGetOrderParams, VendorGetOrdersParams } from "./validators"
+import {
+  vendorOrderChangesQueryConfig,
+  vendorOrderQueryConfig,
+} from "./query-config"
+import {
+  VendorCreateFulfillment,
+  VendorCreateShipment,
+  VendorGetOrderChangesParams,
+  VendorGetOrderParams,
+  VendorGetOrdersParams,
+} from "./validators"
 
 const applySellerLinkFilter = (
   req: AuthenticatedMedusaRequest,
@@ -40,6 +52,79 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/orders/:id",
     middlewares: [
+      validateAndTransformQuery(
+        VendorGetOrderParams,
+        vendorOrderQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/vendor/orders/:id/preview",
+    middlewares: [],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/orders/:id/cancel",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetOrderParams,
+        vendorOrderQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/orders/:id/complete",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetOrderParams,
+        vendorOrderQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/vendor/orders/:id/changes",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetOrderChangesParams,
+        vendorOrderChangesQueryConfig.list
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/orders/:id/fulfillments",
+    middlewares: [
+      validateAndTransformBody(VendorCreateFulfillment),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/orders/:id/fulfillments/:fulfillment_id/cancel",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetOrderParams,
+        vendorOrderQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/orders/:id/fulfillments/:fulfillment_id/mark-as-delivered",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetOrderParams,
+        vendorOrderQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/orders/:id/fulfillments/:fulfillment_id/shipments",
+    middlewares: [
+      validateAndTransformBody(VendorCreateShipment),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve

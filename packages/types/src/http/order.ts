@@ -1,4 +1,10 @@
-import { OrderDTO, PaginatedResponse } from "@medusajs/types"
+import {
+  FulfillmentDTO,
+  OrderChangeDTO,
+  OrderDTO,
+  OrderPreviewDTO,
+  PaginatedResponse,
+} from "@medusajs/types"
 
 export interface VendorOrderResponse {
   /**
@@ -13,3 +19,24 @@ export type VendorOrderListResponse = PaginatedResponse<{
    */
   orders: OrderDTO[]
 }>
+
+export interface VendorOrderPreviewResponse {
+  /**
+   * The order preview details.
+   */
+  order: OrderPreviewDTO
+}
+
+export interface VendorOrderChangesResponse {
+  /**
+   * The list of order changes.
+   */
+  order_changes: OrderChangeDTO[]
+}
+
+export interface VendorFulfillmentResponse {
+  /**
+   * The fulfillment details.
+   */
+  fulfillment: FulfillmentDTO
+}
