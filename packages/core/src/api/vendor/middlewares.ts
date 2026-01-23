@@ -29,6 +29,7 @@ import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewar
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
 import { unlessBaseUrl } from "../utils"
+import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
@@ -77,4 +78,5 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorShippingProfilesMiddlewares,
   ...vendorStockLocationsMiddlewares,
   ...vendorUploadsMiddlewares,
+  ...vendorProductTagsMiddlewares,
 ]

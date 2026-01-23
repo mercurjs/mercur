@@ -2,7 +2,10 @@ import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
 import { vendorProductTagsQueryConfig } from "./query-config"
-import { VendorGetProductTagsParams } from "./validators"
+import {
+  VendorGetProductTagParams,
+  VendorGetProductTagsParams,
+} from "./validators"
 
 export const vendorProductTagsMiddlewares: MiddlewareRoute[] = [
   {
@@ -20,7 +23,7 @@ export const vendorProductTagsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/product-tags/:id",
     middlewares: [
       validateAndTransformQuery(
-        VendorGetProductTagsParams,
+        VendorGetProductTagParams,
         vendorProductTagsQueryConfig.retrieve
       ),
     ],
