@@ -7,7 +7,6 @@ import { productsUpdatedHookHandler } from "../attribute/utils";
 import { Link } from "@medusajs/framework/modules-sdk";
 import { SECONDARY_CATEGORY_MODULE } from "../../modules/secondary_categories";
 import { getOrCreateSecondaryCategories } from "./product-created";
-import SecondaryCategoryModuleService from "../../modules/secondary_categories/service";
 
 type ProductLike = { id: string };
 type SecCatEntry = {
