@@ -13,13 +13,27 @@ export interface ListFilteredProductVariantsInput {
   seller_id?: string;
   has_price?: boolean;
   has_inventory?: boolean;
+  has_stock_location?: boolean;
+  has_admin_stock_location?: boolean;
   q?: string;
   fields: string[];
+  /**
+   * Additional filters coming from API query params (everything except custom filters).
+   * Example: id, created_at, updated_at, manage_inventory, allow_backorder, etc.
+   */
+  filters?: Record<string, unknown>;
   pagination?: {
     skip?: number;
     take?: number;
     order?: Record<string, string>;
   };
+}
+
+export interface ListFilteredProductVariantsOutput {
+  variants: unknown[];
+  count: number;
+  offset: number;
+  limit: number;
 }
 
 export const listFilteredProductVariantsWorkflow = createWorkflow(
@@ -29,7 +43,9 @@ export const listFilteredProductVariantsWorkflow = createWorkflow(
       return (
         !!input.seller_id ||
         input.has_price !== undefined ||
-        input.has_inventory !== undefined
+        input.has_inventory !== undefined ||
+        input.has_stock_location !== undefined ||
+        input.has_admin_stock_location !== undefined
       );
     });
 
@@ -41,6 +57,8 @@ export const listFilteredProductVariantsWorkflow = createWorkflow(
         seller_id: input.seller_id,
         has_price: input.has_price,
         has_inventory: input.has_inventory,
+        has_stock_location: input.has_stock_location,
+        has_admin_stock_location: input.has_admin_stock_location,
       });
     });
 
@@ -48,13 +66,39 @@ export const listFilteredProductVariantsWorkflow = createWorkflow(
       return filterResult?.variantIds ?? null;
     });
 
-    const isEmpty = transform({ finalVariantIds }, ({ finalVariantIds }) => {
+    const finalVariantIdsAfterIntersection = transform(
+      { input, finalVariantIds },
+      ({ input, finalVariantIds }) => {
+        if (finalVariantIds === null) {
+          return null;
+        }
+
+        const rawExisting = (input.filters as any)?.id;
+        const existingIds: string[] = Array.isArray(rawExisting)
+          ? rawExisting.filter((id: any) => typeof id === "string" && id.length > 0)
+          : typeof rawExisting === "string" && rawExisting.length > 0
+            ? [rawExisting]
+            : [];
+
+        if (!existingIds.length) {
+          return finalVariantIds;
+        }
+
+        const set = new Set(existingIds);
+        return finalVariantIds.filter((id) => set.has(id));
+      }
+    );
+
+    const isEmpty = transform(
+      { finalVariantIdsAfterIntersection },
+      ({ finalVariantIdsAfterIntersection }) => {
       return (
-        finalVariantIds !== null &&
-        Array.isArray(finalVariantIds) &&
-        finalVariantIds.length === 0
+        finalVariantIdsAfterIntersection !== null &&
+        Array.isArray(finalVariantIdsAfterIntersection) &&
+        finalVariantIdsAfterIntersection.length === 0
       );
-    });
+      }
+    );
 
     const emptyResponse = when({ isEmpty }, ({ isEmpty }) => isEmpty).then(
       () => {
@@ -73,19 +117,33 @@ export const listFilteredProductVariantsWorkflow = createWorkflow(
     const dataResponse = when({ isEmpty }, ({ isEmpty }) => !isEmpty).then(
       () => {
         const finalFilters = transform(
-          { input, finalVariantIds },
-          ({ input, finalVariantIds }) => {
-            const filters: Record<string, unknown> = {};
+          { input, finalVariantIdsAfterIntersection },
+          ({ input, finalVariantIdsAfterIntersection }) => {
+            const filters: Record<string, unknown> = {
+              ...(input.filters ?? {}),
+            };
 
-            if (finalVariantIds !== null) {
-              filters.id = finalVariantIds;
+            if (finalVariantIdsAfterIntersection !== null) {
+              filters.id = finalVariantIdsAfterIntersection;
             }
 
-            if (input.q) {
-              filters.$or = [
-                { title: { $ilike: `%${input.q}%` } },
-                { sku: { $ilike: `%${input.q}%` } },
+            const q = typeof input.q === "string" ? input.q.trim() : "";
+            if (q) {
+              const searchOr = [
+                { title: { $ilike: `%${q}%` } },
+                { sku: { $ilike: `%${q}%` } },
               ];
+
+              // Don't overwrite existing $or/$and from validated filters – instead, AND the search in.
+              const existingAnd = (filters as any).$and;
+              if (Array.isArray(existingAnd)) {
+                (filters as any).$and = [...existingAnd, { $or: searchOr }];
+              } else if ((filters as any).$or) {
+                (filters as any).$and = [{ $or: (filters as any).$or }, { $or: searchOr }];
+                delete (filters as any).$or;
+              } else {
+                (filters as any).$or = searchOr;
+              }
             }
 
             return filters;

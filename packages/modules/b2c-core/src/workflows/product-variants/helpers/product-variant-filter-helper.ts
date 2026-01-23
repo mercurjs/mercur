@@ -4,6 +4,19 @@ export interface ProductVariantFilters {
   seller_id?: string;
   has_price?: boolean;
   has_inventory?: boolean;
+  /**
+   * Whether the variant has at least one inventory level (inventory_item at any location).
+   * This follows the chain: ProductVariant -> InventoryItem (pivot) -> InventoryLevel(location_id).
+   */
+  has_stock_location?: boolean;
+  /**
+   * Whether the variant has at least one admin-owned stock location.
+   * Admin-owned stock location = stock location that is NOT linked to any seller.
+   *
+   * Note: This filter requires looking up seller-stock-location links, so it's applied
+   * in the workflow step (not purely in this helper) where both Knex and Query are available.
+   */
+  has_admin_stock_location?: boolean;
 }
 
 export class ProductVariantFilterHelper {
@@ -41,6 +54,14 @@ export class ProductVariantFilterHelper {
         filters.has_inventory
           ? "EXISTS (SELECT 1 FROM product_variant_inventory_item WHERE product_variant_inventory_item.variant_id = pv.id AND product_variant_inventory_item.deleted_at IS NULL)"
           : "NOT EXISTS (SELECT 1 FROM product_variant_inventory_item WHERE product_variant_inventory_item.variant_id = pv.id AND product_variant_inventory_item.deleted_at IS NULL)"
+      );
+    }
+
+    if (filters.has_stock_location !== undefined) {
+      query = query.whereRaw(
+        filters.has_stock_location
+          ? "EXISTS (SELECT 1 FROM product_variant_inventory_item pvii INNER JOIN inventory_level il ON il.inventory_item_id = pvii.inventory_item_id WHERE pvii.variant_id = pv.id AND pvii.deleted_at IS NULL AND il.location_id IS NOT NULL)"
+          : "NOT EXISTS (SELECT 1 FROM product_variant_inventory_item pvii INNER JOIN inventory_level il ON il.inventory_item_id = pvii.inventory_item_id WHERE pvii.variant_id = pv.id AND pvii.deleted_at IS NULL AND il.location_id IS NOT NULL)"
       );
     }
 

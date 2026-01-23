@@ -1,7 +1,24 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework";
+import {
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework/http";
+import { HttpTypes } from "@medusajs/framework/types";
+import type { ProductVariantDTO } from "@medusajs/framework/types";
 
-import { listFilteredProductVariantsWorkflow } from "../../../../workflows/product-variants";
+import {
+  remapKeysForVariant,
+} from "@medusajs/medusa/api/admin/products/helpers";
+import { wrapVariantsWithTotalInventoryQuantity } from "@medusajs/medusa/api/utils/middlewares/products/variant-inventory-quantity";
+
+import { attachManagedByToVariants } from "../../../../utils/stock-locations";
+import {
+  listFilteredProductVariantsWorkflow,
+} from "../../../../workflows/product-variants/workflows/list-filtered-product-variants";
 import type { AdminGetProductVariantsParamsType } from "./validators";
+import {
+  remapVariantWithManagedBy,
+  splitVariantFilters,
+} from "./utils";
 
 /**
  * @oas [get] /admin/custom/product-variants
@@ -46,6 +63,18 @@ import type { AdminGetProductVariantsParamsType } from "./validators";
  *       type: boolean
  *     required: false
  *     description: Filter variants that have inventory items.
+ *   - name: has_stock_location
+ *     in: query
+ *     schema:
+ *       type: boolean
+ *     required: false
+ *     description: Filter variants that have at least one inventory level in any stock location.
+ *   - name: has_admin_stock_location
+ *     in: query
+ *     schema:
+ *       type: boolean
+ *     required: false
+ *     description: Filter variants that have (or don't have) at least one admin-owned stock location (not linked to any seller).
  *   - name: q
  *     in: query
  *     schema:
@@ -88,22 +117,50 @@ import type { AdminGetProductVariantsParamsType } from "./validators";
  *   - cookie_auth: []
  */
 export const GET = async (
-  req: MedusaRequest<AdminGetProductVariantsParamsType>,
-  res: MedusaResponse
+  req: AuthenticatedMedusaRequest<AdminGetProductVariantsParamsType>,
+  res: MedusaResponse<HttpTypes.AdminProductVariantListResponse>
 ) => {
-  const { seller_id, has_price, has_inventory, q } =
-    req.filterableFields as AdminGetProductVariantsParamsType;
+  const withInventoryQuantity = !!req.queryConfig?.fields?.some((field) =>
+    field.includes("inventory_quantity")
+  );
+
+  if (withInventoryQuantity) {
+    req.queryConfig.fields = (req.queryConfig.fields ?? []).filter(
+      (field) => !field.includes("inventory_quantity")
+    );
+  }
+
+  const { custom, filters } = splitVariantFilters(req.filterableFields);
 
   const { result } = await listFilteredProductVariantsWorkflow(req.scope).run({
     input: {
-      seller_id,
-      has_price,
-      has_inventory,
-      q,
-      fields: req.queryConfig.fields,
+      ...custom,
+      fields: remapKeysForVariant(req.queryConfig.fields ?? []),
+      filters,
       pagination: req.queryConfig.pagination,
     },
   });
 
-  res.json(result);
+  type WorkflowResult = {
+    variants: ProductVariantDTO[];
+    count: number;
+    offset: number;
+    limit: number;
+  };
+
+  const workflowResult = result as unknown as WorkflowResult;
+  const filteredVariants: ProductVariantDTO[] = workflowResult.variants ?? [];
+
+  await attachManagedByToVariants(req.scope, filteredVariants);
+
+  if (withInventoryQuantity) {
+    await wrapVariantsWithTotalInventoryQuantity(req, filteredVariants || []);
+  }
+
+  res.json({
+    variants: filteredVariants.map(remapVariantWithManagedBy),
+    count: workflowResult?.count ?? filteredVariants.length,
+    offset: workflowResult?.offset ?? req.queryConfig.pagination?.skip ?? 0,
+    limit: workflowResult?.limit ?? req.queryConfig.pagination?.take ?? 50,
+  });
 };
