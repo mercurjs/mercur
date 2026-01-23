@@ -1,5 +1,6 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { env } from "../../../env"
+import { createSellerUser } from "../../../helpers/create-seller-user"
 
 jest.setTimeout(50000)
 
@@ -16,25 +17,19 @@ medusaIntegrationTestRunner({
 
             beforeAll(async () => {
                 appContainer = getContainer()
+                console.log(appContainer.registrations)
             })
 
             beforeEach(async () => {
-
+                await createSellerUser(appContainer)
             })
 
-            it("should throw an error", async () => {
-                const created = await api.post(
-                    `/admin/regions`,
-                    {
-                        name: "Test Region",
-                        currency_code: "usd",
-                        countries: ["us", "ca"],
-                        metadata: { foo: "bar" },
-                    },
-                    adminHeaders
+            it("should get the seller", async () => {
+                const result = await api.get(
+                    `/vendor/sellers/me`,
                 )
 
-                expect(created.status).toEqual(200)
+                expect(result.status).toEqual(200)
             })
         })
     },
