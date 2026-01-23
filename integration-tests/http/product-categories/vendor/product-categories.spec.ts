@@ -143,6 +143,106 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(404)
                 })
             })
+
+            describe("POST /vendor/product-categories/:id/products", () => {
+                it("should add products to a category", async () => {
+                    const [category] = await productModuleService.createProductCategories([
+                        { name: "Category for Products", is_active: true },
+                    ])
+
+                    const productResponse = await api.post(
+                        `/vendor/products`,
+                        {
+                            title: "Product for Category",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
+                        sellerHeaders
+                    )
+
+                    const productId = productResponse.data.product.id
+
+                    const response = await api.post(
+                        `/vendor/product-categories/${category.id}/products`,
+                        {
+                            add: [productId],
+                        },
+                        sellerHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.product_category).toBeDefined()
+                })
+
+                it("should remove products from a category", async () => {
+                    const [category] = await productModuleService.createProductCategories([
+                        { name: "Category for Removal", is_active: true },
+                    ])
+
+                    const productResponse = await api.post(
+                        `/vendor/products`,
+                        {
+                            title: "Product to Remove",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
+                        sellerHeaders
+                    )
+
+                    const productId = productResponse.data.product.id
+
+                    await api.post(
+                        `/vendor/product-categories/${category.id}/products`,
+                        {
+                            add: [productId],
+                        },
+                        sellerHeaders
+                    )
+
+                    const response = await api.post(
+                        `/vendor/product-categories/${category.id}/products`,
+                        {
+                            remove: [productId],
+                        },
+                        sellerHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.product_category).toBeDefined()
+                })
+
+                it("should not allow seller to add another seller's product to category", async () => {
+                    const [category] = await productModuleService.createProductCategories([
+                        { name: "Category for Auth Test", is_active: true },
+                    ])
+
+                    const seller1ProductResponse = await api.post(
+                        `/vendor/products`,
+                        {
+                            title: "Seller 1 Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
+                        sellerHeaders
+                    )
+
+                    const seller1ProductId = seller1ProductResponse.data.product.id
+
+                    const seller2Result = await createSellerUser(appContainer, {
+                        email: "seller2@test.com",
+                        name: "Seller Two",
+                    })
+
+                    const response = await api
+                        .post(
+                            `/vendor/product-categories/${category.id}/products`,
+                            {
+                                add: [seller1ProductId],
+                            },
+                            seller2Result.headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+            })
         })
     },
 })
