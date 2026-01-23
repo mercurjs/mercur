@@ -69,3 +69,39 @@ export const transformPriceList = (priceList: any) => {
 
   return priceList
 }
+
+export const fetchPriceListPriceIdsForProduct = async (
+  priceListId: string,
+  productIds: string[],
+  scope: MedusaContainer
+): Promise<string[]> => {
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: variants } = await query.graph({
+    entity: "product_variant",
+    filters: { product_id: productIds },
+    fields: ["price_set.id"],
+  })
+
+  const priceSetIds: string[] = []
+  for (const variant of variants) {
+    if ((variant as any).price_set?.id) {
+      priceSetIds.push((variant as any).price_set.id)
+    }
+  }
+
+  if (!priceSetIds.length) {
+    return []
+  }
+
+  const { data: productPrices } = await query.graph({
+    entity: "price",
+    filters: {
+      price_set_id: priceSetIds,
+      price_list_id: priceListId,
+    },
+    fields: ["id"],
+  })
+
+  return productPrices.map((price: any) => price.id)
+}

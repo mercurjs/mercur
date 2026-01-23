@@ -9,6 +9,7 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
+import { createLinkBody } from "@medusajs/medusa/api/utils/validators"
 
 import * as QueryConfig from "./query-config"
 import {
@@ -80,5 +81,16 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/price-lists/:id",
     middlewares: [],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/price-lists/:id/products",
+    middlewares: [
+      validateAndTransformBody(createLinkBody()),
+      validateAndTransformQuery(
+        VendorGetPriceListParams,
+        QueryConfig.retrievePriceListQueryConfig
+      ),
+    ],
   },
 ]

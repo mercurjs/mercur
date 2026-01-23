@@ -1,5 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { SELLER_MODULE } from "../../../modules/seller"
 
 type LinkSellerPriceListStepInput = {
   seller_id: string
@@ -12,7 +13,7 @@ export const linkSellerPriceListStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.price_list_ids.map((priceListId) => ({
-      [Modules.SELLER]: {
+      [SELLER_MODULE]: {
         seller_id: input.seller_id,
       },
       [Modules.PRICING]: {
@@ -33,7 +34,7 @@ export const linkSellerPriceListStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = data.price_list_ids.map((priceListId) => ({
-      [Modules.SELLER]: {
+      [SELLER_MODULE]: {
         seller_id: data.seller_id,
       },
       [Modules.PRICING]: {

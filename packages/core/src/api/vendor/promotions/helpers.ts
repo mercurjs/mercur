@@ -32,24 +32,38 @@ export const validateSellerPromotion = async (
   sellerId: string,
   promotionId: string
 ) => {
+  await validateSellerPromotions(scope, sellerId, [promotionId])
+}
+
+export const validateSellerPromotions = async (
+  scope: MedusaContainer,
+  sellerId: string,
+  promotionIds: string[]
+) => {
+  if (!promotionIds.length) {
+    return
+  }
+
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const {
-    data: [sellerPromotion],
-  } = await query.graph({
+  const { data: sellerPromotions } = await query.graph({
     entity: "seller_promotion",
     filters: {
       seller_id: sellerId,
-      promotion_id: promotionId,
+      promotion_id: promotionIds,
     },
-    fields: ["seller_id"],
+    fields: ["promotion_id"],
   })
 
-  if (!sellerPromotion) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Promotion with id: ${promotionId} was not found`
-    )
+  const foundIds = new Set(sellerPromotions.map((sp: any) => sp.promotion_id))
+
+  for (const promotionId of promotionIds) {
+    if (!foundIds.has(promotionId)) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        `Promotion with id: ${promotionId} was not found`
+      )
+    }
   }
 }
 

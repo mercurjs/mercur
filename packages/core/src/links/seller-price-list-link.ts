@@ -4,5 +4,5 @@ import SellerModule from "../modules/seller"
 
 export default defineLink(
   SellerModule.linkable.seller,
-  PricingModule.linkable.priceList
+  { linkable: PricingModule.linkable.priceList, isList: true }
 )
