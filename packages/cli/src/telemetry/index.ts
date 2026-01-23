@@ -10,7 +10,7 @@ interface PackageJson {
     name?: string;
 }
 
-const TELEMETRY_URL = process.env.TELEMETRY_URL || 'https://telemetry.mercurjs.com/api/v1/events'
+const TELEMETRY_URL = process.env.MERCUR_TELEMETRY_PROXY_URL || 'https://telemetry.mercurjs.com/api/v1/events'
 
 export interface TelemetryEvent {
     type: string;
@@ -85,22 +85,22 @@ const getGitID = () => {
 
 const getProjectId = (
     packageJson: PackageJson,
-): { gitId?: string; packageJsonId?: string; cwdId?: string; } => {
+): { projectId: string; } => {
     const gitID = getGitID()
     if (gitID) {
-        return { gitId: hashToBase64(gitID), }
+        return { projectId: hashToBase64(gitID), }
     }
 
     const packageJSONID = packageJson.name
     if (packageJSONID) {
-        return { packageJsonId: hashToBase64(packageJSONID), }
+        return { projectId: hashToBase64(packageJSONID), }
     }
 
     const cwd = process.cwd()
-    return { cwdId: hashToBase64(cwd), }
+    return { projectId: hashToBase64(cwd), }
 }
 
 
 export const getTelemetryEmail = () => {
-    return configStore.get("telemetry_email") || null
+    return configStore.get("telemetry_email") || undefined
 }
