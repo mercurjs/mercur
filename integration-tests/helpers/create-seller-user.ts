@@ -64,5 +64,11 @@ export const createSellerUser = async (
 
     vendorHeaders.headers["authorization"] = `Bearer ${token}`
 
-    return { seller, authIdentity }
+    const headers = {
+        headers: {
+            authorization: `Bearer ${token}`,
+        },
+    }
+
+    return { seller, authIdentity, headers }
 }
