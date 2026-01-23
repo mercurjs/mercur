@@ -3,7 +3,7 @@ import path from "path";
 import { loadConfig } from "tsconfig-paths";
 import fg from "fast-glob"
 
-interface PackageJson {
+export interface PackageJson {
   name?: string;
   dependencies?: Record<string, string>;
 }

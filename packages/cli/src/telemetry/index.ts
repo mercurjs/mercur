@@ -4,11 +4,7 @@ import { getConfig } from "../utils/get-config";
 import { detectSystemInfo } from "./detect-system-info";
 import { getPackageManager } from "../utils/get-package-manager";
 import { hashToBase64 } from "./hash";
-import { getProjectInfo } from "../utils/get-project-info";
-
-interface PackageJson {
-    name?: string;
-}
+import { getProjectInfo, type PackageJson } from "../utils/get-project-info";
 
 const TELEMETRY_URL = process.env.MERCUR_TELEMETRY_PROXY_URL || 'https://telemetry.mercurjs.com/api/v1/events'
 

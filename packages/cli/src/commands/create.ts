@@ -192,7 +192,6 @@ export const create = new Command()
             });
 
             if (email) {
-              console.log('[Telemetry] Setting email:', email)
               setTelemetryEmail(email);
             }
           }
