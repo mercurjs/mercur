@@ -47,3 +47,46 @@ export const validateSellerInventoryItem = async (
     )
   }
 }
+
+export const validateVariantBySku = async (
+  scope: MedusaContainer,
+  sellerId: string,
+  sku: string
+) => {
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [variant],
+  } = await query.graph({
+    entity: "product_variant",
+    filters: { sku },
+    fields: ["id", "product_id"],
+  })
+
+  if (!variant) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Variant with sku: ${sku} was not found`
+    )
+  }
+
+  const {
+    data: [sellerProduct],
+  } = await query.graph({
+    entity: "seller_product",
+    filters: {
+      seller_id: sellerId,
+      product_id: variant.product_id,
+    },
+    fields: ["seller_id"],
+  })
+
+  if (!sellerProduct) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Variant with sku: ${sku} was not found`
+    )
+  }
+
+  return variant
+}

@@ -32,3 +32,17 @@ export type AdminOrderGroupListResponse = PaginatedResponse<{
 }>
 
 export type AdminOrderGroupDeleteResponse = DeleteResponse<"order_group">
+
+export interface StoreOrderGroupResponse {
+  /**
+   * The order group's details.
+   */
+  order_group: OrderGroupDTO
+}
+
+export type StoreOrderGroupListResponse = PaginatedResponse<{
+  /**
+   * The list of order groups.
+   */
+  order_groups: OrderGroupDTO[]
+}>

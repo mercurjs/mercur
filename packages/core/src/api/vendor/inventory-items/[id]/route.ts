@@ -9,7 +9,7 @@ import {
 } from "@medusajs/core-flows"
 import { HttpTypes } from "@mercurjs/types"
 
-import { refetchInventoryItem, validateSellerInventoryItem } from "../helpers"
+import { refetchInventoryItem, validateSellerInventoryItem, validateVariantBySku } from "../helpers"
 import { VendorUpdateInventoryItemType } from "../validators"
 
 export const GET = async (
@@ -43,6 +43,10 @@ export const POST = async (
   const { id } = req.params
 
   await validateSellerInventoryItem(req.scope, req.auth_context.actor_id, id)
+
+  if (req.validatedBody.sku) {
+    await validateVariantBySku(req.scope, req.auth_context.actor_id, req.validatedBody.sku)
+  }
 
   await updateInventoryItemsWorkflow(req.scope).run({
     input: {
