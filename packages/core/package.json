@@ -28,13 +28,13 @@
     "prepublishOnly": "medusa plugin:build"
   },
   "devDependencies": {
-    "@medusajs/admin-sdk": "2.12.4",
-    "@medusajs/cli": "2.12.4",
-    "@medusajs/framework": "2.12.4",
-    "@medusajs/icons": "2.12.4",
-    "@medusajs/medusa": "2.12.4",
-    "@medusajs/test-utils": "2.12.4",
-    "@medusajs/ui": "4.0.25",
+    "@medusajs/admin-sdk": "^2.13.0",
+    "@medusajs/cli": "^2.13.0",
+    "@medusajs/framework": "^2.13.0",
+    "@medusajs/icons": "^2.13.0",
+    "@medusajs/medusa": "^2.13.0",
+    "@medusajs/test-utils": "^2.13.0",
+    "@medusajs/ui": "^4.0.25",
     "@mercurjs/types": "*",
     "@swc/core": "^1.7.28",
     "@types/multer": "^2.0.0",
@@ -50,12 +50,12 @@
     "yalc": "^1.0.0-pre.53"
   },
   "peerDependencies": {
-    "@medusajs/admin-sdk": "2.12.4",
-    "@medusajs/cli": "2.12.4",
-    "@medusajs/framework": "2.12.4",
-    "@medusajs/icons": "2.12.4",
-    "@medusajs/medusa": "2.12.4",
-    "@medusajs/test-utils": "2.12.4",
+    "@medusajs/admin-sdk": "^2.13.0",
+    "@medusajs/cli": "^2.13.0",
+    "@medusajs/framework": "^2.13.0",
+    "@medusajs/icons": "^2.13.0",
+    "@medusajs/medusa": "^2.13.0",
+    "@medusajs/test-utils": "^2.13.0",
     "@medusajs/ui": "4.0.25"
   },
   "engines": {
