@@ -3,6 +3,7 @@ import {
   createFindParams,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type VendorGetProductCategoryParamsType = z.infer<
   typeof VendorGetProductCategoryParams
@@ -22,10 +23,10 @@ export const VendorGetProductCategoriesParams = createFindParams({
     name: z.union([z.string(), z.array(z.string())]).optional(),
     handle: z.union([z.string(), z.array(z.string())]).optional(),
     parent_category_id: z.union([z.string(), z.array(z.string())]).optional(),
-    include_ancestors_tree: z.boolean().optional(),
-    include_descendants_tree: z.boolean().optional(),
-    is_active: z.boolean().optional(),
-    is_internal: z.boolean().optional(),
+    include_ancestors_tree: booleanString().optional(),
+    include_descendants_tree: booleanString().optional(),
+    is_active: booleanString().optional(),
+    is_internal: booleanString().optional(),
   })
 )
 
