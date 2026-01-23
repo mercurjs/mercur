@@ -1,4 +1,7 @@
-import { MiddlewareRoute, authenticate } from "@medusajs/framework"
+import {
+  MiddlewareRoute,
+  authenticate,
+} from "@medusajs/framework"
 
 import { vendorCampaignsMiddlewares } from "./campaigns/middlewares"
 import { vendorCollectionsMiddlewares } from "./collections/middlewares"
@@ -25,6 +28,8 @@ import { vendorShippingOptionTypesMiddlewares } from "./shipping-option-types/mi
 import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewares"
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
+import { unlessBaseUrl } from "../utils"
+
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
   {
@@ -39,9 +44,12 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/vendor/*",
     middlewares: [
-      authenticate("seller", ["bearer", "session"], {
-        allowUnregistered: false,
-      }),
+      unlessBaseUrl(
+        /^\/vendor\/sellers$/,
+        authenticate("seller", ["bearer", "session"], {
+          allowUnregistered: false,
+        })
+      ),
     ],
   },
   ...vendorCampaignsMiddlewares,

@@ -1,35 +1,48 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
-import { env } from "../../../env"
-import { createSellerUser } from "../../../helpers/create-seller-user"
 
 jest.setTimeout(50000)
 
-
-const adminHeaders = {
-    headers: { "x-medusa-access-token": "test_token" },
-}
-
 medusaIntegrationTestRunner({
-    env,
-    testSuite: ({ dbConnection, getContainer, api }) => {
+    testSuite: ({ api }) => {
         describe("Vendor - Auth", () => {
-            let appContainer
+            it("should create a seller", async () => {
+                const email = "seller@test.com"
+                const password = "somepassword"
 
-            beforeAll(async () => {
-                appContainer = getContainer()
-                console.log(appContainer.registrations)
-            })
-
-            beforeEach(async () => {
-                await createSellerUser(appContainer)
-            })
-
-            it("should get the seller", async () => {
-                const result = await api.get(
-                    `/vendor/sellers/me`,
+                // Register auth identity via /auth/seller/emailpass/register
+                const registerResponse = await api.post(
+                    `/auth/seller/emailpass/register`,
+                    {
+                        email,
+                        password,
+                    }
                 )
 
-                expect(result.status).toEqual(200)
+                expect(registerResponse.status).toEqual(200)
+                const { token } = registerResponse.data
+
+                // Create seller using the token
+                const response = await api.post(
+                    `/vendor/sellers`,
+                    {
+                        name: "Test Seller",
+                        email: email,
+                    },
+                    {
+                        headers: {
+                            authorization: `Bearer ${token}`,
+                        },
+                    }
+                )
+
+                expect(response.status).toEqual(201)
+                expect(response.data.seller).toEqual(
+                    expect.objectContaining({
+                        name: "Test Seller",
+                        handle: "test-seller",
+                        email: email,
+                    })
+                )
             })
         })
     },

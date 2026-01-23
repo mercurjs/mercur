@@ -22,12 +22,11 @@ export const createSellerUser = async (
 
     const authModule: IAuthModuleService = container.resolve(Modules.AUTH)
 
-    console.log(container.registrations)
-
     const sellerModule = container.resolve("seller")
 
     const seller = await sellerModule.createSellers({
         name,
+        email
     })
     const hashConfig = { logN: 15, r: 8, p: 1 }
     const passwordHash = await Scrypt.kdf("somepassword", hashConfig)
