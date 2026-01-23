@@ -180,7 +180,7 @@ medusaIntegrationTestRunner({
 
                 it("should return all expected fields for a price preference", async () => {
                     const [pricePreference] = await pricingModuleService.createPricePreferences([
-                        { attribute: "currency_code", value: "gbp", is_tax_inclusive: false },
+                        { attribute: "all_fields_attr", value: "all_fields_val", is_tax_inclusive: false },
                     ])
 
                     const response = await api.get(
@@ -191,8 +191,8 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(200)
                     expect(response.data.price_preference).toMatchObject({
                         id: pricePreference.id,
-                        attribute: "currency_code",
-                        value: "gbp",
+                        attribute: "all_fields_attr",
+                        value: "all_fields_val",
                         is_tax_inclusive: false,
                     })
                     expect(response.data.price_preference.created_at).toBeDefined()
