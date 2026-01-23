@@ -29,10 +29,9 @@ export const vendorShippingOptionQueryConfig = {
 
 export const vendorShippingOptionRuleFields = [
   "id",
-  "description",
   "attribute",
   "operator",
-  "values.value",
+  "value",
 ]
 
 export const vendorShippingOptionRuleQueryConfig = {
