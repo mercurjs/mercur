@@ -1,8 +1,11 @@
 import { Context, FindConfig } from "@medusajs/framework/types"
 import {
   InjectManager,
+  isValidHandle,
   MedusaContext,
+  MedusaError,
   MedusaService,
+  toHandle,
 } from "@medusajs/framework/utils"
 import { OrderGroup, Seller } from "./models"
 import { OrderGroupRepository } from "./repositories"
@@ -22,6 +25,50 @@ class SellerModuleService extends MedusaService({
     // eslint-disable-next-line prefer-rest-params
     super(...arguments)
     this.orderGroupRepository_ = orderGroupRepository
+  }
+
+  // @ts-ignore
+  async createSellers(data: any | any[], sharedContext?: Context) {
+    const sellersData = Array.isArray(data) ? data : [data]
+
+    for (const sellerData of sellersData) {
+      if (!data.name) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          `Seller name is required`
+        )
+      }
+
+      this.validateSellerData_(sellerData)
+
+      if (!sellerData.handle && sellerData.name) {
+        sellerData.handle = toHandle(sellerData.name)
+      }
+    }
+
+    // @ts-ignore
+    return super.createSellers(data, sharedContext)
+  }
+
+  // @ts-ignore
+  async updateSellers(data: any | any[], sharedContext?: Context) {
+    const sellersData = Array.isArray(data) ? data : [data]
+
+    for (const sellerData of sellersData) {
+      this.validateSellerData_(sellerData)
+    }
+
+    // @ts-ignore
+    return super.updateSellers(data, sharedContext)
+  }
+
+  private validateSellerData_(data: any) {
+    if (data.handle && !isValidHandle(data.handle)) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `Invalid seller handle '${data.handle}'. It must contain URL safe characters`
+      )
+    }
   }
 
   @InjectManager()
