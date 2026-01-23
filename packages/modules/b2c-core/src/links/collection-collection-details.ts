@@ -9,6 +9,7 @@ export default defineLink(
   },
   {
     linkable: CollectionDetailsModule.linkable.collectionDetail,
+    deleteCascade: true,
   },
   { database: { table: 'collection_collection_detail' } }
 );

@@ -5,14 +5,15 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
 createCollectionsWorkflow.hooks.collectionsCreated(async ({ collections }, { container }) => {
     const service = container.resolve<CollectionDetailsModuleService>(COLLECTION_DETAILS_MODULE);
-    const collectionDetail = await service.createCollectionDetails(collections.map(_ => ({
+    const nextRank = await service.getNextRank();
+    
+    const collectionDetail = await service.createCollectionDetails(collections.map((_, index) => ({
         media: [],
         thumbnail_id: null,
         icon_id: null,
         banner_id: null,
-        rank: 0
+        rank: nextRank + index
     })));
-
 
     const link = container.resolve(ContainerRegistrationKeys.LINK);
     await link.create(collections.map((collection, index) => ({
