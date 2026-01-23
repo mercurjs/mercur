@@ -76,6 +76,7 @@ medusaIntegrationTestRunner({
                         `/vendor/products`,
                         {
                             title: "Simple Product",
+                            options: [{ title: "Default", values: ["Default"] }],
                         },
                         seller1Headers
                     )
@@ -89,13 +90,19 @@ medusaIntegrationTestRunner({
                 it("should list only seller's own products", async () => {
                     await api.post(
                         `/vendor/products`,
-                        { title: "Seller 1 Product" },
+                        {
+                            title: "Seller 1 Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
                         seller1Headers
                     )
 
                     await api.post(
                         `/vendor/products`,
-                        { title: "Seller 2 Product" },
+                        {
+                            title: "Seller 2 Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
                         seller2Headers
                     )
 
@@ -115,7 +122,10 @@ medusaIntegrationTestRunner({
                 it("should get seller's own product", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        { title: "My Product" },
+                        {
+                            title: "My Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
                         seller1Headers
                     )
 
@@ -133,7 +143,10 @@ medusaIntegrationTestRunner({
                 it("should not allow seller to get another seller's product", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        { title: "Seller 1 Product" },
+                        {
+                            title: "Seller 1 Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
                         seller1Headers
                     )
 
@@ -151,7 +164,10 @@ medusaIntegrationTestRunner({
                 it("should update seller's own product", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        { title: "Original Title" },
+                        {
+                            title: "Original Title",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
                         seller1Headers
                     )
 
@@ -178,7 +194,10 @@ medusaIntegrationTestRunner({
                 it("should not allow seller to update another seller's product", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        { title: "Seller 1 Product" },
+                        {
+                            title: "Seller 1 Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
                         seller1Headers
                     )
 
@@ -200,7 +219,10 @@ medusaIntegrationTestRunner({
                 it("should delete seller's own product", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        { title: "Product to Delete" },
+                        {
+                            title: "Product to Delete",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
                         seller1Headers
                     )
 
@@ -222,7 +244,10 @@ medusaIntegrationTestRunner({
                 it("should not allow seller to delete another seller's product", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        { title: "Seller 1 Product" },
+                        {
+                            title: "Seller 1 Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
                         seller1Headers
                     )
 
