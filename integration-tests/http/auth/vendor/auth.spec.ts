@@ -11,7 +11,7 @@ const adminHeaders = {
 medusaIntegrationTestRunner({
     env,
     testSuite: ({ dbConnection, getContainer, api }) => {
-        describe("Regions - Admin", () => {
+        describe("Vendor - Auth", () => {
             let appContainer
 
             beforeAll(async () => {
