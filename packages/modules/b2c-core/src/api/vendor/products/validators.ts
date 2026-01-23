@@ -812,7 +812,7 @@ export const VendorUpdateProductStatus = z.object({
 export const VendorBulkUpdateProductItem = z.object({
   id: z.string(),
   title: z.string().optional(),
-  status: z.enum(["draft", "proposed", "published"]).optional(),
+  status: z.enum(["draft", "published"]).optional(),
   discountable: z.boolean().optional(),
 });
 

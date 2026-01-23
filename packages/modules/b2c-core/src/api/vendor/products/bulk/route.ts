@@ -70,6 +70,8 @@ export const POST = async (
     },
   });
 
+  //TODO: add validation of Product status taking into consideration the configuration rule ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL
+
   const ownedProductIds = new Set(sellerProducts.map((sp) => sp.product_id));
   const unauthorizedProducts = productIds.filter((id) => !ownedProductIds.has(id));
 
