@@ -5,7 +5,7 @@ import { GetCollectionsParams, UpdateCollectionDetail } from "./validators";
 export const collectionsMiddlewares: MiddlewareRoute[] = [
     {
         method: ["GET"],
-        matcher: "/admin/product-collections/:id/details",
+        matcher: "/admin/collections/:id/details",
         middlewares: [
             validateAndTransformQuery(
                 GetCollectionsParams,
@@ -15,7 +15,7 @@ export const collectionsMiddlewares: MiddlewareRoute[] = [
     },
     {
         method: ["POST"],
-        matcher: "/admin/product-collections/:id/details",
+        matcher: "/admin/collections/:id/details",
         middlewares: [
             validateAndTransformQuery(
                 GetCollectionsParams,
