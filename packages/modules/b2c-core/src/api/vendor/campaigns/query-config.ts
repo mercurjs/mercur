@@ -19,6 +19,6 @@ export const vendorCampaignQueryConfig = {
   },
   retrieve: {
     defaults: vendorCampaignFields,
-    isList: false
+    isList: true
   }
 }
