@@ -8,6 +8,7 @@ import { diff } from "./commands/diff";
 import { info } from "./commands/info";
 import { init } from "./commands/init";
 import { search } from "./commands/search";
+import { telemetry } from "./commands/telemetry";
 import { view } from "./commands/view";
 
 process.on("SIGINT", () => process.exit(0));
@@ -31,6 +32,7 @@ async function main() {
     .addCommand(info)
     .addCommand(init)
     .addCommand(search)
+    .addCommand(telemetry)
     .addCommand(view);
 
   program.parse();

@@ -11,6 +11,7 @@ import { highlighter } from "../utils/highlighter";
 import { logger } from "../utils/logger";
 import { runInit } from "./init";
 import { handleError } from "../utils/handle-error";
+import { sendTelemetryEvent } from "../telemetry";
 
 export const addOptionsSchema = z.object({
   blocks: z.array(z.string()).optional(),
@@ -91,6 +92,16 @@ export const add = new Command()
         yes: options.yes,
         path: options.cwd,
       });
+
+      await sendTelemetryEvent({
+        type: 'add',
+        payload: {
+          outcome: 'success',
+          blocks: options.blocks,
+        }
+      }, {
+        cwd: options.cwd,
+      })
     } catch (error) {
       logger.break();
       handleError(error);
