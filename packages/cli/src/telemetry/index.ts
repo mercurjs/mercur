@@ -4,8 +4,9 @@ import { getConfig } from "../utils/get-config";
 import { detectSystemInfo } from "./detect-system-info";
 import { getPackageManager } from "../utils/get-package-manager";
 import { hashToBase64 } from "./hash";
-import { getProjectInfo } from "../utils/get-project-info";
-import { type PackageJson } from "type-fest"
+import { getProjectInfo, type PackageJson } from "../utils/get-project-info";
+
+const TELEMETRY_URL = process.env.MERCUR_TELEMETRY_PROXY_URL || 'https://telemetry.mercurjs.com/api/v1/events'
 
 export interface TelemetryEvent {
     type: string;
@@ -22,7 +23,7 @@ export const toggleTelemetry = (enabled: boolean) => {
 }
 
 const isTelemetryEnabled = () => {
-    return configStore.get("telemetry_enabled") || process.env.MERCUR_DISABLE_TELEMETRY === 'true'
+    return configStore.get("telemetry_enabled") && process.env.MERCUR_DISABLE_TELEMETRY !== 'true'
 }
 
 export const sendTelemetryEvent = async (event: TelemetryEvent, options: { cwd: string }) => {
@@ -49,14 +50,14 @@ export const sendTelemetryEvent = async (event: TelemetryEvent, options: { cwd: 
             email: getTelemetryEmail(),
         }
 
-        await fetch('https://telemetry.mercurjs.com/api/v1/events', {
+        await fetch(TELEMETRY_URL, {
             body: JSON.stringify({ ...baseEvent, ...event }),
             headers: {
                 'Content-Type': 'application/json',
             },
             method: 'post',
         })
-    } catch {
+    } catch (error) {
         // Eat any errors in sending telemetry event
     }
 }
@@ -97,10 +98,5 @@ const getProjectId = (
 
 
 export const getTelemetryEmail = () => {
-    const telemetryEmail = configStore.get("telemetry_email")
-    if (telemetryEmail) {
-        return { projectId: hashToBase64(telemetryEmail), }
-    }
-
-    return null
+    return configStore.get("telemetry_email") || undefined
 }
