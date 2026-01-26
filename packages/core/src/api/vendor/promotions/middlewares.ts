@@ -32,7 +32,7 @@ const applySellerPromotionLinkFilter = (
   req.filterableFields.seller_id = req.auth_context.actor_id
 
   return maybeApplyLinkFilter({
-    entryPoint: "seller_promotion",
+    entryPoint: "promotion_seller",
     resourceId: "promotion_id",
     filterableField: "seller_id",
   })(req, res, next)
