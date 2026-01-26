@@ -66,17 +66,20 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const { seller_id, ...filters } = req.filterableFields
+
   const { data: inventory_items } = await query.graph({
     entity: sellerInventoryItem.entryPoint,
     fields: ['inventory_item_id'],
-    filters: req.filterableFields
-  })
+    filters: { seller_id }
+  });
 
   const { data: reservations, metadata } = await query.graph({
     entity: 'reservation',
     fields: req.queryConfig.fields,
     filters: {
-      inventory_item_id: inventory_items.map((item) => item.inventory_item_id)
+      inventory_item_id: inventory_items.map((item) => item.inventory_item_id),
+      ...filters
     },
     pagination: req.queryConfig.pagination
   })
