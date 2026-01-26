@@ -45,7 +45,7 @@ const applySellerOrderLinkFilter = async (
   req.filterableFields.seller_id = req.auth_context.actor_id
 
   return maybeApplyLinkFilter({
-    entryPoint: "seller_order",
+    entryPoint: "order_seller",
     resourceId: "order_id",
     filterableField: "seller_id",
     filterByField: "order_id",

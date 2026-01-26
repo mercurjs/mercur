@@ -159,7 +159,7 @@ export class OrderGroupRepository extends MikroOrmBase {
       FROM order_group og
       LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id
       LEFT JOIN "order" o ON o.id = ogo.order_id
-      LEFT JOIN seller_seller_order_order oso ON oso.order_id = o.id
+      LEFT JOIN order_order_seller_seller oso ON oso.order_id = o.id
       WHERE ${whereClause}
     `
 
@@ -172,7 +172,7 @@ export class OrderGroupRepository extends MikroOrmBase {
       LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id
       LEFT JOIN "order" o ON o.id = ogo.order_id
       LEFT JOIN order_summary os ON os.order_id = o.id AND os.version = o.version
-      LEFT JOIN seller_seller_order_order oso ON oso.order_id = o.id
+      LEFT JOIN order_order_seller_seller oso ON oso.order_id = o.id
       WHERE ${whereClause}
       GROUP BY og.id
       ORDER BY ${orderByClauses.join(", ")}

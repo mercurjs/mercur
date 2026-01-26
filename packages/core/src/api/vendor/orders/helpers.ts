@@ -14,7 +14,7 @@ export const validateSellerOrder = async (
   const orderIds = Array.isArray(orderIdOrIds) ? orderIdOrIds : [orderIdOrIds]
 
   const { data: sellerOrders } = await query.graph({
-    entity: "seller_order",
+    entity: "order_seller",
     filters: {
       seller_id: sellerId,
       order_id: orderIds,
