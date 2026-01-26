@@ -130,7 +130,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             })
 
             const sellerShippingOptionsData = useQueryGraphStep({
-                entity: "seller_shipping_option",
+                entity: "shipping_option_seller",
                 fields: ["seller_id", 'shipping_option.id', 'shipping_option.shipping_profile_id'],
                 filters: { shipping_option_id: cartOptionIds },
                 options: {
