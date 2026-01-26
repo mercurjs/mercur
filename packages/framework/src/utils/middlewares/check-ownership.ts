@@ -9,32 +9,41 @@ import {
 type CheckResourceOwnershipByResourceIdOptions<Body> = {
   entryPoint: string
   filterField?: string
-  resourceId?: (req: AuthenticatedMedusaRequest<Body>) => string
+  resourceId?: (req: AuthenticatedMedusaRequest<Body>) => string | string[]
 }
 
 /**
- * Middleware that verifies if the authenticated member owns/has access to the requested resource.
+ * Middleware that verifies if the authenticated member owns/has access to the requested resource(s).
  * This is done by checking if the member's seller ID matches the resource's seller ID.
+ * Supports both single resource ID and arrays of resource IDs.
  *
  * @param options - Configuration options for the ownership check
  * @param options.entryPoint - The entity type to verify ownership of (e.g. 'seller_product', 'service_zone')
  * @param options.filterField - Field used to filter/lookup the resource (defaults to 'id')
- * @param options.paramIdField - Request parameter containing the resource ID (defaults to 'id')
+ * @param options.resourceId - Function to extract resource ID(s) from the request (defaults to req.params.id)
  *
- * @throws {MedusaError} If the member does not own the resource
+ * @throws {MedusaError} If the member does not own any of the resources
  *
  * @example
- * // Basic usage - check ownership of vendor product
- * app.use(checkResourceOwnershipByParamId({
+ * // Basic usage - check ownership of single vendor product
+ * app.use(checkResourceOwnershipByResourceId({
  *   entryPoint: 'seller_product'
  * }))
  *
  * @example
  * // Custom field usage - check ownership of service zone
- * app.use(checkResourceOwnershipByParamId({
+ * app.use(checkResourceOwnershipByResourceId({
  *   entryPoint: 'service_zone',
  *   filterField: 'service_zone_id',
  *   resourceId: (req) => req.params.zone_id
+ * }))
+ *
+ * @example
+ * // Batch usage - check ownership of multiple promotions
+ * app.use(checkResourceOwnershipByResourceId({
+ *   entryPoint: 'seller_promotion',
+ *   filterField: 'promotion_id',
+ *   resourceId: (req) => [...(req.body.add || []), ...(req.body.remove || [])]
  * }))
  */
 export const checkResourceOwnershipByResourceId = <Body>({
@@ -62,27 +71,24 @@ export const checkResourceOwnershipByResourceId = <Body>({
       { throwIfKeyNotFound: true }
     )
 
-    const id = resourceId(req)
+    const ids = resourceId(req)
+    const idArray = Array.isArray(ids) ? ids : [ids]
 
-    const {
-      data: [resource]
-    } = await query.graph({
-      entity: entryPoint,
-      fields: ['seller_id'],
-      filters: {
-        [filterField]: id
-      }
-    })
-
-    if (!resource) {
-      res.status(404).json({
-        message: `${entryPoint} with ${filterField}: ${id} not found`,
-        type: MedusaError.Types.NOT_FOUND
-      })
+    if (idArray.length === 0) {
+      next()
       return
     }
 
-    if (member.seller.id !== resource.seller_id) {
+    const { data: resources } = await query.graph({
+      entity: entryPoint,
+      fields: ['seller_id'],
+      filters: {
+        [filterField]: idArray,
+        seller_id: member.seller.id
+      }
+    })
+
+    if (resources.length !== idArray.length) {
       res.status(403).json({
         message: 'You are not allowed to perform this action',
         type: MedusaError.Types.NOT_ALLOWED
