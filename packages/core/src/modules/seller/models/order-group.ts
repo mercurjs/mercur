@@ -5,6 +5,7 @@ const OrderGroup = model.define("order_group", {
   seller_count: model.number().computed(),
   customer_id: model.text(),
   total: model.bigNumber().computed(),
+  cart_id: model.text(),
 })
 
 export default OrderGroup

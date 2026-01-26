@@ -1,34 +1,32 @@
 import {
     CartLineItemDTO,
     CartWorkflowDTO,
+    ProductDTO,
     ProductVariantDTO,
 } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { SellerDTO } from "@mercurjs/types"
 
 type ValidateSellerCartItemsStepInput = {
     cart: Omit<CartWorkflowDTO, "items"> & {
         items: (CartLineItemDTO & {
-            variant: ProductVariantDTO
+            variant: ProductVariantDTO & {
+                product: ProductDTO & {
+                    seller: SellerDTO
+                }
+            }
         })[]
     }
-    sellerProducts: {
-        seller_id: string
-        product_id: string
-    }[]
 }
 
 export const validateSellerCartItemsStep = createStep(
     "validate-seller-cart-items",
     (input: ValidateSellerCartItemsStepInput, { container }) => {
         const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
-        const productSellerMap = new Map<string, string>(
-            input.sellerProducts.map((sp) => [sp.product_id, sp.seller_id])
-        )
 
         const itemsWithMissingSellers = input.cart.items.filter((item) => {
-            const sellerId = productSellerMap.get(item.variant.product_id!)
-            return !sellerId
+            return !item.variant.product.seller?.id
         })
 
         if (itemsWithMissingSellers.length > 0) {

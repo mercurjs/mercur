@@ -62,6 +62,7 @@ export const completeCartFields = [
     "payment_collection.*",
     "payment_collection.payment_sessions.*",
     "promotions.id",
+    'promotions.seller.id',
     "items.variant.id",
     "items.variant.product.id",
     "items.variant.product.is_giftcard",
