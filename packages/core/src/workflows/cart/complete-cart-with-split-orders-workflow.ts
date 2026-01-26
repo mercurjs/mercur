@@ -402,18 +402,23 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 return createdOrders.map((order) => ({ id: order.id }))
             })
 
+            createRemoteLinkStep(linksToCreate)
+
             parallelize(
-                createRemoteLinkStep(linksToCreate),
                 updateCartsStep([updateCompletedAt]),
                 reserveInventoryStep(formatedInventoryItems),
                 registerUsageStep(promotionUsage),
                 emitEventStep({
                     eventName: OrderWorkflowEvents.PLACED,
                     data: orderEventData
+                }).config({
+                    name: "order-placed-event",
                 }),
                 emitEventStep({
                     eventName: OrderGroupWorkflowEvents.CREATED,
                     data: { id: createdOrderGroup.id },
+                }).config({
+                    name: "order-group-created-event",
                 })
             )
 
