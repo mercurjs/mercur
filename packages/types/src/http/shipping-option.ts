@@ -39,3 +39,10 @@ export interface VendorUpdateShippingOptionRulesResponse {
     deleted: boolean
   }
 }
+
+export interface StoreSellerShippingOptionsResponse {
+  /**
+   * The shipping options grouped by seller ID.
+   */
+  shipping_options: Record<string, ShippingOptionDTO[]>
+}

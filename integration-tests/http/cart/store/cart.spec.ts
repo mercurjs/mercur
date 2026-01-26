@@ -339,7 +339,7 @@ medusaIntegrationTestRunner({
                         storeHeaders
                     )
 
-                    // Get shipping options for cart
+                    // Get shipping options for cart (grouped by seller)
                     const shippingOptionsResponse = await api.get(
                         `/store/shipping-options?cart_id=${cart.id}`,
                         storeHeaders
@@ -347,12 +347,17 @@ medusaIntegrationTestRunner({
 
                     expect(shippingOptionsResponse.status).toEqual(200)
 
-                    if (shippingOptionsResponse.data.shipping_options.length > 0) {
+                    // Flatten shipping options from seller map
+                    const allShippingOptions = Object.values(
+                        shippingOptionsResponse.data.shipping_options as Record<string, any[]>
+                    ).flat()
+
+                    if (allShippingOptions.length > 0) {
                         // Add shipping method
                         const addShippingResponse = await api.post(
                             `/store/carts/${cart.id}/shipping-methods`,
                             {
-                                option_id: shippingOptionsResponse.data.shipping_options[0].id,
+                                option_id: allShippingOptions[0].id,
                             },
                             storeHeaders
                         )
@@ -477,18 +482,23 @@ medusaIntegrationTestRunner({
                     expect(cart.email).toEqual("checkout@test.com")
                     expect(cart.shipping_address).toBeDefined()
 
-                    // 4. Get available shipping options
+                    // 4. Get available shipping options (grouped by seller)
                     const shippingOptionsResponse = await api.get(
                         `/store/shipping-options?cart_id=${cart.id}`,
                         storeHeaders
                     )
 
+                    // Flatten shipping options from seller map
+                    const allShippingOptions = Object.values(
+                        shippingOptionsResponse.data.shipping_options as Record<string, any[]>
+                    ).flat()
+
                     // 5. Add shipping method if available
-                    if (shippingOptionsResponse.data.shipping_options?.length > 0) {
+                    if (allShippingOptions.length > 0) {
                         const addShippingResponse = await api.post(
                             `/store/carts/${cart.id}/shipping-methods`,
                             {
-                                option_id: shippingOptionsResponse.data.shipping_options[0].id,
+                                option_id: allShippingOptions[0].id,
                             },
                             storeHeaders
                         )
