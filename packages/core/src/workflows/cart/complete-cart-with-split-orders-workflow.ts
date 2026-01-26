@@ -283,6 +283,23 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 }
             )
 
+
+            const cartCustomerSellers = when('customer-id-exists', { cart: cartData.data }, ({ cart }) => {
+                return isDefined(cart.customer_id)
+            }).then(() => {
+                const sellerIds = transform({ cart: cartData.data }, ({ cart }) => {
+                    return Array.from(new Set(cart.items?.map((item) => item.variant.product.seller.id)))
+                })
+
+                return useQueryGraphStep({
+                    entity: "seller_customer",
+                    fields: ["seller_id", "customer_id"],
+                    filters: { seller_id: sellerIds, customer_id: cartData.data.customer_id },
+                }).config({
+                    name: "existing-seller-customer-links-query",
+                })
+            })
+
             const [createdOrderGroup, createdOrders] = parallelize(
                 createOrderGroupStep(orderGroupData),
                 createOrdersStep(ordersToCreate)
@@ -357,8 +374,8 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             )
 
             const linksToCreate = transform(
-                { cart: cartData.data, createdOrders, createdOrderGroup, sellerOrdersMap },
-                ({ cart, createdOrders, createdOrderGroup, sellerOrdersMap }) => {
+                { cart: cartData.data, createdOrders, createdOrderGroup, sellerOrdersMap, cartCustomerSellers },
+                ({ cart, createdOrders, createdOrderGroup, sellerOrdersMap, cartCustomerSellers }) => {
                     const links: LinkDefinition[] = createdOrders.map((order) => ({
                         [Modules.ORDER]: { order_id: order.id },
                         [Modules.CART]: { cart_id: cart.id },
@@ -394,6 +411,22 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         [SELLER_MODULE]: { order_group_id: createdOrderGroup.id },
                         [Modules.ORDER]: { order_id: order.id },
                     })))
+
+                    if (cart.customer_id) {
+                        // Create seller-customer links for new relationships
+                        const existingSellerIds = new Set(
+                            (cartCustomerSellers?.data ?? []).map((link) => link.seller_id)
+                        )
+
+                        Object.keys(sellerOrdersMap).forEach((sellerId) => {
+                            if (!existingSellerIds.has(sellerId)) {
+                                links.push({
+                                    [SELLER_MODULE]: { seller_id: sellerId },
+                                    [Modules.CUSTOMER]: { customer_id: cart.customer_id },
+                                })
+                            }
+                        })
+                    }
 
                     return links
                 }
