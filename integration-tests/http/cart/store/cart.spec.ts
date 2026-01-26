@@ -422,7 +422,7 @@ medusaIntegrationTestRunner({
                     expect(paymentResponse).toBeDefined()
                 })
 
-                it("should complete full cart checkout flow", async () => {
+                it("should complete full cart checkout flow and return order_group", async () => {
                     // 1. Create cart
                     const cartResponse = await api.post(
                         `/store/carts`,
@@ -496,15 +496,39 @@ medusaIntegrationTestRunner({
                         expect(cart.shipping_methods?.length).toBeGreaterThan(0)
                     }
 
-                    // 6. Get updated cart to check totals
-                    const finalCartResponse = await api.get(
+                    // 6. Get updated cart to verify payment collection
+                    const cartWithPayment = await api.get(
                         `/store/carts/${cart.id}`,
                         storeHeaders
                     )
-                    cart = finalCartResponse.data.cart
+                    cart = cartWithPayment.data.cart
 
-                    expect(cart.total).toBeDefined()
-                    expect(cart.items).toHaveLength(1)
+                    // 7. Initialize payment session
+                    if (cart.payment_collection?.id) {
+                        await api.post(
+                            `/store/payment-collections/${cart.payment_collection.id}/payment-sessions`,
+                            {
+                                provider_id: "pp_system_default",
+                            },
+                            storeHeaders
+                        ).catch(() => {
+                            // Payment provider may not be available in test
+                        })
+                    }
+
+                    // 8. Complete the cart
+                    const completeResponse = await api.post(
+                        `/store/carts/${cart.id}/complete`,
+                        {},
+                        storeHeaders
+                    )
+
+                    expect(completeResponse.status).toEqual(200)
+                    expect(completeResponse.data.type).toEqual("order_group")
+                    expect(completeResponse.data.order_group).toBeDefined()
+                    expect(completeResponse.data.order_group.id).toBeDefined()
+                    expect(completeResponse.data.order_group.orders).toBeDefined()
+                    expect(completeResponse.data.order_group.orders.length).toBeGreaterThan(0)
                 })
 
                 it("should add multiple items from different variants", async () => {
