@@ -5,6 +5,8 @@ import path from "path";
 import { clearRegistryContext } from "@/src/registry/context";
 import { sendTelemetryEvent, setTelemetryEmail } from "@/src/telemetry";
 import { setupDatabase } from "@/src/utils/create-db";
+import { getDefaultDbProvider, type DbProvider } from "@/src/utils/db-provider";
+import { startPostgresContainer } from "@/src/utils/docker-postgres";
 import { getPackageManager } from "@/src/utils/get-package-manager";
 import { handleError } from "@/src/utils/handle-error";
 import { highlighter } from "@/src/utils/highlighter";
@@ -42,7 +44,7 @@ export const create = new Command()
     "the working directory. defaults to the current directory.",
     process.cwd()
   )
-  .option("--no-deps", "skip installing dependencies.", false)
+  .option("--no-deps", "skip installing dependencies.")
   .option("--skip-db", "skip database configuration.", false)
   .option("--skip-email", "skip email prompt.", false)
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
@@ -114,13 +116,17 @@ export const create = new Command()
         if (!opts.deps) {
           spinner("Dependency installation skipped.").warn();
         } else {
-          const installSpinner = spinner("Installing dependencies...").start();
+          logger.info(`Installing dependencies with ${packageManager}...`);
+          logger.break();
+          const installStart = Date.now();
           const result = await installDeps({
             projectDir,
             packageManager,
           });
+          const installDuration = ((Date.now() - installStart) / 1000).toFixed(1);
+          logger.break();
           if (result) {
-            installSpinner.succeed("Dependencies installed successfully.");
+            spinner(`Dependencies installed successfully in ${installDuration}s.`).succeed();
           } else {
             spinner("Failed to install dependencies.").fail();
             logger.log(feedbackOutro());
@@ -139,40 +145,239 @@ export const create = new Command()
 
         // Database setup
         let dbConnectionString: string | undefined = opts.dbConnectionString;
+        let dbProvider: DbProvider = "skip";
+
         if (!opts.skipDb) {
-          const dbSpinner = spinner("Setting up database...").start();
-          const dbResult = await setupDatabase({
-            projectDir,
-            projectName,
-            dbConnectionString: opts.dbConnectionString,
-            spinner: dbSpinner,
-          });
-          if (dbResult.success) {
-            if (dbResult.alreadyExists) {
-              dbSpinner.warn(
-                `Database ${highlighter.info(dbResult.dbName)} already exists. Skipping database setup.`
-              );
-            } else {
-              dbSpinner.succeed(
-                `Database ${highlighter.info(dbResult.dbName)} setup successfully.`
-              );
-            }
-            dbConnectionString = dbResult.connectionString!;
+          // If connection string provided via CLI, use it directly
+          if (opts.dbConnectionString) {
+            dbProvider = "connection_string";
+            dbConnectionString = opts.dbConnectionString;
           } else {
-            dbSpinner.fail("Failed to setup database.");
-            logger.log(feedbackOutro());
-            await sendTelemetryEvent({
-              type: 'create',
-              payload: {
-                outcome: 'database_setup_failed',
+            // Detect available options
+            const detectionSpinner = spinner("Detecting database options...").start();
+            const detection = await getDefaultDbProvider();
+            detectionSpinner.stop();
+
+            // Check for DATABASE_URL in environment
+            if (detection.envDatabaseUrl) {
+              const { useEnvUrl } = await prompts({
+                type: "confirm",
+                name: "useEnvUrl",
+                message: `Found DATABASE_URL in environment. Use it?`,
+                initial: true,
+              });
+
+              if (useEnvUrl) {
+                dbProvider = "connection_string";
+                dbConnectionString = detection.envDatabaseUrl;
               }
-            }, {
-              cwd: projectDir,
-            })
-            process.exit(1);
+            }
+
+            // If no connection string yet, show provider selection
+            if (!dbConnectionString) {
+              const choices = [];
+
+              if (detection.dockerAvailable) {
+                choices.push({
+                  title: "Docker (recommended)",
+                  description: "Start PostgreSQL in a Docker container",
+                  value: "docker",
+                });
+              }
+
+              choices.push({
+                title: "I already have PostgreSQL",
+                description: detection.localPostgresAvailable
+                  ? "Local PostgreSQL detected on port 5432"
+                  : "Enter your connection string",
+                value: "local",
+              });
+
+              choices.push({
+                title: "Skip for now",
+                description: "Configure database later",
+                value: "skip",
+              });
+
+              const { selectedProvider } = await prompts({
+                type: "select",
+                name: "selectedProvider",
+                message: "How do you want to run PostgreSQL?",
+                choices,
+                initial: 0,
+              });
+
+              if (!selectedProvider) {
+                process.exit(0);
+              }
+
+              dbProvider = selectedProvider;
+            }
+          }
+
+          // Handle selected provider
+          if (dbProvider === "docker") {
+            const dockerSpinner = spinner("Starting PostgreSQL container...").start();
+            const dockerResult = await startPostgresContainer({
+              projectName,
+              projectDir,
+              onProgress: (message) => dockerSpinner.text = message,
+            });
+
+            if (dockerResult.success) {
+              const dbName = projectName.replace(/[^a-zA-Z0-9-]/g, "-");
+              dockerSpinner.succeed(`PostgreSQL container started. Database: ${highlighter.info(dbName)}`);
+              dbConnectionString = dockerResult.connectionString;
+
+              // Create .env file BEFORE running migrations (Medusa needs DATABASE_URL)
+              await manageEnvFiles({
+                projectDir,
+                databaseUri: dbConnectionString,
+              });
+
+              // Run migrations and seed
+              const dbSpinner = spinner("Running migrations...").start();
+              const dbResult = await setupDatabase({
+                projectDir,
+                projectName,
+                dbConnectionString: dockerResult.connectionString,
+                spinner: dbSpinner,
+                skipDbCreation: true,
+              });
+
+              if (dbResult.success) {
+                dbSpinner.succeed("Database setup completed.");
+              } else {
+                dbSpinner.fail("Failed to run migrations.");
+                logger.log(feedbackOutro());
+                await sendTelemetryEvent({
+                  type: 'create',
+                  payload: {
+                    outcome: 'database_setup_failed',
+                    db_provider: 'docker',
+                    db_setup_step: 'migration',
+                  }
+                }, { cwd: projectDir });
+                process.exit(1);
+              }
+            } else {
+              dockerSpinner.fail(dockerResult.error || "Failed to start PostgreSQL container.");
+              logger.log(feedbackOutro());
+              await sendTelemetryEvent({
+                type: 'create',
+                payload: {
+                  outcome: 'database_setup_failed',
+                  db_provider: 'docker',
+                  db_setup_step: 'container_start',
+                }
+              }, { cwd: projectDir });
+              process.exit(1);
+            }
+          } else if (dbProvider === "local" || dbProvider === "connection_string") {
+            // Ask for connection string if not already set
+            if (!dbConnectionString) {
+              const { connectionString } = await prompts({
+                type: "text",
+                name: "connectionString",
+                message: "Enter your PostgreSQL connection string:",
+                initial: "postgres://postgres:postgres@localhost:5432/postgres",
+              });
+
+              if (!connectionString) {
+                process.exit(0);
+              }
+
+              dbConnectionString = connectionString;
+            }
+
+            // Create .env file BEFORE running migrations (Medusa needs DATABASE_URL)
+            await manageEnvFiles({
+              projectDir,
+              databaseUri: dbConnectionString,
+            });
+
+            const dbSpinner = spinner("Setting up database...").start();
+            const dbResult = await setupDatabase({
+              projectDir,
+              projectName,
+              dbConnectionString,
+              spinner: dbSpinner,
+            });
+
+            if (dbResult.success) {
+              if (dbResult.alreadyExists) {
+                dbSpinner.warn(
+                  `Database ${highlighter.info(dbResult.dbName)} already exists. Skipping database creation.`
+                );
+              } else {
+                dbSpinner.succeed(
+                  `Database ${highlighter.info(dbResult.dbName)} setup successfully.`
+                );
+              }
+              dbConnectionString = dbResult.connectionString!;
+            } else {
+              dbSpinner.fail("Failed to setup database.");
+              logger.log(feedbackOutro());
+              await sendTelemetryEvent({
+                type: 'create',
+                payload: {
+                  outcome: 'database_setup_failed',
+                  db_provider: dbProvider,
+                }
+              }, { cwd: projectDir });
+              process.exit(1);
+            }
+          } else if (dbProvider === "skip") {
+            spinner("Database setup skipped.").warn();
+            logger.info("Run 'mercurjs db setup' later to configure your database.");
+            dbConnectionString = undefined;
           }
         } else {
+          dbProvider = "skip";
           spinner("Database setup skipped.").warn();
+        }
+
+        // Create admin user (only if database was set up)
+        if (dbProvider !== "skip") {
+          const { wantsAdmin } = await prompts({
+            type: "confirm",
+            name: "wantsAdmin",
+            message: "Create an admin user?",
+            initial: true,
+          });
+
+          if (wantsAdmin) {
+            const adminAnswers = await prompts([
+              {
+                type: "text",
+                name: "email",
+                message: "Admin email:",
+                initial: "admin@example.com",
+                validate: (value: string) =>
+                  value.includes("@") ? true : "Please enter a valid email",
+              },
+              {
+                type: "password",
+                name: "password",
+                message: "Admin password:",
+              },
+            ]);
+
+            if (adminAnswers.email && adminAnswers.password) {
+              const adminSpinner = spinner("Creating admin user...").start();
+              const adminCreated = await createAdminUser({
+                projectDir,
+                email: adminAnswers.email,
+                password: adminAnswers.password,
+              });
+
+              if (adminCreated) {
+                adminSpinner.succeed(`Admin user created: ${adminAnswers.email}`);
+              } else {
+                adminSpinner.fail("Failed to create admin user.");
+              }
+            }
+          }
         }
 
         if (!opts.skipEmail) {
@@ -288,7 +493,13 @@ async function installDeps({
   }
 
   try {
-    await execa(cmd, args, { cwd: path.resolve(projectDir) });
+    await execa(cmd, args, {
+      cwd: path.resolve(projectDir),
+      stdin: "inherit",
+      stdout: "inherit",
+      stderr: "inherit",
+      env: { ...process.env, npm_config_yes: "true" },
+    });
     return true;
   } catch (err: unknown) {
     logger.error(
@@ -349,5 +560,29 @@ function validateNodeVersion(): void {
     throw new Error(
       `Mercur requires at least v${MIN_SUPPORTED_NODE_VERSION} of Node.js. You're using v${nodeVersion}. Please install at least v${MIN_SUPPORTED_NODE_VERSION} and try again: https://nodejs.org/en/download`
     );
+  }
+}
+
+async function createAdminUser({
+  projectDir,
+  email,
+  password,
+}: {
+  projectDir: string;
+  email: string;
+  password: string;
+}): Promise<boolean> {
+  const apiDir = path.join(projectDir, "packages", "api");
+
+  try {
+    await execa("npx", ["medusa", "user", "-e", email, "-p", password], {
+      cwd: apiDir,
+    });
+    return true;
+  } catch (err: unknown) {
+    logger.error(
+      `Error creating admin user${err instanceof Error ? `: ${err.message}` : ""}.`
+    );
+    return false;
   }
 }

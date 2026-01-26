@@ -22,8 +22,28 @@ export async function setupDatabase(args: {
   projectName: string;
   dbConnectionString?: string;
   spinner?: Ora;
+  skipDbCreation?: boolean;
 }): Promise<SetupDatabaseResult> {
   const dbName = args.projectName.replace(/[^a-zA-Z0-9]/g, "-");
+
+  // If skipping DB creation (e.g., Docker already created it), just run migrations
+  if (args.skipDbCreation && args.dbConnectionString) {
+    const migrated = await runMigrations({ ...args, spinner: args.spinner });
+    if (!migrated) {
+      return { success: false, dbName, connectionString: null };
+    }
+
+    const seeded = await seedDatabase({ ...args, spinner: args.spinner });
+    if (!seeded) {
+      return { success: false, dbName, connectionString: null };
+    }
+
+    return {
+      success: true,
+      dbName,
+      connectionString: args.dbConnectionString,
+    };
+  }
 
   // Try to connect and create database
   const { client, dbConnectionString } = await getDbClient({
@@ -37,6 +57,9 @@ export async function setupDatabase(args: {
 
   try {
     // Check if database already exists
+    if (args.spinner) {
+      args.spinner.text = "Checking if database exists...";
+    }
     const exists = await doesDbExist(client, dbName);
 
     if (exists) {
@@ -50,17 +73,20 @@ export async function setupDatabase(args: {
     }
 
     // Create the database
+    if (args.spinner) {
+      args.spinner.text = `Creating database "${dbName}"...`;
+    }
     await client.query(`CREATE DATABASE "${dbName}"`);
     await client.end();
 
     // Run migrations
-    const migrated = await runMigrations(args);
+    const migrated = await runMigrations({ ...args, spinner: args.spinner });
     if (!migrated) {
       return { success: false, dbName, connectionString: null };
     }
 
     // Seed database
-    const seeded = await seedDatabase(args);
+    const seeded = await seedDatabase({ ...args, spinner: args.spinner });
     if (!seeded) {
       return { success: false, dbName, connectionString: null };
     }
@@ -91,9 +117,14 @@ async function getDbClient({
 }> {
   // If connection string provided, try to use it
   if (dbConnectionString) {
+    if (spinnerRef) {
+      spinnerRef.text = "Connecting to PostgreSQL...";
+    }
     try {
+      const client = new pg.Client({ connectionString: dbConnectionString });
+      await client.connect();
       return {
-        client: new pg.Client({ connectionString: dbConnectionString }),
+        client,
         dbConnectionString,
       };
     } catch (error) {
@@ -108,6 +139,9 @@ async function getDbClient({
   let postgresPassword = "";
 
   // If no connection string provided, try default connection
+  if (spinnerRef) {
+    spinnerRef.text = "Trying default PostgreSQL connection...";
+  }
   try {
     const defaultCredentials = {
       user: postgresUsername,
@@ -209,32 +243,32 @@ function formatConnectionString({
 
 async function runMigrations({
   projectDir,
+  spinner: parentSpinner,
 }: {
   projectDir: string;
+  spinner?: Ora;
 }): Promise<boolean> {
-  const apiDir = path.join(projectDir, "apps", "api");
-  const packageManager = await getPackageManager(apiDir);
+  const apiDir = path.join(projectDir, "packages", "api");
 
-  const migrationSpinner = spinner("Running db:migrate command...").start();
+  const migrationSpinner = parentSpinner || spinner("Running migrations...").start();
+  migrationSpinner.text = "Running database migrations...";
 
   try {
-    let migrateCmd: string[];
-
-    if (packageManager === "yarn") {
-      migrateCmd = ["yarn", "db:migrate"];
-    } else if (packageManager === "pnpm") {
-      migrateCmd = ["pnpm", "run", "db:migrate"];
-    } else if (packageManager === "bun") {
-      migrateCmd = ["bun", "run", "db:migrate"];
-    } else {
-      migrateCmd = ["npm", "run", "db:migrate"];
-    }
-
-    await execa(migrateCmd[0], migrateCmd.slice(1), {
+    // Build first (compiles TypeScript so ts-node is not needed)
+    migrationSpinner.text = "Building project...";
+    await execa("npm", ["run", "build"], {
       cwd: apiDir,
     });
 
-    migrationSpinner.succeed("Migrations completed successfully.");
+    // Run migrations
+    migrationSpinner.text = "Running database migrations...";
+    await execa("npx", ["medusa", "db:migrate"], {
+      cwd: apiDir,
+    });
+
+    if (!parentSpinner) {
+      migrationSpinner.succeed("Migrations completed successfully.");
+    }
     return true;
   } catch (err) {
     migrationSpinner.fail("Failed to run migrations.");
@@ -247,13 +281,16 @@ async function runMigrations({
 
 async function seedDatabase({
   projectDir,
+  spinner: parentSpinner,
 }: {
   projectDir: string;
+  spinner?: Ora;
 }): Promise<boolean> {
-  const apiDir = path.join(projectDir, "apps", "api");
+  const apiDir = path.join(projectDir, "packages", "api");
   const packageManager = await getPackageManager(apiDir);
 
-  const seedSpinner = spinner("Running db:seed command...").start();
+  const seedSpinner = parentSpinner || spinner("Seeding database...").start();
+  seedSpinner.text = "Seeding database...";
 
   try {
     let seedCmd: string[];
@@ -272,7 +309,9 @@ async function seedDatabase({
       cwd: apiDir,
     });
 
-    seedSpinner.succeed("Database seeded successfully.");
+    if (!parentSpinner) {
+      seedSpinner.succeed("Database seeded successfully.");
+    }
     return true;
   } catch (err) {
     seedSpinner.fail("Failed to seed database.");
