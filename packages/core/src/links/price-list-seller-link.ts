@@ -3,6 +3,6 @@ import PricingModule from "@medusajs/medusa/pricing"
 import SellerModule from "../modules/seller"
 
 export default defineLink(
-  PricingModule.linkable.priceList,
+  { linkable: PricingModule.linkable.priceList, isList: true },
   SellerModule.linkable.seller
 )
