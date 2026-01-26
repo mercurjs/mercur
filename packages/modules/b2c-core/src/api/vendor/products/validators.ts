@@ -809,15 +809,15 @@ export const VendorUpdateProductStatus = z.object({
  *     type: boolean
  *     description: Whether the product can be discounted.
  */
-export const VendorBulkUpdateProductItem = z.object({
-  id: z.string(),
+export const VendorBatchUpdateProductItem = z.object({
+  id: z.string().min(1),
   title: z.string().optional(),
   status: z.enum(["draft", "published"]).optional(),
   discountable: z.boolean().optional(),
 });
 
 /**
- * @schema VendorBulkUpdateProducts
+ * @schema VendorBatchUpdateProducts
  * type: object
  * required:
  *   - products
@@ -826,32 +826,12 @@ export const VendorBulkUpdateProductItem = z.object({
  *     type: array
  *     description: The products to update in bulk.
  *     items:
- *       $ref: "#/components/schemas/VendorBulkUpdateProductItem"
+ *       $ref: "#/components/schemas/VendorBatchUpdateProductItem"
  */
-export type VendorBulkUpdateProductsType = z.infer<
-  typeof VendorBulkUpdateProducts
+export type VendorBatchUpdateProductsType = z.infer<
+  typeof VendorBatchUpdateProducts
 >;
-export const VendorBulkUpdateProducts = z.object({
-  products: z.array(VendorBulkUpdateProductItem).min(1),
-});
-
-/* Bulk Delete Products */
-
-/**
- * @schema VendorBulkDeleteProducts
- * type: object
- * required:
- *   - ids
- * properties:
- *   ids:
- *     type: array
- *     description: The IDs of the products to delete.
- *     items:
- *       type: string
- */
-export type VendorBulkDeleteProductsType = z.infer<
-  typeof VendorBulkDeleteProducts
->;
-export const VendorBulkDeleteProducts = z.object({
-  ids: z.array(z.string()).min(1),
+export const VendorBatchUpdateProducts = z.object({
+  update: z.array(VendorBatchUpdateProductItem).min(1),
+  delete: z.array(z.string()).min(1),
 });

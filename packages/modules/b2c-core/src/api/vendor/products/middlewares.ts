@@ -26,8 +26,7 @@ import {
   CreateProductVariant,
   UpdateProductOption,
   UpdateProductVariant,
-  VendorBulkDeleteProducts,
-  VendorBulkUpdateProducts,
+  VendorBatchUpdateProducts,
   VendorCreateProduct,
   VendorGetProductParams,
   VendorGetProductVariantsParams,
@@ -68,20 +67,13 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ["POST"],
-    matcher: "/vendor/products/bulk",
+    matcher: "/vendor/products/batch",
     middlewares: [
-      validateAndTransformBody(VendorBulkUpdateProducts),
+      validateAndTransformBody(VendorBatchUpdateProducts),
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.list
       ),
-    ],
-  },
-  {
-    method: ["DELETE"],
-    matcher: "/vendor/products/bulk",
-    middlewares: [
-      validateAndTransformBody(VendorBulkDeleteProducts),
     ],
   },
   {
