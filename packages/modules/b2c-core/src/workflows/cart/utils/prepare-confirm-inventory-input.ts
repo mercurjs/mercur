@@ -1,4 +1,5 @@
 // copy of https://github.com/medusajs/medusa/blob/develop/packages/core/core-flows/src/cart/utils/prepare-confirm-inventory-input.ts
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import {
   BigNumberInput,

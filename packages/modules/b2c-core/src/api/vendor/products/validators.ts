@@ -787,6 +787,28 @@ export const VendorUpdateProductStatus = z.object({
   status: z.enum(["draft", "proposed", "published"]),
 });
 
+/**
+ * @schema VendorBatchVariantImages
+ * type: object
+ * properties:
+ *   add:
+ *     type: array
+ *     description: The images to add to the variant.
+ *     items:
+ *       type: string
+ *   remove:
+ *     type: array
+ *     description: The images to remove from the variant.
+ *     items:
+ *       type: string
+ */
+export const VendorBatchVariantImages = z.object({
+  add: z.array(z.string()).optional(),
+  remove: z.array(z.string()).optional(),
+});
+
+export type VendorBatchVariantImagesType = z.infer<typeof VendorBatchVariantImages>;
+
 /* Batch Update Products */
 
 /**

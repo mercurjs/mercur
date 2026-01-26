@@ -4,8 +4,8 @@ import {
   validateAndTransformQuery
 } from '@medusajs/framework'
 import * as QueryConfig from '@medusajs/medusa/api/store/carts/query-config'
-import { StoreGetCartsCart } from '@medusajs/medusa/api/store/carts/validators'
-import { StoreAddCartShippingMethods } from '@medusajs/medusa/api/store/carts/validators'
+import { StoreGetCartsCart, StoreAddCartShippingMethods } from '@medusajs/medusa/api/store/carts/validators'
+
 
 import { StoreDeleteCartShippingMethods } from './validators'
 

@@ -47,17 +47,17 @@ export const listCommissionRulesWorkflow = createWorkflow(
         if (rule.reference === 'seller+product_category') {
           const ids = rule.reference_id.split('+')
           ref_value =
-            references.sellers.find((ref) => ref.id === ids[0]).value +
-            ' + ' +
-            references.productCategories.find((ref) => ref.id === ids[1]).value
+            `${references.sellers.find((ref) => ref.id === ids[0]).value 
+            } + ${ 
+            references.productCategories.find((ref) => ref.id === ids[1]).value}`
         }
 
         if (rule.reference === 'seller+product_type') {
           const ids = rule.reference_id.split('+')
           ref_value =
-            references.sellers.find((ref) => ref.id === ids[0]).value +
-            ' + ' +
-            references.productTypes.find((ref) => ref.id === ids[1]).value
+            `${references.sellers.find((ref) => ref.id === ids[0]).value 
+            } + ${ 
+            references.productTypes.find((ref) => ref.id === ids[1]).value}`
         }
 
         return {

@@ -41,7 +41,7 @@ export async function getApplicableAttributes(
 
   const { data: globalAttributes } = await query.graph({
     entity: 'attribute',
-    fields: fields,
+    fields,
     filters: {
       id: {
         $nin: attributeIds

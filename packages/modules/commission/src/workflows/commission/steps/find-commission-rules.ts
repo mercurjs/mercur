@@ -52,7 +52,7 @@ export const findCommissionRulesStep = createStep(
     const { data: commissions, metadata } = await query.graph({
       entity: 'commission_rule',
       fields: ['*', 'rate.*'],
-      filters: filters,
+      filters,
       pagination: input.pagination
     })
 

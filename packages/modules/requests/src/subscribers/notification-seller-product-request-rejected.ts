@@ -1,5 +1,5 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys} from "@medusajs/framework/utils";
 
 import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
 import { sendVendorUIRequestNotification } from "../modules/requests";

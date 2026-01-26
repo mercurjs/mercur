@@ -64,7 +64,7 @@ export const POST = async (
           ...u,
           inventory_item_id: id
         })) ?? [],
-      force: req.validatedBody.force ?? false
+      force: req.validatedBody.force ?? true
     }
   }
 

@@ -46,7 +46,6 @@ export class PayoutProvider implements IPayoutProvider {
     }
 
     this.client_ = new Stripe(this.config_.apiKey, {
-      // @ts-ignore
       apiVersion: "2025-02-24.acacia",
     });
   }
