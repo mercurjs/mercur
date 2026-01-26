@@ -60,28 +60,10 @@ export const validateVariantBySku = async (
   } = await query.graph({
     entity: "product_variant",
     filters: { sku },
-    fields: ["id", "product_id"],
+    fields: ["id", "product.id", 'product.seller.id'],
   })
 
-  if (!variant) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Variant with sku: ${sku} was not found`
-    )
-  }
-
-  const {
-    data: [sellerProduct],
-  } = await query.graph({
-    entity: "seller_product",
-    filters: {
-      seller_id: sellerId,
-      product_id: variant.product_id,
-    },
-    fields: ["seller_id"],
-  })
-
-  if (!sellerProduct) {
+  if (!variant || variant.product.seller.id !== sellerId) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
       `Variant with sku: ${sku} was not found`

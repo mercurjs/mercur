@@ -24,11 +24,11 @@ createProductsWorkflow.hooks.productsCreated(
 
     for (const product of products) {
       links.push({
-        [SELLER_MODULE]: {
-          seller_id: additional_data.seller_id,
-        },
         [Modules.PRODUCT]: {
           product_id: product.id,
+        },
+        [SELLER_MODULE]: {
+          seller_id: additional_data.seller_id,
         },
       })
 

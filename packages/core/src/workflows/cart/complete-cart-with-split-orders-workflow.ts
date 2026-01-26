@@ -117,7 +117,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             })
 
             const sellerProductsData = useQueryGraphStep({
-                entity: "seller_product",
+                entity: "product_seller",
                 fields: ["seller_id", "product_id"],
                 filters: { product_id: cartProductIds },
                 options: {
