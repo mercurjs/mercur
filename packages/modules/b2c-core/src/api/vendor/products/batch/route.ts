@@ -16,16 +16,16 @@ import { CONFIGURATION_MODULE, ConfigurationModuleService } from "../../../../mo
 import { ConfigurationRuleType } from "@mercurjs/framework";
 
 /**
- * @oas [post] /vendor/products/bulk
- * operationId: "VendorBulkUpdateProducts"
- * summary: "Bulk Update Products"
+ * @oas [post] /vendor/products/batch
+ * operationId: "VendorBatchUpdateProducts"
+ * summary: "Batch Update Products"
  * description: "Updates multiple products for the authenticated vendor. Allows updating title, status, and discountable fields."
  * x-authenticated: true
  * requestBody:
  *   content:
  *     application/json:
  *       schema:
- *         $ref: "#/components/schemas/VendorBulkUpdateProducts"
+ *         $ref: "#/components/schemas/VendorBatchUpdateProducts"
  * responses:
  *   "200":
  *     description: OK
@@ -34,13 +34,12 @@ import { ConfigurationRuleType } from "@mercurjs/framework";
  *         schema:
  *           type: object
  *           properties:
- *             products:
+ *             updated:
  *               type: array
- *               items:
- *                 $ref: "#/components/schemas/VendorProduct"
- *             count:
- *               type: integer
- *               description: The number of updated products
+ *               description: The updated products.
+ *             deleted:
+ *               type: array
+ *               description: The deleted products.
  * tags:
  *   - Vendor Products
  * security:

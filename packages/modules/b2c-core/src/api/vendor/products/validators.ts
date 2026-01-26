@@ -787,10 +787,10 @@ export const VendorUpdateProductStatus = z.object({
   status: z.enum(["draft", "proposed", "published"]),
 });
 
-/* Bulk Update Products */
+/* Batch Update Products */
 
 /**
- * @schema VendorBulkUpdateProductItem
+ * @schema VendorBatchUpdateProductItem
  * type: object
  * required:
  *   - id
@@ -803,7 +803,7 @@ export const VendorUpdateProductStatus = z.object({
  *     description: The title of the product.
  *   status:
  *     type: string
- *     enum: [draft, proposed, published]
+ *     enum: [draft, published]
  *     description: The status of the product.
  *   discountable:
  *     type: boolean
