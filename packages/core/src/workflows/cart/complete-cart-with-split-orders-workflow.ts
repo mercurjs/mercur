@@ -9,6 +9,7 @@ import {
 import {
     generateEntityId,
     isDefined,
+    MathBN,
     Modules,
     OrderStatus,
     OrderWorkflowEvents,
@@ -23,6 +24,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import {
     acquireLockStep,
+    addOrderTransactionStep,
     authorizePaymentSessionStep,
     createOrdersStep,
     createRemoteLinkStep,
@@ -431,28 +433,35 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 id: paymentSessions![0].id,
             })
 
-            // todo: fix
-            // const orderTransactions = transform(
-            //     { payment, createdOrders },
-            //     ({ payment, createdOrders }) => {
-            //         const transactions =
-            //             (payment &&
-            //                 payment?.captures?.map((capture) => {
-            //                     return {
-            //                         order_id: createdOrder.id,
-            //                         amount: capture.raw_amount ?? capture.amount,
-            //                         currency_code: payment.currency_code,
-            //                         reference: "capture",
-            //                         reference_id: capture.id,
-            //                     }
-            //                 })) ??
-            //             []
+            const orderTransactions = transform(
+                { payment, createdOrders },
+                ({ payment, createdOrders }) => {
+                    if (!payment?.captures?.length) {
+                        return []
+                    }
 
-            //         return transactions
-            //     }
-            // )
+                    const transactions = createdOrders.flatMap((order) => {
+                        const proportion = MathBN.div(order.total, payment.amount)
 
-            // addOrderTransactionStep(orderTransactions)
+                        return (payment.captures ?? []).map((capture) => {
+                            const captureAmount = capture.raw_amount ?? capture.amount
+                            const proportionalAmount = MathBN.mult(captureAmount, proportion)
+
+                            return {
+                                order_id: order.id,
+                                amount: proportionalAmount,
+                                currency_code: payment.currency_code,
+                                reference: "capture",
+                                reference_id: capture.id,
+                            }
+                        })
+                    })
+
+                    return transactions
+                }
+            )
+
+            addOrderTransactionStep(orderTransactions)
 
             createHook("orderGroupCreated", {
                 order_group_id: createdOrderGroup.id,
@@ -467,7 +476,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
         })
 
         const result = transform({ createdOrderGroup, orderGroupId }, ({ createdOrderGroup, orderGroupId }) => {
-            return { id: createdOrderGroup?.id ?? orderGroupId }
+            return { order_group_id: createdOrderGroup?.id ?? orderGroupId }
         })
 
         return new WorkflowResponse(result, {
