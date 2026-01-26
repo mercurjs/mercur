@@ -1,17 +1,19 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { CreateSellerDTO, SellerDTO } from "@mercurjs/types"
+import { CreateOrderGroupDTO, OrderGroupDTO } from "@mercurjs/types"
 
 import { SELLER_MODULE } from "../../../modules/seller"
 import SellerModuleService from "../../../modules/seller/service"
 
-export const createSellerStep = createStep(
-  "create-seller",
-  async (input: CreateSellerDTO, { container }) => {
+type CreateOrderGroupStepInput = CreateOrderGroupDTO
+
+export const createOrderGroupStep = createStep(
+  "create-order-group",
+  async (input: CreateOrderGroupStepInput, { container }) => {
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    const seller: SellerDTO = await service.createSellers(input)
+    const orderGroup: OrderGroupDTO = await service.createOrderGroups(input)
 
-    return new StepResponse(seller, seller.id)
+    return new StepResponse(orderGroup, orderGroup.id)
   },
   async (id: string, { container }) => {
     if (!id) {
@@ -20,6 +22,6 @@ export const createSellerStep = createStep(
 
     const service = container.resolve<SellerModuleService>(SELLER_MODULE)
 
-    await service.deleteSellers([id])
+    await service.deleteOrderGroups([id])
   }
 )

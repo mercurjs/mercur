@@ -3,8 +3,8 @@ import {
   createWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import { setAuthAppMetadataStep } from "@medusajs/medusa/core-flows"
+import { CreateSellerDTO } from "@mercurjs/types"
 
-import { CreateSellerDTO } from "../../../modules/seller/types"
 import { createSellerStep } from "../steps"
 
 type CreateSellerWorkflowInput = {
