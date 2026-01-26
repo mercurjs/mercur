@@ -65,6 +65,13 @@ medusaIntegrationTestRunner({
                     countries: ["us"],
                 })
 
+                // Link payment provider to region
+                const link = appContainer.resolve(ContainerRegistrationKeys.LINK)
+                await link.create({
+                    [Modules.REGION]: { region_id: region.id },
+                    [Modules.PAYMENT]: { payment_provider_id: "pp_system_default" },
+                })
+
                 // Create product with variant
                 const productResponse = await api.post(
                     `/vendor/products`,
@@ -367,66 +374,6 @@ medusaIntegrationTestRunner({
                     }
                 })
 
-                it("should initialize payment session", async () => {
-                    // Create cart with item
-                    const cartResponse = await api.post(
-                        `/store/carts`,
-                        {
-                            region_id: region.id,
-                            sales_channel_id: salesChannel.id,
-                            currency_code: "usd",
-                        },
-                        storeHeaders
-                    )
-                    const cart = cartResponse.data.cart
-
-                    await api.post(
-                        `/store/carts/${cart.id}/line-items`,
-                        {
-                            variant_id: product.variants[0].id,
-                            quantity: 1,
-                        },
-                        storeHeaders
-                    )
-
-                    // Update cart with email and addresses
-                    await api.post(
-                        `/store/carts/${cart.id}`,
-                        {
-                            email: "customer@test.com",
-                            shipping_address: {
-                                first_name: "John",
-                                last_name: "Doe",
-                                address_1: "123 Main St",
-                                city: "New York",
-                                country_code: "us",
-                                postal_code: "10001",
-                            },
-                            billing_address: {
-                                first_name: "John",
-                                last_name: "Doe",
-                                address_1: "123 Main St",
-                                city: "New York",
-                                country_code: "us",
-                                postal_code: "10001",
-                            },
-                        },
-                        storeHeaders
-                    )
-
-                    // Initialize payment session
-                    const paymentResponse = await api.post(
-                        `/store/payment-collections/${cart.id}/payment-sessions`,
-                        {
-                            provider_id: "pp_system_default",
-                        },
-                        storeHeaders
-                    ).catch((e) => e.response)
-
-                    // Payment session initialization may vary based on setup
-                    expect(paymentResponse).toBeDefined()
-                })
-
                 it("should complete full cart checkout flow and return order_group", async () => {
                     // 1. Create cart
                     const cartResponse = await api.post(
@@ -506,32 +453,32 @@ medusaIntegrationTestRunner({
                         expect(cart.shipping_methods?.length).toBeGreaterThan(0)
                     }
 
-                    // 6. Get updated cart to verify payment collection
-                    const cartWithPayment = await api.get(
-                        `/store/carts/${cart.id}`,
+                    // 6. Create payment collection for the cart
+                    const paymentCollectionResponse = await api.post(
+                        `/store/payment-collections`,
+                        { cart_id: cart.id },
                         storeHeaders
                     )
-                    cart = cartWithPayment.data.cart
 
+                    const paymentCollection = paymentCollectionResponse.data.payment_collection
                     // 7. Initialize payment session
-                    if (cart.payment_collection?.id) {
-                        await api.post(
-                            `/store/payment-collections/${cart.payment_collection.id}/payment-sessions`,
-                            {
-                                provider_id: "pp_system_default",
-                            },
-                            storeHeaders
-                        ).catch(() => {
-                            // Payment provider may not be available in test
-                        })
-                    }
+                    await api.post(
+                        `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
+                        {
+                            provider_id: "pp_system_default",
+                        },
+                        storeHeaders
+                    )
 
                     // 8. Complete the cart
                     const completeResponse = await api.post(
                         `/store/carts/${cart.id}/complete`,
                         {},
                         storeHeaders
-                    )
+                    ).catch((e) => {
+                        console.log(e)
+                        throw e
+                    })
 
                     expect(completeResponse.status).toEqual(200)
                     expect(completeResponse.data.type).toEqual("order_group")
