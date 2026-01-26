@@ -842,13 +842,19 @@ export const VendorBatchUpdateProductItem = z.object({
  * @schema VendorBatchUpdateProducts
  * type: object
  * required:
- *   - products
+ *   - update
+ *   - delete
  * properties:
- *   products:
+ *   update:
  *     type: array
- *     description: The products to update in bulk.
+ *     description: The products to update.
  *     items:
  *       $ref: "#/components/schemas/VendorBatchUpdateProductItem"
+ *   delete:
+ *     type: array
+ *     description: The products IDs to delete.
+ *     items:
+ *       type: string
  */
 export type VendorBatchUpdateProductsType = z.infer<
   typeof VendorBatchUpdateProducts
