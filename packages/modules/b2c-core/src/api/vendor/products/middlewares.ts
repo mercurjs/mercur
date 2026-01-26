@@ -28,6 +28,7 @@ import {
   UpdateProductOption,
   UpdateProductVariant,
   VendorBatchVariantImages,
+  VendorBatchUpdateProducts,
   VendorCreateProduct,
   VendorGetProductParams,
   VendorGetProductVariantsParams,
@@ -63,6 +64,17 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/products/batch",
+    middlewares: [
+      validateAndTransformBody(VendorBatchUpdateProducts),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.list
       ),
     ],
   },
