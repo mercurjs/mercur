@@ -17,7 +17,6 @@ export default async function orderCreatedHandler({
 
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
   const storeData = await fetchStoreData(container);
-
   for (const orderId of event.data.order_ids) {
     try {
       const {
