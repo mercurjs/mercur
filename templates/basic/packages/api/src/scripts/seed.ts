@@ -112,13 +112,46 @@ export default async function seedDemoData({ container }: ExecArgs) {
   });
   logger.info("Seeding region data...");
   const regionModuleService = container.resolve(Modules.REGION);
-  const existingRegions = await regionModuleService.listRegions({ name: "Europe" });
+
+  // Check if any of the countries are already assigned to a region
+  const existingRegions = await regionModuleService.listRegions({}, {
+    relations: ["countries"],
+  });
+
+  const assignedCountries = new Set<string>();
+  for (const r of existingRegions) {
+    for (const c of r.countries || []) {
+      assignedCountries.add(c.iso_2);
+    }
+  }
+
+  const unassignedCountries = countries.filter(c => !assignedCountries.has(c));
 
   let region;
-  if (existingRegions.length) {
-    region = existingRegions[0];
-    logger.info("Region 'Europe' already exists, skipping.");
+  if (unassignedCountries.length === 0) {
+    // All countries already assigned - find the region that has most of our countries
+    region = existingRegions.find(r =>
+      r.countries?.some(c => countries.includes(c.iso_2))
+    ) || existingRegions[0];
+    logger.info("Countries already assigned to a region, skipping region creation.");
+  } else if (unassignedCountries.length < countries.length) {
+    // Some countries assigned, some not - only create with unassigned ones
+    logger.info(`Some countries already assigned, creating region with: ${unassignedCountries.join(", ")}`);
+    const { result: regionResult } = await createRegionsWorkflow(container).run({
+      input: {
+        regions: [
+          {
+            name: "Europe",
+            currency_code: "eur",
+            countries: unassignedCountries,
+            payment_providers: ["pp_system_default"],
+          },
+        ],
+      },
+    });
+    region = regionResult[0];
   } else {
+    // No countries assigned - create full region
     const { result: regionResult } = await createRegionsWorkflow(container).run({
       input: {
         regions: [
@@ -192,14 +225,23 @@ export default async function seedDemoData({ container }: ExecArgs) {
     },
   });
 
-  await link.create({
-    [Modules.STOCK_LOCATION]: {
-      stock_location_id: stockLocation.id,
-    },
-    [Modules.FULFILLMENT]: {
-      fulfillment_provider_id: "manual_manual",
-    },
-  });
+  // Link stock location to fulfillment provider (idempotent)
+  try {
+    await link.create({
+      [Modules.STOCK_LOCATION]: {
+        stock_location_id: stockLocation.id,
+      },
+      [Modules.FULFILLMENT]: {
+        fulfillment_provider_id: "manual_manual",
+      },
+    });
+  } catch (error: unknown) {
+    // Ignore if link already exists
+    if (!(error instanceof Error && error.message.includes("already exists"))) {
+      throw error;
+    }
+    logger.info("Stock location already linked to fulfillment provider, skipping.");
+  }
 
   logger.info("Seeding fulfillment data...");
   const shippingProfiles = await fulfillmentModuleService.listShippingProfiles({
@@ -271,14 +313,20 @@ export default async function seedDemoData({ container }: ExecArgs) {
       ],
     });
 
-    await link.create({
-      [Modules.STOCK_LOCATION]: {
-        stock_location_id: stockLocation.id,
-      },
-      [Modules.FULFILLMENT]: {
-        fulfillment_set_id: fulfillmentSet.id,
-      },
-    });
+    try {
+      await link.create({
+        [Modules.STOCK_LOCATION]: {
+          stock_location_id: stockLocation.id,
+        },
+        [Modules.FULFILLMENT]: {
+          fulfillment_set_id: fulfillmentSet.id,
+        },
+      });
+    } catch (error: unknown) {
+      if (!(error instanceof Error && error.message.includes("already exists"))) {
+        throw error;
+      }
+    }
 
     await createShippingOptionsWorkflow(container).run({
       input: [
@@ -363,12 +411,21 @@ export default async function seedDemoData({ container }: ExecArgs) {
   }
   logger.info("Finished seeding fulfillment data.");
 
-  await linkSalesChannelsToStockLocationWorkflow(container).run({
-    input: {
-      id: stockLocation.id,
-      add: [defaultSalesChannel[0].id],
-    },
-  });
+  // Link sales channel to stock location (idempotent - workflow handles duplicates)
+  try {
+    await linkSalesChannelsToStockLocationWorkflow(container).run({
+      input: {
+        id: stockLocation.id,
+        add: [defaultSalesChannel[0].id],
+      },
+    });
+  } catch (error: unknown) {
+    // Ignore if link already exists
+    if (!(error instanceof Error && error.message.includes("already"))) {
+      throw error;
+    }
+    logger.info("Sales channel already linked to stock location, skipping.");
+  }
   logger.info("Finished seeding stock location data.");
 
   logger.info("Seeding publishable API key data...");
@@ -401,12 +458,21 @@ export default async function seedDemoData({ container }: ExecArgs) {
     publishableApiKey = publishableApiKeyResult as ApiKey;
   }
 
-  await linkSalesChannelsToApiKeyWorkflow(container).run({
-    input: {
-      id: publishableApiKey.id,
-      add: [defaultSalesChannel[0].id],
-    },
-  });
+  // Link sales channel to API key (idempotent)
+  try {
+    await linkSalesChannelsToApiKeyWorkflow(container).run({
+      input: {
+        id: publishableApiKey.id,
+        add: [defaultSalesChannel[0].id],
+      },
+    });
+  } catch (error: unknown) {
+    // Ignore if link already exists
+    if (!(error instanceof Error && error.message.includes("already"))) {
+      throw error;
+    }
+    logger.info("Sales channel already linked to API key, skipping.");
+  }
   logger.info("Finished seeding publishable API key data.");
 
   logger.info("Seeding product data...");
