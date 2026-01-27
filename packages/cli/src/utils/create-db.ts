@@ -10,8 +10,13 @@ import prompts from "prompts";
 
 const DEFAULT_DB_HOST = "localhost";
 const DEFAULT_DB_PORT = 5432;
-
+const API_DIR = "packages/api";
 const ADMIN_EMAIL = "admin@mercur-test.com";
+
+interface DbSetupArgs {
+  projectDir: string;
+  spinner?: Ora;
+}
 
 export interface SetupDatabaseResult {
   success: boolean;
@@ -29,7 +34,6 @@ export async function setupDatabase(args: {
 }): Promise<SetupDatabaseResult> {
   const dbName = args.projectName.replace(/[^a-zA-Z0-9]/g, "-");
 
-  // Try to connect and create database
   const { client, dbConnectionString } = await getDbClient({
     dbConnectionString: args.dbConnectionString,
     spinner: args.spinner,
@@ -40,82 +44,34 @@ export async function setupDatabase(args: {
   }
 
   try {
-    // Check if database already exists
     if (args.spinner) {
       args.spinner.text = "Checking if database exists...";
     }
     const exists = await doesDbExist(client, dbName);
-
-    // Build the final connection string pointing to the new database
     const finalConnectionString = replaceDbInConnectionString(dbConnectionString, dbName);
 
     if (exists) {
       await client.end();
-
-      // Save connection string to .env BEFORE running migrations (Medusa needs it)
-      await manageEnvFiles({
-        projectDir: args.projectDir,
-        databaseUri: finalConnectionString,
-      });
-
-      // Run migrations on existing database
-      const migrated = await runMigrations({ ...args, spinner: args.spinner });
-      if (!migrated) {
-        return { success: false, dbName, connectionString: null };
-      }
-
-      // Seed database
-      const seeded = await seedDatabase({ ...args, spinner: args.spinner });
-      if (!seeded) {
-        return { success: false, dbName, connectionString: null };
-      }
-
-      // Create admin invite
-      const inviteToken = await createAdminInvite({ ...args, spinner: args.spinner });
-
-      return {
-        success: true,
+      return runPostDbSetup({
+        ...args,
         dbName,
-        connectionString: finalConnectionString,
+        finalConnectionString,
         alreadyExists: true,
-        inviteToken,
-      };
+      });
     }
 
-    // Create the database
     if (args.spinner) {
       args.spinner.text = `Creating database "${dbName}"...`;
     }
     await client.query(`CREATE DATABASE "${dbName}"`);
     await client.end();
 
-    // Save connection string to .env BEFORE running migrations (Medusa needs it)
-    await manageEnvFiles({
-      projectDir: args.projectDir,
-      databaseUri: finalConnectionString,
-    });
-
-    // Run migrations
-    const migrated = await runMigrations({ ...args, spinner: args.spinner });
-    if (!migrated) {
-      return { success: false, dbName, connectionString: null };
-    }
-
-    // Seed database
-    const seeded = await seedDatabase({ ...args, spinner: args.spinner });
-    if (!seeded) {
-      return { success: false, dbName, connectionString: null };
-    }
-
-    // Create admin invite
-    const inviteToken = await createAdminInvite({ ...args, spinner: args.spinner });
-
-    return {
-      success: true,
+    return runPostDbSetup({
+      ...args,
       dbName,
-      connectionString: finalConnectionString,
-      inviteToken,
-    };
+      finalConnectionString,
+      alreadyExists: false,
+    });
   } catch (err) {
     logger.error(
       `Error creating database${err instanceof Error ? `: ${err.message}` : ""}.`
@@ -125,17 +81,52 @@ export async function setupDatabase(args: {
   }
 }
 
+async function runPostDbSetup(args: DbSetupArgs & {
+  dbName: string;
+  finalConnectionString: string;
+  alreadyExists: boolean;
+}): Promise<SetupDatabaseResult> {
+  const { projectDir, spinner, dbName, finalConnectionString, alreadyExists } = args;
+
+  // Medusa needs DATABASE_URL in .env before running migrations
+  await manageEnvFiles({
+    projectDir,
+    databaseUri: finalConnectionString,
+  });
+
+  const migrated = await runMigrations({ projectDir, spinner });
+  if (!migrated) {
+    return { success: false, dbName, connectionString: null };
+  }
+
+  const seeded = await seedDatabase({ projectDir, spinner });
+  if (!seeded) {
+    return { success: false, dbName, connectionString: null };
+  }
+
+  const inviteToken = await createAdminInvite({ projectDir, spinner });
+
+  return {
+    success: true,
+    dbName,
+    connectionString: finalConnectionString,
+    alreadyExists,
+    inviteToken,
+  };
+}
+
+interface DbClientResult {
+  client: pg.Client | null;
+  dbConnectionString: string | null;
+}
+
 async function getDbClient({
   dbConnectionString,
   spinner: spinnerRef,
 }: {
   dbConnectionString?: string;
   spinner?: Ora;
-}): Promise<{
-  client: pg.Client | null;
-  dbConnectionString: string | null;
-}> {
-  // If connection string provided, try to use it
+}): Promise<DbClientResult> {
   if (dbConnectionString) {
     if (spinnerRef) {
       spinnerRef.text = "Connecting to PostgreSQL...";
@@ -143,10 +134,7 @@ async function getDbClient({
     try {
       const client = new pg.Client({ connectionString: dbConnectionString });
       await client.connect();
-      return {
-        client,
-        dbConnectionString,
-      };
+      return { client, dbConnectionString };
     } catch (error) {
       logger.error(
         `Invalid database connection string${error instanceof Error ? `: ${error.message}` : ""}.`
@@ -158,10 +146,10 @@ async function getDbClient({
   let postgresUsername = "postgres";
   let postgresPassword = "";
 
-  // If no connection string provided, try default connection
   if (spinnerRef) {
     spinnerRef.text = "Trying default PostgreSQL connection...";
   }
+
   try {
     const defaultCredentials = {
       user: postgresUsername,
@@ -178,10 +166,8 @@ async function getDbClient({
       dbConnectionString: formatConnectionString(defaultCredentials),
     };
   } catch {
-    // Stop spinner before prompts
     spinnerRef?.stop();
 
-    // Ask for credentials
     const answers = await prompts([
       {
         type: "text",
@@ -203,7 +189,6 @@ async function getDbClient({
     postgresUsername = answers.postgresUsername;
     postgresPassword = answers.postgresPassword || "";
 
-    // Restart spinner after prompts
     spinnerRef?.start("Connecting to database...");
 
     try {
@@ -261,44 +246,28 @@ function formatConnectionString({
   return `postgresql://${user}:${encodedPassword}@${host}:${port}/${db}`;
 }
 
-/**
- * Replace the database name in a connection string
- */
 function replaceDbInConnectionString(connectionString: string, newDbName: string): string {
   try {
     const url = new URL(connectionString);
     url.pathname = `/${newDbName}`;
     return url.toString();
   } catch {
-    // Fallback: simple regex replacement for the database part
+    // Fallback for non-standard connection strings
     return connectionString.replace(/\/[^/?]+(\?|$)/, `/${newDbName}$1`);
   }
 }
 
-async function runMigrations({
-  projectDir,
-  spinner: parentSpinner,
-}: {
-  projectDir: string;
-  spinner?: Ora;
-}): Promise<boolean> {
-  const apiDir = path.join(projectDir, "packages", "api");
-
+async function runMigrations({ projectDir, spinner: parentSpinner }: DbSetupArgs): Promise<boolean> {
+  const apiDir = path.join(projectDir, API_DIR);
   const migrationSpinner = parentSpinner || spinner("Running migrations...").start();
-  migrationSpinner.text = "Running database migrations...";
 
   try {
-    // Build first (compiles TypeScript so ts-node is not needed)
+    // Build first - compiles TypeScript so ts-node is not needed
     migrationSpinner.text = "Building project...";
-    await execa("npm", ["run", "build"], {
-      cwd: apiDir,
-    });
+    await execa("npm", ["run", "build"], { cwd: apiDir });
 
-    // Run migrations
     migrationSpinner.text = "Running database migrations...";
-    await execa("npx", ["medusa", "db:migrate"], {
-      cwd: apiDir,
-    });
+    await execa("npx", ["medusa", "db:migrate"], { cwd: apiDir });
 
     if (!parentSpinner) {
       migrationSpinner.succeed("Migrations completed successfully.");
@@ -313,14 +282,8 @@ async function runMigrations({
   }
 }
 
-async function createAdminInvite({
-  projectDir,
-  spinner: parentSpinner,
-}: {
-  projectDir: string;
-  spinner?: Ora;
-}): Promise<string | null> {
-  const apiDir = path.join(projectDir, "packages", "api");
+async function createAdminInvite({ projectDir, spinner: parentSpinner }: DbSetupArgs): Promise<string | null> {
+  const apiDir = path.join(projectDir, API_DIR);
 
   if (parentSpinner) {
     parentSpinner.text = "Creating admin invite...";
@@ -331,7 +294,7 @@ async function createAdminInvite({
       cwd: apiDir,
     });
 
-    // Parse token from stdout (same as Medusa CLI does)
+    // Parse token from stdout - same approach as Medusa CLI
     const match = result.stdout.match(/Invite token: (?<token>.+)/);
     return match?.groups?.token || null;
   } catch (err) {
@@ -342,35 +305,23 @@ async function createAdminInvite({
   }
 }
 
-async function seedDatabase({
-  projectDir,
-  spinner: parentSpinner,
-}: {
-  projectDir: string;
-  spinner?: Ora;
-}): Promise<boolean> {
-  const apiDir = path.join(projectDir, "packages", "api");
+async function seedDatabase({ projectDir, spinner: parentSpinner }: DbSetupArgs): Promise<boolean> {
+  const apiDir = path.join(projectDir, API_DIR);
   const packageManager = await getPackageManager(apiDir);
-
   const seedSpinner = parentSpinner || spinner("Seeding database...").start();
+
   seedSpinner.text = "Seeding database...";
 
   try {
-    let seedCmd: string[];
+    const seedCmd = packageManager === "yarn"
+      ? ["yarn", "seed"]
+      : packageManager === "pnpm"
+        ? ["pnpm", "run", "seed"]
+        : packageManager === "bun"
+          ? ["bun", "run", "seed"]
+          : ["npm", "run", "seed"];
 
-    if (packageManager === "yarn") {
-      seedCmd = ["yarn", "seed"];
-    } else if (packageManager === "pnpm") {
-      seedCmd = ["pnpm", "run", "seed"];
-    } else if (packageManager === "bun") {
-      seedCmd = ["bun", "run", "seed"];
-    } else {
-      seedCmd = ["npm", "run", "seed"];
-    }
-
-    await execa(seedCmd[0], seedCmd.slice(1), {
-      cwd: apiDir,
-    });
+    await execa(seedCmd[0], seedCmd.slice(1), { cwd: apiDir });
 
     if (!parentSpinner) {
       seedSpinner.succeed("Database seeded successfully.");

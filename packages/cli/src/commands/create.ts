@@ -4,8 +4,6 @@ import { pipeline } from "node:stream/promises";
 import path from "path";
 
 import { clearRegistryContext } from "@/src/registry/context";
-import open from "open";
-import waitOn from "wait-on";
 import { sendTelemetryEvent, setTelemetryEmail } from "@/src/telemetry";
 import { setupDatabase } from "@/src/utils/create-db";
 import { getPackageManager } from "@/src/utils/get-package-manager";
@@ -18,10 +16,12 @@ import { Command } from "commander";
 import { execa } from "execa";
 import fs from "fs-extra";
 import kleur from "kleur";
+import open from "open";
 import prompts from "prompts";
 import { x } from "tar";
 import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
+import waitOn from "wait-on";
 
 // todo: change to main after new release
 const DEFAULT_BRANCH = "feat/cli-improvements";
@@ -53,7 +53,6 @@ export const create = new Command()
     try {
       validateNodeVersion();
 
-      // Prompt for project name if not provided.
       let projectName = name;
       if (!projectName) {
         const { enteredName } = await prompts({
@@ -79,7 +78,6 @@ export const create = new Command()
 
         projectName = enteredName;
 
-        // Prompt for template if not provided.
         let template = opts.template;
         if (!template) {
           const { selectedTemplate } = await prompts({
@@ -144,13 +142,11 @@ export const create = new Command()
           }
         }
 
-        // Database setup
         let dbConnectionString: string | undefined = opts.dbConnectionString;
         let dbSetupSuccess = false;
         let inviteToken: string | null = null;
 
         if (!opts.skipDb) {
-          // Check for DATABASE_URL in environment if no connection string provided
           if (!dbConnectionString) {
             const envUrl = process.env.DATABASE_URL;
             if (envUrl) {
@@ -167,7 +163,6 @@ export const create = new Command()
             }
           }
 
-          // Setup database (will prompt for credentials if no connection string)
           const dbSpinner = spinner("Setting up database...").start();
           const dbResult = await setupDatabase({
             projectDir,
@@ -246,7 +241,6 @@ export const create = new Command()
         logger.info("Mercur project successfully created!");
         logger.break();
 
-        // Start development server and open browser
         if (dbSetupSuccess) {
           logger.info("Starting development server...");
           logger.break();
@@ -256,17 +250,14 @@ export const create = new Command()
             ? `http://localhost:9000/app/invite?token=${inviteToken}&first_run=true`
             : "http://localhost:9000/app";
 
-          // Start server process
           const serverProcess = exec(`${packageManager === "npm" ? "npm run" : packageManager} dev`, {
             cwd: apiDir,
             env: process.env,
           });
 
-          // Pipe output to terminal
           serverProcess.stdout?.pipe(process.stdout);
           serverProcess.stderr?.pipe(process.stderr);
 
-          // Wait for server to be ready and open browser
           waitOn({
             resources: ["http://localhost:9000/health"],
             timeout: 60000,
@@ -274,19 +265,16 @@ export const create = new Command()
             try {
               await open(inviteUrl);
             } catch {
-              // If browser fails to open, just log the URL
               logger.break();
               logger.info("Open this URL in your browser to create your admin account:");
               logger.log(highlighter.info(inviteUrl));
             }
           }).catch(() => {
-            // Server didn't start in time, show URL as fallback
             logger.break();
             logger.info("To create your admin account, visit:");
             logger.log(highlighter.info(inviteUrl));
           });
         } else {
-          // No database setup, just show next steps
           logger.log(kleur.bgGreen(kleur.black(" Next Steps ")));
           logger.log(successMessage(projectDir, packageManager));
           logger.log(feedbackOutro());
