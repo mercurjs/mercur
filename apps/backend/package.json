@@ -35,6 +35,7 @@
     "@medusajs/framework": "2.11.3",
     "@medusajs/medusa": "2.11.3",
     "@mercurjs/framework": "*",
+    "@mercurjs/algolia": "*",
     "@mercurjs/b2c-core": "*",
     "@mercurjs/commission": "*",
     "@mercurjs/requests": "*",

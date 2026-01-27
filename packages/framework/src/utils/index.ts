@@ -4,3 +4,4 @@ export * from "./middlewares";
 export * from "./admin";
 export * from "./hosts";
 export * from "./configuration";
+export * from "./store";

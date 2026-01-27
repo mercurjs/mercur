@@ -6,20 +6,32 @@ import {
   ApplicationMethodType,
   PromotionStatus,
   PromotionType,
-  RuleType,
 } from "@medusajs/framework/utils";
-import {
-  ApplicationMethodTargetTypeValues,
-  ApplicationMethodTypeValues,
-  PromotionTypeValues,
-  RuleTypeValues,
-} from "@medusajs/types";
 import {
   createFindParams,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators";
 
 import { VendorCreateCampaign } from "../campaigns/validators";
+import { dateFilterSchema } from "../../../shared/infra/http/utils";
+
+export const VendorGetPromotionsParamsFields = z.object({
+  q: z.string().optional(),
+  id: z.union([z.string(), z.array(z.string())]).optional(),
+  code: z.union([z.string(), z.array(z.string())]).optional(),
+  campaign_id: z.union([z.string(), z.array(z.string())]).optional(),
+  status: z.union([
+    z.nativeEnum(PromotionStatus),
+    z.array(z.nativeEnum(PromotionStatus))
+  ]).optional(),
+  is_automatic: z.boolean().optional(),
+  type: z.union([
+    z.nativeEnum(PromotionType),
+    z.array(z.nativeEnum(PromotionType))
+  ]).optional(),
+  created_at: dateFilterSchema,
+  updated_at: dateFilterSchema,
+});
 
 export type VendorGetPromotionsParamsType = z.infer<
   typeof VendorGetPromotionsParams
@@ -27,7 +39,7 @@ export type VendorGetPromotionsParamsType = z.infer<
 export const VendorGetPromotionsParams = createFindParams({
   offset: 0,
   limit: 50,
-});
+}).merge(VendorGetPromotionsParamsFields);
 
 /**
  * @schema VendorCreatePromotionRule
@@ -91,7 +103,7 @@ export const VendorCreatePromotionRule = z
  *     description: The allocation of the application method.
  *   target_rules:
  *     type: array
- *     description: Promotion target rules.
+ *     description: Optional additional target rules. A default rule restricting the promotion to the seller's products is automatically added. Any additional rules are combined with AND logic.
  *     items:
  *       $ref: "#/components/schemas/VendorCreatePromotionRule"
  */
@@ -103,7 +115,7 @@ export const VendorCreateApplicationMethod = z
     type: z.literal(ApplicationMethodType.PERCENTAGE),
     target_type: z.literal(ApplicationMethodTargetType.ITEMS),
     allocation: z.nativeEnum(ApplicationMethodAllocation),
-    target_rules: z.array(VendorCreatePromotionRule),
+    target_rules: z.array(VendorCreatePromotionRule).optional(),
     apply_to_quantity: z.number().nullish(),
     buy_rules_min_quantity: z.number().nullish(),
   })
@@ -257,6 +269,8 @@ export const VendorGetPromotionsRuleValueParams = createFindParams({
   z.object({
     q: z.string().optional(),
     value: z.union([z.string(), z.array(z.string())]).optional(),
+    promotion_type: z.nativeEnum(PromotionType).optional(),
+    application_method_type: z.nativeEnum(ApplicationMethodType).optional(),
   })
 );
 
@@ -278,9 +292,25 @@ export const VendorGetPromotionRuleTypeParams = createSelectParams().merge(
   })
 );
 
+export const VendorRuleTypePathParam = z
+  .string()
+  .refine(
+    (val) =>
+      [
+        "rules",
+        "target-rules",
+        "target_rules",
+        "buy-rules",
+        "buy_rules",
+      ].includes(val),
+    {
+      message:
+        "Invalid rule type. Expected 'rules' | 'target-rules' | 'buy-rules'",
+    }
+  )
+  .transform((val) => val.replace(/-/g, "_"));
+
 export const VendorGetPromotionsRuleValuePathParams = z.object({
-  rule_type: z.nativeEnum(RuleType),
+  rule_type: VendorRuleTypePathParam,
   rule_attribute_id: z.string(),
-  promotion_type: z.nativeEnum(PromotionType).optional(),
-  application_method_type: z.nativeEnum(ApplicationMethodType).optional(),
 });

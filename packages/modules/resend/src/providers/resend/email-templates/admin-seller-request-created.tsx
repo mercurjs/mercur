@@ -2,6 +2,8 @@ interface EmailTemplateProps {
   data: {
     request_address: string,
     seller_name: string
+    store_name: string
+    storefront_url: string
   }
 }
 
@@ -30,8 +32,8 @@ export const AdminSellerRequestCreatedEmailTemplate: React.FC<Readonly<EmailTemp
       </div>
       <div style={{ marginTop: 32 }}>
         <div>Best regards,</div>
-        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
-        <div style={{ color: '#888', marginTop: 4 }}>mercur.js</div>
+        <div style={{ fontWeight: 600 }}>The {data.store_name} Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>{data.storefront_url}</div>
       </div>
     </div>
   )

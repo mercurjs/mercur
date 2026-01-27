@@ -31,7 +31,7 @@ async function validateVariantOwnership(
     entity: sellerProduct.entryPoint,
     fields: ['id'],
     filters: {
-      seller_id: seller_id,
+      seller_id,
       product_id: productIds
     }
   })

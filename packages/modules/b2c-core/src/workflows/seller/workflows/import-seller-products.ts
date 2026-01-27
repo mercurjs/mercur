@@ -42,7 +42,7 @@ export const importSellerProductsWorkflow = createWorkflow(
             product_id: p.id,
           },
           submitter_id: input.submitter_id,
-          type: "product",
+          type: "product_import",
           status: "pending" as RequestStatus,
         }));
       }

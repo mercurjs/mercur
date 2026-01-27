@@ -4,8 +4,7 @@ import { updateInventoryLevelsWorkflow, deleteInventoryLevelsWorkflow } from '@m
 
 import { IntermediateEvents } from '@mercurjs/framework'
 
-import { VendorUpdateInventoryLevelType } from '../../../validators'
-import { VendorInventoryLevelDeleteResponse } from '../../../validators'
+import { VendorUpdateInventoryLevelType, VendorInventoryLevelDeleteResponse } from '../../../validators'
 import { refetchInventoryItem } from '@medusajs/medusa/api/admin/inventory-items/helpers'
 
 /**
@@ -172,14 +171,7 @@ export const DELETE = async (
     entity: "inventory_level",
     filters: { inventory_item_id: id, location_id },
     fields: ["id", "reserved_quantity"],
-  })
-
-  if (!result.data.length) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Inventory Level for Item ${id} at Location ${location_id} not found`
-    )
-  }
+  }, { throwIfKeyNotFound: true });
 
   const { id: levelId, reserved_quantity: reservedQuantity } = result.data[0]
 

@@ -6,7 +6,6 @@ import {
 } from "@mercurjs/framework";
 import {
   createProductRequestWorkflow,
-  createSellerCreationRequestWorkflow,
 } from "../workflows";
 
 export default async function productRequestToCreateHandler({

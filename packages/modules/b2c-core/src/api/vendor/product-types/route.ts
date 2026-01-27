@@ -25,6 +25,12 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
  *       type: number
  *     required: false
  *     description: The number of items to return.
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search query to filter product types by value (case-insensitive).
  * responses:
  *   "200":
  *     description: OK
@@ -57,9 +63,11 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  
   const { data: product_types, metadata } = await query.graph({
     entity: 'product_type',
     fields: req.queryConfig.fields,
+    filters: req.filterableFields,
     pagination: req.queryConfig.pagination
   })
 

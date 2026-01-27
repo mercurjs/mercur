@@ -1,5 +1,4 @@
-import { toHandle } from "@medusajs/framework/utils";
-import { Modules } from "@medusajs/framework/utils";
+import { Modules, toHandle } from "@medusajs/framework/utils";
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk";
 
 import { SellerDTO, SellerEvents, UpdateSellerDTO } from "@mercurjs/framework";

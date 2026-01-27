@@ -1,6 +1,8 @@
 interface EmailTemplateProps {
   data: {
     url: string
+    store_name: string
+    storefront_url: string
   }
 }
 
@@ -16,7 +18,7 @@ export const NewSellerInviteEmailTemplate: React.FC<Readonly<EmailTemplateProps>
       borderRadius: 10
     }}> 
       <h1 style={{ fontSize: '2rem', marginBottom: '8px' }}>
-        You are invited to sell on MercurJS!
+        You are invited to sell on {data.store_name}!
       </h1>
       <p style={{ fontSize: '1.1rem', marginBottom: '16px' }}>
         To join the platform, please accept the invitation.<br />
@@ -43,13 +45,13 @@ export const NewSellerInviteEmailTemplate: React.FC<Readonly<EmailTemplateProps>
         </div>
       </div>
       <div style={{ fontSize: 13, color: '#888', marginBottom: 24 }}>
-        You received this email because you were invited to join the Mercur marketplace.<br />
+        You received this email because you were invited to join the {data.store_name} marketplace.<br />
         If you have any questions, please contact our support team.
       </div>
       <div style={{ marginTop: 32 }}>
         <div>Best regards,</div>
-        <div style={{ fontWeight: 600 }}>The Mercur Team</div>
-        <div style={{ color: '#888', marginTop: 4 }}>mercur.js</div>
+        <div style={{ fontWeight: 600 }}>The {data.store_name} Team</div>
+        <div style={{ color: '#888', marginTop: 4 }}>{data.storefront_url}</div>
       </div>
     </div>
   )

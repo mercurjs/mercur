@@ -262,7 +262,6 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
             status: "pending",
             currency_code: order.currency_code,
             authorized_amount: MathBN.convert(
-              // @ts-ignore
               order.summary?.accounting_total || 0
             ).toNumber(),
             payment_collection_id: payment!.payment_collection_id,
@@ -351,9 +350,9 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
 
       const orderEvents = transform({ createdOrders }, ({ createdOrders }) => ({
         eventName: OrderWorkflowEvents.PLACED,
-        data: createdOrders.map((order) => ({
-          id: order.id,
-        })),
+        data: {
+          order_ids: createdOrders.map((order) => order.id),
+        },
       }));
 
       parallelize(
