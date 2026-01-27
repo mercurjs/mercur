@@ -2,19 +2,13 @@ import { deduplicate } from "@medusajs/framework/utils";
 import {
   WorkflowResponse,
   createWorkflow,
-  parallelize,
   transform,
   when,
 } from "@medusajs/framework/workflows-sdk";
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows";
 
 import {
-  filterOrderSetsByFulfillmentStatusStep,
-  filterOrderSetsByOrderIdStep,
-  filterOrderSetsByPaymentStatusStep,
-  filterOrderSetsBySearchStep,
-  filterOrderSetsBySellerStep,
-  intersectFilterResultsStep,
+  filterOrderSetsWithKnexStep,
 } from "../steps";
 import { formatOrderSets } from "../utils";
 
@@ -29,104 +23,8 @@ export const filterAndListOrderSetsWorkflow = createWorkflow(
       order?: Record<string, any>;
     };
   }) {
-    const [
-      orderIdFilterResult,
-      searchFilterResult,
-      sellerFilterResult,
-      paymentStatusFilterResult,
-      fulfillmentStatusFilterResult,
-    ] = parallelize(
-      when(
-        { filters: input.filters },
-        ({ filters }) => !!filters.order_id
-      ).then(() => {
-        return filterOrderSetsByOrderIdStep({
-          orderId: input.filters.order_id,
-        });
-      }),
-      when({ filters: input.filters }, ({ filters }) => !!filters.q).then(
-        () => {
-          return filterOrderSetsBySearchStep({
-            searchQuery: input.filters.q,
-          });
-        }
-      ),
-      when(
-        { filters: input.filters },
-        ({ filters }) => !!filters.seller_id
-      ).then(() => {
-        const sellerIds = transform(
-          { filters: input.filters },
-          ({ filters }) => {
-            return Array.isArray(filters.seller_id)
-              ? filters.seller_id
-              : [filters.seller_id];
-          }
-        );
-
-        return filterOrderSetsBySellerStep({
-          sellerIds,
-        });
-      }),
-      when(
-        { filters: input.filters },
-        ({ filters }) => !!filters.payment_status
-      ).then(() => {
-        const paymentStatuses = transform(
-          { filters: input.filters },
-          ({ filters }) => {
-            return Array.isArray(filters.payment_status)
-              ? filters.payment_status
-              : [filters.payment_status];
-          }
-        );
-
-        return filterOrderSetsByPaymentStatusStep({
-          paymentStatuses,
-        });
-      }),
-      when(
-        { filters: input.filters },
-        ({ filters }) => !!filters.fulfillment_status
-      ).then(() => {
-        const fulfillmentStatuses = transform(
-          { filters: input.filters },
-          ({ filters }) => {
-            return Array.isArray(filters.fulfillment_status)
-              ? filters.fulfillment_status
-              : [filters.fulfillment_status];
-          }
-        );
-
-        return filterOrderSetsByFulfillmentStatusStep({
-          fulfillmentStatuses,
-        });
-      })
-    );
-
-    const filterResults = transform(
-      {
-        orderIdFilterResult,
-        searchFilterResult,
-        sellerFilterResult,
-        paymentStatusFilterResult,
-        fulfillmentStatusFilterResult,
-      },
-      (data) => {
-        return [
-          data.orderIdFilterResult,
-          data.searchFilterResult,
-          data.sellerFilterResult,
-          data.paymentStatusFilterResult,
-          data.fulfillmentStatusFilterResult,
-        ];
-      }
-    );
-
-    const { finalOrderSetIds } = intersectFilterResultsStep({ filterResults });
-
-    const isEmpty = transform({ finalOrderSetIds }, ({ finalOrderSetIds }) => {
-      return Array.isArray(finalOrderSetIds) && finalOrderSetIds.length === 0;
+    const { orderSetIds, isEmpty } = filterOrderSetsWithKnexStep({
+      filters: input.filters,
     });
 
     const emptyResponse = when({ isEmpty }, ({ isEmpty }) => isEmpty).then(
@@ -148,12 +46,12 @@ export const filterAndListOrderSetsWorkflow = createWorkflow(
     const dataResponse = when({ isEmpty }, ({ isEmpty }) => !isEmpty).then(
       () => {
         const finalFilters = transform(
-          { filters: input.filters, finalOrderSetIds },
-          ({ filters, finalOrderSetIds }) => {
+          { filters: input.filters, orderSetIds },
+          ({ filters, orderSetIds }) => {
             const newFilters = { ...filters };
 
-            if (finalOrderSetIds !== null) {
-              newFilters.id = finalOrderSetIds;
+            if (orderSetIds && orderSetIds.length > 0) {
+              newFilters.id = orderSetIds;
             }
 
             delete newFilters.order_id;
