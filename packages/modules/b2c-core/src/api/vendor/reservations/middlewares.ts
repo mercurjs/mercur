@@ -1,7 +1,5 @@
 import { NextFunction } from 'express';
 
-
-
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -133,41 +131,30 @@ export const canDeleteReservation = () => {
     res: MedusaResponse,
     next: NextFunction
   ) => {
-    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    const knex = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
-    const {
-      data: [item]
-    } = await query.graph({
-      entity: 'reservation_item',
-      fields: ['id', 'line_item_id'],
-      filters: {
-        id: req.params.id
-      }
-    });
+    const order = await knex('order')
+      .select('order.id', 'order.status')
+      .join('order_item', 'order.id', 'order_item.order_id')
+      .join(
+        'reservation_item',
+        'order_item.item_id',
+        'reservation_item.line_item_id'
+      )
+      .where('reservation_item.id', req.params.id)
+      .first()
 
-    if (item.line_item_id) {
-      const {
-        data: [orderItem]
-      } = await query.graph({
-        entity: 'order_item',
-        fields: ['id', 'order.status'],
-        filters: {
-          item_id: item.line_item_id
-        }
-      });
-
-      if (orderItem.order.status !== OrderStatus.CANCELED) {
-        res.status(403).json({
-          message: 'Cancel order first to delete reservation.',
-          type: MedusaError.Types.NOT_ALLOWED
-        });
-        return;
-      }
+    if (order && order.status !== OrderStatus.CANCELED) {
+      res.status(403).json({
+        message: 'Cancel order first to delete reservation.',
+        type: MedusaError.Types.NOT_ALLOWED
+      })
+      return
     }
 
-    next();
-  };
-};
+    next()
+  }
+}
 
 export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
   {
