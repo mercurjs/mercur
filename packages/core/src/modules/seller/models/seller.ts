@@ -1,5 +1,5 @@
 import { model } from "@medusajs/framework/utils"
-import { SellerStatus } from "../types"
+import { SellerStatus } from "@mercurjs/types"
 
 const Seller = model.define("seller", {
   id: model.id({ prefix: "slr" }).primaryKey(),

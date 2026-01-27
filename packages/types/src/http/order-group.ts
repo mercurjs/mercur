@@ -46,3 +46,18 @@ export type StoreOrderGroupListResponse = PaginatedResponse<{
    */
   order_groups: OrderGroupDTO[]
 }>
+
+export type StoreCompleteCartResponse =
+  | {
+      type: "order_group"
+      order_group: OrderGroupDTO
+    }
+  | {
+      type: "cart"
+      cart: any
+      error: {
+        message: string
+        name: string
+        type: string
+      }
+    }

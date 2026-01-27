@@ -14,11 +14,11 @@ export const linkSellerShippingProfileStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.shipping_profile_ids.map((shippingProfileId) => ({
-      [SELLER_MODULE]: {
-        seller_id: input.seller_id,
-      },
       [Modules.FULFILLMENT]: {
         shipping_profile_id: shippingProfileId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: input.seller_id,
       },
     }))
 
@@ -35,11 +35,11 @@ export const linkSellerShippingProfileStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = data.shipping_profile_ids.map((shippingProfileId) => ({
-      [SELLER_MODULE]: {
-        seller_id: data.seller_id,
-      },
       [Modules.FULFILLMENT]: {
         shipping_profile_id: shippingProfileId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: data.seller_id,
       },
     }))
 

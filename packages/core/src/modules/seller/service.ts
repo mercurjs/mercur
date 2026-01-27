@@ -6,6 +6,7 @@ import {
   MedusaError,
   MedusaService,
   toHandle,
+  InjectTransactionManager
 } from "@medusajs/framework/utils"
 import { OrderGroup, Seller } from "./models"
 import { OrderGroupRepository } from "./repositories"
@@ -27,6 +28,7 @@ class SellerModuleService extends MedusaService({
     this.orderGroupRepository_ = orderGroupRepository
   }
 
+  @InjectTransactionManager()
   // @ts-ignore
   async createSellers(data: any | any[], sharedContext?: Context) {
     const sellersData = Array.isArray(data) ? data : [data]
@@ -50,6 +52,7 @@ class SellerModuleService extends MedusaService({
     return super.createSellers(data, sharedContext)
   }
 
+  @InjectTransactionManager()
   // @ts-ignore
   async updateSellers(data: any | any[], sharedContext?: Context) {
     const sellersData = Array.isArray(data) ? data : [data]

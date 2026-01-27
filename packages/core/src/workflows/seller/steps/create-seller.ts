@@ -1,6 +1,6 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
+import { CreateSellerDTO, SellerDTO } from "@mercurjs/types"
 
-import { CreateSellerDTO, SellerDTO } from "../../../modules/seller/types"
 import { SELLER_MODULE } from "../../../modules/seller"
 import SellerModuleService from "../../../modules/seller/service"
 

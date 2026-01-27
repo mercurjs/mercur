@@ -14,11 +14,11 @@ export const linkSellerInventoryItemStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.inventory_item_ids.map((inventoryItemId) => ({
-      [SELLER_MODULE]: {
-        seller_id: input.seller_id,
-      },
       [Modules.INVENTORY]: {
         inventory_item_id: inventoryItemId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: input.seller_id,
       },
     }))
 
@@ -35,11 +35,11 @@ export const linkSellerInventoryItemStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = data.inventory_item_ids.map((inventoryItemId) => ({
-      [SELLER_MODULE]: {
-        seller_id: data.seller_id,
-      },
       [Modules.INVENTORY]: {
         inventory_item_id: inventoryItemId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: data.seller_id,
       },
     }))
 

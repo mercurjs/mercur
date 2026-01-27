@@ -19,7 +19,7 @@ export const validateSellerShippingOption = async (
   const {
     data: [sellerShippingOption],
   } = await query.graph({
-    entity: "seller_shipping_option",
+    entity: "shipping_option_seller",
     filters: {
       seller_id: sellerId,
       shipping_option_id: shippingOptionId,

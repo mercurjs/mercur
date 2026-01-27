@@ -24,11 +24,11 @@ createProductsWorkflow.hooks.productsCreated(
 
     for (const product of products) {
       links.push({
-        [SELLER_MODULE]: {
-          seller_id: additional_data.seller_id,
-        },
         [Modules.PRODUCT]: {
           product_id: product.id,
+        },
+        [SELLER_MODULE]: {
+          seller_id: additional_data.seller_id,
         },
       })
 
@@ -49,11 +49,11 @@ createProductsWorkflow.hooks.productsCreated(
       for (const variant of variants) {
         for (const inventoryItem of variant.inventory_items || []) {
           inventoryLinks.push({
-            [SELLER_MODULE]: {
-              seller_id: additional_data.seller_id,
-            },
             [Modules.INVENTORY]: {
               inventory_item_id: inventoryItem.inventory_item_id,
+            },
+            [SELLER_MODULE]: {
+              seller_id: additional_data.seller_id,
             },
           })
         }

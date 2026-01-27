@@ -14,11 +14,11 @@ export const linkSellerPromotionStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.promotion_ids.map((promotionId) => ({
-      [SELLER_MODULE]: {
-        seller_id: input.seller_id,
-      },
       [Modules.PROMOTION]: {
         promotion_id: promotionId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: input.seller_id,
       },
     }))
 
@@ -35,11 +35,11 @@ export const linkSellerPromotionStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = data.promotion_ids.map((promotionId) => ({
-      [SELLER_MODULE]: {
-        seller_id: data.seller_id,
-      },
       [Modules.PROMOTION]: {
         promotion_id: promotionId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: data.seller_id,
       },
     }))
 

@@ -1,6 +1,7 @@
 import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
 import { Context, FindOptions } from "@medusajs/framework/types"
-import { isObject, MikroOrmBase } from "@medusajs/framework/utils"
+import { DALUtils, isObject, MikroOrmBase } from "@medusajs/framework/utils"
+import { OrderGroup } from "../models"
 
 const OPERATOR_MAP = {
   $eq: "=",
@@ -15,7 +16,9 @@ const OPERATOR_MAP = {
   $ilike: "ILIKE",
 }
 
-export class OrderGroupRepository extends MikroOrmBase {
+export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory(
+  OrderGroup
+) {
   constructor() {
     // @ts-ignore
     // eslint-disable-next-line prefer-rest-params
@@ -159,7 +162,7 @@ export class OrderGroupRepository extends MikroOrmBase {
       FROM order_group og
       LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id
       LEFT JOIN "order" o ON o.id = ogo.order_id
-      LEFT JOIN seller_seller_order_order oso ON oso.order_id = o.id
+      LEFT JOIN order_order_seller_seller oso ON oso.order_id = o.id
       WHERE ${whereClause}
     `
 
@@ -167,12 +170,12 @@ export class OrderGroupRepository extends MikroOrmBase {
       SELECT
         og.*,
         COUNT(DISTINCT oso.seller_id) as seller_count,
-        COALESCE(SUM(os.total), 0) as total
+        COALESCE(SUM((os.totals->>'current_order_total')::numeric), 0) as total
       FROM order_group og
       LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id
       LEFT JOIN "order" o ON o.id = ogo.order_id
       LEFT JOIN order_summary os ON os.order_id = o.id AND os.version = o.version
-      LEFT JOIN seller_seller_order_order oso ON oso.order_id = o.id
+      LEFT JOIN order_order_seller_seller oso ON oso.order_id = o.id
       WHERE ${whereClause}
       GROUP BY og.id
       ORDER BY ${orderByClauses.join(", ")}
@@ -195,7 +198,11 @@ export class OrderGroupRepository extends MikroOrmBase {
       knex.raw(countQuery, params),
     ])
 
-    const rows = result.rows || []
+    const rows = result.rows.map(row => ({
+      ...row,
+      total: row.total ? Number(row.total) : 0,
+      seller_count: row.seller_count ? Number(row.seller_count) : 0,
+    })) ?? []
     const count = parseInt(countResult.rows?.[0]?.count || "0", 10)
 
     return [rows, count]

@@ -14,11 +14,11 @@ export const linkSellerShippingOptionStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.shipping_option_ids.map((shippingOptionId) => ({
-      [SELLER_MODULE]: {
-        seller_id: input.seller_id,
-      },
       [Modules.FULFILLMENT]: {
         shipping_option_id: shippingOptionId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: input.seller_id,
       },
     }))
 
@@ -35,11 +35,11 @@ export const linkSellerShippingOptionStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = data.shipping_option_ids.map((shippingOptionId) => ({
-      [SELLER_MODULE]: {
-        seller_id: data.seller_id,
-      },
       [Modules.FULFILLMENT]: {
         shipping_option_id: shippingOptionId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: data.seller_id,
       },
     }))
 

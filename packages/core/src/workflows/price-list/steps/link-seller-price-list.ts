@@ -13,11 +13,11 @@ export const linkSellerPriceListStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.price_list_ids.map((priceListId) => ({
-      [SELLER_MODULE]: {
-        seller_id: input.seller_id,
-      },
       [Modules.PRICING]: {
         price_list_id: priceListId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: input.seller_id,
       },
     }))
 
@@ -34,11 +34,11 @@ export const linkSellerPriceListStep = createStep(
     const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = data.price_list_ids.map((priceListId) => ({
-      [SELLER_MODULE]: {
-        seller_id: data.seller_id,
-      },
       [Modules.PRICING]: {
         price_list_id: priceListId,
+      },
+      [SELLER_MODULE]: {
+        seller_id: data.seller_id,
       },
     }))
 

@@ -47,7 +47,7 @@ export const validateSellerPromotions = async (
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: sellerPromotions } = await query.graph({
-    entity: "seller_promotion",
+    entity: "promotion_seller",
     filters: {
       seller_id: sellerId,
       promotion_id: promotionIds,
