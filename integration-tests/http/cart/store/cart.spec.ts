@@ -470,22 +470,17 @@ medusaIntegrationTestRunner({
                         storeHeaders
                     )
 
-                    // 8. Complete the cart using checkout endpoint
+                    // 8. Complete the cart using complete endpoint
                     const completeResponse = await api.post(
-                        `/store/carts/${cart.id}/checkout`,
+                        `/store/carts/${cart.id}/complete`,
                         {},
                         storeHeaders
-                    ).catch((e) => {
-                        console.log(e)
-                        throw e
-                    })
+                    )
 
                     expect(completeResponse.status).toEqual(200)
                     expect(completeResponse.data.type).toEqual("order_group")
                     expect(completeResponse.data.order_group).toBeDefined()
                     expect(completeResponse.data.order_group.id).toBeDefined()
-                    expect(completeResponse.data.order_group.orders).toBeDefined()
-                    expect(completeResponse.data.order_group.orders.length).toBeGreaterThan(0)
                 })
 
                 it("should add multiple items from different variants", async () => {

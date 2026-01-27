@@ -1,17 +1,17 @@
 import { validateAndTransformQuery } from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
 
-import { storeCheckoutCartQueryConfig } from "./[id]/checkout/query-config"
-import { StoreCheckoutCartParams } from "./[id]/checkout/validators"
+import { storeCompleteCartQueryConfig } from "./[id]/complete/query-config"
+import { StoreCompleteCartParams } from "./[id]/complete/validators"
 
 export const storeCartsMiddlewares: MiddlewareRoute[] = [
     {
         method: ["POST"],
-        matcher: "/store/carts/:id/checkout",
+        matcher: "/store/carts/:id/complete",
         middlewares: [
             validateAndTransformQuery(
-                StoreCheckoutCartParams,
-                storeCheckoutCartQueryConfig
+                StoreCompleteCartParams,
+                storeCompleteCartQueryConfig
             ),
         ],
     },

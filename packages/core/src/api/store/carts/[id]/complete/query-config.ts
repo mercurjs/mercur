@@ -8,7 +8,7 @@ export const defaultStoreRetrieveOrderGroupFields = [
     "updated_at",
 ]
 
-export const storeCheckoutCartQueryConfig = {
+export const storeCompleteCartQueryConfig = {
     defaults: defaultStoreRetrieveOrderGroupFields,
     isList: false,
 }
