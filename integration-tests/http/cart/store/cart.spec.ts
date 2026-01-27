@@ -608,6 +608,319 @@ medusaIntegrationTestRunner({
                 })
             })
 
+            describe("Promotions/Discounts", () => {
+                it("should apply seller promotion only to that seller's items", async () => {
+                    // Create promotion for seller (10% off order)
+                    const promotionResponse = await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "SELLER10",
+                            type: "standard",
+                            status: "active",
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 10,
+                            },
+                        },
+                        sellerHeaders
+                    )
+                    expect(promotionResponse.status).toEqual(200)
+
+                    // Create cart with item
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    let cart = cartResponse.data.cart
+
+                    // Add item to cart (item price: $20.00)
+                    const addItemResponse = await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+                    cart = addItemResponse.data.cart
+
+                    // Apply promotion
+                    const promoResponse = await api.post(
+                        `/store/carts/${cart.id}/promotions`,
+                        {
+                            promo_codes: ["SELLER10"],
+                        },
+                        storeHeaders
+                    )
+
+                    expect(promoResponse.status).toEqual(200)
+                    cart = promoResponse.data.cart
+
+                    // Verify discount was applied
+                    expect(cart.items[0].adjustments).toBeDefined()
+                    expect(cart.items[0].adjustments.length).toBeGreaterThan(0)
+                    expect(cart.items[0].adjustments[0].code).toEqual("SELLER10")
+                    expect(cart.items[0].adjustments[0].amount).toBeGreaterThan(0)
+                })
+
+                it("should only apply seller promotion to that seller's items when cart has multiple sellers", async () => {
+                    // Create second seller with product
+                    const seller2Result = await createSellerUser(appContainer, {
+                        email: "seller2promo@test.com",
+                        name: "Promo Seller 2",
+                    })
+                    const seller2Headers = seller2Result.headers
+
+                    // Create product for seller 2
+                    const product2Response = await api.post(
+                        `/vendor/products`,
+                        {
+                            status: "published",
+                            title: "Seller 2 Product",
+                            options: [{ title: "Size", values: ["M"] }],
+                            variants: [
+                                {
+                                    title: "Medium",
+                                    sku: "S2-M",
+                                    options: { Size: "M" },
+                                    prices: [{ currency_code: "usd", amount: 3000 }],
+                                    manage_inventory: false,
+                                },
+                            ],
+                            sales_channels: [{ id: salesChannel.id }],
+                        },
+                        seller2Headers
+                    )
+                    const product2 = product2Response.data.product
+
+                    // Create promotion for seller 1 only (20% off order)
+                    await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "SELLER1ONLY",
+                            type: "standard",
+                            status: "active",
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 20,
+                            },
+                        },
+                        sellerHeaders
+                    )
+
+                    // Create cart
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    let cart = cartResponse.data.cart
+
+                    // Add item from seller 1 ($20.00)
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Add item from seller 2 ($30.00)
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product2.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Apply seller 1's promotion
+                    const promoResponse = await api.post(
+                        `/store/carts/${cart.id}/promotions`,
+                        {
+                            promo_codes: ["SELLER1ONLY"],
+                        },
+                        storeHeaders
+                    )
+
+                    expect(promoResponse.status).toEqual(200)
+                    cart = promoResponse.data.cart
+
+                    // Find seller 1's item and seller 2's item
+                    const seller1Item = cart.items.find((item: any) => item.variant_id === product.variants[0].id)
+                    const seller2Item = cart.items.find((item: any) => item.variant_id === product2.variants[0].id)
+
+                    // Seller 1's item should have the discount
+                    const seller1Adjustment = seller1Item.adjustments?.find(
+                        (adj: any) => adj.code === "SELLER1ONLY"
+                    )
+                    expect(seller1Adjustment).toBeDefined()
+                    expect(seller1Adjustment.amount).toBeGreaterThan(0)
+
+                    // Seller 2's item should NOT have any discount adjustments from seller 1's promotion
+                    const seller2Adjustments = seller2Item.adjustments?.filter(
+                        (adj: any) => adj.code === "SELLER1ONLY"
+                    ) || []
+                    expect(seller2Adjustments.length).toEqual(0)
+                })
+
+                it("should apply different seller promotions to their respective items", async () => {
+                    // Create second seller with product
+                    const seller2Result = await createSellerUser(appContainer, {
+                        email: "seller2multi@test.com",
+                        name: "Multi Promo Seller 2",
+                    })
+                    const seller2Headers = seller2Result.headers
+
+                    // Create product for seller 2
+                    const product2Response = await api.post(
+                        `/vendor/products`,
+                        {
+                            status: "published",
+                            title: "Seller 2 Multi Product",
+                            options: [{ title: "Size", values: ["L"] }],
+                            variants: [
+                                {
+                                    title: "Large",
+                                    sku: "S2-L-MULTI",
+                                    options: { Size: "L" },
+                                    prices: [{ currency_code: "usd", amount: 5000 }],
+                                    manage_inventory: false,
+                                },
+                            ],
+                            sales_channels: [{ id: salesChannel.id }],
+                        },
+                        seller2Headers
+                    )
+                    const product2 = product2Response.data.product
+
+                    // Create promotion for seller 1 (10% off)
+                    await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "SELLER1TEN",
+                            type: "standard",
+                            status: "active",
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 10,
+                            },
+                        },
+                        sellerHeaders
+                    )
+
+                    // Create promotion for seller 2 (15% off)
+                    await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "SELLER2FIFTEEN",
+                            type: "standard",
+                            status: "active",
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 15,
+                            },
+                        },
+                        seller2Headers
+                    )
+
+                    // Create cart
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    let cart = cartResponse.data.cart
+
+                    // Add item from seller 1 ($20.00)
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Add item from seller 2 ($50.00)
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product2.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Apply both promotions
+                    await api.post(
+                        `/store/carts/${cart.id}/promotions`,
+                        {
+                            promo_codes: ["SELLER1TEN"],
+                        },
+                        storeHeaders
+                    )
+
+                    const promoResponse = await api.post(
+                        `/store/carts/${cart.id}/promotions`,
+                        {
+                            promo_codes: ["SELLER2FIFTEEN"],
+                        },
+                        storeHeaders
+                    )
+
+                    expect(promoResponse.status).toEqual(200)
+                    cart = promoResponse.data.cart
+
+                    // Find items
+                    const seller1Item = cart.items.find((item: any) => item.variant_id === product.variants[0].id)
+                    const seller2Item = cart.items.find((item: any) => item.variant_id === product2.variants[0].id)
+
+                    // Seller 1's item should have SELLER1TEN discount
+                    const seller1Adjustment = seller1Item.adjustments?.find(
+                        (adj: any) => adj.code === "SELLER1TEN"
+                    )
+                    expect(seller1Adjustment).toBeDefined()
+                    expect(seller1Adjustment.amount).toBeGreaterThan(0)
+
+                    // Seller 2's item should have SELLER2FIFTEEN discount
+                    const seller2Adjustment = seller2Item.adjustments?.find(
+                        (adj: any) => adj.code === "SELLER2FIFTEEN"
+                    )
+                    expect(seller2Adjustment).toBeDefined()
+                    expect(seller2Adjustment.amount).toBeGreaterThan(0)
+
+                    // Verify cross-seller promotions are not applied
+                    const seller1WrongAdjustment = seller1Item.adjustments?.find(
+                        (adj: any) => adj.code === "SELLER2FIFTEEN"
+                    )
+                    const seller2WrongAdjustment = seller2Item.adjustments?.find(
+                        (adj: any) => adj.code === "SELLER1TEN"
+                    )
+                    expect(seller1WrongAdjustment).toBeUndefined()
+                    expect(seller2WrongAdjustment).toBeUndefined()
+                })
+            })
+
             describe("Shipping Options", () => {
                 it("should return shipping options grouped by seller", async () => {
                     // Create cart with item
