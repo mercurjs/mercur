@@ -27,6 +27,7 @@ export enum ProductRequestUpdatedEvent {
   ACCEPTED = "requests.product.accepted",
   REJECTED = "requests.product.rejected",
   TO_CREATE = "requests.product.to_create",
+  DELETED = "requests.product.deleted"
 }
 
 export enum ProductUpdateRequestUpdatedEvent {
