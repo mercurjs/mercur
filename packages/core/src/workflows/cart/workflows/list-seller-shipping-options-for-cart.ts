@@ -12,7 +12,7 @@ import {
     validatePresenceOfStep,
 } from "@medusajs/medusa/core-flows"
 import { deduplicate, filterObjectByKeys, isDefined } from "@medusajs/framework/utils"
-import { cartFieldsForPricingContext, pricingContextResult, shippingOptionsContextResult } from "./utils"
+import { cartFieldsForPricingContext, pricingContextResult, shippingOptionsContextResult } from "../utils"
 import { SellerDTO } from "@mercurjs/types"
 
 export type ListSellerShippingOptionsForCartWorkflowInput = {

@@ -2,8 +2,8 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HttpTypes } from "@medusajs/framework/types"
 import { PromotionActions } from "@medusajs/framework/utils"
 import { refetchCart } from "@medusajs/medusa/api/store/carts/helpers"
+import { updateCartSellerPromotionsWorkflow } from "../../../../../workflows"
 
-import { updateCartSellerPromotionsWorkflow } from "../../../../../workflows/cart/update-cart-seller-promotions"
 
 export const POST = async (
   req: MedusaRequest<HttpTypes.StoreCartAddPromotion, HttpTypes.SelectParams>,

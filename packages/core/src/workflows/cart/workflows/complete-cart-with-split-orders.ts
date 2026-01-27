@@ -38,13 +38,13 @@ import {
 } from "@medusajs/medusa/core-flows"
 import { CreateOrderGroupDTO, SellerDTO } from "@mercurjs/types"
 
-import { SELLER_MODULE } from "../../modules/seller"
-import { createOrderGroupStep } from "../order-group"
-import { OrderGroupWorkflowEvents } from "../events"
+import { SELLER_MODULE } from "../../../modules/seller"
+import { createOrderGroupStep } from "../../order-group"
+import { OrderGroupWorkflowEvents } from "../../events"
 import {
     validateSellerCartItemsStep,
     validateSellerCartShippingStep,
-} from "./steps"
+} from "../steps"
 import {
     completeCartFields,
     prepareAdjustmentsData,
@@ -52,8 +52,8 @@ import {
     prepareLineItemData,
     prepareTaxLinesData,
     prepareConfirmInventoryInput,
-} from "./utils"
-import { registerUsageStep } from "../promotion"
+} from "../utils"
+import { registerUsageStep } from "../../promotion"
 
 type CompleteCartWithSplitOrdersWorkflowInput = {
     cart_id: string

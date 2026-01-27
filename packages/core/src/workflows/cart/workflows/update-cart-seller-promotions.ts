@@ -8,8 +8,8 @@ import {
     WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { acquireLockStep, createLineItemAdjustmentsStep, createShippingMethodAdjustmentsStep, getActionsToComputeFromPromotionsStep, getPromotionCodesToApply, prepareAdjustmentsFromPromotionActionsStep, refreshPaymentCollectionForCartWorkflow, releaseLockStep, removeLineItemAdjustmentsStep, removeShippingMethodAdjustmentsStep, updateCartPromotionsStep, UpdateCartPromotionsWorkflowInput, useQueryGraphStep, validateCartStep } from "@medusajs/medusa/core-flows"
-import { cartFieldsForRefreshSteps } from "./utils"
-import { prepareSellerAdjustmentsFromPromotionActionsStep } from "./steps/prepare-adjustments-from-promotion-actions"
+import { cartFieldsForRefreshSteps } from "../utils"
+import { prepareSellerAdjustmentsFromPromotionActionsStep } from "../steps/prepare-adjustments-from-promotion-actions"
 
 
 export const updateCartSellerPromotionsWorkflow = createWorkflow(
