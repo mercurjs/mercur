@@ -31,6 +31,7 @@
     "fast-glob": "^3.3.3",
     "fs-extra": "^11.3.2",
     "kleur": "^4.1.5",
+    "open": "^11.0.0",
     "ora": "^9.0.0",
     "pg": "^8.17.1",
     "prompts": "^2.4.2",
@@ -39,6 +40,7 @@
     "ts-morph": "^27.0.2",
     "tsconfig-paths": "^4.2.0",
     "validate-npm-package-name": "^7.0.2",
+    "wait-on": "^9.0.3",
     "zod": "3.25.76"
   },
   "devDependencies": {
@@ -47,6 +49,7 @@
     "@types/prompts": "^2.4.9",
     "@types/tar": "^6.1.13",
     "@types/validate-npm-package-name": "^4.0.2",
+    "@types/wait-on": "^5.3.4",
     "tsup": "^8.5.0"
   }
 }

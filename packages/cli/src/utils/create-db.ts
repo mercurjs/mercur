@@ -11,11 +11,14 @@ import prompts from "prompts";
 const DEFAULT_DB_HOST = "localhost";
 const DEFAULT_DB_PORT = 5432;
 
+const ADMIN_EMAIL = "admin@mercur-test.com";
+
 export interface SetupDatabaseResult {
   success: boolean;
   dbName: string;
   connectionString: string | null;
   alreadyExists?: boolean;
+  inviteToken?: string | null;
 }
 
 export async function setupDatabase(args: {
@@ -67,11 +70,15 @@ export async function setupDatabase(args: {
         return { success: false, dbName, connectionString: null };
       }
 
+      // Create admin invite
+      const inviteToken = await createAdminInvite({ ...args, spinner: args.spinner });
+
       return {
         success: true,
         dbName,
         connectionString: finalConnectionString,
         alreadyExists: true,
+        inviteToken,
       };
     }
 
@@ -100,10 +107,14 @@ export async function setupDatabase(args: {
       return { success: false, dbName, connectionString: null };
     }
 
+    // Create admin invite
+    const inviteToken = await createAdminInvite({ ...args, spinner: args.spinner });
+
     return {
       success: true,
       dbName,
       connectionString: finalConnectionString,
+      inviteToken,
     };
   } catch (err) {
     logger.error(
@@ -299,6 +310,35 @@ async function runMigrations({
       `Error running migrations${err instanceof Error ? `: ${err.message}` : ""}.`
     );
     return false;
+  }
+}
+
+async function createAdminInvite({
+  projectDir,
+  spinner: parentSpinner,
+}: {
+  projectDir: string;
+  spinner?: Ora;
+}): Promise<string | null> {
+  const apiDir = path.join(projectDir, "packages", "api");
+
+  if (parentSpinner) {
+    parentSpinner.text = "Creating admin invite...";
+  }
+
+  try {
+    const result = await execa("npx", ["medusa", "user", "-e", ADMIN_EMAIL, "--invite"], {
+      cwd: apiDir,
+    });
+
+    // Parse token from stdout (same as Medusa CLI does)
+    const match = result.stdout.match(/Invite token: (?<token>.+)/);
+    return match?.groups?.token || null;
+  } catch (err) {
+    logger.error(
+      `Error creating admin invite${err instanceof Error ? `: ${err.message}` : ""}.`
+    );
+    return null;
   }
 }
 

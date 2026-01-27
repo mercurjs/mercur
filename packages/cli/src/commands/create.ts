@@ -1,8 +1,11 @@
+import { exec } from "node:child_process";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import path from "path";
 
 import { clearRegistryContext } from "@/src/registry/context";
+import open from "open";
+import waitOn from "wait-on";
 import { sendTelemetryEvent, setTelemetryEmail } from "@/src/telemetry";
 import { setupDatabase } from "@/src/utils/create-db";
 import { getPackageManager } from "@/src/utils/get-package-manager";
@@ -144,6 +147,7 @@ export const create = new Command()
         // Database setup
         let dbConnectionString: string | undefined = opts.dbConnectionString;
         let dbSetupSuccess = false;
+        let inviteToken: string | null = null;
 
         if (!opts.skipDb) {
           // Check for DATABASE_URL in environment if no connection string provided
@@ -183,6 +187,7 @@ export const create = new Command()
               );
             }
             dbConnectionString = dbResult.connectionString!;
+            inviteToken = dbResult.inviteToken || null;
             dbSetupSuccess = true;
           } else {
             dbSpinner.fail("Failed to setup database.");
@@ -197,49 +202,6 @@ export const create = new Command()
           }
         } else {
           spinner("Database setup skipped.").warn();
-        }
-
-        // Create admin user (only if database was set up)
-        if (dbSetupSuccess) {
-          const { wantsAdmin } = await prompts({
-            type: "confirm",
-            name: "wantsAdmin",
-            message: "Create an admin user?",
-            initial: true,
-          });
-
-          if (wantsAdmin) {
-            const adminAnswers = await prompts([
-              {
-                type: "text",
-                name: "email",
-                message: "Admin email:",
-                initial: "admin@example.com",
-                validate: (value: string) =>
-                  value.includes("@") ? true : "Please enter a valid email",
-              },
-              {
-                type: "password",
-                name: "password",
-                message: "Admin password:",
-              },
-            ]);
-
-            if (adminAnswers.email && adminAnswers.password) {
-              const adminSpinner = spinner("Creating admin user...").start();
-              const adminCreated = await createAdminUser({
-                projectDir,
-                email: adminAnswers.email,
-                password: adminAnswers.password,
-              });
-
-              if (adminCreated) {
-                adminSpinner.succeed(`Admin user created: ${adminAnswers.email}`);
-              } else {
-                adminSpinner.fail("Failed to create admin user.");
-              }
-            }
-          }
         }
 
         if (!opts.skipEmail) {
@@ -269,13 +231,6 @@ export const create = new Command()
           databaseUri: dbConnectionString,
         });
 
-        logger.break();
-        logger.info("Mercur project successfully created!");
-        logger.log(kleur.bgGreen(kleur.black(" Next Steps ")));
-        logger.log(successMessage(projectDir, packageManager));
-        logger.log(feedbackOutro());
-        logger.break();
-
         await initGit(projectDir);
 
         await sendTelemetryEvent({
@@ -285,7 +240,58 @@ export const create = new Command()
           }
         }, {
           cwd: projectDir,
-        })
+        });
+
+        logger.break();
+        logger.info("Mercur project successfully created!");
+        logger.break();
+
+        // Start development server and open browser
+        if (dbSetupSuccess) {
+          logger.info("Starting development server...");
+          logger.break();
+
+          const apiDir = path.join(projectDir, "packages", "api");
+          const inviteUrl = inviteToken
+            ? `http://localhost:9000/app/invite?token=${inviteToken}&first_run=true`
+            : "http://localhost:9000/app";
+
+          // Start server process
+          const serverProcess = exec(`${packageManager === "npm" ? "npm run" : packageManager} dev`, {
+            cwd: apiDir,
+            env: process.env,
+          });
+
+          // Pipe output to terminal
+          serverProcess.stdout?.pipe(process.stdout);
+          serverProcess.stderr?.pipe(process.stderr);
+
+          // Wait for server to be ready and open browser
+          waitOn({
+            resources: ["http://localhost:9000/health"],
+            timeout: 60000,
+          }).then(async () => {
+            try {
+              await open(inviteUrl);
+            } catch {
+              // If browser fails to open, just log the URL
+              logger.break();
+              logger.info("Open this URL in your browser to create your admin account:");
+              logger.log(highlighter.info(inviteUrl));
+            }
+          }).catch(() => {
+            // Server didn't start in time, show URL as fallback
+            logger.break();
+            logger.info("To create your admin account, visit:");
+            logger.log(highlighter.info(inviteUrl));
+          });
+        } else {
+          // No database setup, just show next steps
+          logger.log(kleur.bgGreen(kleur.black(" Next Steps ")));
+          logger.log(successMessage(projectDir, packageManager));
+          logger.log(feedbackOutro());
+          logger.break();
+        }
       }
     } catch (error) {
       logger.break();
@@ -425,26 +431,3 @@ function validateNodeVersion(): void {
   }
 }
 
-async function createAdminUser({
-  projectDir,
-  email,
-  password,
-}: {
-  projectDir: string;
-  email: string;
-  password: string;
-}): Promise<boolean> {
-  const apiDir = path.join(projectDir, "packages", "api");
-
-  try {
-    await execa("npx", ["medusa", "user", "-e", email, "-p", password], {
-      cwd: apiDir,
-    });
-    return true;
-  } catch (err: unknown) {
-    logger.error(
-      `Error creating admin user${err instanceof Error ? `: ${err.message}` : ""}.`
-    );
-    return false;
-  }
-}
