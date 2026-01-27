@@ -115,8 +115,7 @@ export const create = new Command()
         if (!opts.deps) {
           spinner("Dependency installation skipped.").warn();
         } else {
-          logger.info(`Installing dependencies with ${packageManager}...`);
-          logger.break();
+          spinner(`Installing dependencies with ${packageManager}...`).info();
           const installStart = Date.now();
           const result = await installDeps({
             projectDir,
@@ -221,13 +220,10 @@ export const create = new Command()
           cwd: projectDir,
         });
 
-        logger.break();
-        logger.info("Mercur project successfully created!");
-        logger.break();
+        spinner("Mercur project successfully created!").succeed();
 
         if (dbSetupSuccess) {
-          logger.info("Starting development server...");
-          logger.break();
+          spinner("Starting development server...").info();
 
           const apiDir = path.join(projectDir, "packages", "api");
           const inviteUrl = inviteToken
@@ -249,13 +245,11 @@ export const create = new Command()
             try {
               await open(inviteUrl);
             } catch {
-              logger.break();
-              logger.info("Open this URL in your browser to create your admin account:");
+              spinner("Open this URL in your browser to create your admin account:").info();
               logger.log(highlighter.info(inviteUrl));
             }
           }).catch(() => {
-            logger.break();
-            logger.info("To create your admin account, visit:");
+            spinner("To create your admin account, visit:").info();
             logger.log(highlighter.info(inviteUrl));
           });
         } else {
@@ -383,7 +377,7 @@ function createTerminalLink(text: string, url: string) {
 async function initGit(projectDir: string): Promise<void> {
   try {
     await execa("git", ["init"], { cwd: projectDir });
-    logger.info("Initialized a git repository.");
+    spinner("Initialized a git repository.").succeed();
   } catch {
     throw new Error("Failed to initialize git repository.");
   }
