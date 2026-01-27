@@ -1,15 +1,15 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
-import collectionCollectionDetails from "../../../../../links/collection-collection-details";
-import { createCollectionDetailWorkflow, updateCollectionDetailWorkflow } from "../../../../../workflows/collection-detail";
-import { defaultAdminCollectionDetailFields } from "../../query-config";
-import { UpdateCollectionDetailType } from "../../validators";
+import categoryCategoryDetails from "../../../../../links/category-category-details";
+import { createCategoryDetailWorkflow, updateCategoryDetailWorkflow } from "../../../../../workflows/category-detail";
+import { defaultAdminCategoryDetailFields } from "../../query-config";
+import { UpdateCategoryDetailType } from "../../validators";
 
 /**
- * @oas [post] /admin/collections/{id}/details
- * operationId: "AdminUpdateCollectionDetails"
- * summary: "Update Collection Details"
- * description: "Updates the details (media, thumbnail, icon, banner, rank) of a product collection."
+ * @oas [post] /admin/product-categories/{id}/details
+ * operationId: "AdminUpdateCategoryDetails"
+ * summary: "Update Category Details"
+ * description: "Updates the details (media, thumbnail, icon, banner) of a product category."
  * x-authenticated: true
  * parameters:
  *   - name: id
@@ -17,7 +17,7 @@ import { UpdateCollectionDetailType } from "../../validators";
  *     required: true
  *     schema:
  *       type: string
- *     description: The ID of the product collection.
+ *     description: The ID of the product category.
  * requestBody:
  *   required: true
  *   content:
@@ -75,9 +75,6 @@ import { UpdateCollectionDetailType } from "../../validators";
  *                     type: string
  *               - type: string
  *             description: Banner media (URL string or media object).
- *           rank:
- *             type: number
- *             description: The rank/order of the collection.
  * responses:
  *   "200":
  *     description: OK
@@ -86,8 +83,8 @@ import { UpdateCollectionDetailType } from "../../validators";
  *         schema:
  *           type: object
  *           properties:
- *             collection_detail:
- *               $ref: "#/components/schemas/AdminCollectionDetail"
+ *             category_detail:
+ *               $ref: "#/components/schemas/AdminCategoryDetail"
  *   "404":
  *     description: Not Found
  *     content:
@@ -97,70 +94,70 @@ import { UpdateCollectionDetailType } from "../../validators";
  *           properties:
  *             message:
  *               type: string
- *               example: "Collection not found"
+ *               example: "Category not found"
  * tags:
- *   - Admin Collections
+ *   - Admin Product Categories
  * security:
  *   - api_token: []
  *   - cookie_auth: []
  */
-export const POST = async (req: MedusaRequest<UpdateCollectionDetailType>, res: MedusaResponse) => {
+export const POST = async (req: MedusaRequest<UpdateCategoryDetailType>, res: MedusaResponse) => {
     const { id } = req.params;
 
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-    const { data: [collection] } = await query.graph({
-        entity: collectionCollectionDetails.entryPoint,
+    const { data: [category] } = await query.graph({
+        entity: categoryCategoryDetails.entryPoint,
         filters: {
-            product_collection_id: id
+            product_category_id: id
         },
         fields: [
-            'product_collection_id',
-            'collection_detail_id'
+            'product_category_id',
+            'category_detail_id'
         ],
     });
 
-    if (!collection) {
-        throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Collection not found');
+    if (!category) {
+        throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Category not found');
     }
 
-    if (!collection.collection_detail_id) {
-        const { result: createdCollectionDetail } = await createCollectionDetailWorkflow.run({
+    if (!category.category_detail_id) {
+        const { result: createdCategoryDetail } = await createCategoryDetailWorkflow.run({
             container: req.scope,
             input: {
-                product_collection_id: id
+                product_category_id: id
             }
         });
 
-        collection.collection_detail_id = createdCollectionDetail.id;
+        category.category_detail_id = createdCategoryDetail.id;
     }
 
-    await updateCollectionDetailWorkflow.run({
+    await updateCategoryDetailWorkflow.run({
         container: req.scope,
         input: {
-            collection_detail_id: collection.collection_detail_id,
+            category_detail_id: category.category_detail_id,
             ...req.validatedBody
         }
     });
 
-    const { data: [collectionDetail] } = await query.graph({
-        entity: 'collection_detail',
+    const { data: [categoryDetail] } = await query.graph({
+        entity: 'category_detail',
         filters: {
-            id: collection.collection_detail_id
+            id: category.category_detail_id
         },
-        fields: defaultAdminCollectionDetailFields
+        fields: defaultAdminCategoryDetailFields
     });
 
     res.json({
-        collection_detail: collectionDetail,
+        category_detail: categoryDetail,
     });
 }
 
 /**
- * @oas [get] /admin/collections/{id}/details
- * operationId: "AdminGetCollectionDetails"
- * summary: "Get Collection Details"
- * description: "Retrieves the details (media, thumbnail, icon, banner, rank) of a product collection."
+ * @oas [get] /admin/product-categories/{id}/details
+ * operationId: "AdminGetCategoryDetails"
+ * summary: "Get Category Details"
+ * description: "Retrieves the details (media, thumbnail, icon, banner) of a product category."
  * x-authenticated: true
  * parameters:
  *   - name: id
@@ -168,7 +165,7 @@ export const POST = async (req: MedusaRequest<UpdateCollectionDetailType>, res: 
  *     required: true
  *     schema:
  *       type: string
- *     description: The ID of the product collection.
+ *     description: The ID of the product category.
  * responses:
  *   "200":
  *     description: OK
@@ -177,8 +174,8 @@ export const POST = async (req: MedusaRequest<UpdateCollectionDetailType>, res: 
  *         schema:
  *           type: object
  *           properties:
- *             collection_detail:
- *               $ref: "#/components/schemas/AdminCollectionDetail"
+ *             category_detail:
+ *               $ref: "#/components/schemas/AdminCategoryDetail"
  *   "404":
  *     description: Not Found
  *     content:
@@ -188,9 +185,9 @@ export const POST = async (req: MedusaRequest<UpdateCollectionDetailType>, res: 
  *           properties:
  *             message:
  *               type: string
- *               example: "Collection not found"
+ *               example: "Category not found"
  * tags:
- *   - Admin Collections
+ *   - Admin Product Categories
  * security:
  *   - api_token: []
  *   - cookie_auth: []
@@ -199,22 +196,23 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     const { id } = req.params;
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-    const { data: [collection] } = await query.graph({
-        entity: collectionCollectionDetails.entryPoint,
+    const { data: [category] } = await query.graph({
+        entity: categoryCategoryDetails.entryPoint,
         filters: {
-            product_collection_id: id
+            product_category_id: id
         },
         fields: [
-            'collection_detail_id',
-            ...defaultAdminCollectionDetailFields.map(field => `collection_detail.${field}`),
+            'category_detail_id',
+            ...defaultAdminCategoryDetailFields.map(field => `category_detail.${field}`),
         ],
     });
 
-    if (!collection) {
-        throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Collection not found');
+    if (!category) {
+        throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Category not found');
     }
 
     res.json({
-        collection_detail: collection.collection_detail,
+        category_detail: category.category_detail,
     });
 };
+

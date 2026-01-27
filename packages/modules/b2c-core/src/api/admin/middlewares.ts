@@ -9,6 +9,7 @@ import { adminProductsMiddlewares } from "./products/middlewares";
 import { sellerMiddlewares } from "./sellers/middlewares";
 import { adminReservationsMiddlewares } from "./reservations/middlewares";
 import { collectionsMiddlewares } from "./collections/middlewares";
+import { productCategoriesMiddlewares } from "./product-categories/middlewares";
 
 export const adminMiddlewares: MiddlewareRoute[] = [
   ...orderSetsMiddlewares,
@@ -20,4 +21,5 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminOrdersMiddlewares,
   ...adminReservationsMiddlewares,
   ...collectionsMiddlewares,
+  ...productCategoriesMiddlewares,
 ];
