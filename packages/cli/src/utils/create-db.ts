@@ -1,5 +1,6 @@
 import { getPackageManager } from "@/src/utils/get-package-manager";
 import { logger } from "@/src/utils/logger";
+import { manageEnvFiles } from "@/src/utils/manage-env-files";
 import { spinner } from "@/src/utils/spinner";
 import { execa } from "execa";
 import type { Ora } from "ora";
@@ -22,28 +23,8 @@ export async function setupDatabase(args: {
   projectName: string;
   dbConnectionString?: string;
   spinner?: Ora;
-  skipDbCreation?: boolean;
 }): Promise<SetupDatabaseResult> {
   const dbName = args.projectName.replace(/[^a-zA-Z0-9]/g, "-");
-
-  // If skipping DB creation (e.g., Docker already created it), just run migrations
-  if (args.skipDbCreation && args.dbConnectionString) {
-    const migrated = await runMigrations({ ...args, spinner: args.spinner });
-    if (!migrated) {
-      return { success: false, dbName, connectionString: null };
-    }
-
-    const seeded = await seedDatabase({ ...args, spinner: args.spinner });
-    if (!seeded) {
-      return { success: false, dbName, connectionString: null };
-    }
-
-    return {
-      success: true,
-      dbName,
-      connectionString: args.dbConnectionString,
-    };
-  }
 
   // Try to connect and create database
   const { client, dbConnectionString } = await getDbClient({
@@ -51,7 +32,7 @@ export async function setupDatabase(args: {
     spinner: args.spinner,
   });
 
-  if (!client) {
+  if (!client || !dbConnectionString) {
     return { success: false, dbName, connectionString: null };
   }
 
@@ -62,12 +43,34 @@ export async function setupDatabase(args: {
     }
     const exists = await doesDbExist(client, dbName);
 
+    // Build the final connection string pointing to the new database
+    const finalConnectionString = replaceDbInConnectionString(dbConnectionString, dbName);
+
     if (exists) {
       await client.end();
+
+      // Save connection string to .env BEFORE running migrations (Medusa needs it)
+      await manageEnvFiles({
+        projectDir: args.projectDir,
+        databaseUri: finalConnectionString,
+      });
+
+      // Run migrations on existing database
+      const migrated = await runMigrations({ ...args, spinner: args.spinner });
+      if (!migrated) {
+        return { success: false, dbName, connectionString: null };
+      }
+
+      // Seed database
+      const seeded = await seedDatabase({ ...args, spinner: args.spinner });
+      if (!seeded) {
+        return { success: false, dbName, connectionString: null };
+      }
+
       return {
         success: true,
         dbName,
-        connectionString: dbConnectionString,
+        connectionString: finalConnectionString,
         alreadyExists: true,
       };
     }
@@ -78,6 +81,12 @@ export async function setupDatabase(args: {
     }
     await client.query(`CREATE DATABASE "${dbName}"`);
     await client.end();
+
+    // Save connection string to .env BEFORE running migrations (Medusa needs it)
+    await manageEnvFiles({
+      projectDir: args.projectDir,
+      databaseUri: finalConnectionString,
+    });
 
     // Run migrations
     const migrated = await runMigrations({ ...args, spinner: args.spinner });
@@ -94,7 +103,7 @@ export async function setupDatabase(args: {
     return {
       success: true,
       dbName,
-      connectionString: dbConnectionString,
+      connectionString: finalConnectionString,
     };
   } catch (err) {
     logger.error(
@@ -239,6 +248,20 @@ function formatConnectionString({
 }): string {
   const encodedPassword = encodeURIComponent(password);
   return `postgresql://${user}:${encodedPassword}@${host}:${port}/${db}`;
+}
+
+/**
+ * Replace the database name in a connection string
+ */
+function replaceDbInConnectionString(connectionString: string, newDbName: string): string {
+  try {
+    const url = new URL(connectionString);
+    url.pathname = `/${newDbName}`;
+    return url.toString();
+  } catch {
+    // Fallback: simple regex replacement for the database part
+    return connectionString.replace(/\/[^/?]+(\?|$)/, `/${newDbName}$1`);
+  }
 }
 
 async function runMigrations({
