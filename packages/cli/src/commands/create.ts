@@ -147,22 +147,6 @@ export const create = new Command()
         let inviteToken: string | null = null;
 
         if (!opts.skipDb) {
-          if (!dbConnectionString) {
-            const envUrl = process.env.DATABASE_URL;
-            if (envUrl) {
-              const { useEnvUrl } = await prompts({
-                type: "confirm",
-                name: "useEnvUrl",
-                message: "Found DATABASE_URL in environment. Use it?",
-                initial: true,
-              });
-
-              if (useEnvUrl) {
-                dbConnectionString = envUrl;
-              }
-            }
-          }
-
           const dbSpinner = spinner("Setting up database...").start();
           const dbResult = await setupDatabase({
             projectDir,
