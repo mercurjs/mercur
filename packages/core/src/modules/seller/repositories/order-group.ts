@@ -1,6 +1,7 @@
 import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
 import { Context, FindOptions } from "@medusajs/framework/types"
-import { isObject, MikroOrmBase } from "@medusajs/framework/utils"
+import { DALUtils, isObject, MikroOrmBase } from "@medusajs/framework/utils"
+import { OrderGroup } from "../models"
 
 const OPERATOR_MAP = {
   $eq: "=",
@@ -15,7 +16,9 @@ const OPERATOR_MAP = {
   $ilike: "ILIKE",
 }
 
-export class OrderGroupRepository extends MikroOrmBase {
+export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory(
+  OrderGroup
+) {
   constructor() {
     // @ts-ignore
     // eslint-disable-next-line prefer-rest-params
@@ -167,7 +170,7 @@ export class OrderGroupRepository extends MikroOrmBase {
       SELECT
         og.*,
         COUNT(DISTINCT oso.seller_id) as seller_count,
-        COALESCE(SUM(os.total), 0) as total
+        COALESCE(SUM((os.totals->>'current_order_total')::numeric), 0) as total
       FROM order_group og
       LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id
       LEFT JOIN "order" o ON o.id = ogo.order_id

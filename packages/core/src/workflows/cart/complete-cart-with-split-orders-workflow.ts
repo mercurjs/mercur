@@ -407,8 +407,8 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     }
 
                     links.push(...Object.entries(sellerOrdersMap).map(([sellerId, orderId]) => ({
-                        [SELLER_MODULE]: { seller_id: sellerId },
                         [Modules.ORDER]: { order_id: orderId },
+                        [SELLER_MODULE]: { seller_id: sellerId },
                     })))
 
                     // Link order group to orders

@@ -470,9 +470,9 @@ medusaIntegrationTestRunner({
                         storeHeaders
                     )
 
-                    // 8. Complete the cart
+                    // 8. Complete the cart using checkout endpoint
                     const completeResponse = await api.post(
-                        `/store/carts/${cart.id}/complete`,
+                        `/store/carts/${cart.id}/checkout`,
                         {},
                         storeHeaders
                     ).catch((e) => {
