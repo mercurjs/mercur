@@ -1,6 +1,7 @@
 import {
   DeleteResponse,
   OrderDTO,
+  OrderPreviewDTO,
   PaginatedResponse,
   ReturnDTO,
 } from "@medusajs/types"
@@ -34,7 +35,7 @@ export interface VendorReturnPreviewResponse {
   /**
    * The order preview.
    */
-  order_preview: Record<string, unknown>
+  order_preview: OrderPreviewDTO
   /**
    * The return's details.
    */
