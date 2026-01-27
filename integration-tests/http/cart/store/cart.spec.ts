@@ -607,6 +607,413 @@ medusaIntegrationTestRunner({
                     expect(response.data.cart).toBeDefined()
                 })
             })
+
+            describe("Shipping Options", () => {
+                it("should return shipping options grouped by seller", async () => {
+                    // Create cart with item
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    const cart = cartResponse.data.cart
+
+                    // Add item to cart
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Update cart with shipping address
+                    await api.post(
+                        `/store/carts/${cart.id}`,
+                        {
+                            email: "shipping@test.com",
+                            shipping_address: {
+                                first_name: "John",
+                                last_name: "Doe",
+                                address_1: "123 Main St",
+                                city: "New York",
+                                country_code: "us",
+                                postal_code: "10001",
+                            },
+                        },
+                        storeHeaders
+                    )
+
+                    // Get shipping options
+                    const shippingOptionsResponse = await api.get(
+                        `/store/shipping-options?cart_id=${cart.id}`,
+                        storeHeaders
+                    )
+
+                    expect(shippingOptionsResponse.status).toEqual(200)
+                    expect(shippingOptionsResponse.data.shipping_options).toBeDefined()
+
+                    // Verify response is a map with seller IDs as keys
+                    const shippingOptions = shippingOptionsResponse.data.shipping_options
+                    expect(typeof shippingOptions).toBe("object")
+
+                    // Verify the seller has shipping options
+                    expect(shippingOptions[seller.id]).toBeDefined()
+                    expect(Array.isArray(shippingOptions[seller.id])).toBe(true)
+                    expect(shippingOptions[seller.id].length).toBeGreaterThan(0)
+                })
+
+                it("should return correct shipping option details for seller", async () => {
+                    // Create cart with item
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    const cart = cartResponse.data.cart
+
+                    // Add item to cart
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Update cart with shipping address
+                    await api.post(
+                        `/store/carts/${cart.id}`,
+                        {
+                            email: "shipping@test.com",
+                            shipping_address: {
+                                first_name: "John",
+                                last_name: "Doe",
+                                address_1: "123 Main St",
+                                city: "New York",
+                                country_code: "us",
+                                postal_code: "10001",
+                            },
+                        },
+                        storeHeaders
+                    )
+
+                    // Get shipping options
+                    const shippingOptionsResponse = await api.get(
+                        `/store/shipping-options?cart_id=${cart.id}`,
+                        storeHeaders
+                    )
+
+                    const sellerShippingOptions = shippingOptionsResponse.data.shipping_options[seller.id]
+                    expect(sellerShippingOptions).toBeDefined()
+
+                    // Find our created shipping option
+                    const foundOption = sellerShippingOptions.find(
+                        (opt: any) => opt.id === shippingOption.id
+                    )
+                    expect(foundOption).toBeDefined()
+                    expect(foundOption.name).toEqual("Standard Shipping")
+                    expect(foundOption.price_type).toEqual("flat")
+                    expect(foundOption.amount).toBeDefined()
+                })
+
+                it("should return shipping options for multiple sellers when cart has items from different vendors", async () => {
+                    // Create a second seller with product and shipping
+                    const seller2Result = await createSellerUser(appContainer, {
+                        email: "seller2@test.com",
+                        name: "Test Seller 2",
+                    })
+                    const seller2 = seller2Result.seller
+                    const seller2Headers = seller2Result.headers
+
+                    // Create product for seller 2
+                    const product2Response = await api.post(
+                        `/vendor/products`,
+                        {
+                            status: 'published',
+                            title: "Seller 2 Product",
+                            description: "Product from seller 2",
+                            options: [{ title: "Color", values: ["Red"] }],
+                            variants: [
+                                {
+                                    title: "Red",
+                                    sku: "S2-RED",
+                                    options: { Color: "Red" },
+                                    prices: [{ currency_code: "usd", amount: 3000 }],
+                                    manage_inventory: false,
+                                },
+                            ],
+                            sales_channels: [{ id: salesChannel.id }],
+                        },
+                        seller2Headers
+                    )
+                    const product2 = product2Response.data.product
+
+                    // Create shipping prerequisites for seller 2
+                    const shippingPrerequisites2 = await createShippingPrerequisites(seller2Headers)
+
+                    // Create shipping option for seller 2
+                    await api.post(
+                        `/vendor/shipping-options`,
+                        {
+                            name: "Seller 2 Express Shipping",
+                            service_zone_id: shippingPrerequisites2.serviceZone.id,
+                            shipping_profile_id: shippingPrerequisites2.shippingProfile.id,
+                            provider_id: "manual_manual",
+                            price_type: "flat",
+                            type: {
+                                label: "Express",
+                                description: "Express shipping",
+                                code: "express",
+                            },
+                            prices: [{ currency_code: "usd", amount: 1000 }],
+                            rules: [
+                                {
+                                    attribute: "enabled_in_store",
+                                    value: "true",
+                                    operator: "eq",
+                                },
+                            ],
+                        },
+                        seller2Headers
+                    )
+
+                    // Create cart
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    const cart = cartResponse.data.cart
+
+                    // Add item from seller 1
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Add item from seller 2
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product2.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Update cart with shipping address
+                    await api.post(
+                        `/store/carts/${cart.id}`,
+                        {
+                            email: "multiseller@test.com",
+                            shipping_address: {
+                                first_name: "John",
+                                last_name: "Doe",
+                                address_1: "123 Main St",
+                                city: "New York",
+                                country_code: "us",
+                                postal_code: "10001",
+                            },
+                        },
+                        storeHeaders
+                    )
+
+                    // Get shipping options
+                    const shippingOptionsResponse = await api.get(
+                        `/store/shipping-options?cart_id=${cart.id}`,
+                        storeHeaders
+                    )
+
+                    expect(shippingOptionsResponse.status).toEqual(200)
+
+                    const shippingOptions = shippingOptionsResponse.data.shipping_options
+
+                    // Verify both sellers have shipping options
+                    expect(shippingOptions[seller.id]).toBeDefined()
+                    expect(shippingOptions[seller2.id]).toBeDefined()
+
+                    // Verify seller 1 has their shipping option
+                    expect(shippingOptions[seller.id].length).toBeGreaterThan(0)
+                    const seller1Option = shippingOptions[seller.id].find(
+                        (opt: any) => opt.name === "Standard Shipping"
+                    )
+                    expect(seller1Option).toBeDefined()
+
+                    // Verify seller 2 has their shipping option
+                    expect(shippingOptions[seller2.id].length).toBeGreaterThan(0)
+                    const seller2Option = shippingOptions[seller2.id].find(
+                        (opt: any) => opt.name === "Seller 2 Express Shipping"
+                    )
+                    expect(seller2Option).toBeDefined()
+                })
+
+                it("should only return shipping options for sellers with items in cart", async () => {
+                    // Create a second seller with shipping but no items in cart
+                    const seller2Result = await createSellerUser(appContainer, {
+                        email: "seller3@test.com",
+                        name: "Test Seller 3",
+                    })
+                    const seller2Headers = seller2Result.headers
+
+                    // Create shipping prerequisites for seller 2 (but don't add products to cart)
+                    const shippingPrerequisites2 = await createShippingPrerequisites(seller2Headers)
+
+                    // Create shipping option for seller 2
+                    await api.post(
+                        `/vendor/shipping-options`,
+                        {
+                            name: "Seller 3 Shipping",
+                            service_zone_id: shippingPrerequisites2.serviceZone.id,
+                            shipping_profile_id: shippingPrerequisites2.shippingProfile.id,
+                            provider_id: "manual_manual",
+                            price_type: "flat",
+                            type: {
+                                label: "Standard",
+                                description: "Standard shipping",
+                                code: "standard",
+                            },
+                            prices: [{ currency_code: "usd", amount: 700 }],
+                            rules: [
+                                {
+                                    attribute: "enabled_in_store",
+                                    value: "true",
+                                    operator: "eq",
+                                },
+                            ],
+                        },
+                        seller2Headers
+                    )
+
+                    // Create cart with only seller 1's item
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    const cart = cartResponse.data.cart
+
+                    // Add item from seller 1 only
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Update cart with shipping address
+                    await api.post(
+                        `/store/carts/${cart.id}`,
+                        {
+                            email: "singleseller@test.com",
+                            shipping_address: {
+                                first_name: "John",
+                                last_name: "Doe",
+                                address_1: "123 Main St",
+                                city: "New York",
+                                country_code: "us",
+                                postal_code: "10001",
+                            },
+                        },
+                        storeHeaders
+                    )
+
+                    // Get shipping options
+                    const shippingOptionsResponse = await api.get(
+                        `/store/shipping-options?cart_id=${cart.id}`,
+                        storeHeaders
+                    )
+
+                    expect(shippingOptionsResponse.status).toEqual(200)
+
+                    const shippingOptions = shippingOptionsResponse.data.shipping_options
+
+                    // Verify only seller 1 has shipping options (seller 3 has no items in cart)
+                    expect(shippingOptions[seller.id]).toBeDefined()
+                    expect(Object.keys(shippingOptions)).toHaveLength(1)
+                })
+
+                it("should include calculated price in shipping options", async () => {
+                    // Create cart with item
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    const cart = cartResponse.data.cart
+
+                    // Add item to cart
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    // Update cart with shipping address
+                    await api.post(
+                        `/store/carts/${cart.id}`,
+                        {
+                            email: "pricing@test.com",
+                            shipping_address: {
+                                first_name: "John",
+                                last_name: "Doe",
+                                address_1: "123 Main St",
+                                city: "New York",
+                                country_code: "us",
+                                postal_code: "10001",
+                            },
+                        },
+                        storeHeaders
+                    )
+
+                    // Get shipping options
+                    const shippingOptionsResponse = await api.get(
+                        `/store/shipping-options?cart_id=${cart.id}`,
+                        storeHeaders
+                    )
+
+                    const sellerShippingOptions = shippingOptionsResponse.data.shipping_options[seller.id]
+                    expect(sellerShippingOptions).toBeDefined()
+                    expect(sellerShippingOptions.length).toBeGreaterThan(0)
+
+                    // Verify price is calculated
+                    const option = sellerShippingOptions[0]
+                    expect(option.amount).toBeDefined()
+                    expect(typeof option.amount).toBe("number")
+                    expect(option.amount).toEqual(500) // The price we set for Standard Shipping
+                })
+            })
         })
     },
 })

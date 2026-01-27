@@ -102,7 +102,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             return orderGroup?.data?.id
         })
 
-
         const paymentSessions = validateCartPaymentsStep({ cart: cartData.data })
 
         const validate = createHook("validate", {
@@ -243,7 +242,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         delete billingAddress.id
                     }
 
-                    const orderId = generateEntityId('order')
+                    const orderId = generateEntityId(undefined, 'order')
                     ordersToCreate.push({
                         id: orderId,
                         region_id: cart.region?.id,
@@ -277,7 +276,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 { cart: cartData.data },
                 ({ cart }) => {
                     return {
-                        customer_id: cart.customer_id,
+                        customer_id: cart.customer?.id,
                         cart_id: cart.id,
                     } satisfies CreateOrderGroupDTO
                 }
@@ -292,7 +291,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     }
                     return {
                         seller_id: Object.keys(sellerOrdersMap),
-                        customer_id: cart.customer_id,
+                        customer_id: cart.customer?.id,
                     }
                 }
             )
@@ -371,8 +370,8 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     return {
                         computedActions: promotionUsage,
                         registrationContext: {
-                            customer_id: cart.customer?.id || null,
-                            customer_email: cart.email || null,
+                            customer_id: cart.customer?.id ?? null,
+                            customer_email: cart.email ?? null,
                         },
                     }
                 }
@@ -417,7 +416,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         [Modules.ORDER]: { order_id: order.id },
                     })))
 
-                    if (cart.customer_id) {
+                    if (cart.customer?.id) {
                         // Create seller-customer links for new relationships
                         const existingSellerIds = new Set(
                             (existingSellerCustomerLinks?.data ?? []).map((link) => link.seller_id)
@@ -427,7 +426,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                             if (!existingSellerIds.has(sellerId)) {
                                 links.push({
                                     [SELLER_MODULE]: { seller_id: sellerId },
-                                    [Modules.CUSTOMER]: { customer_id: cart.customer_id },
+                                    [Modules.CUSTOMER]: { customer_id: cart.customer?.id },
                                 })
                             }
                         })

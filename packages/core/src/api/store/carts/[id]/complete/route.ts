@@ -4,7 +4,6 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { completeCartWithSplitOrdersWorkflow } from "../../../../../workflows/cart"
 import { defaultStoreCartFields, refetchCart } from "../../helpers"
-import { defaultStoreRetrieveOrderGroupFields } from "./query-config"
 import { StoreCompleteCartParamsType } from "./validators"
 
 export const POST = async (
