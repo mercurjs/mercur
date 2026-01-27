@@ -1,12 +1,13 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework';
-import { ProductWorkflowEvents } from '@medusajs/framework/utils';
+
+import { ProductRequestUpdatedEvent } from '@mercurjs/framework';
 
 import { REQUESTS_MODULE, RequestsModuleService } from '../modules/requests';
 
 export default async function productDeletedHandler({
   event,
   container
-}: SubscriberArgs<{ id: string }>) {
+}: SubscriberArgs<{ ids: string[] }>) {
   const requestService =
     container.resolve<RequestsModuleService>(REQUESTS_MODULE);
 
@@ -14,13 +15,13 @@ export default async function productDeletedHandler({
     $or: [
       {
         data: {
-          product_id: event.data.id
+          product_id: event.data.ids
         },
         status: 'pending'
       },
       {
         data: {
-          id: event.data.id
+          id: event.data.ids
         },
         status: 'pending'
       }
@@ -33,7 +34,7 @@ export default async function productDeletedHandler({
 }
 
 export const config: SubscriberConfig = {
-  event: ProductWorkflowEvents.DELETED,
+  event: ProductRequestUpdatedEvent.DELETED,
   context: {
     subscriberId: 'product-deleted-handler'
   }
