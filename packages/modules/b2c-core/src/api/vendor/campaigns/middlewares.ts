@@ -96,10 +96,10 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
       checkResourceOwnershipByResourceId<VendorAssignCampaignPromotionsType>({
         entryPoint: sellerPromotion.entryPoint,
         filterField: 'promotion_id',
-        resourceId: (req) => {
-          const body = (req.validatedBody ?? req.body) as VendorAssignCampaignPromotionsType
-          return [...(body?.add || []), ...(body?.remove || [])]
-        }
+        // resourceId: (req) => {
+        //   const body = (req.validatedBody ?? req.body) as VendorAssignCampaignPromotionsType
+        //   return [...(body?.add || []), ...(body?.remove || [])]
+        // }
       })
     ],
   },
