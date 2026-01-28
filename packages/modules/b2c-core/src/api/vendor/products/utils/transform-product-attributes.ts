@@ -49,9 +49,14 @@ function transformAttributeValues(
   attributeValues: AttributeValueWithAttribute[],
   currentSellerId?: string
 ): InformationalAttributeDTO[] {
+  const existingAttributeValues = attributeValues.filter((av) => av && av.attribute);
+  if (existingAttributeValues.length === 0) {
+    return [];
+  }
+
   const attributeMap = new Map<string, AttributeAccumulator>();
 
-  for (const av of attributeValues) {
+  for (const av of existingAttributeValues) {
     const attributeId = av.attribute.id;
     const existing = attributeMap.get(attributeId);
 
