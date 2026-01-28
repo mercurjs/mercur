@@ -129,6 +129,7 @@ class CommissionModuleService extends MedusaService({
         item_id: item.id,
         code: matchedRate.code,
         rate: matchedRate.value,
+        amount: MathBN.convert(amount).toNumber(),
         commission_rate_id: matchedRate.id,
         description: `Commission: ${matchedRate.name}`,
       })
@@ -197,6 +198,7 @@ class CommissionModuleService extends MedusaService({
         rate: matchedRate.value,
         commission_rate_id: matchedRate.id,
         description: `Shipping Commission: ${matchedRate.name}`,
+        amount: MathBN.convert(amount).toNumber(),
       })
     }
 

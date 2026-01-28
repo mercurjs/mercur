@@ -26,6 +26,7 @@ export type CommissionLineDTO = {
   commission_rate_id: string | null
   code: string
   rate: number
+  amount: number
   description: string | null
   created_at: Date
   updated_at: Date
@@ -128,6 +129,7 @@ export interface CreateCommissionLineDTO {
   commission_rate_id: string
   code: string
   rate: number
+  amount: number
   description: string | null
 }
 

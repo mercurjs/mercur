@@ -6,6 +6,7 @@ const CommissionLine = model.define("commission_line", {
   commission_rate_id: model.text().nullable(),
   code: model.text(),
   rate: model.float(),
+  amount: model.bigNumber(),
   description: model.text().nullable(),
 })
 

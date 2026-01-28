@@ -51,6 +51,15 @@
           "nullable": false,
           "mappedType": "float"
         },
+        "amount": {
+          "name": "amount",
+          "type": "numeric",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "decimal"
+        },
         "description": {
           "name": "description",
           "type": "text",
@@ -59,6 +68,15 @@
           "primary": false,
           "nullable": true,
           "mappedType": "text"
+        },
+        "raw_amount": {
+          "name": "raw_amount",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "json"
         },
         "created_at": {
           "name": "created_at",

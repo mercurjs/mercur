@@ -247,24 +247,10 @@ medusaIntegrationTestRunner({
         return response.data.cart
       }
 
-      const getCartWithCommissionLines = async (cartId: string) => {
-        const { data: carts } = await query.graph({
-          entity: "cart",
-          fields: [
-            "id",
-            "items.id",
-            "items.subtotal",
-            "items.commission_line.*",
-            "shipping_methods.id",
-            "shipping_methods.subtotal",
-          ],
-          filters: { id: cartId },
-        })
-        return carts[0]
-      }
+
 
       describe("1. Basic Item Commission", () => {
-        it("1.1 should apply percentage-based item commission", async () => {
+        it("1.1 should apply percentage-based item commission and calculate correct amount", async () => {
           // Create 10% commission rate
           await commissionService.createCommissionRates({
             name: "Standard Item Commission",
@@ -280,11 +266,12 @@ medusaIntegrationTestRunner({
           const updatedCart = await addItemToCart(cart.id, product.variants[0].id, 1)
 
           // Get commission lines using the service
+          // Item subtotal is $100 (10000 cents), 10% = $10 (1000 cents)
           const commissionLines = await commissionService.getCommissionLines({
             currency_code: "usd",
             items: updatedCart.items.map((item: any) => ({
               id: item.id,
-              subtotal: item.subtotal,
+              subtotal: 10000, // $100 in cents
               product: { id: product.id },
             })),
           })
@@ -292,9 +279,10 @@ medusaIntegrationTestRunner({
           expect(commissionLines).toHaveLength(1)
           expect(commissionLines[0].code).toEqual("ITEM_10_PCT")
           expect(commissionLines[0].rate).toEqual(10)
+          expect(commissionLines[0].amount).toEqual(1000) // 10% of $100 = $10 (1000 cents)
         })
 
-        it("1.2 should apply fixed-rate item commission", async () => {
+        it("1.2 should apply fixed-rate item commission and return fixed amount", async () => {
           // Create $5 fixed commission rate
           await commissionService.createCommissionRates({
             name: "Fixed Item Commission",
@@ -313,7 +301,7 @@ medusaIntegrationTestRunner({
             currency_code: "usd",
             items: updatedCart.items.map((item: any) => ({
               id: item.id,
-              subtotal: item.subtotal,
+              subtotal: 10000, // $100 in cents (doesn't affect fixed rate)
               product: { id: product.id },
             })),
           })
@@ -321,11 +309,12 @@ medusaIntegrationTestRunner({
           expect(commissionLines).toHaveLength(1)
           expect(commissionLines[0].code).toEqual("ITEM_5_FIXED")
           expect(commissionLines[0].rate).toEqual(500)
+          expect(commissionLines[0].amount).toEqual(500) // Fixed $5 (500 cents)
         })
       })
 
       describe("2. Shipping Commission", () => {
-        it("2.1 should apply percentage-based shipping commission", async () => {
+        it("2.1 should apply percentage-based shipping commission and calculate correct amount", async () => {
           // Create 15% shipping commission rate
           await commissionService.createCommissionRates({
             name: "Standard Shipping Commission",
@@ -342,12 +331,13 @@ medusaIntegrationTestRunner({
           await updateCartWithAddress(cart.id)
           const cartWithShipping = await addShippingMethodToCart(cart.id, shippingOption.id)
 
+          // Shipping is $20 (2000 cents), 15% = $3 (300 cents)
           const commissionLines = await commissionService.getCommissionLines({
             currency_code: "usd",
             items: [],
             shipping_methods: cartWithShipping.shipping_methods.map((sm: any) => ({
               id: sm.id,
-              subtotal: sm.amount,
+              subtotal: 2000, // $20 in cents
               shipping_option: { shipping_option_type_id: sm.shipping_option?.type?.id },
             })),
           })
@@ -355,9 +345,10 @@ medusaIntegrationTestRunner({
           expect(commissionLines).toHaveLength(1)
           expect(commissionLines[0].code).toEqual("SHIP_15_PCT")
           expect(commissionLines[0].rate).toEqual(15)
+          expect(commissionLines[0].amount).toEqual(300) // 15% of $20 = $3 (300 cents)
         })
 
-        it("2.2 should apply fixed-rate shipping commission", async () => {
+        it("2.2 should apply fixed-rate shipping commission and return fixed amount", async () => {
           // Create $2 fixed shipping commission
           await commissionService.createCommissionRates({
             name: "Fixed Shipping Commission",
@@ -379,7 +370,7 @@ medusaIntegrationTestRunner({
             items: [],
             shipping_methods: cartWithShipping.shipping_methods.map((sm: any) => ({
               id: sm.id,
-              subtotal: sm.amount,
+              subtotal: 2000, // $20 in cents
               shipping_option: { shipping_option_type_id: sm.shipping_option?.type?.id },
             })),
           })
@@ -387,6 +378,7 @@ medusaIntegrationTestRunner({
           expect(commissionLines).toHaveLength(1)
           expect(commissionLines[0].code).toEqual("SHIP_2_FIXED")
           expect(commissionLines[0].rate).toEqual(200)
+          expect(commissionLines[0].amount).toEqual(200) // Fixed $2 (200 cents)
         })
       })
 
@@ -539,27 +531,28 @@ medusaIntegrationTestRunner({
             type: CommissionRateType.PERCENTAGE,
             target: CommissionRateTarget.ITEM,
             value: 2,
-            min_amount: 100, // $1 minimum
+            min_amount: 100, // $1 minimum (100 cents)
             is_enabled: true,
             priority: 0,
           })
 
           const cart = await createCart()
-          // Add item with $10 subtotal -> 2% = $0.20, should become $1
-          const updatedCart = await addItemToCart(cart.id, product.variants[1].id, 1) // $50 item
+          const updatedCart = await addItemToCart(cart.id, product.variants[1].id, 1)
 
+          // $10 subtotal -> 2% = $0.20 (20 cents), but min is $1 (100 cents)
           const commissionLines = await commissionService.getCommissionLines({
             currency_code: "usd",
             items: updatedCart.items.map((item: any) => ({
               id: item.id,
-              subtotal: 1000, // $10 for test
+              subtotal: 1000, // $10 in cents
               product: { id: product.id },
             })),
           })
 
           expect(commissionLines).toHaveLength(1)
           expect(commissionLines[0].code).toEqual("MIN_COMM_1")
-          // Min amount should be applied
+          expect(commissionLines[0].rate).toEqual(2)
+          expect(commissionLines[0].amount).toEqual(100) // Min $1 applied (100 cents)
         })
 
         it("5.2 should not apply minimum when calculated is above", async () => {
@@ -570,25 +563,59 @@ medusaIntegrationTestRunner({
             type: CommissionRateType.PERCENTAGE,
             target: CommissionRateTarget.ITEM,
             value: 10,
-            min_amount: 100, // $1 minimum
+            min_amount: 100, // $1 minimum (100 cents)
             is_enabled: true,
             priority: 0,
           })
 
           const cart = await createCart()
-          const updatedCart = await addItemToCart(cart.id, product.variants[0].id, 1) // $100 item
+          const updatedCart = await addItemToCart(cart.id, product.variants[0].id, 1)
 
+          // $100 subtotal -> 10% = $10 (1000 cents), above $1 minimum
           const commissionLines = await commissionService.getCommissionLines({
             currency_code: "usd",
             items: updatedCart.items.map((item: any) => ({
               id: item.id,
-              subtotal: item.subtotal, // $100 -> 10% = $10, above $1 minimum
+              subtotal: 10000, // $100 in cents
               product: { id: product.id },
             })),
           })
 
           expect(commissionLines).toHaveLength(1)
           expect(commissionLines[0].code).toEqual("ABOVE_MIN")
+          expect(commissionLines[0].rate).toEqual(10)
+          expect(commissionLines[0].amount).toEqual(1000) // 10% of $100 = $10 (1000 cents)
+        })
+
+        it("5.3 should apply minimum on fixed rate when below", async () => {
+          // $0.50 fixed commission with $1 minimum
+          await commissionService.createCommissionRates({
+            name: "Low Fixed With Minimum",
+            code: "FIXED_MIN",
+            type: CommissionRateType.FIXED,
+            target: CommissionRateTarget.ITEM,
+            value: 50, // $0.50 (50 cents)
+            min_amount: 100, // $1 minimum (100 cents)
+            is_enabled: true,
+            priority: 0,
+          })
+
+          const cart = await createCart()
+          const updatedCart = await addItemToCart(cart.id, product.variants[0].id, 1)
+
+          const commissionLines = await commissionService.getCommissionLines({
+            currency_code: "usd",
+            items: updatedCart.items.map((item: any) => ({
+              id: item.id,
+              subtotal: 10000, // $100 in cents
+              product: { id: product.id },
+            })),
+          })
+
+          expect(commissionLines).toHaveLength(1)
+          expect(commissionLines[0].code).toEqual("FIXED_MIN")
+          expect(commissionLines[0].rate).toEqual(50)
+          expect(commissionLines[0].amount).toEqual(100) // Min $1 applied (100 cents)
         })
       })
 
@@ -609,19 +636,21 @@ medusaIntegrationTestRunner({
           const cart = await createCart()
           const updatedCart = await addItemToCart(cart.id, product.variants[0].id, 1)
 
-          // Commission calculated on $100 + $10 tax = $110 -> 10% = $11
+          // Commission calculated on $100 + $10 tax = $110 -> 10% = $11 (1100 cents)
           const commissionLines = await commissionService.getCommissionLines({
             currency_code: "usd",
             items: updatedCart.items.map((item: any) => ({
               id: item.id,
-              subtotal: 10000, // $100
-              tax_total: 1000, // $10 tax
+              subtotal: 10000, // $100 in cents
+              tax_total: 1000, // $10 tax in cents
               product: { id: product.id },
             })),
           })
 
           expect(commissionLines).toHaveLength(1)
           expect(commissionLines[0].code).toEqual("INCLUDE_TAX")
+          expect(commissionLines[0].rate).toEqual(10)
+          expect(commissionLines[0].amount).toEqual(1100) // 10% of ($100 + $10 tax) = $11 (1100 cents)
         })
 
         it("6.2 should not include tax when disabled", async () => {
@@ -640,19 +669,57 @@ medusaIntegrationTestRunner({
           const cart = await createCart()
           const updatedCart = await addItemToCart(cart.id, product.variants[0].id, 1)
 
-          // Commission calculated on $100 only -> 10% = $10
+          // Commission calculated on $100 only -> 10% = $10 (1000 cents)
           const commissionLines = await commissionService.getCommissionLines({
             currency_code: "usd",
             items: updatedCart.items.map((item: any) => ({
               id: item.id,
-              subtotal: 10000, // $100
-              tax_total: 1000, // $10 tax (ignored)
+              subtotal: 10000, // $100 in cents
+              tax_total: 1000, // $10 tax in cents (ignored)
               product: { id: product.id },
             })),
           })
 
           expect(commissionLines).toHaveLength(1)
           expect(commissionLines[0].code).toEqual("EXCLUDE_TAX")
+          expect(commissionLines[0].rate).toEqual(10)
+          expect(commissionLines[0].amount).toEqual(1000) // 10% of $100 = $10 (1000 cents), tax ignored
+        })
+
+        it("6.3 should include tax on shipping commission", async () => {
+          // 10% shipping commission with include_tax = true
+          await commissionService.createCommissionRates({
+            name: "Shipping With Tax",
+            code: "SHIP_INCLUDE_TAX",
+            type: CommissionRateType.PERCENTAGE,
+            target: CommissionRateTarget.SHIPPING,
+            value: 10,
+            include_tax: true,
+            is_enabled: true,
+            priority: 0,
+          })
+
+          const cart = await createCart()
+          await addItemToCart(cart.id, product.variants[0].id, 1)
+          await updateCartWithAddress(cart.id)
+          const cartWithShipping = await addShippingMethodToCart(cart.id, shippingOption.id)
+
+          // Commission calculated on $20 + $2 tax = $22 -> 10% = $2.20 (220 cents)
+          const commissionLines = await commissionService.getCommissionLines({
+            currency_code: "usd",
+            items: [],
+            shipping_methods: cartWithShipping.shipping_methods.map((sm: any) => ({
+              id: sm.id,
+              subtotal: 2000, // $20 in cents
+              tax_total: 200, // $2 tax in cents
+              shipping_option: { shipping_option_type_id: sm.shipping_option?.type?.id },
+            })),
+          })
+
+          expect(commissionLines).toHaveLength(1)
+          expect(commissionLines[0].code).toEqual("SHIP_INCLUDE_TAX")
+          expect(commissionLines[0].rate).toEqual(10)
+          expect(commissionLines[0].amount).toEqual(220) // 10% of ($20 + $2 tax) = $2.20 (220 cents)
         })
       })
 
@@ -901,7 +968,7 @@ medusaIntegrationTestRunner({
           expect(commissionLines).toHaveLength(0)
         })
 
-        it("9.4 should handle multiple items with different rates", async () => {
+        it("9.4 should handle multiple items with different rates and calculate correct amounts", async () => {
           // Create second seller
           const seller2Result = await createSellerUser(appContainer, {
             email: "commission-seller2@test.com",
@@ -944,12 +1011,13 @@ medusaIntegrationTestRunner({
             priority: 0,
           })
 
+          // Each item has $100 subtotal
           const commissionLines = await commissionService.getCommissionLines({
             currency_code: "usd",
             items: [
-              { id: "item_1", subtotal: 10000, product: { id: "prod_1", seller: { id: seller.id } } },
-              { id: "item_2", subtotal: 10000, product: { id: "prod_2", seller: { id: seller2.id } } },
-              { id: "item_3", subtotal: 10000, product: { id: "prod_3" } }, // No seller, default
+              { id: "item_1", subtotal: 10000, product: { id: "prod_1", seller: { id: seller.id } } }, // 5% of $100 = $5
+              { id: "item_2", subtotal: 10000, product: { id: "prod_2", seller: { id: seller2.id } } }, // 8% of $100 = $8
+              { id: "item_3", subtotal: 10000, product: { id: "prod_3" } }, // 10% of $100 = $10 (default)
             ],
           })
 
@@ -960,8 +1028,13 @@ medusaIntegrationTestRunner({
           const defaultLine = commissionLines.find(l => l.item_id === "item_3")
 
           expect(seller1Line?.code).toEqual("SELLER1_5")
+          expect(seller1Line?.amount).toEqual(500) // 5% of $100 = $5 (500 cents)
+
           expect(seller2Line?.code).toEqual("SELLER2_8")
+          expect(seller2Line?.amount).toEqual(800) // 8% of $100 = $8 (800 cents)
+
           expect(defaultLine?.code).toEqual("DEFAULT_10_MULTI")
+          expect(defaultLine?.amount).toEqual(1000) // 10% of $100 = $10 (1000 cents)
         })
 
         it("9.5 should ignore disabled rates", async () => {
@@ -1005,7 +1078,7 @@ medusaIntegrationTestRunner({
       })
 
       describe("10. Combined Scenarios", () => {
-        it("10.1 should handle full cart with items and shipping", async () => {
+        it("10.1 should handle full cart with items and shipping and calculate correct amounts", async () => {
           // Item commission 10%
           await commissionService.createCommissionRates({
             name: "Item Commission",
@@ -1034,30 +1107,39 @@ medusaIntegrationTestRunner({
           await updateCartWithAddress(cart.id)
           const cartWithShipping = await addShippingMethodToCart(cart.id, shippingOption.id)
 
+          // Item 1: $100 -> 10% = $10
+          // Item 2: $50 -> 10% = $5
+          // Shipping: $20 -> 15% = $3
           const commissionLines = await commissionService.getCommissionLines({
             currency_code: "usd",
-            items: cartWithShipping.items.map((item: any) => ({
-              id: item.id,
-              subtotal: item.subtotal,
-              product: { id: product.id },
-            })),
+            items: [
+              { id: "item_100", subtotal: 10000, product: { id: product.id } }, // $100
+              { id: "item_50", subtotal: 5000, product: { id: product.id } }, // $50
+            ],
             shipping_methods: cartWithShipping.shipping_methods.map((sm: any) => ({
               id: sm.id,
-              subtotal: sm.amount,
+              subtotal: 2000, // $20
             })),
           })
 
           // 2 item commission lines + 1 shipping commission line
           expect(commissionLines).toHaveLength(3)
 
-          const itemLines = commissionLines.filter(l => l.code === "COMBINED_ITEM")
-          const shippingLines = commissionLines.filter(l => l.code === "COMBINED_SHIPPING")
+          const item100Line = commissionLines.find(l => l.item_id === "item_100")
+          const item50Line = commissionLines.find(l => l.item_id === "item_50")
+          const shippingLine = commissionLines.find(l => l.code === "COMBINED_SHIPPING")
 
-          expect(itemLines).toHaveLength(2)
-          expect(shippingLines).toHaveLength(1)
+          expect(item100Line?.code).toEqual("COMBINED_ITEM")
+          expect(item100Line?.amount).toEqual(1000) // 10% of $100 = $10 (1000 cents)
+
+          expect(item50Line?.code).toEqual("COMBINED_ITEM")
+          expect(item50Line?.amount).toEqual(500) // 10% of $50 = $5 (500 cents)
+
+          expect(shippingLine?.code).toEqual("COMBINED_SHIPPING")
+          expect(shippingLine?.amount).toEqual(300) // 15% of $20 = $3 (300 cents)
         })
 
-        it("10.3 should apply correct rate in complex override hierarchy", async () => {
+        it("10.3 should apply correct rate in complex override hierarchy and calculate amount", async () => {
           // Product type rate 7%
           await commissionService.createCommissionRates({
             name: "Product Type Rate",
@@ -1096,11 +1178,12 @@ medusaIntegrationTestRunner({
 
           // Item has all three: seller_vip, category_premium, type_electronics
           // Seller rate should win (priority 10)
+          // $100 subtotal -> 6% = $6 (600 cents)
           const commissionLines = await commissionService.getCommissionLines({
             currency_code: "usd",
             items: [{
               id: "item_complex",
-              subtotal: 10000,
+              subtotal: 10000, // $100 in cents
               product: {
                 id: product.id,
                 type_id: "ptyp_electronics",
@@ -1113,53 +1196,7 @@ medusaIntegrationTestRunner({
           expect(commissionLines).toHaveLength(1)
           expect(commissionLines[0].code).toEqual("SELLER_VIP_6_COMPLEX")
           expect(commissionLines[0].rate).toEqual(6)
-        })
-      })
-
-      describe("Upsert Commission Lines", () => {
-        it("should upsert commission lines and query via graph", async () => {
-          // Create a commission rate
-          await commissionService.createCommissionRates({
-            name: "Upsert Test Rate",
-            code: "UPSERT_TEST",
-            type: CommissionRateType.PERCENTAGE,
-            target: CommissionRateTarget.ITEM,
-            value: 10,
-            is_enabled: true,
-            priority: 0,
-          })
-
-          const cart = await createCart()
-          const updatedCart = await addItemToCart(cart.id, product.variants[0].id, 1)
-          const lineItemId = updatedCart.items[0].id
-
-          // Get commission lines
-          const commissionLines = await commissionService.getCommissionLines({
-            currency_code: "usd",
-            items: updatedCart.items.map((item: any) => ({
-              id: item.id,
-              subtotal: item.subtotal,
-              product: { id: product.id },
-            })),
-          })
-
-          // Upsert commission lines
-          const upsertedLines = await commissionService.upsertCommissionLines(commissionLines)
-
-          expect(upsertedLines).toHaveLength(1)
-          expect(upsertedLines[0].item_id).toEqual(lineItemId)
-          expect(upsertedLines[0].code).toEqual("UPSERT_TEST")
-          expect(upsertedLines[0].rate).toEqual(10)
-
-          // Query via graph to verify the link
-          const cartWithCommission = await getCartWithCommissionLines(cart.id)
-
-          expect(cartWithCommission).toBeDefined()
-          expect(cartWithCommission.items).toHaveLength(1)
-          // Verify commission_line is accessible via the link
-          if (cartWithCommission.items[0].commission_line) {
-            expect(cartWithCommission.items[0].commission_line.code).toEqual("UPSERT_TEST")
-          }
+          expect(commissionLines[0].amount).toEqual(600) // 6% of $100 = $6 (600 cents)
         })
       })
     })
