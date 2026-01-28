@@ -8,6 +8,7 @@ import { adminExchangeInboundItemsMiddlewares } from './exchanges/[id]/inbound/i
 import { orderSetsMiddlewares } from './order-sets/middlewares';
 import { adminOrdersMiddlewares } from './orders/middlewares';
 import { adminProductsMiddlewares } from './products/middlewares';
+import { adminReservationsMiddlewares } from './reservations/middlewares';
 import { adminReturnRequestItemsMiddlewares } from './returns/[id]/request-items/middlewares';
 import { sellerMiddlewares } from './sellers/middlewares';
 
@@ -22,5 +23,6 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminClaimInboundItemsMiddlewares,
   ...adminCustomMiddlewares,
   ...adminCustomMiddlewares,
-  ...adminOrdersMiddlewares
+  ...adminOrdersMiddlewares,
+  ...adminReservationsMiddlewares
 ];
