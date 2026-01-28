@@ -54,6 +54,7 @@ import {
     prepareConfirmInventoryInput,
 } from "../utils"
 import { registerUsageStep } from "../../promotion"
+import { upsertCommissionLinesWorkflow } from "../../commission/workflows/upsert-commission-lines"
 
 type CompleteCartWithSplitOrdersWorkflowInput = {
     cart_id: string
@@ -76,6 +77,8 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             timeout: THIRTY_SECONDS,
             ttl: TWO_MINUTES,
         })
+
+
 
         const [orderGroup, cartData] = parallelize(
             useQueryGraphStep({
@@ -113,6 +116,11 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
         const createdOrderGroup = when("create-order-group", { orderGroupId }, ({ orderGroupId }) => {
             return !orderGroupId
         }).then(() => {
+            upsertCommissionLinesWorkflow.runAsStep({
+                input: {
+                    cart_id: input.cart_id,
+                }
+            })
             const cartOptionIds = transform({ cart: cartData.data }, ({ cart }) => {
                 return cart.shipping_methods?.map((sm) => sm.shipping_option_id)
             })
