@@ -860,6 +860,6 @@ export type VendorBatchUpdateProductsType = z.infer<
   typeof VendorBatchUpdateProducts
 >;
 export const VendorBatchUpdateProducts = z.object({
-  update: z.array(VendorBatchUpdateProductItem).min(1),
-  delete: z.array(z.string()).min(1),
+  update: z.array(VendorBatchUpdateProductItem),
+  delete: z.array(z.string()),
 });
