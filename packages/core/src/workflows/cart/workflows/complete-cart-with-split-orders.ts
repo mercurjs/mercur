@@ -54,7 +54,7 @@ import {
     prepareConfirmInventoryInput,
 } from "../utils"
 import { registerUsageStep } from "../../promotion"
-import { upsertCommissionLinesWorkflow } from "../../commission/workflows/upsert-commission-lines"
+import { refreshOrderCommissionLinesWorkflow } from "../../commission/workflows/refresh-order-commission-lines"
 
 type CompleteCartWithSplitOrdersWorkflowInput = {
     cart_id: string
@@ -116,11 +116,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
         const createdOrderGroup = when("create-order-group", { orderGroupId }, ({ orderGroupId }) => {
             return !orderGroupId
         }).then(() => {
-            upsertCommissionLinesWorkflow.runAsStep({
-                input: {
-                    cart_id: input.cart_id,
-                }
-            })
             const cartOptionIds = transform({ cart: cartData.data }, ({ cart }) => {
                 return cart.shipping_methods?.map((sm) => sm.shipping_option_id)
             })
@@ -506,7 +501,17 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 }
             )
 
-            addOrderTransactionStep(orderTransactions)
+            const orderIds = transform({ createdOrders }, ({ createdOrders }) => {
+                return createdOrders.map((order) => order.id)
+            })
+
+            parallelize(
+                addOrderTransactionStep(orderTransactions),
+                refreshOrderCommissionLinesWorkflow.runAsStep({
+                    input: {
+                        order_ids: orderIds
+                    }
+                }))
 
             createHook("orderGroupCreated", {
                 order_group_id: createdOrderGroup.id,

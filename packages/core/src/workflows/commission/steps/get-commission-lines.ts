@@ -6,20 +6,27 @@ import {
 
 import { COMMISSION_MODULE } from "../../../modules/commission"
 import CommissionModuleService from "../../../modules/commission/service"
+import { promiseAll } from "@medusajs/framework/utils"
 
 export const getCommissionLinesStepId = "get-commission-lines"
 
 export const getCommissionLinesStep = createStep(
   getCommissionLinesStepId,
   async (
-    input: CommissionCalculationContext,
+    input: CommissionCalculationContext[],
     { container }
   ): Promise<StepResponse<CreateCommissionLineDTO[]>> => {
     const service =
-      container.resolve<CommissionModuleService>(COMMISSION_MODULE)
+      container.resolve(COMMISSION_MODULE) as CommissionModuleService
 
-    const commissionLines = await service.getCommissionLines(input)
+    const contexts = Array.isArray(input) ? input : [input]
 
-    return new StepResponse(commissionLines)
+    const commissionLines = await promiseAll(
+      contexts.map(async (context) => {
+        return await service.getCommissionLines(context)
+      })
+    )
+
+    return new StepResponse(commissionLines.flat())
   }
 )
