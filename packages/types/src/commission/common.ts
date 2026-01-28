@@ -20,6 +20,18 @@ export type CommissionRuleDTO = {
   deleted_at: Date | null
 }
 
+export type CommissionLineDTO = {
+  id: string
+  item_id: string
+  commission_rate_id: string | null
+  code: string
+  rate: number
+  description: string | null
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
 export type CommissionRateDTO = {
   id: string
   name: string
@@ -29,7 +41,7 @@ export type CommissionRateDTO = {
   value: number
   currency_code: string | null
   min_amount: number | null
-  is_tax_inclusive: boolean
+  include_tax: boolean
   is_enabled: boolean
   priority: number
   rules?: CommissionRuleDTO[]
@@ -38,7 +50,7 @@ export type CommissionRateDTO = {
   deleted_at: Date | null
 }
 
-export interface ComputeCommissionItemLine {
+export interface CommissionCalculationItemLine {
   /**
    * The ID of the item line.
    */
@@ -48,6 +60,11 @@ export interface ComputeCommissionItemLine {
    * The subtotal of the line item (base amount for commission calculation).
    */
   subtotal: BigNumberInput
+
+  /**
+   * The tax total of the line item (used when include_tax is true).
+   */
+  tax_total?: BigNumberInput
 
   /**
    * The product of the line item.
@@ -62,16 +79,21 @@ export interface ComputeCommissionItemLine {
   }
 }
 
-export interface ComputeCommissionShippingLine {
+export interface CommissionCalculationShippingLine {
   /**
    * The ID of the shipping line.
    */
   id: string
 
   /**
-  * The subtotal of the shipping method.
-  */
+   * The subtotal of the shipping method.
+   */
   subtotal: BigNumberInput
+
+  /**
+   * The tax total of the shipping method (used when include_tax is true).
+   */
+  tax_total?: BigNumberInput
 
   /**
    * The shipping option type associated with the shipping method.
@@ -84,7 +106,7 @@ export interface ComputeCommissionShippingLine {
   }
 }
 
-export interface ComputeCommissionActionsContext {
+export interface CommissionCalculationContext {
   /**
    * The cart's currency
    */
@@ -93,10 +115,22 @@ export interface ComputeCommissionActionsContext {
   /**
    * The cart's line items.
    */
-  items?: ComputeCommissionItemLine[]
+  items?: CommissionCalculationItemLine[]
 
   /**
    * The cart's shipping methods.
    */
-  shipping_methods?: ComputeCommissionShippingLine[]
+  shipping_methods?: CommissionCalculationShippingLine[]
+}
+
+export interface CreateCommissionLineDTO {
+  item_id: string
+  commission_rate_id: string
+  code: string
+  rate: number
+  description: string | null
+}
+
+export interface UpdateCommissionLineDTO extends Partial<CreateCommissionLineDTO> {
+  id: string
 }

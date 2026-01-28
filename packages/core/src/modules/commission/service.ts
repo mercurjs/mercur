@@ -1,31 +1,46 @@
-import { Context } from "@medusajs/framework/types"
+import { Context, DAL, InferEntityType, ModulesSdkTypes } from "@medusajs/framework/types"
 import {
+  EmitEvents,
   InjectManager,
   MathBN,
   MedusaContext,
   MedusaService,
 } from "@medusajs/framework/utils"
-import { PromotionTypes } from "@medusajs/framework/types"
 
 import {
-  ComputeCommissionActionsContext,
+  CommissionCalculationContext,
+  CommissionLineDTO,
   CommissionRateType,
   CommissionRateTarget,
   CommissionRateDTO,
+  CreateCommissionLineDTO,
+  UpdateCommissionLineDTO,
 } from "@mercurjs/types"
 
-import { CommissionRate, CommissionRule } from "./models"
+import { CommissionRate, CommissionRule, CommissionLine } from "./models"
 
 class CommissionModuleService extends MedusaService({
   CommissionRate,
   CommissionRule,
+  CommissionLine,
 }) {
+  protected commissionLineService_: ModulesSdkTypes.IMedusaInternalService<
+    InferEntityType<typeof CommissionLine>
+  >
+  protected baseRepository_: DAL.RepositoryService
+
+  constructor({ commissionLineService, baseRepository }) {
+    super(...arguments)
+    this.commissionLineService_ = commissionLineService
+    this.baseRepository_ = baseRepository
+  }
+
   @InjectManager()
-  async computeActions(
-    context: ComputeCommissionActionsContext,
+  async getCommissionLines(
+    context: CommissionCalculationContext,
     @MedusaContext() sharedContext: Context = {}
-  ): Promise<PromotionTypes.ComputeActions[]> {
-    const computedActions: PromotionTypes.ComputeActions[] = []
+  ): Promise<CreateCommissionLineDTO[]> {
+    const commissionLines: CreateCommissionLineDTO[] = []
     const { items = [], shipping_methods = [], currency_code } = context
 
     // Get all enabled commission rates with their rules, ordered by priority DESC
@@ -91,10 +106,16 @@ class CommissionModuleService extends MedusaService({
         continue
       }
 
+      // Calculate base amount (include tax if specified)
+      let baseAmount = item.subtotal
+      if (matchedRate.include_tax && item.tax_total) {
+        baseAmount = MathBN.add(item.subtotal, item.tax_total)
+      }
+
       // Calculate commission amount using MathBN
       let amount
       if (matchedRate.type === CommissionRateType.PERCENTAGE) {
-        amount = MathBN.div(MathBN.mult(item.subtotal, matchedRate.value), 100)
+        amount = MathBN.div(MathBN.mult(baseAmount, matchedRate.value), 100)
       } else {
         amount = matchedRate.value
       }
@@ -104,12 +125,11 @@ class CommissionModuleService extends MedusaService({
         amount = matchedRate.min_amount
       }
 
-      computedActions.push({
-        action: "addItemAdjustment",
+      commissionLines.push({
         item_id: item.id,
-        amount,
         code: matchedRate.code,
-        is_tax_inclusive: matchedRate.is_tax_inclusive,
+        rate: matchedRate.value,
+        commission_rate_id: matchedRate.id,
         description: `Commission: ${matchedRate.name}`,
       })
     }
@@ -152,10 +172,16 @@ class CommissionModuleService extends MedusaService({
         continue
       }
 
+      // Calculate base amount (include tax if specified)
+      let baseAmount = shippingMethod.subtotal
+      if (matchedRate.include_tax && shippingMethod.tax_total) {
+        baseAmount = MathBN.add(shippingMethod.subtotal, shippingMethod.tax_total)
+      }
+
       // Calculate commission amount using MathBN
       let amount
       if (matchedRate.type === CommissionRateType.PERCENTAGE) {
-        amount = MathBN.div(MathBN.mult(shippingMethod.subtotal, matchedRate.value), 100)
+        amount = MathBN.div(MathBN.mult(baseAmount, matchedRate.value), 100)
       } else {
         amount = matchedRate.value
       }
@@ -165,16 +191,30 @@ class CommissionModuleService extends MedusaService({
         amount = matchedRate.min_amount
       }
 
-      computedActions.push({
-        action: "addShippingMethodAdjustment",
-        shipping_method_id: shippingMethod.id,
-        amount,
+      commissionLines.push({
+        item_id: shippingMethod.id,
         code: matchedRate.code,
+        rate: matchedRate.value,
+        commission_rate_id: matchedRate.id,
         description: `Shipping Commission: ${matchedRate.name}`,
       })
     }
 
-    return computedActions
+    return commissionLines
+  }
+
+  @InjectManager()
+  @EmitEvents()
+  async upsertCommissionLines(
+    commissionLines: (CreateCommissionLineDTO | UpdateCommissionLineDTO)[],
+    @MedusaContext() sharedContext: Context = {}
+  ): Promise<CommissionLineDTO[]> {
+    const result = await this.commissionLineService_.upsert(
+      commissionLines,
+      sharedContext
+    )
+
+    return await this.baseRepository_.serialize<CommissionLineDTO[]>(result)
   }
 }
 

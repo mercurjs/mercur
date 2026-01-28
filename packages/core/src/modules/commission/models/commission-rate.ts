@@ -14,7 +14,7 @@ const CommissionRate = model.define("commission_rate", {
   target: model.enum(CommissionRateTarget).default(CommissionRateTarget.ITEM),
   value: model.bigNumber(),
   min_amount: model.bigNumber().nullable(),
-  is_tax_inclusive: model.boolean().default(false),
+  include_tax: model.boolean().default(false),
   rules: model.hasMany(() => CommissionRule, {
     mappedBy: "commission_rate",
   }),
