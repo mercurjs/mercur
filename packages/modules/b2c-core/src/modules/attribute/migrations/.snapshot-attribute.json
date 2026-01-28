@@ -132,7 +132,7 @@
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_attribute_handle_unique\" ON \"attribute\" (handle) WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_attribute_handle_unique\" ON \"attribute\" (\"handle\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "IDX_attribute_deleted_at",
@@ -141,7 +141,7 @@
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_deleted_at\" ON \"attribute\" (deleted_at) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_deleted_at\" ON \"attribute\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "attribute_pkey",
@@ -248,7 +248,7 @@
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_possible_value_attribute_id\" ON \"attribute_possible_value\" (attribute_id) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_possible_value_attribute_id\" ON \"attribute_possible_value\" (\"attribute_id\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "IDX_attribute_possible_value_deleted_at",
@@ -257,7 +257,7 @@
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_possible_value_deleted_at\" ON \"attribute_possible_value\" (deleted_at) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_possible_value_deleted_at\" ON \"attribute_possible_value\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "UQ_attribute_id_value",
@@ -266,7 +266,7 @@
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"UQ_attribute_id_value\" ON \"attribute_possible_value\" (attribute_id, value) WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"UQ_attribute_id_value\" ON \"attribute_possible_value\" (\"attribute_id\", \"value\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "attribute_possible_value_pkey",
@@ -314,7 +314,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "rank": {
@@ -387,7 +387,7 @@
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_value_attribute_id\" ON \"attribute_value\" (attribute_id) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_value_attribute_id\" ON \"attribute_value\" (\"attribute_id\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "IDX_attribute_value_deleted_at",
@@ -396,7 +396,7 @@
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_value_deleted_at\" ON \"attribute_value\" (deleted_at) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_value_deleted_at\" ON \"attribute_value\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "attribute_value_pkey",

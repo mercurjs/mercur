@@ -20,11 +20,15 @@ export const validateAttributeValueStep = createStep(
       data: [attribute],
     } = await query.graph({
       entity: "attribute",
-      fields: ["product_categories.id", "possible_values.value"],
+      fields: ["product_categories.id", "possible_values.value", "is_required"],
       filters: {
         id: input.attribute_id,
       },
     });
+
+    if (!input.value && !attribute.is_required) {
+      return new StepResponse();
+    }
 
     const allowedValues = attribute.possible_values
       ?.filter((posVal) => posVal != null)

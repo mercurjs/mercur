@@ -4,7 +4,7 @@ import Attribute from './attribute'
 
 const AttributeValue = model.define('attribute_value', {
   id: model.id({ prefix: 'attr_val' }).primaryKey(),
-  value: model.text(),
+  value: model.text().nullable(),
   rank: model.number(),
   metadata: model.json().nullable(),
   attribute: model.belongsTo(() => Attribute, {
