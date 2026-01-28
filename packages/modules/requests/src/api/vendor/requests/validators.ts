@@ -85,7 +85,12 @@ const ProductCollectionRequest = z.object({
   type: z.literal('product_collection'),
   data: z.object({
     title: z.string(),
-    handle: z.string()
+    handle: z.string(),
+    details: z.object({
+      icon: z.string().nullable().default(null),
+      banner: z.string().nullable().default(null),
+      thumbnail: z.string().nullable().default(null),
+    }).optional()
   })
 })
 

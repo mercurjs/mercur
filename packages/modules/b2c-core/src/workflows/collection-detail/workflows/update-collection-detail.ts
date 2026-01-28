@@ -13,7 +13,6 @@ export const updateCollectionDetailWorkflow = createWorkflow(
     function (input: UpdateCollectionDetailWorkflowInput) {
         const { collection_detail_id, thumbnail, icon, banner, media, rank } = input;
 
-
         const resolvedMediaIds = upsertCollectionDetailMediaStep({
             collection_detail_id,
             thumbnail,

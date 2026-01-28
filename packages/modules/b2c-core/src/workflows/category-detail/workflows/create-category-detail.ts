@@ -10,7 +10,7 @@ export const createCategoryDetailWorkflow = createWorkflow(
     function ({ product_category_id }:
         { product_category_id: string }) {
 
-        const createdCategoryDetail = createCategoryDetailStep({});
+        const createdCategoryDetail = createCategoryDetailStep();
 
         const link = transform({ createdCategoryDetail, product_category_id }, ({ createdCategoryDetail, product_category_id }) => {
             return [
