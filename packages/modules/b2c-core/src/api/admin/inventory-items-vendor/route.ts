@@ -1,8 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys, remoteQueryObjectFromString } from "@medusajs/framework/utils"
 
-import sellerInventoryItem from "../../../links/seller-inventory-item"
 import { AdminGetInventoryItemsParamsType } from "./validators"
+import { filterInventoryItemsBySeller, InventoryItemFilters } from "./utils"
 
 export const GET = async (
     req: AuthenticatedMedusaRequest<AdminGetInventoryItemsParamsType>,
@@ -10,47 +10,43 @@ export const GET = async (
 ) => {
     const remoteQuery = req.scope.resolve(ContainerRegistrationKeys.REMOTE_QUERY)
 
-    const { seller, ...otherFilters } = req.filterableFields as Record<string, unknown> & {
-        seller?: { id?: string | string[] }
-    }
+    const skip = req.queryConfig.pagination?.skip ?? 0
+    const take = req.queryConfig.pagination?.take ?? 20
 
-    let inventoryItemIdFilter: string[] | undefined
+    const { inventoryItemIds, count } = await filterInventoryItemsBySeller(
+        req.scope,
+        skip,
+        take,
+        req.filterableFields as InventoryItemFilters
+    )
 
-    if (seller?.id) {
-        const sellerItemsQuery = remoteQueryObjectFromString({
-            entryPoint: sellerInventoryItem.entryPoint,
-            fields: ['inventory_item_id'],
-            variables: {
-                filters: {
-                    seller_id: seller.id
-                }
-            }
+    if (inventoryItemIds.length === 0) {
+        return res.status(200).json({
+            inventory_items: [],
+            count: 0,
+            offset: skip,
+            limit: take,
         })
-        const sellerItems = await remoteQuery(sellerItemsQuery)
-        const itemIds = sellerItems.map((item: { inventory_item_id: string }) => item.inventory_item_id)
-        inventoryItemIdFilter = itemIds.length > 0 ? itemIds : undefined
     }
 
     const query = remoteQueryObjectFromString({
         entryPoint: "inventory_items",
         variables: {
             filters: {
-                ...otherFilters,
-                ...(inventoryItemIdFilter && { id: inventoryItemIdFilter })
-            },
-            ...req.queryConfig.pagination,
+                id: inventoryItemIds
+            }
         },
         fields: req.queryConfig.fields,
     })
 
-    const { rows: inventory_items, metadata } = await remoteQuery({
+    const inventory_items = await remoteQuery({
         ...query,
     })
 
     res.status(200).json({
         inventory_items,
-        count: metadata?.count,
-        offset: metadata?.skip,
-        limit: metadata?.take,
+        count,
+        offset: skip,
+        limit: take,
     })
 }

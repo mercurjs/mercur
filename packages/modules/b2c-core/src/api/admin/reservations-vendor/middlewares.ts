@@ -6,7 +6,7 @@ import {
 import { adminReservationQueryConfig } from './query-config';
 import { AdminGetReservationsParams } from './validators';
 
-export const adminReservationsVendorMiddlewares: MiddlewareRoute[] = [
+export const adminVendorReservationsMiddlewares: MiddlewareRoute[] = [
   {
     method: ['GET'],
     matcher: '/admin/reservations-vendor',
