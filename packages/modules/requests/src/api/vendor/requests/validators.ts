@@ -90,6 +90,7 @@ const ProductCollectionRequest = z.object({
       icon: z.string().nullable().default(null),
       banner: z.string().nullable().default(null),
       thumbnail: z.string().nullable().default(null),
+      rank: z.number().nullable().default(null),
     }).optional()
   })
 })

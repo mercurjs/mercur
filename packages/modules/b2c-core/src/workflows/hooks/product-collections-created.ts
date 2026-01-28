@@ -34,6 +34,7 @@ createCollectionsWorkflow.hooks.collectionsCreated(async (input, { container }) 
                 thumbnail: z.string().nullable().default(null),
                 icon: z.string().nullable().default(null),
                 banner: z.string().nullable().default(null),
+                rank: z.number().nullable().default(null),
             });
 
             const details = detailsSchema.parse(input.additional_data.details);
@@ -46,6 +47,7 @@ createCollectionsWorkflow.hooks.collectionsCreated(async (input, { container }) 
                         thumbnail: details.thumbnail ? { url: details.thumbnail, alt_text: null } : null,
                         icon: details.icon ? { url: details.icon, alt_text: null } : null,
                         banner: details.banner ? { url: details.banner, alt_text: null } : null,
+                        rank: details.rank,
                     }
                 });
             }
