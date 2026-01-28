@@ -1,7 +1,7 @@
 import cors from 'cors'
 
-import { ConfigModule } from '@medusajs/framework'
 import {
+  ConfigModule,
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse

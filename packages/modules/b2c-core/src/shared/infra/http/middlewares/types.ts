@@ -1,5 +1,3 @@
-import { MedusaRequest } from "@medusajs/framework";
-
 /**
  * Extend MedusaRequest with custom properties used by vendor promotions middleware
  */

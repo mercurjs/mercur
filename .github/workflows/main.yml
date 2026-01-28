@@ -1,0 +1,225 @@
+name: "Publish Mercur packages to NPM"
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        type: choice
+        description: Package to publish
+        options:
+          - all
+          - framework
+          - algolia
+          - b2c-core
+          - commission
+          - payment-stripe-connect
+          - requests
+          - resend
+          - reviews
+      dry_run:
+        type: boolean
+        description: Dry run (skip actual publish)
+        default: true
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Build everything with Turbo (handles dependency order automatically)
+      - name: Build all packages
+        run: yarn build
+
+      # Publish framework (if selected)
+      - name: Publish framework
+        if: github.event.inputs.package == 'all' || github.event.inputs.package == 'framework'
+        working-directory: ./packages/framework
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
+          else
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              echo "🔍 Dry run: npm publish --access public"
+              npm publish --dry-run
+            else
+              echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+              npm publish --access public
+            fi
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Publish modules
+      - name: Publish algolia
+        if: github.event.inputs.package == 'all' || github.event.inputs.package == 'algolia'
+        working-directory: ./packages/modules/algolia
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
+          else
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              echo "🔍 Dry run: npm publish --access public"
+              npm publish --dry-run
+            else
+              echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+              npm publish --access public
+            fi
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish b2c-core
+        if: github.event.inputs.package == 'all' || github.event.inputs.package == 'b2c-core'
+        working-directory: ./packages/modules/b2c-core
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
+          else
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              echo "🔍 Dry run: npm publish --access public"
+              npm publish --dry-run
+            else
+              echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+              npm publish --access public
+            fi
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish commission
+        if: github.event.inputs.package == 'all' || github.event.inputs.package == 'commission'
+        working-directory: ./packages/modules/commission
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
+          else
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              echo "🔍 Dry run: npm publish --access public"
+              npm publish --dry-run
+            else
+              echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+              npm publish --access public
+            fi
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish payment-stripe-connect
+        if: github.event.inputs.package == 'all' || github.event.inputs.package == 'payment-stripe-connect'
+        working-directory: ./packages/modules/payment-stripe-connect
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
+          else
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              echo "🔍 Dry run: npm publish --access public"
+              npm publish --dry-run
+            else
+              echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+              npm publish --access public
+            fi
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish requests
+        if: github.event.inputs.package == 'all' || github.event.inputs.package == 'requests'
+        working-directory: ./packages/modules/requests
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
+          else
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              echo "🔍 Dry run: npm publish --access public"
+              npm publish --dry-run
+            else
+              echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+              npm publish --access public
+            fi
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish resend
+        if: github.event.inputs.package == 'all' || github.event.inputs.package == 'resend'
+        working-directory: ./packages/modules/resend
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
+          else
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              echo "🔍 Dry run: npm publish --access public"
+              npm publish --dry-run
+            else
+              echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+              npm publish --access public
+            fi
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish reviews
+        if: github.event.inputs.package == 'all' || github.event.inputs.package == 'reviews'
+        working-directory: ./packages/modules/reviews
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
+          else
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              echo "🔍 Dry run: npm publish --access public"
+              npm publish --dry-run
+            else
+              echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+              npm publish --access public
+            fi
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## 📦 Publish Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Package selected:** ${{ github.event.inputs.package }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Dry run:** ${{ github.event.inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY

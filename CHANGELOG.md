@@ -5,6 +5,133 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-01-19
+
+### Release 1.5.1
+
+#### Admin Panel
+
+https://github.com/mercurjs/admin-panel
+
+**Fixed**
+- Resolved issues with order filtering not returning correct results.
+-	Fixed errors occurring when creating reservations.
+-	Corrected promotion behavior where campaigns were not activated at their start date.
+-	Prevented unintended creation of duplicate metadata when editing existing entries.
+-	Fixed inability to remove metadata values from product attributes.
+-	Corrected incorrect default selection of Tax Inclusive Pricing under specific conditions.
+-	Fixed error triggered by clicking Create Fulfillment.
+-	Resolved UI issues in Return Reasons and after sorting + delete actions.
+-	Fixed issue where Allocations options were visible for Free Shipping promotions.
+-	Resolved issue preventing approval of Product Categories.
+-	Fixed incorrect visibility of Edit Prices option when products are not assigned to a price list.
+
+**Improved**
+-	Improved error messaging on Create Fulfillment view.
+-	Updated tables to use index instead of internal IDs for improved consistency and UX.
+
+
+#### Vendor Panel
+
+https://github.com/mercurjs/vendor-panel
+
+
+**Fixed**
+- Resolved issues preventing vendor registration.
+- Fixed errors when connecting Stripe.
+- Fixed missing or incorrect price lists despite successful creation.
+- Resolved multiple issues with product filtering, sorting, and searching, including:
+- Tag-based filtering
+- Collection view filtering
+- Promotions view filtering and sorting
+- Fixed multiple 500 errors when sorting price lists by title or status.
+- Corrected inconsistent order return status shown in different views.
+- Fixed errors when:
+- Saving campaign additional attributes
+- Adding products to promotion conditions
+- Editing shipping profiles
+- Fixed incorrect values being applied in promotion conditions.
+- Resolved inventory-related UI issues, including incorrect toast behavior.
+- Fixed UI/UX issues for stock location titles.
+- Addressed unknown errors in returns flow.
+
+**Improved**
+- Added stronger password validation during vendor registration.
+- Added missing validation rules in Promotions.
+- Improved overall stability and UX of Inventory, Promotions, and Products views.
+
+#### Storefront
+
+https://github.com/mercurjs/b2c-marketplace-storefront
+
+**Fixed**
+- Fixed missing order confirmation email after placing an order.
+- Fixed wishlist page rendering as empty instead of showing products.
+- Corrected promotion logic where:
+- Free shipping was not reducing shipping cost to zero
+- Percentage-off product discounts were calculated incorrectly
+- Fixed incorrect cart calculations for promotions applied at checkout.
+
+**Improved**
+- Stabilized shared storefront components to prevent rendering issues across pages.
+
+
+## [1.5.0] - 2025-12-18
+
+### Release 1.5.0
+
+Version 1.5.0 is a stability and correctness-focused release, addressing a broad set of issues across Admin, Vendor, and Storefront applications. The changes improve reliability of promotions and pricing, reduce UI friction, and ensure a more predictable experience for both internal users and end customers.
+
+#### Admin Panel
+
+https://github.com/mercurjs/admin-panel
+
+This release improves promotion management, data consistency, and overall stability of key admin workflows.
+
+- Improved promotion conditions handling, including fixes for missing or incorrectly selectable attributes.
+
+- Resolved multiple issues in promotion creation and editing flows to ensure all conditions and values are properly displayed and selectable.
+
+- Fixed validation and UI inconsistencies in promotion rules that could lead to incorrect configuration or blocked workflows.
+
+- Addressed problems with redundant or missing data in admin forms, improving reliability and predictability of configuration screens.
+
+- Improved error handling and feedback in cases where invalid or incomplete data was submitted.
+
+- Minor UI and usability fixes across admin views to reduce friction during daily operations.
+
+#### Vendor Panel
+
+https://github.com/mercurjs/vendor-panel
+
+This release focuses on improving price management, product configuration, and reducing disruptive UI behavior.
+
+- Fixed issues with missing or incorrect price data when adding products to price lists.
+
+- Improved handling of product attribute changes to prevent redundant confirmation modals.
+
+- Ensured current prices and attributes are consistently visible and correctly applied during product and price list management.
+
+- Resolved UI inconsistencies that could cause confusion or unnecessary interruptions when editing vendor data.
+
+- General stability improvements in vendor-facing forms and flows.
+
+#### Storefront
+
+https://github.com/mercurjs/b2c-marketplace-storefront
+
+This release brings multiple fixes that improve correctness, clarity, and user experience for end customers.
+
+- Fixed pricing and promotion-related issues to ensure correct values are displayed and applied during shopping flows.
+
+- Improved consistency of product and promotion data shown to customers.
+
+- Addressed UI and text inconsistencies to make the storefront experience clearer and less error-prone.
+
+- Resolved edge cases that could lead to incorrect behavior during browsing or checkout-related interactions.
+
+- General bug fixes and stability improvements across storefront views.
+
 ## [1.4.6] - 2025-12-16
 
 ### Release 1.4.6

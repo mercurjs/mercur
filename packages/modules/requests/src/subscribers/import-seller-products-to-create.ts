@@ -3,10 +3,8 @@ import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import {
   CreateRequestDTO,
   ImportSellerProductsRequestUpdatedEvent,
-  SellerRequest,
 } from "@mercurjs/framework";
 import {
-  createSellerCreationRequestWorkflow,
   importSellerProductsRequestWorkflow,
 } from "../workflows";
 

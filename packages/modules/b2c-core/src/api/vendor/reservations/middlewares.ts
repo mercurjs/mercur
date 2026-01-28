@@ -1,4 +1,4 @@
-import { NextFunction } from 'express'
+import { NextFunction } from 'express';
 
 import {
   AuthenticatedMedusaRequest,
@@ -9,7 +9,8 @@ import {
 } from '@medusajs/framework'
 import {
   ContainerRegistrationKeys,
-  MedusaError
+  MedusaError,
+  OrderStatus
 } from '@medusajs/framework/utils'
 
 import sellerInventoryItem from '../../../links/seller-inventory-item'
@@ -124,6 +125,37 @@ const canCreateReservation = () => {
   }
 }
 
+export const canDeleteReservation = () => {
+  return async (
+    req: AuthenticatedMedusaRequest<VendorCreateReservationType>,
+    res: MedusaResponse,
+    next: NextFunction
+  ) => {
+    const knex = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+
+    const order = await knex('order')
+      .select('order.id', 'order.status')
+      .join('order_item', 'order.id', 'order_item.order_id')
+      .join(
+        'reservation_item',
+        'order_item.item_id',
+        'reservation_item.line_item_id'
+      )
+      .where('reservation_item.id', req.params.id)
+      .first()
+
+    if (order && order.status !== OrderStatus.CANCELED) {
+      res.status(403).json({
+        message: 'Cancel order first to delete reservation.',
+        type: MedusaError.Types.NOT_ALLOWED
+      })
+      return
+    }
+
+    next()
+  }
+}
+
 export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
   {
     method: ['GET'],
@@ -151,7 +183,7 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
   {
     method: ['DELETE'],
     matcher: '/vendor/reservations/:id',
-    middlewares: [checkReservationOwnership()]
+    middlewares: [checkReservationOwnership(), canDeleteReservation()]
   },
   {
     method: ['POST'],

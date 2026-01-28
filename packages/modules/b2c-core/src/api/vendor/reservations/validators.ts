@@ -2,12 +2,17 @@ import { z } from 'zod'
 
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
+import { dateFilterSchema } from '../../../shared/infra/http/utils'
+
 export type VendorGetReservationParamsType = z.infer<
   typeof VendorGetReservationParams
 >
 export const VendorGetReservationParams = createFindParams({
   offset: 0,
   limit: 50
+}).extend({
+  location_id: z.string().optional(),
+  created_at: dateFilterSchema
 })
 
 /**

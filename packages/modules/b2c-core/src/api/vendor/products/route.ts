@@ -1,25 +1,27 @@
 import {
   AuthenticatedMedusaRequest,
   MedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+  MedusaResponse
+} from '@medusajs/framework'
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
+import { createProductsWorkflow } from '@medusajs/medusa/core-flows'
 
-import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
-import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
-import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
+import { ProductRequestUpdatedEvent } from '@mercurjs/framework'
+
+import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
 import {
+  OrderObject,
+  ProductFilters,
   assignVariantImages,
   fetchProductSecondaryCategoryDetails,
   filterProductsBySeller,
-  mergeVariantImages,
-  OrderObject,
-} from "./utils";
+  mergeVariantImages
+} from './utils'
 import { transformProductWithInformationalAttributes } from "./utils/transform-product-attributes";
 import {
   VendorCreateProductType,
-  VendorGetProductParamsType,
-} from "./validators";
+  VendorGetProductParamsType
+} from './validators'
 
 /**
  * @oas [get] /vendor/products
@@ -28,6 +30,12 @@ import {
  * description: "Retrieves a list of products for the authenticated vendor."
  * x-authenticated: true
  * parameters:
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search term to filter products by title or ID.
  *   - name: offset
  *     in: query
  *     schema:
@@ -83,7 +91,9 @@ export const GET = async (
   req: MedusaRequest<VendorGetProductParamsType>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const filters = req.filterableFields as ProductFilters
 
   const { productIds, count } = await filterProductsBySeller(
     req.scope,
@@ -91,31 +101,29 @@ export const GET = async (
     req.queryConfig.pagination?.skip || 0,
     req.queryConfig.pagination?.take || 10,
     req.filterableFields.sales_channel_id as string,
-    req.queryConfig.pagination?.order as OrderObject | undefined
-  );
-
-  const {seller_id, ...filters} = req.filterableFields;
+    req.queryConfig.pagination?.order as OrderObject | undefined,
+    filters
+  )
 
   const { data: sellerProducts } = await query.graph({
-    entity: "product",
+    entity: 'product',
     fields: req.queryConfig.fields,
     filters: {
-      ...filters,
-      id: productIds,
+      id: { $in: productIds }
     },
     pagination: {
       order: req.queryConfig.pagination?.order
     }
-  });
+  })
 
   res.json({
     products: sellerProducts,
-    count: count,
+    count,
     offset: req.queryConfig.pagination?.skip || 0,
     limit: req.queryConfig.pagination?.take || 10,
     order: req.queryConfig.pagination?.order
-  });
-};
+  })
+}
 
 /**
  * @oas [post] /vendor/products
@@ -148,17 +156,17 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateProductType>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const seller = await fetchSellerByAuthActorId(
     req.auth_context?.actor_id,
     req.scope
-  );
+  )
 
   const { additional_data, variants_images, ...validatedBody } =
-    req.validatedBody;
+    req.validatedBody
 
-  const mergedImages = mergeVariantImages(validatedBody.images, variants_images);
+  const mergedImages = mergeVariantImages(validatedBody.images, variants_images)
 
   const optionsMetadata = validatedBody.options
     ?.filter((opt) => opt.metadata)
@@ -168,7 +176,7 @@ export const POST = async (
     }));
 
   const {
-    result: [createdProduct],
+    result: [createdProduct]
   } = await createProductsWorkflow.run({
     container: req.scope,
     input: {
@@ -176,8 +184,8 @@ export const POST = async (
         {
           ...validatedBody,
           images: mergedImages.length ? mergedImages : undefined,
-          status: validatedBody.status === "draft" ? "draft" : "proposed",
-        },
+          status: validatedBody.status === 'draft' ? 'draft' : 'proposed'
+        }
       ],
       additional_data: {
         ...additional_data,
@@ -187,9 +195,9 @@ export const POST = async (
     },
   });
 
-  await assignVariantImages(req.scope, variants_images, createdProduct);
+  await assignVariantImages(req.scope, variants_images, createdProduct)
 
-  const eventBus = req.scope.resolve(Modules.EVENT_BUS);
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
   await eventBus.emit({
     name: ProductRequestUpdatedEvent.TO_CREATE,
     data: {
@@ -197,27 +205,27 @@ export const POST = async (
       data: {
         data: {
           ...createdProduct,
-          product_id: createdProduct.id,
+          product_id: createdProduct.id
         },
         submitter_id: req.auth_context.actor_id,
-        type: "product",
-        status: createdProduct.status === "draft" ? "draft" : "pending",
-      },
-    },
-  });
+        type: 'product',
+        status: createdProduct.status === 'draft' ? 'draft' : 'pending'
+      }
+    }
+  })
 
-  const product_id = createdProduct.id;
+  const product_id = createdProduct.id
 
   const {
-    data: [product],
+    data: [product]
   } = await query.graph(
     {
-      entity: "product",
+      entity: 'product',
       fields: req.queryConfig.fields,
-      filters: { id: product_id },
+      filters: { id: product_id }
     },
     { throwIfKeyNotFound: true }
-  );
+  )
 
   const transformedProduct = transformProductWithInformationalAttributes(
     product as any
