@@ -11,20 +11,34 @@ import { getCommissionLinesStep, upsertCommissionLinesStep } from "../steps"
 
 const orderFields = [
   "id",
+  "status",
+  "version",
   "currency_code",
-  "items.id",
+  "email",
+  "canceled_at",
+  "sales_channel_id",
+  "region_id",
+  "customer_id",
+  "customer.*",
+  "customer.groups.*",
+  "promotions.*",
+  "subtotal",
+  "items.*",
   "items.subtotal",
-  "items.tax_total",
   "items.product.id",
   "items.product.collection_id",
   "items.product.categories.id",
   "items.product.tags.id",
   "items.product.type_id",
   "items.product.seller.id",
-  "shipping_methods.id",
+  "items.adjustments.*",
+  "shipping_methods.*",
+  "shipping_methods.total",
   "shipping_methods.subtotal",
   "shipping_methods.tax_total",
-  "shipping_methods.shipping_option.shipping_option_type_id",
+  "shipping_methods.adjustments.*",
+  "shipping_methods.shipping_option_id",
+  "shipping_address.*",
 ]
 
 export type RefreshOrderCommissionLinesWorkflowInput = {
@@ -32,6 +46,7 @@ export type RefreshOrderCommissionLinesWorkflowInput = {
 }
 
 export const refreshOrderCommissionLinesWorkflowId = "refresh-order-commission-lines"
+
 
 export const refreshOrderCommissionLinesWorkflow = createWorkflow(
   refreshOrderCommissionLinesWorkflowId,
@@ -47,8 +62,8 @@ export const refreshOrderCommissionLinesWorkflow = createWorkflow(
       },
     }).config({ name: "fetch-orders" })
 
-    const commissionContexts = transform({ orders }, ({ orders }) =>
-      orders.map((order: any) => ({
+    const commissionContexts = transform({ orders }, ({ orders }) => {
+      return orders.map((order: any) => ({
         currency_code: order.currency_code,
         items: (order.items ?? []).map((item: any) => ({
           id: item.id,
@@ -56,28 +71,22 @@ export const refreshOrderCommissionLinesWorkflow = createWorkflow(
           tax_total: item.tax_total,
           product: item.product
             ? {
-                id: item.product.id,
-                collection_id: item.product.collection_id,
-                categories: item.product.categories,
-                tags: item.product.tags,
-                type_id: item.product.type_id,
-                seller: item.product.seller,
-              }
+              id: item.product.id,
+              collection_id: item.product.collection_id,
+              categories: item.product.categories,
+              tags: item.product.tags,
+              type_id: item.product.type_id,
+              seller: item.product.seller,
+            }
             : undefined,
         })),
         shipping_methods: (order.shipping_methods ?? []).map((method: any) => ({
           id: method.id,
           subtotal: method.subtotal,
           tax_total: method.tax_total,
-          shipping_option: method.shipping_option
-            ? {
-                shipping_option_type_id:
-                  method.shipping_option.shipping_option_type_id,
-              }
-            : undefined,
         })),
       }))
-    )
+    })
 
     const commissionLines = getCommissionLinesStep(commissionContexts)
 

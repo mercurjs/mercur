@@ -19,10 +19,9 @@ export const getCommissionLinesStep = createStep(
     const service =
       container.resolve(COMMISSION_MODULE) as CommissionModuleService
 
-    const contexts = Array.isArray(input) ? input : [input]
 
     const commissionLines = await promiseAll(
-      contexts.map(async (context) => {
+      input.map(async (context) => {
         return await service.getCommissionLines(context)
       })
     )

@@ -130,7 +130,7 @@ export interface CreateCommissionLineDTO {
   code: string
   rate: number
   amount: number
-  description: string | null
+  description?: string | null
 }
 
 export interface UpdateCommissionLineDTO extends Partial<CreateCommissionLineDTO> {

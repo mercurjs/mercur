@@ -2,7 +2,6 @@ import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import {
   IRegionModuleService,
   ISalesChannelModuleService,
-  IProductModuleService,
   MedusaContainer,
 } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
@@ -246,8 +245,6 @@ medusaIntegrationTestRunner({
         )
         return response.data.cart
       }
-
-
 
       describe("1. Basic Item Commission", () => {
         it("1.1 should apply percentage-based item commission and calculate correct amount", async () => {
@@ -1137,6 +1134,75 @@ medusaIntegrationTestRunner({
 
           expect(shippingLine?.code).toEqual("COMBINED_SHIPPING")
           expect(shippingLine?.amount).toEqual(300) // 15% of $20 = $3 (300 cents)
+        })
+
+        it("10.2 should create commission lines linked to order line items after checkout", async () => {
+          // Create 10% item commission rate
+          await commissionService.createCommissionRates({
+            name: "Order Item Commission",
+            code: "ORDER_ITEM_10",
+            type: CommissionRateType.PERCENTAGE,
+            target: CommissionRateTarget.ITEM,
+            value: 10,
+            is_enabled: true,
+            priority: 0,
+          })
+
+          // Create cart and complete checkout flow
+          // Find the $100 variant (Small) by SKU to ensure correct variant
+          const variant100 = product.variants.find((v: any) => v.sku === "COMM-TEST-S")
+          const cart = await createCart()
+          await addItemToCart(cart.id, variant100.id, 1) // $100
+          await updateCartWithAddress(cart.id)
+          await addShippingMethodToCart(cart.id, shippingOption.id)
+
+          // Create payment collection
+          const paymentCollectionResponse = await api.post(
+            `/store/payment-collections`,
+            { cart_id: cart.id },
+            storeHeaders
+          )
+          const paymentCollection = paymentCollectionResponse.data.payment_collection
+
+          // Initialize payment session
+          await api.post(
+            `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
+            { provider_id: "pp_system_default" },
+            storeHeaders
+          )
+
+          // Complete cart
+          const completeResponse = await api.post(
+            `/store/carts/${cart.id}/complete`,
+            {},
+            storeHeaders
+          )
+
+          expect(completeResponse.data.type).toEqual("order_group")
+          const orderGroupId = completeResponse.data.order_group.id
+
+          // Fetch order with commission lines linked through line items using query
+          const { data: [orderGroup] } = await query.graph({
+            entity: "order_group",
+            fields: ["id", "orders.*", "orders.items.*", "orders.items.commission_lines.*"],
+            filters: { id: orderGroupId },
+          })
+          const order = orderGroup.orders[0]
+
+          expect(order).toBeDefined()
+          expect(order.items).toBeDefined()
+          expect(order.items.length).toBeGreaterThan(0)
+
+          // Verify commission lines are linked to line items
+          const itemWithCommission = order.items[0]
+          expect(itemWithCommission.commission_lines).toBeDefined()
+          expect(itemWithCommission.commission_lines.length).toBeGreaterThan(0)
+
+          // Verify commission line details
+          const commissionLine = itemWithCommission.commission_lines[0]
+          expect(commissionLine.code).toEqual("ORDER_ITEM_10")
+          expect(commissionLine.rate).toEqual(10)
+          expect(commissionLine.amount).toEqual(1000) // 10% of $100 = $10 (1000 cents)
         })
 
         it("10.3 should apply correct rate in complex override hierarchy and calculate amount", async () => {
