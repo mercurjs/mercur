@@ -1,0 +1,74 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    },
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true
+      },
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  },
+  "plugins": ["react", "jsx-a11y", "import", "@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:jsx-a11y/recommended"
+  ],
+  "ignorePatterns": ["node_modules/", "dist/", "build/"],
+  "rules": {
+    "react/jsx-curly-brace-presence": "warn",
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports" }
+    ],
+    "@typescript-eslint/no-import-type-side-effects": "error",
+    "newline-before-return": "error",
+    "import/no-unresolved": 0,
+    "import/named": 0,
+    "import/namespace": 0,
+    "import/default": 0,
+    "import/export": 0,
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["../*"],
+            "message": "Use @ imports instead of relative parent imports (../)."
+          },
+          {
+            "group": [
+              "./**/hooks/*",
+              "./**/components/*",
+              "./**/routes/*",
+              "./**/utils/*",
+              "./**/assets/*",
+              "./**/types/*"
+            ],
+            "message": "Use @ imports (e.g., @hooks/, @components/, etc.) instead of relative imports."
+          }
+        ]
+      }
+    ]
+  }
+}

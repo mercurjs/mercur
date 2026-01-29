@@ -1,6 +1,10 @@
 import path from 'path'
 import fs from 'fs'
+import { createRequire } from 'module'
 import { SPECIAL_FILES, type MercurAppType } from './types'
+
+// Create require for ESM compatibility
+const require = createRequire(import.meta.url)
 
 /**
  * Convert file path to route path

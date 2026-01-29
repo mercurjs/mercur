@@ -25,9 +25,13 @@ function sortRoutes(routes: [string, string][]): [string, string][] {
 /**
  * Generate import statements from a list of imports
  */
-function generateImportStatements(imports: GeneratedImport[]): string {
+function generateImportStatements(imports: GeneratedImport[], useNamedExport?: string): string {
   return imports
-    .map(({ name, path }) => `import ${name} from '${path}'`)
+    .map(({ name, path }) =>
+      useNamedExport
+        ? `import { ${useNamedExport} as ${name} } from '${path}'`
+        : `import ${name} from '${path}'`
+    )
     .join('\n')
 }
 
@@ -170,10 +174,11 @@ export function generateRoutesCode(scannedFiles: ScannedFiles): string {
   })
 
   // Combine all imports
+  // Pages use named export { Component }, layouts and errors use default export
   const allImports = [
     generateImportStatements(layoutImports),
     generateImportStatements(errorImports),
-    generateImportStatements(pageImports),
+    generateImportStatements(pageImports, 'Component'),
   ]
     .filter(Boolean)
     .join('\n')
