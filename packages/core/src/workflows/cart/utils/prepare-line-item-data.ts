@@ -9,6 +9,7 @@ import {
     ProductVariantDTO,
 } from "@medusajs/framework/types"
 import {
+    generateEntityId,
     isDefined,
     isPresent,
     MathBN,
@@ -138,6 +139,7 @@ export function prepareLineItemData(data: PrepareLineItemDataInput) {
         : hasShippingProfile || someInventoryRequiresShipping
 
     let lineItem: any = {
+        id: generateEntityId(undefined, 'ordli'),
         quantity: item?.quantity,
         title: item?.title ?? variant?.product?.title,
         subtitle: item?.subtitle ?? variant?.title,
