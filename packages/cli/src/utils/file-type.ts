@@ -26,8 +26,35 @@ export function resolveFilePath(file: z.infer<typeof registryItemFileSchema>, co
   isSrcDir: boolean;
   path: string
 }) {
-  // todo: add target support if path handling is not enough
   const targetDir = getTargetDir(file, config);
+
+  // If target is specified, use it directly (relative to the base target directory)
+  if (file.target) {
+    // Extract the type prefix (e.g., "admin" from "admin/routes/...")
+    const targetSegments = file.target.split("/");
+    const typePrefix = targetSegments[0];
+
+    // Check if the target starts with a known type prefix that matches the file type
+    const typeMap: Record<string, string> = {
+      "registry:admin": "admin",
+      "registry:vendor": "vendor",
+      "registry:module": "modules",
+      "registry:api": "api",
+      "registry:workflow": "workflows",
+      "registry:link": "links",
+      "registry:lib": "lib",
+    };
+
+    const expectedPrefix = typeMap[file.type];
+    if (expectedPrefix && typePrefix === expectedPrefix) {
+      // Remove the type prefix from target and join with targetDir
+      const relativePath = targetSegments.slice(1).join("/");
+      return path.join(targetDir, relativePath);
+    }
+
+    // Otherwise use the full target path relative to targetDir
+    return path.join(targetDir, file.target);
+  }
 
   const relativePath = resolveNestedFilePath(file.path, targetDir);
 
