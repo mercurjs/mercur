@@ -1,0 +1,133 @@
+import { ReactNode } from "react";
+
+import { HttpTypes } from "@medusajs/types";
+import { Button } from "@medusajs/ui";
+
+import { Table } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+
+import {
+  NoRecords,
+  NoResults,
+} from "../../../../../components/common/empty-table-content";
+import { TableFooterSkeleton } from "../../../../../components/common/skeleton";
+import { LocalizedTablePagination } from "../../../../../components/localization/localized-table-pagination";
+import { DataTableOrderBy } from "../../../../../components/table/data-table/data-table-order-by";
+import { TaxRegionCard } from "../tax-region-card";
+
+type TaxRegionTableProps = {
+  variant?: "country" | "province";
+  isPending: boolean;
+  queryObject: Record<string, any>;
+  count?: number;
+  table: Table<HttpTypes.AdminTaxRegion>;
+  action: { label: string; to: string };
+  prefix?: string;
+  children?: ReactNode;
+  "data-testid"?: string;
+};
+
+export const TaxRegionTable = ({
+  variant = "country",
+  isPending,
+  action,
+  count = 0,
+  table,
+  queryObject,
+  prefix,
+  children,
+  "data-testid": dataTestId,
+}: TaxRegionTableProps) => {
+  const { t } = useTranslation();
+  if (isPending) {
+    return (
+      <div className="flex flex-col divide-y">
+        {Array.from({ length: 3 }).map((_, index) => {
+          return (
+            <div
+              key={index}
+              className="h-[52px] w-full animate-pulse bg-ui-bg-field-component"
+            />
+          );
+        })}
+        <TableFooterSkeleton layout="fit" />
+      </div>
+    );
+  }
+
+  const noQuery =
+    Object.values(queryObject).filter((v) => Boolean(v)).length === 0;
+  const noResults = !isPending && count === 0 && !noQuery;
+  const noRecords = !isPending && count === 0 && noQuery;
+
+  const { pageIndex, pageSize } = table.getState().pagination;
+
+  return (
+    <div className="flex flex-col divide-y" data-testid={dataTestId}>
+      <div className="flex flex-col justify-between gap-x-4 gap-y-3 px-6 py-4 md:flex-row md:items-center" data-testid={dataTestId ? `${dataTestId}-header` : undefined}>
+        <div>{children}</div>
+        <div className="flex items-center gap-x-2">
+          {!noRecords && (
+            <div className="flex w-full items-center gap-x-2 md:w-fit">
+              {/* Re-enable when we allow searching tax regions by country name rather than country_code */}
+              {/* <div className="w-full md:w-fit">
+                <DataTableSearch prefix={prefix} />
+              </div> */}
+              <DataTableOrderBy
+                keys={[
+                  { key: "country_code", label: t("fields.name") },
+                  { key: "updated_at", label: t("fields.updatedAt") },
+                  { key: "created_at", label: t("fields.createdAt") },
+                ]}
+                prefix={prefix}
+              />
+            </div>
+          )}
+          <Link to={action.to}>
+            <Button size="small" variant="secondary" data-testid={dataTestId ? `${dataTestId}-create-button` : undefined}>
+              {action.label}
+            </Button>
+          </Link>
+        </div>
+      </div>
+      {noResults && <NoResults />}
+      {noRecords && <NoRecords />}
+      {!noRecords && !noResults
+        ? !isPending
+          ? table.getRowModel().rows.map((row) => {
+              return (
+                <TaxRegionCard
+                  variant={variant}
+                  key={row.id}
+                  taxRegion={row.original}
+                  role="row"
+                  aria-rowindex={row.index}
+                />
+              );
+            })
+          : Array.from({ length: 3 }).map((_, index) => {
+              return (
+                <div
+                  key={index}
+                  className="h-[60px] w-full animate-pulse bg-ui-bg-field-component"
+                />
+              );
+            })
+        : null}
+      {!noRecords && (
+        <LocalizedTablePagination
+          prefix={prefix}
+          canNextPage={table.getCanNextPage()}
+          canPreviousPage={table.getCanPreviousPage()}
+          count={count}
+          nextPage={table.nextPage}
+          previousPage={table.previousPage}
+          pageCount={table.getPageCount()}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+        />
+      )}
+    </div>
+  );
+};

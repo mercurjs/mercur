@@ -60,7 +60,7 @@ export const VIRTUAL_MODULE_ID = 'virtual:mercur-routes'
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
 
 export const FILE_EXTENSIONS = ['.tsx', '.ts', '.jsx', '.js']
-export const PAGE_GLOB_PATTERN = '**/*.{tsx,ts,jsx,js}'
+export const PAGE_GLOB_PATTERN = '**/index.{tsx,ts,jsx,js}'
 export const SPECIAL_FILE_GLOB_PATTERN = '**/_*.{tsx,ts,jsx,js}'
 
 export const IGNORED_DIRECTORIES = [
@@ -68,6 +68,8 @@ export const IGNORED_DIRECTORIES = [
   '**/hooks/**',
   '**/utils/**',
   '**/lib/**',
+  '**/helpers/**',
+  '**/common/**',
   '**/_*.*',
 ]
 

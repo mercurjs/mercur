@@ -13,7 +13,6 @@ export function createLogger(pluginName: string) {
       user: ScannedFiles,
       core: ScannedFiles
     ) => {
-      console.log(`\n${prefix} Routes discovered:`)
 
       for (const [route] of merged.pages) {
         const isUserRoute = user.pages.has(route)

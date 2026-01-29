@@ -14,8 +14,28 @@ import {
 } from './resolver'
 
 /**
+ * Check if a file exports 'Component' (named export)
+ * This is required for file-based routing pages
+ */
+function hasComponentExport(filePath: string): boolean {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8')
+    // Match various export patterns for Component:
+    // export { X as Component }
+    // export { Component }
+    // export const Component
+    // export function Component
+    // export class Component
+    return /export\s*\{[^}]*\bComponent\b[^}]*\}|export\s+(const|function|class)\s+Component\b/.test(content)
+  } catch {
+    return false
+  }
+}
+
+/**
  * Scan directory for page files
  * Returns a map of route path -> absolute file path
+ * Only includes files that export 'Component'
  */
 export async function scanPages(dir: string): Promise<Map<string, string>> {
   const pages = new Map<string, string>()
@@ -30,8 +50,14 @@ export async function scanPages(dir: string): Promise<Map<string, string>> {
   })
 
   for (const file of files) {
-    const routePath = filePathToRoutePath(file)
     const absolutePath = path.join(dir, file)
+
+    // Only include files that export Component
+    if (!hasComponentExport(absolutePath)) {
+      continue
+    }
+
+    const routePath = filePathToRoutePath(file)
     pages.set(routePath, absolutePath)
   }
 
