@@ -5,6 +5,10 @@ export interface VendorPayoutAccountResponse {
   payout_account: PayoutAccountDTO
 }
 
+export type VendorPayoutAccountListResponse = PaginatedResponse<{
+  payout_accounts: PayoutAccountDTO[]
+}>
+
 export interface VendorOnboardingResponse {
   onboarding: OnboardingDTO
 }

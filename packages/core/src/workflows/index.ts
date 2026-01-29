@@ -1,5 +1,6 @@
 export * from "./campaign"
 export * from "./commission"
+export * from "./payout"
 export * from "./inventory-item"
 export * from "./order-group"
 export * from "./price-list"
