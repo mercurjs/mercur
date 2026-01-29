@@ -3,7 +3,6 @@ import { BigNumberInput } from "@medusajs/framework/types"
 
 export interface PayoutProviderContext {
   idempotency_key?: string
-  account?: PayoutAccountDTO
 }
 
 export interface PayoutProviderInput {
