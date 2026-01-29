@@ -9,6 +9,10 @@ export const PayoutAccount = model.define("payout_account", {
   status: model.enum(PayoutAccountStatus).default(PayoutAccountStatus.PENDING),
   data: model.json(),
   context: model.json().nullable(),
-  onboarding: model.hasOne(() => Onboarding).nullable(),
-  payouts: model.hasMany(() => Payout),
+  onboarding: model.hasOne(() => Onboarding, {
+    mappedBy: 'account'
+  }).nullable(),
+  payouts: model.hasMany(() => Payout, {
+    mappedBy: 'account'
+  }),
 });
