@@ -9,6 +9,7 @@ import PayoutProviderService, {
   PayoutProviderIdentifierRegistrationName,
   PayoutProviderRegistrationPrefix,
 } from "../services/provider-service"
+import { SystemPayoutProvider } from "../providers/system"
 
 const registrationFn = async (klass, container, pluginOptions) => {
   const key = PayoutProviderService.getRegistrationIdentifier(
@@ -37,9 +38,18 @@ export default async ({
     | ModulesSdkTypes.ModuleServiceInitializeCustomDataLayerOptions
   ) & { providers: ModuleProvider[] }
 >): Promise<void> => {
+  const providers = options?.providers || []
+
+  if (!providers.length) {
+    providers.push({
+      resolve: SystemPayoutProvider,
+      id: 'default',
+    })
+  }
+
   await moduleProviderLoader({
     container,
-    providers: options?.providers || [],
+    providers,
     registerServiceFn: registrationFn,
   })
 }

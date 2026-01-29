@@ -32,6 +32,7 @@ export enum PayoutStatus {
 
 
 export type PayoutWebhookAction =
+  | "not_supported"
   | "account.activated"
   | "account.restricted"
   | "account.rejected"
