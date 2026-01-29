@@ -5,7 +5,7 @@ import path from "path";
 
 import { clearRegistryContext } from "@/src/registry/context";
 import { sendTelemetryEvent, setTelemetryEmail } from "@/src/telemetry";
-import { setupDatabase } from "@/src/utils/create-db";
+import { setupDatabase, type SetupDatabaseResult } from "@/src/utils/create-db";
 import { getPackageManager } from "@/src/utils/get-package-manager";
 import { handleError } from "@/src/utils/handle-error";
 import { highlighter } from "@/src/utils/highlighter";
@@ -115,19 +115,18 @@ export const create = new Command()
         if (!opts.deps) {
           spinner("Dependency installation skipped.").warn();
         } else {
-          spinner(`Installing dependencies with ${packageManager}...`).info();
+          const initialInstallSpinner = spinner("Installing dependencies...").start();
           const installStart = Date.now();
           const result = await installDeps({
             projectDir,
             packageManager,
           });
           const installDuration = ((Date.now() - installStart) / 1000).toFixed(1);
-          logger.break();
+          initialInstallSpinner.succeed(`Dependencies installed successfully in ${installDuration}s.`);
           if (result) {
-            spinner(`Dependencies installed successfully in ${installDuration}s.`).succeed();
+            initialInstallSpinner.fail("Failed to install dependencies.");
           } else {
-            spinner("Failed to install dependencies.").fail();
-            logger.log(feedbackOutro());
+            initialInstallSpinner.fail("Failed to install dependencies.");
             await sendTelemetryEvent({
               type: 'create',
               payload: {
@@ -142,12 +141,11 @@ export const create = new Command()
         }
 
         let dbConnectionString: string | undefined = opts.dbConnectionString;
-        let dbSetupSuccess = false;
-        let inviteToken: string | null = null;
+        let dbResult: SetupDatabaseResult | undefined;
 
         if (!opts.skipDb) {
           const dbSpinner = spinner("Setting up database...").start();
-          const dbResult = await setupDatabase({
+          dbResult = await setupDatabase({
             projectDir,
             projectName,
             dbConnectionString,
@@ -165,8 +163,6 @@ export const create = new Command()
               );
             }
             dbConnectionString = dbResult.connectionString!;
-            inviteToken = dbResult.inviteToken || null;
-            dbSetupSuccess = true;
           } else {
             dbSpinner.fail("Failed to setup database.");
             logger.log(feedbackOutro());
@@ -222,12 +218,12 @@ export const create = new Command()
 
         spinner("Mercur project successfully created!").succeed();
 
-        if (dbSetupSuccess) {
+        if (dbResult?.success) {
           spinner("Starting development server...").info();
 
           const apiDir = path.join(projectDir, "packages", "api");
-          const inviteUrl = inviteToken
-            ? `http://localhost:9000/app/invite?token=${inviteToken}&first_run=true`
+          const inviteUrl = dbResult.inviteToken
+            ? `http://localhost:9000/app/invite?token=${dbResult.inviteToken}&first_run=true`
             : "http://localhost:9000/app";
 
           const serverProcess = exec(`${packageManager === "npm" ? "npm run" : packageManager} dev`, {
@@ -377,7 +373,7 @@ function createTerminalLink(text: string, url: string) {
 async function initGit(projectDir: string): Promise<void> {
   try {
     await execa("git", ["init"], { cwd: projectDir });
-    spinner("Initialized a git repository.").succeed();
+    logger.info("Initialized a git repository.");
   } catch {
     throw new Error("Failed to initialize git repository.");
   }
