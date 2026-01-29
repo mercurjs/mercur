@@ -6,7 +6,7 @@ export const Onboarding = model.define('onboarding', {
   id: model.id({ prefix: 'onb' }).primaryKey(),
   data: model.json().nullable(),
   context: model.json().nullable(),
-  payout_account: model.belongsTo(() => PayoutAccount, {
+  account: model.belongsTo(() => PayoutAccount, {
     mappedBy: 'onboarding'
   })
 })

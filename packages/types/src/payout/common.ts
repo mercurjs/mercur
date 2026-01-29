@@ -18,7 +18,13 @@ export enum PayoutWebhookAction {
   NOT_SUPPORTED = "not_supported",
 }
 
-export type PayoutStatus = "pending" | "finalized" | "reversed" | "failed" | "canceled"
+export enum PayoutStatus {
+  PENDING = "pending",
+  FINALIZED = "finalized",
+  REVERSED = "reversed",
+  FAILED = "failed",
+  CANCELED = "canceled",
+}
 
 
 export interface PayoutAccountDTO {
@@ -63,4 +69,17 @@ export interface CreatePayoutAccountDTO extends PayoutProviderInput {
 }
 
 export interface InitializeOnboardingDTO extends PayoutProviderInput {
+  account_id: string
+}
+
+export interface CreatePayoutDTO extends PayoutProviderInput {
+  account_id: string
+  amount: number
+  currency_code: string
+}
+
+export interface CreatePayoutReversalDTO extends PayoutProviderInput {
+  account_id: string
+  amount: number
+  currency_code: string
 }

@@ -2,18 +2,19 @@ import {
     EmitEvents,
     InjectManager,
     MedusaContext,
-    MedusaError,
     MedusaService,
 } from "@medusajs/framework/utils"
 import {
     CreatePayoutAccountDTO,
     CreatePayoutAccountResponse,
+    CreatePayoutDTO,
+    CreatePayoutReversalDTO,
     InitializeOnboardingDTO,
-    InitializeOnboardingResponse,
     OnboardingDTO,
     PayoutAccountDTO,
     PayoutDTO,
     PayoutReversalDTO,
+    PayoutWebhookActionInput,
     PayoutWebhookResult,
 } from "@mercurjs/types"
 import PayoutProviderService from "./provider-service"
@@ -67,10 +68,7 @@ export default class PayoutService extends MedusaService({
             payoutAccount = await this.updatePayoutAccounts(
                 {
                     id: payoutAccount.id,
-                    data: {
-                        ...input.data,
-                        ...providerAccount.data
-                    },
+                    data: providerAccount.data,
                     status: providerAccount.status
                 },
                 sharedContext
@@ -88,22 +86,21 @@ export default class PayoutService extends MedusaService({
     @InjectManager()
     @EmitEvents()
     async initializeOnboarding(
-        accountId: string,
         input: InitializeOnboardingDTO,
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<OnboardingDTO> {
 
         const [existingOnboarding] = await this.listOnboardings({
-            account_id: accountId
+            account_id: input.account_id
         })
-        const payoutAccount = await this.retrievePayoutAccount(accountId, {
+        const payoutAccount = await this.retrievePayoutAccount(input.account_id, {
             select: ['data']
         }, sharedContext)
 
         const providerData = await this.payoutProviderService_.initializeOnboarding(
             {
                 context: {
-                    idempotency_key: accountId,
+                    idempotency_key: input.account_id,
                     ...input.context
                 },
                 data: {
@@ -115,11 +112,8 @@ export default class PayoutService extends MedusaService({
 
         const upsertOnboardingData = {
             ...(existingOnboarding ? { id: existingOnboarding.id } : {}),
-            payout_account_id: accountId,
-            data: {
-                ...input.data,
-                ...providerData.data,
-            },
+            payout_account_id: input.account_id,
+            data: providerData.data,
             context: input.context as Record<string, unknown>
         }
 
@@ -145,46 +139,31 @@ export default class PayoutService extends MedusaService({
         input: CreatePayoutDTO,
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<PayoutDTO> {
-        const { amount, currency_code, account_id, transaction_id, source_transaction } = input
+        const payoutAccount = await this.retrievePayoutAccount(input.account_id, {
+            select: ['id', 'data']
+        }, sharedContext)
 
-        const payoutAccount = await this.retrievePayoutAccount(
-            account_id,
-            undefined,
-            sharedContext
-        )
-
-        if (!payoutAccount.reference_id) {
-            throw new MedusaError(
-                MedusaError.Types.INVALID_DATA,
-                `Payout account ${account_id} has no reference ID`
-            )
-        }
-
-        let providerData: Record<string, unknown>
-
-        try {
-            const response = await this.payoutProviderService_.createPayout({
-                account_reference_id: payoutAccount.reference_id,
-                amount,
-                currency: currency_code,
-                transaction_id,
-                source_transaction,
-            })
-            providerData = response.data
-        } catch (error) {
-            throw new MedusaError(
-                MedusaError.Types.UNEXPECTED_STATE,
-                `Error creating payout for transaction ${transaction_id}: ${error.message}`
-            )
-        }
+        const providerResponse = await this.payoutProviderService_.createPayout({
+            account_id: input.account_id,
+            amount: input.amount,
+            currency_code: input.currency_code,
+            context: {
+                idempotency_key: payoutAccount.id,
+                ...input.context
+            },
+            data: {
+                ...payoutAccount.data,
+                ...input.data
+            }
+        })
 
         const payout = await this.createPayouts(
             {
-                data: providerData,
-                amount,
-                currency_code,
-                transaction_id,
-                payout_account: payoutAccount.id,
+                amount: input.amount,
+                currency_code: input.currency_code,
+                account: payoutAccount.id,
+                data: providerResponse.data,
+                status: providerResponse.status,
             },
             sharedContext
         )
@@ -198,38 +177,29 @@ export default class PayoutService extends MedusaService({
         input: CreatePayoutReversalDTO,
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<PayoutReversalDTO> {
-        const payout = await this.retrievePayout(input., undefined, sharedContext)
+        const payoutAccount = await this.retrievePayoutAccount(input.account_id, {
+            select: ['id', 'data']
+        }, sharedContext)
 
-        if (!payout?.data?.id) {
-            throw new MedusaError(
-                MedusaError.Types.NOT_FOUND,
-                `Payout ${input.payout_id} not found or has no provider data`
-            )
-        }
-
-        const transferId = payout.data.id as string
-        let reversalData: Record<string, unknown>
-
-        try {
-            const response = await this.payoutProviderService_.reversePayout({
-                transfer_id: transferId,
-                amount: input.amount,
-                currency: input.currency_code,
-            })
-            reversalData = response.data
-        } catch (error) {
-            throw new MedusaError(
-                MedusaError.Types.UNEXPECTED_STATE,
-                `Error reversing payout ${input.payout_id}: ${error.message}`
-            )
-        }
+        const providerResponse = await this.payoutProviderService_.createReversal({
+            account_id: input.account_id,
+            amount: input.amount,
+            currency_code: input.currency_code,
+            context: {
+                idempotency_key: payoutAccount.id,
+                ...input.context
+            },
+            data: {
+                ...payoutAccount.data,
+                ...input.data
+            }
+        })
 
         const payoutReversal = await this.createPayoutReversals(
             {
-                data: reversalData,
                 amount: input.amount,
                 currency_code: input.currency_code,
-                payout: payout.id,
+                data: providerResponse.data,
             },
             sharedContext
         )
@@ -237,10 +207,9 @@ export default class PayoutService extends MedusaService({
         return await this.baseRepository_.serialize<PayoutReversalDTO>(payoutReversal)
     }
 
-    @InjectManager()
     async getWebhookActionAndData(
-        payload: PayoutWebhookActionPayload
+        input: PayoutWebhookActionInput
     ): Promise<PayoutWebhookResult> {
-        return await this.payoutProviderService_.getWebhookActionAndData(payload)
+        return await this.payoutProviderService_.getWebhookActionAndData(input)
     }
 }
