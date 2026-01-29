@@ -48,7 +48,10 @@ export interface CreateReversalInput extends PayoutProviderInput {
 export interface CreateReversalResponse extends PayoutProviderOutput {
 }
 
-export interface PayoutWebhookActionInput extends PayoutProviderInput {
+export interface PayoutWebhookActionInput {
+  data: Record<string, unknown>
+  rawData: string | Buffer
+  headers: Record<string, unknown>
 }
 
 export type PayoutWebhookResult = {

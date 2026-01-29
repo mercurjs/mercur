@@ -2,29 +2,44 @@ import { BigNumberInput } from "@medusajs/framework/types"
 import { PayoutProviderInput } from "./provider"
 
 export enum PayoutAccountStatus {
+  /**
+   * User hasn't completed setup
+   */
   PENDING = "pending",
-  ACTIVE = "active",
-  SUSPENDED = "suspended",
-  DISABLED = "disabled",
-}
 
-export enum PayoutWebhookAction {
-  ACCOUNT_AUTHORIZED = "account_authorized",
-  ACCOUNT_UPDATED = "account_updated",
-  PAYOUT_CREATED = "payout_created",
-  PAYOUT_COMPLETED = "payout_completed",
-  PAYOUT_FAILED = "payout_failed",
-  PAYOUT_REVERSED = "payout_reversed",
-  NOT_SUPPORTED = "not_supported",
+  /**
+   * Account is active
+   */
+  ACTIVE = "active",
+
+  /**
+   * Missing info or compliance issue
+   */
+  RESTRICTED = "restricted",
+
+  /**
+   * Permanently disabled
+   */
+  REJECTED = "rejected",
 }
 
 export enum PayoutStatus {
   PENDING = "pending",
-  FINALIZED = "finalized",
-  REVERSED = "reversed",
+  PROCESSING = "processing",
+  PAID = "paid",
   FAILED = "failed",
   CANCELED = "canceled",
 }
+
+
+export type PayoutWebhookAction =
+  | "account.activated"
+  | "account.restricted"
+  | "account.rejected"
+  | "payout.processing"
+  | "payout.paid"
+  | "payout.failed"
+  | "payout.canceled"
 
 
 export interface PayoutAccountDTO {
