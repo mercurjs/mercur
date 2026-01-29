@@ -33,10 +33,10 @@ export interface CreatePayoutResponse extends PayoutProviderOutput {
   status?: PayoutStatus
 }
 
-export interface InitializeOnboardingInput extends PayoutProviderInput {
+export interface CreateOnboardingInput extends PayoutProviderInput {
 }
 
-export interface InitializeOnboardingResponse extends PayoutProviderOutput {
+export interface CreateOnboardingResponse extends PayoutProviderOutput {
 }
 
 export interface CreateReversalInput extends PayoutProviderInput {
@@ -66,9 +66,9 @@ export interface IPayoutProvider {
 
   createPayout(data: CreatePayoutInput): Promise<CreatePayoutResponse>
 
-  initializeOnboarding(
-    input: InitializeOnboardingInput
-  ): Promise<InitializeOnboardingResponse>
+  createOnboarding(
+    input: CreateOnboardingInput
+  ): Promise<CreateOnboardingResponse>
 
   createReversal(input: CreateReversalInput): Promise<CreateReversalResponse>
 

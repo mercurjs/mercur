@@ -6,8 +6,8 @@ import {
   CreatePayoutAccountResponse,
   CreatePayoutInput,
   CreatePayoutResponse,
-  InitializeOnboardingInput,
-  InitializeOnboardingResponse,
+  CreateOnboardingInput,
+  CreateOnboardingResponse,
   CreateReversalInput,
   CreateReversalResponse,
   PayoutWebhookActionInput,
@@ -58,10 +58,10 @@ export default class PayoutProviderService {
     return await this.payoutProvider_.createPayout(data)
   }
 
-  async initializeOnboarding(
-    input: InitializeOnboardingInput
-  ): Promise<InitializeOnboardingResponse> {
-    return await this.payoutProvider_.initializeOnboarding(input)
+  async createOnboarding(
+    input: CreateOnboardingInput
+  ): Promise<CreateOnboardingResponse> {
+    return await this.payoutProvider_.createOnboarding(input)
   }
 
   async createReversal(input: CreateReversalInput): Promise<CreateReversalResponse> {

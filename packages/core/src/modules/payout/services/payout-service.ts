@@ -9,7 +9,7 @@ import {
     CreatePayoutAccountResponse,
     CreatePayoutDTO,
     CreatePayoutReversalDTO,
-    InitializeOnboardingDTO,
+    CreateOnboardingDTO,
     OnboardingDTO,
     PayoutAccountDTO,
     PayoutDTO,
@@ -85,19 +85,16 @@ export default class PayoutService extends MedusaService({
 
     @InjectManager()
     @EmitEvents()
-    async initializeOnboarding(
-        input: InitializeOnboardingDTO,
+    async createOnboarding(
+        input: CreateOnboardingDTO,
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<OnboardingDTO> {
-
-        const [existingOnboarding] = await this.listOnboardings({
-            account_id: input.account_id
-        })
         const payoutAccount = await this.retrievePayoutAccount(input.account_id, {
-            select: ['data']
+            select: ['data'],
+            relations: ['onboarding']
         }, sharedContext)
 
-        const providerData = await this.payoutProviderService_.initializeOnboarding(
+        const providerData = await this.payoutProviderService_.createOnboarding(
             {
                 context: {
                     idempotency_key: input.account_id,
@@ -111,14 +108,14 @@ export default class PayoutService extends MedusaService({
         )
 
         const upsertOnboardingData = {
-            ...(existingOnboarding ? { id: existingOnboarding.id } : {}),
+            ...(payoutAccount.onboarding ? { id: payoutAccount.onboarding.id } : {}),
             payout_account_id: input.account_id,
             data: providerData.data,
             context: input.context as Record<string, unknown>
         }
 
         let onboarding: InferEntityType<typeof Onboarding>
-        if (!existingOnboarding) {
+        if (!payoutAccount.onboarding) {
             onboarding = await this.createOnboardings(
                 upsertOnboardingData,
                 sharedContext

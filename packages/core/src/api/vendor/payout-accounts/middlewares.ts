@@ -10,8 +10,12 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 
-import { vendorPayoutAccountQueryConfig } from "./query-config"
 import {
+  vendorPayoutAccountQueryConfig,
+  vendorOnboardingQueryConfig,
+} from "./query-config"
+import {
+  VendorCreateOnboarding,
   VendorCreatePayoutAccount,
   VendorGetPayoutAccountParams,
   VendorGetPayoutAccountsParams,
@@ -61,6 +65,17 @@ export const vendorPayoutAccountsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetPayoutAccountParams,
         vendorPayoutAccountQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/payout-accounts/:id/onboarding",
+    middlewares: [
+      validateAndTransformBody(VendorCreateOnboarding),
+      validateAndTransformQuery(
+        VendorGetPayoutAccountParams,
+        vendorOnboardingQueryConfig.retrieve
       ),
     ],
   },

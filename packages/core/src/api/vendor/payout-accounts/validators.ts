@@ -20,3 +20,11 @@ export const VendorCreatePayoutAccount = z
     context: z.record(z.unknown()).optional(),
   })
   .strict()
+
+export type VendorCreateOnboardingType = z.infer<typeof VendorCreateOnboarding>
+export const VendorCreateOnboarding = z
+  .object({
+    data: z.record(z.unknown()).optional(),
+    context: z.record(z.unknown()).optional(),
+  })
+  .strict()
