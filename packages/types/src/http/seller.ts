@@ -30,3 +30,11 @@ export type StoreSellerListResponse = PaginatedResponse<{
    */
   sellers: SellerDTO[]
 }>
+
+export interface AdminSellerResponse {
+  seller: SellerDTO
+}
+
+export type AdminSellerListResponse = PaginatedResponse<{
+  sellers: SellerDTO[]
+}>
