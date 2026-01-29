@@ -34,7 +34,6 @@ export interface CreatePayoutResponse extends PayoutProviderOutput {
 }
 
 export interface InitializeOnboardingInput extends PayoutProviderInput {
-  account_id: string
 }
 
 export interface InitializeOnboardingResponse extends PayoutProviderOutput {

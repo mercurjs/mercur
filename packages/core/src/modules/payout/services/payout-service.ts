@@ -8,6 +8,8 @@ import {
 import {
     CreatePayoutAccountDTO,
     CreatePayoutAccountResponse,
+    InitializeOnboardingDTO,
+    InitializeOnboardingResponse,
     OnboardingDTO,
     PayoutAccountDTO,
     PayoutDTO,
@@ -86,45 +88,55 @@ export default class PayoutService extends MedusaService({
     @InjectManager()
     @EmitEvents()
     async initializeOnboarding(
-        { context, account_id, data }: CreateOnboardingDTO,
+        accountId: string,
+        input: InitializeOnboardingDTO,
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<OnboardingDTO> {
-        let providerData: Record<string, unknown>
 
-        try {
-            const response = await this.payoutProviderService_.initializeOnboarding(
-                account.reference_id,
-                context
-            )
-            providerData = response.data
-        } catch (error) {
-            throw new MedusaError(
-                MedusaError.Types.UNEXPECTED_STATE,
-                `Error initializing onboarding for account ${payout_account_id}: ${error.message}`
-            )
+        const [existingOnboarding] = await this.listOnboardings({
+            account_id: accountId
+        })
+        const payoutAccount = await this.retrievePayoutAccount(accountId, {
+            select: ['data']
+        }, sharedContext)
+
+        const providerData = await this.payoutProviderService_.initializeOnboarding(
+            {
+                context: {
+                    idempotency_key: accountId,
+                    ...input.context
+                },
+                data: {
+                    ...payoutAccount.data,
+                    ...input.data
+                }
+            }
+        )
+
+        const upsertOnboardingData = {
+            ...(existingOnboarding ? { id: existingOnboarding.id } : {}),
+            payout_account_id: accountId,
+            data: {
+                ...input.data,
+                ...providerData.data,
+            },
+            context: input.context as Record<string, unknown>
         }
 
-        let onboarding = existingOnboarding
-
+        let onboarding: InferEntityType<typeof Onboarding>
         if (!existingOnboarding) {
             onboarding = await this.createOnboardings(
-                { payout_account_id },
+                upsertOnboardingData,
+                sharedContext
+            )
+        } else {
+            onboarding = await this.updateOnboardings(
+                upsertOnboardingData,
                 sharedContext
             )
         }
 
-        await this.updateOnboardings(
-            {
-                id: onboarding.id,
-                data: providerData,
-                context,
-            },
-            sharedContext
-        )
-
-        const updated = await this.retrieveOnboarding(onboarding.id, undefined, sharedContext)
-
-        return await this.baseRepository_.serialize<OnboardingDTO>(updated)
+        return await this.baseRepository_.serialize<OnboardingDTO>(onboarding)
     }
 
     @InjectManager()

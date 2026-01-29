@@ -61,3 +61,6 @@ export interface PayoutReversalDTO {
 
 export interface CreatePayoutAccountDTO extends PayoutProviderInput {
 }
+
+export interface InitializeOnboardingDTO extends PayoutProviderInput {
+}
