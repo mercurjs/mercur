@@ -55,4 +55,3 @@ export class SystemPayoutProvider implements IPayoutProvider {
   }
 }
 
-export default SystemPayoutProvider
