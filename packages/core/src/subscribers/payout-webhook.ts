@@ -1,8 +1,10 @@
 import { MercurModules } from "@mercurjs/types"
+import { Modules } from "@medusajs/framework/utils"
 
 import PayoutService from "../modules/payout/services/payout-service"
 import { ProviderWebhookPayload } from "@medusajs/framework/types"
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { processPayoutWorkflowId } from "../workflows/payout"
 
 type SerializedBuffer = {
   data: ArrayBuffer
@@ -33,7 +35,8 @@ export default async function payoutWebhookHandler({
     return
   }
 
-  // TODO: Handle payout webhook actions
+  const wfEngine = container.resolve(Modules.WORKFLOW_ENGINE)
+  await wfEngine.run(processPayoutWorkflowId, { input: processedEvent })
 }
 
 export const config: SubscriberConfig = {

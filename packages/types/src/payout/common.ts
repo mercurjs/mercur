@@ -1,5 +1,4 @@
 import { BigNumberInput } from "@medusajs/framework/types"
-import { PayoutProviderInput } from "./provider"
 
 export enum PayoutAccountStatus {
   /**
@@ -79,23 +78,4 @@ export interface PayoutReversalDTO {
   data: Record<string, unknown> | null
   created_at: Date
   updated_at: Date
-}
-
-export interface CreatePayoutAccountDTO extends PayoutProviderInput {
-}
-
-export interface CreateOnboardingDTO extends PayoutProviderInput {
-  account_id: string
-}
-
-export interface CreatePayoutDTO extends PayoutProviderInput {
-  account_id: string
-  amount: number
-  currency_code: string
-}
-
-export interface CreatePayoutReversalDTO extends PayoutProviderInput {
-  account_id: string
-  amount: number
-  currency_code: string
 }

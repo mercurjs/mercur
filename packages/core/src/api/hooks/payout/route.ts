@@ -3,11 +3,8 @@ import { Modules } from "@medusajs/framework/utils"
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
-    const { provider } = req.params
-
     const event = {
-      provider,
-      payload: { data: req.body, rawData: req.rawBody, headers: req.headers },
+      data: req.body, rawData: req.rawBody, headers: req.headers
     }
 
     const eventBus = req.scope.resolve(Modules.EVENT_BUS)
