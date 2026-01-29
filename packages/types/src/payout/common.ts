@@ -39,7 +39,7 @@ export interface PayoutAccountDTO {
 export interface OnboardingDTO {
   id: string
   account_id: string
-  data: Record<string, unknown>
+  data: Record<string, unknown> | null
   context: Record<string, unknown> | null
   created_at: Date
   updated_at: Date
@@ -47,10 +47,11 @@ export interface OnboardingDTO {
 
 export interface PayoutDTO {
   id: string
+  account_id: string
   amount: BigNumberInput
   currency_code: string
-  transaction_id: string
-  data: Record<string, unknown>
+  status: PayoutStatus
+  data: Record<string, unknown> | null
   created_at: Date
   updated_at: Date
 }
@@ -60,7 +61,7 @@ export interface PayoutReversalDTO {
   payout_id: string
   amount: BigNumberInput
   currency_code: string
-  data: Record<string, unknown>
+  data: Record<string, unknown> | null
   created_at: Date
   updated_at: Date
 }

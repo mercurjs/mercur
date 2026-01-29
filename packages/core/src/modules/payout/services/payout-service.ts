@@ -147,10 +147,7 @@ export default class PayoutService extends MedusaService({
             account_id: input.account_id,
             amount: input.amount,
             currency_code: input.currency_code,
-            context: {
-                idempotency_key: payoutAccount.id,
-                ...input.context
-            },
+            context: input.context,
             data: {
                 ...payoutAccount.data,
                 ...input.data
@@ -185,10 +182,7 @@ export default class PayoutService extends MedusaService({
             account_id: input.account_id,
             amount: input.amount,
             currency_code: input.currency_code,
-            context: {
-                idempotency_key: payoutAccount.id,
-                ...input.context
-            },
+            context: input.context,
             data: {
                 ...payoutAccount.data,
                 ...input.data
