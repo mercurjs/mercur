@@ -1,2 +1,14 @@
-export { mercurApp } from './mercur-app'
-export type { MercurAppOptions, MercurAppType } from './mercur-app'
+// Main plugin export
+export { mercurApp } from './plugin'
+
+// Types
+export type {
+  MercurAppOptions,
+  MercurAppType,
+  MercurRoute,
+  Route,
+  ResolvedRoute,
+} from './types'
+
+// Constants (useful for advanced usage)
+export { VIRTUAL_MODULE_ID } from './types'
