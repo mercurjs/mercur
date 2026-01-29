@@ -1,8 +1,8 @@
 import { Module } from "@medusajs/framework/utils"
+import { MercurModules } from "@mercurjs/types"
+
 import SellerModuleService from "./service"
 
-export const SELLER_MODULE = "seller"
-
-export default Module(SELLER_MODULE, {
+export default Module(MercurModules.SELLER, {
   service: SellerModuleService,
 })
