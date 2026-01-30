@@ -2,8 +2,7 @@ import { createProductsWorkflow } from "@medusajs/medusa/core-flows"
 import { StepResponse } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { LinkDefinition } from "@medusajs/framework/types"
-
-import { SELLER_MODULE } from "../../modules/seller"
+import { MercurModules } from "@mercurjs/types"
 
 createProductsWorkflow.hooks.productsCreated(
   async ({ products, additional_data }, { container }) => {
@@ -27,7 +26,7 @@ createProductsWorkflow.hooks.productsCreated(
         [Modules.PRODUCT]: {
           product_id: product.id,
         },
-        [SELLER_MODULE]: {
+        [MercurModules.SELLER]: {
           seller_id: additional_data.seller_id,
         },
       })
@@ -52,7 +51,7 @@ createProductsWorkflow.hooks.productsCreated(
             [Modules.INVENTORY]: {
               inventory_item_id: inventoryItem.inventory_item_id,
             },
-            [SELLER_MODULE]: {
+            [MercurModules.SELLER]: {
               seller_id: additional_data.seller_id,
             },
           })

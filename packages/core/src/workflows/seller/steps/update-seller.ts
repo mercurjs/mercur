@@ -1,13 +1,12 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { SellerDTO, UpdateSellerDTO } from "@mercurjs/types"
+import { MercurModules, SellerDTO, UpdateSellerDTO } from "@mercurjs/types"
 
-import { SELLER_MODULE } from "../../../modules/seller"
 import SellerModuleService from "../../../modules/seller/service"
 
 export const updateSellerStep = createStep(
   "update-seller",
   async (input: UpdateSellerDTO, { container }) => {
-    const service = container.resolve<SellerModuleService>(SELLER_MODULE)
+    const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
 
     const [previousData] = await service.listSellers({
       id: input.id,
@@ -22,7 +21,7 @@ export const updateSellerStep = createStep(
       return
     }
 
-    const service = container.resolve<SellerModuleService>(SELLER_MODULE)
+    const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
 
     await service.updateSellers(previousData)
   }

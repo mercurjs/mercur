@@ -1,7 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
-
-import { SELLER_MODULE } from "../../../modules/seller"
+import { MercurModules } from "@mercurjs/types"
 
 type LinkSellerShippingProfileStepInput = {
   seller_id: string
@@ -17,7 +16,7 @@ export const linkSellerShippingProfileStep = createStep(
       [Modules.FULFILLMENT]: {
         shipping_profile_id: shippingProfileId,
       },
-      [SELLER_MODULE]: {
+      [MercurModules.SELLER]: {
         seller_id: input.seller_id,
       },
     }))
@@ -38,7 +37,7 @@ export const linkSellerShippingProfileStep = createStep(
       [Modules.FULFILLMENT]: {
         shipping_profile_id: shippingProfileId,
       },
-      [SELLER_MODULE]: {
+      [MercurModules.SELLER]: {
         seller_id: data.seller_id,
       },
     }))

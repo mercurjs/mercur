@@ -36,9 +36,7 @@ import {
     validateCartPaymentsStep,
     validateShippingStep,
 } from "@medusajs/medusa/core-flows"
-import { CreateOrderGroupDTO, SellerDTO } from "@mercurjs/types"
-
-import { SELLER_MODULE } from "../../../modules/seller"
+import { CreateOrderGroupDTO, MercurModules, SellerDTO } from "@mercurjs/types"
 import { createOrderGroupStep } from "../../order-group"
 import { OrderGroupWorkflowEvents } from "../../events"
 import {
@@ -410,12 +408,12 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
                     links.push(...Object.entries(sellerOrdersMap).map(([sellerId, orderId]) => ({
                         [Modules.ORDER]: { order_id: orderId },
-                        [SELLER_MODULE]: { seller_id: sellerId },
+                        [MercurModules.SELLER]: { seller_id: sellerId },
                     })))
 
                     // Link order group to orders
                     links.push(...createdOrders.map((order) => ({
-                        [SELLER_MODULE]: { order_group_id: createdOrderGroup.id },
+                        [MercurModules.SELLER]: { order_group_id: createdOrderGroup.id },
                         [Modules.ORDER]: { order_id: order.id },
                     })))
 
@@ -428,7 +426,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         Object.keys(sellerOrdersMap).forEach((sellerId) => {
                             if (!existingSellerIds.has(sellerId)) {
                                 links.push({
-                                    [SELLER_MODULE]: { seller_id: sellerId },
+                                    [MercurModules.SELLER]: { seller_id: sellerId },
                                     [Modules.CUSTOMER]: { customer_id: cart.customer?.id },
                                 })
                             }
