@@ -8,8 +8,8 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import {
   CommissionRateType,
   CommissionRateTarget,
+  MercurModules,
 } from "@mercurjs/types"
-import { COMMISSION_MODULE } from "@mercurjs/core/modules/commission"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
 
@@ -31,7 +31,7 @@ medusaIntegrationTestRunner({
 
       beforeAll(async () => {
         appContainer = getContainer()
-        commissionService = appContainer.resolve(COMMISSION_MODULE)
+        commissionService = appContainer.resolve(MercurModules.COMMISSION)
         query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
       })
 

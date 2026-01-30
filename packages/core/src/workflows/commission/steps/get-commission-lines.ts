@@ -2,9 +2,9 @@ import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
 import {
   CommissionCalculationContext,
   CreateCommissionLineDTO,
+  MercurModules,
 } from "@mercurjs/types"
 
-import { COMMISSION_MODULE } from "../../../modules/commission"
 import CommissionModuleService from "../../../modules/commission/service"
 import { promiseAll } from "@medusajs/framework/utils"
 
@@ -17,7 +17,7 @@ export const getCommissionLinesStep = createStep(
     { container }
   ): Promise<StepResponse<CreateCommissionLineDTO[]>> => {
     const service =
-      container.resolve(COMMISSION_MODULE) as CommissionModuleService
+      container.resolve(MercurModules.COMMISSION) as CommissionModuleService
 
 
     const commissionLines = await promiseAll(

@@ -21,7 +21,7 @@ export const processPayoutWorkflow = createWorkflow(
       updatePayoutAccountStep({
         id: input.data!.id,
         status: PayoutAccountStatus.ACTIVE,
-      })
+      }).config({ name: "activate-payout-account" })
     })
 
     when({ input }, ({ input }) => {
@@ -30,7 +30,7 @@ export const processPayoutWorkflow = createWorkflow(
       updatePayoutAccountStep({
         id: input.data!.id,
         status: PayoutAccountStatus.RESTRICTED,
-      })
+      }).config({ name: "restrict-payout-account" })
     })
 
     when({ input }, ({ input }) => {
@@ -39,7 +39,7 @@ export const processPayoutWorkflow = createWorkflow(
       updatePayoutAccountStep({
         id: input.data!.id,
         status: PayoutAccountStatus.REJECTED,
-      })
+      }).config({ name: "reject-payout-account" })
     })
 
     when({ input }, ({ input }) => {
@@ -48,7 +48,7 @@ export const processPayoutWorkflow = createWorkflow(
       updatePayoutStep({
         id: input.data!.id,
         status: PayoutStatus.PROCESSING,
-      })
+      }).config({ name: "processing-payout" })
     })
 
     when({ input }, ({ input }) => {
@@ -57,7 +57,7 @@ export const processPayoutWorkflow = createWorkflow(
       updatePayoutStep({
         id: input.data!.id,
         status: PayoutStatus.PAID,
-      })
+      }).config({ name: "paid-payout" })
     })
 
     when({ input }, ({ input }) => {
@@ -66,7 +66,7 @@ export const processPayoutWorkflow = createWorkflow(
       updatePayoutStep({
         id: input.data!.id,
         status: PayoutStatus.FAILED,
-      })
+      }).config({ name: "failed-payout" })
     })
 
     when({ input }, ({ input }) => {
@@ -75,7 +75,7 @@ export const processPayoutWorkflow = createWorkflow(
       updatePayoutStep({
         id: input.data!.id,
         status: PayoutStatus.CANCELED,
-      })
+      }).config({ name: "canceled-payout" })
     })
   }
 )
