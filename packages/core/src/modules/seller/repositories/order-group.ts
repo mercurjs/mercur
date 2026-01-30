@@ -1,6 +1,6 @@
 import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
 import { Context, FindOptions } from "@medusajs/framework/types"
-import { DALUtils, isObject, MikroOrmBase } from "@medusajs/framework/utils"
+import { DALUtils, isObject } from "@medusajs/framework/utils"
 import { OrderGroup } from "../models"
 
 const OPERATOR_MAP = {

@@ -1,6 +1,5 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import {
-    IApiKeyModuleService,
     IRegionModuleService,
     ISalesChannelModuleService,
     MedusaContainer,

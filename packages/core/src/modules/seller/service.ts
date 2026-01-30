@@ -1,4 +1,4 @@
-import { Context, FindConfig } from "@medusajs/framework/types"
+import { Context, DAL, FindConfig } from "@medusajs/framework/types"
 import {
   InjectManager,
   isValidHandle,
@@ -10,9 +10,11 @@ import {
 } from "@medusajs/framework/utils"
 import { OrderGroup, Seller } from "./models"
 import { OrderGroupRepository } from "./repositories"
+import { OrderGroupDTO } from "@mercurjs/types"
 
 type InjectedDependencies = {
   orderGroupRepository: OrderGroupRepository
+  baseRepository: DAL.RepositoryService
 }
 
 class SellerModuleService extends MedusaService({
@@ -20,12 +22,14 @@ class SellerModuleService extends MedusaService({
   Seller,
 }) {
   protected readonly orderGroupRepository_: OrderGroupRepository
+  protected readonly baseRepository_: DAL.RepositoryService
 
-  constructor({ orderGroupRepository }: InjectedDependencies) {
+  constructor({ orderGroupRepository, baseRepository }: InjectedDependencies) {
     // @ts-ignore
     // eslint-disable-next-line prefer-rest-params
     super(...arguments)
     this.orderGroupRepository_ = orderGroupRepository
+    this.baseRepository_ = baseRepository
   }
 
   @InjectTransactionManager()
@@ -89,7 +93,7 @@ class SellerModuleService extends MedusaService({
       sharedContext
     )
 
-    return orderGroups
+    return await this.baseRepository_.serialize<OrderGroupDTO[]>(orderGroups)
   }
 
   @InjectManager()
@@ -99,13 +103,17 @@ class SellerModuleService extends MedusaService({
     config: FindConfig<any> = {},
     @MedusaContext() sharedContext: Context = {}
   ) {
-    return this.orderGroupRepository_.findAndCount(
+    const [orderGroups, count] = await this.orderGroupRepository_.findAndCount(
       {
         where: filters,
         options: config,
       },
       sharedContext
     )
+    return [
+      await this.baseRepository_.serialize<OrderGroupDTO[]>(orderGroups),
+      count,
+    ]
   }
 
   @InjectManager()
@@ -123,7 +131,7 @@ class SellerModuleService extends MedusaService({
       sharedContext
     )
 
-    return orderGroups[0]
+    return await this.baseRepository_.serialize<OrderGroupDTO>(orderGroups[0])
   }
 }
 

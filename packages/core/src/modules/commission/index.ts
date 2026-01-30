@@ -1,9 +1,8 @@
 import { Module } from "@medusajs/framework/utils"
+import { MercurModules } from "@mercurjs/types"
 
 import CommissionModuleService from "./service"
 
-export const COMMISSION_MODULE = "commission"
-
-export default Module(COMMISSION_MODULE, {
+export default Module(MercurModules.COMMISSION, {
   service: CommissionModuleService,
 })

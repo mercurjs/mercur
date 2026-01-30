@@ -9,3 +9,9 @@ export * from "./commission"
 
 // HTTP types
 export * as HttpTypes from "./http"
+
+// Payout types
+export * from "./payout"
+
+// Modules
+export * from "./modules"
