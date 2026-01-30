@@ -7,8 +7,6 @@ import {
   CreatePayoutResponse,
   CreateOnboardingInput,
   CreateOnboardingResponse,
-  CreateReversalInput,
-  CreateReversalResponse,
   PayoutWebhookActionInput,
   PayoutWebhookResult,
   IPayoutProvider,
@@ -39,12 +37,6 @@ export class SystemPayoutProvider implements IPayoutProvider {
   async createOnboarding(
     input: CreateOnboardingInput
   ): Promise<CreateOnboardingResponse> {
-    return { data: {} }
-  }
-
-  async createReversal(
-    input: CreateReversalInput
-  ): Promise<CreateReversalResponse> {
     return { data: {} }
   }
 

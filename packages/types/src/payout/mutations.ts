@@ -14,12 +14,6 @@ export interface CreatePayoutDTO extends PayoutProviderInput {
   currency_code: string
 }
 
-export interface CreatePayoutReversalDTO extends PayoutProviderInput {
-  account_id: string
-  amount: number
-  currency_code: string
-}
-
 export interface UpdatePayoutAccountDTO {
   id: string
   status: PayoutAccountStatus

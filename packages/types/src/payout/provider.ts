@@ -38,14 +38,6 @@ export interface CreateOnboardingInput extends PayoutProviderInput {
 export interface CreateOnboardingResponse extends PayoutProviderOutput {
 }
 
-export interface CreateReversalInput extends PayoutProviderInput {
-  amount: BigNumberInput
-  currency_code: string
-}
-
-export interface CreateReversalResponse extends PayoutProviderOutput {
-}
-
 export interface PayoutWebhookActionInput {
   data: Record<string, unknown>
   rawData: string | Buffer
@@ -55,7 +47,7 @@ export interface PayoutWebhookActionInput {
 export type PayoutWebhookResult = {
   action: PayoutWebhookAction,
   data?: {
-    /* The ID of the payout, reversal, or account */
+    /* The ID of the payout or account */
     id: string
   }
 }
@@ -70,8 +62,6 @@ export interface IPayoutProvider {
   createOnboarding(
     input: CreateOnboardingInput
   ): Promise<CreateOnboardingResponse>
-
-  createReversal(input: CreateReversalInput): Promise<CreateReversalResponse>
 
   getWebhookActionAndData(
     payload: PayoutWebhookActionInput

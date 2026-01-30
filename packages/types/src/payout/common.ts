@@ -71,16 +71,6 @@ export interface PayoutDTO {
   updated_at: Date
 }
 
-export interface PayoutReversalDTO {
-  id: string
-  payout_id: string
-  amount: BigNumberInput
-  currency_code: string
-  data: Record<string, unknown> | null
-  created_at: Date
-  updated_at: Date
-}
-
 /**
  * The payout balance totals stored in JSON
  */

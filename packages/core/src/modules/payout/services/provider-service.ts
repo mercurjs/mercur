@@ -8,8 +8,6 @@ import {
   CreatePayoutResponse,
   CreateOnboardingInput,
   CreateOnboardingResponse,
-  CreateReversalInput,
-  CreateReversalResponse,
   PayoutWebhookActionInput,
   PayoutWebhookResult,
 } from "@mercurjs/types"
@@ -62,10 +60,6 @@ export default class PayoutProviderService {
     input: CreateOnboardingInput
   ): Promise<CreateOnboardingResponse> {
     return await this.payoutProvider_.createOnboarding(input)
-  }
-
-  async createReversal(input: CreateReversalInput): Promise<CreateReversalResponse> {
-    return await this.payoutProvider_.createReversal(input)
   }
 
   async getWebhookActionAndData(

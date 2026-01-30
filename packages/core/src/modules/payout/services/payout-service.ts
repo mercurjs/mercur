@@ -13,13 +13,11 @@ import {
     CreatePayoutAccountDTO,
     CreatePayoutAccountResponse,
     CreatePayoutDTO,
-    CreatePayoutReversalDTO,
     CreateOnboardingDTO,
     CreatePayoutTransactionDTO,
     OnboardingDTO,
     PayoutAccountDTO,
     PayoutDTO,
-    PayoutReversalDTO,
     PayoutTransactionDTO,
     PayoutWebhookActionInput,
     PayoutWebhookResult,
@@ -27,7 +25,7 @@ import {
     PayoutBalanceTotals,
 } from "@mercurjs/types"
 import PayoutProviderService from "./provider-service"
-import { Onboarding, Payout, PayoutAccount, PayoutBalance, PayoutReversal, PayoutTransaction } from "../models"
+import { Onboarding, Payout, PayoutAccount, PayoutBalance, PayoutTransaction } from "../models"
 import { BigNumberInput, Context, DAL, InferEntityType } from "@medusajs/framework/types"
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex"
 import { IsolationLevel } from "@medusajs/framework/mikro-orm/core"
@@ -43,7 +41,6 @@ export default class PayoutService extends MedusaService({
     Payout,
     PayoutAccount,
     PayoutBalance,
-    PayoutReversal,
     PayoutTransaction,
 }) {
     protected readonly payoutProviderService_: PayoutProviderService
@@ -176,38 +173,6 @@ export default class PayoutService extends MedusaService({
         )
 
         return await this.baseRepository_.serialize<PayoutDTO>(payout)
-    }
-
-    @InjectManager()
-    @EmitEvents()
-    async createPayoutReversal(
-        input: CreatePayoutReversalDTO,
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<PayoutReversalDTO> {
-        const payoutAccount = await this.retrievePayoutAccount(input.account_id, {
-            select: ['id', 'data']
-        }, sharedContext)
-
-        const providerResponse = await this.payoutProviderService_.createReversal({
-            amount: input.amount,
-            currency_code: input.currency_code,
-            context: input.context,
-            data: {
-                ...payoutAccount.data,
-                ...input.data
-            }
-        })
-
-        const payoutReversal = await this.createPayoutReversals(
-            {
-                amount: input.amount,
-                currency_code: input.currency_code,
-                data: providerResponse.data,
-            },
-            sharedContext
-        )
-
-        return await this.baseRepository_.serialize<PayoutReversalDTO>(payoutReversal)
     }
 
     async getWebhookActionAndData(
