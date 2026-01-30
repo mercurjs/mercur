@@ -404,6 +404,126 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "totals": {
+          "name": "totals",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "json"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "payout_balance",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "IDX_payout_balance_account_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_balance_account_id\" ON \"payout_balance\" (\"account_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_payout_balance_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_balance_deleted_at\" ON \"payout_balance\" (\"deleted_at\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_payout_balance_account_currency",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_payout_balance_account_currency\" ON \"payout_balance\" (\"account_id\", \"currency_code\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "payout_balance_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "payout_balance_account_id_foreign": {
+          "constraintName": "payout_balance_account_id_foreign",
+          "columnNames": [
+            "account_id"
+          ],
+          "localTableName": "public.payout_balance",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.payout_account",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
         "amount": {
           "name": "amount",
           "type": "numeric",
@@ -413,17 +533,35 @@
           "nullable": false,
           "mappedType": "decimal"
         },
-        "data": {
-          "name": "data",
-          "type": "jsonb",
+        "currency_code": {
+          "name": "currency_code",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "reference": {
+          "name": "reference",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
-          "mappedType": "json"
+          "mappedType": "text"
         },
-        "payout_id": {
-          "name": "payout_id",
+        "reference_id": {
+          "name": "reference_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "account_id": {
+          "name": "account_id",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -473,29 +611,38 @@
           "mappedType": "datetime"
         }
       },
-      "name": "payout_reversal",
+      "name": "payout_transaction",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_payout_reversal_payout_id",
+          "keyName": "IDX_payout_transaction_account_id",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_reversal_payout_id\" ON \"payout_reversal\" (\"payout_id\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_transaction_account_id\" ON \"payout_transaction\" (\"account_id\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_payout_reversal_deleted_at",
+          "keyName": "IDX_payout_transaction_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_reversal_deleted_at\" ON \"payout_reversal\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_transaction_deleted_at\" ON \"payout_transaction\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "payout_reversal_pkey",
+          "keyName": "IDX_payout_transaction_reference",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_transaction_reference\" ON \"payout_transaction\" (\"reference\", \"reference_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "payout_transaction_pkey",
           "columnNames": [
             "id"
           ],
@@ -507,16 +654,16 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "payout_reversal_payout_id_foreign": {
-          "constraintName": "payout_reversal_payout_id_foreign",
+        "payout_transaction_account_id_foreign": {
+          "constraintName": "payout_transaction_account_id_foreign",
           "columnNames": [
-            "payout_id"
+            "account_id"
           ],
-          "localTableName": "public.payout_reversal",
+          "localTableName": "public.payout_transaction",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.payout",
+          "referencedTableName": "public.payout_account",
           "updateRule": "cascade"
         }
       },

@@ -1,4 +1,4 @@
-import { getOrderDetailWorkflow, useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { getOrderDetailWorkflow } from "@medusajs/medusa/core-flows"
 import {
   WorkflowData,
   WorkflowResponse,
@@ -13,19 +13,19 @@ export type CreditOrderToPayoutWorkflowInput = {
   order_id: string
 }
 
-export const creditOrderToPayoutWorkflowId = "credit-order-to-payout"
+export const creditOrderToPayoutAccountWorkflowId = "credit-order-to-payout-account"
 
 /**
  * This workflow credits the seller's payout account balance with the order earnings.
  * It calculates the net amount by subtracting commissions from the order total.
  */
-export const creditOrderToPayoutWorkflow = createWorkflow(
-  creditOrderToPayoutWorkflowId,
+export const creditOrderToPayoutAccountWorkflow = createWorkflow(
+  creditOrderToPayoutAccountWorkflowId,
   function (input: WorkflowData<CreditOrderToPayoutWorkflowInput>) {
     const order = getOrderDetailWorkflow.runAsStep({
       input: {
         order_id: input.order_id,
-        fields: ['id', 'seller.*', 'seller.payout_account.*', 'items.*', 'items.commission_lines.*'],
+        fields: ['id', 'currency_code', 'total', 'seller.*', 'seller.payout_account.*', 'items.*', 'items.commission_lines.*'],
       }
     })
 

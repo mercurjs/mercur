@@ -6,13 +6,13 @@ import {
   createPayoutAccountStep,
 } from "../steps"
 
-interface CreatePayoutAccountForSellerInput extends CreatePayoutAccountDTO {
+interface CreatePayoutAccountInput extends CreatePayoutAccountDTO {
   seller_id: string
 }
 
-export const createPayoutAccountForSellerWorkflow = createWorkflow(
+export const createPayoutAccountWorkflow = createWorkflow(
   "create-payout-account-for-seller",
-  function (input: CreatePayoutAccountForSellerInput) {
+  function (input: CreatePayoutAccountInput) {
     const payoutAccount = createPayoutAccountStep({
       context: input.context,
       data: input.data,

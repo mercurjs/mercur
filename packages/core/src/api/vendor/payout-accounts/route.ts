@@ -5,7 +5,7 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { createPayoutAccountForSellerWorkflow } from "../../../workflows/payout"
+import { createPayoutAccountWorkflow } from "../../../workflows/payout"
 import { VendorCreatePayoutAccountType } from "./validators"
 
 export const GET = async (
@@ -36,7 +36,7 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.auth_context.actor_id
 
-  const { result } = await createPayoutAccountForSellerWorkflow(req.scope).run({
+  const { result } = await createPayoutAccountWorkflow(req.scope).run({
     input: {
       seller_id: sellerId,
       data: req.validatedBody.data,

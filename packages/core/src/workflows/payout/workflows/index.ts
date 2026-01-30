@@ -1,5 +1,5 @@
 export * from "./create-payout-account"
 export * from "./create-onboarding"
 export * from "./create-payout"
-export * from "./credit-order-to-payout"
+export * from "./credit-order-to-payout-account"
 export * from "./process-payout"
