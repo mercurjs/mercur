@@ -1,4 +1,4 @@
-import { BigNumberInput } from "@medusajs/framework/types"
+import { BigNumberInput, BigNumberRawValue, BigNumberValue } from "@medusajs/framework/types"
 
 export enum PayoutAccountStatus {
   /**
@@ -77,6 +77,34 @@ export interface PayoutReversalDTO {
   amount: BigNumberInput
   currency_code: string
   data: Record<string, unknown> | null
+  created_at: Date
+  updated_at: Date
+}
+
+/**
+ * The payout balance totals stored in JSON
+ */
+export type PayoutBalanceTotals = {
+  balance: BigNumberValue
+  raw_balance: BigNumberRawValue
+}
+
+export interface PayoutBalanceDTO {
+  id: string
+  account_id: string
+  currency_code: string
+  totals: PayoutBalanceTotals
+  created_at: Date
+  updated_at: Date
+}
+
+export interface PayoutTransactionDTO {
+  id: string
+  account_id: string
+  amount: BigNumberInput
+  currency_code: string
+  reference: string | null
+  reference_id: string | null
   created_at: Date
   updated_at: Date
 }

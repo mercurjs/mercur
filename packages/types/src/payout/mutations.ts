@@ -29,3 +29,17 @@ export interface UpdatePayoutDTO {
   id: string
   status: PayoutStatus
 }
+
+export interface CreatePayoutTransactionDTO {
+  account_id: string
+  amount: number
+  currency_code: string
+  reference?: string
+  reference_id?: string
+}
+
+export interface CreatePayoutBalanceDTO {
+  account_id: string
+  currency_code: string
+  totals?: Record<string, unknown>
+}

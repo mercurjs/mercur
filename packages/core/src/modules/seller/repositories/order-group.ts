@@ -1,6 +1,6 @@
 import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
 import { Context, FindOptions } from "@medusajs/framework/types"
-import { DALUtils, isObject, MikroOrmBase } from "@medusajs/framework/utils"
+import { DALUtils, isObject } from "@medusajs/framework/utils"
 import { OrderGroup } from "../models"
 
 const OPERATOR_MAP = {
@@ -200,8 +200,8 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
 
     const rows = result.rows.map(row => ({
       ...row,
-      total: row.total ? Number(row.total) : 0,
-      seller_count: row.seller_count ? Number(row.seller_count) : 0,
+      total: 0,
+      seller_count: row.seller_count,
     })) ?? []
     const count = parseInt(countResult.rows?.[0]?.count || "0", 10)
 

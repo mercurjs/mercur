@@ -1,6 +1,7 @@
 import {
     EmitEvents,
     InjectManager,
+    InjectTransactionManager,
     MedusaContext,
     MedusaService,
 } from "@medusajs/framework/utils"
@@ -10,17 +11,22 @@ import {
     CreatePayoutDTO,
     CreatePayoutReversalDTO,
     CreateOnboardingDTO,
+    CreatePayoutTransactionDTO,
     OnboardingDTO,
     PayoutAccountDTO,
     PayoutDTO,
     PayoutReversalDTO,
+    PayoutTransactionDTO,
     PayoutWebhookActionInput,
     PayoutWebhookResult,
+    PayoutBalanceDTO,
 } from "@mercurjs/types"
 import PayoutProviderService from "./provider-service"
-import { Onboarding, Payout, PayoutAccount, PayoutReversal, PayoutTransaction } from "../models"
+import { Onboarding, Payout, PayoutAccount, PayoutBalance, PayoutReversal, PayoutTransaction } from "../models"
 import { Context, DAL, InferEntityType } from "@medusajs/framework/types"
-import { EntityManager } from "@medusajs/framework/mikro-orm/core"
+import { EntityManager } from "@medusajs/framework/mikro-orm/knex"
+import { IsolationLevel } from "@medusajs/framework/mikro-orm/core"
+import { calculatePayoutTransactions } from "../utils/calculate-payout-transactions"
 
 type InjectedDependencies = {
     payoutProviderService: PayoutProviderService
@@ -31,6 +37,7 @@ export default class PayoutService extends MedusaService({
     Onboarding,
     Payout,
     PayoutAccount,
+    PayoutBalance,
     PayoutReversal,
     PayoutTransaction,
 }) {
@@ -177,7 +184,6 @@ export default class PayoutService extends MedusaService({
         }, sharedContext)
 
         const providerResponse = await this.payoutProviderService_.createReversal({
-            account_id: input.account_id,
             amount: input.amount,
             currency_code: input.currency_code,
             context: input.context,
@@ -203,5 +209,71 @@ export default class PayoutService extends MedusaService({
         input: PayoutWebhookActionInput
     ): Promise<PayoutWebhookResult> {
         return await this.payoutProviderService_.getWebhookActionAndData(input)
+    }
+
+    @InjectTransactionManager()
+    private async addPayoutTransactions_(
+        account_id: string,
+        currency_code: string,
+        transactions: Omit<CreatePayoutTransactionDTO, 'account_id' | 'currency_code'>[],
+        @MedusaContext() sharedContext?: Context<EntityManager>
+    ): Promise<PayoutTransactionDTO[]> {
+        return await this.baseRepository_.transaction<EntityManager>(
+            async (transactionManager) => {
+                const [existingBalance] = await this.listPayoutBalances(
+                    { account_id, currency_code },
+                    { take: 1 },
+                    { transactionManager }
+                )
+
+                const newTotals = calculatePayoutTransactions({
+                    currentBalance: existingBalance as unknown as PayoutBalanceDTO,
+                    transactions
+                })
+
+                if (!existingBalance) {
+                    await this.createPayoutBalances(
+                        { account_id, currency_code, totals: newTotals },
+                        { transactionManager }
+                    )
+                } else {
+                    await this.updatePayoutBalances(
+                        { id: existingBalance.id, totals: newTotals },
+                        { transactionManager }
+                    )
+                }
+
+                const createdTransactions = await this.createPayoutTransactions(
+                    transactions.map((txn) => ({
+                        ...txn,
+                        account_id,
+                        currency_code,
+                    })),
+                    { transactionManager }
+                )
+
+                return await this.baseRepository_.serialize<PayoutTransactionDTO[]>(createdTransactions)
+            },
+            {
+                transaction: sharedContext?.transactionManager,
+                isolationLevel: IsolationLevel.SERIALIZABLE,
+            }
+        )
+    }
+
+    @InjectManager()
+    @EmitEvents()
+    async addPayoutTransactions(
+        account_id: string,
+        currency_code: string,
+        transactions: Omit<CreatePayoutTransactionDTO, 'account_id' | 'currency_code'>[],
+        @MedusaContext() sharedContext?: Context<EntityManager>
+    ): Promise<PayoutTransactionDTO[]> {
+        return await this.addPayoutTransactions_(
+            account_id,
+            currency_code,
+            transactions,
+            sharedContext
+        )
     }
 }

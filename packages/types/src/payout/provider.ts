@@ -39,7 +39,6 @@ export interface CreateOnboardingResponse extends PayoutProviderOutput {
 }
 
 export interface CreateReversalInput extends PayoutProviderInput {
-  account_id: string
   amount: BigNumberInput
   currency_code: string
 }
