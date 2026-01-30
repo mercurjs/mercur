@@ -6,6 +6,7 @@ import {
     InjectTransactionManager,
     MathBN,
     MedusaContext,
+    MedusaError,
     MedusaService,
     promiseAll,
 } from "@medusajs/framework/utils"
@@ -17,6 +18,7 @@ import {
     CreatePayoutTransactionDTO,
     OnboardingDTO,
     PayoutAccountDTO,
+    PayoutAccountStatus,
     PayoutDTO,
     PayoutTransactionDTO,
     PayoutWebhookActionInput,
@@ -50,6 +52,49 @@ export default class PayoutService extends MedusaService({
         super(...arguments)
         this.payoutProviderService_ = payoutProviderService
         this.baseRepository_ = baseRepository
+    }
+
+    @InjectManager()
+    private async validatePayoutAvailability_(
+        account_id: string,
+        amount: BigNumberInput,
+        currency_code: string,
+        @MedusaContext() sharedContext?: Context<EntityManager>
+    ): Promise<void> {
+        const account = await this.retrievePayoutAccount(
+            account_id,
+            { select: ['id', 'status'] },
+            sharedContext
+        )
+
+        if (account.status !== PayoutAccountStatus.ACTIVE) {
+            throw new MedusaError(
+                MedusaError.Types.NOT_ALLOWED,
+                `Account is not active. Current status: ${account.status}`
+            )
+        }
+
+        const [balance] = await this.listPayoutBalances(
+            { account_id, currency_code },
+            { take: 1 },
+            sharedContext
+        )
+
+        if (!balance) {
+            throw new MedusaError(
+                MedusaError.Types.NOT_FOUND,
+                `No balance found for currency: ${currency_code}`
+            )
+        }
+
+        const currentBalance = (balance.totals as unknown as PayoutBalanceTotals)?.raw_balance?.value ?? "0"
+
+        if (MathBN.lt(currentBalance, amount)) {
+            throw new MedusaError(
+                MedusaError.Types.NOT_ALLOWED,
+                `Insufficient funds. Available: ${currentBalance}, Requested: ${amount}`
+            )
+        }
     }
 
     @InjectManager()
@@ -142,10 +187,18 @@ export default class PayoutService extends MedusaService({
 
     @InjectManager()
     @EmitEvents()
-    async createPayout(
+    // @ts-ignore
+    async createPayouts(
         input: CreatePayoutDTO,
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<PayoutDTO> {
+        await this.validatePayoutAvailability_(
+            input.account_id,
+            input.amount,
+            input.currency_code,
+            sharedContext
+        )
+
         const payoutAccount = await this.retrievePayoutAccount(input.account_id, {
             select: ['id', 'data']
         }, sharedContext)
@@ -161,7 +214,7 @@ export default class PayoutService extends MedusaService({
             }
         })
 
-        const payout = await this.createPayouts(
+        const payout = await super.createPayouts(
             {
                 amount: input.amount,
                 currency_code: input.currency_code,
@@ -230,6 +283,7 @@ export default class PayoutService extends MedusaService({
                     transactions.map((txn) => ({
                         ...txn,
                         account_id,
+                        amount: MathBN.convert(txn.amount).toNumber(),
                     })),
                     { transactionManager }
                 )

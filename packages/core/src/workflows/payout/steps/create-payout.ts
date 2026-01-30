@@ -10,7 +10,7 @@ export const createPayoutStep = createStep(
   async (input: CreatePayoutDTO, { container }) => {
     const payoutService = container.resolve<PayoutService>(MercurModules.PAYOUT)
 
-    const payout = await payoutService.createPayout(input)
+    const payout = await payoutService.createPayouts(input)
 
     return new StepResponse(payout, payout.id)
   }

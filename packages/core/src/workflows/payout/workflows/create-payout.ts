@@ -1,8 +1,9 @@
 import { createRemoteLinkStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import { WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
+import { MathBN } from "@medusajs/framework/utils"
 import { CreatePayoutDTO, MercurModules } from "@mercurjs/types"
 
-import { createPayoutStep } from "../steps"
+import { addPayoutTransactionsStep, createPayoutStep } from "../steps"
 
 export const createPayoutWorkflowId = "create-payout"
 
@@ -25,6 +26,20 @@ export const createPayoutWorkflow = createWorkflow(
       context: input.context,
       data: input.data,
     })
+
+    const transactionInput = transform({ input, payout }, ({ input, payout }) => ({
+      account_id: input.account_id,
+      transactions: [
+        {
+          amount: MathBN.mult(input.amount, -1),
+          currency_code: input.currency_code,
+          reference: "payout",
+          reference_id: payout.id,
+        },
+      ],
+    }))
+
+    addPayoutTransactionsStep(transactionInput)
 
     createRemoteLinkStep([
       {

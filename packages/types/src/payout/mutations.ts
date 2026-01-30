@@ -1,5 +1,6 @@
 import { PayoutAccountStatus, PayoutStatus } from "./common"
 import { PayoutProviderInput } from "./provider"
+import { BigNumberInput } from "@medusajs/framework/types"
 
 export interface CreatePayoutAccountDTO extends PayoutProviderInput {
 }
@@ -26,7 +27,7 @@ export interface UpdatePayoutDTO {
 
 export interface CreatePayoutTransactionDTO {
   account_id: string
-  amount: number
+  amount: BigNumberInput
   currency_code: string
   reference?: string
   reference_id?: string
