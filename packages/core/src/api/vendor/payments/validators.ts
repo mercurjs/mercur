@@ -4,6 +4,7 @@ import {
   createOperatorMap,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type VendorGetPaymentParamsType = z.infer<typeof VendorGetPaymentParams>
 export const VendorGetPaymentParams = createSelectParams()
@@ -31,7 +32,7 @@ export const VendorGetPaymentProvidersParams = createFindParams({
 }).merge(
   z.object({
     id: z.union([z.string(), z.array(z.string())]).optional(),
-    is_enabled: z.boolean().optional(),
+    is_enabled: booleanString().optional(),
   })
 )
 

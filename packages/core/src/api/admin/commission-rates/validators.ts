@@ -4,6 +4,7 @@ import {
   createOperatorMap,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type AdminGetCommissionRateParamsType = z.infer<
   typeof AdminGetCommissionRateParams
@@ -23,7 +24,7 @@ export const AdminGetCommissionRatesParams = createFindParams({
     code: z.union([z.string(), z.array(z.string())]).optional(),
     type: z.union([z.string(), z.array(z.string())]).optional(),
     target: z.union([z.string(), z.array(z.string())]).optional(),
-    is_enabled: z.boolean().optional(),
+    is_enabled: booleanString().optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })
