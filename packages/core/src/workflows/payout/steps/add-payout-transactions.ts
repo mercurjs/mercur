@@ -1,7 +1,7 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { CreatePayoutTransactionDTO, MercurModules } from "@mercurjs/types"
 
-import PayoutService from "../../../modules/payout/services/payout-service"
+import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
 
 type AddPayoutTransactionsInput = {
   account_id: string
@@ -16,7 +16,7 @@ export const addPayoutTransactionsStepId = "add-payout-transactions-step"
 export const addPayoutTransactionsStep = createStep(
   addPayoutTransactionsStepId,
   async (input: AddPayoutTransactionsInput, { container }) => {
-    const payoutService = container.resolve<PayoutService>(MercurModules.PAYOUT)
+    const payoutService = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
 
     if (!input.transactions.length) {
       return new StepResponse([], [])
@@ -37,7 +37,7 @@ export const addPayoutTransactionsStep = createStep(
       return
     }
 
-    const payoutService = container.resolve<PayoutService>(MercurModules.PAYOUT)
+    const payoutService = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
 
     await payoutService.deletePayoutTransactions(transactionIds)
   }

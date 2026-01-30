@@ -1,14 +1,14 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { MercurModules, UpdatePayoutDTO } from "@mercurjs/types"
 
-import PayoutService from "../../../modules/payout/services/payout-service"
+import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
 
 export const updatePayoutStepId = "update-payout-step"
 
 export const updatePayoutStep = createStep(
   updatePayoutStepId,
   async (input: UpdatePayoutDTO, { container }) => {
-    const payoutService = container.resolve<PayoutService>(MercurModules.PAYOUT)
+    const payoutService = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
 
     const previousPayout = await payoutService.retrievePayout(input.id)
 
@@ -25,7 +25,7 @@ export const updatePayoutStep = createStep(
   async (rollbackData, { container }) => {
     if (!rollbackData) return
 
-    const payoutService = container.resolve<PayoutService>(MercurModules.PAYOUT)
+    const payoutService = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
 
     await payoutService.updatePayouts({
       id: rollbackData.id,

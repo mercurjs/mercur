@@ -377,15 +377,17 @@ medusaIntegrationTestRunner({
 
         it("should reject payout when insufficient balance", async () => {
           // Try to create payout without any balance
-          await expect(
-            createPayoutWorkflow(appContainer).run({
-              input: {
-                account_id: payoutAccount.id,
-                amount: 100000, // $1000 - more than available
-                currency_code: "usd",
-              },
-            })
-          ).rejects.toThrow()
+          const { errors } = await createPayoutWorkflow(appContainer).run({
+            input: {
+              account_id: payoutAccount.id,
+              amount: 100000, // $1000 - more than available
+              currency_code: "usd",
+            },
+            throwOnError: false,
+          })
+
+          expect(errors).toHaveLength(1)
+          expect(errors[0].error.message).toContain("Insufficient funds")
         })
 
         it("should correctly calculate seller earnings after multiple orders", async () => {

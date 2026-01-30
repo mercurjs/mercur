@@ -28,7 +28,7 @@ import {
 } from "@mercurjs/types"
 import PayoutProviderService from "./provider-service"
 import { Onboarding, Payout, PayoutAccount, PayoutBalance, PayoutTransaction } from "../models"
-import { BigNumberInput, Context, DAL, InferEntityType } from "@medusajs/framework/types"
+import { BigNumberInput, Context, DAL, InferEntityType, ModulesSdkTypes } from "@medusajs/framework/types"
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex"
 import { IsolationLevel } from "@medusajs/framework/mikro-orm/core"
 import { calculatePayoutTransactions } from "../utils/calculate-payout-transactions"
@@ -38,7 +38,7 @@ type InjectedDependencies = {
     baseRepository: DAL.RepositoryService
 }
 
-export default class PayoutService extends MedusaService({
+export default class PayoutModuleService extends MedusaService({
     Onboarding,
     Payout,
     PayoutAccount,
@@ -49,6 +49,7 @@ export default class PayoutService extends MedusaService({
     protected readonly baseRepository_: DAL.RepositoryService
 
     constructor({ payoutProviderService, baseRepository }: InjectedDependencies) {
+        // @ts-ignore
         super(...arguments)
         this.payoutProviderService_ = payoutProviderService
         this.baseRepository_ = baseRepository
@@ -70,7 +71,7 @@ export default class PayoutService extends MedusaService({
         if (account.status !== PayoutAccountStatus.ACTIVE) {
             throw new MedusaError(
                 MedusaError.Types.NOT_ALLOWED,
-                `Account is not active. Current status: ${account.status}`
+                `Account '${account_id}' is not active`
             )
         }
 
@@ -82,8 +83,8 @@ export default class PayoutService extends MedusaService({
 
         if (!balance) {
             throw new MedusaError(
-                MedusaError.Types.NOT_FOUND,
-                `No balance found for currency: ${currency_code}`
+                MedusaError.Types.NOT_ALLOWED,
+                'Insufficient funds'
             )
         }
 
@@ -92,7 +93,7 @@ export default class PayoutService extends MedusaService({
         if (MathBN.lt(currentBalance, amount)) {
             throw new MedusaError(
                 MedusaError.Types.NOT_ALLOWED,
-                `Insufficient funds. Available: ${currentBalance}, Requested: ${amount}`
+                'Insufficient funds'
             )
         }
     }
@@ -138,7 +139,7 @@ export default class PayoutService extends MedusaService({
         return await this.baseRepository_.serialize<PayoutAccountDTO>(payoutAccount)
     }
 
-    @InjectManager()
+    @InjectTransactionManager()
     @EmitEvents()
     async createOnboarding(
         input: CreateOnboardingDTO,
@@ -185,7 +186,7 @@ export default class PayoutService extends MedusaService({
         return await this.baseRepository_.serialize<OnboardingDTO>(onboarding)
     }
 
-    @InjectManager()
+    @InjectTransactionManager()
     @EmitEvents()
     // @ts-ignore
     async createPayouts(
@@ -218,7 +219,7 @@ export default class PayoutService extends MedusaService({
             {
                 amount: input.amount,
                 currency_code: input.currency_code,
-                account: payoutAccount.id,
+                account_id: payoutAccount.id,
                 data: providerResponse.data,
                 status: providerResponse.status,
             },

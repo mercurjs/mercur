@@ -1,10 +1,10 @@
 import { Module } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
 
-import PayoutService from "./services/payout-service"
+import PayoutModuleService from "./services/payout-module-service"
 import loadProviders from "./loaders/provider"
 
 export default Module(MercurModules.PAYOUT, {
-  service: PayoutService,
+  service: PayoutModuleService,
   loaders: [loadProviders],
 })

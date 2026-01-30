@@ -200,7 +200,7 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
 
     const rows = result.rows.map(row => ({
       ...row,
-      total: 0,
+      total: row.total,
       seller_count: row.seller_count,
     })) ?? []
     const count = parseInt(countResult.rows?.[0]?.count || "0", 10)
