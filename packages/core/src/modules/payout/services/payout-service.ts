@@ -18,7 +18,7 @@ import {
     PayoutWebhookResult,
 } from "@mercurjs/types"
 import PayoutProviderService from "./provider-service"
-import { Onboarding, Payout, PayoutAccount, PayoutReversal } from "../models"
+import { Onboarding, Payout, PayoutAccount, PayoutReversal, PayoutTransaction } from "../models"
 import { Context, DAL, InferEntityType } from "@medusajs/framework/types"
 import { EntityManager } from "@medusajs/framework/mikro-orm/core"
 
@@ -32,6 +32,7 @@ export default class PayoutService extends MedusaService({
     Payout,
     PayoutAccount,
     PayoutReversal,
+    PayoutTransaction,
 }) {
     protected readonly payoutProviderService_: PayoutProviderService
     protected readonly baseRepository_: DAL.RepositoryService
