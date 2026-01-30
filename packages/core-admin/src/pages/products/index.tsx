@@ -7,6 +7,11 @@ import { queryClient } from "@lib/query-client"
 
 import { ProductsPage } from "./_components"
 
+// Re-export compound component and types for user overrides
+export { ProductsPage }
+export type { ProductsPageProps } from "./_components/products-page"
+export type { ProductsPageContextValue } from "./_components/products-context"
+
 // Loader for pre-fetching data
 const productsListQuery = () => ({
   queryKey: productsQueryKeys.list({

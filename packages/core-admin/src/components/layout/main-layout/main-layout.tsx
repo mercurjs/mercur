@@ -1,8 +1,6 @@
 import {
-  BottomToTop,
   BuildingStorefront,
   Buildings,
-  ChatBubble,
   ChevronDownMini,
   CogSixTooth,
   CurrencyDollar,
@@ -269,54 +267,6 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <CurrencyDollar />,
       label: t("priceLists.domain"),
       to: "/price-lists",
-    },
-    {
-      icon: <BottomToTop />,
-      label: t("requests.domain"),
-      to: "requests/seller",
-      items: [
-        {
-          label: t("requests.seller"),
-          to: "/requests/seller",
-        },
-        {
-          label: t("requests.product"),
-          to: "/requests/product/",
-        },
-        {
-          label: t("requests.product-tag"),
-          to: "/requests/product-tag",
-        },
-        {
-          label: t("requests.product-type"),
-          to: "/requests/product-type",
-        },
-        {
-          label: t("requests.review-remove"),
-          to: "/requests/review-remove",
-        },
-        {
-          label: t("requests.product-update"),
-          to: "/requests/product-update",
-        },
-        {
-          label: t("requests.return"),
-          to: "/requests/return",
-        },
-        {
-          label: t("requests.product-category"),
-          to: "/requests/product-category",
-        },
-        {
-          label: t("requests.product-collection"),
-          to: "/requests/product-collection",
-        },
-      ],
-    },
-    {
-      icon: <ChatBubble />,
-      label: t("messages.domain"),
-      to: "/messages",
     },
   ];
 };

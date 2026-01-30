@@ -347,11 +347,6 @@ export function getRouteMap({
                         import("../../pages/orders/order-create-refund"),
                     },
                     {
-                      path: "transfer",
-                      lazy: () =>
-                        import("../../pages/orders/order-request-transfer"),
-                    },
-                    {
                       path: "email",
                       lazy: () =>
                         import("../../pages/orders/order-edit-email"),
@@ -621,101 +616,6 @@ export function getRouteMap({
               ],
             },
             {
-              path: "/requests",
-              errorElement: <ErrorBoundary />,
-              handle: {
-                breadcrumb: () => t("requests.domain"),
-              },
-              children: [
-                {
-                  path: "seller",
-                  handle: {
-                    breadcrumb: () => t("requests.seller"),
-                  },
-                  lazy: () =>
-                    import("../../pages/requests/request-seller-list"),
-                },
-                {
-                  path: "review-remove",
-                  handle: {
-                    breadcrumb: () => t("requests.review-remove"),
-                  },
-                  lazy: () =>
-                    import("../../pages/requests/request-review-remove-list"),
-                },
-                {
-                  path: "product",
-                  handle: {
-                    breadcrumb: () => t("requests.product"),
-                  },
-                  children: [
-                    {
-                      path: "",
-                      lazy: () =>
-                        import("../../pages/requests/request-product-list"),
-                    },
-                    {
-                      path: ":id",
-                      lazy: () =>
-                        import("../../pages/requests/request-product-details"),
-                    },
-                  ],
-                },
-                {
-                  path: "return",
-                  handle: {
-                    breadcrumb: () => t("requests.return"),
-                  },
-                  lazy: () =>
-                    import("../../pages/requests/request-return-list"),
-                },
-                {
-                  path: "product-collection",
-                  handle: {
-                    breadcrumb: () => t("requests.product-collection"),
-                  },
-                  lazy: () =>
-                    import(
-                      "../../pages/requests/request-product-collection-list"
-                    ),
-                },
-                {
-                  path: "product-category",
-                  handle: {
-                    breadcrumb: () => t("requests.product-category"),
-                  },
-                  lazy: () =>
-                    import(
-                      "../../pages/requests/request-product-category-list"
-                    ),
-                },
-                {
-                  path: "product-update",
-                  handle: {
-                    breadcrumb: () => t("requests.product-update"),
-                  },
-                  lazy: () =>
-                    import("../../pages/requests/request-product-update-list"),
-                },
-                {
-                  path: "product-tag",
-                  handle: {
-                    breadcrumb: () => t("requests.product-tag"),
-                  },
-                  lazy: () =>
-                    import("../../pages/requests/request-product-tag-list"),
-                },
-                {
-                  path: "product-type",
-                  handle: {
-                    breadcrumb: () => t("requests.product-type"),
-                  },
-                  lazy: () =>
-                    import("../../pages/requests/request-product-type-list"),
-                },
-              ],
-            },
-            {
               path: "/customers",
               errorElement: <ErrorBoundary />,
               handle: {
@@ -724,24 +624,26 @@ export function getRouteMap({
               children: [
                 {
                   path: "",
-                  lazy: () => import("../../pages/customers/customer-list"),
+                  // Uses file-based routing - user can override this file
+                  lazy: () => import("../../pages/customers"),
                   children: [
                     {
                       path: "create",
                       lazy: () =>
-                        import("../../pages/customers/customer-create"),
+                        import("../../pages/customers/create"),
                     },
                   ],
                 },
                 {
                   path: ":id",
                   lazy: async () => {
-                    const { Component, Breadcrumb, loader } = await import(
-                      "../../pages/customers/customer-detail"
+                    // Uses file-based routing path - user can override
+                    const { Breadcrumb, loader } = await import(
+                      "../../pages/customers/[id]"
                     );
 
                     return {
-                      Component,
+                      Component: Outlet,
                       loader,
                       handle: {
                         breadcrumb: (
@@ -752,33 +654,29 @@ export function getRouteMap({
                   },
                   children: [
                     {
+                      path: "",
+                      lazy: () =>
+                        import("../../pages/customers/[id]"),
+                    },
+                    {
                       path: "edit",
                       lazy: () =>
-                        import("../../pages/customers/customer-edit"),
+                        import("../../pages/customers/[id]/edit"),
                     },
                     {
                       path: "create-address",
                       lazy: () =>
-                        import(
-                          "../../pages/customers/customer-create-address"
-                        ),
+                        import("../../pages/customers/[id]/create-address"),
                     },
                     {
                       path: "add-customer-groups",
                       lazy: () =>
-                        import(
-                          "../../pages/customers/customers-add-customer-group"
-                        ),
-                    },
-                    {
-                      path: ":order_id/transfer",
-                      lazy: () =>
-                        import("../../pages/orders/order-request-transfer"),
+                        import("../../pages/customers/[id]/add-customer-groups"),
                     },
                     {
                       path: "metadata/edit",
                       lazy: () =>
-                        import("../../pages/customers/customer-metadata"),
+                        import("../../pages/customers/[id]/metadata/edit"),
                     },
                   ],
                 },
@@ -793,25 +691,17 @@ export function getRouteMap({
               children: [
                 {
                   path: "",
-                  lazy: () => import("../../pages/sellers/seller-list"),
+                  lazy: () => import("../../pages/sellers"),
                 },
                 {
                   path: ":id",
-                  lazy: () => import("../../pages/sellers/seller-details"),
+                  lazy: () => import("../../pages/sellers/[id]"),
                 },
                 {
                   path: ":id/edit",
-                  lazy: () => import("../../pages/sellers/seller-edit"),
+                  lazy: () => import("../../pages/sellers/[id]/edit"),
                 },
               ],
-            },
-            {
-              path: "/messages",
-              errorElement: <ErrorBoundary />,
-              handle: {
-                breadcrumb: () => t("messages.domain"),
-              },
-              lazy: () => import("../../pages/messages"),
             },
             {
               path: "/customer-groups",
