@@ -35,14 +35,13 @@ async function runCodegen(opts: z.infer<typeof codegenOptionsSchema>) {
     const options = codegenOptionsSchema.parse(opts);
     const tsConfig = getTsConfig(options.cwd);
 
-    const codegenSpinner = spinner(`[${highlighter.info("@mercurjs/cli")}] Generating route types...`);
+    const codegenSpinner = spinner('Generating route types...');
 
     await writeRouteTypes(options.cwd, tsConfig);
 
-    codegenSpinner.succeed(`[${highlighter.info("@mercurjs/cli")}] Route types generated successfully.`);
+    codegenSpinner.succeed('Route types generated successfully.');
 
     if (options.watch) {
-      await writeRouteTypes(options.cwd, tsConfig);
       await watchForChanges(options.cwd, tsConfig);
     } else {
       logger.break();
@@ -71,16 +70,15 @@ async function watchForChanges(cwd: string, tsConfig: import("typescript").Compi
     }
     await watcher.close();
     logger.break();
-    logger.info(`[${highlighter.info("@mercurjs/cli")}] Watcher stopped.`);
+    logger.info(`Watcher stopped.`);
   };
 
   const regenerate = async (filePath: string) => {
-    const regenSpinner = spinner(`[${highlighter.info("@mercurjs/cli")}] Change detected in ${highlighter.info(filePath)}. Regenerating...`);
+    logger.info(`Change detected in ${highlighter.info(filePath)}. Regenerating...`);
     try {
       await writeRouteTypes(cwd, tsConfig);
-      regenSpinner.succeed(`[${highlighter.info("@mercurjs/cli")}] Route types regenerated.`);
     } catch (error) {
-      regenSpinner.fail(`[${highlighter.info("@mercurjs/cli")}] Failed to regenerate route types.`);
+      logger.error(`Failed to regenerate route types.`);
       handleError(error);
     }
   };
@@ -97,11 +95,11 @@ async function watchForChanges(cwd: string, tsConfig: import("typescript").Compi
     .on("change", debouncedRegenerate)
     .on("unlink", debouncedRegenerate)
     .on("ready", () => {
-      logger.info(`[${highlighter.info("@mercurjs/cli")}] Watching for changes... (Press Ctrl+C to stop)`);
+      logger.info(`Watching for changes... (Press Ctrl+C to stop)`);
     })
     .on("error", (error) => {
-      logger.error(`[${highlighter.info("@mercurjs/cli")}] Watcher error:`);
-      handleError(error);
+      logger.error(`Watcher error:`, error);
+      logger.break();
     });
 
   await new Promise<void>((resolve) => {
