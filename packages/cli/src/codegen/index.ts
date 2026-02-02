@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { type CompilerOptions } from "typescript";
 import { DIST_DIR } from "./constants";
 import { ensureDir } from "./fs";
 import { getRoutes } from "./routes";
@@ -16,9 +17,9 @@ export function generateRouteTypes(routes: RouteInfo[]): string {
     const deletes: string[] = [];
 
     for (const route of routes) {
-        const routeKey = route.route;
+        const routeKey = `"${route.route}"`;
         for (const handler of route.handlers) {
-            const input = handler.input || "unknown";
+            const input = handler.input || "Record<string, any>";
             const output = handler.output || "unknown";
             const routeDef = `RouteDef<${input}, ${output}>`;
 
@@ -63,14 +64,14 @@ ${deletesContent}
 `;
 }
 
-export async function writeRouteTypes(rootDir: string) {
+export async function writeRouteTypes(rootDir: string, tsConfig: CompilerOptions) {
     const entryFilePath = path.join(rootDir, DIST_DIR, "routes.d.ts");
     const apiDir = path.join(rootDir, "src", "api");
     const entryDir = path.dirname(entryFilePath);
 
     await ensureDir(entryDir);
 
-    const routes = await getRoutes(apiDir);
+    const routes = await getRoutes(apiDir, tsConfig);
     const routeTypes = generateRouteTypes(routes);
 
     await fs.writeFile(entryFilePath, routeTypes, "utf-8");

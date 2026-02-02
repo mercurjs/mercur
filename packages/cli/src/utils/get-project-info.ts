@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
+import ts, { type CompilerOptions } from "typescript";
 import { loadConfig } from "tsconfig-paths";
 import fg from "fast-glob"
 
@@ -13,7 +14,6 @@ export type ProjectInfo = {
   aliasPrefix: string | null;
   packageJson: PackageJson | null;
   medusaConfigFile: string | null;
-  medusaDir: string | null;
   medusaVersion: string | null;
   mercurVersion: string | null;
 };
@@ -39,7 +39,6 @@ export async function getProjectInfo(cwd: string): Promise<ProjectInfo> {
     aliasPrefix,
     packageJson,
     medusaConfigFile: medusaConfigInfo?.file ?? null,
-    medusaDir: medusaConfigInfo?.dir ?? null,
     medusaVersion,
     mercurVersion,
   };
@@ -144,4 +143,26 @@ export async function getMercurVersion(cwd: string): Promise<string | null> {
   }
 
   return null
+}
+
+export function getTsConfig(cwd: string): CompilerOptions {
+  const configPath = ts.findConfigFile(cwd, ts.sys.fileExists, "tsconfig.json");
+
+  if (!configPath) {
+    return {};
+  }
+
+  const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+
+  if (configFile.error) {
+    return {};
+  }
+
+  const parsed = ts.parseJsonConfigFileContent(
+    configFile.config,
+    ts.sys,
+    path.dirname(configPath)
+  );
+
+  return parsed.options;
 }
