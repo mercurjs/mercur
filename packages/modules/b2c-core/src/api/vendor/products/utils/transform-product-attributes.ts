@@ -23,8 +23,15 @@ interface AttributeValueWithAttribute {
   };
 }
 
+interface ProductOption {
+  id: string;
+  title: string;
+  values?: { id: string; value: string }[];
+}
+
 interface ProductWithAttributes {
   attribute_values?: AttributeValueWithAttribute[];
+  options?: ProductOption[];
   [key: string]: unknown;
 }
 
@@ -116,8 +123,18 @@ function transformAttributeValues(
 export function transformProductWithInformationalAttributes<
   T extends ProductWithAttributes
 >(product: T, currentSellerId?: string): T & { informational_attributes: InformationalAttributeDTO[] } {
+  // Create a set of option titles for efficient lookup
+  const optionTitles = new Set(
+    (product.options ?? []).map((option) => option.title.toLowerCase())
+  );
+
+  // Filter out attribute values that have corresponding options before mapping
+  const filteredAttributeValues = (product.attribute_values ?? []).filter(
+    (av) => av && av.attribute && !optionTitles.has(av.attribute.name.toLowerCase())
+  );
+
   const informationalAttributes = transformAttributeValues(
-    product.attribute_values ?? [],
+    filteredAttributeValues,
     currentSellerId
   );
 
