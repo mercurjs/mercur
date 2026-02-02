@@ -39,6 +39,7 @@
     "terminal-link": "^5.0.0",
     "ts-morph": "^27.0.2",
     "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.8.3",
     "validate-npm-package-name": "^7.0.2",
     "zod": "3.25.76"
   },

@@ -10,5 +10,5 @@ export default defineConfig({
   target: "esnext",
   outDir: "dist",
   treeshake: true,
-  external: ["type-fest"],
+  external: ["type-fest", "typescript"],
 });

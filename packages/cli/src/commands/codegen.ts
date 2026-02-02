@@ -42,6 +42,7 @@ async function runCodegen(opts: z.infer<typeof codegenOptionsSchema>) {
     codegenSpinner.succeed(`[${highlighter.info("@mercurjs/cli")}] Route types generated successfully.`);
 
     if (options.watch) {
+      await writeRouteTypes(options.cwd, tsConfig);
       await watchForChanges(options.cwd, tsConfig);
     } else {
       logger.break();
@@ -53,38 +54,66 @@ async function runCodegen(opts: z.infer<typeof codegenOptionsSchema>) {
 }
 
 async function watchForChanges(cwd: string, tsConfig: import("typescript").CompilerOptions) {
-  logger.info(`[${highlighter.info("@mercurjs/cli")}] Watching for changes in ${highlighter.info(cwd)}...`);
-  logger.break();
-
   const apiDir = path.join(cwd, "src", "api");
+
   const watcher = chokidar.watch("**/route.ts", {
     cwd: apiDir,
-    ignoreInitial: true,
     persistent: true,
+    ignoreInitial: true,
+    awaitWriteFinish: {
+      stabilityThreshold: 100,
+      pollInterval: 50,
+    },
   });
 
   let debounceTimer: NodeJS.Timeout | null = null;
 
-  const regenerate = async () => {
+  const cleanup = async () => {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+    }
+    await watcher.close();
+    logger.break();
+    logger.info(`[${highlighter.info("@mercurjs/cli")}] Watcher stopped.`);
+  };
+
+  const regenerate = async (filePath: string) => {
+    const regenSpinner = spinner(`[${highlighter.info("@mercurjs/cli")}] Change detected in ${highlighter.info(filePath)}. Regenerating...`);
     try {
       await writeRouteTypes(cwd, tsConfig);
+      regenSpinner.succeed(`[${highlighter.info("@mercurjs/cli")}] Route types regenerated.`);
     } catch (error) {
-      logger.error(`[${highlighter.info("@mercurjs/cli")}] Failed to regenerate route types:`);
+      regenSpinner.fail(`[${highlighter.info("@mercurjs/cli")}] Failed to regenerate route types.`);
       handleError(error);
     }
   };
 
-  const debouncedRegenerate = () => {
+  const debouncedRegenerate = (filePath: string) => {
     if (debounceTimer) {
       clearTimeout(debounceTimer);
     }
-    debounceTimer = setTimeout(regenerate, 100);
+    debounceTimer = setTimeout(() => regenerate(filePath), 100);
   };
 
   watcher
     .on("add", debouncedRegenerate)
     .on("change", debouncedRegenerate)
-    .on("unlink", debouncedRegenerate);
+    .on("unlink", debouncedRegenerate)
+    .on("ready", () => {
+      logger.info(`[${highlighter.info("@mercurjs/cli")}] Watching for changes... (Press Ctrl+C to stop)`);
+    })
+    .on("error", (error) => {
+      logger.error(`[${highlighter.info("@mercurjs/cli")}] Watcher error:`);
+      handleError(error);
+    });
 
-  await new Promise(() => { });
+  await new Promise<void>((resolve) => {
+    const shutdown = () => {
+      cleanup().then(resolve);
+    };
+
+    process.once("SIGINT", shutdown);
+    process.once("SIGTERM", shutdown);
+  });
 }
