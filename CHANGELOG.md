@@ -11,12 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Storefront
 
+https://github.com/mercurjs/b2c-marketplace-storefront
+
 - Fixed missing validation when submitting a non-existing email in Forgot password flow
 - Added missing close (×) icon in Reset password link modal
 - Improved validation and error handling in authentication-related views
 - Minor UI consistency fixes across customer-facing forms
 
 #### Admin Panel
+
+https://github.com/mercurjs/admin-panel
 
 - Fixed error state when using Create Product Attribute
 - Added missing validation feedback during product attribute creation
@@ -25,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minor UI and error-handling fixes
 
 #### Vendor Panel
+
+https://github.com/mercurjs/vendor-panel
 
 - Fixed pagination and listing issues in vendor views
 - Improved form validation and error feedback
