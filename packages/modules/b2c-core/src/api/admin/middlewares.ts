@@ -8,8 +8,8 @@ import { orderSetsMiddlewares } from './order-sets/middlewares';
 import { adminOrdersMiddlewares } from './orders/middlewares';
 import { adminProductsMiddlewares } from './products/middlewares';
 import { adminVendorReservationsMiddlewares } from './reservations-vendor/middlewares';
-import { sellerMiddlewares } from './sellers/middlewares';
 import { adminReservationsMiddlewares } from './reservations/middlewares';
+import { sellerMiddlewares } from './sellers/middlewares';
 import { collectionsMiddlewares } from './collections/middlewares';
 import { productCategoriesMiddlewares } from './product-categories/middlewares';
 
