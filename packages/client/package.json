@@ -1,0 +1,36 @@
+{
+  "name": "@mercurjs/client",
+  "version": "0.0.0",
+  "type": "commonjs",
+  "author": "MercurJS (https://github.com/mercurjs)",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
+  "dependencies": {
+    "chokidar": "^3.6.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.8.0"
+  }
+}
