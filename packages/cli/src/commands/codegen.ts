@@ -56,14 +56,10 @@ async function runCodegen(opts: z.infer<typeof codegenOptionsSchema>) {
 async function watchForChanges(cwd: string, tsConfig: import("typescript").CompilerOptions) {
   const apiDir = path.join(cwd, "src", "api");
 
-  const watcher = chokidar.watch("**/route.ts", {
+  const watcher = chokidar.watch('.', {
     cwd: apiDir,
     persistent: true,
     ignoreInitial: true,
-    awaitWriteFinish: {
-      stabilityThreshold: 100,
-      pollInterval: 50,
-    },
   });
 
   let debounceTimer: NodeJS.Timeout | null = null;
