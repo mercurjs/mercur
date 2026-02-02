@@ -5,7 +5,9 @@ export const fetchFeaturedCollectionWithProductsDetails = async (container: Medu
     const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION);
 
     const featuredCollectionWithProducts = await knex('featured_collection')
-        .leftJoin('featured_collection_product', 'featured_collection.id', 'featured_collection_product.featured_collection_id')
+        .leftJoin('featured_collection_product', function () {
+            this.onNull("featured_collection_product.deleted_at")
+        })
         .leftJoin("product", function () {
             this.on(
                 "featured_collection_product.product_id",
@@ -16,6 +18,7 @@ export const fetchFeaturedCollectionWithProductsDetails = async (container: Medu
                 .andOn("product.status", "=", knex.raw("?", ["published"]))
         })
         .where("featured_collection.id", featuredCollectionId)
+        .whereNull("featured_collection.deleted_at")
         .select('featured_collection.*', 'featured_collection_product.position', 'product.id as product_id', 'product.title as product_title', 'product.thumbnail as product_thumbnail', 'product.handle as product_handle')
         .orderBy('featured_collection_product.position', 'asc');
 
@@ -54,7 +57,10 @@ export const fetchAllFeaturedCollectionsWithProductsDetails = async (container: 
     const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION);
 
     const featuredCollectionsWithProducts = await knex('featured_collection')
-        .leftJoin('featured_collection_product', 'featured_collection.id', 'featured_collection_product.featured_collection_id')
+        .leftJoin('featured_collection_product', function () {
+            this.on('featured_collection.id', '=', 'featured_collection_product.featured_collection_id')
+                .andOnNull('featured_collection_product.deleted_at')
+        })
         .leftJoin("product", function () {
             this.on(
                 "featured_collection_product.product_id",
@@ -64,6 +70,7 @@ export const fetchAllFeaturedCollectionsWithProductsDetails = async (container: 
                 .andOnNull("product.deleted_at")
                 .andOn("product.status", "=", knex.raw("?", ["published"]))
         })
+        .whereNull("featured_collection.deleted_at")
         .select('featured_collection.*', 'featured_collection_product.position', 'product.id as product_id', 'product.title as product_title', 'product.thumbnail as product_thumbnail', 'product.handle as product_handle')
         .orderBy('featured_collection_product.position', 'asc');
 

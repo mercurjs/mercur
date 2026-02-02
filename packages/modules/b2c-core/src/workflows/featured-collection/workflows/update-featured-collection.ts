@@ -11,6 +11,10 @@ const updateFeaturedCollectionWorkflowId = "update-featured-collection";
 export type UpdateFeaturedCollectionWorkflowInput = UpdateFeaturedCollectionDTO;
 
 export const updateFeaturedCollectionWorkflow = createWorkflow(updateFeaturedCollectionWorkflowId, (input: UpdateFeaturedCollectionWorkflowInput) => {
+    // const products = transform({ input }, ({ input }) => {
+    //     console.log("input", input);
+    //     return input.products
+    // });
     verifyProductsStatusStep(input.products);
 
     const featuredCollection = updateFeaturedCollectionStep(input);

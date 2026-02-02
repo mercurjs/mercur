@@ -17,5 +17,7 @@ export const AdminCreateFeaturedCollection = z.object({
     path: ["products"],
 });
 
+export const AdminUpdateFeaturedCollection = AdminCreateFeaturedCollection;
+
 export type AdminCreateFeaturedCollectionType = z.infer<typeof AdminCreateFeaturedCollection>;
 export type AdminUpdateFeaturedCollection = z.infer<typeof AdminCreateFeaturedCollection>;

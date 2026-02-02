@@ -1,5 +1,5 @@
 import { MiddlewareRoute, validateAndTransformBody } from "@medusajs/framework";
-import { AdminCreateFeaturedCollection } from "./validators";
+import { AdminCreateFeaturedCollection, AdminUpdateFeaturedCollection } from "./validators";
 
 export const adminFeaturedCollectionsMiddlewares: MiddlewareRoute[] = [
     {
@@ -10,17 +10,10 @@ export const adminFeaturedCollectionsMiddlewares: MiddlewareRoute[] = [
         ],
     },
     {
-        method: ["GET"],
-        matcher: "/admin/featured-collections",
-        middlewares: [
-            // validateAndTransformQuery(AdminGetFeaturedCollectionsParams),
-        ],
-    },
-    {
-        method: ["GET"],
+        method: ["POST"],
         matcher: "/admin/featured-collections/:id",
         middlewares: [
-            // validateAndTransformQuery(AdminGetFeaturedCollectionsParams),
+            validateAndTransformBody(AdminUpdateFeaturedCollection),
         ],
-    }
+    },
 ]
