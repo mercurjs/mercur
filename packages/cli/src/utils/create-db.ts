@@ -1,5 +1,6 @@
 import { getPackageManager } from "@/src/utils/get-package-manager";
 import { logger } from "@/src/utils/logger";
+import { manageEnvFiles } from "@/src/utils/manage-env-files";
 import { spinner } from "@/src/utils/spinner";
 import { execa } from "execa";
 import type { Ora } from "ora";
@@ -9,12 +10,20 @@ import prompts from "prompts";
 
 const DEFAULT_DB_HOST = "localhost";
 const DEFAULT_DB_PORT = 5432;
+const API_DIR = "packages/api";
+const ADMIN_EMAIL = "admin@mercur-test.com";
+
+interface DbSetupArgs {
+  projectDir: string;
+  spinner?: Ora;
+}
 
 export interface SetupDatabaseResult {
   success: boolean;
   dbName: string;
   connectionString: string | null;
   alreadyExists?: boolean;
+  inviteToken?: string | null;
 }
 
 export async function setupDatabase(args: {
@@ -25,51 +34,43 @@ export async function setupDatabase(args: {
 }): Promise<SetupDatabaseResult> {
   const dbName = args.projectName.replace(/[^a-zA-Z0-9]/g, "-");
 
-  // Try to connect and create database
   const { client, dbConnectionString } = await getDbClient({
     dbConnectionString: args.dbConnectionString,
     spinner: args.spinner,
   });
 
-  if (!client) {
+  if (!client || !dbConnectionString) {
     return { success: false, dbName, connectionString: null };
   }
 
   try {
-    // Check if database already exists
+    if (args.spinner) {
+      args.spinner.text = "Checking if database exists...";
+    }
     const exists = await doesDbExist(client, dbName);
 
     if (exists) {
       await client.end();
-      return {
-        success: true,
+      return runPostDbSetup({
+        ...args,
         dbName,
         connectionString: dbConnectionString,
         alreadyExists: true,
-      };
+      });
     }
 
-    // Create the database
+    if (args.spinner) {
+      args.spinner.text = `Creating database "${dbName}"...`;
+    }
     await client.query(`CREATE DATABASE "${dbName}"`);
     await client.end();
 
-    // Run migrations
-    const migrated = await runMigrations(args);
-    if (!migrated) {
-      return { success: false, dbName, connectionString: null };
-    }
-
-    // Seed database
-    const seeded = await seedDatabase(args);
-    if (!seeded) {
-      return { success: false, dbName, connectionString: null };
-    }
-
-    return {
-      success: true,
+    return runPostDbSetup({
+      ...args,
       dbName,
       connectionString: dbConnectionString,
-    };
+      alreadyExists: false,
+    });
   } catch (err) {
     logger.error(
       `Error creating database${err instanceof Error ? `: ${err.message}` : ""}.`
@@ -79,23 +80,57 @@ export async function setupDatabase(args: {
   }
 }
 
+async function runPostDbSetup(args: DbSetupArgs & {
+  dbName: string;
+  connectionString: string;
+  alreadyExists: boolean;
+}): Promise<SetupDatabaseResult> {
+  const { projectDir, spinner, dbName, connectionString, alreadyExists } = args;
+
+  // Medusa needs DATABASE_URL in .env before running migrations
+  await manageEnvFiles({
+    projectDir,
+    databaseUri: connectionString,
+  });
+
+  const migrated = await runMigrations({ projectDir, spinner });
+  if (!migrated) {
+    return { success: false, dbName, connectionString: null };
+  }
+
+  const seeded = await seedDatabase({ projectDir });
+  if (!seeded) {
+    return { success: false, dbName, connectionString: null };
+  }
+
+  const inviteToken = await createAdminInvite({ projectDir });
+
+  return {
+    success: true,
+    dbName,
+    connectionString,
+    alreadyExists,
+    inviteToken,
+  };
+}
+
+interface DbClientResult {
+  client: pg.Client | null;
+  dbConnectionString: string | null;
+}
+
 async function getDbClient({
   dbConnectionString,
   spinner: spinnerRef,
 }: {
   dbConnectionString?: string;
   spinner?: Ora;
-}): Promise<{
-  client: pg.Client | null;
-  dbConnectionString: string | null;
-}> {
-  // If connection string provided, try to use it
+}): Promise<DbClientResult> {
   if (dbConnectionString) {
     try {
-      return {
-        client: new pg.Client({ connectionString: dbConnectionString }),
-        dbConnectionString,
-      };
+      const client = new pg.Client({ connectionString: dbConnectionString });
+      await client.connect();
+      return { client, dbConnectionString };
     } catch (error) {
       logger.error(
         `Invalid database connection string${error instanceof Error ? `: ${error.message}` : ""}.`
@@ -107,7 +142,6 @@ async function getDbClient({
   let postgresUsername = "postgres";
   let postgresPassword = "";
 
-  // If no connection string provided, try default connection
   try {
     const defaultCredentials = {
       user: postgresUsername,
@@ -124,10 +158,8 @@ async function getDbClient({
       dbConnectionString: formatConnectionString(defaultCredentials),
     };
   } catch {
-    // Stop spinner before prompts
     spinnerRef?.stop();
 
-    // Ask for credentials
     const answers = await prompts([
       {
         type: "text",
@@ -149,7 +181,6 @@ async function getDbClient({
     postgresUsername = answers.postgresUsername;
     postgresPassword = answers.postgresPassword || "";
 
-    // Restart spinner after prompts
     spinnerRef?.start("Connecting to database...");
 
     try {
@@ -207,34 +238,21 @@ function formatConnectionString({
   return `postgresql://${user}:${encodedPassword}@${host}:${port}/${db}`;
 }
 
-async function runMigrations({
-  projectDir,
-}: {
-  projectDir: string;
-}): Promise<boolean> {
-  const apiDir = path.join(projectDir, "apps", "api");
-  const packageManager = await getPackageManager(apiDir);
-
-  const migrationSpinner = spinner("Running db:migrate command...").start();
+async function runMigrations({ projectDir, spinner: parentSpinner }: DbSetupArgs): Promise<boolean> {
+  const apiDir = path.join(projectDir, API_DIR);
+  const migrationSpinner = parentSpinner || spinner("Running migrations...").start();
 
   try {
-    let migrateCmd: string[];
+    // Build first - compiles TypeScript so ts-node is not needed
+    migrationSpinner.text = "Building project...";
+    await execa("npm", ["run", "build"], { cwd: apiDir });
 
-    if (packageManager === "yarn") {
-      migrateCmd = ["yarn", "db:migrate"];
-    } else if (packageManager === "pnpm") {
-      migrateCmd = ["pnpm", "run", "db:migrate"];
-    } else if (packageManager === "bun") {
-      migrateCmd = ["bun", "run", "db:migrate"];
-    } else {
-      migrateCmd = ["npm", "run", "db:migrate"];
+    migrationSpinner.text = "Running database migrations...";
+    await execa("npx", ["medusa", "db:migrate"], { cwd: apiDir });
+
+    if (!parentSpinner) {
+      migrationSpinner.succeed("Migrations completed successfully.");
     }
-
-    await execa(migrateCmd[0], migrateCmd.slice(1), {
-      cwd: apiDir,
-    });
-
-    migrationSpinner.succeed("Migrations completed successfully.");
     return true;
   } catch (err) {
     migrationSpinner.fail("Failed to run migrations.");
@@ -245,32 +263,40 @@ async function runMigrations({
   }
 }
 
-async function seedDatabase({
-  projectDir,
-}: {
-  projectDir: string;
-}): Promise<boolean> {
-  const apiDir = path.join(projectDir, "apps", "api");
-  const packageManager = await getPackageManager(apiDir);
-
-  const seedSpinner = spinner("Running db:seed command...").start();
+async function createAdminInvite({ projectDir }: { projectDir: string }): Promise<string | null> {
+  const apiDir = path.join(projectDir, API_DIR);
 
   try {
-    let seedCmd: string[];
-
-    if (packageManager === "yarn") {
-      seedCmd = ["yarn", "seed"];
-    } else if (packageManager === "pnpm") {
-      seedCmd = ["pnpm", "run", "seed"];
-    } else if (packageManager === "bun") {
-      seedCmd = ["bun", "run", "seed"];
-    } else {
-      seedCmd = ["npm", "run", "seed"];
-    }
-
-    await execa(seedCmd[0], seedCmd.slice(1), {
+    const result = await execa("npx", ["medusa", "user", "-e", ADMIN_EMAIL, "--invite"], {
       cwd: apiDir,
     });
+
+    // Parse token from stdout - same approach as Medusa CLI
+    const match = result.stdout.match(/Invite token: (?<token>.+)/);
+    return match?.groups?.token || null;
+  } catch (err) {
+    logger.error(
+      `Error creating admin invite${err instanceof Error ? `: ${err.message}` : ""}.`
+    );
+    return null;
+  }
+}
+
+async function seedDatabase({ projectDir }: { projectDir: string }): Promise<boolean> {
+  const apiDir = path.join(projectDir, API_DIR);
+  const packageManager = await getPackageManager(apiDir);
+  const seedSpinner = spinner("Seeding database...").start();
+
+  try {
+    const seedCmd = packageManager === "yarn"
+      ? ["yarn", "seed"]
+      : packageManager === "pnpm"
+        ? ["pnpm", "run", "seed"]
+        : packageManager === "bun"
+          ? ["bun", "run", "seed"]
+          : ["npm", "run", "seed"];
+
+    await execa(seedCmd[0], seedCmd.slice(1), { cwd: apiDir });
 
     seedSpinner.succeed("Database seeded successfully.");
     return true;

@@ -1,10 +1,11 @@
+import { exec } from "node:child_process";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import path from "path";
 
 import { clearRegistryContext } from "@/src/registry/context";
 import { sendTelemetryEvent, setTelemetryEmail } from "@/src/telemetry";
-import { setupDatabase } from "@/src/utils/create-db";
+import { setupDatabase, type SetupDatabaseResult } from "@/src/utils/create-db";
 import { getPackageManager } from "@/src/utils/get-package-manager";
 import { handleError } from "@/src/utils/handle-error";
 import { highlighter } from "@/src/utils/highlighter";
@@ -15,10 +16,12 @@ import { Command } from "commander";
 import { execa } from "execa";
 import fs from "fs-extra";
 import kleur from "kleur";
+import open from "open";
 import prompts from "prompts";
 import { x } from "tar";
 import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
+import waitOn from "wait-on";
 
 // todo: change to main after new release
 const DEFAULT_BRANCH = "new";
@@ -42,7 +45,7 @@ export const create = new Command()
     "the working directory. defaults to the current directory.",
     process.cwd()
   )
-  .option("--no-deps", "skip installing dependencies.", false)
+  .option("--no-deps", "skip installing dependencies.")
   .option("--skip-db", "skip database configuration.", false)
   .option("--skip-email", "skip email prompt.", false)
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
@@ -50,7 +53,6 @@ export const create = new Command()
     try {
       validateNodeVersion();
 
-      // Prompt for project name if not provided.
       let projectName = name;
       if (!projectName) {
         const { enteredName } = await prompts({
@@ -76,7 +78,6 @@ export const create = new Command()
 
         projectName = enteredName;
 
-        // Prompt for template if not provided.
         let template = opts.template;
         if (!template) {
           const { selectedTemplate } = await prompts({
@@ -114,16 +115,17 @@ export const create = new Command()
         if (!opts.deps) {
           spinner("Dependency installation skipped.").warn();
         } else {
-          const installSpinner = spinner("Installing dependencies...").start();
+          const initialInstallSpinner = spinner("Installing dependencies...").start();
+          const installStart = Date.now();
           const result = await installDeps({
             projectDir,
             packageManager,
           });
+          const installDuration = ((Date.now() - installStart) / 1000).toFixed(1);
           if (result) {
-            installSpinner.succeed("Dependencies installed successfully.");
+            initialInstallSpinner.succeed(`Dependencies installed successfully in ${installDuration}s.`);
           } else {
-            spinner("Failed to install dependencies.").fail();
-            logger.log(feedbackOutro());
+            initialInstallSpinner.fail(`Failed to install dependencies`);
             await sendTelemetryEvent({
               type: 'create',
               payload: {
@@ -137,20 +139,22 @@ export const create = new Command()
           }
         }
 
-        // Database setup
         let dbConnectionString: string | undefined = opts.dbConnectionString;
+        let dbResult: SetupDatabaseResult | undefined;
+
         if (!opts.skipDb) {
           const dbSpinner = spinner("Setting up database...").start();
-          const dbResult = await setupDatabase({
+          dbResult = await setupDatabase({
             projectDir,
             projectName,
-            dbConnectionString: opts.dbConnectionString,
+            dbConnectionString,
             spinner: dbSpinner,
           });
+
           if (dbResult.success) {
             if (dbResult.alreadyExists) {
               dbSpinner.warn(
-                `Database ${highlighter.info(dbResult.dbName)} already exists. Skipping database setup.`
+                `Database ${highlighter.info(dbResult.dbName)} already exists. Skipping database creation.`
               );
             } else {
               dbSpinner.succeed(
@@ -166,9 +170,7 @@ export const create = new Command()
               payload: {
                 outcome: 'database_setup_failed',
               }
-            }, {
-              cwd: projectDir,
-            })
+            }, { cwd: projectDir });
             process.exit(1);
           }
         } else {
@@ -202,13 +204,6 @@ export const create = new Command()
           databaseUri: dbConnectionString,
         });
 
-        logger.break();
-        logger.info("Mercur project successfully created!");
-        logger.log(kleur.bgGreen(kleur.black(" Next Steps ")));
-        logger.log(successMessage(projectDir, packageManager));
-        logger.log(feedbackOutro());
-        logger.break();
-
         await initGit(projectDir);
 
         await sendTelemetryEvent({
@@ -218,7 +213,46 @@ export const create = new Command()
           }
         }, {
           cwd: projectDir,
-        })
+        });
+
+        spinner("Mercur project successfully created!").succeed();
+
+        if (dbResult?.success) {
+          spinner("Starting development server...").info();
+
+          const apiDir = path.join(projectDir, "packages", "api");
+          const inviteUrl = dbResult.inviteToken
+            ? `http://localhost:9000/app/invite?token=${dbResult.inviteToken}&first_run=true`
+            : "http://localhost:9000/app";
+
+          const serverProcess = exec(`${packageManager === "npm" ? "npm run" : packageManager} dev`, {
+            cwd: apiDir,
+            env: process.env,
+          });
+
+          serverProcess.stdout?.pipe(process.stdout);
+          serverProcess.stderr?.pipe(process.stderr);
+
+          waitOn({
+            resources: ["http://localhost:9000/health"],
+            timeout: 60000,
+          }).then(async () => {
+            try {
+              await open(inviteUrl);
+            } catch {
+              spinner("Open this URL in your browser to create your admin account:").info();
+              logger.log(highlighter.info(inviteUrl));
+            }
+          }).catch(() => {
+            spinner("To create your admin account, visit:").info();
+            logger.log(highlighter.info(inviteUrl));
+          });
+        } else {
+          logger.log(kleur.bgGreen(kleur.black(" Next Steps ")));
+          logger.log(successMessage(projectDir, packageManager));
+          logger.log(feedbackOutro());
+          logger.break();
+        }
       }
     } catch (error) {
       logger.break();
@@ -288,7 +322,13 @@ async function installDeps({
   }
 
   try {
-    await execa(cmd, args, { cwd: path.resolve(projectDir) });
+    await execa(cmd, args, {
+      cwd: path.resolve(projectDir),
+      stdin: "inherit",
+      stdout: "inherit",
+      stderr: "inherit",
+      env: { ...process.env, npm_config_yes: "true" },
+    });
     return true;
   } catch (err: unknown) {
     logger.error(
@@ -351,3 +391,4 @@ function validateNodeVersion(): void {
     );
   }
 }
+
