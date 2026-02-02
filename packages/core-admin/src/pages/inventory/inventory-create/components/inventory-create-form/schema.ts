@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { optionalInt } from "../../../../../lib/validation"
+import { optionalInt } from "@lib/validation"
 
 export const CreateInventoryItemSchema = z.object({
   title: z.string().min(1),

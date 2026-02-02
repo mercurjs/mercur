@@ -17,26 +17,26 @@ import { z } from "zod"
 import { MagnifyingGlass } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { useTranslation } from "react-i18next"
-import { Form } from "../../../../../components/common/form"
-import { SwitchBox } from "../../../../../components/common/switch-box"
-import { PercentageInput } from "../../../../../components/inputs/percentage-input"
+import { Form } from "@components/common/form"
+import { SwitchBox } from "@components/common/switch-box"
+import { PercentageInput } from "@components/inputs/percentage-input"
 import {
   RouteFocusModal,
   StackedFocusModal,
   useRouteModal,
   useStackedModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateTaxRate } from "../../../../../hooks/api/tax-rates"
-import { TargetForm } from "../../../common/components/target-form/target-form"
-import { TargetItem } from "../../../common/components/target-item/target-item"
-import { TaxRateRuleReferenceType } from "../../../common/constants"
+} from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useCreateTaxRate } from "@hooks/api/tax-rates"
+import { TargetForm } from "@pages/tax-regions/common/components/target-form/target-form"
+import { TargetItem } from "@pages/tax-regions/common/components/target-item/target-item"
+import { TaxRateRuleReferenceType } from "@pages/tax-regions/common/constants"
 import {
   TaxRateRuleReference,
   TaxRateRuleReferenceSchema,
-} from "../../../common/schemas"
-import { createTaxRulePayload } from "../../../common/utils"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+} from "@pages/tax-regions/common/schemas"
+import { createTaxRulePayload } from "@pages/tax-regions/common/utils"
+import { useDocumentDirection } from "@hooks/use-document-direction"
 
 const TaxRegionCreateTaxOverrideSchema = z.object({
   name: z.string().min(1),

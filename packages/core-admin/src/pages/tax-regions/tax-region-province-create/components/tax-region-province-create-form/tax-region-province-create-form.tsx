@@ -6,17 +6,17 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
-import { Form } from "../../../../../components/common/form"
-import { SwitchBox } from "../../../../../components/common/switch-box"
-import { PercentageInput } from "../../../../../components/inputs/percentage-input"
-import { ProvinceSelect } from "../../../../../components/inputs/province-select"
+import { Form } from "@components/common/form"
+import { SwitchBox } from "@components/common/switch-box"
+import { PercentageInput } from "@components/inputs/percentage-input"
+import { ProvinceSelect } from "@components/inputs/province-select"
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateTaxRegion } from "../../../../../hooks/api/tax-regions"
-import { getCountryProvinceObjectByIso2 } from "../../../../../lib/data/country-states"
+} from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useCreateTaxRegion } from "@hooks/api/tax-regions"
+import { getCountryProvinceObjectByIso2 } from "@lib/data/country-states"
 
 type TaxRegionProvinceCreateFormProps = {
   parent: HttpTypes.AdminTaxRegion

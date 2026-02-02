@@ -10,11 +10,11 @@ import { Link } from "react-router-dom";
 import {
   NoRecords,
   NoResults,
-} from "../../../../../components/common/empty-table-content";
-import { TableFooterSkeleton } from "../../../../../components/common/skeleton";
-import { LocalizedTablePagination } from "../../../../../components/localization/localized-table-pagination";
-import { DataTableOrderBy } from "../../../../../components/table/data-table/data-table-order-by";
-import { TaxRegionCard } from "../tax-region-card";
+} from "@components/common/empty-table-content";
+import { TableFooterSkeleton } from "@components/common/skeleton";
+import { LocalizedTablePagination } from "@components/localization/localized-table-pagination";
+import { DataTableOrderBy } from "@components/table/data-table/data-table-order-by";
+import { TaxRegionCard } from "@pages/tax-regions/common/components/tax-region-card";
 
 type TaxRegionTableProps = {
   variant?: "country" | "province";

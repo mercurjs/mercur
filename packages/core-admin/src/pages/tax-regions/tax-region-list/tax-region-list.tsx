@@ -1,6 +1,6 @@
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
-import { TaxRegionListView } from "./components/tax-region-list-view"
+import { SingleColumnPage } from "@components/layout/pages"
+import { useExtension } from "@providers/extension-provider"
+import { TaxRegionListView } from "@pages/tax-regions/tax-region-list/components/tax-region-list-view"
 
 export const TaxRegionsList = () => {
   const { getWidgets } = useExtension()

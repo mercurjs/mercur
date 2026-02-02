@@ -3,14 +3,15 @@ import { Button, Heading, Input, Text, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
-import { Form } from "../../../../../components/common/form"
-import { CountrySelect } from "../../../../../components/inputs/country-select"
+
+import { Form } from "@components/common/form"
+import { CountrySelect } from "@components/inputs/country-select"
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateStockLocation } from "../../../../../hooks/api/stock-locations"
+} from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useCreateStockLocation } from "@hooks/api/stock-locations"
 
 const CreateLocationSchema = zod.object({
   name: zod.string().min(1),

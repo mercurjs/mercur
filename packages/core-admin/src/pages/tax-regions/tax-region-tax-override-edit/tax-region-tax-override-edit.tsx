@@ -3,12 +3,12 @@ import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
-import { TaxRateRuleReferenceType } from "../common/constants"
+import { TaxRateRuleReferenceType } from "@pages/tax-regions/common/constants"
 import {
   DISPLAY_OVERRIDE_ITEMS_LIMIT,
   TaxRegionTaxOverrideEditForm,
-} from "./components/tax-region-tax-override-edit-form"
-import type { InitialRuleValues } from "./types"
+} from "@pages/tax-regions/tax-region-tax-override-edit/components/tax-region-tax-override-edit-form"
+import type { InitialRuleValues } from "@pages/tax-regions/tax-region-tax-override-edit/types"
 import type { ExtendedAdminTaxRate } from "@custom-types/tax-rates"
 import { useProductTypes, useProducts, useShippingOptions, useTaxRate } from "@hooks/api"
 import { RouteDrawer } from "@components/modals"

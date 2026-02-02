@@ -23,34 +23,34 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { NoRecords } from "../../../../../components/common/empty-table-content"
-import { IconAvatar } from "../../../../../components/common/icon-avatar"
-import { LinkButton } from "../../../../../components/common/link-button"
-import { ListSummary } from "../../../../../components/common/list-summary"
+import { ActionMenu } from "@components/common/action-menu"
+import { NoRecords } from "@components/common/empty-table-content"
+import { IconAvatar } from "@components/common/icon-avatar"
+import { LinkButton } from "@components/common/link-button"
+import { ListSummary } from "@components/common/list-summary"
 import {
   useDeleteFulfillmentServiceZone,
   useDeleteFulfillmentSet,
-} from "../../../../../hooks/api/fulfillment-sets"
-import { useDeleteShippingOption } from "../../../../../hooks/api/shipping-options"
+} from "@hooks/api/fulfillment-sets"
+import { useDeleteShippingOption } from "@hooks/api/shipping-options"
 import {
   useCreateStockLocationFulfillmentSet,
   useDeleteStockLocation,
-} from "../../../../../hooks/api/stock-locations"
-import { getFormattedAddress } from "../../../../../lib/addresses"
+} from "@hooks/api/stock-locations"
+import { getFormattedAddress } from "@lib/addresses"
 import {
   StaticCountry,
   countries as staticCountries,
-} from "../../../../../lib/data/countries"
-import { formatProvider } from "../../../../../lib/format-provider"
+} from "@lib/data/countries"
+import { formatProvider } from "@lib/format-provider"
 import {
   isOptionEnabledInStore,
   isReturnOption,
-} from "../../../../../lib/shipping-options"
+} from "@lib/shipping-options"
 import {
   FulfillmentSetType,
   ShippingOptionPriceType,
-} from "../../../common/constants"
+} from "@pages/locations/_common/constants"
 
 type LocationGeneralSectionProps = {
   location: HttpTypes.AdminStockLocation

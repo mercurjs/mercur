@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next"
 import {
   DataGrid,
   createDataGridHelper,
-} from "../../../../../components/data-grid"
-import { useRouteModal } from "../../../../../components/modals"
+} from "@components/data-grid"
+import { useRouteModal } from "@components/modals"
 import { CreateInventoryItemSchema } from "./schema"
 
 type InventoryAvailabilityFormProps = {

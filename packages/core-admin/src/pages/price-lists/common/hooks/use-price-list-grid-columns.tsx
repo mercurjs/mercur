@@ -3,12 +3,12 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Thumbnail } from "../../../../components/common/thumbnail"
+import { Thumbnail } from "@components/common/thumbnail"
 import {
   createDataGridHelper,
   DataGrid,
-} from "../../../../components/data-grid"
-import { createDataGridPriceColumns } from "../../../../components/data-grid/helpers/create-data-grid-price-columns"
+} from "@components/data-grid"
+import { createDataGridPriceColumns } from "@components/data-grid/helpers/create-data-grid-price-columns"
 import { PricingCreateSchemaType } from "../../price-list-create/components/price-list-create-form/schema"
 import { isProductRow } from "../utils"
 

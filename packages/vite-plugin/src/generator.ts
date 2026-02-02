@@ -1,16 +1,28 @@
-import type { ScannedFiles, ResolvedRoute } from './types'
+import type { ScannedFiles, PageInfo, PageExports } from './types'
 import { findClosestMatch } from './resolver'
 
 interface GeneratedImport {
   name: string
   path: string
+  namedExports?: string[]  // For importing multiple named exports
+}
+
+interface PageImportInfo {
+  componentName: string
+  loaderName?: string
+  handleName?: string
+  breadcrumbName?: string
+  filePath: string
+  exports: PageExports
 }
 
 /**
  * Sort routes: static first, then dynamic, then catch-all
+ * Also sorts by path depth (shallower first)
  */
-function sortRoutes(routes: [string, string][]): [string, string][] {
+function sortRoutes<T>(routes: [string, T][]): [string, T][] {
   return routes.sort(([a], [b]) => {
+    // First by dynamic/catch-all score
     const scoreA = (a.includes(':') ? 1 : 0) + (a.includes('*') ? 2 : 0)
     const scoreB = (b.includes(':') ? 1 : 0) + (b.includes('*') ? 2 : 0)
 
@@ -18,36 +30,31 @@ function sortRoutes(routes: [string, string][]): [string, string][] {
       return scoreA - scoreB
     }
 
+    // Then by path depth
+    const depthA = a.split('/').length
+    const depthB = b.split('/').length
+    if (depthA !== depthB) {
+      return depthA - depthB
+    }
+
+    // Finally alphabetically
     return a.localeCompare(b)
   })
 }
 
 /**
- * Generate import statements from a list of imports
- */
-function generateImportStatements(imports: GeneratedImport[], useNamedExport?: string): string {
-  return imports
-    .map(({ name, path }) =>
-      useNamedExport
-        ? `import { ${useNamedExport} as ${name} } from '${path}'`
-        : `import ${name} from '${path}'`
-    )
-    .join('\n')
-}
-
-/**
- * Generate imports for layouts
+ * Generate import statements for layouts (default export)
  */
 function generateLayoutImports(
   layouts: Map<string, string>
-): { imports: GeneratedImport[]; nameMap: Map<string, string> } {
-  const imports: GeneratedImport[] = []
+): { imports: string[]; nameMap: Map<string, string> } {
+  const imports: string[] = []
   const nameMap = new Map<string, string>()
 
   let index = 0
   for (const [routePath, filePath] of layouts.entries()) {
     const name = `Layout${index++}`
-    imports.push({ name, path: filePath })
+    imports.push(`import ${name} from '${filePath}'`)
     nameMap.set(routePath, name)
   }
 
@@ -55,18 +62,18 @@ function generateLayoutImports(
 }
 
 /**
- * Generate imports for error boundaries
+ * Generate import statements for error boundaries (default export)
  */
 function generateErrorImports(
   errors: Map<string, string>
-): { imports: GeneratedImport[]; nameMap: Map<string, string> } {
-  const imports: GeneratedImport[] = []
+): { imports: string[]; nameMap: Map<string, string> } {
+  const imports: string[] = []
   const nameMap = new Map<string, string>()
 
   let index = 0
   for (const [routePath, filePath] of errors.entries()) {
     const name = `ErrorBoundary${index++}`
-    imports.push({ name, path: filePath })
+    imports.push(`import ${name} from '${filePath}'`)
     nameMap.set(routePath, name)
   }
 
@@ -74,79 +81,102 @@ function generateErrorImports(
 }
 
 /**
- * Generate imports for pages
+ * Generate import statements for pages
+ * Imports Component and optionally loader, handle, Breadcrumb
  */
 function generatePageImports(
-  pages: Map<string, string>
-): { imports: GeneratedImport[]; routeToName: Map<string, string> } {
-  const imports: GeneratedImport[] = []
-  const routeToName = new Map<string, string>()
+  pages: Map<string, PageInfo>
+): { imports: string[]; pageInfoMap: Map<string, PageImportInfo> } {
+  const imports: string[] = []
+  const pageInfoMap = new Map<string, PageImportInfo>()
 
   const sortedRoutes = sortRoutes(Array.from(pages.entries()))
 
   let index = 0
-  for (const [routePath, filePath] of sortedRoutes) {
-    const name = `Page${index++}`
-    imports.push({ name, path: filePath })
-    routeToName.set(routePath, name)
-  }
+  for (const [routePath, pageInfo] of sortedRoutes) {
+    const { filePath, exports } = pageInfo
+    const baseIndex = index++
 
-  return { imports, routeToName }
-}
-
-/**
- * Resolve routes with their layouts and error boundaries
- */
-function resolveRoutes(
-  pages: Map<string, string>,
-  layoutMap: Map<string, string>,
-  errorMap: Map<string, string>,
-  pageNameMap: Map<string, string>
-): ResolvedRoute[] {
-  const routes: ResolvedRoute[] = []
-  const sortedRoutes = sortRoutes(Array.from(pages.entries()))
-
-  for (const [routePath, filePath] of sortedRoutes) {
-    const layoutName = findClosestMatch(routePath, layoutMap)
-    const errorName = findClosestMatch(routePath, errorMap)
-
-    routes.push({
-      path: routePath,
+    // Build list of named exports to import
+    const namedImports: string[] = []
+    const importInfo: PageImportInfo = {
+      componentName: `Page${baseIndex}`,
       filePath,
-      source: 'user', // Will be set correctly in plugin
-      layoutPath: layoutName || undefined,
-      errorPath: errorName || undefined,
-    })
+      exports,
+    }
+
+    // Component is always imported
+    namedImports.push(`Component as Page${baseIndex}`)
+
+    // Optionally import loader
+    if (exports.hasLoader) {
+      importInfo.loaderName = `loader${baseIndex}`
+      namedImports.push(`loader as loader${baseIndex}`)
+    }
+
+    // Optionally import handle
+    if (exports.hasHandle) {
+      importInfo.handleName = `handle${baseIndex}`
+      namedImports.push(`handle as handle${baseIndex}`)
+    }
+
+    // Optionally import Breadcrumb
+    if (exports.hasBreadcrumb) {
+      importInfo.breadcrumbName = `Breadcrumb${baseIndex}`
+      namedImports.push(`Breadcrumb as Breadcrumb${baseIndex}`)
+    }
+
+    imports.push(`import { ${namedImports.join(', ')} } from '${filePath}'`)
+    pageInfoMap.set(routePath, importInfo)
   }
 
-  return routes
+  return { imports, pageInfoMap }
 }
 
 /**
  * Serialize a route object to JavaScript code
- * Uses $$ markers for component references that get unquoted
+ * Uses $$ markers for references that get unquoted
  */
 function serializeRouteObject(
   routePath: string,
-  pageName: string,
+  pageInfo: PageImportInfo,
   layoutName?: string,
   errorName?: string
 ): string {
-  const obj: Record<string, unknown> = {
-    path: routePath,
-    Component: `$$${pageName}$$`,
+  const parts: string[] = []
+
+  // Path
+  parts.push(`path: ${JSON.stringify(routePath)}`)
+
+  // Component (always present)
+  parts.push(`Component: ${pageInfo.componentName}`)
+
+  // Loader (optional)
+  if (pageInfo.loaderName) {
+    parts.push(`loader: ${pageInfo.loaderName}`)
   }
 
+  // Handle (optional)
+  if (pageInfo.handleName) {
+    parts.push(`handle: ${pageInfo.handleName}`)
+  }
+
+  // Breadcrumb (optional)
+  if (pageInfo.breadcrumbName) {
+    parts.push(`Breadcrumb: ${pageInfo.breadcrumbName}`)
+  }
+
+  // Layout (optional, from closest _layout.tsx)
   if (layoutName) {
-    obj.Layout = `$$${layoutName}$$`
+    parts.push(`Layout: ${layoutName}`)
   }
 
+  // ErrorBoundary (optional, from closest _error.tsx)
   if (errorName) {
-    obj.ErrorBoundary = `$$${errorName}$$`
+    parts.push(`ErrorBoundary: ${errorName}`)
   }
 
-  // Serialize and remove quotes around $$ markers
-  return JSON.stringify(obj).replace(/"?\$\$(\w+)\$\$"?/g, '$1')
+  return `{ ${parts.join(', ')} }`
 }
 
 /**
@@ -160,28 +190,25 @@ export function generateRoutesCode(scannedFiles: ScannedFiles): string {
     generateLayoutImports(layouts)
   const { imports: errorImports, nameMap: errorNameMap } =
     generateErrorImports(errors)
-  const { imports: pageImports, routeToName: pageNameMap } =
+  const { imports: pageImports, pageInfoMap } =
     generatePageImports(pages)
 
   // Generate route objects
   const sortedRoutes = sortRoutes(Array.from(pages.entries()))
   const routeObjects = sortedRoutes.map(([routePath]) => {
-    const pageName = pageNameMap.get(routePath)!
+    const pageInfo = pageInfoMap.get(routePath)!
     const layoutName = findClosestMatch(routePath, layoutNameMap) || undefined
     const errorName = findClosestMatch(routePath, errorNameMap) || undefined
 
-    return serializeRouteObject(routePath, pageName, layoutName, errorName)
+    return serializeRouteObject(routePath, pageInfo, layoutName, errorName)
   })
 
   // Combine all imports
-  // Pages use named export { Component }, layouts and errors use default export
   const allImports = [
-    generateImportStatements(layoutImports),
-    generateImportStatements(errorImports),
-    generateImportStatements(pageImports, 'Component'),
-  ]
-    .filter(Boolean)
-    .join('\n')
+    ...layoutImports,
+    ...errorImports,
+    ...pageImports,
+  ].filter(Boolean).join('\n')
 
   return `${allImports}
 

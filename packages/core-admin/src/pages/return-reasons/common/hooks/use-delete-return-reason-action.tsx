@@ -1,7 +1,8 @@
 import { AdminReturnReason } from "@medusajs/types"
 import { toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
-import { useDeleteReturnReason } from "../../../../hooks/api/return-reasons"
+
+import { useDeleteReturnReason } from "@hooks/api/return-reasons"
 
 export const useDeleteReturnReasonAction = ({
   id,

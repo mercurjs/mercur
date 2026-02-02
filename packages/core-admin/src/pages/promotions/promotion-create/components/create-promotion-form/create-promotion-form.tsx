@@ -37,7 +37,7 @@ import { useCampaigns } from '../../../../../hooks/api/campaigns';
 import { useCreatePromotion } from '../../../../../hooks/api/promotions';
 import { useDocumentDirection } from '../../../../../hooks/use-document-direction';
 import { currencies, getCurrencySymbol } from '../../../../../lib/data/currencies';
-import { DEFAULT_CAMPAIGN_VALUES } from '../../../../campaigns/common/constants';
+import { DEFAULT_CAMPAIGN_VALUES } from '@pages/campaigns/_common/constants';
 import { RulesFormField } from '../../../common/edit-rules/components/rules-form-field';
 import { AddCampaignPromotionFields } from '../../../promotion-add-campaign/components/add-campaign-promotion-form';
 import { Tab } from './constants';

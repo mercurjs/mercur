@@ -3,11 +3,11 @@ import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { NoRecords } from "../../../../../components/common/empty-table-content"
-import { IconAvatar } from "../../../../../components/common/icon-avatar"
-import { ListSummary } from "../../../../../components/common/list-summary"
-import { useSalesChannels } from "../../../../../hooks/api/sales-channels"
+import { ActionMenu } from "@components/common/action-menu"
+import { NoRecords } from "@components/common/empty-table-content"
+import { IconAvatar } from "@components/common/icon-avatar"
+import { ListSummary } from "@components/common/list-summary"
+import { useSalesChannels } from "@hooks/api/sales-channels"
 
 type LocationsSalesChannelsSectionProps = {
   location: HttpTypes.AdminStockLocation

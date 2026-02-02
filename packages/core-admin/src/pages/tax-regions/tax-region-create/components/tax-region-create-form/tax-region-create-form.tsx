@@ -5,20 +5,20 @@ import { z } from "zod"
 import { InformationCircleSolid } from "@medusajs/icons"
 import { Button, Heading, Input, Text, toast, Tooltip } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
-import { Form } from "../../../../../components/common/form"
-import { CountrySelect } from "../../../../../components/inputs/country-select"
-import { PercentageInput } from "../../../../../components/inputs/percentage-input"
+import { Form } from "@components/common/form"
+import { CountrySelect } from "@components/inputs/country-select"
+import { PercentageInput } from "@components/inputs/percentage-input"
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateTaxRegion } from "../../../../../hooks/api"
-import { useComboboxData } from "../../../../../hooks/use-combobox-data"
-import { Combobox } from "../../../../../components/inputs/combobox"
-import { formatProvider } from "../../../../../lib/format-provider"
-import { sdk } from "../../../../../lib/client"
-import { i18n } from "../../../../../components/utilities/i18n"
+} from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useCreateTaxRegion } from "@hooks/api"
+import { useComboboxData } from "@hooks/use-combobox-data"
+import { Combobox } from "@components/inputs/combobox"
+import { formatProvider } from "@lib/format-provider"
+import { sdk } from "@lib/client"
+import { i18n } from "@components/utilities/i18n"
 
 type TaxRegionCreateFormProps = {
   parentId?: string

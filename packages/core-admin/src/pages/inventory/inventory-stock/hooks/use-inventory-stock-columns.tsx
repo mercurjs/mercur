@@ -1,9 +1,9 @@
 import { HttpTypes } from "@medusajs/types"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { createDataGridHelper } from "../../../../components/data-grid"
-import { DataGridReadOnlyCell } from "../../../../components/data-grid/components"
-import { DataGridTogglableNumberCell } from "../../../../components/data-grid/components/data-grid-toggleable-number-cell"
+import { createDataGridHelper } from "@components/data-grid"
+import { DataGridReadOnlyCell } from "@components/data-grid/components"
+import { DataGridTogglableNumberCell } from "@components/data-grid/components/data-grid-toggleable-number-cell"
 import { InventoryStockSchema } from "../schema"
 
 const helper = createDataGridHelper<

@@ -1,6 +1,6 @@
 import { XMarkMini } from "@medusajs/icons"
 import { IconButton, Text } from "@medusajs/ui"
-import { useProduct } from "../../../../../hooks/api"
+import { useProduct } from "@hooks/api"
 
 type TargetItemProps = {
   index: number

@@ -1,9 +1,9 @@
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { RouteDrawer } from "../../../components/modals"
-import { TaxRegionEditForm } from "./components/tax-region-edit"
-import { useTaxRegion } from "../../../hooks/api"
+import { RouteDrawer } from "@components/modals"
+import { TaxRegionEditForm } from "@pages/tax-regions/tax-region-edit/components/tax-region-edit"
+import { useTaxRegion } from "@hooks/api"
 
 export const TaxRegionEdit = () => {
   const { t } = useTranslation()

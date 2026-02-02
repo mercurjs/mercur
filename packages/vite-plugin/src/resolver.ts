@@ -15,6 +15,8 @@ const require = createRequire(import.meta.url)
  * filePathToRoutePath('products/[id].tsx') // '/products/:id'
  * filePathToRoutePath('products/[id]/edit.tsx') // '/products/:id/edit'
  * filePathToRoutePath('[...slug].tsx') // '/*'
+ * filePathToRoutePath('(public)/login/index.tsx') // '/login' (route group stripped)
+ * filePathToRoutePath('(auth)/settings/profile/index.tsx') // '/settings/profile'
  */
 export function filePathToRoutePath(filePath: string): string {
   let route = filePath
@@ -23,6 +25,9 @@ export function filePathToRoutePath(filePath: string): string {
     // Remove index
     .replace(/\/index$/, '')
     .replace(/^index$/, '')
+    // Remove route groups (folders in parentheses) - they don't affect URL
+    .replace(/\([^)]+\)\//g, '')
+    .replace(/^\([^)]+\)$/, '')
     // Convert [...param] to * (catch-all)
     .replace(/\[\.\.\.(\w+)\]/g, '*')
     // Convert [param] to :param
@@ -62,10 +67,22 @@ export function getSpecialFileType(
 
 /**
  * Get route path for a directory (used for layouts/errors)
+ * Strips route groups from the path
  */
 export function getDirectoryRoutePath(filePath: string): string {
-  const dirPath = path.dirname(filePath)
-  return dirPath === '.' ? '/' : '/' + dirPath
+  let dirPath = path.dirname(filePath)
+
+  // Remove route groups (folders in parentheses)
+  dirPath = dirPath
+    .replace(/\([^)]+\)\//g, '')
+    .replace(/^\([^)]+\)$/, '')
+    .replace(/\/\([^)]+\)/g, '')
+
+  if (dirPath === '.' || dirPath === '') {
+    return '/'
+  }
+
+  return '/' + dirPath
 }
 
 /**

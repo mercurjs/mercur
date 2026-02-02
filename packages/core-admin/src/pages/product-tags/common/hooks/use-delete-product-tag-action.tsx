@@ -2,7 +2,7 @@ import { HttpTypes } from "@medusajs/types"
 import { toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
-import { useDeleteProductTag } from "../../../../hooks/api"
+import { useDeleteProductTag } from "@hooks/api"
 
 type UseDeleteProductTagActionProps = {
   productTag: HttpTypes.AdminProductTag
