@@ -1,10 +1,10 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import { createFindParams } from '@medusajs/medusa/api/utils/validators';
 
 export type VendorGetRequestsParamsType = z.infer<
   typeof VendorGetRequestsParams
->
+>;
 export const VendorGetRequestsParams = createFindParams({
   offset: 0,
   limit: 50
@@ -21,7 +21,7 @@ export const VendorGetRequestsParams = createFindParams({
     ])
     .optional(),
   status: z.enum(['accepted', 'rejected', 'pending']).optional()
-})
+});
 
 /**
  * @schema ProductCategoryRequest
@@ -70,13 +70,15 @@ const ProductCategoryRequest = z.object({
     handle: z.string(),
     description: z.string().optional(),
     parent_category_id: z.string().nullable().default(null),
-    details: z.object({
-      icon: z.string().nullable().default(null),
-      banner: z.string().nullable().default(null),
-      thumbnail: z.string().nullable().default(null),
-    }).optional()
+    details: z
+      .object({
+        icon: z.string().nullable().default(null),
+        banner: z.string().nullable().default(null),
+        thumbnail: z.string().nullable().default(null)
+      })
+      .optional()
   })
-})
+});
 
 /**
  * @schema ProductCollectionRequest
@@ -97,21 +99,39 @@ const ProductCategoryRequest = z.object({
  *         description: The title of the product collection
  *       handle:
  *         type: string
- *         description: The description of the product category
+ *         description: The handle of the product collection
+ *       details:
+ *         type: object
+ *         description: Media details for the collection
+ *         properties:
+ *           icon:
+ *             type: string
+ *             nullable: true
+ *           banner:
+ *             type: string
+ *             nullable: true
+ *           thumbnail:
+ *             type: string
+ *             nullable: true
+ *           rank:
+ *             type: number
+ *             nullable: true
  */
 const ProductCollectionRequest = z.object({
   type: z.literal('product_collection'),
   data: z.object({
     title: z.string(),
     handle: z.string(),
-    details: z.object({
-      icon: z.string().nullable().default(null),
-      banner: z.string().nullable().default(null),
-      thumbnail: z.string().nullable().default(null),
-      rank: z.number().nullable().default(null),
-    }).optional()
+    details: z
+      .object({
+        icon: z.string().nullable().default(null),
+        banner: z.string().nullable().default(null),
+        thumbnail: z.string().nullable().default(null),
+        rank: z.number().nullable().default(null)
+      })
+      .optional()
   })
-})
+});
 
 /**
  * @schema ProductCollectionUpdateRequest
@@ -146,7 +166,7 @@ const ProductCollectionUpdateRequest = z.object({
     title: z.string().optional(),
     handle: z.string().optional()
   })
-})
+});
 
 /**
  * @schema ReviewRemoveRequest
@@ -175,7 +195,7 @@ const ReviewRemoveRequest = z.object({
     review_id: z.string(),
     reason: z.string()
   })
-})
+});
 
 /**
  * @schema ProductTypeRequest
@@ -204,7 +224,7 @@ const ProductTypeRequest = z.object({
     value: z.string(),
     metadata: z.record(z.unknown()).nullish()
   })
-})
+});
 
 /**
  * @schema ProductTagRequest
@@ -233,7 +253,7 @@ const ProductTagRequest = z.object({
     value: z.string(),
     metadata: z.record(z.unknown()).nullish()
   })
-})
+});
 
 /**
  * @schema VendorCreateRequest
@@ -251,7 +271,7 @@ const ProductTagRequest = z.object({
  *       - $ref: "#/components/schemas/ProductTypeRequest"
  *       - $ref: "#/components/schemas/ProductTagRequest"
  */
-export type VendorCreateRequestType = z.infer<typeof VendorCreateRequest>
+export type VendorCreateRequestType = z.infer<typeof VendorCreateRequest>;
 export const VendorCreateRequest = z.object({
   request: z.discriminatedUnion('type', [
     ProductCategoryRequest,
@@ -261,7 +281,7 @@ export const VendorCreateRequest = z.object({
     ProductTypeRequest,
     ProductTagRequest
   ])
-})
+});
 
 const UpdateProductCollectionRequest = z.object({
   type: z.literal('product_collection'),
@@ -269,7 +289,7 @@ const UpdateProductCollectionRequest = z.object({
     title: z.string().optional(),
     handle: z.string().optional()
   })
-})
+});
 
 const UpdateReviewRemoveRequest = z.object({
   type: z.literal('review_remove'),
@@ -277,7 +297,7 @@ const UpdateReviewRemoveRequest = z.object({
     review_id: z.string().optional(),
     reason: z.string().optional()
   })
-})
+});
 
 const UpdateProductCategoryRequest = z.object({
   type: z.literal('product_category'),
@@ -287,7 +307,7 @@ const UpdateProductCategoryRequest = z.object({
     description: z.string().optional(),
     parent_category_id: z.string().nullable().optional()
   })
-})
+});
 
 /**
  * @schema VendorUpdateRequestData
@@ -307,7 +327,7 @@ const UpdateProductCategoryRequest = z.object({
  */
 export type VendorUpdateRequestDataType = z.infer<
   typeof VendorUpdateRequestData
->
+>;
 export const VendorUpdateRequestData = z.object({
   request: z.discriminatedUnion('type', [
     UpdateProductCategoryRequest,
@@ -316,4 +336,4 @@ export const VendorUpdateRequestData = z.object({
     ProductTypeRequest,
     ProductTagRequest
   ])
-})
+});
