@@ -122,11 +122,10 @@ export const create = new Command()
             packageManager,
           });
           const installDuration = ((Date.now() - installStart) / 1000).toFixed(1);
-          initialInstallSpinner.succeed(`Dependencies installed successfully in ${installDuration}s.`);
           if (result) {
-            initialInstallSpinner.fail("Failed to install dependencies.");
+            initialInstallSpinner.succeed(`Dependencies installed successfully in ${installDuration}s.`);
           } else {
-            initialInstallSpinner.fail("Failed to install dependencies.");
+            initialInstallSpinner.fail(`Failed to install dependencies`);
             await sendTelemetryEvent({
               type: 'create',
               payload: {
