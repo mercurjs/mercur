@@ -63,13 +63,14 @@ ${deletesContent}
 `;
 }
 
-export async function writeRouteTypes(rootDir: string, watchDir: string) {
+export async function writeRouteTypes(rootDir: string) {
     const entryFilePath = path.join(rootDir, DIST_DIR, "routes.d.ts");
+    const apiDir = path.join(rootDir, "src", "api");
     const entryDir = path.dirname(entryFilePath);
 
     await ensureDir(entryDir);
 
-    const routes = await getRoutes(watchDir);
+    const routes = await getRoutes(apiDir);
     const routeTypes = generateRouteTypes(routes);
 
     await fs.writeFile(entryFilePath, routeTypes, "utf-8");

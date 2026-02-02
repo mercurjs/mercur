@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@antfu/ni": "^27.0.1",
+    "chokidar": "^4.0.3",
     "commander": "^14.0.2",
     "cosmiconfig": "^9.0.0",
     "deepmerge": "^4.3.1",
