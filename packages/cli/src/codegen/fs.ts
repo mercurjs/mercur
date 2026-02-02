@@ -1,6 +1,13 @@
 import fs from "fs/promises";
 import path from "path";
-import type { RecursiveReadDirOptions } from "../types";
+
+export type RecursiveReadDirOptions = {
+    pathnameFilter?: (pathname: string) => boolean;
+    ignoreFilter?: (pathname: string) => boolean;
+    ignorePartFilter?: (part: string) => boolean;
+    sortPathnames?: boolean;
+};
+
 
 /**
  * Recursively read directory and return matching files

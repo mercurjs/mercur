@@ -23,9 +23,3 @@ export type Router = {
     deletes: Record<string, RouteDef>;
 };
 
-export type RecursiveReadDirOptions = {
-    pathnameFilter?: (pathname: string) => boolean;
-    ignoreFilter?: (pathname: string) => boolean;
-    ignorePartFilter?: (part: string) => boolean;
-    sortPathnames?: boolean;
-};

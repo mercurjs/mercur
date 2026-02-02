@@ -3,12 +3,12 @@ import path from "path";
 import { DIST_DIR } from "./constants";
 import { ensureDir } from "./fs";
 import { getRoutes } from "./routes";
-import type { RouteInfo } from "../types";
+import type { RouteInfo } from "@mercurjs/types";
 
 export { getRoutes } from "./routes";
 export { recursiveReadDir, pathExists, ensureDir } from "./fs";
 export { normalizeApiPath, normalizePathSep } from "./path";
-export { DIST_DIR, API_DIR, ROUTE_FILE_PATTERN } from "./constants";
+export { DIST_DIR, ROUTE_FILE_PATTERN } from "./constants";
 
 export function generateRouteTypes(routes: RouteInfo[]): string {
     const queries: string[] = [];
@@ -63,13 +63,13 @@ ${deletesContent}
 `;
 }
 
-async function writeRouteTypes(rootDir: string) {
+export async function writeRouteTypes(rootDir: string, watchDir: string) {
     const entryFilePath = path.join(rootDir, DIST_DIR, "routes.d.ts");
     const entryDir = path.dirname(entryFilePath);
 
     await ensureDir(entryDir);
 
-    const routes = await getRoutes(rootDir);
+    const routes = await getRoutes(watchDir);
     const routeTypes = generateRouteTypes(routes);
 
     await fs.writeFile(entryFilePath, routeTypes, "utf-8");

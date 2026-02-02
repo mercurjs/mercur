@@ -1,9 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
-import { API_DIR, ROUTE_FILE_PATTERN } from "./constants";
+import { ROUTE_FILE_PATTERN } from "./constants";
 import { pathExists, recursiveReadDir } from "./fs";
 import { normalizeApiPath, normalizePathSep } from "./path";
-import type { HttpMethod, RouteHandler, RouteInfo } from "../types";
+import type { HttpMethod, RouteHandler, RouteInfo } from "@mercurjs/types";
 
 const HTTP_METHODS: HttpMethod[] = ["GET", "POST", "DELETE"];
 
@@ -57,9 +57,7 @@ function extractRouteHandlers(content: string): RouteHandler[] {
 /**
  * Get all API routes from src/api directory
  */
-export async function getRoutes(rootDir: string = process.cwd()): Promise<RouteInfo[]> {
-    const apiDir = path.join(rootDir, API_DIR);
-
+export async function getRoutes(apiDir: string): Promise<RouteInfo[]> {
     const exists = await pathExists(apiDir);
     if (!exists) {
         return [];
@@ -80,7 +78,7 @@ export async function getRoutes(rootDir: string = process.cwd()): Promise<RouteI
             const handlers = extractRouteHandlers(content);
 
             return {
-                filePath: normalizePathSep(path.relative(rootDir, filePath)),
+                filePath: normalizePathSep(path.relative(apiDir, filePath)),
                 route,
                 handlers,
             };
