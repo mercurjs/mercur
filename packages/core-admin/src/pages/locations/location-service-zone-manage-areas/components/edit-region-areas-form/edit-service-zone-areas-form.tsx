@@ -9,12 +9,12 @@ import {
   RouteFocusModal,
   StackedFocusModal,
   useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useUpdateFulfillmentSetServiceZone } from "../../../../../hooks/api/fulfillment-sets"
-import { countries } from "../../../../../lib/data/countries"
-import { GeoZoneForm } from "../../../common/components/geo-zone-form"
-import { GEO_ZONE_STACKED_MODAL_ID } from "../../../common/constants"
+} from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useUpdateFulfillmentSetServiceZone } from "@hooks/api/fulfillment-sets"
+import { countries } from "@lib/data/countries"
+import { GeoZoneForm } from "@pages/locations/common/components/geo-zone-form"
+import { GEO_ZONE_STACKED_MODAL_ID } from "@pages/locations/_common/constants"
 
 const EditeServiceZoneSchema = z.object({
   countries: z

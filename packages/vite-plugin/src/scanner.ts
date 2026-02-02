@@ -6,6 +6,8 @@ import {
   SPECIAL_FILE_GLOB_PATTERN,
   IGNORED_DIRECTORIES,
   type ScannedFiles,
+  type PageExports,
+  type PageInfo,
 } from './types'
 import {
   filePathToRoutePath,
@@ -14,31 +16,52 @@ import {
 } from './resolver'
 
 /**
- * Check if a file exports 'Component' (named export)
- * This is required for file-based routing pages
+ * Detect which exports a page file has
+ * Looks for: Component, loader, handle, Breadcrumb
  */
-function hasComponentExport(filePath: string): boolean {
+function detectPageExports(filePath: string): PageExports | null {
   try {
     const content = fs.readFileSync(filePath, 'utf-8')
-    // Match various export patterns for Component:
-    // export { X as Component }
-    // export { Component }
-    // export const Component
-    // export function Component
-    // export class Component
-    return /export\s*\{[^}]*\bComponent\b[^}]*\}|export\s+(const|function|class)\s+Component\b/.test(content)
+
+    // Patterns for different export styles
+    const hasExport = (name: string): boolean => {
+      // export { X as Name } or export { Name }
+      const reExportBraces = new RegExp(`export\\s*\\{[^}]*\\b${name}\\b[^}]*\\}`)
+      // export const/function/class Name
+      const reExportDirect = new RegExp(`export\\s+(const|function|class)\\s+${name}\\b`)
+      // export default (only for layouts)
+      const reExportDefault = name === 'default' ? /export\s+default\b/ : null
+
+      return reExportBraces.test(content) ||
+             reExportDirect.test(content) ||
+             (reExportDefault?.test(content) ?? false)
+    }
+
+    const hasComponent = hasExport('Component')
+
+    // Only consider valid pages (must have Component export)
+    if (!hasComponent) {
+      return null
+    }
+
+    return {
+      hasComponent: true,
+      hasLoader: hasExport('loader'),
+      hasHandle: hasExport('handle'),
+      hasBreadcrumb: hasExport('Breadcrumb'),
+    }
   } catch {
-    return false
+    return null
   }
 }
 
 /**
  * Scan directory for page files
- * Returns a map of route path -> absolute file path
+ * Returns a map of route path -> PageInfo (with exports detection)
  * Only includes files that export 'Component'
  */
-export async function scanPages(dir: string): Promise<Map<string, string>> {
-  const pages = new Map<string, string>()
+export async function scanPages(dir: string): Promise<Map<string, PageInfo>> {
+  const pages = new Map<string, PageInfo>()
 
   if (!fs.existsSync(dir)) {
     return pages
@@ -51,14 +74,18 @@ export async function scanPages(dir: string): Promise<Map<string, string>> {
 
   for (const file of files) {
     const absolutePath = path.join(dir, file)
+    const exports = detectPageExports(absolutePath)
 
-    // Only include files that export Component
-    if (!hasComponentExport(absolutePath)) {
+    // Only include files that have Component export
+    if (!exports) {
       continue
     }
 
     const routePath = filePathToRoutePath(file)
-    pages.set(routePath, absolutePath)
+    pages.set(routePath, {
+      filePath: absolutePath,
+      exports,
+    })
   }
 
   return pages
@@ -116,8 +143,11 @@ export function mergeScannedFiles(
   base: ScannedFiles,
   override: ScannedFiles
 ): ScannedFiles {
+  // For pages, override completely replaces base (user pages override core)
+  const mergedPages = new Map([...base.pages, ...override.pages])
+
   return {
-    pages: new Map([...base.pages, ...override.pages]),
+    pages: mergedPages,
     layouts: new Map([...base.layouts, ...override.layouts]),
     errors: new Map([...base.errors, ...override.errors]),
   }

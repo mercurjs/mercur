@@ -4,11 +4,12 @@ import { Button, Input, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
-import { Form } from "../../../../../components/common/form"
-import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useUpdateStockLocation } from "../../../../../hooks/api/stock-locations"
-import { CountrySelect } from "../../../../../components/inputs/country-select/country-select"
+
+import { Form } from "@components/common/form"
+import { RouteDrawer, useRouteModal } from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useUpdateStockLocation } from "@hooks/api/stock-locations"
+import { CountrySelect } from "@components/inputs/country-select/country-select"
 
 type EditLocationFormProps = {
   location: HttpTypes.AdminStockLocation

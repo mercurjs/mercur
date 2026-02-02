@@ -8,23 +8,23 @@ import { useState } from "react"
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateShippingOptions } from "../../../../../hooks/api/shipping-options"
-import { castNumber } from "../../../../../lib/cast-number"
+} from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useCreateShippingOptions } from "@hooks/api/shipping-options"
+import { castNumber } from "@lib/cast-number"
 import {
   FulfillmentSetType,
   ShippingOptionPriceType,
-} from "../../../common/constants"
-import { buildShippingOptionPriceRules } from "../../../common/utils/price-rule-helpers"
+} from "@pages/locations/_common/constants"
+import { buildShippingOptionPriceRules } from "@pages/locations/common/utils/price-rule-helpers"
 import { CreateShippingOptionDetailsForm } from "./create-shipping-option-details-form"
 import { CreateShippingOptionsPricesForm } from "./create-shipping-options-prices-form"
 import {
   CreateShippingOptionDetailsSchema,
   CreateShippingOptionSchema,
 } from "./schema"
-import { useFulfillmentProviderOptions } from "../../../../../hooks/api"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+import { useFulfillmentProviderOptions } from "@hooks/api"
+import { useDocumentDirection } from "@hooks/use-document-direction"
 
 enum Tab {
   DETAILS = "details",

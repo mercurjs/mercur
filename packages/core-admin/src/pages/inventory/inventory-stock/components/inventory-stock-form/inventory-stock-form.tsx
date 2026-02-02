@@ -4,14 +4,14 @@ import { Button, toast } from "@medusajs/ui"
 import { useRef } from "react"
 import { DefaultValues, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { DataGrid } from "../../../../../components/data-grid"
+import { DataGrid } from "@components/data-grid"
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useBatchInventoryItemsLocationLevels } from "../../../../../hooks/api"
-import { castNumber } from "../../../../../lib/cast-number"
+} from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useBatchInventoryItemsLocationLevels } from "@hooks/api"
+import { castNumber } from "@lib/cast-number"
 import { useInventoryStockColumns } from "../../hooks/use-inventory-stock-columns"
 import {
   InventoryItemSchema,

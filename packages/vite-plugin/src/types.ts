@@ -1,4 +1,5 @@
 import type { ComponentType, ReactNode } from 'react'
+import type { LoaderFunction } from 'react-router-dom'
 
 // ============================================
 // Plugin Options
@@ -28,16 +29,41 @@ export interface Route {
   source: 'user' | 'core'
 }
 
+/** Exports detected in a page file */
+export interface PageExports {
+  /** Has export const/function Component */
+  hasComponent: boolean
+  /** Has export const/function loader */
+  hasLoader: boolean
+  /** Has export const handle */
+  hasHandle: boolean
+  /** Has export const/function Breadcrumb */
+  hasBreadcrumb: boolean
+}
+
+/** Extended page info with detected exports */
+export interface PageInfo {
+  /** Absolute file path */
+  filePath: string
+  /** Detected exports */
+  exports: PageExports
+}
+
 export interface ResolvedRoute extends Route {
   /** Layout component file path (if any) */
   layoutPath?: string
   /** Error boundary component file path (if any) */
   errorPath?: string
+  /** Detected exports from the page file */
+  exports?: PageExports
 }
 
 export interface ScannedFiles {
-  pages: Map<string, string>
+  /** Map of route path -> PageInfo */
+  pages: Map<string, PageInfo>
+  /** Map of route path -> layout file path */
   layouts: Map<string, string>
+  /** Map of route path -> error file path */
   errors: Map<string, string>
 }
 
@@ -45,9 +71,17 @@ export interface ScannedFiles {
 // Virtual Module Types (for consumers)
 // ============================================
 
+export interface RouteHandle {
+  breadcrumb?: (match: unknown) => ReactNode | string
+  [key: string]: unknown
+}
+
 export interface MercurRoute {
   path: string
   Component: ComponentType
+  loader?: LoaderFunction
+  handle?: RouteHandle
+  Breadcrumb?: ComponentType<{ data: unknown }>
   Layout?: ComponentType<{ children: ReactNode }>
   ErrorBoundary?: ComponentType<{ error: Error }>
 }

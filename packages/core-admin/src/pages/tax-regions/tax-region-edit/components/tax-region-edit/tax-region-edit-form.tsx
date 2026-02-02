@@ -5,14 +5,14 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
-import { Form } from "../../../../../components/common/form"
-import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useComboboxData } from "../../../../../hooks/use-combobox-data"
-import { sdk } from "../../../../../lib/client"
-import { Combobox } from "../../../../../components/inputs/combobox"
-import { formatProvider } from "../../../../../lib/format-provider"
-import { useUpdateTaxRegion } from "../../../../../hooks/api"
+import { Form } from "@components/common/form"
+import { RouteDrawer, useRouteModal } from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useComboboxData } from "@hooks/use-combobox-data"
+import { sdk } from "@lib/client"
+import { Combobox } from "@components/inputs/combobox"
+import { formatProvider } from "@lib/format-provider"
+import { useUpdateTaxRegion } from "@hooks/api"
 
 type TaxRegionEditFormProps = {
   taxRegion: HttpTypes.AdminTaxRegion

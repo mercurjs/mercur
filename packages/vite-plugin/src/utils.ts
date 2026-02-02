@@ -13,8 +13,16 @@ export function createLogger(pluginName: string) {
       user: ScannedFiles,
       core: ScannedFiles
     ) => {
+      const totalRoutes = merged.pages.size
+      const userRoutes = user.pages.size
+      const coreRoutes = core.pages.size
+      const overrides = Array.from(merged.pages.keys()).filter(
+        route => user.pages.has(route) && core.pages.has(route)
+      ).length
 
-      for (const [route] of merged.pages) {
+      console.log(`  Routes: ${totalRoutes} total (${coreRoutes} core, ${userRoutes} user, ${overrides} overrides)`)
+
+      for (const [route, pageInfo] of merged.pages) {
         const isUserRoute = user.pages.has(route)
         const isCoreRoute = core.pages.has(route)
         const isOverride = isUserRoute && isCoreRoute
@@ -22,7 +30,14 @@ export function createLogger(pluginName: string) {
         const source = isUserRoute ? 'user' : 'core'
         const suffix = isOverride ? ' (override)' : ''
 
-        console.log(`  ${route} → ${source}${suffix}`)
+        // Show detected exports
+        const exports = []
+        if (pageInfo.exports.hasLoader) exports.push('loader')
+        if (pageInfo.exports.hasHandle) exports.push('handle')
+        if (pageInfo.exports.hasBreadcrumb) exports.push('Breadcrumb')
+        const exportsStr = exports.length > 0 ? ` [${exports.join(', ')}]` : ''
+
+        console.log(`  ${route} → ${source}${suffix}${exportsStr}`)
       }
 
       console.log('')

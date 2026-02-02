@@ -18,13 +18,13 @@ import { ComponentPropsWithoutRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { FetchError } from "@medusajs/js-sdk"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { useProductTypes } from "../../../../../hooks/api/product-types"
-import { useProducts } from "../../../../../hooks/api/products"
-import { formatPercentage } from "../../../../../lib/percentage-helpers"
-import { TaxRateRuleReferenceType } from "../../constants"
-import { useDeleteTaxRateAction } from "../../hooks"
-import { useShippingOptions } from "../../../../../hooks/api"
+import { ActionMenu } from "@components/common/action-menu"
+import { useProductTypes } from "@hooks/api/product-types"
+import { useProducts } from "@hooks/api/products"
+import { useShippingOptions } from "@hooks/api"
+import { formatPercentage } from "@lib/percentage-helpers"
+import { TaxRateRuleReferenceType } from "@pages/tax-regions/common/constants"
+import { useDeleteTaxRateAction } from "@pages/tax-regions/common/hooks"
 
 interface TaxOverrideCardProps extends ComponentPropsWithoutRef<"div"> {
   taxRate: HttpTypes.AdminTaxRate

@@ -21,10 +21,17 @@ declare const __TALK_JS_APP_ID__: string | undefined
 // Virtual module from @mercurjs/vite-plugin
 declare module "virtual:mercur-routes" {
   import type { ComponentType, ReactNode } from "react"
+  import type { LoaderFunction } from "react-router-dom"
 
   export interface MercurRoute {
     path: string
     Component: ComponentType
+    loader?: LoaderFunction
+    handle?: {
+      breadcrumb?: (match: unknown) => ReactNode | string
+      [key: string]: unknown
+    }
+    Breadcrumb?: ComponentType<{ data: unknown }>
     Layout?: ComponentType<{ children: ReactNode }>
     ErrorBoundary?: ComponentType<{ error: Error }>
   }

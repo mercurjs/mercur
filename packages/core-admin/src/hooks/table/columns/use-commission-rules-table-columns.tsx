@@ -7,7 +7,7 @@ import {
   TextCell,
   TextHeader,
 } from "@/components/table/table-cells/common/text-cell";
-import { CommissionActionMenu } from "@/pages/commission/components/commission-actions";
+import { CommissionActionMenu } from "@pages/commission/_components/commission-actions";
 import type { AdminCommissionAggregate } from "@/types/commission";
 
 const columnHelper = createColumnHelper<AdminCommissionAggregate>();

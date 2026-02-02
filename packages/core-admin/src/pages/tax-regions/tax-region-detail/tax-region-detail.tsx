@@ -1,17 +1,17 @@
 import { useLoaderData, useParams } from "react-router-dom"
 import { useState } from "react"
 
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useTaxRegion } from "../../../hooks/api/tax-regions"
-import { TaxRegionDetailSection } from "./components/tax-region-detail-section"
-import { TaxRegionProvinceSection } from "./components/tax-region-province-section"
+import { SingleColumnPage } from "@components/layout/pages"
+import { useTaxRegion } from "@hooks/api/tax-regions"
+import { TaxRegionDetailSection } from "@pages/tax-regions/tax-region-detail/components/tax-region-detail-section"
+import { TaxRegionProvinceSection } from "@pages/tax-regions/tax-region-detail/components/tax-region-province-section"
 
-import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { useExtension } from "../../../providers/extension-provider"
-import { TaxRegionOverrideSection } from "./components/tax-region-override-section"
-import { TaxRegionSublevelAlert } from "./components/tax-region-sublevel-alert"
-import { TaxRegionProviderSection } from "./tax-region-provider-section"
-import { taxRegionLoader } from "./loader"
+import { SingleColumnPageSkeleton } from "@components/common/skeleton"
+import { useExtension } from "@providers/extension-provider"
+import { TaxRegionOverrideSection } from "@pages/tax-regions/tax-region-detail/components/tax-region-override-section"
+import { TaxRegionSublevelAlert } from "@pages/tax-regions/tax-region-detail/components/tax-region-sublevel-alert"
+import { TaxRegionProviderSection } from "@pages/tax-regions/tax-region-detail/tax-region-provider-section"
+import { taxRegionLoader } from "@pages/tax-regions/tax-region-detail/loader"
 
 export const TaxRegionDetail = () => {
   const { id } = useParams()
