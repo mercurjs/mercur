@@ -78,8 +78,8 @@ async function watchForChanges(cwd: string, tsConfig: import("typescript").Compi
     try {
       await writeRouteTypes(cwd, tsConfig);
     } catch (error) {
-      logger.error(`Failed to regenerate route types.`);
-      handleError(error);
+      logger.error(`Failed to regenerate route types:`, error);
+      logger.break();
     }
   };
 
