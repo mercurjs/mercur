@@ -4,8 +4,8 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import {
   checkConfigurationRule,
   ConfigurationRuleType,
+  ProductRequestUpdatedEvent,
 } from "@mercurjs/framework";
-import { ProductRequestUpdatedEvent } from "@mercurjs/framework";
 import { REQUESTS_MODULE, RequestsModuleService } from "../modules/requests";
 
 import { acceptProductRequestWorkflow } from "../workflows/requests/workflows";

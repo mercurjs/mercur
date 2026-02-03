@@ -1,9 +1,9 @@
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
-  refetchEntities
 } from '@medusajs/framework/http'
 import { HttpTypes } from '@medusajs/framework/types'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 /**
  * @oas [get] /admin/notifications
@@ -61,18 +61,19 @@ export const GET = async (
   req: AuthenticatedMedusaRequest<HttpTypes.AdminNotificationListParams>,
   res: MedusaResponse<HttpTypes.AdminNotificationListResponse>
 ) => {
-  const { rows: notifications, metadata } = await refetchEntities(
-    'notification',
-    { ...req.filterableFields, channel: 'feed' },
-    req.scope,
-    req.queryConfig.fields,
-    req.queryConfig.pagination
-  )
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: notifications, metadata } = await query.graph({
+    entity: 'notification',
+    filters: { ...req.filterableFields, channel: 'feed' },
+    fields: req.queryConfig.fields,
+    pagination: req.queryConfig.pagination
+  })
 
   res.json({
     notifications,
-    count: metadata.count,
-    offset: metadata.skip,
-    limit: metadata.take
+    count: metadata?.count ?? notifications.length,
+    offset: metadata?.skip ?? req.queryConfig.pagination?.skip ?? 0,
+    limit: metadata?.take ?? req.queryConfig.pagination?.take ?? 0
   })
 }

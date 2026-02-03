@@ -1,5 +1,5 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { ContainerRegistrationKeys, omitDeep } from '@medusajs/framework/utils'
 
 import sellerPriceList from '../../../links/seller-price-list'
 import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
@@ -61,15 +61,42 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: price_lists, metadata } = await query.graph({
+  const seller = await fetchSellerByAuthActorId(
+    req.auth_context.actor_id,
+    req.scope
+  )
+
+  const { data: sellerPriceLists } = await query.graph({
     entity: sellerPriceList.entryPoint,
-    fields: req.queryConfig.fields.map((v) => `price_list.${v}`),
+    fields: ['price_list_id'],
     filters: {
-      ...req.filterableFields,
-      deleted_at: {
-        $eq: null
-      }
-    },
+      seller_id: seller.id,
+      deleted_at: { $eq: null }
+    }
+  })
+
+  const priceListIds = sellerPriceLists.map((rel) => rel.price_list_id)
+
+  if (priceListIds.length === 0) {
+    return res.json({
+      price_lists: [],
+      count: 0,
+      offset: req.queryConfig.pagination?.skip ?? 0,
+      limit: req.queryConfig.pagination?.take ?? 50
+    })
+  }
+  const filterableFields = omitDeep(req.filterableFields, ['seller_id'])
+
+  const priceListFilters = {
+    ...filterableFields,
+    id: { $in: priceListIds },
+    deleted_at: { $eq: null }
+  }
+
+  const { data: price_lists, metadata } = await query.graph({
+    entity: 'price_list',
+    fields: req.queryConfig.fields,
+    filters: priceListFilters,
     pagination: req.queryConfig.pagination
   })
 

@@ -2,6 +2,7 @@ import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
 import { ResendNotificationTemplates } from "../providers/resend";
+import { fetchStoreData } from "@mercurjs/framework";
 
 export default async function buyerAccountCreatedHandler({
   event,
@@ -25,16 +26,20 @@ export default async function buyerAccountCreatedHandler({
     return;
   }
 
+  const storeData = await fetchStoreData(container);
+
   await notificationService.createNotifications({
     to: customer.email,
     channel: "email",
     template: ResendNotificationTemplates.BUYER_ACCOUNT_CREATED,
     content: {
-      subject: `Welcome to Mercur, ${customer.first_name || ""}!`,
+      subject: `Welcome to ${storeData.store_name}, ${customer.first_name || ""}!`,
     },
     data: {
       data: {
         user_name: customer.first_name || "Customer",
+        store_name: storeData.store_name,
+        storefront_url: storeData.storefront_url,
       },
     },
   });

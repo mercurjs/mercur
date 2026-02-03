@@ -4,7 +4,10 @@ import {
 } from '@medusajs/medusa/core-flows'
 import { createWorkflow, transform, when } from '@medusajs/workflows-sdk'
 
-import { verifyVendorTargetPromotionRulesStep } from '../steps'
+import {
+  verifyVendorTargetPromotionRulesStep,
+  ensureSellerProductRuleAfterDeletionStep
+} from '../steps'
 
 export const batchVendorPromotionRulesWorkflow = createWorkflow(
   'batch-vendor-promotion-rules',
@@ -21,8 +24,16 @@ export const batchVendorPromotionRulesWorkflow = createWorkflow(
       )
     })
 
+    const batchInputWithDefaultRule = ensureSellerProductRuleAfterDeletionStep(
+      transform(input, (input) => ({
+        batchInput: input.data,
+        seller_id: input.seller_id,
+        promotion_id: input.data.id
+      }))
+    )
+
     batchPromotionRulesWorkflow.runAsStep({
-      input: input.data
+      input: batchInputWithDefaultRule
     })
   }
 )

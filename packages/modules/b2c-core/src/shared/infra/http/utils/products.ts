@@ -41,10 +41,13 @@ export async function getApplicableAttributes(
 
   const { data: globalAttributes } = await query.graph({
     entity: 'attribute',
-    fields: fields,
+    fields,
     filters: {
       id: {
         $nin: attributeIds
+      },
+      deleted_at: {
+        $eq: null
       }
     }
   })
@@ -53,7 +56,10 @@ export async function getApplicableAttributes(
     entity: categoryAttribute.entryPoint,
     fields: fields.map((field) => `attribute.${field}`),
     filters: {
-      product_category_id: categoryIds
+      product_category_id: categoryIds,
+      deleted_at: {
+        $eq: null
+      }
     }
   })
 

@@ -8,11 +8,11 @@ import {
 import {
   CreateRequestDTO,
   ProductRequestUpdatedEvent,
+  emitMultipleEventsStep,
+  SELLER_MODULE,
 } from "@mercurjs/framework";
 import { REQUESTS_MODULE } from "../../../modules/requests";
-import { SELLER_MODULE } from "@mercurjs/framework";
 
-import { emitMultipleEventsStep } from "@mercurjs/framework";
 import { createRequestStep } from "../../requests/steps";
 
 export const importSellerProductsRequestWorkflow = createWorkflow(

@@ -5,7 +5,7 @@ import {
 } from "@medusajs/framework/utils";
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk";
 
-import { CreateSellerInvitationDTO } from "@mercurjs/framework";
+import { CreateSellerInvitationDTO, fetchStoreData } from "@mercurjs/framework";
 
 import {
   Hosts,
@@ -19,16 +19,20 @@ export const sendSellerInvitationEmailStep = createStep(
     const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
 
     try {
+      const storeData = await fetchStoreData(container);
+
       const notification = await service.createNotifications({
         channel: "email",
         to: input.email,
         template: "newSellerInvitation",
         content: {
-          subject: `You've been invited to join Mercur`,
+          subject: `You've been invited to join ${storeData.store_name}`,
         },
         data: {
           data: {
             url: buildHostAddress(Hosts.VENDOR_PANEL, "/register"),
+            store_name: storeData.store_name,
+            storefront_url: storeData.storefront_url,
           },
         },
       });

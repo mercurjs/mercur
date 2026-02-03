@@ -1,10 +1,9 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import { Modules } from "@medusajs/framework/utils";
 
-import { SellerTeamInviteEvent } from "@mercurjs/framework";
+import { SellerTeamInviteEvent, fetchStoreData, buildInviteUrl } from "@mercurjs/framework";
 import { ResendNotificationTemplates } from "../providers/resend";
 
-import { buildInviteUrl } from "@mercurjs/framework";
 
 export default async function sellerTeamInviteHandler({
   event,
@@ -18,13 +17,14 @@ export default async function sellerTeamInviteHandler({
 }>) {
   const notificationService = container.resolve(Modules.NOTIFICATION);
   const invite = event.data;
+  const storeData = await fetchStoreData(container);
 
   await notificationService.createNotifications({
     to: invite.email,
     channel: "email",
     template: ResendNotificationTemplates.SELLER_TEAM_MEMBER_INVITATION,
     content: {
-      subject: `You've been invited to join a team on Mercur`,
+      subject: `You've been invited to join a team on ${storeData.store_name}`,
     },
     data: {
       data: {
@@ -33,6 +33,8 @@ export default async function sellerTeamInviteHandler({
         host: buildInviteUrl(invite.token).toString(),
         id: invite.id,
         email: invite.email,
+        marketplace_name: storeData.store_name,
+        storefront_url: storeData.storefront_url,
       },
     },
   });
