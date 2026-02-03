@@ -52,9 +52,16 @@ type ProcessRoutes<TRoutes, TParams = {}> =
         : ProcessRoutes<TRoutes[K], TParams>
     };
 
+const _errorSymbol = Symbol();
+export type ErrorSymbol = typeof _errorSymbol;
+
+export type TypeError<TMessage extends string> = TMessage & {
+    _: typeof _errorSymbol;
+};
+
 export type InferClient<TRoutes> = TRoutes extends Record<string, any>
     ? PrettifyDeep<ProcessRoutes<TRoutes>>
-    : `ERROR: Looks like you forgot to pass the \`Routes\` generic type to the \`createClient\` function.`
+    : TypeError<`Looks like you forgot to pass the \`Routes\` generic type to the \`createClient\` function.`>
 
 export type ClientOptions = {
     baseUrl: string;
