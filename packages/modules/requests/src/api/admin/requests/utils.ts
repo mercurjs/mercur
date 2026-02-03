@@ -4,7 +4,10 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils';
 const LINK_TABLE = 'seller_seller_requests_request' as const;
 
 function escapeLikePattern(q: string): string {
-  return `%${q.replace(/%/g, '\\%').replace(/_/g, '\\_')}%`;
+  return `%${q
+    .replace(/\\/g, '\\\\')
+    .replace(/%/g, '\\%')
+    .replace(/_/g, '\\_')}%`;
 }
 
 /**
