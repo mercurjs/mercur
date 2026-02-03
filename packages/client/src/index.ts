@@ -83,11 +83,11 @@ type InferDeleteRoute<TRoute extends string, TEndpoint> =
     ? PathToObject<TRoute, InferFetchFn<TReq, TRes>, "delete">
     : never;
 
-type InferRoutes<TRoutes> =
-    TRoutes extends Record<infer TRoute, infer TEndpoint>
+type InferRoutes<TRoutes, TRoute = keyof TRoutes> =
+    TRoute extends keyof TRoutes
     ? TRoute extends string
-    ? TEndpoint extends Record<string, (...args: any[]) => any>
-    ? InferGetRoute<TRoute, TEndpoint> | InferPostRoute<TRoute, TEndpoint> | InferDeleteRoute<TRoute, TEndpoint>
+    ? TRoutes[TRoute] extends Record<string, (...args: any[]) => any>
+    ? InferGetRoute<TRoute, TRoutes[TRoute]> | InferPostRoute<TRoute, TRoutes[TRoute]> | InferDeleteRoute<TRoute, TRoutes[TRoute]>
     : never
     : never
     : never;
