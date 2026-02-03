@@ -144,25 +144,3 @@ export async function getMercurVersion(cwd: string): Promise<string | null> {
 
   return null
 }
-
-export function getTsConfig(cwd: string): CompilerOptions {
-  const configPath = ts.findConfigFile(cwd, ts.sys.fileExists, "tsconfig.json");
-
-  if (!configPath) {
-    return {};
-  }
-
-  const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
-
-  if (configFile.error) {
-    return {};
-  }
-
-  const parsed = ts.parseJsonConfigFileContent(
-    configFile.config,
-    ts.sys,
-    path.dirname(configPath)
-  );
-
-  return parsed.options;
-}
