@@ -1,5 +1,7 @@
 import { MedusaResponse } from "@medusajs/framework/http";
 
+export type ActionType = "query" | "mutate" | "delete";
+
 type PrettifyDeep<T> = T extends (...args: any[]) => any
     ? T
     : T extends Array<infer U>
