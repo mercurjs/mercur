@@ -92,7 +92,7 @@ type InferRoutes<TRoutes, TRoute = keyof TRoutes> =
     : never
     : never;
 
-export type InferClient<TRoutes> = PrettifyDeep<UnionToIntersection<InferRoutes<TRoutes>>>
+export type InferClient<TRoutes> = TRoutes extends Record<string, any> ? PrettifyDeep<UnionToIntersection<InferRoutes<TRoutes>>> : `ERROR: Looks like you forgot to pass the \`Routes\` generic type to the \`createClient\` function.`
 
 export type ClientOptions = {
     baseUrl: string;
