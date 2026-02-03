@@ -10,11 +10,17 @@ export { normalizeApiPath, normalizePathSep } from "./path";
 export { DIST_DIR, ROUTE_FILE_PATTERN } from "./constants";
 
 function generateRouteTypeName(route: string): string {
-    // Convert "/admin/custom" to "AdminCustomRoute"
+    // Convert "/admin/custom/:id" to "AdminCustomIdRoute"
     return route
         .split("/")
         .filter(Boolean)
-        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .map(part => {
+            // Handle dynamic params like :id -> Id
+            if (part.startsWith(":")) {
+                part = part.slice(1);
+            }
+            return part.charAt(0).toUpperCase() + part.slice(1);
+        })
         .join("") + "Route";
 }
 

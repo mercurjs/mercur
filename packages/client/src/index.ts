@@ -17,14 +17,37 @@ type CamelCase<S extends string> =
     ? `${Lowercase<P1>}${Uppercase<P2>}${CamelCase<P3>}`
     : Lowercase<S>;
 
+// Extract all path params: "/admin/products/:id/variants/:variantId" → { id: string, variantId: string }
+type ExtractParams<T extends string> =
+    T extends `${string}/:${infer Param}/${infer Rest}`
+    ? { [K in Param]: string } & ExtractParams<`/${Rest}`>
+    : T extends `${string}/:${infer Param}`
+    ? { [K in Param]: string }
+    : {};
+
+// Merge params into function input
+type AddParamsToFn<Fn, TParams> =
+    keyof TParams extends never
+    ? Fn
+    : Fn extends (input?: infer TInput) => infer TOutput
+    ? (input: PrettifyDeep<(TInput extends Record<string, any> ? Omit<TInput, 'fetchOptions'> : {}) & TParams & { fetchOptions?: RequestInit }>) => TOutput
+    : Fn extends (input: infer TInput) => infer TOutput
+    ? (input: PrettifyDeep<(TInput extends Record<string, any> ? Omit<TInput, 'fetchOptions'> : {}) & TParams & { fetchOptions?: RequestInit }>) => TOutput
+    : Fn;
+
 type PathToObject<
     T extends string,
     Fn extends (...args: any[]) => any,
     TType extends RouteType,
-> = T extends `/${infer Segment}/${infer Rest}`
-    ? { [K in CamelCase<Segment>]: PathToObject<`/${Rest}`, Fn, TType> }
+    TParams = ExtractParams<T>,
+> = T extends `/:${infer Param}/${infer Rest}`
+    ? { [K in `$${Param}`]: PathToObject<`/${Rest}`, Fn, TType, TParams> }
+    : T extends `/${infer Segment}/${infer Rest}`
+    ? { [K in CamelCase<Segment>]: PathToObject<`/${Rest}`, Fn, TType, TParams> }
+    : T extends `/:${infer Param}`
+    ? { [K in `$${Param}`]: { [R in TType]: AddParamsToFn<Fn, TParams> } }
     : T extends `/${infer Segment}`
-    ? { [K in CamelCase<Segment>]: { [R in TType]: Fn } }
+    ? { [K in CamelCase<Segment>]: { [R in TType]: AddParamsToFn<Fn, TParams> } }
     : never;
 
 
@@ -45,18 +68,26 @@ type InferFetchFn<
     TOutput = TResponse extends MedusaResponse<infer TOutput> ? TOutput : void,
 > = ExpandFn<TInput extends Record<string, any> ? (input: PrettifyDeep<TInput & { fetchOptions?: RequestInit }>) => PrettifyDeep<TOutput> : (input?: { fetchOptions?: RequestInit }) => PrettifyDeep<TOutput>>
 
+type InferGetRoute<TRoute extends string, TEndpoint> =
+    TEndpoint extends { GET: (req: infer TReq, res: infer TRes) => any }
+    ? PathToObject<TRoute, InferFetchFn<TReq, TRes>, "query">
+    : never;
+
+type InferPostRoute<TRoute extends string, TEndpoint> =
+    TEndpoint extends { POST: (req: infer TReq, res: infer TRes) => any }
+    ? PathToObject<TRoute, InferFetchFn<TReq, TRes>, "mutate">
+    : never;
+
+type InferDeleteRoute<TRoute extends string, TEndpoint> =
+    TEndpoint extends { DELETE: (req: infer TReq, res: infer TRes) => any }
+    ? PathToObject<TRoute, InferFetchFn<TReq, TRes>, "delete">
+    : never;
+
 type InferRoutes<TRoutes> =
     TRoutes extends Record<infer TRoute, infer TEndpoint>
     ? TRoute extends string
     ? TEndpoint extends Record<string, (...args: any[]) => any>
-    ? TEndpoint extends {
-        GET: (
-            req: infer TRequest,
-            res: infer TResponse,
-        ) => any;
-    }
-    ? PathToObject<TRoute, InferFetchFn<TRequest, TResponse>, "query">
-    : never
+    ? InferGetRoute<TRoute, TEndpoint> | InferPostRoute<TRoute, TEndpoint> | InferDeleteRoute<TRoute, TEndpoint>
     : never
     : never
     : never;
