@@ -3,9 +3,6 @@ import { kebabCase } from "@medusajs/utils";
 import { createRecursiveProxy } from "./create-proxy";
 import { ActionType, ClientOptions, InferClient } from "./types";
 
-export { InferClient, ClientOptions } from "./types";
-export { createRecursiveProxy } from "./create-proxy";
-
 export class ClientError extends Error {
     status: number | undefined;
     statusText: string | undefined;

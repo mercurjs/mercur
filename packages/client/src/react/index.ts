@@ -1,5 +1,6 @@
+import { createRecursiveProxy } from "@/create-proxy";
+import { InferClient } from "@/types";
 import { skipToken } from "@tanstack/react-query";
-import { createRecursiveProxy, InferClient } from "..";
 
 type ReactQueryAction = "queryOptions" | "mutationOptions" | "queryKey";
 
@@ -9,10 +10,10 @@ type ReactQueryAction = "queryOptions" | "mutationOptions" | "queryKey";
  * @example
  * ```ts
  * import { createClient } from "@mercurjs/client";
- * import { createClientOptions } from "@mercurjs/client/react";
+ * import { createReactQueryClientOptions } from "@mercurjs/client/react";
  *
  * const client = createClient<Routes>({ baseUrl: "/api" });
- * const api = createClientOptions(client);
+ * const api = createReactQueryClientOptions({ client });
  *
  * // Query options
  * useQuery(api.admin.products.queryOptions({ limit: 10 }));
