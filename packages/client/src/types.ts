@@ -1,4 +1,4 @@
-import { type MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { MedusaResponse } from "@medusajs/framework/http";
 
 type PrettifyDeep<T> = T extends (...args: any[]) => any
     ? T
@@ -27,8 +27,8 @@ type AddParamsToFn<Fn, TParams> =
 type InferFetchFn<
     TRequest,
     TResponse,
-    TInput = TRequest extends MedusaRequest<infer TInput> ? TInput : void,
-    TOutput = TResponse extends MedusaResponse<infer TOutput> ? TOutput : void,
+    TInput = TRequest extends { validatedBody: infer Input } ? Input : void,
+    TOutput = TResponse extends MedusaResponse<infer Output> ? Output : void,
 > = TInput extends Record<string, any>
     ? (input: PrettifyDeep<TInput & { fetchOptions?: RequestInit }>) => Promise<PrettifyDeep<TOutput>>
     : (input?: { fetchOptions?: RequestInit }) => Promise<PrettifyDeep<TOutput>>;
