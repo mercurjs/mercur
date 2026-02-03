@@ -43,14 +43,14 @@ export function generateRouteTypesFile(routes: RouteInfo[]): string {
 
 ${typeImportsContent}
 
-export type Router = {
+export type Routes = {
 ${routeEntriesContent}
 };
 `;
 }
 
 export async function writeRouteTypes(rootDir: string) {
-    const entryFilePath = path.join(rootDir, DIST_DIR, "routes.ts");
+    const entryFilePath = path.join(rootDir, DIST_DIR, "index.ts");
     const apiDir = path.join(rootDir, "src", "api");
     const entryDir = path.dirname(entryFilePath);
 
