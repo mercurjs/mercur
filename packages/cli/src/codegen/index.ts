@@ -3,7 +3,7 @@ import path from "path";
 import { DIST_DIR, defaultMedusaRoutes } from "./constants";
 import { ensureDir } from "./fs";
 import { getRoutes, type RouteInfo } from "./routes";
-import { toCamelCase } from '@medusajs/utils'
+import { toCamelCase } from "../utils/to-camel-case";
 
 export { getRoutes, type RouteInfo } from "./routes";
 export { recursiveReadDir, pathExists, ensureDir } from "./fs";

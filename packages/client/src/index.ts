@@ -3,7 +3,6 @@ import { ClientOptions, InferClient } from "./types";
 import { kebabCase } from '@medusajs/utils'
 export { InferClient, ClientOptions } from "./types";
 
-
 export class ClientError extends Error {
     status: number | undefined
     statusText: string | undefined
