@@ -30,7 +30,7 @@ import {
 import { useStockLocation } from "@hooks/api/stock-locations"
 import { formatProvider } from "@lib/format-provider"
 import { getLocaleAmount } from "@lib/money-amount-helpers"
-import { FulfillmentSetType } from "@pages/locations/common/constants"
+import { FulfillmentSetType } from "@pages/settings/locations/common/constants"
 
 type OrderFulfillmentSectionProps = {
   order: AdminOrder

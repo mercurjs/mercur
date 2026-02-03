@@ -1,5 +1,6 @@
 import { DashboardApp } from "./dashboard-app"
 import { DashboardPlugin } from "./dashboard-app/types"
+import { MercurRoute } from "./dashboard-app/routes/route-builder"
 
 import displayModule from "virtual:medusa/displays"
 import formModule from "virtual:medusa/forms"
@@ -19,14 +20,24 @@ const localPlugin = {
 
 interface AppProps {
   plugins?: DashboardPlugin[]
+  /**
+   * Routes from virtual:mercur-routes
+   * If provided, uses file-based routing
+   * If not provided, falls back to legacy getRouteMap
+   */
+  routes?: MercurRoute[]
 }
 
-function App({ plugins = [] }: AppProps) {
+function App({ plugins = [], routes }: AppProps) {
   const app = new DashboardApp({
     plugins: [localPlugin, ...plugins],
+    routes,
   })
 
   return <div>{app.render()}</div>
 }
 
 export default App
+
+// Re-export MercurRoute type for external usage
+export type { MercurRoute } from "./dashboard-app/routes/route-builder"
