@@ -1,5 +1,4 @@
-import { MedusaResponse } from '@medusajs/framework'
-import { AuthenticatedMedusaRequest } from '@medusajs/framework'
+import { MedusaResponse, AuthenticatedMedusaRequest } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 import {
   deleteStockLocationsWorkflow,

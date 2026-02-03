@@ -1,14 +1,12 @@
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
-  container,
 } from "@medusajs/framework";
-import { ContainerRegistrationKeys, isPresent } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys, isPresent, QueryContext } from "@medusajs/framework/utils";
 
 import customerWishlist from "../../../links/customer-wishlist";
 import { createWishlistEntryWorkflow } from "../../../workflows/wishlist/workflows";
 import { StoreCreateWishlistType } from "./validators";
-import { QueryContext } from "@medusajs/framework/utils";
 
 /**
  * @oas [post] /store/wishlist
@@ -944,7 +942,7 @@ export const GET = async (
 
 
   res.json({
-    products: products,
+    products,
     count: metadata?.count,
     offset: metadata?.skip,
     limit: metadata?.take,

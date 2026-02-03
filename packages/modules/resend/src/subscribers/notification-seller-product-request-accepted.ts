@@ -2,7 +2,6 @@ import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
 import {
-  ConfigurationRuleType,
   ProductRequestUpdatedEvent,
   fetchStoreData,
 } from "@mercurjs/framework";

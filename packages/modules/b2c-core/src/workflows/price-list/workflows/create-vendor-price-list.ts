@@ -38,7 +38,7 @@ export const createVendorPriceListWorkflow = createWorkflow(
       return result.map((list) => {
         return {
           [SELLER_MODULE]: {
-            seller_id: seller_id,
+            seller_id,
           },
           [Modules.PRICING]: {
             price_list_id: list.id,

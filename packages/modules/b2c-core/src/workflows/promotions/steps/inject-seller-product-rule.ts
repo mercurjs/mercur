@@ -15,6 +15,10 @@ export const injectSellerProductRuleStep = createStep(
     input: { promotion: CreatePromotionDTO; seller_id: string },
     { container }
   ) => {
+    if (input.promotion.application_method.target_rules && input.promotion.application_method.target_rules.length > 0) {
+      return new StepResponse(input.promotion)
+    }
+
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     const { data: sellerProducts } = await query.graph({

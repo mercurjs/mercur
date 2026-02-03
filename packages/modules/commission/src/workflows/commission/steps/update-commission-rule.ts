@@ -18,16 +18,16 @@ export const updateCommissionRuleStep = createStep(
     const previousData: CommissionRuleDTO =
       await service.retrieveCommissionRule(input.id);
 
-    //@ts-ignore
+    //@ts-expect-error - Incompatible type
     const updatedCommissionRule = await service.updateCommissionRules(input);
 
     return new StepResponse(updatedCommissionRule, previousData);
   },
   async (previousData: CommissionRuleDTO, { container }) => {
-    const service =
+    const service = 
       container.resolve<CommissionModuleService>(COMMISSION_MODULE);
 
-    //@ts-ignore
+    //@ts-expect-error Incompatible type
     await service.updateCommissionRules(previousData);
   }
 );

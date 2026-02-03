@@ -4,14 +4,14 @@ import {
   validateAndTransformQuery
 } from '@medusajs/framework'
 
+import { checkResourceOwnershipByResourceId, filterBySellerId } from '@mercurjs/framework'
 import { createLinkBody } from '@medusajs/medusa/api/utils/validators'
 import sellerCampaign from '../../../links/seller-campaign'
-import {
-  checkResourceOwnershipByResourceId,
-  filterBySellerId
-} from '../../../shared/infra/http/middlewares'
+import sellerPromotion from '../../../links/seller-promotion'
 import { vendorCampaignQueryConfig } from './query-config'
 import {
+  VendorAssignCampaignPromotions,
+  VendorAssignCampaignPromotionsType,
   VendorCreateCampaign,
   VendorGetCampaignByIdParams,
   VendorGetCampaignsParams,
@@ -81,14 +81,26 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
     ]
   },
   {
-    method: ["POST"],
-    matcher: "/vendor/campaigns/:id/promotions",
+    method: ['POST'],
+    matcher: '/vendor/campaigns/:id/promotions',
     middlewares: [
-      validateAndTransformBody(createLinkBody()),
+      validateAndTransformBody(VendorAssignCampaignPromotions),
       validateAndTransformQuery(
         VendorGetCampaignsParams,
         vendorCampaignQueryConfig.retrieve
       ),
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerCampaign.entryPoint,
+        filterField: 'campaign_id'
+      }),
+      checkResourceOwnershipByResourceId<VendorAssignCampaignPromotionsType>({
+        entryPoint: sellerPromotion.entryPoint,
+        filterField: 'promotion_id',
+        resourceId: (req) => {
+          const body = (req.validatedBody ?? req.body) as VendorAssignCampaignPromotionsType
+          return [...(body?.add || []), ...(body?.remove || [])]
+        }
+      })
     ],
   },
 ]

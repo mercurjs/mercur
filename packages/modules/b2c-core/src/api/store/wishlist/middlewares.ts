@@ -7,8 +7,6 @@ import { authenticate, MiddlewareRoute } from "@medusajs/medusa";
 import { isPresent, ProductStatus } from "@medusajs/framework/utils";
 import { listProductQueryConfig } from "@medusajs/medusa/api/store/products/query-config";
 import { StoreGetProductsParams } from "@medusajs/medusa/api/store/products/validators";
-import customerWishlist from "../../../links/customer-wishlist";
-import { checkCustomerResourceOwnershipByResourceId } from "../../../shared/infra/http/middlewares/check-customer-ownership";
 import { storeWishlistQueryConfig } from "./query-config";
 import { StoreCreateWishlist, StoreGetWishlistsParams } from "./validators";
 
@@ -40,7 +38,7 @@ export const storeWishlistMiddlewares: MiddlewareRoute[] = [
       applyDefaultFilters({
         status: ProductStatus.PUBLISHED,
         // TODO: the type here seems off and the implementation does not take into account $and and $or possible filters. Might be worth re working (original type used here was StoreGetProductsParamsType)
-        categories: (filters: any, fields: string[]) => {
+        categories: (filters: any, _fields: string[]) => {
           const categoryIds = filters.category_id;
           delete filters.category_id;
 

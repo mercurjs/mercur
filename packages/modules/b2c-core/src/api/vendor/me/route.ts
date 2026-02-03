@@ -1,5 +1,4 @@
-import { AuthenticatedMedusaRequest } from '@medusajs/framework'
-import { MedusaResponse } from '@medusajs/framework'
+import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 /**

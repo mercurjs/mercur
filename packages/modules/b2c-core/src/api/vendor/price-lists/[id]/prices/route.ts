@@ -11,8 +11,8 @@ import { VendorCreatePriceListPriceType } from "../../validators";
 /**
  * @oas [post] /vendor/price-lists/{id}/prices
  * operationId: "VendorCreatePriceListPrice"
- * summary: "Create price list"
- * description: "Creates new price list price"
+ * summary: "Create price in price list"
+ * description: "Creates new price in the specified price list"
  * x-authenticated: true
  * parameters:
  *   - in: path

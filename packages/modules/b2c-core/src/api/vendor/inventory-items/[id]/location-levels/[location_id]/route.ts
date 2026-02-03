@@ -4,8 +4,7 @@ import { updateInventoryLevelsWorkflow, deleteInventoryLevelsWorkflow } from '@m
 
 import { IntermediateEvents } from '@mercurjs/framework'
 
-import { VendorUpdateInventoryLevelType } from '../../../validators'
-import { VendorInventoryLevelDeleteResponse } from '../../../validators'
+import { VendorUpdateInventoryLevelType, VendorInventoryLevelDeleteResponse } from '../../../validators'
 import { refetchInventoryItem } from '@medusajs/medusa/api/admin/inventory-items/helpers'
 
 /**

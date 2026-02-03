@@ -39,7 +39,7 @@ type OrderData = {
  */
 fetchShippingOptionForOrderWorkflow.hooks.setPricingContext(
   async (
-    { shipping_option_id, currency_code, order_id, context, additional_data },
+    { shipping_option_id, order_id },
     { container }
   ) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY);
@@ -48,7 +48,7 @@ fetchShippingOptionForOrderWorkflow.hooks.setPricingContext(
       entity: sellerOrder.entryPoint,
       fields: ["seller_id"],
       filters: {
-        order_id: order_id,
+        order_id,
       },
     });
 
@@ -93,7 +93,7 @@ fetchShippingOptionForOrderWorkflow.hooks.setPricingContext(
       entity: sellerShippingOption.entryPoint,
       fields: ["seller_id"],
       filters: {
-        shipping_option_id: shipping_option_id,
+        shipping_option_id,
       },
     });
 
