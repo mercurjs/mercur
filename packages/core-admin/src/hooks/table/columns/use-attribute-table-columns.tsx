@@ -18,7 +18,7 @@ import type { AttributeDTO } from "@custom-types/attribute";
 
 import { attributeQueryKeys } from "@hooks/api/attributes";
 import { sdk } from "@lib/client";
-import { CategorySelectionModal } from "@pages/attributes/_components/category-selection-modal";
+import { CategorySelectionModal } from "@pages/settings/attributes/_components/category-selection-modal";
 
 const columnHelper = createDataTableColumnHelper<AttributeDTO>();
 

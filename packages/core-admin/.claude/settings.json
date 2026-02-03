@@ -1,0 +1,19 @@
+{
+  "skills": [
+    {
+      "name": "create-page",
+      "description": "Create a new page/route in the admin dashboard (list, detail, create, edit, settings)",
+      "path": "skills/create-page.md"
+    },
+    {
+      "name": "routing-guide",
+      "description": "Quick reference for file-based routing structure, exports, and patterns",
+      "path": "skills/routing-guide.md"
+    },
+    {
+      "name": "troubleshooting",
+      "description": "Common routing issues and solutions - 404 errors, nested sidebars, missing breadcrumbs",
+      "path": "skills/troubleshooting.md"
+    }
+  ]
+}
