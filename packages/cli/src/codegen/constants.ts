@@ -246,8 +246,6 @@ export const defaultMedusaRoutes = {
     "/auth/:actor_type/:auth_provider/update": "typeof import(\"@medusajs/medusa/api/auth/[actor_type]/[auth_provider]/update/route\")",
     "/auth/session": "typeof import(\"@medusajs/medusa/api/auth/session/route\")",
     "/auth/token/refresh": "typeof import(\"@medusajs/medusa/api/auth/token/refresh/route\")",
-    "/cloud/auth": "typeof import(\"@medusajs/medusa/api/cloud/auth/route\")",
-    "/cloud/auth/users": "typeof import(\"@medusajs/medusa/api/cloud/auth/users/route\")",
     "/hooks/payment/:provider": "typeof import(\"@medusajs/medusa/api/hooks/payment/[provider]/route\")",
     "/store/carts": "typeof import(\"@medusajs/medusa/api/store/carts/route\")",
     "/store/carts/:id": "typeof import(\"@medusajs/medusa/api/store/carts/[id]/route\")",

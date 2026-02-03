@@ -1,7 +1,8 @@
 import { stringify } from "qs";
 import { ClientOptions, InferClient } from "./types";
-
+import { kebabCase } from '@medusajs/utils'
 export { InferClient, ClientOptions } from "./types";
+
 
 export class ClientError extends Error {
     status: number | undefined
@@ -47,7 +48,7 @@ export function createClient<TRoutes>(options: ClientOptions): InferClient<TRout
                                 delete rest[paramName];
                                 return String(value);
                             }
-                            return segment
+                            return kebabCase(segment);
                         });
 
                         const urlPath = "/" + urlParts.join("/");
