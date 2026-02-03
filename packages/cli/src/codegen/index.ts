@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { DIST_DIR, defaultMedusaRoutes } from "./constants";
+import { DIST_DIR, defaultMedusaRoutes, defaultMercurRoutes } from "./constants";
 import { ensureDir } from "./fs";
 import { getRoutes, type RouteInfo } from "./routes";
 import { toCamelCase } from "../utils/to-camel-case";
@@ -96,6 +96,11 @@ export function generateRouteTypesFile(routes: RouteInfo[]): string {
 
     // First, add default Medusa routes
     for (const [route, importType] of Object.entries(defaultMedusaRoutes)) {
+        routeMap.set(route, importType);
+    }
+
+    // Second, add default Mercur routes
+    for (const [route, importType] of Object.entries(defaultMercurRoutes)) {
         routeMap.set(route, importType);
     }
 

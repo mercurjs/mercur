@@ -12,8 +12,8 @@ type PrettifyDeep<T> = T extends (...args: any[]) => any
 
 type HttpMethod = "GET" | "POST" | "DELETE";
 
-// Get keys that are not HTTP methods (i.e., child routes)
-type ChildKeys<T> = Exclude<keyof T, HttpMethod>;
+// Get keys that are not HTTP methods or internal module properties (i.e., child routes)
+type ChildKeys<T> = Exclude<keyof T, HttpMethod | "__esModule">;
 
 type AddParamsToFn<Fn, TParams> =
     keyof TParams extends never
