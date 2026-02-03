@@ -24,10 +24,11 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@medusajs/framework": "^2.13.0",
-    "chokidar": "^3.6.0"
+    "qs": "^6.14.0"
   },
   "devDependencies": {
+    "@medusajs/framework": "^2.13.0",
+    "@types/qs": "^6.9.18",
     "tsup": "^8.5.0",
     "typescript": "^5.4.0"
   },
