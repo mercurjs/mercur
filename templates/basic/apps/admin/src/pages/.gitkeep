@@ -1,0 +1,3 @@
+# This directory is for user page overrides
+# Add your custom pages here to override core-admin pages
+# Example: src/pages/products/index.tsx will override the products list page
