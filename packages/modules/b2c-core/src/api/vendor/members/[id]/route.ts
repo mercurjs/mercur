@@ -65,7 +65,7 @@ export const POST = async (
     {
       entity: "member",
       fields: req.queryConfig.fields,
-      filters: { id: id },
+      filters: { id },
     },
     { throwIfKeyNotFound: true }
   );
@@ -115,7 +115,7 @@ export const GET = async (
     {
       entity: "member",
       fields: req.queryConfig.fields,
-      filters: { id: id },
+      filters: { id },
     },
     { throwIfKeyNotFound: true }
   );

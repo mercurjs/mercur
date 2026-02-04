@@ -56,6 +56,18 @@ const parseOrderForKnex = (
   return orderBy
 }
 
+export type ProductFilters = {
+  q?: string
+  id?: string | string[]
+  status?: string | string[]
+  type_id?: string | string[]
+  collection_id?: string | string[]
+  categories?: { id?: string | string[] }
+  tags?: { id?: string | string[] }
+  created_at?: Record<string, string>
+  updated_at?: Record<string, string>
+}
+
 export const filterProductsBySeller = async (
   container: MedusaContainer,
   sellerId: string,
@@ -63,8 +75,9 @@ export const filterProductsBySeller = async (
   take: number,
   salesChannelId?: string,
   order?: OrderObject,
-  q?: string
+  filters?: ProductFilters
 ) => {
+  const q = filters?.q
   const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
   let baseQuery = knex('product')
@@ -100,10 +113,76 @@ export const filterProductsBySeller = async (
       .where('product_sales_channel.sales_channel_id', salesChannelId)
   }
 
+  if (filters) {
+    if (filters.id) {
+      const ids = Array.isArray(filters.id) ? filters.id : [filters.id]
+      baseQuery = baseQuery.whereIn('product.id', ids)
+    }
+
+    if (filters.status) {
+      const statuses = Array.isArray(filters.status)
+        ? filters.status
+        : [filters.status]
+      baseQuery = baseQuery.whereIn('product.status', statuses)
+    }
+
+    if (filters.type_id) {
+      const typeIds = Array.isArray(filters.type_id)
+        ? filters.type_id
+        : [filters.type_id]
+      baseQuery = baseQuery.whereIn('product.type_id', typeIds)
+    }
+
+    if (filters.collection_id) {
+      const collectionIds = Array.isArray(filters.collection_id)
+        ? filters.collection_id
+        : [filters.collection_id]
+      baseQuery = baseQuery.whereIn('product.collection_id', collectionIds)
+    }
+
+    if (filters.categories?.id) {
+      const categoryIds = Array.isArray(filters.categories.id)
+        ? filters.categories.id
+        : [filters.categories.id]
+      baseQuery = baseQuery
+        .innerJoin(
+          'product_category_product',
+          'product.id',
+          'product_category_product.product_id'
+        )
+        .whereIn('product_category_product.product_category_id', categoryIds)
+    }
+
+    if (filters.tags?.id) {
+      const tagIds = Array.isArray(filters.tags.id)
+        ? filters.tags.id
+        : [filters.tags.id]
+      baseQuery = baseQuery
+        .innerJoin('product_tags', 'product.id', 'product_tags.product_id')
+        .whereIn('product_tags.product_tag_id', tagIds)
+    }
+
+    if (filters.created_at) {
+      baseQuery = applyDateFilter(
+        baseQuery,
+        'product.created_at',
+        filters.created_at
+      )
+    }
+
+    if (filters.updated_at) {
+      baseQuery = applyDateFilter(
+        baseQuery,
+        'product.updated_at',
+        filters.updated_at
+      )
+    }
+  }
+
   const countQuery = baseQuery
     .clone()
     .clearSelect()
-    .count('product.id as count')
+    .countDistinct('product.id as count')
   const [{ count }] = await countQuery
   const totalCount = parseInt(count as string, 10)
 
@@ -127,6 +206,30 @@ export const filterProductsBySeller = async (
     .pluck('product.id')
 
   return { productIds, count: totalCount }
+}
+
+const applyDateFilter = <T extends { where: (...args: unknown[]) => T }>(
+  query: T,
+  column: string,
+  dateFilter: Record<string, string>
+): T => {
+  let result = query
+  if (dateFilter.$gte) {
+    result = result.where(column, '>=', dateFilter.$gte)
+  }
+  if (dateFilter.$gt) {
+    result = result.where(column, '>', dateFilter.$gt)
+  }
+  if (dateFilter.$lte) {
+    result = result.where(column, '<=', dateFilter.$lte)
+  }
+  if (dateFilter.$lt) {
+    result = result.where(column, '<', dateFilter.$lt)
+  }
+  if (dateFilter.$eq) {
+    result = result.where(column, '=', dateFilter.$eq)
+  }
+  return result
 }
 
 export const mergeVariantImages = (

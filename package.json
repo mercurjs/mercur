@@ -1,9 +1,15 @@
 {
   "private": true,
   "name": "mercur",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "devDependencies": {
-    "turbo": "^2.3.3"
+    "@eslint/js": "^9.15.0",
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0",
+    "prettier": "^3.3.3",
+    "turbo": "^2.3.3",
+    "typescript-eslint": "^8.15.0"
   },
   "bin": {
     "mercur-exec": "./index.js"
@@ -18,8 +24,10 @@
     "mercur-exec": "turbo run dev",
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "format": "turbo run format",
-    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx}\"",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "codegen": "cd .",
     "generate:oas": "medusa-oas oas --type combined --paths ./packages/modules/b2c-core/src ./packages/modules/commission/src ./packages/modules/algolia/src ./packages/modules/reviews/src ./packages/modules/requests/src"
   }

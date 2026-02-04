@@ -1,7 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 
-import { COMMISSION_MODULE } from "../../../../modules/commission";
-import { CommissionModuleService } from "../../../../modules/commission";
+import { COMMISSION_MODULE, CommissionModuleService } from "../../../../modules/commission";
 
 import { listCommissionRulesWorkflow } from "../../../../workflows/commission/workflows";
 

@@ -108,7 +108,7 @@ class SellerModuleService extends MedusaService({
       };
     });
 
-    // @ts-ignore
+    // @ts-expect-error Incompatible type
     await this.updateMemberInvites(updates, sharedContext);
 
     return updates;

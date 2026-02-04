@@ -41,7 +41,7 @@ export const validateAttributeValuesToLink = async ({
         entity: "attribute",
         fields: ["product_categories.*", "possible_values.*"],
         filters: {
-          id: id,
+          id,
         },
       });
 

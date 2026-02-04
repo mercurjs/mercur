@@ -17,6 +17,7 @@
       "cache": false
     },
     "lint": {
+      "dependsOn": [],
       "cache": false
     },
     "format": {

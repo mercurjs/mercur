@@ -3,9 +3,9 @@ import { z } from 'zod'
 import { MedusaContainer } from '@medusajs/framework'
 import {
   ContainerRegistrationKeys,
-  arrayDifference
+  arrayDifference,
 } from '@medusajs/framework/utils'
-import { Modules } from '@medusajs/framework/utils'
+
 
 import {
   AlgoliaProductValidator,
@@ -100,11 +100,15 @@ export async function filterProductsByStatus(
   })
 
   const published = products.filter((p) => p.status === 'published')
-  const other = arrayDifference(products, published)
+  const notPublished = arrayDifference(products, published)
+
+  const existingIds = new Set(products.map((p) => p.id))
+
+  const deletedIds = ids.filter((id) => !existingIds.has(id))
 
   return {
     published: published.map((p) => p.id),
-    other: other.map((p) => p.id)
+    other: [...notPublished.map((p) => p.id), ...deletedIds]
   }
 }
 
@@ -113,10 +117,6 @@ export async function findAndTransformAlgoliaProducts(
   ids: string[] = []
 ) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
-
-  const regionService = container.resolve(Modules.REGION)
-
-  const [region] = await regionService.listRegions()
 
   const { data: products } = await query.graph({
     entity: 'product',
@@ -155,8 +155,9 @@ export async function findAndTransformAlgoliaProducts(
     )
     product.seller = await selectProductSeller(container, product.id)
 
-    product.options = product.options
-      ?.map((option) => {
+    product.options = (product.options ?? [])
+      .filter((option) => option?.title && option?.values)
+      .map((option) => {
         return option.values.map((value) => {
           const entry = {}
           entry[option.title.toLowerCase()] = value.value
@@ -164,24 +165,32 @@ export async function findAndTransformAlgoliaProducts(
         })
       })
       .flat()
-    product.variants = z.array(AlgoliaVariantValidator).parse(product.variants)
-    product.variants = product.variants
-      ?.map((variant) => {
-        return variant.options?.reduce((entry, item) => {
-          entry[item.option.title.toLowerCase()] = item.value
+
+    product.variants = z
+      .array(AlgoliaVariantValidator)
+      .parse(product.variants ?? [])
+    product.variants = (product.variants ?? [])
+      .map((variant) => {
+        return (variant.options ?? []).reduce((entry, item) => {
+          if (item?.option?.title) {
+            entry[item.option.title.toLowerCase()] = item.value
+          }
           return entry
         }, variant)
       })
       .flat()
 
-    product.attribute_values = product.attribute_values
-      ?.filter((attribute) => attribute?.attribute)
-      ?.map((attribute) => {
+    product.attribute_values = (product.attribute_values ?? [])
+      .filter(
+        (attrValue) =>
+          attrValue && attrValue.attribute && attrValue.attribute.name
+      )
+      .map((attrValue) => {
         return {
-          name: attribute.attribute.name,
-          value: attribute.value,
-          is_filterable: attribute.attribute.is_filterable,
-          ui_component: attribute.attribute.ui_component
+          name: attrValue.attribute.name,
+          value: attrValue.value,
+          is_filterable: attrValue.attribute.is_filterable,
+          ui_component: attrValue.attribute.ui_component
         }
       })
   }
