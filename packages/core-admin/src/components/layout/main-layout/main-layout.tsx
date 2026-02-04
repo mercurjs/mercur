@@ -1,19 +1,12 @@
 import {
   BuildingStorefront,
-  Buildings,
   ChevronDownMini,
   CogSixTooth,
-  CurrencyDollar,
   EllipsisHorizontal,
   MagnifyingGlass,
   MinusMini,
   OpenRectArrowOut,
-  ReceiptPercent,
-  Shopping,
-  ShoppingCart,
   SquaresPlus,
-  Tag,
-  Users,
 } from "@medusajs/icons";
 import { Avatar, Divider, DropdownMenu, Text, clx } from "@medusajs/ui";
 
@@ -24,6 +17,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLogout } from "../../../hooks/api";
 import { useStore } from "../../../hooks/api/store";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
+import { getIcon } from "../../../lib/icon-registry";
 import { queryClient } from "../../../lib/query-client";
 import { useExtension } from "../../../providers/extension-provider";
 import { useSearch } from "../../../providers/search-provider";
@@ -31,6 +25,7 @@ import { Skeleton } from "../../common/skeleton";
 import { INavItem, NavItem } from "../../layout/nav-item";
 import { Shell } from "../../layout/shell";
 import { UserMenu } from "../user-menu";
+import { items as navItems } from "virtual:mercur-navigation";
 
 export const MainLayout = () => {
   return (
@@ -189,86 +184,46 @@ const Header = () => {
   );
 };
 
-const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
+const useNavigationRoutes = (): Omit<INavItem, "pathname">[] => {
   const { t } = useTranslation();
 
-  return [
-    {
-      icon: <ShoppingCart />,
-      label: t("orders.domain"),
-      to: "/orders",
-      items: [
-        // TODO: Enable when domin is introduced
-        // {
-        //   label: t("draftOrders.domain"),
-        //   to: "/draft-orders",
-        // },
-      ],
-    },
-    {
-      icon: <Tag />,
-      label: t("products.domain"),
-      to: "/products",
-      items: [
-        {
-          label: t("collections.domain"),
-          to: "/collections",
-        },
-        {
-          label: t("categories.domain"),
-          to: "/categories",
-        },
-        // TODO: Enable when domin is introduced
-        // {
-        //   label: t("giftCards.domain"),
-        //   to: "/gift-cards",
-        // },
-      ],
-    },
-    {
-      icon: <Buildings />,
-      label: t("inventory.domain"),
-      to: "/inventory",
-      items: [
-        {
-          label: t("reservations.domain"),
-          to: "/reservations",
-        },
-      ],
-    },
-    {
-      icon: <Users />,
-      label: t("customers.domain"),
-      to: "/customers",
-      items: [
-        {
-          label: t("customerGroups.domain"),
-          to: "/customer-groups",
-        },
-      ],
-    },
-    {
-      icon: <Shopping />,
-      label: t("sellers.domain"),
-      to: "/sellers",
-    },
-    {
-      icon: <ReceiptPercent />,
-      label: t("promotions.domain"),
-      to: "/promotions",
-      items: [
-        {
-          label: t("campaigns.domain"),
-          to: "/campaigns",
-        },
-      ],
-    },
-    {
-      icon: <CurrencyDollar />,
-      label: t("priceLists.domain"),
-      to: "/price-lists",
-    },
-  ];
+  const mainItems = navItems.filter(
+    (item) => item.section !== "settings" && !item.hidden
+  );
+
+  const itemsWithParents = new Map<string, INavItem>();
+
+  mainItems.forEach((item) => {
+    if (item.parent) {
+      return;
+    }
+
+    const Icon = getIcon(item.iconKey);
+    const label = item.labelKey ? (t(item.labelKey as any) as string) : (item.label || item.id);
+
+    const children = mainItems
+      .filter((child) => child.parent === item.id)
+      .map((child) => ({
+        label: child.labelKey ? (t(child.labelKey as any) as string) : (child.label || child.id),
+        to: child.path || `/${child.id}`,
+      }))
+      .sort((a, b) => a.to.localeCompare(b.to));
+
+    itemsWithParents.set(item.id, {
+      icon: Icon ? <Icon /> : undefined,
+      label,
+      to: item.path || `/${item.id}`,
+      items: children.length > 0 ? children : undefined,
+    });
+  });
+
+  const sortedItems = Array.from(itemsWithParents.values()).sort((a, b) => {
+    const itemA = mainItems.find((i) => i.path === a.to || `/${i.id}` === a.to);
+    const itemB = mainItems.find((i) => i.path === b.to || `/${i.id}` === b.to);
+    return (itemA?.order || 999) - (itemB?.order || 999);
+  });
+
+  return sortedItems;
 };
 
 const Searchbar = () => {
@@ -301,7 +256,7 @@ const Searchbar = () => {
 };
 
 const CoreRouteSection = () => {
-  const coreRoutes = useCoreRoutes();
+  const coreRoutes = useNavigationRoutes();
 
   const { getMenu } = useExtension();
 

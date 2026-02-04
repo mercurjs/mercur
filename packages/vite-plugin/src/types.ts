@@ -39,6 +39,8 @@ export interface PageExports {
   hasHandle: boolean
   /** Has export const/function Breadcrumb */
   hasBreadcrumb: boolean
+  /** Has export const isModal = true/false */
+  isModal?: boolean
 }
 
 /** Extended page info with detected exports */
@@ -84,6 +86,8 @@ export interface MercurRoute {
   Breadcrumb?: ComponentType<{ data: unknown }>
   Layout?: ComponentType<{ children: ReactNode }>
   ErrorBoundary?: ComponentType<{ error: Error }>
+  /** Whether this route is a modal (renders over parent) */
+  isModal?: boolean
 }
 
 // ============================================
@@ -92,6 +96,9 @@ export interface MercurRoute {
 
 export const VIRTUAL_MODULE_ID = 'virtual:mercur-routes'
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
+
+export const VIRTUAL_NAVIGATION_MODULE_ID = 'virtual:mercur-navigation'
+export const RESOLVED_VIRTUAL_NAVIGATION_MODULE_ID = '\0' + VIRTUAL_NAVIGATION_MODULE_ID
 
 export const FILE_EXTENSIONS = ['.tsx', '.ts', '.jsx', '.js']
 export const PAGE_GLOB_PATTERN = '**/index.{tsx,ts,jsx,js}'
@@ -111,3 +118,40 @@ export const SPECIAL_FILES = {
   LAYOUT: '_layout',
   ERROR: '_error',
 } as const
+
+// ============================================
+// Navigation Types
+// ============================================
+
+export interface NavItem {
+  id: string
+  label?: string
+  labelKey?: string
+  iconKey?: string
+  path?: string
+  parent?: string
+  section?: string
+  order?: number
+  hidden?: boolean
+}
+
+export interface NavSection {
+  id: string
+  label?: string
+  labelKey?: string
+  order?: number
+}
+
+export interface NavExports {
+  hasNav: boolean
+  nav?: NavItem
+}
+
+export interface PageInfoWithNav extends PageInfo {
+  navExports?: NavExports
+}
+
+export interface ScannedNavigation {
+  items: Map<string, NavItem>
+  sections: Map<string, NavSection>
+}

@@ -13,20 +13,16 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
-  "main": "dist/app.js",
-  "module": "dist/app.mjs",
-  "types": "dist/index.d.ts",
+  "main": "dist/app.cjs",
+  "module": "dist/app.js",
+  "types": "dist/app.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/app.mjs",
-      "require": "./dist/app.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/app.d.ts",
+      "import": "./dist/app.js",
+      "require": "./dist/app.cjs"
     },
-    "./css": {
-      "import": "./dist/app.css",
-      "require": "./dist/app.css"
-    },
-    "./src/*": "./src/*",
+    "./styles.css": "./dist/app.css",
     "./pages/*": "./src/pages/*/index.tsx",
     "./components": "./src/components/index.ts",
     "./hooks": "./src/hooks/index.ts",

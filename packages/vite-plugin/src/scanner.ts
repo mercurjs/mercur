@@ -8,6 +8,8 @@ import {
   type ScannedFiles,
   type PageExports,
   type PageInfo,
+  type NavExports,
+  type NavItem,
 } from './types'
 import {
   filePathToRoutePath,
@@ -17,7 +19,7 @@ import {
 
 /**
  * Detect which exports a page file has
- * Looks for: Component, loader, handle, Breadcrumb
+ * Looks for: Component, loader, handle, Breadcrumb, isModal
  */
 function detectPageExports(filePath: string): PageExports | null {
   try {
@@ -37,6 +39,23 @@ function detectPageExports(filePath: string): PageExports | null {
              (reExportDefault?.test(content) ?? false)
     }
 
+    /**
+     * Detect isModal export value
+     * Looks for: export const isModal = true/false
+     */
+    const detectIsModal = (): boolean | undefined => {
+      // Match: export const isModal = true
+      const trueMatch = /export\s+const\s+isModal\s*=\s*true\b/.test(content)
+      if (trueMatch) return true
+
+      // Match: export const isModal = false
+      const falseMatch = /export\s+const\s+isModal\s*=\s*false\b/.test(content)
+      if (falseMatch) return false
+
+      // Not specified
+      return undefined
+    }
+
     const hasComponent = hasExport('Component')
 
     // Only consider valid pages (must have Component export)
@@ -44,11 +63,65 @@ function detectPageExports(filePath: string): PageExports | null {
       return null
     }
 
-    return {
+    const pageExports = {
       hasComponent: true,
       hasLoader: hasExport('loader'),
       hasHandle: hasExport('handle'),
       hasBreadcrumb: hasExport('Breadcrumb'),
+      isModal: detectIsModal(),
+    }
+
+    return pageExports
+  } catch {
+    return null
+  }
+}
+
+function detectNavExports(filePath: string): NavExports | null {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8')
+
+    const navMatch = /export\s+const\s+nav\s*=\s*(\{[\s\S]*?\n\})/.exec(content)
+    if (!navMatch) {
+      return { hasNav: false }
+    }
+
+    try {
+      const navString = navMatch[1]
+        .replace(/\/\/.*/g, '')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+
+      const idMatch = /id:\s*["']([^"']+)["']/.exec(navString)
+      if (!idMatch) {
+        return { hasNav: false }
+      }
+
+      const nav: NavItem = { id: idMatch[1] }
+
+      const labelMatch = /label:\s*["']([^"']+)["']/.exec(navString)
+      if (labelMatch) nav.label = labelMatch[1]
+
+      const labelKeyMatch = /labelKey:\s*["']([^"']+)["']/.exec(navString)
+      if (labelKeyMatch) nav.labelKey = labelKeyMatch[1]
+
+      const iconKeyMatch = /iconKey:\s*["']([^"']+)["']/.exec(navString)
+      if (iconKeyMatch) nav.iconKey = iconKeyMatch[1]
+
+      const parentMatch = /parent:\s*["']([^"']+)["']/.exec(navString)
+      if (parentMatch) nav.parent = parentMatch[1]
+
+      const sectionMatch = /section:\s*["']([^"']+)["']/.exec(navString)
+      if (sectionMatch) nav.section = sectionMatch[1]
+
+      const orderMatch = /order:\s*(\d+)/.exec(navString)
+      if (orderMatch) nav.order = parseInt(orderMatch[1], 10)
+
+      const hiddenMatch = /hidden:\s*(true|false)/.exec(navString)
+      if (hiddenMatch) nav.hidden = hiddenMatch[1] === 'true'
+
+      return { hasNav: true, nav }
+    } catch {
+      return { hasNav: false }
     }
   } catch {
     return null
@@ -143,7 +216,6 @@ export function mergeScannedFiles(
   base: ScannedFiles,
   override: ScannedFiles
 ): ScannedFiles {
-  // For pages, override completely replaces base (user pages override core)
   const mergedPages = new Map([...base.pages, ...override.pages])
 
   return {
@@ -151,4 +223,38 @@ export function mergeScannedFiles(
     layouts: new Map([...base.layouts, ...override.layouts]),
     errors: new Map([...base.errors, ...override.errors]),
   }
+}
+
+export async function scanNavigation(
+  dir: string,
+  routePathPrefix: string = ''
+): Promise<Map<string, NavItem>> {
+  const navItems = new Map<string, NavItem>()
+
+  if (!fs.existsSync(dir)) {
+    return navItems
+  }
+
+  const files = await glob(PAGE_GLOB_PATTERN, {
+    cwd: dir,
+    ignore: IGNORED_DIRECTORIES,
+  })
+
+  for (const file of files) {
+    const absolutePath = path.join(dir, file)
+    const navExports = detectNavExports(absolutePath)
+
+    if (navExports?.hasNav && navExports.nav) {
+      const routePath = filePathToRoutePath(file)
+      const nav = { ...navExports.nav }
+
+      if (!nav.path) {
+        nav.path = routePathPrefix + routePath
+      }
+
+      navItems.set(nav.id, nav)
+    }
+  }
+
+  return navItems
 }

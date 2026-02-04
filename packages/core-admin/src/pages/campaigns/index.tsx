@@ -3,6 +3,13 @@ import { useExtension } from "@providers/extension-provider"
 
 import { CampaignListTable } from "./_components/campaign-list-table"
 
+export const nav = {
+  id: "campaigns",
+  labelKey: "navigation.items.campaigns",
+  parent: "promotions",
+  order: 30,
+}
+
 const CampaignList = () => {
   const { getWidgets } = useExtension()
 

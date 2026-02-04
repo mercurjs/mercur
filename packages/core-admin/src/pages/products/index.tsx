@@ -7,6 +7,14 @@ import { queryClient } from "@lib/query-client"
 
 import { ProductsPage } from "./_components"
 
+export const nav = {
+  id: "products",
+  labelKey: "navigation.items.products",
+  iconKey: "tag",
+  section: "catalog",
+  order: 20,
+}
+
 // Re-export compound component and types for user overrides
 export { ProductsPage }
 export type { ProductsPageProps } from "./_components/products-page"

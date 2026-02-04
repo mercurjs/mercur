@@ -4,12 +4,16 @@ import fs from 'fs'
 import {
   VIRTUAL_MODULE_ID,
   RESOLVED_VIRTUAL_MODULE_ID,
+  VIRTUAL_NAVIGATION_MODULE_ID,
+  RESOLVED_VIRTUAL_NAVIGATION_MODULE_ID,
   type MercurAppOptions,
+  type NavSection,
 } from './types'
 import { resolveCorePackagePages, getDefaultCorePackage } from './resolver'
-import { scanDirectory, mergeScannedFiles } from './scanner'
-import { generateRoutesCode } from './generator'
+import { scanDirectory, mergeScannedFiles, scanNavigation } from './scanner'
+import { generateRoutesCode, generateNavigationCode } from './generator'
 import { createLogger, emptyScannedFiles } from './utils'
+import { validateNavigation, logValidationIssues } from './validator'
 
 /**
  * Check if file is a page file (index.tsx/ts/jsx/js)
@@ -17,6 +21,14 @@ import { createLogger, emptyScannedFiles } from './utils'
 function isPageFile(filePath: string): boolean {
   return /index\.(tsx?|jsx?)$/.test(filePath)
 }
+
+const DEFAULT_SECTIONS: NavSection[] = [
+  { id: 'catalog', labelKey: 'navigation.sections.catalog', order: 10 },
+  { id: 'sales', labelKey: 'navigation.sections.sales', order: 20 },
+  { id: 'customers', labelKey: 'navigation.sections.customers', order: 30 },
+  { id: 'settings', labelKey: 'navigation.sections.settings', order: 100 },
+  { id: 'misc', labelKey: 'navigation.sections.misc', order: 999 },
+]
 
 /**
  * Mercur App Vite Plugin
@@ -71,6 +83,10 @@ export function mercurApp(options: MercurAppOptions): Plugin {
         return RESOLVED_VIRTUAL_MODULE_ID
       }
 
+      if (id === VIRTUAL_NAVIGATION_MODULE_ID) {
+        return RESOLVED_VIRTUAL_NAVIGATION_MODULE_ID
+      }
+
       // Handle page import redirects
       // When core-admin imports a page, check if user has an override
       if (!importer || !corePagesDir) {
@@ -118,40 +134,79 @@ export function mercurApp(options: MercurAppOptions): Plugin {
     },
 
     async load(id) {
-      if (id !== RESOLVED_VIRTUAL_MODULE_ID) {
-        return null
+      if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+        const userFiles = await scanDirectory(userPagesDir)
+
+        let coreFiles = emptyScannedFiles()
+        if (corePagesDir) {
+          coreFiles = await scanDirectory(corePagesDir)
+        }
+
+        const mergedFiles = mergeScannedFiles(coreFiles, userFiles)
+
+        if (config.command === 'serve') {
+          logger.routes(mergedFiles, userFiles, coreFiles)
+        }
+
+        return generateRoutesCode(mergedFiles)
       }
 
-      // Scan user pages (priority)
-      const userFiles = await scanDirectory(userPagesDir)
+      if (id === RESOLVED_VIRTUAL_NAVIGATION_MODULE_ID) {
+        const coreNav = corePagesDir
+          ? await scanNavigation(corePagesDir)
+          : new Map()
 
-      // Scan core pages (fallback)
-      let coreFiles = emptyScannedFiles()
-      if (corePagesDir) {
-        coreFiles = await scanDirectory(corePagesDir)
+        const userNav = await scanNavigation(userPagesDir)
+
+        const availableRoutes = new Set<string>()
+        const userFiles = await scanDirectory(userPagesDir)
+        const coreFiles = corePagesDir
+          ? await scanDirectory(corePagesDir)
+          : emptyScannedFiles()
+        const mergedFiles = mergeScannedFiles(coreFiles, userFiles)
+
+        for (const [path] of mergedFiles.pages) {
+          availableRoutes.add(path)
+        }
+
+        const validation = validateNavigation(
+          coreNav,
+          userNav,
+          [],
+          availableRoutes
+        )
+
+        if (config.command === 'serve') {
+          logValidationIssues(validation.issues)
+        }
+
+        if (!validation.valid) {
+          throw new Error('[mercur-navigation] Navigation validation failed with errors')
+        }
+
+        return generateNavigationCode(validation.items, DEFAULT_SECTIONS)
       }
 
-      // Merge: user pages override core pages
-      const mergedFiles = mergeScannedFiles(coreFiles, userFiles)
-
-      // Log discovered routes in dev mode
-      if (config.command === 'serve') {
-        logger.routes(mergedFiles, userFiles, coreFiles)
-      }
-
-      return generateRoutesCode(mergedFiles)
+      return null
     },
 
     configureServer(server: ViteDevServer) {
       // Watch user pages directory for changes
       server.watcher.add(userPagesDir)
 
-      // Invalidate virtual module when routes change (add/remove files)
       const invalidateVirtualModule = (reason: string) => {
-        const mod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID)
-        if (mod) {
-          server.moduleGraph.invalidateModule(mod)
-          console.log(`[${pluginName}] Routes changed (${reason}), reloading...`)
+        const routesMod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID)
+        const navMod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_NAVIGATION_MODULE_ID)
+
+        if (routesMod) {
+          server.moduleGraph.invalidateModule(routesMod)
+        }
+        if (navMod) {
+          server.moduleGraph.invalidateModule(navMod)
+        }
+
+        if (routesMod || navMod) {
+          console.log(`[${pluginName}] ${reason}, reloading...`)
           server.ws.send({ type: 'full-reload' })
         }
       }

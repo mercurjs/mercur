@@ -37,7 +37,23 @@ function App({ plugins = [], routes }: AppProps) {
   return <div>{app.render()}</div>
 }
 
+// Default export for backwards compatibility
 export default App
 
-// Re-export MercurRoute type for external usage
+// Named export (preferred)
+export { App }
+
+// Re-export types for external usage
 export type { MercurRoute } from "./dashboard-app/routes/route-builder"
+export type { DashboardPlugin } from "./dashboard-app/types"
+
+// Re-export validation utilities for diagnostics
+export {
+  validateRoutes,
+  logValidationIssues,
+} from "./dashboard-app/routes/route-builder"
+export type {
+  RouteValidationResult,
+  RouteValidationIssue,
+  RouteValidationSeverity,
+} from "./dashboard-app/routes/route-builder"

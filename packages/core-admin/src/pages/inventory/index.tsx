@@ -3,6 +3,14 @@ import { useExtension } from "@providers/extension-provider"
 
 import { InventoryListTable } from "./_components/inventory-list-table"
 
+export const nav = {
+  id: "inventory",
+  labelKey: "navigation.items.inventory",
+  iconKey: "circle-stack",
+  section: "catalog",
+  order: 30,
+}
+
 const InventoryList = () => {
   const { getWidgets } = useExtension()
 

@@ -6,6 +6,14 @@ import { useExtension } from "@providers/extension-provider"
 
 import { CustomerListTable } from "./_components/customer-list-table"
 
+export const nav = {
+  id: "customers",
+  labelKey: "navigation.items.customers",
+  iconKey: "users",
+  section: "customers",
+  order: 40,
+}
+
 // Re-export for user overrides
 export { CustomerListTable }
 

@@ -2,7 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noImplicitAny": false,
-    "composite": true
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true
   },
-  "exclude": ["**/*.spec.ts", "**/*.spec.tsx"]
+  "include": ["src/**/*"],
+  "exclude": ["**/*.spec.ts", "**/*.spec.tsx", "**/node_modules/**"]
 }
