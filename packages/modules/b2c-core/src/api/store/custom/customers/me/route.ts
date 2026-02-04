@@ -11,7 +11,6 @@ export const DELETE = async (
 ) => {
   const { email, password } = req.validatedBody
 
-  // 1. Authenticate customer using authModuleService
   const authService = req.scope.resolve(Modules.AUTH)
 
   const { success, authIdentity, error } = await authService.authenticate(
@@ -32,7 +31,6 @@ export const DELETE = async (
     )
   }
 
-  // 2. Find customer by auth identity
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: customers } = await query.graph({
@@ -52,7 +50,6 @@ export const DELETE = async (
 
   const customer = customers[0]
 
-  // 3. Delete customer account (removes customer + auth identity association)
   await removeCustomerAccountWorkflow(req.scope).run({
     input: {
       customerId: customer.id

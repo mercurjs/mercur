@@ -18,6 +18,10 @@ export const storeMiddlewares: MiddlewareRoute[] = [
     matcher: "/store/return-request/*",
     middlewares: [authenticate("customer", ["bearer", "session"])],
   },
+  {
+    matcher: "/store/custom/customers/*",
+    middlewares: [authenticate("customer", ["session", "bearer"])],
+  },
   ...storeCartsMiddlewares,
   ...storeCustomersMiddlewares,
   ...storeOrderSetMiddlewares,

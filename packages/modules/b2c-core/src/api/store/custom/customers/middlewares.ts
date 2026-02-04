@@ -4,7 +4,7 @@ import { StoreDeleteCustomerAccount } from './validators'
 export const storeCustomersMiddlewares: MiddlewareRoute[] = [
   {
     method: ['DELETE'],
-    matcher: '/store/customers/me',
+    matcher: '/store/custom/customers/*',
     middlewares: [validateAndTransformBody(StoreDeleteCustomerAccount)]
   }
 ]
