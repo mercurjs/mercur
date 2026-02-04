@@ -3,6 +3,14 @@ import { useExtension } from "@providers/extension-provider"
 
 import { RegionListTable } from "./_components/region-list-table"
 
+export const nav = {
+  id: "regions",
+  labelKey: "navigation.items.regions",
+  iconKey: "buildings",
+  section: "settings",
+  order: 10,
+}
+
 const RegionList = () => {
   const { getWidgets } = useExtension()
 

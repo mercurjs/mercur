@@ -8,7 +8,9 @@ export type {
   MercurRoute,
   Route,
   ResolvedRoute,
+  NavItem,
+  NavSection,
 } from './types'
 
 // Constants (useful for advanced usage)
-export { VIRTUAL_MODULE_ID } from './types'
+export { VIRTUAL_MODULE_ID, VIRTUAL_NAVIGATION_MODULE_ID } from './types'

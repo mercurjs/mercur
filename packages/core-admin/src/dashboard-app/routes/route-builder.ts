@@ -28,6 +28,8 @@ export interface MercurRoute {
   Breadcrumb?: ComponentType<{ data: unknown }>
   Layout?: ComponentType<{ children: ReactNode }>
   ErrorBoundary?: ComponentType<{ error: Error }>
+  /** Whether this route is a modal (renders over parent) */
+  isModal?: boolean
 }
 
 /**
@@ -40,17 +42,8 @@ export interface BuildRoutesConfig {
   settingsRoutes?: RouteObject[]
 }
 
-// =============================================================================
-// Route Classification
-// =============================================================================
-
-/** Public routes that don't require authentication */
 const PUBLIC_PATHS = ["/login", "/invite", "/reset-password"]
-
-/** Settings routes */
 const SETTINGS_PREFIX = "/settings"
-
-/** Modal route segments - these render as children (overlay on parent) */
 const MODAL_SEGMENTS = ["edit", "create", "delete", "add", "remove", "manage"]
 
 function isPublicRoute(path: string): boolean {
@@ -65,20 +58,18 @@ function isMainRoute(path: string): boolean {
   return !isPublicRoute(path) && !isSettingsRoute(path)
 }
 
-/**
- * Check if a route segment represents a modal route.
- * Modal routes render as overlay on parent content.
- */
 function isModalSegment(segment: string): boolean {
-  // Exact match or starts with modal keyword (e.g., "add-products")
   return MODAL_SEGMENTS.some(
     (modal) => segment === modal || segment.startsWith(modal + "-")
   )
 }
 
-// =============================================================================
-// Route Tree Building
-// =============================================================================
+function shouldTreatAsModal(node: RouteNode): boolean {
+  if (node.route?.isModal !== undefined) {
+    return node.route.isModal
+  }
+  return isModalSegment(node.segment)
+}
 
 interface RouteNode {
   segment: string
@@ -87,9 +78,6 @@ interface RouteNode {
   children: Map<string, RouteNode>
 }
 
-/**
- * Build a tree structure from flat routes
- */
 function buildRouteTree(routes: MercurRoute[]): RouteNode {
   const root: RouteNode = {
     segment: "",
@@ -116,20 +104,12 @@ function buildRouteTree(routes: MercurRoute[]): RouteNode {
       currentNode = currentNode.children.get(segment)!
     }
 
-    // Attach route to the final node
     currentNode.route = route
   }
 
   return root
 }
 
-// =============================================================================
-// Route Conversion - FLAT structure with modal children
-// =============================================================================
-
-/**
- * Convert MercurRoute to RouteObject with element (not lazy) for modal routes
- */
 function createRouteObject(
   route: MercurRoute,
   pathOverride?: string
@@ -139,7 +119,6 @@ function createRouteObject(
     errorElement: createElement(route.ErrorBoundary || ErrorBoundary),
   }
 
-  // Build handle with breadcrumb
   let handle = route.handle ? { ...route.handle } : undefined
 
   if (route.Breadcrumb) {
@@ -157,19 +136,6 @@ function createRouteObject(
   return routeObj
 }
 
-/**
- * Convert route tree to FLAT RouteObjects.
- *
- * Key logic:
- * - Modal routes (edit, create, delete) become CHILDREN of parent (render in Outlet)
- *   BUT ONLY if parent has a route! Otherwise they become flat routes.
- * - Page routes become FLAT siblings (replace parent content)
- *
- * This allows:
- * - /products/:id/edit → modal over ProductDetail (parent has route)
- * - /products/:id/variants/:variant_id → replaces ProductDetail (flat route)
- * - /orders/:id/:f_id/create-shipment → flat route (parent [f_id] has no route)
- */
 function flattenRouteTree(
   node: RouteNode,
   isModalChild = false,
@@ -177,51 +143,34 @@ function flattenRouteTree(
 ): RouteObject[] {
   const results: RouteObject[] = []
 
-  // Process this node
   if (node.route) {
-    // Separate children into modals and pages
-    // Modal segments are only treated as modals if THIS node has a route (they can nest here)
     const modalChildren: RouteNode[] = []
     const pageChildren: RouteNode[] = []
 
     for (const child of node.children.values()) {
-      if (isModalSegment(child.segment)) {
+      if (shouldTreatAsModal(child)) {
         modalChildren.push(child)
       } else {
         pageChildren.push(child)
       }
     }
 
-    // Determine if this node should be treated as modal child:
-    // - isModalChild=true means parent wanted us to be modal
-    // - But we can only be modal if parent actually had a route
     const treatAsModalChild = isModalChild && parentHasRoute
-
-    // Determine path:
-    // - Modal children use just the segment (they're nested under parent)
-    // - Flat routes use full path from route.path
     const routePath = treatAsModalChild ? node.segment : node.route.path
-
-    // Create route object for this node
     const routeObj = createRouteObject(node.route, routePath)
 
     if (modalChildren.length > 0) {
-      // This route has modal children - wrap with Outlet
       routeObj.element = createElement(PageWithOutlet, {
         Component: node.route.Component,
       })
       routeObj.loader = node.route.loader
-
-      // Modal routes are children (render in Outlet)
-      // Pass parentHasRoute=true because THIS node has a route
       routeObj.children = [
-        { index: true }, // Empty index, content is in PageWithOutlet
+        { index: true },
         ...modalChildren.flatMap((child) =>
           flattenRouteTree(child, true, true)
         ),
       ]
     } else {
-      // No modal children - use lazy loading
       routeObj.lazy = async () => ({
         Component: node.route!.Component,
         loader: node.route!.loader,
@@ -230,18 +179,12 @@ function flattenRouteTree(
 
     results.push(routeObj)
 
-    // Page children are FLAT (siblings, not nested)
-    // Pass parentHasRoute=true because THIS node has a route
     for (const child of pageChildren) {
       results.push(...flattenRouteTree(child, false, true))
     }
   } else if (node.children.size > 0) {
-    // No route at this node, just process children
-    // Modal segments without parent route become flat routes
     for (const child of node.children.values()) {
-      // Even if child is modal segment, pass parentHasRoute=false
-      // so it will be treated as flat route (full path)
-      const childIsModal = isModalSegment(child.segment)
+      const childIsModal = shouldTreatAsModal(child)
       results.push(...flattenRouteTree(child, childIsModal, false))
     }
   }
@@ -249,70 +192,41 @@ function flattenRouteTree(
   return results
 }
 
-/**
- * Process routes for a section (main, settings, public)
- */
 function processRoutes(routes: MercurRoute[]): RouteObject[] {
   const tree = buildRouteTree(routes)
   return flattenRouteTree(tree)
 }
 
-// =============================================================================
-// Main Export: Build Full Route Structure
-// =============================================================================
-
-/**
- * Build the complete route structure from MercurRoutes
- *
- * Creates a structure where:
- * - Modal routes (edit, create, delete) are CHILDREN of parent (overlay)
- * - Page routes are FLAT (replace parent content)
- * - Public routes (login, invite) → PublicLayout
- * - Main routes → ProtectedRoute + MainLayout
- * - Settings routes → ProtectedRoute + SettingsLayout
- *
- * @param routes - Flat routes from virtual:mercur-routes
- * @param config - Additional routes from plugins
- */
 export function buildRoutes(
   routes: MercurRoute[],
   config: BuildRoutesConfig = {}
 ): RouteObject[] {
   const { coreRoutes = [], settingsRoutes = [] } = config
 
-  // Classify routes
   const publicRoutes = routes.filter((r) => isPublicRoute(r.path))
   const mainRoutes = routes.filter((r) => isMainRoute(r.path))
   const settingsRoutesFromPages = routes.filter((r) => isSettingsRoute(r.path))
 
-  // Process routes (flat structure with modal children)
   const publicRouteObjects = processRoutes(publicRoutes)
   const mainRouteObjects = processRoutes(mainRoutes)
   const settingsRouteObjects = processRoutes(settingsRoutesFromPages)
 
-  // Build final structure
   return [
-    // Protected routes (authenticated)
     {
       element: createElement(ProtectedRoute),
       errorElement: createElement(ErrorBoundary),
       children: [
-        // Main layout (with sidebar) - for non-settings routes
         {
           element: createElement(MainLayout),
           children: [
-            // Index route - redirect to /orders
             {
               index: true,
               element: createElement(Navigate, { to: "/orders", replace: true }),
             },
-            // Main routes (flat with modal children)
             ...mainRouteObjects,
-            // Plugin core routes
             ...coreRoutes,
           ],
         },
-        // Settings layout (separate from main) - for /settings/* routes
         {
           path: "settings",
           element: createElement(SettingsLayout),
@@ -320,23 +234,19 @@ export function buildRoutes(
             breadcrumb: () => "Settings",
           },
           children: [
-            // Settings routes (strip /settings prefix from paths)
             ...settingsRouteObjects.map((r) => ({
               ...r,
               path: r.path?.replace(/^settings\/?/, "") || undefined,
             })),
-            // Plugin settings routes
             ...settingsRoutes,
           ],
         },
       ],
     },
-    // Public routes (unauthenticated)
     {
       element: createElement(PublicLayout),
       children: publicRouteObjects,
     },
-    // 404 catch-all
     {
       path: "*",
       lazy: () => import("../../pages/no-match"),
@@ -344,13 +254,6 @@ export function buildRoutes(
   ]
 }
 
-// =============================================================================
-// Utility Functions (for debugging/testing)
-// =============================================================================
-
-/**
- * Debug: print route tree
- */
 export function printRouteTree(routes: RouteObject[], indent = 0): void {
   const prefix = "  ".repeat(indent)
   for (const route of routes) {
@@ -365,9 +268,6 @@ export function printRouteTree(routes: RouteObject[], indent = 0): void {
   }
 }
 
-/**
- * Get routes for a specific section (for testing)
- */
 export function getMainRoutes(routes: MercurRoute[]): MercurRoute[] {
   return routes.filter((r) => isMainRoute(r.path))
 }
@@ -378,4 +278,174 @@ export function getSettingsRoutes(routes: MercurRoute[]): MercurRoute[] {
 
 export function getPublicRoutes(routes: MercurRoute[]): MercurRoute[] {
   return routes.filter((r) => isPublicRoute(r.path))
+}
+
+export type RouteValidationSeverity = "error" | "warning" | "info"
+
+export interface RouteValidationIssue {
+  severity: RouteValidationSeverity
+  code: string
+  message: string
+  path: string
+  details?: Record<string, unknown>
+}
+
+export interface RouteValidationResult {
+  valid: boolean
+  issues: RouteValidationIssue[]
+}
+
+export function validateRoutes(routes: MercurRoute[]): RouteValidationResult {
+  const issues: RouteValidationIssue[] = []
+
+  const pathMap = new Map<string, MercurRoute[]>()
+  for (const route of routes) {
+    const existing = pathMap.get(route.path) || []
+    existing.push(route)
+    pathMap.set(route.path, existing)
+  }
+
+  for (const [path, routesForPath] of pathMap) {
+    if (routesForPath.length > 1) {
+      issues.push({
+        severity: "error",
+        code: "ROUTE_COLLISION",
+        message: `Multiple routes define the same path "${path}"`,
+        path,
+        details: {
+          count: routesForPath.length,
+        },
+      })
+    }
+  }
+
+  const tree = buildRouteTree(routes)
+
+  function checkModalWithoutParent(node: RouteNode, parentNode?: RouteNode): void {
+    if (shouldTreatAsModal(node) && node.route) {
+      if (parentNode && !parentNode.route) {
+        issues.push({
+          severity: "warning",
+          code: "MODAL_WITHOUT_PARENT",
+          message: `Modal route "${node.fullPath}" has no parent with Component. It will render as flat route instead.`,
+          path: node.fullPath,
+          details: {
+            parentPath: parentNode.fullPath,
+            isExplicitModal: node.route.isModal === true,
+            segment: node.segment,
+          },
+        })
+      }
+    }
+
+    for (const child of node.children.values()) {
+      checkModalWithoutParent(child, node)
+    }
+  }
+  checkModalWithoutParent(tree)
+
+  function checkOrphanDynamicSegments(node: RouteNode, parentNode?: RouteNode): void {
+    const isDynamicSegment = /^\[.+\]$/.test(node.segment)
+
+    if (isDynamicSegment && node.route && parentNode && !parentNode.route) {
+      const grandParent = getParentPath(parentNode.fullPath)
+      const hasGrandParentRoute = grandParent ? pathMap.has(grandParent) : false
+
+      if (!hasGrandParentRoute && parentNode.fullPath !== "/") {
+        issues.push({
+          severity: "info",
+          code: "ORPHAN_DYNAMIC_SEGMENT",
+          message: `Dynamic route "${node.fullPath}" parent "${parentNode.fullPath}" has no route. This is valid but may indicate missing intermediate page.`,
+          path: node.fullPath,
+          details: {
+            parentPath: parentNode.fullPath,
+            segment: node.segment,
+          },
+        })
+      }
+    }
+
+    for (const child of node.children.values()) {
+      checkOrphanDynamicSegments(child, node)
+    }
+  }
+  checkOrphanDynamicSegments(tree)
+
+  function checkUnreachableModals(
+    node: RouteNode,
+    ancestorIsModal: boolean
+  ): void {
+    const nodeIsModal = node.route && shouldTreatAsModal(node)
+
+    if (nodeIsModal && ancestorIsModal) {
+      issues.push({
+        severity: "warning",
+        code: "UNREACHABLE_MODAL",
+        message: `Modal route "${node.fullPath}" is nested under another modal. Only one level of modal nesting is supported.`,
+        path: node.fullPath,
+        details: {
+          segment: node.segment,
+        },
+      })
+    }
+
+    for (const child of node.children.values()) {
+      checkUnreachableModals(child, nodeIsModal || ancestorIsModal)
+    }
+  }
+  checkUnreachableModals(tree, false)
+
+  for (const route of routes) {
+    if (!route.path || route.path.trim() === "") {
+      issues.push({
+        severity: "error",
+        code: "EMPTY_PATH",
+        message: "Route has empty or missing path",
+        path: route.path || "(empty)",
+      })
+    }
+  }
+
+  return {
+    valid: !issues.some((i) => i.severity === "error"),
+    issues,
+  }
+}
+
+function getParentPath(path: string): string | null {
+  const segments = path.split("/").filter(Boolean)
+  if (segments.length <= 1) return null
+  return "/" + segments.slice(0, -1).join("/")
+}
+
+export function logValidationIssues(result: RouteValidationResult): void {
+  if (result.issues.length === 0) {
+    console.log("[mercur-routes] ✓ All routes validated successfully")
+    return
+  }
+
+  const errors = result.issues.filter((i) => i.severity === "error")
+  const warnings = result.issues.filter((i) => i.severity === "warning")
+  const infos = result.issues.filter((i) => i.severity === "info")
+
+  if (errors.length > 0) {
+    console.error(`[mercur-routes] ✗ ${errors.length} route error(s):`)
+    for (const issue of errors) {
+      console.error(`  [${issue.code}] ${issue.message}`)
+    }
+  }
+
+  if (warnings.length > 0) {
+    console.warn(`[mercur-routes] ⚠ ${warnings.length} route warning(s):`)
+    for (const issue of warnings) {
+      console.warn(`  [${issue.code}] ${issue.message}`)
+    }
+  }
+
+  if (infos.length > 0) {
+    console.info(`[mercur-routes] ℹ ${infos.length} route info(s):`)
+    for (const issue of infos) {
+      console.info(`  [${issue.code}] ${issue.message}`)
+    }
+  }
 }

@@ -2,6 +2,13 @@
 
 import { CategoriesPage } from "./_components/categories-page"
 
+export const nav = {
+  id: "categories",
+  labelKey: "navigation.items.categories",
+  parent: "products",
+  order: 20,
+}
+
 // Re-export compound component and types for user overrides
 export { CategoriesPage }
 export type { CategoriesPageProps } from "./_components/categories-page"

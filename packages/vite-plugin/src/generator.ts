@@ -1,4 +1,4 @@
-import type { ScannedFiles, PageInfo, PageExports } from './types'
+import type { ScannedFiles, PageInfo, PageExports, NavItem, NavSection } from './types'
 import { findClosestMatch } from './resolver'
 
 interface GeneratedImport {
@@ -176,6 +176,11 @@ function serializeRouteObject(
     parts.push(`ErrorBoundary: ${errorName}`)
   }
 
+  // isModal (optional, explicit modal declaration)
+  if (pageInfo.exports.isModal !== undefined) {
+    parts.push(`isModal: ${pageInfo.exports.isModal}`)
+  }
+
   return `{ ${parts.join(', ')} }`
 }
 
@@ -219,3 +224,46 @@ export const routes = [
 export default routes
 `
 }
+
+export function generateNavigationCode(
+  items: Map<string, NavItem>,
+  sections: NavSection[]
+): string {
+  const sortedSections = [...sections].sort((a, b) => (a.order || 50) - (b.order || 50))
+  const sortedItems = [...items.values()].sort((a, b) => (a.order || 50) - (b.order || 50))
+
+  const sectionObjects = sortedSections.map(section => {
+    const parts: string[] = []
+    parts.push(`id: ${JSON.stringify(section.id)}`)
+    if (section.label) parts.push(`label: ${JSON.stringify(section.label)}`)
+    if (section.labelKey) parts.push(`labelKey: ${JSON.stringify(section.labelKey)}`)
+    if (section.order !== undefined) parts.push(`order: ${section.order}`)
+    return `{ ${parts.join(', ')} }`
+  })
+
+  const itemObjects = sortedItems.map(item => {
+    const parts: string[] = []
+    parts.push(`id: ${JSON.stringify(item.id)}`)
+    if (item.label) parts.push(`label: ${JSON.stringify(item.label)}`)
+    if (item.labelKey) parts.push(`labelKey: ${JSON.stringify(item.labelKey)}`)
+    if (item.iconKey) parts.push(`iconKey: ${JSON.stringify(item.iconKey)}`)
+    if (item.path) parts.push(`path: ${JSON.stringify(item.path)}`)
+    if (item.parent) parts.push(`parent: ${JSON.stringify(item.parent)}`)
+    if (item.section) parts.push(`section: ${JSON.stringify(item.section)}`)
+    if (item.order !== undefined) parts.push(`order: ${item.order}`)
+    if (item.hidden !== undefined) parts.push(`hidden: ${item.hidden}`)
+    return `  ${parts.join(', ')}`
+  })
+
+  return `export const sections = [
+  ${sectionObjects.join(',\n  ')}
+]
+
+export const items = [
+  { ${itemObjects.join(' },\n  { ')} }
+]
+
+export default { sections, items }
+`
+}
+

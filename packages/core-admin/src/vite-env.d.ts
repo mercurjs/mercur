@@ -18,7 +18,7 @@ declare const __STOREFRONT_URL__: string | undefined
 declare const __BASE__: string
 declare const __TALK_JS_APP_ID__: string | undefined
 
-// Virtual module from @mercurjs/vite-plugin
+// Virtual modules from @mercurjs/vite-plugin
 declare module "virtual:mercur-routes" {
   import type { ComponentType, ReactNode } from "react"
   import type { LoaderFunction } from "react-router-dom"
@@ -37,4 +37,28 @@ declare module "virtual:mercur-routes" {
   }
 
   export const routes: MercurRoute[]
+}
+
+declare module "virtual:mercur-navigation" {
+  export interface NavItem {
+    id: string
+    label?: string
+    labelKey?: string
+    iconKey?: string
+    path?: string
+    parent?: string
+    section?: string
+    order?: number
+    hidden?: boolean
+  }
+
+  export interface NavSection {
+    id: string
+    label?: string
+    labelKey?: string
+    order?: number
+  }
+
+  export const sections: NavSection[]
+  export const items: NavItem[]
 }

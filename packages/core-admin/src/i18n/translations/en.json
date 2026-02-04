@@ -3241,5 +3241,23 @@
   },
   "commissionLines": {
     "domain": "Commission Lines"
+  },
+  "navigation": {
+    "items": {
+      "orders": "Orders",
+      "products": "Products",
+      "categories": "Categories",
+      "collections": "Collections",
+      "inventory": "Inventory",
+      "customers": "Customers",
+      "customerGroups": "Customer Groups",
+      "promotions": "Promotions",
+      "campaigns": "Campaigns",
+      "priceLists": "Price Lists",
+      "regions": "Regions",
+      "salesChannels": "Sales Channels",
+      "workflows": "Workflows",
+      "apiKeys": "API Keys"
+    }
   }
 }

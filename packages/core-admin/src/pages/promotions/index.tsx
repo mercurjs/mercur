@@ -3,6 +3,14 @@ import { useExtension } from "@providers/extension-provider"
 
 import { PromotionListTable } from "./_components/promotion-list-table"
 
+export const nav = {
+  id: "promotions",
+  labelKey: "navigation.items.promotions",
+  iconKey: "gift",
+  section: "sales",
+  order: 50,
+}
+
 const PromotionsList = () => {
   const { getWidgets } = useExtension()
 
