@@ -4,6 +4,11 @@
   "description": "A starter for Medusa projects.",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
+  "exports": {
+    "./_generated": {
+      "types": "./.mercur/_generated/index.ts"
+    }
+  },
   "keywords": [
     "sqlite",
     "postgres",
