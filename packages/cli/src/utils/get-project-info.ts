@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
+import ts, { type CompilerOptions } from "typescript";
 import { loadConfig } from "tsconfig-paths";
 import fg from "fast-glob"
 
@@ -24,7 +25,7 @@ const PROJECT_SHARED_IGNORE = [
 ]
 
 export async function getProjectInfo(cwd: string): Promise<ProjectInfo> {
-  const [isSrcDir, aliasPrefix, packageJson, medusaConfigFile, medusaVersion, mercurVersion] = await Promise.all([
+  const [isSrcDir, aliasPrefix, packageJson, medusaConfigInfo, medusaVersion, mercurVersion] = await Promise.all([
     fs.pathExists(path.resolve(cwd, "src")),
     getTsConfigAliasPrefix(cwd),
     getPackageInfo(cwd),
@@ -37,7 +38,7 @@ export async function getProjectInfo(cwd: string): Promise<ProjectInfo> {
     isSrcDir,
     aliasPrefix,
     packageJson,
-    medusaConfigFile,
+    medusaConfigFile: medusaConfigInfo?.file ?? null,
     medusaVersion,
     mercurVersion,
   };
@@ -76,7 +77,7 @@ export function getPackageInfo(
   }) as PackageJson
 }
 
-export async function getMedusaConfigFile(cwd: string) {
+export async function getMedusaConfigFile(cwd: string): Promise<{ file: string; dir: string } | null> {
   const files = await fg.glob("medusa-config.*", {
     cwd,
     deep: 3,
@@ -87,7 +88,11 @@ export async function getMedusaConfigFile(cwd: string) {
     return null
   }
 
-  return files[0]
+  const file = files[0]
+  return {
+    file,
+    dir: path.resolve(cwd, path.dirname(file)),
+  }
 }
 
 export async function getMedusaVersion(cwd: string): Promise<string | null> {

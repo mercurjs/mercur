@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@antfu/ni": "^27.0.1",
+    "chokidar": "^4.0.3",
     "commander": "^14.0.2",
     "cosmiconfig": "^9.0.0",
     "deepmerge": "^4.3.1",
@@ -39,6 +40,7 @@
     "terminal-link": "^5.0.0",
     "ts-morph": "^27.0.2",
     "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.8.3",
     "validate-npm-package-name": "^7.0.2",
     "wait-on": "^9.0.3",
     "zod": "3.25.76"
