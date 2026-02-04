@@ -8,13 +8,16 @@ module.exports = defineConfig({
   },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
-    databaseDriverOptions: process.env.NODE_ENV === 'production' ? {
-      connection: { 
-        ssl: {
-          rejectUnauthorized: false
-        }
-      }
-    } : undefined,
+    databaseDriverOptions:
+      process.env.NODE_ENV === 'production'
+        ? {
+            connection: {
+              ssl: {
+                rejectUnauthorized: false
+              }
+            }
+          }
+        : undefined,
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -58,7 +61,7 @@ module.exports = defineConfig({
     ...(process.env.S3_ACCESS_KEY_ID
       ? [
           {
-            resolve: "@medusajs/medusa/file",
+            resolve: '@medusajs/medusa/file',
             options: {
               providers: [
                 {

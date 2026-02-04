@@ -39,6 +39,7 @@
     "@mercurjs/b2c-core": "*",
     "@mercurjs/commission": "*",
     "@mercurjs/requests": "*",
+    "@mercurjs/easypost": "*",
     "@mercurjs/resend": "*",
     "@mercurjs/reviews": "*",
     "@mercurjs/stripe-tax-provider": "*",
