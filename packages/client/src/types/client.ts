@@ -1,4 +1,4 @@
-import { ChildKeys, InferInput, InferOutput, PrettifyDeep, TypeError } from "./utils";
+import { ChildKeys, InferInput, InferOutput, PrettifyDeep, TypeError } from "./helpers";
 
 export type ActionType = "query" | "mutate" | "delete";
 
