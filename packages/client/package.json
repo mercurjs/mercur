@@ -17,9 +17,9 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./react": {
-      "types": "./dist/react/index.d.ts",
-      "default": "./dist/react/index.js"
+    "./react-query": {
+      "types": "./dist/react-query/index.d.ts",
+      "default": "./dist/react-query/index.js"
     }
   },
   "scripts": {
