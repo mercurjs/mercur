@@ -1,11 +1,10 @@
-// import customRoutes from "virtual:mercur/routes"
+import customRoutes from "virtual:mercur/routes"
 import components from "virtual:mercur/components"
 import { HelmetProvider } from "react-helmet-async"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ThemeProvider } from "./providers"
 import { Toaster, TooltipProvider } from "@medusajs/ui"
-
-// import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
 
 const queryClient = new QueryClient()
 
@@ -16,7 +15,7 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             {components.Sidebar && <components.Sidebar />}
-            {/* <RouterProvider router={createBrowserRouter(customRoutes)} /> */}
+            <RouterProvider router={createBrowserRouter(customRoutes)} />
             <Toaster />
           </ThemeProvider>
         </QueryClientProvider>

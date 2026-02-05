@@ -1,5 +1,6 @@
 import path from "path"
 import { BuiltMercurConfig } from ".."
+import { generateRoutes } from "./routes"
 
 export const CONFIG_VIRTUAL_MODULE = "virtual:mercur/config"
 export const ROUTES_VIRTUAL_MODULE = "virtual:mercur/routes"
@@ -43,7 +44,7 @@ export function loadVirtualModule({
     }
 
     if (id === RESOLVED_ROUTES_MODULE) {
-        return loadRoutesModule()
+        return loadRoutesModule(mercurConfig)
     }
 
     return null
@@ -74,6 +75,6 @@ export default {
 `
 }
 
-function loadRoutesModule(): string {
-    return `export default []`
+function loadRoutesModule(mercurConfig: BuiltMercurConfig): string {
+    return generateRoutes(mercurConfig)
 }
