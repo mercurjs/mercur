@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@mercurjs/core-ui/index.css'
-import App from '@mercurjs/core-ui'
+import App from '@mercurjs/core-ui/app'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

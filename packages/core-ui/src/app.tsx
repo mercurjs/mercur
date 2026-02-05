@@ -1,4 +1,4 @@
-import customRoutes from "virtual:mercur/routes"
+// import customRoutes from "virtual:mercur/routes"
 import config from "virtual:mercur/config"
 import { HelmetProvider } from "react-helmet-async"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -17,6 +17,7 @@ export default function App() {
           <ThemeProvider>
             wassup
             {JSON.stringify(config)}
+            {config.components?.Sidebar}
             {/* <RouterProvider router={createBrowserRouter(customRoutes)} /> */}
             <Toaster />
           </ThemeProvider>

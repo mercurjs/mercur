@@ -1,5 +1,5 @@
 declare module "virtual:mercur/config" {
-    import type { MercurConfig } from "./vite-plugin"
+    import type { MercurConfig } from "./index"
     const config: MercurConfig
     export default config
 }

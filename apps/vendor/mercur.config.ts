@@ -1,3 +1,9 @@
+import type { MercurConfig } from "@mercurjs/core-ui"
+
 export default {
-    test: true
-}
+    description: 'test',
+    title: 'test',
+    components: {
+        Sidebar: './sidebar'
+    }
+} satisfies MercurConfig

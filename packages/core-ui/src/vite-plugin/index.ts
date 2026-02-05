@@ -1,11 +1,7 @@
 import type * as Vite from "vite"
 import path from "path"
 import { getFileExports } from "../utils"
-
-export interface MercurConfig {
-    title: string
-    description: string
-}
+import { MercurConfig } from ".."
 
 const CONFIG_NAME = "mercur.config.ts"
 

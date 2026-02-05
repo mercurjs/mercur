@@ -6,6 +6,7 @@
       "ES2023"
     ],
     "module": "ESNext",
+    "jsx": "react-jsx",
     "types": [
       "node"
     ],
