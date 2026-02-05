@@ -1,6 +1,6 @@
 import type * as Vite from "vite"
 import path from "path"
-import { pathToFileURL } from "url"
+import { getFileExports } from "../utils"
 
 export interface MercurConfig {
     title: string
@@ -41,10 +41,10 @@ async function loadMercurConfig(root: string): Promise<MercurConfig> {
     const configPath = path.resolve(root, CONFIG_NAME)
 
     try {
-        const configUrl = pathToFileURL(configPath).href
-        const mod = await import(configUrl)
-        return mod.default ?? mod
+        const mod = await getFileExports(configPath)
+        return mod.default
     } catch (error) {
+        console.error('error', error)
         throw new Error(
             `[@mercurjs/core-ui] Could not find config file "${CONFIG_NAME}" in ${root}. ` +
             `Please create a ${CONFIG_NAME} file in your project root.`

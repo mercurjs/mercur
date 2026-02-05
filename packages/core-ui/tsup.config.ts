@@ -1,20 +1,8 @@
 import { defineConfig } from "tsup"
 
 export default defineConfig({
-  entry: ["src/index.tsx", "src/vite-plugin/index.ts"],
-  format: ["esm"],
+  entry: ["src/app.tsx", "src/vite-plugin/index.ts"],
+  format: ["cjs"],
   dts: true,
-  splitting: true,
-  sourcemap: true,
-  clean: true,
-  treeshake: true,
-  external: [
-    "react",
-    "react-dom",
-    "virtual:mercur/config",
-    "virtual:mercur/routes",
-  ],
-  esbuildOptions(options) {
-    options.jsx = "automatic"
-  },
+  onSuccess: "cp src/index.css dist/index.css",
 })
