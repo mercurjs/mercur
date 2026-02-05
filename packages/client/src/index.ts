@@ -1,7 +1,7 @@
 import { stringify } from "qs";
-import { kebabCase } from "@medusajs/utils";
 import { createRecursiveProxy } from "./create-proxy";
 import { ActionType, ClientOptions, InferClient } from "./types";
+import { kebabCase } from "./utils";
 
 export class ClientError extends Error {
     status: number | undefined;

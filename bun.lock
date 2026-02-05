@@ -194,6 +194,7 @@
         "@medusajs/dashboard": "^2.13.0",
         "@medusajs/icons": "2.13.1",
         "@medusajs/ui": "4.1.1",
+        "@mercurjs/client": "*",
         "@radix-ui/react-dialog": "1.1.4",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -222,7 +223,9 @@
         "zod": "3.25.76",
       },
       "devDependencies": {
+        "@medusajs/types": "2.13.1",
         "@medusajs/ui-preset": "2.13.1",
+        "@mercurjs/core": "*",
         "@types/react": "^18.2.66",
         "@types/react-dom": "^18.2.22",
         "tsup": "^8.0.2",

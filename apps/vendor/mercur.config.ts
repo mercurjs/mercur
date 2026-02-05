@@ -5,5 +5,6 @@ export default {
     description: 'test',
     components: {
         Sidebar: './sidebar'
-    }
+    },
+    baseUrl: 'http://localhost:3000',
 } satisfies MercurConfig
