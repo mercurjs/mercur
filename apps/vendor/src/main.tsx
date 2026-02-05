@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import '@mercurjs/dashboard-sdk/index.css'
-import App from '@mercurjs/dashboard-sdk'
+import '@mercurjs/vendor/index.css'
+import App from '@mercurjs/vendor'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

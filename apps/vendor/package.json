@@ -12,7 +12,8 @@
   "dependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "@mercurjs/dashboard-sdk": "*"
+    "@mercurjs/dashboard-sdk": "*",
+    "@mercurjs/vendor": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

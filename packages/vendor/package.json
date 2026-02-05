@@ -1,0 +1,39 @@
+{
+  "name": "@mercurjs/vendor",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./index.css": "./dist/index.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "@medusajs/ui": "4.1.1",
+    "@tanstack/react-query": "5.64.2",
+    "react-helmet-async": "^2.0.5",
+    "react-router-dom": "6.30.3"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@medusajs/ui-preset": "2.13.1",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "tsup": "^8.0.2",
+    "typescript": "^5.2.2"
+  }
+}

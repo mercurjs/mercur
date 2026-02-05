@@ -5,5 +5,3 @@ export interface MercurConfig {
         Sidebar?: string
     }
 }
-
-export { default } from './app'

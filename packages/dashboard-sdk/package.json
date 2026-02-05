@@ -12,8 +12,7 @@
     "./vite-plugin": {
       "types": "./dist/vite-plugin/index.d.ts",
       "import": "./dist/vite-plugin/index.cjs"
-    },
-    "./index.css": "./dist/index.css"
+    }
   },
   "files": [
     "dist"
