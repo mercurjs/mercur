@@ -10,8 +10,6 @@ import { Toaster, TooltipProvider } from "@medusajs/ui"
 const queryClient = new QueryClient()
 
 export default function App() {
-
-
   return (
     <TooltipProvider>
       <HelmetProvider>
