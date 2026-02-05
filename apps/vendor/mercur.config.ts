@@ -1,4 +1,4 @@
-import type { MercurConfig } from '@mercurjs/core-ui'
+import type { MercurConfig } from '@mercurjs/dashboard-sdk'
 
 export default {
     title: 'test',

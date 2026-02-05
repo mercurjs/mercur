@@ -38,7 +38,7 @@ async function loadMercurConfig(root: string): Promise<BuiltMercurConfig> {
         return buildConfig(mod.default)
     } catch (error) {
         throw new Error(
-            `[@mercurjs/core-ui] Could not find config file "${CONFIG_NAME}" in ${root}. ` +
+            `[@mercurjs/dashboard-sdk] Could not find config file "${CONFIG_NAME}" in ${root}. ` +
             `Please create a ${CONFIG_NAME} file in your project root.`
         )
     }

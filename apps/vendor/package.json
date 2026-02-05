@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "@mercurjs/core-ui": "*"
+    "@mercurjs/dashboard-sdk": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
