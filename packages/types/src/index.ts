@@ -16,5 +16,3 @@ export * from "./payout"
 // Modules
 export * from "./modules"
 
-// Codegen types
-export * from "./codegen"
