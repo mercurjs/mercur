@@ -14,33 +14,44 @@ jobs:
     steps:
       - name: Build message
         id: msg
+        env:
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          REPO: ${{ github.repository }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUM: ${{ github.event.pull_request.number }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+          RELEASE_TITLE: ${{ github.event.release.name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          EVENT="${{ github.event_name }}"
-          ACTION="${{ github.event.action }}"
-          REPO="${{ github.repository }}"
           URL=""
           TITLE=""
           CONTENT=""
 
           if [ "$EVENT" = "pull_request" ]; then
-            TITLE="${{ github.event.pull_request.title }}"
-            URL="${{ github.event.pull_request.html_url }}"
-            PRNUM="${{ github.event.pull_request.number }}"
-            MERGED="${{ github.event.pull_request.merged }}"
+            TITLE="$PR_TITLE"
+            URL="$PR_URL"
+            PRNUM="$PR_NUM"
+            MERGED="$PR_MERGED"
             if [ "$ACTION" = "closed" ] && [ "$MERGED" = "true" ]; then
               CONTENT="✅ **PR merged** #$PRNUM: $TITLE\n$URL"
             else
               CONTENT="🔁 **PR $ACTION** #$PRNUM: $TITLE\n$URL"
             fi
           elif [ "$EVENT" = "issues" ]; then
-            TITLE="${{ github.event.issue.title }}"
-            URL="${{ github.event.issue.html_url }}"
-            INUM="${{ github.event.issue.number }}"
+            TITLE="$ISSUE_TITLE"
+            URL="$ISSUE_URL"
+            INUM="$ISSUE_NUM"
             CONTENT="🐛 **Issue $ACTION** #$INUM: $TITLE\n$URL"
           elif [ "$EVENT" = "release" ]; then
-            TITLE="${{ github.event.release.name }}"
-            URL="${{ github.event.release.html_url }}"
-            TAG="${{ github.event.release.tag_name }}"
+            TITLE="$RELEASE_TITLE"
+            URL="$RELEASE_URL"
+            TAG="$RELEASE_TAG"
             CONTENT="🚀 **Release published**: **$TAG** — $TITLE\n$URL"
           else
             CONTENT="ℹ️ Event: $EVENT ($ACTION)"
