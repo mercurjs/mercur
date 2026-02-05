@@ -7,6 +7,7 @@ import {
     resolveVirtualModule,
     loadVirtualModule,
 } from "./virtual-modules"
+import { VALID_FILE_EXTENSIONS } from "./constants"
 
 const CONFIG_NAME = "mercur.config.ts"
 
@@ -65,7 +66,7 @@ export function mercurVendorPlugin(): Vite.Plugin {
             return loadVirtualModule({ cwd: root, id, mercurConfig: config })
         },
         handleHotUpdate({ file, server }) {
-            if (file.endsWith(CONFIG_NAME)) {
+            if (VALID_FILE_EXTENSIONS.includes(path.extname(file))) {
                 server.restart()
             }
         },
