@@ -7,12 +7,13 @@ import { Toaster, TooltipProvider } from "@medusajs/ui"
 
 const queryClient = new QueryClient()
 
-function App() {
+export function App() {
   return (
     <TooltipProvider>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
+            wassup
             {/* <RouterProvider router={createBrowserRouter(customRoutes)} /> */}
             <Toaster />
           </ThemeProvider>
@@ -21,5 +22,3 @@ function App() {
     </TooltipProvider>
   )
 }
-
-export default App
