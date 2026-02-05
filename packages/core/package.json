@@ -8,6 +8,9 @@
     ".medusa/server"
   ],
   "exports": {
+    "./_generated": {
+      "types": "./.mercur/_generated/index.ts"
+    },
     "./package.json": "./package.json",
     "./workflows": "./.medusa/server/src/workflows/index.js",
     "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
