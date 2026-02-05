@@ -6,7 +6,7 @@ export default defineConfig([
     format: ["esm"],
     dts: true,
     clean: true,
-    external: ['virtual:mercur/routes', 'virtual:mercur/config'],
+    external: ['virtual:mercur/routes', 'virtual:mercur/config', 'virtual:mercur/components'],
   },
   {
     entry: ["src/vite-plugin/index.ts"],
