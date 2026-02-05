@@ -22,7 +22,7 @@ export const DELETE = async (
     entity: "inventory_level",
     filters: { inventory_item_id: id, location_id },
     fields: ["id", "reserved_quantity"],
-  }, { throwIfKeyNotFound: true });
+  });
 
   const { id: levelId, reserved_quantity: reservedQuantity } = result.data[0];
 

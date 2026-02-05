@@ -786,3 +786,80 @@ export type VendorUpdateProductStatusType = z.infer<
 export const VendorUpdateProductStatus = z.object({
   status: z.enum(["draft", "proposed", "published"]),
 });
+
+/**
+ * @schema VendorBatchVariantImages
+ * type: object
+ * properties:
+ *   add:
+ *     type: array
+ *     description: The images to add to the variant.
+ *     items:
+ *       type: string
+ *   remove:
+ *     type: array
+ *     description: The images to remove from the variant.
+ *     items:
+ *       type: string
+ */
+export const VendorBatchVariantImages = z.object({
+  add: z.array(z.string()).optional(),
+  remove: z.array(z.string()).optional(),
+});
+
+export type VendorBatchVariantImagesType = z.infer<typeof VendorBatchVariantImages>;
+
+/* Batch Update Products */
+
+/**
+ * @schema VendorBatchUpdateProductItem
+ * type: object
+ * required:
+ *   - id
+ * properties:
+ *   id:
+ *     type: string
+ *     description: The ID of the product to update.
+ *   title:
+ *     type: string
+ *     description: The title of the product.
+ *   status:
+ *     type: string
+ *     enum: [draft, published]
+ *     description: The status of the product.
+ *   discountable:
+ *     type: boolean
+ *     description: Whether the product can be discounted.
+ */
+export const VendorBatchUpdateProductItem = z.object({
+  id: z.string().min(1),
+  title: z.string().optional(),
+  status: z.enum(["draft", "published"]).optional(),
+  discountable: z.boolean().optional(),
+});
+
+/**
+ * @schema VendorBatchUpdateProducts
+ * type: object
+ * required:
+ *   - update
+ *   - delete
+ * properties:
+ *   update:
+ *     type: array
+ *     description: The products to update.
+ *     items:
+ *       $ref: "#/components/schemas/VendorBatchUpdateProductItem"
+ *   delete:
+ *     type: array
+ *     description: The products IDs to delete.
+ *     items:
+ *       type: string
+ */
+export type VendorBatchUpdateProductsType = z.infer<
+  typeof VendorBatchUpdateProducts
+>;
+export const VendorBatchUpdateProducts = z.object({
+  update: z.array(VendorBatchUpdateProductItem),
+  delete: z.array(z.string()),
+});
