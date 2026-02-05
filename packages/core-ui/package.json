@@ -6,8 +6,8 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/app.d.ts",
+      "import": "./dist/app.js"
     },
     "./vite-plugin": {
       "types": "./dist/vite-plugin/index.d.ts",
