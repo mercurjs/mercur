@@ -1,35 +1,14 @@
 import fs from "fs"
 import path from "path"
 import { VALID_FILE_EXTENSIONS } from "./constants"
-
-export type Route = {
-    Component: string
-    path: string
-    handle?: string
-    loader?: string
-    children?: Route[]
-}
+import { normalizePath } from "./utils"
+import type { Route, BuiltMercurConfig } from "./types"
 
 type RouteResult = {
     imports: string[]
     route: Route
 }
 
-/**
- * Normalize a file path by converting backslashes to forward slashes
- */
-function normalizePath(filePath: string): string {
-    return filePath.replace(/\\/g, "/")
-}
-
-/**
- * Convert file path to route path
- * Examples:
- * - src/pages/products/page.tsx -> /products
- * - src/pages/products/[id]/page.tsx -> /products/:id
- * - src/pages/products/[[slug]]/page.tsx -> /products/:slug?
- * - src/pages/(auth)/login/page.tsx -> /login? (optional static segment)
- */
 function getRoute(file: string, pagesDir: string): string {
     const importPath = normalizePath(file)
     const normalizedPagesDir = normalizePath(pagesDir)
@@ -49,9 +28,6 @@ function getRoute(file: string, pagesDir: string): string {
         ) || "/"
 }
 
-/**
- * Recursively crawl a directory for page files
- */
 function crawlPages(dir: string, pattern = "page"): string[] {
     const files: string[] = []
 
@@ -79,13 +55,9 @@ function crawlPages(dir: string, pattern = "page"): string[] {
     return files
 }
 
-/**
- * Check if a file has a default export by reading and parsing it
- */
 function hasDefaultExport(filePath: string): boolean {
     try {
         const content = fs.readFileSync(filePath, "utf-8")
-        // Simple heuristic: check for common default export patterns
         return (
             /export\s+default\s+/.test(content) ||
             /export\s*\{\s*[^}]*\s+as\s+default\s*[,}]/.test(content)
@@ -95,9 +67,6 @@ function hasDefaultExport(filePath: string): boolean {
     }
 }
 
-/**
- * Check if a file has named exports (handle, loader)
- */
 function getNamedExports(filePath: string): { hasHandle: boolean; hasLoader: boolean } {
     try {
         const content = fs.readFileSync(filePath, "utf-8")
@@ -153,7 +122,7 @@ function generateImports(
     return imports
 }
 
-function generateRoute(
+function generateRouteObject(
     routePath: string,
     index: number,
     hasHandle: boolean,
@@ -201,7 +170,7 @@ function parseFile(file: string, pagesDir: string, index: number): RouteResult |
     const routePath = getRoute(file, pagesDir)
 
     const imports = generateImports(file, index, hasHandle, hasLoader)
-    const route = generateRoute(routePath, index, hasHandle, hasLoader)
+    const route = generateRouteObject(routePath, index, hasHandle, hasLoader)
 
     return {
         imports,
@@ -212,7 +181,6 @@ function parseFile(file: string, pagesDir: string, index: number): RouteResult |
 function buildRouteTree(results: RouteResult[]): RouteResult[] {
     const routeMap = new Map<string, RouteResult>()
 
-    // Sort by path depth (shorter paths first) to ensure parents are processed before children
     const sortedResults = [...results].sort(
         (a, b) => a.route.path.split("/").length - b.route.path.split("/").length
     )
@@ -243,11 +211,7 @@ function buildRouteTree(results: RouteResult[]): RouteResult[] {
     return Array.from(routeMap.values())
 }
 
-export interface GenerateRoutesOptions {
-    srcDir: string
-}
-
-export function generateRoutes({ srcDir }: GenerateRoutesOptions): string {
+export function generateRoutes({ srcDir }: BuiltMercurConfig): string {
     const pagesDir = path.join(srcDir, "pages")
     const files = crawlPages(pagesDir)
 

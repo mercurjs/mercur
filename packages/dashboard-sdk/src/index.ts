@@ -1,7 +1,2 @@
-export interface MercurConfig {
-    title: string
-    description: string
-    components: {
-        Sidebar?: string
-    }
-}
+export { mercurDashboardPlugin } from "./plugin"
+export * from "./types"

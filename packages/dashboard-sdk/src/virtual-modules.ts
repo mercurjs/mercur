@@ -1,20 +1,12 @@
 import path from "path"
-import { BuiltMercurConfig } from ".."
+import {
+    RESOLVED_CONFIG_MODULE,
+    RESOLVED_ROUTES_MODULE,
+    RESOLVED_COMPONENTS_MODULE,
+    VIRTUAL_MODULES,
+} from "./constants"
 import { generateRoutes } from "./routes"
-
-export const CONFIG_VIRTUAL_MODULE = "virtual:mercur/config"
-export const ROUTES_VIRTUAL_MODULE = "virtual:mercur/routes"
-export const COMPONENTS_VIRTUAL_MODULE = "virtual:mercur/components"
-
-export const RESOLVED_CONFIG_MODULE = "\0" + CONFIG_VIRTUAL_MODULE
-export const RESOLVED_ROUTES_MODULE = "\0" + ROUTES_VIRTUAL_MODULE
-export const RESOLVED_COMPONENTS_MODULE = "\0" + COMPONENTS_VIRTUAL_MODULE
-
-export const VIRTUAL_MODULES = [
-    CONFIG_VIRTUAL_MODULE,
-    ROUTES_VIRTUAL_MODULE,
-    COMPONENTS_VIRTUAL_MODULE,
-]
+import type { BuiltMercurConfig } from "./types"
 
 export function isVirtualModule(id: string): boolean {
     return VIRTUAL_MODULES.includes(id)

@@ -1,27 +1,13 @@
 import type * as Vite from "vite"
 import path from "path"
-import { getFileExports } from "../utils"
-import { MercurConfig } from ".."
-import {
-    isVirtualModule,
-    resolveVirtualModule,
-    loadVirtualModule,
-} from "./virtual-modules"
-import { VALID_FILE_EXTENSIONS } from "./constants"
+import { getFileExports } from "./utils"
+import { CONFIG_NAME, VALID_FILE_EXTENSIONS } from "./constants"
+import { isVirtualModule, resolveVirtualModule, loadVirtualModule } from "./virtual-modules"
+import type { MercurConfig, BuiltMercurConfig } from "./types"
 
-const CONFIG_NAME = "mercur.config.ts"
-
-
-export interface BuiltMercurConfig extends MercurConfig {
-    root: string
-    srcDir: string
-    configPath: string
-}
-
-export function buildConfig(config: MercurConfig): BuiltMercurConfig {
-    const root = process.cwd()
-    const srcDir = `${root}/src`
-    const configPath = `${root}/${CONFIG_NAME}`
+function buildConfig(config: MercurConfig, root: string): BuiltMercurConfig {
+    const srcDir = path.join(root, "src")
+    const configPath = path.join(root, CONFIG_NAME)
 
     return {
         ...config,
@@ -35,7 +21,7 @@ async function loadMercurConfig(root: string): Promise<BuiltMercurConfig> {
     const configPath = path.resolve(root, CONFIG_NAME)
     try {
         const mod = await getFileExports(configPath)
-        return buildConfig(mod.default)
+        return buildConfig(mod.default, root)
     } catch (error) {
         throw new Error(
             `[@mercurjs/dashboard-sdk] Could not find config file "${CONFIG_NAME}" in ${root}. ` +
@@ -44,12 +30,12 @@ async function loadMercurConfig(root: string): Promise<BuiltMercurConfig> {
     }
 }
 
-export function mercurVendorPlugin(): Vite.Plugin {
+export function mercurDashboardPlugin(): Vite.Plugin {
     let root: string
     let config: BuiltMercurConfig
 
     return {
-        name: "@mercurjs/vite-plugin",
+        name: "@mercurjs/dashboard-sdk",
         configResolved(resolvedConfig) {
             root = resolvedConfig.root
         },
