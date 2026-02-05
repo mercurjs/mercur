@@ -30,7 +30,7 @@ async function loadMercurConfig(root: string): Promise<BuiltMercurConfig> {
     }
 }
 
-export function mercurDashboardPlugin(): Vite.Plugin {
+export function dashboardPlugin(): Vite.Plugin {
     let root: string
     let config: BuiltMercurConfig
 
