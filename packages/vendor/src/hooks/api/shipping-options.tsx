@@ -57,8 +57,6 @@ export const useShippingOptions = (
   return { ...data, ...rest };
 };
 
-type test = InferClientOutput<typeof sdk.admin.shippingOptions.mutate>;
-
 export const useCreateShippingOptions = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.shippingOptions.mutate>,

@@ -1,12 +1,14 @@
 import { stringify } from "qs";
 import { createRecursiveProxy } from "./create-proxy";
-import { ActionType, ClientOptions, InferClient } from "./types";
+import { ActionType, ClientOptions, InferClient, PrettifyDeep } from "./types";
 import { kebabCase } from "./utils";
 
+type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
+
 export type InferClientInput<T> = T extends (input: infer I) => any
-    ? Omit<I, 'fetchOptions'>
+    ? PrettifyDeep<DistributiveOmit<I, 'fetchOptions'>>
     : T extends (input?: infer I) => any
-    ? Omit<NonNullable<I>, 'fetchOptions'>
+    ? PrettifyDeep<DistributiveOmit<NonNullable<I>, 'fetchOptions'>>
     : never;
 
 export type InferClientOutput<T> = T extends (...args: any[]) => Promise<infer O>

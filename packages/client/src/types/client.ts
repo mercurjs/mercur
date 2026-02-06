@@ -21,7 +21,7 @@ type InferFetchFn<
     TResponse,
     TInput = InferInput<TRequest>,
     TOutput = InferOutput<TResponse>,
-> = TInput extends Record<string, any>
+> = [TInput] extends [Record<string, any>]
     ? (input: PrettifyDeep<TInput & { fetchOptions?: RequestInit }>) => Promise<PrettifyDeep<TOutput>>
     : (input?: { fetchOptions?: RequestInit }) => Promise<PrettifyDeep<TOutput>>;
 
