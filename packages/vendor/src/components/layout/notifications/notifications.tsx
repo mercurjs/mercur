@@ -90,7 +90,7 @@ export const Notifications = () => {
             responseKey="notifications"
             queryKey={notificationQueryKeys.all}
             queryFn={(params) =>
-              sdk.admin.notification.list({
+              sdk.admin.notifications.query({
                 ...params,
                 channel: "feed",
               })

@@ -23,8 +23,8 @@ export type VendorPromotionRuleBatchResponse = {
   updated: VendorPromotionRule[]
   deleted: {
     ids: string[]
-    object: "promotion-rule"
-    deleted: true
+    object: string
+    deleted: boolean
   }
 }
 

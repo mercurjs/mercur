@@ -29,7 +29,7 @@ export const useApiKey = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.apiKey.retrieve(id),
+    queryFn: () => sdk.admin.apiKeys.$id.query({ id }),
     queryKey: apiKeysQueryKeys.detail(id),
     ...options,
   })
@@ -50,7 +50,7 @@ export const useApiKeys = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.apiKey.list(query),
+    queryFn: () => sdk.admin.apiKeys.query(query),
     queryKey: apiKeysQueryKeys.list(query),
     ...options,
   })
