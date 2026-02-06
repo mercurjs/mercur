@@ -1,199 +1,203 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
 import {
-  QueryKey,
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
+import {
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-import { customerGroupsQueryKeys } from "./customer-groups"
-import { productsQueryKeys } from "./products"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
+import { customerGroupsQueryKeys } from "./customer-groups";
+import { productsQueryKeys } from "./products";
 
-const PRICE_LISTS_QUERY_KEY = "price-lists" as const
-const PRICE_LIST_PRICES_QUERY_KEY = "price-list-prices" as const
+const PRICE_LISTS_QUERY_KEY = "price-lists" as const;
+const PRICE_LIST_PRICES_QUERY_KEY = "price-list-prices" as const;
 
-export const priceListsQueryKeys = queryKeysFactory(PRICE_LISTS_QUERY_KEY)
+export const priceListsQueryKeys = queryKeysFactory(PRICE_LISTS_QUERY_KEY);
 export const priceListPricesQueryKeys = queryKeysFactory(
   PRICE_LIST_PRICES_QUERY_KEY
-)
+);
 
 export const usePriceList = (
   id: string,
-  query?: HttpTypes.AdminPriceListListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminPriceListResponse,
-      ClientError,
-      HttpTypes.AdminPriceListResponse,
-      QueryKey
-    >,
-    "queryKey" | "queryFn"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.priceLists.$id.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.priceLists.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.priceList.retrieve(id, query),
+    queryFn: () => sdk.admin.priceLists.$id.query({ id, ...query }),
     queryKey: priceListsQueryKeys.detail(id, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const usePriceLists = (
-  query?: HttpTypes.AdminPriceListListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminPriceListListResponse,
-      ClientError,
-      HttpTypes.AdminPriceListListResponse,
-      QueryKey
-    >,
-    "queryKey" | "queryFn"
+  query?: InferClientInput<typeof sdk.admin.priceLists.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.priceLists.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.priceList.list(query),
+    queryFn: () => sdk.admin.priceLists.query({ ...query }),
     queryKey: priceListsQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreatePriceList = (
-  query?: HttpTypes.AdminPriceListParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.mutate>,
     ClientError,
-    HttpTypes.AdminCreatePriceList
+    InferClientInput<typeof sdk.admin.priceLists.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.priceList.create(payload, query),
+    mutationFn: (payload) => sdk.admin.priceLists.mutate(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() });
 
-      queryClient.invalidateQueries({ queryKey: customerGroupsQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: customerGroupsQueryKeys.all });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdatePriceList = (
   id: string,
-  query?: HttpTypes.AdminPriceListParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdatePriceList
+    Omit<InferClientInput<typeof sdk.admin.priceLists.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.priceList.update(id, payload, query),
+    mutationFn: (payload) =>
+      sdk.admin.priceLists.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: priceListsQueryKeys.details(),
-      })
+      });
 
-      queryClient.invalidateQueries({ queryKey: customerGroupsQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: customerGroupsQueryKeys.all });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeletePriceList = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListDeleteResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.priceList.delete(id),
+    mutationFn: () => sdk.admin.priceLists.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const usePriceListPrices = (
   id: string,
-  query?: HttpTypes.AdminPriceListPriceListParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.priceLists.$id.prices.query>,
+    "id"
+  >,
   options?: UseQueryOptions<
-    HttpTypes.AdminPriceListPriceListResponse,
+    unknown,
     ClientError,
-    HttpTypes.AdminPriceListPriceListResponse,
-    QueryKey
+    InferClientOutput<typeof sdk.admin.priceLists.$id.prices.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.priceList.prices(id, query),
+    queryFn: () => sdk.admin.priceLists.$id.prices.query({ id, ...query }),
     queryKey: priceListPricesQueryKeys.detail(id, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useBatchPriceListPrices = (
   id: string,
-  query?: HttpTypes.AdminPriceListParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListBatchResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.$id.prices.batch.mutate>,
     ClientError,
-    HttpTypes.AdminBatchPriceListPrice
+    Omit<
+      InferClientInput<typeof sdk.admin.priceLists.$id.prices.batch.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.priceList.batchPrices(id, payload, query),
+      sdk.admin.priceLists.$id.prices.batch.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: priceListsQueryKeys.detail(id),
-      })
-      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() })
+      });
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: priceListPricesQueryKeys.detail(id),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const usePriceListLinkProducts = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.$id.products.mutate>,
     ClientError,
-    HttpTypes.AdminLinkPriceListProducts
+    Omit<
+      InferClientInput<typeof sdk.admin.priceLists.$id.products.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.priceList.linkProducts(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.priceLists.$id.products.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: priceListsQueryKeys.detail(id),
-      })
-      queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() })
+      });
+      queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

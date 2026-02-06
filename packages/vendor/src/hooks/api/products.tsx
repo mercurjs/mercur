@@ -1,508 +1,619 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
 import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
+import {
+  InfiniteData,
   QueryKey,
   UseInfiniteQueryOptions,
-  useMutation,
   UseMutationOptions,
+  useMutation,
   useQuery,
   UseQueryOptions,
-} from "@tanstack/react-query"
-import { InfiniteData } from "@tanstack/query-core"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-import { inventoryItemsQueryKeys } from "./inventory.tsx"
-import { useInfiniteList } from "../use-infinite-list.tsx"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
+import { inventoryItemsQueryKeys } from "./inventory.tsx";
+import { useInfiniteList } from "../use-infinite-list.tsx";
 
-const PRODUCTS_QUERY_KEY = "products" as const
-export const productsQueryKeys = queryKeysFactory(PRODUCTS_QUERY_KEY)
+const PRODUCTS_QUERY_KEY = "products" as const;
+export const productsQueryKeys = queryKeysFactory(PRODUCTS_QUERY_KEY);
 
-const VARIANTS_QUERY_KEY = "product_variants" as const
-export const variantsQueryKeys = queryKeysFactory(VARIANTS_QUERY_KEY)
+const VARIANTS_QUERY_KEY = "product_variants" as const;
+export const variantsQueryKeys = queryKeysFactory(VARIANTS_QUERY_KEY);
 
-const OPTIONS_QUERY_KEY = "product_options" as const
-export const optionsQueryKeys = queryKeysFactory(OPTIONS_QUERY_KEY)
+const OPTIONS_QUERY_KEY = "product_options" as const;
+export const optionsQueryKeys = queryKeysFactory(OPTIONS_QUERY_KEY);
 
 export const useCreateProductOption = (
   productId: string,
-  options?: UseMutationOptions<any, ClientError, any>
-) => {
-  return useMutation({
-    mutationFn: (payload: HttpTypes.AdminCreateProductOption) =>
-      sdk.admin.product.createOption(productId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      })
-      options?.onSuccess?.(data, variables, context)
-    },
-    ...options,
-  })
-}
-
-export const useUpdateProductOption = (
-  productId: string,
-  optionId: string,
-  options?: UseMutationOptions<any, ClientError, any>
-) => {
-  return useMutation({
-    mutationFn: (payload: HttpTypes.AdminUpdateProductOption) =>
-      sdk.admin.product.updateOption(productId, optionId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: optionsQueryKeys.detail(optionId),
-      })
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      })
-
-      options?.onSuccess?.(data, variables, context)
-    },
-    ...options,
-  })
-}
-
-export const useDeleteProductOption = (
-  productId: string,
-  optionId: string,
-  options?: UseMutationOptions<any, ClientError, void>
-) => {
-  return useMutation({
-    mutationFn: () => sdk.admin.product.deleteOption(productId, optionId),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: optionsQueryKeys.detail(optionId),
-      })
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      })
-
-      options?.onSuccess?.(data, variables, context)
-    },
-    ...options,
-  })
-}
-
-export const useProductVariant = (
-  productId: string,
-  variantId: string,
-  query?: HttpTypes.AdminProductVariantParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminProductVariantResponse,
-      ClientError,
-      HttpTypes.AdminProductVariantResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
-  >
-) => {
-  const { data, ...rest } = useQuery({
-    queryFn: () =>
-      sdk.admin.product.retrieveVariant(productId, variantId, query),
-    queryKey: variantsQueryKeys.detail(variantId, query),
-    ...options,
-  })
-
-  return { ...data, ...rest }
-}
-
-export const useProductVariants = (
-  productId: string,
-  query?: HttpTypes.AdminProductVariantParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminProductVariantListResponse,
-      ClientError,
-      HttpTypes.AdminProductVariantListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
-  >
-) => {
-  const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.product.listVariants(productId, query),
-    queryKey: variantsQueryKeys.list({ productId, ...query }),
-    ...options,
-  })
-
-  return { ...data, ...rest }
-}
-
-export const useCreateProductVariant = (
-  productId: string,
-  options?: UseMutationOptions<any, ClientError, any>
-) => {
-  return useMutation({
-    mutationFn: (payload: HttpTypes.AdminCreateProductVariant) =>
-      sdk.admin.product.createVariant(productId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      })
-      options?.onSuccess?.(data, variables, context)
-    },
-    ...options,
-  })
-}
-
-export const useUpdateProductVariant = (
-  productId: string,
-  variantId: string,
-  options?: UseMutationOptions<any, ClientError, any>
-) => {
-  return useMutation({
-    mutationFn: (payload: HttpTypes.AdminUpdateProductVariant) =>
-      sdk.admin.product.updateVariant(productId, variantId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: variantsQueryKeys.detail(variantId),
-      })
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      })
-
-      options?.onSuccess?.(data, variables, context)
-    },
-    ...options,
-  })
-}
-
-export const useUpdateProductVariantsBatch = (
-  productId: string,
-  options?: UseMutationOptions<any, ClientError, any>
-) => {
-  return useMutation({
-    mutationFn: (
-      payload: HttpTypes.AdminBatchProductVariantRequest["update"]
-    ) =>
-      sdk.admin.product.batchVariants(productId, {
-        update: payload,
-      }),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() })
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      })
-
-      options?.onSuccess?.(data, variables, context)
-    },
-    ...options,
-  })
-}
-
-export const useProductVariantsInventoryItemsBatch = (
-  productId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminBatchProductVariantInventoryItemResponse,
+    InferClientOutput<typeof sdk.admin.products.$id.options.mutate>,
     ClientError,
-    HttpTypes.AdminBatchProductVariantInventoryItemRequest
+    Omit<
+      InferClientInput<typeof sdk.admin.products.$id.options.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.product.batchVariantInventoryItems(productId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() })
+      sdk.admin.products.$id.options.mutate({ id: productId, ...payload }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
-      })
-
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
+
+export const useUpdateProductOption = (
+  productId: string,
+  optionId: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.products.$id.options.$optionId.mutate>,
+    ClientError,
+    Omit<
+      InferClientInput<typeof sdk.admin.products.$id.options.$optionId.mutate>,
+      "id" | "optionId"
+    >
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.products.$id.options.$optionId.mutate({
+        id: productId,
+        optionId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: optionsQueryKeys.detail(optionId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useDeleteProductOption = (
+  productId: string,
+  optionId: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.products.$id.options.$optionId.delete>,
+    ClientError,
+    void
+  >
+) => {
+  return useMutation({
+    mutationFn: () =>
+      sdk.admin.products.$id.options.$optionId.delete({
+        id: productId,
+        optionId,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: optionsQueryKeys.detail(optionId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useProductVariant = (
+  productId: string,
+  variantId: string,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.products.$id.variants.$variantId.query>,
+    "id" | "variantId"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.products.$id.variants.$variantId.query>
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      sdk.admin.products.$id.variants.$variantId.query({
+        id: productId,
+        variantId,
+        ...query,
+      }),
+    queryKey: variantsQueryKeys.detail(variantId, query),
+    ...options,
+  });
+
+  return { ...data, ...rest };
+};
+
+export const useProductVariants = (
+  productId: string,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.products.$id.variants.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.products.$id.variants.query>
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      sdk.admin.products.$id.variants.query({ id: productId, ...query }),
+    queryKey: variantsQueryKeys.list({ productId, ...query }),
+    ...options,
+  });
+
+  return { ...data, ...rest };
+};
+
+export const useCreateProductVariant = (
+  productId: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.products.$id.variants.mutate>,
+    ClientError,
+    Omit<
+      InferClientInput<typeof sdk.admin.products.$id.variants.mutate>,
+      "id"
+    >
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.products.$id.variants.mutate({ id: productId, ...payload }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useUpdateProductVariant = (
+  productId: string,
+  variantId: string,
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.products.$id.variants.$variantId.mutate
+    >,
+    ClientError,
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.products.$id.variants.$variantId.mutate
+      >,
+      "id" | "variantId"
+    >
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.products.$id.variants.$variantId.mutate({
+        id: productId,
+        variantId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.detail(variantId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useUpdateProductVariantsBatch = (
+  productId: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.products.$id.variants.batch.mutate>,
+    ClientError,
+    Omit<
+      InferClientInput<typeof sdk.admin.products.$id.variants.batch.mutate>,
+      "id"
+    >
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.products.$id.variants.batch.mutate({
+        id: productId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useProductVariantsInventoryItemsBatch = (
+  productId: string,
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.products.$id.variants.inventoryItems.batch.mutate
+    >,
+    ClientError,
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.products.$id.variants.inventoryItems.batch.mutate
+      >,
+      "id"
+    >
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.products.$id.variants.inventoryItems.batch.mutate({
+        id: productId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
 
 export const useDeleteVariant = (
   productId: string,
   variantId: string,
-  options?: UseMutationOptions<any, ClientError, void>
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.products.$id.variants.$variantId.delete
+    >,
+    ClientError,
+    void
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.product.deleteVariant(productId, variantId),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() })
+    mutationFn: () =>
+      sdk.admin.products.$id.variants.$variantId.delete({
+        id: productId,
+        variantId,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: variantsQueryKeys.detail(variantId),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteVariantLazy = (
   productId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductVariantDeleteResponse,
+    InferClientOutput<
+      typeof sdk.admin.products.$id.variants.$variantId.delete
+    >,
     ClientError,
     { variantId: string }
   >
 ) => {
   return useMutation({
     mutationFn: ({ variantId }) =>
-      sdk.admin.product.deleteVariant(productId, variantId),
+      sdk.admin.products.$id.variants.$variantId.delete({
+        id: productId,
+        variantId,
+      }),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: variantsQueryKeys.detail(variables.variantId),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useProduct = (
   id: string,
-  query?: Record<string, any>,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminProductResponse,
-      ClientError,
-      HttpTypes.AdminProductResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.products.$id.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.products.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.product.retrieve(id, query),
+    queryFn: () => sdk.admin.products.$id.query({ id, ...query }),
     queryKey: productsQueryKeys.detail(id, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useProducts = (
-  query?: HttpTypes.AdminProductListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminProductListResponse,
-      ClientError,
-      HttpTypes.AdminProductListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.products.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.products.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.product.list(query),
+    queryFn: () => sdk.admin.products.query({ ...query }),
     queryKey: productsQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useInfiniteProducts = (
-  query?: HttpTypes.AdminProductListParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.products.query>,
+    "offset" | "limit"
+  > & {
+    limit?: number;
+  },
   options?: Omit<
     UseInfiniteQueryOptions<
-      HttpTypes.AdminProductListResponse,
+      InferClientOutput<typeof sdk.admin.products.query>,
       ClientError,
-      InfiniteData<HttpTypes.AdminProductListResponse, number>,
-      HttpTypes.AdminProductListResponse,
+      InfiniteData<
+        InferClientOutput<typeof sdk.admin.products.query>,
+        number
+      >,
+      InferClientOutput<typeof sdk.admin.products.query>,
       QueryKey,
       number
     >,
     "queryFn" | "queryKey" | "initialPageParam" | "getNextPageParam"
   >
 ) => {
-  return useInfiniteList<
-    HttpTypes.AdminProductListResponse,
-    HttpTypes.AdminProductListParams,
-    ClientError,
-    QueryKey
-  >({
+  return useInfiniteList({
     queryKey: (params) => productsQueryKeys.list(params),
-    queryFn: (params) => sdk.admin.product.list(params),
+    queryFn: (params) => sdk.admin.products.query(params),
     query,
     options,
-  })
-}
+  });
+};
+
 export const useCreateProduct = (
   options?: UseMutationOptions<
-    HttpTypes.AdminProductResponse,
+    InferClientOutput<typeof sdk.admin.products.mutate>,
     ClientError,
-    HttpTypes.AdminCreateProduct
+    InferClientInput<typeof sdk.admin.products.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.create(payload),
+    mutationFn: (payload) => sdk.admin.products.mutate(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
       // if `manage_inventory` is true on created variants that will create inventory items automatically
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateProduct = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductResponse,
+    InferClientOutput<typeof sdk.admin.products.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateProduct
+    Omit<InferClientInput<typeof sdk.admin.products.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.product.update(id, payload, {
-        fields:
-          "-type,-collection,-options,-tags,-images,-variants,-sales_channels",
-      }),
+      sdk.admin.products.$id.mutate({ id, ...payload }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: productsQueryKeys.lists(),
-      })
+      });
       await queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(id),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteProduct = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductDeleteResponse,
+    InferClientOutput<typeof sdk.admin.products.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.product.delete(id),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) })
+    mutationFn: () => sdk.admin.products.$id.delete({ id }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useExportProducts = (
-  query?: HttpTypes.AdminProductListParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminExportProductResponse,
+    InferClientOutput<typeof sdk.admin.products.export.mutate>,
     ClientError,
-    HttpTypes.AdminExportProductRequest
+    InferClientInput<typeof sdk.admin.products.export.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.export(payload, query),
+    mutationFn: (payload) => sdk.admin.products.export.mutate(payload),
     onSuccess: (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useImportProducts = (
   options?: UseMutationOptions<
-    HttpTypes.AdminImportProductResponse,
+    InferClientOutput<typeof sdk.admin.products.import.mutate>,
     ClientError,
-    HttpTypes.AdminImportProductRequest
+    InferClientInput<typeof sdk.admin.products.import.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.createImport(payload),
+    mutationFn: (payload) => sdk.admin.products.import.mutate(payload),
     onSuccess: (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useConfirmImportProducts = (
-  options?: UseMutationOptions<{}, ClientError, string>
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.products.imports.$transactionId.confirm.mutate
+    >,
+    ClientError,
+    string
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.confirmImport(payload),
+    mutationFn: (transactionId) =>
+      sdk.admin.products.imports.$transactionId.confirm.mutate({
+        transactionId,
+      }),
     onSuccess: (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useBatchImageVariants = (
   productId: string,
   imageId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminBatchImageVariantResponse,
+    InferClientOutput<
+      typeof sdk.admin.products.$id.images.$imageId.variants.batch.mutate
+    >,
     ClientError,
-    HttpTypes.AdminBatchImageVariantRequest
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.products.$id.images.$imageId.variants.batch.mutate
+      >,
+      "id" | "imageId"
+    >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.product.batchImageVariants(productId, imageId, payload),
+      sdk.admin.products.$id.images.$imageId.variants.batch.mutate({
+        id: productId,
+        imageId,
+        ...payload,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
-      })
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() })
+      });
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useBatchVariantImages = (
   productId: string,
   variantId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminBatchVariantImagesResponse,
+    InferClientOutput<
+      typeof sdk.admin.products.$id.variants.$variantId.images.batch.mutate
+    >,
     ClientError,
-    HttpTypes.AdminBatchVariantImagesRequest
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.products.$id.variants.$variantId.images.batch.mutate
+      >,
+      "id" | "variantId"
+    >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.product.batchVariantImages(productId, variantId, payload),
+      sdk.admin.products.$id.variants.$variantId.images.batch.mutate({
+        id: productId,
+        variantId,
+        ...payload,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: variantsQueryKeys.list({ productId }),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: variantsQueryKeys.detail(variantId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

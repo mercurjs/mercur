@@ -1,22 +1,29 @@
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import { useMutation, UseMutationOptions } from "@tanstack/react-query"
 
 import { queryKeysFactory } from "../../lib/query-key-factory"
 
-import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { ordersQueryKeys } from "./orders"
-import { ClientError } from "@mercurjs/client"
 
 const FULFILLMENTS_QUERY_KEY = "fulfillments" as const
 export const fulfillmentsQueryKeys = queryKeysFactory(FULFILLMENTS_QUERY_KEY)
 
 export const useCreateFulfillment = (
-  options?: UseMutationOptions<any, ClientError, any>
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.fulfillments.mutate>,
+    ClientError,
+    InferClientInput<typeof sdk.admin.fulfillments.mutate>
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload: any) => sdk.admin.fulfillment.create(payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) => sdk.admin.fulfillments.mutate(payload),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: fulfillmentsQueryKeys.lists() })
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
@@ -29,11 +36,14 @@ export const useCreateFulfillment = (
 
 export const useCancelFulfillment = (
   id: string,
-  options?: UseMutationOptions<any, ClientError, any>
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.fulfillments.$id.cancel.mutate>,
+    ClientError
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.fulfillment.cancel(id),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: () => sdk.admin.fulfillments.$id.cancel.mutate({ id }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: fulfillmentsQueryKeys.lists() })
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
@@ -47,15 +57,21 @@ export const useCancelFulfillment = (
 export const useCreateFulfillmentShipment = (
   fulfillmentId: string,
   options?: UseMutationOptions<
-    { fulfillment: HttpTypes.AdminFulfillment },
+    InferClientOutput<typeof sdk.admin.fulfillments.$id.shipment.mutate>,
     ClientError,
-    HttpTypes.AdminCreateFulfillmentShipment
+    Omit<
+      InferClientInput<typeof sdk.admin.fulfillments.$id.shipment.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminCreateFulfillmentShipment) =>
-      sdk.admin.fulfillment.createShipment(fulfillmentId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.fulfillments.$id.shipment.mutate({
+        id: fulfillmentId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
       })

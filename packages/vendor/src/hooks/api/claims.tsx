@@ -1,593 +1,685 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
 import {
-  QueryKey,
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
+import {
   useMutation,
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
-} from "@tanstack/react-query"
+} from "@tanstack/react-query";
 
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-import { ordersQueryKeys } from "./orders"
-import { returnsQueryKeys } from "./returns"
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
+import { ordersQueryKeys } from "./orders";
+import { returnsQueryKeys } from "./returns";
 
-const CLAIMS_QUERY_KEY = "claims" as const
-export const claimsQueryKeys = queryKeysFactory(CLAIMS_QUERY_KEY)
+const CLAIMS_QUERY_KEY = "claims" as const;
+export const claimsQueryKeys = queryKeysFactory(CLAIMS_QUERY_KEY);
 
 export const useClaim = (
   id: string,
-  query?: HttpTypes.AdminClaimListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminClaimResponse,
-      ClientError,
-      HttpTypes.AdminClaimResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: Omit<InferClientInput<typeof sdk.admin.claims.$id.query>, "id">,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.claims.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.admin.claim.retrieve(id, query),
+    queryFn: async () => sdk.admin.claims.$id.query({ id, ...query }),
     queryKey: claimsQueryKeys.detail(id, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useClaims = (
-  query?: HttpTypes.AdminClaimListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminClaimListParams,
-      ClientError,
-      HttpTypes.AdminClaimListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.claims.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.claims.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.admin.claim.list(query),
+    queryFn: async () => sdk.admin.claims.query({ ...query }),
     queryKey: claimsQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateClaim = (
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<typeof sdk.admin.claims.mutate>,
     ClientError,
-    HttpTypes.AdminCreateClaim
+    InferClientInput<typeof sdk.admin.claims.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminCreateClaim) =>
-      sdk.admin.claim.create(payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) => sdk.admin.claims.mutate(payload),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCancelClaim = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, ClientError>
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.claims.$id.cancel.mutate>,
+    ClientError
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.claim.cancel(id),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: () => sdk.admin.claims.$id.cancel.mutate({ id }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.lists(),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimItems = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<typeof sdk.admin.claims.$id.claimItems.mutate>,
     ClientError,
-    HttpTypes.AdminAddClaimItems
+    Omit<InferClientInput<typeof sdk.admin.claims.$id.claimItems.mutate>, "id">
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminAddClaimItems) =>
-      sdk.admin.claim.addItems(id, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.claims.$id.claimItems.mutate({ id, ...payload }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimItems = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<typeof sdk.admin.claims.$id.claimItems.$actionId.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateClaimItem & { actionId: string }
+    Omit<
+      InferClientInput<typeof sdk.admin.claims.$id.claimItems.$actionId.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: ({
-      actionId,
-      ...payload
-    }: HttpTypes.AdminUpdateClaimItem & { actionId: string }) => {
-      return sdk.admin.claim.updateItem(id, actionId, payload)
+    mutationFn: ({ actionId, ...payload }) => {
+      return sdk.admin.claims.$id.claimItems.$actionId.mutate({
+        id,
+        actionId,
+        ...payload,
+      });
     },
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRemoveClaimItem = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminReturnResponse,
+    InferClientOutput<typeof sdk.admin.claims.$id.claimItems.$actionId.delete>,
     ClientError,
     string
   >
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
-      sdk.admin.return.removeReturnItem(id, actionId),
-    onSuccess: (data: any, variables: any, context: any) => {
+      sdk.admin.claims.$id.claimItems.$actionId.delete({ id, actionId }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimInboundItems = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimReturnPreviewResponse,
+    InferClientOutput<typeof sdk.admin.claims.$id.inbound.items.mutate>,
     ClientError,
-    HttpTypes.AdminAddClaimInboundItems
+    Omit<
+      InferClientInput<typeof sdk.admin.claims.$id.inbound.items.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.claim.addInboundItems(id, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.claims.$id.inbound.items.mutate({ id, ...payload }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimInboundItem = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.inbound.items.$actionId.mutate
+    >,
     ClientError,
-    HttpTypes.AdminUpdateClaimInboundItem & { actionId: string }
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.claims.$id.inbound.items.$actionId.mutate
+      >,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: ({
-      actionId,
-      ...payload
-    }: HttpTypes.AdminUpdateClaimInboundItem & { actionId: string }) => {
-      return sdk.admin.claim.updateInboundItem(id, actionId, payload)
+    mutationFn: ({ actionId, ...payload }) => {
+      return sdk.admin.claims.$id.inbound.items.$actionId.mutate({
+        id,
+        actionId,
+        ...payload,
+      });
     },
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRemoveClaimInboundItem = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, ClientError, string>
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.inbound.items.$actionId.delete
+    >,
+    ClientError,
+    string
+  >
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
-      sdk.admin.claim.removeInboundItem(id, actionId),
-    onSuccess: (data: any, variables: any, context: any) => {
+      sdk.admin.claims.$id.inbound.items.$actionId.delete({ id, actionId }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: returnsQueryKeys.details(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimInboundShipping = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.inbound.shippingMethod.mutate
+    >,
     ClientError,
-    HttpTypes.AdminClaimAddInboundShipping
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.claims.$id.inbound.shippingMethod.mutate
+      >,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminClaimAddInboundShipping) =>
-      sdk.admin.claim.addInboundShipping(id, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.claims.$id.inbound.shippingMethod.mutate({
+        id,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimInboundShipping = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.inbound.shippingMethod.$actionId.mutate
+    >,
     ClientError,
-    HttpTypes.AdminClaimUpdateInboundShipping
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.claims.$id.inbound.shippingMethod.$actionId.mutate
+      >,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: ({
-      actionId,
-      ...payload
-    }: HttpTypes.AdminClaimUpdateInboundShipping & { actionId: string }) =>
-      sdk.admin.claim.updateInboundShipping(id, actionId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: ({ actionId, ...payload }) =>
+      sdk.admin.claims.$id.inbound.shippingMethod.$actionId.mutate({
+        id,
+        actionId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteClaimInboundShipping = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, ClientError, string>
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.inbound.shippingMethod.$actionId.delete
+    >,
+    ClientError,
+    string
+  >
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
-      sdk.admin.claim.deleteInboundShipping(id, actionId),
-    onSuccess: (data: any, variables: any, context: any) => {
+      sdk.admin.claims.$id.inbound.shippingMethod.$actionId.delete({
+        id,
+        actionId,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimOutboundItems = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<typeof sdk.admin.claims.$id.outbound.items.mutate>,
     ClientError,
-    HttpTypes.AdminAddClaimOutboundItems
+    Omit<
+      InferClientInput<typeof sdk.admin.claims.$id.outbound.items.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminAddClaimOutboundItems) =>
-      sdk.admin.claim.addOutboundItems(id, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.claims.$id.outbound.items.mutate({ id, ...payload }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimOutboundItems = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.outbound.items.$actionId.mutate
+    >,
     ClientError,
-    HttpTypes.AdminUpdateClaimOutboundItem & { actionId: string }
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.claims.$id.outbound.items.$actionId.mutate
+      >,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: ({
-      actionId,
-      ...payload
-    }: HttpTypes.AdminUpdateClaimOutboundItem & { actionId: string }) => {
-      return sdk.admin.claim.updateOutboundItem(id, actionId, payload)
+    mutationFn: ({ actionId, ...payload }) => {
+      return sdk.admin.claims.$id.outbound.items.$actionId.mutate({
+        id,
+        actionId,
+        ...payload,
+      });
     },
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRemoveClaimOutboundItem = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, ClientError, string>
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.outbound.items.$actionId.delete
+    >,
+    ClientError,
+    string
+  >
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
-      sdk.admin.claim.removeOutboundItem(id, actionId),
-    onSuccess: (data: any, variables: any, context: any) => {
+      sdk.admin.claims.$id.outbound.items.$actionId.delete({ id, actionId }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimOutboundShipping = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.outbound.shippingMethod.mutate
+    >,
     ClientError,
-    HttpTypes.AdminClaimAddOutboundShipping
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.claims.$id.outbound.shippingMethod.mutate
+      >,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminClaimAddOutboundShipping) =>
-      sdk.admin.claim.addOutboundShipping(id, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.claims.$id.outbound.shippingMethod.mutate({
+        id,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimOutboundShipping = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.outbound.shippingMethod.$actionId.mutate
+    >,
     ClientError,
-    HttpTypes.AdminClaimUpdateOutboundShipping
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.claims.$id.outbound.shippingMethod.$actionId.mutate
+      >,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: ({
-      actionId,
-      ...payload
-    }: HttpTypes.AdminClaimUpdateOutboundShipping & { actionId: string }) =>
-      sdk.admin.claim.updateOutboundShipping(id, actionId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: ({ actionId, ...payload }) =>
+      sdk.admin.claims.$id.outbound.shippingMethod.$actionId.mutate({
+        id,
+        actionId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteClaimOutboundShipping = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, ClientError, string>
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.claims.$id.outbound.shippingMethod.$actionId.delete
+    >,
+    ClientError,
+    string
+  >
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
-      sdk.admin.claim.deleteOutboundShipping(id, actionId),
-    onSuccess: (data: any, variables: any, context: any) => {
+      sdk.admin.claims.$id.outbound.shippingMethod.$actionId.delete({
+        id,
+        actionId,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useClaimConfirmRequest = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminClaimResponse,
+    InferClientOutput<typeof sdk.admin.claims.$id.request.mutate>,
     ClientError,
-    HttpTypes.AdminRequestClaim
+    Omit<InferClientInput<typeof sdk.admin.claims.$id.request.mutate>, "id">
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminRequestClaim) =>
-      sdk.admin.claim.request(id, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.claims.$id.request.mutate({ id, ...payload }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: returnsQueryKeys.all,
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCancelClaimRequest = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, ClientError>
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.claims.$id.request.delete>,
+    ClientError
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.claim.cancelRequest(id),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: () => sdk.admin.claims.$id.request.delete({ id }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.details(),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.lists(),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

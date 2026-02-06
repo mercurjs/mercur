@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { FindParams, HttpTypes, PaginatedResponse } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
 import {
   InfiniteData,
   QueryKey,
@@ -8,173 +11,179 @@ import {
   UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-import { productsQueryKeys } from "./products"
-import { useInfiniteList } from "../use-infinite-list"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
+import { productsQueryKeys } from "./products";
+import { useInfiniteList } from "../use-infinite-list";
 
-const COLLECTION_QUERY_KEY = "collections" as const
-export const collectionsQueryKeys = queryKeysFactory(COLLECTION_QUERY_KEY)
+const COLLECTION_QUERY_KEY = "collections" as const;
+export const collectionsQueryKeys = queryKeysFactory(COLLECTION_QUERY_KEY);
 
 export const useCollection = (
   id: string,
-  options?: Omit<
-    UseQueryOptions<
-      { collection: HttpTypes.AdminCollection },
-      ClientError,
-      { collection: HttpTypes.AdminCollection },
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.collections.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: collectionsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.productCollection.retrieve(id),
+    queryFn: async () => sdk.admin.collections.$id.query({ id }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCollections = (
-  query?: FindParams & HttpTypes.AdminCollectionListParams,
-  options?: Omit<
-    UseQueryOptions<
-      PaginatedResponse<{ collections: HttpTypes.AdminCollection[] }>,
-      ClientError,
-      PaginatedResponse<{ collections: HttpTypes.AdminCollection[] }>,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.collections.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.collections.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: collectionsQueryKeys.list(query),
-    queryFn: async () => sdk.admin.productCollection.list(query),
+    queryFn: async () => sdk.admin.collections.query({ ...query }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useInfiniteCollections = (
-  query?: Omit<HttpTypes.AdminCollectionListParams, "offset" | "limit"> & {
-    limit?: number
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.collections.query>,
+    "offset" | "limit"
+  > & {
+    limit?: number;
   },
   options?: Omit<
     UseInfiniteQueryOptions<
-      HttpTypes.AdminCollectionListResponse,
+      InferClientOutput<typeof sdk.admin.collections.query>,
       ClientError,
-      InfiniteData<HttpTypes.AdminCollectionListResponse, number>,
-      HttpTypes.AdminCollectionListResponse,
+      InfiniteData<
+        InferClientOutput<typeof sdk.admin.collections.query>,
+        number
+      >,
+      InferClientOutput<typeof sdk.admin.collections.query>,
       QueryKey,
       number
     >,
     "queryFn" | "queryKey" | "initialPageParam" | "getNextPageParam"
   >
 ) => {
-  return useInfiniteList<
-    HttpTypes.AdminCollectionListResponse,
-    HttpTypes.AdminCollectionListParams,
-    ClientError,
-    QueryKey
-  >({
+  return useInfiniteList({
     queryKey: (params) => collectionsQueryKeys.list(params),
-    queryFn: (params) => sdk.admin.productCollection.list(params),
+    queryFn: (params) => sdk.admin.collections.query(params),
     query,
     options,
-  })
-}
+  });
+};
+
 export const useUpdateCollection = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminCollectionResponse,
+    InferClientOutput<typeof sdk.admin.collections.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateCollection
-  >
-) => {
-  return useMutation({
-    mutationFn: (payload) => sdk.admin.productCollection.update(id, payload),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: collectionsQueryKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueryKeys.detail(id),
-      })
-
-      options?.onSuccess?.(data, variables, context)
-    },
-    ...options,
-  })
-}
-
-export const useUpdateCollectionProducts = (
-  id: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminCollectionResponse,
-    ClientError,
-    HttpTypes.AdminUpdateCollectionProducts
+    Omit<InferClientInput<typeof sdk.admin.collections.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.productCollection.updateProducts(id, payload),
+      sdk.admin.collections.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: collectionsQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueryKeys.lists(),
+      });
       queryClient.invalidateQueries({
         queryKey: collectionsQueryKeys.detail(id),
-      })
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useUpdateCollectionProducts = (
+  id: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.collections.$id.products.mutate>,
+    ClientError,
+    Omit<
+      InferClientInput<typeof sdk.admin.collections.$id.products.mutate>,
+      "id"
+    >
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.collections.$id.products.mutate({ id, ...payload }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueryKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueryKeys.detail(id),
+      });
       /**
        * Invalidate products list query to ensure that the products collections are updated.
        */
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCreateCollection = (
   options?: UseMutationOptions<
-    HttpTypes.AdminCollectionResponse,
+    InferClientOutput<typeof sdk.admin.collections.mutate>,
     ClientError,
-    HttpTypes.AdminCreateCollection
+    InferClientInput<typeof sdk.admin.collections.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.productCollection.create(payload),
+    mutationFn: (payload) => sdk.admin.collections.mutate(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: collectionsQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueryKeys.lists(),
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteCollection = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminCollectionDeleteResponse,
+    InferClientOutput<typeof sdk.admin.collections.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.productCollection.delete(id),
+    mutationFn: () => sdk.admin.collections.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: collectionsQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueryKeys.lists(),
+      });
       queryClient.invalidateQueries({
         queryKey: collectionsQueryKeys.detail(id),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

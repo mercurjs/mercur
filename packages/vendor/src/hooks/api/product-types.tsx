@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
 import {
   InfiniteData,
   QueryKey,
@@ -8,145 +11,148 @@ import {
   UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-import { useInfiniteList } from "../use-infinite-list"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
+import { useInfiniteList } from "../use-infinite-list";
 
-const PRODUCT_TYPES_QUERY_KEY = "product_types" as const
-export const productTypesQueryKeys = queryKeysFactory(PRODUCT_TYPES_QUERY_KEY)
+const PRODUCT_TYPES_QUERY_KEY = "product_types" as const;
+export const productTypesQueryKeys = queryKeysFactory(PRODUCT_TYPES_QUERY_KEY);
 
 export const useProductType = (
   id: string,
-  query?: HttpTypes.AdminProductTypeParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminProductTypeResponse,
-      ClientError,
-      HttpTypes.AdminProductTypeResponse,
-      QueryKey
-    >,
-    "queryKey" | "queryFn"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.productTypes.$id.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.productTypes.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.productType.retrieve(id, query),
+    queryFn: () => sdk.admin.productTypes.$id.query({ id, ...query }),
     queryKey: productTypesQueryKeys.detail(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useProductTypes = (
-  query?: HttpTypes.AdminProductTypeListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminProductTypeListResponse,
-      ClientError,
-      HttpTypes.AdminProductTypeListResponse,
-      QueryKey
-    >,
-    "queryKey" | "queryFn"
+  query?: InferClientInput<typeof sdk.admin.productTypes.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.productTypes.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.productType.list(query),
+    queryFn: () => sdk.admin.productTypes.query({ ...query }),
     queryKey: productTypesQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useInfiniteProductTypes = (
-  query?: Omit<HttpTypes.AdminProductTypeListParams, "offset" | "limit"> & {
-    limit?: number
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.productTypes.query>,
+    "offset" | "limit"
+  > & {
+    limit?: number;
   },
   options?: Omit<
     UseInfiniteQueryOptions<
-      HttpTypes.AdminProductTypeListResponse,
+      InferClientOutput<typeof sdk.admin.productTypes.query>,
       ClientError,
-      InfiniteData<HttpTypes.AdminProductTypeListResponse, number>,
-      HttpTypes.AdminProductTypeListResponse,
+      InfiniteData<
+        InferClientOutput<typeof sdk.admin.productTypes.query>,
+        number
+      >,
+      InferClientOutput<typeof sdk.admin.productTypes.query>,
       QueryKey,
       number
     >,
     "queryFn" | "queryKey" | "initialPageParam" | "getNextPageParam"
   >
 ) => {
-  return useInfiniteList<
-    HttpTypes.AdminProductTypeListResponse,
-    HttpTypes.AdminProductTypeListParams,
-    ClientError,
-    QueryKey
-  >({
+  return useInfiniteList({
     queryKey: (params) => productTypesQueryKeys.list(params),
-    queryFn: (params) => sdk.admin.productType.list(params),
+    queryFn: (params) => sdk.admin.productTypes.query(params),
     query,
     options,
-  })
-}
+  });
+};
 
 export const useCreateProductType = (
   options?: UseMutationOptions<
-    HttpTypes.AdminProductTypeResponse,
+    InferClientOutput<typeof sdk.admin.productTypes.mutate>,
     ClientError,
-    HttpTypes.AdminCreateProductType
+    InferClientInput<typeof sdk.admin.productTypes.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.productType.create(payload),
+    mutationFn: (payload) => sdk.admin.productTypes.mutate(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: productTypesQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: productTypesQueryKeys.lists(),
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateProductType = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductTypeResponse,
+    InferClientOutput<typeof sdk.admin.productTypes.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateProductType
+    Omit<InferClientInput<typeof sdk.admin.productTypes.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.productType.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.productTypes.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTypesQueryKeys.detail(id),
-      })
-      queryClient.invalidateQueries({ queryKey: productTypesQueryKeys.lists() })
+      });
+      queryClient.invalidateQueries({
+        queryKey: productTypesQueryKeys.lists(),
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteProductType = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductTypeDeleteResponse,
+    InferClientOutput<typeof sdk.admin.productTypes.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.productType.delete(id),
+    mutationFn: () => sdk.admin.productTypes.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTypesQueryKeys.detail(id),
-      })
-      queryClient.invalidateQueries({ queryKey: productTypesQueryKeys.lists() })
+      });
+      queryClient.invalidateQueries({
+        queryKey: productTypesQueryKeys.lists(),
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

@@ -1,135 +1,132 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
 import {
-  QueryKey,
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
+import {
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
 
-const INVITES_QUERY_KEY = "invites" as const
-const invitesQueryKeys = queryKeysFactory(INVITES_QUERY_KEY)
+const INVITES_QUERY_KEY = "invites" as const;
+const invitesQueryKeys = queryKeysFactory(INVITES_QUERY_KEY);
 
 export const useInvite = (
   id: string,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminInviteResponse,
-      ClientError,
-      HttpTypes.AdminInviteResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.invites.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: invitesQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.invite.retrieve(id),
+    queryFn: async () => sdk.admin.invites.$id.query({ id }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useInvites = (
-  query?: Record<string, any>,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminInviteListResponse,
-      ClientError,
-      HttpTypes.AdminInviteListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.invites.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.invites.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.invite.list(query),
+    queryFn: () => sdk.admin.invites.query({ ...query }),
     queryKey: invitesQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateInvite = (
   options?: UseMutationOptions<
-    HttpTypes.AdminInviteResponse,
+    InferClientOutput<typeof sdk.admin.invites.mutate>,
     ClientError,
-    HttpTypes.AdminCreateInvite
+    InferClientInput<typeof sdk.admin.invites.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.invite.create(payload),
+    mutationFn: (payload) => sdk.admin.invites.mutate(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() })
-      options?.onSuccess?.(data, variables, context)
+      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useResendInvite = (
   id: string,
-  options?: UseMutationOptions<HttpTypes.AdminInviteResponse, ClientError, void>
-) => {
-  return useMutation({
-    mutationFn: () => sdk.admin.invite.resend(id),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) })
-      options?.onSuccess?.(data, variables, context)
-    },
-    ...options,
-  })
-}
-
-export const useDeleteInvite = (
-  id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminInviteDeleteResponse,
+    InferClientOutput<typeof sdk.admin.invites.$id.resend.mutate>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.invite.delete(id),
+    mutationFn: () => sdk.admin.invites.$id.resend.mutate({ id }),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) })
-      options?.onSuccess?.(data, variables, context)
+      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
+
+export const useDeleteInvite = (
+  id: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.invites.$id.delete>,
+    ClientError,
+    void
+  >
+) => {
+  return useMutation({
+    mutationFn: () => sdk.admin.invites.$id.delete({ id }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
 
 export const useAcceptInvite = (
   inviteToken: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminAcceptInviteResponse,
+    InferClientOutput<typeof sdk.admin.invites.accept.mutate>,
     ClientError,
-    HttpTypes.AdminAcceptInvite & { auth_token: string }
+    InferClientInput<typeof sdk.admin.invites.accept.mutate>
   >
 ) => {
   return useMutation({
     mutationFn: (payload) => {
-      const { auth_token, ...rest } = payload
-
-      return sdk.admin.invite.accept(
-        { invite_token: inviteToken, ...rest },
-        {},
-        {
-          Authorization: `Bearer ${auth_token}`,
-        }
-      )
+      return sdk.admin.invites.accept.mutate({
+        ...payload,
+        fetchOptions: {
+          headers: {
+            Authorization: `Bearer ${inviteToken}`,
+          },
+        },
+      });
     },
     onSuccess: (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

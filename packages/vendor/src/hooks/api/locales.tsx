@@ -1,6 +1,9 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
-import { QueryKey, UseQueryOptions, useQuery } from "@tanstack/react-query"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
+import { UseQueryOptions, useQuery } from "@tanstack/react-query"
 
 import { sdk } from "../../lib/client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
@@ -9,19 +12,15 @@ const LOCALES_QUERY_KEY = "locales" as const
 const localesQueryKeys = queryKeysFactory(LOCALES_QUERY_KEY)
 
 export const useLocales = (
-  query?: HttpTypes.AdminLocaleListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminLocaleListResponse,
-      ClientError,
-      HttpTypes.AdminLocaleListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.locales.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.locales.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.locale.list(query),
+    queryFn: () => sdk.admin.locales.query({ ...query }),
     queryKey: localesQueryKeys.list(query),
     ...options,
   })
@@ -30,21 +29,20 @@ export const useLocales = (
 }
 
 export const useLocale = (
-  id: string,
-  query?: HttpTypes.AdminLocaleParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminLocaleResponse,
-      ClientError,
-      HttpTypes.AdminLocaleResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  code: string,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.locales.$code.query>,
+    "code"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.locales.$code.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: localesQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.locale.retrieve(id, query),
+    queryKey: localesQueryKeys.detail(code),
+    queryFn: async () => sdk.admin.locales.$code.query({ code, ...query }),
     ...options,
   })
 
