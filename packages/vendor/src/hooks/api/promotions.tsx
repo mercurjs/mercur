@@ -1,25 +1,30 @@
-import { HttpTypes } from "@medusajs/types"
-import { ClientError } from "@mercurjs/client"
 import {
-  QueryKey,
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
+import {
   useMutation,
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-import { campaignsQueryKeys } from "./campaigns"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
+import { campaignsQueryKeys } from "./campaigns";
+import {
+  ApplicationMethodTargetTypeValues,
+  PromotionTypeValues,
+} from "@medusajs/types";
 
-const PROMOTIONS_QUERY_KEY = "promotions" as const
+const PROMOTIONS_QUERY_KEY = "promotions" as const;
 export const promotionsQueryKeys = {
   ...queryKeysFactory(PROMOTIONS_QUERY_KEY),
-  // TODO: handle invalidations properly
   listRules: (
     id: string | null,
     ruleType: string,
-    query?: HttpTypes.AdminGetPromotionRuleParams
+    query?: Record<string, unknown>
   ) => [PROMOTIONS_QUERY_KEY, id, ruleType, query],
   listRuleAttributes: (
     ruleType: string,
@@ -34,87 +39,81 @@ export const promotionsQueryKeys = {
   listRuleValues: (
     ruleType: string,
     ruleValue: string,
-    query: HttpTypes.AdminGetPromotionsRuleValueParams
+    query?: Record<string, unknown>
   ) => [PROMOTIONS_QUERY_KEY, ruleType, ruleValue, query],
-}
+};
 
 export const usePromotion = (
   id: string,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminPromotionResponse,
-      ClientError,
-      HttpTypes.AdminPromotionResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.promotions.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.promotion.retrieve(id),
+    queryFn: async () => sdk.admin.promotions.$id.query({ id }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const usePromotionRules = (
   id: string | null,
   ruleType: string,
-  query?: HttpTypes.AdminGetPromotionRuleParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminGetPromotionRuleParams,
-      ClientError,
-      HttpTypes.AdminPromotionRuleListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.promotions.$id.$ruleType.query>,
+    "id" | "ruleType"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.promotions.$id.$ruleType.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.listRules(id, ruleType, query),
-    queryFn: async () => sdk.admin.promotion.listRules(id, ruleType, query),
+    queryFn: async () =>
+      sdk.admin.promotions.$id.$ruleType.query({
+        id: id!,
+        ruleType,
+        ...query,
+      }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const usePromotions = (
-  query?: HttpTypes.AdminGetPromotionsParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminPromotionListResponse,
-      ClientError,
-      HttpTypes.AdminPromotionListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.promotions.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.promotions.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.list(query),
-    queryFn: async () => sdk.admin.promotion.list(query),
+    queryFn: async () => sdk.admin.promotions.query({ ...query }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const usePromotionRuleAttributes = (
   ruleType: string,
   promotionType?: string,
   applicationMethodTargetType?: string,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminRuleAttributeOptionsListResponse,
-      ClientError,
-      HttpTypes.AdminRuleAttributeOptionsListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<
+      typeof sdk.admin.promotions.ruleAttributeOptions.$ruleType.query
+    >
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -124,29 +123,33 @@ export const usePromotionRuleAttributes = (
       applicationMethodTargetType
     ),
     queryFn: async () =>
-      sdk.admin.promotion.listRuleAttributes(
+      sdk.admin.promotions.ruleAttributeOptions.$ruleType.query({
         ruleType,
-        promotionType,
-        applicationMethodTargetType
-      ),
+        promotion_type: promotionType as PromotionTypeValues,
+        application_method_target_type:
+          applicationMethodTargetType as ApplicationMethodTargetTypeValues,
+      }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const usePromotionRuleValues = (
   ruleType: string,
   ruleValue: string,
-  query?: HttpTypes.AdminGetPromotionsRuleValueParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminRuleValueOptionsListResponse,
-      ClientError,
-      HttpTypes.AdminRuleValueOptionsListResponse,
-      QueryKey
+  query?: Omit<
+    InferClientInput<
+      typeof sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query
     >,
-    "queryFn" | "queryKey"
+    "ruleType" | "ruleAttributeId"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<
+      typeof sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query
+    >
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -156,131 +159,184 @@ export const usePromotionRuleValues = (
       query || {}
     ),
     queryFn: async () =>
-      sdk.admin.promotion.listRuleValues(ruleType, ruleValue, query),
+      sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
+        ruleType,
+        ruleAttributeId: ruleValue,
+        ...query,
+      }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useDeletePromotion = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.DeleteResponse<"promotion">,
+    InferClientOutput<typeof sdk.admin.promotions.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.promotion.delete(id),
+    mutationFn: () => sdk.admin.promotions.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: promotionsQueryKeys.detail(id),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCreatePromotion = (
   options?: UseMutationOptions<
-    HttpTypes.AdminPromotionResponse,
+    InferClientOutput<typeof sdk.admin.promotions.mutate>,
     ClientError,
-    HttpTypes.AdminCreatePromotion
+    InferClientInput<typeof sdk.admin.promotions.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.promotion.create(payload),
+    mutationFn: (payload) => sdk.admin.promotions.mutate(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() })
-      options?.onSuccess?.(data, variables, context)
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdatePromotion = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminPromotionResponse,
+    InferClientOutput<typeof sdk.admin.promotions.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdatePromotion
+    Omit<InferClientInput<typeof sdk.admin.promotions.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.promotion.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.promotions.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const usePromotionAddRules = (
   id: string,
   ruleType: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminPromotionResponse,
+    InferClientOutput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
     ClientError,
-    HttpTypes.BatchAddPromotionRulesReq
+    Omit<
+      InferClientInput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.promotion.addRules(id, ruleType, payload),
+    mutationFn: (payload) => {
+      if (ruleType === "buy-rules") {
+        return sdk.admin.promotions.$id.buyRules.batch.mutate({
+          id,
+          ...payload,
+        });
+      }
+      if (ruleType === "target-rules") {
+        return sdk.admin.promotions.$id.targetRules.batch.mutate({
+          id,
+          ...payload,
+        });
+      }
+      return sdk.admin.promotions.$id.rules.batch.mutate({ id, ...payload });
+    },
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const usePromotionRemoveRules = (
   id: string,
   ruleType: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminPromotionResponse,
+    InferClientOutput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
     ClientError,
-    HttpTypes.BatchRemovePromotionRulesReq
+    Omit<
+      InferClientInput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.promotion.removeRules(id, ruleType, payload),
+    mutationFn: (payload) => {
+      if (ruleType === "buy-rules") {
+        return sdk.admin.promotions.$id.buyRules.batch.mutate({
+          id,
+          ...payload,
+        });
+      }
+      if (ruleType === "target-rules") {
+        return sdk.admin.promotions.$id.targetRules.batch.mutate({
+          id,
+          ...payload,
+        });
+      }
+      return sdk.admin.promotions.$id.rules.batch.mutate({ id, ...payload });
+    },
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const usePromotionUpdateRules = (
   id: string,
   ruleType: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminPromotionResponse,
+    InferClientOutput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
     ClientError,
-    HttpTypes.BatchUpdatePromotionRulesReq
+    Omit<
+      InferClientInput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.promotion.updateRules(id, ruleType, payload),
+    mutationFn: (payload) => {
+      if (ruleType === "buy-rules") {
+        return sdk.admin.promotions.$id.buyRules.batch.mutate({
+          id,
+          ...payload,
+        });
+      }
+      if (ruleType === "target-rules") {
+        return sdk.admin.promotions.$id.targetRules.batch.mutate({
+          id,
+          ...payload,
+        });
+      }
+      return sdk.admin.promotions.$id.rules.batch.mutate({ id, ...payload });
+    },
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

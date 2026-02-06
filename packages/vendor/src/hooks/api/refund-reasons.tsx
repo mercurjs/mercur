@@ -1,124 +1,125 @@
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
 import {
   useMutation,
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
-} from "@tanstack/react-query"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
 
-import { ClientError } from "@mercurjs/client"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-
-const REFUND_REASONS_QUERY_KEY = "refund_reasons" as const
-export const refundReasonsQueryKeys = queryKeysFactory(REFUND_REASONS_QUERY_KEY)
+const REFUND_REASONS_QUERY_KEY = "refund_reasons" as const;
+export const refundReasonsQueryKeys = queryKeysFactory(
+  REFUND_REASONS_QUERY_KEY
+);
 
 export const useRefundReasons = (
-  query?: HttpTypes.AdminRefundReasonListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminRefundReasonListResponse,
-      ClientError,
-      HttpTypes.AdminRefundReasonListResponse
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.refundReasons.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.refundReasons.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.refundReason.list(query),
+    queryFn: () => sdk.admin.refundReasons.query({ ...query }),
     queryKey: refundReasonsQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useRefundReason = (
   id: string,
-  query?: HttpTypes.AdminRefundReasonParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminRefundReasonResponse,
-      ClientError,
-      HttpTypes.AdminRefundReasonResponse
-    >,
-    "queryFn" | "queryKey"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.refundReasons.$id.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.refundReasons.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.refundReason.retrieve(id, query),
+    queryFn: () => sdk.admin.refundReasons.$id.query({ id, ...query }),
     queryKey: refundReasonsQueryKeys.detail(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateRefundReason = (
-  query?: HttpTypes.AdminRefundReasonParams,
   options?: UseMutationOptions<
-    HttpTypes.RefundReasonResponse,
+    InferClientOutput<typeof sdk.admin.refundReasons.mutate>,
     ClientError,
-    HttpTypes.AdminCreateRefundReason
+    InferClientInput<typeof sdk.admin.refundReasons.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: async (data) => sdk.admin.refundReason.create(data, query),
+    mutationFn: (payload) => sdk.admin.refundReasons.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: refundReasonsQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateRefundReason = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminRefundReasonResponse,
+    InferClientOutput<typeof sdk.admin.refundReasons.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateRefundReason
+    Omit<InferClientInput<typeof sdk.admin.refundReasons.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
-    mutationFn: async (data) => sdk.admin.refundReason.update(id, data),
+    mutationFn: (payload) =>
+      sdk.admin.refundReasons.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: refundReasonsQueryKeys.lists(),
-      })
+      });
       queryClient.invalidateQueries({
-        queryKey: refundReasonsQueryKeys.detail(data.refund_reason.id),
-      })
+        queryKey: refundReasonsQueryKeys.detail(id),
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteRefundReasonLazy = (
   options?: UseMutationOptions<
-    HttpTypes.AdminRefundReasonDeleteResponse,
+    InferClientOutput<typeof sdk.admin.refundReasons.$id.delete>,
     ClientError,
     string
   >
 ) => {
   return useMutation({
-    mutationFn: (id: string) => sdk.admin.refundReason.delete(id),
+    mutationFn: (id: string) => sdk.admin.refundReasons.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: refundReasonsQueryKeys.lists(),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: refundReasonsQueryKeys.details(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

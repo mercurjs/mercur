@@ -1,128 +1,129 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
 import {
-  QueryKey,
-  useMutation,
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
+import {
   UseMutationOptions,
-  useQuery,
   UseQueryOptions,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
 
-const SHIPPING_OPTION_TYPES_QUERY_KEY = "shipping_option_types" as const
+const SHIPPING_OPTION_TYPES_QUERY_KEY = "shipping_option_types" as const;
 export const shippingOptionTypesQueryKeys = queryKeysFactory(
   SHIPPING_OPTION_TYPES_QUERY_KEY
-)
+);
 
 export const useShippingOptionType = (
   id: string,
-  query?: HttpTypes.SelectParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminShippingOptionTypeResponse,
-      ClientError,
-      HttpTypes.AdminShippingOptionTypeResponse,
-      QueryKey
-    >,
-    "queryKey" | "queryFn"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.shippingOptionTypes.$id.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.shippingOptionTypes.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingOptionType.retrieve(id, query),
+    queryFn: () => sdk.admin.shippingOptionTypes.$id.query({ id, ...query }),
     queryKey: shippingOptionTypesQueryKeys.detail(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useShippingOptionTypes = (
-  query?: HttpTypes.AdminShippingOptionTypeListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminShippingOptionTypeListResponse,
-      ClientError,
-      HttpTypes.AdminShippingOptionTypeListResponse,
-      QueryKey
-    >,
-    "queryKey" | "queryFn"
+  query?: InferClientInput<typeof sdk.admin.shippingOptionTypes.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.shippingOptionTypes.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingOptionType.list(query),
+    queryFn: () => sdk.admin.shippingOptionTypes.query({ ...query }),
     queryKey: shippingOptionTypesQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateShippingOptionType = (
   options?: UseMutationOptions<
-    HttpTypes.AdminShippingOptionTypeResponse,
+    InferClientOutput<typeof sdk.admin.shippingOptionTypes.mutate>,
     ClientError,
-    HttpTypes.AdminCreateShippingOptionType
+    InferClientInput<typeof sdk.admin.shippingOptionTypes.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.shippingOptionType.create(payload),
+    mutationFn: (payload) => sdk.admin.shippingOptionTypes.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateShippingOptionType = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminShippingOptionTypeResponse,
+    InferClientOutput<typeof sdk.admin.shippingOptionTypes.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateShippingOptionType
+    Omit<
+      InferClientInput<typeof sdk.admin.shippingOptionTypes.$id.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.shippingOptionType.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.shippingOptionTypes.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.detail(id),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteShippingOptionType = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminShippingOptionTypeDeleteResponse,
+    InferClientOutput<typeof sdk.admin.shippingOptionTypes.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.shippingOptionType.delete(id),
+    mutationFn: () => sdk.admin.shippingOptionTypes.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.detail(id),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

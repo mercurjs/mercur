@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
 import {
   QueryKey,
   useInfiniteQuery,
@@ -8,30 +11,30 @@ import {
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
 
-const TRANSLATIONS_QUERY_KEY = "translations" as const
-export const translationsQueryKeys = queryKeysFactory(TRANSLATIONS_QUERY_KEY)
+const TRANSLATIONS_QUERY_KEY = "translations" as const;
+export const translationsQueryKeys = queryKeysFactory(TRANSLATIONS_QUERY_KEY);
 
-const TRANSLATION_SETTINGS_QUERY_KEY = "translation_settings" as const
+const TRANSLATION_SETTINGS_QUERY_KEY = "translation_settings" as const;
 export const translationSettingsQueryKeys = queryKeysFactory(
   TRANSLATION_SETTINGS_QUERY_KEY
-)
+);
 
-const TRANSLATION_STATISTICS_QUERY_KEY = "translation_statistics" as const
+const TRANSLATION_STATISTICS_QUERY_KEY = "translation_statistics" as const;
 export const translationStatisticsQueryKeys = queryKeysFactory(
   TRANSLATION_STATISTICS_QUERY_KEY
-)
+);
 
-const TRANSLATION_ENTITIES_QUERY_KEY = "translation_entities" as const
+const TRANSLATION_ENTITIES_QUERY_KEY = "translation_entities" as const;
 export const translationEntitiesQueryKeys = queryKeysFactory(
   TRANSLATION_ENTITIES_QUERY_KEY
-)
+);
 
-const DEFAULT_PAGE_SIZE = 20
+const DEFAULT_PAGE_SIZE = 20;
 
 /**
  * Hook to fetch entities with their translatable fields and all translations.
@@ -47,13 +50,15 @@ export const useReferenceTranslations = (
   referenceId?: string | string[],
   options?: Omit<
     UseInfiniteQueryOptions<
-      HttpTypes.AdminTranslationEntitiesResponse,
+      InferClientOutput<typeof sdk.admin.translations.entities.query>,
       ClientError,
       {
-        pages: HttpTypes.AdminTranslationEntitiesResponse[]
-        pageParams: number[]
+        pages: InferClientOutput<
+          typeof sdk.admin.translations.entities.query
+        >[];
+        pageParams: number[];
       },
-      HttpTypes.AdminTranslationEntitiesResponse,
+      InferClientOutput<typeof sdk.admin.translations.entities.query>,
       QueryKey,
       number
     >,
@@ -66,73 +71,68 @@ export const useReferenceTranslations = (
       id: referenceId,
     }),
     queryFn: async ({ pageParam = 0 }) => {
-      return sdk.admin.translation.entities({
+      return sdk.admin.translations.entities.query({
         type: reference,
         id: referenceId,
         limit: DEFAULT_PAGE_SIZE,
         offset: pageParam,
-      })
+      });
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
-      const nextOffset = lastPage.offset + lastPage.limit
-      return nextOffset < lastPage.count ? nextOffset : undefined
+      const nextOffset = lastPage.offset + lastPage.limit;
+      return nextOffset < lastPage.count ? nextOffset : undefined;
     },
     ...options,
-  })
+  });
 
   const entitiesWithTranslations =
-    data?.pages.flatMap((page) => page.data) ?? []
+    data?.pages.flatMap((page) => page.data) ?? [];
   const translations = entitiesWithTranslations.flatMap(
     (entity) => entity.translations ?? []
-  )
+  );
   const references = entitiesWithTranslations.map(
     ({ translations: _, ...entity }) => entity
-  )
-  const count = data?.pages[0]?.count ?? 0
+  );
+  const count = data?.pages[0]?.count ?? 0;
 
   return {
     references,
     translations,
     count,
     ...rest,
-  }
-}
+  };
+};
 
 export const useTranslations = (
-  query?: HttpTypes.AdminTranslationsListParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminTranslationsListResponse,
-      ClientError,
-      HttpTypes.AdminTranslationsListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.translations.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.translations.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: translationsQueryKeys.list(query),
-    queryFn: () => sdk.admin.translation.list(query),
+    queryFn: () => sdk.admin.translations.query({ ...query }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useBatchTranslations = (
   reference: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminTranslationsBatchResponse,
+    InferClientOutput<typeof sdk.admin.translations.batch.mutate>,
     ClientError,
-    HttpTypes.AdminBatchTranslations
+    InferClientInput<typeof sdk.admin.translations.batch.mutate>
   >
 ) => {
   const mutation = useMutation({
-    mutationFn: (payload: HttpTypes.AdminBatchTranslations) =>
-      sdk.admin.translation.batch(payload),
+    mutationFn: (payload) => sdk.admin.translations.batch.mutate(payload),
     ...options,
-  })
+  });
 
   /**
    * Useful to call the invalidation separately from the batch request and await the refetch finishes.
@@ -145,97 +145,85 @@ export const useBatchTranslations = (
       queryClient.invalidateQueries({
         queryKey: translationStatisticsQueryKeys.lists(),
       }),
-    ])
-  }
+    ]);
+  };
 
   return {
     ...mutation,
     invalidateQueries,
-  }
-}
+  };
+};
 
 export const useTranslationSettings = (
-  query?: HttpTypes.AdminTranslationSettingsParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminTranslationSettingsResponse,
-      ClientError,
-      HttpTypes.AdminTranslationSettingsResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.translations.settings.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.translations.settings.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: translationSettingsQueryKeys.list(query),
-    queryFn: () => sdk.admin.translation.settings(query),
+    queryFn: () => sdk.admin.translations.settings.query({ ...query }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useBatchTranslationSettings = (
   options?: UseMutationOptions<
-    HttpTypes.AdminBatchTranslationSettingsResponse,
+    InferClientOutput<typeof sdk.admin.translations.settings.batch.mutate>,
     ClientError,
-    HttpTypes.AdminBatchTranslationSettings
+    InferClientInput<typeof sdk.admin.translations.settings.batch.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminBatchTranslationSettings) =>
-      sdk.admin.translation.batchSettings(payload),
+    mutationFn: (payload) =>
+      sdk.admin.translations.settings.batch.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: translationSettingsQueryKeys.lists(),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: translationStatisticsQueryKeys.lists(),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useTranslationEntities = (
-  query: HttpTypes.AdminTranslationEntitiesParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminTranslationEntitiesResponse,
-      ClientError,
-      HttpTypes.AdminTranslationEntitiesResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query: InferClientInput<typeof sdk.admin.translations.entities.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.translations.entities.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: translationEntitiesQueryKeys.list(query),
-    queryFn: () => sdk.admin.translation.entities(query),
+    queryFn: () => sdk.admin.translations.entities.query(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useTranslationStatistics = (
-  query?: HttpTypes.AdminTranslationStatisticsParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminTranslationStatisticsResponse,
-      ClientError,
-      HttpTypes.AdminTranslationStatisticsResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.translations.statistics.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.translations.statistics.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: translationStatisticsQueryKeys.list(query),
-    queryFn: () => sdk.admin.translation.statistics(query),
+    queryFn: () => sdk.admin.translations.statistics.query({ ...query }),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
