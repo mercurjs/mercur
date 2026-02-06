@@ -1,11 +1,14 @@
 {
 	"compilerOptions": {
 		"lib": [
-			"ESNext"
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
 		],
 		"types": [
 			"node"
 		],
+		"jsx": "react-jsx",
 		"target": "ESNext",
 		"module": "Preserve",
 		"moduleDetection": "force",

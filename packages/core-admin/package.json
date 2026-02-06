@@ -1,0 +1,35 @@
+{
+  "name": "@mercurjs/core-admin",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./app": "./dist/app/index.js",
+    "./pages": "./dist/pages/index.js",
+    "./pages/*": "./dist/pages/*/index.js",
+    "./core/*": "./dist/pages/*/index.js",
+    "./components": "./dist/components/index.js",
+    "./hooks": "./dist/hooks/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "@medusajs/ui": "^4.0.0",
+    "@tanstack/react-query": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

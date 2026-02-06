@@ -12,10 +12,14 @@
 	"devDependencies": {
 		"@mercurjs/cli": "*",
 		"@types/node": "^22",
+		"@types/react": "^18",
 		"@types/unzipper": "^0.10.10",
 		"@medusajs/admin-sdk": "^2.13.0",
 		"@medusajs/cli": "^2.13.0",
 		"@medusajs/framework": "^2.13.0",
-		"@medusajs/medusa": "^2.13.0"
+		"@medusajs/icons": "^2.2.0",
+		"@medusajs/medusa": "^2.13.0",
+		"@medusajs/ui": "^4.0.5",
+		"react": "^18.2.0"
 	}
 }
