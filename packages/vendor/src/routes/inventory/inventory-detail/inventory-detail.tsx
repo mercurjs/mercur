@@ -10,7 +10,7 @@ import { InventoryItemReservationsSection } from "./components/inventory-item-re
 import { InventoryItemVariantsSection } from "./components/inventory-item-variants/variants-section"
 import { inventoryItemLoader } from "./loader"
 
-import { useExtension } from "../../../providers/extension-provider"
+
 import { INVENTORY_DETAIL_FIELDS } from "./constants"
 
 export const InventoryDetail = () => {
@@ -35,7 +35,6 @@ export const InventoryDetail = () => {
     }
   )
 
-  const { getWidgets } = useExtension()
 
   if (isLoading || !inventory_item) {
     return (
@@ -54,12 +53,6 @@ export const InventoryDetail = () => {
 
   return (
     <TwoColumnPage
-      widgets={{
-        after: getWidgets("inventory_item.details.after"),
-        before: getWidgets("inventory_item.details.before"),
-        sideAfter: getWidgets("inventory_item.details.side.after"),
-        sideBefore: getWidgets("inventory_item.details.side.before"),
-      }}
       data={inventory_item}
       showJSON
       showMetadata

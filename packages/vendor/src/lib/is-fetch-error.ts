@@ -1,5 +1,5 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 
-export const isFetchError = (error: any): error is FetchError => {
-  return error instanceof FetchError
+export const isClientError = (error: any): error is ClientError => {
+  return error instanceof ClientError
 }

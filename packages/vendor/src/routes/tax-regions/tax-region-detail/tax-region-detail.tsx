@@ -7,7 +7,7 @@ import { TaxRegionDetailSection } from "./components/tax-region-detail-section"
 import { TaxRegionProvinceSection } from "./components/tax-region-province-section"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { useExtension } from "../../../providers/extension-provider"
+
 import { TaxRegionOverrideSection } from "./components/tax-region-override-section"
 import { TaxRegionSublevelAlert } from "./components/tax-region-sublevel-alert"
 import { TaxRegionProviderSection } from "./tax-region-provider-section"
@@ -28,7 +28,6 @@ export const TaxRegionDetail = () => {
     error,
   } = useTaxRegion(id!, undefined, { initialData })
 
-  const { getWidgets } = useExtension()
 
   if (isLoading || !taxRegion) {
     return <SingleColumnPageSkeleton sections={4} showJSON />
@@ -43,10 +42,6 @@ export const TaxRegionDetail = () => {
       data={taxRegion}
       showJSON
       // showMetadata // TOOD -> enable tax region metadata
-      widgets={{
-        after: getWidgets("tax.details.after"),
-        before: getWidgets("tax.details.before"),
-      }}
     >
       <TaxRegionSublevelAlert
         taxRegion={taxRegion}

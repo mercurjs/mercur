@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes, PaginatedResponse } from "@medusajs/types"
 import {
   QueryKey,
@@ -24,7 +24,7 @@ export const useCustomer = (
   options?: Omit<
     UseQueryOptions<
       { customer: HttpTypes.AdminCustomer },
-      FetchError,
+      ClientError,
       { customer: HttpTypes.AdminCustomer },
       QueryKey
     >,
@@ -45,7 +45,7 @@ export const useCustomers = (
   options?: Omit<
     UseQueryOptions<
       PaginatedResponse<{ customers: HttpTypes.AdminCustomer[] }>,
-      FetchError,
+      ClientError,
       PaginatedResponse<{ customers: HttpTypes.AdminCustomer[] }>,
       QueryKey
     >,
@@ -64,7 +64,7 @@ export const useCustomers = (
 export const useCreateCustomer = (
   options?: UseMutationOptions<
     { customer: HttpTypes.AdminCustomer },
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateCustomer
   >
 ) => {
@@ -82,7 +82,7 @@ export const useUpdateCustomer = (
   id: string,
   options?: UseMutationOptions<
     { customer: HttpTypes.AdminCustomer },
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateCustomer
   >
 ) => {
@@ -102,7 +102,7 @@ export const useDeleteCustomer = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -124,7 +124,7 @@ export const useBatchCustomerCustomerGroups = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchLink
   >
 ) => {
@@ -156,7 +156,7 @@ export const useCreateCustomerAddress = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateCustomerAddress
   >
 ) => {
@@ -180,7 +180,7 @@ export const useUpdateCustomerAddress = (
   addressId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateCustomerAddress
   >
 ) => {
@@ -204,7 +204,7 @@ export const useDeleteCustomerAddress = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerResponse,
-    FetchError,
+    ClientError,
     string
   >
 ) => {
@@ -229,7 +229,7 @@ export const useListCustomerAddresses = (
   query?: Record<string, any>,
   options?: UseQueryOptions<
     HttpTypes.AdminCustomerResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCustomerResponse,
     QueryKey
   >
@@ -248,7 +248,7 @@ export const useCustomerAddress = (
   addressId: string,
   options?: UseQueryOptions<
     HttpTypes.AdminCustomerResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCustomerResponse,
     QueryKey
   >

@@ -31,6 +31,7 @@
     "prepublishOnly": "medusa plugin:build"
   },
   "devDependencies": {
+    "@medusajs/core-flows": "^2.13.0",
     "@medusajs/admin-sdk": "^2.13.0",
     "@medusajs/cli": "^2.13.0",
     "@medusajs/framework": "^2.13.0",

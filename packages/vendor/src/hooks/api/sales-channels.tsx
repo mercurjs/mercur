@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import {
   AdminSalesChannelListResponse,
   AdminSalesChannelResponse,
@@ -24,7 +24,7 @@ export const useSalesChannel = (
   options?: Omit<
     UseQueryOptions<
       AdminSalesChannelResponse,
-      FetchError,
+      ClientError,
       AdminSalesChannelResponse,
       QueryKey
     >,
@@ -45,7 +45,7 @@ export const useSalesChannels = (
   options?: Omit<
     UseQueryOptions<
       AdminSalesChannelListResponse,
-      FetchError,
+      ClientError,
       AdminSalesChannelListResponse,
       QueryKey
     >,
@@ -64,7 +64,7 @@ export const useSalesChannels = (
 export const useCreateSalesChannel = (
   options?: UseMutationOptions<
     AdminSalesChannelResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateSalesChannel
   >
 ) => {
@@ -84,7 +84,7 @@ export const useUpdateSalesChannel = (
   id: string,
   options?: UseMutationOptions<
     AdminSalesChannelResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateSalesChannel
   >
 ) => {
@@ -108,7 +108,7 @@ export const useDeleteSalesChannel = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminSalesChannelDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -136,7 +136,7 @@ export const useDeleteSalesChannel = (
 export const useDeleteSalesChannelLazy = (
   options?: UseMutationOptions<
     HttpTypes.AdminSalesChannelDeleteResponse,
-    FetchError,
+    ClientError,
     string
   >
 ) => {
@@ -165,7 +165,7 @@ export const useSalesChannelRemoveProducts = (
   id: string,
   options?: UseMutationOptions<
     AdminSalesChannelResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchLink["remove"]
   >
 ) => {
@@ -202,7 +202,7 @@ export const useSalesChannelAddProducts = (
   id: string,
   options?: UseMutationOptions<
     AdminSalesChannelResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchLink["add"]
   >
 ) => {

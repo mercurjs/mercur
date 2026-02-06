@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   InfiniteData,
@@ -23,7 +23,7 @@ export const useProductTag = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductTagResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductTagResponse,
       QueryKey
     >,
@@ -44,7 +44,7 @@ export const useProductTags = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductTagListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductTagListResponse,
       QueryKey
     >,
@@ -67,7 +67,7 @@ export const useInfiniteProductTags = (
   options?: Omit<
     UseInfiniteQueryOptions<
       HttpTypes.AdminProductTagListResponse,
-      FetchError,
+      ClientError,
       InfiniteData<HttpTypes.AdminProductTagListResponse, number>,
       HttpTypes.AdminProductTagListResponse,
       QueryKey,
@@ -79,7 +79,7 @@ export const useInfiniteProductTags = (
   return useInfiniteList<
     HttpTypes.AdminProductTagListResponse,
     HttpTypes.AdminProductTagListParams,
-    FetchError,
+    ClientError,
     QueryKey
   >({
     queryKey: (params) => productTagsQueryKeys.list(params),
@@ -93,7 +93,7 @@ export const useCreateProductTag = (
   query?: HttpTypes.AdminProductTagParams,
   options?: UseMutationOptions<
     HttpTypes.AdminProductTagResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateProductTag
   >
 ) => {
@@ -115,7 +115,7 @@ export const useUpdateProductTag = (
   query?: HttpTypes.AdminProductTagParams,
   options?: UseMutationOptions<
     HttpTypes.AdminProductTagResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateProductTag
   >
 ) => {
@@ -139,7 +139,7 @@ export const useDeleteProductTag = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductTagDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

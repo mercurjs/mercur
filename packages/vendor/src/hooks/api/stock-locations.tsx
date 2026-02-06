@@ -6,7 +6,7 @@ import {
   useQuery,
 } from "@tanstack/react-query"
 
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
@@ -24,7 +24,7 @@ export const useStockLocation = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminStockLocationResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminStockLocationResponse,
       QueryKey
     >,
@@ -45,7 +45,7 @@ export const useStockLocations = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminStockLocationListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminStockLocationListResponse,
       QueryKey
     >,
@@ -64,7 +64,7 @@ export const useStockLocations = (
 export const useCreateStockLocation = (
   options?: UseMutationOptions<
     HttpTypes.AdminStockLocationResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateStockLocation
   >
 ) => {
@@ -85,7 +85,7 @@ export const useUpdateStockLocation = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminStockLocationResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateStockLocation
   >
 ) => {
@@ -109,7 +109,7 @@ export const useUpdateStockLocationSalesChannels = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminStockLocationResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateStockLocationSalesChannels
   >
 ) => {
@@ -134,7 +134,7 @@ export const useDeleteStockLocation = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminStockLocationDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -158,7 +158,7 @@ export const useCreateStockLocationFulfillmentSet = (
   locationId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminStockLocationResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateStockLocationFulfillmentSet
   >
 ) => {
@@ -180,7 +180,7 @@ export const useUpdateStockLocationFulfillmentProviders = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminStockLocationResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchLink
   >
 ) => {

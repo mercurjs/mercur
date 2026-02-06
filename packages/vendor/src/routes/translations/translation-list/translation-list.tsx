@@ -116,12 +116,6 @@ export const TranslationList = () => {
 
   return (
     <TwoColumnPage
-      widgets={{
-        before: [],
-        after: [],
-        sideBefore: [],
-        sideAfter: [],
-      }}
     >
       <TwoColumnPage.Main>
         <Container className="flex items-center justify-between px-6 py-4">

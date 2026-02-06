@@ -3,7 +3,7 @@ import { Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Navigate, useLocation, useRouteError } from "react-router-dom"
 
-import { isFetchError } from "../../../lib/is-fetch-error"
+import { isClientError } from "../../../lib/is-fetch-error"
 
 export const ErrorBoundary = () => {
   const error = useRouteError()
@@ -12,7 +12,7 @@ export const ErrorBoundary = () => {
 
   let code: number | null = null
 
-  if (isFetchError(error)) {
+  if (isClientError(error)) {
     if (error.status === 401) {
       return <Navigate to="/login" state={{ from: location }} replace />
     }

@@ -18,7 +18,7 @@ import {
   EllipsisVertical,
   Trash,
 } from "@medusajs/icons"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { ComponentPropsWithoutRef, forwardRef } from "react"
 import { ConditionalTooltip } from "../../common/conditional-tooltip"
 import { Form } from "../../common/form"
@@ -29,7 +29,7 @@ import { useDocumentDirection } from "../../../hooks/use-document-direction"
 
 type MetaDataSubmitHook<TRes> = (
   params: { metadata?: Record<string, any> | null },
-  callbacks: { onSuccess: () => void; onError: (error: FetchError) => void }
+  callbacks: { onSuccess: () => void; onError: (error: ClientError) => void }
 ) => Promise<TRes>
 
 type MetadataFormProps<TRes> = {

@@ -8,3 +8,6 @@ export const client = createClient<Routes>({
     credentials: 'include',
   },
 })
+
+// Alias for backwards compatibility
+export const sdk = client

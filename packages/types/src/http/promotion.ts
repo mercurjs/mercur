@@ -1,4 +1,4 @@
-import { DeleteResponse, PaginatedResponse, PromotionDTO, PromotionRuleDTO } from "@medusajs/framework/types"
+import { DeleteResponse, PaginatedResponse, PromotionDTO, PromotionRuleDTO } from "@medusajs/types"
 
 export type VendorPromotion = PromotionDTO
 

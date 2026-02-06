@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import {
   UseMutationOptions,
   UseQueryOptions,
@@ -14,7 +14,7 @@ export const cloudQueryKeys = {
 
 export const useCloudAuthEnabled = (
   options?: Omit<
-    UseQueryOptions<{ enabled: boolean }, FetchError>,
+    UseQueryOptions<{ enabled: boolean }, ClientError>,
     "queryKey" | "queryFn"
   >
 ) => {
@@ -28,7 +28,7 @@ export const useCloudAuthEnabled = (
 }
 
 export const useCreateCloudAuthUser = (
-  options?: UseMutationOptions<void, FetchError>
+  options?: UseMutationOptions<void, ClientError>
 ) => {
   return useMutation({
     mutationFn: async () => {

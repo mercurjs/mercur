@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   InfiniteData,
@@ -24,7 +24,7 @@ export const useProductCategory = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductCategoryResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductCategoryResponse,
       QueryKey
     >,
@@ -45,7 +45,7 @@ export const useProductCategories = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductCategoryListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductCategoryListResponse,
       QueryKey
     >,
@@ -68,7 +68,7 @@ export const useInfiniteCategories = (
   options?: Omit<
     UseInfiniteQueryOptions<
       HttpTypes.AdminProductCategoryListResponse,
-      FetchError,
+      ClientError,
       InfiniteData<HttpTypes.AdminProductCategoryListResponse, number>,
       HttpTypes.AdminProductCategoryListResponse,
       QueryKey,
@@ -80,7 +80,7 @@ export const useInfiniteCategories = (
   return useInfiniteList<
     HttpTypes.AdminProductCategoryListResponse,
     HttpTypes.AdminProductCategoryListParams,
-    FetchError,
+    ClientError,
     QueryKey
   >({
     queryKey: (params) => categoriesQueryKeys.list(params),
@@ -93,7 +93,7 @@ export const useInfiniteCategories = (
 export const useCreateProductCategory = (
   options?: UseMutationOptions<
     HttpTypes.AdminProductCategoryResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateProductCategory
   >
 ) => {
@@ -112,7 +112,7 @@ export const useUpdateProductCategory = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductCategoryResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateProductCategory
   >
 ) => {
@@ -134,7 +134,7 @@ export const useDeleteProductCategory = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductCategoryDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -156,7 +156,7 @@ export const useUpdateProductCategoryProducts = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductCategoryResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateProductCategoryProducts
   >
 ) => {

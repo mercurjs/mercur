@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useApiKey } from "../../../hooks/api/api-keys"
-import { useExtension } from "../../../providers/extension-provider"
+
 import { ApiKeyType } from "../common/constants"
 import { ApiKeyGeneralSection } from "./components/api-key-general-section"
 import { ApiKeySalesChannelSection } from "./components/api-key-sales-channel-section"
@@ -15,7 +15,6 @@ export const ApiKeyManagementDetail = () => {
   >
 
   const { id } = useParams()
-  const { getWidgets } = useExtension()
 
   const { api_key, isLoading, isError, error } = useApiKey(id!, {
     initialData: initialData,
@@ -35,10 +34,6 @@ export const ApiKeyManagementDetail = () => {
     <SingleColumnPage
       hasOutlet
       showJSON
-      widgets={{
-        before: getWidgets("api_key.details.before"),
-        after: getWidgets("api_key.details.after"),
-      }}
       data={api_key}
     >
       <ApiKeyGeneralSection apiKey={api_key} />

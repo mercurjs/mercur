@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { QueryKey, UseQueryOptions, useQuery } from "@tanstack/react-query"
 
@@ -13,7 +13,7 @@ export const useLocales = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminLocaleListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminLocaleListResponse,
       QueryKey
     >,
@@ -35,7 +35,7 @@ export const useLocale = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminLocaleResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminLocaleResponse,
       QueryKey
     >,

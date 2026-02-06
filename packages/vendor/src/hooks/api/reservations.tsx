@@ -13,7 +13,7 @@ import {
   inventoryItemLevelsQueryKeys,
   inventoryItemsQueryKeys,
 } from "./inventory.tsx"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 
 const RESERVATION_ITEMS_QUERY_KEY = "reservation_items" as const
 export const reservationItemsQueryKeys = queryKeysFactory(
@@ -26,7 +26,7 @@ export const useReservationItem = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminReservationResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminReservationResponse,
       QueryKey
     >,
@@ -47,7 +47,7 @@ export const useReservationItems = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminGetReservationsParams,
-      FetchError,
+      ClientError,
       HttpTypes.AdminReservationListResponse,
       QueryKey
     >,
@@ -67,7 +67,7 @@ export const useUpdateReservationItem = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminReservationResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateReservation
   >
 ) => {
@@ -96,7 +96,7 @@ export const useUpdateReservationItem = (
 export const useCreateReservationItem = (
   options?: UseMutationOptions<
     HttpTypes.AdminReservationResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateReservation
   >
 ) => {
@@ -123,7 +123,7 @@ export const useDeleteReservationItem = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminReservationDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

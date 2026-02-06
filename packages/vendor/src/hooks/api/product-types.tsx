@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   InfiniteData,
@@ -23,7 +23,7 @@ export const useProductType = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductTypeResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductTypeResponse,
       QueryKey
     >,
@@ -44,7 +44,7 @@ export const useProductTypes = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductTypeListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductTypeListResponse,
       QueryKey
     >,
@@ -67,7 +67,7 @@ export const useInfiniteProductTypes = (
   options?: Omit<
     UseInfiniteQueryOptions<
       HttpTypes.AdminProductTypeListResponse,
-      FetchError,
+      ClientError,
       InfiniteData<HttpTypes.AdminProductTypeListResponse, number>,
       HttpTypes.AdminProductTypeListResponse,
       QueryKey,
@@ -79,7 +79,7 @@ export const useInfiniteProductTypes = (
   return useInfiniteList<
     HttpTypes.AdminProductTypeListResponse,
     HttpTypes.AdminProductTypeListParams,
-    FetchError,
+    ClientError,
     QueryKey
   >({
     queryKey: (params) => productTypesQueryKeys.list(params),
@@ -92,7 +92,7 @@ export const useInfiniteProductTypes = (
 export const useCreateProductType = (
   options?: UseMutationOptions<
     HttpTypes.AdminProductTypeResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateProductType
   >
 ) => {
@@ -111,7 +111,7 @@ export const useUpdateProductType = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductTypeResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateProductType
   >
 ) => {
@@ -133,7 +133,7 @@ export const useDeleteProductType = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductTypeDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

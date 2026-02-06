@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import {
   QueryKey,
   useMutation,
@@ -43,7 +43,7 @@ export const usePromotion = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminPromotionResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminPromotionResponse,
       QueryKey
     >,
@@ -66,7 +66,7 @@ export const usePromotionRules = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminGetPromotionRuleParams,
-      FetchError,
+      ClientError,
       HttpTypes.AdminPromotionRuleListResponse,
       QueryKey
     >,
@@ -87,7 +87,7 @@ export const usePromotions = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminPromotionListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminPromotionListResponse,
       QueryKey
     >,
@@ -110,7 +110,7 @@ export const usePromotionRuleAttributes = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminRuleAttributeOptionsListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminRuleAttributeOptionsListResponse,
       QueryKey
     >,
@@ -142,7 +142,7 @@ export const usePromotionRuleValues = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminRuleValueOptionsListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminRuleValueOptionsListResponse,
       QueryKey
     >,
@@ -167,7 +167,7 @@ export const useDeletePromotion = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.DeleteResponse<"promotion">,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -188,7 +188,7 @@ export const useDeletePromotion = (
 export const useCreatePromotion = (
   options?: UseMutationOptions<
     HttpTypes.AdminPromotionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreatePromotion
   >
 ) => {
@@ -207,7 +207,7 @@ export const useUpdatePromotion = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminPromotionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdatePromotion
   >
 ) => {
@@ -227,7 +227,7 @@ export const usePromotionAddRules = (
   ruleType: string,
   options?: UseMutationOptions<
     HttpTypes.AdminPromotionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.BatchAddPromotionRulesReq
   >
 ) => {
@@ -248,7 +248,7 @@ export const usePromotionRemoveRules = (
   ruleType: string,
   options?: UseMutationOptions<
     HttpTypes.AdminPromotionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.BatchRemovePromotionRulesReq
   >
 ) => {
@@ -269,7 +269,7 @@ export const usePromotionUpdateRules = (
   ruleType: string,
   options?: UseMutationOptions<
     HttpTypes.AdminPromotionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.BatchUpdatePromotionRulesReq
   >
 ) => {

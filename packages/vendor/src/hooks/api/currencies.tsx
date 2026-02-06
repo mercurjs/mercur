@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { QueryKey, UseQueryOptions, useQuery } from "@tanstack/react-query"
 
@@ -13,7 +13,7 @@ export const useCurrencies = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminCurrencyListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminCurrencyListResponse,
       QueryKey
     >,
@@ -35,7 +35,7 @@ export const useCurrency = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminCurrencyResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminCurrencyResponse,
       QueryKey
     >,

@@ -7,7 +7,7 @@ import { CustomerGroupGeneralSection } from "./components/customer-group-general
 import { customerGroupLoader } from "./loader"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { useExtension } from "../../../providers/extension-provider"
+
 import { CUSTOMER_GROUP_DETAIL_FIELDS } from "./constants"
 
 export const CustomerGroupDetail = () => {
@@ -24,7 +24,6 @@ export const CustomerGroupDetail = () => {
     { initialData }
   )
 
-  const { getWidgets } = useExtension()
 
   if (isLoading || !customer_group) {
     return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />
@@ -36,10 +35,6 @@ export const CustomerGroupDetail = () => {
 
   return (
     <SingleColumnPage
-      widgets={{
-        before: getWidgets("customer_group.details.before"),
-        after: getWidgets("customer_group.details.after"),
-      }}
       showJSON
       showMetadata
       data={customer_group}

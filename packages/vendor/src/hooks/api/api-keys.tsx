@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import {
   MutationOptions,
   QueryKey,
@@ -21,7 +21,7 @@ export const useApiKey = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminApiKeyResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminApiKeyResponse,
       QueryKey
     >,
@@ -42,7 +42,7 @@ export const useApiKeys = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminGetApiKeysParams,
-      FetchError,
+      ClientError,
       HttpTypes.AdminApiKeyListResponse,
       QueryKey
     >,
@@ -61,7 +61,7 @@ export const useApiKeys = (
 export const useCreateApiKey = (
   options?: UseMutationOptions<
     HttpTypes.AdminApiKeyResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateApiKey
   >
 ) => {
@@ -80,7 +80,7 @@ export const useUpdateApiKey = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminApiKeyResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateApiKey
   >
 ) => {
@@ -98,7 +98,7 @@ export const useUpdateApiKey = (
 
 export const useRevokeApiKey = (
   id: string,
-  options?: UseMutationOptions<HttpTypes.AdminApiKeyResponse, FetchError, void>
+  options?: UseMutationOptions<HttpTypes.AdminApiKeyResponse, ClientError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.apiKey.revoke(id),
@@ -115,7 +115,7 @@ export const useDeleteApiKey = (
   id: string,
   options?: MutationOptions<
     HttpTypes.AdminApiKeyDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -134,7 +134,7 @@ export const useBatchRemoveSalesChannelsFromApiKey = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminApiKeyResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchLink["remove"]
   >
 ) => {
@@ -158,7 +158,7 @@ export const useBatchAddSalesChannelsToApiKey = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminApiKeyResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchLink["add"]
   >
 ) => {

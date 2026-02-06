@@ -10,7 +10,7 @@ import { useLocationListTableQuery } from "./use-location-list-table-query"
 import { DataTable } from "../../../components/data-table"
 import { SidebarLink } from "../../../components/common/sidebar-link/sidebar-link"
 import { TwoColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
+
 import { keepPreviousData } from "@tanstack/react-query"
 
 const PAGE_SIZE = 20
@@ -41,7 +41,6 @@ export function LocationList() {
   )
 
   const columns = useLocationListTableColumns()
-  const { getWidgets } = useExtension()
 
   if (isError) {
     throw error
@@ -49,12 +48,6 @@ export function LocationList() {
 
   return (
     <TwoColumnPage
-      widgets={{
-        after: getWidgets("location.list.after"),
-        before: getWidgets("location.list.before"),
-        sideAfter: getWidgets("location.list.side.after"),
-        sideBefore: getWidgets("location.list.side.before"),
-      }}
       showJSON
     >
       <TwoColumnPage.Main>

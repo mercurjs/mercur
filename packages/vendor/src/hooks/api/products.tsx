@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -26,7 +26,7 @@ export const optionsQueryKeys = queryKeysFactory(OPTIONS_QUERY_KEY)
 
 export const useCreateProductOption = (
   productId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateProductOption) =>
@@ -45,7 +45,7 @@ export const useCreateProductOption = (
 export const useUpdateProductOption = (
   productId: string,
   optionId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminUpdateProductOption) =>
@@ -68,7 +68,7 @@ export const useUpdateProductOption = (
 export const useDeleteProductOption = (
   productId: string,
   optionId: string,
-  options?: UseMutationOptions<any, FetchError, void>
+  options?: UseMutationOptions<any, ClientError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.product.deleteOption(productId, optionId),
@@ -94,7 +94,7 @@ export const useProductVariant = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductVariantResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductVariantResponse,
       QueryKey
     >,
@@ -117,7 +117,7 @@ export const useProductVariants = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductVariantListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductVariantListResponse,
       QueryKey
     >,
@@ -135,7 +135,7 @@ export const useProductVariants = (
 
 export const useCreateProductVariant = (
   productId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateProductVariant) =>
@@ -154,7 +154,7 @@ export const useCreateProductVariant = (
 export const useUpdateProductVariant = (
   productId: string,
   variantId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminUpdateProductVariant) =>
@@ -176,7 +176,7 @@ export const useUpdateProductVariant = (
 
 export const useUpdateProductVariantsBatch = (
   productId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
     mutationFn: (
@@ -202,7 +202,7 @@ export const useProductVariantsInventoryItemsBatch = (
   productId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminBatchProductVariantInventoryItemResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchProductVariantInventoryItemRequest
   >
 ) => {
@@ -225,7 +225,7 @@ export const useProductVariantsInventoryItemsBatch = (
 export const useDeleteVariant = (
   productId: string,
   variantId: string,
-  options?: UseMutationOptions<any, FetchError, void>
+  options?: UseMutationOptions<any, ClientError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.product.deleteVariant(productId, variantId),
@@ -248,7 +248,7 @@ export const useDeleteVariantLazy = (
   productId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductVariantDeleteResponse,
-    FetchError,
+    ClientError,
     { variantId: string }
   >
 ) => {
@@ -276,7 +276,7 @@ export const useProduct = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductResponse,
       QueryKey
     >,
@@ -297,7 +297,7 @@ export const useProducts = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductListResponse,
       QueryKey
     >,
@@ -318,7 +318,7 @@ export const useInfiniteProducts = (
   options?: Omit<
     UseInfiniteQueryOptions<
       HttpTypes.AdminProductListResponse,
-      FetchError,
+      ClientError,
       InfiniteData<HttpTypes.AdminProductListResponse, number>,
       HttpTypes.AdminProductListResponse,
       QueryKey,
@@ -330,7 +330,7 @@ export const useInfiniteProducts = (
   return useInfiniteList<
     HttpTypes.AdminProductListResponse,
     HttpTypes.AdminProductListParams,
-    FetchError,
+    ClientError,
     QueryKey
   >({
     queryKey: (params) => productsQueryKeys.list(params),
@@ -342,7 +342,7 @@ export const useInfiniteProducts = (
 export const useCreateProduct = (
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateProduct
   >
 ) => {
@@ -364,7 +364,7 @@ export const useUpdateProduct = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateProduct
   >
 ) => {
@@ -392,7 +392,7 @@ export const useDeleteProduct = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -412,7 +412,7 @@ export const useExportProducts = (
   query?: HttpTypes.AdminProductListParams,
   options?: UseMutationOptions<
     HttpTypes.AdminExportProductResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminExportProductRequest
   >
 ) => {
@@ -428,7 +428,7 @@ export const useExportProducts = (
 export const useImportProducts = (
   options?: UseMutationOptions<
     HttpTypes.AdminImportProductResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminImportProductRequest
   >
 ) => {
@@ -442,7 +442,7 @@ export const useImportProducts = (
 }
 
 export const useConfirmImportProducts = (
-  options?: UseMutationOptions<{}, FetchError, string>
+  options?: UseMutationOptions<{}, ClientError, string>
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.product.confirmImport(payload),
@@ -458,7 +458,7 @@ export const useBatchImageVariants = (
   imageId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminBatchImageVariantResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchImageVariantRequest
   >
 ) => {
@@ -483,7 +483,7 @@ export const useBatchVariantImages = (
   variantId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminBatchVariantImagesResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchVariantImagesRequest
   >
 ) => {

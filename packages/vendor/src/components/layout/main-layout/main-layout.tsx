@@ -1,21 +1,17 @@
 import {
   BuildingStorefront,
   Buildings,
-  ChevronDownMini,
   CogSixTooth,
   CurrencyDollar,
   EllipsisHorizontal,
   MagnifyingGlass,
-  MinusMini,
   OpenRectArrowOut,
   ReceiptPercent,
   ShoppingCart,
-  SquaresPlus,
   Tag,
   Users,
 } from "@medusajs/icons"
 import { Avatar, Divider, DropdownMenu, Text, clx } from "@medusajs/ui"
-import { Collapsible as RadixCollapsible } from "radix-ui"
 import { useTranslation } from "react-i18next"
 
 import { useStore } from "../../../hooks/api/store"
@@ -26,7 +22,6 @@ import { Shell } from "../../layout/shell"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useLogout } from "../../../hooks/api"
 import { queryClient } from "../../../lib/query-client"
-import { useExtension } from "../../../providers/extension-provider"
 import { useSearch } from "../../../providers/search-provider"
 import { UserMenu } from "../user-menu"
 import { useDocumentDirection } from "../../../hooks/use-document-direction"
@@ -52,7 +47,6 @@ const MainSidebar = () => {
         <div className="flex flex-1 flex-col justify-between">
           <div className="flex flex-1 flex-col">
             <CoreRouteSection />
-            <ExtensionRouteSection />
           </div>
           <UtilitySection />
         </div>
@@ -285,19 +279,6 @@ const Searchbar = () => {
 const CoreRouteSection = () => {
   const coreRoutes = useCoreRoutes()
 
-  const { getMenu } = useExtension()
-
-  const menuItems = getMenu("coreExtensions")
-
-  menuItems.forEach((item) => {
-    if (item.nested) {
-      const route = coreRoutes.find((route) => route.to === item.nested)
-      if (route) {
-        route.items?.push(item)
-      }
-    }
-  })
-
   return (
     <nav className="flex flex-col gap-y-1 py-3">
       <Searchbar />
@@ -305,59 +286,6 @@ const CoreRouteSection = () => {
         return <NavItem key={route.to} {...route} />
       })}
     </nav>
-  )
-}
-
-const ExtensionRouteSection = () => {
-  const { t } = useTranslation()
-  const { getMenu } = useExtension()
-
-  const menuItems = getMenu("coreExtensions").filter((item) => !item.nested)
-
-  if (!menuItems.length) {
-    return null
-  }
-
-  return (
-    <div>
-      <div className="px-3">
-        <Divider variant="dashed" />
-      </div>
-      <div className="flex flex-col gap-y-1 py-3">
-        <RadixCollapsible.Root defaultOpen>
-          <div className="px-4">
-            <RadixCollapsible.Trigger asChild className="group/trigger">
-              <button className="text-ui-fg-subtle flex w-full items-center justify-between px-2">
-                <Text size="xsmall" weight="plus" leading="compact">
-                  {t("app.nav.common.extensions")}
-                </Text>
-                <div className="text-ui-fg-muted">
-                  <ChevronDownMini className="group-data-[state=open]/trigger:hidden" />
-                  <MinusMini className="group-data-[state=closed]/trigger:hidden" />
-                </div>
-              </button>
-            </RadixCollapsible.Trigger>
-          </div>
-          <RadixCollapsible.Content>
-            <nav className="flex flex-col gap-y-0.5 py-1 pb-4">
-              {menuItems.map((item, i) => {
-                return (
-                  <NavItem
-                    key={i}
-                    to={item.to}
-                    label={item.label}
-                    icon={item.icon ? item.icon : <SquaresPlus />}
-                    items={item.items}
-                    translationNs={item.translationNs}
-                    type="extension"
-                  />
-                )
-              })}
-            </nav>
-          </RadixCollapsible.Content>
-        </RadixCollapsible.Root>
-      </div>
-    </div>
   )
 }
 

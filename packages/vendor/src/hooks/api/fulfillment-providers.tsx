@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { QueryKey, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import { sdk } from "../../lib/client"
@@ -20,7 +20,7 @@ export const useFulfillmentProviders = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminFulfillmentProviderListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminFulfillmentProviderListResponse,
       QueryKey
     >,
@@ -41,7 +41,7 @@ export const useFulfillmentProviderOptions = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminFulfillmentProviderOptionsListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminFulfillmentProviderOptionsListResponse,
       QueryKey
     >,

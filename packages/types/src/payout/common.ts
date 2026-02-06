@@ -1,4 +1,4 @@
-import { BigNumberInput, BigNumberRawValue, BigNumberValue } from "@medusajs/framework/types"
+import { BigNumberInput, BigNumberRawValue, BigNumberValue } from "@medusajs/types"
 
 export enum PayoutAccountStatus {
   /**

@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -48,7 +48,7 @@ export const useReferenceTranslations = (
   options?: Omit<
     UseInfiniteQueryOptions<
       HttpTypes.AdminTranslationEntitiesResponse,
-      FetchError,
+      ClientError,
       {
         pages: HttpTypes.AdminTranslationEntitiesResponse[]
         pageParams: number[]
@@ -104,7 +104,7 @@ export const useTranslations = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminTranslationsListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminTranslationsListResponse,
       QueryKey
     >,
@@ -124,7 +124,7 @@ export const useBatchTranslations = (
   reference: string,
   options?: UseMutationOptions<
     HttpTypes.AdminTranslationsBatchResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchTranslations
   >
 ) => {
@@ -159,7 +159,7 @@ export const useTranslationSettings = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminTranslationSettingsResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminTranslationSettingsResponse,
       QueryKey
     >,
@@ -178,7 +178,7 @@ export const useTranslationSettings = (
 export const useBatchTranslationSettings = (
   options?: UseMutationOptions<
     HttpTypes.AdminBatchTranslationSettingsResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchTranslationSettings
   >
 ) => {
@@ -203,7 +203,7 @@ export const useTranslationEntities = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminTranslationEntitiesResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminTranslationEntitiesResponse,
       QueryKey
     >,
@@ -224,7 +224,7 @@ export const useTranslationStatistics = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminTranslationStatisticsResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminTranslationStatisticsResponse,
       QueryKey
     >,

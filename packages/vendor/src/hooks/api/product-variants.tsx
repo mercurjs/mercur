@@ -7,7 +7,7 @@ import {
 import { InfiniteData } from "@tanstack/query-core"
 import { sdk } from "../../lib/client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { useInfiniteList } from "../use-infinite-list"
 
@@ -21,7 +21,7 @@ export const useVariants = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductVariantListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductVariantListResponse,
       QueryKey
     >,
@@ -44,7 +44,7 @@ export const useInfiniteVariants = (
   options?: Omit<
     UseInfiniteQueryOptions<
       HttpTypes.AdminProductVariantListResponse,
-      FetchError,
+      ClientError,
       InfiniteData<HttpTypes.AdminProductVariantListResponse, number>,
       HttpTypes.AdminProductVariantListResponse,
       QueryKey,
@@ -56,7 +56,7 @@ export const useInfiniteVariants = (
   return useInfiniteList<
     HttpTypes.AdminProductVariantListResponse,
     HttpTypes.AdminProductVariantParams,
-    FetchError,
+    ClientError,
     QueryKey
   >({
     queryKey: (params) => productVariantQueryKeys.list(params),

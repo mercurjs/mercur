@@ -1,4 +1,4 @@
-import { CampaignDTO, DeleteResponse, PaginatedResponse } from "@medusajs/framework/types"
+import { CampaignDTO, DeleteResponse, PaginatedResponse } from "@medusajs/types"
 
 export type VendorCampaign = CampaignDTO
 

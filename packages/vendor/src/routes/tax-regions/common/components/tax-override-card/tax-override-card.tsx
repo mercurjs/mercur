@@ -17,7 +17,7 @@ import { Collapsible as RadixCollapsible } from "radix-ui"
 import { ComponentPropsWithoutRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useProductTypes } from "../../../../../hooks/api/product-types"
 import { useProducts } from "../../../../../hooks/api/products"
@@ -273,7 +273,7 @@ const useReferenceValues = (
   isPending: boolean
   additional: number
   isError: boolean
-  error: FetchError | null
+  error: ClientError | null
 } => {
   const products = useProducts(
     {

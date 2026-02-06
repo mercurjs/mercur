@@ -10,10 +10,9 @@ import { ProductOptionSection } from "./components/product-option-section"
 import { ProductOrganizationSection } from "./components/product-organization-section"
 import { ProductSalesChannelSection } from "./components/product-sales-channel-section"
 import { ProductVariantSection } from "./components/product-variant-section"
-import { PRODUCT_DETAIL_FIELDS } from "./constants"
 import { productLoader } from "./loader"
 
-import { useExtension } from "../../../providers/extension-provider"
+
 import { ProductShippingProfileSection } from "./components/product-shipping-profile-section"
 
 export const ProductDetail = () => {
@@ -24,18 +23,10 @@ export const ProductDetail = () => {
   const { id } = useParams()
   const { product, isLoading, isError, error } = useProduct(
     id!,
-    { fields: PRODUCT_DETAIL_FIELDS },
     {
       initialData: initialData,
     }
   )
-
-  const { getWidgets } = useExtension()
-
-  const after = getWidgets("product.details.after")
-  const before = getWidgets("product.details.before")
-  const sideAfter = getWidgets("product.details.side.after")
-  const sideBefore = getWidgets("product.details.side.before")
 
   if (isLoading || !product) {
     return (
@@ -54,12 +45,6 @@ export const ProductDetail = () => {
 
   return (
     <TwoColumnPage
-      widgets={{
-        after,
-        before,
-        sideAfter,
-        sideBefore,
-      }}
       showJSON
       showMetadata
       data={product}

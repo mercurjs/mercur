@@ -1,17 +1,17 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
 import { Button, ProgressStatus, ProgressTabs, toast } from "@medusajs/ui"
 import { useEffect, useMemo, useState } from "react"
-import { useWatch } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import {
   RouteFocusModal,
   useRouteModal,
 } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useExtendableForm } from "../../../../../dashboard-app/forms/hooks"
 import { useCreateProduct } from "../../../../../hooks/api/products"
 import { sdk } from "../../../../../lib/client"
-import { useExtension } from "../../../../../providers/extension-provider"
+
 import {
   PRODUCT_CREATE_FORM_DEFAULTS,
   ProductCreateSchema,
@@ -57,18 +57,15 @@ export const ProductCreateForm = ({
 
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
-  const { getFormConfigs } = useExtension()
-  const configs = getFormConfigs("product", "create")
   const direction = useDocumentDirection()
-  const form = useExtendableForm({
+  const form = useForm({
     defaultValues: {
       ...PRODUCT_CREATE_FORM_DEFAULTS,
       sales_channels: defaultChannel
         ? [{ id: defaultChannel.id, name: defaultChannel.name }]
         : [],
     },
-    schema: ProductCreateSchema,
-    configs,
+    resolver: zodResolver(ProductCreateSchema),
   })
 
   const { mutateAsync, isPending } = useCreateProduct()

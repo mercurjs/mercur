@@ -32,7 +32,7 @@ import {
 } from "../../../../../hooks/api/invites"
 import { useUserInviteTableQuery } from "../../../../../hooks/table/query/use-user-invite-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-import { isFetchError } from "../../../../../lib/is-fetch-error"
+import { isClientError } from "../../../../../lib/is-fetch-error"
 
 const InviteUserSchema = zod.object({
   email: zod.string().email(),
@@ -86,7 +86,7 @@ export const InviteUserForm = () => {
       await mutateAsync({ email: values.email })
       form.reset()
     } catch (error) {
-      if (isFetchError(error) && error.status === 400) {
+      if (isClientError(error) && error.status === 400) {
         form.setError("root", {
           type: "manual",
           message: error.message,

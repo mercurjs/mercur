@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { PaginatedResponse } from "@medusajs/types"
 import {
   QueryKey,
@@ -12,7 +12,7 @@ import {
  *
  * @template TResponse - The response type that must include count, offset, and limit
  * @template TParams - The query parameters type (offset and limit will be handled internally)
- * @template TError - The error type (defaults to FetchError)
+ * @template TError - The error type (defaults to ClientError)
  * @template TQueryKey - The query key type (defaults to QueryKey)
  *
  * @param config - Configuration object
@@ -36,7 +36,7 @@ export const useInfiniteList = <
     offset?: number
     limit?: number
   },
-  TError = FetchError,
+  TError = ClientError,
   TQueryKey extends QueryKey = QueryKey
 >({
   queryKey,

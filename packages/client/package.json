@@ -10,16 +10,10 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./react-query": {
-      "types": "./dist/react-query/index.d.ts",
-      "default": "./dist/react-query/index.js"
+      "default": "./dist/index.mjs"
     }
   },
   "scripts": {

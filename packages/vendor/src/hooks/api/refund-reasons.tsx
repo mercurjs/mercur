@@ -6,7 +6,7 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query"
 
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
@@ -19,7 +19,7 @@ export const useRefundReasons = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminRefundReasonListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminRefundReasonListResponse
     >,
     "queryFn" | "queryKey"
@@ -40,7 +40,7 @@ export const useRefundReason = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminRefundReasonResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminRefundReasonResponse
     >,
     "queryFn" | "queryKey"
@@ -59,7 +59,7 @@ export const useCreateRefundReason = (
   query?: HttpTypes.AdminRefundReasonParams,
   options?: UseMutationOptions<
     HttpTypes.RefundReasonResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateRefundReason
   >
 ) => {
@@ -80,7 +80,7 @@ export const useUpdateRefundReason = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminRefundReasonResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateRefundReason
   >
 ) => {
@@ -103,7 +103,7 @@ export const useUpdateRefundReason = (
 export const useDeleteRefundReasonLazy = (
   options?: UseMutationOptions<
     HttpTypes.AdminRefundReasonDeleteResponse,
-    FetchError,
+    ClientError,
     string
   >
 ) => {

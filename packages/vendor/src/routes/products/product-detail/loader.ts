@@ -1,14 +1,12 @@
 import { LoaderFunctionArgs } from "react-router-dom"
 
 import { productsQueryKeys } from "../../../hooks/api/products"
-import { sdk } from "../../../lib/client"
+import { client } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
-import { PRODUCT_DETAIL_FIELDS } from "./constants"
 
 const productDetailQuery = (id: string) => ({
-  queryKey: productsQueryKeys.detail(id, { fields: PRODUCT_DETAIL_FIELDS }),
-  queryFn: async () =>
-    sdk.admin.product.retrieve(id, { fields: PRODUCT_DETAIL_FIELDS }),
+  queryKey: productsQueryKeys.detail(id),
+  queryFn: async () => client.admin.products.$id.query({ id }),
 })
 
 export const productLoader = async ({ params }: LoaderFunctionArgs) => {

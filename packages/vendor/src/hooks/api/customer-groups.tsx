@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -23,7 +23,7 @@ export const useCustomerGroup = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminCustomerGroupResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminCustomerGroupResponse,
       QueryKey
     >,
@@ -44,7 +44,7 @@ export const useCustomerGroups = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminGetCustomerGroupsParams,
-      FetchError,
+      ClientError,
       HttpTypes.AdminCustomerGroupListResponse,
       QueryKey
     >,
@@ -63,7 +63,7 @@ export const useCustomerGroups = (
 export const useCreateCustomerGroup = (
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerGroupResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateCustomerGroup
   >
 ) => {
@@ -83,7 +83,7 @@ export const useUpdateCustomerGroup = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerGroupResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateCustomerGroup
   >
 ) => {
@@ -107,7 +107,7 @@ export const useDeleteCustomerGroup = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerGroupDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -130,7 +130,7 @@ export const useDeleteCustomerGroup = (
 export const useDeleteCustomerGroupLazy = (
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerGroupDeleteResponse,
-    FetchError,
+    ClientError,
     { id: string }
   >
 ) => {
@@ -154,7 +154,7 @@ export const useAddCustomersToGroup = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerGroupResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchLink["add"]
   >
 ) => {
@@ -182,7 +182,7 @@ export const useRemoveCustomersFromGroup = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerGroupResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchLink["remove"]
   >
 ) => {

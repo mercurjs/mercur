@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { FindParams, HttpTypes, PaginatedResponse } from "@medusajs/types"
 import {
   InfiniteData,
@@ -23,7 +23,7 @@ export const useCollection = (
   options?: Omit<
     UseQueryOptions<
       { collection: HttpTypes.AdminCollection },
-      FetchError,
+      ClientError,
       { collection: HttpTypes.AdminCollection },
       QueryKey
     >,
@@ -44,7 +44,7 @@ export const useCollections = (
   options?: Omit<
     UseQueryOptions<
       PaginatedResponse<{ collections: HttpTypes.AdminCollection[] }>,
-      FetchError,
+      ClientError,
       PaginatedResponse<{ collections: HttpTypes.AdminCollection[] }>,
       QueryKey
     >,
@@ -67,7 +67,7 @@ export const useInfiniteCollections = (
   options?: Omit<
     UseInfiniteQueryOptions<
       HttpTypes.AdminCollectionListResponse,
-      FetchError,
+      ClientError,
       InfiniteData<HttpTypes.AdminCollectionListResponse, number>,
       HttpTypes.AdminCollectionListResponse,
       QueryKey,
@@ -79,7 +79,7 @@ export const useInfiniteCollections = (
   return useInfiniteList<
     HttpTypes.AdminCollectionListResponse,
     HttpTypes.AdminCollectionListParams,
-    FetchError,
+    ClientError,
     QueryKey
   >({
     queryKey: (params) => collectionsQueryKeys.list(params),
@@ -92,7 +92,7 @@ export const useUpdateCollection = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCollectionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateCollection
   >
 ) => {
@@ -114,7 +114,7 @@ export const useUpdateCollectionProducts = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCollectionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateCollectionProducts
   >
 ) => {
@@ -142,7 +142,7 @@ export const useUpdateCollectionProducts = (
 export const useCreateCollection = (
   options?: UseMutationOptions<
     HttpTypes.AdminCollectionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateCollection
   >
 ) => {
@@ -161,7 +161,7 @@ export const useDeleteCollection = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCollectionDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

@@ -6,7 +6,7 @@ import { userLoader } from "./loader"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
+
 
 export const UserDetail = () => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof userLoader>>
@@ -21,7 +21,6 @@ export const UserDetail = () => {
     initialData,
   })
 
-  const { getWidgets } = useExtension()
 
   if (isLoading || !user) {
     return <SingleColumnPageSkeleton sections={1} showJSON showMetadata />
@@ -36,10 +35,6 @@ export const UserDetail = () => {
       data={user}
       showJSON
       showMetadata
-      widgets={{
-        after: getWidgets("user.details.after"),
-        before: getWidgets("user.details.before"),
-      }}
     >
       <UserGeneralSection user={user} />
     </SingleColumnPage>

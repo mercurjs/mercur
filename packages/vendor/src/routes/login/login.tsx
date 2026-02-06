@@ -8,8 +8,8 @@ import * as z from "zod"
 import { Form } from "../../components/common/form"
 import AvatarBox from "../../components/common/logo-box/avatar-box"
 import { useSignInWithEmailPass } from "../../hooks/api"
-import { isFetchError } from "../../lib/is-fetch-error"
-import { useExtension } from "../../providers/extension-provider"
+import { isClientError } from "../../lib/is-fetch-error"
+
 import { CloudAuthLogin } from "./components/cloud-auth-login"
 
 const LoginSchema = z.object({
@@ -21,7 +21,6 @@ export const Login = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
-  const { getWidgets } = useExtension()
 
   const from = location.state?.from?.pathname || "/orders"
 
@@ -43,7 +42,7 @@ export const Login = () => {
       },
       {
         onError: (error) => {
-          if (isFetchError(error)) {
+          if (isClientError(error)) {
             if (error.status === 401) {
               form.setError("email", {
                 type: "manual",
@@ -82,9 +81,6 @@ export const Login = () => {
           </Text>
         </div>
         <div className="flex w-full flex-col gap-y-3">
-          {getWidgets("login.before").map((Component, i) => {
-            return <Component key={i} />
-          })}
           <Form {...form}>
             <form
               onSubmit={handleSubmit}
@@ -151,11 +147,7 @@ export const Login = () => {
               </Button>
             </form>
           </Form>
-          {[...getWidgets("login.after"), CloudAuthLogin].map(
-            (Component, i) => {
-              return <Component key={i} />
-            }
-          )}
+          <CloudAuthLogin />
         </div>
         <span className="text-ui-fg-muted txt-small my-6">
           <Trans

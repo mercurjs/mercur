@@ -9,7 +9,7 @@ import {
 import { useTranslation } from "react-i18next"
 import { useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 
 import { PlaceholderCell } from "../../../components/table/table-cells/common/placeholder-cell"
 import { getFormattedAddress } from "../../../lib/addresses"
@@ -56,7 +56,7 @@ export const useLocationListTableColumns = () => {
         })
       )
     } catch (e) {
-      toast.error((e as FetchError).message)
+      toast.error((e as ClientError).message)
     }
   }
 

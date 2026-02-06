@@ -1,15 +1,13 @@
 import { ArrowUturnLeft, MinusMini } from "@medusajs/icons"
 import { clx, Divider, IconButton, Text } from "@medusajs/ui"
 import { Collapsible as RadixCollapsible } from "radix-ui"
-import { Fragment, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useLocation } from "react-router-dom"
 
-import { useExtension } from "../../../providers/extension-provider"
 import { INavItem, NavItem } from "../nav-item"
 import { Shell } from "../shell"
 import { UserMenu } from "../user-menu"
-import { useFeatureFlag } from "../../../providers/feature-flag-provider"
 
 export const SettingsLayout = () => {
   return (
@@ -20,7 +18,6 @@ export const SettingsLayout = () => {
 }
 
 const useSettingRoutes = (): INavItem[] => {
-  const isTranslationsEnabled = useFeatureFlag("translation")
   const { t } = useTranslation()
 
   return useMemo(
@@ -65,16 +62,8 @@ const useSettingRoutes = (): INavItem[] => {
         label: t("stockLocations.domain"),
         to: "/settings/locations",
       },
-      ...(isTranslationsEnabled
-        ? [
-            {
-              label: t("translations.domain"),
-              to: "/settings/translations",
-            },
-          ]
-        : []),
     ],
-    [t, isTranslationsEnabled]
+    [t]
   )
 }
 
@@ -127,12 +116,9 @@ const getSafeFromValue = (from: string) => {
 }
 
 const SettingsSidebar = () => {
-  const { getMenu } = useExtension()
-
   const routes = useSettingRoutes()
   const developerRoutes = useDeveloperRoutes()
   const myAccountRoutes = useMyAccountRoutes()
-  const extensionRoutes = getMenu("settingsExtensions")
 
   const { t } = useTranslation()
 
@@ -164,17 +150,6 @@ const SettingsSidebar = () => {
             label={t("app.nav.settings.myAccount")}
             items={myAccountRoutes}
           />
-          {extensionRoutes.length > 0 && (
-            <Fragment>
-              <div className="flex items-center justify-center px-3">
-                <Divider variant="dashed" />
-              </div>
-              <RadixCollapsibleSection
-                label={t("app.nav.common.extensions")}
-                items={extensionRoutes}
-              />
-            </Fragment>
-          )}
         </div>
         <div className="bg-ui-bg-subtle sticky bottom-0">
           <UserSection />
