@@ -14,7 +14,7 @@
   </a>
   <!-- Website Links -->
   <p>
-    <a href="https://mercurjs.com/">Mercur</a> |   <a href="https://docs.mercurjs.com/">Docs</a> 
+    <a href="https://mercurjs.com/">Mercur</a> |   <a href="https://docs.mercurjs.com/">Docs</a>  |   <a href="https://discord.gg/NTWNa49S">Discord Community</a> 
   </p> 
 </div>
 
