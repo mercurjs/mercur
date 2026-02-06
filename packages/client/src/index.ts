@@ -3,6 +3,16 @@ import { createRecursiveProxy } from "./create-proxy";
 import { ActionType, ClientOptions, InferClient } from "./types";
 import { kebabCase } from "./utils";
 
+export type InferClientInput<T> = T extends (input: infer I) => any
+    ? Omit<I, 'fetchOptions'>
+    : T extends (input?: infer I) => any
+    ? Omit<NonNullable<I>, 'fetchOptions'>
+    : never;
+
+export type InferClientOutput<T> = T extends (...args: any[]) => Promise<infer O>
+    ? O
+    : never;
+
 export class ClientError extends Error {
     status: number | undefined;
     statusText: string | undefined;

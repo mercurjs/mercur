@@ -21,7 +21,7 @@ export const useCurrencies = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.currency.list(query),
+    queryFn: () => sdk.admin.currencies.query({ ...query }),
     queryKey: currenciesQueryKeys.list(query),
     ...options,
   })
@@ -44,7 +44,7 @@ export const useCurrency = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: currenciesQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.currency.retrieve(id, query),
+    queryFn: async () => sdk.admin.currencies.$code.query({ code: id, ...query }),
     ...options,
   })
 

@@ -48,4 +48,5 @@ export type InferClient<TRoutes> = TRoutes extends Record<string, any>
     ? PrettifyDeep<ProcessRoutes<TRoutes>>
     : TypeError<`Looks like you forgot to pass the \`Routes\` generic type to the \`createClient\` function.`>;
 
+
 export type AnyClient = InferClient<any>;
