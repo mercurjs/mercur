@@ -6,7 +6,7 @@ import { queryClient } from "../../../lib/query-client"
 
 const executionDetailQuery = (id: string) => ({
   queryKey: workflowExecutionsQueryKeys.detail(id),
-  queryFn: async () => sdk.admin.workflowExecution.retrieve(id),
+  queryFn: async () => sdk.admin.workflowsExecutions.$id.query({ id }),
 })
 
 export const workflowExecutionLoader = async ({

@@ -142,7 +142,7 @@ MedusaJS v2 plugin providing marketplace functionality.
 - **Foundation**: MedusaJS v2 (headless commerce)
 - **Language**: TypeScript
 - **Monorepo**: Turborepo
-- **Package Manager**: npm
+- **Package Manager**: bun
 
 ## Configuration Files
 

@@ -15,3 +15,4 @@ declare module "virtual:mercur/components" {
     const components: Record<string, Component>
     export default components
 }
+

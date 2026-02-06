@@ -10,7 +10,7 @@ export const createOrderGroupStep = createStep(
   async (input: CreateOrderGroupStepInput, { container }) => {
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
 
-    const orderGroup: OrderGroupDTO = await service.createOrderGroups(input)
+    const orderGroup = await service.createOrderGroups(input)
 
     return new StepResponse(orderGroup, orderGroup.id)
   },

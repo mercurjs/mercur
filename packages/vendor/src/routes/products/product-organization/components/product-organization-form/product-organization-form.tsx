@@ -10,7 +10,7 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateProduct } from "../../../../../hooks/api/products"
 import { useComboboxData } from "../../../../../hooks/use-combobox-data"
 import { CategoryCombobox } from "../../../common/components/category-combobox"
-import { client } from "../../../../../lib/client"
+import { sdk } from "../../../../../lib/client"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -34,7 +34,7 @@ export const ProductOrganizationForm = ({
 
   const collections = useComboboxData({
     queryKey: ["product_collections"],
-    queryFn: () => client.vendor.collections.query(),
+    queryFn: () => sdk.vendor.collections.query(),
     getOptions: (data) =>
       data.collections.map((collection) => ({
         label: collection.title!,
@@ -44,7 +44,7 @@ export const ProductOrganizationForm = ({
 
   const types = useComboboxData({
     queryKey: ["product_types"],
-    queryFn: () => client.vendor.productTypes.query(),
+    queryFn: () => sdk.vendor.productTypes.query(),
     getOptions: (data) =>
       data.product_types.map((type) => ({
         label: type.value,
@@ -54,7 +54,7 @@ export const ProductOrganizationForm = ({
 
   const tags = useComboboxData({
     queryKey: ["product_tags"],
-    queryFn: () => client.vendor.productTags.query(),
+    queryFn: () => sdk.vendor.productTags.query(),
     getOptions: (data) =>
       data.tags.map((tag) => ({
         label: tag.value,

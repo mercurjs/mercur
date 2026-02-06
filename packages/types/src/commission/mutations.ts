@@ -22,7 +22,6 @@ export interface CreateCommissionRateDTO {
   include_tax?: boolean
   is_enabled?: boolean
   priority?: number
-  rules?: CreateCommissionRuleDTO[]
 }
 
 export interface UpdateCommissionRateDTO {

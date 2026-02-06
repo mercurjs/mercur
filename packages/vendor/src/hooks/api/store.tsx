@@ -10,8 +10,8 @@ import { HttpTypes } from "@medusajs/types"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { pricePreferencesQueryKeys } from "./price-preferences"
+import { sdk } from "../../lib/client"
 import { ClientError } from "@mercurjs/client"
-import { client } from "../../lib/client"
 
 const STORE_QUERY_KEY = "store" as const
 export const storeQueryKeys = queryKeysFactory(STORE_QUERY_KEY)
@@ -22,7 +22,7 @@ export const storeQueryKeys = queryKeysFactory(STORE_QUERY_KEY)
 export async function retrieveActiveStore(
   query?: HttpTypes.AdminStoreParams
 ): Promise<HttpTypes.AdminStoreResponse> {
-  const response = await client.admin.stores.query({})
+  const response = await sdk.admin.stores.query({})
 
   const activeStore = response.stores?.[0]
 
@@ -66,7 +66,7 @@ export const useUpdateStore = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => client.admin.stores.$id.mutate({id, ...payload}),
+    mutationFn: (payload) => sdk.admin.stores.$id.mutate({id, ...payload}),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.list(),

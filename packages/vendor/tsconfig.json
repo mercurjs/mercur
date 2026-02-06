@@ -23,7 +23,7 @@
   "include": [
     "src"
   ],
-  "composite": true,
+  "composite": false,
   "skipLibCheck": true,
   "module": "ESNext",
   "moduleResolution": "bundler",

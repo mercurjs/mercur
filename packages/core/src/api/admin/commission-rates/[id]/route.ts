@@ -8,9 +8,8 @@ import {
 } from "@medusajs/framework/utils"
 import { HttpTypes, MercurModules } from "@mercurjs/types"
 
-import { AdminUpdateCommissionRateType } from "../validators"
-import { deleteCommissionRatesWorkflow } from "../../../../workflows/commission"
-import CommissionModuleService from "../../../../modules/commission/service"
+import { AdminBatchCommissionRulesType, AdminUpdateCommissionRateType } from "../validators"
+import { batchCommissionRulesWorkflow, deleteCommissionRatesWorkflow, updateCommissionRatesWorkflow } from "../../../../workflows/commission"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -41,13 +40,9 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.AdminCommissionRateResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const commissionService = req.scope.resolve<CommissionModuleService>(
-    MercurModules.COMMISSION
-  )
 
-  await commissionService.updateCommissionRates({
-    id: req.params.id,
-    ...req.validatedBody,
+  const { result } = await updateCommissionRatesWorkflow(req.scope).run({
+    input: [{ id: req.params.id, ...req.validatedBody }],
   })
 
   const {
@@ -55,7 +50,7 @@ export const POST = async (
   } = await query.graph({
     entity: "commission_rate",
     fields: req.queryConfig.fields,
-    filters: { id: req.params.id },
+    filters: { id: result[0].id },
   })
 
   res.json({ commission_rate })
