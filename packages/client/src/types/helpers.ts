@@ -25,7 +25,6 @@ export type InferOutput<TResponse> = TResponse extends MedusaResponse<infer Outp
     ? Output
     : void;
 
-
 export type HttpMethod = "GET" | "POST" | "DELETE";
 
 // Get keys that are not HTTP methods or internal module properties (i.e., child routes)

@@ -1,457 +1,506 @@
-import { ClientError } from "@mercurjs/client"
-import { CreateOrderCreditLineDTO, HttpTypes } from "@medusajs/types"
 import {
-  QueryKey,
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
+import {
   useMutation,
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory, TQueryKey } from "../../lib/query-key-factory"
-import { inventoryItemsQueryKeys } from "./inventory"
-import { reservationItemsQueryKeys } from "./reservations"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory, TQueryKey } from "../../lib/query-key-factory";
+import { inventoryItemsQueryKeys } from "./inventory";
+import { reservationItemsQueryKeys } from "./reservations";
 
-const ORDERS_QUERY_KEY = "orders" as const
+const ORDERS_QUERY_KEY = "orders" as const;
 const _orderKeys = queryKeysFactory(ORDERS_QUERY_KEY) as TQueryKey<"orders"> & {
-  preview: (orderId: string) => any
-  changes: (orderId: string) => any
-  lineItems: (orderId: string) => any
-  shippingOptions: (orderId: string) => any
-}
+  preview: (orderId: string) => any;
+  changes: (orderId: string) => any;
+  lineItems: (orderId: string) => any;
+  shippingOptions: (orderId: string) => any;
+};
 
 _orderKeys.preview = function (id: string) {
-  return [this.detail(id), "preview"]
-}
+  return [this.detail(id), "preview"];
+};
 
 _orderKeys.changes = function (id: string) {
-  return [this.detail(id), "changes"]
-}
+  return [this.detail(id), "changes"];
+};
 
 _orderKeys.lineItems = function (id: string) {
-  return [this.detail(id), "lineItems"]
-}
+  return [this.detail(id), "lineItems"];
+};
 
 _orderKeys.shippingOptions = function (id: string) {
-  return [this.detail(id), "shippingOptions"]
-}
+  return [this.detail(id), "shippingOptions"];
+};
 
-export const ordersQueryKeys = _orderKeys
+export const ordersQueryKeys = _orderKeys;
 
 export const useOrder = (
   id: string,
-  query?: Record<string, any>,
-  options?: Omit<
-    UseQueryOptions<any, ClientError, any, QueryKey>,
-    "queryFn" | "queryKey"
+  query?: Omit<InferClientInput<typeof sdk.admin.orders.$id.query>, "id">,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.orders.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.admin.order.retrieve(id, query),
+    queryFn: async () => sdk.admin.orders.$id.query({ id, ...query }),
     queryKey: ordersQueryKeys.detail(id, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useUpdateOrder = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderResponse,
+    InferClientOutput<typeof sdk.admin.orders.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateOrder
+    Omit<InferClientInput<typeof sdk.admin.orders.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminUpdateOrder) =>
-      sdk.admin.order.update(id, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.orders.$id.mutate({ id, ...payload }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.detail(id),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.changes(id),
-      })
+      });
 
-      // TODO: enable when needed
-      // queryClient.invalidateQueries({
-      //   queryKey: ordersQueryKeys.lists(),
-      // })
-
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useOrderPreview = (
   id: string,
-  query?: HttpTypes.AdminOrderFilters,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminOrderPreviewResponse,
-      ClientError,
-      HttpTypes.AdminOrderPreviewResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.orders.$id.preview.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.orders.$id.preview.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.admin.order.retrievePreview(id, query),
+    queryFn: async () =>
+      sdk.admin.orders.$id.preview.query({ id, ...query }),
     queryKey: ordersQueryKeys.preview(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useOrders = (
-  query?: HttpTypes.AdminOrderFilters,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminOrderListResponse,
-      ClientError,
-      HttpTypes.AdminOrderListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: InferClientInput<typeof sdk.admin.orders.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.orders.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.admin.order.list(query),
+    queryFn: async () => sdk.admin.orders.query({ ...query }),
     queryKey: ordersQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useOrderShippingOptions = (
   id: string,
-  query?: HttpTypes.AdminGetOrderShippingOptionList,
-  options?: Omit<
-    UseQueryOptions<
-      { shipping_options: HttpTypes.AdminShippingOption[] },
-      ClientError,
-      { shipping_options: HttpTypes.AdminShippingOption[] },
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.orders.$id.shippingOptions.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.orders.$id.shippingOptions.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.admin.order.listShippingOptions(id, query),
+    queryFn: async () =>
+      sdk.admin.orders.$id.shippingOptions.query({ id, ...query }),
     queryKey: ordersQueryKeys.shippingOptions(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useOrderChanges = (
   id: string,
-  query?: HttpTypes.AdminOrderChangesFilters,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminOrderChangesResponse,
-      ClientError,
-      HttpTypes.AdminOrderChangesResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.orders.$id.changes.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.orders.$id.changes.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.admin.order.listChanges(id, query),
+    queryFn: async () =>
+      sdk.admin.orders.$id.changes.query({ id, ...query }),
     queryKey: ordersQueryKeys.changes(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useOrderLineItems = (
   id: string,
-  query?: HttpTypes.AdminOrderItemsFilters,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminOrderLineItemsListResponse,
-      ClientError,
-      HttpTypes.AdminOrderLineItemsListResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.orders.$id.lineItems.query>,
+    "id"
+  >,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.admin.orders.$id.lineItems.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.admin.order.listLineItems(id, query),
+    queryFn: async () =>
+      sdk.admin.orders.$id.lineItems.query({ id, ...query }),
     queryKey: ordersQueryKeys.lineItems(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateOrderFulfillment = (
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderResponse,
+    InferClientOutput<typeof sdk.admin.orders.$id.fulfillments.mutate>,
     ClientError,
-    HttpTypes.AdminCreateOrderFulfillment
+    Omit<
+      InferClientInput<typeof sdk.admin.orders.$id.fulfillments.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminCreateOrderFulfillment) =>
-      sdk.admin.order.createFulfillment(orderId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.orders.$id.fulfillments.mutate({ id: orderId, ...payload }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: reservationItemsQueryKeys.lists(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.details(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCancelOrderFulfillment = (
   orderId: string,
   fulfillmentId: string,
-  options?: UseMutationOptions<any, ClientError, any>
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.orders.$id.fulfillments.$fulfillmentId.cancel.mutate
+    >,
+    ClientError,
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.orders.$id.fulfillments.$fulfillmentId.cancel.mutate
+      >,
+      "id" | "fulfillmentId"
+    >
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload: { no_notification?: boolean }) =>
-      sdk.admin.order.cancelFulfillment(orderId, fulfillmentId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.orders.$id.fulfillments.$fulfillmentId.cancel.mutate({
+        id: orderId,
+        fulfillmentId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: reservationItemsQueryKeys.lists(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.details(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCreateOrderShipment = (
   orderId: string,
   fulfillmentId: string,
   options?: UseMutationOptions<
-    { order: HttpTypes.AdminOrder },
+    InferClientOutput<
+      typeof sdk.admin.orders.$id.fulfillments.$fulfillmentId.shipments.mutate
+    >,
     ClientError,
-    HttpTypes.AdminCreateOrderShipment
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.orders.$id.fulfillments.$fulfillmentId.shipments.mutate
+      >,
+      "id" | "fulfillmentId"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminCreateOrderShipment) =>
-      sdk.admin.order.createShipment(orderId, fulfillmentId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.orders.$id.fulfillments.$fulfillmentId.shipments.mutate({
+        id: orderId,
+        fulfillmentId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useMarkOrderFulfillmentAsDelivered = (
   orderId: string,
   fulfillmentId: string,
   options?: UseMutationOptions<
-    { order: HttpTypes.AdminOrder },
+    InferClientOutput<
+      typeof sdk.admin.orders.$id.fulfillments.$fulfillmentId.markAsDelivered.mutate
+    >,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.order.markAsDelivered(orderId, fulfillmentId),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: () =>
+      sdk.admin.orders.$id.fulfillments.$fulfillmentId.markAsDelivered.mutate({
+        id: orderId,
+        fulfillmentId,
+      }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCancelOrder = (
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminOrderResponse, ClientError, void>
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.orders.$id.cancel.mutate>,
+    ClientError,
+    void
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.order.cancel(orderId),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: () =>
+      sdk.admin.orders.$id.cancel.mutate({ id: orderId }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.detail(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRequestTransferOrder = (
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderResponse,
+    InferClientOutput<typeof sdk.admin.orders.$id.transfer.mutate>,
     ClientError,
-    HttpTypes.AdminRequestOrderTransfer
+    Omit<
+      InferClientInput<typeof sdk.admin.orders.$id.transfer.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminRequestOrderTransfer) =>
-      sdk.admin.order.requestTransfer(orderId, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.orders.$id.transfer.mutate({ id: orderId, ...payload }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.changes(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCancelOrderTransfer = (
   orderId: string,
-  options?: UseMutationOptions<any, ClientError, void>
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.orders.$id.transfer.cancel.mutate>,
+    ClientError,
+    void
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.order.cancelTransfer(orderId),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: () =>
+      sdk.admin.orders.$id.transfer.cancel.mutate({ id: orderId }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.changes(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCreateOrderCreditLine = (
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderResponse,
+    InferClientOutput<typeof sdk.admin.orders.$id.creditLines.mutate>,
     ClientError,
-    Omit<CreateOrderCreditLineDTO, "order_id">
+    Omit<
+      InferClientInput<typeof sdk.admin.orders.$id.creditLines.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.order.createCreditLine(orderId, payload),
+    mutationFn: (payload) =>
+      sdk.admin.orders.$id.creditLines.mutate({ id: orderId, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateOrderChange = (
   orderChangeId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderChangeResponse,
+    InferClientOutput<typeof sdk.admin.orderChanges.$id.mutate>,
     ClientError,
-    { carry_over_promotions: boolean }
+    Omit<
+      InferClientInput<typeof sdk.admin.orderChanges.$id.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: { carry_over_promotions: boolean }) =>
-      sdk.admin.order.updateOrderChange(orderChangeId, payload),
+    mutationFn: (payload) =>
+      sdk.admin.orderChanges.$id.mutate({ id: orderChangeId, ...payload }),
     onSuccess: (data, variables, context) => {
-      const orderId = data.order_change.order_id
+      const orderId = data.order_change.order_id;
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.changes(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useExportOrders = (
-  query?: HttpTypes.AdminOrderFilters,
+  query?: InferClientInput<typeof sdk.admin.orders.export.mutate>,
   options?: UseMutationOptions<
-    { transaction_id: string },
+    InferClientOutput<typeof sdk.admin.orders.export.mutate>,
     ClientError,
-    HttpTypes.AdminOrderFilters
+    InferClientInput<typeof sdk.admin.orders.export.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.order.export(query),
+    mutationFn: () => sdk.admin.orders.export.mutate({ ...query }),
     onSuccess: (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

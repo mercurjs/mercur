@@ -1,164 +1,168 @@
-import { useMutation, UseMutationOptions } from "@tanstack/react-query"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
+import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 
-import { HttpTypes } from "@medusajs/types"
-
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { ordersQueryKeys } from "./orders"
-import { ClientError } from "@mercurjs/client"
-import { reservationItemsQueryKeys } from "./reservations"
-import { inventoryItemsQueryKeys } from "./inventory.tsx"
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { ordersQueryKeys } from "./orders";
+import { reservationItemsQueryKeys } from "./reservations";
+import { inventoryItemsQueryKeys } from "./inventory.tsx";
 
 export const useCreateOrderEdit = (
   orderId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
+    InferClientOutput<typeof sdk.admin.orderEdits.mutate>,
     ClientError,
-    HttpTypes.AdminInitiateOrderEditRequest
+    InferClientInput<typeof sdk.admin.orderEdits.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminInitiateOrderEditRequest) =>
-      sdk.admin.orderEdit.initiateRequest(payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) => sdk.admin.orderEdits.mutate(payload),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRequestOrderEdit = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
+    InferClientOutput<typeof sdk.admin.orderEdits.$id.request.mutate>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.orderEdit.request(id),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: () => sdk.admin.orderEdits.$id.request.mutate({ id }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(id),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.changes(id),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.lineItems(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useConfirmOrderEdit = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
+    InferClientOutput<typeof sdk.admin.orderEdits.$id.confirm.mutate>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.orderEdit.confirm(id),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: () => sdk.admin.orderEdits.$id.confirm.mutate({ id }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(id),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.changes(id),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.lineItems(id),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: reservationItemsQueryKeys.lists(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.details(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCancelOrderEdit = (
   orderId: string,
-  options?: UseMutationOptions<any, ClientError, any>
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.orderEdits.$id.delete>,
+    ClientError
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.orderEdit.cancelRequest(orderId),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: () => sdk.admin.orderEdits.$id.delete({ id: orderId }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.changes(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.lineItems(orderId),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddOrderEditItems = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
+    InferClientOutput<typeof sdk.admin.orderEdits.$id.items.mutate>,
     ClientError,
-    HttpTypes.AdminAddOrderEditItems
+    Omit<InferClientInput<typeof sdk.admin.orderEdits.$id.items.mutate>, "id">
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminAddOrderEditItems) =>
-      sdk.admin.orderEdit.addItems(id, payload),
-    onSuccess: (data: any, variables: any, context: any) => {
+    mutationFn: (payload) =>
+      sdk.admin.orderEdits.$id.items.mutate({ id, ...payload }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 /**
  * Update (quantity) of an item that was originally on the order.
@@ -166,27 +170,35 @@ export const useAddOrderEditItems = (
 export const useUpdateOrderEditOriginalItem = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
+    InferClientOutput<
+      typeof sdk.admin.orderEdits.$id.items.item.$itemId.mutate
+    >,
     ClientError,
-    HttpTypes.AdminUpdateOrderEditItem & { itemId: string }
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.orderEdits.$id.items.item.$itemId.mutate
+      >,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: ({
-      itemId,
-      ...payload
-    }: HttpTypes.AdminUpdateOrderEditItem & { itemId: string }) => {
-      return sdk.admin.orderEdit.updateOriginalItem(id, itemId, payload)
+    mutationFn: ({ itemId, ...payload }) => {
+      return sdk.admin.orderEdits.$id.items.item.$itemId.mutate({
+        id,
+        itemId,
+        ...payload,
+      });
     },
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 /**
  * Update (quantity) of an item that was added to the order edit.
@@ -194,27 +206,31 @@ export const useUpdateOrderEditOriginalItem = (
 export const useUpdateOrderEditAddedItem = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
+    InferClientOutput<typeof sdk.admin.orderEdits.$id.items.$actionId.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateOrderEditItem & { actionId: string }
+    Omit<
+      InferClientInput<typeof sdk.admin.orderEdits.$id.items.$actionId.mutate>,
+      "id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: ({
-      actionId,
-      ...payload
-    }: HttpTypes.AdminUpdateOrderEditItem & { actionId: string }) => {
-      return sdk.admin.orderEdit.updateAddedItem(id, actionId, payload)
+    mutationFn: ({ actionId, ...payload }) => {
+      return sdk.admin.orderEdits.$id.items.$actionId.mutate({
+        id,
+        actionId,
+        ...payload,
+      });
     },
-    onSuccess: (data: any, variables: any, context: any) => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 /**
  * Remove item that was added to the edit.
@@ -223,20 +239,20 @@ export const useUpdateOrderEditAddedItem = (
 export const useRemoveOrderEditItem = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
+    InferClientOutput<typeof sdk.admin.orderEdits.$id.items.$actionId.delete>,
     ClientError,
     string
   >
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
-      sdk.admin.orderEdit.removeAddedItem(id, actionId),
-    onSuccess: (data: any, variables: any, context: any) => {
+      sdk.admin.orderEdits.$id.items.$actionId.delete({ id, actionId }),
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
