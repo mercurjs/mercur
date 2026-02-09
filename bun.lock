@@ -18,6 +18,7 @@
       "name": "vendor",
       "version": "0.0.0",
       "dependencies": {
+        "@medusajs/icons": "^2.13.1",
         "@mercurjs/dashboard-sdk": "*",
         "@mercurjs/vendor": "*",
         "react": "^18.0.0",
@@ -159,6 +160,7 @@
       },
       "devDependencies": {
         "@types/node": "^22.0.0",
+        "@types/react": "^18.2.66",
         "tsup": "^8.0.2",
         "typescript": "5.9.3",
         "vite": "^5.4.21",
