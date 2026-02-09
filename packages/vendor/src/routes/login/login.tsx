@@ -1,28 +1,26 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { Trans, useTranslation } from "react-i18next"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui";
+import { useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import * as z from "zod";
 
-import { Form } from "../../components/common/form"
-import AvatarBox from "../../components/common/logo-box/avatar-box"
-import { useSignInWithEmailPass } from "../../hooks/api"
-import { isClientError } from "../../lib/is-fetch-error"
-
-import { CloudAuthLogin } from "./components/cloud-auth-login"
+import { Form } from "../../components/common/form";
+import AvatarBox from "../../components/common/logo-box/avatar-box";
+import { useSignInWithEmailPass } from "../../hooks/api";
+import { isClientError } from "../../lib/is-fetch-error";
 
 const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
-})
+});
 
 export const Login = () => {
-  const { t } = useTranslation()
-  const location = useLocation()
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const from = location.state?.from?.pathname || "/orders"
+  const from = location.state?.from?.pathname || "/orders";
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -30,9 +28,9 @@ export const Login = () => {
       email: "",
       password: "",
     },
-  })
+  });
 
-  const { mutateAsync, isPending } = useSignInWithEmailPass()
+  const { mutateAsync, isPending } = useSignInWithEmailPass();
 
   const handleSubmit = form.handleSubmit(async ({ email, password }) => {
     await mutateAsync(
@@ -47,28 +45,28 @@ export const Login = () => {
               form.setError("email", {
                 type: "manual",
                 message: error.message,
-              })
+              });
 
-              return
+              return;
             }
           }
 
           form.setError("root.serverError", {
             type: "manual",
             message: error.message,
-          })
+          });
         },
         onSuccess: () => {
-          navigate(from, { replace: true })
+          navigate(from, { replace: true });
         },
       }
-    )
-  })
+    );
+  });
 
-  const serverError = form.formState.errors?.root?.serverError?.message
+  const serverError = form.formState.errors?.root?.serverError?.message;
   const validationError =
     form.formState.errors.email?.message ||
-    form.formState.errors.password?.message
+    form.formState.errors.password?.message;
 
   return (
     <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
@@ -102,7 +100,7 @@ export const Login = () => {
                           />
                         </Form.Control>
                       </Form.Item>
-                    )
+                    );
                   }}
                 />
                 <Form.Field
@@ -122,7 +120,7 @@ export const Login = () => {
                           />
                         </Form.Control>
                       </Form.Item>
-                    )
+                    );
                   }}
                 />
               </div>
@@ -147,7 +145,6 @@ export const Login = () => {
               </Button>
             </form>
           </Form>
-          <CloudAuthLogin />
         </div>
         <span className="text-ui-fg-muted txt-small my-6">
           <Trans
@@ -163,5 +160,5 @@ export const Login = () => {
         </span>
       </div>
     </div>
-  )
-}
+  );
+};

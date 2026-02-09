@@ -1,6 +1,6 @@
-import { ReactNode, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
+import { ReactNode, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 import {
   ArrowDownRightMini,
@@ -12,7 +12,7 @@ import {
   PencilSquare,
   ReceiptPercent,
   TriangleDownMini,
-} from "@medusajs/icons"
+} from "@medusajs/icons";
 import {
   AdminClaim,
   AdminExchange,
@@ -23,7 +23,7 @@ import {
   AdminPlugin,
   AdminRegion,
   AdminReturn,
-} from "@medusajs/types"
+} from "@medusajs/types";
 import {
   Badge,
   Button,
@@ -36,46 +36,41 @@ import {
   toast,
   Tooltip,
   usePrompt,
-} from "@medusajs/ui"
+} from "@medusajs/ui";
 
-import { AdminReservation } from "@medusajs/types/src/http"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import DisplayId from "../../../../../components/common/display-id/display-id"
-import { Thumbnail } from "../../../../../components/common/thumbnail"
-import { useClaims } from "../../../../../hooks/api/claims"
-import { useExchanges } from "../../../../../hooks/api/exchanges"
-import { useOrderPreview } from "../../../../../hooks/api/orders"
-import { useMarkPaymentCollectionAsPaid } from "../../../../../hooks/api/payment-collections"
-import { useReservationItems } from "../../../../../hooks/api/reservations"
-import { useReturns } from "../../../../../hooks/api/returns"
-import { useDate } from "../../../../../hooks/use-date"
-import { getTotalCreditLines } from "../../../../../lib/credit-line"
-import { formatCurrency } from "../../../../../lib/format-currency"
-import { getReservationsLimitCount } from "../../../../../lib/orders"
+import { AdminReservation } from "@medusajs/types/src/http";
+import { ActionMenu } from "../../../../../components/common/action-menu";
+import DisplayId from "../../../../../components/common/display-id/display-id";
+import { Thumbnail } from "../../../../../components/common/thumbnail";
+import { useClaims } from "../../../../../hooks/api/claims";
+import { useExchanges } from "../../../../../hooks/api/exchanges";
+import { useOrderPreview } from "../../../../../hooks/api/orders";
+import { useMarkPaymentCollectionAsPaid } from "../../../../../hooks/api/payment-collections";
+import { useReservationItems } from "../../../../../hooks/api/reservations";
+import { useReturns } from "../../../../../hooks/api/returns";
+import { useDate } from "../../../../../hooks/use-date";
+import { getTotalCreditLines } from "../../../../../lib/credit-line";
+import { formatCurrency } from "../../../../../lib/format-currency";
+import { getReservationsLimitCount } from "../../../../../lib/orders";
 import {
   getLocaleAmount,
   getStylizedAmount,
   isAmountLessThenRoundingError,
-} from "../../../../../lib/money-amount-helpers"
-import { getTotalCaptured } from "../../../../../lib/payment"
-import { getLoyaltyPlugin } from "../../../../../lib/plugins"
-import { getReturnableQuantity } from "../../../../../lib/rma"
-import { CopyPaymentLink } from "../copy-payment-link/copy-payment-link"
-import ReturnInfoPopover from "./return-info-popover"
-import ShippingInfoPopover from "./shipping-info-popover"
-import { formatPercentage } from "../../../../../lib/percentage-helpers.ts"
+} from "../../../../../lib/money-amount-helpers";
+import { getTotalCaptured } from "../../../../../lib/payment";
+import { getReturnableQuantity } from "../../../../../lib/rma";
+import { CopyPaymentLink } from "../copy-payment-link/copy-payment-link";
+import ReturnInfoPopover from "./return-info-popover";
+import ShippingInfoPopover from "./shipping-info-popover";
+import { formatPercentage } from "../../../../../lib/percentage-helpers.ts";
 
 type OrderSummarySectionProps = {
-  order: AdminOrder
-  plugins: AdminPlugin[]
-}
+  order: AdminOrder;
+};
 
-export const OrderSummarySection = ({
-  order,
-  plugins,
-}: OrderSummarySectionProps) => {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
+export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
+  const { t } = useTranslation();
+  const prompt = usePrompt();
 
   const { reservations } = useReservationItems(
     {
@@ -83,34 +78,34 @@ export const OrderSummarySection = ({
       limit: getReservationsLimitCount(order),
     },
     { enabled: Array.isArray(order?.items) }
-  )
+  );
 
-  const { order: orderPreview } = useOrderPreview(order.id!)
+  const { order: orderPreview } = useOrderPreview(order.id!);
 
   const { returns = [] } = useReturns({
     status: "requested",
     order_id: order.id,
     fields: "+received_at",
-  })
+  });
 
   const receivableReturns = useMemo(
     () => returns.filter((r) => !r.canceled_at),
     [returns]
-  )
+  );
 
-  const showReturns = !!receivableReturns.length
+  const showReturns = !!receivableReturns.length;
 
   /**
    * Show Allocation button only if there are unfulfilled items that don't have reservations
    */
   const showAllocateButton = useMemo(() => {
     if (!reservations) {
-      return false
+      return false;
     }
 
     const reservationsMap = new Map(
       reservations.map((r) => [r.line_item_id, r.id])
-    )
+    );
 
     for (const item of order.items) {
       // Inventory is managed
@@ -119,33 +114,33 @@ export const OrderSummarySection = ({
         if (item.quantity - item.detail.fulfilled_quantity > 0) {
           // Reservation for this item doesn't exist
           if (!reservationsMap.has(item.id)) {
-            return true
+            return true;
           }
         }
       }
     }
 
-    return false
-  }, [order.items, reservations])
+    return false;
+  }, [order.items, reservations]);
 
   const unpaidPaymentCollection = order.payment_collections.find(
     (pc) => pc.status === "not_paid"
-  )
+  );
 
   const { mutateAsync: markAsPaid } = useMarkPaymentCollectionAsPaid(
     order.id,
     unpaidPaymentCollection?.id!
-  )
+  );
 
-  const pendingDifference = order.summary?.pending_difference || 0
+  const pendingDifference = order.summary?.pending_difference || 0;
   const isAmountSignificant = !isAmountLessThenRoundingError(
     pendingDifference,
     order.currency_code
-  )
+  );
 
   const showPayment =
-    unpaidPaymentCollection && pendingDifference > 0 && isAmountSignificant
-  const showRefund = pendingDifference < 0 && isAmountSignificant
+    unpaidPaymentCollection && pendingDifference > 0 && isAmountSignificant;
+  const showRefund = pendingDifference < 0 && isAmountSignificant;
 
   const handleMarkAsPaid = async (
     paymentCollection: AdminPaymentCollection
@@ -161,10 +156,10 @@ export const OrderSummarySection = ({
       confirmText: t("actions.confirm"),
       cancelText: t("actions.cancel"),
       variant: "confirmation",
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await markAsPaid(
@@ -178,21 +173,21 @@ export const OrderSummarySection = ({
                 order.currency_code
               ),
             })
-          )
+          );
         },
         onError: (error) => {
-          toast.error(error.message)
+          toast.error(error.message);
         },
       }
-    )
-  }
+    );
+  };
 
   return (
     <Container className="divide-y divide-dashed p-0">
       <Header order={order} orderPreview={orderPreview} />
       <ItemBreakdown order={order} reservations={reservations!} />
       <CostBreakdown order={order} />
-      <DiscountAndTotalBreakdown order={order} plugins={plugins} />
+      <DiscountAndTotalBreakdown order={order} />
       <Total order={order} />
 
       {(showAllocateButton || showReturns || showPayment || showRefund) && (
@@ -211,17 +206,17 @@ export const OrderSummarySection = ({
                 groups={[
                   {
                     actions: receivableReturns.map((r) => {
-                      let id = r.id
-                      let returnType = "Return"
+                      let id = r.id;
+                      let returnType = "Return";
 
                       if (r.exchange_id) {
-                        id = r.exchange_id
-                        returnType = "Exchange"
+                        id = r.exchange_id;
+                        returnType = "Exchange";
                       }
 
                       if (r.claim_id) {
-                        id = r.claim_id
-                        returnType = "Claim"
+                        id = r.claim_id;
+                        returnType = "Claim";
                       }
 
                       return {
@@ -231,7 +226,7 @@ export const OrderSummarySection = ({
                         }),
                         icon: <ArrowLongRight />,
                         to: `/orders/${order.id}/returns/${r.id}/receive`,
-                      }
+                      };
                     }),
                   },
                 ]}
@@ -282,28 +277,28 @@ export const OrderSummarySection = ({
         </div>
       )}
     </Container>
-  )
-}
+  );
+};
 
 const Header = ({
   order,
   orderPreview,
 }: {
-  order: AdminOrder
-  orderPreview?: AdminOrderPreview
+  order: AdminOrder;
+  orderPreview?: AdminOrderPreview;
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   // is ture if there is no shipped items ATM
   const shouldDisableReturn = order.items.every(
     (i) => !(getReturnableQuantity(i) > 0)
-  )
+  );
 
-  const isOrderEditActive = orderPreview?.order_change?.change_type === "edit"
+  const isOrderEditActive = orderPreview?.order_change?.change_type === "edit";
   // State where creation of order edit was interrupted i.e. order edit is drafted but not confirmed
   const isOrderEditPending =
     orderPreview?.order_change?.change_type === "edit" &&
-    orderPreview?.order_change?.status === "pending"
+    orderPreview?.order_change?.status === "pending";
 
   return (
     <div className="flex items-center justify-between px-6 py-4">
@@ -376,8 +371,8 @@ const Header = ({
         ]}
       />
     </div>
-  )
-}
+  );
+};
 
 const Item = ({
   item,
@@ -387,23 +382,24 @@ const Item = ({
   claims,
   exchanges,
 }: {
-  item: AdminOrderLineItem
-  currencyCode: string
-  reservation?: AdminReservation
-  returns: AdminReturn[]
-  claims: AdminClaim[]
-  exchanges: AdminExchange[]
+  item: AdminOrderLineItem;
+  currencyCode: string;
+  reservation?: AdminReservation;
+  returns: AdminReturn[];
+  claims: AdminClaim[];
+  exchanges: AdminExchange[];
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const isInventoryManaged = item.variant?.manage_inventory
+  const isInventoryManaged = item.variant?.manage_inventory;
   const hasInventoryKit =
     isInventoryManaged &&
     ((item.variant?.inventory_items?.length || 0) > 1 ||
-      item.variant?.inventory_items?.some((i) => i.required_quantity > 1))
-  const hasUnfulfilledItems = item.quantity - item.detail.fulfilled_quantity > 0
+      item.variant?.inventory_items?.some((i) => i.required_quantity > 1));
+  const hasUnfulfilledItems =
+    item.quantity - item.detail.fulfilled_quantity > 0;
 
-  const appliedPromoCodes = (item.adjustments || []).map((a) => a.code)
+  const appliedPromoCodes = (item.adjustments || []).map((a) => a.code);
 
   return (
     <>
@@ -502,40 +498,40 @@ const Item = ({
         />
       ))}
     </>
-  )
-}
+  );
+};
 
 const ItemBreakdown = ({
   order,
   reservations,
 }: {
-  order: AdminOrder
-  reservations?: AdminReservation[]
+  order: AdminOrder;
+  reservations?: AdminReservation[];
 }) => {
   const { claims = [] } = useClaims({
     order_id: order.id,
     fields: "*additional_items",
-  })
+  });
 
   const { exchanges = [] } = useExchanges({
     order_id: order.id,
     fields: "*additional_items",
-  })
+  });
 
   const { returns = [] } = useReturns({
     order_id: order.id,
     fields: "*items,*items.reason",
-  })
+  });
 
   const reservationsMap = useMemo(
     () => new Map((reservations || []).map((r) => [r.line_item_id, r])),
     [reservations]
-  )
+  );
 
   return (
     <div>
       {order.items?.map((item) => {
-        const reservation = reservationsMap.get(item.id)
+        const reservation = reservationsMap.get(item.id);
 
         return (
           <Item
@@ -547,11 +543,11 @@ const ItemBreakdown = ({
             exchanges={exchanges}
             claims={claims}
           />
-        )
+        );
       })}
     </div>
-  )
-}
+  );
+};
 
 const Cost = ({
   label,
@@ -559,10 +555,10 @@ const Cost = ({
   secondaryValue,
   tooltip,
 }: {
-  label: ReactNode
-  value: string | number
-  secondaryValue?: string
-  tooltip?: ReactNode
+  label: ReactNode;
+  value: string | number;
+  secondaryValue?: string;
+  tooltip?: ReactNode;
 }) => (
   <div className="grid grid-cols-3 items-center">
     <Text size="small" leading="compact">
@@ -579,46 +575,46 @@ const Cost = ({
       </Text>
     </div>
   </div>
-)
+);
 
 const CostBreakdown = ({
   order,
 }: {
-  order: AdminOrder & { region?: AdminRegion | null }
+  order: AdminOrder & { region?: AdminRegion | null };
 }) => {
-  const { t } = useTranslation()
-  const [isTaxOpen, setIsTaxOpen] = useState(false)
-  const [isShippingOpen, setIsShippingOpen] = useState(false)
+  const { t } = useTranslation();
+  const [isTaxOpen, setIsTaxOpen] = useState(false);
+  const [isShippingOpen, setIsShippingOpen] = useState(false);
 
   const taxCodes = useMemo(() => {
-    const taxCodeMap: { [key: string]: { total: number; rate: number } } = {}
+    const taxCodeMap: { [key: string]: { total: number; rate: number } } = {};
 
     order.items.forEach((item) => {
       item.tax_lines?.forEach((line) => {
-        const currTotal = line.subtotal || 0
-        const prevTotal = taxCodeMap[line.code]?.total || 0
+        const currTotal = line.subtotal || 0;
+        const prevTotal = taxCodeMap[line.code]?.total || 0;
         taxCodeMap[line.code] = {
           total: prevTotal + currTotal,
           rate: line.rate,
-        }
-      })
-    })
+        };
+      });
+    });
 
     order.shipping_methods.forEach((sm) => {
       sm.tax_lines?.forEach((line) => {
-        const currTotal = line.subtotal || 0
-        const prevTotal = taxCodeMap[line.code]?.total || 0
+        const currTotal = line.subtotal || 0;
+        const prevTotal = taxCodeMap[line.code]?.total || 0;
         taxCodeMap[line.code] = {
           total: prevTotal + currTotal,
           rate: line.rate,
-        }
-      })
-    })
+        };
+      });
+    });
 
-    return taxCodeMap
-  }, [order])
+    return taxCodeMap;
+  }, [order]);
 
-  const hasTaxes = !!Object.keys(taxCodes).length
+  const hasTaxes = !!Object.keys(taxCodes).length;
 
   return (
     <div className="text-ui-fg-subtle flex flex-col gap-y-2 px-6 py-4">
@@ -670,7 +666,7 @@ const CostBreakdown = ({
                     {getLocaleAmount(sm.subtotal, order.currency_code)}
                   </span>
                 </div>
-              )
+              );
             })}
         </div>
       )}
@@ -722,7 +718,7 @@ const CostBreakdown = ({
                     {getLocaleAmount(total, order.currency_code)}
                   </span>
                 </div>
-              )
+              );
             })}
           </div>
         )}
@@ -740,29 +736,26 @@ const CostBreakdown = ({
         </Text>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const DiscountAndTotalBreakdown = ({
   order,
-  plugins,
 }: {
-  order: AdminOrder & { region?: AdminRegion | null }
-  plugins: AdminPlugin[]
+  order: AdminOrder & { region?: AdminRegion | null };
 }) => {
-  const { t } = useTranslation()
-  const [isDiscountOpen, setIsDiscountOpen] = useState(false)
-  const [isCreditLinesOpen, setIsCreditLinesOpen] = useState(false)
+  const { t } = useTranslation();
+  const [isDiscountOpen, setIsDiscountOpen] = useState(false);
+  const [isCreditLinesOpen, setIsCreditLinesOpen] = useState(false);
 
-  const creditLines = order.credit_lines ?? []
-  const loyaltyPlugin = getLoyaltyPlugin(plugins)
+  const creditLines = order.credit_lines ?? [];
 
   const discounts = useMemo(() => {
     const discounts: {
-      type: "item" | "shipping"
-      total: number
-      codes: string[]
-    }[] = []
+      type: "item" | "shipping";
+      total: number;
+      codes: string[];
+    }[] = [];
     if (order.item_discount_total) {
       discounts.push({
         type: "item",
@@ -774,7 +767,7 @@ const DiscountAndTotalBreakdown = ({
               .map((adjustment) => adjustment.code!)
           )
         ).sort(),
-      })
+      });
     }
     if (order.shipping_discount_total) {
       discounts.push({
@@ -787,13 +780,13 @@ const DiscountAndTotalBreakdown = ({
               .map((adjustment) => adjustment.code!)
           )
         ).sort(),
-      })
+      });
     }
-    return discounts
-  }, [order])
+    return discounts;
+  }, [order]);
 
-  const hasDiscount = discounts.length > 0
-  const hasCreditLines = creditLines.length > 0
+  const hasDiscount = discounts.length > 0;
+  const hasCreditLines = creditLines.length > 0;
 
   return (
     <div className="text-ui-fg-subtle flex flex-col gap-y-2 px-6 py-4">
@@ -836,7 +829,7 @@ const DiscountAndTotalBreakdown = ({
                   {getLocaleAmount(total, order.currency_code)}
                 </span>
               </div>
-            )
+            );
           })}
         </div>
       )}
@@ -849,11 +842,7 @@ const DiscountAndTotalBreakdown = ({
                 onClick={() => setIsCreditLinesOpen((o) => !o)}
                 className="flex cursor-pointer items-center gap-1"
               >
-                <span>
-                  {loyaltyPlugin
-                    ? t("orders.giftCardsStoreCreditLines")
-                    : t("orders.creditLines.title")}
-                </span>
+                <span>{t("orders.creditLines.title")}</span>
                 <TriangleDownMini
                   style={{
                     transform: `rotate(${isCreditLinesOpen ? 0 : -90}deg)`,
@@ -873,7 +862,7 @@ const DiscountAndTotalBreakdown = ({
                   ?.split("_")
                   .join(" ")
                   .split("-")
-                  .join(" ")
+                  .join(" ");
 
                 return (
                   <div
@@ -910,7 +899,7 @@ const DiscountAndTotalBreakdown = ({
                       )}
                     </span>
                   </div>
-                )
+                );
               })}
             </div>
           )}
@@ -930,15 +919,15 @@ const DiscountAndTotalBreakdown = ({
         </Text>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const InventoryKitBreakdown = ({ item }: { item: AdminOrderLineItem }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
-  const inventory = item.variant?.inventory_items || []
+  const inventory = item.variant?.inventory_items || [];
 
   return (
     <>
@@ -982,25 +971,25 @@ const InventoryKitBreakdown = ({ item }: { item: AdminOrderLineItem }) => {
                   {i.required_quantity}x
                 </span>
               </div>
-            )
+            );
           })}
         </div>
       )}
     </>
-  )
-}
+  );
+};
 
 const ReturnBreakdownWithDamages = ({
   orderReturn,
   itemId,
 }: {
-  orderReturn: AdminReturn
-  itemId: string
+  orderReturn: AdminReturn;
+  itemId: string;
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const item = orderReturn?.items?.find((ri) => ri.item_id === itemId)
-  const damagedQuantity = item?.damaged_quantity || 0
+  const item = orderReturn?.items?.find((ri) => ri.item_id === itemId);
+  const damagedQuantity = item?.damaged_quantity || 0;
 
   return (
     item && (
@@ -1042,30 +1031,30 @@ const ReturnBreakdownWithDamages = ({
         </Text>
       </div>
     )
-  )
-}
+  );
+};
 
 const ReturnBreakdown = ({
   orderReturn,
   itemId,
 }: {
-  orderReturn: AdminReturn
-  itemId: string
+  orderReturn: AdminReturn;
+  itemId: string;
 }) => {
-  const { t } = useTranslation()
-  const { getRelativeDate } = useDate()
+  const { t } = useTranslation();
+  const { getRelativeDate } = useDate();
 
   if (
     !["requested", "received", "partially_received"].includes(
       orderReturn.status || ""
     )
   ) {
-    return null
+    return null;
   }
 
-  const isRequested = orderReturn.status === "requested"
-  const item = orderReturn?.items?.find((ri) => ri.item_id === itemId)
-  const damagedQuantity = item?.damaged_quantity || 0
+  const isRequested = orderReturn.status === "requested";
+  const item = orderReturn?.items?.find((ri) => ri.item_id === itemId);
+  const damagedQuantity = item?.damaged_quantity || 0;
 
   return (
     item && (
@@ -1132,21 +1121,21 @@ const ReturnBreakdown = ({
         </div>
       </>
     )
-  )
-}
+  );
+};
 
 const ClaimBreakdown = ({
   claim,
   itemId,
 }: {
-  claim: AdminClaim
-  itemId: string
+  claim: AdminClaim;
+  itemId: string;
 }) => {
-  const { t } = useTranslation()
-  const { getRelativeDate } = useDate()
+  const { t } = useTranslation();
+  const { getRelativeDate } = useDate();
   const items = claim.additional_items.filter(
     (item) => item.item?.id === itemId
-  )
+  );
 
   return (
     !!items.length && (
@@ -1172,21 +1161,21 @@ const ClaimBreakdown = ({
         </Text>
       </div>
     )
-  )
-}
+  );
+};
 
 const ExchangeBreakdown = ({
   exchange,
   itemId,
 }: {
-  exchange: AdminExchange
-  itemId: string
+  exchange: AdminExchange;
+  itemId: string;
 }) => {
-  const { t } = useTranslation()
-  const { getRelativeDate } = useDate()
+  const { t } = useTranslation();
+  const { getRelativeDate } = useDate();
   const items = exchange.additional_items.filter(
     (item) => item?.item?.id === itemId
-  )
+  );
 
   return (
     !!items.length && (
@@ -1211,11 +1200,11 @@ const ExchangeBreakdown = ({
         </Text>
       </div>
     )
-  )
-}
+  );
+};
 
 const Total = ({ order }: { order: AdminOrder }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className=" flex flex-col gap-y-2 px-6 py-4">
@@ -1266,5 +1255,5 @@ const Total = ({ order }: { order: AdminOrder }) => {
         </Text>
       </div>
     </div>
-  )
-}
+  );
+};

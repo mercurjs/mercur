@@ -6,10 +6,10 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { HttpTypes, MercurModules } from "@mercurjs/types"
+import { HttpTypes } from "@mercurjs/types"
 
-import { AdminBatchCommissionRulesType, AdminUpdateCommissionRateType } from "../validators"
-import { batchCommissionRulesWorkflow, deleteCommissionRatesWorkflow, updateCommissionRatesWorkflow } from "../../../../workflows/commission"
+import { AdminUpdateCommissionRateType } from "../validators"
+import { deleteCommissionRatesWorkflow, updateCommissionRatesWorkflow } from "../../../../workflows/commission"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,

@@ -45,7 +45,7 @@ type ProcessRoutes<TRoutes, TParams = {}> =
     };
 
 export type InferClient<TRoutes> = TRoutes extends Record<string, any>
-    ? PrettifyDeep<ProcessRoutes<TRoutes>>
+    ? ProcessRoutes<TRoutes>
     : TypeError<`Looks like you forgot to pass the \`Routes\` generic type to the \`createClient\` function.`>;
 
 

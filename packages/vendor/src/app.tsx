@@ -5,7 +5,7 @@ import { ThemeProvider } from "./providers";
 import { I18nProvider, Toaster, TooltipProvider } from "@medusajs/ui";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { I18n } from "./components/utilities/i18n";
-import { getRouteMap } from "./get-route.map";
+import { getRouteMap } from "./get-route-map";
 
 const queryClient = new QueryClient();
 
