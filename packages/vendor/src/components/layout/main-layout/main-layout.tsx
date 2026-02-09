@@ -37,6 +37,8 @@ export const MainLayout = () => {
 };
 
 const MainSidebar = () => {
+  const coreRoutes = useCoreRoutes();
+
   return (
     <aside className="flex flex-1 flex-col justify-between overflow-y-auto">
       <div className="flex flex-1 flex-col">
@@ -48,7 +50,12 @@ const MainSidebar = () => {
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="flex flex-1 flex-col">
-            <CoreRouteSection />
+            <nav className="flex flex-col gap-y-1 py-3">
+              <Searchbar />
+              {coreRoutes.map((route) => {
+                return <NavItem key={route.to} {...route} />;
+              })}
+            </nav>
           </div>
           <UtilitySection />
         </div>
@@ -274,19 +281,6 @@ const Searchbar = () => {
         </Text>
       </button>
     </div>
-  );
-};
-
-const CoreRouteSection = () => {
-  const coreRoutes = useCoreRoutes();
-
-  return (
-    <nav className="flex flex-col gap-y-1 py-3">
-      <Searchbar />
-      {coreRoutes.map((route) => {
-        return <NavItem key={route.to} {...route} />;
-      })}
-    </nav>
   );
 };
 

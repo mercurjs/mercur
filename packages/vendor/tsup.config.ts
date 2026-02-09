@@ -5,5 +5,5 @@ export default defineConfig({
   dts: true,
   entry: ["src/index.ts", "src/index.css"],
   format: ["esm"],
-  external: ["react", "react-dom", "virtual:mercur/config", "virtual:mercur/routes"],
+  external: ["react", "react-dom", "virtual:mercur/config", "virtual:mercur/routes", "virtual:mercur/components"],
 });
