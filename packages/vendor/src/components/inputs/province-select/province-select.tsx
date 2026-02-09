@@ -1,22 +1,25 @@
 import {
   ComponentPropsWithoutRef,
+  ComponentType,
   forwardRef,
   useImperativeHandle,
   useRef,
-} from "react"
-import { Select } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { getCountryProvinceObjectByIso2 } from "../../../lib/data/country-states"
+} from "react";
+import { Select } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import { getCountryProvinceObjectByIso2 } from "../../../lib/data/country-states";
 
-export const ProvinceSelect = forwardRef<
+type ProvinceSelectProps = ComponentPropsWithoutRef<typeof Select> & {
+  placeholder?: string;
+  defaultValue?: string;
+  country_code: string;
+  valueAs?: "iso_2" | "name";
+  onChange?: (value: string) => void;
+};
+
+export const ProvinceSelect: ComponentType<ProvinceSelectProps> = forwardRef<
   HTMLButtonElement,
-  ComponentPropsWithoutRef<typeof Select> & {
-    placeholder?: string
-    defaultValue?: string
-    country_code: string
-    valueAs?: "iso_2" | "name"
-    onChange?: (value: string) => void
-  }
+  ProvinceSelectProps
 >(
   (
     {
@@ -30,15 +33,15 @@ export const ProvinceSelect = forwardRef<
     },
     ref
   ) => {
-    const { t } = useTranslation()
-    const innerRef = useRef<HTMLButtonElement>(null)
+    const { t } = useTranslation();
+    const innerRef = useRef<HTMLButtonElement>(null);
 
-    useImperativeHandle(ref, () => innerRef.current as HTMLButtonElement)
+    useImperativeHandle(ref, () => innerRef.current as HTMLButtonElement);
 
-    const provinceObject = getCountryProvinceObjectByIso2(country_code)
+    const provinceObject = getCountryProvinceObjectByIso2(country_code);
 
     if (!provinceObject) {
-      disabled = true
+      disabled = true;
     }
 
     const options = Object.entries(provinceObject?.options ?? {}).map(
@@ -50,13 +53,13 @@ export const ProvinceSelect = forwardRef<
           >
             {name}
           </Select.Item>
-        )
+        );
       }
-    )
+    );
 
     const placeholderText = provinceObject
       ? t(`taxRegions.fields.sublevels.placeholders.${provinceObject.type}`)
-      : ""
+      : "";
 
     return (
       <div className="relative">
@@ -85,7 +88,7 @@ export const ProvinceSelect = forwardRef<
           <Select.Content>{options}</Select.Content>
         </Select>
       </div>
-    )
+    );
   }
-)
-ProvinceSelect.displayName = "ProvinceSelect"
+);
+ProvinceSelect.displayName = "ProvinceSelect";

@@ -1,51 +1,59 @@
-import { clx, Input, Text } from "@medusajs/ui"
-import { getNumberOfDecimalPlaces } from "../../../lib/number-helper"
-import { ComponentProps, ElementRef, forwardRef } from "react"
-import Primitive from "react-currency-input-field"
+import { clx, Input, Text } from "@medusajs/ui";
+import { getNumberOfDecimalPlaces } from "../../../lib/number-helper";
+import {
+  ComponentProps,
+  ElementRef,
+  forwardRef,
+  ForwardRefExoticComponent,
+} from "react";
+import Primitive from "react-currency-input-field";
 
-const MIN_DECIMAL_SCALE = 2
+const MIN_DECIMAL_SCALE = 2;
 
 function resolveDecimalScale(
   value: string | readonly string[] | number | undefined | null
 ): number | undefined {
   if (value == null || Array.isArray(value)) {
-    return MIN_DECIMAL_SCALE
+    return MIN_DECIMAL_SCALE;
   }
   return Math.max(
     getNumberOfDecimalPlaces(parseFloat(value.toString())),
     MIN_DECIMAL_SCALE
-  )
+  );
 }
 
-export const DeprecatedPercentageInput = forwardRef<
-  ElementRef<typeof Input>,
-  Omit<ComponentProps<typeof Input>, "type">
->(({ min = 0, max = 100, step = 0.0001, ...props }, ref) => {
-  return (
-    <div className="relative">
-      <div className="absolute inset-y-0 left-0 z-10 flex w-8 items-center justify-center border-r">
-        <Text
-          className="text-ui-fg-muted"
-          size="small"
-          leading="compact"
-          weight="plus"
-        >
-          %
-        </Text>
+type InputProps = ComponentProps<typeof Input>;
+
+export const DeprecatedPercentageInput: ForwardRefExoticComponent<InputProps> =
+  forwardRef<
+    ElementRef<typeof Input>,
+    Omit<ComponentProps<typeof Input>, "type">
+  >(({ min = 0, max = 100, step = 0.0001, ...props }, ref) => {
+    return (
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 z-10 flex w-8 items-center justify-center border-r">
+          <Text
+            className="text-ui-fg-muted"
+            size="small"
+            leading="compact"
+            weight="plus"
+          >
+            %
+          </Text>
+        </div>
+        <Input
+          ref={ref}
+          type="number"
+          min={min}
+          max={max}
+          step={step}
+          {...props}
+          className="pl-10"
+        />
       </div>
-      <Input
-        ref={ref}
-        type="number"
-        min={min}
-        max={max}
-        step={step}
-        {...props}
-        className="pl-10"
-      />
-    </div>
-  )
-})
-DeprecatedPercentageInput.displayName = "PercentageInput"
+    );
+  });
+DeprecatedPercentageInput.displayName = "PercentageInput";
 
 export const PercentageInput = forwardRef<
   ElementRef<"input">,
@@ -63,8 +71,8 @@ export const PercentageInput = forwardRef<
     },
     ref
   ) => {
-    const resolvedDecimalScale = decimalScale ?? resolveDecimalScale(value)
-    const resolvedDecimalsLimit = decimalsLimit ?? resolvedDecimalScale
+    const resolvedDecimalScale = decimalScale ?? resolveDecimalScale(value);
+    const resolvedDecimalsLimit = decimalsLimit ?? resolvedDecimalScale;
 
     return (
       <div className="relative">
@@ -99,7 +107,7 @@ export const PercentageInput = forwardRef<
           </Text>
         </div>
       </div>
-    )
+    );
   }
-)
-PercentageInput.displayName = "PercentageInput"
+);
+PercentageInput.displayName = "PercentageInput";

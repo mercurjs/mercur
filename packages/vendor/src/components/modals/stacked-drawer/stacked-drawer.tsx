@@ -1,62 +1,69 @@
-import { Drawer, clx } from "@medusajs/ui"
+import { Drawer, clx } from "@medusajs/ui";
 import {
   ComponentPropsWithoutRef,
+  ComponentType,
+  ForwardRefExoticComponent,
   PropsWithChildren,
   forwardRef,
   useEffect,
-} from "react"
-import { useStackedModal } from "../stacked-modal-provider"
+} from "react";
+import { useStackedModal } from "../stacked-modal-provider";
 
 type StackedDrawerProps = PropsWithChildren<{
   /**
    * A unique identifier for the modal. This is used to differentiate stacked modals,
    * when multiple stacked modals are registered to the same parent modal.
    */
-  id: string
-}>
+  id: string;
+}>;
 
 /**
  * A stacked modal that can be rendered above a parent modal.
  */
-export const Root = ({ id, children }: StackedDrawerProps) => {
-  const { register, unregister, getIsOpen, setIsOpen } = useStackedModal()
+export const Root: ComponentType<StackedDrawerProps> = ({
+  id,
+  children,
+}: StackedDrawerProps) => {
+  const { register, unregister, getIsOpen, setIsOpen } = useStackedModal();
 
   useEffect(() => {
-    register(id)
+    register(id);
 
-    return () => unregister(id)
+    return () => unregister(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   return (
     <Drawer open={getIsOpen(id)} onOpenChange={(open) => setIsOpen(id, open)}>
       {children}
     </Drawer>
-  )
-}
+  );
+};
 
-const Close = Drawer.Close
-Close.displayName = "StackedDrawer.Close"
+const Close: typeof Drawer.Close = Drawer.Close;
+Close.displayName = "StackedDrawer.Close";
 
-const Header = Drawer.Header
-Header.displayName = "StackedDrawer.Header"
+const Header: typeof Drawer.Header = Drawer.Header;
+Header.displayName = "StackedDrawer.Header";
 
-const Body = Drawer.Body
-Body.displayName = "StackedDrawer.Body"
+const Body: typeof Drawer.Body = Drawer.Body;
+Body.displayName = "StackedDrawer.Body";
 
-const Trigger = Drawer.Trigger
-Trigger.displayName = "StackedDrawer.Trigger"
+const Trigger: typeof Drawer.Trigger = Drawer.Trigger;
+Trigger.displayName = "StackedDrawer.Trigger";
 
-const Footer = Drawer.Footer
-Footer.displayName = "StackedDrawer.Footer"
+const Footer: typeof Drawer.Footer = Drawer.Footer;
+Footer.displayName = "StackedDrawer.Footer";
 
-const Title = Drawer.Title
-Title.displayName = "StackedDrawer.Title"
+const Title: typeof Drawer.Title = Drawer.Title;
+Title.displayName = "StackedDrawer.Title";
 
-const Description = Drawer.Description
-Description.displayName = "StackedDrawer.Description"
+const Description: typeof Drawer.Description = Drawer.Description;
+Description.displayName = "StackedDrawer.Description";
 
-const Content = forwardRef<
+type ContentProps = ComponentPropsWithoutRef<typeof Drawer.Content>;
+
+const Content: ForwardRefExoticComponent<ContentProps> = forwardRef<
   HTMLDivElement,
   ComponentPropsWithoutRef<typeof Drawer.Content>
 >(({ className, ...props }, ref) => {
@@ -69,11 +76,20 @@ const Content = forwardRef<
       }}
       {...props}
     />
-  )
-})
-Content.displayName = "StackedDrawer.Content"
+  );
+});
+Content.displayName = "StackedDrawer.Content";
 
-export const StackedDrawer = Object.assign(Root, {
+export const StackedDrawer: typeof Root & {
+  Close: typeof Drawer.Close;
+  Header: typeof Drawer.Header;
+  Body: typeof Drawer.Body;
+  Content: typeof Drawer.Content;
+  Trigger: typeof Drawer.Trigger;
+  Footer: typeof Drawer.Footer;
+  Description: typeof Drawer.Description;
+  Title: typeof Drawer.Title;
+} = Object.assign(Root, {
   Close,
   Header,
   Body,
@@ -82,4 +98,4 @@ export const StackedDrawer = Object.assign(Root, {
   Footer,
   Description,
   Title,
-})
+});

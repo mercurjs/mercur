@@ -15,6 +15,7 @@ import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { ordersQueryKeys } from "./orders";
 import { returnsQueryKeys } from "./returns";
+import { HttpTypes } from "@medusajs/types";
 
 const CLAIMS_QUERY_KEY = "claims" as const;
 export const claimsQueryKeys = queryKeysFactory(CLAIMS_QUERY_KEY);
@@ -121,7 +122,7 @@ export const useAddClaimItems = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.claims.$id.claimItems.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.claims.$id.claimItems.mutate>, "id">
+    HttpTypes.AdminAddClaimItems
   >
 ) => {
   return useMutation({
@@ -413,7 +414,7 @@ export const useDeleteClaimInboundShipping = (
   });
 };
 
-export const useAddClaimOutboundItems = (
+export const useAddClaimOutboundItems: any = (
   id: string,
   orderId: string,
   options?: UseMutationOptions<

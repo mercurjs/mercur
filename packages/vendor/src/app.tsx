@@ -1,4 +1,4 @@
-import customRoutes from "virtual:mercur/routes";
+// import customRoutes from "virtual:mercur/routes";
 import { HelmetProvider } from "react-helmet-async";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./providers";

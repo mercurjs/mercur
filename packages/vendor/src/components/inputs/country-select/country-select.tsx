@@ -1,26 +1,29 @@
 import {
   ComponentPropsWithoutRef,
+  ComponentType,
   forwardRef,
   useImperativeHandle,
   useRef,
-} from "react"
-import { useTranslation } from "react-i18next"
-import { countries } from "../../../lib/data/countries"
-import { Select } from "@medusajs/ui"
+} from "react";
+import { useTranslation } from "react-i18next";
+import { countries } from "../../../lib/data/countries";
+import { Select } from "@medusajs/ui";
 
-export const CountrySelect = forwardRef<
+type CountrySelectProps = ComponentPropsWithoutRef<typeof Select> & {
+  placeholder?: string;
+  defaultValue?: string;
+  onChange?: (value: string) => void;
+};
+
+export const CountrySelect: ComponentType<CountrySelectProps> = forwardRef<
   HTMLButtonElement,
-  ComponentPropsWithoutRef<typeof Select> & {
-    placeholder?: string
-    defaultValue?: string
-    onChange?: (value: string) => void
-  }
+  CountrySelectProps
 >(({ disabled, placeholder, defaultValue, onChange, ...field }, ref) => {
-  const { t } = useTranslation()
-  const innerRef = useRef<HTMLButtonElement>(null)
+  const { t } = useTranslation();
+  const innerRef = useRef<HTMLButtonElement>(null);
 
-  useImperativeHandle(ref, () => innerRef.current as HTMLButtonElement)
-  
+  useImperativeHandle(ref, () => innerRef.current as HTMLButtonElement);
+
   return (
     <div className="relative">
       <Select
@@ -47,7 +50,7 @@ export const CountrySelect = forwardRef<
         </Select.Content>
       </Select>
     </div>
-  )
-})
+  );
+});
 
-CountrySelect.displayName = "CountrySelect"
+CountrySelect.displayName = "CountrySelect";

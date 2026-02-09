@@ -1,4 +1,5 @@
-import { ChildKeys, InferInput, InferOutput, TypeError } from "./helpers";
+import { ChildKeys, InferInput, InferOutput, PrettifyDeep, TypeError } from "./helpers";
+
 
 export type ActionType = "query" | "mutate" | "delete";
 
@@ -19,8 +20,8 @@ type AddParamsToFn<Fn, TParams> =
 type InferFetchFn<
     TRequest,
     TResponse,
-    TInput = InferInput<TRequest>,
-    TOutput = InferOutput<TResponse>,
+    TInput = PrettifyDeep<InferInput<TRequest>>,
+    TOutput = PrettifyDeep<InferOutput<TResponse>>,
 > = [TInput] extends [Record<string, any>]
     ? (input: TInput & { fetchOptions?: RequestInit }) => Promise<TOutput>
     : (input?: { fetchOptions?: RequestInit }) => Promise<TOutput>;

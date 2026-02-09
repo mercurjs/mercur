@@ -1,5 +1,5 @@
 import { FocusModal, clx } from "@medusajs/ui"
-import { PropsWithChildren, useEffect, useState } from "react"
+import { ComponentType, PropsWithChildren, useEffect, useState } from "react"
 import { Path, useNavigate } from "react-router-dom"
 import { useStateAwareTo } from "../hooks/use-state-aware-to"
 import { RouteModalForm } from "../route-modal-form"
@@ -11,7 +11,7 @@ type RouteFocusModalProps = PropsWithChildren<{
   prev?: string | Partial<Path> | number
 }>
 
-const Root = ({ prev = "..", children }: RouteFocusModalProps) => {
+const Root: ComponentType<RouteFocusModalProps> = ({ prev = "..", children }: RouteFocusModalProps) => {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [stackedModalOpen, onStackedModalOpen] = useState(false)
@@ -61,7 +61,7 @@ type ContentProps = PropsWithChildren<{
   stackedModalOpen: boolean
 }>
 
-const Content = ({ stackedModalOpen, children }: ContentProps) => {
+const Content: ComponentType<ContentProps> = ({ stackedModalOpen, children }: ContentProps) => {
   const { __internal } = useRouteModal()
 
   const shouldPreventClose = !__internal.closeOnEscape
@@ -84,13 +84,13 @@ const Content = ({ stackedModalOpen, children }: ContentProps) => {
   )
 }
 
-const Header = FocusModal.Header
-const Title = FocusModal.Title
-const Description = FocusModal.Description
-const Footer = FocusModal.Footer
-const Body = FocusModal.Body
-const Close = FocusModal.Close
-const Form = RouteModalForm
+const Header: typeof FocusModal.Header = FocusModal.Header
+const Title: typeof FocusModal.Title = FocusModal.Title
+const Description: typeof FocusModal.Description = FocusModal.Description
+const Footer: typeof FocusModal.Footer = FocusModal.Footer
+const Body: typeof FocusModal.Body = FocusModal.Body
+const Close: typeof FocusModal.Close = FocusModal.Close
+const Form: typeof RouteModalForm = RouteModalForm
 
 /**
  * FocusModal that is used to render a form on a separate route.
@@ -98,7 +98,15 @@ const Form = RouteModalForm
  * Typically used for forms creating a resource or forms that require
  * a lot of space.
  */
-export const RouteFocusModal = Object.assign(Root, {
+export const RouteFocusModal: typeof Root & {
+  Header: typeof FocusModal.Header;
+  Title: typeof FocusModal.Title;
+  Body: typeof FocusModal.Body;
+  Description: typeof FocusModal.Description;
+  Footer: typeof FocusModal.Footer;
+  Close: typeof FocusModal.Close;
+  Form: typeof RouteModalForm;
+} = Object.assign(Root, {
   Header,
   Title,
   Body,

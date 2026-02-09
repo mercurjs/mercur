@@ -1,5 +1,5 @@
 import { Drawer, clx } from "@medusajs/ui"
-import { PropsWithChildren, useEffect, useState } from "react"
+import { ComponentType, PropsWithChildren, useEffect, useState } from "react"
 import { Path, useNavigate } from "react-router-dom"
 import { useStateAwareTo } from "../hooks/use-state-aware-to"
 import { RouteModalForm } from "../route-modal-form"
@@ -10,7 +10,7 @@ type RouteDrawerProps = PropsWithChildren<{
   prev?: string | Partial<Path>
 }>
 
-const Root = ({ prev = "..", children }: RouteDrawerProps) => {
+const Root: ComponentType<RouteDrawerProps> = ({ prev = "..", children }: RouteDrawerProps) => {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [stackedModalOpen, onStackedModalOpen] = useState(false)
@@ -58,20 +58,28 @@ const Root = ({ prev = "..", children }: RouteDrawerProps) => {
   )
 }
 
-const Header = Drawer.Header
-const Title = Drawer.Title
-const Description = Drawer.Description
-const Body = Drawer.Body
-const Footer = Drawer.Footer
-const Close = Drawer.Close
-const Form = RouteModalForm
+const Header: typeof Drawer.Header = Drawer.Header
+const Title: typeof Drawer.Title = Drawer.Title
+const Description: typeof Drawer.Description = Drawer.Description
+const Body: typeof Drawer.Body = Drawer.Body
+const Footer: typeof Drawer.Footer = Drawer.Footer
+const Close: typeof Drawer.Close = Drawer.Close
+const Form: typeof RouteModalForm = RouteModalForm
 
 /**
  * Drawer that is used to render a form on a separate route.
  *
  * Typically used for forms editing a resource.
  */
-export const RouteDrawer = Object.assign(Root, {
+export const RouteDrawer: typeof Root & {
+  Header: typeof Drawer.Header;
+  Title: typeof Drawer.Title;
+  Body: typeof Drawer.Body;
+  Description: typeof Drawer.Description;
+  Footer: typeof Drawer.Footer;
+  Close: typeof Drawer.Close;
+  Form: typeof RouteModalForm;
+} = Object.assign(Root, {
   Header,
   Title,
   Body,

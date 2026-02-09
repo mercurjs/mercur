@@ -1,9 +1,8 @@
 import { HttpTypes } from "@medusajs/types"
-import { defer, LoaderFunctionArgs } from "react-router-dom"
+import { defer, LoaderFunction } from "react-router-dom"
 import { sdk } from "../../../lib/client"
-import { PRODUCT_VARIANT_IDS_KEY } from "../common/constants"
 
-async function getProductStockData(id: string, productVariantIds?: string[]) {
+async function getProductStockData(id: string) {
   const CHUNK_SIZE = 20
   let offset = 0
   let totalCount = 0
@@ -11,10 +10,9 @@ async function getProductStockData(id: string, productVariantIds?: string[]) {
   let allVariants: HttpTypes.AdminProductVariant[] = []
 
   do {
-    const { variants: chunk, count } = await sdk.admin.product.listVariants(
-      id,
+    const { variants: chunk, count } = await sdk.admin.products.$id.variants.query(
       {
-        id: productVariantIds,
+        id,
         offset,
         limit: CHUNK_SIZE,
         fields:
@@ -27,7 +25,7 @@ async function getProductStockData(id: string, productVariantIds?: string[]) {
     offset += CHUNK_SIZE
   } while (allVariants.length < totalCount)
 
-  const { stock_locations } = await sdk.admin.stockLocation.list({
+  const { stock_locations } = await sdk.admin.stockLocations.query({
     limit: 9999,
     fields: "id,name",
   })
@@ -38,16 +36,12 @@ async function getProductStockData(id: string, productVariantIds?: string[]) {
   }
 }
 
-export const productStockLoader = async ({
+export const productStockLoader: LoaderFunction = async ({
   params,
-  request,
-}: LoaderFunctionArgs) => {
+}) => {
   const id = params.id!
-  const searchParams = new URLSearchParams(request.url)
-  const productVariantIds =
-    searchParams.get(PRODUCT_VARIANT_IDS_KEY)?.split(",") || undefined
 
-  const dataPromise = getProductStockData(id, productVariantIds)
+  const dataPromise = getProductStockData(id)
 
   return defer({
     data: dataPromise,
