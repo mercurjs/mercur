@@ -35,7 +35,11 @@ export function createClient<TRoutes>(options: ClientOptions): InferClient<TRout
         const input: Record<string, any> = args[0] ?? {};
 
         const method =
-            action === "query" ? "GET" : action === "mutate" ? "POST" : "DELETE";
+            action === "query" ? "GET" : action === "mutate" ? "POST" : action === "delete" ? "DELETE" : null;
+
+        if (!method) {
+            throw new Error(`Action '${action}' is not a valid action.`);
+        }
 
         const { fetchOptions: inputFetchOptions, ...rest } = input;
 
