@@ -1,4 +1,4 @@
-// import customRoutes from "virtual:mercur/routes";
+import { customRoutes } from "virtual:mercur/routes";
 import { HelmetProvider } from "react-helmet-async";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./providers";
@@ -17,7 +17,9 @@ export default function App() {
           <ThemeProvider>
             <I18n />
             <I18nProvider>
-              <RouterProvider router={createBrowserRouter(getRouteMap())} />
+              <RouterProvider
+                router={createBrowserRouter(getRouteMap({ customRoutes }))}
+              />
             </I18nProvider>
             <Toaster />
           </ThemeProvider>

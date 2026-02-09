@@ -216,7 +216,7 @@ export function generateRoutes({ srcDir }: BuiltMercurConfig): string {
     const files = crawlPages(pagesDir)
 
     if (files.length === 0) {
-        return `export default []`
+        return `export const customRoutes = []`
     }
 
     let index = 0
@@ -231,7 +231,7 @@ export function generateRoutes({ srcDir }: BuiltMercurConfig): string {
     }
 
     if (results.length === 0) {
-        return `export default []`
+        return `export const customRoutes = []`
     }
 
     const routeTree = buildRouteTree(results)
@@ -240,7 +240,7 @@ export function generateRoutes({ srcDir }: BuiltMercurConfig): string {
 
     return `${imports.join("\n")}
 
-export default [
+export const customRoutes = [
 ${routes.join(",\n")}
 ]`
 }

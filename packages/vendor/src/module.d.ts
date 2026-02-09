@@ -1,7 +1,6 @@
 declare module "virtual:mercur/routes" {
     import { RouteObject } from 'react-router-dom'
-    const routes: RouteObject[]
-    export default routes
+    export const customRoutes: RouteObject[]
 }
 
 declare module "virtual:mercur/config" {
