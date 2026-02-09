@@ -2,7 +2,8 @@ export interface MercurConfig {
     title: string
     description: string
     components: {
-        Sidebar?: string
+        MainSidebar?: string
+        SettingsSidebar?: string
     },
     baseUrl: string;
 }

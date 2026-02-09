@@ -10,8 +10,8 @@ declare module "virtual:mercur/config" {
 }
 
 declare module "virtual:mercur/components" {
-    import { Component } from 'react'
-    const components: Record<string, Component>
+    import { ComponentType } from 'react'
+    const components: Record<string, ComponentType>
     export default components
 }
 
