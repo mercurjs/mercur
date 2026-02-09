@@ -19,5 +19,6 @@ export type Route = {
     path: string
     handle?: string
     loader?: string
+    icon?: string
     children?: Route[]
 }
