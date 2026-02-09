@@ -39,3 +39,8 @@ yarn-error.log*
 
 apps/backend/.medusa
 packages/modules/*
+test/*
+POC Projects/*
+*.md
+templates/basic/*
+packages/registry/*

@@ -1,0 +1,179 @@
+import { useMemo } from "react";
+
+import { PencilSquare, Trash } from "@medusajs/icons";
+import type { AdminCustomerGroup } from "@medusajs/types";
+import { Container, Divider, Heading, usePrompt } from "@medusajs/ui";
+import { toast } from "@medusajs/ui";
+
+import { sdk } from "@lib/client";
+import { formatDate } from "@lib/date";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useNavigate } from "react-router-dom";
+
+import type { AdminCustomerGroupListResponse } from "@custom-types/customer-group";
+
+import { ActionsButton } from "@components/common/actions-button";
+import { _DataTable } from "@components/table/data-table";
+
+import { useCustomerGroupTableFilters } from "@hooks/table/filters";
+import { useSellerOrdersTableQuery } from "@hooks/table/query";
+import { useDataTable } from "@hooks/use-data-table";
+
+const PAGE_SIZE = 10;
+const PREFIX = "scg";
+
+export const SellerCustomerGroupsSection = ({
+  seller_customer_groups,
+  refetch,
+}: {
+  seller_customer_groups: AdminCustomerGroupListResponse;
+  refetch: () => void;
+}) => {
+  const { customer_groups, count } = seller_customer_groups as {
+    customer_groups: AdminCustomerGroup[];
+    count: number;
+  };
+
+  const { raw } = useSellerOrdersTableQuery({
+    pageSize: PAGE_SIZE,
+    offset: 0,
+    prefix: PREFIX,
+  });
+
+  const columns = useColumns(refetch);
+  const filters = useCustomerGroupTableFilters();
+
+  const { table } = useDataTable({
+    data: customer_groups,
+    columns,
+    count,
+    enablePagination: true,
+    pageSize: PAGE_SIZE,
+    getRowId: (row) => row?.id || "",
+    prefix: PREFIX,
+  });
+
+  return (
+    <Container className="mt-2 px-0" data-testid="seller-customer-groups-section">
+      <div className="px-8 pb-4" data-testid="seller-customer-groups-section-header">
+        <Heading data-testid="seller-customer-groups-section-heading">Customer Groups</Heading>
+      </div>
+      <Divider />
+      <_DataTable
+        filters={filters}
+        table={table}
+        columns={columns}
+        count={count}
+        pageSize={PAGE_SIZE}
+        isLoading={false}
+        queryObject={raw}
+        search
+        pagination
+        navigateTo={(row) => `/customer-groups/${row.id}`}
+        orderBy={[
+          { key: "name", label: "Name" },
+          { key: "created_at", label: "Created" },
+          { key: "updated_at", label: "Updated" },
+        ]}
+        prefix={PREFIX}
+      />
+    </Container>
+  );
+};
+
+const columnHelper = createColumnHelper<AdminCustomerGroup>();
+
+const useColumns = (refetch: () => void) => {
+  const prompt = usePrompt();
+  const navigate = useNavigate();
+
+  const handleDelete = async (customer_group: AdminCustomerGroup) => {
+    const res = await prompt({
+      title: "Are you sure?",
+      description: `You are about to delete the customer group ${customer_group.name}. This action cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    });
+
+    if (!res) {
+      return;
+    }
+
+    try {
+      await sdk.client.fetch(`/admin/customer-groups/${customer_group.id}`, {
+        method: "DELETE",
+      });
+      toast.success("Customer group deleted successfully", {
+        description: `${customer_group.name} deleted successfully`,
+      });
+      await refetch();
+    } catch {
+      toast.error("Error deleting customer group", {
+        description: "Please try again later",
+      });
+    }
+  };
+
+  const columns = useMemo(
+    () => [
+      columnHelper.display({
+        id: "name",
+        header: "Name",
+        cell: ({ row }) => {
+          return (
+            <div className="flex h-full w-full max-w-[250px] items-center gap-x-3 overflow-hidden">
+              <span title={row.original.name ?? ""} className="truncate">
+                {row.original.name}
+              </span>
+            </div>
+          );
+        },
+      }),
+      columnHelper.display({
+        id: "customers",
+        header: "Customers",
+        cell: ({ row }) => {
+          const customers = row.original.customers?.length || 0;
+          const suffix = customers > 1 ? "customers" : "customer";
+
+          return `${customers} ${suffix}`;
+        },
+      }),
+      columnHelper.display({
+        id: "created",
+        header: "Created",
+        cell: ({ row }) => formatDate(row.original.created_at, "MMM d, yyyy"),
+      }),
+      columnHelper.display({
+        id: "updated",
+        header: "Updated",
+        cell: ({ row }) => formatDate(row.original.updated_at, "MMM d, yyyy"),
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: "",
+        cell: ({ row }) => (
+          <ActionsButton
+            data-testid={`seller-customer-groups-section-row-actions-${row.original.id}`}
+            actions={[
+              {
+                label: "Edit",
+                onClick: () =>
+                  navigate(`/customer-groups/${row.original.id}/edit`),
+                icon: <PencilSquare />,
+              },
+              {
+                label: "Delete",
+                onClick: () => handleDelete(row.original),
+                icon: <Trash />,
+              },
+            ]}
+          />
+        ),
+      }),
+    ],
+    [],
+  );
+
+  return columns;
+};

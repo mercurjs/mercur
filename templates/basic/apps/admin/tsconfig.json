@@ -1,12 +1,23 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["ES2022", "dom", "dom.iterable"],
-    "jsx": "preserve",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
+      "@/*": ["src/*"],
+      "@mercurjs/core-admin/*": ["../../../../packages/core-admin/src/*"],
+      "@mercurjs/core-admin/pages/*": ["../../../../packages/core-admin/src/pages/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": ["src"]
 }
