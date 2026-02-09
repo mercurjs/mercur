@@ -27,7 +27,7 @@ import { UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
-import { getMenuItemExtensions } from "../../../utils/menu-items";
+import { getMenuItemExtensions, getNestedMenuItems } from "../../../utils/menu-items";
 
 export const MainLayout = () => {
   const Sidebar = components.MainSidebar ? components.MainSidebar : MainSidebar;
@@ -40,10 +40,26 @@ export const MainLayout = () => {
 
 const MainSidebar = () => {
   const coreRoutes = useCoreRoutes();
-  const customMenuItems = getMenuItemExtensions(
-    menuItemsModule.menuItems ?? [],
-    "main"
-  );
+  const allMenuItems = menuItemsModule.menuItems ?? [];
+  const customMenuItems = getMenuItemExtensions(allMenuItems, "main");
+
+  const routesWithNested = coreRoutes.map((route) => {
+    const nestedItems = getNestedMenuItems(allMenuItems, route.to);
+    if (nestedItems.length === 0) {
+      return route;
+    }
+
+    const nestedNavItems = nestedItems.map((item) => ({
+      label: item.label,
+      to: item.path,
+      translationNs: item.translationNs,
+    }));
+
+    return {
+      ...route,
+      items: [...(route.items ?? []), ...nestedNavItems],
+    };
+  });
 
   return (
     <aside className="flex flex-1 flex-col justify-between overflow-y-auto">
@@ -58,7 +74,7 @@ const MainSidebar = () => {
           <div className="flex flex-1 flex-col">
             <nav className="flex flex-col gap-y-1 py-3">
               <Searchbar />
-              {coreRoutes.map((route) => {
+              {routesWithNested.map((route) => {
                 return <NavItem key={route.to} {...route} />;
               })}
               {customMenuItems

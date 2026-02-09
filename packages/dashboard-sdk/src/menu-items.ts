@@ -8,6 +8,7 @@ type RouteConfig = {
     label: boolean
     icon: boolean
     rank?: number
+    nested?: string
     translationNs?: string
 }
 
@@ -16,6 +17,7 @@ type MenuItem = {
     icon?: string
     path: string
     rank?: number
+    nested?: string
     translationNs?: string
 }
 
@@ -98,10 +100,13 @@ function getConfigProperties(filePath: string): RouteConfig | null {
         const rankMatch = content.match(/\brank\s*:\s*(\d+)/)
         const rank = rankMatch ? parseInt(rankMatch[1], 10) : undefined
 
+        const nestedMatch = content.match(/\bnested\s*:\s*["']([^"']+)["']/)
+        const nested = nestedMatch ? nestedMatch[1] : undefined
+
         const translationNsMatch = content.match(/\btranslationNs\s*:\s*["']([^"']+)["']/)
         const translationNs = translationNsMatch ? translationNsMatch[1] : undefined
 
-        return { label: hasLabel, icon: hasIcon, rank, translationNs }
+        return { label: hasLabel, icon: hasIcon, rank, nested, translationNs }
     } catch {
         return null
     }
@@ -128,6 +133,7 @@ function generateMenuItem(
         icon: config.icon ? `${configName}.icon` : undefined,
         path: getRoute(file, pagesDir),
         rank: config.rank,
+        nested: config.nested,
         translationNs: config.translationNs
             ? `${configName}.translationNs`
             : undefined,
@@ -140,6 +146,7 @@ function formatMenuItem(menuItem: MenuItem): string {
         `        icon: ${menuItem.icon || "undefined"}`,
         `        path: "${menuItem.path}"`,
         `        rank: ${menuItem.rank !== undefined ? menuItem.rank : "undefined"}`,
+        `        nested: ${menuItem.nested ? `"${menuItem.nested}"` : "undefined"}`,
         `        translationNs: ${menuItem.translationNs || "undefined"}`,
     ]
     return `    {\n${parts.join(",\n")}\n    }`

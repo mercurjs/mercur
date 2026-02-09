@@ -27,5 +27,6 @@ export type MenuItem = {
     icon?: string
     path: string
     rank?: number
+    nested?: string
     translationNs?: string
 }

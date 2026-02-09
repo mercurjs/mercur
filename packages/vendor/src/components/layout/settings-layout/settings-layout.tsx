@@ -10,7 +10,11 @@ import { Shell } from "../shell";
 import { UserMenu } from "../user-menu";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
-import { getMenuItemExtensions } from "../../../utils/menu-items";
+import {
+  getMenuItemExtensions,
+  getNestedMenuItems,
+} from "../../../utils/menu-items";
+import { MenuItem } from "@mercurjs/dashboard-sdk";
 
 export const SettingsLayout = () => {
   const Sidebar = components.SettingsSidebar
@@ -87,10 +91,6 @@ const useDeveloperRoutes = (): INavItem[] => {
         label: t("apiKeyManagement.domain.secret"),
         to: "/settings/secret-api-keys",
       },
-      {
-        label: t("workflowExecutions.domain"),
-        to: "/settings/workflows",
-      },
     ],
     [t]
   );
@@ -122,14 +122,33 @@ const getSafeFromValue = (from: string) => {
   return from;
 };
 
+const injectNestedSettingsItems = (
+  routes: INavItem[],
+  allMenuItems: MenuItem[]
+): INavItem[] => {
+  return routes.flatMap((route) => {
+    const nestedItems = getNestedMenuItems(allMenuItems, route.to);
+    if (nestedItems.length === 0) {
+      return [route];
+    }
+
+    return [
+      route,
+      ...nestedItems.map((item) => ({
+        label: item.label,
+        to: item.path,
+        translationNs: item.translationNs,
+      })),
+    ];
+  });
+};
+
 const SettingsSidebar = () => {
-  const routes = useSettingRoutes();
-  const developerRoutes = useDeveloperRoutes();
-  const myAccountRoutes = useMyAccountRoutes();
-  const customSettingsItems = getMenuItemExtensions(
-    menuItemsModule.menuItems ?? [],
-    "settings"
-  );
+  const _generalRoutes = useSettingRoutes();
+  const _developerRoutes = useDeveloperRoutes();
+  const _myAccountRoutes = useMyAccountRoutes();
+  const allMenuItems = menuItemsModule.menuItems ?? [];
+  const customSettingsItems = getMenuItemExtensions(allMenuItems, "settings");
 
   const { t } = useTranslation();
 
@@ -140,6 +159,13 @@ const SettingsSidebar = () => {
       to: item.path,
       translationNs: item.translationNs,
     }));
+
+  const generalRoutes = injectNestedSettingsItems(_generalRoutes, allMenuItems);
+  const devRoutes = injectNestedSettingsItems(_developerRoutes, allMenuItems);
+  const accountRoutes = injectNestedSettingsItems(
+    _myAccountRoutes,
+    allMenuItems
+  );
 
   return (
     <aside className="relative flex flex-1 flex-col justify-between overflow-y-auto">
@@ -153,32 +179,25 @@ const SettingsSidebar = () => {
         <div className="flex flex-1 flex-col overflow-y-auto">
           <RadixCollapsibleSection
             label={t("app.nav.settings.general")}
-            items={routes}
+            items={generalRoutes}
           />
           <div className="flex items-center justify-center px-3">
             <Divider variant="dashed" />
           </div>
           <RadixCollapsibleSection
             label={t("app.nav.settings.developer")}
-            items={developerRoutes}
+            items={devRoutes}
           />
-          {extensionNavItems.length > 0 && (
-            <>
-              <div className="flex items-center justify-center px-3">
-                <Divider variant="dashed" />
-              </div>
-              <RadixCollapsibleSection
-                label={t("app.nav.settings.extensions")}
-                items={extensionNavItems}
-              />
-            </>
-          )}
+          <RadixCollapsibleSection
+            label={t("app.nav.settings.extensions")}
+            items={extensionNavItems}
+          />
           <div className="flex items-center justify-center px-3">
             <Divider variant="dashed" />
           </div>
           <RadixCollapsibleSection
             label={t("app.nav.settings.myAccount")}
-            items={myAccountRoutes}
+            items={accountRoutes}
           />
         </div>
         <div className="bg-ui-bg-subtle sticky bottom-0">
