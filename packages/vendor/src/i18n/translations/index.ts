@@ -29,7 +29,8 @@ import nl from "./nl.json"
 import bs from "./bs.json"
 import id from "./id.json"
 import zhTW from "./zhTW.json"
-export default {
+
+const translations: Record<string, { translation: Record<string, any> }> = {
   bs: {
     translation: bs,
   },
@@ -124,3 +125,5 @@ export default {
     translation: zhTW,
   },
 }
+
+export default translations;
