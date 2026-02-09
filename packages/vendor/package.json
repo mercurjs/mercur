@@ -67,7 +67,7 @@
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "tsup": "^8.0.2",
-    "typescript": "^5.2.2",
+    "typescript": "5.9.3",
     "@medusajs/types": "2.13.1",
     "@mercurjs/core": "*"
   }
