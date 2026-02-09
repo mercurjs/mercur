@@ -30,3 +30,11 @@ export type MenuItem = {
     nested?: string
     translationNs?: string
 }
+
+export type RouteConfig = {
+    label: boolean
+    icon: boolean
+    rank?: number
+    nested?: string
+    translationNs?: string
+}

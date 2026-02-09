@@ -2,24 +2,7 @@ import fs from "fs"
 import path from "path"
 import { VALID_FILE_EXTENSIONS } from "./constants"
 import { normalizePath } from "./utils"
-import type { BuiltMercurConfig } from "./types"
-
-type RouteConfig = {
-    label: boolean
-    icon: boolean
-    rank?: number
-    nested?: string
-    translationNs?: string
-}
-
-type MenuItem = {
-    label: string
-    icon?: string
-    path: string
-    rank?: number
-    nested?: string
-    translationNs?: string
-}
+import type { BuiltMercurConfig, RouteConfig, MenuItem } from "./types"
 
 type MenuItemResult = {
     import: string
