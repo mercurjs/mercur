@@ -1,11 +1,9 @@
-import { defineConfig } from "tsup"
+import { defineConfig } from "tsup";
 
-export default defineConfig([
-  {
-    entry: ['src/index.ts', 'src/index.css'],
-    format: ["esm"],
-    dts: true,
-    clean: true,
-    external: ['virtual:mercur/routes', 'virtual:mercur/config', 'virtual:mercur/components'],
-  },
-])
+export default defineConfig({
+  clean: true,
+  dts: true,
+  entry: ["src/index.ts", "src/index.css"],
+  format: ["esm"],
+  external: ["react", "react-dom", "virtual:mercur/config"],
+});

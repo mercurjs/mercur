@@ -24,5 +24,5 @@ export const POST = async (
     },
   })
 
-  res.status(200).json({ return: result })
+  res.status(200).json({ return: result } as HttpTypes.VendorReturnResponse)
 }

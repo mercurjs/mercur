@@ -1,5 +1,4 @@
 import {
-  ApplicationMethodAllocation,
   ApplicationMethodTargetType,
   ApplicationMethodType,
   PromotionRuleOperator,
@@ -111,11 +110,11 @@ export const VendorCreateApplicationMethod = z
   .object({
     description: z.string().nullish(),
     value: z.number(),
-    currency_code: z.string().nullish(),
+    currency_code: z.string().optional(),
     max_quantity: z.number().nullish(),
     type: z.nativeEnum(ApplicationMethodType),
     target_type: z.nativeEnum(ApplicationMethodTargetType),
-    allocation: z.nativeEnum(ApplicationMethodAllocation).optional(),
+    allocation: z.enum(["each", "across"]).optional(),
     target_rules: z.array(VendorCreatePromotionRule).optional(),
     buy_rules: z.array(VendorCreatePromotionRule).optional(),
     apply_to_quantity: z.number().nullish(),
@@ -131,10 +130,10 @@ export const VendorUpdateApplicationMethod = z
     description: z.string().nullish(),
     value: z.number().optional(),
     max_quantity: z.number().nullish(),
-    currency_code: z.string().nullish(),
+    currency_code: z.string().optional(),
     type: z.nativeEnum(ApplicationMethodType).optional(),
     target_type: z.nativeEnum(ApplicationMethodTargetType).optional(),
-    allocation: z.nativeEnum(ApplicationMethodAllocation).optional(),
+    allocation: z.enum(["each", "across"]).optional(),
     apply_to_quantity: z.number().nullish(),
     buy_rules_min_quantity: z.number().nullish(),
   })
@@ -165,7 +164,7 @@ export const VendorCreatePromotion = z
     type: z.nativeEnum(PromotionType),
     is_tax_inclusive: z.boolean().optional(),
     status: z.nativeEnum(PromotionStatus).default(PromotionStatus.DRAFT),
-    campaign_id: z.string().nullish(),
+    campaign_id: z.string().optional(),
     application_method: VendorCreateApplicationMethod,
     rules: z.array(VendorCreatePromotionRule).optional(),
   })

@@ -1,14 +1,18 @@
 declare module "virtual:mercur/routes" {
-    const routes: any[]
+    import { RouteObject } from 'react-router-dom'
+    const routes: RouteObject[]
     export default routes
 }
 
 declare module "virtual:mercur/config" {
-    const config: any
+    import { MercurConfig } from '@mercurjs/dashboard-sdk'
+    const config: MercurConfig
     export default config
 }
 
 declare module "virtual:mercur/components" {
-    const components: Record<string, any>
+    import { Component } from 'react'
+    const components: Record<string, Component>
     export default components
 }
+

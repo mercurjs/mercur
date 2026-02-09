@@ -22,7 +22,7 @@ export interface BatchCommissionRulesWorkflowInput
 }
 
 export interface BatchCommissionRulesWorkflowOutput
-  extends BatchWorkflowOutput<CommissionRuleDTO> {}
+  extends BatchWorkflowOutput<CommissionRuleDTO> { }
 
 export const batchCommissionRulesWorkflowId = "batch-commission-rules"
 

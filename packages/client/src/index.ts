@@ -1,7 +1,20 @@
 import { stringify } from "qs";
-import { kebabCase } from "@medusajs/utils";
 import { createRecursiveProxy } from "./create-proxy";
-import { ActionType, ClientOptions, InferClient } from "./types";
+import { ActionType, ClientOptions, InferClient, PrettifyDeep } from "./types";
+export type { InferClient } from "./types";
+import { kebabCase } from "./utils";
+
+type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
+
+export type InferClientInput<T> = T extends (input: infer I) => any
+    ? PrettifyDeep<DistributiveOmit<I, 'fetchOptions'>>
+    : T extends (input?: infer I) => any
+    ? PrettifyDeep<DistributiveOmit<NonNullable<I>, 'fetchOptions'>>
+    : never;
+
+export type InferClientOutput<T> = T extends (...args: any[]) => Promise<infer O>
+    ? PrettifyDeep<O>
+    : never;
 
 export class ClientError extends Error {
     status: number | undefined;
@@ -22,7 +35,11 @@ export function createClient<TRoutes>(options: ClientOptions): InferClient<TRout
         const input: Record<string, any> = args[0] ?? {};
 
         const method =
-            action === "query" ? "GET" : action === "mutate" ? "POST" : "DELETE";
+            action === "query" ? "GET" : action === "mutate" ? "POST" : action === "delete" ? "DELETE" : null;
+
+        if (!method) {
+            throw new Error(`Action '${action}' is not a valid action.`);
+        }
 
         const { fetchOptions: inputFetchOptions, ...rest } = input;
 

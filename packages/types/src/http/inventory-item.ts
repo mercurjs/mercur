@@ -1,4 +1,4 @@
-import { DeleteResponse, InventoryItemDTO, InventoryLevelDTO, PaginatedResponse } from "@medusajs/framework/types"
+import { DeleteResponse, InventoryItemDTO, InventoryLevelDTO, PaginatedResponse } from "@medusajs/types"
 
 export type VendorInventoryItem = InventoryItemDTO
 

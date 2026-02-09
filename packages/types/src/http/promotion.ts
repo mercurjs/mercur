@@ -1,4 +1,4 @@
-import { DeleteResponse, PaginatedResponse, PromotionDTO, PromotionRuleDTO } from "@medusajs/framework/types"
+import { DeleteResponse, PaginatedResponse, PromotionDTO, PromotionRuleDTO } from "@medusajs/types"
 
 export type VendorPromotion = PromotionDTO
 
@@ -23,8 +23,8 @@ export type VendorPromotionRuleBatchResponse = {
   updated: VendorPromotionRule[]
   deleted: {
     ids: string[]
-    object: "promotion-rule"
-    deleted: true
+    object: string
+    deleted: boolean
   }
 }
 

@@ -2,7 +2,7 @@ import { SellerStatus } from "./common"
 
 export type CreateSellerDTO = {
   name: string
-  handle: string
+  handle?: string
   email: string
   phone?: string | null
   logo?: string | null

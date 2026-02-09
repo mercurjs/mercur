@@ -10,16 +10,10 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./react-query": {
-      "types": "./dist/react-query/index.d.ts",
-      "default": "./dist/react-query/index.js"
+      "default": "./dist/index.mjs"
     }
   },
   "scripts": {
@@ -35,7 +29,7 @@
     "@medusajs/framework": "^2.13.0",
     "@types/qs": "^6.9.18",
     "tsup": "^8.5.0",
-    "typescript": "^5.4.0"
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "typescript": ">=4.8.0"
