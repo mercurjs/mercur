@@ -4,7 +4,7 @@ import { queryClient } from "../../../lib/query-client"
 
 const refundReasonListQuery = () => ({
   queryKey: refundReasonsQueryKeys.list(),
-  queryFn: async () => sdk.admin.refundReason.list(),
+  queryFn: async () => sdk.admin.refundReasons.query({}),
 })
 
 export const refundReasonListLoader = async () => {

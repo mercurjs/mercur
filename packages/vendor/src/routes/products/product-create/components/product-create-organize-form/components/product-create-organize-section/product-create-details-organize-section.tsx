@@ -1,75 +1,75 @@
-import { Button, Heading } from "@medusajs/ui"
-import { UseFormReturn, useFieldArray } from "react-hook-form"
-import { Trans, useTranslation } from "react-i18next"
+import { Button, Heading } from "@medusajs/ui";
+import { UseFormReturn, useFieldArray } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
 
-import { ChipGroup } from "../../../../../../../components/common/chip-group"
-import { Form } from "../../../../../../../components/common/form"
-import { SwitchBox } from "../../../../../../../components/common/switch-box"
-import { Combobox } from "../../../../../../../components/inputs/combobox"
-import { StackedFocusModal } from "../../../../../../../components/modals"
-import { useComboboxData } from "../../../../../../../hooks/use-combobox-data"
-import { sdk } from "../../../../../../../lib/client"
-import { CategoryCombobox } from "../../../../../common/components/category-combobox"
-import { ProductCreateSchemaType } from "../../../../types"
+import { ChipGroup } from "../../../../../../../components/common/chip-group";
+import { Form } from "../../../../../../../components/common/form";
+import { SwitchBox } from "../../../../../../../components/common/switch-box";
+import { Combobox } from "../../../../../../../components/inputs/combobox";
+import { StackedFocusModal } from "../../../../../../../components/modals";
+import { useComboboxData } from "../../../../../../../hooks/use-combobox-data";
+import { sdk } from "../../../../../../../lib/client";
+import { CategoryCombobox } from "../../../../../common/components/category-combobox";
+import { ProductCreateSchemaType } from "../../../../types";
 
 type ProductCreateOrganizationSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
+  form: UseFormReturn<ProductCreateSchemaType>;
+};
 
 export const ProductCreateOrganizationSection = ({
   form,
 }: ProductCreateOrganizationSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const collections = useComboboxData({
     queryKey: ["product_collections"],
-    queryFn: (params) => sdk.admin.productCollection.list(params),
+    queryFn: (params) => sdk.admin.collections.query(params),
     getOptions: (data) =>
       data.collections.map((collection) => ({
         label: collection.title!,
         value: collection.id!,
       })),
-  })
+  });
 
   const types = useComboboxData({
     queryKey: ["product_types"],
-    queryFn: (params) => sdk.admin.productType.list(params),
+    queryFn: (params) => sdk.admin.productTypes.query(params),
     getOptions: (data) =>
       data.product_types.map((type) => ({
         label: type.value,
         value: type.id,
       })),
-  })
+  });
 
   const tags = useComboboxData({
     queryKey: ["product_tags"],
-    queryFn: (params) => sdk.admin.productTag.list(params),
+    queryFn: (params) => sdk.admin.productTags.query(params),
     getOptions: (data) =>
       data.product_tags.map((tag) => ({
         label: tag.value,
         value: tag.id,
       })),
-  })
+  });
 
   const shippingProfiles = useComboboxData({
     queryKey: ["shipping_profiles"],
-    queryFn: (params) => sdk.admin.shippingProfile.list(params),
+    queryFn: (params) => sdk.admin.shippingProfiles.query(params),
     getOptions: (data) =>
       data.shipping_profiles.map((shippingProfile) => ({
         label: shippingProfile.name,
         value: shippingProfile.id,
       })),
-  })
+  });
 
   const { fields, remove, replace } = useFieldArray({
     control: form.control,
     name: "sales_channels",
     keyName: "key",
-  })
+  });
 
   const handleClearAllSalesChannels = () => {
-    replace([])
-  }
+    replace([]);
+  };
 
   return (
     <div id="organize" className="flex flex-col gap-y-8">
@@ -102,7 +102,7 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
-            )
+            );
           }}
         />
         <Form.Field
@@ -125,7 +125,7 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
-            )
+            );
           }}
         />
       </div>
@@ -144,7 +144,7 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
-            )
+            );
           }}
         />
         <Form.Field
@@ -167,7 +167,7 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
-            )
+            );
           }}
         />
       </div>
@@ -197,7 +197,7 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
-            )
+            );
           }}
         />
       </div>
@@ -239,10 +239,10 @@ export const ProductCreateOrganizationSection = ({
                   )}
                 </Form.Control>
               </Form.Item>
-            )
+            );
           }}
         />
       </div>
     </div>
-  )
-}
+  );
+};

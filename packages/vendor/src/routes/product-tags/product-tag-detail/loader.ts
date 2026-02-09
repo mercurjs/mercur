@@ -6,7 +6,7 @@ import { queryClient } from "../../../lib/query-client"
 
 const productTagDetailQuery = (id: string) => ({
   queryKey: productTagsQueryKeys.detail(id),
-  queryFn: async () => sdk.admin.productTag.retrieve(id),
+  queryFn: async () => sdk.admin.productTags.$id.query({ id }),
 })
 
 export const productTagLoader = async ({ params }: LoaderFunctionArgs) => {

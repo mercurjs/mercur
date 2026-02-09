@@ -1,13 +1,13 @@
-import { HttpTypes } from "@medusajs/types"
 import { LoaderFunctionArgs } from "react-router-dom"
 
 import { productTagsQueryKeys } from "../../../hooks/api"
 import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
+import { InferClientInput } from "@mercurjs/client"
 
-const productTagListQuery = (query?: HttpTypes.AdminProductTagListParams) => ({
+const productTagListQuery = (query?: InferClientInput<typeof sdk.admin.productTags.query>) => ({
   queryKey: productTagsQueryKeys.list(query),
-  queryFn: async () => sdk.admin.productTag.list(query),
+  queryFn: async () => sdk.admin.productTags.query({ ...query }),
 })
 
 export const productTagListLoader = async ({ request }: LoaderFunctionArgs) => {
@@ -24,7 +24,7 @@ export const productTagListLoader = async ({ request }: LoaderFunctionArgs) => {
   })
 
   const query = productTagListQuery(
-    queryObject as HttpTypes.AdminProductTagListParams
+    queryObject
   )
 
   return (

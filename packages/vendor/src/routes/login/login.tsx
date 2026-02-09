@@ -9,6 +9,7 @@ import { Form } from "../../components/common/form";
 import AvatarBox from "../../components/common/logo-box/avatar-box";
 import { useSignInWithEmailPass } from "../../hooks/api";
 import { isClientError } from "../../lib/is-fetch-error";
+import { sdk } from "../../lib/client";
 
 const LoginSchema = z.object({
   email: z.string().email(),
@@ -56,7 +57,17 @@ export const Login = () => {
             message: error.message,
           });
         },
-        onSuccess: () => {
+        onSuccess: async (_data) => {
+          const data = _data as { token: string };
+
+          await sdk.auth.session.mutate({
+            fetchOptions: {
+              headers: {
+                Authorization: `Bearer ${data.token}`,
+              },
+            },
+          });
+
           navigate(from, { replace: true });
         },
       }
