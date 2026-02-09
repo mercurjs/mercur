@@ -1,4 +1,5 @@
 import type * as Vite from "vite"
+import fs from "fs"
 import path from "path"
 import { getFileExports } from "./utils"
 import { CONFIG_NAME, VALID_FILE_EXTENSIONS } from "./constants"
@@ -30,9 +31,72 @@ async function loadMercurConfig(root: string): Promise<BuiltMercurConfig> {
     }
 }
 
+/**
+ * Resolves the core-admin pages directory from the config.
+ * If corePagesDir is set in config, uses that.
+ * Otherwise tries to find @mercurjs/core-admin/src/pages via node_modules.
+ */
+function resolveCorePagesDir(config: BuiltMercurConfig): string | null {
+    if (config.corePagesDir) {
+        return path.resolve(config.root, config.corePagesDir)
+    }
+
+    // Try to resolve from node_modules
+    try {
+        const coreAdminPkg = require.resolve("@mercurjs/core-admin/package.json", {
+            paths: [config.root],
+        })
+        return path.join(path.dirname(coreAdminPkg), "src", "pages")
+    } catch {
+        return null
+    }
+}
+
+/**
+ * Check if user has an override page for a given core-admin page path.
+ * Core-admin imports: ../../pages/products/[id]/index.tsx
+ * User override: src/pages/products/[id]/index.tsx
+ */
+function findUserOverride(
+    resolvedPath: string,
+    corePagesDir: string,
+    userPagesDir: string
+): string | null {
+    // Check if the resolved path is inside core-admin pages
+    const normalizedResolved = path.normalize(resolvedPath)
+    const normalizedCorePages = path.normalize(corePagesDir)
+
+    if (!normalizedResolved.startsWith(normalizedCorePages)) {
+        return null
+    }
+
+    // Get the relative path from core pages dir
+    const relativePath = path.relative(normalizedCorePages, normalizedResolved)
+
+    // Check if user has an override at the same relative path
+    const userPagePath = path.join(userPagesDir, relativePath)
+
+    // Check with various extensions
+    for (const ext of VALID_FILE_EXTENSIONS) {
+        // Check direct file (e.g., products.tsx)
+        if (fs.existsSync(userPagePath + ext)) {
+            return userPagePath + ext
+        }
+        // Check index file (e.g., products/index.tsx)
+        const indexPath = path.join(userPagePath, `index${ext}`)
+        if (fs.existsSync(indexPath)) {
+            return indexPath
+        }
+    }
+
+    return null
+}
+
 export function dashboardPlugin(): Vite.Plugin {
     let root: string
     let config: BuiltMercurConfig
+    let corePagesDir: string | null = null
+    let userPagesDir: string
 
     return {
         name: "@mercurjs/dashboard-sdk",
@@ -41,11 +105,33 @@ export function dashboardPlugin(): Vite.Plugin {
         },
         async buildStart() {
             config = await loadMercurConfig(root)
+            corePagesDir = resolveCorePagesDir(config)
+            userPagesDir = path.join(root, "src", "pages")
         },
-        resolveId(id) {
+        resolveId(id, importer) {
             if (isVirtualModule(id)) {
                 return resolveVirtualModule(id)
             }
+
+            // Page override resolution
+            if (corePagesDir && importer) {
+                // Resolve the import relative to the importer
+                if (id.startsWith(".")) {
+                    const importerDir = path.dirname(importer)
+                    const resolvedPath = path.resolve(importerDir, id)
+
+                    const userOverride = findUserOverride(
+                        resolvedPath,
+                        corePagesDir,
+                        userPagesDir
+                    )
+
+                    if (userOverride) {
+                        return userOverride
+                    }
+                }
+            }
+
             return null
         },
         load(id) {

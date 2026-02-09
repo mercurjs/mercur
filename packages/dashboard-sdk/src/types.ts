@@ -4,6 +4,8 @@ export interface MercurConfig {
     components: {
         Sidebar?: string
     }
+    /** Path to core-admin pages directory (relative to project root) */
+    corePagesDir?: string
 }
 
 export interface BuiltMercurConfig extends MercurConfig {

@@ -22,13 +22,13 @@ function getRoute(file: string, pagesDir: string): string {
         .replace(/\[([^\]]+)\]/g, ":$1")        // dynamic [foo]
         .replace(
             new RegExp(
-                `/page\\.(${VALID_FILE_EXTENSIONS.map((ext) => ext.slice(1)).join("|")})$`
+                `/index\\.(${VALID_FILE_EXTENSIONS.map((ext) => ext.slice(1)).join("|")})$`
             ),
             ""
         ) || "/"
 }
 
-function crawlPages(dir: string, pattern = "page"): string[] {
+function crawlPages(dir: string, pattern = "index"): string[] {
     const files: string[] = []
 
     if (!fs.existsSync(dir)) {

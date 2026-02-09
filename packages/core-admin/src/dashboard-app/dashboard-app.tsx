@@ -14,7 +14,7 @@ import {
 } from "react-router-dom"
 import { INavItem } from "../components/layout/nav-item"
 import { Providers } from "../providers"
-import { buildRoutes, MercurRoute } from "./routes/route-builder"
+import { getRouteMap } from "./routes/get-route-map"
 import { createRouteMap, getRouteExtensions } from "./routes/utils"
 import {
   ConfigExtension,
@@ -37,7 +37,6 @@ import {
 
 type DashboardAppProps = {
   plugins: DashboardPlugin[]
-  routes?: MercurRoute[]
 }
 
 export class DashboardApp {
@@ -48,9 +47,8 @@ export class DashboardApp {
   private displays: DisplayMap
   private coreRoutes: RouteObject[]
   private settingsRoutes: RouteObject[]
-  private mercurRoutes?: MercurRoute[]
 
-  constructor({ plugins, routes }: DashboardAppProps) {
+  constructor({ plugins }: DashboardAppProps) {
     this.widgets = this.populateWidgets(plugins)
     this.menus = this.populateMenus(plugins)
 
@@ -62,7 +60,6 @@ export class DashboardApp {
     this.fields = fields
     this.configs = configs
     this.displays = this.populateDisplays(plugins)
-    this.mercurRoutes = routes
   }
 
   private populateRoutes(plugins: DashboardPlugin[]) {
@@ -445,13 +442,7 @@ export class DashboardApp {
   }
 
   render() {
-    if (!this.mercurRoutes || this.mercurRoutes.length === 0) {
-      throw new Error(
-        "No routes provided. Please pass routes from virtual:mercur-routes to the App component."
-      )
-    }
-
-    const routes = buildRoutes(this.mercurRoutes, {
+    const routes = getRouteMap({
       coreRoutes: this.coreRoutes,
       settingsRoutes: this.settingsRoutes,
     })

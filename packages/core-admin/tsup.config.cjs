@@ -9,7 +9,7 @@ export default defineConfig({
     "virtual:medusa/routes",
     "virtual:medusa/links",
     "virtual:medusa/menu-items",
-    "virtual:medusa/widgets",
+    "virtual:medusa/widgets"
   ],
   tsconfig: "tsconfig.build.json",
   clean: true,
