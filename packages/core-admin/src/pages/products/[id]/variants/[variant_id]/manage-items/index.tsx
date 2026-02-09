@@ -1,34 +1,12 @@
-import { useParams } from "react-router-dom"
+import { VariantManageItemsModal } from "./_components/variant-manage-items-modal"
 
-import { RouteFocusModal } from "@components/modals"
-import { useProductVariant } from "@hooks/api/products"
+// Re-export compound component for user overrides
+export { VariantManageItemsModal }
+export type { VariantManageItemsModalProps } from "./_components/variant-manage-items-modal"
+export type { VariantManageItemsContextValue, VariantWithInventoryItems } from "./_components/variant-manage-items-context"
 
-import { VARIANT_DETAIL_FIELDS } from "../_common/constants"
-import { ManageVariantInventoryItemsForm } from "./_components/manage-variant-inventory-items-form"
-
-const ProductVariantManageInventoryItems = () => {
-  const { id, variant_id } = useParams()
-
-  const {
-    variant,
-    isPending: isLoading,
-    isError,
-    error,
-  } = useProductVariant(id!, variant_id!, {
-    fields: VARIANT_DETAIL_FIELDS,
-  })
-
-  if (isError) {
-    throw error
-  }
-
-  return (
-    <RouteFocusModal>
-      {!isLoading && variant && (
-        <ManageVariantInventoryItemsForm variant={variant} />
-      )}
-    </RouteFocusModal>
-  )
-}
-
-export const Component = ProductVariantManageInventoryItems
+export const Component = () => (
+  <VariantManageItemsModal>
+    <VariantManageItemsModal.Content />
+  </VariantManageItemsModal>
+)

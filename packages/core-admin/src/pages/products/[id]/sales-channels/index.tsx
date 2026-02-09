@@ -1,21 +1,12 @@
-// Route: /products/:id/sales-channels
-import { useParams } from "react-router-dom"
+import { ProductSalesChannelsModal } from "./_components/product-sales-channels-modal"
 
-import { RouteFocusModal } from "@components/modals"
-import { useProduct } from "@hooks/api/products"
-import { EditSalesChannelsForm } from "./_components/edit-sales-channels-form"
+// Re-export compound component for user overrides
+export { ProductSalesChannelsModal }
+export type { ProductSalesChannelsModalProps } from "./_components/product-sales-channels-modal"
+export type { ProductSalesChannelsContextValue } from "./_components/product-sales-channels-context"
 
-export const Component = () => {
-  const { id } = useParams()
-  const { product, isLoading, isError, error } = useProduct(id!)
-
-  if (isError) {
-    throw error
-  }
-
-  return (
-    <RouteFocusModal data-testid="product-sales-channels-modal">
-      {!isLoading && product && <EditSalesChannelsForm product={product} />}
-    </RouteFocusModal>
-  )
-}
+export const Component = () => (
+  <ProductSalesChannelsModal>
+    <ProductSalesChannelsModal.Content />
+  </ProductSalesChannelsModal>
+)

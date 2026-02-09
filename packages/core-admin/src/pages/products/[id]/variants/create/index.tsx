@@ -1,25 +1,8 @@
-// Route: /products/:id/variants/create
-// Create product variant modal
+import { VariantCreateModal } from "./_components/variant-create-modal"
 
-import { useParams } from "react-router-dom"
-import { RouteFocusModal } from "@components/modals"
-import { useProduct } from "@hooks/api/products"
+// Re-export compound component for user overrides
+export { VariantCreateModal }
+export type { VariantCreateModalProps } from "./_components/variant-create-modal"
+export type { VariantCreateContextValue } from "./_components/variant-create-context"
 
-// Import form component
-import { CreateProductVariantForm } from "./_components/create-product-variant-form"
-
-export const Component = () => {
-  const { id } = useParams()
-
-  const { product, isLoading, isError, error } = useProduct(id!)
-
-  if (isError) {
-    throw error
-  }
-
-  return (
-    <RouteFocusModal>
-      {!isLoading && product && <CreateProductVariantForm product={product} />}
-    </RouteFocusModal>
-  )
-}
+export const Component = () => <VariantCreateModal />

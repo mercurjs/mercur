@@ -1,24 +1,12 @@
-// Route: /products/:id/prices
-import { useParams } from "react-router-dom"
+import { ProductPricesModal } from "./_components/product-prices-modal"
 
-import { RouteFocusModal } from "@components/modals"
-import { useProduct } from "@hooks/api/products"
-import { PricingEdit } from "./_components/pricing-edit"
+// Re-export compound component for user overrides
+export { ProductPricesModal }
+export type { ProductPricesModalProps } from "./_components/product-prices-modal"
+export type { ProductPricesContextValue } from "./_components/product-prices-context"
 
-export const Component = () => {
-  const { id, variant_id } = useParams()
-
-  const { product, isLoading, isError, error } = useProduct(id!)
-
-  if (isError) {
-    throw error
-  }
-
-  return (
-    <RouteFocusModal data-testid="product-prices-modal">
-      {!isLoading && product && (
-        <PricingEdit product={product} variantId={variant_id} />
-      )}
-    </RouteFocusModal>
-  )
-}
+export const Component = () => (
+  <ProductPricesModal>
+    <ProductPricesModal.Content />
+  </ProductPricesModal>
+)
