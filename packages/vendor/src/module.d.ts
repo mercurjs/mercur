@@ -15,3 +15,9 @@ declare module "virtual:mercur/components" {
     export default components
 }
 
+declare module "virtual:mercur/menu-items" {
+    import { MenuItem } from '@mercurjs/dashboard-sdk'
+    const menuItems: { menuItems: MenuItem[] }
+    export default menuItems
+}
+

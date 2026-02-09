@@ -9,6 +9,8 @@ import { INavItem, NavItem } from "../nav-item";
 import { Shell } from "../shell";
 import { UserMenu } from "../user-menu";
 import components from "virtual:mercur/components";
+import menuItemsModule from "virtual:mercur/menu-items";
+import { getMenuItemExtensions } from "../../../utils/menu-items";
 
 export const SettingsLayout = () => {
   const Sidebar = components.SettingsSidebar
@@ -124,8 +126,20 @@ const SettingsSidebar = () => {
   const routes = useSettingRoutes();
   const developerRoutes = useDeveloperRoutes();
   const myAccountRoutes = useMyAccountRoutes();
+  const customSettingsItems = getMenuItemExtensions(
+    menuItemsModule.menuItems ?? [],
+    "settings"
+  );
 
   const { t } = useTranslation();
+
+  const extensionNavItems: INavItem[] = customSettingsItems
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    .map((item) => ({
+      label: item.label,
+      to: item.path,
+      translationNs: item.translationNs,
+    }));
 
   return (
     <aside className="relative flex flex-1 flex-col justify-between overflow-y-auto">
@@ -148,6 +162,17 @@ const SettingsSidebar = () => {
             label={t("app.nav.settings.developer")}
             items={developerRoutes}
           />
+          {extensionNavItems.length > 0 && (
+            <>
+              <div className="flex items-center justify-center px-3">
+                <Divider variant="dashed" />
+              </div>
+              <RadixCollapsibleSection
+                label={t("app.nav.settings.extensions")}
+                items={extensionNavItems}
+              />
+            </>
+          )}
           <div className="flex items-center justify-center px-3">
             <Divider variant="dashed" />
           </div>

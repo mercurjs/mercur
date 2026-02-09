@@ -26,6 +26,8 @@ import { useSearch } from "../../../providers/search-provider";
 import { UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import components from "virtual:mercur/components";
+import menuItemsModule from "virtual:mercur/menu-items";
+import { getMenuItemExtensions } from "../../../utils/menu-items";
 
 export const MainLayout = () => {
   const Sidebar = components.MainSidebar ? components.MainSidebar : MainSidebar;
@@ -38,6 +40,10 @@ export const MainLayout = () => {
 
 const MainSidebar = () => {
   const coreRoutes = useCoreRoutes();
+  const customMenuItems = getMenuItemExtensions(
+    menuItemsModule.menuItems ?? [],
+    "main"
+  );
 
   return (
     <aside className="flex flex-1 flex-col justify-between overflow-y-auto">
@@ -55,6 +61,20 @@ const MainSidebar = () => {
               {coreRoutes.map((route) => {
                 return <NavItem key={route.to} {...route} />;
               })}
+              {customMenuItems
+                .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+                .map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <NavItem
+                      key={item.path}
+                      label={item.label}
+                      to={item.path}
+                      icon={Icon ? <Icon /> : undefined}
+                      translationNs={item.translationNs}
+                    />
+                  );
+                })}
             </nav>
           </div>
           <UtilitySection />
@@ -179,7 +199,7 @@ const Header = () => {
   );
 };
 
-const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
+export const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
   const { t } = useTranslation();
 
   return [

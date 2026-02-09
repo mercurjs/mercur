@@ -3,9 +3,11 @@ import {
     RESOLVED_CONFIG_MODULE,
     RESOLVED_ROUTES_MODULE,
     RESOLVED_COMPONENTS_MODULE,
+    RESOLVED_MENU_ITEMS_MODULE,
     VIRTUAL_MODULES,
 } from "./constants"
 import { generateRoutes } from "./routes"
+import { generateMenuItems } from "./menu-items"
 import type { BuiltMercurConfig } from "./types"
 
 export function isVirtualModule(id: string): boolean {
@@ -39,6 +41,10 @@ export function loadVirtualModule({
         return loadRoutesModule(mercurConfig)
     }
 
+    if (id === RESOLVED_MENU_ITEMS_MODULE) {
+        return loadMenuItemsModule(mercurConfig)
+    }
+
     return null
 }
 
@@ -54,7 +60,7 @@ function loadComponentsModule(mercurConfig: BuiltMercurConfig, cwd: string): str
 
     Object.entries(components).forEach(([name, componentPath]) => {
         const resolvedPath = path.resolve(cwd, 'src', componentPath)
-        imports.push(`import { ${name} as _${name} } from "${resolvedPath}"`)
+        imports.push(`import _${name} from "${resolvedPath}"`)
         exports.push(`${name}: _${name}`)
     })
 
@@ -69,4 +75,8 @@ export default {
 
 function loadRoutesModule(mercurConfig: BuiltMercurConfig): string {
     return generateRoutes(mercurConfig)
+}
+
+function loadMenuItemsModule(mercurConfig: BuiltMercurConfig): string {
+    return generateMenuItems(mercurConfig)
 }

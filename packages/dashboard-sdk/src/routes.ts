@@ -67,7 +67,7 @@ function hasDefaultExport(filePath: string): boolean {
     }
 }
 
-function getNamedExports(filePath: string): { hasHandle: boolean; hasLoader: boolean; hasIcon: boolean } {
+function getNamedExports(filePath: string): { hasHandle: boolean; hasLoader: boolean } {
     try {
         const content = fs.readFileSync(filePath, "utf-8")
 
@@ -79,13 +79,9 @@ function getNamedExports(filePath: string): { hasHandle: boolean; hasLoader: boo
             /export\s+(const|function|async\s+function)\s+loader\b/.test(content) ||
             /export\s*\{[^}]*\bloader\b[^}]*\}/.test(content)
 
-        const hasIcon =
-            /export\s+(const|function|async\s+function)\s+icon\b/.test(content) ||
-            /export\s*\{[^}]*\bicon\b[^}]*\}/.test(content)
-
-        return { hasHandle, hasLoader, hasIcon }
+        return { hasHandle, hasLoader }
     } catch {
-        return { hasHandle: false, hasLoader: false, hasIcon: false }
+        return { hasHandle: false, hasLoader: false }
     }
 }
 
@@ -101,28 +97,22 @@ function generateLoaderName(index: number): string {
     return `RouteLoader${index}`
 }
 
-function generateIconName(index: number): string {
-    return `RouteIcon${index}`
-}
-
 function generateImports(
     file: string,
     index: number,
     hasHandle: boolean,
-    hasLoader: boolean,
-    hasIcon: boolean
+    hasLoader: boolean
 ): string[] {
     const imports: string[] = []
     const componentName = generateRouteComponentName(index)
     const importPath = normalizePath(file)
 
-    if (!hasHandle && !hasLoader && !hasIcon) {
+    if (!hasHandle && !hasLoader) {
         imports.push(`import ${componentName} from "${importPath}"`)
     } else {
         const namedImports = [
             hasHandle && `handle as ${generateHandleName(index)}`,
             hasLoader && `loader as ${generateLoaderName(index)}`,
-            hasIcon && `icon as ${generateIconName(index)}`,
         ]
             .filter(Boolean)
             .join(", ")
@@ -136,15 +126,13 @@ function generateRouteObject(
     routePath: string,
     index: number,
     hasHandle: boolean,
-    hasLoader: boolean,
-    hasIcon: boolean
+    hasLoader: boolean
 ): Route {
     return {
         Component: generateRouteComponentName(index),
         path: routePath,
         handle: hasHandle ? generateHandleName(index) : undefined,
         loader: hasLoader ? generateLoaderName(index) : undefined,
-        icon: hasIcon ? generateIconName(index) : undefined,
     }
 }
 
@@ -159,10 +147,6 @@ function formatRoute(route: Route, indent: string = "    "): string {
 
     if (route.loader) {
         result += `,\n${indent}    loader: ${route.loader}`
-    }
-
-    if (route.icon) {
-        result += `,\n${indent}    icon: ${route.icon}`
     }
 
     if (route.children?.length) {
@@ -182,11 +166,11 @@ function parseFile(file: string, pagesDir: string, index: number): RouteResult |
         return null
     }
 
-    const { hasHandle, hasLoader, hasIcon } = getNamedExports(file)
+    const { hasHandle, hasLoader } = getNamedExports(file)
     const routePath = getRoute(file, pagesDir)
 
-    const imports = generateImports(file, index, hasHandle, hasLoader, hasIcon)
-    const route = generateRouteObject(routePath, index, hasHandle, hasLoader, hasIcon)
+    const imports = generateImports(file, index, hasHandle, hasLoader)
+    const route = generateRouteObject(routePath, index, hasHandle, hasLoader)
 
     return {
         imports,

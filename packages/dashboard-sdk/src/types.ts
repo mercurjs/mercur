@@ -19,6 +19,13 @@ export type Route = {
     path: string
     handle?: string
     loader?: string
-    icon?: string
     children?: Route[]
+}
+
+export type MenuItem = {
+    label: string
+    icon?: string
+    path: string
+    rank?: number
+    translationNs?: string
 }

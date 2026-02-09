@@ -14,7 +14,7 @@
         "typescript-eslint": "^8.53.0",
       },
     },
-    "apps/vendor": {
+    "apps/vendor-test": {
       "name": "vendor",
       "version": "0.0.0",
       "dependencies": {
@@ -231,6 +231,7 @@
         "@medusajs/types": "2.13.1",
         "@medusajs/ui-preset": "2.13.1",
         "@mercurjs/core": "*",
+        "@mercurjs/dashboard-sdk": "*",
         "@types/react": "^18.2.66",
         "@types/react-dom": "^18.2.22",
         "tsup": "^8.0.2",
@@ -3101,7 +3102,7 @@
 
     "vary": ["vary@1.1.2", "", {}, "sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg=="],
 
-    "vendor": ["vendor@workspace:apps/vendor"],
+    "vendor": ["vendor@workspace:apps/vendor-test"],
 
     "vite": ["vite@5.4.21", "", { "dependencies": { "esbuild": "^0.21.3", "postcss": "^8.4.43", "rollup": "^4.20.0" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^18.0.0 || >=20.0.0", "less": "*", "lightningcss": "^1.21.0", "sass": "*", "sass-embedded": "*", "stylus": "*", "sugarss": "*", "terser": "^5.4.0" }, "optionalPeers": ["@types/node", "less", "lightningcss", "sass", "sass-embedded", "stylus", "sugarss", "terser"], "bin": { "vite": "bin/vite.js" } }, "sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw=="],
 
