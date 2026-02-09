@@ -1,13 +1,17 @@
 import { MedusaResponse } from "@medusajs/framework/http";
 
-export type PrettifyDeep<T> = T extends (...args: any[]) => any
+type DecrementDepth = [never, 0, 1, 2, 3, 4, 5, 6];
+
+export type PrettifyDeep<T, Depth extends number = 4> = Depth extends never
+    ? T
+    : T extends (...args: any[]) => any
     ? T
     : T extends Array<infer U>
-    ? Array<PrettifyDeep<U>>
+    ? Array<PrettifyDeep<U, DecrementDepth[Depth]>>
     : T extends Date
     ? T
     : T extends object
-    ? { [K in keyof T]: PrettifyDeep<T[K]> } & {}
+    ? { [K in keyof T]: PrettifyDeep<T[K], DecrementDepth[Depth]> } & {}
     : T;
 
 const _errorSymbol = Symbol();
@@ -24,7 +28,6 @@ export type InferInput<TRequest> = TRequest extends { validatedBody: infer Input
 export type InferOutput<TResponse> = TResponse extends MedusaResponse<infer Output>
     ? Output
     : void;
-
 
 export type HttpMethod = "GET" | "POST" | "DELETE";
 

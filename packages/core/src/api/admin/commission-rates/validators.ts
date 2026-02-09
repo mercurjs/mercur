@@ -5,6 +5,7 @@ import {
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
 import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
+import { CommissionRateTarget, CommissionRateType } from "@mercurjs/types"
 
 export type AdminGetCommissionRateParamsType = z.infer<
   typeof AdminGetCommissionRateParams
@@ -41,8 +42,8 @@ export type AdminCreateCommissionRateType = z.infer<
 export const AdminCreateCommissionRate = z.object({
   name: z.string(),
   code: z.string(),
-  type: z.enum(["fixed", "percentage"]),
-  target: z.enum(["item", "shipping"]).optional(),
+  type: z.nativeEnum(CommissionRateType),
+  target: z.nativeEnum(CommissionRateTarget).optional(),
   value: z.number(),
   currency_code: z.string().nullish(),
   min_amount: z.number().nullish(),
@@ -58,8 +59,8 @@ export type AdminUpdateCommissionRateType = z.infer<
 export const AdminUpdateCommissionRate = z.object({
   name: z.string().optional(),
   code: z.string().optional(),
-  type: z.enum(["fixed", "percentage"]).optional(),
-  target: z.enum(["item", "shipping"]).optional(),
+  type: z.nativeEnum(CommissionRateType).optional(),
+  target: z.nativeEnum(CommissionRateTarget).optional(),
   value: z.number().optional(),
   currency_code: z.string().nullish(),
   min_amount: z.number().nullish(),

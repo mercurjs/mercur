@@ -1,5 +1,5 @@
 import { PayoutAccountDTO, PayoutAccountStatus, PayoutStatus, PayoutWebhookAction } from "./common"
-import { BigNumberInput } from "@medusajs/framework/types"
+import { BigNumberInput } from "@medusajs/types"
 
 export interface PayoutProviderContext {
   idempotency_key?: string

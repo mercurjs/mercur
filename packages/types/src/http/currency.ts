@@ -1,4 +1,4 @@
-import { CurrencyDTO, PaginatedResponse } from "@medusajs/framework/types"
+import { CurrencyDTO, PaginatedResponse } from "@medusajs/types"
 
 export type VendorCurrency = CurrencyDTO
 

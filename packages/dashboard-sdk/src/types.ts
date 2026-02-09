@@ -3,7 +3,8 @@ export interface MercurConfig {
     description: string
     components: {
         Sidebar?: string
-    }
+    },
+    baseUrl: string;
 }
 
 export interface BuiltMercurConfig extends MercurConfig {

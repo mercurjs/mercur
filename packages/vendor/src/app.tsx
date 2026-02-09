@@ -1,12 +1,13 @@
-import customRoutes from "virtual:mercur/routes"
-import components from "virtual:mercur/components"
-import { HelmetProvider } from "react-helmet-async"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { ThemeProvider } from "./providers"
-import { Toaster, TooltipProvider } from "@medusajs/ui"
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+// import customRoutes from "virtual:mercur/routes";
+import { HelmetProvider } from "react-helmet-async";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "./providers";
+import { I18nProvider, Toaster, TooltipProvider } from "@medusajs/ui";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { I18n } from "./components/utilities/i18n";
+import { getRouteMap } from "./get-route-map";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 export default function App() {
   return (
@@ -14,12 +15,14 @@ export default function App() {
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            {components.Sidebar && <components.Sidebar />}
-            <RouterProvider router={createBrowserRouter(customRoutes)} />
+            <I18n />
+            <I18nProvider>
+              <RouterProvider router={createBrowserRouter(getRouteMap())} />
+            </I18nProvider>
             <Toaster />
           </ThemeProvider>
         </QueryClientProvider>
       </HelmetProvider>
     </TooltipProvider>
-  )
+  );
 }

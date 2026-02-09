@@ -1,6 +1,6 @@
 import { PayoutAccountStatus, PayoutStatus } from "./common"
 import { PayoutProviderInput } from "./provider"
-import { BigNumberInput } from "@medusajs/framework/types"
+import { BigNumberInput } from "@medusajs/types"
 
 export interface CreatePayoutAccountDTO extends PayoutProviderInput {
 }

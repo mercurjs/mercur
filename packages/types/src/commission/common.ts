@@ -1,4 +1,4 @@
-import { BigNumberInput } from "@medusajs/framework/types"
+import { BigNumberInput } from "@medusajs/types"
 
 export enum CommissionRateType {
   FIXED = "fixed",
