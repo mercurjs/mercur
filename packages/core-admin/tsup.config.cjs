@@ -10,6 +10,7 @@ export default defineConfig({
     "virtual:medusa/links",
     "virtual:medusa/menu-items",
     "virtual:medusa/widgets",
+    "virtual:mercur-navigation",
   ],
   tsconfig: "tsconfig.build.json",
   clean: true,
