@@ -1,3 +1,5 @@
+import { ComponentType } from "react";
+
 export interface MercurConfig {
     title: string
     description: string
@@ -24,7 +26,7 @@ export type Route = {
 
 export type MenuItem = {
     label: string
-    icon?: string
+    icon?: ComponentType
     path: string
     rank?: number
     nested?: string
@@ -32,8 +34,8 @@ export type MenuItem = {
 }
 
 export type RouteConfig = {
-    label: boolean
-    icon: boolean
+    label: string
+    icon?: ComponentType
     rank?: number
     nested?: string
     translationNs?: string

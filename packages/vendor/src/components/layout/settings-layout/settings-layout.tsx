@@ -189,7 +189,7 @@ const SettingsSidebar = () => {
             items={devRoutes}
           />
           <RadixCollapsibleSection
-            label={t("app.nav.settings.extensions")}
+            label={t("app.nav.common.extensions")}
             items={extensionNavItems}
           />
           <div className="flex items-center justify-center px-3">
