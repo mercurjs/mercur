@@ -1,8 +1,9 @@
 import { CartShippingMethodDTO } from '@medusajs/framework/types'
-import { createWorkflow, transform } from '@medusajs/framework/workflows-sdk'
+import { createWorkflow, transform, when } from '@medusajs/framework/workflows-sdk'
 import {
   addShippingMethodToCartStep,
   addShippingMethodToCartWorkflow,
+  updateCartsStep,
   useQueryGraphStep
 } from '@medusajs/medusa/core-flows'
 
@@ -15,6 +16,7 @@ type AddSellerShippingMethodToCartWorkflowInput = {
     id: string
     data?: Record<string, any>
   }
+  seller_id?: string
 }
 
 export const addSellerShippingMethodToCartWorkflow = createWorkflow(
@@ -25,7 +27,7 @@ export const addSellerShippingMethodToCartWorkflow = createWorkflow(
       filters: {
         id: input.cart_id
       },
-      fields: ['id', 'shipping_methods.*'],
+      fields: ['id', 'shipping_methods.*', 'metadata'],
       options: { throwIfKeyNotFound: true }
     }).config({ name: 'cart-query' })
 
@@ -74,14 +76,39 @@ export const addSellerShippingMethodToCartWorkflow = createWorkflow(
     }).config({ name: 'seller-shipping-option-query' })
 
     const shippingMethodsToAddInput = transform(
-      { carts, sellerShippingOptions, newShippingOption: input.option },
-      ({ carts: [cart], sellerShippingOptions, newShippingOption }) => {
+      {
+        carts,
+        sellerShippingOptions,
+        newShippingOption: input.option,
+        inputSellerId: input.seller_id
+      },
+      ({
+        carts: [cart],
+        sellerShippingOptions,
+        newShippingOption,
+        inputSellerId
+      }) => {
         const shippingOptionToSellerMap = new Map(
           sellerShippingOptions.map((option) => [
             option.shipping_option.id,
             option.seller_id
           ])
         )
+
+        // For admin options, supplement the map with the admin-seller mapping from cart metadata
+        const adminShippingSellerMap =
+          (cart.metadata?.admin_shipping_seller_map as Record<
+            string,
+            string
+          >) ?? {}
+
+        for (const [sellerId, optionId] of Object.entries(
+          adminShippingSellerMap
+        )) {
+          if (!shippingOptionToSellerMap.has(optionId)) {
+            shippingOptionToSellerMap.set(optionId, sellerId)
+          }
+        }
 
         const existingShippingMethodsBySeller = new Map<
           string,
@@ -91,17 +118,19 @@ export const addSellerShippingMethodToCartWorkflow = createWorkflow(
         for (const method of cart.shipping_methods) {
           const sellerId = shippingOptionToSellerMap.get(
             method.shipping_option_id
-          )!
-          existingShippingMethodsBySeller.set(sellerId, method)
+          )
+          if (sellerId) {
+            existingShippingMethodsBySeller.set(sellerId, method)
+          }
         }
 
-        const newOptionSellerId = shippingOptionToSellerMap.get(
-          newShippingOption.id
-        )!
+        // For admin options, use the provided seller_id; for seller options, look up from link
+        const newOptionSellerId =
+          shippingOptionToSellerMap.get(newShippingOption.id) ?? inputSellerId
 
         // Remove any existing shipping method for the same seller
         // since we're replacing it with the new option
-        if (existingShippingMethodsBySeller.has(newOptionSellerId)) {
+        if (newOptionSellerId && existingShippingMethodsBySeller.has(newOptionSellerId)) {
           existingShippingMethodsBySeller.delete(newOptionSellerId)
         }
 
@@ -120,6 +149,41 @@ export const addSellerShippingMethodToCartWorkflow = createWorkflow(
 
     addShippingMethodToCartStep({
       shipping_methods: shippingMethodsToAddInput
+    })
+
+    // If this is an admin option (seller_id provided), persist the mapping in cart metadata
+    when({ inputSellerId: input.seller_id }, ({ inputSellerId }) => {
+      return !!inputSellerId
+    }).then(() => {
+      const updateCartMetadataInput = transform(
+        {
+          carts,
+          inputSellerId: input.seller_id,
+          newShippingOption: input.option
+        },
+        ({ carts: [cart], inputSellerId, newShippingOption }) => {
+          const existingMap =
+            (cart.metadata?.admin_shipping_seller_map as Record<
+              string,
+              string
+            >) ?? {}
+
+          return [
+            {
+              id: cart.id,
+              metadata: {
+                ...cart.metadata,
+                admin_shipping_seller_map: {
+                  ...existingMap,
+                  [inputSellerId!]: newShippingOption.id
+                }
+              }
+            }
+          ]
+        }
+      )
+
+      updateCartsStep(updateCartMetadataInput)
     })
   }
 )
