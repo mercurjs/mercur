@@ -1,4 +1,4 @@
-import { ChildKeys, InferInput, InferOutput, PrettifyDeep, TypeError } from "./helpers";
+import { ChildKeys, InferInput, InferOutput, TypeError } from "./helpers";
 
 export type ActionType = "query" | "mutate" | "delete";
 
@@ -11,9 +11,9 @@ type AddParamsToFn<Fn, TParams> =
     keyof TParams extends never
     ? Fn
     : Fn extends (input?: infer TInput) => infer TOutput
-    ? (input: PrettifyDeep<(TInput extends Record<string, any> ? Omit<TInput, 'fetchOptions'> : {}) & TParams & { fetchOptions?: RequestInit }>) => TOutput
+    ? (input: (TInput extends Record<string, any> ? Omit<TInput, 'fetchOptions'> : {}) & TParams & { fetchOptions?: RequestInit }) => TOutput
     : Fn extends (input: infer TInput) => infer TOutput
-    ? (input: PrettifyDeep<(TInput extends Record<string, any> ? Omit<TInput, 'fetchOptions'> : {}) & TParams & { fetchOptions?: RequestInit }>) => TOutput
+    ? (input: (TInput extends Record<string, any> ? Omit<TInput, 'fetchOptions'> : {}) & TParams & { fetchOptions?: RequestInit }) => TOutput
     : Fn;
 
 type InferFetchFn<
@@ -22,8 +22,8 @@ type InferFetchFn<
     TInput = InferInput<TRequest>,
     TOutput = InferOutput<TResponse>,
 > = [TInput] extends [Record<string, any>]
-    ? (input: PrettifyDeep<TInput & { fetchOptions?: RequestInit }>) => Promise<PrettifyDeep<TOutput>>
-    : (input?: { fetchOptions?: RequestInit }) => Promise<PrettifyDeep<TOutput>>;
+    ? (input: TInput & { fetchOptions?: RequestInit }) => Promise<TOutput>
+    : (input?: { fetchOptions?: RequestInit }) => Promise<TOutput>;
 
 type InferEndpointMethods<TRoutes, TParams> =
     (TRoutes extends { GET: (req: infer TReq, res: infer TRes) => any }

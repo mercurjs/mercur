@@ -1,6 +1,7 @@
 import { stringify } from "qs";
 import { createRecursiveProxy } from "./create-proxy";
 import { ActionType, ClientOptions, InferClient, PrettifyDeep } from "./types";
+export type { InferClient } from "./types";
 import { kebabCase } from "./utils";
 
 type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
@@ -12,7 +13,7 @@ export type InferClientInput<T> = T extends (input: infer I) => any
     : never;
 
 export type InferClientOutput<T> = T extends (...args: any[]) => Promise<infer O>
-    ? O
+    ? PrettifyDeep<O>
     : never;
 
 export class ClientError extends Error {
