@@ -9,6 +9,41 @@ import { ErrorBoundary } from "./components/utilities/error-boundary";
 import { TaxRegionDetailBreadcrumb } from "./routes/tax-regions/tax-region-detail/breadcrumb";
 import { taxRegionLoader } from "./routes/tax-regions/tax-region-detail/loader";
 
+/**
+ * Merges custom routes into base routes. Custom routes with a matching path
+ * override the base route (preserving base children unless the custom route
+ * provides its own). Non-matching custom routes are appended.
+ */
+function mergeRoutes(
+  baseRoutes: RouteObject[],
+  customRoutes: RouteObject[]
+): RouteObject[] {
+  const result = baseRoutes.map((route) => ({ ...route }));
+
+  for (const customRoute of customRoutes) {
+    const customPath = customRoute.path?.replace(/^\/+/, "");
+    const existingIndex = result.findIndex(
+      (r) => r.path != null && r.path.replace(/^\/+/, "") === customPath
+    );
+
+    if (existingIndex !== -1) {
+      const { children: customChildren, ...customRest } = customRoute;
+      result[existingIndex] = {
+        ...result[existingIndex],
+        ...customRest,
+        path: result[existingIndex].path,
+        children: customChildren
+          ? mergeRoutes(result[existingIndex].children ?? [], customChildren)
+          : result[existingIndex].children,
+      } as RouteObject;
+    } else {
+      result.push(customRoute);
+    }
+  }
+
+  return result;
+}
+
 export function getRouteMap({
   settingsRoutes: customSettingsRoutes,
   mainRoutes: customMainRoutes,
@@ -23,7 +58,7 @@ export function getRouteMap({
       children: [
         {
           element: <MainLayout />,
-          children: [
+          children: mergeRoutes([
             {
               path: "/",
               errorElement: <ErrorBoundary />,
@@ -811,8 +846,7 @@ export function getRouteMap({
                 },
               ],
             },
-            ...customMainRoutes,
-          ],
+          ], customMainRoutes),
         },
       ],
     },
@@ -826,7 +860,7 @@ export function getRouteMap({
             breadcrumb: () => t("app.nav.settings.header"),
           },
           element: <SettingsLayout />,
-          children: [
+          children: mergeRoutes([
             {
               index: true,
               errorElement: <ErrorBoundary />,
@@ -1634,8 +1668,7 @@ export function getRouteMap({
                 },
               ],
             },
-            ...(customSettingsRoutes?.[0]?.children || []),
-          ],
+          ], customSettingsRoutes?.[0]?.children || []),
         },
       ],
     },
