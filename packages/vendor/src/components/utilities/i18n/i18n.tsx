@@ -1,14 +1,40 @@
-import i18n from "i18next"
-import LanguageDetector from "i18next-browser-languagedetector"
-import { initReactI18next } from "react-i18next"
+import i18n from "i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+import { initReactI18next } from "react-i18next";
 
-import { defaultI18nOptions } from "../../../i18n/config"
-import translations from "../../../i18n/translations"
+import { defaultI18nOptions } from "../../../i18n/config";
+import translations from "../../../i18n/translations";
+import customI18nResources from "virtual:mercur/i18n";
 
-// todo: add i18n support in dashboard-sdk
+function deepMerge(
+  target: Record<string, any>,
+  source: Record<string, any>
+): Record<string, any> {
+  const result = { ...target };
+
+  for (const key of Object.keys(source)) {
+    if (
+      source[key] &&
+      typeof source[key] === "object" &&
+      !Array.isArray(source[key]) &&
+      target[key] &&
+      typeof target[key] === "object" &&
+      !Array.isArray(target[key])
+    ) {
+      result[key] = deepMerge(target[key], source[key]);
+    } else {
+      result[key] = source[key];
+    }
+  }
+
+  return result;
+}
+
+const mergedTranslations = deepMerge(translations, customI18nResources);
+
 export const I18n = () => {
   if (i18n.isInitialized) {
-    return null
+    return null;
   }
 
   i18n
@@ -21,10 +47,10 @@ export const I18n = () => {
     .use(initReactI18next)
     .init({
       ...defaultI18nOptions,
-      resources: translations,
-    })
+      resources: mergedTranslations,
+    });
 
-  return null
-}
+  return null;
+};
 
-export { i18n }
+export { i18n };

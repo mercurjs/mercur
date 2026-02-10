@@ -70,6 +70,7 @@
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
     "@medusajs/types": "2.13.1",
-    "@mercurjs/core": "*"
+    "@mercurjs/core": "*",
+    "@mercurjs/dashboard-sdk": "*"
   }
 }

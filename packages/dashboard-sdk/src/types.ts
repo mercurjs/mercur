@@ -1,8 +1,11 @@
+import { ComponentType } from "react";
+
 export interface MercurConfig {
     title: string
     description: string
     components: {
-        Sidebar?: string
+        MainSidebar?: string
+        SettingsSidebar?: string
     },
     baseUrl: string;
     storefrontUrl?: string;
@@ -15,10 +18,12 @@ export interface BuiltMercurConfig extends MercurConfig {
     configPath: string
 }
 
-export type Route = {
-    Component: string
-    path: string
-    handle?: string
-    loader?: string
-    children?: Route[]
+
+
+export type RouteConfig = {
+    label: string
+    icon?: ComponentType
+    rank?: number
+    nested?: string
+    translationNs?: string
 }

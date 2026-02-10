@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { useDate } from "../../../../hooks/use-date"
 
-const filterHelper = createDataTableFilterHelper<any>()
+const filterHelper = createDataTableFilterHelper()
 
 const useDateFilterOptions = () => {
   const { t } = useTranslation()
@@ -52,7 +52,7 @@ const useDateFilterOptions = () => {
   }, [today, t])
 }
 
-export const useDataTableDateFilters = (disableRangeOption?: boolean) => {
+export const useDataTableDateFilters: any = (disableRangeOption?: boolean) => {
   const { t } = useTranslation()
   const { getFullDate } = useDate()
   const dateFilterOptions = useDateFilterOptions()

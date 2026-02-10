@@ -1,24 +1,32 @@
-import { ArrowUturnLeft, MinusMini } from "@medusajs/icons"
-import { clx, Divider, IconButton, Text } from "@medusajs/ui"
-import { Collapsible as RadixCollapsible } from "radix-ui"
-import { useEffect, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
-import { Link, useLocation } from "react-router-dom"
+import { ArrowUturnLeft, MinusMini } from "@medusajs/icons";
+import { clx, Divider, IconButton, Text } from "@medusajs/ui";
+import { Collapsible as RadixCollapsible } from "radix-ui";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useLocation } from "react-router-dom";
 
-import { INavItem, NavItem } from "../nav-item"
-import { Shell } from "../shell"
-import { UserMenu } from "../user-menu"
+import { INavItem, NavItem } from "../nav-item";
+import { Shell } from "../shell";
+import { UserMenu } from "../user-menu";
+import components from "virtual:mercur/components";
+import menuItemsModule from "virtual:mercur/menu-items";
+import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
+import { MenuItem } from "../../../utils/routes";
 
 export const SettingsLayout = () => {
+  const Sidebar = components.SettingsSidebar
+    ? components.SettingsSidebar
+    : SettingsSidebar;
+
   return (
     <Shell>
-      <SettingsSidebar />
+      <Sidebar />
     </Shell>
-  )
-}
+  );
+};
 
 const useSettingRoutes = (): INavItem[] => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -64,11 +72,11 @@ const useSettingRoutes = (): INavItem[] => {
       },
     ],
     [t]
-  )
-}
+  );
+};
 
 const useDeveloperRoutes = (): INavItem[] => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -80,17 +88,13 @@ const useDeveloperRoutes = (): INavItem[] => {
         label: t("apiKeyManagement.domain.secret"),
         to: "/settings/secret-api-keys",
       },
-      {
-        label: t("workflowExecutions.domain"),
-        to: "/settings/workflows",
-      },
     ],
     [t]
-  )
-}
+  );
+};
 
 const useMyAccountRoutes = (): INavItem[] => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -100,8 +104,8 @@ const useMyAccountRoutes = (): INavItem[] => {
       },
     ],
     [t]
-  )
-}
+  );
+};
 
 /**
  * Ensure that the `from` prop is not another settings route, to avoid
@@ -109,19 +113,49 @@ const useMyAccountRoutes = (): INavItem[] => {
  */
 const getSafeFromValue = (from: string) => {
   if (from.startsWith("/settings")) {
-    return "/orders"
+    return "/orders";
   }
 
-  return from
-}
+  return from;
+};
+
+const injectNestedSettingsItems = (
+  routes: INavItem[],
+  allMenuItems: MenuItem[]
+): INavItem[] => {
+  return routes.flatMap((route) => {
+    const nestedItems = getNestedMenuItems(allMenuItems, route.to);
+    if (nestedItems.length === 0) {
+      return [route];
+    }
+
+    return [
+      route,
+      ...nestedItems.map((item) => ({
+        label: item.label,
+        to: item.path,
+        translationNs: item.translationNs,
+      })),
+    ];
+  });
+};
 
 const SettingsSidebar = () => {
-  const routes = useSettingRoutes()
-  const developerRoutes = useDeveloperRoutes()
-  const myAccountRoutes = useMyAccountRoutes()
+  const generalRoutes = useSettingRoutes();
+  const developerRoutes = useDeveloperRoutes();
+  const myAccountRoutes = useMyAccountRoutes();
+  const allMenuItems = menuItemsModule.menuItems ?? [];
+  const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
 
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
+  const extensionNavItems: INavItem[] = customSettingsItems
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    .map((item) => ({
+      label: item.label,
+      to: item.path,
+      translationNs: item.translationNs,
+    }));
   return (
     <aside className="relative flex flex-1 flex-col justify-between overflow-y-auto">
       <div className="bg-ui-bg-subtle sticky top-0">
@@ -134,7 +168,7 @@ const SettingsSidebar = () => {
         <div className="flex flex-1 flex-col overflow-y-auto">
           <RadixCollapsibleSection
             label={t("app.nav.settings.general")}
-            items={routes}
+            items={generalRoutes}
           />
           <div className="flex items-center justify-center px-3">
             <Divider variant="dashed" />
@@ -143,6 +177,12 @@ const SettingsSidebar = () => {
             label={t("app.nav.settings.developer")}
             items={developerRoutes}
           />
+          {extensionNavItems.length > 0 && (
+            <RadixCollapsibleSection
+              label={t("app.nav.common.extensions")}
+              items={extensionNavItems}
+            />
+          )}
           <div className="flex items-center justify-center px-3">
             <Divider variant="dashed" />
           </div>
@@ -156,20 +196,20 @@ const SettingsSidebar = () => {
         </div>
       </div>
     </aside>
-  )
-}
+  );
+};
 
 const Header = () => {
-  const [from, setFrom] = useState("/orders")
+  const [from, setFrom] = useState("/orders");
 
-  const { t } = useTranslation()
-  const location = useLocation()
+  const { t } = useTranslation();
+  const location = useLocation();
 
   useEffect(() => {
     if (location.state?.from) {
-      setFrom(getSafeFromValue(location.state.from))
+      setFrom(getSafeFromValue(location.state.from));
     }
-  }, [location])
+  }, [location]);
 
   return (
     <div className="bg-ui-bg-subtle p-3">
@@ -192,15 +232,15 @@ const Header = () => {
         </div>
       </Link>
     </div>
-  )
-}
+  );
+};
 
 const RadixCollapsibleSection = ({
   label,
   items,
 }: {
-  label: string
-  items: INavItem[]
+  label: string;
+  items: INavItem[];
 }) => {
   return (
     <RadixCollapsible.Root defaultOpen className="py-3">
@@ -226,8 +266,8 @@ const RadixCollapsibleSection = ({
         </div>
       </RadixCollapsible.Content>
     </RadixCollapsible.Root>
-  )
-}
+  );
+};
 
 const UserSection = () => {
   return (
@@ -237,5 +277,5 @@ const UserSection = () => {
       </div>
       <UserMenu />
     </div>
-  )
-}
+  );
+};

@@ -2,7 +2,16 @@ import fs from "fs"
 import path from "path"
 import { VALID_FILE_EXTENSIONS } from "./constants"
 import { normalizePath } from "./utils"
-import type { Route, BuiltMercurConfig } from "./types"
+import type { BuiltMercurConfig } from "./types"
+
+type Route = {
+    Component: string
+    path: string
+    handle?: string
+    loader?: string
+    children?: Route[]
+}
+
 
 type RouteResult = {
     imports: string[]
@@ -216,7 +225,7 @@ export function generateRoutes({ srcDir }: BuiltMercurConfig): string {
     const files = crawlPages(pagesDir)
 
     if (files.length === 0) {
-        return `export default []`
+        return `export const customRoutes = []`
     }
 
     let index = 0
@@ -231,7 +240,7 @@ export function generateRoutes({ srcDir }: BuiltMercurConfig): string {
     }
 
     if (results.length === 0) {
-        return `export default []`
+        return `export const customRoutes = []`
     }
 
     const routeTree = buildRouteTree(results)
@@ -240,7 +249,7 @@ export function generateRoutes({ srcDir }: BuiltMercurConfig): string {
 
     return `${imports.join("\n")}
 
-export default [
+export const customRoutes = [
 ${routes.join(",\n")}
 ]`
 }

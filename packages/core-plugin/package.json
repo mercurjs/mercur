@@ -1,0 +1,68 @@
+{
+  "name": "@mercurjs/core-plugin",
+  "version": "0.0.1",
+  "description": "Core plugin for MercurJS.",
+  "author": "Medusa (https://medusajs.com)",
+  "license": "MIT",
+  "files": [
+    ".medusa/server"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./workflows": "./.medusa/server/src/workflows/index.js",
+    "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./providers/*": "./.medusa/server/src/providers/*/index.js",
+    "./*": "./.medusa/server/src/*.js"
+  },
+  "keywords": [
+    "medusa",
+    "plugin",
+    "medusa-plugin-other",
+    "medusa-plugin",
+    "medusa-v2"
+  ],
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "build:medusa": "medusa plugin:build",
+    "dev": "medusa plugin:develop",
+    "prepublishOnly": "tsx scripts/build.ts"
+  },
+  "devDependencies": {
+    "cors": "^2.8.5",
+    "@medusajs/core-flows": "^2.13.0",
+    "@medusajs/cli": "^2.13.0",
+    "@medusajs/framework": "^2.13.0",
+    "@medusajs/icons": "^2.13.0",
+    "@medusajs/medusa": "^2.13.0",
+    "@medusajs/test-utils": "^2.13.0",
+    "@medusajs/ui": "4.1.1",
+    "@mercurjs/types": "*",
+    "@swc/core": "^1.7.28",
+    "@types/cors": "^2.8.17",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.2.25",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "typescript": "5.9.3",
+    "yalc": "^1.0.0-pre.53",
+    "@medusajs/types": "2.13.1",
+    "zod": "3.25.76"
+  },
+  "peerDependencies": {
+    "@medusajs/admin-sdk": "^2.13.0",
+    "@medusajs/cli": "^2.13.0",
+    "@medusajs/framework": "^2.13.0",
+    "@medusajs/icons": "^2.13.0",
+    "@medusajs/medusa": "^2.13.0",
+    "@medusajs/test-utils": "^2.13.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
