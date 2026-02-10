@@ -2,7 +2,16 @@ import fs from "fs"
 import path from "path"
 import { VALID_FILE_EXTENSIONS } from "./constants"
 import { normalizePath } from "./utils"
-import type { Route, BuiltMercurConfig } from "./types"
+import type { BuiltMercurConfig } from "./types"
+
+type Route = {
+    Component: string
+    path: string
+    handle?: string
+    loader?: string
+    children?: Route[]
+}
+
 
 type RouteResult = {
     imports: string[]

@@ -27,7 +27,7 @@ import { UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
-import { getMenuItemExtensions, getNestedMenuItems } from "../../../utils/menu-items";
+import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
 
 export const MainLayout = () => {
   const Sidebar = components.MainSidebar ? components.MainSidebar : MainSidebar;
@@ -41,7 +41,7 @@ export const MainLayout = () => {
 const MainSidebar = () => {
   const coreRoutes = useCoreRoutes();
   const allMenuItems = menuItemsModule.menuItems ?? [];
-  const customMenuItems = getMenuItemExtensions(allMenuItems, "main");
+  const customMenuItems = getMenuItemsByType(allMenuItems, "main");
 
   const routesWithNested = coreRoutes.map((route) => {
     const nestedItems = getNestedMenuItems(allMenuItems, route.to);

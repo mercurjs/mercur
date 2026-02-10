@@ -1,6 +1,6 @@
 declare module "virtual:mercur/routes" {
-    import { RouteObject } from 'react-router-dom'
-    export const customRoutes: RouteObject[]
+    import { Route } from './utils/routes'
+    export const customRoutes: Route[]
 }
 
 declare module "virtual:mercur/config" {
@@ -16,7 +16,7 @@ declare module "virtual:mercur/components" {
 }
 
 declare module "virtual:mercur/menu-items" {
-    import { MenuItem } from '@mercurjs/dashboard-sdk'
+    import { MenuItem } from './utils/routes'
     const menuItems: { menuItems: MenuItem[] }
     export default menuItems
 }

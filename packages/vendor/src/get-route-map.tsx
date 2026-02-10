@@ -9,1687 +9,1661 @@ import { ErrorBoundary } from "./components/utilities/error-boundary";
 import { TaxRegionDetailBreadcrumb } from "./routes/tax-regions/tax-region-detail/breadcrumb";
 import { taxRegionLoader } from "./routes/tax-regions/tax-region-detail/loader";
 
-/**
- * Merges custom routes into base routes. Custom routes with a matching path
- * override the base route (preserving base children unless the custom route
- * provides its own). Non-matching custom routes are appended.
- */
-function mergeRoutes(
-  baseRoutes: RouteObject[],
-  customRoutes: RouteObject[]
-): RouteObject[] {
-  const result = baseRoutes.map((route) => ({ ...route }));
-
-  for (const customRoute of customRoutes) {
-    const existingIndex = result.findIndex(
-      (r) => r.path != null && r.path === customRoute.path
-    );
-
-    if (existingIndex !== -1) {
-      const { children: customChildren, ...customRest } = customRoute;
-      result[existingIndex] = {
-        ...result[existingIndex],
-        ...customRest,
-        children: customChildren
-          ? mergeRoutes(result[existingIndex].children ?? [], customChildren)
-          : result[existingIndex].children,
-      } as RouteObject;
-    } else {
-      result.push(customRoute);
-    }
-  }
-
-  return result;
-}
-
-export function getRouteMap({ customRoutes }: { customRoutes: RouteObject[] }) {
-  const settingsCustomRoutes: RouteObject[] = [];
-  const mainCustomRoutes: RouteObject[] = [];
-
-  for (const route of customRoutes) {
-    const p = route.path;
-    if (p && p.startsWith("/settings")) {
-      settingsCustomRoutes.push({
-        ...route,
-        path: p.replace(/^\/settings\/?/, "") || undefined,
-      });
-    } else {
-      mainCustomRoutes.push(route);
-    }
-  }
-
-  return mergeRoutes(mainRoutes, customRoutes);
-}
-
-const mainRoutes = [
-  {
-    element: <ProtectedRoute />,
-    errorElement: <ErrorBoundary />,
-    children: [
-      {
-        element: <MainLayout />,
-        children: [
-          {
-            path: "/",
-            errorElement: <ErrorBoundary />,
-            lazy: () => import("./routes/home"),
-          },
-          {
-            path: "/products",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("products.domain"),
+export function getRouteMap({
+  settingsRoutes: customSettingsRoutes,
+  mainRoutes: customMainRoutes,
+}: {
+  settingsRoutes: RouteObject[];
+  mainRoutes: RouteObject[];
+}) {
+  return [
+    {
+      element: <ProtectedRoute />,
+      errorElement: <ErrorBoundary />,
+      children: [
+        {
+          element: <MainLayout />,
+          children: [
+            {
+              path: "/",
+              errorElement: <ErrorBoundary />,
+              lazy: () => import("./routes/home"),
             },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/products/product-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () => import("./routes/products/product-create"),
-                  },
-                  {
-                    path: "import",
-                    lazy: () => import("./routes/products/product-import"),
-                  },
-                  {
-                    path: "export",
-                    lazy: () => import("./routes/products/product-export"),
-                  },
-                ],
+            {
+              path: "/products",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("products.domain"),
               },
-              {
-                path: ":id",
-                errorElement: <ErrorBoundary />,
-                lazy: async () => {
-                  const { Breadcrumb, loader } =
-                    await import("./routes/products/product-detail");
-
-                  return {
-                    Component: Outlet,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminProductResponse>
-                      ) => <Breadcrumb {...match} />,
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/products/product-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () => import("./routes/products/product-create"),
                     },
-                  };
+                    {
+                      path: "import",
+                      lazy: () => import("./routes/products/product-import"),
+                    },
+                    {
+                      path: "export",
+                      lazy: () => import("./routes/products/product-export"),
+                    },
+                  ],
                 },
-                children: [
-                  {
-                    path: "",
-                    lazy: () => import("./routes/products/product-detail"),
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () => import("./routes/products/product-edit"),
-                      },
-                      {
-                        path: "edit-variant",
-                        lazy: () =>
-                          import("./routes/product-variants/product-variant-edit"),
-                      },
-                      {
-                        path: "sales-channels",
-                        lazy: () =>
-                          import("./routes/products/product-sales-channels"),
-                      },
-                      {
-                        path: "attributes",
-                        lazy: () =>
-                          import("./routes/products/product-attributes"),
-                      },
-                      {
-                        path: "organization",
-                        lazy: () =>
-                          import("./routes/products/product-organization"),
-                      },
-                      {
-                        path: "shipping-profile",
-                        lazy: () =>
-                          import("./routes/products/product-shipping-profile"),
-                      },
-                      {
-                        path: "media",
-                        lazy: () => import("./routes/products/product-media"),
-                      },
-                      {
-                        path: "images/:image_id/variants",
-                        lazy: () =>
-                          import("./routes/products/product-image-variants-edit"),
-                      },
-                      {
-                        path: "prices",
-                        lazy: () => import("./routes/products/product-prices"),
-                      },
-                      {
-                        path: "options/create",
-                        lazy: () =>
-                          import("./routes/products/product-create-option"),
-                      },
-                      {
-                        path: "options/:option_id/edit",
-                        lazy: () =>
-                          import("./routes/products/product-edit-option"),
-                      },
-                      {
-                        path: "variants/create",
-                        lazy: () =>
-                          import("./routes/products/product-create-variant"),
-                      },
-                      {
-                        path: "stock",
-                        lazy: () => import("./routes/products/product-stock"),
-                      },
-                      {
-                        path: "metadata/edit",
-                        lazy: () =>
-                          import("./routes/products/product-metadata"),
-                      },
-                    ],
-                  },
-                  {
-                    path: "variants/:variant_id",
-                    lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
-                        await import("./routes/product-variants/product-variant-detail");
+                {
+                  path: ":id",
+                  errorElement: <ErrorBoundary />,
+                  lazy: async () => {
+                    const { Breadcrumb, loader } =
+                      await import("./routes/products/product-detail");
 
-                      return {
-                        Component,
-                        loader,
-                        handle: {
-                          breadcrumb: (
-                            // eslint-disable-next-line max-len
-                            match: UIMatch<HttpTypes.AdminProductVariantResponse>
-                          ) => <Breadcrumb {...match} />,
+                    return {
+                      Component: Outlet,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminProductResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
+                  },
+                  children: [
+                    {
+                      path: "",
+                      lazy: () => import("./routes/products/product-detail"),
+                      children: [
+                        {
+                          path: "edit",
+                          lazy: () => import("./routes/products/product-edit"),
                         },
-                      };
+                        {
+                          path: "edit-variant",
+                          lazy: () =>
+                            import("./routes/product-variants/product-variant-edit"),
+                        },
+                        {
+                          path: "sales-channels",
+                          lazy: () =>
+                            import("./routes/products/product-sales-channels"),
+                        },
+                        {
+                          path: "attributes",
+                          lazy: () =>
+                            import("./routes/products/product-attributes"),
+                        },
+                        {
+                          path: "organization",
+                          lazy: () =>
+                            import("./routes/products/product-organization"),
+                        },
+                        {
+                          path: "shipping-profile",
+                          lazy: () =>
+                            import("./routes/products/product-shipping-profile"),
+                        },
+                        {
+                          path: "media",
+                          lazy: () => import("./routes/products/product-media"),
+                        },
+                        {
+                          path: "images/:image_id/variants",
+                          lazy: () =>
+                            import("./routes/products/product-image-variants-edit"),
+                        },
+                        {
+                          path: "prices",
+                          lazy: () =>
+                            import("./routes/products/product-prices"),
+                        },
+                        {
+                          path: "options/create",
+                          lazy: () =>
+                            import("./routes/products/product-create-option"),
+                        },
+                        {
+                          path: "options/:option_id/edit",
+                          lazy: () =>
+                            import("./routes/products/product-edit-option"),
+                        },
+                        {
+                          path: "variants/create",
+                          lazy: () =>
+                            import("./routes/products/product-create-variant"),
+                        },
+                        {
+                          path: "stock",
+                          lazy: () => import("./routes/products/product-stock"),
+                        },
+                        {
+                          path: "metadata/edit",
+                          lazy: () =>
+                            import("./routes/products/product-metadata"),
+                        },
+                      ],
                     },
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () =>
-                          import("./routes/product-variants/product-variant-edit"),
+                    {
+                      path: "variants/:variant_id",
+                      lazy: async () => {
+                        const { Component, Breadcrumb, loader } =
+                          await import("./routes/product-variants/product-variant-detail");
+
+                        return {
+                          Component,
+                          loader,
+                          handle: {
+                            breadcrumb: (
+                              // eslint-disable-next-line max-len
+                              match: UIMatch<HttpTypes.AdminProductVariantResponse>
+                            ) => <Breadcrumb {...match} />,
+                          },
+                        };
                       },
-                      {
-                        path: "prices",
-                        lazy: () => import("./routes/products/product-prices"),
+                      children: [
+                        {
+                          path: "edit",
+                          lazy: () =>
+                            import("./routes/product-variants/product-variant-edit"),
+                        },
+                        {
+                          path: "prices",
+                          lazy: () =>
+                            import("./routes/products/product-prices"),
+                        },
+                        {
+                          path: "manage-items",
+                          lazy: () =>
+                            import("./routes/product-variants/product-variant-manage-inventory-items"),
+                        },
+                        {
+                          path: "media",
+                          lazy: () =>
+                            import("./routes/product-variants/product-variant-media"),
+                        },
+                        {
+                          path: "metadata/edit",
+                          lazy: () =>
+                            import("./routes/product-variants/product-variant-metadata"),
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "/categories",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("categories.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/categories/category-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () => import("./routes/categories/category-create"),
+                    },
+                    {
+                      path: "organize",
+                      lazy: () =>
+                        import("./routes/categories/category-organize"),
+                    },
+                  ],
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/categories/category-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminProductCategoryResponse>
+                        ) => <Breadcrumb {...match} />,
                       },
-                      {
-                        path: "manage-items",
-                        lazy: () =>
-                          import("./routes/product-variants/product-variant-manage-inventory-items"),
+                    };
+                  },
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () => import("./routes/categories/category-edit"),
+                    },
+                    {
+                      path: "products",
+                      lazy: () =>
+                        import("./routes/categories/category-products"),
+                    },
+                    {
+                      path: "organize",
+                      lazy: () =>
+                        import("./routes/categories/category-organize"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () =>
+                        import("./routes/categories/categories-metadata"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "/orders",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("orders.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/orders/order-list"),
+                  children: [
+                    {
+                      path: "export",
+                      lazy: () => import("./routes/orders/order-export"),
+                    },
+                  ],
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/orders/order-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminOrderResponse>
+                        ) => <Breadcrumb {...match} />,
                       },
-                      {
-                        path: "media",
-                        lazy: () =>
-                          import("./routes/product-variants/product-variant-media"),
+                    };
+                  },
+                  children: [
+                    {
+                      path: "fulfillment",
+                      lazy: () =>
+                        import("./routes/orders/order-create-fulfillment"),
+                    },
+                    {
+                      path: "returns/:return_id/receive",
+                      lazy: () =>
+                        import("./routes/orders/order-receive-return"),
+                    },
+                    {
+                      path: "allocate-items",
+                      lazy: () =>
+                        import("./routes/orders/order-allocate-items"),
+                    },
+                    {
+                      path: ":f_id/create-shipment",
+                      lazy: () =>
+                        import("./routes/orders/order-create-shipment"),
+                    },
+                    {
+                      path: "returns",
+                      lazy: () => import("./routes/orders/order-create-return"),
+                    },
+                    {
+                      path: "claims",
+                      lazy: () => import("./routes/orders/order-create-claim"),
+                    },
+                    {
+                      path: "exchanges",
+                      lazy: () =>
+                        import("./routes/orders/order-create-exchange"),
+                    },
+                    {
+                      path: "edits",
+                      lazy: () => import("./routes/orders/order-create-edit"),
+                    },
+                    {
+                      path: "refund",
+                      lazy: () => import("./routes/orders/order-create-refund"),
+                    },
+                    {
+                      path: "transfer",
+                      lazy: () =>
+                        import("./routes/orders/order-request-transfer"),
+                    },
+                    {
+                      path: "email",
+                      lazy: () => import("./routes/orders/order-edit-email"),
+                    },
+                    {
+                      path: "shipping-address",
+                      lazy: () =>
+                        import("./routes/orders/order-edit-shipping-address"),
+                    },
+                    {
+                      path: "billing-address",
+                      lazy: () =>
+                        import("./routes/orders/order-edit-billing-address"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () => import("./routes/orders/order-metadata"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "/promotions",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("promotions.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/promotions/promotion-list"),
+                },
+                {
+                  path: "create",
+                  lazy: () => import("./routes/promotions/promotion-create"),
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/promotions/promotion-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminPromotionResponse>
+                        ) => <Breadcrumb {...match} />,
                       },
-                      {
-                        path: "metadata/edit",
-                        lazy: () =>
-                          import("./routes/product-variants/product-variant-metadata"),
+                    };
+                  },
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/promotions/promotion-edit-details"),
+                    },
+                    {
+                      path: "add-to-campaign",
+                      lazy: () =>
+                        import("./routes/promotions/promotion-add-campaign"),
+                    },
+                    {
+                      path: ":ruleType/edit",
+                      lazy: () =>
+                        import("./routes/promotions/common/edit-rules"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "/campaigns",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("campaigns.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/campaigns/campaign-list"),
+                  children: [],
+                },
+                {
+                  path: "create",
+                  lazy: () => import("./routes/campaigns/campaign-create"),
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/campaigns/campaign-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminCampaignResponse>
+                        ) => <Breadcrumb {...match} />,
                       },
-                    ],
+                    };
                   },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/categories",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("categories.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/categories/category-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () => import("./routes/categories/category-create"),
-                  },
-                  {
-                    path: "organize",
-                    lazy: () => import("./routes/categories/category-organize"),
-                  },
-                ],
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/categories/category-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminProductCategoryResponse>
-                      ) => <Breadcrumb {...match} />,
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () => import("./routes/campaigns/campaign-edit"),
                     },
-                  };
-                },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () => import("./routes/categories/category-edit"),
-                  },
-                  {
-                    path: "products",
-                    lazy: () => import("./routes/categories/category-products"),
-                  },
-                  {
-                    path: "organize",
-                    lazy: () => import("./routes/categories/category-organize"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () =>
-                      import("./routes/categories/categories-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/orders",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("orders.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/orders/order-list"),
-                children: [
-                  {
-                    path: "export",
-                    lazy: () => import("./routes/orders/order-export"),
-                  },
-                ],
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/orders/order-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminOrderResponse>
-                      ) => <Breadcrumb {...match} />,
+                    {
+                      path: "configuration",
+                      lazy: () =>
+                        import("./routes/campaigns/campaign-configuration"),
                     },
-                  };
-                },
-                children: [
-                  {
-                    path: "fulfillment",
-                    lazy: () =>
-                      import("./routes/orders/order-create-fulfillment"),
-                  },
-                  {
-                    path: "returns/:return_id/receive",
-                    lazy: () => import("./routes/orders/order-receive-return"),
-                  },
-                  {
-                    path: "allocate-items",
-                    lazy: () => import("./routes/orders/order-allocate-items"),
-                  },
-                  {
-                    path: ":f_id/create-shipment",
-                    lazy: () => import("./routes/orders/order-create-shipment"),
-                  },
-                  {
-                    path: "returns",
-                    lazy: () => import("./routes/orders/order-create-return"),
-                  },
-                  {
-                    path: "claims",
-                    lazy: () => import("./routes/orders/order-create-claim"),
-                  },
-                  {
-                    path: "exchanges",
-                    lazy: () => import("./routes/orders/order-create-exchange"),
-                  },
-                  {
-                    path: "edits",
-                    lazy: () => import("./routes/orders/order-create-edit"),
-                  },
-                  {
-                    path: "refund",
-                    lazy: () => import("./routes/orders/order-create-refund"),
-                  },
-                  {
-                    path: "transfer",
-                    lazy: () =>
-                      import("./routes/orders/order-request-transfer"),
-                  },
-                  {
-                    path: "email",
-                    lazy: () => import("./routes/orders/order-edit-email"),
-                  },
-                  {
-                    path: "shipping-address",
-                    lazy: () =>
-                      import("./routes/orders/order-edit-shipping-address"),
-                  },
-                  {
-                    path: "billing-address",
-                    lazy: () =>
-                      import("./routes/orders/order-edit-billing-address"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () => import("./routes/orders/order-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/promotions",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("promotions.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/promotions/promotion-list"),
-              },
-              {
-                path: "create",
-                lazy: () => import("./routes/promotions/promotion-create"),
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/promotions/promotion-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminPromotionResponse>
-                      ) => <Breadcrumb {...match} />,
+                    {
+                      path: "edit-budget",
+                      lazy: () =>
+                        import("./routes/campaigns/campaign-budget-edit"),
                     },
-                  };
-                },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () =>
-                      import("./routes/promotions/promotion-edit-details"),
-                  },
-                  {
-                    path: "add-to-campaign",
-                    lazy: () =>
-                      import("./routes/promotions/promotion-add-campaign"),
-                  },
-                  {
-                    path: ":ruleType/edit",
-                    lazy: () => import("./routes/promotions/common/edit-rules"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/campaigns",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("campaigns.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/campaigns/campaign-list"),
-                children: [],
-              },
-              {
-                path: "create",
-                lazy: () => import("./routes/campaigns/campaign-create"),
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/campaigns/campaign-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminCampaignResponse>
-                      ) => <Breadcrumb {...match} />,
+                    {
+                      path: "add-promotions",
+                      lazy: () =>
+                        import("./routes/campaigns/add-campaign-promotions"),
                     },
-                  };
+                  ],
                 },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () => import("./routes/campaigns/campaign-edit"),
-                  },
-                  {
-                    path: "configuration",
-                    lazy: () =>
-                      import("./routes/campaigns/campaign-configuration"),
-                  },
-                  {
-                    path: "edit-budget",
-                    lazy: () =>
-                      import("./routes/campaigns/campaign-budget-edit"),
-                  },
-                  {
-                    path: "add-promotions",
-                    lazy: () =>
-                      import("./routes/campaigns/add-campaign-promotions"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/collections",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("collections.domain"),
+              ],
             },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/collections/collection-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/collections/collection-create"),
-                  },
-                ],
+            {
+              path: "/collections",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("collections.domain"),
               },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/collections/collection-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminCollectionResponse>
-                      ) => <Breadcrumb {...match} />,
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/collections/collection-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/collections/collection-create"),
                     },
-                  };
+                  ],
                 },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () => import("./routes/collections/collection-edit"),
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/collections/collection-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminCollectionResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
                   },
-                  {
-                    path: "products",
-                    lazy: () =>
-                      import("./routes/collections/collection-add-products"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () =>
-                      import("./routes/collections/collection-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/price-lists",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("priceLists.domain"),
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/collections/collection-edit"),
+                    },
+                    {
+                      path: "products",
+                      lazy: () =>
+                        import("./routes/collections/collection-add-products"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () =>
+                        import("./routes/collections/collection-metadata"),
+                    },
+                  ],
+                },
+              ],
             },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/price-lists/price-list-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/price-lists/price-list-create"),
-                  },
-                ],
+            {
+              path: "/price-lists",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("priceLists.domain"),
               },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/price-lists/price-list-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminPriceListResponse>
-                      ) => <Breadcrumb {...match} />,
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/price-lists/price-list-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/price-lists/price-list-create"),
                     },
-                  };
+                  ],
                 },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () => import("./routes/price-lists/price-list-edit"),
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/price-lists/price-list-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminPriceListResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
                   },
-                  {
-                    path: "configuration",
-                    lazy: () =>
-                      import("./routes/price-lists/price-list-configuration"),
-                  },
-                  {
-                    path: "products/add",
-                    lazy: () =>
-                      import("./routes/price-lists/price-list-prices-add"),
-                  },
-                  {
-                    path: "products/edit",
-                    lazy: () =>
-                      import("./routes/price-lists/price-list-prices-edit"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/customers",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("customers.domain"),
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/price-lists/price-list-edit"),
+                    },
+                    {
+                      path: "configuration",
+                      lazy: () =>
+                        import("./routes/price-lists/price-list-configuration"),
+                    },
+                    {
+                      path: "products/add",
+                      lazy: () =>
+                        import("./routes/price-lists/price-list-prices-add"),
+                    },
+                    {
+                      path: "products/edit",
+                      lazy: () =>
+                        import("./routes/price-lists/price-list-prices-edit"),
+                    },
+                  ],
+                },
+              ],
             },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/customers/customer-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () => import("./routes/customers/customer-create"),
-                  },
-                ],
+            {
+              path: "/customers",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("customers.domain"),
               },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/customers/customer-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminCustomerResponse>
-                      ) => <Breadcrumb {...match} />,
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/customers/customer-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () => import("./routes/customers/customer-create"),
                     },
-                  };
+                  ],
                 },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () => import("./routes/customers/customer-edit"),
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/customers/customer-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminCustomerResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
                   },
-                  {
-                    path: "create-address",
-                    lazy: () =>
-                      import("./routes/customers/customer-create-address"),
-                  },
-                  {
-                    path: "add-customer-groups",
-                    lazy: () =>
-                      import("./routes/customers/customers-add-customer-group"),
-                  },
-                  {
-                    path: ":order_id/transfer",
-                    lazy: () =>
-                      import("./routes/orders/order-request-transfer"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () => import("./routes/customers/customer-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/customer-groups",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("customerGroups.domain"),
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () => import("./routes/customers/customer-edit"),
+                    },
+                    {
+                      path: "create-address",
+                      lazy: () =>
+                        import("./routes/customers/customer-create-address"),
+                    },
+                    {
+                      path: "add-customer-groups",
+                      lazy: () =>
+                        import("./routes/customers/customers-add-customer-group"),
+                    },
+                    {
+                      path: ":order_id/transfer",
+                      lazy: () =>
+                        import("./routes/orders/order-request-transfer"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () =>
+                        import("./routes/customers/customer-metadata"),
+                    },
+                  ],
+                },
+              ],
             },
-            children: [
-              {
-                path: "",
-                lazy: () =>
-                  import("./routes/customer-groups/customer-group-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/customer-groups/customer-group-create"),
-                  },
-                ],
+            {
+              path: "/customer-groups",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("customerGroups.domain"),
               },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/customer-groups/customer-group-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminCustomerGroupResponse>
-                      ) => <Breadcrumb {...match} />,
+              children: [
+                {
+                  path: "",
+                  lazy: () =>
+                    import("./routes/customer-groups/customer-group-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/customer-groups/customer-group-create"),
                     },
-                  };
+                  ],
                 },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () =>
-                      import("./routes/customer-groups/customer-group-edit"),
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/customer-groups/customer-group-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminCustomerGroupResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
                   },
-                  {
-                    path: "add-customers",
-                    lazy: () =>
-                      import("./routes/customer-groups/customer-group-add-customers"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () =>
-                      import("./routes/customer-groups/customer-group-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/reservations",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("reservations.domain"),
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/customer-groups/customer-group-edit"),
+                    },
+                    {
+                      path: "add-customers",
+                      lazy: () =>
+                        import("./routes/customer-groups/customer-group-add-customers"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () =>
+                        import("./routes/customer-groups/customer-group-metadata"),
+                    },
+                  ],
+                },
+              ],
             },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/reservations/reservation-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/reservations/reservation-create"),
-                  },
-                ],
+            {
+              path: "/reservations",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("reservations.domain"),
               },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/reservations/reservation-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminReservationResponse>
-                      ) => <Breadcrumb {...match} />,
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/reservations/reservation-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/reservations/reservation-create"),
                     },
-                  };
+                  ],
                 },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () =>
-                      import("./routes/reservations/reservation-detail/components/edit-reservation"),
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/reservations/reservation-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminReservationResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
                   },
-                  {
-                    path: "metadata/edit",
-                    lazy: () =>
-                      import("./routes/reservations/reservation-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "/inventory",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("inventory.domain"),
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/reservations/reservation-detail/components/edit-reservation"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () =>
+                        import("./routes/reservations/reservation-metadata"),
+                    },
+                  ],
+                },
+              ],
             },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/inventory/inventory-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () => import("./routes/inventory/inventory-create"),
-                  },
-                  {
-                    path: "stock",
-                    lazy: () => import("./routes/inventory/inventory-stock"),
-                  },
-                ],
+            {
+              path: "/inventory",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("inventory.domain"),
               },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/inventory/inventory-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminInventoryItemResponse>
-                      ) => <Breadcrumb {...match} />,
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/inventory/inventory-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () => import("./routes/inventory/inventory-create"),
                     },
-                  };
+                    {
+                      path: "stock",
+                      lazy: () => import("./routes/inventory/inventory-stock"),
+                    },
+                  ],
                 },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () =>
-                      import("./routes/inventory/inventory-detail/components/edit-inventory-item"),
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/inventory/inventory-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminInventoryItemResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
                   },
-                  {
-                    path: "attributes",
-                    lazy: () =>
-                      import("./routes/inventory/inventory-detail/components/edit-inventory-item-attributes"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () => import("./routes/inventory/inventory-metadata"),
-                  },
-                  {
-                    path: "locations",
-                    lazy: () =>
-                      import("./routes/inventory/inventory-detail/components/manage-locations"),
-                  },
-                  {
-                    path: "locations/:location_id",
-                    lazy: () =>
-                      import("./routes/inventory/inventory-detail/components/adjust-inventory"),
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    element: <ProtectedRoute />,
-    errorElement: <ErrorBoundary />,
-    children: [
-      {
-        path: "/settings",
-        handle: {
-          breadcrumb: () => t("app.nav.settings.header"),
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/inventory/inventory-detail/components/edit-inventory-item"),
+                    },
+                    {
+                      path: "attributes",
+                      lazy: () =>
+                        import("./routes/inventory/inventory-detail/components/edit-inventory-item-attributes"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () =>
+                        import("./routes/inventory/inventory-metadata"),
+                    },
+                    {
+                      path: "locations",
+                      lazy: () =>
+                        import("./routes/inventory/inventory-detail/components/manage-locations"),
+                    },
+                    {
+                      path: "locations/:location_id",
+                      lazy: () =>
+                        import("./routes/inventory/inventory-detail/components/adjust-inventory"),
+                    },
+                  ],
+                },
+              ],
+            },
+            ...customMainRoutes,
+          ],
         },
-        element: <SettingsLayout />,
-        children: [
-          {
-            index: true,
-            errorElement: <ErrorBoundary />,
-            lazy: () => import("./routes/settings"),
+      ],
+    },
+    {
+      element: <ProtectedRoute />,
+      errorElement: <ErrorBoundary />,
+      children: [
+        {
+          path: "/settings",
+          handle: {
+            breadcrumb: () => t("app.nav.settings.header"),
           },
-          {
-            path: "profile",
-            errorElement: <ErrorBoundary />,
-            lazy: () => import("./routes/profile/profile-detail"),
-            handle: {
-              breadcrumb: () => t("profile.domain"),
+          element: <SettingsLayout />,
+          children: [
+            {
+              index: true,
+              errorElement: <ErrorBoundary />,
+              lazy: () => import("./routes/settings"),
             },
-            children: [
-              {
-                path: "edit",
-                lazy: () => import("./routes/profile/profile-edit"),
+            {
+              path: "profile",
+              errorElement: <ErrorBoundary />,
+              lazy: () => import("./routes/profile/profile-detail"),
+              handle: {
+                breadcrumb: () => t("profile.domain"),
               },
-            ],
-          },
-          {
-            path: "regions",
-            errorElement: <ErrorBoundary />,
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("regions.domain"),
+              children: [
+                {
+                  path: "edit",
+                  lazy: () => import("./routes/profile/profile-edit"),
+                },
+              ],
             },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/regions/region-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () => import("./routes/regions/region-create"),
-                  },
-                ],
+            {
+              path: "regions",
+              errorElement: <ErrorBoundary />,
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("regions.domain"),
               },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/regions/region-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminRegionResponse>
-                      ) => <Breadcrumb {...match} />,
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/regions/region-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () => import("./routes/regions/region-create"),
                     },
-                  };
+                  ],
                 },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () => import("./routes/regions/region-edit"),
-                  },
-                  {
-                    path: "countries/add",
-                    lazy: () => import("./routes/regions/region-add-countries"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () => import("./routes/regions/region-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "store",
-            errorElement: <ErrorBoundary />,
-            lazy: () => import("./routes/store/store-detail"),
-            handle: {
-              breadcrumb: () => t("store.domain"),
-            },
-            children: [
-              {
-                path: "edit",
-                lazy: () => import("./routes/store/store-edit"),
-              },
-              {
-                path: "currencies",
-                lazy: () => import("./routes/store/store-add-currencies"),
-              },
-              {
-                path: "locales",
-                lazy: () => import("./routes/store/store-add-locales"),
-              },
-              {
-                path: "metadata/edit",
-                lazy: () => import("./routes/store/store-metadata"),
-              },
-            ],
-          },
-          {
-            path: "users",
-            errorElement: <ErrorBoundary />,
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("users.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/users/user-list"),
-                children: [
-                  {
-                    path: "invite",
-                    lazy: () => import("./routes/users/user-invite"),
-                  },
-                ],
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/users/user-detail");
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/regions/region-detail");
 
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminUserResponse>
-                      ) => <Breadcrumb {...match} />,
-                    },
-                  };
-                },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () => import("./routes/users/user-edit"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () => import("./routes/users/user-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "sales-channels",
-            errorElement: <ErrorBoundary />,
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("salesChannels.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () =>
-                  import("./routes/sales-channels/sales-channel-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/sales-channels/sales-channel-create"),
-                  },
-                ],
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/sales-channels/sales-channel-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminSalesChannelResponse>
-                      ) => <Breadcrumb {...match} />,
-                    },
-                  };
-                },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () =>
-                      import("./routes/sales-channels/sales-channel-edit"),
-                  },
-                  {
-                    path: "add-products",
-                    lazy: () =>
-                      import("./routes/sales-channels/sales-channel-add-products"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () =>
-                      import("./routes/sales-channels/sales-channel-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "locations",
-            errorElement: <ErrorBoundary />,
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("locations.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/locations/location-list"),
-              },
-              {
-                path: "create",
-                lazy: () => import("./routes/locations/location-create"),
-              },
-              {
-                path: "shipping-profiles",
-                element: <Outlet />,
-                handle: {
-                  breadcrumb: () => t("shippingProfile.domain"),
-                },
-                children: [
-                  {
-                    path: "",
-                    lazy: () =>
-                      import("./routes/shipping-profiles/shipping-profiles-list"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () =>
-                          import("./routes/shipping-profiles/shipping-profile-create"),
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminRegionResponse>
+                        ) => <Breadcrumb {...match} />,
                       },
-                    ],
+                    };
                   },
-                  {
-                    path: ":shipping_profile_id",
-                    lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
-                        await import("./routes/shipping-profiles/shipping-profile-detail");
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () => import("./routes/regions/region-edit"),
+                    },
+                    {
+                      path: "countries/add",
+                      lazy: () =>
+                        import("./routes/regions/region-add-countries"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () => import("./routes/regions/region-metadata"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "store",
+              errorElement: <ErrorBoundary />,
+              lazy: () => import("./routes/store/store-detail"),
+              handle: {
+                breadcrumb: () => t("store.domain"),
+              },
+              children: [
+                {
+                  path: "edit",
+                  lazy: () => import("./routes/store/store-edit"),
+                },
+                {
+                  path: "currencies",
+                  lazy: () => import("./routes/store/store-add-currencies"),
+                },
+                {
+                  path: "locales",
+                  lazy: () => import("./routes/store/store-add-locales"),
+                },
+                {
+                  path: "metadata/edit",
+                  lazy: () => import("./routes/store/store-metadata"),
+                },
+              ],
+            },
+            {
+              path: "users",
+              errorElement: <ErrorBoundary />,
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("users.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/users/user-list"),
+                  children: [
+                    {
+                      path: "invite",
+                      lazy: () => import("./routes/users/user-invite"),
+                    },
+                  ],
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/users/user-detail");
 
-                      return {
-                        Component,
-                        loader,
-                        handle: {
-                          breadcrumb: (
-                            // eslint-disable-next-line max-len
-                            match: UIMatch<HttpTypes.AdminShippingProfileResponse>
-                          ) => <Breadcrumb {...match} />,
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminUserResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
+                  },
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () => import("./routes/users/user-edit"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () => import("./routes/users/user-metadata"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "sales-channels",
+              errorElement: <ErrorBoundary />,
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("salesChannels.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () =>
+                    import("./routes/sales-channels/sales-channel-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/sales-channels/sales-channel-create"),
+                    },
+                  ],
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/sales-channels/sales-channel-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminSalesChannelResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
+                  },
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/sales-channels/sales-channel-edit"),
+                    },
+                    {
+                      path: "add-products",
+                      lazy: () =>
+                        import("./routes/sales-channels/sales-channel-add-products"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () =>
+                        import("./routes/sales-channels/sales-channel-metadata"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "locations",
+              errorElement: <ErrorBoundary />,
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("locations.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/locations/location-list"),
+                },
+                {
+                  path: "create",
+                  lazy: () => import("./routes/locations/location-create"),
+                },
+                {
+                  path: "shipping-profiles",
+                  element: <Outlet />,
+                  handle: {
+                    breadcrumb: () => t("shippingProfile.domain"),
+                  },
+                  children: [
+                    {
+                      path: "",
+                      lazy: () =>
+                        import("./routes/shipping-profiles/shipping-profiles-list"),
+                      children: [
+                        {
+                          path: "create",
+                          lazy: () =>
+                            import("./routes/shipping-profiles/shipping-profile-create"),
                         },
-                      };
+                      ],
                     },
-                    children: [
-                      {
-                        path: "metadata/edit",
-                        lazy: () =>
-                          import("./routes/shipping-profiles/shipping-profile-metadata"),
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                path: "shipping-option-types",
-                errorElement: <ErrorBoundary />,
-                element: <Outlet />,
-                handle: {
-                  breadcrumb: () => t("shippingOptionTypes.domain"),
-                },
-                children: [
-                  {
-                    path: "",
-                    lazy: () =>
-                      import("./routes/shipping-option-types/shipping-option-type-list"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () =>
-                          import("./routes/shipping-option-types/shipping-option-type-create"),
-                      },
-                    ],
-                  },
-                  {
-                    path: ":id",
-                    lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
-                        await import("./routes/shipping-option-types/shipping-option-type-detail");
+                    {
+                      path: ":shipping_profile_id",
+                      lazy: async () => {
+                        const { Component, Breadcrumb, loader } =
+                          await import("./routes/shipping-profiles/shipping-profile-detail");
 
-                      return {
-                        Component,
-                        loader,
-                        handle: {
-                          breadcrumb: (
-                            // eslint-disable-next-line max-len
-                            match: UIMatch<HttpTypes.AdminShippingOptionTypeResponse>
-                          ) => <Breadcrumb {...match} />,
+                        return {
+                          Component,
+                          loader,
+                          handle: {
+                            breadcrumb: (
+                              // eslint-disable-next-line max-len
+                              match: UIMatch<HttpTypes.AdminShippingProfileResponse>
+                            ) => <Breadcrumb {...match} />,
+                          },
+                        };
+                      },
+                      children: [
+                        {
+                          path: "metadata/edit",
+                          lazy: () =>
+                            import("./routes/shipping-profiles/shipping-profile-metadata"),
                         },
-                      };
+                      ],
                     },
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () =>
-                          import("./routes/shipping-option-types/shipping-option-type-edit"),
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                path: ":location_id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/locations/location-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminStockLocationResponse>
-                      ) => <Breadcrumb {...match} />,
-                    },
-                  };
+                  ],
                 },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () => import("./routes/locations/location-edit"),
+                {
+                  path: "shipping-option-types",
+                  errorElement: <ErrorBoundary />,
+                  element: <Outlet />,
+                  handle: {
+                    breadcrumb: () => t("shippingOptionTypes.domain"),
                   },
-                  {
-                    path: "sales-channels",
-                    lazy: () =>
-                      import("./routes/locations/location-sales-channels"),
-                  },
-                  {
-                    path: "fulfillment-providers",
-                    lazy: () =>
-                      import("./routes/locations/location-fulfillment-providers"),
-                  },
-                  {
-                    path: "fulfillment-set/:fset_id",
-                    children: [
-                      {
-                        path: "service-zones/create",
-                        lazy: () =>
-                          import("./routes/locations/location-service-zone-create"),
-                      },
-                      {
-                        path: "service-zone/:zone_id",
-                        children: [
-                          {
-                            path: "edit",
-                            lazy: () =>
-                              import("./routes/locations/location-service-zone-edit"),
-                          },
-                          {
-                            path: "areas",
-                            lazy: () =>
-                              import("./routes/locations/location-service-zone-manage-areas"),
-                          },
-                          {
-                            path: "shipping-option",
-                            children: [
-                              {
-                                path: "create",
-                                lazy: () =>
-                                  import("./routes/locations/location-service-zone-shipping-option-create"),
-                              },
-                              {
-                                path: ":so_id",
-                                children: [
-                                  {
-                                    path: "edit",
-                                    lazy: () =>
-                                      import("./routes/locations/location-service-zone-shipping-option-edit"),
-                                  },
-                                  {
-                                    path: "pricing",
-                                    lazy: () =>
-                                      import("./routes/locations/location-service-zone-shipping-option-pricing"),
-                                  },
-                                ],
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "product-tags",
-            errorElement: <ErrorBoundary />,
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("productTags.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/product-tags/product-tag-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/product-tags/product-tag-create"),
-                  },
-                ],
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/product-tags/product-tag-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminProductTagResponse>
-                      ) => <Breadcrumb {...match} />,
-                    },
-                  };
-                },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () =>
-                      import("./routes/product-tags/product-tag-edit"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () =>
-                      import("./routes/product-tags/product-tag-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "product-types",
-            errorElement: <ErrorBoundary />,
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("productTypes.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/product-types/product-type-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/product-types/product-type-create"),
-                  },
-                ],
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/product-types/product-type-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminProductTypeResponse>
-                      ) => <Breadcrumb {...match} />,
-                    },
-                  };
-                },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () =>
-                      import("./routes/product-types/product-type-edit"),
-                  },
-                  {
-                    path: "metadata/edit",
-                    lazy: () =>
-                      import("./routes/product-types/product-type-metadata"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "publishable-api-keys",
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("apiKeyManagement.domain.publishable"),
-            },
-            children: [
-              {
-                path: "",
-                element: <Outlet />,
-                children: [
-                  {
-                    path: "",
-                    lazy: () =>
-                      import("./routes/api-key-management/api-key-management-list"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () =>
-                          import("./routes/api-key-management/api-key-management-create"),
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/api-key-management/api-key-management-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminApiKeyResponse>
-                      ) => <Breadcrumb {...match} />,
-                    },
-                  };
-                },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () =>
-                      import("./routes/api-key-management/api-key-management-edit"),
-                  },
-                  {
-                    path: "sales-channels",
-                    lazy: () =>
-                      import("./routes/api-key-management/api-key-management-sales-channels"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "secret-api-keys",
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("apiKeyManagement.domain.secret"),
-            },
-            children: [
-              {
-                path: "",
-                element: <Outlet />,
-                children: [
-                  {
-                    path: "",
-                    lazy: () =>
-                      import("./routes/api-key-management/api-key-management-list"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () =>
-                          import("./routes/api-key-management/api-key-management-create"),
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                path: ":id",
-                lazy: async () => {
-                  const { Component, Breadcrumb, loader } =
-                    await import("./routes/api-key-management/api-key-management-detail");
-
-                  return {
-                    Component,
-                    loader,
-                    handle: {
-                      breadcrumb: (
-                        match: UIMatch<HttpTypes.AdminApiKeyResponse>
-                      ) => <Breadcrumb {...match} />,
-                    },
-                  };
-                },
-                children: [
-                  {
-                    path: "edit",
-                    lazy: () =>
-                      import("./routes/api-key-management/api-key-management-edit"),
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "tax-regions",
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("taxRegions.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/tax-regions/tax-region-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/tax-regions/tax-region-create"),
-                  },
-                ],
-              },
-              {
-                path: ":id",
-                Component: Outlet,
-                loader: taxRegionLoader,
-                handle: {
-                  breadcrumb: (
-                    match: UIMatch<HttpTypes.AdminTaxRegionResponse>
-                  ) => <TaxRegionDetailBreadcrumb {...match} />,
-                },
-                children: [
-                  {
-                    path: "",
-                    lazy: async () => {
-                      const { Component } =
-                        await import("./routes/tax-regions/tax-region-detail");
-
-                      return {
-                        Component,
-                      };
-                    },
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-edit"),
-                      },
-                      {
-                        path: "provinces/create",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-province-create"),
-                      },
-                      {
-                        path: "overrides/create",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-tax-override-create"),
-                      },
-                      {
-                        path: "overrides/:tax_rate_id/edit",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-tax-override-edit"),
-                      },
-                      {
-                        path: "tax-rates/create",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-tax-rate-create"),
-                      },
-                      {
-                        path: "tax-rates/:tax_rate_id/edit",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-tax-rate-edit"),
-                      },
-                    ],
-                  },
-                  {
-                    path: "provinces/:province_id",
-                    lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
-                        await import("./routes/tax-regions/tax-region-province-detail");
-
-                      return {
-                        Component,
-                        loader,
-                        handle: {
-                          breadcrumb: (
-                            match: UIMatch<HttpTypes.AdminTaxRegionResponse>
-                          ) => <Breadcrumb {...match} />,
+                  children: [
+                    {
+                      path: "",
+                      lazy: () =>
+                        import("./routes/shipping-option-types/shipping-option-type-list"),
+                      children: [
+                        {
+                          path: "create",
+                          lazy: () =>
+                            import("./routes/shipping-option-types/shipping-option-type-create"),
                         },
-                      };
+                      ],
                     },
-                    children: [
-                      {
-                        path: "tax-rates/create",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-tax-rate-create"),
-                      },
-                      {
-                        path: "tax-rates/:tax_rate_id/edit",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-tax-rate-edit"),
-                      },
-                      {
-                        path: "overrides/create",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-tax-override-create"),
-                      },
-                      {
-                        path: "overrides/:tax_rate_id/edit",
-                        lazy: () =>
-                          import("./routes/tax-regions/tax-region-tax-override-edit"),
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "return-reasons",
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("returnReasons.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () =>
-                  import("./routes/return-reasons/return-reason-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/return-reasons/return-reason-create"),
-                  },
+                    {
+                      path: ":id",
+                      lazy: async () => {
+                        const { Component, Breadcrumb, loader } =
+                          await import("./routes/shipping-option-types/shipping-option-type-detail");
 
-                  {
-                    path: ":id",
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () =>
-                          import("./routes/return-reasons/return-reason-edit"),
+                        return {
+                          Component,
+                          loader,
+                          handle: {
+                            breadcrumb: (
+                              // eslint-disable-next-line max-len
+                              match: UIMatch<HttpTypes.AdminShippingOptionTypeResponse>
+                            ) => <Breadcrumb {...match} />,
+                          },
+                        };
                       },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: "refund-reasons",
-            element: <Outlet />,
-            handle: {
-              breadcrumb: () => t("refundReasons.domain"),
-            },
-            children: [
-              {
-                path: "",
-                lazy: () =>
-                  import("./routes/refund-reasons/refund-reason-list"),
-                children: [
-                  {
-                    path: "create",
-                    lazy: () =>
-                      import("./routes/refund-reasons/refund-reason-create"),
-                  },
+                      children: [
+                        {
+                          path: "edit",
+                          lazy: () =>
+                            import("./routes/shipping-option-types/shipping-option-type-edit"),
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  path: ":location_id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/locations/location-detail");
 
-                  {
-                    path: ":id",
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () =>
-                          import("./routes/refund-reasons/refund-reason-edit"),
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminStockLocationResponse>
+                        ) => <Breadcrumb {...match} />,
                       },
-                    ],
+                    };
                   },
-                ],
-              },
-            ],
-          },
-          {
-            path: "translations",
-            errorElement: <ErrorBoundary />,
-            handle: {
-              breadcrumb: () => t("translations.domain"),
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () => import("./routes/locations/location-edit"),
+                    },
+                    {
+                      path: "sales-channels",
+                      lazy: () =>
+                        import("./routes/locations/location-sales-channels"),
+                    },
+                    {
+                      path: "fulfillment-providers",
+                      lazy: () =>
+                        import("./routes/locations/location-fulfillment-providers"),
+                    },
+                    {
+                      path: "fulfillment-set/:fset_id",
+                      children: [
+                        {
+                          path: "service-zones/create",
+                          lazy: () =>
+                            import("./routes/locations/location-service-zone-create"),
+                        },
+                        {
+                          path: "service-zone/:zone_id",
+                          children: [
+                            {
+                              path: "edit",
+                              lazy: () =>
+                                import("./routes/locations/location-service-zone-edit"),
+                            },
+                            {
+                              path: "areas",
+                              lazy: () =>
+                                import("./routes/locations/location-service-zone-manage-areas"),
+                            },
+                            {
+                              path: "shipping-option",
+                              children: [
+                                {
+                                  path: "create",
+                                  lazy: () =>
+                                    import("./routes/locations/location-service-zone-shipping-option-create"),
+                                },
+                                {
+                                  path: ":so_id",
+                                  children: [
+                                    {
+                                      path: "edit",
+                                      lazy: () =>
+                                        import("./routes/locations/location-service-zone-shipping-option-edit"),
+                                    },
+                                    {
+                                      path: "pricing",
+                                      lazy: () =>
+                                        import("./routes/locations/location-service-zone-shipping-option-pricing"),
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
             },
-            children: [
-              {
-                path: "",
-                lazy: () => import("./routes/translations/translation-list"),
-                children: [
-                  {
-                    path: "settings",
-                    lazy: () => import("./routes/translations/settings"),
+            {
+              path: "product-tags",
+              errorElement: <ErrorBoundary />,
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("productTags.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/product-tags/product-tag-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/product-tags/product-tag-create"),
+                    },
+                  ],
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/product-tags/product-tag-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminProductTagResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
                   },
-                ],
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/product-tags/product-tag-edit"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () =>
+                        import("./routes/product-tags/product-tag-metadata"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "product-types",
+              errorElement: <ErrorBoundary />,
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("productTypes.domain"),
               },
-              {
-                path: "edit",
-                lazy: () => import("./routes/translations/translations-edit"),
+              children: [
+                {
+                  path: "",
+                  lazy: () =>
+                    import("./routes/product-types/product-type-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/product-types/product-type-create"),
+                    },
+                  ],
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/product-types/product-type-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminProductTypeResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
+                  },
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/product-types/product-type-edit"),
+                    },
+                    {
+                      path: "metadata/edit",
+                      lazy: () =>
+                        import("./routes/product-types/product-type-metadata"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "publishable-api-keys",
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("apiKeyManagement.domain.publishable"),
               },
-              {
-                path: "add-locales",
-                lazy: () => import("./routes/translations/add-locales"),
+              children: [
+                {
+                  path: "",
+                  element: <Outlet />,
+                  children: [
+                    {
+                      path: "",
+                      lazy: () =>
+                        import("./routes/api-key-management/api-key-management-list"),
+                      children: [
+                        {
+                          path: "create",
+                          lazy: () =>
+                            import("./routes/api-key-management/api-key-management-create"),
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/api-key-management/api-key-management-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminApiKeyResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
+                  },
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/api-key-management/api-key-management-edit"),
+                    },
+                    {
+                      path: "sales-channels",
+                      lazy: () =>
+                        import("./routes/api-key-management/api-key-management-sales-channels"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "secret-api-keys",
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("apiKeyManagement.domain.secret"),
               },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    element: <PublicLayout />,
-    children: [
-      {
-        errorElement: <ErrorBoundary />,
-        children: [
-          {
-            path: "/login",
-            lazy: () => import("./routes/login"),
-          },
-          {
-            path: "/reset-password",
-            lazy: () => import("./routes/reset-password"),
-          },
-          {
-            path: "/invite",
-            lazy: () => import("./routes/invite"),
-          },
-          {
-            path: "*",
-            lazy: () => import("./routes/no-match"),
-          },
-        ],
-      },
-    ],
-  },
-];
+              children: [
+                {
+                  path: "",
+                  element: <Outlet />,
+                  children: [
+                    {
+                      path: "",
+                      lazy: () =>
+                        import("./routes/api-key-management/api-key-management-list"),
+                      children: [
+                        {
+                          path: "create",
+                          lazy: () =>
+                            import("./routes/api-key-management/api-key-management-create"),
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  path: ":id",
+                  lazy: async () => {
+                    const { Component, Breadcrumb, loader } =
+                      await import("./routes/api-key-management/api-key-management-detail");
+
+                    return {
+                      Component,
+                      loader,
+                      handle: {
+                        breadcrumb: (
+                          match: UIMatch<HttpTypes.AdminApiKeyResponse>
+                        ) => <Breadcrumb {...match} />,
+                      },
+                    };
+                  },
+                  children: [
+                    {
+                      path: "edit",
+                      lazy: () =>
+                        import("./routes/api-key-management/api-key-management-edit"),
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "tax-regions",
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("taxRegions.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/tax-regions/tax-region-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/tax-regions/tax-region-create"),
+                    },
+                  ],
+                },
+                {
+                  path: ":id",
+                  Component: Outlet,
+                  loader: taxRegionLoader,
+                  handle: {
+                    breadcrumb: (
+                      match: UIMatch<HttpTypes.AdminTaxRegionResponse>
+                    ) => <TaxRegionDetailBreadcrumb {...match} />,
+                  },
+                  children: [
+                    {
+                      path: "",
+                      lazy: async () => {
+                        const { Component } =
+                          await import("./routes/tax-regions/tax-region-detail");
+
+                        return {
+                          Component,
+                        };
+                      },
+                      children: [
+                        {
+                          path: "edit",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-edit"),
+                        },
+                        {
+                          path: "provinces/create",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-province-create"),
+                        },
+                        {
+                          path: "overrides/create",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-tax-override-create"),
+                        },
+                        {
+                          path: "overrides/:tax_rate_id/edit",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-tax-override-edit"),
+                        },
+                        {
+                          path: "tax-rates/create",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-tax-rate-create"),
+                        },
+                        {
+                          path: "tax-rates/:tax_rate_id/edit",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-tax-rate-edit"),
+                        },
+                      ],
+                    },
+                    {
+                      path: "provinces/:province_id",
+                      lazy: async () => {
+                        const { Component, Breadcrumb, loader } =
+                          await import("./routes/tax-regions/tax-region-province-detail");
+
+                        return {
+                          Component,
+                          loader,
+                          handle: {
+                            breadcrumb: (
+                              match: UIMatch<HttpTypes.AdminTaxRegionResponse>
+                            ) => <Breadcrumb {...match} />,
+                          },
+                        };
+                      },
+                      children: [
+                        {
+                          path: "tax-rates/create",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-tax-rate-create"),
+                        },
+                        {
+                          path: "tax-rates/:tax_rate_id/edit",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-tax-rate-edit"),
+                        },
+                        {
+                          path: "overrides/create",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-tax-override-create"),
+                        },
+                        {
+                          path: "overrides/:tax_rate_id/edit",
+                          lazy: () =>
+                            import("./routes/tax-regions/tax-region-tax-override-edit"),
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "return-reasons",
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("returnReasons.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () =>
+                    import("./routes/return-reasons/return-reason-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/return-reasons/return-reason-create"),
+                    },
+
+                    {
+                      path: ":id",
+                      children: [
+                        {
+                          path: "edit",
+                          lazy: () =>
+                            import("./routes/return-reasons/return-reason-edit"),
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "refund-reasons",
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => t("refundReasons.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () =>
+                    import("./routes/refund-reasons/refund-reason-list"),
+                  children: [
+                    {
+                      path: "create",
+                      lazy: () =>
+                        import("./routes/refund-reasons/refund-reason-create"),
+                    },
+
+                    {
+                      path: ":id",
+                      children: [
+                        {
+                          path: "edit",
+                          lazy: () =>
+                            import("./routes/refund-reasons/refund-reason-edit"),
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "translations",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => t("translations.domain"),
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("./routes/translations/translation-list"),
+                  children: [
+                    {
+                      path: "settings",
+                      lazy: () => import("./routes/translations/settings"),
+                    },
+                  ],
+                },
+                {
+                  path: "edit",
+                  lazy: () => import("./routes/translations/translations-edit"),
+                },
+                {
+                  path: "add-locales",
+                  lazy: () => import("./routes/translations/add-locales"),
+                },
+              ],
+            },
+            ...customSettingsRoutes,
+          ],
+        },
+      ],
+    },
+    {
+      element: <PublicLayout />,
+      children: [
+        {
+          errorElement: <ErrorBoundary />,
+          children: [
+            {
+              path: "/login",
+              lazy: () => import("./routes/login"),
+            },
+            {
+              path: "/reset-password",
+              lazy: () => import("./routes/reset-password"),
+            },
+            {
+              path: "/invite",
+              lazy: () => import("./routes/invite"),
+            },
+            {
+              path: "*",
+              lazy: () => import("./routes/no-match"),
+            },
+          ],
+        },
+      ],
+    },
+  ];
+}

@@ -16,22 +16,7 @@ export interface BuiltMercurConfig extends MercurConfig {
     configPath: string
 }
 
-export type Route = {
-    Component: string
-    path: string
-    handle?: string
-    loader?: string
-    children?: Route[]
-}
 
-export type MenuItem = {
-    label: string
-    icon?: ComponentType
-    path: string
-    rank?: number
-    nested?: string
-    translationNs?: string
-}
 
 export type RouteConfig = {
     label: string

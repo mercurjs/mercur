@@ -6,10 +6,19 @@ import { I18nProvider, Toaster, TooltipProvider } from "@medusajs/ui";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { I18n } from "./components/utilities/i18n";
 import { getRouteMap } from "./get-route-map";
+import { createRouteMap, getRoutesByType } from "./utils/routes";
+import { useMemo } from "react";
 
 const queryClient = new QueryClient();
 
 export default function App() {
+  const routes = useMemo(() => {
+    return {
+      settingsRoutes: createRouteMap(getRoutesByType(customRoutes, "settings")),
+      mainRoutes: createRouteMap(getRoutesByType(customRoutes, "main")),
+    };
+  }, [customRoutes]);
+
   return (
     <TooltipProvider>
       <HelmetProvider>
@@ -18,7 +27,7 @@ export default function App() {
             <I18n />
             <I18nProvider>
               <RouterProvider
-                router={createBrowserRouter(getRouteMap({ customRoutes }))}
+                router={createBrowserRouter(getRouteMap(routes))}
               />
             </I18nProvider>
             <Toaster />

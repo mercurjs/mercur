@@ -9,4 +9,3 @@ export const config: RouteConfig = {
 export default function ReviewsPage() {
   return <div>Reviews List</div>;
 }
-``;

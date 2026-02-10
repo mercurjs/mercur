@@ -10,10 +10,7 @@ import { Shell } from "../shell";
 import { UserMenu } from "../user-menu";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
-import {
-  getMenuItemExtensions,
-  getNestedMenuItems,
-} from "../../../utils/menu-items";
+import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
 import { MenuItem } from "@mercurjs/dashboard-sdk";
 
 export const SettingsLayout = () => {
@@ -148,7 +145,7 @@ const SettingsSidebar = () => {
   const _developerRoutes = useDeveloperRoutes();
   const _myAccountRoutes = useMyAccountRoutes();
   const allMenuItems = menuItemsModule.menuItems ?? [];
-  const customSettingsItems = getMenuItemExtensions(allMenuItems, "settings");
+  const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
 
   const { t } = useTranslation();
 

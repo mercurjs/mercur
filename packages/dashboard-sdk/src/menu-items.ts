@@ -2,7 +2,24 @@ import fs from "fs"
 import path from "path"
 import { VALID_FILE_EXTENSIONS } from "./constants"
 import { normalizePath } from "./utils"
-import type { BuiltMercurConfig, RouteConfig, MenuItem } from "./types"
+import type { BuiltMercurConfig } from "./types"
+
+type MenuItemConfig = {
+    label: boolean
+    icon?: boolean
+    rank?: number
+    nested?: string
+    translationNs?: string
+}
+
+type MenuItem = {
+    label: string
+    icon?: string
+    path: string
+    rank?: number
+    nested?: string
+    translationNs?: string
+}
 
 type MenuItemResult = {
     import: string
@@ -67,7 +84,7 @@ function hasConfigExport(filePath: string): boolean {
     }
 }
 
-function getConfigProperties(filePath: string): RouteConfig | null {
+function getConfigProperties(filePath: string): MenuItemConfig | null {
     try {
         const content = fs.readFileSync(filePath, "utf-8")
 
@@ -105,7 +122,7 @@ function generateImport(file: string, index: number): string {
 }
 
 function generateMenuItem(
-    config: RouteConfig,
+    config: MenuItemConfig,
     file: string,
     pagesDir: string,
     index: number
