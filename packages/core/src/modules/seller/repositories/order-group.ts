@@ -1,6 +1,7 @@
 import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
 import { Context, FindOptions } from "@medusajs/framework/types"
-import { isObject, MikroOrmBase } from "@medusajs/framework/utils"
+import { DALUtils, isObject } from "@medusajs/framework/utils"
+import { OrderGroup } from "../models"
 
 const OPERATOR_MAP = {
   $eq: "=",
@@ -15,7 +16,9 @@ const OPERATOR_MAP = {
   $ilike: "ILIKE",
 }
 
-export class OrderGroupRepository extends MikroOrmBase {
+export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory(
+  OrderGroup
+) {
   constructor() {
     // @ts-ignore
     // eslint-disable-next-line prefer-rest-params

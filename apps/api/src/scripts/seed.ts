@@ -1056,7 +1056,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Seeding seller data...");
   const sellerEmail = "seller@medusa-test.com";
-  const sellerModule = container.resolve(MercurModules.SELLER) as any;
+  const sellerModule = container.resolve(MercurModules.SELLER)
   const authModule: IAuthModuleService = container.resolve(Modules.AUTH);
 
   const existingSellers = await sellerModule.listSellers({
