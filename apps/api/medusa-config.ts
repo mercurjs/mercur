@@ -16,7 +16,7 @@ module.exports = defineConfig({
     }
   },
   plugins: [{
-    resolve: "@mercurjs/core",
+    resolve: "@mercurjs/core-plugin",
     options: {}
   }]
 })

@@ -45,9 +45,8 @@ export function createClient<TRoutes>(options: ClientOptions): InferClient<TRout
 
         const urlParts = path.map((segment) => {
             if (segment.startsWith("$")) {
-                const paramName = segment.slice(1);
-                const value = rest[paramName];
-                delete rest[paramName];
+                const value = rest[segment];
+                delete rest[segment];
                 return String(value);
             }
             return kebabCase(segment);
