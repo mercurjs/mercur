@@ -28,6 +28,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/error-message": "^2.0.1",
     "@hookform/resolvers": "3.4.2",
+    "@medusajs/admin-shared": "^2.13.0",
     "@medusajs/dashboard": "^2.13.0",
     "@medusajs/icons": "2.13.1",
     "@medusajs/ui": "4.1.1",

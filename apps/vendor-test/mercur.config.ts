@@ -5,5 +5,6 @@ export default {
     description: 'test',
     components: {
     },
+
     baseUrl: 'http://localhost:9000',
 } satisfies MercurConfig

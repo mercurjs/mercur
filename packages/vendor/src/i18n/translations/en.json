@@ -2912,11 +2912,26 @@
   },
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to Medusa",
-    "hint": "Sign in to access the account area"
+    "title": "Welcome to Mercur",
+    "hint": "Sign in to access the vendor area",
+    "notSellerYet": "Not a seller yet? - <0>Register</0>"
+  },
+  "register": {
+    "title": "Create your account",
+    "hint": "Register as a seller on Mercur",
+    "alreadySeller": "Already a seller? - <0>Log in</0>"
+  },
+  "validation": {
+    "rules": {
+      "lower": "At least one lowercase letter",
+      "upper": "At least one uppercase letter",
+      "12chars": "At least 12 characters",
+      "digit": "At least one digit",
+      "specialChar": "At least one special character"
+    }
   },
   "invite": {
-    "title": "Welcome to Medusa",
+    "title": "Welcome to Mercur",
     "hint": "Create your account below",
     "backToLogin": "Back to login",
     "createAccount": "Create account",
@@ -2924,8 +2939,8 @@
     "emailTooltip": "Your email cannot be changed. If you would like to use another email, a new invite must be sent.",
     "invalidInvite": "The invite is invalid or has expired.",
     "successTitle": "Your account has been registered",
-    "successHint": "Get started with Medusa Admin right away.",
-    "successAction": "Start Medusa Admin",
+    "successHint": "Get started with Mercur right away.",
+    "successAction": "Start Mercur",
     "invalidTokenTitle": "Your invite token is invalid",
     "invalidTokenHint": "Try requesting a new invite link.",
     "passwordMismatch": "Passwords do not match",
@@ -3305,7 +3320,7 @@
   "auth": {
     "login": {
       "authenticationFailed": "Authentication failed",
-      "cloud": "Log in with Medusa Cloud"
+      "cloud": "Log in with Mercur"
     }
   }
 }
