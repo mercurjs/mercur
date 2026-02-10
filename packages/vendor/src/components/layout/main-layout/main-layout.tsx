@@ -38,28 +38,47 @@ export const MainLayout = () => {
   );
 };
 
+const allMenuItems = menuItemsModule.menuItems ?? [];
+
+const addNestedItems = (
+  to: string,
+  items?: { label: string; to: string; translationNs?: string }[]
+) => {
+  const nestedItems = getNestedMenuItems(allMenuItems, to);
+  if (nestedItems.length === 0) {
+    return items;
+  }
+
+  const nestedNavItems = nestedItems.map((item) => ({
+    label: item.label,
+    to: item.path,
+    translationNs: item.translationNs,
+  }));
+
+  return [...(items ?? []), ...nestedNavItems];
+};
+
 const MainSidebar = () => {
   const coreRoutes = useCoreRoutes();
-  const allMenuItems = menuItemsModule.menuItems ?? [];
   const customMenuItems = getMenuItemsByType(allMenuItems, "main");
 
-  const routesWithNested = coreRoutes.map((route) => {
-    const nestedItems = getNestedMenuItems(allMenuItems, route.to);
-    if (nestedItems.length === 0) {
-      return route;
-    }
+  const routesWithNested = coreRoutes.map((route) => ({
+    ...route,
+    items: addNestedItems(route.to, route.items),
+  }));
 
-    const nestedNavItems = nestedItems.map((item) => ({
-      label: item.label,
-      to: item.path,
-      translationNs: item.translationNs,
-    }));
-
-    return {
-      ...route,
-      items: [...(route.items ?? []), ...nestedNavItems],
-    };
-  });
+  const customRoutesWithNested = customMenuItems
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    .map((item) => {
+      const Icon = item.icon;
+      return {
+        label: item.label,
+        to: item.path,
+        icon: Icon ? <Icon /> : undefined,
+        translationNs: item.translationNs,
+        items: addNestedItems(item.path),
+      };
+    });
 
   return (
     <aside className="flex flex-1 flex-col justify-between overflow-y-auto">
@@ -77,20 +96,9 @@ const MainSidebar = () => {
               {routesWithNested.map((route) => {
                 return <NavItem key={route.to} {...route} />;
               })}
-              {customMenuItems
-                .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-                .map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <NavItem
-                      key={item.path}
-                      label={item.label}
-                      to={item.path}
-                      icon={Icon ? <Icon /> : undefined}
-                      translationNs={item.translationNs}
-                    />
-                  );
-                })}
+              {customRoutesWithNested.map((route) => (
+                <NavItem key={route.to} {...route} />
+              ))}
             </nav>
           </div>
           <UtilitySection />
