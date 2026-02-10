@@ -1634,7 +1634,7 @@ export function getRouteMap({
                 },
               ],
             },
-            ...customSettingsRoutes,
+            ...(customSettingsRoutes?.[0]?.children || []),
           ],
         },
       ],
