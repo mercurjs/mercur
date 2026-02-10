@@ -39,3 +39,4 @@ yarn-error.log*
 
 apps/backend/.medusa
 packages/modules/*
+test/*

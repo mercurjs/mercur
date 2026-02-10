@@ -1,0 +1,104 @@
+{
+  "name": "@mercurjs/core-vendor",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsup",
+    "build:preview": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write ."
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./pages/*": {
+      "types": "./dist/pages/*/index.d.ts",
+      "import": "./dist/pages/*/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "import": "./dist/hooks/index.js"
+    },
+    "./styles.css": "./dist/index.css"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {
+    "@ariakit/react": "^0.4.15",
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@hookform/error-message": "^2.0.1",
+    "@hookform/resolvers": "3.4.2",
+    "@medusajs/admin-shared": "^2.5.0",
+    "@medusajs/icons": "^2.5.0",
+    "@medusajs/js-sdk": "^2.5.0",
+    "@medusajs/ui": "~4.0.5",
+    "@talkjs/react": "^0.1.11",
+    "@tanstack/react-query": "5.64.2",
+    "@tanstack/react-table": "8.20.5",
+    "@tanstack/react-virtual": "^3.8.3",
+    "@uiw/react-json-view": "^2.0.0-alpha.17",
+    "clsx": "^2.1.1",
+    "cmdk": "^0.2.0",
+    "date-fns": "^3.6.0",
+    "i18next": "23.7.11",
+    "i18next-browser-languagedetector": "7.2.0",
+    "i18next-http-backend": "2.4.2",
+    "lodash": "^4.17.21",
+    "match-sorter": "^6.3.4",
+    "motion": "^11.15.0",
+    "qs": "^6.12.0",
+    "radix-ui": "1.1.2",
+    "react": "^18.2.0",
+    "react-country-flag": "^3.1.0",
+    "react-currency-input-field": "^3.6.11",
+    "react-day-picker": "^9.6.3",
+    "react-dom": "^18.2.0",
+    "react-helmet-async": "^2.0.5",
+    "react-hook-form": "7.49.1",
+    "react-i18next": "13.5.0",
+    "react-jwt": "^1.2.0",
+    "react-router-dom": "^6.30.3",
+    "recharts": "^2.15.1",
+    "talkjs": "^0.35.0",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+    "@medusajs/admin-shared": "^2.5.0",
+    "@medusajs/admin-vite-plugin": "^2.5.0",
+    "@medusajs/types": "^2.5.0",
+    "@medusajs/ui-preset": "^2.5.0",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^20.11.15",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "@vitejs/plugin-react": "^4.7.0",
+    "ajv": "^8.17.1",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.33",
+    "prettier": "^3.1.1",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "tailwindcss": "^3.4.1",
+    "tsup": "^8.0.2",
+    "typescript": "5.2.2",
+    "vite": "^5.4.14",
+    "vite-plugin-inspect": "^0.8.7",
+    "vitest": "^3.0.5"
+  },
+  "packageManager": "yarn@1.22.22"
+}
