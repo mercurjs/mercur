@@ -11,7 +11,7 @@ import { UserMenu } from "../user-menu";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
 import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
-import { MenuItem } from "@mercurjs/dashboard-sdk";
+import { MenuItem } from "../../../utils/routes";
 
 export const SettingsLayout = () => {
   const Sidebar = components.SettingsSidebar
@@ -141,9 +141,9 @@ const injectNestedSettingsItems = (
 };
 
 const SettingsSidebar = () => {
-  const _generalRoutes = useSettingRoutes();
-  const _developerRoutes = useDeveloperRoutes();
-  const _myAccountRoutes = useMyAccountRoutes();
+  const generalRoutes = useSettingRoutes();
+  const developerRoutes = useDeveloperRoutes();
+  const myAccountRoutes = useMyAccountRoutes();
   const allMenuItems = menuItemsModule.menuItems ?? [];
   const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
 
@@ -156,14 +156,6 @@ const SettingsSidebar = () => {
       to: item.path,
       translationNs: item.translationNs,
     }));
-
-  const generalRoutes = injectNestedSettingsItems(_generalRoutes, allMenuItems);
-  const devRoutes = injectNestedSettingsItems(_developerRoutes, allMenuItems);
-  const accountRoutes = injectNestedSettingsItems(
-    _myAccountRoutes,
-    allMenuItems
-  );
-
   return (
     <aside className="relative flex flex-1 flex-col justify-between overflow-y-auto">
       <div className="bg-ui-bg-subtle sticky top-0">
@@ -183,18 +175,20 @@ const SettingsSidebar = () => {
           </div>
           <RadixCollapsibleSection
             label={t("app.nav.settings.developer")}
-            items={devRoutes}
+            items={developerRoutes}
           />
-          <RadixCollapsibleSection
-            label={t("app.nav.common.extensions")}
-            items={extensionNavItems}
-          />
+          {extensionNavItems.length > 0 && (
+            <RadixCollapsibleSection
+              label={t("app.nav.common.extensions")}
+              items={extensionNavItems}
+            />
+          )}
           <div className="flex items-center justify-center px-3">
             <Divider variant="dashed" />
           </div>
           <RadixCollapsibleSection
             label={t("app.nav.settings.myAccount")}
-            items={accountRoutes}
+            items={myAccountRoutes}
           />
         </div>
         <div className="bg-ui-bg-subtle sticky bottom-0">

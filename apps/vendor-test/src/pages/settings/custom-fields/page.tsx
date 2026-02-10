@@ -4,6 +4,7 @@ import type { RouteConfig } from "@mercurjs/dashboard-sdk";
 export const config: RouteConfig = {
   label: "Custom Fields",
   icon: CogSixTooth,
+  nested: "developer",
 };
 
 export default function CustomFieldsPage() {
