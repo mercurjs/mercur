@@ -1,4 +1,5 @@
 import { ComponentType } from "react";
+import { HttpTypes } from "@medusajs/types";
 import { t } from "i18next";
 import { Outlet, RouteObject, UIMatch } from "react-router-dom";
 import { ProtectedRoute } from "./components/authentication/protected-route";

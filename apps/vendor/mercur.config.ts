@@ -6,5 +6,6 @@ export default {
     components: {
         Sidebar: './sidebar'
     },
-    baseUrl: 'https://api-mercurjs.up.railway.app',
+
+    baseUrl: 'http://localhost:9000',
 } satisfies MercurConfig
