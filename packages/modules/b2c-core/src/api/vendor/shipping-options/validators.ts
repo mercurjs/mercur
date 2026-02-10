@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { RuleOperator } from '@medusajs/framework/utils'
+import { PricingRuleOperator, RuleOperator } from '@medusajs/framework/utils'
 import { createFindParams } from '@medusajs/medusa/api/utils/validators'
 
 export type VendorGetShippingParamsType = z.infer<
@@ -31,7 +31,14 @@ export const VendorGetShippingFindParams = createFindParams({
 const CreateShippingOptionPriceWithCurrency = z
   .object({
     currency_code: z.string(),
-    amount: z.number()
+    amount: z.number(),
+    rules: z.array(
+      z.object({
+        attribute: z.literal('item_total'),
+        operator: z.nativeEnum(PricingRuleOperator),
+        value: z.number()
+      })
+    )
   })
   .strict()
 
@@ -52,7 +59,14 @@ const CreateShippingOptionPriceWithCurrency = z
 export const CreateShippingOptionPriceWithRegion = z
   .object({
     region_id: z.string(),
-    amount: z.number()
+    amount: z.number(),
+    rules: z.array(
+      z.object({
+        attribute: z.literal('item_total'),
+        operator: z.nativeEnum(PricingRuleOperator),
+        value: z.number()
+      })
+    )
   })
   .strict()
 
