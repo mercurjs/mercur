@@ -4,10 +4,12 @@ import {
     RESOLVED_ROUTES_MODULE,
     RESOLVED_COMPONENTS_MODULE,
     RESOLVED_MENU_ITEMS_MODULE,
+    RESOLVED_I18N_MODULE,
     VIRTUAL_MODULES,
 } from "./constants"
 import { generateRoutes } from "./routes"
 import { generateMenuItems } from "./menu-items"
+import { generateI18n } from "./i18n"
 import type { BuiltMercurConfig } from "./types"
 
 export function isVirtualModule(id: string): boolean {
@@ -45,6 +47,10 @@ export function loadVirtualModule({
         return loadMenuItemsModule(mercurConfig)
     }
 
+    if (id === RESOLVED_I18N_MODULE) {
+        return loadI18nModule(mercurConfig)
+    }
+
     return null
 }
 
@@ -79,4 +85,8 @@ function loadRoutesModule(mercurConfig: BuiltMercurConfig): string {
 
 function loadMenuItemsModule(mercurConfig: BuiltMercurConfig): string {
     return generateMenuItems(mercurConfig)
+}
+
+function loadI18nModule(mercurConfig: BuiltMercurConfig): string {
+    return generateI18n(mercurConfig)
 }
