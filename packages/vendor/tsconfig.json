@@ -18,14 +18,21 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@lib/*": ["src/lib/*"],
+      "@pages/*": ["src/pages/*"],
+      "@providers/*": ["src/providers/*"],
+      "@assets/*": ["src/assets/*"]
+    }
   },
   "include": [
     "src"
   ],
   "composite": false,
-  "skipLibCheck": true,
-  "module": "ESNext",
-  "moduleResolution": "bundler",
   "allowSyntheticDefaultImports": true
 }

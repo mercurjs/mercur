@@ -4,12 +4,13 @@ import {
   InferClientOutput,
 } from "@mercurjs/client";
 import {
+  QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { customerGroupsQueryKeys } from "./customer-groups";
@@ -200,4 +201,25 @@ export const usePriceListLinkProducts = (
     },
     ...options,
   });
+};
+
+export const usePriceListProducts = (
+  id: string,
+  query?: Record<string, string | number>,
+  options?: Omit<
+    UseQueryOptions<any, Error, any, QueryKey>,
+    "queryKey" | "queryFn"
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      fetchQuery(`/vendor/price-lists/${id}/products`, {
+        method: "GET",
+        query,
+      }),
+    queryKey: [PRICE_LISTS_QUERY_KEY, id, "products"],
+    ...options,
+  });
+
+  return { ...data, ...rest };
 };

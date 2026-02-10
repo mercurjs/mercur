@@ -5,6 +5,8 @@ export interface MercurConfig {
         Sidebar?: string
     },
     baseUrl: string;
+    storefrontUrl?: string;
+    disableSellersRegistration?: boolean;
 }
 
 export interface BuiltMercurConfig extends MercurConfig {

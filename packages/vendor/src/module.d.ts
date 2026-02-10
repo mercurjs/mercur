@@ -1,6 +1,6 @@
 declare module "virtual:mercur/routes" {
-    import { RouteObject } from 'react-router-dom'
-    const routes: RouteObject[]
+    import { CustomRoute } from './get-route-map'
+    const routes: CustomRoute[]
     export default routes
 }
 

@@ -4,12 +4,13 @@ import {
   InferClientOutput,
 } from "@mercurjs/client";
 import {
+  QueryKey,
   useMutation,
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory, TQueryKey } from "../../lib/query-key-factory";
 import { inventoryItemsQueryKeys } from "./inventory";
@@ -503,4 +504,57 @@ export const useExportOrders = (
     },
     ...options,
   });
+};
+
+export const useCompleteOrder = (
+  orderId: string,
+  options?: UseMutationOptions<any, Error, void>
+) => {
+  return useMutation({
+    mutationFn: () =>
+      fetchQuery(`/vendor/orders/${orderId}/complete`, {
+        method: "POST",
+      }),
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: ordersQueryKeys.detail(orderId),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ordersQueryKeys.preview(orderId),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ordersQueryKeys.list(),
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+type OrderCommission = {
+  commission: any
+}
+
+export const useOrderCommission = (
+  id: string,
+  query?: Record<string, any>,
+  options?: Omit<
+    UseQueryOptions<OrderCommission, Error, OrderCommission, QueryKey>,
+    "queryFn" | "queryKey"
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: async () =>
+      fetchQuery(`/vendor/orders/${id}/commission`, {
+        method: "GET",
+        query,
+      }),
+    queryKey: ordersQueryKeys.detail(`${id}/commission`, query),
+    ...options,
+  });
+
+  return { commission: data?.commission, ...rest };
 };

@@ -9,7 +9,7 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { campaignsQueryKeys } from "./campaigns";
@@ -334,6 +334,33 @@ export const usePromotionUpdateRules = (
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useRemovePromotionFromCampaign = (
+  promotionId: string,
+  options?: UseMutationOptions<any, Error, void>
+) => {
+  return useMutation({
+    mutationFn: () =>
+      fetchQuery(`/vendor/promotions/${promotionId}`, {
+        method: "POST",
+        body: { campaign_id: null },
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: promotionsQueryKeys.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: campaignsQueryKeys.details(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: campaignsQueryKeys.lists(),
+      });
 
       options?.onSuccess?.(data, variables, context);
     },

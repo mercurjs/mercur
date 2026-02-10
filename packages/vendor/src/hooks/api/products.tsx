@@ -12,7 +12,7 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { inventoryItemsQueryKeys } from "./inventory.tsx";
@@ -617,3 +617,54 @@ export const useBatchVariantImages = (
     ...options,
   });
 };
+
+type ProductAttributesResponse = {
+  attributes: any[]
+}
+
+const productAttributesQueryKey = (id: string) => [
+  "product-attributes",
+  id,
+]
+
+export const useProductAttributes = (id: string) => {
+  const { data, ...rest } = useQuery<ProductAttributesResponse>({
+    queryFn: () =>
+      fetchQuery(`/vendor/products/${id}/applicable-attributes`, {
+        method: "GET",
+        query: { fields: "+is_required" },
+      }),
+    queryKey: productAttributesQueryKey(id),
+  })
+
+  return { ...data, ...rest }
+}
+
+export const useBulkDeleteProducts = (
+  options?: UseMutationOptions<any[], ClientError, string[]>
+) => {
+  return useMutation({
+    mutationFn: async (productIds: string[]) => {
+      const deletePromises = productIds.map((id) =>
+        fetchQuery(`/vendor/products/${id}`, {
+          method: "DELETE",
+        })
+      )
+      return Promise.all(deletePromises)
+    },
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.lists(),
+      })
+
+      variables.forEach((id: string) => {
+        queryClient.invalidateQueries({
+          queryKey: productsQueryKeys.detail(id),
+        })
+      })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
