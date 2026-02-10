@@ -21,6 +21,19 @@ export function isOptionEnabledInStore(
 /**
  * Return a name for the shipping option location or generate one based on the locations address
  */
+export function getShippingProfileName(name: string) {
+  return name.split(":")[1]
+}
+
+export function isSameLocation(
+  shippingOption: HttpTypes.AdminShippingOption,
+  locationId: string
+) {
+  return (
+    shippingOption?.service_zone?.fulfillment_set?.location?.id === locationId
+  )
+}
+
 export function getFormattedShippingOptionLocationName(
   shippingOption: HttpTypes.AdminShippingOption
 ) {

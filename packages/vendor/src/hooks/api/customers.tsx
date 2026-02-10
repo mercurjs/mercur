@@ -4,15 +4,17 @@ import {
   InferClientOutput,
 } from "@mercurjs/client";
 import {
+  QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { customerGroupsQueryKeys } from "./customer-groups";
+import { filterOrders } from "../../pages/orders/common/orderFiltering";
 
 const CUSTOMERS_QUERY_KEY = "customers" as const;
 export const customersQueryKeys = queryKeysFactory(CUSTOMERS_QUERY_KEY);
@@ -287,4 +289,33 @@ export const useCustomerAddress = (
   });
 
   return { ...data, ...rest };
+};
+
+export const useCustomerOrders = (
+  id: string,
+  query?: Record<string, any>,
+  options?: Omit<
+    UseQueryOptions<
+      { orders: any[] },
+      Error,
+      { orders: any[] },
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
+  >,
+  filters?: any
+) => {
+  const { data, ...rest } = useQuery({
+    queryKey: [CUSTOMERS_QUERY_KEY, id, "orders"],
+    queryFn: async () =>
+      fetchQuery(`/vendor/customers/${id}/orders`, {
+        method: "GET",
+        query,
+      }),
+    ...options,
+  });
+
+  const filteredOrders = filterOrders(data?.orders, filters, filters?.sort);
+
+  return { ...data, orders: filteredOrders, ...rest };
 };

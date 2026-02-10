@@ -9,7 +9,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 
@@ -118,4 +118,21 @@ export const useDeleteUser = (
     },
     ...options,
   });
+};
+
+export const useUserMe = (
+  query?: Record<string, any>,
+  options?: UseQueryOptions<any, Error, any>
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      fetchQuery(`/vendor/me`, {
+        method: "GET",
+        query: query as { [key: string]: string | number },
+      }),
+    queryKey: [USERS_QUERY_KEY, "user", "me"],
+    ...options,
+  });
+
+  return { ...data, ...rest };
 };

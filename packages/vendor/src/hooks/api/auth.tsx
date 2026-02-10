@@ -5,6 +5,7 @@ import {
 } from "@mercurjs/client";
 import { UseMutationOptions, useMutation } from "@tanstack/react-query";
 import { sdk } from "../../lib/client";
+import { backendUrl } from "../../lib/client";
 
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
@@ -17,12 +18,25 @@ export const useSignInWithEmailPass = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.auth.$actorType.$authProvider.mutate({
+    mutationFn: async (payload) => {
+      const data = (await sdk.auth.$actorType.$authProvider.mutate({
         actorType: "user",
         authProvider: "emailpass",
         ...payload,
-      }),
+      })) as { token: string };
+
+      // Exchange JWT token for a session cookie
+      await fetch(`${backendUrl}/auth/session`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${data.token}`,
+        },
+      });
+
+      return data;
+    },
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context);
     },
@@ -52,6 +66,29 @@ export const useSignUpWithEmailPass = (
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context);
     },
+    ...options,
+  });
+};
+
+export const useSignUpForInvite = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.auth.$actorType.$authProvider.register.mutate>,
+    ClientError,
+    Omit<
+      InferClientInput<
+        typeof sdk.auth.$actorType.$authProvider.register.mutate
+      >,
+      "actorType" | "authProvider"
+    >
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.auth.$actorType.$authProvider.register.mutate({
+        actorType: "user",
+        authProvider: "emailpass",
+        ...payload,
+      }),
     ...options,
   });
 };

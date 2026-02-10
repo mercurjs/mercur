@@ -7,13 +7,12 @@ import type { MercurConfig, BuiltMercurConfig } from "./types"
 
 function buildConfig(config: MercurConfig, root: string): BuiltMercurConfig {
     const srcDir = path.join(root, "src")
-    const configPath = path.join(root, CONFIG_NAME)
 
     return {
         ...config,
         root,
         srcDir,
-        configPath,
+        configPath: path.resolve(root, CONFIG_NAME),
     }
 }
 
@@ -24,8 +23,7 @@ async function loadMercurConfig(root: string): Promise<BuiltMercurConfig> {
         return buildConfig(mod.default, root)
     } catch (error) {
         throw new Error(
-            `[@mercurjs/dashboard-sdk] Could not find config file "${CONFIG_NAME}" in ${root}. ` +
-            `Please create a ${CONFIG_NAME} file in your project root.`
+            `[@mercurjs/dashboard-sdk] Could not find or load ${CONFIG_NAME} in ${root}`
         )
     }
 }
