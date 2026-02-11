@@ -17,13 +17,13 @@ export const paymentCollectionQueryKeys = queryKeysFactory(
 export const useCreatePaymentCollection = (
   orderId: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.paymentCollections.mutate>,
+    InferClientOutput<typeof sdk.vendor.paymentCollections.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.paymentCollections.mutate>
+    InferClientInput<typeof sdk.vendor.paymentCollections.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.paymentCollections.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.paymentCollections.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -48,12 +48,12 @@ export const useMarkPaymentCollectionAsPaid = (
   paymentCollectionId: string,
   options?: UseMutationOptions<
     InferClientOutput<
-      typeof sdk.admin.paymentCollections.$id.markAsPaid.mutate
+      typeof sdk.vendor.paymentCollections.$id.markAsPaid.mutate
     >,
     ClientError,
     Omit<
       InferClientInput<
-        typeof sdk.admin.paymentCollections.$id.markAsPaid.mutate
+        typeof sdk.vendor.paymentCollections.$id.markAsPaid.mutate
       >,
       "id"
     >
@@ -61,7 +61,7 @@ export const useMarkPaymentCollectionAsPaid = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.paymentCollections.$id.markAsPaid.mutate({
+      sdk.vendor.paymentCollections.$id.markAsPaid.mutate({
         id: paymentCollectionId,
         ...payload,
       }),
@@ -88,7 +88,7 @@ export const useDeletePaymentCollection = (
   orderId: string,
   options?: Omit<
     UseMutationOptions<
-      InferClientOutput<typeof sdk.admin.paymentCollections.$id.delete>,
+      InferClientOutput<typeof sdk.vendor.paymentCollections.$id.delete>,
       ClientError,
       string
     >,
@@ -97,7 +97,7 @@ export const useDeletePaymentCollection = (
 ) => {
   return useMutation({
     mutationFn: (id: string) =>
-      sdk.admin.paymentCollections.$id.delete({ id }),
+      sdk.vendor.paymentCollections.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),

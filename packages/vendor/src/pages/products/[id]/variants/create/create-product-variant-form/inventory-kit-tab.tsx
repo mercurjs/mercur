@@ -7,7 +7,7 @@ import { XMarkMini } from "@medusajs/icons"
 import { useTranslation } from "react-i18next"
 
 import { useComboboxData } from "@hooks/use-combobox-data"
-import { sdk } from "@lib/client"
+import { fetchQuery } from "@lib/client"
 import { Form } from "@components/common/form"
 import { Combobox } from "@components/inputs/combobox"
 
@@ -27,9 +27,13 @@ function InventoryKitTab({ form }: InventoryKitTabProps) {
 
   const items = useComboboxData({
     queryKey: ["inventory_items"],
-    queryFn: (params) => sdk.admin.inventoryItem.list(params),
-    getOptions: (data) =>
-      data.inventory_items.map((item) => ({
+    queryFn: (params) =>
+      fetchQuery(`/vendor/inventory-items`, {
+        method: "GET",
+        query: params,
+      }),
+    getOptions: (data: any) =>
+      data.inventory_items.map((item: any) => ({
         label: item.title || item.sku || item.id,
         value: item.id,
       })),

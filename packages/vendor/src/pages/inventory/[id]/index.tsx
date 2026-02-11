@@ -45,14 +45,12 @@ export const Breadcrumb = (props: InventoryDetailBreadcrumbProps) => {
 export const Component = () => {
   const { id } = useParams()
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>
-  const { inventory_item, isPending: isLoading, isError, error } = useInventoryItem(id!, { fields: INVENTORY_DETAIL_FIELDS }, { initialData })
+  const { inventory_item, isPending: isLoading } = useInventoryItem(id!, { fields: INVENTORY_DETAIL_FIELDS }, { initialData })
   const { getWidgets } = useDashboardExtension()
 
   if (isLoading || !inventory_item) {
     return <TwoColumnPageSkeleton showJSON mainSections={3} sidebarSections={2} showMetadata />
   }
-
-  if (isError) throw error
 
   return (
     <TwoColumnPage

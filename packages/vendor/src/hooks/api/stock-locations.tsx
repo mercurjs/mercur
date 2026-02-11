@@ -23,17 +23,17 @@ export const stockLocationsQueryKeys = queryKeysFactory(
 export const useStockLocation = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.stockLocations.$id.query>,
+    InferClientInput<typeof sdk.vendor.stockLocations.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.stockLocations.$id.query>
+    InferClientOutput<typeof sdk.vendor.stockLocations.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.stockLocations.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.stockLocations.$id.query({ id, ...query }),
     queryKey: stockLocationsQueryKeys.detail(id, query),
     ...options,
   });
@@ -42,15 +42,15 @@ export const useStockLocation = (
 };
 
 export const useStockLocations = (
-  query?: InferClientInput<typeof sdk.admin.stockLocations.query>,
+  query?: InferClientInput<typeof sdk.vendor.stockLocations.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.stockLocations.query>
+    InferClientOutput<typeof sdk.vendor.stockLocations.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.stockLocations.query({ ...query }),
+    queryFn: () => sdk.vendor.stockLocations.query({ ...query }),
     queryKey: stockLocationsQueryKeys.list(query),
     ...options,
   });
@@ -60,13 +60,13 @@ export const useStockLocations = (
 
 export const useCreateStockLocation = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.stockLocations.mutate>,
+    InferClientOutput<typeof sdk.vendor.stockLocations.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.stockLocations.mutate>
+    InferClientInput<typeof sdk.vendor.stockLocations.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.stockLocations.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.stockLocations.mutate(payload),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.lists(),
@@ -81,14 +81,14 @@ export const useCreateStockLocation = (
 export const useUpdateStockLocation = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.stockLocations.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.stockLocations.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.stockLocations.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.stockLocations.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.stockLocations.$id.mutate({ id, ...payload }),
+      sdk.vendor.stockLocations.$id.mutate({ id, ...payload }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.details(),
@@ -107,12 +107,12 @@ export const useUpdateStockLocationSalesChannels = (
   id: string,
   options?: UseMutationOptions<
     InferClientOutput<
-      typeof sdk.admin.stockLocations.$id.salesChannels.mutate
+      typeof sdk.vendor.stockLocations.$id.salesChannels.mutate
     >,
     ClientError,
     Omit<
       InferClientInput<
-        typeof sdk.admin.stockLocations.$id.salesChannels.mutate
+        typeof sdk.vendor.stockLocations.$id.salesChannels.mutate
       >,
       "id"
     >
@@ -120,7 +120,7 @@ export const useUpdateStockLocationSalesChannels = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.stockLocations.$id.salesChannels.mutate({ id, ...payload }),
+      sdk.vendor.stockLocations.$id.salesChannels.mutate({ id, ...payload }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.details(),
@@ -138,13 +138,13 @@ export const useUpdateStockLocationSalesChannels = (
 export const useDeleteStockLocation = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.stockLocations.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.stockLocations.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.stockLocations.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.stockLocations.$id.delete({ id }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.lists(),
@@ -163,12 +163,12 @@ export const useCreateStockLocationFulfillmentSet = (
   locationId: string,
   options?: UseMutationOptions<
     InferClientOutput<
-      typeof sdk.admin.stockLocations.$id.fulfillmentSets.mutate
+      typeof sdk.vendor.stockLocations.$id.fulfillmentSets.mutate
     >,
     ClientError,
     Omit<
       InferClientInput<
-        typeof sdk.admin.stockLocations.$id.fulfillmentSets.mutate
+        typeof sdk.vendor.stockLocations.$id.fulfillmentSets.mutate
       >,
       "id"
     >
@@ -176,7 +176,7 @@ export const useCreateStockLocationFulfillmentSet = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.stockLocations.$id.fulfillmentSets.mutate({
+      sdk.vendor.stockLocations.$id.fulfillmentSets.mutate({
         id: locationId,
         ...payload,
       }),
@@ -195,12 +195,12 @@ export const useUpdateStockLocationFulfillmentProviders = (
   id: string,
   options?: UseMutationOptions<
     InferClientOutput<
-      typeof sdk.admin.stockLocations.$id.fulfillmentProviders.mutate
+      typeof sdk.vendor.stockLocations.$id.fulfillmentProviders.mutate
     >,
     ClientError,
     Omit<
       InferClientInput<
-        typeof sdk.admin.stockLocations.$id.fulfillmentProviders.mutate
+        typeof sdk.vendor.stockLocations.$id.fulfillmentProviders.mutate
       >,
       "id"
     >
@@ -208,7 +208,7 @@ export const useUpdateStockLocationFulfillmentProviders = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.stockLocations.$id.fulfillmentProviders.mutate({
+      sdk.vendor.stockLocations.$id.fulfillmentProviders.mutate({
         id,
         ...payload,
       }),

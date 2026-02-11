@@ -18,7 +18,7 @@ export const ReservationListTable = () => {
     pageSize: PAGE_SIZE,
   })
 
-  const { reservations, count, isPending, isError, error } =
+  const { reservations, count, isPending } =
     useReservationItems({
       ...searchParams,
     })
@@ -34,10 +34,6 @@ export const ReservationListTable = () => {
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
   })
-
-  if (isError) {
-    throw error
-  }
 
   return (
     <Container className="divide-y p-0">

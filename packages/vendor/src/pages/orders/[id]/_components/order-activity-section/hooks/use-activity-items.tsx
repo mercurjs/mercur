@@ -6,7 +6,6 @@ import { ReactNode } from "react"
 import { By } from "@components/common/user-link"
 import {
   useOrderChanges,
-  useOrderLineItems,
 } from "@hooks/api"
 import { ExtendedAdminOrderLineItemWithInventory } from "@custom-types/order"
 import { ExtendedAdminOrder, ExtendedAdminOrderChange } from "@custom-types/order"
@@ -20,7 +19,6 @@ import { ClaimBody } from "../components"
 import { ExchangeBody } from "../components"
 import { OrderEditBody } from "../components"
 import { TransferOrderRequestBody } from "../components"
-import { getMissingLineItemIds } from "../utils"
 
 /**
  * Order Changes that are not related to RMA flows
@@ -45,42 +43,11 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
     (oc) => oc.change_type && !NON_RMA_CHANGE_TYPES.includes(oc.change_type)
   )
 
-  const missingLineItemIds = getMissingLineItemIds(order, rmaChanges)
-  const { order_items: removedLineItems = [] } = useOrderLineItems(
-    order.id,
-    {
-      fields: "+quantity",
-      item_id: missingLineItemIds.join(","),
-    },
-    {
-      enabled: !!rmaChanges.length,
-    }
-  )
-
   const itemsMap = useMemo(() => {
-    const _itemsMap = new Map<string, ExtendedAdminOrderLineItemWithInventory>(
+    return new Map<string, ExtendedAdminOrderLineItemWithInventory>(
       order?.items?.map((i) => [i.id, i])
     )
-
-    // Add removed line items to the map
-    // These items won't have the extended inventory fields, but that's okay
-    // since they're not used for removed/historical items
-    for (const id of missingLineItemIds) {
-      const orderItem = removedLineItems.find((i) => i.item.id === id)
-
-      if (orderItem && orderItem.item) {
-        // Spread the item and override the variant to be undefined
-        // since removed items don't need variant inventory information
-        const lineItem: ExtendedAdminOrderLineItemWithInventory = {
-          ...orderItem.item,
-          variant: undefined, // Removed items don't need variant details
-        }
-        _itemsMap.set(id, lineItem)
-      }
-    }
-
-    return _itemsMap
-  }, [order.items, removedLineItems, missingLineItemIds])
+  }, [order.items])
 
   const returns: AdminReturn[] = []
   const claims: AdminClaim[] = []

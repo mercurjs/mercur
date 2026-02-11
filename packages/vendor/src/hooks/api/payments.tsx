@@ -1,8 +1,5 @@
-import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client";
+import { ClientError } from "@mercurjs/client"
+import { HttpTypes } from "@medusajs/types";
 import {
   useMutation,
   UseMutationOptions,
@@ -23,16 +20,12 @@ export const paymentProvidersQueryKeys = queryKeysFactory(
 );
 
 export const usePaymentProviders = (
-  query: InferClientInput<typeof sdk.admin.payments.paymentProviders.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.admin.payments.paymentProviders.query>
-  >
+  query: HttpTypes.AdminPaymentProviderListParams,
+  options?: UseQueryOptions<unknown, ClientError, HttpTypes.AdminPaymentProviderListResponse>
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
-      sdk.admin.payments.paymentProviders.query({ ...query }),
+      sdk.vendor.payments.paymentProviders.query({ ...query }),
     queryKey: paymentProvidersQueryKeys.list(query),
     ...options,
   });
@@ -42,15 +35,11 @@ export const usePaymentProviders = (
 
 export const usePayment = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.admin.payments.$id.query>, "id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.admin.payments.$id.query>
-  >
+  query?: Record<string, unknown>,
+  options?: UseQueryOptions<unknown, ClientError, HttpTypes.AdminPaymentCollectionResponse>
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.payments.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.payments.$id.query({ id, ...query }),
     queryKey: paymentQueryKeys.detail(id),
     ...options,
   });
@@ -62,14 +51,14 @@ export const useCapturePayment = (
   orderId: string,
   paymentId: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.payments.$id.capture.mutate>,
+    HttpTypes.AdminPaymentResponse,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.payments.$id.capture.mutate>, "id">
+    HttpTypes.AdminCapturePayment
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.payments.$id.capture.mutate({ id: paymentId, ...payload }),
+    mutationFn: (payload: HttpTypes.AdminCapturePayment) =>
+      sdk.vendor.payments.$id.capture.mutate({ id: paymentId, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -89,14 +78,14 @@ export const useRefundPayment = (
   orderId: string,
   paymentId: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.payments.$id.refund.mutate>,
+    HttpTypes.AdminPaymentResponse,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.payments.$id.refund.mutate>, "id">
+    HttpTypes.AdminRefundPayment
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.payments.$id.refund.mutate({ id: paymentId, ...payload }),
+    mutationFn: (payload: HttpTypes.AdminRefundPayment) =>
+      sdk.vendor.payments.$id.refund.mutate({ id: paymentId, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),

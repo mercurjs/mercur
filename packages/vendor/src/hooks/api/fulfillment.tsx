@@ -16,13 +16,13 @@ export const fulfillmentsQueryKeys = queryKeysFactory(FULFILLMENTS_QUERY_KEY)
 
 export const useCreateFulfillment = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.fulfillments.mutate>,
+    InferClientOutput<typeof sdk.vendor.fulfillments.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.fulfillments.mutate>
+    InferClientInput<typeof sdk.vendor.fulfillments.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.fulfillments.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.fulfillments.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: fulfillmentsQueryKeys.lists() })
       queryClient.invalidateQueries({
@@ -37,12 +37,12 @@ export const useCreateFulfillment = (
 export const useCancelFulfillment = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.fulfillments.$id.cancel.mutate>,
+    InferClientOutput<typeof sdk.vendor.fulfillments.$id.cancel.mutate>,
     ClientError
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.fulfillments.$id.cancel.mutate({ id }),
+    mutationFn: () => sdk.vendor.fulfillments.$id.cancel.mutate({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: fulfillmentsQueryKeys.lists() })
       queryClient.invalidateQueries({
@@ -57,17 +57,17 @@ export const useCancelFulfillment = (
 export const useCreateFulfillmentShipment = (
   fulfillmentId: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.fulfillments.$id.shipment.mutate>,
+    InferClientOutput<typeof sdk.vendor.fulfillments.$id.shipment.mutate>,
     ClientError,
     Omit<
-      InferClientInput<typeof sdk.admin.fulfillments.$id.shipment.mutate>,
+      InferClientInput<typeof sdk.vendor.fulfillments.$id.shipment.mutate>,
       "id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.fulfillments.$id.shipment.mutate({
+      sdk.vendor.fulfillments.$id.shipment.mutate({
         id: fulfillmentId,
         ...payload,
       }),

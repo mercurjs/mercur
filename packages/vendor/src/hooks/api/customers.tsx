@@ -24,16 +24,16 @@ export const customerAddressesQueryKeys = queryKeysFactory(
 
 export const useCustomer = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.admin.customers.$id.query>, "id">,
+  query?: Omit<InferClientInput<typeof sdk.vendor.customers.$id.query>, "id">,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.customers.$id.query>
+    InferClientOutput<typeof sdk.vendor.customers.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: customersQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.customers.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.customers.$id.query({ id, ...query }),
     ...options,
   });
 
@@ -41,15 +41,15 @@ export const useCustomer = (
 };
 
 export const useCustomers = (
-  query?: InferClientInput<typeof sdk.admin.customers.query>,
+  query?: InferClientInput<typeof sdk.vendor.customers.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.customers.query>
+    InferClientOutput<typeof sdk.vendor.customers.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.customers.query({ ...query }),
+    queryFn: () => sdk.vendor.customers.query({ ...query }),
     queryKey: customersQueryKeys.list(query),
     ...options,
   });
@@ -59,13 +59,13 @@ export const useCustomers = (
 
 export const useCreateCustomer = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customers.mutate>,
+    InferClientOutput<typeof sdk.vendor.customers.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.customers.mutate>
+    InferClientInput<typeof sdk.vendor.customers.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.customers.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.customers.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: customersQueryKeys.lists() });
       options?.onSuccess?.(data, variables, context);
@@ -77,14 +77,14 @@ export const useCreateCustomer = (
 export const useUpdateCustomer = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customers.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.customers.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.customers.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.customers.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.customers.$id.mutate({ id, ...payload }),
+      sdk.vendor.customers.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: customersQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -100,13 +100,13 @@ export const useUpdateCustomer = (
 export const useDeleteCustomer = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customers.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.customers.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.customers.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.customers.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: customersQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -122,17 +122,17 @@ export const useDeleteCustomer = (
 export const useBatchCustomerCustomerGroups = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customers.$id.customerGroups.mutate>,
+    InferClientOutput<typeof sdk.vendor.customers.$id.customerGroups.mutate>,
     ClientError,
     Omit<
-      InferClientInput<typeof sdk.admin.customers.$id.customerGroups.mutate>,
+      InferClientInput<typeof sdk.vendor.customers.$id.customerGroups.mutate>,
       "id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.customers.$id.customerGroups.mutate({ id, ...payload }),
+      sdk.vendor.customers.$id.customerGroups.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.details(),
@@ -157,17 +157,17 @@ export const useBatchCustomerCustomerGroups = (
 export const useCreateCustomerAddress = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customers.$id.addresses.mutate>,
+    InferClientOutput<typeof sdk.vendor.customers.$id.addresses.mutate>,
     ClientError,
     Omit<
-      InferClientInput<typeof sdk.admin.customers.$id.addresses.mutate>,
+      InferClientInput<typeof sdk.vendor.customers.$id.addresses.mutate>,
       "id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.customers.$id.addresses.mutate({ id, ...payload }),
+      sdk.vendor.customers.$id.addresses.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: customersQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -188,12 +188,12 @@ export const useUpdateCustomerAddress = (
   addressId: string,
   options?: UseMutationOptions<
     InferClientOutput<
-      typeof sdk.admin.customers.$id.addresses.$addressId.mutate
+      typeof sdk.vendor.customers.$id.addresses.$addressId.mutate
     >,
     ClientError,
     Omit<
       InferClientInput<
-        typeof sdk.admin.customers.$id.addresses.$addressId.mutate
+        typeof sdk.vendor.customers.$id.addresses.$addressId.mutate
       >,
       "id" | "addressId"
     >
@@ -201,7 +201,7 @@ export const useUpdateCustomerAddress = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.customers.$id.addresses.$addressId.mutate({
+      sdk.vendor.customers.$id.addresses.$addressId.mutate({
         id,
         addressId,
         ...payload,
@@ -225,7 +225,7 @@ export const useDeleteCustomerAddress = (
   id: string,
   options?: UseMutationOptions<
     InferClientOutput<
-      typeof sdk.admin.customers.$id.addresses.$addressId.delete
+      typeof sdk.vendor.customers.$id.addresses.$addressId.delete
     >,
     ClientError,
     string
@@ -233,7 +233,7 @@ export const useDeleteCustomerAddress = (
 ) => {
   return useMutation({
     mutationFn: (addressId: string) =>
-      sdk.admin.customers.$id.addresses.$addressId.delete({ id, addressId }),
+      sdk.vendor.customers.$id.addresses.$addressId.delete({ id, addressId }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: customersQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -252,17 +252,17 @@ export const useDeleteCustomerAddress = (
 export const useListCustomerAddresses = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.customers.$id.addresses.query>,
+    InferClientInput<typeof sdk.vendor.customers.$id.addresses.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.customers.$id.addresses.query>
+    InferClientOutput<typeof sdk.vendor.customers.$id.addresses.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.customers.$id.addresses.query({ id, ...query }),
+    queryFn: () => sdk.vendor.customers.$id.addresses.query({ id, ...query }),
     queryKey: customerAddressesQueryKeys.list(id),
     ...options,
   });
@@ -277,13 +277,13 @@ export const useCustomerAddress = (
     unknown,
     ClientError,
     InferClientOutput<
-      typeof sdk.admin.customers.$id.addresses.$addressId.query
+      typeof sdk.vendor.customers.$id.addresses.$addressId.query
     >
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>
-      sdk.admin.customers.$id.addresses.$addressId.query({ id, addressId }),
+      sdk.vendor.customers.$id.addresses.$addressId.query({ id, addressId }),
     queryKey: customerAddressesQueryKeys.detail(id),
     ...options,
   });

@@ -14,10 +14,12 @@ import {
   useRouteModal,
 } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
-import { useProductVariantsInventoryItemsBatch } from "@hooks/api/products"
+import { productsQueryKeys, variantsQueryKeys } from "@hooks/api/products"
 import { useComboboxData } from "@hooks/use-combobox-data"
+import { useMutation } from "@tanstack/react-query"
 import { castNumber } from "@lib/cast-number"
-import { sdk } from "@lib/client"
+import { sdk, fetchQuery } from "@lib/client"
+import { queryClient } from "@lib/query-client"
 import { ExtendedAdminProductVariant } from "@custom-types/products"
 
 type ManageVariantInventoryItemsFormProps = {
@@ -83,7 +85,7 @@ export function ManageVariantInventoryItemsForm({
 
   const items = useComboboxData({
     queryKey: ["inventory_items"],
-    queryFn: (params) => sdk.admin.inventoryItem.list(params),
+    queryFn: (params) => sdk.vendor.inventoryItems.query(params),
     getOptions: (data) =>
       data.inventory_items.map((item) => ({
         label: item.title || item.sku!,
@@ -92,9 +94,20 @@ export function ManageVariantInventoryItemsForm({
     defaultValue: variant.inventory_items?.[0]?.inventory_item_id,
   })
 
-  const { mutateAsync, isPending } = useProductVariantsInventoryItemsBatch(
-    variant?.product_id!
-  )
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (payload: any) =>
+      fetchQuery(`/vendor/products/${variant?.product_id}/variants/inventory-items/batch`, {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() })
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(variant?.product_id!),
+      })
+    },
+  })
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const existingItems: Record<string, number> = {}

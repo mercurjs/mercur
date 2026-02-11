@@ -31,32 +31,12 @@ const useSettingRoutes = (): INavItem[] => {
   return useMemo(
     () => [
       {
-        label: t("store.domain"),
-        to: "/settings/store",
+        label: t("seller.domain", "Seller"),
+        to: "/settings/seller",
       },
       {
         label: t("users.domain"),
         to: "/settings/users",
-      },
-      {
-        label: t("regions.domain"),
-        to: "/settings/regions",
-      },
-      {
-        label: t("taxRegions.domain"),
-        to: "/settings/tax-regions",
-      },
-      {
-        label: t("returnReasons.domain"),
-        to: "/settings/return-reasons",
-      },
-      {
-        label: t("refundReasons.domain"),
-        to: "/settings/refund-reasons",
-      },
-      {
-        label: t("salesChannels.domain"),
-        to: "/settings/sales-channels",
       },
       {
         label: t("productTypes.domain"),
@@ -69,24 +49,6 @@ const useSettingRoutes = (): INavItem[] => {
       {
         label: t("stockLocations.domain"),
         to: "/settings/locations",
-      },
-    ],
-    [t]
-  );
-};
-
-const useDeveloperRoutes = (): INavItem[] => {
-  const { t } = useTranslation();
-
-  return useMemo(
-    () => [
-      {
-        label: t("apiKeyManagement.domain.publishable"),
-        to: "/settings/publishable-api-keys",
-      },
-      {
-        label: t("apiKeyManagement.domain.secret"),
-        to: "/settings/secret-api-keys",
       },
     ],
     [t]
@@ -142,7 +104,6 @@ const injectNestedSettingsItems = (
 
 const SettingsSidebar = () => {
   const generalRoutes = useSettingRoutes();
-  const developerRoutes = useDeveloperRoutes();
   const myAccountRoutes = useMyAccountRoutes();
   const allMenuItems = menuItemsModule.menuItems ?? [];
   const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
@@ -169,13 +130,6 @@ const SettingsSidebar = () => {
           <RadixCollapsibleSection
             label={t("app.nav.settings.general")}
             items={generalRoutes}
-          />
-          <div className="flex items-center justify-center px-3">
-            <Divider variant="dashed" />
-          </div>
-          <RadixCollapsibleSection
-            label={t("app.nav.settings.developer")}
-            items={developerRoutes}
           />
           {extensionNavItems.length > 0 && (
             <RadixCollapsibleSection

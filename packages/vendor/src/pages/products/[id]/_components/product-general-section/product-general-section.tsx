@@ -1,5 +1,4 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
-import { ExtendedAdminProduct } from "@custom-types/products"
 import { Container, Heading, StatusBadge, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
@@ -8,6 +7,7 @@ import { ActionMenu } from "@components/common/action-menu"
 import { SectionRow } from "@components/common/section"
 import { useDashboardExtension } from "@/extensions"
 import { useDeleteProduct } from "@hooks/api/products"
+import { useProductDetailContext } from "../../context"
 
 const productStatusColor = (status: string) => {
   switch (status) {
@@ -24,13 +24,8 @@ const productStatusColor = (status: string) => {
   }
 }
 
-type ProductGeneralSectionProps = {
-  product: ExtendedAdminProduct
-}
-
-export const ProductGeneralSection = ({
-  product,
-}: ProductGeneralSectionProps) => {
+export const ProductGeneralSection = () => {
+  const { product } = useProductDetailContext()
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()

@@ -1,6 +1,5 @@
-import { Button, Container, Heading, Text } from "@medusajs/ui"
+import { Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
 
 import { keepPreviousData } from "@tanstack/react-query"
 import { useMemo } from "react"
@@ -54,11 +53,6 @@ export const CollectionListTable = () => {
             {t("collections.subtitle")}
           </Text>
         </div>
-        <Link to="/collections/create">
-          <Button size="small" variant="secondary">
-            Request Collection
-          </Button>
-        </Link>
       </div>
       <_DataTable
         table={table}

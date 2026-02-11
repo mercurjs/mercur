@@ -19,15 +19,15 @@ export const refundReasonsQueryKeys = queryKeysFactory(
 );
 
 export const useRefundReasons = (
-  query?: InferClientInput<typeof sdk.admin.refundReasons.query>,
+  query?: InferClientInput<typeof sdk.vendor.refundReasons.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.refundReasons.query>
+    InferClientOutput<typeof sdk.vendor.refundReasons.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.refundReasons.query({ ...query }),
+    queryFn: () => sdk.vendor.refundReasons.query({ ...query }),
     queryKey: refundReasonsQueryKeys.list(query),
     ...options,
   });
@@ -38,17 +38,17 @@ export const useRefundReasons = (
 export const useRefundReason = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.refundReasons.$id.query>,
+    InferClientInput<typeof sdk.vendor.refundReasons.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.refundReasons.$id.query>
+    InferClientOutput<typeof sdk.vendor.refundReasons.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.refundReasons.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.refundReasons.$id.query({ id, ...query }),
     queryKey: refundReasonsQueryKeys.detail(id),
     ...options,
   });
@@ -58,13 +58,13 @@ export const useRefundReason = (
 
 export const useCreateRefundReason = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.refundReasons.mutate>,
+    InferClientOutput<typeof sdk.vendor.refundReasons.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.refundReasons.mutate>
+    InferClientInput<typeof sdk.vendor.refundReasons.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.refundReasons.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.refundReasons.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: refundReasonsQueryKeys.lists(),
@@ -79,14 +79,14 @@ export const useCreateRefundReason = (
 export const useUpdateRefundReason = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.refundReasons.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.refundReasons.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.refundReasons.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.refundReasons.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.refundReasons.$id.mutate({ id, ...payload }),
+      sdk.vendor.refundReasons.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: refundReasonsQueryKeys.lists(),
@@ -103,13 +103,13 @@ export const useUpdateRefundReason = (
 
 export const useDeleteRefundReasonLazy = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.refundReasons.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.refundReasons.$id.delete>,
     ClientError,
     string
   >
 ) => {
   return useMutation({
-    mutationFn: (id: string) => sdk.admin.refundReasons.$id.delete({ id }),
+    mutationFn: (id: string) => sdk.vendor.refundReasons.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: refundReasonsQueryKeys.lists(),

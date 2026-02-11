@@ -10,7 +10,7 @@ import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useUpdateProduct } from "@hooks/api/products"
 import { useComboboxData } from "@hooks/use-combobox-data"
-import { sdk } from "@lib/client"
+import { fetchQuery } from "@lib/client"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
@@ -33,11 +33,15 @@ export const ProductShippingProfileForm = ({
 
   const shippingProfiles = useComboboxData({
     queryKey: ["shipping_profiles"],
-    queryFn: (params) => sdk.admin.shippingProfile.list(params),
-    getOptions: (data) =>
-      data.shipping_profiles.map((shippingProfile) => ({
-        label: shippingProfile.name,
-        value: shippingProfile.id,
+    queryFn: (params) =>
+      fetchQuery(`/vendor/shipping-profiles`, {
+        method: "GET",
+        query: params,
+      }),
+    getOptions: (data: any) =>
+      (data.shipping_profiles || []).map((sp: any) => ({
+        label: sp.shipping_profile?.name || sp.name,
+        value: sp.shipping_profile?.id || sp.id,
       })),
   })
 
@@ -57,7 +61,7 @@ export const ProductShippingProfileForm = ({
       {
         shipping_profile_id:
           data.shipping_profile_id === "" ? null : data.shipping_profile_id,
-      },
+      } as any,
       {
         onSuccess: ({ product }) => {
           toast.success(

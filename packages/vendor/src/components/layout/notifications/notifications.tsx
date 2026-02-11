@@ -10,7 +10,7 @@ import { TFunction } from "i18next"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { notificationQueryKeys, useNotifications } from "../../../hooks/api"
-import { sdk } from "../../../lib/client"
+import { fetchQuery } from "../../../lib/client"
 import { FilePreview } from "../../common/file-preview"
 import { InfiniteList } from "../../common/infinite-list"
 
@@ -89,10 +89,10 @@ export const Notifications = () => {
           >
             responseKey="notifications"
             queryKey={notificationQueryKeys.all}
-            queryFn={(params) =>
-              sdk.admin.notifications.query({
-                ...params,
-                channel: "feed",
+            queryFn={(params: any) =>
+              fetchQuery(`/vendor/notifications`, {
+                method: "GET",
+                query: { ...params, channel: "feed" },
               })
             }
             queryOptions={{ enabled: open }}

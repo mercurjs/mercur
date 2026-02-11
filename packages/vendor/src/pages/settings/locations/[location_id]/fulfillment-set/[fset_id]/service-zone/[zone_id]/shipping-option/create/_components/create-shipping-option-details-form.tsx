@@ -38,12 +38,14 @@ export const CreateShippingOptionDetailsForm = ({
       }),
     queryKey: ["shipping_profiles_create_shipping_option"],
     getOptions: (data) =>
-      (data.shipping_profiles || []).map((profile: any) => ({
-        label: profile.shipping_profile.name.includes(":")
-          ? profile.shipping_profile.name.split(":")[1]
-          : profile.shipping_profile.name,
-        value: profile.shipping_profile.id,
-      })),
+      (data.shipping_profiles || []).map((profile: any) => {
+        const name = profile.shipping_profile?.name ?? profile.name ?? ""
+        const id = profile.shipping_profile?.id ?? profile.id
+        return {
+          label: name.includes(":") ? name.split(":")[1] : name,
+          value: id,
+        }
+      }),
   })
 
   // const fulfillmentProviders = useComboboxData({

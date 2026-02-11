@@ -20,15 +20,15 @@ const usersQueryKeys = {
 };
 
 export const useMe = (
-  query?: Omit<InferClientInput<typeof sdk.admin.users.me.query>, "id">,
+  query?: Omit<InferClientInput<typeof sdk.vendor.sellers.me.query>, "id">,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.users.me.query>
+    InferClientOutput<typeof sdk.vendor.sellers.me.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.users.me.query({ ...query }),
+    queryFn: () => sdk.vendor.sellers.me.query({ ...query }),
     queryKey: usersQueryKeys.me(),
     ...options,
   });
@@ -41,15 +41,15 @@ export const useMe = (
 
 export const useUser = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.admin.users.$id.query>, "id">,
+  query?: Omit<InferClientInput<typeof sdk.vendor.users.$id.query>, "id">,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.users.$id.query>
+    InferClientOutput<typeof sdk.vendor.users.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.users.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.users.$id.query({ id, ...query }),
     queryKey: usersQueryKeys.detail(id),
     ...options,
   });
@@ -58,15 +58,15 @@ export const useUser = (
 };
 
 export const useUsers = (
-  query?: InferClientInput<typeof sdk.admin.users.query>,
+  query?: InferClientInput<typeof sdk.vendor.users.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.users.query>
+    InferClientOutput<typeof sdk.vendor.users.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.users.query({ ...query }),
+    queryFn: () => sdk.vendor.users.query({ ...query }),
     queryKey: usersQueryKeys.list(query),
     ...options,
   });
@@ -77,13 +77,13 @@ export const useUsers = (
 export const useUpdateUser = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.users.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.users.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.users.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.users.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.users.$id.mutate({ id, ...payload }),
+    mutationFn: (payload) => sdk.vendor.users.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() });
@@ -100,13 +100,13 @@ export const useUpdateUser = (
 export const useDeleteUser = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.users.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.users.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.users.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.users.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() });
@@ -125,12 +125,8 @@ export const useUserMe = (
   options?: UseQueryOptions<any, Error, any>
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () =>
-      fetchQuery(`/vendor/me`, {
-        method: "GET",
-        query: query as { [key: string]: string | number },
-      }),
-    queryKey: [USERS_QUERY_KEY, "user", "me"],
+    queryFn: () => sdk.vendor.sellers.me.query({ ...query }),
+    queryKey: usersQueryKeys.me(),
     ...options,
   });
 

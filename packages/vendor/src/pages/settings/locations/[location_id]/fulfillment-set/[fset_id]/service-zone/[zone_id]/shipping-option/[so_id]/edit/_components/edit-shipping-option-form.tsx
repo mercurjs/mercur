@@ -57,8 +57,8 @@ export const EditShippingOptionForm = ({
     queryKey: ["shipping_profiles_edit_shipping_option"],
     getOptions: (data) =>
       data?.map((profile: any) => ({
-        label: getShippingProfileName(profile.shipping_profile.name),
-        value: profile.shipping_profile.id,
+        label: getShippingProfileName(profile.shipping_profile?.name ?? profile.name ?? ""),
+        value: profile.shipping_profile?.id ?? profile.id,
       })),
     defaultValue: shippingOption.shipping_profile_id,
   })
