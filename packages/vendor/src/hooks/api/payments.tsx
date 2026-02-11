@@ -39,7 +39,7 @@ export const usePayment = (
   options?: UseQueryOptions<unknown, ClientError, HttpTypes.AdminPaymentCollectionResponse>
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.payments.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.payments.$id.query({ $id: id, ...query }),
     queryKey: paymentQueryKeys.detail(id),
     ...options,
   });
@@ -58,7 +58,7 @@ export const useCapturePayment = (
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCapturePayment) =>
-      sdk.vendor.payments.$id.capture.mutate({ id: paymentId, ...payload }),
+      sdk.vendor.payments.$id.capture.mutate({ $id: paymentId, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -85,7 +85,7 @@ export const useRefundPayment = (
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminRefundPayment) =>
-      sdk.vendor.payments.$id.refund.mutate({ id: paymentId, ...payload }),
+      sdk.vendor.payments.$id.refund.mutate({ $id: paymentId, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),

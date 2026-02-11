@@ -27,10 +27,10 @@ export const CategoryProductSection = ({
   const { raw, searchParams } = useProductTableQuery({
     pageSize: PAGE_SIZE,
   })
-  // TODO: category_id filter not supported by vendor API yet
   const { products, count, isLoading } = useProducts(
     {
       ...searchParams,
+      category_id: [category.id],
       fields: "*categories.id",
       limit: searchParams.limit,
       offset: searchParams.offset,

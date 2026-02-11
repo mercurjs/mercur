@@ -42,7 +42,7 @@ export const useCancelFulfillment = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.fulfillments.$id.cancel.mutate({ id }),
+    mutationFn: () => sdk.vendor.fulfillments.$id.cancel.mutate({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: fulfillmentsQueryKeys.lists() })
       queryClient.invalidateQueries({
@@ -61,14 +61,14 @@ export const useCreateFulfillmentShipment = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.fulfillments.$id.shipment.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.vendor.fulfillments.$id.shipment.mutate({
-        id: fulfillmentId,
+        $id: fulfillmentId,
         ...payload,
       }),
     onSuccess: (data, variables, context) => {

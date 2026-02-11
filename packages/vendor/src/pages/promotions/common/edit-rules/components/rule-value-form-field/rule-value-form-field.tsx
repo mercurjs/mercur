@@ -5,7 +5,7 @@ import { useWatch } from 'react-hook-form';
 import { Form } from '../../../../../../components/common/form';
 import { Combobox } from '../../../../../../components/inputs/combobox';
 import { usePromotionRuleValues } from '../../../../../../hooks/api/promotions';
-import { useStore } from '../../../../../../hooks/api/store';
+import { useStoreCurrencies } from '../../../../../../hooks/api/use-store-currencies';
 import { useEffect } from 'react';
 
 type RuleValueFormFieldType = {
@@ -19,14 +19,14 @@ type RuleValueFormFieldType = {
   ruleType: 'rules' | 'target-rules' | 'buy-rules';
 };
 
-const buildFilters = (attribute?: string, store?: HttpTypes.AdminStore) => {
-  if (!attribute || !store) {
+const buildFilters = (attribute?: string, currencies?: HttpTypes.AdminStoreCurrency[]) => {
+  if (!attribute || !currencies) {
     return {};
   }
 
   if (attribute === 'currency_code') {
     return {
-      value: store.supported_currencies?.map(c => c.currency_code)
+      value: currencies.map(c => c.currency_code)
     };
   }
 
@@ -45,7 +45,7 @@ export const RuleValueFormField = ({
 }: RuleValueFormFieldType) => {
   const attribute = attributes?.find(attr => attr.value === fieldRule.attribute);
 
-  const { store, isLoading: isStoreLoading } = useStore();
+  const { currencies: storeCurrencies, isPending: isStoreLoading } = useStoreCurrencies();
 
   const promotionType = useWatch({
     control: form.control,
@@ -80,7 +80,7 @@ export const RuleValueFormField = ({
     ruleType,
     attribute?.id!,
     {
-      ...buildFilters(attribute?.id, store),
+      ...buildFilters(attribute?.id, storeCurrencies),
       promotion_type: promotionType,
       application_method_type: applicationMethodType
     },

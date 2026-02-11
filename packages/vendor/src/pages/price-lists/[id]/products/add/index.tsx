@@ -19,6 +19,12 @@ export const Component = () => {
 
   return (
     <RouteFocusModal>
+      <RouteFocusModal.Title asChild>
+        <span className="sr-only">Add Products to Price List</span>
+      </RouteFocusModal.Title>
+      <RouteFocusModal.Description className="sr-only">
+        Add products and set prices for the price list
+      </RouteFocusModal.Description>
       {ready && (
         <PriceListPricesAddForm priceList={price_list} {...currencyData} />
       )}

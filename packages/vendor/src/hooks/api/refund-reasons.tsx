@@ -39,7 +39,7 @@ export const useRefundReason = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.refundReasons.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -48,7 +48,7 @@ export const useRefundReason = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.refundReasons.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.refundReasons.$id.query({ $id: id, ...query }),
     queryKey: refundReasonsQueryKeys.detail(id),
     ...options,
   });
@@ -81,12 +81,12 @@ export const useUpdateRefundReason = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.refundReasons.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.refundReasons.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.refundReasons.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.refundReasons.$id.mutate({ id, ...payload }),
+      sdk.vendor.refundReasons.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: refundReasonsQueryKeys.lists(),
@@ -109,7 +109,7 @@ export const useDeleteRefundReasonLazy = (
   >
 ) => {
   return useMutation({
-    mutationFn: (id: string) => sdk.vendor.refundReasons.$id.delete({ id }),
+    mutationFn: (id: string) => sdk.vendor.refundReasons.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: refundReasonsQueryKeys.lists(),

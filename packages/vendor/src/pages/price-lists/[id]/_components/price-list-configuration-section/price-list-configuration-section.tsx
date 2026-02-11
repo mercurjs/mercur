@@ -55,7 +55,7 @@ const CustomerGroupDisplay = ({
   const { t } = useTranslation()
 
   const customerGroupIds =
-    priceList.price_list_rules.find(
+    priceList.price_list_rules?.find(
       (rule) => rule.attribute === "customer.groups.id"
     )?.value || ([] as string[])
 

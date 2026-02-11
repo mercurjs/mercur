@@ -24,7 +24,7 @@ export const useStockLocation = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.stockLocations.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -33,7 +33,7 @@ export const useStockLocation = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.stockLocations.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.stockLocations.$id.query({ $id: id, ...query }),
     queryKey: stockLocationsQueryKeys.detail(id, query),
     ...options,
   });
@@ -83,12 +83,12 @@ export const useUpdateStockLocation = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.stockLocations.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.stockLocations.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.stockLocations.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.stockLocations.$id.mutate({ id, ...payload }),
+      sdk.vendor.stockLocations.$id.mutate({ $id: id, ...payload }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.details(),
@@ -114,13 +114,13 @@ export const useUpdateStockLocationSalesChannels = (
       InferClientInput<
         typeof sdk.vendor.stockLocations.$id.salesChannels.mutate
       >,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.stockLocations.$id.salesChannels.mutate({ id, ...payload }),
+      sdk.vendor.stockLocations.$id.salesChannels.mutate({ $id: id, ...payload }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.details(),
@@ -144,7 +144,7 @@ export const useDeleteStockLocation = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.stockLocations.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.stockLocations.$id.delete({ $id: id }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.lists(),
@@ -170,14 +170,14 @@ export const useCreateStockLocationFulfillmentSet = (
       InferClientInput<
         typeof sdk.vendor.stockLocations.$id.fulfillmentSets.mutate
       >,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.vendor.stockLocations.$id.fulfillmentSets.mutate({
-        id: locationId,
+        $id: locationId,
         ...payload,
       }),
     onSuccess: async (data, variables, context) => {
@@ -202,14 +202,14 @@ export const useUpdateStockLocationFulfillmentProviders = (
       InferClientInput<
         typeof sdk.vendor.stockLocations.$id.fulfillmentProviders.mutate
       >,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.vendor.stockLocations.$id.fulfillmentProviders.mutate({
-        id,
+        $id: id,
         ...payload,
       }),
     onSuccess: async (data, variables, context) => {

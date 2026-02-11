@@ -9,6 +9,12 @@ export const Component = () => {
 
   return (
     <RouteFocusModal>
+      <RouteFocusModal.Title asChild>
+        <span className="sr-only">Create Price List</span>
+      </RouteFocusModal.Title>
+      <RouteFocusModal.Description className="sr-only">
+        Create a new price list with custom pricing
+      </RouteFocusModal.Description>
       {isReady && (
         <PriceListCreateForm
           regions={regions}

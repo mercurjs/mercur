@@ -49,8 +49,6 @@ export const Component = () => {
 
   const { price_list, isLoading, isError, error } = usePriceList(id!)
 
-  const { getWidgets } = useDashboardExtension()
-
   if (isLoading || !price_list) {
     return (
       <TwoColumnPageSkeleton mainSections={2} sidebarSections={1} showJSON />
@@ -63,12 +61,6 @@ export const Component = () => {
 
   return (
     <TwoColumnPage
-      widgets={{
-        after: getWidgets("price_list.details.after"),
-        before: getWidgets("price_list.details.before"),
-        sideAfter: getWidgets("price_list.details.side.after"),
-        sideBefore: getWidgets("price_list.details.side.before"),
-      }}
       data={price_list}
     >
       <TwoColumnPage.Main>

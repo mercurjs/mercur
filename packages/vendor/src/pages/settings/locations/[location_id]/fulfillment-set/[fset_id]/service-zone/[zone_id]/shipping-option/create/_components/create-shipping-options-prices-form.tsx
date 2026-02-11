@@ -8,7 +8,7 @@ import {
   useStackedModal,
 } from "@components/modals"
 import { useRegions } from "@hooks/api/regions"
-import { useStore } from "@hooks/api/store"
+import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
 import { ConditionalPriceForm } from "@pages/settings/locations/_common/components/conditional-price-form"
 import { ShippingOptionPriceProvider } from "@pages/settings/locations/_common/components/shipping-option-price-provider"
 import {
@@ -43,16 +43,11 @@ export const CreateShippingOptionsPricesForm = ({
     setSelectedPrice(null)
   }
 
-  const {
-    store,
-    isLoading: isStoreLoading,
-    isError: isStoreError,
-    error: storeError,
-  } = useStore()
+  const { currencies: storeCurrencies, isPending: isStoreLoading } = useStoreCurrencies()
 
   const currencies = useMemo(
-    () => store?.supported_currencies?.map((c) => c.currency_code) || [],
-    [store]
+    () => storeCurrencies?.map((c) => c.currency_code) || [],
+    [storeCurrencies]
   )
 
   const {
@@ -78,7 +73,7 @@ export const CreateShippingOptionsPricesForm = ({
     regions,
   })
 
-  const isLoading = isStoreLoading || !store || isRegionsLoading || !regions
+  const isLoading = isStoreLoading || !storeCurrencies || isRegionsLoading || !regions
 
   const data = useMemo(
     () => [[...(currencies || []), ...(regions || [])]],
@@ -103,10 +98,6 @@ export const CreateShippingOptionsPricesForm = ({
       }
     }
   }, [isLoading, isPickup])
-
-  if (isStoreError) {
-    throw storeError
-  }
 
   if (isRegionsError) {
     throw regionsError

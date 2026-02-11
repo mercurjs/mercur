@@ -31,7 +31,7 @@ export const useCollection = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: collectionsQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.collections.$id.query({ id }),
+    queryFn: async () => sdk.vendor.collections.$id.query({ $id: id }),
     ...options,
   });
 
@@ -90,12 +90,12 @@ export const useUpdateCollection = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.collections.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.collections.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.collections.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.collections.$id.mutate({ id, ...payload }),
+      sdk.vendor.collections.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: collectionsQueryKeys.lists(),
@@ -117,13 +117,13 @@ export const useUpdateCollectionProducts = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.collections.$id.products.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.collections.$id.products.mutate({ id, ...payload }),
+      sdk.vendor.collections.$id.products.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: collectionsQueryKeys.lists(),
@@ -173,7 +173,7 @@ export const useDeleteCollection = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.collections.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.collections.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: collectionsQueryKeys.lists(),

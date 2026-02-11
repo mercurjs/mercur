@@ -29,7 +29,7 @@ export const useDeleteFulfillmentSet = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.fulfillmentSets.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.fulfillmentSets.$id.delete({ $id: id }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: fulfillmentSetsQueryKeys.detail(id),
@@ -57,7 +57,7 @@ export const useFulfillmentSetServiceZone = (
   serviceZoneId: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.query>,
-    "id" | "zoneId"
+    "$id" | "$zoneId"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -68,8 +68,8 @@ export const useFulfillmentSetServiceZone = (
   const { data, ...rest } = useQuery({
     queryFn: () =>
       sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.query({
-        id: fulfillmentSetId,
-        zoneId: serviceZoneId,
+        $id: fulfillmentSetId,
+        $zoneId: serviceZoneId,
         ...query,
       }),
     queryKey: fulfillmentSetsQueryKeys.detail(fulfillmentSetId, query),
@@ -86,14 +86,14 @@ export const useCreateFulfillmentSetServiceZone = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.vendor.fulfillmentSets.$id.serviceZones.mutate({
-        id: fulfillmentSetId,
+        $id: fulfillmentSetId,
         ...payload,
       }),
     onSuccess: async (data, variables, context) => {
@@ -118,15 +118,15 @@ export const useUpdateFulfillmentSetServiceZone = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.mutate>,
-      "id" | "zoneId"
+      "$id" | "$zoneId"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.mutate({
-        id: fulfillmentSetId,
-        zoneId: serviceZoneId,
+        $id: fulfillmentSetId,
+        $zoneId: serviceZoneId,
         ...payload,
       }),
     onSuccess: async (data, variables, context) => {
@@ -155,8 +155,8 @@ export const useDeleteFulfillmentServiceZone = (
   return useMutation({
     mutationFn: () =>
       sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.delete({
-        id: fulfillmentSetId,
-        zoneId: serviceZoneId,
+        $id: fulfillmentSetId,
+        $zoneId: serviceZoneId,
       }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({

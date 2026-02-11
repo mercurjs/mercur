@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { useRegions } from "@hooks/api/regions"
-import { useStore } from "@hooks/api/store"
+import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
 
 type UsePriceListCurrencyDataReturn =
   | {
@@ -17,16 +17,7 @@ type UsePriceListCurrencyDataReturn =
     }
 
 export const usePriceListCurrencyData = (): UsePriceListCurrencyDataReturn => {
-  const {
-    store,
-    isPending: isStorePending,
-    isError: isStoreError,
-    error: storeError,
-  } = useStore({
-    fields: "+supported_currencies",
-  })
-
-  const currencies = store?.supported_currencies
+  const { currencies, isPending: isCurrenciesPending } = useStoreCurrencies()
 
   const {
     regions,
@@ -38,15 +29,10 @@ export const usePriceListCurrencyData = (): UsePriceListCurrencyDataReturn => {
     limit: 999,
   })
 
-  const isReady =
-    !!currencies && !!regions && !isStorePending && !isRegionsPending
+  const isReady = !!currencies && !!regions && !isCurrenciesPending && !isRegionsPending
 
   if (isRegionsError) {
     throw regionsError
-  }
-
-  if (isStoreError) {
-    throw storeError
   }
 
   if (!isReady) {

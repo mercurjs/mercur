@@ -20,7 +20,7 @@ export const useTaxRegion = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.taxRegions.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -30,7 +30,7 @@ export const useTaxRegion = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: taxRegionsQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.taxRegions.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.taxRegions.$id.query({ $id: id, ...query }),
     ...options,
   });
 
@@ -76,12 +76,12 @@ export const useUpdateTaxRegion = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.taxRegions.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.taxRegions.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.taxRegions.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.taxRegions.$id.mutate({ id, ...payload }),
+      sdk.vendor.taxRegions.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: taxRegionsQueryKeys.detail(id),
@@ -103,7 +103,7 @@ export const useDeleteTaxRegion = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.taxRegions.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.taxRegions.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.lists() });
       queryClient.invalidateQueries({

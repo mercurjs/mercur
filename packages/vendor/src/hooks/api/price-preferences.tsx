@@ -22,7 +22,7 @@ export const usePricePreference = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.pricePreferences.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -31,7 +31,7 @@ export const usePricePreference = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.pricePreferences.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.pricePreferences.$id.query({ $id: id, ...query }),
     queryKey: pricePreferencesQueryKeys.detail(id),
     ...options,
   });
@@ -67,7 +67,7 @@ export const useUpsertPricePreference = (
   return useMutation({
     mutationFn: (payload) => {
       if (id) {
-        return sdk.vendor.pricePreferences.$id.mutate({ id, ...payload });
+        return sdk.vendor.pricePreferences.$id.mutate({ $id: id, ...payload });
       }
       return sdk.vendor.pricePreferences.mutate(payload);
     },
@@ -96,7 +96,7 @@ export const useDeletePricePreference = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.pricePreferences.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.pricePreferences.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.list(),

@@ -55,14 +55,14 @@ export const useMarkPaymentCollectionAsPaid = (
       InferClientInput<
         typeof sdk.vendor.paymentCollections.$id.markAsPaid.mutate
       >,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.vendor.paymentCollections.$id.markAsPaid.mutate({
-        id: paymentCollectionId,
+        $id: paymentCollectionId,
         ...payload,
       }),
     onSuccess: (data, variables, context) => {
@@ -97,7 +97,7 @@ export const useDeletePaymentCollection = (
 ) => {
   return useMutation({
     mutationFn: (id: string) =>
-      sdk.vendor.paymentCollections.$id.delete({ id }),
+      sdk.vendor.paymentCollections.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),

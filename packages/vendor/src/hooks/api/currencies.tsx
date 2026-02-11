@@ -32,7 +32,7 @@ export const useCurrency = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.currencies.$code.query>,
-    "code"
+    "$code"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -43,7 +43,7 @@ export const useCurrency = (
   const { data, ...rest } = useQuery({
     queryKey: currenciesQueryKeys.detail(id),
     queryFn: async () =>
-      sdk.vendor.currencies.$code.query({ code: id, ...query }),
+      sdk.vendor.currencies.$code.query({ $code: id, ...query }),
     ...options,
   });
 

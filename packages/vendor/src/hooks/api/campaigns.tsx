@@ -21,7 +21,7 @@ export const useCampaign = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.campaigns.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -31,7 +31,7 @@ export const useCampaign = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: campaignsQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.campaigns.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.campaigns.$id.query({ $id: id, ...query }),
     ...options,
   });
 
@@ -77,12 +77,12 @@ export const useUpdateCampaign = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.campaigns.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.campaigns.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.campaigns.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.campaigns.$id.mutate({ id, ...payload }),
+      sdk.vendor.campaigns.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -108,7 +108,7 @@ export const useDeleteCampaign = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.campaigns.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.campaigns.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -128,13 +128,13 @@ export const useAddOrRemoveCampaignPromotions = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.campaigns.$id.promotions.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.campaigns.$id.promotions.mutate({ id, ...payload }),
+      sdk.vendor.campaigns.$id.promotions.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: campaignsQueryKeys.details(),

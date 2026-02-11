@@ -25,7 +25,7 @@ export const useProductCategory = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.productCategories.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -35,7 +35,7 @@ export const useProductCategory = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: categoriesQueryKeys.detail(id, query),
-    queryFn: () => sdk.vendor.productCategories.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.productCategories.$id.query({ $id: id, ...query }),
     ...options,
   });
 
@@ -116,13 +116,13 @@ export const useUpdateProductCategory = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.productCategories.$id.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.productCategories.$id.mutate({ id, ...payload }),
+      sdk.vendor.productCategories.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.lists(),
@@ -146,7 +146,7 @@ export const useDeleteProductCategory = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.productCategories.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.productCategories.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.detail(id),
@@ -168,13 +168,13 @@ export const useUpdateProductCategoryProducts = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.productCategories.$id.products.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.productCategories.$id.products.mutate({ id, ...payload }),
+      sdk.vendor.productCategories.$id.products.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.lists(),

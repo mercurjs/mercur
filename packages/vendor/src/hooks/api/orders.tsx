@@ -40,7 +40,7 @@ export const useOrder = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.vendor.orders.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.orders.$id.query({ $id: id, ...query }),
     queryKey: ordersQueryKeys.detail(id, query),
     ...options,
   });
@@ -58,7 +58,7 @@ export const useUpdateOrder = (
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminUpdateOrder) =>
-      sdk.vendor.orders.$id.mutate({ id, ...payload }),
+      sdk.vendor.orders.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.detail(id),
@@ -85,7 +85,7 @@ export const useOrderPreview = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
-      sdk.vendor.orders.$id.preview.query({ id, ...query }),
+      sdk.vendor.orders.$id.preview.query({ $id: id, ...query }),
     queryKey: ordersQueryKeys.preview(id),
     ...options,
   });
@@ -121,7 +121,7 @@ export const useOrderChanges = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
-      sdk.vendor.orders.$id.changes.query({ id, ...query }),
+      sdk.vendor.orders.$id.changes.query({ $id: id, ...query }),
     queryKey: ordersQueryKeys.changes(id),
     ...options,
   });
@@ -139,7 +139,7 @@ export const useCreateOrderFulfillment = (
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateOrderFulfillment) =>
-      sdk.vendor.orders.$id.fulfillments.mutate({ id: orderId, ...payload }),
+      sdk.vendor.orders.$id.fulfillments.mutate({ $id: orderId, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,
@@ -175,8 +175,8 @@ export const useCancelOrderFulfillment = (
   return useMutation({
     mutationFn: (payload: Record<string, unknown>) =>
       sdk.vendor.orders.$id.fulfillments.$fulfillmentId.cancel.mutate({
-        id: orderId,
-        fulfillmentId,
+        $id: orderId,
+        $fulfillmentId: fulfillmentId,
         ...payload,
       }),
     onSuccess: (data, variables, context) => {
@@ -214,8 +214,8 @@ export const useCreateOrderShipment = (
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateOrderShipment) =>
       sdk.vendor.orders.$id.fulfillments.$fulfillmentId.shipments.mutate({
-        id: orderId,
-        fulfillmentId,
+        $id: orderId,
+        $fulfillmentId: fulfillmentId,
         ...payload,
       }),
     onSuccess: (data, variables, context) => {
@@ -241,8 +241,8 @@ export const useMarkOrderFulfillmentAsDelivered = (
   return useMutation({
     mutationFn: () =>
       sdk.vendor.orders.$id.fulfillments.$fulfillmentId.markAsDelivered.mutate({
-        id: orderId,
-        fulfillmentId,
+        $id: orderId,
+        $fulfillmentId: fulfillmentId,
       }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
@@ -265,7 +265,7 @@ export const useCancelOrder = (
 ) => {
   return useMutation({
     mutationFn: () =>
-      sdk.vendor.orders.$id.cancel.mutate({ id: orderId }),
+      sdk.vendor.orders.$id.cancel.mutate({ $id: orderId }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.detail(orderId),

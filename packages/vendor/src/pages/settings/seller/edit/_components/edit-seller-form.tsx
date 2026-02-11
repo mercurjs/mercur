@@ -4,6 +4,7 @@ import { Button, Input, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
+import {sdk} from "@lib/client"
 
 import { Form } from "@components/common/form"
 import { Combobox } from "@components/inputs/combobox"
@@ -40,11 +41,7 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
 
   const regionsCombobox = useComboboxData({
     queryKey: ["regions", "default_region_id"],
-    queryFn: (params) =>
-      fetchQuery(`/vendor/regions`, {
-        method: "GET",
-        query: { ...params, fields: "id,name" },
-      }),
+    queryFn: (params) => sdk.vendor.regions.query({ ...params, fields: "id,name" }),
     defaultValue: seller.default_region_id || undefined,
     getOptions: (data: any) =>
       data.regions.map((r: any) => ({ label: r.name, value: r.id })),

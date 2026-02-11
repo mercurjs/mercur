@@ -225,6 +225,7 @@ export const PriceListDetailsForm = ({ form }: PriceListDetailsFormProps) => {
             )
           }}
         />
+        {/* TODO: Customer group availability - vendor API does not support customer groups yet
         <Divider />
         <Form.Field
           control={form.control}
@@ -319,6 +320,7 @@ export const PriceListDetailsForm = ({ form }: PriceListDetailsFormProps) => {
             )
           }}
         />
+        */}
       </div>
     </div>
   )

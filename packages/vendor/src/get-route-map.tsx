@@ -390,63 +390,11 @@ export function getRouteMap({
                 ],
               },
 
-              // CUSTOMER GROUPS
-              {
-                path: "/customer-groups",
-                errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("customerGroups.domain") },
-                children: [
-                  {
-                    path: "",
-                    lazy: () => import("./pages/customer-groups"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () => import("./pages/customer-groups/create"),
-                      },
-                    ],
-                  },
-                  {
-                    path: ":id",
-                    lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/customer-groups/[id]");
-                      return {
-                        Component: Outlet,
-                        loader,
-                        handle: {
-                          breadcrumb: (match: UIMatch<any>) => (
-                            <Breadcrumb {...match} />
-                          ),
-                        },
-                      };
-                    },
-                    children: [
-                      {
-                        path: "",
-                        lazy: () => import("./pages/customer-groups/[id]"),
-                        children: [
-                          {
-                            path: "edit",
-                            lazy: () =>
-                              import("./pages/customer-groups/[id]/edit"),
-                          },
-                          {
-                            path: "add-customers",
-                            lazy: () =>
-                              import("./pages/customer-groups/[id]/add-customers"),
-                          },
-                          {
-                            path: "metadata",
-                            lazy: () =>
-                              import("./pages/customer-groups/[id]/metadata"),
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
+              // CUSTOMER GROUPS - disabled
+              // {
+              //   path: "/customer-groups",
+              //   ...
+              // },
 
               // INVENTORY
               {
@@ -701,53 +649,11 @@ export function getRouteMap({
                 ],
               },
 
-              // RESERVATIONS
-              {
-                path: "/reservations",
-                errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("reservations.domain") },
-                children: [
-                  {
-                    path: "",
-                    lazy: () => import("./pages/reservations"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () => import("./pages/reservations/create"),
-                      },
-                    ],
-                  },
-                  {
-                    path: ":id",
-                    lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/reservations/[id]");
-                      return {
-                        Component: Outlet,
-                        loader,
-                        handle: {
-                          breadcrumb: (match: UIMatch<any>) => (
-                            <Breadcrumb {...match} />
-                          ),
-                        },
-                      };
-                    },
-                    children: [
-                      {
-                        path: "",
-                        lazy: () => import("./pages/reservations/[id]"),
-                        children: [
-                          {
-                            path: "metadata",
-                            lazy: () =>
-                              import("./pages/reservations/[id]/metadata"),
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
+              // RESERVATIONS - disabled
+              // {
+              //   path: "/reservations",
+              //   ...
+              // },
 
               // PRODUCT VARIANTS (standalone routes)
               {

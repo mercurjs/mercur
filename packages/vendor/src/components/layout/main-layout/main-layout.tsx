@@ -263,23 +263,13 @@ export const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <Buildings />,
       label: t("inventory.domain"),
       to: "/inventory",
-      items: [
-        {
-          label: t("reservations.domain"),
-          to: "/reservations",
-        },
-      ],
+      items: [],
     },
     {
       icon: <Users />,
       label: t("customers.domain"),
       to: "/customers",
-      items: [
-        {
-          label: t("customerGroups.domain"),
-          to: "/customer-groups",
-        },
-      ],
+      items: [],
     },
     {
       icon: <ReceiptPercent />,
