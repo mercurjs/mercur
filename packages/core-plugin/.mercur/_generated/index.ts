@@ -693,6 +693,7 @@ export type Routes = {
         };
         uploads: typeof import("../../src/api/vendor/uploads/route");
         productVariants: typeof import("../../src/api/vendor/product-variants/route");
+        stores: typeof import("../../src/api/vendor/stores/route");
     };
     hooks: {
         payout: typeof import("../../src/api/hooks/payout/route");
