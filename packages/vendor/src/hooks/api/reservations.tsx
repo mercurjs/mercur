@@ -26,7 +26,7 @@ export const useReservationItem = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.reservations.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -36,7 +36,7 @@ export const useReservationItem = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: reservationItemsQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.reservations.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.reservations.$id.query({ $id: id, ...query }),
     ...options,
   });
 
@@ -65,12 +65,12 @@ export const useUpdateReservationItem = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.reservations.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.reservations.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.reservations.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.reservations.$id.mutate({ id, ...payload }),
+      sdk.vendor.reservations.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: reservationItemsQueryKeys.detail(id),
@@ -124,7 +124,7 @@ export const useDeleteReservationItem = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.reservations.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.reservations.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: reservationItemsQueryKeys.lists(),

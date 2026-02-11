@@ -20,7 +20,7 @@ const usersQueryKeys = {
 };
 
 export const useMe = (
-  query?: Omit<InferClientInput<typeof sdk.vendor.sellers.me.query>, "id">,
+  query?: Omit<InferClientInput<typeof sdk.vendor.sellers.me.query>, "$id">,
   options?: UseQueryOptions<
     unknown,
     ClientError,
@@ -41,7 +41,7 @@ export const useMe = (
 
 export const useUser = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.vendor.users.$id.query>, "id">,
+  query?: Omit<InferClientInput<typeof sdk.vendor.users.$id.query>, "$id">,
   options?: UseQueryOptions<
     unknown,
     ClientError,
@@ -49,7 +49,7 @@ export const useUser = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.users.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.users.$id.query({ $id: id, ...query }),
     queryKey: usersQueryKeys.detail(id),
     ...options,
   });
@@ -79,11 +79,11 @@ export const useUpdateUser = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.users.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.users.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.users.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.vendor.users.$id.mutate({ id, ...payload }),
+    mutationFn: (payload) => sdk.vendor.users.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() });
@@ -106,7 +106,7 @@ export const useDeleteUser = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.users.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.users.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() });

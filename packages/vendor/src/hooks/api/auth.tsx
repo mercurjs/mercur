@@ -13,15 +13,15 @@ export const useSignInWithEmailPass = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.auth.$actorType.$authProvider.mutate>,
-      "actorType" | "authProvider"
+      "$actorType" | "$authProvider"
     >
   >
 ) => {
   return useMutation({
     mutationFn: async (payload) => {
       const data = (await sdk.auth.$actorType.$authProvider.mutate({
-        actorType: "seller",
-        authProvider: "emailpass",
+        $actorType: "seller",
+        $authProvider: "emailpass",
         ...payload,
       })) as { token: string };
 
@@ -56,15 +56,15 @@ export const useSignUpWithEmailPass = (
       InferClientInput<
         typeof sdk.auth.$actorType.$authProvider.register.mutate
       >,
-      "actorType" | "authProvider"
+      "$actorType" | "$authProvider"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.register.mutate({
-        actorType: "seller",
-        authProvider: "emailpass",
+        $actorType: "seller",
+        $authProvider: "emailpass",
         ...payload,
       }),
     onSuccess: async (data, variables, context) => {
@@ -82,15 +82,15 @@ export const useSignUpForInvite = (
       InferClientInput<
         typeof sdk.auth.$actorType.$authProvider.register.mutate
       >,
-      "actorType" | "authProvider"
+      "$actorType" | "$authProvider"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.register.mutate({
-        actorType: "seller",
-        authProvider: "emailpass",
+        $actorType: "seller",
+        $authProvider: "emailpass",
         ...payload,
       }),
     ...options,
@@ -109,8 +109,8 @@ export const useResetPasswordForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.resetPassword.mutate({
-        actorType: "seller",
-        authProvider: "emailpass",
+        $actorType: "seller",
+        $authProvider: "emailpass",
         identifier: payload.email,
         metadata: {},
       }),
@@ -140,15 +140,15 @@ export const useUpdateProviderForEmailPass = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.auth.$actorType.$authProvider.update.mutate>,
-      "actorType" | "authProvider"
+      "$actorType" | "$authProvider"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.update.mutate({
-        actorType: "seller",
-        authProvider: "emailpass",
+        $actorType: "seller",
+        $authProvider: "emailpass",
         ...payload,
         fetchOptions: {
           headers: {

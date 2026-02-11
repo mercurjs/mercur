@@ -23,7 +23,7 @@ export const useSalesChannel = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.salesChannels.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -33,7 +33,7 @@ export const useSalesChannel = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: salesChannelsQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.salesChannels.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.salesChannels.$id.query({ $id: id, ...query }),
     ...options,
   });
 
@@ -81,12 +81,12 @@ export const useUpdateSalesChannel = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.salesChannels.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.salesChannels.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.salesChannels.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.salesChannels.$id.mutate({ id, ...payload }),
+      sdk.vendor.salesChannels.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -110,7 +110,7 @@ export const useDeleteSalesChannel = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.salesChannels.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.salesChannels.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -138,7 +138,7 @@ export const useDeleteSalesChannelLazy = (
   >
 ) => {
   return useMutation({
-    mutationFn: (id: string) => sdk.vendor.salesChannels.$id.delete({ id }),
+    mutationFn: (id: string) => sdk.vendor.salesChannels.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -168,7 +168,7 @@ export const useSalesChannelRemoveProducts = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.salesChannels.$id.products.mutate({ id, ...payload }),
+      sdk.vendor.salesChannels.$id.products.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -205,7 +205,7 @@ export const useSalesChannelAddProducts = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.salesChannels.$id.products.mutate({ id, ...payload }),
+      sdk.vendor.salesChannels.$id.products.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),

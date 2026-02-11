@@ -28,7 +28,7 @@ export const usePriceList = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.priceLists.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -37,7 +37,7 @@ export const usePriceList = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.priceLists.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.priceLists.$id.query({ $id: id, ...query }),
     queryKey: priceListsQueryKeys.detail(id, query),
     ...options,
   });
@@ -87,12 +87,12 @@ export const useUpdatePriceList = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.priceLists.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.priceLists.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.priceLists.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.priceLists.$id.mutate({ id, ...payload }),
+      sdk.vendor.priceLists.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -116,7 +116,7 @@ export const useDeletePriceList = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.priceLists.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.priceLists.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() });
 
@@ -130,7 +130,7 @@ export const usePriceListPrices = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.priceLists.$id.prices.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -139,7 +139,7 @@ export const usePriceListPrices = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.priceLists.$id.prices.query({ id, ...query }),
+    queryFn: () => sdk.vendor.priceLists.$id.prices.query({ $id: id, ...query }),
     queryKey: priceListPricesQueryKeys.detail(id, query),
     ...options,
   });
@@ -154,13 +154,13 @@ export const useBatchPriceListPrices = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.priceLists.$id.prices.batch.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.priceLists.$id.prices.batch.mutate({ id, ...payload }),
+      sdk.vendor.priceLists.$id.prices.batch.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: priceListsQueryKeys.detail(id),
@@ -183,13 +183,13 @@ export const usePriceListLinkProducts = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.priceLists.$id.products.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.priceLists.$id.products.mutate({ id, ...payload }),
+      sdk.vendor.priceLists.$id.products.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: priceListsQueryKeys.detail(id),
@@ -212,11 +212,7 @@ export const usePriceListProducts = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () =>
-      fetchQuery(`/vendor/price-lists/${id}/products`, {
-        method: "GET",
-        query,
-      }),
+    queryFn: () => sdk.vendor.products.query({ price_list_id: [id], ...query }),
     queryKey: [PRICE_LISTS_QUERY_KEY, id, "products"],
     ...options,
   });

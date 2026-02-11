@@ -19,7 +19,7 @@ export const returnsQueryKeys = queryKeysFactory(RETURNS_QUERY_KEY);
 
 export const useReturn = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.vendor.returns.$id.query>, "id">,
+  query?: Omit<InferClientInput<typeof sdk.vendor.returns.$id.query>, "$id">,
   options?: UseQueryOptions<
     unknown,
     ClientError,
@@ -27,7 +27,7 @@ export const useReturn = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.vendor.returns.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.returns.$id.query({ $id: id, ...query }),
     queryKey: returnsQueryKeys.detail(id, query),
     ...options,
   });
@@ -86,7 +86,7 @@ export const useCancelReturn = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.returns.$id.cancel.mutate({ id }),
+    mutationFn: () => sdk.vendor.returns.$id.cancel.mutate({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -119,12 +119,12 @@ export const useConfirmReturnRequest = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.returns.$id.request.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.returns.$id.request.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.returns.$id.request.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.returns.$id.request.mutate({ id, ...payload }),
+      sdk.vendor.returns.$id.request.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -155,7 +155,7 @@ export const useCancelReturnRequest = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.returns.$id.request.delete({ id }),
+    mutationFn: () => sdk.vendor.returns.$id.request.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -188,13 +188,13 @@ export const useAddReturnItem = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.returns.$id.requestItems.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.returns.$id.requestItems.mutate({ id, ...payload }),
+      sdk.vendor.returns.$id.requestItems.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -222,15 +222,15 @@ export const useUpdateReturnItem = (
       InferClientInput<
         typeof sdk.vendor.returns.$id.requestItems.$actionId.mutate
       >,
-      "id"
+      "$id" | "$actionId"
     >
   >
 ) => {
   return useMutation({
     mutationFn: ({ actionId, ...payload }) => {
       return sdk.vendor.returns.$id.requestItems.$actionId.mutate({
-        id,
-        actionId,
+        $id: id,
+        $actionId: actionId,
         ...payload,
       });
     },
@@ -262,7 +262,7 @@ export const useRemoveReturnItem = (
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
-      sdk.vendor.returns.$id.requestItems.$actionId.delete({ id, actionId }),
+      sdk.vendor.returns.$id.requestItems.$actionId.delete({ $id: id, $actionId: actionId }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -288,12 +288,12 @@ export const useUpdateReturn = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.returns.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.returns.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.returns.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) => {
-      return sdk.vendor.returns.$id.mutate({ id, ...payload });
+      return sdk.vendor.returns.$id.mutate({ $id: id, ...payload });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
@@ -318,13 +318,13 @@ export const useAddReturnShipping = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.returns.$id.shippingMethod.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.returns.$id.shippingMethod.mutate({ id, ...payload }),
+      sdk.vendor.returns.$id.shippingMethod.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -352,15 +352,15 @@ export const useUpdateReturnShipping = (
       InferClientInput<
         typeof sdk.vendor.returns.$id.shippingMethod.$actionId.mutate
       >,
-      "id"
+      "$id" | "$actionId"
     >
   >
 ) => {
   return useMutation({
     mutationFn: ({ actionId, ...payload }) =>
       sdk.vendor.returns.$id.shippingMethod.$actionId.mutate({
-        id,
-        actionId,
+        $id: id,
+        $actionId: actionId,
         ...payload,
       }),
     onSuccess: (data, variables, context) => {
@@ -391,7 +391,7 @@ export const useDeleteReturnShipping = (
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
-      sdk.vendor.returns.$id.shippingMethod.$actionId.delete({ id, actionId }),
+      sdk.vendor.returns.$id.shippingMethod.$actionId.delete({ $id: id, $actionId: actionId }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -423,13 +423,13 @@ export const useInitiateReceiveReturn = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.returns.$id.receive.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.returns.$id.receive.mutate({ id, ...payload }),
+      sdk.vendor.returns.$id.receive.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -453,13 +453,13 @@ export const useAddReceiveItems = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.returns.$id.receiveItems.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.returns.$id.receiveItems.mutate({ id, ...payload }),
+      sdk.vendor.returns.$id.receiveItems.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -487,15 +487,15 @@ export const useUpdateReceiveItem = (
       InferClientInput<
         typeof sdk.vendor.returns.$id.receiveItems.$actionId.mutate
       >,
-      "id"
+      "$id" | "$actionId"
     >
   >
 ) => {
   return useMutation({
     mutationFn: ({ actionId, ...payload }) => {
       return sdk.vendor.returns.$id.receiveItems.$actionId.mutate({
-        id,
-        actionId,
+        $id: id,
+        $actionId: actionId,
         ...payload,
       });
     },
@@ -528,8 +528,8 @@ export const useRemoveReceiveItems = (
   return useMutation({
     mutationFn: (actionId: string) => {
       return sdk.vendor.returns.$id.receiveItems.$actionId.delete({
-        id,
-        actionId,
+        $id: id,
+        $actionId: actionId,
       });
     },
     onSuccess: (data, variables, context) => {
@@ -555,13 +555,13 @@ export const useAddDismissItems = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.returns.$id.dismissItems.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.returns.$id.dismissItems.mutate({ id, ...payload }),
+      sdk.vendor.returns.$id.dismissItems.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -589,15 +589,15 @@ export const useUpdateDismissItem = (
       InferClientInput<
         typeof sdk.vendor.returns.$id.dismissItems.$actionId.mutate
       >,
-      "id"
+      "$id" | "$actionId"
     >
   >
 ) => {
   return useMutation({
     mutationFn: ({ actionId, ...payload }) => {
       return sdk.vendor.returns.$id.dismissItems.$actionId.mutate({
-        id,
-        actionId,
+        $id: id,
+        $actionId: actionId,
         ...payload,
       });
     },
@@ -630,8 +630,8 @@ export const useRemoveDismissItem = (
   return useMutation({
     mutationFn: (actionId: string) => {
       return sdk.vendor.returns.$id.dismissItems.$actionId.delete({
-        id,
-        actionId,
+        $id: id,
+        $actionId: actionId,
       });
     },
     onSuccess: (data, variables, context) => {
@@ -657,13 +657,13 @@ export const useConfirmReturnReceive = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.returns.$id.receive.confirm.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.returns.$id.receive.confirm.mutate({ id, ...payload }),
+      sdk.vendor.returns.$id.receive.confirm.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -694,7 +694,7 @@ export const useCancelReceiveReturn = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.returns.$id.receive.delete({ id }),
+    mutationFn: () => sdk.vendor.returns.$id.receive.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),

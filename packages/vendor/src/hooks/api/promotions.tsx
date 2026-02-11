@@ -53,7 +53,7 @@ export const usePromotion = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.promotions.$id.query({ id }),
+    queryFn: async () => sdk.vendor.promotions.$id.query({ $id: id }),
     ...options,
   });
 
@@ -65,7 +65,7 @@ export const usePromotionRules = (
   ruleType: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.promotions.$id.$ruleType.query>,
-    "id" | "ruleType"
+    "$id" | "$ruleType"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -77,8 +77,8 @@ export const usePromotionRules = (
     queryKey: promotionsQueryKeys.listRules(id, ruleType, query),
     queryFn: async () =>
       sdk.vendor.promotions.$id.$ruleType.query({
-        id: id!,
-        ruleType,
+        $id: id!,
+        $ruleType: ruleType,
         ...query,
       }),
     ...options,
@@ -124,7 +124,7 @@ export const usePromotionRuleAttributes = (
     ),
     queryFn: async () =>
       sdk.vendor.promotions.ruleAttributeOptions.$ruleType.query({
-        ruleType,
+        $ruleType: ruleType,
         promotion_type: promotionType as PromotionTypeValues,
         application_method_target_type:
           applicationMethodTargetType as ApplicationMethodTargetTypeValues,
@@ -160,8 +160,8 @@ export const usePromotionRuleValues = (
     ),
     queryFn: async () =>
       sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
-        ruleType,
-        ruleAttributeId: ruleValue,
+        $ruleType: ruleType,
+        $ruleAttributeId: ruleValue,
         ...query,
       }),
     ...options,
@@ -179,7 +179,7 @@ export const useDeletePromotion = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.promotions.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.promotions.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -215,12 +215,12 @@ export const useUpdatePromotion = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.promotions.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.promotions.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.promotions.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.promotions.$id.mutate({ id, ...payload }),
+      sdk.vendor.promotions.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
 
@@ -238,7 +238,7 @@ export const usePromotionAddRules = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
@@ -246,17 +246,17 @@ export const usePromotionAddRules = (
     mutationFn: (payload) => {
       if (ruleType === "buy-rules") {
         return sdk.vendor.promotions.$id.buyRules.batch.mutate({
-          id,
+          $id: id,
           ...payload,
         });
       }
       if (ruleType === "target-rules") {
         return sdk.vendor.promotions.$id.targetRules.batch.mutate({
-          id,
+          $id: id,
           ...payload,
         });
       }
-      return sdk.vendor.promotions.$id.rules.batch.mutate({ id, ...payload });
+      return sdk.vendor.promotions.$id.rules.batch.mutate({ $id: id, ...payload });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
@@ -275,7 +275,7 @@ export const usePromotionRemoveRules = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
@@ -283,17 +283,17 @@ export const usePromotionRemoveRules = (
     mutationFn: (payload) => {
       if (ruleType === "buy-rules") {
         return sdk.vendor.promotions.$id.buyRules.batch.mutate({
-          id,
+          $id: id,
           ...payload,
         });
       }
       if (ruleType === "target-rules") {
         return sdk.vendor.promotions.$id.targetRules.batch.mutate({
-          id,
+          $id: id,
           ...payload,
         });
       }
-      return sdk.vendor.promotions.$id.rules.batch.mutate({ id, ...payload });
+      return sdk.vendor.promotions.$id.rules.batch.mutate({ $id: id, ...payload });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
@@ -312,7 +312,7 @@ export const usePromotionUpdateRules = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
@@ -320,17 +320,17 @@ export const usePromotionUpdateRules = (
     mutationFn: (payload) => {
       if (ruleType === "buy-rules") {
         return sdk.vendor.promotions.$id.buyRules.batch.mutate({
-          id,
+          $id: id,
           ...payload,
         });
       }
       if (ruleType === "target-rules") {
         return sdk.vendor.promotions.$id.targetRules.batch.mutate({
-          id,
+          $id: id,
           ...payload,
         });
       }
-      return sdk.vendor.promotions.$id.rules.batch.mutate({ id, ...payload });
+      return sdk.vendor.promotions.$id.rules.batch.mutate({ $id: id, ...payload });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });

@@ -26,7 +26,7 @@ export const useInvite = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: invitesQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.invites.$id.query({ id }),
+    queryFn: async () => sdk.vendor.invites.$id.query({ $id: id }),
     ...options,
   });
 
@@ -76,7 +76,7 @@ export const useResendInvite = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.invites.$id.resend.mutate({ id }),
+    mutationFn: () => sdk.vendor.invites.$id.resend.mutate({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) });
@@ -95,7 +95,7 @@ export const useDeleteInvite = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.invites.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.invites.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) });

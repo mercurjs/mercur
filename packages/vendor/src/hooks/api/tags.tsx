@@ -24,7 +24,7 @@ export const useProductTag = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.productTags.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -34,7 +34,7 @@ export const useProductTag = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: productTagsQueryKeys.detail(id, query),
-    queryFn: async () => sdk.vendor.productTags.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.productTags.$id.query({ $id: id, ...query }),
     ...options,
   });
 
@@ -113,12 +113,12 @@ export const useUpdateProductTag = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.productTags.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.productTags.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.productTags.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.productTags.$id.mutate({ id, ...payload }),
+      sdk.vendor.productTags.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTagsQueryKeys.lists(),
@@ -142,7 +142,7 @@ export const useDeleteProductTag = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.productTags.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.productTags.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTagsQueryKeys.lists(),

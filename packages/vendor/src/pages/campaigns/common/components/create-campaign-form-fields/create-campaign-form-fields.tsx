@@ -13,7 +13,7 @@ import { Path, PathValue, UseFormReturn, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "@components/common/form"
-import { useStore } from "@hooks/api/store"
+import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
 import {
   currencies,
   getCurrencySymbol,
@@ -32,7 +32,7 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
 }: CreateCampaignFormFieldsProps<T>) => {
   
   const { t } = useTranslation()
-  const { store } = useStore()
+  const { currencies: storeCurrencies } = useStoreCurrencies()
 
   const watchValueType = useWatch({
     control: form.control,
@@ -284,7 +284,7 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
                         {Object.values(currencies)
                           .filter(
                             (currency) =>
-                              !!store?.supported_currencies?.find(
+                              !!storeCurrencies?.find(
                                 (c) =>
                                   c.currency_code ===
                                   currency.code.toLocaleLowerCase()

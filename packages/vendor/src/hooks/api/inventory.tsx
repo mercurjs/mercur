@@ -46,7 +46,7 @@ export const useInventoryItem = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.inventoryItems.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -55,7 +55,7 @@ export const useInventoryItem = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.inventoryItems.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.inventoryItems.$id.query({ $id: id, ...query }),
     queryKey: inventoryItemsQueryKeys.detail(id),
     ...options,
   })
@@ -87,12 +87,12 @@ export const useUpdateInventoryItem = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.inventoryItems.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.inventoryItems.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.inventoryItems.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.inventoryItems.$id.mutate({ id, ...payload }),
+      sdk.vendor.inventoryItems.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
@@ -115,7 +115,7 @@ export const useDeleteInventoryItem = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.inventoryItems.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.inventoryItems.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
@@ -141,8 +141,8 @@ export const useDeleteInventoryItemLevel = (
   return useMutation({
     mutationFn: () =>
       sdk.vendor.inventoryItems.$id.locationLevels.$locationId.delete({
-        id: inventoryItemId,
-        locationId,
+        $id: inventoryItemId,
+        $locationId: locationId,
       }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
@@ -164,7 +164,7 @@ export const useInventoryItemLevels = (
   inventoryItemId: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.inventoryItems.$id.locationLevels.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -201,15 +201,15 @@ export const useUpdateInventoryLevel = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.inventoryItems.$id.locationLevels.$locationId.mutate>,
-      "id" | "locationId"
+      "$id" | "$locationId"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.vendor.inventoryItems.$id.locationLevels.$locationId.mutate({
-        id: inventoryItemId,
-        locationId,
+        $id: inventoryItemId,
+        $locationId: locationId,
         ...payload,
       }),
     onSuccess: (data, variables, context) => {
@@ -238,14 +238,14 @@ export const useBatchInventoryItemLocationLevels = (
     ClientError,
     Omit<
       InferClientInput<typeof sdk.vendor.inventoryItems.$id.locationLevels.batch.mutate>,
-      "id"
+      "$id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.vendor.inventoryItems.$id.locationLevels.batch.mutate({
-        id: inventoryItemId,
+        $id: inventoryItemId,
         ...payload,
       }),
     onSuccess: (data, variables, context) => {

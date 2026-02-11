@@ -37,7 +37,7 @@ export const useReturnReason = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.returnReasons.$id.query>,
-    "id"
+      "$id"
   >,
   options?: UseQueryOptions<
     unknown,
@@ -46,7 +46,7 @@ export const useReturnReason = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.returnReasons.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.returnReasons.$id.query({ $id: id, ...query }),
     queryKey: returnReasonsQueryKeys.detail(id),
     ...options,
   });
@@ -79,12 +79,12 @@ export const useUpdateReturnReason = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.returnReasons.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.returnReasons.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.returnReasons.$id.mutate>, "$id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.returnReasons.$id.mutate({ id, ...payload }),
+      sdk.vendor.returnReasons.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: returnReasonsQueryKeys.lists(),
@@ -108,7 +108,7 @@ export const useDeleteReturnReason = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.returnReasons.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.returnReasons.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: returnReasonsQueryKeys.lists(),
