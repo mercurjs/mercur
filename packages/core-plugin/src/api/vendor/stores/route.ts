@@ -22,6 +22,6 @@ export const GET = async (
     stores,
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
-    limit: metadata?.limit ?? 0,
+    limit: req.queryConfig.pagination.take ?? 0,
   })
 }
