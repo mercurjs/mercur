@@ -25,6 +25,7 @@ import {
   VendorUpdateProductOption,
   VendorUpdateProductVariant,
 } from "./validators"
+import { maybeApplyPriceListsFilter } from "@medusajs/medusa/api/admin/products/utils/maybe-apply-price-lists-filter"
 
 const applySellerProductLinkFilter = (
   req: AuthenticatedMedusaRequest,
@@ -50,6 +51,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.list
       ),
       applySellerProductLinkFilter,
+      maybeApplyPriceListsFilter
     ],
   },
   {

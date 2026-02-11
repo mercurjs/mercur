@@ -7,6 +7,7 @@ import {
   WithAdditionalData,
 } from "@medusajs/medusa/api/utils/validators"
 import { AdditionalData } from "@medusajs/framework/types"
+import { AdminGetProductsParams } from "@medusajs/medusa/api/admin/products/validators"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
@@ -24,23 +25,7 @@ export type VendorGetProductOptionParamsType = z.infer<
 export const VendorGetProductOptionParams = createSelectParams()
 
 export type VendorGetProductsParamsType = z.infer<typeof VendorGetProductsParams>
-export const VendorGetProductsParams = createFindParams({
-  offset: 0,
-  limit: 50,
-}).merge(
-  z.object({
-    q: z.string().optional(),
-    id: z.union([z.string(), z.array(z.string())]).optional(),
-    title: z.string().optional(),
-    handle: z.string().optional(),
-    status: statusEnum.array().optional(),
-    category_id: z.union([z.string(), z.array(z.string())]).optional(),
-    collection_id: z.union([z.string(), z.array(z.string())]).optional(),
-    type_id: z.union([z.string(), z.array(z.string())]).optional(),
-    created_at: createOperatorMap().optional(),
-    updated_at: createOperatorMap().optional(),
-  })
-)
+export const VendorGetProductsParams = AdminGetProductsParams
 
 export type VendorGetProductVariantsParamsType = z.infer<
   typeof VendorGetProductVariantsParams
