@@ -1,5 +1,5 @@
 /**
- * Build script for @mercurjs/core backend
+ * Build script for @mercurjs/core-plugin backend
  *
  * This script compiles the plugin backend using Medusa's build tools.
  * It loads the TypeScript configuration and compiles the source files

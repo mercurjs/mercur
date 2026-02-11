@@ -40,8 +40,8 @@ type InferEndpointMethods<TRoutes, TParams> =
 type ProcessRoutes<TRoutes, TParams = {}> =
     InferEndpointMethods<TRoutes, TParams> &
     {
-        [K in ChildKeys<TRoutes>]: K extends `$${infer Param}`
-        ? ProcessRoutes<TRoutes[K], TParams & { [P in Param]: string }>
+        [K in ChildKeys<TRoutes>]: K extends `$${string}`
+        ? ProcessRoutes<TRoutes[K], TParams & { [P in K]: string }>
         : ProcessRoutes<TRoutes[K], TParams>
     };
 

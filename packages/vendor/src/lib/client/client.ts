@@ -1,5 +1,5 @@
 import { createClient, InferClient } from '@mercurjs/client'
-import { Routes } from '@mercurjs/core/_generated'
+import { Routes } from '@mercurjs/core-plugin/_generated'
 import config from 'virtual:mercur/config'
 
 export const sdk: InferClient<Routes> = createClient<Routes>({
@@ -71,7 +71,7 @@ export const fetchQuery = async (
     }
 
     const error = new Error(errorData.message || 'Server error')
-    ;(error as Error & { status: number }).status = response.status
+      ; (error as Error & { status: number }).status = response.status
     throw error
   }
 

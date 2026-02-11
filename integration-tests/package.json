@@ -8,7 +8,7 @@
   "dependencies": {
     "@medusajs/framework": "^2.13.1",
     "@medusajs/medusa": "^2.13.1",
-    "@mercurjs/core": "*",
+    "@mercurjs/core-plugin": "*",
     "jsonwebtoken": "^9.0.2",
     "scrypt-kdf": "^2.0.1",
     "@medusajs/draft-order": "^2.13.1"
