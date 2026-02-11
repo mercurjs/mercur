@@ -77,15 +77,7 @@ export const Component = () => {
   }
 
   return (
-    <TwoColumnPage
-      widgets={{
-        after: getWidgets("inventory_item.details.after"),
-        before: getWidgets("inventory_item.details.before"),
-        sideAfter: getWidgets("inventory_item.details.side.after"),
-        sideBefore: getWidgets("inventory_item.details.side.before"),
-      }}
-      data={inventory_item}
-    >
+    <TwoColumnPage data={inventory_item} >
       <TwoColumnPage.Main>
         <InventoryItemGeneralSection inventoryItem={inventory_item} />
         <InventoryItemLocationLevelsSection inventoryItem={inventory_item} />

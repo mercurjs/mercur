@@ -9,7 +9,6 @@ import {
   DataGrid,
 } from "@components/data-grid"
 import { useRouteModal } from "@components/modals"
-import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
 import {
   ProductCreateOptionSchema,
   ProductCreateVariantSchema,
@@ -34,11 +33,10 @@ export const ProductCreateVariantsForm = ({
   pricePreferences,
 }: ProductCreateVariantsFormProps) => {
   const { setCloseOnEscape } = useRouteModal()
-  const { currencies: storeCurrencies } = useStoreCurrencies()
 
   const currencyCodes = useMemo(
-    () => (store?.supported_currencies ?? storeCurrencies)?.map((c) => c.currency_code) || [],
-    [store, storeCurrencies]
+    () => (store?.supported_currencies)?.map((c) => c.currency_code) || [],
+    [store]
   )
 
   const variants = useWatch({

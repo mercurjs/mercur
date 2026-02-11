@@ -6,7 +6,6 @@ import { sellerLoader } from "./loader"
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton"
 import { SingleColumnPage } from "@components/layout/pages"
-import { useDashboardExtension } from "@/extensions"
 
 const SellerDetail = () => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof sellerLoader>>
@@ -15,7 +14,6 @@ const SellerDetail = () => {
     initialData,
   })
 
-  const { getWidgets } = useDashboardExtension()
 
   if (isPending || !store) {
     return <SingleColumnPageSkeleton sections={1} showJSON showMetadata />
@@ -27,10 +25,6 @@ const SellerDetail = () => {
 
   return (
     <SingleColumnPage
-      widgets={{
-        before: getWidgets("seller.details.before"),
-        after: getWidgets("seller.details.after"),
-      }}
       data={store}
       hasOutlet
       showMetadata

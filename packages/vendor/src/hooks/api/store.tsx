@@ -10,8 +10,8 @@ import { HttpTypes } from "@medusajs/types"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { pricePreferencesQueryKeys } from "./price-preferences"
-import { fetchQuery } from "../../lib/client"
-import { ClientError } from "@mercurjs/client"
+import { fetchQuery, sdk } from "../../lib/client"
+import { ClientError, InferClientInput } from "@mercurjs/client"
 
 const STORE_QUERY_KEY = "store" as const
 export const storeQueryKeys = queryKeysFactory(STORE_QUERY_KEY)
@@ -38,25 +38,16 @@ export async function retrieveActiveStore(
 }
 
 export const useStore = (
-  query?: HttpTypes.SelectParams,
-  options?: Omit<
-    UseQueryOptions<
-      HttpTypes.AdminStoreResponse,
-      ClientError,
-      HttpTypes.AdminStoreResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
-  >
+  query?: InferClientInput<typeof sdk.vendor.stores.query>,
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => retrieveActiveStore(query),
+    queryFn: () => sdk.vendor.stores.query({...query})
+    .then((res) => res.stores![0]!),
     queryKey: storeQueryKeys.details(),
-    ...options,
   })
 
   return {
-    ...data,
+    store: data,
     ...rest,
   }
 }

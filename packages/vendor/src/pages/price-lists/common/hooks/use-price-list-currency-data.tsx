@@ -1,23 +1,18 @@
-import { HttpTypes } from "@medusajs/types"
-import { useRegions } from "@hooks/api/regions"
-import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
+import { useRegions } from "../../../../hooks/api/regions"
+import { useStore } from "../../../../hooks/api/store"
+import { usePricePreferences } from "../../../../hooks/api/price-preferences"
 
-type UsePriceListCurrencyDataReturn =
-  | {
-      isReady: false
-      currencies: undefined
-      regions: undefined
-      pricePreferences: undefined
-    }
-  | {
-      isReady: true
-      currencies: HttpTypes.AdminStoreCurrency[]
-      regions: HttpTypes.AdminRegion[]
-      pricePreferences: HttpTypes.AdminPricePreference[]
-    }
+export const usePriceListCurrencyData = () => {
+  const {
+    store,
+    isPending: isStorePending,
+    isError: isStoreError,
+    error: storeError,
+  } = useStore({
+    fields: "+supported_currencies",
+  })
 
-export const usePriceListCurrencyData = (): UsePriceListCurrencyDataReturn => {
-  const { currencies, isPending: isCurrenciesPending } = useStoreCurrencies()
+  const currencies = store?.supported_currencies
 
   const {
     regions,
@@ -29,10 +24,31 @@ export const usePriceListCurrencyData = (): UsePriceListCurrencyDataReturn => {
     limit: 999,
   })
 
-  const isReady = !!currencies && !!regions && !isCurrenciesPending && !isRegionsPending
+  const {
+    price_preferences: pricePreferences,
+    isPending: isPreferencesPending,
+    isError: isPreferencesError,
+    error: preferencesError,
+  } = usePricePreferences({})
+
+  const isReady =
+    !!currencies &&
+    !!regions &&
+    !!pricePreferences &&
+    !isStorePending &&
+    !isRegionsPending &&
+    !isPreferencesPending
 
   if (isRegionsError) {
     throw regionsError
+  }
+
+  if (isStoreError) {
+    throw storeError
+  }
+
+  if (isPreferencesError) {
+    throw preferencesError
   }
 
   if (!isReady) {
@@ -44,10 +60,5 @@ export const usePriceListCurrencyData = (): UsePriceListCurrencyDataReturn => {
     }
   }
 
-  return {
-    regions,
-    currencies,
-    pricePreferences: [],
-    isReady,
-  }
+  return { regions, currencies, pricePreferences, isReady }
 }

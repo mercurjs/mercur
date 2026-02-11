@@ -1,13 +1,15 @@
 import { RouteFocusModal } from "@components/modals/route-focus-modal"
 import { usePaymentProviders } from "@hooks/api/payments"
-import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
+import { useStore } from "@hooks/api/store"
 import { currencies } from "@lib/data/currencies"
 import { CreateRegionForm } from "./_components/create-region-form"
 
 const RegionCreate = () => {
-  const { currencies: storeCurrencyList, isPending: isLoading } = useStoreCurrencies()
+  const { store, isPending: isLoading,  } = useStore({
+    fields: "+supported_currencies",
+  });
 
-  const storeCurrencies = (storeCurrencyList ?? []).map(
+  const storeCurrencies = (store?.supported_currencies ?? []).map(
     (c) => currencies[c.currency_code.toUpperCase()]
   )
   const { payment_providers: paymentProviders = [] } = usePaymentProviders({
@@ -16,7 +18,7 @@ const RegionCreate = () => {
 
   return (
     <RouteFocusModal>
-      {!isLoading && storeCurrencyList && (
+      {!isLoading && (
         <CreateRegionForm
           currencies={storeCurrencies}
           paymentProviders={paymentProviders}
