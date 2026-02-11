@@ -34,6 +34,7 @@ export const VendorGetProductsParams = createFindParams({
     title: z.string().optional(),
     handle: z.string().optional(),
     status: statusEnum.array().optional(),
+    category_id: z.union([z.string(), z.array(z.string())]).optional(),
     collection_id: z.union([z.string(), z.array(z.string())]).optional(),
     type_id: z.union([z.string(), z.array(z.string())]).optional(),
     created_at: createOperatorMap().optional(),
