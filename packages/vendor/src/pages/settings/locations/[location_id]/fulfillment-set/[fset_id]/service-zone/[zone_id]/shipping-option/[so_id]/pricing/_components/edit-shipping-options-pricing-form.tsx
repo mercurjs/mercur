@@ -17,7 +17,7 @@ import {
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { usePricePreferences } from "@hooks/api/price-preferences"
 import { useUpdateShippingOptions } from "@hooks/api/shipping-options"
-import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
+import { useStore } from "@hooks/api/store"
 import { castNumber } from "@lib/cast-number"
 import { ConditionalPriceForm } from "@pages/settings/locations/_common/components/conditional-price-form"
 import { ShippingOptionPriceProvider } from "@pages/settings/locations/_common/components/shipping-option-price-provider"
@@ -90,11 +90,16 @@ export function EditShippingOptionsPricingForm({
 
   const { mutateAsync, isPending } = useUpdateShippingOptions(shippingOption.id)
 
-  const { currencies: storeCurrencies, isPending: isStoreLoading } = useStoreCurrencies()
+  const {
+    store,
+    isLoading: isStoreLoading,
+    isError: isStoreError,
+    error: storeError,
+  } = useStore()
 
   const currencies = useMemo(
-    () => storeCurrencies?.map((c) => c.currency_code) || [],
-    [storeCurrencies]
+    () => store?.supported_currencies?.map((c) => c.currency_code) || [],
+    [store]
   )
 
   const { price_preferences: pricePreferences } = usePricePreferences({})
@@ -202,7 +207,11 @@ export function EditShippingOptionsPricingForm({
     )
   })
 
-  const isLoading = isStoreLoading || !storeCurrencies
+  const isLoading = isStoreLoading || !currencies
+
+  if (isStoreError) {
+    throw storeError
+  }
 
   return (
     <RouteFocusModal.Form form={form}>

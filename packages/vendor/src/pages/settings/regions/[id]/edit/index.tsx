@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom"
 import { RouteDrawer } from "@components/modals"
 import { usePaymentProviders } from "@hooks/api/payments"
 import { useRegion } from "@hooks/api/regions"
-import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
+import { useStore } from "@hooks/api/store"
 import { currencies } from "@lib/data/currencies"
 import { EditRegionForm } from "./_components/edit-region-form"
 import { usePricePreferences } from "@hooks/api/price-preferences"
@@ -23,7 +23,12 @@ const RegionEdit = () => {
     fields: "*payment_providers,*countries,+automatic_taxes",
   })
 
-  const { currencies: storeCurrencyList, isPending: isCurrenciesLoading } = useStoreCurrencies()
+  const {
+    store,
+    isPending: isStoreLoading,
+    isError: isStoreError,
+    error: storeError,
+  } = useStore()
 
   const {
     price_preferences: pricePreferences = [],
@@ -38,9 +43,9 @@ const RegionEdit = () => {
     { enabled: !!region }
   )
 
-  const isLoading = isRegionLoading || isCurrenciesLoading || isPreferenceLoading
+  const isLoading = isRegionLoading || isStoreLoading || isPreferenceLoading
 
-  const storeCurrencies = (storeCurrencyList ?? []).map(
+  const storeCurrencies = (store?.supported_currencies ?? []).map(
     (c) => currencies[c.currency_code.toUpperCase()]
   )
   const { payment_providers: paymentProviders = [] } = usePaymentProviders({
@@ -50,6 +55,10 @@ const RegionEdit = () => {
 
   if (isRegionError) {
     throw regionError
+  }
+
+  if (isStoreError) {
+    throw storeError
   }
 
   if (isPreferenceError) {

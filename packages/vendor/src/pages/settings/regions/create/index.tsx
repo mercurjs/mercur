@@ -5,9 +5,7 @@ import { currencies } from "@lib/data/currencies"
 import { CreateRegionForm } from "./_components/create-region-form"
 
 const RegionCreate = () => {
-  const { store, isPending: isLoading,  } = useStore({
-    fields: "+supported_currencies",
-  });
+  const { store, isPending: isLoading, isError, error } = useStore()
 
   const storeCurrencies = (store?.supported_currencies ?? []).map(
     (c) => currencies[c.currency_code.toUpperCase()]
@@ -16,9 +14,13 @@ const RegionCreate = () => {
     is_enabled: true,
   })
 
+  if (isError) {
+    throw error
+  }
+
   return (
     <RouteFocusModal>
-      {!isLoading && (
+      {!isLoading && store && (
         <CreateRegionForm
           currencies={storeCurrencies}
           paymentProviders={paymentProviders}

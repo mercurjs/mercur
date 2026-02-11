@@ -5,9 +5,8 @@ import { HttpTypes } from "@medusajs/types"
 import { z } from "zod"
 
 import { CreateProductVariantSchema } from "./constants"
-import { useRegions } from "@hooks/api"
+import { useRegions, useStore } from "@hooks/api"
 import { usePricePreferences } from "@hooks/api/price-preferences"
-import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
 import { useRouteModal } from "@components/modals"
 import {
   createDataGridHelper,
@@ -20,14 +19,14 @@ type PricingTabProps = {
 }
 
 function PricingTab({ form }: PricingTabProps) {
-  const { currencies } = useStoreCurrencies()
+  const { store } = useStore()
   const { regions } = useRegions({ limit: 9999 })
   const { price_preferences: pricePreferences } = usePricePreferences({})
 
   const { setCloseOnEscape } = useRouteModal()
 
   const columns = useVariantPriceGridColumns({
-    currencies,
+    currencies: store?.supported_currencies,
     regions,
     pricePreferences,
   })

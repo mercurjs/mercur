@@ -12,7 +12,7 @@ import {
 import { useRouteModal } from "@components/modals/index"
 import { usePricePreferences } from "@hooks/api/price-preferences"
 import { useRegions } from "@hooks/api/regions.tsx"
-import { useStoreCurrencies } from "@hooks/api/use-store-currencies"
+import { useStore } from "@hooks/api/store"
 import { ProductCreateSchemaType } from "../create/types"
 import { ExtendedAdminProduct } from "@custom-types/products.ts"
 
@@ -25,14 +25,14 @@ export const VariantPricingForm = ({
   form,
   product,
 }: VariantPricingFormProps) => {
-  const { currencies } = useStoreCurrencies()
+  const { store } = useStore()
   const { regions } = useRegions({ limit: 9999 })
   const { price_preferences: pricePreferences } = usePricePreferences({})
 
   const { setCloseOnEscape } = useRouteModal()
 
   const columns = useVariantPriceGridColumns({
-    currencies,
+    currencies: store?.supported_currencies,
     regions,
     pricePreferences,
   })

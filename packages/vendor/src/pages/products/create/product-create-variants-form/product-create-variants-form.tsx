@@ -35,7 +35,7 @@ export const ProductCreateVariantsForm = ({
   const { setCloseOnEscape } = useRouteModal()
 
   const currencyCodes = useMemo(
-    () => (store?.supported_currencies)?.map((c) => c.currency_code) || [],
+    () => store?.supported_currencies?.map((c) => c.currency_code) || [],
     [store]
   )
 
