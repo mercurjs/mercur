@@ -10,27 +10,31 @@ import { HttpTypes } from "@medusajs/types"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { pricePreferencesQueryKeys } from "./price-preferences"
-import { sdk } from "../../lib/client"
+import { fetchQuery } from "../../lib/client"
 import { ClientError } from "@mercurjs/client"
 
 const STORE_QUERY_KEY = "store" as const
 export const storeQueryKeys = queryKeysFactory(STORE_QUERY_KEY)
 
 /**
- * Workaround to keep the V1 version of retrieving the store.
+ * Fetches the current seller as a store-like object.
+ * Uses /vendor/sellers/me since /vendor/stores does not exist.
  */
 export async function retrieveActiveStore(
   query?: HttpTypes.AdminStoreParams
 ): Promise<HttpTypes.AdminStoreResponse> {
-  const response = await sdk.admin.stores.query({})
+  const response = await fetchQuery('/vendor/sellers/me', {
+    method: "GET",
+    query,
+  })
 
-  const activeStore = response.stores?.[0]
+  const seller = (response as any).seller
 
-  if (!activeStore) {
-    throw new ClientError("No active store found", "Not Found", 404)
+  if (!seller) {
+    throw new ClientError("No active seller found", "Not Found", 404)
   }
 
-  return { store: activeStore }
+  return { store: seller as HttpTypes.AdminStore }
 }
 
 export const useStore = (
@@ -66,7 +70,7 @@ export const useUpdateStore = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.stores.$id.mutate({id, ...payload}),
+    mutationFn: (payload) => fetchQuery('/vendor/sellers/me', { method: "POST", body: payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.list(),

@@ -19,16 +19,16 @@ export const regionsQueryKeys = queryKeysFactory(REGIONS_QUERY_KEY);
 
 export const useRegion = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.admin.regions.$id.query>, "id">,
+  query?: Omit<InferClientInput<typeof sdk.vendor.regions.$id.query>, "id">,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.regions.$id.query>
+    InferClientOutput<typeof sdk.vendor.regions.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: regionsQueryKeys.detail(id, query),
-    queryFn: async () => sdk.admin.regions.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.regions.$id.query({ id, ...query }),
     ...options,
   });
 
@@ -36,15 +36,15 @@ export const useRegion = (
 };
 
 export const useRegions = (
-  query?: InferClientInput<typeof sdk.admin.regions.query>,
+  query?: InferClientInput<typeof sdk.vendor.regions.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.regions.query>
+    InferClientOutput<typeof sdk.vendor.regions.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.regions.query({ ...query }),
+    queryFn: () => sdk.vendor.regions.query({ ...query }),
     queryKey: regionsQueryKeys.list(query),
     ...options,
   });
@@ -54,13 +54,13 @@ export const useRegions = (
 
 export const useCreateRegion = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.regions.mutate>,
+    InferClientOutput<typeof sdk.vendor.regions.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.regions.mutate>
+    InferClientInput<typeof sdk.vendor.regions.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.regions.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.regions.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() });
 
@@ -80,14 +80,14 @@ export const useCreateRegion = (
 export const useUpdateRegion = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.regions.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.regions.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.regions.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.regions.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.regions.$id.mutate({ id, ...payload }),
+      sdk.vendor.regions.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.details() });
@@ -108,13 +108,13 @@ export const useUpdateRegion = (
 export const useDeleteRegion = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.regions.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.regions.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.regions.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.regions.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.detail(id) });

@@ -1,6 +1,6 @@
 import { customRoutes } from "virtual:mercur/routes";
 import { HelmetProvider } from "react-helmet-async";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./providers";
 import { I18nProvider, Toaster, TooltipProvider } from "@medusajs/ui";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -8,8 +8,15 @@ import { I18n } from "./components/utilities/i18n";
 import { getRouteMap } from "./get-route-map";
 import { createRouteMap, getRoutesByType } from "./utils/routes";
 import { useMemo } from "react";
+import { DashboardExtensionManager, DashboardExtensionProvider } from "./extensions";
+import { queryClient } from "./lib/query-client";
 
-const queryClient = new QueryClient();
+const extensionManager = new DashboardExtensionManager({
+  widgetModule: { widgets: [] },
+  menuItemModule: { menuItems: [] },
+  formModule: { customFields: { product: { forms: [], configs: [] } } },
+  displayModule: { displays: {} } as any,
+});
 
 export default function App() {
   const routes = useMemo(() => {
@@ -23,15 +30,17 @@ export default function App() {
     <TooltipProvider>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <I18n />
-            <I18nProvider>
-              <RouterProvider
-                router={createBrowserRouter(getRouteMap(routes))}
-              />
-            </I18nProvider>
-            <Toaster />
-          </ThemeProvider>
+          <DashboardExtensionProvider api={extensionManager.api}>
+            <ThemeProvider>
+              <I18n />
+              <I18nProvider>
+                <RouterProvider
+                  router={createBrowserRouter(getRouteMap(routes))}
+                />
+              </I18nProvider>
+              <Toaster />
+            </ThemeProvider>
+          </DashboardExtensionProvider>
         </QueryClientProvider>
       </HelmetProvider>
     </TooltipProvider>

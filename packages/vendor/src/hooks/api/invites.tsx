@@ -21,12 +21,12 @@ export const useInvite = (
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.invites.$id.query>
+    InferClientOutput<typeof sdk.vendor.invites.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: invitesQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.invites.$id.query({ id }),
+    queryFn: async () => sdk.vendor.invites.$id.query({ id }),
     ...options,
   });
 
@@ -34,15 +34,15 @@ export const useInvite = (
 };
 
 export const useInvites = (
-  query?: InferClientInput<typeof sdk.admin.invites.query>,
+  query?: InferClientInput<typeof sdk.vendor.invites.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.invites.query>
+    InferClientOutput<typeof sdk.vendor.invites.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.invites.query({ ...query }),
+    queryFn: () => sdk.vendor.invites.query({ ...query }),
     queryKey: invitesQueryKeys.list(query),
     ...options,
   });
@@ -52,13 +52,13 @@ export const useInvites = (
 
 export const useCreateInvite = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.invites.mutate>,
+    InferClientOutput<typeof sdk.vendor.invites.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.invites.mutate>
+    InferClientInput<typeof sdk.vendor.invites.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.invites.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.invites.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() });
       options?.onSuccess?.(data, variables, context);
@@ -70,13 +70,13 @@ export const useCreateInvite = (
 export const useResendInvite = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.invites.$id.resend.mutate>,
+    InferClientOutput<typeof sdk.vendor.invites.$id.resend.mutate>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.invites.$id.resend.mutate({ id }),
+    mutationFn: () => sdk.vendor.invites.$id.resend.mutate({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) });
@@ -89,13 +89,13 @@ export const useResendInvite = (
 export const useDeleteInvite = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.invites.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.invites.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.invites.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.invites.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) });
@@ -108,14 +108,14 @@ export const useDeleteInvite = (
 export const useAcceptInvite = (
   inviteToken: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.invites.accept.mutate>,
+    InferClientOutput<typeof sdk.vendor.invites.accept.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.invites.accept.mutate>
+    InferClientInput<typeof sdk.vendor.invites.accept.mutate>
   >
 ) => {
   return useMutation({
     mutationFn: (payload) => {
-      return sdk.admin.invites.accept.mutate({
+      return sdk.vendor.invites.accept.mutate({
         ...payload,
         fetchOptions: {
           headers: {

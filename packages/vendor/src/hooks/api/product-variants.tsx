@@ -20,15 +20,15 @@ export const productVariantQueryKeys = queryKeysFactory(
 );
 
 export const useVariants = (
-  query?: InferClientInput<typeof sdk.admin.productVariants.query>,
+  query?: InferClientInput<typeof sdk.vendor.productVariants.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.productVariants.query>
+    InferClientOutput<typeof sdk.vendor.productVariants.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.productVariants.query({ ...query }),
+    queryFn: () => sdk.vendor.productVariants.query({ ...query }),
     queryKey: productVariantQueryKeys.list(query),
     ...options,
   });
@@ -38,20 +38,20 @@ export const useVariants = (
 
 export const useInfiniteVariants = (
   query?: Omit<
-    InferClientInput<typeof sdk.admin.productVariants.query>,
+    InferClientInput<typeof sdk.vendor.productVariants.query>,
     "offset" | "limit"
   > & {
     limit?: number;
   },
   options?: Omit<
     UseInfiniteQueryOptions<
-      InferClientOutput<typeof sdk.admin.productVariants.query>,
+      InferClientOutput<typeof sdk.vendor.productVariants.query>,
       ClientError,
       InfiniteData<
-        InferClientOutput<typeof sdk.admin.productVariants.query>,
+        InferClientOutput<typeof sdk.vendor.productVariants.query>,
         number
       >,
-      InferClientOutput<typeof sdk.admin.productVariants.query>,
+      InferClientOutput<typeof sdk.vendor.productVariants.query>,
       QueryKey,
       number
     >,
@@ -60,7 +60,7 @@ export const useInfiniteVariants = (
 ) => {
   return useInfiniteList({
     queryKey: (params) => productVariantQueryKeys.list(params),
-    queryFn: (params) => sdk.admin.productVariants.query(params),
+    queryFn: (params) => sdk.vendor.productVariants.query(params),
     query,
     options,
   });

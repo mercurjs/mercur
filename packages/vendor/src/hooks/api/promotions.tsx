@@ -48,12 +48,12 @@ export const usePromotion = (
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.promotions.$id.query>
+    InferClientOutput<typeof sdk.vendor.promotions.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.promotions.$id.query({ id }),
+    queryFn: async () => sdk.vendor.promotions.$id.query({ id }),
     ...options,
   });
 
@@ -64,19 +64,19 @@ export const usePromotionRules = (
   id: string | null,
   ruleType: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.promotions.$id.$ruleType.query>,
+    InferClientInput<typeof sdk.vendor.promotions.$id.$ruleType.query>,
     "id" | "ruleType"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.promotions.$id.$ruleType.query>
+    InferClientOutput<typeof sdk.vendor.promotions.$id.$ruleType.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.listRules(id, ruleType, query),
     queryFn: async () =>
-      sdk.admin.promotions.$id.$ruleType.query({
+      sdk.vendor.promotions.$id.$ruleType.query({
         id: id!,
         ruleType,
         ...query,
@@ -88,16 +88,16 @@ export const usePromotionRules = (
 };
 
 export const usePromotions = (
-  query?: InferClientInput<typeof sdk.admin.promotions.query>,
+  query?: InferClientInput<typeof sdk.vendor.promotions.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.promotions.query>
+    InferClientOutput<typeof sdk.vendor.promotions.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.list(query),
-    queryFn: async () => sdk.admin.promotions.query({ ...query }),
+    queryFn: async () => sdk.vendor.promotions.query({ ...query }),
     ...options,
   });
 
@@ -112,7 +112,7 @@ export const usePromotionRuleAttributes = (
     unknown,
     ClientError,
     InferClientOutput<
-      typeof sdk.admin.promotions.ruleAttributeOptions.$ruleType.query
+      typeof sdk.vendor.promotions.ruleAttributeOptions.$ruleType.query
     >
   >
 ) => {
@@ -123,7 +123,7 @@ export const usePromotionRuleAttributes = (
       applicationMethodTargetType
     ),
     queryFn: async () =>
-      sdk.admin.promotions.ruleAttributeOptions.$ruleType.query({
+      sdk.vendor.promotions.ruleAttributeOptions.$ruleType.query({
         ruleType,
         promotion_type: promotionType as PromotionTypeValues,
         application_method_target_type:
@@ -140,7 +140,7 @@ export const usePromotionRuleValues = (
   ruleValue: string,
   query?: Omit<
     InferClientInput<
-      typeof sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query
+      typeof sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query
     >,
     "ruleType" | "ruleAttributeId"
   >,
@@ -148,7 +148,7 @@ export const usePromotionRuleValues = (
     unknown,
     ClientError,
     InferClientOutput<
-      typeof sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query
+      typeof sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query
     >
   >
 ) => {
@@ -159,7 +159,7 @@ export const usePromotionRuleValues = (
       query || {}
     ),
     queryFn: async () =>
-      sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
+      sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
         ruleType,
         ruleAttributeId: ruleValue,
         ...query,
@@ -173,13 +173,13 @@ export const usePromotionRuleValues = (
 export const useDeletePromotion = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.promotions.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.promotions.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.promotions.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.promotions.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -194,13 +194,13 @@ export const useDeletePromotion = (
 
 export const useCreatePromotion = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.promotions.mutate>,
+    InferClientOutput<typeof sdk.vendor.promotions.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.promotions.mutate>
+    InferClientInput<typeof sdk.vendor.promotions.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.promotions.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.promotions.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() });
@@ -213,14 +213,14 @@ export const useCreatePromotion = (
 export const useUpdatePromotion = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.promotions.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.promotions.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.promotions.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.promotions.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.promotions.$id.mutate({ id, ...payload }),
+      sdk.vendor.promotions.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
 
@@ -234,10 +234,10 @@ export const usePromotionAddRules = (
   id: string,
   ruleType: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
+    InferClientOutput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
     ClientError,
     Omit<
-      InferClientInput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
+      InferClientInput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
       "id"
     >
   >
@@ -245,18 +245,18 @@ export const usePromotionAddRules = (
   return useMutation({
     mutationFn: (payload) => {
       if (ruleType === "buy-rules") {
-        return sdk.admin.promotions.$id.buyRules.batch.mutate({
+        return sdk.vendor.promotions.$id.buyRules.batch.mutate({
           id,
           ...payload,
         });
       }
       if (ruleType === "target-rules") {
-        return sdk.admin.promotions.$id.targetRules.batch.mutate({
+        return sdk.vendor.promotions.$id.targetRules.batch.mutate({
           id,
           ...payload,
         });
       }
-      return sdk.admin.promotions.$id.rules.batch.mutate({ id, ...payload });
+      return sdk.vendor.promotions.$id.rules.batch.mutate({ id, ...payload });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
@@ -271,10 +271,10 @@ export const usePromotionRemoveRules = (
   id: string,
   ruleType: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
+    InferClientOutput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
     ClientError,
     Omit<
-      InferClientInput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
+      InferClientInput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
       "id"
     >
   >
@@ -282,18 +282,18 @@ export const usePromotionRemoveRules = (
   return useMutation({
     mutationFn: (payload) => {
       if (ruleType === "buy-rules") {
-        return sdk.admin.promotions.$id.buyRules.batch.mutate({
+        return sdk.vendor.promotions.$id.buyRules.batch.mutate({
           id,
           ...payload,
         });
       }
       if (ruleType === "target-rules") {
-        return sdk.admin.promotions.$id.targetRules.batch.mutate({
+        return sdk.vendor.promotions.$id.targetRules.batch.mutate({
           id,
           ...payload,
         });
       }
-      return sdk.admin.promotions.$id.rules.batch.mutate({ id, ...payload });
+      return sdk.vendor.promotions.$id.rules.batch.mutate({ id, ...payload });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
@@ -308,10 +308,10 @@ export const usePromotionUpdateRules = (
   id: string,
   ruleType: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
+    InferClientOutput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
     ClientError,
     Omit<
-      InferClientInput<typeof sdk.admin.promotions.$id.rules.batch.mutate>,
+      InferClientInput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
       "id"
     >
   >
@@ -319,18 +319,18 @@ export const usePromotionUpdateRules = (
   return useMutation({
     mutationFn: (payload) => {
       if (ruleType === "buy-rules") {
-        return sdk.admin.promotions.$id.buyRules.batch.mutate({
+        return sdk.vendor.promotions.$id.buyRules.batch.mutate({
           id,
           ...payload,
         });
       }
       if (ruleType === "target-rules") {
-        return sdk.admin.promotions.$id.targetRules.batch.mutate({
+        return sdk.vendor.promotions.$id.targetRules.batch.mutate({
           id,
           ...payload,
         });
       }
-      return sdk.admin.promotions.$id.rules.batch.mutate({ id, ...payload });
+      return sdk.vendor.promotions.$id.rules.batch.mutate({ id, ...payload });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });

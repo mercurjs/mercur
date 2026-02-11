@@ -5,7 +5,7 @@ import { SearchProvider } from "../../../providers/search-provider"
 import { SidebarProvider } from "../../../providers/sidebar-provider"
 
 export const ProtectedRoute = () => {
-  const { user, isLoading } = useMe()
+  const { seller, isLoading } = useMe()
   const location = useLocation()
 
   if (isLoading) {
@@ -16,7 +16,7 @@ export const ProtectedRoute = () => {
     )
   }
 
-  if (!user) {
+  if (!seller) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 

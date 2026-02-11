@@ -20,13 +20,13 @@ export const useSignInWithEmailPass = (
   return useMutation({
     mutationFn: async (payload) => {
       const data = (await sdk.auth.$actorType.$authProvider.mutate({
-        actorType: "user",
+        actorType: "seller",
         authProvider: "emailpass",
         ...payload,
       })) as { token: string };
 
       // Exchange JWT token for a session cookie
-      await fetch(`${backendUrl}/auth/session`, {
+      const sessionRes = await fetch(`${backendUrl}/auth/session`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -34,6 +34,10 @@ export const useSignInWithEmailPass = (
           Authorization: `Bearer ${data.token}`,
         },
       });
+
+      if (!sessionRes.ok) {
+        throw new Error("Failed to establish session");
+      }
 
       return data;
     },
@@ -59,7 +63,7 @@ export const useSignUpWithEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.register.mutate({
-        actorType: "user",
+        actorType: "seller",
         authProvider: "emailpass",
         ...payload,
       }),
@@ -85,7 +89,7 @@ export const useSignUpForInvite = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.register.mutate({
-        actorType: "user",
+        actorType: "seller",
         authProvider: "emailpass",
         ...payload,
       }),
@@ -105,7 +109,7 @@ export const useResetPasswordForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.resetPassword.mutate({
-        actorType: "user",
+        actorType: "seller",
         authProvider: "emailpass",
         identifier: payload.email,
         metadata: {},
@@ -143,7 +147,7 @@ export const useUpdateProviderForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.update.mutate({
-        actorType: "user",
+        actorType: "seller",
         authProvider: "emailpass",
         ...payload,
         fetchOptions: {

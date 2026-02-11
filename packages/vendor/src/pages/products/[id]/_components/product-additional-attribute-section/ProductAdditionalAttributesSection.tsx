@@ -1,18 +1,13 @@
 import { Container, Heading } from "@medusajs/ui"
-import { ExtendedAdminProduct } from "@custom-types/products"
 import { PencilSquare } from "@medusajs/icons"
 import { ActionMenu } from "@components/common/action-menu"
 import { useProductAttributes } from "@hooks/api/products"
 import { SectionRow } from "@components/common/section"
 import { useMemo } from "react"
+import { useProductDetailContext } from "../../context"
 
-type ProductAttributeSectionProps = {
-  product: ExtendedAdminProduct
-}
-
-export const ProductAdditionalAttributesSection = ({
-  product,
-}: ProductAttributeSectionProps) => {
+export const ProductAdditionalAttributesSection = () => {
+  const { product } = useProductDetailContext()
   const { attributes, isLoading } = useProductAttributes(product.id)
 
   const attributeList = useMemo(() => {

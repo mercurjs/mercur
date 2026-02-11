@@ -22,7 +22,7 @@ export const ReservationItemTable = ({
     pageSize: PAGE_SIZE,
   })
 
-  const { reservations, count, isPending, isError, error } =
+  const { reservations, count, isPending } =
     useReservationItems(
       {
         ...searchParams,
@@ -54,10 +54,6 @@ export const ReservationItemTable = ({
     getRowId: (row: ExtendedReservationItem) => row.id,
     pageSize: PAGE_SIZE,
   })
-
-  if (isError) {
-    throw error
-  }
 
   return (
     <_DataTable

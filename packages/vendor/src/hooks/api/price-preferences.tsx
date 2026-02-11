@@ -21,17 +21,17 @@ export const pricePreferencesQueryKeys = queryKeysFactory(
 export const usePricePreference = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.pricePreferences.$id.query>,
+    InferClientInput<typeof sdk.vendor.pricePreferences.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.pricePreferences.$id.query>
+    InferClientOutput<typeof sdk.vendor.pricePreferences.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.pricePreferences.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.pricePreferences.$id.query({ id, ...query }),
     queryKey: pricePreferencesQueryKeys.detail(id),
     ...options,
   });
@@ -40,15 +40,15 @@ export const usePricePreference = (
 };
 
 export const usePricePreferences = (
-  query?: InferClientInput<typeof sdk.admin.pricePreferences.query>,
+  query?: InferClientInput<typeof sdk.vendor.pricePreferences.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.pricePreferences.query>
+    InferClientOutput<typeof sdk.vendor.pricePreferences.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.pricePreferences.query({ ...query }),
+    queryFn: () => sdk.vendor.pricePreferences.query({ ...query }),
     queryKey: pricePreferencesQueryKeys.list(query),
     ...options,
   });
@@ -59,17 +59,17 @@ export const usePricePreferences = (
 export const useUpsertPricePreference = (
   id?: string | undefined,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.pricePreferences.mutate>,
+    InferClientOutput<typeof sdk.vendor.pricePreferences.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.pricePreferences.mutate>
+    InferClientInput<typeof sdk.vendor.pricePreferences.mutate>
   >
 ) => {
   return useMutation({
     mutationFn: (payload) => {
       if (id) {
-        return sdk.admin.pricePreferences.$id.mutate({ id, ...payload });
+        return sdk.vendor.pricePreferences.$id.mutate({ id, ...payload });
       }
-      return sdk.admin.pricePreferences.mutate(payload);
+      return sdk.vendor.pricePreferences.mutate(payload);
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
@@ -90,13 +90,13 @@ export const useUpsertPricePreference = (
 export const useDeletePricePreference = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.pricePreferences.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.pricePreferences.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.pricePreferences.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.pricePreferences.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.list(),

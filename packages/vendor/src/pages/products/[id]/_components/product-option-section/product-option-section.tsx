@@ -4,16 +4,15 @@ import { useTranslation } from "react-i18next"
 import { ActionMenu } from "@components/common/action-menu"
 import { SectionRow } from "@components/common/section"
 import { useDeleteProductOption } from "@hooks/api/products"
-import { ExtendedAdminProduct } from "@custom-types/products"
 import { HttpTypes } from "@medusajs/types"
+import { useProductDetailContext } from "../../context"
 
 const OptionActions = ({
-  product,
   option,
 }: {
-  product: ExtendedAdminProduct
   option: HttpTypes.AdminProductOption
 }) => {
+  const { product } = useProductDetailContext()
   const { t } = useTranslation()
   const { mutateAsync } = useDeleteProductOption(product.id, option.id)
   const prompt = usePrompt()
@@ -61,13 +60,8 @@ const OptionActions = ({
   )
 }
 
-type ProductOptionSectionProps = {
-  product: ExtendedAdminProduct
-}
-
-export const ProductOptionSection = ({
-  product,
-}: ProductOptionSectionProps) => {
+export const ProductOptionSection = () => {
+  const { product } = useProductDetailContext()
   const { t } = useTranslation()
 
   return (
@@ -105,7 +99,7 @@ export const ProductOptionSection = ({
                 </Badge>
               )
             })}
-            actions={<OptionActions product={product} option={option} />}
+            actions={<OptionActions option={option} />}
           />
         )
       })}

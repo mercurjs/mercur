@@ -20,18 +20,18 @@ export const campaignsQueryKeys = queryKeysFactory(REGIONS_QUERY_KEY);
 export const useCampaign = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.campaigns.$id.query>,
+    InferClientInput<typeof sdk.vendor.campaigns.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.campaigns.$id.query>
+    InferClientOutput<typeof sdk.vendor.campaigns.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: campaignsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.campaigns.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.campaigns.$id.query({ id, ...query }),
     ...options,
   });
 
@@ -39,15 +39,15 @@ export const useCampaign = (
 };
 
 export const useCampaigns = (
-  query?: InferClientInput<typeof sdk.admin.campaigns.query>,
+  query?: InferClientInput<typeof sdk.vendor.campaigns.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.campaigns.query>
+    InferClientOutput<typeof sdk.vendor.campaigns.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.campaigns.query({ ...query }),
+    queryFn: () => sdk.vendor.campaigns.query({ ...query }),
     queryKey: campaignsQueryKeys.list(query),
     ...options,
   });
@@ -57,13 +57,13 @@ export const useCampaigns = (
 
 export const useCreateCampaign = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.campaigns.mutate>,
+    InferClientOutput<typeof sdk.vendor.campaigns.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.campaigns.mutate>
+    InferClientInput<typeof sdk.vendor.campaigns.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.campaigns.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.campaigns.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() });
       options?.onSuccess?.(data, variables, context);
@@ -75,14 +75,14 @@ export const useCreateCampaign = (
 export const useUpdateCampaign = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.campaigns.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.campaigns.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.campaigns.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.campaigns.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.campaigns.$id.mutate({ id, ...payload }),
+      sdk.vendor.campaigns.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -102,13 +102,13 @@ export const useUpdateCampaign = (
 export const useDeleteCampaign = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.campaigns.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.campaigns.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.campaigns.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.campaigns.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -124,17 +124,17 @@ export const useDeleteCampaign = (
 export const useAddOrRemoveCampaignPromotions = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.campaigns.$id.promotions.mutate>,
+    InferClientOutput<typeof sdk.vendor.campaigns.$id.promotions.mutate>,
     ClientError,
     Omit<
-      InferClientInput<typeof sdk.admin.campaigns.$id.promotions.mutate>,
+      InferClientInput<typeof sdk.vendor.campaigns.$id.promotions.mutate>,
       "id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.campaigns.$id.promotions.mutate({ id, ...payload }),
+      sdk.vendor.campaigns.$id.promotions.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: campaignsQueryKeys.details(),

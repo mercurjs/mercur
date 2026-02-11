@@ -1,18 +1,13 @@
 import { PencilSquare, ShoppingBag } from "@medusajs/icons"
-import { ExtendedAdminProduct } from "@custom-types/products"
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { SidebarLink } from "@components/common/sidebar-link/sidebar-link"
 import { ActionMenu } from "@components/common/action-menu"
+import { useProductDetailContext } from "../../context"
 
-type ProductShippingProfileSectionProps = {
-  product: ExtendedAdminProduct
-}
-
-export const ProductShippingProfileSection = ({
-  product,
-}: ProductShippingProfileSectionProps) => {
+export const ProductShippingProfileSection = () => {
+  const { product } = useProductDetailContext()
   const { t } = useTranslation()
 
   const shippingProfile = product.shipping_profile

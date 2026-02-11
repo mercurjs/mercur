@@ -1,31 +1,14 @@
 // Route: /reservations/:id
-import { useLoaderData, useParams, LoaderFunctionArgs } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { HttpTypes } from "@medusajs/types"
 import { UIMatch } from "react-router-dom"
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
 import { useDashboardExtension } from "@/extensions"
-import { useReservationItem, reservationItemsQueryKeys } from "@hooks/api/reservations"
+import { useReservationItem } from "@hooks/api/reservations"
 import { useInventoryItem } from "@hooks/api"
-import { fetchQuery } from "@lib/client"
-import { queryClient } from "@lib/query-client"
 import { ReservationGeneralSection } from "./_components/reservation-general-section"
 import { InventoryItemGeneralSection } from "../../inventory/[id]/_components/inventory-item-general-section"
-
-const reservationDetailQuery = (id: string) => ({
-  queryKey: reservationItemsQueryKeys.detail(id),
-  queryFn: async () =>
-    fetchQuery(`/vendor/reservations/${id}`, {
-      method: "GET",
-    }),
-})
-
-export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const id = params.id
-  const query = reservationDetailQuery(id!)
-
-  return queryClient.ensureQueryData(query)
-}
 
 type ReservationDetailBreadcrumbProps =
   UIMatch<HttpTypes.AdminReservationResponse>
@@ -34,7 +17,6 @@ export const Breadcrumb = (props: ReservationDetailBreadcrumbProps) => {
   const { id } = props.params || {}
 
   const { reservation } = useReservationItem(id!, undefined, {
-    initialData: props.data,
     enabled: Boolean(id),
   })
 
@@ -53,15 +35,7 @@ export const Breadcrumb = (props: ReservationDetailBreadcrumbProps) => {
 export const Component = () => {
   const { id } = useParams()
 
-  const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>
-
-  const { reservation, isLoading, isError, error } = useReservationItem(
-    id!,
-    undefined,
-    {
-      initialData,
-    }
-  )
+  const { reservation, isLoading } = useReservationItem(id!)
 
   // TEMP: fetch directly since the fields are not populated with reservation call
   const { inventory_item } = useInventoryItem(
@@ -80,10 +54,6 @@ export const Component = () => {
         showMetadata
       />
     )
-  }
-
-  if (isError) {
-    throw error
   }
 
   return (

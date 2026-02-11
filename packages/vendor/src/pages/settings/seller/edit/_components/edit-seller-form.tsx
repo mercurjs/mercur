@@ -11,7 +11,7 @@ import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useUpdateStore } from "@hooks/api/store"
 import { useComboboxData } from "@hooks/use-combobox-data"
-import { sdk } from "@lib/client"
+import { fetchQuery } from "@lib/client"
 
 type EditSellerFormProps = {
   seller: HttpTypes.AdminStore
@@ -41,17 +41,23 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
   const regionsCombobox = useComboboxData({
     queryKey: ["regions", "default_region_id"],
     queryFn: (params) =>
-      sdk.admin.region.list({ ...params, fields: "id,name" }),
+      fetchQuery(`/vendor/regions`, {
+        method: "GET",
+        query: { ...params, fields: "id,name" },
+      }),
     defaultValue: seller.default_region_id || undefined,
-    getOptions: (data) =>
-      data.regions.map((r) => ({ label: r.name, value: r.id })),
+    getOptions: (data: any) =>
+      data.regions.map((r: any) => ({ label: r.name, value: r.id })),
   })
 
   const locationsCombobox = useComboboxData({
     queryFn: (params) =>
-      sdk.admin.stockLocation.list({ ...params, fields: "id,name" }),
-    getOptions: (data) =>
-      data.stock_locations.map((l) => ({ label: l.name, value: l.id })),
+      fetchQuery(`/vendor/stock-locations`, {
+        method: "GET",
+        query: { ...params, fields: "id,name" },
+      }),
+    getOptions: (data: any) =>
+      data.stock_locations.map((l: any) => ({ label: l.name, value: l.id })),
     queryKey: ["stock_locations", "default_location_id"],
     defaultValue: seller.default_location_id || undefined,
   })

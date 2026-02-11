@@ -17,13 +17,10 @@ import { Link } from 'react-router-dom';
 
 import { ActionMenu } from "@components/common/action-menu"
 import { useUpdateProduct } from "@hooks/api/products"
-import { ExtendedAdminProduct } from "@custom-types/products"
+import { useProductDetailContext } from "../../context"
 
-type ProductMedisaSectionProps = {
-  product: ExtendedAdminProduct;
-};
-
-export const ProductMediaSection = ({ product }: ProductMedisaSectionProps) => {
+export const ProductMediaSection = () => {
+  const { product } = useProductDetailContext()
   const { t } = useTranslation();
   const prompt = usePrompt();
   const [selection, setSelection] = useState<Record<string, boolean>>({});
@@ -193,7 +190,7 @@ type Media = {
   isThumbnail: boolean;
 };
 
-const getMedia = (product: ExtendedAdminProduct) => {
+const getMedia = (product: { images?: { id: string; url: string }[]; thumbnail?: string | null }) => {
   const { images = [], thumbnail } = product;
 
   const media: Media[] = (images || []).map(image => ({

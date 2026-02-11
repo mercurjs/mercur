@@ -22,18 +22,18 @@ export const customerGroupsQueryKeys = queryKeysFactory(
 export const useCustomerGroup = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.customerGroups.$id.query>,
+    InferClientInput<typeof sdk.vendor.customerGroups.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.customerGroups.$id.query>
+    InferClientOutput<typeof sdk.vendor.customerGroups.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: customerGroupsQueryKeys.detail(id, query),
-    queryFn: async () => sdk.admin.customerGroups.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.customerGroups.$id.query({ id, ...query }),
     ...options,
   });
 
@@ -41,15 +41,15 @@ export const useCustomerGroup = (
 };
 
 export const useCustomerGroups = (
-  query?: InferClientInput<typeof sdk.admin.customerGroups.query>,
+  query?: InferClientInput<typeof sdk.vendor.customerGroups.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.customerGroups.query>
+    InferClientOutput<typeof sdk.vendor.customerGroups.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.customerGroups.query({ ...query }),
+    queryFn: () => sdk.vendor.customerGroups.query({ ...query }),
     queryKey: customerGroupsQueryKeys.list(query),
     ...options,
   });
@@ -59,13 +59,13 @@ export const useCustomerGroups = (
 
 export const useCreateCustomerGroup = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customerGroups.mutate>,
+    InferClientOutput<typeof sdk.vendor.customerGroups.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.customerGroups.mutate>
+    InferClientInput<typeof sdk.vendor.customerGroups.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.customerGroups.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.customerGroups.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
@@ -79,14 +79,14 @@ export const useCreateCustomerGroup = (
 export const useUpdateCustomerGroup = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customerGroups.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.customerGroups.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.customerGroups.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.customerGroups.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.customerGroups.$id.mutate({ id, ...payload }),
+      sdk.vendor.customerGroups.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
@@ -104,13 +104,13 @@ export const useUpdateCustomerGroup = (
 export const useDeleteCustomerGroup = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customerGroups.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.customerGroups.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.customerGroups.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.customerGroups.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
@@ -127,13 +127,13 @@ export const useDeleteCustomerGroup = (
 
 export const useDeleteCustomerGroupLazy = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customerGroups.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.customerGroups.$id.delete>,
     ClientError,
     { id: string }
   >
 ) => {
   return useMutation({
-    mutationFn: ({ id }) => sdk.admin.customerGroups.$id.delete({ id }),
+    mutationFn: ({ id }) => sdk.vendor.customerGroups.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
@@ -151,16 +151,16 @@ export const useDeleteCustomerGroupLazy = (
 export const useAddCustomersToGroup = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customerGroups.$id.customers.mutate>,
+    InferClientOutput<typeof sdk.vendor.customerGroups.$id.customers.mutate>,
     ClientError,
     InferClientInput<
-      typeof sdk.admin.customerGroups.$id.customers.mutate
+      typeof sdk.vendor.customerGroups.$id.customers.mutate
     >["add"]
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.customerGroups.$id.customers.mutate({ id, add: payload }),
+      sdk.vendor.customerGroups.$id.customers.mutate({ id, add: payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
@@ -181,16 +181,16 @@ export const useAddCustomersToGroup = (
 export const useRemoveCustomersFromGroup = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.customerGroups.$id.customers.mutate>,
+    InferClientOutput<typeof sdk.vendor.customerGroups.$id.customers.mutate>,
     ClientError,
     InferClientInput<
-      typeof sdk.admin.customerGroups.$id.customers.mutate
+      typeof sdk.vendor.customerGroups.$id.customers.mutate
     >["remove"]
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.customerGroups.$id.customers.mutate({ id, remove: payload }),
+      sdk.vendor.customerGroups.$id.customers.mutate({ id, remove: payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),

@@ -12,15 +12,15 @@ const CURRENCIES_QUERY_KEY = "currencies" as const;
 const currenciesQueryKeys = queryKeysFactory(CURRENCIES_QUERY_KEY);
 
 export const useCurrencies = (
-  query?: InferClientInput<typeof sdk.admin.currencies.query>,
+  query?: InferClientInput<typeof sdk.vendor.currencies.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.currencies.query>
+    InferClientOutput<typeof sdk.vendor.currencies.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.currencies.query({ ...query }),
+    queryFn: () => sdk.vendor.currencies.query({ ...query }),
     queryKey: currenciesQueryKeys.list(query),
     ...options,
   });
@@ -31,19 +31,19 @@ export const useCurrencies = (
 export const useCurrency = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.currencies.$code.query>,
+    InferClientInput<typeof sdk.vendor.currencies.$code.query>,
     "code"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.currencies.$code.query>
+    InferClientOutput<typeof sdk.vendor.currencies.$code.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: currenciesQueryKeys.detail(id),
     queryFn: async () =>
-      sdk.admin.currencies.$code.query({ code: id, ...query }),
+      sdk.vendor.currencies.$code.query({ code: id, ...query }),
     ...options,
   });
 

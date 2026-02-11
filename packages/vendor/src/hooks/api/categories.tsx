@@ -24,18 +24,18 @@ export const categoriesQueryKeys = queryKeysFactory(CATEGORIES_QUERY_KEY);
 export const useProductCategory = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.productCategories.$id.query>,
+    InferClientInput<typeof sdk.vendor.productCategories.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.productCategories.$id.query>
+    InferClientOutput<typeof sdk.vendor.productCategories.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: categoriesQueryKeys.detail(id, query),
-    queryFn: () => sdk.admin.productCategories.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.productCategories.$id.query({ id, ...query }),
     ...options,
   });
 
@@ -43,16 +43,16 @@ export const useProductCategory = (
 };
 
 export const useProductCategories = (
-  query?: InferClientInput<typeof sdk.admin.productCategories.query>,
+  query?: InferClientInput<typeof sdk.vendor.productCategories.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.productCategories.query>
+    InferClientOutput<typeof sdk.vendor.productCategories.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: categoriesQueryKeys.list(query),
-    queryFn: () => sdk.admin.productCategories.query({ ...query }),
+    queryFn: () => sdk.vendor.productCategories.query({ ...query }),
     ...options,
   });
 
@@ -61,20 +61,20 @@ export const useProductCategories = (
 
 export const useInfiniteCategories = (
   query?: Omit<
-    InferClientInput<typeof sdk.admin.productCategories.query>,
+    InferClientInput<typeof sdk.vendor.productCategories.query>,
     "offset" | "limit"
   > & {
     limit?: number;
   },
   options?: Omit<
     UseInfiniteQueryOptions<
-      InferClientOutput<typeof sdk.admin.productCategories.query>,
+      InferClientOutput<typeof sdk.vendor.productCategories.query>,
       ClientError,
       InfiniteData<
-        InferClientOutput<typeof sdk.admin.productCategories.query>,
+        InferClientOutput<typeof sdk.vendor.productCategories.query>,
         number
       >,
-      InferClientOutput<typeof sdk.admin.productCategories.query>,
+      InferClientOutput<typeof sdk.vendor.productCategories.query>,
       QueryKey,
       number
     >,
@@ -83,7 +83,7 @@ export const useInfiniteCategories = (
 ) => {
   return useInfiniteList({
     queryKey: (params) => categoriesQueryKeys.list(params),
-    queryFn: (params) => sdk.admin.productCategories.query(params),
+    queryFn: (params) => sdk.vendor.productCategories.query(params),
     query,
     options,
   });
@@ -91,13 +91,13 @@ export const useInfiniteCategories = (
 
 export const useCreateProductCategory = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.productCategories.mutate>,
+    InferClientOutput<typeof sdk.vendor.productCategories.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.productCategories.mutate>
+    InferClientInput<typeof sdk.vendor.productCategories.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.productCategories.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.productCategories.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.lists(),
@@ -112,17 +112,17 @@ export const useCreateProductCategory = (
 export const useUpdateProductCategory = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.productCategories.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.productCategories.$id.mutate>,
     ClientError,
     Omit<
-      InferClientInput<typeof sdk.admin.productCategories.$id.mutate>,
+      InferClientInput<typeof sdk.vendor.productCategories.$id.mutate>,
       "id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.productCategories.$id.mutate({ id, ...payload }),
+      sdk.vendor.productCategories.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.lists(),
@@ -140,13 +140,13 @@ export const useUpdateProductCategory = (
 export const useDeleteProductCategory = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.productCategories.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.productCategories.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.productCategories.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.productCategories.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.detail(id),
@@ -164,17 +164,17 @@ export const useDeleteProductCategory = (
 export const useUpdateProductCategoryProducts = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.productCategories.$id.products.mutate>,
+    InferClientOutput<typeof sdk.vendor.productCategories.$id.products.mutate>,
     ClientError,
     Omit<
-      InferClientInput<typeof sdk.admin.productCategories.$id.products.mutate>,
+      InferClientInput<typeof sdk.vendor.productCategories.$id.products.mutate>,
       "id"
     >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.productCategories.$id.products.mutate({ id, ...payload }),
+      sdk.vendor.productCategories.$id.products.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.lists(),

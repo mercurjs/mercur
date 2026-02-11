@@ -27,14 +27,13 @@ export const CategoryProductSection = ({
   const { raw, searchParams } = useProductTableQuery({
     pageSize: PAGE_SIZE,
   })
-  const { products, count, isLoading, isError, error } = useProducts(
+  // TODO: category_id filter not supported by vendor API yet
+  const { products, count, isLoading } = useProducts(
     {
       ...searchParams,
       fields: "*categories.id",
-      // limit: 9999,
       limit: searchParams.limit,
       offset: searchParams.offset,
-      category_id: category.id,
     },
     {
       placeholderData: keepPreviousData,
@@ -101,10 +100,6 @@ export const CategoryProductSection = ({
   //     }
   //   )
   // }
-
-  if (isError) {
-    throw error
-  }
 
   return (
     <Container className="divide-y p-0">

@@ -11,7 +11,7 @@ import {
   categoriesQueryKeys,
   useProductCategories,
 } from "@hooks/api/categories"
-import { sdk } from "@lib/client"
+import { fetchQuery } from "@lib/client"
 import { queryClient } from "@lib/query-client"
 import { CategoryTree } from "../../../common/components/category-tree"
 import { CategoryTreeItem } from "../../../common/types"
@@ -44,9 +44,12 @@ export const OrganizeCategoryForm = () => {
       }
       arr: CategoryTreeItem[]
     }) => {
-      await sdk.admin.productCategory.update(value.id, {
-        rank: value.rank ?? 0,
-        parent_category_id: value.parent_category_id,
+      await fetchQuery(`/vendor/product-categories/${value.id}`, {
+        method: "POST",
+        body: {
+          rank: value.rank ?? 0,
+          parent_category_id: value.parent_category_id,
+        },
       })
     },
     onMutate: async (update) => {

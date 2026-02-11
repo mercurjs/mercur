@@ -51,10 +51,7 @@ const PathDisplay = ({
   const {
     product_category: withParents,
     isLoading,
-    isError,
-    error,
   } = useProductCategory(category.id, {
-    include_ancestors_tree: true,
     fields: "id,name,*parent_category",
   })
 
@@ -62,10 +59,6 @@ const PathDisplay = ({
 
   if (isLoading || !withParents) {
     return <Skeleton className="h-5 w-16" />
-  }
-
-  if (isError) {
-    throw error
   }
 
   if (!chips.length) {
@@ -159,10 +152,7 @@ const ChildrenDisplay = ({
   const {
     product_category: withChildren,
     isLoading,
-    isError,
-    error,
   } = useProductCategory(category.id, {
-    include_descendants_tree: true,
     fields: "id,name,category_children",
   })
 
@@ -170,10 +160,6 @@ const ChildrenDisplay = ({
 
   if (isLoading || !withChildren) {
     return <Skeleton className="h-5 w-16" />
-  }
-
-  if (isError) {
-    throw error
   }
 
   if (!chips.length) {

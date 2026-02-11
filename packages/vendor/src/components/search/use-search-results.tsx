@@ -4,10 +4,8 @@ import { TFunction } from "i18next"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import {
-  useApiKeys,
   useCampaigns,
   useCollections,
-  useCustomerGroups,
   useCustomers,
   useInventoryItems,
   useOrders,
@@ -21,9 +19,6 @@ import {
   useSalesChannels,
   useShippingProfiles,
   useStockLocations,
-  useTaxRegions,
-  useUsers,
-  useVariants,
 } from "../../hooks/api"
 import { useReturnReasons } from "../../hooks/api/return-reasons"
 import { Shortcut, ShortcutType } from "../../providers/keybind-provider"
@@ -127,18 +122,6 @@ const useDynamicSearchResults = (
     }
   )
 
-  const productVariantResponse = useVariants(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,title,sku,product_id",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "productVariant"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
   const categoryResponse = useProductCategories(
     {
       // TODO: Remove the OR condition once the list endpoint does not throw when q equals an empty string
@@ -172,18 +155,6 @@ const useDynamicSearchResults = (
     },
     {
       enabled: isAreaEnabled(currentArea, "customer"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
-  const customerGroupResponse = useCustomerGroups(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,name",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "customerGroup"),
       placeholderData: keepPreviousData,
     }
   )
@@ -236,18 +207,6 @@ const useDynamicSearchResults = (
     }
   )
 
-  const userResponse = useUsers(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,email,first_name,last_name",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "user"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
   const regionResponse = useRegions(
     {
       q: debouncedSearch,
@@ -256,18 +215,6 @@ const useDynamicSearchResults = (
     },
     {
       enabled: isAreaEnabled(currentArea, "region"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
-  const taxRegionResponse = useTaxRegions(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,country_code,province_code",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "taxRegion"),
       placeholderData: keepPreviousData,
     }
   )
@@ -344,80 +291,42 @@ const useDynamicSearchResults = (
     }
   )
 
-  const publishableApiKeyResponse = useApiKeys(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,title,redacted",
-      type: "publishable",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "publishableApiKey"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
-  const secretApiKeyResponse = useApiKeys(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,title,redacted",
-      type: "secret",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "secretApiKey"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
   const responseMap = useMemo(
     () => ({
       order: orderResponse,
       product: productResponse,
-      productVariant: productVariantResponse,
       collection: collectionResponse,
       category: categoryResponse,
       inventory: inventoryResponse,
       customer: customerResponse,
-      customerGroup: customerGroupResponse,
       promotion: promotionResponse,
       campaign: campaignResponse,
       priceList: priceListResponse,
-      user: userResponse,
       region: regionResponse,
-      taxRegion: taxRegionResponse,
       returnReason: returnReasonResponse,
       salesChannel: salesChannelResponse,
       productType: productTypeResponse,
       productTag: productTagResponse,
       location: locationResponse,
       shippingProfile: shippingProfileResponse,
-      publishableApiKey: publishableApiKeyResponse,
-      secretApiKey: secretApiKeyResponse,
     }),
     [
       orderResponse,
       productResponse,
-      productVariantResponse,
       inventoryResponse,
       categoryResponse,
       collectionResponse,
       customerResponse,
-      customerGroupResponse,
       promotionResponse,
       campaignResponse,
       priceListResponse,
-      userResponse,
       regionResponse,
-      taxRegionResponse,
       returnReasonResponse,
       salesChannelResponse,
       productTypeResponse,
       productTagResponse,
       locationResponse,
       shippingProfileResponse,
-      publishableApiKeyResponse,
-      secretApiKeyResponse,
     ]
   )
 
@@ -528,16 +437,6 @@ const transformMap: TransformMap = {
       value: `product:${product.id}`,
     }),
   },
-  productVariant: {
-    dataKey: "variants",
-    transform: (variant: HttpTypes.AdminProductVariant) => ({
-      id: variant.id,
-      title: variant.title!,
-      subtitle: variant.sku ?? undefined,
-      to: `/products/${variant.product_id}/variants/${variant.id}`,
-      value: `variant:${variant.id}`,
-    }),
-  },
   category: {
     dataKey: "product_categories",
     transform: (category: HttpTypes.AdminProductCategory) => ({
@@ -571,15 +470,6 @@ const transformMap: TransformMap = {
         value: `customer:${customer.id}`,
       }
     },
-  },
-  customerGroup: {
-    dataKey: "customer_groups",
-    transform: (customerGroup: HttpTypes.AdminCustomerGroup) => ({
-      id: customerGroup.id,
-      title: customerGroup.name!,
-      to: `/customer-groups/${customerGroup.id}`,
-      value: `customerGroup:${customerGroup.id}`,
-    }),
   },
   collection: {
     dataKey: "collections",
@@ -617,16 +507,6 @@ const transformMap: TransformMap = {
       value: `priceList:${priceList.id}`,
     }),
   },
-  user: {
-    dataKey: "users",
-    transform: (user: HttpTypes.AdminUser) => ({
-      id: user.id,
-      title: `${user.first_name} ${user.last_name}`,
-      subtitle: user.email,
-      to: `/users/${user.id}`,
-      value: `user:${user.id}`,
-    }),
-  },
   region: {
     dataKey: "regions",
     transform: (region: HttpTypes.AdminRegion) => ({
@@ -634,18 +514,6 @@ const transformMap: TransformMap = {
       title: region.name,
       to: `/regions/${region.id}`,
       value: `region:${region.id}`,
-    }),
-  },
-  taxRegion: {
-    dataKey: "tax_regions",
-    transform: (taxRegion: HttpTypes.AdminTaxRegion) => ({
-      id: taxRegion.id,
-      title:
-        taxRegion.province_code?.toUpperCase() ??
-        taxRegion.country_code!.toUpperCase(),
-      subtitle: taxRegion.province_code ? taxRegion.country_code! : undefined,
-      to: `/tax-regions/${taxRegion.id}`,
-      value: `taxRegion:${taxRegion.id}`,
     }),
   },
   returnReason: {
@@ -701,26 +569,6 @@ const transformMap: TransformMap = {
       title: shippingProfile.name,
       to: `/shipping-profiles/${shippingProfile.id}`,
       value: `shippingProfile:${shippingProfile.id}`,
-    }),
-  },
-  publishableApiKey: {
-    dataKey: "api_keys",
-    transform: (apiKey: HttpTypes.AdminApiKeyResponse["api_key"]) => ({
-      id: apiKey.id,
-      title: apiKey.title,
-      subtitle: apiKey.redacted,
-      to: `/publishable-api-keys/${apiKey.id}`,
-      value: `publishableApiKey:${apiKey.id}`,
-    }),
-  },
-  secretApiKey: {
-    dataKey: "api_keys",
-    transform: (apiKey: HttpTypes.AdminApiKeyResponse["api_key"]) => ({
-      id: apiKey.id,
-      title: apiKey.title,
-      subtitle: apiKey.redacted,
-      to: `/secret-api-keys/${apiKey.id}`,
-      value: `secretApiKey:${apiKey.id}`,
     }),
   },
 }

@@ -7,7 +7,7 @@ import { ProductCreateSchemaType } from "../../../../types"
 import { Form } from "@components/common/form"
 import { Combobox } from "@components/inputs/combobox"
 import { useComboboxData } from "@hooks/use-combobox-data"
-import { sdk } from "@lib/client"
+import { fetchQuery } from "@lib/client"
 
 type VariantSectionProps = {
   form: UseFormReturn<ProductCreateSchemaType>
@@ -30,9 +30,13 @@ function VariantSection({ form, variant, index }: VariantSectionProps) {
 
   const items = useComboboxData({
     queryKey: ["inventory_items"],
-    queryFn: (params) => sdk.admin.inventoryItem.list(params),
-    getOptions: (data) =>
-      data.inventory_items.map((item) => ({
+    queryFn: (params) =>
+      fetchQuery(`/vendor/inventory-items`, {
+        method: "GET",
+        query: params,
+      }),
+    getOptions: (data: any) =>
+      data.inventory_items.map((item: any) => ({
         label: item.title || item.sku || item.id,
         value: item.id,
       })),

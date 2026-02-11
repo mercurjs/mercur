@@ -20,13 +20,13 @@ export const shippingProfileQueryKeys = queryKeysFactory(
 
 export const useCreateShippingProfile = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.shippingProfiles.mutate>,
+    InferClientOutput<typeof sdk.vendor.shippingProfiles.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.shippingProfiles.mutate>
+    InferClientInput<typeof sdk.vendor.shippingProfiles.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.shippingProfiles.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.shippingProfiles.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingProfileQueryKeys.lists(),
@@ -41,17 +41,17 @@ export const useCreateShippingProfile = (
 export const useShippingProfile = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.shippingProfiles.$id.query>,
+    InferClientInput<typeof sdk.vendor.shippingProfiles.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.shippingProfiles.$id.query>
+    InferClientOutput<typeof sdk.vendor.shippingProfiles.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingProfiles.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.shippingProfiles.$id.query({ id, ...query }),
     queryKey: shippingProfileQueryKeys.detail(id, query),
     ...options,
   });
@@ -60,15 +60,15 @@ export const useShippingProfile = (
 };
 
 export const useShippingProfiles = (
-  query?: InferClientInput<typeof sdk.admin.shippingProfiles.query>,
+  query?: InferClientInput<typeof sdk.vendor.shippingProfiles.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.shippingProfiles.query>
+    InferClientOutput<typeof sdk.vendor.shippingProfiles.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingProfiles.query({ ...query }),
+    queryFn: () => sdk.vendor.shippingProfiles.query({ ...query }),
     queryKey: shippingProfileQueryKeys.list(query),
     ...options,
   });
@@ -79,14 +79,14 @@ export const useShippingProfiles = (
 export const useUpdateShippingProfile = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.shippingProfiles.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.shippingProfiles.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.shippingProfiles.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.shippingProfiles.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.shippingProfiles.$id.mutate({ id, ...payload }),
+      sdk.vendor.shippingProfiles.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingProfileQueryKeys.detail(id),
@@ -104,13 +104,13 @@ export const useUpdateShippingProfile = (
 export const useDeleteShippingProfile = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.shippingProfiles.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.shippingProfiles.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.shippingProfiles.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.shippingProfiles.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingProfileQueryKeys.detail(id),

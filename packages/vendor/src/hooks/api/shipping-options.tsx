@@ -22,17 +22,17 @@ export const shippingOptionsQueryKeys = queryKeysFactory(
 export const useShippingOption = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.shippingOptions.$id.query>,
+    InferClientInput<typeof sdk.vendor.shippingOptions.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.shippingOptions.$id.query>
+    InferClientOutput<typeof sdk.vendor.shippingOptions.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingOptions.$id.query({ id, ...query }),
+    queryFn: () => sdk.vendor.shippingOptions.$id.query({ id, ...query }),
     queryKey: shippingOptionsQueryKeys.detail(id),
     ...options,
   });
@@ -41,15 +41,15 @@ export const useShippingOption = (
 };
 
 export const useShippingOptions = (
-  query?: InferClientInput<typeof sdk.admin.shippingOptions.query>,
+  query?: InferClientInput<typeof sdk.vendor.shippingOptions.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.shippingOptions.query>
+    InferClientOutput<typeof sdk.vendor.shippingOptions.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingOptions.query({ ...query }),
+    queryFn: () => sdk.vendor.shippingOptions.query({ ...query }),
     queryKey: shippingOptionsQueryKeys.list(query),
     ...options,
   });
@@ -59,13 +59,13 @@ export const useShippingOptions = (
 
 export const useCreateShippingOptions = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.shippingOptions.mutate>,
+    InferClientOutput<typeof sdk.vendor.shippingOptions.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.shippingOptions.mutate>
+    InferClientInput<typeof sdk.vendor.shippingOptions.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.shippingOptions.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.shippingOptions.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,
@@ -82,14 +82,14 @@ export const useCreateShippingOptions = (
 export const useUpdateShippingOptions = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.shippingOptions.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.shippingOptions.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.shippingOptions.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.shippingOptions.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.shippingOptions.$id.mutate({ id, ...payload }),
+      sdk.vendor.shippingOptions.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,
@@ -106,13 +106,13 @@ export const useUpdateShippingOptions = (
 export const useDeleteShippingOption = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.shippingOptions.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.shippingOptions.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.shippingOptions.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.shippingOptions.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,

@@ -22,18 +22,18 @@ export const salesChannelsQueryKeys = queryKeysFactory(
 export const useSalesChannel = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.salesChannels.$id.query>,
+    InferClientInput<typeof sdk.vendor.salesChannels.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.salesChannels.$id.query>
+    InferClientOutput<typeof sdk.vendor.salesChannels.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: salesChannelsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.salesChannels.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.salesChannels.$id.query({ id, ...query }),
     ...options,
   });
 
@@ -41,15 +41,15 @@ export const useSalesChannel = (
 };
 
 export const useSalesChannels = (
-  query?: InferClientInput<typeof sdk.admin.salesChannels.query>,
+  query?: InferClientInput<typeof sdk.vendor.salesChannels.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.salesChannels.query>
+    InferClientOutput<typeof sdk.vendor.salesChannels.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.salesChannels.query({ ...query }),
+    queryFn: () => sdk.vendor.salesChannels.query({ ...query }),
     queryKey: salesChannelsQueryKeys.list(query),
     ...options,
   });
@@ -59,13 +59,13 @@ export const useSalesChannels = (
 
 export const useCreateSalesChannel = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.salesChannels.mutate>,
+    InferClientOutput<typeof sdk.vendor.salesChannels.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.salesChannels.mutate>
+    InferClientInput<typeof sdk.vendor.salesChannels.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.salesChannels.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.salesChannels.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -79,14 +79,14 @@ export const useCreateSalesChannel = (
 export const useUpdateSalesChannel = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.salesChannels.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.salesChannels.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.salesChannels.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.salesChannels.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.salesChannels.$id.mutate({ id, ...payload }),
+      sdk.vendor.salesChannels.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -104,13 +104,13 @@ export const useUpdateSalesChannel = (
 export const useDeleteSalesChannel = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.salesChannels.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.salesChannels.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.salesChannels.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.salesChannels.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -132,13 +132,13 @@ export const useDeleteSalesChannel = (
 
 export const useDeleteSalesChannelLazy = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.salesChannels.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.salesChannels.$id.delete>,
     ClientError,
     string
   >
 ) => {
   return useMutation({
-    mutationFn: (id: string) => sdk.admin.salesChannels.$id.delete({ id }),
+    mutationFn: (id: string) => sdk.vendor.salesChannels.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -161,14 +161,14 @@ export const useDeleteSalesChannelLazy = (
 export const useSalesChannelRemoveProducts = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.salesChannels.$id.products.mutate>,
+    InferClientOutput<typeof sdk.vendor.salesChannels.$id.products.mutate>,
     ClientError,
     { remove: string[] }
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.salesChannels.$id.products.mutate({ id, ...payload }),
+      sdk.vendor.salesChannels.$id.products.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -198,14 +198,14 @@ export const useSalesChannelRemoveProducts = (
 export const useSalesChannelAddProducts = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.salesChannels.$id.products.mutate>,
+    InferClientOutput<typeof sdk.vendor.salesChannels.$id.products.mutate>,
     ClientError,
     { add: string[] }
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.salesChannels.$id.products.mutate({ id, ...payload }),
+      sdk.vendor.salesChannels.$id.products.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),

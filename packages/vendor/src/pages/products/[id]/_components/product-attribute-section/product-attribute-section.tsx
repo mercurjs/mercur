@@ -1,19 +1,14 @@
 import { PencilSquare } from "@medusajs/icons"
-import { ExtendedAdminProduct } from "@custom-types/products"
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { ActionMenu } from "@components/common/action-menu"
 import { SectionRow } from "@components/common/section"
 import { useDashboardExtension } from "@/extensions"
 import { getFormattedCountry } from "@lib/addresses"
+import { useProductDetailContext } from "../../context"
 
-type ProductAttributeSectionProps = {
-  product: ExtendedAdminProduct
-}
-
-export const ProductAttributeSection = ({
-  product,
-}: ProductAttributeSectionProps) => {
+export const ProductAttributeSection = () => {
+  const { product } = useProductDetailContext()
   const { t } = useTranslation()
   const { getDisplays } = useDashboardExtension()
 

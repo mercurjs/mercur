@@ -10,34 +10,32 @@ import {
 import { keepPreviousData } from "@tanstack/react-query"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { useParams } from "react-router-dom"
 import { createColumnHelper } from "@tanstack/react-table"
 
 import { _DataTable } from "@components/table/data-table"
 import { useProductVariants } from "@hooks/api"
-import { useInventoryItemLevels } from "@hooks/api"
 import { useProductVariantsTableQuery } from "@hooks/table/query/use-product-variants-table-query"
 import { useDataTable } from "@hooks/use-data-table"
-
-type ProductVariantSectionProps = {
-  product: ExtendedAdminProduct
-}
+import { useProductDetailContext } from "../../context"
 
 const PAGE_SIZE = 10
 
-export const ProductVariantSection = ({
-  product,
-}: ProductVariantSectionProps) => {
+export const ProductVariantSection = () => {
+  const { product } = useProductDetailContext()
   const { t } = useTranslation()
+  const { id: productId } = useParams<{ id: string }>()
 
   const { searchParams, raw } = useProductVariantsTableQuery({
     pageSize: PAGE_SIZE,
   })
 
   const { variants, count, isLoading } = useProductVariants(
-    product.id,
+    productId!,
     searchParams,
     {
       placeholderData: keepPreviousData,
+      enabled: !!productId,
     }
   )
 
@@ -133,20 +131,15 @@ const useColumns = (product: ExtendedAdminProduct) => {
 
       const hasInventoryKit = inventoryItems ? inventoryItems.length > 1 : false
 
-      const { location_levels } = useInventoryItemLevels(
-        variant?.inventory_items?.[0]?.inventory_item_id!
-      )
+      const inventory = inventoryItems?.[0]
+      const locationLevels = (inventory as any)?.location_levels ?? []
 
       const quantity =
-        location_levels?.reduce(
-          (acc, curr) => acc + curr.available_quantity,
+        locationLevels.reduce(
+          (acc: number, curr: any) => acc + (curr.available_quantity ?? 0),
           0
         ) || 0
-      const locationCount =
-        location_levels?.reduce(
-          (acc, curr) => acc + curr.stock_locations?.length,
-          0
-        ) || 0
+      const locationCount = locationLevels.length || 0
 
       const text = hasInventoryKit
         ? t("products.variant.tableItemAvailable", {

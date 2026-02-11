@@ -146,7 +146,7 @@ function ShippingOption({
     <div className="flex items-center justify-between px-3 py-2">
       <div className="flex-1">
         <Text size="small" weight="plus">
-          {option.name} - {getShippingProfileName(option.shipping_profile.name)}{" "}
+          {option.name} - {getShippingProfileName(option.shipping_profile?.name ?? "")}{" "}
           ({formatProvider(option.provider_id)})
         </Text>
       </div>

@@ -4,9 +4,9 @@ import { HttpTypes } from "@medusajs/types"
 import { productsQueryKeys } from "@hooks/api/products"
 import { fetchQuery } from "@lib/client"
 import { queryClient } from "@lib/query-client"
-import { SingleColumnPage } from "@components/layout/pages"
-import { useDashboardExtension } from "@/extensions"
-import { ProductListTable, PAGE_SIZE } from "./_components/product-list-table"
+
+import { ProductListPage } from "./product-list-page"
+import { PAGE_SIZE } from "./_components/product-list-table"
 
 // Loader for pre-fetching data
 const productsListQuery = () => ({
@@ -39,16 +39,5 @@ export const loader = (client: QueryClient) => {
 
 // Main component
 export const Component = () => {
-  const { getWidgets } = useDashboardExtension()
-
-  return (
-    <SingleColumnPage
-      widgets={{
-        after: getWidgets("product.list.after"),
-        before: getWidgets("product.list.before"),
-      }}
-    >
-      <ProductListTable />
-    </SingleColumnPage>
-  )
+  return <ProductListPage />
 }

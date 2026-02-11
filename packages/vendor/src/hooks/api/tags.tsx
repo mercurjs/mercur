@@ -23,18 +23,18 @@ export const productTagsQueryKeys = queryKeysFactory(TAGS_QUERY_KEY);
 export const useProductTag = (
   id: string,
   query?: Omit<
-    InferClientInput<typeof sdk.admin.productTags.$id.query>,
+    InferClientInput<typeof sdk.vendor.productTags.$id.query>,
     "id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.productTags.$id.query>
+    InferClientOutput<typeof sdk.vendor.productTags.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: productTagsQueryKeys.detail(id, query),
-    queryFn: async () => sdk.admin.productTags.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.productTags.$id.query({ id, ...query }),
     ...options,
   });
 
@@ -42,16 +42,16 @@ export const useProductTag = (
 };
 
 export const useProductTags = (
-  query?: InferClientInput<typeof sdk.admin.productTags.query>,
+  query?: InferClientInput<typeof sdk.vendor.productTags.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.productTags.query>
+    InferClientOutput<typeof sdk.vendor.productTags.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: productTagsQueryKeys.list(query),
-    queryFn: async () => sdk.admin.productTags.query({ ...query }),
+    queryFn: async () => sdk.vendor.productTags.query({ ...query }),
     ...options,
   });
 
@@ -60,20 +60,20 @@ export const useProductTags = (
 
 export const useInfiniteProductTags = (
   query?: Omit<
-    InferClientInput<typeof sdk.admin.productTags.query>,
+    InferClientInput<typeof sdk.vendor.productTags.query>,
     "offset" | "limit"
   > & {
     limit?: number;
   },
   options?: Omit<
     UseInfiniteQueryOptions<
-      InferClientOutput<typeof sdk.admin.productTags.query>,
+      InferClientOutput<typeof sdk.vendor.productTags.query>,
       ClientError,
       InfiniteData<
-        InferClientOutput<typeof sdk.admin.productTags.query>,
+        InferClientOutput<typeof sdk.vendor.productTags.query>,
         number
       >,
-      InferClientOutput<typeof sdk.admin.productTags.query>,
+      InferClientOutput<typeof sdk.vendor.productTags.query>,
       QueryKey,
       number
     >,
@@ -82,7 +82,7 @@ export const useInfiniteProductTags = (
 ) => {
   return useInfiniteList({
     queryKey: (params) => productTagsQueryKeys.list(params),
-    queryFn: (params) => sdk.admin.productTags.query(params),
+    queryFn: (params) => sdk.vendor.productTags.query(params),
     query,
     options,
   });
@@ -90,13 +90,13 @@ export const useInfiniteProductTags = (
 
 export const useCreateProductTag = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.productTags.mutate>,
+    InferClientOutput<typeof sdk.vendor.productTags.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.productTags.mutate>
+    InferClientInput<typeof sdk.vendor.productTags.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.productTags.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.productTags.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTagsQueryKeys.lists(),
@@ -111,14 +111,14 @@ export const useCreateProductTag = (
 export const useUpdateProductTag = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.productTags.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.productTags.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.productTags.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.productTags.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.productTags.$id.mutate({ id, ...payload }),
+      sdk.vendor.productTags.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTagsQueryKeys.lists(),
@@ -136,13 +136,13 @@ export const useUpdateProductTag = (
 export const useDeleteProductTag = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.productTags.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.productTags.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.productTags.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.productTags.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTagsQueryKeys.lists(),

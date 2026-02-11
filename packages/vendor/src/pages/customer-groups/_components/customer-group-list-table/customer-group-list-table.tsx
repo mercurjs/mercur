@@ -39,11 +39,7 @@ export const CustomerGroupListTable = () => {
     pageSize: PAGE_SIZE
   });
 
-  const { customer_groups, isPending, isError, error } = useCustomerGroups();
-
-  if (isError) {
-    throw error;
-  }
+  const { customer_groups, isPending } = useCustomerGroups();
 
   const filteredList = customerGroupFilter(
     customer_groups ?? [],

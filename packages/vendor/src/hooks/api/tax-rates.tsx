@@ -19,16 +19,16 @@ export const taxRatesQueryKeys = queryKeysFactory(TAX_RATES_QUERY_KEY);
 
 export const useTaxRate = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.admin.taxRates.$id.query>, "id">,
+  query?: Omit<InferClientInput<typeof sdk.vendor.taxRates.$id.query>, "id">,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.taxRates.$id.query>
+    InferClientOutput<typeof sdk.vendor.taxRates.$id.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: taxRatesQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.taxRates.$id.query({ id, ...query }),
+    queryFn: async () => sdk.vendor.taxRates.$id.query({ id, ...query }),
     ...options,
   });
 
@@ -36,15 +36,15 @@ export const useTaxRate = (
 };
 
 export const useTaxRates = (
-  query?: InferClientInput<typeof sdk.admin.taxRates.query>,
+  query?: InferClientInput<typeof sdk.vendor.taxRates.query>,
   options?: UseQueryOptions<
     unknown,
     ClientError,
-    InferClientOutput<typeof sdk.admin.taxRates.query>
+    InferClientOutput<typeof sdk.vendor.taxRates.query>
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.taxRates.query({ ...query }),
+    queryFn: () => sdk.vendor.taxRates.query({ ...query }),
     queryKey: taxRatesQueryKeys.list(query),
     ...options,
   });
@@ -55,14 +55,14 @@ export const useTaxRates = (
 export const useUpdateTaxRate = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.taxRates.$id.mutate>,
+    InferClientOutput<typeof sdk.vendor.taxRates.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.taxRates.$id.mutate>, "id">
+    Omit<InferClientInput<typeof sdk.vendor.taxRates.$id.mutate>, "id">
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.taxRates.$id.mutate({ id, ...payload }),
+      sdk.vendor.taxRates.$id.mutate({ id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: taxRatesQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -81,13 +81,13 @@ export const useUpdateTaxRate = (
 
 export const useCreateTaxRate = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.taxRates.mutate>,
+    InferClientOutput<typeof sdk.vendor.taxRates.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.taxRates.mutate>
+    InferClientInput<typeof sdk.vendor.taxRates.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.taxRates.mutate(payload),
+    mutationFn: (payload) => sdk.vendor.taxRates.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: taxRatesQueryKeys.lists() });
 
@@ -104,13 +104,13 @@ export const useCreateTaxRate = (
 export const useDeleteTaxRate = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.taxRates.$id.delete>,
+    InferClientOutput<typeof sdk.vendor.taxRates.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.taxRates.$id.delete({ id }),
+    mutationFn: () => sdk.vendor.taxRates.$id.delete({ id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: taxRatesQueryKeys.lists() });
       queryClient.invalidateQueries({

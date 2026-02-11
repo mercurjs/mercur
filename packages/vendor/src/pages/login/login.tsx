@@ -7,7 +7,6 @@ import * as z from "zod"
 
 import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
-import { useDashboardExtension } from "@/extensions"
 import { useSignInWithEmailPass } from "@hooks/api"
 import { isFetchError } from "@lib/is-fetch-error"
 
@@ -23,8 +22,6 @@ export const Login = () => {
 
   const reason = searchParams.get("reason") || ""
   const reasonMessage = reason && reason.toLowerCase() === "unauthorized" ? "Session expired" : reason
-
-  const { getWidgets } = useDashboardExtension()
 
   const from = "/"
 
@@ -88,9 +85,6 @@ export const Login = () => {
           </Text>
         </div>
         <div className="flex w-full flex-col gap-y-3">
-          {getWidgets("login.before").map((Component, i) => {
-            return <Component key={i} />
-          })}
           <Form {...form}>
             <form
               onSubmit={handleSubmit}
@@ -158,9 +152,6 @@ export const Login = () => {
               </Button>
             </form>
           </Form>
-          {getWidgets("login.after").map((Component, i) => {
-            return <Component key={i} />
-          })}
         </div>
         <span className="text-ui-fg-muted txt-small my-6">
           <Trans

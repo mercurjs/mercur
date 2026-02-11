@@ -27,7 +27,7 @@ import {
   inventoryItemsQueryKeys,
   useCreateInventoryItem,
 } from "@hooks/api/inventory"
-import { sdk } from "@lib/client"
+import { fetchQuery } from "@lib/client"
 import {
   transformNullableFormData,
   transformNullableFormNumber,
@@ -112,17 +112,19 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
       }
     )
 
-    await sdk.admin.inventoryItem
-      .batchUpdateLevels(inventory_item.id, {
-        create: Object.entries(locations ?? {})
-          .filter(([_, quantiy]) => !!quantiy)
-          .map(([location_id, stocked_quantity]) => ({
-            location_id,
-            stocked_quantity: transformNullableFormNumber(
-              stocked_quantity,
-              false
-            ),
-          })),
+    await fetchQuery(`/vendor/inventory-items/${inventory_item.id}/location-levels/batch`, {
+        method: "POST",
+        body: {
+          create: Object.entries(locations ?? {})
+            .filter(([_, quantiy]) => !!quantiy)
+            .map(([location_id, stocked_quantity]) => ({
+              location_id,
+              stocked_quantity: transformNullableFormNumber(
+                stocked_quantity,
+                false
+              ),
+            })),
+        },
       })
       .then(async () => {
         await queryClient.invalidateQueries({
