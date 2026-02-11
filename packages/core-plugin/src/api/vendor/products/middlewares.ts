@@ -51,7 +51,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.list
       ),
       applySellerProductLinkFilter,
-      maybeApplyPriceListsFilter
+      maybeApplyPriceListsFilter()
     ],
   },
   {
