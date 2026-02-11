@@ -2,9 +2,6 @@ import { detect } from "@antfu/ni";
 
 export async function getPackageManager(
   targetDir: string,
-  { withFallback }: { withFallback?: boolean } = {
-    withFallback: false,
-  }
 ): Promise<"yarn" | "pnpm" | "bun" | "npm" | "deno"> {
   const packageManager = await detect({ programmatic: true, cwd: targetDir });
 
@@ -14,23 +11,12 @@ export async function getPackageManager(
   if (packageManager?.startsWith("deno")) return "deno";
   if (packageManager?.startsWith("npm")) return "npm";
 
-  if (!withFallback) {
-    return "npm";
-  }
-
   const userAgent = process.env.npm_config_user_agent || "";
 
-  if (userAgent.startsWith("bun")) {
-    return "bun";
-  }
-
-  if (userAgent.startsWith("yarn")) {
-    return "yarn";
-  }
-
-  if (userAgent.startsWith("pnpm")) {
-    return "pnpm";
-  }
+  if (userAgent.startsWith("bun")) return "bun";
+  if (userAgent.startsWith("yarn")) return "yarn";
+  if (userAgent.startsWith("pnpm")) return "pnpm";
+  if (userAgent.startsWith("deno")) return "deno";
 
   return "npm";
 }

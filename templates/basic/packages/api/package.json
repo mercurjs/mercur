@@ -18,7 +18,7 @@
     "medusa"
   ],
   "scripts": {
-    "build": "mercurjs codegen --watch && medusa build",
+    "build": "mercurjs codegen && medusa build",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start",
     "dev": "mercurjs codegen --watch && medusa develop",
