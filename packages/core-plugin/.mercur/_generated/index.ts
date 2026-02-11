@@ -692,6 +692,7 @@ export type Routes = {
             };
         };
         uploads: typeof import("../../src/api/vendor/uploads/route");
+        productVariants: typeof import("../../src/api/vendor/product-variants/route");
     };
     hooks: {
         payout: typeof import("../../src/api/hooks/payout/route");
