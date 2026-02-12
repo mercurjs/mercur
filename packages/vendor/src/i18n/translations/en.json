@@ -506,6 +506,12 @@
       }
     },
     "deleteWarning": "You are about to delete the product {{title}}. This action cannot be undone.",
+    "bulkDelete": {
+      "title": "Delete Products",
+      "description": "You are about to delete {{count}} products from catalog. This action cannot be undone.",
+      "success": "Successfully deleted {{count}} products.",
+      "error": "Failed to delete products."
+    },
     "variants": {
       "header": "Variants",
       "empty": {
@@ -2098,6 +2104,8 @@
           "description": "Which customer is allowed to use the promotion code? Promotion code can be used by all customers if left untouched."
         },
         "target-rules": {
+          "title": "What items will the promotion be applied to?",
+          "description": "The promotion will be applied to items that match the following conditions.",
           "order": {
             "title": "What items will the promotion be applied to?",
             "description": "The promotion will be applied to items that match the following conditions."

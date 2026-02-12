@@ -24,23 +24,23 @@ export const ReservationEdit = () => {
     }
   )
 
-  const { location_levels } = useInventoryItemLevels(inventoryItem?.id!, undefined, {
+  const { inventory_levels } = useInventoryItemLevels(inventoryItem?.id!, undefined, {
     enabled: !!inventoryItem?.id,
-  })
+  }) as any
 
   const { stock_locations } = useStockLocations(
     undefined,
     {
-      enabled: !!location_levels,
+      enabled: !!inventory_levels,
     },
     {
-      id: location_levels?.map(
+      id: inventory_levels?.map(
         (l: InventoryTypes.InventoryLevelDTO) => l.location_id
       ),
     }
   )
 
-  const ready = !isPending && reservation && inventoryItem && location_levels && stock_locations
+  const ready = !isPending && reservation && inventoryItem && inventory_levels && stock_locations
   if (isError) {
     throw error
   }
@@ -54,7 +54,7 @@ export const ReservationEdit = () => {
         <EditReservationForm
           locations={stock_locations}
           reservation={reservation}
-          item={{ ...inventoryItem, location_levels }}
+          item={{ ...inventoryItem, location_levels: inventory_levels }}
         />
       )}
     </RouteDrawer>

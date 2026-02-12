@@ -505,6 +505,13 @@ export function getRouteMap({
                             lazy: () =>
                               import("./pages/promotions/[id]/add-to-campaign"),
                           },
+                          {
+                            path: ":ruleType/edit",
+                            lazy: () =>
+                              import(
+                                "./pages/promotions/[id]/[ruleType]/edit"
+                              ),
+                          },
                         ],
                       },
                     ],
