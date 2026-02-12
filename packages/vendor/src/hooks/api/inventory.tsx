@@ -199,7 +199,10 @@ export const useInventoryItemLevels = (
       (options?.enabled !== undefined ? options.enabled : true),
   });
 
-  return { ...data, ...rest };
+  // API returns `inventory_levels` but consumers expect `location_levels`
+  const { inventory_levels, ...restData } = (data ?? {}) as any
+
+  return { ...restData, location_levels: inventory_levels, ...rest };
 };
 
 export const useUpdateInventoryLevel = (

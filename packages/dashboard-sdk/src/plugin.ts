@@ -1,7 +1,7 @@
 import type * as Vite from "vite"
 import path from "path"
 import { getFileExports } from "./utils"
-import { CONFIG_NAME, VALID_FILE_EXTENSIONS } from "./constants"
+import { CONFIG_NAME, RESOLVED_ROUTES_MODULE } from "./constants"
 import { isVirtualModule, resolveVirtualModule, loadVirtualModule } from "./virtual-modules"
 import type { MercurConfig, BuiltMercurConfig } from "./types"
 
@@ -28,6 +28,11 @@ async function loadMercurConfig(root: string): Promise<BuiltMercurConfig> {
     }
 }
 
+function isPageFile(file: string): boolean {
+    const basename = path.basename(file, path.extname(file))
+    return basename === "page"
+}
+
 export function dashboardPlugin(): Vite.Plugin {
     let root: string
     let config: BuiltMercurConfig
@@ -50,8 +55,18 @@ export function dashboardPlugin(): Vite.Plugin {
             return loadVirtualModule({ cwd: root, id, mercurConfig: config })
         },
         handleHotUpdate({ file, server }) {
-            if (VALID_FILE_EXTENSIONS.includes(path.extname(file))) {
+            const configPath = path.resolve(root, CONFIG_NAME)
+
+            if (file === configPath) {
                 server.restart()
+                return
+            }
+
+            if (isPageFile(file)) {
+                const mod = server.moduleGraph.getModuleById(RESOLVED_ROUTES_MODULE)
+                if (mod) {
+                    server.moduleGraph.invalidateModule(mod)
+                }
             }
         },
     }

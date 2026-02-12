@@ -25,7 +25,7 @@ export const ItemLocationListTable = ({
   const columns = useLocationListTableColumns()
 
   const filteredLocationLevels = location_levels?.filter(
-    (level) => level.stock_locations.length > 0
+    (level) => level.stock_locations?.length > 0
   )
 
   const { table } = useDataTable({
