@@ -18,15 +18,6 @@ export const createAttributeValues = async (
   const creationPromises = adminAttr.values.map((value) => {
     // Determine if value is from admin possible_values or vendor extension
     const isFromPossibleValues = allowedValues.size === 0 || allowedValues.has(value);
-    
-    if (allowedValues.size && !allowedValues.has(value)) {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        `Value "${value}" is not allowed for attribute "${attributeDef.name}". Allowed values: ${[
-          ...allowedValues,
-        ].join(", ")}`
-      );
-    }
 
     return createAttributeValueWorkflow(container).run({
       input: {

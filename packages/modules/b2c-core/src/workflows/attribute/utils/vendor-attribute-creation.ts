@@ -1,5 +1,4 @@
 import { MedusaContainer } from "@medusajs/framework/types";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 
 import {
   AttributeSource,
@@ -7,8 +6,7 @@ import {
   VendorAttributeInput,
 } from "@mercurjs/framework";
 
-import { ATTRIBUTE_MODULE, AttributeModuleService } from "../../../modules/attribute";
-import { SELLER_MODULE } from "../../../modules/seller";
+import { createAndLinkAttributeValuesWorkflow } from "../workflows/create-and-link-attribute-values";
 import { findOrCreateVendorAttribute } from "./find-or-create-vendor-attribute";
 
 /**
@@ -21,9 +19,6 @@ export const createVendorAttributes = async (
   sellerId: string,
   container: MedusaContainer
 ) => {
-  const attributeService = container.resolve<AttributeModuleService>(ATTRIBUTE_MODULE);
-  const linkService = container.resolve(ContainerRegistrationKeys.LINK);
-
   // Find or create the vendor attribute definition
   const attribute = await findOrCreateVendorAttribute(container, {
     sellerId,
@@ -33,25 +28,15 @@ export const createVendorAttributes = async (
       AttributeUIComponent.TEXTAREA,
   });
 
-  // Create AttributeValues for each value
-  for (const value of vendorAttr.values) {
-    const attributeValue = await attributeService.createAttributeValues({
-      value,
+  await createAndLinkAttributeValuesWorkflow(container).run({
+    input: {
+      product_id,
       attribute_id: attribute.id,
-      source: AttributeSource.VENDOR,
-      rank: 0,
-    });
-
-    // Link value to product
-    await linkService.create({
-      [Modules.PRODUCT]: { product_id },
-      [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-    });
-
-    // Link value to seller for ownership tracking
-    await linkService.create({
-      [SELLER_MODULE]: { seller_id: sellerId },
-      [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-    });
-  }
+      seller_id: sellerId,
+      values: vendorAttr.values.map((value) => ({
+        value,
+        source: AttributeSource.VENDOR,
+      })),
+    },
+  });
 };

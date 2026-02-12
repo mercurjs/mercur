@@ -10,8 +10,10 @@ import {
 } from "@medusajs/medusa/core-flows";
 
 import { ATTRIBUTE_MODULE } from "../../../modules/attribute";
+import { SELLER_MODULE } from "../../../modules/seller";
 
 import productAttributeValue from "../../../links/product-attribute-value";
+import sellerAttributeValueLink from "../../../links/seller-attribute-value";
 import { deleteAttributeValueStep } from "../steps";
 
 export const deleteAttributeValueWorkflowId = "delete-attribute-value";
@@ -33,9 +35,17 @@ export const deleteAttributeValueWorkflow = createWorkflow(
       },
     });
 
+    const attributeValueSellerQuery = useQueryGraphStep({
+      entity: sellerAttributeValueLink.entryPoint,
+      fields: ["seller_id", "attribute_value_id"],
+      filters: {
+        attribute_value_id: normalizedInput,
+      },
+    });
+
     const deleted = deleteAttributeValueStep(normalizedInput);
 
-    const links = transform(
+    const productLinks = transform(
       { attributeValueProductQuery },
       ({ attributeValueProductQuery }) => {
         const { data } = attributeValueProductQuery;
@@ -50,7 +60,24 @@ export const deleteAttributeValueWorkflow = createWorkflow(
       }
     );
 
-    dismissRemoteLinkStep(links);
+    dismissRemoteLinkStep(productLinks);
+
+    const sellerLinks = transform(
+      { attributeValueSellerQuery },
+      ({ attributeValueSellerQuery }) => {
+        const { data } = attributeValueSellerQuery;
+        return data.map((element) => ({
+          [SELLER_MODULE]: {
+            seller_id: element.seller_id,
+          },
+          [ATTRIBUTE_MODULE]: {
+            attribute_value_id: element.attribute_value_id,
+          },
+        }));
+      }
+    );
+
+    dismissRemoteLinkStep(sellerLinks);
 
     return new WorkflowResponse(deleted);
   }

@@ -43,29 +43,20 @@ export async function findOrCreateVendorAttribute(
   const linkService = container.resolve(ContainerRegistrationKeys.LINK);
 
   const normalizedName = input.name.trim();
-  const searchableName = normalizedName.toLowerCase();
+  const handle = generateVendorAttributeHandle(input.sellerId, normalizedName);
 
-  // Look for existing vendor attribute owned by this seller
-  const { data: existingLinks } = await query.graph({
-    entity: sellerAttributeLink.entryPoint,
-    fields: [
-      "attribute.id",
-      "attribute.name",
-      "attribute.source",
-      "attribute.ui_component",
-    ],
+  // Look for existing vendor attribute using a precise, indexed query.
+  // Handle is generated deterministically from sellerId + name, so it uniquely identifies vendor attributes.
+  const {
+    data: [existingAttribute],
+  } = await query.graph({
+    entity: "attribute",
+    fields: ["id", "name"],
     filters: {
-      seller_id: input.sellerId,
+      source: AttributeSource.VENDOR,
+      handle,
     },
   });
-
-  const existingAttribute = existingLinks
-    .map((link) => link.attribute)
-    .find(
-      (attr) =>
-        attr.source === AttributeSource.VENDOR &&
-        attr.name.toLowerCase() === searchableName
-    );
 
   if (existingAttribute) {
     return {
@@ -76,8 +67,6 @@ export async function findOrCreateVendorAttribute(
   }
 
   // Create new vendor attribute
-  const handle = generateVendorAttributeHandle(input.sellerId, normalizedName);
-
   const newAttribute = await attributeService.createAttributes({
     name: normalizedName,
     handle,

@@ -13,18 +13,13 @@ import {
 } from "@medusajs/medusa/core-flows";
 
 import {
-  AttributeSource,
   AttributeUIComponent,
   ProductUpdateRequestUpdatedEvent,
 } from "@mercurjs/framework";
 
-import {
-  ATTRIBUTE_MODULE,
-  AttributeModuleService,
-} from "../../../../../../modules/attribute";
-import { SELLER_MODULE } from "../../../../../../modules/seller";
 import { fetchSellerByAuthActorId } from "../../../../../../shared/infra/http/utils";
 import { fetchProductDetails } from "../../../../../../shared/infra/http/utils/products";
+import { convertOptionToAttributeWorkflow } from "../../../../../../workflows/attribute/workflows/convert-option-to-attribute";
 import { findOrCreateVendorAttribute } from "../../../../../../workflows/attribute/utils/find-or-create-vendor-attribute";
 import { UpdateProductOptionType } from "../../../validators";
 
@@ -165,10 +160,6 @@ export const POST = async (
 
   // Handle conversion to attribute
   if (convert_to_attribute) {
-    const attributeService =
-      req.scope.resolve<AttributeModuleService>(ATTRIBUTE_MODULE);
-    const linkService = req.scope.resolve(ContainerRegistrationKeys.LINK);
-
     const seller = await fetchSellerByAuthActorId(
       req.auth_context.actor_id,
       req.scope
@@ -208,32 +199,14 @@ export const POST = async (
       ui_component: AttributeUIComponent.SELECT,
     });
 
-    // Create attribute values
-    for (const value of optionValues) {
-      const attributeValue = await attributeService.createAttributeValues({
-        value,
+    await convertOptionToAttributeWorkflow(req.scope).run({
+      input: {
+        product_id: productId,
+        option_id: optionId,
+        seller_id: seller.id,
         attribute_id: vendorAttribute.id,
-        source: AttributeSource.VENDOR,
-        rank: 0,
-      });
-
-      // Link to product
-      await linkService.create({
-        [Modules.PRODUCT]: { product_id: productId },
-        [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-      });
-
-      // Link to seller
-      await linkService.create({
-        [SELLER_MODULE]: { seller_id: seller.id },
-        [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-      });
-    }
-
-    // Delete the option (Medusa removes option values from variants)
-    await deleteProductOptionsWorkflow.run({
-      container: req.scope,
-      input: { ids: [optionId] },
+        values: optionValues,
+      },
     });
   } else {
     // Normal update

@@ -5,9 +5,7 @@ import {
 import {
   ContainerRegistrationKeys,
   MedusaError,
-  Modules,
 } from "@medusajs/framework/utils";
-import { createProductOptionsWorkflow } from "@medusajs/medusa/core-flows";
 
 import {
   AttributeSource,
@@ -18,11 +16,13 @@ import {
   ATTRIBUTE_MODULE,
   AttributeModuleService,
 } from "../../../../../../modules/attribute";
-import { SELLER_MODULE } from "../../../../../../modules/seller";
 import { fetchSellerByAuthActorId } from "../../../../../../shared/infra/http/utils";
 import sellerAttributeLink from "../../../../../../links/seller-attribute";
 import { VendorUpdateProductAttributeType } from "../../../validators";
 import { transformProductWithInformationalAttributes } from "../../../utils/transform-product-attributes";
+import { convertAttributeToOptionWorkflow } from "../../../../../../workflows/attribute/workflows/convert-attribute-to-option";
+import { deleteAttributeValueWorkflow } from "../../../../../../workflows/attribute/workflows/delete-attribute-value";
+import { syncProductAttributeValuesWorkflow } from "../../../../../../workflows/attribute/workflows/sync-product-attribute-values";
 import { getProductAttributeValues } from "../utils";
 
 /**
@@ -72,7 +72,6 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
   const attributeService =
     req.scope.resolve<AttributeModuleService>(ATTRIBUTE_MODULE);
-  const linkService = req.scope.resolve(ContainerRegistrationKeys.LINK);
   const { id: product_id, attribute_id } = req.params;
   const { name, ui_component, values, use_for_variations } = req.validatedBody;
 
@@ -138,29 +137,15 @@ export const POST = async (
     const currentValues = attributeValues.map((av) => av.value);
     const valueIds = attributeValues.map((av) => av.attribute_value_id);
 
-    // Create ProductOption
-    await createProductOptionsWorkflow(req.scope).run({
+    await convertAttributeToOptionWorkflow(req.scope).run({
       input: {
-        product_options: [
-          {
-            product_id,
-            title: attribute.name,
-            values: values ?? currentValues,
-          },
-        ],
+        product_id,
+        seller_id: seller.id,
+        option_title: attribute.name,
+        option_values: values ?? currentValues,
+        attribute_value_ids: valueIds,
       },
     });
-
-    // Remove attribute values from product
-    for (const valueId of valueIds) {
-      await linkService.dismiss({
-        [Modules.PRODUCT]: { product_id },
-        [ATTRIBUTE_MODULE]: { attribute_value_id: valueId },
-      });
-    }
-
-    // Delete orphaned attribute values
-    await attributeService.deleteAttributeValues(valueIds);
   } else {
     // Update attribute definition if vendor-owned and updates provided
     if (attribute.source === AttributeSource.VENDOR && (name || ui_component)) {
@@ -180,89 +165,22 @@ export const POST = async (
         attribute_id
       );
 
-      const currentValueMap = new Map(
-        attributeValues.map((av) => [
-          av.value,
-          {
-            id: av.attribute_value_id,
-            source: av.source,
-          },
-        ])
-      );
-      const newValueSet = new Set(values);
-
-      // Determine values to remove and add
-      const toRemove: string[] = [];
-      for (const [value, info] of currentValueMap) {
-        if (!newValueSet.has(value)) {
-          toRemove.push((info as any).id);
-        }
-      }
-
-      const toAdd: string[] = [];
-      for (const value of values) {
-        if (!currentValueMap.has(value)) {
-          toAdd.push(value);
-        }
-      }
-
-      // Remove old values
-      for (const valueId of toRemove) {
-        await linkService.dismiss({
-          [Modules.PRODUCT]: { product_id },
-          [ATTRIBUTE_MODULE]: { attribute_value_id: valueId },
-        });
-        await attributeService.deleteAttributeValues(valueId);
-      }
-
-      // Add new values
-      const allowedValues = new Set(
-        attribute.possible_values?.map((pv: { value: string }) => pv.value) ?? []
-      );
-
-      for (const value of toAdd) {
-        // Determine source
-        const isFromPossibleValues =
-          attribute.source === AttributeSource.ADMIN &&
-          allowedValues.size > 0 &&
-          allowedValues.has(value);
-
-        if (
-          attribute.source === AttributeSource.ADMIN &&
-          allowedValues.size > 0 &&
-          !allowedValues.has(value)
-        ) {
-          throw new MedusaError(
-            MedusaError.Types.INVALID_DATA,
-            `Value "${value}" is not allowed for this attribute`
-          );
-        }
-
-        const valueSource = isFromPossibleValues
-          ? AttributeSource.ADMIN
-          : AttributeSource.VENDOR;
-
-        const attributeValue = await attributeService.createAttributeValues({
-          value,
+      await syncProductAttributeValuesWorkflow(req.scope).run({
+        input: {
+          product_id,
+          seller_id: seller.id,
           attribute_id,
-          source: valueSource,
-          rank: 0,
-        });
-
-        // Link to product
-        await linkService.create({
-          [Modules.PRODUCT]: { product_id },
-          [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-        });
-
-        // If vendor value, link to seller
-        if (valueSource === AttributeSource.VENDOR) {
-          await linkService.create({
-            [SELLER_MODULE]: { seller_id: seller.id },
-            [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-          });
-        }
-      }
+          attribute_source: attribute.source,
+          possible_values:
+            attribute.possible_values?.map((pv: { value: string }) => pv.value) ??
+            [],
+          new_values: values,
+          existing_values: attributeValues.map((value) => ({
+            attribute_value_id: value.attribute_value_id,
+            value: value.value,
+          })),
+        },
+      });
     }
   }
 
@@ -326,9 +244,6 @@ export const DELETE = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
-  const attributeService =
-    req.scope.resolve<AttributeModuleService>(ATTRIBUTE_MODULE);
-  const linkService = req.scope.resolve(ContainerRegistrationKeys.LINK);
   const { id: product_id, attribute_id } = req.params;
 
   const seller = await fetchSellerByAuthActorId(
@@ -388,24 +303,15 @@ export const DELETE = async (
     attribute_id
   );
 
-  // For admin attributes, only remove vendor-sourced values
-  // For vendor attributes, remove all values (ownership already verified above)
-  const valuesToRemove = attributeValues
-    .filter((av) => {
-      if (attribute.source === AttributeSource.VENDOR) {
-        return true; // Remove all for vendor attributes
-      }
-      return av.source === AttributeSource.VENDOR;
-    })
-    .map((av) => av.attribute_value_id);
+  // Required admin attributes are blocked above.
+  // For non-required admin attributes and vendor attributes, remove all values:
+  // DELETE means detaching this attribute from the product.
+  const valuesToRemove = attributeValues.map((av) => av.attribute_value_id);
 
-  // Remove links and delete values
-  for (const valueId of valuesToRemove) {
-    await linkService.dismiss({
-      [Modules.PRODUCT]: { product_id },
-      [ATTRIBUTE_MODULE]: { attribute_value_id: valueId },
+  if (valuesToRemove.length > 0) {
+    await deleteAttributeValueWorkflow(req.scope).run({
+      input: valuesToRemove,
     });
-    await attributeService.deleteAttributeValues(valueId);
   }
 
   res.json({

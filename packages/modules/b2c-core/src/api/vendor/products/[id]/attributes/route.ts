@@ -5,7 +5,6 @@ import {
 import {
   ContainerRegistrationKeys,
   MedusaError,
-  Modules,
 } from "@medusajs/framework/utils";
 import { createProductOptionsWorkflow } from "@medusajs/medusa/core-flows";
 
@@ -14,15 +13,13 @@ import {
   AttributeUIComponent,
 } from "@mercurjs/framework";
 
-import {
-  ATTRIBUTE_MODULE,
-  AttributeModuleService,
-} from "../../../../../modules/attribute";
-import { SELLER_MODULE } from "../../../../../modules/seller";
 import { fetchSellerByAuthActorId } from "../../../../../shared/infra/http/utils";
+import { getApplicableAttributes } from "../../../../../shared/infra/http/utils/products";
+import { createAndLinkAttributeValuesWorkflow } from "../../../../../workflows/attribute/workflows/create-and-link-attribute-values";
 import { findOrCreateVendorAttribute } from "../../../../../workflows/attribute/utils/find-or-create-vendor-attribute";
 import { VendorAddProductAttributeType } from "../../validators";
 import { transformProductWithInformationalAttributes } from "../../utils/transform-product-attributes";
+import { getProductAttributeValues } from "./utils";
 
 /**
  * @oas [post] /vendor/products/{id}/attributes
@@ -63,9 +60,6 @@ export const POST = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
-  const attributeService =
-    req.scope.resolve<AttributeModuleService>(ATTRIBUTE_MODULE);
-  const linkService = req.scope.resolve(ContainerRegistrationKeys.LINK);
   const { id: product_id } = req.params;
   const { attribute_id, name, values, use_for_variations, ui_component } =
     req.validatedBody;
@@ -101,7 +95,6 @@ export const POST = async (
   } else {
     // Create informational attribute
     let resolvedAttributeId: string;
-    let valueSource: AttributeSource;
 
     if (attribute_id) {
       // Using admin attribute
@@ -118,53 +111,62 @@ export const POST = async (
         );
       }
 
+      const applicableAttributes = await getApplicableAttributes(
+        req.scope,
+        product_id,
+        ["id"]
+      );
+      const applicableAttributeIds = new Set(
+        applicableAttributes.map((applicableAttribute) => applicableAttribute.id)
+      );
+
+      if (!applicableAttributeIds.has(attribute_id)) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          "Attribute is not applicable to this product's category"
+        );
+      }
+
       resolvedAttributeId = attribute.id;
+
+      // Validate: prevent assigning the same attribute multiple times to a product
+      const existingValues = await getProductAttributeValues(
+        req.scope,
+        product_id,
+        resolvedAttributeId
+      );
+      if (existingValues.length > 0) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          "Attribute already assigned to this product. Use UPDATE endpoint to modify values."
+        );
+      }
 
       // Validate values against possible_values if defined
       const allowedValues = new Set(
         attribute.possible_values?.map((pv: { value: string }) => pv.value) ?? []
       );
 
-      for (const value of values) {
+      const valuesWithSource = values.map((value) => {
         // Determine source based on whether value is in possible_values
         const isFromPossibleValues =
           allowedValues.size === 0 || allowedValues.has(value);
 
-        if (allowedValues.size > 0 && !allowedValues.has(value)) {
-          throw new MedusaError(
-            MedusaError.Types.INVALID_DATA,
-            `Value "${value}" is not allowed for attribute. Allowed values: ${[
-              ...allowedValues,
-            ].join(", ")}`
-          );
-        }
-
-        valueSource = isFromPossibleValues
+        const source = isFromPossibleValues
           ? AttributeSource.ADMIN
           : AttributeSource.VENDOR;
 
-        // Create AttributeValue
-        const attributeValue = await attributeService.createAttributeValues({
-          value,
+        return { value, source };
+      });
+
+      await createAndLinkAttributeValuesWorkflow(req.scope).run({
+        input: {
+          product_id,
           attribute_id: resolvedAttributeId,
-          source: valueSource,
-          rank: 0,
-        });
-
-        // Link to product
-        await linkService.create({
-          [Modules.PRODUCT]: { product_id },
-          [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-        });
-
-        // If vendor value, link to seller for ownership
-        if (valueSource === AttributeSource.VENDOR) {
-          await linkService.create({
-            [SELLER_MODULE]: { seller_id: seller.id },
-            [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-          });
-        }
-      }
+          seller_id: seller.id,
+          values: valuesWithSource,
+        },
+      });
     } else {
       // Creating/finding vendor attribute
       const vendorAttribute = await findOrCreateVendorAttribute(req.scope, {
@@ -176,27 +178,30 @@ export const POST = async (
 
       resolvedAttributeId = vendorAttribute.id;
 
-      // Create values (all vendor source)
-      for (const value of values) {
-        const attributeValue = await attributeService.createAttributeValues({
-          value,
-          attribute_id: resolvedAttributeId,
-          source: AttributeSource.VENDOR,
-          rank: 0,
-        });
-
-        // Link to product
-        await linkService.create({
-          [Modules.PRODUCT]: { product_id },
-          [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-        });
-
-        // Link to seller
-        await linkService.create({
-          [SELLER_MODULE]: { seller_id: seller.id },
-          [ATTRIBUTE_MODULE]: { attribute_value_id: attributeValue.id },
-        });
+      // Validate: prevent assigning the same attribute multiple times to a product
+      const existingValues = await getProductAttributeValues(
+        req.scope,
+        product_id,
+        resolvedAttributeId
+      );
+      if (existingValues.length > 0) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          "Attribute already assigned to this product. Use UPDATE endpoint to modify values."
+        );
       }
+
+      await createAndLinkAttributeValuesWorkflow(req.scope).run({
+        input: {
+          product_id,
+          attribute_id: resolvedAttributeId,
+          seller_id: seller.id,
+          values: values.map((value) => ({
+            value,
+            source: AttributeSource.VENDOR,
+          })),
+        },
+      });
     }
   }
 

@@ -958,20 +958,6 @@ export const VendorUpdateProductAttribute = z.object({
 });
 
 /**
- * @deprecated Use VendorUpdateProductAttribute instead
- */
-export type VendorUpdateVendorProductAttributeType = z.infer<
-  typeof VendorUpdateVendorProductAttribute
->;
-export const VendorUpdateVendorProductAttribute = z.object({
-  name: z.string().min(1).optional(),
-  value: z.string().optional(),
-  ui_component: AttributeUIComponentEnum.optional(),
-  rank: z.number().optional(),
-  metadata: z.record(z.unknown()).nullish(),
-});
-
-/**
  * @schema VendorBatchVariantImages
  * type: object
  * properties:

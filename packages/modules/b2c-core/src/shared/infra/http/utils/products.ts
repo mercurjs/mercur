@@ -29,7 +29,7 @@ export const updateProductOptionsMetadata = async (
     return
   }
 
-  const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
   const optionUpdates = products
     .flatMap((product) => product.options || [])
@@ -42,17 +42,37 @@ export const updateProductOptionsMetadata = async (
         !!update.metadata
     )
 
-  if (!optionUpdates.length) {
+  const dedupedOptionUpdates = Array.from(
+    new Map(optionUpdates.map((update) => [update.optionId, update])).values()
+  )
+
+  if (!dedupedOptionUpdates.length) {
     return
   }
 
-  await Promise.all(
-    optionUpdates.map(({ optionId, metadata }) =>
-      pgConnection.raw(
-        `UPDATE product_option SET metadata = ? WHERE id = ?`,
-        [JSON.stringify(metadata), optionId]
-      )
-    )
+  const caseClauses = dedupedOptionUpdates
+    .map(() => 'WHEN id = ? THEN ?::jsonb')
+    .join(' ')
+  const wherePlaceholders = dedupedOptionUpdates.map(() => '?').join(', ')
+
+  const bindings = [
+    ...dedupedOptionUpdates.flatMap(({ optionId, metadata }) => [
+      optionId,
+      JSON.stringify(metadata)
+    ]),
+    ...dedupedOptionUpdates.map(({ optionId }) => optionId)
+  ]
+
+  await knex.raw(
+    `
+      UPDATE product_option
+      SET metadata = CASE
+        ${caseClauses}
+        ELSE metadata
+      END
+      WHERE id IN (${wherePlaceholders})
+    `,
+    bindings
   )
 }
 
@@ -71,6 +91,7 @@ export async function getApplicableAttributes(
   fields: string[]
 ): Promise<AttributeDTO[]> {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
 
   const {
     data: [product]
@@ -83,24 +104,38 @@ export async function getApplicableAttributes(
   })
   const categoryIds = product.categories.map((category) => category.id)
 
-  const { data: attributes } = await query.graph({
-    entity: categoryAttribute.entryPoint,
-    fields: ['attribute_id']
-  })
-  const attributeIds = attributes.map((attribute) => attribute.attribute_id)
+  // Fetch global attributes (not assigned to any category) without scanning all links.
+  // We do this using a LEFT JOIN against the category-attribute link table filtered to non-deleted links.
+  const linkSubquery = knex(categoryAttribute.entryPoint)
+    .select('attribute_id')
+    .whereNull('deleted_at')
+    .groupBy('attribute_id')
 
-  const { data: globalAttributes } = await query.graph({
-    entity: 'attribute',
-    fields,
-    filters: {
-      id: {
-        $nin: attributeIds
-      },
-      deleted_at: {
-        $eq: null
-      }
-    }
-  })
+  const globalAttributeIdRows: { id: string }[] = await knex(
+    'attribute as a'
+  )
+    .select('a.id')
+    .leftJoin(linkSubquery.as('link'), 'link.attribute_id', 'a.id')
+    .whereNull('a.deleted_at')
+    .whereNull('link.attribute_id')
+
+  const globalAttributeIds = globalAttributeIdRows.map((row) => row.id)
+
+  const globalAttributes =
+    globalAttributeIds.length > 0
+      ? (
+        await query.graph({
+          entity: 'attribute',
+          fields,
+          filters: {
+            id: globalAttributeIds,
+            deleted_at: {
+              $eq: null
+            }
+          }
+        })
+      ).data
+      : []
 
   const { data: categoryAttributes } = await query.graph({
     entity: categoryAttribute.entryPoint,
