@@ -23,6 +23,7 @@ export const GET = async (
     fields: req.queryConfig.fields,
     filters: {
       product_id: req.params.id,
+      ...req.filterableFields,
     },
     pagination: req.queryConfig.pagination,
   })
