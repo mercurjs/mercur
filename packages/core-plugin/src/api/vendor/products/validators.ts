@@ -8,6 +8,7 @@ import {
 } from "@medusajs/medusa/api/utils/validators"
 import { AdditionalData } from "@medusajs/framework/types"
 import { AdminGetProductsParams } from "@medusajs/medusa/api/admin/products/validators"
+import { AdminGetProductVariantsParams } from "@medusajs/medusa/api/admin/product-variants/validators"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
@@ -30,10 +31,7 @@ export const VendorGetProductsParams = AdminGetProductsParams
 export type VendorGetProductVariantsParamsType = z.infer<
   typeof VendorGetProductVariantsParams
 >
-export const VendorGetProductVariantsParams = createFindParams({
-  offset: 0,
-  limit: 50,
-})
+export const VendorGetProductVariantsParams = AdminGetProductVariantsParams
 
 export type VendorGetProductOptionsParamsType = z.infer<
   typeof VendorGetProductOptionsParams

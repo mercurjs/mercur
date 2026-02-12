@@ -347,10 +347,12 @@ export const DataTable = <TData,>({
       : undefined,
     rowSelection,
     isLoading,
-    columnVisibility:  {
+    columnVisibility: enableColumnVisibility
+      ? {
           state: columnVisibility,
           onColumnVisibilityChange: handleColumnVisibilityChange,
-        },
+        }
+      : undefined,
      
     columnOrder:
       columnOrder && onColumnOrderChange

@@ -1,95 +1,174 @@
-import { Component } from "@medusajs/icons"
-import { ExtendedAdminProduct, ExtendedAdminProductVariant } from "@custom-types/products"
+import { Buildings, Component, PencilSquare, Trash } from "@medusajs/icons";
+import { HttpTypes } from "@medusajs/types";
 import {
   Badge,
   clx,
   Container,
-  Heading,
+  createDataTableColumnHelper,
+  createDataTableCommandHelper,
+  createDataTableFilterHelper,
+  DataTableAction,
   Tooltip,
-} from "@medusajs/ui"
-import { keepPreviousData } from "@tanstack/react-query"
-import { useCallback, useMemo } from "react"
-import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
-import { createColumnHelper } from "@tanstack/react-table"
+  usePrompt,
+} from "@medusajs/ui";
+import { keepPreviousData } from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
-import { _DataTable } from "@components/table/data-table"
-import { useProductVariants } from "@hooks/api"
-import { useProductVariantsTableQuery } from "@hooks/table/query/use-product-variants-table-query"
-import { useDataTable } from "@hooks/use-data-table"
-import { useProductDetailContext } from "../../context"
+import { CellContext } from "@tanstack/react-table";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { DataTable } from "../../../../../components/data-table";
+import { useDataTableDateFilters } from "../../../../../components/data-table/helpers/general/use-data-table-date-filters";
+import {
+  useDeleteVariantLazy,
+  useProduct,
+  useProductVariants,
+} from "../../../../../hooks/api/products";
+import { useQueryParams } from "../../../../../hooks/use-query-params";
+import { PRODUCT_VARIANT_IDS_KEY } from "../../../common/constants";
+import { Thumbnail } from "../../../../../components/common/thumbnail";
+import { PRODUCT_DETAIL_FIELDS } from "../../constants";
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
+const PREFIX = "pv";
 
 export const ProductVariantSection = () => {
-  const { product } = useProductDetailContext()
-  const { t } = useTranslation()
-  const { id: productId } = useParams<{ id: string }>()
+  const { id } = useParams();
+  const { product } = useProduct(id!, {
+    fields: PRODUCT_DETAIL_FIELDS,
+  });
+  const { t } = useTranslation();
 
-  const { searchParams, raw } = useProductVariantsTableQuery({
-    pageSize: PAGE_SIZE,
-  })
+  const { q, order, offset, allow_backorder, manage_inventory } =
+    useQueryParams(
+      ["q", "order", "offset", "manage_inventory", "allow_backorder"],
+      PREFIX,
+    );
 
-  const { variants, count, isLoading } = useProductVariants(
-    productId!,
-    searchParams,
+  const columns = useColumns(product!);
+  const filters = useFilters();
+  const commands = useCommands();
+
+  const { variants, count, isPending, isError, error } = useProductVariants(
+    product!.id,
+    {
+      q,
+      order: order ? order : "variant_rank",
+      offset: offset ? parseInt(offset) : undefined,
+      limit: PAGE_SIZE,
+      allow_backorder: allow_backorder
+        ? JSON.parse(allow_backorder)
+        : undefined,
+      manage_inventory: manage_inventory
+        ? JSON.parse(manage_inventory)
+        : undefined,
+      fields:
+        "title,sku,thumbnail,*options,created_at,*inventory_items.inventory.location_levels,inventory_quantity,manage_inventory",
+    },
     {
       placeholderData: keepPreviousData,
-      enabled: !!productId,
-    }
-  )
+    },
+  );
 
-  const columns = useColumns(product)
-
-  const { table } = useDataTable({
-    data: variants || [],
-    columns,
-    count,
-    enablePagination: true,
-    pageSize: PAGE_SIZE,
-    getRowId: (row) => row?.id || "",
-  })
+  if (isError) {
+    throw error;
+  }
 
   return (
     <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">{t("products.variants.header")}</Heading>
-      </div>
-      <_DataTable
-        table={table}
+      <DataTable
+        data={variants}
         columns={columns}
-        count={count || 0}
+        filters={filters}
+        rowCount={count}
+        getRowId={(row) => row.id}
+        rowHref={(row) => `/products/${product.id}/variants/${row.id}`}
         pageSize={PAGE_SIZE}
-        search
-        pagination
-        isLoading={isLoading}
-        queryObject={raw}
-        navigateTo={(row) => `variants/${row.original.id}`}
-        orderBy={[
-          { key: "title", label: t("fields.title") },
-          { key: "sku", label: t("fields.sku") },
-        ]}
-        noRecords={{
-          title: t("products.variants.empty.heading"),
-          message: t("products.variants.empty.description"),
-          action: {
-            to: "variants/create",
-            label: t("actions.create"),
+        isLoading={isPending}
+        heading={t("products.variants.header")}
+        headingLevel="h2"
+        emptyState={{
+          empty: {
+            heading: t("products.variants.empty.heading"),
+            description: t("products.variants.empty.description"),
+          },
+          filtered: {
+            heading: t("products.variants.filtered.heading"),
+            description: t("products.variants.filtered.description"),
           },
         }}
+        action={{
+          label: t("actions.create"),
+          to: `variants/create`,
+        }}
+        actionMenu={{
+          groups: [
+            {
+              actions: [
+                {
+                  label: t("products.editPrices"),
+                  to: `prices`,
+                  icon: <PencilSquare />,
+                },
+                {
+                  label: t("inventory.stock.action"),
+                  to: `stock`,
+                  icon: <Buildings />,
+                },
+              ],
+            },
+          ],
+        }}
+        commands={commands}
+        prefix={PREFIX}
       />
     </Container>
-  )
-}
+  );
+};
 
-const columnHelper = createColumnHelper<ExtendedAdminProductVariant>()
+const columnHelper =
+  createDataTableColumnHelper<HttpTypes.AdminProductVariant>();
 
-const useColumns = (product: ExtendedAdminProduct) => {
-  const { t } = useTranslation()
+const useColumns = (product: HttpTypes.AdminProduct) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { mutateAsync } = useDeleteVariantLazy(product.id);
+  const prompt = usePrompt();
+  const [searchParams] = useSearchParams();
+
+  const tableSearchParams = useMemo(() => {
+    const filtered = new URLSearchParams();
+    for (const [key, value] of searchParams.entries()) {
+      if (key.startsWith(`${PREFIX}_`)) {
+        filtered.append(key, value);
+      }
+    }
+    return filtered;
+  }, [searchParams]);
+
+  const handleDelete = useCallback(
+    async (id: string, title: string) => {
+      const res = await prompt({
+        title: t("general.areYouSure"),
+        description: t("products.deleteVariantWarning", {
+          title,
+        }),
+        confirmText: t("actions.delete"),
+        cancelText: t("actions.cancel"),
+      });
+
+      if (!res) {
+        return;
+      }
+
+      await mutateAsync({ variantId: id });
+    },
+    [mutateAsync, prompt, t],
+  );
 
   const optionColumns = useMemo(() => {
     if (!product?.options) {
-      return []
+      return [];
     }
 
     return product.options.map((option) => {
@@ -98,11 +177,11 @@ const useColumns = (product: ExtendedAdminProduct) => {
         header: option.title,
         cell: ({ row }) => {
           const variantOpt = row.original.options?.find(
-            (opt) => opt.option_id === option.id
-          )
+            (opt) => opt.option_id === option.id,
+          );
 
           if (!variantOpt) {
-            return <span className="text-ui-fg-muted">-</span>
+            return <span className="text-ui-fg-muted">-</span>;
           }
 
           return (
@@ -117,29 +196,122 @@ const useColumns = (product: ExtendedAdminProduct) => {
                 </Badge>
               </Tooltip>
             </div>
-          )
+          );
         },
-      })
-    })
-  }, [product])
+      });
+    });
+  }, [product]);
+
+  const getActions = useCallback(
+    (ctx: CellContext<HttpTypes.AdminProductVariant, unknown>) => {
+      const variant = ctx.row.original as HttpTypes.AdminProductVariant & {
+        inventory_items: { inventory: HttpTypes.AdminInventoryItem }[];
+      };
+
+      const mainActions: DataTableAction<HttpTypes.AdminProductVariant>[] = [
+        {
+          icon: <PencilSquare />,
+          label: t("actions.edit"),
+          onClick: (row) => {
+            navigate(
+              `edit-variant?variant_id=${
+                row.row.original.id
+              }&${tableSearchParams.toString()}`,
+              {
+                state: {
+                  restore_params: tableSearchParams.toString(),
+                },
+              },
+            );
+          },
+        },
+      ];
+
+      const secondaryActions: DataTableAction<HttpTypes.AdminProductVariant>[] =
+        [
+          {
+            icon: <Trash />,
+            label: t("actions.delete"),
+            onClick: () => handleDelete(variant.id, variant.title!),
+          },
+        ];
+
+      const inventoryItemsCount = variant.inventory_items?.length || 0;
+
+      switch (inventoryItemsCount) {
+        case 0:
+          break;
+        case 1: {
+          const inventoryItemLink = `/inventory/${
+            variant.inventory_items![0].inventory.id
+          }`;
+
+          mainActions.push({
+            label: t("products.variant.inventory.actions.inventoryItems"),
+            onClick: () => {
+              navigate(inventoryItemLink);
+            },
+            icon: <Buildings />,
+          });
+          break;
+        }
+        default: {
+          const ids = variant.inventory_items?.map((i) => i.inventory?.id);
+
+          if (!ids || ids.length === 0) {
+            break;
+          }
+
+          const inventoryKitLink = `/inventory?${new URLSearchParams({
+            id: ids.join(","),
+          }).toString()}`;
+
+          mainActions.push({
+            label: t("products.variant.inventory.actions.inventoryKit"),
+            onClick: () => {
+              navigate(inventoryKitLink);
+            },
+            icon: <Component />,
+          });
+        }
+      }
+
+      return [mainActions, secondaryActions];
+    },
+    [handleDelete, navigate, t, tableSearchParams],
+  );
 
   const getInventory = useCallback(
-    (variant: ExtendedAdminProductVariant) => {
-      const inventoryItems = variant.inventory_items
+    (variant: HttpTypes.AdminProductVariant) => {
+      const castVariant = variant as HttpTypes.AdminProductVariant & {
+        inventory_items: { inventory: HttpTypes.AdminInventoryItem }[];
+      };
+
+      if (!variant.manage_inventory) {
+        return {
+          text: t("products.variant.inventory.notManaged"),
+          hasInventoryKit: false,
+          notManaged: true,
+        };
+      }
+
+      const quantity = variant.inventory_quantity;
+
+      const inventoryItems = castVariant.inventory_items
         ?.map((i) => i.inventory)
-        .filter(Boolean)
+        .filter(Boolean) as HttpTypes.AdminInventoryItem[];
 
-      const hasInventoryKit = inventoryItems ? inventoryItems.length > 1 : false
+      const hasInventoryKit = inventoryItems.length > 1;
 
-      const inventory = inventoryItems?.[0]
-      const locationLevels = (inventory as any)?.location_levels ?? []
+      const locations: Record<string, boolean> = {};
 
-      const quantity =
-        locationLevels.reduce(
-          (acc: number, curr: any) => acc + (curr.available_quantity ?? 0),
-          0
-        ) || 0
-      const locationCount = locationLevels.length || 0
+      inventoryItems.forEach((i) => {
+        i.location_levels?.forEach((l) => {
+          locations[l.id] = true;
+        });
+      });
+
+      const locationCount = Object.keys(locations).length;
 
       const text = hasInventoryKit
         ? t("products.variant.tableItemAvailable", {
@@ -149,29 +321,47 @@ const useColumns = (product: ExtendedAdminProduct) => {
             availableCount: quantity,
             locationCount,
             count: locationCount,
-          })
+          });
 
-      return { text, hasInventoryKit, quantity }
+      return { text, hasInventoryKit, quantity, notManaged: false };
     },
-    [t]
-  )
+    [t],
+  );
 
   return useMemo(() => {
     return [
+      columnHelper.accessor("thumbnail", {
+        header: "",
+        headerAlign: "center",
+        maxSize: 72,
+        cell: ({ row }) => {
+          return (
+            <div className="flex items-center pl-[1px]">
+              <Thumbnail src={row.original.thumbnail} />
+            </div>
+          );
+        },
+      }),
       columnHelper.accessor("title", {
         header: t("fields.title"),
-        cell: ({ getValue }) => getValue() || "-",
+        enableSorting: true,
+        sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
+        sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
       }),
       columnHelper.accessor("sku", {
         header: t("fields.sku"),
-        cell: ({ getValue }) => getValue() || "-",
+        enableSorting: true,
+        sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
+        sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
       }),
       ...optionColumns,
       columnHelper.display({
         id: "inventory",
         header: t("fields.inventory"),
         cell: ({ row }) => {
-          const { text, hasInventoryKit, quantity } = getInventory(row.original)
+          const { text, hasInventoryKit, quantity, notManaged } = getInventory(
+            row.original,
+          );
 
           return (
             <Tooltip content={text}>
@@ -179,16 +369,69 @@ const useColumns = (product: ExtendedAdminProduct) => {
                 {hasInventoryKit && <Component />}
                 <span
                   className={clx("truncate", {
-                    "text-ui-fg-error": !quantity,
+                    "text-ui-fg-error": !quantity && !notManaged,
                   })}
                 >
                   {text}
                 </span>
               </div>
             </Tooltip>
-          )
+          );
         },
+        maxSize: 250,
       }),
-    ]
-  }, [t, optionColumns, getInventory])
-}
+      columnHelper.action({
+        actions: getActions,
+      }),
+    ];
+  }, [t, optionColumns, getActions, getInventory]);
+};
+
+const filterHelper =
+  createDataTableFilterHelper<HttpTypes.AdminProductVariant>();
+
+const useFilters = () => {
+  const { t } = useTranslation();
+  const dateFilters = useDataTableDateFilters();
+
+  return useMemo(() => {
+    return [
+      filterHelper.accessor("allow_backorder", {
+        type: "radio",
+        label: t("fields.allowBackorder"),
+        options: [
+          { label: t("filters.radio.yes"), value: "true" },
+          { label: t("filters.radio.no"), value: "false" },
+        ],
+      }),
+      filterHelper.accessor("manage_inventory", {
+        type: "radio",
+        label: t("fields.manageInventory"),
+        options: [
+          { label: t("filters.radio.yes"), value: "true" },
+          { label: t("filters.radio.no"), value: "false" },
+        ],
+      }),
+      ...dateFilters,
+    ];
+  }, [t, dateFilters]);
+};
+
+const commandHelper = createDataTableCommandHelper();
+
+const useCommands = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  return [
+    commandHelper.command({
+      label: t("inventory.stock.action"),
+      shortcut: "i",
+      action: async (selection) => {
+        navigate(
+          `stock?${PRODUCT_VARIANT_IDS_KEY}=${Object.keys(selection).join(",")}`,
+        );
+      },
+    }),
+  ];
+};

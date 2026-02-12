@@ -1,3 +1,5 @@
+import { defaultAdminProductVariantFields } from "@medusajs/medusa/api/admin/product-variants/query-config"
+
 export const vendorProductFields = [
   "id",
   "title",
@@ -45,40 +47,14 @@ export const vendorProductQueryConfig = {
   },
 }
 
-export const vendorProductVariantFields = [
-  "id",
-  "product_id",
-  "title",
-  "sku",
-  "barcode",
-  "ean",
-  "upc",
-  "allow_backorder",
-  "manage_inventory",
-  "hs_code",
-  "origin_country",
-  "mid_code",
-  "material",
-  "weight",
-  "length",
-  "height",
-  "width",
-  "created_at",
-  "updated_at",
-  "metadata",
-  "variant_rank",
-  "*prices",
-  "*options",
-]
-
 export const vendorProductVariantQueryConfig = {
   list: {
-    defaults: vendorProductVariantFields,
+    defaults: defaultAdminProductVariantFields,
     isList: true,
     defaultLimit: 50,
   },
   retrieve: {
-    defaults: vendorProductVariantFields,
+    defaults: defaultAdminProductVariantFields,
     isList: false,
   },
 }
