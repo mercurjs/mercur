@@ -1,47 +1,46 @@
-import { Container, Heading, Text } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import { Container, Heading, Text } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 
-import { keepPreviousData } from "@tanstack/react-query"
-import { useMemo } from "react"
-import { _DataTable } from "@components/table/data-table"
-import { useCollections } from "@hooks/api/collections"
-import { useCollectionTableColumns } from "@hooks/table/columns/use-collection-table-columns"
-import { useCollectionTableFilters } from "@hooks/table/filters"
-import { useCollectionTableQuery } from "@hooks/table/query"
-import { useDataTable } from "@hooks/use-data-table"
+import { keepPreviousData } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { _DataTable } from "@components/table/data-table";
+import { useCollections } from "@hooks/api/collections";
+import { useCollectionTableColumns } from "@hooks/table/columns/use-collection-table-columns";
+import { useCollectionTableFilters } from "@hooks/table/filters";
+import { useCollectionTableQuery } from "@hooks/table/query";
+import { useDataTable } from "@hooks/use-data-table";
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 20;
 
 export const CollectionListTable = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const { searchParams, raw } = useCollectionTableQuery({
     pageSize: PAGE_SIZE,
-  })
-  const { product_collections, count, isError, error, isLoading } =
-    useCollections(
-      {
-        ...searchParams,
-        fields: "*products",
-      },
-      {
-        placeholderData: keepPreviousData,
-      }
-    )
+  });
+  const { collections, count, isError, error, isLoading } = useCollections(
+    {
+      ...searchParams,
+      fields: "*products",
+    },
+    {
+      placeholderData: keepPreviousData,
+    },
+  );
 
-  const filters = useCollectionTableFilters()
-  const columns = useColumns()
+  const filters = useCollectionTableFilters();
+  const columns = useColumns();
 
   const { table } = useDataTable({
-    data: product_collections ?? [],
+    data: collections ?? [],
     columns,
     count,
     enablePagination: true,
     getRowId: (row, index) => row.id ?? `${index}`,
     pageSize: PAGE_SIZE,
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -78,11 +77,11 @@ export const CollectionListTable = () => {
         isLoading={isLoading}
       />
     </Container>
-  )
-}
+  );
+};
 
 const useColumns = () => {
-  const base = useCollectionTableColumns()
+  const base = useCollectionTableColumns();
 
-  return useMemo(() => [...base], [base])
-}
+  return useMemo(() => [...base], [base]);
+};

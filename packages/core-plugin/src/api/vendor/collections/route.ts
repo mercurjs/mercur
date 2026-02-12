@@ -5,6 +5,7 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 import { VendorGetCollectionsParamsType } from "./validators"
+import { wrapCollectionsWithProducts } from "./helpers"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<VendorGetCollectionsParamsType>,
@@ -12,12 +13,20 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const withProducts = req.queryConfig.fields.some((field) =>
+    field.includes("products")
+  )
+
   const { data: collections, metadata } = await query.graph({
     entity: "product_collection",
-    fields: req.queryConfig.fields,
+    fields: req.queryConfig.fields.filter(field => !field.includes("products")),
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
+
+  if (withProducts) {
+    await wrapCollectionsWithProducts(collections, req)
+  }
 
   res.json({
     collections,
@@ -26,3 +35,4 @@ export const GET = async (
     limit: metadata?.take ?? 0,
   })
 }
+

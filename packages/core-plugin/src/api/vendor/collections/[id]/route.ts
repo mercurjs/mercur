@@ -7,6 +7,7 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
+import { wrapCollectionsWithProducts } from "../helpers"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -14,11 +15,15 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const withProducts = req.queryConfig.fields.some((field) =>
+    field.includes("products")
+  )
+
   const {
     data: [collection],
   } = await query.graph({
     entity: "product_collection",
-    fields: req.queryConfig.fields,
+    fields: req.queryConfig.fields.filter(field => !field.includes("products")),
     filters: {
       id: req.params.id,
     },
@@ -29,6 +34,10 @@ export const GET = async (
       MedusaError.Types.NOT_FOUND,
       `Collection with id ${req.params.id} was not found`
     )
+  }
+
+  if (withProducts) {
+    await wrapCollectionsWithProducts([collection], req)
   }
 
   res.json({ collection })
