@@ -45,7 +45,7 @@ export const RulesFormField = ({
   const filteredAttributes =
     attributes?.filter(
       ({ id }) =>
-        id === "customer_group" || id === "country" || id === "product"
+        id === "country" || id === "product"
     ) || []
 
   const { fields, append, remove, update, replace } = useFieldArray({
