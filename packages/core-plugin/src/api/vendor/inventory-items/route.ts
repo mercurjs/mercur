@@ -6,7 +6,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { createSellerInventoryItemsWorkflow } from "../../../workflows/inventory-item"
-import { refetchInventoryItem, validateVariantBySku } from "./helpers"
+import { refetchInventoryItem } from "./helpers"
 import {
   VendorCreateInventoryItemType,
   VendorGetInventoryItemsParamsType,
@@ -38,10 +38,6 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorInventoryItemResponse>
 ) => {
   const sellerId = req.auth_context.actor_id
-
-  if (req.validatedBody.sku) {
-    await validateVariantBySku(req.scope, sellerId, req.validatedBody.sku)
-  }
 
   const { result } = await createSellerInventoryItemsWorkflow(req.scope).run({
     input: {
