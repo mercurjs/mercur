@@ -1,45 +1,33 @@
-import { useParams } from "react-router-dom"
+import { useParams } from "react-router-dom";
 
-import { useProduct } from "@hooks/api/products"
+import { useProduct } from "@hooks/api/products";
 
-import { TwoColumnPageSkeleton } from "@components/common/skeleton"
-import { TwoColumnPage } from "@components/layout/pages"
-import { useDashboardExtension } from "@/extensions"
-import { VariantGeneralSection } from "./components/variant-general-section"
+import { TwoColumnPageSkeleton } from "@components/common/skeleton";
+import { TwoColumnPage } from "@components/layout/pages";
+import { VariantGeneralSection } from "./components/variant-general-section";
 import {
   InventorySectionPlaceholder,
   VariantInventorySection,
-} from "./components/variant-inventory-section"
-import { VariantPricesSection } from "./components/variant-prices-section"
+} from "./components/variant-inventory-section";
+import { VariantPricesSection } from "./components/variant-prices-section";
 
 export const ProductVariantDetail = () => {
-  const { product_id, variant_id } = useParams()
+  const { product_id, variant_id } = useParams();
   const { product, isLoading, isError, error } = useProduct(product_id!, {
     fields: "*variants.inventory_items",
-  })
+  });
 
-  const variant = product?.variants?.find((item) => item.id === variant_id)
-
-  const { getWidgets } = useDashboardExtension()
+  const variant = product?.variants?.find((item) => item.id === variant_id);
 
   if (isLoading || !variant) {
-    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={1} />
+    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={1} />;
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
   return (
-    <TwoColumnPage
-      data={variant}
-      hasOutlet
-      widgets={{
-        after: getWidgets("product_variant.details.after"),
-        before: getWidgets("product_variant.details.before"),
-        sideAfter: getWidgets("product_variant.details.side.after"),
-        sideBefore: getWidgets("product_variant.details.side.before"),
-      }}
-    >
+    <TwoColumnPage data={variant} hasOutlet>
       <TwoColumnPage.Main>
         <VariantGeneralSection variant={variant} />
         {!variant.manage_inventory ? (
@@ -52,7 +40,7 @@ export const ProductVariantDetail = () => {
                   id: i.inventory_item_id,
                   required_quantity: i.required_quantity,
                   variant,
-                }
+                };
               })}
             />
           )
@@ -62,5 +50,5 @@ export const ProductVariantDetail = () => {
         <VariantPricesSection variant={variant} />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
-  )
-}
+  );
+};

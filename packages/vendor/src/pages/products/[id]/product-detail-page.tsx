@@ -1,35 +1,32 @@
-import { Children, ReactNode } from "react"
-import { useParams } from "react-router-dom"
+import { Children, ReactNode } from "react";
+import { useParams } from "react-router-dom";
 
-import { TwoColumnPageSkeleton } from "@components/common/skeleton"
-import { TwoColumnPage } from "@components/layout/pages"
-import { useProduct } from "@hooks/api"
+import { TwoColumnPageSkeleton } from "@components/common/skeleton";
+import { TwoColumnPage } from "@components/layout/pages";
+import { useProduct } from "@hooks/api";
 
-import { ProductDetailProvider, useProductDetailContext } from "./context"
-import { PRODUCT_DETAIL_FIELDS } from "./constants"
+import { ProductDetailProvider, useProductDetailContext } from "./context";
 
-import { ProductGeneralSection } from "./_components/product-general-section"
-import { ProductMediaSection } from "./_components/product-media-section"
-import { ProductOptionSection } from "./_components/product-option-section"
-import { ProductOrganizationSection } from "./_components/product-organization-section"
-import { ProductVariantSection } from "./_components/product-variant-section"
-import { ProductAttributeSection } from "./_components/product-attribute-section"
-import { ProductAdditionalAttributesSection } from "./_components/product-additional-attribute-section"
-import { ProductShippingProfileSection } from "./_components/product-shipping-profile-section"
-import { ProductSalesChannelSection } from "./_components/product-sales-channel-section"
+import { ProductGeneralSection } from "./_components/product-general-section";
+import { ProductMediaSection } from "./_components/product-media-section";
+import { ProductOptionSection } from "./_components/product-option-section";
+import { ProductOrganizationSection } from "./_components/product-organization-section";
+import { ProductVariantSection } from "./_components/product-variant-section";
+import { ProductAttributeSection } from "./_components/product-attribute-section";
+import { ProductAdditionalAttributesSection } from "./_components/product-additional-attribute-section";
+import { ProductShippingProfileSection } from "./_components/product-shipping-profile-section";
+import { ProductSalesChannelSection } from "./_components/product-sales-channel-section";
 
 const Root = ({ children }: { children?: ReactNode }) => {
-  const { id } = useParams()
-  const { product, isLoading, isError, error } = useProduct(id!, {
-    fields: PRODUCT_DETAIL_FIELDS,
-  })
+  const { id } = useParams();
+  const { product, isLoading, isError, error } = useProduct(id!);
 
   if (isLoading || !product) {
-    return <TwoColumnPageSkeleton mainSections={4} sidebarSections={3} />
+    return <TwoColumnPageSkeleton mainSections={4} sidebarSections={3} />;
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -50,8 +47,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
         </TwoColumnPage>
       )}
     </ProductDetailProvider>
-  )
-}
+  );
+};
 
 export const ProductDetailPage = Object.assign(Root, {
   GeneralSection: ProductGeneralSection,
@@ -64,4 +61,4 @@ export const ProductDetailPage = Object.assign(Root, {
   ShippingProfileSection: ProductShippingProfileSection,
   SalesChannelSection: ProductSalesChannelSection,
   useContext: useProductDetailContext,
-})
+});

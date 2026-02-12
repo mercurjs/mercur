@@ -27,16 +27,13 @@ import {
 import { useQueryParams } from "../../../../../hooks/use-query-params";
 import { PRODUCT_VARIANT_IDS_KEY } from "../../../common/constants";
 import { Thumbnail } from "../../../../../components/common/thumbnail";
-import { PRODUCT_DETAIL_FIELDS } from "../../constants";
 
 const PAGE_SIZE = 10;
 const PREFIX = "pv";
 
 export const ProductVariantSection = () => {
   const { id } = useParams();
-  const { product } = useProduct(id!, {
-    fields: PRODUCT_DETAIL_FIELDS,
-  });
+  const { product } = useProduct(id!);
   const { t } = useTranslation();
 
   const { q, order, offset, allow_backorder, manage_inventory } =

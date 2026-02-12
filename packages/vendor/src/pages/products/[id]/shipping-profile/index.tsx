@@ -1,23 +1,20 @@
 // Route: /products/:id/shipping-profile
-import { Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
+import { Heading } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 
-import { RouteDrawer } from "@components/modals"
-import { useProduct } from "@hooks/api/products"
-import { PRODUCT_DETAIL_FIELDS } from "../constants"
-import { ProductShippingProfileForm } from "./product-organization-form"
+import { RouteDrawer } from "@components/modals";
+import { useProduct } from "@hooks/api/products";
+import { ProductShippingProfileForm } from "./product-organization-form";
 
 export const Component = () => {
-  const { id } = useParams()
-  const { t } = useTranslation()
+  const { id } = useParams();
+  const { t } = useTranslation();
 
-  const { product, isLoading, isError, error } = useProduct(id!, {
-    fields: PRODUCT_DETAIL_FIELDS,
-  })
+  const { product, isLoading, isError, error } = useProduct(id!);
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -31,5 +28,5 @@ export const Component = () => {
         <ProductShippingProfileForm product={product} />
       )}
     </RouteDrawer>
-  )
-}
+  );
+};
