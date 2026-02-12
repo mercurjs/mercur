@@ -24,12 +24,12 @@ export const promotionsQueryKeys = {
   listRules: (
     id: string | null,
     ruleType: string,
-    query?: Record<string, unknown>
+    query?: Record<string, unknown>,
   ) => [PROMOTIONS_QUERY_KEY, id, ruleType, query],
   listRuleAttributes: (
     ruleType: string,
     promotionType?: string,
-    applicationMethodTargetType?: string
+    applicationMethodTargetType?: string,
   ) => [
     PROMOTIONS_QUERY_KEY,
     ruleType,
@@ -39,7 +39,7 @@ export const promotionsQueryKeys = {
   listRuleValues: (
     ruleType: string,
     ruleValue: string,
-    query?: Record<string, unknown>
+    query?: Record<string, unknown>,
   ) => [PROMOTIONS_QUERY_KEY, ruleType, ruleValue, query],
 };
 
@@ -49,7 +49,7 @@ export const usePromotion = (
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.promotions.$id.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.detail(id),
@@ -71,7 +71,7 @@ export const usePromotionRules = (
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.promotions.$id.$ruleType.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.listRules(id, ruleType, query),
@@ -93,7 +93,7 @@ export const usePromotions = (
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.promotions.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.list(query),
@@ -114,13 +114,13 @@ export const usePromotionRuleAttributes = (
     InferClientOutput<
       typeof sdk.vendor.promotions.ruleAttributeOptions.$ruleType.query
     >
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.listRuleAttributes(
       ruleType,
       promotionType,
-      applicationMethodTargetType
+      applicationMethodTargetType,
     ),
     queryFn: async () =>
       sdk.vendor.promotions.ruleAttributeOptions.$ruleType.query({
@@ -150,19 +150,17 @@ export const usePromotionRuleValues = (
     InferClientOutput<
       typeof sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query
     >
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: promotionsQueryKeys.listRuleValues(
-      ruleType,
-      ruleValue,
-      query || {}
-    ),
+    queryKey: promotionsQueryKeys.listRuleValues(ruleType, ruleValue, query),
     queryFn: async () =>
       sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
+        ...query,
         $ruleType: ruleType,
         $ruleAttributeId: ruleValue,
-        ...query,
+        limit: query?.limit ?? 100,
+        offset: query?.offset ?? 0,
       }),
     ...options,
   });
@@ -176,7 +174,7 @@ export const useDeletePromotion = (
     InferClientOutput<typeof sdk.vendor.promotions.$id.delete>,
     ClientError,
     void
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: () => sdk.vendor.promotions.$id.delete({ $id: id }),
@@ -197,7 +195,7 @@ export const useCreatePromotion = (
     InferClientOutput<typeof sdk.vendor.promotions.mutate>,
     ClientError,
     InferClientInput<typeof sdk.vendor.promotions.mutate>
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.vendor.promotions.mutate(payload),
@@ -216,7 +214,7 @@ export const useUpdatePromotion = (
     InferClientOutput<typeof sdk.vendor.promotions.$id.mutate>,
     ClientError,
     Omit<InferClientInput<typeof sdk.vendor.promotions.$id.mutate>, "$id">
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -240,7 +238,7 @@ export const usePromotionAddRules = (
       InferClientInput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
       "$id"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => {
@@ -256,7 +254,10 @@ export const usePromotionAddRules = (
           ...payload,
         });
       }
-      return sdk.vendor.promotions.$id.rules.batch.mutate({ $id: id, ...payload });
+      return sdk.vendor.promotions.$id.rules.batch.mutate({
+        $id: id,
+        ...payload,
+      });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
@@ -277,7 +278,7 @@ export const usePromotionRemoveRules = (
       InferClientInput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
       "$id"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => {
@@ -293,7 +294,10 @@ export const usePromotionRemoveRules = (
           ...payload,
         });
       }
-      return sdk.vendor.promotions.$id.rules.batch.mutate({ $id: id, ...payload });
+      return sdk.vendor.promotions.$id.rules.batch.mutate({
+        $id: id,
+        ...payload,
+      });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
@@ -314,7 +318,7 @@ export const usePromotionUpdateRules = (
       InferClientInput<typeof sdk.vendor.promotions.$id.rules.batch.mutate>,
       "$id"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => {
@@ -330,7 +334,10 @@ export const usePromotionUpdateRules = (
           ...payload,
         });
       }
-      return sdk.vendor.promotions.$id.rules.batch.mutate({ $id: id, ...payload });
+      return sdk.vendor.promotions.$id.rules.batch.mutate({
+        $id: id,
+        ...payload,
+      });
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all });
@@ -343,7 +350,7 @@ export const usePromotionUpdateRules = (
 
 export const useRemovePromotionFromCampaign = (
   promotionId: string,
-  options?: UseMutationOptions<any, Error, void>
+  options?: UseMutationOptions<any, Error, void>,
 ) => {
   return useMutation({
     mutationFn: () =>
