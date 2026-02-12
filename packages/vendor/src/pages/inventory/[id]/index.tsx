@@ -18,7 +18,6 @@ import { queryClient } from "@lib/query-client";
 import { InventoryItemAttributeSection } from "./_components/inventory-item-attributes/attributes-section";
 import { InventoryItemGeneralSection } from "./_components/inventory-item-general-section";
 import { InventoryItemLocationLevelsSection } from "./_components/inventory-item-location-levels";
-import { InventoryItemReservationsSection } from "./_components/inventory-item-reservations";
 import { InventoryItemVariantsSection } from "./_components/inventory-item-variants/variants-section";
 import { INVENTORY_DETAIL_FIELDS } from "./constants";
 
@@ -63,7 +62,6 @@ export const Component = () => {
     { fields: INVENTORY_DETAIL_FIELDS },
     { initialData },
   );
-  const { getWidgets } = useDashboardExtension();
 
   if (isLoading || !inventory_item) {
     return (
@@ -77,7 +75,7 @@ export const Component = () => {
   }
 
   return (
-    <TwoColumnPage data={inventory_item} >
+    <TwoColumnPage data={inventory_item}>
       <TwoColumnPage.Main>
         <InventoryItemGeneralSection inventoryItem={inventory_item} />
         <InventoryItemLocationLevelsSection inventoryItem={inventory_item} />

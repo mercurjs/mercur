@@ -175,20 +175,13 @@ export const useInventoryItemLevels = (
   >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => {
-      if (!inventoryItemId) {
-        throw new Error(
-          "inventoryItemId is required for useInventoryItemLevels",
-        );
-      }
-      return fetchQuery(
-        `/vendor/inventory-items/${inventoryItemId}/location-levels`,
-        {
-          method: "GET",
-          query: { ...query },
-        },
-      );
-    },
+    queryFn: () =>
+      sdk.vendor.inventoryItems.$id.locationLevels.query({
+        $id: inventoryItemId,
+        limit: query?.limit ?? 100,
+        offset: query?.offset ?? 0,
+        ...query,
+      }),
     queryKey: inventoryItemLevelsQueryKeys.list({
       ...(query || {}),
       inventoryItemId,
