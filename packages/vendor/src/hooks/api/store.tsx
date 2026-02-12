@@ -33,7 +33,7 @@ export const useStore = (
   });
 
   return {
-    store: data,
+    ...data,
     ...rest,
   };
 };
