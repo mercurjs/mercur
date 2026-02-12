@@ -13,14 +13,14 @@ import { ErrorBoundary } from "./components/utilities/error-boundary";
  */
 function mergeRoutes(
   baseRoutes: RouteObject[],
-  customRoutes: RouteObject[]
+  customRoutes: RouteObject[],
 ): RouteObject[] {
   const result = baseRoutes.map((route) => ({ ...route }));
 
   for (const customRoute of customRoutes) {
     const customPath = customRoute.path?.replace(/^\/+/, "");
     const existingIndex = result.findIndex(
-      (r) => r.path != null && r.path.replace(/^\/+/, "") === customPath
+      (r) => r.path != null && r.path.replace(/^\/+/, "") === customPath,
     );
 
     if (existingIndex !== -1) {
@@ -77,14 +77,6 @@ export function getRouteMap({
                       {
                         path: "create",
                         lazy: () => import("./pages/products/create"),
-                      },
-                      {
-                        path: "import",
-                        lazy: () => import("./pages/products/import"),
-                      },
-                      {
-                        path: "export",
-                        lazy: () => import("./pages/products/export"),
                       },
                     ],
                   },
@@ -690,7 +682,7 @@ export function getRouteMap({
                 ],
               },
             ],
-            customMainRoutes
+            customMainRoutes,
           ),
         },
       ],
@@ -1188,7 +1180,7 @@ export function getRouteMap({
                 ],
               },
             ],
-            customSettingsRoutes?.[0]?.children || []
+            customSettingsRoutes?.[0]?.children || [],
           ),
         },
       ],
