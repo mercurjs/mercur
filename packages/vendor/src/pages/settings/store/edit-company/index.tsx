@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next"
 
 import { RouteDrawer } from "@components/modals"
 import { useStore } from "@hooks/api/store"
-import { EditSellerForm } from "./_components/edit-seller-form"
+import { EditStoreCompanyForm } from "./_components/edit-store-company-form"
 
-const SellerEdit = () => {
+const StoreCompanyEdit = () => {
   const { t } = useTranslation()
   const { store, isPending: isLoading, isError, error } = useStore()
 
@@ -18,11 +18,11 @@ const SellerEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("seller.edit.header", "Edit Seller")}</Heading>
+        <Heading>{t("store.editCompany.header", "Edit Company")}</Heading>
       </RouteDrawer.Header>
-      {ready && <EditSellerForm seller={store} />}
+      {ready && <EditStoreCompanyForm store={store} />}
     </RouteDrawer>
   )
 }
 
-export const Component = SellerEdit
+export const Component = StoreCompanyEdit

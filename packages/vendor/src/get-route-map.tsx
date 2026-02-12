@@ -711,21 +711,25 @@ export function getRouteMap({
                 lazy: () => import("./pages/settings"),
               },
 
-              // SELLER
+              // STORE
               {
-                path: "seller",
+                path: "store",
                 errorElement: <ErrorBoundary />,
                 handle: {
-                  breadcrumb: () => t("seller.domain", "Seller"),
+                  breadcrumb: () => t("store.domain", "Store"),
                 },
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/settings/seller"),
+                    lazy: () => import("./pages/settings/store"),
                     children: [
                       {
                         path: "edit",
-                        lazy: () => import("./pages/settings/seller/edit"),
+                        lazy: () => import("./pages/settings/store/edit"),
+                      },
+                      {
+                        path: "edit-company",
+                        lazy: () => import("./pages/settings/store/edit-company"),
                       },
                     ],
                   },

@@ -2598,8 +2598,14 @@
     "removeLocaleWarning_other": "You are about to remove {{count}} locales from your store. Any translation using these locales will be removed.",
     "currencyAlreadyAdded": "The currency has already been added to your store.",
     "localeAlreadyAdded": "The locale has already been added to your store.",
+    "company": "Company",
+    "manageCompanyDetails": "Manage your company details",
+    "logo": "Logo",
     "edit": {
       "header": "Edit Store"
+    },
+    "editCompany": {
+      "header": "Edit Company"
     },
     "toast": {
       "update": "Store successfully updated",
