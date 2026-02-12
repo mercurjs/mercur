@@ -2,7 +2,6 @@ import {
   CreatePromotionRuleDTO,
   PromotionDTO,
   PromotionRuleDTO,
-  PromotionRuleOperatorValues,
   PromotionRuleResponse,
 } from "@medusajs/types";
 import { useRouteModal } from "../../../../../../components/modals";
@@ -81,7 +80,7 @@ export const EditRulesWrapper = ({
 
       rulesToCreate.length &&
         (await addPromotionRules({
-          rules: rulesToCreate.map((rule) => {
+          create: rulesToCreate.map((rule) => {
             return {
               attribute: rule.attribute,
               operator: rule.operator,
@@ -92,16 +91,16 @@ export const EditRulesWrapper = ({
 
       rulesToRemove?.length &&
         (await removePromotionRules({
-          rule_ids: rulesToRemove.map((r) => r.id).filter(Boolean),
+          delete: rulesToRemove.map((r) => r.id).filter(Boolean),
         }));
 
       rulesToUpdate.length &&
         (await updatePromotionRules({
-          rules: rulesToUpdate.map((rule: PromotionRuleResponse) => {
+          update: rulesToUpdate.map((rule: PromotionRuleResponse) => {
             return {
               id: rule.id!,
               attribute: rule.attribute,
-              operator: rule.operator as PromotionRuleOperatorValues,
+              operator: rule.operator,
               values: rule.values as unknown as string | string[],
             };
           }),
