@@ -45,9 +45,20 @@ export const GET = async (
     delete filterableFields.application_method_target_type
   }
 
+  const { data: sellerResources } = await query.graph({
+    entity: `${queryConfig.entryPoint}_seller`,
+    fields: [`${queryConfig.entryPoint}_id`],
+    filters: {
+      seller_id: req.auth_context.actor_id,
+    },
+  })
+
   const { data: rows, metadata } = await query.graph({
     entity: queryConfig.entryPoint,
-    filters: filterableFields,
+    filters: {
+      ...filterableFields,
+      id: sellerResources.map(r => r[`${queryConfig.entryPoint}_id`]),
+    },
     fields: [queryConfig.labelAttr, queryConfig.valueAttr],
     pagination: req.queryConfig.pagination,
   })
