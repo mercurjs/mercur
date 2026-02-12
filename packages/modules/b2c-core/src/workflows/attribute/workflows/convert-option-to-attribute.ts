@@ -1,6 +1,7 @@
 import {
   WorkflowResponse,
   createWorkflow,
+  transform,
 } from "@medusajs/framework/workflows-sdk";
 import { deleteProductOptionsWorkflow } from "@medusajs/medusa/core-flows";
 
@@ -21,16 +22,18 @@ type ConvertOptionToAttributeWorkflowInput = {
 export const convertOptionToAttributeWorkflow = createWorkflow(
   convertOptionToAttributeWorkflowId,
   (input: ConvertOptionToAttributeWorkflowInput) => {
+    const createAttributeValuesInput = transform({ input }, ({ input }) => ({
+      product_id: input.product_id,
+      attribute_id: input.attribute_id,
+      seller_id: input.seller_id,
+      values: input.values.map((value) => ({
+        value,
+        source: AttributeSource.VENDOR,
+      })),
+    }));
+
     const createdAttributeValues = createAndLinkAttributeValuesWorkflow.runAsStep({
-      input: {
-        product_id: input.product_id,
-        attribute_id: input.attribute_id,
-        seller_id: input.seller_id,
-        values: input.values.map((value) => ({
-          value,
-          source: AttributeSource.VENDOR,
-        })),
-      },
+      input: createAttributeValuesInput,
     });
 
     deleteProductOptionsWorkflow.runAsStep({

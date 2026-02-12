@@ -33,7 +33,7 @@ export const deleteAttributeValueWorkflow = createWorkflow(
       filters: {
         attribute_value_id: normalizedInput,
       },
-    });
+    }).config({ name: "attribute-value-product-query" });
 
     const attributeValueSellerQuery = useQueryGraphStep({
       entity: sellerAttributeValueLink.entryPoint,
@@ -41,7 +41,7 @@ export const deleteAttributeValueWorkflow = createWorkflow(
       filters: {
         attribute_value_id: normalizedInput,
       },
-    });
+    }).config({ name: "attribute-value-seller-query" });
 
     const deleted = deleteAttributeValueStep(normalizedInput);
 
@@ -60,8 +60,6 @@ export const deleteAttributeValueWorkflow = createWorkflow(
       }
     );
 
-    dismissRemoteLinkStep(productLinks);
-
     const sellerLinks = transform(
       { attributeValueSellerQuery },
       ({ attributeValueSellerQuery }) => {
@@ -77,7 +75,12 @@ export const deleteAttributeValueWorkflow = createWorkflow(
       }
     );
 
-    dismissRemoteLinkStep(sellerLinks);
+    const linksToDismiss = transform(
+      { productLinks, sellerLinks },
+      ({ productLinks, sellerLinks }) => [...productLinks, ...sellerLinks]
+    );
+
+    dismissRemoteLinkStep(linksToDismiss);
 
     return new WorkflowResponse(deleted);
   }

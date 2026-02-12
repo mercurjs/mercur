@@ -51,13 +51,13 @@ export const createAndLinkAttributeValuesWorkflow = createWorkflow(
       attribute_id: input.attribute_id,
       values: valuesBySource.adminValues,
       source: AttributeSource.ADMIN,
-    });
+    }).config({ name: "create-admin-attribute-values" });
 
     const createdVendorValues = createAttributeValuesStep({
       attribute_id: input.attribute_id,
       values: valuesBySource.vendorValues,
       source: AttributeSource.VENDOR,
-    });
+    }).config({ name: "create-vendor-attribute-values" });
 
     const createdAttributeValueIds = transform(
       { createdAdminValues, createdVendorValues },
@@ -78,7 +78,9 @@ export const createAndLinkAttributeValuesWorkflow = createWorkflow(
 
     when({ productLinks }, ({ productLinks }) => productLinks.length > 0).then(
       () => {
-        createRemoteLinkStep(productLinks);
+        createRemoteLinkStep(productLinks).config({
+          name: "create-product-attribute-value-links",
+        });
       }
     );
 
@@ -98,7 +100,9 @@ export const createAndLinkAttributeValuesWorkflow = createWorkflow(
 
     when({ sellerLinks }, ({ sellerLinks }) => sellerLinks.length > 0).then(
       () => {
-        createRemoteLinkStep(sellerLinks);
+        createRemoteLinkStep(sellerLinks).config({
+          name: "create-seller-attribute-value-links",
+        });
       }
     );
 
