@@ -15,6 +15,7 @@ import {
 import { useUpdateProduct } from "@hooks/api/products"
 import { useComboboxData } from "@hooks/use-combobox-data"
 import { fetchQuery } from "@lib/client"
+import { CategoryCombobox } from "@pages/products/common/components/category-combobox"
 
 type ProductOrganizationFormProps = {
   product: ExtendedAdminProduct
@@ -23,8 +24,7 @@ type ProductOrganizationFormProps = {
 const ProductOrganizationSchema = zod.object({
   type_id: zod.string().nullable(),
   collection_id: zod.string().nullable(),
-  category_ids: zod.string().nullable(),
-  // category_ids: zod.array(zod.string()),
+  categories: zod.array(zod.string()),
   tag_ids: zod.array(zod.string()),
 })
 
@@ -37,20 +37,6 @@ export const ProductOrganizationForm = ({
 
   const configs = getFormConfigs("product", "organize")
   const fields = getFormFields("product", "organize")
-
-  const categories = useComboboxData({
-    queryKey: ["product_categories"],
-    queryFn: (params) =>
-      fetchQuery("/vendor/product-categories", {
-        method: "GET",
-        query: params as Record<string, string | number>,
-      }),
-    getOptions: (data) =>
-      data.product_categories.map((category: any) => ({
-        label: category.name!,
-        value: category.id!,
-      })),
-  })
 
   const collections = useComboboxData({
     queryKey: ["product_collections"],
@@ -98,7 +84,7 @@ export const ProductOrganizationForm = ({
     defaultValues: {
       type_id: product.type_id ?? "",
       collection_id: product.collection_id ?? "",
-      category_ids: product.categories?.[0]?.id || "",
+      categories: product.categories?.map((c) => c.id) || [],
       tag_ids: product.tags?.map((t) => t.id) || [],
     },
     schema: ProductOrganizationSchema,
@@ -113,7 +99,7 @@ export const ProductOrganizationForm = ({
       {
         type_id: data.type_id ? data.type_id : undefined,
         collection_id: data.collection_id ? data.collection_id : undefined,
-        categories: data.category_ids ? [{ id: data.category_ids }] : [],
+        categories: data.categories?.map((id) => ({ id })) ?? [],
         tags: data.tag_ids?.map((t) => ({ id: t })) ?? [],
       },
       {
@@ -185,7 +171,7 @@ export const ProductOrganizationForm = ({
             />
             <Form.Field
               control={form.control}
-              name="category_ids"
+              name="categories"
               render={({ field }) => {
                 return (
                   <Form.Item>
@@ -193,14 +179,7 @@ export const ProductOrganizationForm = ({
                       {t("products.fields.categories.label")}
                     </Form.Label>
                     <Form.Control>
-                      {/* <CategoryCombobox {...field} /> */}
-                      <Combobox
-                        {...field}
-                        multiple={false}
-                        options={categories.options}
-                        onSearchValueChange={categories.onSearchValueChange}
-                        searchValue={categories.searchValue}
-                      />
+                      <CategoryCombobox {...field} />
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
