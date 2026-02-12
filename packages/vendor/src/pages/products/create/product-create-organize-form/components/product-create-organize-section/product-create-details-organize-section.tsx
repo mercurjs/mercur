@@ -1,37 +1,34 @@
-import { Heading } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import { Heading } from "@medusajs/ui";
+import { UseFormReturn } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
-import { Form } from "@components/common/form"
-import { SwitchBox } from "@components/common/switch-box"
-import { Combobox } from "@components/inputs/combobox"
-import { useComboboxData } from "@hooks/use-combobox-data"
-import { fetchQuery } from "@lib/client"
-import { ProductCreateSchemaType } from "../../../../types"
-import { CategoryCombobox } from "@pages/products/common/components/category-combobox"
+import { Form } from "@components/common/form";
+import { SwitchBox } from "@components/common/switch-box";
+import { Combobox } from "@components/inputs/combobox";
+import { useComboboxData } from "@hooks/use-combobox-data";
+import { sdk, fetchQuery } from "@lib/client";
+import { ProductCreateSchemaType } from "../../../../types";
+import { CategoryCombobox } from "@pages/products/common/components/category-combobox";
 
 type ProductCreateOrganizationSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
+  form: UseFormReturn<ProductCreateSchemaType>;
+};
 
 export const ProductCreateOrganizationSection = ({
   form,
 }: ProductCreateOrganizationSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const collections = useComboboxData({
     queryKey: ["product_collections"],
     queryFn: (params) =>
-      fetchQuery("/vendor/product-collections", {
-        method: "GET",
-        query: params,
-      }),
+      sdk.vendor.collections.query({ offset: 0, limit: 100, ...params }),
     getOptions: (data) =>
-      data.product_collections.map((collection: any) => ({
+      data.collections.map((collection: any) => ({
         label: collection.title!,
         value: collection.id!,
       })),
-  })
+  });
 
   const types = useComboboxData({
     queryKey: ["product_types", "creating"],
@@ -45,7 +42,7 @@ export const ProductCreateOrganizationSection = ({
         label: type.value,
         value: type.id,
       })),
-  })
+  });
 
   const tags = useComboboxData({
     queryKey: ["product_tags", "creating"],
@@ -59,7 +56,7 @@ export const ProductCreateOrganizationSection = ({
         label: tag.value,
         value: tag.id,
       })),
-  })
+  });
 
   return (
     <div id="organize" className="flex flex-col gap-y-8">
@@ -93,7 +90,7 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
-            )
+            );
           }}
         />
         <Form.Field
@@ -117,7 +114,7 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
-            )
+            );
           }}
         />
       </div>
@@ -137,7 +134,7 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
-            )
+            );
           }}
         />
         <Form.Field
@@ -160,10 +157,10 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
-            )
+            );
           }}
         />
       </div>
     </div>
-  )
-}
+  );
+};
