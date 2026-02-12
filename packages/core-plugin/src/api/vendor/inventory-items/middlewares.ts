@@ -12,6 +12,7 @@ import {
 
 import { vendorInventoryItemQueryConfig, vendorLocationLevelQueryConfig } from "./query-config"
 import {
+  VendorBatchInventoryItemLevels,
   VendorBatchInventoryItemLocationsLevel,
   VendorCreateInventoryItem,
   VendorCreateInventoryLocationLevel,
@@ -93,6 +94,17 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetInventoryLocationLevelsParams,
         vendorLocationLevelQueryConfig.list
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/inventory-items/location-levels/batch",
+    middlewares: [
+      validateAndTransformBody(VendorBatchInventoryItemLevels),
+      validateAndTransformQuery(
+        VendorGetInventoryLocationLevelParams,
+        vendorLocationLevelQueryConfig.retrieve
       ),
     ],
   },

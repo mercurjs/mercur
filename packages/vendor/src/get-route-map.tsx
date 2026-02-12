@@ -402,6 +402,10 @@ export function getRouteMap({
                         path: "create",
                         lazy: () => import("./pages/inventory/create"),
                       },
+                      {
+                        path: "stock",
+                        lazy: () => import("./pages/inventory/[id]/stock"),
+                      },
                     ],
                   },
                   {
@@ -433,10 +437,6 @@ export function getRouteMap({
                             path: "attributes",
                             lazy: () =>
                               import("./pages/inventory/[id]/_components/edit-inventory-item-attributes"),
-                          },
-                          {
-                            path: "stock",
-                            lazy: () => import("./pages/inventory/[id]/stock"),
                           },
                           {
                             path: "metadata",

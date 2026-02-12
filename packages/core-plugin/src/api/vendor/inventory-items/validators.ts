@@ -91,6 +91,25 @@ export const VendorBatchInventoryItemLocationsLevel = z.object({
   force: z.boolean().optional(),
 })
 
+const VendorBatchInventoryLocationLevel = z.object({
+  inventory_item_id: z.string(),
+  location_id: z.string(),
+  stocked_quantity: z.number().min(0).optional(),
+  incoming_quantity: z.number().min(0).optional(),
+})
+
+export type VendorBatchInventoryItemLevelsType = z.infer<
+  typeof VendorBatchInventoryItemLevels
+>
+export const VendorBatchInventoryItemLevels = z
+  .object({
+    create: z.array(VendorBatchInventoryLocationLevel).optional(),
+    update: z.array(VendorBatchInventoryLocationLevel).optional(),
+    delete: z.array(z.string()).optional(),
+    force: z.boolean().optional(),
+  })
+  .strict()
+
 export type VendorUpdateInventoryLocationLevelType = z.infer<
   typeof VendorUpdateInventoryLocationLevel
 >
