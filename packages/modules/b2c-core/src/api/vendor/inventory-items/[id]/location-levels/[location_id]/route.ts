@@ -171,7 +171,14 @@ export const DELETE = async (
     entity: "inventory_level",
     filters: { inventory_item_id: id, location_id },
     fields: ["id", "reserved_quantity"],
-  }, { throwIfKeyNotFound: true });
+  });
+
+  if (result.data.length === 0) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Inventory Level for given parameters not found.`
+    )
+  }
 
   const { id: levelId, reserved_quantity: reservedQuantity } = result.data[0]
 

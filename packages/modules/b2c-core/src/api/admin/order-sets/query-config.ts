@@ -18,6 +18,7 @@ export const adminOrderSetFields = [
   'orders.total',
   'orders.subtotal',
   'orders.tax_total',
+  'orders.currency_code',
   'orders.order_change',
   'orders.discount_total',
   'orders.discount_tax_total',
@@ -50,7 +51,10 @@ export const adminOrderSetFields = [
   'orders.shipping_methods.adjustments.*',
   'orders.payment_collections.*',
   'orders.payment_collections.payments.*',
-  'orders.payment_collections.payments.refunds.*'
+  'orders.payment_collections.payments.refunds.*',
+  'orders.seller.*',
+  'orders.fulfillments.*',
+  'orders.customer.*'
 ]
 
 export const adminOrderSetQueryConfig = {
