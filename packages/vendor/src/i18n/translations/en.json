@@ -410,6 +410,12 @@
   },
   "products": {
     "domain": "Products",
+    "bulkDelete": {
+      "title": "Delete Products",
+      "description": "You are about to delete {{count}} product(s). This action cannot be undone.",
+      "success": "Successfully deleted {{count}} product(s).",
+      "error": "Failed to delete products."
+    },
     "list": {
       "noRecordsMessage": "Create your first product to start selling."
     },
