@@ -5,12 +5,35 @@ import {
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
+  refetchEntity,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import {
+  remapKeysForVariant,
+  remapVariantResponse,
+} from "@medusajs/medusa/api/admin/products/helpers"
 import { HttpTypes } from "@mercurjs/types"
 
 import { validateSellerProduct } from "../../../helpers"
 import { VendorUpdateProductVariantType } from "../../../validators"
+
+export const GET = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  const sellerId = req.auth_context.actor_id
+
+  await validateSellerProduct(req.scope, sellerId, req.params.id)
+
+  const variant = await refetchEntity({
+    entity: "variant",
+    idOrFilter: { id: req.params.variant_id, product_id: req.params.id },
+    scope: req.scope,
+    fields: remapKeysForVariant(req.queryConfig.fields ?? []),
+  })
+
+  res.status(200).json({ variant: remapVariantResponse(variant) })
+}
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateProductVariantType>,

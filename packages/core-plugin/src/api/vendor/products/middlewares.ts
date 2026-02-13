@@ -20,6 +20,7 @@ import {
   VendorCreateProductVariant,
   VendorGetProductParams,
   VendorGetProductsParams,
+  VendorGetProductVariantParams,
   VendorGetProductVariantsParams,
   VendorUpdateProduct,
   VendorUpdateProductOption,
@@ -109,6 +110,16 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/vendor/products/:id/variants/:variant_id",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetProductVariantParams,
+        vendorProductVariantQueryConfig.retrieve
       ),
     ],
   },
