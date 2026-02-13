@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   BuildingStorefront,
   Buildings,
   CogSixTooth,
@@ -9,21 +10,21 @@ import {
   ReceiptPercent,
   ShoppingCart,
   Tag,
+  TimelineVertical,
   Users,
 } from "@medusajs/icons";
 import { Avatar, Divider, DropdownMenu, Text, clx } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
-import { useStore } from "../../../hooks/api/store";
 import { Skeleton } from "../../common/skeleton";
 import { INavItem, NavItem } from "../../layout/nav-item";
 import { Shell } from "../../layout/shell";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useLogout } from "../../../hooks/api";
+import { useLogout, useMe } from "../../../hooks/api";
 import { queryClient } from "../../../lib/query-client";
 import { useSearch } from "../../../providers/search-provider";
-import { UserMenu } from "../user-menu";
+import { ThemeToggle, UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
@@ -42,7 +43,7 @@ const allMenuItems = menuItemsModule.menuItems ?? [];
 
 const addNestedItems = (
   to: string,
-  items?: { label: string; to: string; translationNs?: string }[]
+  items?: { label: string; to: string; translationNs?: string }[],
 ) => {
   const nestedItems = getNestedMenuItems(allMenuItems, to);
   if (nestedItems.length === 0) {
@@ -103,9 +104,9 @@ const MainSidebar = () => {
           </div>
           <UtilitySection />
         </div>
-        <div className="bg-ui-bg-subtle sticky bottom-0">
+        {/* <div className="bg-ui-bg-subtle sticky bottom-0">
           <UserSection />
-        </div>
+        </div> */}
       </div>
     </aside>
   );
@@ -141,12 +142,12 @@ const Logout = () => {
 
 const Header = () => {
   const { t } = useTranslation();
-  const { store, isPending, isError, error } = useStore();
+  const { seller, isPending, isError, error } = useMe();
   const direction = useDocumentDirection();
-  const name = store?.name;
-  const fallback = store?.name?.slice(0, 1).toUpperCase();
+  const name = seller?.name;
+  const fallback = seller?.name?.slice(0, 1).toUpperCase();
 
-  const isLoaded = !isPending && !!store && !!name && !!fallback;
+  const isLoaded = !isPending && !!seller && !!name && !!fallback;
 
   if (isError) {
     throw error;
@@ -161,7 +162,7 @@ const Header = () => {
             "bg-ui-bg-subtle transition-fg grid w-full grid-cols-[24px_1fr_15px] items-center gap-x-3 rounded-md p-0.5 pe-2 outline-none",
             "hover:bg-ui-bg-subtle-hover",
             "data-[state=open]:bg-ui-bg-subtle-hover",
-            "focus-visible:shadow-borders-focus"
+            "focus-visible:shadow-borders-focus",
           )}
         >
           {fallback ? (
@@ -177,7 +178,7 @@ const Header = () => {
                 leading="compact"
                 className="truncate"
               >
-                {store.name}
+                {seller.name}
               </Text>
             ) : (
               <Skeleton className="h-[9px] w-[120px]" />
@@ -203,7 +204,7 @@ const Header = () => {
                   leading="compact"
                   className="text-ui-fg-subtle"
                 >
-                  {t("app.nav.main.store")}
+                  {t("app.menus.seller.label")}
                 </Text>
               </div>
             </div>
@@ -211,9 +212,24 @@ const Header = () => {
             <DropdownMenu.Item className="gap-x-2" asChild>
               <Link to="/settings/store">
                 <BuildingStorefront className="text-ui-fg-subtle" />
-                {t("app.nav.main.storeSettings")}
+                {t("app.menus.seller.sellerSettings")}
               </Link>
             </DropdownMenu.Item>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item asChild>
+              <Link to="https://docs.mercurjs.com" target="_blank">
+                <BookOpen className="text-ui-fg-subtle me-2" />
+                {t("app.menus.user.documentation")}
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item asChild>
+              <Link to="https://www.mercurjs.com/updates" target="_blank">
+                <TimelineVertical className="text-ui-fg-subtle me-2" />
+                {t("app.menus.user.changelog")}
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator />
+            <ThemeToggle />
             <DropdownMenu.Separator />
             <Logout />
           </DropdownMenu.Content>
@@ -301,7 +317,7 @@ const Searchbar = () => {
         className={clx(
           "bg-ui-bg-subtle text-ui-fg-subtle flex w-full items-center gap-x-2.5 rounded-md px-2 py-1 outline-none",
           "hover:bg-ui-bg-subtle-hover",
-          "focus-visible:shadow-borders-focus"
+          "focus-visible:shadow-borders-focus",
         )}
       >
         <MagnifyingGlass />

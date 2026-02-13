@@ -248,6 +248,10 @@
         "label": "Store",
         "storeSettings": "Store settings"
       },
+      "seller": {
+        "label": "Seller",
+        "sellerSettings": "Seller settings"
+      },
       "actions": {
         "logout": "Log out"
       }

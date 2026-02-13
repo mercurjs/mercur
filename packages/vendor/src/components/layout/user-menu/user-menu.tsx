@@ -7,7 +7,7 @@ import {
   TimelineVertical,
   User as UserIcon,
   XMark,
-} from "@medusajs/icons"
+} from "@medusajs/icons";
 import {
   Avatar,
   DropdownMenu,
@@ -17,32 +17,32 @@ import {
   Kbd,
   Text,
   clx,
-} from "@medusajs/ui"
-import { Dialog as RadixDialog } from "radix-ui"
-import { useTranslation } from "react-i18next"
+} from "@medusajs/ui";
+import { Dialog as RadixDialog } from "radix-ui";
+import { useTranslation } from "react-i18next";
 
-import { Skeleton } from "../../common/skeleton"
+import { Skeleton } from "../../common/skeleton";
 
-import { useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { useLogout, useMe } from "../../../hooks/api"
-import { queryClient } from "../../../lib/query-client"
-import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
-import { useTheme } from "../../../providers/theme-provider"
-import { useDocumentDirection } from "../../../hooks/use-document-direction"
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLogout, useMe } from "../../../hooks/api";
+import { queryClient } from "../../../lib/query-client";
+import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks";
+import { useTheme } from "../../../providers/theme-provider";
+import { useDocumentDirection } from "../../../hooks/use-document-direction";
 
 export const UserMenu = () => {
-  const { t } = useTranslation()
-  const location = useLocation()
-  const direction = useDocumentDirection()
+  const { t } = useTranslation();
+  const location = useLocation();
+  const direction = useDocumentDirection();
 
-  const [openMenu, setOpenMenu] = useState(false)
-  const [openModal, setOpenModal] = useState(false)
+  const [openMenu, setOpenMenu] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const toggleModal = () => {
-    setOpenMenu(false)
-    setOpenModal(!openModal)
-  }
+    setOpenMenu(false);
+    setOpenModal(!openModal);
+  };
 
   return (
     <div>
@@ -82,15 +82,15 @@ export const UserMenu = () => {
       </DropdownMenu>
       <GlobalKeybindsModal open={openModal} onOpenChange={setOpenModal} />
     </div>
-  )
-}
+  );
+};
 
 const UserBadge = () => {
-  const { seller, isPending, isError, error } = useMe()
+  const { seller, isPending, isError, error } = useMe();
 
-  const displayName = seller?.name || seller?.email
+  const displayName = seller?.name || seller?.email;
 
-  const fallback = displayName ? displayName[0].toUpperCase() : null
+  const fallback = displayName ? displayName[0].toUpperCase() : null;
 
   if (isPending) {
     return (
@@ -98,11 +98,11 @@ const UserBadge = () => {
         <Skeleton className="h-5 w-5 rounded-full" />
         <Skeleton className="h-[9px] w-[70px]" />
       </button>
-    )
+    );
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -113,7 +113,7 @@ const UserBadge = () => {
           "bg-ui-bg-subtle grid w-full cursor-pointer grid-cols-[24px_1fr_15px] items-center gap-2 rounded-md py-1 ps-0.5 pe-2 outline-none",
           "hover:bg-ui-bg-subtle-hover",
           "data-[state=open]:bg-ui-bg-subtle-hover",
-          "focus-visible:shadow-borders-focus"
+          "focus-visible:shadow-borders-focus",
         )}
       >
         <div className="flex size-6 items-center justify-center">
@@ -140,26 +140,31 @@ const UserBadge = () => {
         <EllipsisHorizontal className="text-ui-fg-muted" />
       </DropdownMenu.Trigger>
     </div>
-  )
-}
+  );
+};
 
-const ThemeToggle = () => {
-  const { t } = useTranslation()
-  const { theme, setTheme } = useTheme()
+export const ThemeToggle = () => {
+  const { t } = useTranslation();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu.SubMenu>
-      <DropdownMenu.SubMenuTrigger dir="ltr" className="rounded-md rtl:rotate-180">
+      <DropdownMenu.SubMenuTrigger
+        dir="ltr"
+        className="rounded-md rtl:rotate-180"
+      >
         <CircleHalfSolid className="text-ui-fg-subtle me-2" />
-        <span className="rtl:rotate-180">{t("app.menus.user.theme.label")}</span>
+        <span className="rtl:rotate-180">
+          {t("app.menus.user.theme.label")}
+        </span>
       </DropdownMenu.SubMenuTrigger>
       <DropdownMenu.SubMenuContent>
         <DropdownMenu.RadioGroup value={theme}>
           <DropdownMenu.RadioItem
             value="system"
             onClick={(e) => {
-              e.preventDefault()
-              setTheme("system")
+              e.preventDefault();
+              setTheme("system");
             }}
           >
             {t("app.menus.user.theme.system")}
@@ -167,8 +172,8 @@ const ThemeToggle = () => {
           <DropdownMenu.RadioItem
             value="light"
             onClick={(e) => {
-              e.preventDefault()
-              setTheme("light")
+              e.preventDefault();
+              setTheme("light");
             }}
           >
             {t("app.menus.user.theme.light")}
@@ -176,8 +181,8 @@ const ThemeToggle = () => {
           <DropdownMenu.RadioItem
             value="dark"
             onClick={(e) => {
-              e.preventDefault()
-              setTheme("dark")
+              e.preventDefault();
+              setTheme("dark");
             }}
           >
             {t("app.menus.user.theme.dark")}
@@ -185,14 +190,14 @@ const ThemeToggle = () => {
         </DropdownMenu.RadioGroup>
       </DropdownMenu.SubMenuContent>
     </DropdownMenu.SubMenu>
-  )
-}
+  );
+};
 
 const Logout = () => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const { mutateAsync: logoutMutation } = useLogout()
+  const { mutateAsync: logoutMutation } = useLogout();
 
   const handleLogout = async () => {
     await logoutMutation(undefined, {
@@ -200,11 +205,11 @@ const Logout = () => {
         /**
          * When the user logs out, we want to clear the query cache
          */
-        queryClient.clear()
-        navigate("/login")
+        queryClient.clear();
+        navigate("/login");
       },
-    })
-  }
+    });
+  };
 
   return (
     <DropdownMenu.Item onClick={handleLogout}>
@@ -213,23 +218,25 @@ const Logout = () => {
         <span>{t("app.menus.actions.logout")}</span>
       </div>
     </DropdownMenu.Item>
-  )
-}
+  );
+};
 
 const GlobalKeybindsModal = (props: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation()
-  const globalShortcuts = useGlobalShortcuts()
+  const { t } = useTranslation();
+  const globalShortcuts = useGlobalShortcuts();
 
-  const [searchValue, onSearchValueChange] = useState("")
+  const [searchValue, onSearchValueChange] = useState("");
 
   const searchResults = searchValue
     ? globalShortcuts.filter((shortcut) => {
-        return shortcut.label.toLowerCase().includes(searchValue?.toLowerCase())
+        return shortcut.label
+          .toLowerCase()
+          .includes(searchValue?.toLowerCase());
       })
-    : globalShortcuts
+    : globalShortcuts;
 
   return (
     <RadixDialog.Root {...props}>
@@ -280,35 +287,35 @@ const GlobalKeybindsModal = (props: {
                             </span>
                           )}
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>
-  )
-}
+  );
+};
 
 const UserItem = () => {
-  const { seller, isPending, isError, error } = useMe()
+  const { seller, isPending, isError, error } = useMe();
 
-  const loaded = !isPending && !!seller
+  const loaded = !isPending && !!seller;
 
   if (!loaded) {
-    return <div></div>
+    return <div></div>;
   }
 
-  const displayName = seller.name || seller.email
-  const email = seller.email
-  const fallback = displayName ? displayName[0].toUpperCase() : "S"
-  const avatar = seller.logo
+  const displayName = seller.name || seller.email;
+  const email = seller.email;
+  const fallback = displayName ? displayName[0].toUpperCase() : "S";
+  const avatar = seller.logo;
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -339,5 +346,5 @@ const UserItem = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
