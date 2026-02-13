@@ -1,74 +1,74 @@
-import { default as debounceFn } from "lodash.debounce"
-import { useCallback, useContext, useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
-import { useNavigate } from "react-router-dom"
+import { default as debounceFn } from "lodash.debounce";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
-import { useLogout } from "../../hooks/api/auth"
-import { queryClient } from "../../lib/query-client"
-import { KeybindContext } from "./keybind-context"
-import { Shortcut } from "./types"
-import { findShortcut } from "./utils"
+import { useLogout } from "../../hooks/api/auth";
+import { queryClient } from "../../lib/query-client";
+import { KeybindContext } from "./keybind-context";
+import { Shortcut } from "./types";
+import { findShortcut } from "./utils";
 
 export const useKeybind = () => {
-  const context = useContext(KeybindContext)
+  const context = useContext(KeybindContext);
 
   if (!context) {
-    throw new Error("useKeybind must be used within a KeybindProvider")
+    throw new Error("useKeybind must be used within a KeybindProvider");
   }
 
-  return context
-}
+  return context;
+};
 
-export const useRegisterShortcut = () => {}
+export const useRegisterShortcut = () => {};
 
 export const useShortcuts = ({
   shortcuts = [],
   debounce,
 }: {
-  shortcuts?: Shortcut[]
-  debounce: number
+  shortcuts?: Shortcut[];
+  debounce: number;
 }) => {
-  const [keys, setKeys] = useState<string[]>([])
-  const navigate = useNavigate()
+  const [keys, setKeys] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const removeKeys = useCallback(
     debounceFn(() => setKeys([]), debounce),
-    []
-  )
+    [],
+  );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const invokeShortcut = useCallback(
     debounceFn((shortcut: Shortcut | null) => {
       if (shortcut && shortcut.callback) {
-        shortcut.callback()
-        setKeys([])
+        shortcut.callback();
+        setKeys([]);
 
-        return
+        return;
       }
 
       if (shortcut && shortcut.to) {
-        navigate(shortcut.to)
-        setKeys([])
+        navigate(shortcut.to);
+        setKeys([]);
 
-        return
+        return;
       }
     }, debounce / 2),
-    []
-  )
+    [],
+  );
 
   useEffect(() => {
     if (keys.length > 0 && shortcuts.length > 0) {
-      const shortcut = findShortcut(shortcuts, keys)
-      invokeShortcut(shortcut)
+      const shortcut = findShortcut(shortcuts, keys);
+      invokeShortcut(shortcut);
     }
 
-    return () => invokeShortcut.cancel()
-  }, [keys, shortcuts, invokeShortcut])
+    return () => invokeShortcut.cancel();
+  }, [keys, shortcuts, invokeShortcut]);
 
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement
+      const target = event.target as HTMLElement;
 
       /**
        * Ignore key events from input, textarea and contenteditable elements
@@ -78,36 +78,36 @@ export const useShortcuts = ({
         target.tagName === "TEXTAREA" ||
         target.contentEditable === "true"
       ) {
-        removeKeys()
-        return
+        removeKeys();
+        return;
       }
 
-      setKeys((oldKeys) => [...oldKeys, event.key])
-      removeKeys()
-    }
+      setKeys((oldKeys) => [...oldKeys, event.key]);
+      removeKeys();
+    };
 
-    window.addEventListener("keydown", listener)
+    window.addEventListener("keydown", listener);
 
     return () => {
-      window.removeEventListener("keydown", listener)
-    }
-  }, [removeKeys])
-}
+      window.removeEventListener("keydown", listener);
+    };
+  }, [removeKeys]);
+};
 
 export const useGlobalShortcuts = () => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const { mutateAsync } = useLogout()
+  const { mutateAsync } = useLogout();
 
   const handleLogout = async () => {
     await mutateAsync(undefined, {
       onSuccess: () => {
-        queryClient.clear()
-        navigate("/login")
+        queryClient.clear();
+        navigate("/login");
       },
-    })
-  }
+    });
+  };
 
   const globalShortcuts: Shortcut[] = [
     // Pages
@@ -198,7 +198,7 @@ export const useGlobalShortcuts = () => {
       },
       label: t("app.keyboardShortcuts.settings.goToStore"),
       type: "settingShortcut",
-      to: "/settings/store",
+      to: "/settings/seller",
     },
     {
       keys: {
@@ -225,7 +225,7 @@ export const useGlobalShortcuts = () => {
       type: "commandShortcut",
       callback: () => handleLogout(),
     },
-  ]
+  ];
 
-  return globalShortcuts
-}
+  return globalShortcuts;
+};

@@ -11,7 +11,6 @@ import { UserMenu } from "../user-menu";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
 import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
-import { MenuItem } from "../../../utils/routes";
 
 export const SettingsLayout = () => {
   const Sidebar = components.SettingsSidebar
@@ -31,9 +30,13 @@ const useSettingRoutes = (): INavItem[] => {
   return useMemo(
     () => [
       {
-        label: t("store.domain", "Store"),
-        to: "/settings/store",
+        label: t("seller.domain", "Seller"),
+        to: "/settings/seller",
       },
+      // {
+      //   label: t("users.domain"),
+      //   to: "/settings/users",
+      // },
       {
         label: t("productTypes.domain"),
         to: "/settings/product-types",
@@ -47,10 +50,9 @@ const useSettingRoutes = (): INavItem[] => {
         to: "/settings/locations",
       },
     ],
-    [t]
+    [t],
   );
 };
-
 
 /**
  * Ensure that the `from` prop is not another settings route, to avoid
@@ -62,27 +64,6 @@ const getSafeFromValue = (from: string) => {
   }
 
   return from;
-};
-
-const injectNestedSettingsItems = (
-  routes: INavItem[],
-  allMenuItems: MenuItem[]
-): INavItem[] => {
-  return routes.flatMap((route) => {
-    const nestedItems = getNestedMenuItems(allMenuItems, route.to);
-    if (nestedItems.length === 0) {
-      return [route];
-    }
-
-    return [
-      route,
-      ...nestedItems.map((item) => ({
-        label: item.label,
-        to: item.path,
-        translationNs: item.translationNs,
-      })),
-    ];
-  });
 };
 
 const SettingsSidebar = () => {
@@ -148,7 +129,7 @@ const Header = () => {
         className={clx(
           "bg-ui-bg-subtle transition-fg flex items-center rounded-md outline-none",
           "hover:bg-ui-bg-subtle-hover",
-          "focus-visible:shadow-borders-focus"
+          "focus-visible:shadow-borders-focus",
         )}
       >
         <div className="flex items-center gap-x-2.5 px-2 py-1">

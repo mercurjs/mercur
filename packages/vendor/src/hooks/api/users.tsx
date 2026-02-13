@@ -120,6 +120,23 @@ export const useDeleteUser = (
   });
 };
 
+export const useUpdateMe = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.vendor.sellers.me.mutate>,
+    ClientError,
+    Omit<InferClientInput<typeof sdk.vendor.sellers.me.mutate>, "$id">
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.vendor.sellers.me.mutate(payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
 export const useUserMe = (
   query?: Record<string, any>,
   options?: UseQueryOptions<any, Error, any>

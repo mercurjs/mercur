@@ -508,9 +508,7 @@ export function getRouteMap({
                           {
                             path: ":ruleType/edit",
                             lazy: () =>
-                              import(
-                                "./pages/promotions/[id]/[ruleType]/edit"
-                              ),
+                              import("./pages/promotions/[id]/[ruleType]/edit"),
                           },
                         ],
                       },
@@ -713,23 +711,19 @@ export function getRouteMap({
 
               // STORE
               {
-                path: "store",
+                path: "seller",
                 errorElement: <ErrorBoundary />,
                 handle: {
-                  breadcrumb: () => t("store.domain", "Store"),
+                  breadcrumb: () => t("seller.domain", "Seller"),
                 },
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/settings/store"),
+                    lazy: () => import("./pages/settings/seller"),
                     children: [
                       {
                         path: "edit",
-                        lazy: () => import("./pages/settings/store/edit"),
-                      },
-                      {
-                        path: "edit-company",
-                        lazy: () => import("./pages/settings/store/edit-company"),
+                        lazy: () => import("./pages/settings/seller/edit"),
                       },
                     ],
                   },

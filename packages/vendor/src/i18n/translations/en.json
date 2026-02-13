@@ -250,7 +250,8 @@
       },
       "seller": {
         "label": "Seller",
-        "sellerSettings": "Seller settings"
+        "sellerSettings": "Seller settings",
+        "editSeller": "Edit Seller"
       },
       "actions": {
         "logout": "Log out"
@@ -411,6 +412,9 @@
   },
   "sales_channels": {
     "availableIn": "Available in <0>{{x}}</0> of <1>{{y}}</1> sales channels"
+  },
+  "seller": {
+    "domain": "Seller"
   },
   "products": {
     "domain": "Products",
