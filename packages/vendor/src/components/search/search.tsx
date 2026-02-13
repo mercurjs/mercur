@@ -6,9 +6,9 @@ import {
   IconButton,
   Kbd,
   Text,
-} from "@medusajs/ui"
-import { Command } from "cmdk"
-import { Dialog as RadixDialog } from "radix-ui"
+} from "@medusajs/ui";
+import { Command } from "cmdk";
+import { Dialog as RadixDialog } from "radix-ui";
 import {
   Children,
   ComponentPropsWithoutRef,
@@ -21,9 +21,9 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react"
-import { useTranslation } from "react-i18next"
-import { useLocation, useNavigate } from "react-router-dom"
+} from "react";
+import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import {
   ArrowUturnLeft,
@@ -31,123 +31,124 @@ import {
   Plus,
   Spinner,
   TriangleDownMini,
-} from "@medusajs/icons"
-import { matchSorter } from "match-sorter"
+} from "@medusajs/icons";
+import { matchSorter } from "match-sorter";
 
-import { useSearch } from "../../providers/search-provider"
-import { Skeleton } from "../common/skeleton"
-import { Thumbnail } from "../common/thumbnail"
+import { useSearch } from "../../providers/search-provider";
+import { Skeleton } from "../common/skeleton";
+import { Thumbnail } from "../common/thumbnail";
 import {
   DEFAULT_SEARCH_LIMIT,
   SEARCH_AREAS,
   SEARCH_LIMIT_INCREMENT,
-} from "./constants"
-import { SearchArea } from "./types"
-import { useSearchResults } from "./use-search-results"
-import { useDocumentDirection } from "../../hooks/use-document-direction"
+} from "./constants";
+import { SearchArea } from "./types";
+import { useSearchResults } from "./use-search-results";
+import { useDocumentDirection } from "../../hooks/use-document-direction";
 
 export const Search = () => {
-  const [area, setArea] = useState<SearchArea>("all")
-  const [search, setSearch] = useState("")
-  const [limit, setLimit] = useState(DEFAULT_SEARCH_LIMIT)
-  const { open, onOpenChange } = useSearch()
-  const location = useLocation()
-  const { t } = useTranslation()
-  const navigate = useNavigate()
+  const [area, setArea] = useState<SearchArea>("all");
+  const [search, setSearch] = useState("");
+  const [limit, setLimit] = useState(DEFAULT_SEARCH_LIMIT);
+  const { open, onOpenChange } = useSearch();
+  const location = useLocation();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-
-  const inputRef = useRef<HTMLInputElement>(null)
-  const listRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const { staticResults, dynamicResults, isFetching } = useSearchResults({
     area,
     limit,
     q: search,
-  })
+  });
 
   const handleReset = useCallback(() => {
-    setArea("all")
-    setSearch("")
-    setLimit(DEFAULT_SEARCH_LIMIT)
-  }, [setLimit])
+    setArea("all");
+    setSearch("");
+    setLimit(DEFAULT_SEARCH_LIMIT);
+  }, [setLimit]);
 
   const handleBack = () => {
-    handleReset()
-    inputRef.current?.focus()
-  }
+    handleReset();
+    inputRef.current?.focus();
+  };
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
-        handleReset()
+        handleReset();
       }
 
-      onOpenChange(open)
+      onOpenChange(open);
     },
-    [onOpenChange, handleReset]
-  )
+    [onOpenChange, handleReset],
+  );
 
   useEffect(() => {
-    handleOpenChange(false)
-  }, [location.pathname, handleOpenChange])
+    handleOpenChange(false);
+  }, [location.pathname, handleOpenChange]);
 
   const handleSelect = (item: { to?: string; callback?: () => void }) => {
-    handleOpenChange(false)
+    handleOpenChange(false);
 
     if (item.to) {
-      navigate(item.to)
-      return
+      navigate(item.to);
+      return;
     }
 
     if (item.callback) {
-      item.callback()
-      return
+      item.callback();
+      return;
     }
-  }
+  };
 
   const handleShowMore = (area: SearchArea) => {
     if (area === "all") {
-      setLimit(DEFAULT_SEARCH_LIMIT)
+      setLimit(DEFAULT_SEARCH_LIMIT);
     } else {
-      setLimit(SEARCH_LIMIT_INCREMENT)
+      setLimit(SEARCH_LIMIT_INCREMENT);
     }
-    setArea(area)
-    inputRef.current?.focus()
-  }
+    setArea(area);
+    inputRef.current?.focus();
+  };
 
   const handleLoadMore = () => {
-    setLimit((l) => l + SEARCH_LIMIT_INCREMENT)
-  }
+    setLimit((l) => l + SEARCH_LIMIT_INCREMENT);
+  };
 
   const filteredStaticResults = useMemo(() => {
-    const filteredResults: typeof staticResults = []
+    const filteredResults: typeof staticResults = [];
 
     staticResults.forEach((group) => {
       const filteredItems = matchSorter(group.items, search, {
         keys: ["label"],
-      })
+      });
 
       if (filteredItems.length === 0) {
-        return
+        return;
       }
 
       filteredResults.push({
         ...group,
         items: filteredItems,
-      })
-    })
+      });
+    });
 
-    return filteredResults
-  }, [staticResults, search])
+    return filteredResults;
+  }, [staticResults, search]);
 
   const handleSearch = (q: string) => {
-    setSearch(q)
-    listRef.current?.scrollTo({ top: 0 })
-  }
+    setSearch(q);
+    listRef.current?.scrollTo({ top: 0 });
+  };
 
   const showLoading = useMemo(() => {
-    return isFetching && !dynamicResults.length && !filteredStaticResults.length
-  }, [isFetching, dynamicResults, filteredStaticResults])
+    return (
+      isFetching && !dynamicResults.length && !filteredStaticResults.length
+    );
+  }, [isFetching, dynamicResults, filteredStaticResults]);
 
   return (
     <CommandDialog open={open} onOpenChange={handleOpenChange}>
@@ -190,7 +191,7 @@ export const Search = () => {
                       )}
                     </div>
                   </CommandItem>
-                )
+                );
               })}
               {group.hasMore && area === "all" && (
                 <CommandItem
@@ -218,7 +219,7 @@ export const Search = () => {
                       {t("app.search.loadMore", {
                         count: Math.min(
                           SEARCH_LIMIT_INCREMENT,
-                          group.count - limit
+                          group.count - limit,
                         ),
                       })}
                     </Text>
@@ -226,7 +227,7 @@ export const Search = () => {
                 </CommandItem>
               )}
             </CommandGroup>
-          )
+          );
         })}
         {filteredStaticResults.map((group) => {
           return (
@@ -256,20 +257,20 @@ export const Search = () => {
                               </span>
                             )}
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   </CommandItem>
-                )
+                );
               })}
             </CommandGroup>
-          )
+          );
         })}
         {!showLoading && <CommandEmpty q={search} />}
       </CommandList>
     </CommandDialog>
-  )
-}
+  );
+};
 
 const CommandPalette = forwardRef<
   ElementRef<typeof Command>,
@@ -280,23 +281,23 @@ const CommandPalette = forwardRef<
     ref={ref}
     className={clx(
       "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
-      className
+      className,
     )}
     {...props}
   />
-))
-CommandPalette.displayName = Command.displayName
+));
+CommandPalette.displayName = Command.displayName;
 
 interface CommandDialogProps extends RadixDialog.DialogProps {
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const preserveHeight = useMemo(() => {
-    return props.isLoading && Children.count(children) === 0
-  }, [props.isLoading, children])
+    return props.isLoading && Children.count(children) === 0;
+  }, [props.isLoading, children]);
 
   return (
     <RadixDialog.Root {...props}>
@@ -307,7 +308,7 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
             "bg-ui-bg-base shadow-elevation-modal fixed left-[50%] top-[50%] flex max-h-[calc(100%-16px)] w-[calc(100%-16px)] min-w-0 max-w-2xl translate-x-[-50%] translate-y-[-50%] flex-col overflow-hidden rounded-xl p-0",
             {
               "h-[300px]": preserveHeight, // Prevents the dialog from collapsing when loading async results and before the no results message is displayed
-            }
+            },
           )}
         >
           <RadixDialog.Title className="sr-only">
@@ -342,16 +343,16 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>
-  )
-}
+  );
+};
 
 const CommandInput = forwardRef<
   ElementRef<typeof Command.Input>,
   ComponentPropsWithoutRef<typeof Command.Input> & {
-    area: SearchArea
-    setArea: (area: SearchArea) => void
-    isFetching: boolean
-    onBack?: () => void
+    area: SearchArea;
+    setArea: (area: SearchArea) => void;
+    isFetching: boolean;
+    onBack?: () => void;
   }
 >(
   (
@@ -365,15 +366,15 @@ const CommandInput = forwardRef<
       onBack,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const { t } = useTranslation()
-    const innerRef = useRef<HTMLInputElement>(null)
-    const direction = useDocumentDirection()
+    const { t } = useTranslation();
+    const innerRef = useRef<HTMLInputElement>(null);
+    const direction = useDocumentDirection();
     useImperativeHandle<HTMLInputElement | null, HTMLInputElement | null>(
       ref,
-      () => innerRef.current
-    )
+      () => innerRef.current,
+    );
 
     return (
       <div className="flex flex-col border-b">
@@ -392,8 +393,8 @@ const CommandInput = forwardRef<
               align="start"
               className="h-full max-h-[360px] overflow-auto"
               onCloseAutoFocus={(e) => {
-                e.preventDefault()
-                innerRef.current?.focus()
+                e.preventDefault();
+                innerRef.current?.focus();
               }}
             >
               <DropdownMenu.RadioGroup
@@ -430,7 +431,7 @@ const CommandInput = forwardRef<
             onValueChange={onValueChange}
             className={clx(
               "placeholder:text-ui-fg-muted flex !h-6 w-full rounded-md bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50",
-              className
+              className,
             )}
             {...props}
           />
@@ -445,8 +446,8 @@ const CommandInput = forwardRef<
                 className="text-ui-fg-muted hover:text-ui-fg-subtle"
                 type="button"
                 onClick={() => {
-                  onValueChange?.("")
-                  innerRef.current?.focus()
+                  onValueChange?.("");
+                  innerRef.current?.focus();
                 }}
               >
                 {t("actions.clear")}
@@ -455,11 +456,11 @@ const CommandInput = forwardRef<
           </div>
         </div>
       </div>
-    )
-  }
-)
+    );
+  },
+);
 
-CommandInput.displayName = Command.Input.displayName
+CommandInput.displayName = Command.Input.displayName;
 
 const CommandList = forwardRef<
   ElementRef<typeof Command.List>,
@@ -469,21 +470,21 @@ const CommandList = forwardRef<
     ref={ref}
     className={clx(
       "max-h-[300px] flex-1 overflow-y-auto overflow-x-hidden px-2 pb-4",
-      className
+      className,
     )}
     {...props}
   />
-))
+));
 
-CommandList.displayName = Command.List.displayName
+CommandList.displayName = Command.List.displayName;
 
 const CommandEmpty = forwardRef<
   ElementRef<typeof Command.Empty>,
   Omit<ComponentPropsWithoutRef<typeof Command.Empty>, "children"> & {
-    q?: string
+    q?: string;
   }
 >((props, ref) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Command.Empty ref={ref} className="py-6 text-center text-sm" {...props}>
@@ -503,10 +504,10 @@ const CommandEmpty = forwardRef<
         </div>
       </div>
     </Command.Empty>
-  )
-})
+  );
+});
 
-CommandEmpty.displayName = Command.Empty.displayName
+CommandEmpty.displayName = Command.Empty.displayName;
 
 const CommandLoading = forwardRef<
   ElementRef<typeof Command.Loading>,
@@ -527,9 +528,9 @@ const CommandLoading = forwardRef<
         </div>
       ))}
     </Command.Loading>
-  )
-})
-CommandLoading.displayName = Command.Loading.displayName
+  );
+});
+CommandLoading.displayName = Command.Loading.displayName;
 
 const CommandGroup = forwardRef<
   ElementRef<typeof Command.Group>,
@@ -539,13 +540,13 @@ const CommandGroup = forwardRef<
     ref={ref}
     className={clx(
       "text-ui-fg-base [&_[cmdk-group-heading]]:text-ui-fg-muted [&_[cmdk-group-heading]]:txt-compact-xsmall-plus overflow-hidden [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-item]]:py-2",
-      className
+      className,
     )}
     {...props}
   />
-))
+));
 
-CommandGroup.displayName = Command.Group.displayName
+CommandGroup.displayName = Command.Group.displayName;
 
 const CommandSeparator = forwardRef<
   ElementRef<typeof Command.Separator>,
@@ -556,8 +557,8 @@ const CommandSeparator = forwardRef<
     className={clx("bg-border -mx-1 h-px", className)}
     {...props}
   />
-))
-CommandSeparator.displayName = Command.Separator.displayName
+));
+CommandSeparator.displayName = Command.Separator.displayName;
 
 const CommandItem = forwardRef<
   ElementRef<typeof Command.Item>,
@@ -567,10 +568,10 @@ const CommandItem = forwardRef<
     ref={ref}
     className={clx(
       "aria-selected:bg-ui-bg-base-hover focus-visible:bg-ui-bg-base-hover txt-compact-small [&>svg]:text-ui-fg-subtle relative flex cursor-pointer select-none items-center gap-x-3 rounded-md p-2 outline-none data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
-      className
+      className,
     )}
     {...props}
   />
-))
+));
 
-CommandItem.displayName = Command.Item.displayName
+CommandItem.displayName = Command.Item.displayName;

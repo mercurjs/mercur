@@ -217,7 +217,7 @@
       },
       "settings": {
         "goToSettings": "Settings",
-        "goToStore": "Store",
+        "goToSeller": "Seller",
         "goToUsers": "Users",
         "goToRegions": "Regions",
         "goToTaxRegions": "Tax Regions",
@@ -245,8 +245,8 @@
         }
       },
       "store": {
-        "label": "Store",
-        "storeSettings": "Store settings"
+        "label": "Seller",
+        "storeSettings": "Seller settings"
       },
       "seller": {
         "label": "Seller",
@@ -266,8 +266,8 @@
         "extensions": "Extensions"
       },
       "main": {
-        "store": "Store",
-        "storeSettings": "Store settings"
+        "store": "Seller",
+        "storeSettings": "Seller settings"
       },
       "settings": {
         "header": "Settings",
@@ -2584,9 +2584,9 @@
     }
   },
   "store": {
-    "domain": "Store",
-    "manageYourStoresDetails": "Manage your store's details",
-    "editStore": "Edit store",
+    "domain": "Seller",
+    "manageYourStoresDetails": "Manage your seller's details",
+    "editStore": "Edit seller",
     "defaultCurrency": "Default currency",
     "defaultLocale": "Default locale",
     "defaultRegion": "Default region",
