@@ -86,10 +86,9 @@ export const UserMenu = () => {
 }
 
 const UserBadge = () => {
-  const { user, isPending, isError, error } = useMe()
+  const { seller, isPending, isError, error } = useMe()
 
-  const name = [user?.first_name, user?.last_name].filter(Boolean).join(" ")
-  const displayName = name || user?.email
+  const displayName = seller?.name || seller?.email
 
   const fallback = displayName ? displayName[0].toUpperCase() : null
 
@@ -109,7 +108,7 @@ const UserBadge = () => {
   return (
     <div className="p-3">
       <DropdownMenu.Trigger
-        disabled={!user}
+        disabled={!seller}
         className={clx(
           "bg-ui-bg-subtle grid w-full cursor-pointer grid-cols-[24px_1fr_15px] items-center gap-2 rounded-md py-1 ps-0.5 pe-2 outline-none",
           "hover:bg-ui-bg-subtle-hover",
@@ -295,18 +294,18 @@ const GlobalKeybindsModal = (props: {
 }
 
 const UserItem = () => {
-  const { user, isPending, isError, error } = useMe()
+  const { seller, isPending, isError, error } = useMe()
 
-  const loaded = !isPending && !!user
+  const loaded = !isPending && !!seller
 
   if (!loaded) {
     return <div></div>
   }
 
-  const name = [user.first_name, user.last_name].filter(Boolean).join(" ")
-  const email = user.email
-  const fallback = name ? name[0].toUpperCase() : email[0].toUpperCase()
-  const avatar = user.avatar_url
+  const displayName = seller.name || seller.email
+  const email = seller.email
+  const fallback = displayName ? displayName[0].toUpperCase() : "S"
+  const avatar = seller.logo
 
   if (isError) {
     throw error
@@ -327,9 +326,9 @@ const UserItem = () => {
           leading="compact"
           className="overflow-hidden text-ellipsis whitespace-nowrap"
         >
-          {name || email}
+          {displayName}
         </Text>
-        {!!name && (
+        {!!email && displayName !== email && (
           <Text
             size="xsmall"
             leading="compact"

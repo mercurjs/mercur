@@ -15,12 +15,8 @@ import {
   useProductTags,
   useProductTypes,
   usePromotions,
-  useRegions,
-  useSalesChannels,
-  useShippingProfiles,
   useStockLocations,
 } from "../../hooks/api"
-import { useReturnReasons } from "../../hooks/api/return-reasons"
 import { Shortcut, ShortcutType } from "../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../providers/keybind-provider/hooks"
 import { DynamicSearchResult, SearchArea } from "./types"
@@ -207,42 +203,6 @@ const useDynamicSearchResults = (
     }
   )
 
-  const regionResponse = useRegions(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,name",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "region"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
-  const returnReasonResponse = useReturnReasons(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,label,value",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "returnReason"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
-  const salesChannelResponse = useSalesChannels(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,name",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "salesChannel"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
   const productTypeResponse = useProductTypes(
     {
       q: debouncedSearch,
@@ -279,18 +239,6 @@ const useDynamicSearchResults = (
     }
   )
 
-  const shippingProfileResponse = useShippingProfiles(
-    {
-      q: debouncedSearch,
-      limit,
-      fields: "id,name",
-    },
-    {
-      enabled: isAreaEnabled(currentArea, "shippingProfile"),
-      placeholderData: keepPreviousData,
-    }
-  )
-
   const responseMap = useMemo(
     () => ({
       order: orderResponse,
@@ -302,13 +250,9 @@ const useDynamicSearchResults = (
       promotion: promotionResponse,
       campaign: campaignResponse,
       priceList: priceListResponse,
-      region: regionResponse,
-      returnReason: returnReasonResponse,
-      salesChannel: salesChannelResponse,
       productType: productTypeResponse,
       productTag: productTagResponse,
       location: locationResponse,
-      shippingProfile: shippingProfileResponse,
     }),
     [
       orderResponse,
@@ -320,13 +264,9 @@ const useDynamicSearchResults = (
       promotionResponse,
       campaignResponse,
       priceListResponse,
-      regionResponse,
-      returnReasonResponse,
-      salesChannelResponse,
       productTypeResponse,
       productTagResponse,
       locationResponse,
-      shippingProfileResponse,
     ]
   )
 
@@ -507,34 +447,6 @@ const transformMap: TransformMap = {
       value: `priceList:${priceList.id}`,
     }),
   },
-  region: {
-    dataKey: "regions",
-    transform: (region: HttpTypes.AdminRegion) => ({
-      id: region.id,
-      title: region.name,
-      to: `/regions/${region.id}`,
-      value: `region:${region.id}`,
-    }),
-  },
-  returnReason: {
-    dataKey: "return_reasons",
-    transform: (returnReason: HttpTypes.AdminReturnReason) => ({
-      id: returnReason.id,
-      title: returnReason.label,
-      subtitle: returnReason.value,
-      to: `/return-reasons/${returnReason.id}/edit`,
-      value: `returnReason:${returnReason.id}`,
-    }),
-  },
-  salesChannel: {
-    dataKey: "sales_channels",
-    transform: (salesChannel: HttpTypes.AdminSalesChannel) => ({
-      id: salesChannel.id,
-      title: salesChannel.name,
-      to: `/sales-channels/${salesChannel.id}`,
-      value: `salesChannel:${salesChannel.id}`,
-    }),
-  },
   productType: {
     dataKey: "product_types",
     transform: (productType: HttpTypes.AdminProductType) => ({
@@ -560,15 +472,6 @@ const transformMap: TransformMap = {
       title: location.name,
       to: `/locations/${location.id}`,
       value: `location:${location.id}`,
-    }),
-  },
-  shippingProfile: {
-    dataKey: "shipping_profiles",
-    transform: (shippingProfile: HttpTypes.AdminShippingProfile) => ({
-      id: shippingProfile.id,
-      title: shippingProfile.name,
-      to: `/shipping-profiles/${shippingProfile.id}`,
-      value: `shippingProfile:${shippingProfile.id}`,
     }),
   },
 }

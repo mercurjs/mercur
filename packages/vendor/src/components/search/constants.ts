@@ -9,13 +9,9 @@ export const SEARCH_AREAS = [
   "promotion",
   "campaign",
   "priceList",
-  "region",
-  "returnReason",
-  "salesChannel",
   "productType",
   "productTag",
   "location",
-  "shippingProfile",
   "command",
   "navigation",
 ] as const

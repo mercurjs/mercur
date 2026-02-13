@@ -153,27 +153,11 @@ export const useGlobalShortcuts = () => {
     },
     {
       keys: {
-        Mac: ["G", "G"],
-      },
-      label: t("app.keyboardShortcuts.navigation.goToCustomerGroups"),
-      type: "pageShortcut",
-      to: "/customer-groups",
-    },
-    {
-      keys: {
         Mac: ["G", "I"],
       },
       label: t("app.keyboardShortcuts.navigation.goToInventory"),
       type: "pageShortcut",
       to: "/inventory",
-    },
-    {
-      keys: {
-        Mac: ["G", "R"],
-      },
-      label: t("app.keyboardShortcuts.navigation.goToReservations"),
-      type: "pageShortcut",
-      to: "/reservations",
     },
     {
       keys: {
@@ -226,30 +210,6 @@ export const useGlobalShortcuts = () => {
     },
     {
       keys: {
-        Mac: ["G", ",", "R"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToRegions"),
-      type: "settingShortcut",
-      to: "/settings/regions",
-    },
-    {
-      keys: {
-        Mac: ["G", ",", "T"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToTaxRegions"),
-      type: "settingShortcut",
-      to: "/settings/tax-regions",
-    },
-    {
-      keys: {
-        Mac: ["G", ",", "A"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToSalesChannels"),
-      type: "settingShortcut",
-      to: "/settings/sales-channels",
-    },
-    {
-      keys: {
         Mac: ["G", ",", "P"],
       },
       label: t("app.keyboardShortcuts.settings.goToProductTypes"),
@@ -263,38 +223,6 @@ export const useGlobalShortcuts = () => {
       label: t("app.keyboardShortcuts.settings.goToLocations"),
       type: "settingShortcut",
       to: "/settings/locations",
-    },
-    {
-      keys: {
-        Mac: ["G", ",", "M"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToReturnReasons"),
-      type: "settingShortcut",
-      to: "/settings/return-reasons",
-    },
-    {
-      keys: {
-        Mac: ["G", ",", "J"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToPublishableApiKeys"),
-      type: "settingShortcut",
-      to: "/settings/publishable-api-keys",
-    },
-    {
-      keys: {
-        Mac: ["G", ",", "K"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToSecretApiKeys"),
-      type: "settingShortcut",
-      to: "/settings/secret-api-keys",
-    },
-    {
-      keys: {
-        Mac: ["G", ",", "W"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToWorkflows"),
-      type: "settingShortcut",
-      to: "/settings/workflows",
     },
     {
       keys: {
