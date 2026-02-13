@@ -55,19 +55,6 @@ const useSettingRoutes = (): INavItem[] => {
   );
 };
 
-const useMyAccountRoutes = (): INavItem[] => {
-  const { t } = useTranslation();
-
-  return useMemo(
-    () => [
-      {
-        label: t("profile.domain"),
-        to: "/settings/profile",
-      },
-    ],
-    [t]
-  );
-};
 
 /**
  * Ensure that the `from` prop is not another settings route, to avoid
@@ -104,7 +91,6 @@ const injectNestedSettingsItems = (
 
 const SettingsSidebar = () => {
   const generalRoutes = useSettingRoutes();
-  const myAccountRoutes = useMyAccountRoutes();
   const allMenuItems = menuItemsModule.menuItems ?? [];
   const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
 
@@ -137,13 +123,6 @@ const SettingsSidebar = () => {
               items={extensionNavItems}
             />
           )}
-          <div className="flex items-center justify-center px-3">
-            <Divider variant="dashed" />
-          </div>
-          <RadixCollapsibleSection
-            label={t("app.nav.settings.myAccount")}
-            items={myAccountRoutes}
-          />
         </div>
         <div className="bg-ui-bg-subtle sticky bottom-0">
           <UserSection />

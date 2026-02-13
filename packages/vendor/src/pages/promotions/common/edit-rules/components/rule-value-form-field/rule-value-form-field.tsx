@@ -6,7 +6,7 @@ import {
 import { Input } from "@medusajs/ui";
 import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { Form } from "../../../../../../components/common/form";
 import { Combobox } from "../../../../../../components/inputs/combobox";
@@ -90,15 +90,18 @@ export const RuleValueFormField = ({
     name: operator,
   });
 
-  useEffect(() => {
-    const hasDirtyRules = Object.keys(form.formState.dirtyFields).length > 0;
+  const prevOperatorRef = useRef(watchOperator);
 
-    /**
-     * Don't reset values if fileds didn't change - this is to prevent reset of form on initial render when editing an existing rule
-     */
-    if (!hasDirtyRules) {
+  useEffect(() => {
+    // Skip if operator hasn't actually changed (e.g. initial load from API).
+    // The old dirty-fields check was unreliable because `replace()` in
+    // useFieldArray marks all fields as dirty, causing values to be wiped
+    // on initial render when editing existing rules.
+    if (prevOperatorRef.current === watchOperator) {
       return;
     }
+
+    prevOperatorRef.current = watchOperator;
 
     if (watchOperator === "eq") {
       form.setValue(name, "");
