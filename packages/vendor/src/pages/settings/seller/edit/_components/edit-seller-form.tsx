@@ -6,7 +6,6 @@ import * as zod from "zod";
 
 import { FileType, FileUpload } from "@components/common/file-upload";
 import { Form } from "@components/common/form";
-import ImageAvatar from "@components/common/image-avatar/image-avatar";
 import { CountrySelect } from "@components/inputs/country-select";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
@@ -14,6 +13,7 @@ import { useUpdateMe } from "@hooks/api";
 import { uploadFilesQuery } from "@lib/client";
 import { MediaSchema } from "@pages/products/create/constants";
 import { HttpTypes } from "@mercurjs/types";
+import { useCallback } from "react";
 
 type EditSellerFormProps = HttpTypes.StoreSellerResponse;
 
@@ -31,6 +31,7 @@ const EditSellerSchema = zod.object({
     country_code: zod.string().optional().or(zod.literal("")),
   }),
   media: zod.array(MediaSchema).optional(),
+  coverMedia: zod.array(MediaSchema).optional(),
 });
 
 const SUPPORTED_FORMATS = [
@@ -70,12 +71,19 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
         country_code: seller.country_code ?? "",
       },
       media: [],
+      coverMedia: [],
     },
     resolver: zodResolver(EditSellerSchema),
   });
 
-  const { fields } = useFieldArray({
+  const { fields: logoFields } = useFieldArray({
     name: "media",
+    control: form.control,
+    keyName: "field_id",
+  });
+
+  const { fields: coverFields } = useFieldArray({
+    name: "coverMedia",
     control: form.control,
     keyName: "field_id",
   });
@@ -84,11 +92,16 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
 
   const handleSubmit = form.handleSubmit(async (values) => {
     let logoUrl = seller.logo || "";
+    let coverImageUrl = seller.cover_image || "";
 
     try {
       if (values.media?.length) {
         const uploaded = await uploadFilesQuery(values.media);
         logoUrl = uploaded.files?.[0]?.url || logoUrl;
+      }
+      if (values.coverMedia?.length) {
+        const uploaded = await uploadFilesQuery(values.coverMedia);
+        coverImageUrl = uploaded.files?.[0]?.url || coverImageUrl;
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -103,13 +116,14 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
         email: values.email || undefined,
         phone: values.phone || null,
         logo: logoUrl || null,
+        cover_image: coverImageUrl || null,
         address_1: values.address.address_1 || null,
         address_2: values.address.address_2 || null,
         city: values.address.city || null,
         province: values.address.province || null,
         postal_code: values.address.postal_code || null,
         country_code: values.address.country_code || null,
-      } as any,
+      },
       {
         onSuccess: () => {
           toast.success(t("app.menus.seller.sellerSettings"));
@@ -122,23 +136,45 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
     );
   });
 
-  // File validation and upload — instead of useCallback, inline for simplicity (matches Location Form simpleness)
-  const onUploaded = (files: FileType[]) => {
-    const invalidFile = files.find(
-      (f) => !SUPPORTED_FORMATS.includes(f.file.type),
-    );
-    if (invalidFile) {
-      form.setError("media", {
-        type: "invalid_file",
-        message: t("products.media.invalidFileType", {
-          name: invalidFile.file.name,
-          types: SUPPORTED_FORMATS_FILE_EXTENSIONS.join(", "),
-        }),
-      });
+  const hasInvalidFiles = useCallback(
+    (fileList: FileType[]) => {
+      const invalidFile = fileList.find(
+        (f) => !SUPPORTED_FORMATS.includes(f.file.type),
+      );
+
+      if (invalidFile) {
+        form.setError("media", {
+          type: "invalid_file",
+          message: t("products.media.invalidFileType", {
+            name: invalidFile.file.name,
+            types: SUPPORTED_FORMATS_FILE_EXTENSIONS.join(", "),
+          }),
+        });
+
+        return true;
+      }
+
+      return false;
+    },
+    [form, t],
+  );
+
+  const onLogoUploaded = (files: FileType[]) => {
+    form.clearErrors("media");
+    if (hasInvalidFiles(files)) {
       return;
     }
-    form.clearErrors("media");
+
     form.setValue("media", [{ ...files[0], isThumbnail: false }]);
+  };
+
+  const onCoverUploaded = (files: FileType[]) => {
+    form.clearErrors("coverMedia");
+    if (hasInvalidFiles(files)) {
+      return;
+    }
+
+    form.setValue("coverMedia", [{ ...files[0], isThumbnail: false }]);
   };
 
   return (
@@ -153,24 +189,48 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
               name="media"
               control={form.control}
               render={() => {
-                const previewUrl = fields[0]?.url || seller.logo;
+                const previewUrl = logoFields[0]?.url || seller.logo;
 
                 return (
                   <Form.Item>
                     <Form.Label>{t("store.logo", "Logo")}</Form.Label>
-                    {previewUrl && (
-                      <div className="mb-2">
-                        <ImageAvatar src={previewUrl} size={16} />
-                      </div>
-                    )}
                     <Form.Control>
                       <FileUpload
+                        uploadedImage={previewUrl}
                         multiple={false}
                         label={t("products.media.uploadImagesLabel")}
                         hint={t("products.media.uploadImagesHint")}
                         hasError={!!form.formState.errors.media}
                         formats={SUPPORTED_FORMATS}
-                        onUploaded={onUploaded}
+                        onUploaded={onLogoUploaded}
+                      />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
+            />
+            <Form.Field
+              name="coverMedia"
+              control={form.control}
+              render={() => {
+                const previewUrl =
+                  coverFields[0]?.url || seller.cover_image;
+
+                return (
+                  <Form.Item>
+                    <Form.Label>
+                      {t("store.coverImage", "Cover image")}
+                    </Form.Label>
+                    <Form.Control>
+                      <FileUpload
+                        uploadedImage={previewUrl}
+                        multiple={false}
+                        label={t("products.media.uploadImagesLabel")}
+                        hint={t("products.media.uploadImagesHint")}
+                        hasError={!!form.formState.errors.coverMedia}
+                        formats={SUPPORTED_FORMATS}
+                        onUploaded={onCoverUploaded}
                       />
                     </Form.Control>
                     <Form.ErrorMessage />
@@ -250,32 +310,6 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label optional>{t("fields.address2")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="address.company"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.company")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="address.phone"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.phone")}</Form.Label>
                   <Form.Control>
                     <Input size="small" {...field} />
                   </Form.Control>
