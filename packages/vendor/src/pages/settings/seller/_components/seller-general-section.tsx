@@ -17,12 +17,7 @@ export const SellerGeneralSection = ({ seller }: StoreGeneralSectionProps) => {
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-x-4">
-          <div>
-            <Heading>{seller.name}</Heading>
-            <Text className="text-ui-fg-subtle" size="small">
-              {seller.handle}
-            </Text>
-          </div>
+          <Heading>{seller.name}</Heading>
         </div>
         <ActionMenu
           groups={[
@@ -61,14 +56,6 @@ export const SellerGeneralSection = ({ seller }: StoreGeneralSectionProps) => {
             {"-"}
           </Text>
         )}
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("fields.name")}
-        </Text>
-        <Text size="small" leading="compact">
-          {seller.name || "-"}
-        </Text>
       </div>
       <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
         <Text size="small" leading="compact" weight="plus">
