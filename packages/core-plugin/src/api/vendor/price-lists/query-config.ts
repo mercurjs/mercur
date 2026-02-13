@@ -28,6 +28,11 @@ export const vendorPriceListFields = [
   ...vendorPriceListPriceFields.map((field) => `prices.${field}`),
 ]
 
+export const listPriceListPriceQueryConfig = {
+  defaults: vendorPriceListPriceFields,
+  isList: true,
+}
+
 export const retrievePriceListQueryConfig = {
   defaults: vendorPriceListFields,
   isList: false,

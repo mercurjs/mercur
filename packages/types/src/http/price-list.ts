@@ -13,3 +13,13 @@ export type VendorPriceListListResponse = PaginatedResponse<{
    */
   price_lists: PriceListDTO[]
 }>
+
+export type VendorPriceListPricesResponse = PaginatedResponse<{
+  prices: Record<string, unknown>[]
+}>
+
+export interface VendorPriceListBatchResponse {
+  created: Record<string, unknown>[]
+  updated: Record<string, unknown>[]
+  deleted: Record<string, unknown>
+}

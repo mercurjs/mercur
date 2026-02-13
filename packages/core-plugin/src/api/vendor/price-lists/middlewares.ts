@@ -9,14 +9,17 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
-import { createLinkBody } from "@medusajs/medusa/api/utils/validators"
+import { createBatchBody, createLinkBody } from "@medusajs/medusa/api/utils/validators"
 
 import * as QueryConfig from "./query-config"
 import {
   VendorCreatePriceList,
+  VendorCreatePriceListPrice,
   VendorGetPriceListParams,
+  VendorGetPriceListPricesParams,
   VendorGetPriceListsParams,
   VendorUpdatePriceList,
+  VendorUpdatePriceListPrice,
 } from "./validators"
 
 const applySellerPriceListLinkFilter = (
@@ -90,6 +93,29 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetPriceListParams,
         QueryConfig.retrievePriceListQueryConfig
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/vendor/price-lists/:id/prices",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetPriceListPricesParams,
+        QueryConfig.listPriceListPriceQueryConfig
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/price-lists/:id/prices/batch",
+    middlewares: [
+      validateAndTransformBody(
+        createBatchBody(VendorCreatePriceListPrice, VendorUpdatePriceListPrice)
+      ),
+      validateAndTransformQuery(
+        VendorGetPriceListParams,
+        QueryConfig.listPriceListPriceQueryConfig
       ),
     ],
   },

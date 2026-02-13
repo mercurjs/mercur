@@ -22,7 +22,9 @@ export const PriceListConfigurationSection = ({
       <div className="flex items-center justify-between">
         <div>
           <Heading level="h2">{t("priceLists.configuration.header")}</Heading>
+          {/* TODO: Customer group availability - vendor API does not support customer groups yet
           <CustomerGroupDisplay priceList={priceList as any} />
+          */}
         </div>
         <ActionMenu
           groups={[

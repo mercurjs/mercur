@@ -91,14 +91,16 @@ export const PriceListConfigurationForm = ({
   const { mutateAsync } = useUpdatePriceList(priceList.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const groupIds = values.customer_group_id.map((group) => group.id)
     const rules = { ...priceList.rules } // preserve other rules set on the PL
 
+    /* TODO: Customer group availability - vendor API does not support customer groups yet
+    const groupIds = values.customer_group_id.map((group) => group.id)
     if (groupIds.length) {
       rules["customer.groups.id"] = groupIds
     } else {
       delete rules["customer.groups.id"]
     }
+    */
 
     await mutateAsync(
       {
@@ -183,6 +185,7 @@ export const PriceListConfigurationForm = ({
               )
             }}
           />
+          {/* TODO: Customer group availability - vendor API does not support customer groups yet
           <Divider />
           <Form.Field
             control={form.control}
@@ -292,6 +295,7 @@ export const PriceListConfigurationForm = ({
               )
             }}
           />
+          */}
         </RouteDrawer.Body>
         <RouteDrawer.Footer className="shrink-0">
           <div className="flex items-center justify-end gap-x-2">

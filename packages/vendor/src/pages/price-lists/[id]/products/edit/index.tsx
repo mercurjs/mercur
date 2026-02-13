@@ -1,17 +1,19 @@
-// Route: /price-lists/:id/products/edit
-import { useParams, useSearchParams } from "react-router-dom"
-import { RouteFocusModal } from "@components/modals"
-import { usePriceList, useProducts } from "@hooks/api"
-import { usePriceListCurrencyData } from "../../../common/hooks/use-price-list-currency-data"
-import { PriceListPricesEditForm } from "../[variant_id]/edit/price-list-prices-edit-form"
+import { RouteFocusModal } from "@/components/modals";
+import { useParams, useSearchParams } from "react-router-dom";
+import { PriceListPricesEditForm } from "../[variant_id]/edit/price-list-prices-edit-form";
+import { usePriceListCurrencyData } from "@/pages/price-lists/common/hooks/use-price-list-currency-data";
+import { usePriceList, useProducts } from "@/hooks/api";
 
 export const Component = () => {
-  const { id } = useParams()
-  const [searchParams] = useSearchParams()
-  const ids = searchParams.get("ids[]")
+  const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const ids = searchParams.get("ids[]");
 
-  const { price_list, isLoading, isError, error } = usePriceList(id!)
-  const productIds = ids?.split(",")
+  const { price_list, isLoading, isError, error } = usePriceList(id!, {
+    fields:
+      "*prices,prices.price_set.variant.id,prices.price_rules.attribute,prices.price_rules.value",
+  });
+  const productIds = ids?.split(",");
 
   const {
     products,
@@ -20,26 +22,25 @@ export const Component = () => {
     error: productError,
   } = useProducts({
     id: productIds,
-    limit: productIds?.length || 9999,
+    limit: productIds?.length || 9999, // Temporary until we support lazy loading in the DataGrid
     price_list_id: [id!],
-    fields: "title,thumbnail,*variants",
-  })
+    // TODO: Remove exclusion once we avoid including unnecessary relations by default in the query config
+    fields:
+      "title,thumbnail,*variants,-type,-collection,-options,-tags,-images,-sales_channels",
+  });
 
-  const priceListCurrencyData = usePriceListCurrencyData()
+  const { isReady, regions, currencies, pricePreferences } =
+    usePriceListCurrencyData();
 
   const ready =
-    !isLoading &&
-    !!price_list &&
-    !isProductsLoading &&
-    !!products &&
-    priceListCurrencyData.isReady
+    !isLoading && !!price_list && !isProductsLoading && !!products && isReady;
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   if (isProductsError) {
-    throw productError
+    throw productError;
   }
 
   return (
@@ -54,9 +55,11 @@ export const Component = () => {
         <PriceListPricesEditForm
           priceList={price_list}
           products={products}
-          {...priceListCurrencyData}
+          regions={regions}
+          currencies={currencies}
+          pricePreferences={pricePreferences}
         />
       )}
     </RouteFocusModal>
-  )
-}
+  );
+};

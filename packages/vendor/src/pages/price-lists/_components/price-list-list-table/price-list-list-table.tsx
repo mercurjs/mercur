@@ -1,31 +1,31 @@
-import { Button, Container, Heading, Text } from "@medusajs/ui"
-import { keepPreviousData } from "@tanstack/react-query"
-import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
-import { _DataTable } from "@components/table/data-table"
-import { usePriceLists } from "@hooks/api/price-lists"
-import { useDataTable } from "@hooks/use-data-table"
-import { usePricingTableColumns } from "./use-pricing-table-columns"
-import { usePricingTableFilters } from "./use-pricing-table-filters"
-import { usePricingTableQuery } from "./use-pricing-table-query"
+import { Button, Container, Heading, Text } from "@medusajs/ui";
+import { keepPreviousData } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { _DataTable } from "@components/table/data-table";
+import { usePriceLists } from "@hooks/api/price-lists";
+import { useDataTable } from "@hooks/use-data-table";
+import { usePricingTableColumns } from "./use-pricing-table-columns";
+import { usePricingTableFilters } from "./use-pricing-table-filters";
+import { usePricingTableQuery } from "./use-pricing-table-query";
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 20;
 
 export const PriceListListTable = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const { searchParams, raw } = usePricingTableQuery({
     pageSize: PAGE_SIZE,
-  })
+  });
   const { price_lists, count, isLoading, isError, error } = usePriceLists(
     searchParams,
     {
       placeholderData: keepPreviousData,
-    }
-  )
-  
-  const filters = usePricingTableFilters()
-  const columns = usePricingTableColumns()
+    },
+  );
+
+  const filters = usePricingTableFilters();
+  const columns = usePricingTableColumns();
 
   const { table } = useDataTable({
     data: price_lists || [],
@@ -34,10 +34,10 @@ export const PriceListListTable = () => {
     enablePagination: true,
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -78,5 +78,5 @@ export const PriceListListTable = () => {
         search
       />
     </Container>
-  )
-}
+  );
+};

@@ -39,6 +39,27 @@ export const VendorCreatePriceListPrice = z.object({
   rules: z.record(z.string(), z.string()).optional(),
 })
 
+export type VendorUpdatePriceListPriceType = z.infer<
+  typeof VendorUpdatePriceListPrice
+>
+export const VendorUpdatePriceListPrice = z.object({
+  id: z.string(),
+  currency_code: z.string().optional(),
+  amount: z.number().optional(),
+  variant_id: z.string(),
+  min_quantity: z.number().nullish(),
+  max_quantity: z.number().nullish(),
+  rules: z.record(z.string(), z.string()).optional(),
+})
+
+export type VendorGetPriceListPricesParamsType = z.infer<
+  typeof VendorGetPriceListPricesParams
+>
+export const VendorGetPriceListPricesParams = createFindParams({
+  offset: 0,
+  limit: 50,
+})
+
 export type VendorCreatePriceListType = z.infer<typeof VendorCreatePriceList>
 export const VendorCreatePriceList = z.object({
   title: z.string(),
