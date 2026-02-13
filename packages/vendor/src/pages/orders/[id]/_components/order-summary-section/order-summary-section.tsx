@@ -9,20 +9,15 @@ import {
 import {
   AdminOrder,
   AdminOrderLineItem,
-  AdminReservation,
+  HttpTypes,
   PaymentStatus,
 } from "@medusajs/types"
-import {
-  ExtendedAdminOrder,
-  ExtendedAdminPaymentCollection,
-} from "@custom-types/order"
 import {
   Button,
   clx,
   Container,
   Copy,
   Heading,
-  StatusBadge,
   Text,
   toast,
   usePrompt,
@@ -33,7 +28,6 @@ import {
   useOrderCommission,
 } from "@hooks/api/orders"
 import { useMarkPaymentCollectionAsPaid } from "@hooks/api/payment-collections"
-import { useReservationItems } from "@hooks/api/reservations"
 import { formatCurrency } from "@lib/format-currency"
 import {
   getLocaleAmount,
@@ -46,7 +40,7 @@ import ShippingInfoPopover from "./shipping-info-popover"
 import { Thumbnail } from "@components/common/thumbnail"
 
 type OrderSummarySectionProps = {
-  order: ExtendedAdminOrder
+  order: HttpTypes.AdminOrder
 }
 
 export const OrderSummarySection = ({
@@ -55,13 +49,6 @@ export const OrderSummarySection = ({
   const { t } = useTranslation()
   const prompt = usePrompt()
 
-  const { reservations } = useReservationItems(
-    {
-      // line_item_id: order?.items?.map((i) => i.id),
-    },
-    { enabled: Array.isArray(order?.items) }
-  )
-
   const receivableReturns = useMemo(
     () => order.returns?.filter((r) => !r.canceled_at),
     [order]
@@ -69,44 +56,9 @@ export const OrderSummarySection = ({
 
   const showReturns = !!receivableReturns?.length
 
-  /**
-   * Show Allocation button only if there are unfulfilled items that don't have reservations
-   */
-  const showAllocateButton = useMemo(() => {
-    if (!reservations) {
-      return false
-    }
-
-    const reservationsMap = new Map(
-      reservations.map((r) => [r.line_item_id, r.id])
-    )
-
-    return order.items.some((item) => {
-      const hasUnfulfilledQuantity = 
-        item.quantity && 
-        item.detail && 
-        item.quantity - item.detail.fulfilled_quantity > 0
-      
-      return (
-        item.variant?.manage_inventory &&
-        hasUnfulfilledQuantity &&
-        !reservationsMap.has(item.id)
-      )
-    })
-  }, [reservations, order.items])
-
-  const unpaidPaymentCollection: ExtendedAdminPaymentCollection | undefined =
-    order.split_order_payment && order.split_order_payment.status !== "captured"
-      ? {
-          id: order.split_order_payment.payment_collection_id,
-          amount: order.split_order_payment.authorized_amount,
-          currency_code: order.split_order_payment.currency_code,
-          authorized_amount: order.split_order_payment.authorized_amount,
-          captured_amount: order.split_order_payment.captured_amount,
-          refunded_amount: order.split_order_payment.refunded_amount,
-          status: order.split_order_payment.status,
-        }
-      : undefined
+  const unpaidPaymentCollection = order.payment_collections?.find(
+    (pc) => pc.status !== "captured" && pc.status !== "canceled"
+  )
 
   const { mutateAsync: markAsPaid } = useMarkPaymentCollectionAsPaid(
     order.id,
@@ -125,7 +77,7 @@ export const OrderSummarySection = ({
     unpaidPaymentCollection && pendingDifference < 0 && isAmountSignificant
 
   const handleMarkAsPaid = async (
-    paymentCollection: Partial<ExtendedAdminPaymentCollection>
+    paymentCollection: Partial<HttpTypes.AdminPaymentCollection>
   ) => {
     const res = await prompt({
       title: t("orders.payment.markAsPaid"),
@@ -167,11 +119,11 @@ export const OrderSummarySection = ({
   return (
     <Container className="divide-y divide-dashed p-0">
       <Header />
-      <ItemBreakdown order={order} reservations={reservations!} />
+      <ItemBreakdown order={order} />
       <CostBreakdown order={order} />
       <Total order={order} />
 
-      {(showAllocateButton || showReturns || showPayment || showRefund) && (
+      {(showReturns || showPayment || showRefund) && (
         <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
           {showReturns &&
             (receivableReturns?.length === 1 ? (
@@ -217,14 +169,6 @@ export const OrderSummarySection = ({
                 </Button>
               </ActionMenu>
             ))}
-
-          {showAllocateButton && (
-            <Button asChild variant="secondary" size="small">
-              <Link to="allocate-items">
-                {t("orders.allocateItems.action")}
-              </Link>
-            </Button>
-          )}
 
           {showPayment && (
             <CopyPaymentLink
@@ -274,17 +218,10 @@ const Header = () => {
 const Item = ({
   item,
   currencyCode,
-  reservation,
 }: {
   item: AdminOrderLineItem
   currencyCode: string
-  reservation?: AdminReservation
 }) => {
-  const { t } = useTranslation()
-
-  const isInventoryManaged = item.variant?.manage_inventory
-  const hasUnfulfilledItems = item.quantity - item.detail.fulfilled_quantity > 0
-
   const original_price =
     item.variant?.prices?.find((price) => price.currency_code === currencyCode)
       ?.amount || 0
@@ -338,19 +275,6 @@ const Item = ({
                 <span className="tabular-nums">{item.quantity}</span>x
               </Text>
             </div>
-
-            <div className="overflow-visible">
-              {isInventoryManaged && hasUnfulfilledItems && (
-                <StatusBadge
-                  color={reservation ? "green" : "orange"}
-                  className="text-nowrap"
-                >
-                  {reservation
-                    ? t("orders.reservations.allocatedLabel")
-                    : t("orders.reservations.notAllocatedLabel")}
-                </StatusBadge>
-              )}
-            </div>
           </div>
 
           <div className="flex items-center justify-end">
@@ -366,27 +290,17 @@ const Item = ({
 
 const ItemBreakdown = ({
   order,
-  reservations,
 }: {
   order: AdminOrder
-  reservations?: AdminReservation[]
 }) => {
-  const reservationsMap = useMemo(
-    () => new Map((reservations || []).map((r) => [r.line_item_id, r])),
-    [reservations]
-  )
-
   return (
     <div>
       {order.items?.map((item) => {
-        const reservation = reservationsMap.get(item.id)
-
         return (
           <Item
             key={item.id}
             item={item}
             currencyCode={order.currency_code}
-            reservation={reservation}
           />
         )
       })}
@@ -425,7 +339,7 @@ const Cost = ({
 const CostBreakdown = ({
   order,
 }: {
-  order: ExtendedAdminOrder
+  order: HttpTypes.AdminOrder
 }) => {
   const { t } = useTranslation()
   const [isTaxOpen, setIsTaxOpen] = useState(false)

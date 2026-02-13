@@ -88,7 +88,7 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
 
 
   // TODO: uncomment and fix payment related logic when backend returns data about payment cancel/capture/refund dates
-  const payments = order.split_order_payment
+  const payments = order.payment_collections
 
   return useMemo(() => {
     if (isLoading) {

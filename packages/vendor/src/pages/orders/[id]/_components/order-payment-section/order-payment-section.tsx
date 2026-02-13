@@ -5,13 +5,13 @@ import { useTranslation } from "react-i18next"
 
 import { getStylizedAmount } from "@lib/money-amount-helpers"
 import { getOrderPaymentStatus } from "@lib/order-helpers"
-import { ExtendedAdminOrder } from "@custom-types/order"
+import { getTotalCaptured, getTotalPending } from "@lib/payment"
 
 type OrderPaymentSectionProps = {
-  order: ExtendedAdminOrder
+  order: HttpTypes.AdminOrder
 }
 
-export const getPaymentsFromOrder = (order: HttpTypes.AdminOrder | ExtendedAdminOrder) => {
+export const getPaymentsFromOrder = (order: HttpTypes.AdminOrder) => {
   return order.payment_collections
     ?.map((collection: HttpTypes.AdminPaymentCollection) => collection.payments)
     .flat(1)
@@ -27,7 +27,7 @@ export const OrderPaymentSection = ({ order }: OrderPaymentSectionProps) => {
   )
 }
 
-const Header = ({ order }: { order: ExtendedAdminOrder }) => {
+const Header = ({ order }: { order: HttpTypes.AdminOrder }) => {
   const { t } = useTranslation()
   const { label, color } = getOrderPaymentStatus(t, order.payment_status)
 
@@ -42,16 +42,20 @@ const Header = ({ order }: { order: ExtendedAdminOrder }) => {
   )
 }
 
-const Total = ({ order }: { order: ExtendedAdminOrder }) => {
+const Total = ({ order }: { order: HttpTypes.AdminOrder }) => {
   const { t } = useTranslation()
-  
-  if (!order.split_order_payment) {
+
+  if (!order.payment_collections?.length) {
     return null
   }
-  
-  const totalPending =
-    order.split_order_payment.authorized_amount -
-    order.split_order_payment.captured_amount
+
+  const paymentCollections = order.payment_collections
+  const totalCaptured = getTotalCaptured(paymentCollections)
+  const totalPending = getTotalPending(paymentCollections)
+  const totalRefunded = paymentCollections.reduce(
+    (acc, pc) => acc + ((pc.refunded_amount as number) || 0),
+    0
+  )
 
   return (
     <div>
@@ -61,25 +65,18 @@ const Total = ({ order }: { order: ExtendedAdminOrder }) => {
         </Text>
 
         <Text size="small" weight="plus" leading="compact">
-          {getStylizedAmount(
-            order.split_order_payment.captured_amount,
-            order.split_order_payment.currency_code
-          )}
+          {getStylizedAmount(totalCaptured, order.currency_code)}
         </Text>
       </div>
 
-      {(order.split_order_payment.status === "refunded" ||
-        order.split_order_payment.status === "partially_refunded") && (
+      {totalRefunded > 0 && (
         <div className="flex items-center justify-between px-6 py-4">
           <Text size="small" weight="plus" leading="compact">
             Refunded
           </Text>
 
           <Text size="small" weight="plus" leading="compact">
-            {getStylizedAmount(
-              order.split_order_payment.refunded_amount,
-              order.split_order_payment.currency_code
-            )}
+            {getStylizedAmount(totalRefunded, order.currency_code)}
           </Text>
         </div>
       )}
@@ -91,10 +88,7 @@ const Total = ({ order }: { order: ExtendedAdminOrder }) => {
           </Text>
 
           <Text size="small" weight="plus" leading="compact">
-            {getStylizedAmount(
-              totalPending,
-              order.split_order_payment.currency_code
-            )}
+            {getStylizedAmount(totalPending, order.currency_code)}
           </Text>
         </div>
       )}

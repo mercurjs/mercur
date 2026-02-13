@@ -22,7 +22,7 @@ export const OrderListTable = () => {
 
   const { orders, count, isError, error, isLoading } = useOrders(
     {
-      fields: "*customer,+payment_status,*split_order_payment",
+      fields: "*customer,+payment_status,*payment_collections",
     },
     undefined,
     {

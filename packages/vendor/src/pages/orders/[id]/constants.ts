@@ -44,7 +44,8 @@ const DEFAULT_RELATIONS = [
   "*fulfillments.labels",
   "*fulfillments.labels",
   "region.automatic_taxes",
-  "*split_order_payment",
+  "*payment_collections",
+  "*payment_collections.payments",
   "payment_status",
   "*returns",
 ]
