@@ -31,14 +31,14 @@ import type { AdminGetRequestsParamsType } from './validators';
  *     in: query
  *     schema:
  *       type: string
- *     enum: [product,product_collection,product_collection_update,product_category,seller,review_remove,product_type,product_tag,product_update]
+ *       enum: [product,product_collection,product_collection_update,product_category,seller,review_remove,product_type,product_tag,product_update]
  *     required: false
  *     description: Filter by request type
  *   - name: status
  *     in: query
  *     schema:
  *       type: string
- *     enum: [pending,rejected,accepted]
+ *       enum: [pending,rejected,accepted]
  *     required: false
  *     description: Filter by request status
  *   - name: order
