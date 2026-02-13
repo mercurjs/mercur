@@ -104,9 +104,9 @@ const MainSidebar = () => {
           </div>
           <UtilitySection />
         </div>
-        {/* <div className="bg-ui-bg-subtle sticky bottom-0">
+        <div className="bg-ui-bg-subtle sticky bottom-0">
           <UserSection />
-        </div> */}
+        </div>
       </div>
     </aside>
   );

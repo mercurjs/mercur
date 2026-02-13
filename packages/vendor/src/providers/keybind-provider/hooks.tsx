@@ -202,14 +202,6 @@ export const useGlobalShortcuts = () => {
     },
     {
       keys: {
-        Mac: ["G", ",", "U"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToUsers"),
-      type: "settingShortcut",
-      to: "/settings/users",
-    },
-    {
-      keys: {
         Mac: ["G", ",", "P"],
       },
       label: t("app.keyboardShortcuts.settings.goToProductTypes"),

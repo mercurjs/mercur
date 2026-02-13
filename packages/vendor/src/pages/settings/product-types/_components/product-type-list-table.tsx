@@ -53,9 +53,11 @@ export const ProductTypeListTable = () => {
             {t("productTypes.subtitle")}
           </Text>
         </div>
+        {/* TODO: Enable when request product type flow is implemented
         <Button size="small" variant="secondary" asChild>
           <Link to="create">Request Product Type</Link>
         </Button>
+        */}
       </div>
       <_DataTable
         table={table}

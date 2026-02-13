@@ -808,53 +808,6 @@ export function getRouteMap({
                 ],
               },
 
-              // USERS
-              {
-                path: "users",
-                errorElement: <ErrorBoundary />,
-                element: <Outlet />,
-                handle: { breadcrumb: () => t("users.domain") },
-                children: [
-                  {
-                    path: "",
-                    lazy: () => import("./pages/settings/users"),
-                    children: [
-                      {
-                        path: "invite",
-                        lazy: () => import("./pages/settings/users/invite"),
-                      },
-                    ],
-                  },
-                  {
-                    path: ":id",
-                    lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
-                        await import("./pages/settings/users/[id]");
-                      return {
-                        Component,
-                        loader,
-                        handle: {
-                          breadcrumb: (match: UIMatch<any>) => (
-                            <Breadcrumb {...match} />
-                          ),
-                        },
-                      };
-                    },
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () => import("./pages/settings/users/[id]/edit"),
-                      },
-                      {
-                        path: "metadata/edit",
-                        lazy: () =>
-                          import("./pages/settings/users/[id]/metadata"),
-                      },
-                    ],
-                  },
-                ],
-              },
-
               // LOCATIONS
               {
                 path: "locations",
