@@ -29,15 +29,19 @@ export const OrderPaymentSection = ({ order }: OrderPaymentSectionProps) => {
 
 const Header = ({ order }: { order: HttpTypes.AdminOrder }) => {
   const { t } = useTranslation()
-  const { label, color } = getOrderPaymentStatus(t, order.payment_status)
 
   return (
     <div className="flex items-center justify-between px-6 py-4">
       <Heading level="h2">{t("orders.payment.title")}</Heading>
 
-      <StatusBadge color={color} className="text-nowrap">
-        {label}
-      </StatusBadge>
+      {order.payment_status && (
+        <StatusBadge
+          color={getOrderPaymentStatus(t, order.payment_status).color}
+          className="text-nowrap"
+        >
+          {getOrderPaymentStatus(t, order.payment_status).label}
+        </StatusBadge>
+      )}
     </div>
   )
 }

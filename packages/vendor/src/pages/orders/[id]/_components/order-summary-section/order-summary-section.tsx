@@ -24,9 +24,6 @@ import {
 } from "@medusajs/ui"
 
 import { ActionMenu } from "@components/common/action-menu"
-import {
-  useOrderCommission,
-} from "@hooks/api/orders"
 import { useMarkPaymentCollectionAsPaid } from "@hooks/api/payment-collections"
 import { formatCurrency } from "@lib/format-currency"
 import {
@@ -345,8 +342,14 @@ const CostBreakdown = ({
   const [isTaxOpen, setIsTaxOpen] = useState(false)
   const [isShippingOpen, setIsShippingOpen] = useState(false)
 
-  const { commission } = useOrderCommission(order.id!)
-  
+  const commissionTotal = useMemo(() => {
+    return order.items.reduce((acc, item) => {
+      const lines = (item as any).commission_lines as any[] | undefined
+      if (!lines) return acc
+      return acc + lines.reduce((sum: number, line: any) => sum + (line.amount ?? 0), 0)
+    }, 0)
+  }, [order.items])
+
   const discountCodes = useMemo(() => {
     const codes = new Set()
     order.items.forEach((item) =>
@@ -523,13 +526,10 @@ const CostBreakdown = ({
           </div>
         )}
       </>
-      {commission && (
+      {commissionTotal > 0 && (
         <Cost
           label={"Commission"}
-          value={getLocaleAmount(
-            parseFloat(commission.commission_value.amount),
-            commission.commission_value.currency_code
-          )}
+          value={getLocaleAmount(commissionTotal, order.currency_code)}
         />
       )}
     </div>

@@ -118,6 +118,10 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
 const FulfillmentBadge = ({ order }: { order: HttpTypes.AdminOrder }) => {
   const { t } = useTranslation()
 
+  if (!order.fulfillment_status) {
+    return null
+  }
+
   const { label, color } = getOrderFulfillmentStatus(
     t,
     order.fulfillment_status
@@ -132,6 +136,10 @@ const FulfillmentBadge = ({ order }: { order: HttpTypes.AdminOrder }) => {
 
 const PaymentBadge = ({ order }: { order: HttpTypes.AdminOrder }) => {
   const { t } = useTranslation()
+
+  if (!order.payment_status) {
+    return null
+  }
 
   const { label, color } = getOrderPaymentStatus(t, order.payment_status)
 
