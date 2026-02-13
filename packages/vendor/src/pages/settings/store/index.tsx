@@ -9,7 +9,7 @@ const StoreDetail = () => {
   const { store, isPending, isError, error } = useStore()
 
   if (isPending || !store) {
-    return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />
+    return <SingleColumnPageSkeleton sections={2} />
   }
 
   if (isError) {
@@ -17,7 +17,7 @@ const StoreDetail = () => {
   }
 
   return (
-    <SingleColumnPage data={store} hasOutlet showMetadata showJSON>
+    <SingleColumnPage data={store} hasOutlet>
       <StoreGeneralSection store={store} />
       <CompanySection store={store} />
     </SingleColumnPage>
