@@ -11,7 +11,10 @@ export const Component = () => {
   const { id } = useParams();
   const { t } = useTranslation();
 
-  const { product, isLoading, isError, error } = useProduct(id!);
+  const { product, isLoading, isError, error } = useProduct(id!, {
+    fields:
+      "*shipping_profile,-type,-collection,-options,-tags,-images,-variants,-sales_channels",
+  });
 
   if (isError) {
     throw error;

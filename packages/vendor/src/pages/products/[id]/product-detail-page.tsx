@@ -42,6 +42,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
             <ProductVariantSection />
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
+            <ProductShippingProfileSection />
             <ProductOrganizationSection />
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
