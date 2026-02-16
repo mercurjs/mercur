@@ -5,10 +5,11 @@ import { initReactI18next } from "react-i18next";
 import { defaultI18nOptions } from "../../../i18n/config";
 import translations from "../../../i18n/translations";
 import customI18nResources from "virtual:mercur/i18n";
+import config from "virtual:mercur/config";
 
 function deepMerge(
   target: Record<string, any>,
-  source: Record<string, any>
+  source: Record<string, any>,
 ): Record<string, any> {
   const result = { ...target };
 
@@ -42,11 +43,14 @@ export const I18n = () => {
       new LanguageDetector(null, {
         lookupCookie: "lng",
         lookupLocalStorage: "lng",
-      })
+      }),
     )
     .use(initReactI18next)
     .init({
       ...defaultI18nOptions,
+      ...(config.i18n?.defaultLanguage && {
+        lng: config.i18n.defaultLanguage,
+      }),
       resources: mergedTranslations,
     });
 
