@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
@@ -19,10 +19,7 @@ import { useStockLocations } from "@hooks/api/stock-locations"
 import { getFulfillableQuantity } from "@lib/order-item"
 import { CreateFulfillmentSchema } from "./constants"
 import { OrderCreateFulfillmentItem } from "./order-create-fulfillment-item"
-import {
-  useReservationItems,
-  useShippingOptions,
-} from "@hooks/api"
+import { useShippingOptions } from "@hooks/api"
 import {
   isReturnOption,
   isSameLocation,
@@ -42,18 +39,6 @@ export function OrderCreateFulfillmentForm({
 
   const { mutateAsync: createOrderFulfillment, isPending: isMutating } =
     useCreateOrderFulfillment(order.id)
-
-  const { reservations: reservationsRaw } = useReservationItems()
-
-  const reservations = reservationsRaw?.filter((r) =>
-    order.items.some((i) => i.id === r.line_item_id)
-  )
-
-  const itemReservedQuantitiesMap = useMemo(
-    () =>
-      new Map((reservations || []).map((r) => [r.line_item_id, r.quantity])),
-    [reservations]
-  )
 
   const [fulfillableItems, setFulfillableItems] = useState(() =>
     (order.items || []).filter(
@@ -366,9 +351,6 @@ export function OrderCreateFulfillmentForm({
                             currencyCode={order.currency_code}
                             onItemRemove={() => {}}
                             disabled={!isShippingProfileMatching}
-                            itemReservedQuantitiesMap={
-                              itemReservedQuantitiesMap
-                            }
                           />
                         )
                       })}

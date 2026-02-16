@@ -482,6 +482,127 @@ medusaIntegrationTestRunner({
                     expect(completeResponse.data.order_group.id).toBeDefined()
                 })
 
+                it("should assign shipping methods to orders after cart completion", async () => {
+                    // 1. Create cart
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    let cart = cartResponse.data.cart
+
+                    // 2. Add item to cart
+                    const addItemResponse = await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            variant_id: product.variants[0].id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+                    cart = addItemResponse.data.cart
+
+                    // 3. Set shipping address
+                    const updateResponse = await api.post(
+                        `/store/carts/${cart.id}`,
+                        {
+                            email: "shipping-assign@test.com",
+                            shipping_address: {
+                                first_name: "Jane",
+                                last_name: "Doe",
+                                address_1: "456 Oak Ave",
+                                city: "Los Angeles",
+                                country_code: "us",
+                                postal_code: "90001",
+                            },
+                            billing_address: {
+                                first_name: "Jane",
+                                last_name: "Doe",
+                                address_1: "456 Oak Ave",
+                                city: "Los Angeles",
+                                country_code: "us",
+                                postal_code: "90001",
+                            },
+                        },
+                        storeHeaders
+                    )
+                    cart = updateResponse.data.cart
+
+                    // 4. Get shipping options and add shipping method
+                    const shippingOptionsResponse = await api.get(
+                        `/store/shipping-options?cart_id=${cart.id}`,
+                        storeHeaders
+                    )
+                    const allShippingOptions = Object.values(
+                        shippingOptionsResponse.data.shipping_options as Record<string, any[]>
+                    ).flat()
+                    expect(allShippingOptions.length).toBeGreaterThan(0)
+
+                    const addShippingResponse = await api.post(
+                        `/store/carts/${cart.id}/shipping-methods`,
+                        {
+                            option_id: allShippingOptions[0].id,
+                        },
+                        storeHeaders
+                    )
+                    cart = addShippingResponse.data.cart
+                    expect(cart.shipping_methods.length).toEqual(1)
+
+                    const selectedShippingOptionId = allShippingOptions[0].id
+
+                    // 5. Create payment collection and session
+                    const paymentCollectionResponse = await api.post(
+                        `/store/payment-collections`,
+                        { cart_id: cart.id },
+                        storeHeaders
+                    )
+                    const paymentCollection = paymentCollectionResponse.data.payment_collection
+
+                    await api.post(
+                        `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
+                        { provider_id: "pp_system_default" },
+                        storeHeaders
+                    )
+
+                    // 6. Complete the cart
+                    const completeResponse = await api.post(
+                        `/store/carts/${cart.id}/complete`,
+                        {},
+                        storeHeaders
+                    )
+
+                    expect(completeResponse.status).toEqual(200)
+                    expect(completeResponse.data.type).toEqual("order_group")
+
+                    const orderGroupId = completeResponse.data.order_group.id
+
+                    // 7. Query orders via query graph to verify shipping methods
+                    const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+                    const { data: orderGroup } = await query.graph({
+                        entity: "order_group",
+                        filters: { id: orderGroupId },
+                        fields: [
+                            "id",
+                            "orders.*",
+                            "orders.shipping_methods.*",
+                        ],
+                    })
+
+                    const orders = orderGroup[0].orders
+                    expect(orders.length).toBeGreaterThan(0)
+
+                    // Verify each order has shipping methods assigned
+                    for (const order of orders) {
+                        expect(order.shipping_methods).toBeDefined()
+                        expect(order.shipping_methods.length).toBeGreaterThan(0)
+                        expect(order.shipping_methods[0].shipping_option_id).toEqual(selectedShippingOptionId)
+                    }
+                })
+
                 it("should add multiple items from different variants", async () => {
                     // Create cart
                     const cartResponse = await api.post(

@@ -17,7 +17,6 @@ type OrderEditItemProps = {
   currencyCode: string
   locationId?: string
   onItemRemove: (itemId: string) => void
-  itemReservedQuantitiesMap: Map<string | null, number>
   form: UseFormReturn<zod.infer<typeof CreateFulfillmentSchema>>
   disabled: boolean
 }
@@ -26,7 +25,6 @@ export function OrderCreateFulfillmentItem({
   item,
   form,
   locationId,
-  itemReservedQuantitiesMap,
   disabled,
 }: OrderEditItemProps) {
   const { t } = useTranslation()
@@ -57,14 +55,11 @@ export function OrderCreateFulfillmentItem({
       return {}
     }
 
-    const reservedQuantityForItem = itemReservedQuantitiesMap.get(item.id) ?? 0
-
     return {
-      availableQuantity:
-        locationInventory.available_quantity + reservedQuantityForItem,
+      availableQuantity: locationInventory.available_quantity,
       inStockQuantity: locationInventory.stocked_quantity,
     }
-  }, [variant, locationId, itemReservedQuantitiesMap])
+  }, [variant, locationId])
 
   const minValue = 0
   const maxValue = Math.min(

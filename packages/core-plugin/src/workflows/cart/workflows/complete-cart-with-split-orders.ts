@@ -165,8 +165,9 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 const cartSellerIds = new Set<string>(cart.items?.map((item) => item.variant.product.seller.id))
                 const sellerShippingOptionsMap = new Map()
                 shippingOptionsData.forEach((so) => {
-                    const previous = sellerShippingOptionsMap.get(so.id) ?? []
-                    sellerShippingOptionsMap.set(so.id, [...previous, so])
+                    const sellerId = so.seller.id
+                    const previous = sellerShippingOptionsMap.get(sellerId) ?? []
+                    sellerShippingOptionsMap.set(sellerId, [...previous, so])
                 })
 
                 const sellerOrdersMap: Record<string, string> = {}
