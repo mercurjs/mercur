@@ -1,16 +1,14 @@
-import { PencilSquare } from "@medusajs/icons"
-import { Badge, Container, Heading, Tooltip } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
-import { ActionMenu } from "@components/common/action-menu"
-import { SectionRow } from "@components/common/section"
-import { useDashboardExtension } from "@/extensions"
-import { useProductDetailContext } from "../../context"
+import { PencilSquare } from "@medusajs/icons";
+import { Badge, Container, Heading, Tooltip } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { ActionMenu } from "@components/common/action-menu";
+import { SectionRow } from "@components/common/section";
+import { useProductDetailContext } from "../../context";
 
 export const ProductOrganizationSection = () => {
-  const { product } = useProductDetailContext()
-  const { t } = useTranslation()
-  const { getDisplays } = useDashboardExtension()
+  const { product } = useProductDetailContext();
+  const { t } = useTranslation();
 
   return (
     <Container className="divide-y p-0">
@@ -83,13 +81,9 @@ export const ProductOrganizationSection = () => {
             : undefined
         }
       />
-
-      {getDisplays("product", "organize").map((Component, i) => {
-        return <Component key={i} data={product} />
-      })}
     </Container>
-  )
-}
+  );
+};
 
 const OrganizationTag = ({ label, to }: { label: string; to: string }) => {
   return (
@@ -98,5 +92,5 @@ const OrganizationTag = ({ label, to }: { label: string; to: string }) => {
         <Link to={to}>{label}</Link>
       </Badge>
     </Tooltip>
-  )
-}
+  );
+};

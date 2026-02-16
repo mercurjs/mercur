@@ -2940,8 +2940,8 @@
   },
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to Mercur",
-    "hint": "Sign in to access the vendor area"
+    "title": "Welcome to {{name}}",
+    "hint": "Sign in to access the vendor hub"
   },
   "validation": {
     "rules": {

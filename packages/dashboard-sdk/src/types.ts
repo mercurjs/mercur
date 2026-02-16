@@ -1,13 +1,16 @@
 import { ComponentType } from "react";
 
 export interface MercurConfig {
-    title: string
-    description: string
-    components: {
+    name?: string
+    logo?: string
+    components?: {
         MainSidebar?: string
         SettingsSidebar?: string
     },
-    baseUrl: string;
+    i18n?: {
+        defaultLanguage: string
+    }
+    backendUrl?: string;
 }
 
 export interface BuiltMercurConfig extends MercurConfig {
@@ -15,8 +18,6 @@ export interface BuiltMercurConfig extends MercurConfig {
     srcDir: string
     configPath: string
 }
-
-
 
 export type RouteConfig = {
     label: string

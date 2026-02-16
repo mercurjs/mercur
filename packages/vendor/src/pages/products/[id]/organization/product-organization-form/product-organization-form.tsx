@@ -1,53 +1,45 @@
-import { ExtendedAdminProduct } from "@custom-types/products"
-import { Button, toast } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+import { ExtendedAdminProduct } from "@custom-types/products";
+import { Button, toast } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
 
-import { Form } from "@components/common/form"
-import { Combobox } from "@components/inputs/combobox"
-import { RouteDrawer, useRouteModal } from "@components/modals"
-import { KeyboundForm } from "@components/utilities/keybound-form"
-import {
-  FormExtensionZone,
-  useDashboardExtension,
-  useExtendableForm,
-} from "@/extensions"
-import { useUpdateProduct } from "@hooks/api/products"
-import { useComboboxData } from "@hooks/use-combobox-data"
-import { sdk, fetchQuery } from "@lib/client"
-import { CategoryCombobox } from "@pages/products/common/components/category-combobox"
+import { Form } from "@components/common/form";
+import { Combobox } from "@components/inputs/combobox";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+import { useUpdateProduct } from "@hooks/api/products";
+import { useComboboxData } from "@hooks/use-combobox-data";
+import { sdk, fetchQuery } from "@lib/client";
+import { CategoryCombobox } from "@pages/products/common/components/category-combobox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type ProductOrganizationFormProps = {
-  product: ExtendedAdminProduct
-}
+  product: ExtendedAdminProduct;
+};
 
 const ProductOrganizationSchema = zod.object({
   type_id: zod.string().nullable(),
   collection_id: zod.string().nullable(),
   categories: zod.array(zod.string()),
   tag_ids: zod.array(zod.string()),
-})
+});
 
 export const ProductOrganizationForm = ({
   product,
 }: ProductOrganizationFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const { getFormConfigs, getFormFields } = useDashboardExtension()
-
-  const configs = getFormConfigs("product", "organize")
-  const fields = getFormFields("product", "organize")
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const collections = useComboboxData({
     queryKey: ["product_collections"],
-    queryFn: (params) =>
-      sdk.vendor.collections.query(params as any),
+    queryFn: (params) => sdk.vendor.collections.query(params as any),
     getOptions: (data) =>
       data.collections.map((collection: any) => ({
         label: collection.title!,
         value: collection.id!,
       })),
-  })
+  });
 
   const types = useComboboxData({
     queryKey: ["product_types"],
@@ -61,7 +53,7 @@ export const ProductOrganizationForm = ({
         label: type.value,
         value: type.id,
       })),
-  })
+  });
 
   const tags = useComboboxData({
     queryKey: ["product_tags"],
@@ -75,21 +67,19 @@ export const ProductOrganizationForm = ({
         label: tag.value,
         value: tag.id,
       })),
-  })
+  });
 
-  const form = useExtendableForm({
+  const form = useForm({
     defaultValues: {
       type_id: product.type_id ?? "",
       collection_id: product.collection_id ?? "",
       categories: product.categories?.map((c) => c.id) || [],
       tag_ids: product.tags?.map((t) => t.id) || [],
     },
-    schema: ProductOrganizationSchema,
-    configs: configs,
-    data: product,
-  })
+    resolver: zodResolver(ProductOrganizationSchema),
+  });
 
-  const { mutateAsync, isPending } = useUpdateProduct(product.id)
+  const { mutateAsync, isPending } = useUpdateProduct(product.id);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await mutateAsync(
@@ -104,16 +94,16 @@ export const ProductOrganizationForm = ({
           toast.success(
             t("products.organization.edit.toasts.success", {
               title: product.title,
-            })
-          )
-          handleSuccess()
+            }),
+          );
+          handleSuccess();
         },
         onError: (error) => {
-          toast.error(error.message)
+          toast.error(error.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -140,7 +130,7 @@ export const ProductOrganizationForm = ({
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
-                )
+                );
               }}
             />
             <Form.Field
@@ -163,7 +153,7 @@ export const ProductOrganizationForm = ({
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
-                )
+                );
               }}
             />
             <Form.Field
@@ -180,7 +170,7 @@ export const ProductOrganizationForm = ({
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
-                )
+                );
               }}
             />
             <Form.Field
@@ -203,10 +193,9 @@ export const ProductOrganizationForm = ({
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
-                )
+                );
               }}
             />
-            <FormExtensionZone fields={fields} form={form} />
           </div>
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
@@ -223,5 +212,5 @@ export const ProductOrganizationForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};

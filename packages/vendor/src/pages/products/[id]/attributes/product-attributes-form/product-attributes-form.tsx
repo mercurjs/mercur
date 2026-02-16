@@ -1,32 +1,29 @@
-import { ExtendedAdminProduct } from "@custom-types/products"
-import { Button, Input } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
-import { Form } from "@components/common/form"
-import { CountrySelect } from "@components/inputs/country-select"
-import { RouteDrawer, useRouteModal } from "@components/modals"
-import { KeyboundForm } from "@components/utilities/keybound-form"
-import {
-  FormExtensionZone,
-  useDashboardExtension,
-  useExtendableForm,
-} from "@/extensions"
-import { useUpdateProduct } from "@hooks/api/products"
+import { ExtendedAdminProduct } from "@custom-types/products";
+import { Button, Input } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
+import { Form } from "@components/common/form";
+import { CountrySelect } from "@components/inputs/country-select";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+import { useUpdateProduct } from "@hooks/api/products";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type ProductAttributesFormProps = {
-  product: ExtendedAdminProduct
-}
+  product: ExtendedAdminProduct;
+};
 
 const dimension = zod
   .union([zod.string(), zod.number()])
   .transform((value) => {
     if (value === "") {
-      return null
+      return null;
     }
-    return Number(value)
+    return Number(value);
   })
   .optional()
-  .nullable()
+  .nullable();
 
 const ProductAttributesSchema = zod.object({
   weight: dimension,
@@ -36,19 +33,15 @@ const ProductAttributesSchema = zod.object({
   mid_code: zod.string().optional(),
   hs_code: zod.string().optional(),
   origin_country: zod.string().optional(),
-})
+});
 
 export const ProductAttributesForm = ({
   product,
 }: ProductAttributesFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const { getFormConfigs, getFormFields } = useDashboardExtension()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
-  const configs = getFormConfigs("product", "attributes")
-  const fields = getFormFields("product", "attributes")
-
-  const form = useExtendableForm({
+  const form = useForm({
     defaultValues: {
       height: product.height ? product.height : null,
       width: product.width ? product.width : null,
@@ -58,12 +51,10 @@ export const ProductAttributesForm = ({
       hs_code: product.hs_code || "",
       origin_country: product.origin_country || "",
     },
-    schema: ProductAttributesSchema,
-    configs: configs,
-    data: product,
-  })
+    resolver: zodResolver(ProductAttributesSchema),
+  });
 
-  const { mutateAsync, isPending } = useUpdateProduct(product.id)
+  const { mutateAsync, isPending } = useUpdateProduct(product.id);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await mutateAsync(
@@ -78,11 +69,11 @@ export const ProductAttributesForm = ({
       },
       {
         onSuccess: () => {
-          handleSuccess()
+          handleSuccess();
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -103,12 +94,12 @@ export const ProductAttributesForm = ({
                           min={0}
                           value={value || ""}
                           onChange={(e) => {
-                            const value = e.target.value
+                            const value = e.target.value;
 
                             if (value === "") {
-                              onChange(null)
+                              onChange(null);
                             } else {
-                              onChange(parseFloat(value))
+                              onChange(parseFloat(value));
                             }
                           }}
                           {...field}
@@ -116,7 +107,7 @@ export const ProductAttributesForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               <Form.Field
@@ -132,12 +123,12 @@ export const ProductAttributesForm = ({
                           min={0}
                           value={value || ""}
                           onChange={(e) => {
-                            const value = e.target.value
+                            const value = e.target.value;
 
                             if (value === "") {
-                              onChange(null)
+                              onChange(null);
                             } else {
-                              onChange(Number(value))
+                              onChange(Number(value));
                             }
                           }}
                           {...field}
@@ -145,7 +136,7 @@ export const ProductAttributesForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               <Form.Field
@@ -161,12 +152,12 @@ export const ProductAttributesForm = ({
                           min={0}
                           value={value || ""}
                           onChange={(e) => {
-                            const value = e.target.value
+                            const value = e.target.value;
 
                             if (value === "") {
-                              onChange(null)
+                              onChange(null);
                             } else {
-                              onChange(Number(value))
+                              onChange(Number(value));
                             }
                           }}
                           {...field}
@@ -174,7 +165,7 @@ export const ProductAttributesForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               <Form.Field
@@ -190,12 +181,12 @@ export const ProductAttributesForm = ({
                           min={0}
                           value={value || ""}
                           onChange={(e) => {
-                            const value = e.target.value
+                            const value = e.target.value;
 
                             if (value === "") {
-                              onChange(null)
+                              onChange(null);
                             } else {
-                              onChange(Number(value))
+                              onChange(Number(value));
                             }
                           }}
                           {...field}
@@ -203,7 +194,7 @@ export const ProductAttributesForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               <Form.Field
@@ -218,7 +209,7 @@ export const ProductAttributesForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               <Form.Field
@@ -233,7 +224,7 @@ export const ProductAttributesForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               <Form.Field
@@ -248,10 +239,9 @@ export const ProductAttributesForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
-              <FormExtensionZone fields={fields} form={form} />
             </div>
           </div>
         </RouteDrawer.Body>
@@ -269,5 +259,5 @@ export const ProductAttributesForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};

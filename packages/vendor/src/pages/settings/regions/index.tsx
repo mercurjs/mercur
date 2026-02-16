@@ -1,20 +1,12 @@
-import { SingleColumnPage } from "@components/layout/pages"
-import { useDashboardExtension } from "@/extensions"
-import { RegionListTable } from "./_components/region-list-table"
+import { SingleColumnPage } from "@components/layout/pages";
+import { RegionListTable } from "./_components/region-list-table";
 
 const RegionList = () => {
-  const { getWidgets } = useDashboardExtension()
-
   return (
-    <SingleColumnPage
-      widgets={{
-        before: getWidgets("region.list.before"),
-        after: getWidgets("region.list.after"),
-      }}
-    >
+    <SingleColumnPage>
       <RegionListTable />
     </SingleColumnPage>
-  )
-}
+  );
+};
 
-export const Component = RegionList
+export const Component = RegionList;

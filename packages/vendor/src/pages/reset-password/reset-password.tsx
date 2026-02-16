@@ -8,7 +8,7 @@ import * as z from "zod"
 import { useState } from "react"
 import { decodeToken } from "react-jwt"
 import { Form } from "@components/common/form"
-import { LogoBox } from "@components/common/logo-box"
+import AvatarBox from "@components/common/logo-box/avatar-box"
 import { i18n } from "@components/utilities/i18n"
 import {
   useResetPasswordForEmailPass,
@@ -61,7 +61,7 @@ const InvalidResetToken = () => {
   return (
     <div className="bg-ui-bg-base flex min-h-dvh w-dvw items-center justify-center">
       <div className="m-4 flex w-full max-w-[300px] flex-col items-center">
-        <LogoBox className="mb-4" />
+        <AvatarBox />
         <div className="mb-6 flex flex-col items-center">
           <Heading>{t("resetPassword.invalidLinkTitle")}</Heading>
           <Text size="small" className="text-ui-fg-subtle text-center">
@@ -145,7 +145,7 @@ const ChooseNewPassword = ({ token }: { token: string }) => {
   return (
     <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
       <div className="m-4 flex w-full max-w-[280px] flex-col items-center">
-        <LogoBox className="mb-4" />
+        <AvatarBox />
         <div className="mb-6 flex flex-col items-center">
           <Heading>{t("resetPassword.resetPassword")}</Heading>
           <Text size="small" className="text-ui-fg-subtle text-center">
@@ -274,7 +274,7 @@ export const ResetPassword = () => {
   return (
     <div className="bg-ui-bg-base flex min-h-dvh w-dvw items-center justify-center">
       <div className="m-4 flex w-full max-w-[300px] flex-col items-center">
-        <LogoBox className="mb-4" />
+        <AvatarBox />
         <div className="mb-4 flex flex-col items-center">
           <Heading>{t("resetPassword.resetPassword")}</Heading>
           <Text size="small" className="text-ui-fg-subtle text-center">

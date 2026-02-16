@@ -3,13 +3,13 @@ import { Routes } from '@mercurjs/core-plugin/_generated'
 import config from 'virtual:mercur/config'
 
 export const sdk: InferClient<Routes> = createClient<Routes>({
-  baseUrl: config.baseUrl,
+  baseUrl: config.backendUrl ?? 'http://localhost:9000',
   fetchOptions: {
     credentials: 'include',
   },
 })
 
-export const backendUrl = config.baseUrl
+export const backendUrl = config.backendUrl
 
 export const fetchQuery = async (
   url: string,

@@ -10,7 +10,6 @@ import {
   AdminOrder,
   AdminOrderLineItem,
   HttpTypes,
-  PaymentStatus,
 } from "@medusajs/types"
 import {
   Button,
@@ -19,13 +18,9 @@ import {
   Copy,
   Heading,
   Text,
-  toast,
-  usePrompt,
 } from "@medusajs/ui"
 
 import { ActionMenu } from "@components/common/action-menu"
-import { useMarkPaymentCollectionAsPaid } from "@hooks/api/payment-collections"
-import { formatCurrency } from "@lib/format-currency"
 import {
   getLocaleAmount,
   getStylizedAmount,
@@ -41,9 +36,8 @@ type OrderSummarySectionProps = {
 
 export const OrderSummarySection = ({
   order,
-}: OrderSummarySectionProps & { payment_status?: PaymentStatus }) => {
+}: OrderSummarySectionProps) => {
   const { t } = useTranslation()
-  const prompt = usePrompt()
 
   const receivableReturns = useMemo(
     () => order.returns?.filter((r) => !r.canceled_at),
@@ -56,61 +50,14 @@ export const OrderSummarySection = ({
     (pc) => pc.status !== "captured" && pc.status !== "canceled"
   )
 
-  const { mutateAsync: markAsPaid } = useMarkPaymentCollectionAsPaid(
-    order.id,
-    unpaidPaymentCollection?.id!
-  )
-
   const pendingDifference = order.summary?.pending_difference || 0
   const isAmountSignificant = !isAmountLessThenRoundingError(
     pendingDifference,
     order.currency_code
   )
 
-  const showPayment =
-    unpaidPaymentCollection && pendingDifference > 0 && isAmountSignificant
   const showRefund =
     unpaidPaymentCollection && pendingDifference < 0 && isAmountSignificant
-
-  const handleMarkAsPaid = async (
-    paymentCollection: Partial<HttpTypes.AdminPaymentCollection>
-  ) => {
-    const res = await prompt({
-      title: t("orders.payment.markAsPaid"),
-      description: t("orders.payment.markAsPaidPayment", {
-        amount: formatCurrency(
-          paymentCollection.amount as number,
-          order.currency_code
-        ),
-      }),
-      confirmText: t("actions.confirm"),
-      cancelText: t("actions.cancel"),
-      variant: "confirmation",
-    })
-
-    if (!res) {
-      return
-    }
-
-    await markAsPaid(
-      { order_id: order.id },
-      {
-        onSuccess: () => {
-          toast.success(
-            t("orders.payment.markAsPaidPaymentSuccess", {
-              amount: formatCurrency(
-                paymentCollection.amount as number,
-                order.currency_code
-              ),
-            })
-          )
-        },
-        onError: (error) => {
-          toast.error(error.message)
-        },
-      }
-    )
-  }
 
   return (
     <Container className="divide-y divide-dashed p-0">
@@ -119,7 +66,7 @@ export const OrderSummarySection = ({
       <CostBreakdown order={order} />
       <Total order={order} />
 
-      {(showReturns || showPayment || showRefund) && (
+      {(showReturns || showRefund) && (
         <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
           {showReturns &&
             (receivableReturns?.length === 1 ? (
@@ -165,16 +112,6 @@ export const OrderSummarySection = ({
                 </Button>
               </ActionMenu>
             ))}
-
-          {showPayment && (
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={() => handleMarkAsPaid(unpaidPaymentCollection)}
-            >
-              {t("orders.payment.markAsPaid")}
-            </Button>
-          )}
 
           {showRefund && (
             <Button size="small" variant="secondary" asChild>

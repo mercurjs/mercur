@@ -1,9 +1,6 @@
 import { defineConfig } from '@mercurjs/dashboard-sdk'
 
 export default defineConfig({
-    title: 'test',
-    description: 'test',
-    components: {
-    },
-    baseUrl: 'http://localhost:9000',
+    name: 'WeTest',
+    logo: 'https://ui-avatars.com/api/?name=WeTest&background=18181B&color=fff&size=200&bold=true&format=svg'
 })

@@ -5,7 +5,6 @@ import {
 } from "@mercurjs/client";
 import { UseMutationOptions, useMutation } from "@tanstack/react-query";
 import { sdk } from "../../lib/client";
-import { backendUrl } from "../../lib/client";
 
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
@@ -15,7 +14,7 @@ export const useSignInWithEmailPass = (
       InferClientInput<typeof sdk.auth.$actorType.$authProvider.mutate>,
       "$actorType" | "$authProvider"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: async (payload) => {
@@ -25,19 +24,13 @@ export const useSignInWithEmailPass = (
         ...payload,
       })) as { token: string };
 
-      // Exchange JWT token for a session cookie
-      const sessionRes = await fetch(`${backendUrl}/auth/session`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${data.token}`,
+      await sdk.auth.session.mutate({
+        fetchOptions: {
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
         },
       });
-
-      if (!sessionRes.ok) {
-        throw new Error("Failed to establish session");
-      }
 
       return data;
     },
@@ -58,7 +51,7 @@ export const useSignUpWithEmailPass = (
       >,
       "$actorType" | "$authProvider"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -84,7 +77,7 @@ export const useSignUpForInvite = (
       >,
       "$actorType" | "$authProvider"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -104,7 +97,7 @@ export const useResetPasswordForEmailPass = (
     >,
     ClientError,
     { email: string }
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -125,7 +118,7 @@ export const useLogout = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.auth.session.delete>,
     ClientError
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: () => sdk.auth.session.delete({}),
@@ -142,7 +135,7 @@ export const useUpdateProviderForEmailPass = (
       InferClientInput<typeof sdk.auth.$actorType.$authProvider.update.mutate>,
       "$actorType" | "$authProvider"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>

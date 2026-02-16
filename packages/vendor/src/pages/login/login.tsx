@@ -9,6 +9,7 @@ import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
 import { useSignInWithEmailPass } from "@hooks/api"
 import { isFetchError } from "@lib/is-fetch-error"
+import config from "virtual:mercur/config"
 
 const LoginSchema = z.object({
   email: z.string().email(),
@@ -79,7 +80,7 @@ export const Login = () => {
       <div className="m-4 flex w-full max-w-[280px] flex-col items-center">
         <AvatarBox />
         <div className="mb-4 flex flex-col items-center">
-          <Heading>{t("login.title")}</Heading>
+          <Heading>{t("login.title", { name: config.name ?? "Mercur" })}</Heading>
           <Text size="small" className="text-ui-fg-subtle text-center">
             {t("login.hint")}
           </Text>

@@ -1,5 +1,4 @@
 import {
-  BookOpen,
   BuildingStorefront,
   Buildings,
   CogSixTooth,
@@ -11,7 +10,6 @@ import {
   ReceiptPercent,
   ShoppingCart,
   Tag,
-  TimelineVertical,
   Users,
 } from "@medusajs/icons";
 import { Avatar, Divider, DropdownMenu, Text, clx } from "@medusajs/ui";

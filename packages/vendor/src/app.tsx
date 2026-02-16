@@ -8,15 +8,7 @@ import { I18n } from "./components/utilities/i18n";
 import { getRouteMap } from "./get-route-map";
 import { createRouteMap, getRoutesByType } from "./utils/routes";
 import { useMemo } from "react";
-import { DashboardExtensionManager, DashboardExtensionProvider } from "./extensions";
 import { queryClient } from "./lib/query-client";
-
-const extensionManager = new DashboardExtensionManager({
-  widgetModule: { widgets: [] },
-  menuItemModule: { menuItems: [] },
-  formModule: { customFields: { product: { forms: [], configs: [] } } },
-  displayModule: { displays: {} } as any,
-});
 
 export default function App() {
   const routes = useMemo(() => {
@@ -30,17 +22,15 @@ export default function App() {
     <TooltipProvider>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <DashboardExtensionProvider api={extensionManager.api}>
-            <ThemeProvider>
-              <I18n />
-              <I18nProvider>
-                <RouterProvider
-                  router={createBrowserRouter(getRouteMap(routes))}
-                />
-              </I18nProvider>
-              <Toaster />
-            </ThemeProvider>
-          </DashboardExtensionProvider>
+          <ThemeProvider>
+            <I18n />
+            <I18nProvider>
+              <RouterProvider
+                router={createBrowserRouter(getRouteMap(routes))}
+              />
+            </I18nProvider>
+            <Toaster />
+          </ThemeProvider>
         </QueryClientProvider>
       </HelmetProvider>
     </TooltipProvider>

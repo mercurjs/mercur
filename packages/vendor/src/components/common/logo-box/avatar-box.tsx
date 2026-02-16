@@ -1,8 +1,11 @@
-import { motion } from "motion/react"
+import { motion } from "motion/react";
 
-import { IconAvatar } from "../icon-avatar"
+import { IconAvatar } from "../icon-avatar";
+import config from "virtual:mercur/config";
 
 export default function AvatarBox({ checked }: { checked?: boolean }) {
+  const fallbackLetter = config.name?.charAt(0)?.toUpperCase() ?? "M";
+
   return (
     <IconAvatar
       size="xlarge"
@@ -44,26 +47,34 @@ export default function AvatarBox({ checked }: { checked?: boolean }) {
           </svg>
         </motion.div>
       )}
-      <svg
-        className="rounded-[10px]"
-        viewBox="0 0 400 400"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect width="400" height="400" rx="40" fill="#18181B" />
-        <text
-          x="200"
-          y="200"
-          textAnchor="middle"
-          dominantBaseline="central"
-          fill="white"
-          fontSize="200"
-          fontWeight="bold"
-          fontFamily="Inter, system-ui, sans-serif"
+      {config.logo ? (
+        <img
+          src={config.logo}
+          alt={config.name ?? ""}
+          className="h-full w-full rounded-[10px] object-cover"
+        />
+      ) : (
+        <svg
+          className="rounded-[10px]"
+          viewBox="0 0 400 400"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          M
-        </text>
-      </svg>
+          <rect width="400" height="400" rx="40" fill="#18181B" />
+          <text
+            x="200"
+            y="200"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill="white"
+            fontSize="200"
+            fontWeight="bold"
+            fontFamily="Inter, system-ui, sans-serif"
+          >
+            {fallbackLetter}
+          </text>
+        </svg>
+      )}
     </IconAvatar>
-  )
+  );
 }

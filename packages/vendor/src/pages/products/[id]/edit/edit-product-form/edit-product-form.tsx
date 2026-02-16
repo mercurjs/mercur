@@ -1,55 +1,46 @@
-import { Button, Input, Text, Textarea, toast } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+import { Button, Input, Text, Textarea, toast } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
 
-import { ExtendedAdminProduct } from "@custom-types/products"
-import { Form } from "@components/common/form"
-import { SwitchBox } from "@components/common/switch-box"
-import { RouteDrawer, useRouteModal } from "@components/modals"
-import { useExtendableForm } from "@/extensions/forms/hooks"
-import { useUpdateProduct } from "@hooks/api/products"
+import { ExtendedAdminProduct } from "@custom-types/products";
+import { Form } from "@components/common/form";
+import { SwitchBox } from "@components/common/switch-box";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { useUpdateProduct } from "@hooks/api/products";
 
-import { KeyboundForm } from "@components/utilities/keybound-form"
-import {
-  FormExtensionZone,
-  useDashboardExtension,
-} from "@/extensions"
+import { KeyboundForm } from "@components/utilities/keybound-form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type EditProductFormProps = {
-  product: ExtendedAdminProduct
-}
+  product: ExtendedAdminProduct;
+};
 
 const EditProductSchema = zod.object({
   title: zod.string().min(1),
   handle: zod.string().min(1),
   description: zod.string().optional(),
   discountable: zod.boolean(),
-})
+});
 
 export const EditProductForm = ({ product }: EditProductFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
-  const { getFormFields, getFormConfigs } = useDashboardExtension()
-  const fields = getFormFields("product", "edit")
-  const configs = getFormConfigs("product", "edit")
-
-  const form = useExtendableForm({
+  const form = useForm({
     defaultValues: {
       title: product.title,
       handle: product.handle || "",
       description: product.description || "",
       discountable: product.discountable,
     },
-    schema: EditProductSchema,
-    configs: configs,
-    data: product,
-  })
+    resolver: zodResolver(EditProductSchema),
+  });
 
-  const { mutateAsync, isPending } = useUpdateProduct(product.id)
+  const { mutateAsync, isPending } = useUpdateProduct(product.id);
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const { description, discountable, handle, title } = data
+    const { description, discountable, handle, title } = data;
 
     await mutateAsync(
       {
@@ -63,16 +54,16 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
           toast.success(
             t("products.edit.successToast", {
               title: product.title,
-            })
-          )
-          handleSuccess(`/products/${product.id}`)
+            }),
+          );
+          handleSuccess(`/products/${product.id}`);
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -130,7 +121,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               {/* <Form.Field
@@ -174,7 +165,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               {/* <Form.Field
@@ -208,7 +199,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
             </div>
@@ -218,7 +209,6 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
               label={t("fields.discountable")}
               description={t("products.discountableHint")}
             />
-            <FormExtensionZone fields={fields} form={form} />
           </div>
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
@@ -235,5 +225,5 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};

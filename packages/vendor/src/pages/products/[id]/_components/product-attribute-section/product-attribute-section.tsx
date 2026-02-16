@@ -1,16 +1,14 @@
-import { PencilSquare } from "@medusajs/icons"
-import { Container, Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { ActionMenu } from "@components/common/action-menu"
-import { SectionRow } from "@components/common/section"
-import { useDashboardExtension } from "@/extensions"
-import { getFormattedCountry } from "@lib/addresses"
-import { useProductDetailContext } from "../../context"
+import { PencilSquare } from "@medusajs/icons";
+import { Container, Heading } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import { ActionMenu } from "@components/common/action-menu";
+import { SectionRow } from "@components/common/section";
+import { getFormattedCountry } from "@lib/addresses";
+import { useProductDetailContext } from "../../context";
 
 export const ProductAttributeSection = () => {
-  const { product } = useProductDetailContext()
-  const { t } = useTranslation()
-  const { getDisplays } = useDashboardExtension()
+  const { product } = useProductDetailContext();
+  const { t } = useTranslation();
 
   return (
     <Container className="divide-y p-0">
@@ -40,9 +38,6 @@ export const ProductAttributeSection = () => {
         title={t("fields.countryOfOrigin")}
         value={getFormattedCountry(product.origin_country)}
       />
-      {getDisplays("product", "attributes").map((Component, i) => {
-        return <Component key={i} data={product} />
-      })}
     </Container>
-  )
-}
+  );
+};
