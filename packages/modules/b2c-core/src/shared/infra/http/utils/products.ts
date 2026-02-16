@@ -106,7 +106,7 @@ export async function getApplicableAttributes(
 
   // Fetch global attributes (not assigned to any category) without scanning all links.
   // We do this using a LEFT JOIN against the category-attribute link table filtered to non-deleted links.
-  const linkSubquery = knex(categoryAttribute.entryPoint)
+  const linkSubquery = knex('product_product_category_attribute_attribute')
     .select('attribute_id')
     .whereNull('deleted_at')
     .groupBy('attribute_id')
