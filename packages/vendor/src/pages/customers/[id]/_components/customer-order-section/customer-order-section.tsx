@@ -7,8 +7,7 @@ import { useOrderTableColumns } from "@hooks/table/columns/use-order-table-colum
 import { useOrderTableFilters } from "@hooks/table/filters/use-order-table-filters";
 import { useOrderTableQuery } from "@hooks/table/query/use-order-table-query";
 import { useDataTable } from "@hooks/use-data-table";
-import { useCustomerOrders, useOrders } from "@hooks/api";
-import { keepPreviousData } from "@tanstack/react-query";
+import { useOrders } from "@hooks/api";
 
 type CustomerGeneralSectionProps = {
   customer: HttpTypes.AdminCustomer;
