@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in Mercur, **please report it privately** — do not open a public GitHub issue.
 
-**Email:** [hello@mercurjs.com](mailto:hello@mercurjs.com)
+**Email:** [hello@rigbyjs.com](mailto:hello@rigbyjs.com)
 
 ### What to Include
 
