@@ -13,6 +13,7 @@ import { vendorCampaignsMiddlewares } from "./campaigns/middlewares"
 import { vendorCollectionsMiddlewares } from "./collections/middlewares"
 import { vendorCurrenciesMiddlewares } from "./currencies/middlewares"
 import { vendorCustomersMiddlewares } from "./customers/middlewares"
+import { vendorFulfillmentProvidersMiddlewares } from "./fulfillment-providers/middlewares"
 import { vendorFulfillmentSetsMiddlewares } from "./fulfillment-sets/middlewares"
 import { vendorInventoryItemsMiddlewares } from "./inventory-items/middlewares"
 import { vendorOrdersMiddlewares } from "./orders/middlewares"
@@ -80,6 +81,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorCollectionsMiddlewares,
   ...vendorCurrenciesMiddlewares,
   ...vendorCustomersMiddlewares,
+  ...vendorFulfillmentProvidersMiddlewares,
   ...vendorFulfillmentSetsMiddlewares,
   ...vendorInventoryItemsMiddlewares,
   ...vendorOrdersMiddlewares,
