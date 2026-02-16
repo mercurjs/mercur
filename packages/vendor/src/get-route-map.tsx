@@ -214,6 +214,41 @@ export function getRouteMap({
                 ],
               },
 
+              // PAYOUTS
+              {
+                path: "/payouts",
+                errorElement: <ErrorBoundary />,
+                handle: { breadcrumb: () => "Payouts" },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("./pages/payouts"),
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Breadcrumb, loader } =
+                        await import("./pages/payouts/[id]");
+                      return {
+                        Component: Outlet,
+                        loader,
+                        handle: {
+                          breadcrumb: (match: UIMatch<any>) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () => import("./pages/payouts/[id]"),
+                      },
+                    ],
+                  },
+                ],
+              },
+
               // CATEGORIES
               {
                 path: "/categories",

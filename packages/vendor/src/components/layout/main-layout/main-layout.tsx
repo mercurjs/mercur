@@ -4,6 +4,7 @@ import {
   Buildings,
   CogSixTooth,
   CurrencyDollar,
+  CreditCardRefresh,
   EllipsisHorizontal,
   MagnifyingGlass,
   OpenRectArrowOut,
@@ -24,7 +25,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLogout, useMe } from "../../../hooks/api";
 import { queryClient } from "../../../lib/query-client";
 import { useSearch } from "../../../providers/search-provider";
-import { ThemeToggle, UserMenu } from "../user-menu";
+import { ThemeToggle } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
@@ -304,6 +305,11 @@ export const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       label: t("priceLists.domain"),
       to: "/price-lists",
     },
+    {
+      icon: <CreditCardRefresh />,
+      label: "Payouts",
+      to: "/payouts",
+    },
   ];
 };
 
@@ -347,17 +353,6 @@ const UtilitySection = () => {
         from={location.pathname}
         icon={<CogSixTooth />}
       />
-    </div>
-  );
-};
-
-const UserSection = () => {
-  return (
-    <div>
-      <div className="px-3">
-        <Divider variant="dashed" />
-      </div>
-      <UserMenu />
     </div>
   );
 };
