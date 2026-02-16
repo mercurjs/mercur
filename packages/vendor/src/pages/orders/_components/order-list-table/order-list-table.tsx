@@ -6,7 +6,6 @@ import { useOrders } from "@hooks/api/orders";
 import { useOrderTableColumns } from "@hooks/table/columns/use-order-table-columns";
 import { useOrderTableQuery } from "@hooks/table/query/use-order-table-query";
 import { useDataTable } from "@hooks/use-data-table";
-import { useSearchParams } from "react-router-dom";
 import { useOrderTableFilters } from "@hooks/table/filters";
 
 const PAGE_SIZE = 10;

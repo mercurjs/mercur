@@ -19,9 +19,11 @@
     "build": "tsc",
     "dev": "tsc --watch"
   },
-  "devDependencies": {
-    "typescript": "5.9.3",
+  "dependencies": {
     "@medusajs/types": "2.13.1"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
   },
   "engines": {
     "node": ">=20"

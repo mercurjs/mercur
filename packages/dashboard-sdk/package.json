@@ -7,7 +7,8 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.cjs"
     }
   },
   "files": [

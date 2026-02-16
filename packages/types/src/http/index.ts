@@ -1,3 +1,6 @@
+export { HttpTypes as MedusaHttpTypes } from "@medusajs/types"
+
+export * from "@medusajs/types/dist/http"
 export * from "./campaign"
 export * from "./collection"
 export * from "./currency"
@@ -25,3 +28,5 @@ export * from "./shipping-profile"
 export * from "./stock-location"
 export * from "./payout"
 export * from "./commission"
+
+export { StoreCompleteCartResponse } from "./order-group"

@@ -20,8 +20,10 @@ async function loadMercurConfig(root: string): Promise<BuiltMercurConfig> {
     const configPath = path.resolve(root, CONFIG_NAME)
     try {
         const mod = await getFileExports(configPath)
-        return buildConfig(mod.default, root)
+        const content = mod.default ?? mod
+        return buildConfig(content, root)
     } catch (error) {
+        console.error(error)
         throw new Error(
             `[@mercurjs/dashboard-sdk] Could not find or load ${CONFIG_NAME} in ${root}`
         )

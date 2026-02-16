@@ -1,9 +1,9 @@
-import type { MercurConfig } from '@mercurjs/dashboard-sdk'
+import { defineConfig } from '@mercurjs/dashboard-sdk'
 
-export default {
+export default defineConfig({
     title: 'test',
     description: 'test',
     components: {
     },
     baseUrl: 'http://localhost:9000',
-} satisfies MercurConfig
+})
