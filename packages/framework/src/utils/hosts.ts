@@ -43,6 +43,13 @@ export const buildResetPasswordUrl = (hostType: Hosts, token?: string) => {
 
   if (token) {
     url.searchParams.set('token', token)
+
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
+    const expiresAt = payload.exp;
+
+    if(expiresAt) {
+      url.searchParams.set('expires_at', expiresAt);
+    }
   }
 
   return url
