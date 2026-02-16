@@ -4,7 +4,7 @@ import { LoaderFunctionArgs } from "react-router-dom";
 
 import { useProduct } from "@hooks/api";
 import { productsQueryKeys } from "@hooks/api/products";
-import { fetchQuery, sdk } from "@lib/client";
+import { sdk } from "@lib/client";
 import { queryClient } from "@lib/query-client";
 import { ExtendedAdminProductResponse } from "@custom-types/products";
 
@@ -34,9 +34,7 @@ type ProductDetailBreadcrumbProps = UIMatch<ExtendedAdminProductResponse>;
 export const Breadcrumb = (props: ProductDetailBreadcrumbProps) => {
   const { id } = props.params || {};
 
-  const { product } = useProduct(id!, {
-    enabled: Boolean(id),
-  });
+  const { product } = useProduct(id!);
 
   if (!product) {
     return null;
