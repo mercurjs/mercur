@@ -6,6 +6,7 @@ export const vendorPayoutFields = [
   "data",
   "created_at",
   "updated_at",
+  "display_id",
 ]
 
 export const vendorPayoutQueryConfig = {

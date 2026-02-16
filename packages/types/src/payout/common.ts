@@ -62,6 +62,7 @@ export interface OnboardingDTO {
 
 export interface PayoutDTO {
   id: string
+  display_id: number
   account_id: string
   amount: BigNumberInput
   currency_code: string

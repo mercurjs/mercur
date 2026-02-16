@@ -11,6 +11,7 @@ export const adminPayoutFields = [
   "seller.id",
   "seller.name",
   "seller.handle",
+  "display_id",
 ]
 
 export const adminPayoutQueryConfig = {

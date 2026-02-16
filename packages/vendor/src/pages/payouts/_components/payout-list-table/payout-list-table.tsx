@@ -1,26 +1,31 @@
-import { Container, Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import { Container, Heading } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 
-import { _DataTable } from "@components/table/data-table/data-table"
-import { usePayouts } from "@hooks/api/payouts"
-import { usePayoutTableColumns } from "@hooks/table/columns/use-payout-table-columns"
-import { usePayoutTableQuery } from "@hooks/table/query/use-payout-table-query"
-import { useDataTable } from "@hooks/use-data-table"
-import { usePayoutTableFilters } from "@hooks/table/filters/use-payout-table-filters"
+import { _DataTable } from "@components/table/data-table/data-table";
+import { usePayouts } from "@hooks/api/payouts";
+import { usePayoutTableColumns } from "@hooks/table/columns/use-payout-table-columns";
+import { usePayoutTableQuery } from "@hooks/table/query/use-payout-table-query";
+import { useDataTable } from "@hooks/use-data-table";
+import { usePayoutTableFilters } from "@hooks/table/filters/use-payout-table-filters";
+import { keepPreviousData } from "@tanstack/react-query";
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 
 export const PayoutListTable = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const { raw, searchParams } = usePayoutTableQuery({
     pageSize: PAGE_SIZE,
-  })
+  });
 
-  const { payouts, count, isError, error, isLoading } =
-    usePayouts(searchParams)
+  const { payouts, count, isError, error, isLoading } = usePayouts(
+    searchParams,
+    {
+      initialData: keepPreviousData,
+    },
+  );
 
-  const columns = usePayoutTableColumns()
-  const filters = usePayoutTableFilters()
+  const columns = usePayoutTableColumns();
+  const filters = usePayoutTableFilters();
 
   const { table } = useDataTable({
     data: payouts ?? [],
@@ -28,10 +33,10 @@ export const PayoutListTable = () => {
     enablePagination: true,
     count: count,
     pageSize: PAGE_SIZE,
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -64,5 +69,5 @@ export const PayoutListTable = () => {
         }}
       />
     </Container>
-  )
-}
+  );
+};

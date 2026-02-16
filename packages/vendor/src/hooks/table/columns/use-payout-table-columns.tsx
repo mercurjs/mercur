@@ -2,11 +2,14 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { PayoutDTO } from "@mercurjs/types"
-import { StatusBadge, Text } from "@medusajs/ui"
+import { StatusBadge } from "@medusajs/ui"
 import {
   DateCell,
   DateHeader,
 } from "../../../components/table/table-cells/common/date-cell"
+import {
+  DisplayIdCell,
+} from "../../../components/table/table-cells/order/display-id-cell"
 import { getStylizedAmount } from "../../../lib/money-amount-helpers"
 
 const columnHelper = createColumnHelper<PayoutDTO>()
@@ -32,26 +35,29 @@ export const usePayoutTableColumns = () => {
 
   return useMemo(
     () => [
-      columnHelper.accessor("id", {
+      columnHelper.accessor("display_id", {
         header: () => (
-          <Text size="small" leading="compact" weight="plus">
-            {t("fields.id")}
-          </Text>
+          <div className="flex h-full w-full items-center">
+            <span className="truncate">Payout</span>
+          </div>
         ),
         cell: ({ getValue }) => {
-          const id = getValue()
-          return (
-            <Text size="small" leading="compact">
-              {id.replace("payout_", "").slice(0, 8)}
-            </Text>
-          )
+          const displayId = getValue()
+          return <DisplayIdCell displayId={displayId} />
+        },
+      }),
+      columnHelper.accessor("created_at", {
+        header: () => <DateHeader />,
+        cell: ({ getValue }) => {
+          const date = new Date(getValue())
+          return <DateCell date={date} />
         },
       }),
       columnHelper.accessor("status", {
         header: () => (
-          <Text size="small" leading="compact" weight="plus">
-            {t("fields.status")}
-          </Text>
+          <div className="flex h-full w-full items-center">
+            <span className="truncate">{t("fields.status")}</span>
+          </div>
         ),
         cell: ({ getValue }) => {
           const status = getValue()
@@ -64,37 +70,20 @@ export const usePayoutTableColumns = () => {
       }),
       columnHelper.accessor("amount", {
         header: () => (
-          <Text size="small" leading="compact" weight="plus">
-            {t("fields.amount")}
-          </Text>
+          <div className="flex h-full w-full items-center">
+            <span className="truncate">{t("fields.amount")}</span>
+          </div>
         ),
         cell: ({ getValue, row }) => {
           const amount = getValue() as number
           const currencyCode = row.original.currency_code
           return (
-            <Text size="small" leading="compact">
-              {getStylizedAmount(amount, currencyCode)}
-            </Text>
+            <div className="text-ui-fg-subtle txt-compact-small flex h-full w-full items-center overflow-hidden">
+              <span className="truncate">
+                {getStylizedAmount(amount, currencyCode)}
+              </span>
+            </div>
           )
-        },
-      }),
-      columnHelper.accessor("currency_code", {
-        header: () => (
-          <Text size="small" leading="compact" weight="plus">
-            {t("fields.currency")}
-          </Text>
-        ),
-        cell: ({ getValue }) => (
-          <Text size="small" leading="compact">
-            {getValue().toUpperCase()}
-          </Text>
-        ),
-      }),
-      columnHelper.accessor("created_at", {
-        header: () => <DateHeader />,
-        cell: ({ getValue }) => {
-          const date = new Date(getValue())
-          return <DateCell date={date} />
         },
       }),
     ],

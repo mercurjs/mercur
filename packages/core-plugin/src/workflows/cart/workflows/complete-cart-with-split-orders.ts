@@ -76,8 +76,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             ttl: TWO_MINUTES,
         })
 
-
-
         const [orderGroup, cartData] = parallelize(
             useQueryGraphStep({
                 entity: "order_group",

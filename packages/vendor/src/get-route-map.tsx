@@ -227,11 +227,10 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { Breadcrumb } =
                         await import("./pages/payouts/[id]");
                       return {
                         Component: Outlet,
-                        loader,
                         handle: {
                           breadcrumb: (match: UIMatch<any>) => (
                             <Breadcrumb {...match} />
