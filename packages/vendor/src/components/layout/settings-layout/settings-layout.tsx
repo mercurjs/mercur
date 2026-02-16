@@ -24,6 +24,16 @@ export const SettingsLayout = () => {
   );
 };
 
+const allMenuItems = menuItemsModule.menuItems ?? [];
+const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
+const extensionNavItems: INavItem[] = customSettingsItems
+  .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+  .map((item) => ({
+    label: item.label,
+    to: item.path,
+    translationNs: item.translationNs,
+  }));
+
 const useSettingRoutes = (): INavItem[] => {
   const { t } = useTranslation();
 
@@ -49,6 +59,7 @@ const useSettingRoutes = (): INavItem[] => {
         label: t("stockLocations.domain"),
         to: "/settings/locations",
       },
+      ...extensionNavItems,
     ],
     [t],
   );
@@ -68,18 +79,9 @@ const getSafeFromValue = (from: string) => {
 
 const SettingsSidebar = () => {
   const generalRoutes = useSettingRoutes();
-  const allMenuItems = menuItemsModule.menuItems ?? [];
-  const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
 
   const { t } = useTranslation();
 
-  const extensionNavItems: INavItem[] = customSettingsItems
-    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-    .map((item) => ({
-      label: item.label,
-      to: item.path,
-      translationNs: item.translationNs,
-    }));
   return (
     <aside className="relative flex flex-1 flex-col justify-between overflow-y-auto">
       <div className="bg-ui-bg-subtle sticky top-0">
@@ -94,12 +96,6 @@ const SettingsSidebar = () => {
             label={t("app.nav.settings.general")}
             items={generalRoutes}
           />
-          {extensionNavItems.length > 0 && (
-            <RadixCollapsibleSection
-              label={t("app.nav.common.extensions")}
-              items={extensionNavItems}
-            />
-          )}
         </div>
         <div className="bg-ui-bg-subtle sticky bottom-0">
           <UserSection />
