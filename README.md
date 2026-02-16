@@ -106,7 +106,6 @@ integrations coming soon.
 
 ```bash
 npx @mercurjs/cli create my-marketplace
-
 ```
 
 **Step 2**: Start the development server:
@@ -130,6 +129,14 @@ npm run dev
 - [PostgreSQL](https://www.postgresql.org/download/)
 - [Redis](https://redis.io/download/)
 - [Git CLI](https://git-scm.com/downloads)
+
+## Contribution
+
+Mercur is an Open Source project and we encourage everyone to help us making it better. If you are interested in contributing to the project, please read our [Contributing Guide](https://raw.githubusercontent.com/mercurjs/mercur/refs/heads/new/CONTRIBUTING.md) and [Code of Conduct](https://raw.githubusercontent.com/mercurjs/mercur/refs/heads/new/CODE_OF_CONDUCT.md).
+
+If you have any questions about contributing, please join our [Discord server](https://discord.gg/hnZBzc4NJU) - we are happy to help you!
+
+Discovered a 🐜 or have feature suggestion? Feel free to [create an issue](https://github.com/mercurjs/mercur/issues/new/choose) on Github.
 
 # Resources
 
