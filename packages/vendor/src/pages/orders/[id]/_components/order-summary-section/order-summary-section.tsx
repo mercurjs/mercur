@@ -32,7 +32,6 @@ import {
   isAmountLessThenRoundingError,
 } from "@lib/money-amount-helpers"
 import { getTotalCaptured } from "@lib/payment"
-import { CopyPaymentLink } from "../copy-payment-link/copy-payment-link"
 import ShippingInfoPopover from "./shipping-info-popover"
 import { Thumbnail } from "@components/common/thumbnail"
 
@@ -166,13 +165,6 @@ export const OrderSummarySection = ({
                 </Button>
               </ActionMenu>
             ))}
-
-          {showPayment && (
-            <CopyPaymentLink
-              paymentCollection={unpaidPaymentCollection}
-              order={order}
-            />
-          )}
 
           {showPayment && (
             <Button

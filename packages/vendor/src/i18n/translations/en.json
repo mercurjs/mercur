@@ -2941,13 +2941,7 @@
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
     "title": "Welcome to Mercur",
-    "hint": "Sign in to access the vendor area",
-    "notSellerYet": "Not a seller yet? - <0>Register</0>"
-  },
-  "register": {
-    "title": "Create your account",
-    "hint": "Register as a seller on Mercur",
-    "alreadySeller": "Already a seller? - <0>Log in</0>"
+    "hint": "Sign in to access the vendor area"
   },
   "validation": {
     "rules": {

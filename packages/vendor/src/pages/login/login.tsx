@@ -165,17 +165,6 @@ export const Login = () => {
             ]}
           />
         </span>
-          <span className="text-ui-fg-muted txt-small">
-            <Trans
-              i18nKey="login.notSellerYet"
-              components={[
-                <Link
-                  to="/register"
-                  className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
-                />,
-              ]}
-            />
-          </span>
       </div>
     </div>
   )
