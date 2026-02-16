@@ -6,11 +6,14 @@
   <a href="https://github.com/mercurjs/mercur/tree/main?tab=MIT-1-ov-file">
     <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" />
   </a>
-  <a href="#">
+  <a href="https://github.com/mercurjs/mercur/issues/new/choose">
     <img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
   </a>
-  <a href="https://rigbyjs.com/#contact">
+  <a href="https://www.mercurjs.com/contact">
     <img alt="Support" src="https://img.shields.io/badge/support-contact%20author-blueviolet.svg" />
+  </a>
+  <a href="https://discord.gg/hnZBzc4NJU">
+    <img alt="Discord" src="https://img.shields.io/badge/Discord-Join%20Chat-5865F2?logo=discord&logoColor=white" />
   </a>
   <!-- Website Links -->
   <p>
