@@ -4,22 +4,20 @@ import {
   InferClientOutput,
 } from "@mercurjs/client";
 import {
-  QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { sdk, fetchQuery } from "../../lib/client";
+import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { customerGroupsQueryKeys } from "./customer-groups";
-import { filterOrders } from "../../pages/orders/common/orderFiltering";
 
 const CUSTOMERS_QUERY_KEY = "customers" as const;
 export const customersQueryKeys = queryKeysFactory(CUSTOMERS_QUERY_KEY);
 export const customerAddressesQueryKeys = queryKeysFactory(
-  `${CUSTOMERS_QUERY_KEY}-addresses`
+  `${CUSTOMERS_QUERY_KEY}-addresses`,
 );
 
 export const useCustomer = (
@@ -29,7 +27,7 @@ export const useCustomer = (
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.customers.$id.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: customersQueryKeys.detail(id),
@@ -46,7 +44,7 @@ export const useCustomers = (
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.customers.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.vendor.customers.query({ ...query }),
@@ -62,7 +60,7 @@ export const useCreateCustomer = (
     InferClientOutput<typeof sdk.vendor.customers.mutate>,
     ClientError,
     InferClientInput<typeof sdk.vendor.customers.mutate>
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.vendor.customers.mutate(payload),
@@ -80,7 +78,7 @@ export const useUpdateCustomer = (
     InferClientOutput<typeof sdk.vendor.customers.$id.mutate>,
     ClientError,
     Omit<InferClientInput<typeof sdk.vendor.customers.$id.mutate>, "$id">
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -103,7 +101,7 @@ export const useDeleteCustomer = (
     InferClientOutput<typeof sdk.vendor.customers.$id.delete>,
     ClientError,
     void
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: () => sdk.vendor.customers.$id.delete({ $id: id }),
@@ -128,7 +126,7 @@ export const useBatchCustomerCustomerGroups = (
       InferClientInput<typeof sdk.vendor.customers.$id.customerGroups.mutate>,
       "$id"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -163,7 +161,7 @@ export const useCreateCustomerAddress = (
       InferClientInput<typeof sdk.vendor.customers.$id.addresses.mutate>,
       "$id"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -197,7 +195,7 @@ export const useUpdateCustomerAddress = (
       >,
       "$id" | "$addressId"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -229,11 +227,14 @@ export const useDeleteCustomerAddress = (
     >,
     ClientError,
     string
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (addressId: string) =>
-      sdk.vendor.customers.$id.addresses.$addressId.delete({ $id: id, $addressId: addressId }),
+      sdk.vendor.customers.$id.addresses.$addressId.delete({
+        $id: id,
+        $addressId: addressId,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: customersQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -253,16 +254,17 @@ export const useListCustomerAddresses = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.customers.$id.addresses.query>,
-      "$id"
+    "$id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.customers.$id.addresses.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.customers.$id.addresses.query({ $id: id, ...query }),
+    queryFn: () =>
+      sdk.vendor.customers.$id.addresses.query({ $id: id, ...query }),
     queryKey: customerAddressesQueryKeys.list(id),
     ...options,
   });
@@ -279,43 +281,17 @@ export const useCustomerAddress = (
     InferClientOutput<
       typeof sdk.vendor.customers.$id.addresses.$addressId.query
     >
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>
-      sdk.vendor.customers.$id.addresses.$addressId.query({ $id: id, $addressId: addressId }),
+      sdk.vendor.customers.$id.addresses.$addressId.query({
+        $id: id,
+        $addressId: addressId,
+      }),
     queryKey: customerAddressesQueryKeys.detail(id),
     ...options,
   });
 
   return { ...data, ...rest };
-};
-
-export const useCustomerOrders = (
-  id: string,
-  query?: Record<string, any>,
-  options?: Omit<
-    UseQueryOptions<
-      { orders: any[] },
-      Error,
-      { orders: any[] },
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
-  >,
-  filters?: any
-) => {
-  const { data, ...rest } = useQuery({
-    queryKey: [CUSTOMERS_QUERY_KEY, id, "orders"],
-    queryFn: async () =>
-      fetchQuery(`/vendor/customers/${id}/orders`, {
-        method: "GET",
-        query,
-      }),
-    ...options,
-  });
-
-  const filteredOrders = filterOrders(data?.orders, filters, filters?.sort);
-
-  return { ...data, orders: filteredOrders, ...rest };
 };

@@ -9,7 +9,6 @@ import {
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
-import { useDashboardExtension } from "@/extensions";
 import { useCustomer } from "@hooks/api/customers";
 import { productsQueryKeys } from "@hooks/api/products";
 import { fetchQuery } from "@lib/client";
