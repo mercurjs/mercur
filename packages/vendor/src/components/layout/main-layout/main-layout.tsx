@@ -218,19 +218,6 @@ const Header = () => {
               </Link>
             </DropdownMenu.Item>
             <DropdownMenu.Separator />
-            <DropdownMenu.Item asChild>
-              <Link to="https://docs.mercurjs.com" target="_blank">
-                <BookOpen className="text-ui-fg-subtle me-2" />
-                {t("app.menus.user.documentation")}
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item asChild>
-              <Link to="https://www.mercurjs.com/updates" target="_blank">
-                <TimelineVertical className="text-ui-fg-subtle me-2" />
-                {t("app.menus.user.changelog")}
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator />
             <ThemeToggle />
             <DropdownMenu.Separator />
             <Logout />
