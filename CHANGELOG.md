@@ -5,6 +5,66 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2026-02-17
+
+### Release 1.5.3
+
+#### Admin Panel
+
+**Improvements**
+
+- Added sorting, filtering and search to Admin → Requests route
+- Improved viewing of statuses in B2C Admin
+- Merged create & update requests into a single flow
+- Hidden “Across” option in allocation settings
+
+**Bug Fixes**
+
+- Fixed error during promotion creation when selecting “Across” option
+- Fixed pagination issue on product list during claim creation
+- Fixed disabled customer group values in filter dropdown
+- Fixed issue where quantity value in promotion could not be changed
+
+**Promotions / Core**
+
+- Verified core Medusa promotions integration in Mercur, made all the necessary fixes to make sure it is stable
+
+#### Vendor Panel
+
+**Improvements**
+
+- Removed any type occurrences from vendor repository (part 1)
+
+**Bug Fixes**
+
+- Fixed duplicated notifications issue
+- Fixed issue where accepted collection was not visible on Vendor panel
+- Fixed inability to remove location from Inventory view
+- Fixed issue with removing/editing product type
+- Fixed inability to set empty attribute value when not required
+- Fixed Stripe connection issue
+
+#### Storefront
+
+**New Features**
+
+- Added “Forgot password” functionality
+
+**Bug Fixes**
+
+- Fixed issue where BG promotion didn’t apply according to condition
+- Fixed issue preventing product removal from cart
+- Fixed UI issue with “Fleek” logo on laptop view
+
+#### Other / Technical
+
+- Implemented approach for binding approval requests to products
+- Various GitHub issues resolved:
+  - #581
+  - #586
+  - #594
+  - #596 – question resolved
+
 ## [1.5.2] - 2026-02-04
 
 ### Release 1.5.2
