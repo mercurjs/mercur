@@ -1,4 +1,5 @@
-import { UIMatch, useParams } from "react-router-dom";
+import { Children, ReactNode } from "react";
+import { useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
@@ -6,21 +7,7 @@ import { usePayout } from "@hooks/api/payouts";
 
 import { PayoutGeneralSection } from "./_components/payout-general-section";
 
-export const Breadcrumb = (props: UIMatch) => {
-  const { id } = props.params || {};
-
-  const { payout } = usePayout(id!, undefined, {
-    enabled: Boolean(id),
-  });
-
-  if (!payout) {
-    return null;
-  }
-
-  return <span>#{payout.display_id}</span>;
-};
-
-export const Component = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams();
 
   const { payout, isLoading, isError, error } = usePayout(id!);
@@ -35,7 +22,15 @@ export const Component = () => {
 
   return (
     <SingleColumnPage showMetadata>
-      <PayoutGeneralSection payout={payout} />
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <PayoutGeneralSection payout={payout} />
+      )}
     </SingleColumnPage>
   );
 };
+
+export const PayoutDetailPage = Object.assign(Root, {
+  GeneralSection: PayoutGeneralSection,
+});

@@ -233,13 +233,19 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/payouts"),
+                    lazy: async () => {
+                      const { PayoutListPage } = await import(
+                        "./pages/payouts"
+                      );
+                      return { Component: PayoutListPage };
+                    },
                   },
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb } =
-                        await import("./pages/payouts/[id]");
+                      const { Breadcrumb } = await import(
+                        "./pages/payouts/[id]/breadcrumb"
+                      );
                       return {
                         Component: Outlet,
                         handle: {
@@ -252,7 +258,12 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/payouts/[id]"),
+                        lazy: async () => {
+                          const { PayoutDetailPage } = await import(
+                            "./pages/payouts/[id]"
+                          );
+                          return { Component: PayoutDetailPage };
+                        },
                       },
                     ],
                   },
@@ -708,7 +719,12 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/price-lists"),
+                    lazy: async () => {
+                      const { PriceListListPage } = await import(
+                        "./pages/price-lists"
+                      );
+                      return { Component: PriceListListPage };
+                    },
                     children: [
                       {
                         path: "create",
@@ -719,8 +735,12 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/price-lists/[id]");
+                      const { loader } = await import(
+                        "./pages/price-lists/[id]"
+                      );
+                      const { Breadcrumb } = await import(
+                        "./pages/price-lists/[id]/breadcrumb"
+                      );
                       return {
                         Component: Outlet,
                         loader,
@@ -734,7 +754,12 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/price-lists/[id]"),
+                        lazy: async () => {
+                          const { PriceListDetailPage } = await import(
+                            "./pages/price-lists/[id]"
+                          );
+                          return { Component: PriceListDetailPage };
+                        },
                         children: [
                           {
                             path: "edit",
