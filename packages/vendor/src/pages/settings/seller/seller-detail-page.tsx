@@ -5,6 +5,12 @@ import { SingleColumnPage } from "@components/layout/pages";
 import { useMe } from "@/hooks/api";
 
 import { SellerGeneralSection } from "./_components/seller-general-section";
+import {
+  SellerDetailHeader,
+  SellerDetailTitle,
+  SellerDetailActions,
+  SellerDetailEditButton,
+} from "./_components/seller-detail-header";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { seller, isPending, isError, error } = useMe();
@@ -30,4 +36,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
 export const SellerDetailPage = Object.assign(Root, {
   GeneralSection: SellerGeneralSection,
+  Header: SellerDetailHeader,
+  HeaderTitle: SellerDetailTitle,
+  HeaderActions: SellerDetailActions,
+  HeaderEditButton: SellerDetailEditButton,
 });
