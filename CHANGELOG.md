@@ -103,6 +103,44 @@ https://github.com/mercurjs/vendor-panel
 - Minor UI polish across shared components
 - Technical refinements not directly visible to end users
 
+## [1.5.2] - 2026-02-04
+
+### Release 1.5.2
+
+#### Storefront
+
+https://github.com/mercurjs/b2c-marketplace-storefront
+
+- Fixed missing validation when submitting a non-existing email in Forgot password flow
+- Added missing close (×) icon in Reset password link modal
+- Improved validation and error handling in authentication-related views
+- Minor UI consistency fixes across customer-facing forms
+
+#### Admin Panel
+
+https://github.com/mercurjs/admin-panel
+
+- Fixed error state when using Create Product Attribute
+- Added missing validation feedback during product attribute creation
+- Fixed pagination issues affecting multiple admin views
+- Improved stability and UX consistency across admin lists and forms
+- Minor UI and error-handling fixes
+
+#### Vendor Panel
+
+https://github.com/mercurjs/vendor-panel
+
+- Fixed pagination and listing issues in vendor views
+- Improved form validation and error feedback
+- Minor UI and UX consistency improvements
+- General bug fixes improving day-to-day vendor operations
+
+#### Other/Platform
+
+- General bug fixes and internal stability improvements
+- Minor UI polish across shared components
+- Technical refinements not directly visible to end users
+
 ## [1.5.1] - 2026-01-19
 
 ### Release 1.5.1
