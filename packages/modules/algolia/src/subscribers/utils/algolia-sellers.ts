@@ -27,7 +27,7 @@ export async function filterSellersByStatus(
   const other = arrayDifference(sellers, actives);
 
   return {
-    actives: sellers.map((p) => p.id),
+    actives: actives.map((p) => p.id),
     other: other.map((p) => p.id),
   };
 }
