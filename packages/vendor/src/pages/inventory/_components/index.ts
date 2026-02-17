@@ -1,4 +1,6 @@
 export * from "./inventory-list-table"
+export * from "./inventory-list-header"
+export * from "./inventory-list-data-table"
 export * from "./use-inventory-table-columns"
 export * from "./use-inventory-table-filters"
 export * from "./use-inventory-table-query"

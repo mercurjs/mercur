@@ -469,7 +469,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/inventory"),
+                    lazy: async () => {
+                      const { InventoryListPage } =
+                        await import("./pages/inventory");
+                      return {
+                        Component: InventoryListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "create",
@@ -484,8 +490,10 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/inventory/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/inventory/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -499,7 +507,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/inventory/[id]"),
+                        lazy: async () => {
+                          const { InventoryDetailPage } =
+                            await import("./pages/inventory/[id]");
+                          return {
+                            Component: InventoryDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",
