@@ -81,10 +81,10 @@ export function getRouteMap({
                       {
                         path: "create",
                         lazy: async () => {
-                          const { ProductCreate } =
+                          const { ProductCreatePage } =
                             await import("./pages/products/create");
                           return {
-                            Component: ProductCreate,
+                            Component: ProductCreatePage,
                           };
                         },
                       },
@@ -230,10 +230,10 @@ export function getRouteMap({
                           },
                         ],
                       },
-                      {
-                        path: "fulfillments/:f_id/shipment",
-                        lazy: () => import("./pages/orders/[id]/shipment"),
-                      },
+                      // {
+                      //   path: "fulfillments/:f_id/shipment",
+                      //   lazy: () => import("./pages/orders/[id]/shipment"),
+                      // },
                     ],
                   },
                 ],
@@ -1217,11 +1217,12 @@ export function getRouteMap({
                       return { Component: ProductTypeListPage };
                     },
                     children: [
-                      {
-                        path: "create",
-                        lazy: () =>
-                          import("./pages/settings/product-types/create"),
-                      },
+                      // TODO: Enable when request product type flow is implemented
+                      // {
+                      //   path: "create",
+                      //   lazy: () =>
+                      //     import("./pages/settings/product-types/create"),
+                      // },
                     ],
                   },
                   {
