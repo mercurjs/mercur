@@ -78,10 +78,10 @@ async function selectProductSeller(
 
   return product && product.seller
     ? {
-        id: product.seller.id,
-        handle: product.seller.handle,
-        store_status: product.seller.store_status
-      }
+      id: product.seller.id,
+      handle: product.seller.handle,
+      store_status: product.seller.store_status
+    }
     : null
 }
 
@@ -135,15 +135,17 @@ export async function findAndTransformAlgoliaProducts(
       'options.values.*',
       'images.*',
       'attribute_values.value',
+      'attribute_values.source',
       'attribute_values.attribute.name',
+      'attribute_values.attribute.source',
       'attribute_values.attribute.is_filterable',
       'attribute_values.attribute.ui_component'
     ],
     filters: ids.length
       ? {
-          id: ids,
-          status: 'published'
-        }
+        id: ids,
+        status: 'published'
+      }
       : { status: 'published' }
   })
 
@@ -186,10 +188,16 @@ export async function findAndTransformAlgoliaProducts(
           attrValue && attrValue.attribute && attrValue.attribute.name
       )
       .map((attrValue) => {
+        // Effective filterability: only admin attributes with admin values are filterable
+        const isEffectivelyFilterable =
+          attrValue.attribute.source === 'admin' &&
+          attrValue.attribute.is_filterable &&
+          attrValue.source === 'admin';
+
         return {
           name: attrValue.attribute.name,
           value: attrValue.value,
-          is_filterable: attrValue.attribute.is_filterable,
+          is_filterable: isEffectivelyFilterable,
           ui_component: attrValue.attribute.ui_component
         }
       })
