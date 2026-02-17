@@ -13,9 +13,11 @@ import {
   OrderObject,
   ProductFilters,
   assignVariantImages,
+  fetchProductSecondaryCategoryDetails,
   filterProductsBySeller,
   mergeVariantImages
 } from './utils'
+import { transformProductWithInformationalAttributes } from "./utils/transform-product-attributes";
 import {
   VendorCreateProductType,
   VendorGetProductParamsType
@@ -166,6 +168,13 @@ export const POST = async (
 
   const mergedImages = mergeVariantImages(validatedBody.images, variants_images)
 
+  const optionsMetadata = validatedBody.options
+    ?.filter((opt) => opt.metadata)
+    .map((opt) => ({
+      title: opt.title,
+      metadata: opt.metadata!,
+    }));
+
   const {
     result: [createdProduct]
   } = await createProductsWorkflow.run({
@@ -178,9 +187,13 @@ export const POST = async (
           status: validatedBody.status === 'draft' ? 'draft' : 'proposed'
         }
       ],
-      additional_data: { ...additional_data, seller_id: seller.id }
-    }
-  })
+      additional_data: {
+        ...additional_data,
+        seller_id: seller.id,
+        options_metadata: optionsMetadata,
+      },
+    },
+  });
 
   await assignVariantImages(req.scope, variants_images, createdProduct)
 
@@ -214,5 +227,11 @@ export const POST = async (
     { throwIfKeyNotFound: true }
   )
 
-  res.status(201).json({ product })
-}
+  const transformedProduct = transformProductWithInformationalAttributes(
+    product as any
+  );
+
+  const secondaryCategoryDetails = await fetchProductSecondaryCategoryDetails(req.scope, product.secondary_categories);
+
+  res.status(201).json({ product: { ...transformedProduct, secondary_categories: secondaryCategoryDetails } });
+};
