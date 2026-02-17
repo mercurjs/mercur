@@ -40,8 +40,8 @@ export const ProductShippingProfileForm = ({
       }),
     getOptions: (data: any) =>
       (data.shipping_profiles || []).map((sp: any) => ({
-        label: sp.shipping_profile?.name || sp.name,
-        value: sp.shipping_profile?.id || sp.id,
+        label: sp.name ?? "",
+        value: sp.id,
       })),
   })
 

@@ -1,22 +1,23 @@
 import { Button, Heading, IconButton, Input, Label } from "@medusajs/ui"
-import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form"
+import { useFieldArray, useWatch } from "react-hook-form"
 import { XMarkMini } from "@medusajs/icons"
 import { useTranslation } from "react-i18next"
 
-import { ProductCreateSchemaType } from "../../../../types"
+import { ProductCreateSchemaType } from "../../../types"
 import { Form } from "@components/common/form"
 import { Combobox } from "@components/inputs/combobox"
 import { useComboboxData } from "@hooks/use-combobox-data"
 import { fetchQuery } from "@lib/client"
+import { useTabbedForm } from "@components/tabbed-form"
 
 type VariantSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
   variant: ProductCreateSchemaType["variants"][0]
   index: number
 }
 
-function VariantSection({ form, variant, index }: VariantSectionProps) {
+function VariantSection({ variant, index }: VariantSectionProps) {
   const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
 
   const inventory = useFieldArray({
     control: form.control,
@@ -42,11 +43,6 @@ function VariantSection({ form, variant, index }: VariantSectionProps) {
       })),
   })
 
-  /**
-   * Will mark an option as disabled if another input already selected that option
-   * @param option
-   * @param inventoryIndex
-   */
   const isItemOptionDisabled = (
     option: (typeof items.options)[0],
     inventoryIndex: number
@@ -180,14 +176,9 @@ function VariantSection({ form, variant, index }: VariantSectionProps) {
   )
 }
 
-type ProductCreateInventoryKitSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
-
-export const ProductCreateInventoryKitSection = ({
-  form,
-}: ProductCreateInventoryKitSectionProps) => {
+export const ProductCreateInventoryKitSection = () => {
   const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
 
   const variants = useFieldArray({
     control: form.control,
@@ -203,7 +194,6 @@ export const ProductCreateInventoryKitSection = ({
         .map((variant, variantIndex) => (
           <VariantSection
             key={variant.id}
-            form={form}
             variant={variant}
             index={variantIndex}
           />

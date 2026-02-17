@@ -1,31 +1,44 @@
 import { Divider, Heading } from "@medusajs/ui";
-import { UseFormReturn } from "react-hook-form";
+import { Children, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { ProductCreateSchemaType } from "../../types";
+import { TabDefinition } from "../types";
 import { ProductCreateGeneralSection } from "./components/product-create-details-general-section";
 import { ProductCreateMediaSection } from "./components/product-create-details-media-section";
 import { ProductCreateVariantsSection } from "./components/product-create-details-variant-section";
 
-type ProductAttributesProps = {
-  form: UseFormReturn<ProductCreateSchemaType>;
-};
+const Root = ({ children }: { children?: ReactNode }) => {
+  if (Children.count(children) > 0) {
+    return (
+      <div className="flex flex-col items-center p-16">
+        <div className="flex w-full max-w-[720px] flex-col gap-y-8">
+          <Header />
+          {children}
+        </div>
+      </div>
+    );
+  }
 
-export const ProductCreateDetailsForm = ({ form }: ProductAttributesProps) => {
   return (
     <div className="flex flex-col items-center p-16">
       <div className="flex w-full max-w-[720px] flex-col gap-y-8">
         <Header />
         <div className="flex flex-col gap-y-6">
-          <ProductCreateGeneralSection form={form} />
-          <ProductCreateMediaSection form={form} />
+          <ProductCreateGeneralSection />
+          <ProductCreateMediaSection />
         </div>
         <Divider />
-        <ProductCreateVariantsSection form={form} />
+        <ProductCreateVariantsSection />
       </div>
     </div>
   );
 };
+
+Root._tabMeta = {
+  id: "details",
+  labelKey: "products.create.tabs.details",
+  validationFields: ["title", "media", "options", "variants", "enable_variants"],
+} satisfies TabDefinition;
 
 const Header = () => {
   const { t } = useTranslation();
@@ -36,3 +49,10 @@ const Header = () => {
     </div>
   );
 };
+
+export const ProductCreateDetailsForm = Object.assign(Root, {
+  _tabMeta: Root._tabMeta,
+  GeneralSection: ProductCreateGeneralSection,
+  MediaSection: ProductCreateMediaSection,
+  VariantsSection: ProductCreateVariantsSection,
+});

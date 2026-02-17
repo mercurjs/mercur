@@ -1,19 +1,14 @@
 import { Input, Textarea } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "@components/common/form"
 import { HandleInput } from "@components/inputs/handle-input"
-import { ProductCreateSchemaType } from "../../../../types"
+import { useTabbedForm } from "@components/tabbed-form"
+import { ProductCreateSchemaType } from "../../../types"
 
-type ProductCreateGeneralSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
-
-export const ProductCreateGeneralSection = ({
-  form,
-}: ProductCreateGeneralSectionProps) => {
+export const ProductCreateGeneralSection = () => {
   const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
 
   return (
     <div id="general" className="flex flex-col gap-y-6">

@@ -1,5 +1,4 @@
 import { Heading } from "@medusajs/ui";
-import { UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "@components/common/form";
@@ -7,17 +6,13 @@ import { SwitchBox } from "@components/common/switch-box";
 import { Combobox } from "@components/inputs/combobox";
 import { useComboboxData } from "@hooks/use-combobox-data";
 import { sdk, fetchQuery } from "@lib/client";
-import { ProductCreateSchemaType } from "../../../../types";
+import { useTabbedForm } from "@components/tabbed-form";
+import { ProductCreateSchemaType } from "../../../types";
 import { CategoryCombobox } from "@pages/products/common/components/category-combobox";
 
-type ProductCreateOrganizationSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>;
-};
-
-export const ProductCreateOrganizationSection = ({
-  form,
-}: ProductCreateOrganizationSectionProps) => {
+export const ProductCreateOrganizationSection = () => {
   const { t } = useTranslation();
+  const form = useTabbedForm<ProductCreateSchemaType>();
 
   const collections = useComboboxData({
     queryKey: ["product_collections"],
@@ -130,7 +125,6 @@ export const ProductCreateOrganizationSection = ({
                 </Form.Label>
                 <Form.Control>
                   <CategoryCombobox {...field} />
-                  {/* <CategorySelect  /> */}
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>

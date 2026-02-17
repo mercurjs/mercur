@@ -209,20 +209,21 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
         {
           icon: <PencilSquare />,
           label: t("actions.edit"),
-          onClick: (row) => {
-            navigate(
-              `edit-variant?variant_id=${
-                row.row.original.id
-              }&${tableSearchParams.toString()}`,
-              {
-                state: {
-                  restore_params: tableSearchParams.toString(),
-                },
-              },
-            );
+          onClick: () => {
+            navigate(`variants/${variant.id}/edit`);
           },
         },
       ];
+
+      if (variant.manage_inventory && variant.inventory_items?.length) {
+        mainActions.push({
+          label: t("products.variant.inventory.actions.inventoryItems"),
+          onClick: () => {
+            navigate(`variants/${variant.id}`);
+          },
+          icon: <Buildings />,
+        });
+      }
 
       const secondaryActions: DataTableAction<HttpTypes.AdminProductVariant>[] =
         [
@@ -232,46 +233,6 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
             onClick: () => handleDelete(variant.id, variant.title!),
           },
         ];
-
-      const inventoryItemsCount = variant.inventory_items?.length || 0;
-
-      switch (inventoryItemsCount) {
-        case 0:
-          break;
-        case 1: {
-          const inventoryItemLink = `/inventory/${
-            variant.inventory_items![0].inventory.id
-          }`;
-
-          mainActions.push({
-            label: t("products.variant.inventory.actions.inventoryItems"),
-            onClick: () => {
-              navigate(inventoryItemLink);
-            },
-            icon: <Buildings />,
-          });
-          break;
-        }
-        default: {
-          const ids = variant.inventory_items?.map((i) => i.inventory?.id);
-
-          if (!ids || ids.length === 0) {
-            break;
-          }
-
-          const inventoryKitLink = `/inventory?${new URLSearchParams({
-            id: ids.join(","),
-          }).toString()}`;
-
-          mainActions.push({
-            label: t("products.variant.inventory.actions.inventoryKit"),
-            onClick: () => {
-              navigate(inventoryKitLink);
-            },
-            icon: <Component />,
-          });
-        }
-      }
 
       return [mainActions, secondaryActions];
     },

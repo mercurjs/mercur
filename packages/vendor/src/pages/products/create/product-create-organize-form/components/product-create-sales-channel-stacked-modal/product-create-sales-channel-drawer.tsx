@@ -5,7 +5,6 @@ import {
 } from "@medusajs/ui"
 import { HttpTypes } from "@medusajs/types"
 import { useEffect, useMemo, useState } from "react"
-import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { keepPreviousData } from "@tanstack/react-query"
@@ -16,19 +15,15 @@ import {
   useStackedModal,
 } from "@components/modals"
 import { useSalesChannels } from "@hooks/api/sales-channels"
-import { ProductCreateSchemaType } from "../../../../types"
+import { useTabbedForm } from "@components/tabbed-form"
+import { ProductCreateSchemaType } from "../../../types"
 import { SC_STACKED_MODAL_ID } from "../../constants"
-
-type ProductCreateSalesChannelStackedModalProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
 
 const PAGE_SIZE = 50
 
-export const ProductCreateSalesChannelStackedModal = ({
-  form,
-}: ProductCreateSalesChannelStackedModalProps) => {
+export const ProductCreateSalesChannelStackedModal = () => {
   const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
   const { getValues, setValue } = form
   const { setIsOpen, getIsOpen } = useStackedModal()
 

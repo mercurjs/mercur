@@ -55,39 +55,40 @@ export type ProductCreateOptionSchema = z.infer<
   typeof ProductCreateOptionSchema
 >
 
-export const ProductCreateSchema = z
-  .object({
-    title: z.string().min(1),
-    subtitle: z.string().optional(),
-    handle: z.string().optional(),
-    description: z.string().optional(),
-    discountable: z.boolean(),
-    type_id: z.string().optional(),
-    collection_id: z.string().optional(),
-    shipping_profile_id: z.string().optional(),
-    categories: z.array(z.string()),
-    tags: z.array(z.string()).optional(),
-    sales_channels: z
-      .array(
-        z.object({
-          id: z.string(),
-          name: z.string(),
-        })
-      )
-      .optional(),
-    origin_country: z.string().optional(),
-    material: z.string().optional(),
-    width: z.string().optional(),
-    length: z.string().optional(),
-    height: z.string().optional(),
-    weight: z.string().optional(),
-    mid_code: z.string().optional(),
-    hs_code: z.string().optional(),
-    options: z.array(ProductCreateOptionSchema).min(1),
-    enable_variants: z.boolean(),
-    variants: z.array(ProductCreateVariantSchema).min(1),
-    media: z.array(MediaSchema).optional(),
-  })
+export const ProductCreateBaseSchema = z.object({
+  title: z.string().min(1),
+  subtitle: z.string().optional(),
+  handle: z.string().optional(),
+  description: z.string().optional(),
+  discountable: z.boolean(),
+  type_id: z.string().optional(),
+  collection_id: z.string().optional(),
+  shipping_profile_id: z.string().optional(),
+  categories: z.array(z.string()),
+  tags: z.array(z.string()).optional(),
+  sales_channels: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      })
+    )
+    .optional(),
+  origin_country: z.string().optional(),
+  material: z.string().optional(),
+  width: z.string().optional(),
+  length: z.string().optional(),
+  height: z.string().optional(),
+  weight: z.string().optional(),
+  mid_code: z.string().optional(),
+  hs_code: z.string().optional(),
+  options: z.array(ProductCreateOptionSchema).min(1),
+  enable_variants: z.boolean(),
+  variants: z.array(ProductCreateVariantSchema).min(1),
+  media: z.array(MediaSchema).optional(),
+})
+
+export const ProductCreateSchema = ProductCreateBaseSchema
   .superRefine((data, ctx) => {
     if (data.variants.every((v) => !v.should_create)) {
       return ctx.addIssue({

@@ -15,7 +15,6 @@ import {
 import {
   Controller,
   FieldArrayWithId,
-  UseFormReturn,
   useFieldArray,
   useWatch,
 } from "react-hook-form"
@@ -25,12 +24,9 @@ import { Form } from "@components/common/form"
 import { SortableList } from "@components/common/sortable-list"
 import { SwitchBox } from "@components/common/switch-box"
 import { ChipInput } from "@components/inputs/chip-input"
-import { ProductCreateSchemaType } from "../../../../types"
+import { useTabbedForm } from "@components/tabbed-form"
+import { ProductCreateSchemaType } from "../../../types"
 import { decorateVariantsWithDefaultValues } from "@pages/products/create/utils"
-
-type ProductCreateVariantsSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
 
 const getPermutations = (
   data: { title: string; values: string[] }[]
@@ -60,10 +56,9 @@ const getVariantName = (options: Record<string, string>) => {
   return Object.values(options).join(" / ")
 }
 
-export const ProductCreateVariantsSection = ({
-  form,
-}: ProductCreateVariantsSectionProps) => {
+export const ProductCreateVariantsSection = () => {
   const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
 
   const options = useFieldArray({
     control: form.control,
@@ -143,7 +138,6 @@ export const ProductCreateVariantsSection = ({
         options: permutation,
         should_create: hasUserSelectedVariants ? false : true,
         variant_rank: newVariants.length,
-        // NOTE - prepare inventory array here for now so we prevent rendering issue if we append the items later
         inventory: [{ inventory_item_id: "", required_quantity: "" }],
       })
     })
@@ -209,8 +203,6 @@ export const ProductCreateVariantsSection = ({
   const handleRankChange = (
     items: FieldArrayWithId<ProductCreateSchemaType, "variants">[]
   ) => {
-    // Items in the SortableList are memorised, so we need to find the current
-    // value to preserve any changes that have been made to `should_create`.
     const update = items.map((item, index) => {
       const variant = watchedVariants.find((v) => v.title === item.title)
 

@@ -1,7 +1,6 @@
-import { useMemo } from "react"
-import { UseFormReturn, useWatch } from "react-hook-form"
+import { Children, ReactNode, useMemo } from "react"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { HttpTypes } from "@medusajs/types"
 
 import {
   createDataGridHelper,
@@ -9,29 +8,25 @@ import {
   DataGrid,
 } from "@components/data-grid"
 import { useRouteModal } from "@components/modals"
+import { useTabbedForm } from "@components/tabbed-form"
+import { useStore } from "@hooks/api/store"
+import { useRegions } from "@hooks/api"
+import { usePricePreferences } from "@hooks/api/price-preferences"
 import {
   ProductCreateOptionSchema,
   ProductCreateVariantSchema,
-} from "../../constants"
-import { ProductCreateSchemaType } from "../../types"
-
-type ProductCreateVariantsFormProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-  regions?: HttpTypes.AdminRegion[]
-  store?: HttpTypes.AdminStore
-  pricePreferences?: HttpTypes.AdminPricePreference[]
-}
+} from "../constants"
+import { ProductCreateSchemaType, TabDefinition } from "../types"
 
 type VariantWithIndex = ProductCreateVariantSchema & {
   originalIndex: number
 }
 
-export const ProductCreateVariantsForm = ({
-  form,
-  regions,
-  store,
-  pricePreferences,
-}: ProductCreateVariantsFormProps) => {
+const Root = ({ children }: { children?: ReactNode }) => {
+  const form = useTabbedForm<ProductCreateSchemaType>()
+  const { store } = useStore()
+  const { regions } = useRegions({ limit: 9999 })
+  const { price_preferences: pricePreferences } = usePricePreferences({ limit: 9999 })
   const { setCloseOnEscape } = useRouteModal()
 
   const currencyCodes = useMemo(
@@ -51,9 +46,6 @@ export const ProductCreateVariantsForm = ({
     defaultValue: [],
   })
 
-  /**
-   * NOTE: anything that goes to the datagrid component needs to be memoised otherwise DataGrid will rerender and inputs will loose focus
-   */
   const columns = useColumns({
     options,
     currencies: currencyCodes,
@@ -73,6 +65,10 @@ export const ProductCreateVariantsForm = ({
     return ret
   }, [variants])
 
+  if (Children.count(children) > 0) {
+    return <>{children}</>
+  }
+
   return (
     <div className="flex size-full flex-col divide-y overflow-hidden">
       <DataGrid
@@ -84,6 +80,15 @@ export const ProductCreateVariantsForm = ({
     </div>
   )
 }
+
+Root._tabMeta = {
+  id: "variants",
+  labelKey: "products.create.tabs.variants",
+} satisfies TabDefinition
+
+export const ProductCreateVariantsForm = Object.assign(Root, {
+  _tabMeta: Root._tabMeta,
+})
 
 const columnHelper = createDataGridHelper<
   VariantWithIndex,
@@ -98,8 +103,8 @@ const useColumns = ({
 }: {
   options: ProductCreateOptionSchema[]
   currencies?: string[]
-  regions?: HttpTypes.AdminRegion[]
-  pricePreferences?: HttpTypes.AdminPricePreference[]
+  regions?: import("@medusajs/types").HttpTypes.AdminRegion[]
+  pricePreferences?: import("@medusajs/types").HttpTypes.AdminPricePreference[]
 }) => {
   const { t } = useTranslation()
 
@@ -150,11 +155,9 @@ const useColumns = ({
 
       ...createDataGridPriceColumns<VariantWithIndex, ProductCreateSchemaType>({
         currencies,
+        regions,
         pricePreferences,
         getFieldName: (context, value) => {
-          if (context.column.id?.startsWith("currency_prices")) {
-            return `variants.${context.row.original.originalIndex}.prices.${value}`
-          }
           return `variants.${context.row.original.originalIndex}.prices.${value}`
         },
         t,

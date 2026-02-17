@@ -1,71 +1,31 @@
-import { useTranslation } from "react-i18next";
-import { RouteFocusModal } from "../../../components/modals";
-import { useRegions } from "../../../hooks/api";
-import { usePricePreferences } from "../../../hooks/api/price-preferences";
-import { useSalesChannel } from "../../../hooks/api/sales-channels";
-import { useStore } from "../../../hooks/api/store";
-import { ProductCreateForm } from "./product-create-form";
+import { Children, ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
-export const ProductCreate = () => {
-  const { t } = useTranslation();
+import { RouteFocusModal } from "@components/modals"
+import { useSalesChannels } from "@hooks/api"
+import { useStore } from "@hooks/api/store"
 
-  const {
-    store,
-    isPending: isStorePending,
-    isError: isStoreError,
-    error: storeError,
-  } = useStore({
-    fields: "+default_sales_channel",
-  });
+import { ProductCreateForm } from "./product-create-form/product-create-form"
+import { ProductCreateDetailsForm } from "./product-create-details-form"
+import { ProductCreateOrganizeForm } from "./product-create-organize-form"
+import { ProductCreateVariantsForm } from "./product-create-variants-form"
+import { ProductCreateInventoryKitForm } from "./product-create-inventory-kit-form"
+import { TabbedForm } from "@components/tabbed-form"
+import { HttpTypes } from "@mercurjs/types"
 
-  const {
-    sales_channel,
-    isPending: isSalesChannelPending,
-    isError: isSalesChannelError,
-    error: salesChannelError,
-  } = useSalesChannel(store?.default_sales_channel_id!);
+const Root = ({ children }: { children?: ReactNode }) => {
+  const { t } = useTranslation()
 
-  const {
-    regions,
-    isPending: isRegionsPending,
-    isError: isRegionsError,
-    error: regionsError,
-  } = useRegions({ limit: 9999 });
-
-  const {
-    price_preferences,
-    isPending: isPricePreferencesPending,
-    isError: isPricePreferencesError,
-    error: pricePreferencesError,
-  } = usePricePreferences({
-    limit: 9999,
-  });
+  const { store, isPending: isStorePending } = useStore()
+  const { sales_channels, isPending: isSalesChannelPending } =
+    useSalesChannels()
 
   const ready =
-    !!store &&
-    !isStorePending &&
-    !!regions &&
-    !isRegionsPending &&
-    !!sales_channel &&
-    !isSalesChannelPending &&
-    !!price_preferences &&
-    !isPricePreferencesPending;
+    !!store && !isStorePending && !!sales_channels && !isSalesChannelPending
 
-  if (isStoreError) {
-    throw storeError;
-  }
-
-  if (isRegionsError) {
-    throw regionsError;
-  }
-
-  if (isSalesChannelError) {
-    throw salesChannelError;
-  }
-
-  if (isPricePreferencesError) {
-    throw pricePreferencesError;
-  }
+  const defaultChannel = sales_channels?.[0] as
+    | HttpTypes.AdminSalesChannel
+    | undefined
 
   return (
     <RouteFocusModal>
@@ -76,13 +36,21 @@ export const ProductCreate = () => {
         <span className="sr-only">{t("products.create.description")}</span>
       </RouteFocusModal.Description>
       {ready && (
-        <ProductCreateForm
-          defaultChannel={sales_channel}
-          store={store}
-          pricePreferences={price_preferences}
-          regions={regions}
-        />
+        Children.count(children) > 0 ? (
+          children
+        ) : (
+          <ProductCreateForm defaultChannel={defaultChannel} />
+        )
       )}
     </RouteFocusModal>
-  );
-};
+  )
+}
+
+export const ProductCreatePage = Object.assign(Root, {
+  DetailsForm: ProductCreateDetailsForm,
+  OrganizeForm: ProductCreateOrganizeForm,
+  VariantsForm: ProductCreateVariantsForm,
+  InventoryKitForm: ProductCreateInventoryKitForm,
+  Form: ProductCreateForm,
+  Tab: TabbedForm.Tab,
+})
