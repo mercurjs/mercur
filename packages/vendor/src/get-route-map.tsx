@@ -182,13 +182,22 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/orders"),
+                    lazy: async () => {
+                      const { OrderListPage } = await import(
+                        "./pages/orders"
+                      );
+                      return { Component: OrderListPage };
+                    },
                   },
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/orders/[id]");
+                      const { loader } = await import(
+                        "./pages/orders/[id]"
+                      );
+                      const { Breadcrumb } = await import(
+                        "./pages/orders/[id]/breadcrumb"
+                      );
                       return {
                         Component: Outlet,
                         loader,
@@ -202,7 +211,12 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/orders/[id]"),
+                        lazy: async () => {
+                          const { OrderDetailPage } = await import(
+                            "./pages/orders/[id]"
+                          );
+                          return { Component: OrderDetailPage };
+                        },
                         children: [
                           {
                             path: "fulfillment",
