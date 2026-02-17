@@ -20,13 +20,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
 };
 
 export const ProductListPage = Object.assign(Root, {
-  // Backward compat
   Table: ProductListTable,
-  // Sections
   Header: ProductListHeader,
-  Actions: ProductListActions,
+  HeaderTitle: ProductListTitle,
+  HeaderActions: ProductListActions,
+  HeaderCreateButton: ProductListCreateButton,
   DataTable: ProductListDataTable,
-  // Individual elements
-  Title: ProductListTitle,
-  CreateButton: ProductListCreateButton,
 });

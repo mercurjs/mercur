@@ -63,8 +63,6 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 lazy: () => import("./pages/home"),
               },
-
-              // PRODUCTS
               {
                 path: "/products",
                 errorElement: <ErrorBoundary />,
@@ -72,7 +70,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/products"),
+                    lazy: async () => {
+                      const { ProductListPage } =
+                        await import("./pages/products");
+                      return {
+                        Component: ProductListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "create",
@@ -83,8 +87,9 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/products/[id]");
+                      const { loader } = await import("./pages/products/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/products/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -98,7 +103,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/products/[id]"),
+                        lazy: async () => {
+                          const { ProductDetailPage } =
+                            await import("./pages/products/[id]");
+                          return {
+                            Component: ProductDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",

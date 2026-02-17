@@ -52,14 +52,16 @@ const Root = ({ children }: { children?: ReactNode }) => {
 };
 
 export const ProductDetailPage = Object.assign(Root, {
-  GeneralSection: ProductGeneralSection,
-  MediaSection: ProductMediaSection,
-  OptionSection: ProductOptionSection,
-  VariantSection: ProductVariantSection,
-  OrganizationSection: ProductOrganizationSection,
-  AttributeSection: ProductAttributeSection,
-  AdditionalAttributeSection: ProductAdditionalAttributesSection,
-  ShippingProfileSection: ProductShippingProfileSection,
-  SalesChannelSection: ProductSalesChannelSection,
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  MainGeneralSection: ProductGeneralSection,
+  MainMediaSection: ProductMediaSection,
+  MainOptionSection: ProductOptionSection,
+  MainVariantSection: ProductVariantSection,
+  MainAttributeSection: ProductAttributeSection,
+  MainAdditionalAttributeSection: ProductAdditionalAttributesSection,
+  SidebarShippingProfileSection: ProductShippingProfileSection,
+  SidebarOrganizationSection: ProductOrganizationSection,
+  SidebarSalesChannelSection: ProductSalesChannelSection,
   useContext: useProductDetailContext,
 });

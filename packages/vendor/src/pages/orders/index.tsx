@@ -1,4 +1,3 @@
-// Route: /orders
 import { SingleColumnPage } from "@components/layout/pages";
 import { OrderListTable } from "./_components/order-list-table";
 
