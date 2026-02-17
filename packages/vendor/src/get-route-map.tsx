@@ -406,19 +406,20 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/customers"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () => import("./pages/customers/create"),
-                      },
-                    ],
+                    lazy: async () => {
+                      const { CustomerListPage } =
+                        await import("./pages/customers");
+                      return {
+                        Component: CustomerListPage,
+                      };
+                    },
                   },
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/customers/[id]");
+                      const { loader } = await import("./pages/customers/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/customers/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -432,7 +433,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/customers/[id]"),
+                        lazy: async () => {
+                          const { CustomerDetailPage } =
+                            await import("./pages/customers/[id]");
+                          return {
+                            Component: CustomerDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",
@@ -490,8 +497,7 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { loader } =
-                        await import("./pages/inventory/[id]");
+                      const { loader } = await import("./pages/inventory/[id]");
                       const { Breadcrumb } =
                         await import("./pages/inventory/[id]/breadcrumb");
                       return {
@@ -1245,10 +1251,6 @@ export function getRouteMap({
             {
               path: "/reset-password",
               lazy: () => import("./pages/reset-password"),
-            },
-            {
-              path: "/invite",
-              lazy: () => import("./pages/invite"),
             },
             {
               path: "*",
