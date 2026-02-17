@@ -140,7 +140,7 @@ const Logout = () => {
   );
 };
 
-const Header = () => {
+export const Header = () => {
   const { t } = useTranslation();
   const { seller, isPending, isError, error } = useMe();
   const direction = useDocumentDirection();
