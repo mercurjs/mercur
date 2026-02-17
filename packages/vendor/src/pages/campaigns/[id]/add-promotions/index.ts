@@ -1,1 +1,1 @@
-export * from "./add-campaign-promotions-form"
+export * from "./add-promotions-page"
