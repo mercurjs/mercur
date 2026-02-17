@@ -368,12 +368,6 @@ export function getRouteMap({
                         Component: CollectionListPage,
                       };
                     },
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () => import("./pages/collections/create"),
-                      },
-                    ],
                   },
                   {
                     path: ":id",
