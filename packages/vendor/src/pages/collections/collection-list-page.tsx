@@ -8,7 +8,6 @@ import {
   CollectionListHeader,
   CollectionListActions,
   CollectionListTitle,
-  CollectionListCreateButton,
 } from "./_components/collection-list-table";
 
 const Root = ({ children }: { children?: ReactNode }) => {
@@ -24,6 +23,5 @@ export const CollectionListPage = Object.assign(Root, {
   Header: CollectionListHeader,
   HeaderTitle: CollectionListTitle,
   HeaderActions: CollectionListActions,
-  HeaderCreateButton: CollectionListCreateButton,
   DataTable: CollectionListDataTable,
 });
