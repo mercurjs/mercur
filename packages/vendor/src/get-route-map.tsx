@@ -63,8 +63,6 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 lazy: () => import("./pages/home"),
               },
-
-              // PRODUCTS
               {
                 path: "/products",
                 errorElement: <ErrorBoundary />,
@@ -72,19 +70,32 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/products"),
+                    lazy: async () => {
+                      const { ProductListPage } =
+                        await import("./pages/products");
+                      return {
+                        Component: ProductListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "create",
-                        lazy: () => import("./pages/products/create"),
+                        lazy: async () => {
+                          const { ProductCreate } =
+                            await import("./pages/products/create");
+                          return {
+                            Component: ProductCreate,
+                          };
+                        },
                       },
                     ],
                   },
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/products/[id]");
+                      const { loader } = await import("./pages/products/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/products/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -98,7 +109,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/products/[id]"),
+                        lazy: async () => {
+                          const { ProductDetailPage } =
+                            await import("./pages/products/[id]");
+                          return {
+                            Component: ProductDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",
@@ -171,13 +188,17 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/orders"),
+                    lazy: async () => {
+                      const { OrderListPage } = await import("./pages/orders");
+                      return { Component: OrderListPage };
+                    },
                   },
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/orders/[id]");
+                      const { loader } = await import("./pages/orders/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/orders/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -191,7 +212,11 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/orders/[id]"),
+                        lazy: async () => {
+                          const { OrderDetailPage } =
+                            await import("./pages/orders/[id]");
+                          return { Component: OrderDetailPage };
+                        },
                         children: [
                           {
                             path: "fulfillment",
@@ -222,13 +247,17 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/payouts"),
+                    lazy: async () => {
+                      const { PayoutListPage } =
+                        await import("./pages/payouts");
+                      return { Component: PayoutListPage };
+                    },
                   },
                   {
                     path: ":id",
                     lazy: async () => {
                       const { Breadcrumb } =
-                        await import("./pages/payouts/[id]");
+                        await import("./pages/payouts/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         handle: {
@@ -241,7 +270,11 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/payouts/[id]"),
+                        lazy: async () => {
+                          const { PayoutDetailPage } =
+                            await import("./pages/payouts/[id]");
+                          return { Component: PayoutDetailPage };
+                        },
                       },
                     ],
                   },
@@ -256,7 +289,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/categories"),
+                    lazy: async () => {
+                      const { CategoryListPage } =
+                        await import("./pages/categories");
+                      return {
+                        Component: CategoryListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "organize",
@@ -267,8 +306,10 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/categories/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/categories/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -282,7 +323,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/categories/[id]"),
+                        lazy: async () => {
+                          const { CategoryDetailPage } =
+                            await import("./pages/categories/[id]");
+                          return {
+                            Component: CategoryDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "products",
@@ -314,19 +361,21 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/collections"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () => import("./pages/collections/create"),
-                      },
-                    ],
+                    lazy: async () => {
+                      const { CollectionListPage } =
+                        await import("./pages/collections");
+                      return {
+                        Component: CollectionListPage,
+                      };
+                    },
                   },
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/collections/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/collections/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -340,7 +389,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/collections/[id]"),
+                        lazy: async () => {
+                          const { CollectionDetailPage } =
+                            await import("./pages/collections/[id]");
+                          return {
+                            Component: CollectionDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "add-products",
@@ -367,19 +422,20 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/customers"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () => import("./pages/customers/create"),
-                      },
-                    ],
+                    lazy: async () => {
+                      const { CustomerListPage } =
+                        await import("./pages/customers");
+                      return {
+                        Component: CustomerListPage,
+                      };
+                    },
                   },
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/customers/[id]");
+                      const { loader } = await import("./pages/customers/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/customers/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -393,7 +449,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/customers/[id]"),
+                        lazy: async () => {
+                          const { CustomerDetailPage } =
+                            await import("./pages/customers/[id]");
+                          return {
+                            Component: CustomerDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",
@@ -430,7 +492,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/inventory"),
+                    lazy: async () => {
+                      const { InventoryListPage } =
+                        await import("./pages/inventory");
+                      return {
+                        Component: InventoryListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "create",
@@ -445,8 +513,9 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/inventory/[id]");
+                      const { loader } = await import("./pages/inventory/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/inventory/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -460,7 +529,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/inventory/[id]"),
+                        lazy: async () => {
+                          const { InventoryDetailPage } =
+                            await import("./pages/inventory/[id]");
+                          return {
+                            Component: InventoryDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",
@@ -502,7 +577,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/promotions"),
+                    lazy: async () => {
+                      const { PromotionListPage } =
+                        await import("./pages/promotions");
+                      return {
+                        Component: PromotionListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "create",
@@ -513,8 +594,10 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/promotions/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/promotions/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -528,7 +611,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/promotions/[id]"),
+                        lazy: async () => {
+                          const { PromotionDetailPage } =
+                            await import("./pages/promotions/[id]");
+                          return {
+                            Component: PromotionDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",
@@ -559,7 +648,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/campaigns"),
+                    lazy: async () => {
+                      const { CampaignListPage } =
+                        await import("./pages/campaigns");
+                      return {
+                        Component: CampaignListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "create",
@@ -570,8 +665,9 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/campaigns/[id]");
+                      const { loader } = await import("./pages/campaigns/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/campaigns/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -585,7 +681,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/campaigns/[id]"),
+                        lazy: async () => {
+                          const { CampaignDetailPage } =
+                            await import("./pages/campaigns/[id]");
+                          return {
+                            Component: CampaignDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",
@@ -603,8 +705,13 @@ export function getRouteMap({
                           },
                           {
                             path: "add-promotions",
-                            lazy: () =>
-                              import("./pages/campaigns/[id]/add-promotions"),
+                            lazy: async () => {
+                              const { AddPromotionsPage } =
+                                await import("./pages/campaigns/[id]/add-promotions");
+                              return {
+                                Component: AddPromotionsPage,
+                              };
+                            },
                           },
                         ],
                       },
@@ -621,7 +728,11 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/price-lists"),
+                    lazy: async () => {
+                      const { PriceListListPage } =
+                        await import("./pages/price-lists");
+                      return { Component: PriceListListPage };
+                    },
                     children: [
                       {
                         path: "create",
@@ -632,8 +743,10 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/price-lists/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/price-lists/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -647,7 +760,11 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/price-lists/[id]"),
+                        lazy: async () => {
+                          const { PriceListDetailPage } =
+                            await import("./pages/price-lists/[id]");
+                          return { Component: PriceListDetailPage };
+                        },
                         children: [
                           {
                             path: "edit",
@@ -753,83 +870,15 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/settings/seller"),
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () => import("./pages/settings/seller/edit"),
-                      },
-                    ],
-                  },
-                ],
-              },
-
-              // PROFILE
-              {
-                path: "profile",
-                errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("profile.domain") },
-                children: [
-                  {
-                    path: "",
-                    lazy: () => import("./pages/settings/profile"),
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () => import("./pages/settings/profile/edit"),
-                      },
-                    ],
-                  },
-                ],
-              },
-
-              // REGIONS
-              {
-                path: "regions",
-                errorElement: <ErrorBoundary />,
-                element: <Outlet />,
-                handle: { breadcrumb: () => t("regions.domain") },
-                children: [
-                  {
-                    path: "",
-                    lazy: () => import("./pages/settings/regions"),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () => import("./pages/settings/regions/create"),
-                      },
-                    ],
-                  },
-                  {
-                    path: ":id",
                     lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
-                        await import("./pages/settings/regions/[id]");
-                      return {
-                        Component,
-                        loader,
-                        handle: {
-                          breadcrumb: (match: UIMatch<any>) => (
-                            <Breadcrumb {...match} />
-                          ),
-                        },
-                      };
+                      const { SellerDetailPage } =
+                        await import("./pages/settings/seller");
+                      return { Component: SellerDetailPage };
                     },
                     children: [
                       {
                         path: "edit",
-                        lazy: () =>
-                          import("./pages/settings/regions/[id]/edit"),
-                      },
-                      {
-                        path: "countries/add",
-                        lazy: () =>
-                          import("./pages/settings/regions/[id]/countries/add"),
-                      },
-                      {
-                        path: "metadata/edit",
-                        lazy: () =>
-                          import("./pages/settings/regions/[id]/metadata"),
+                        lazy: () => import("./pages/settings/seller/edit"),
                       },
                     ],
                   },
@@ -845,7 +894,11 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/settings/locations"),
+                    lazy: async () => {
+                      const { LocationListPage } =
+                        await import("./pages/settings/locations");
+                      return { Component: LocationListPage };
+                    },
                     children: [
                       {
                         path: "create",
@@ -862,8 +915,11 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () =>
-                          import("./pages/settings/shipping-profiles"),
+                        lazy: async () => {
+                          const { ShippingProfileListPage } =
+                            await import("./pages/settings/shipping-profiles");
+                          return { Component: ShippingProfileListPage };
+                        },
                         children: [
                           {
                             path: "create",
@@ -875,10 +931,14 @@ export function getRouteMap({
                       {
                         path: ":shipping_profile_id",
                         lazy: async () => {
-                          const { Component, Breadcrumb, loader } =
+                          const { shippingProfileLoader: loader } =
                             await import("./pages/settings/shipping-profiles/[id]");
+                          const {
+                            ShippingProfileDetailBreadcrumb: Breadcrumb,
+                          } =
+                            await import("./pages/settings/shipping-profiles/[id]/breadcrumb");
                           return {
-                            Component,
+                            Component: Outlet,
                             loader,
                             handle: {
                               breadcrumb: (match: UIMatch<any>) => (
@@ -889,9 +949,21 @@ export function getRouteMap({
                         },
                         children: [
                           {
-                            path: "metadata/edit",
-                            lazy: () =>
-                              import("./pages/settings/shipping-profiles/[id]/metadata"),
+                            path: "",
+                            lazy: async () => {
+                              const { ShippingProfileDetailPage } =
+                                await import("./pages/settings/shipping-profiles/[id]");
+                              return {
+                                Component: ShippingProfileDetailPage,
+                              };
+                            },
+                            children: [
+                              {
+                                path: "metadata/edit",
+                                lazy: () =>
+                                  import("./pages/settings/shipping-profiles/[id]/metadata"),
+                              },
+                            ],
                           },
                         ],
                       },
@@ -900,10 +972,12 @@ export function getRouteMap({
                   {
                     path: ":location_id",
                     lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/settings/locations/[location_id]");
+                      const { LocationDetailBreadcrumb: Breadcrumb } =
+                        await import("./pages/settings/locations/[location_id]/breadcrumb");
                       return {
-                        Component,
+                        Component: Outlet,
                         loader,
                         handle: {
                           breadcrumb: (match: UIMatch<any>) => (
@@ -914,49 +988,59 @@ export function getRouteMap({
                     },
                     children: [
                       {
-                        path: "edit",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/edit"),
-                      },
-                      {
-                        path: "sales-channels",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/sales-channels"),
-                      },
-                      {
-                        path: "fulfillment-providers",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-providers"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zones/create",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zones/create"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/edit",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/edit"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/areas",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/areas"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/create",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/create"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/edit",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/edit"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/pricing",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/pricing"),
+                        path: "",
+                        lazy: async () => {
+                          const { LocationDetailPage } =
+                            await import("./pages/settings/locations/[location_id]");
+                          return { Component: LocationDetailPage };
+                        },
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import("./pages/settings/locations/[location_id]/edit"),
+                          },
+                          {
+                            path: "sales-channels",
+                            lazy: () =>
+                              import("./pages/settings/locations/[location_id]/sales-channels"),
+                          },
+                          {
+                            path: "fulfillment-providers",
+                            lazy: () =>
+                              import("./pages/settings/locations/[location_id]/fulfillment-providers"),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zones/create",
+                            lazy: () =>
+                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zones/create"),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/edit",
+                            lazy: () =>
+                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/edit"),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/areas",
+                            lazy: () =>
+                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/areas"),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/create",
+                            lazy: () =>
+                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/create"),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/edit",
+                            lazy: () =>
+                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/edit"),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/pricing",
+                            lazy: () =>
+                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/pricing"),
+                          },
+                        ],
                       },
                     ],
                   },
@@ -1074,15 +1158,21 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/settings/product-tags"),
+                    lazy: async () => {
+                      const { ProductTagListPage } =
+                        await import("./pages/settings/product-tags");
+                      return { Component: ProductTagListPage };
+                    },
                   },
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/settings/product-tags/[id]");
+                      const { ProductTagDetailBreadcrumb: Breadcrumb } =
+                        await import("./pages/settings/product-tags/[id]/breadcrumb");
                       return {
-                        Component,
+                        Component: Outlet,
                         loader,
                         handle: {
                           breadcrumb: (match: UIMatch<any>) => (
@@ -1093,9 +1183,19 @@ export function getRouteMap({
                     },
                     children: [
                       {
-                        path: "edit",
-                        lazy: () =>
-                          import("./pages/settings/product-tags/[id]/edit"),
+                        path: "",
+                        lazy: async () => {
+                          const { ProductTagDetailPage } =
+                            await import("./pages/settings/product-tags/[id]");
+                          return { Component: ProductTagDetailPage };
+                        },
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import("./pages/settings/product-tags/[id]/edit"),
+                          },
+                        ],
                       },
                     ],
                   },
@@ -1111,7 +1211,11 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/settings/product-types"),
+                    lazy: async () => {
+                      const { ProductTypeListPage } =
+                        await import("./pages/settings/product-types");
+                      return { Component: ProductTypeListPage };
+                    },
                     children: [
                       {
                         path: "create",
@@ -1123,10 +1227,12 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
+                      const { productTypeLoader: loader } =
                         await import("./pages/settings/product-types/[id]");
+                      const { ProductTypeDetailBreadcrumb: Breadcrumb } =
+                        await import("./pages/settings/product-types/[id]/breadcrumb");
                       return {
-                        Component,
+                        Component: Outlet,
                         loader,
                         handle: {
                           breadcrumb: (match: UIMatch<any>) => (
@@ -1137,9 +1243,19 @@ export function getRouteMap({
                     },
                     children: [
                       {
-                        path: "edit",
-                        lazy: () =>
-                          import("./pages/settings/product-types/[id]/edit"),
+                        path: "",
+                        lazy: async () => {
+                          const { ProductTypeDetailPage } =
+                            await import("./pages/settings/product-types/[id]");
+                          return { Component: ProductTypeDetailPage };
+                        },
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import("./pages/settings/product-types/[id]/edit"),
+                          },
+                        ],
                       },
                     ],
                   },
@@ -1187,15 +1303,14 @@ export function getRouteMap({
           children: [
             {
               path: "/login",
-              lazy: () => import("./pages/login"),
+              lazy: async () => {
+                const { LoginPage } = await import("./pages/login");
+                return { Component: LoginPage };
+              },
             },
             {
               path: "/reset-password",
               lazy: () => import("./pages/reset-password"),
-            },
-            {
-              path: "/invite",
-              lazy: () => import("./pages/invite"),
             },
             {
               path: "*",

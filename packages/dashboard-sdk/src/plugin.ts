@@ -56,6 +56,20 @@ export function dashboardPlugin(): Vite.Plugin {
         load(id) {
             return loadVirtualModule({ cwd: root, id, mercurConfig: config })
         },
+        configureServer(server) {
+            const handlePageChange = (file: string) => {
+                if (!isPageFile(file)) return
+
+                const mod = server.moduleGraph.getModuleById(RESOLVED_ROUTES_MODULE)
+                if (mod) {
+                    server.moduleGraph.invalidateModule(mod)
+                    server.ws.send({ type: "full-reload" })
+                }
+            }
+
+            server.watcher.on("add", handlePageChange)
+            server.watcher.on("unlink", handlePageChange)
+        },
         handleHotUpdate({ file, server }) {
             const configPath = path.resolve(root, CONFIG_NAME)
 

@@ -1,57 +1,55 @@
-import { Checkbox, toast, usePrompt } from "@medusajs/ui"
-import { keepPreviousData } from "@tanstack/react-query"
+import { Checkbox, toast, usePrompt } from "@medusajs/ui";
+import { keepPreviousData } from "@tanstack/react-query";
 import {
   createColumnHelper,
   OnChangeFn,
   RowSelectionState,
-} from "@tanstack/react-table"
-import { useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
-import { Trash } from "@medusajs/icons"
+} from "@tanstack/react-table";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Trash } from "@medusajs/icons";
 
-import { ExtendedAdminProduct } from "@custom-types/products"
-import { ActionMenu } from "@components/common/action-menu"
-import { _DataTable } from "@components/table/data-table"
+import { ExtendedAdminProduct } from "@custom-types/products";
+import { ActionMenu } from "@components/common/action-menu";
+import { _DataTable } from "@components/table/data-table";
 import {
   useDeleteProduct,
   useBulkDeleteProducts,
   useProducts,
-} from "@hooks/api/products"
-import { useProductTableColumns } from "@hooks/table/columns/use-product-table-columns"
-import { useProductTableFilters } from "@hooks/table/filters/use-product-table-filters"
-import { useProductTableQuery } from "@hooks/table/query/use-product-table-query"
-import { useDataTable } from "@hooks/use-data-table"
+} from "@hooks/api/products";
+import { useProductTableColumns } from "@hooks/table/columns/use-product-table-columns";
+import { useProductTableFilters } from "@hooks/table/filters/use-product-table-filters";
+import { useProductTableQuery } from "@hooks/table/query/use-product-table-query";
+import { useDataTable } from "@hooks/use-data-table";
 
-export const PAGE_SIZE = 10
+export const PAGE_SIZE = 10;
 
 export const ProductListDataTable = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const updater: OnChangeFn<RowSelectionState> = (newSelection) => {
     const update =
       typeof newSelection === "function"
         ? newSelection(rowSelection)
-        : newSelection
-    setRowSelection(update)
-  }
+        : newSelection;
+    setRowSelection(update);
+  };
 
   const { searchParams, raw } = useProductTableQuery({
     pageSize: PAGE_SIZE,
-  })
-
-  const options = {
-    placeholderData: keepPreviousData,
-  }
+  });
 
   const { products, count, isLoading, isError, error } = useProducts(
     searchParams,
-    options
-  )
+    {
+      placeholderData: keepPreviousData,
+    },
+  );
 
-  const filters = useProductTableFilters()
-  const columns = useColumns()
+  const filters = useProductTableFilters();
+  const columns = useColumns();
 
   const { table } = useDataTable({
     data: products,
@@ -65,16 +63,16 @@ export const ProductListDataTable = () => {
       state: rowSelection,
       updater,
     },
-  })
+  });
 
-  const { mutateAsync } = useBulkDeleteProducts()
-  const prompt = usePrompt()
+  const { mutateAsync } = useBulkDeleteProducts();
+  const prompt = usePrompt();
 
   const handleDelete = async () => {
-    const keys = Object.keys(rowSelection)
+    const keys = Object.keys(rowSelection);
 
     if (keys.length === 0) {
-      return
+      return;
     }
 
     const res = await prompt({
@@ -84,31 +82,31 @@ export const ProductListDataTable = () => {
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await mutateAsync(keys, {
       onSuccess: () => {
-        setRowSelection({})
+        setRowSelection({});
         toast.success(
           t("products.bulkDelete.success", {
             count: keys.length,
-          })
-        )
+          }),
+        );
       },
       onError: (error) => {
         toast.error(t("products.bulkDelete.error"), {
           description: error.message,
-        })
+        });
       },
-    })
-  }
+    });
+  };
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -150,13 +148,13 @@ export const ProductListDataTable = () => {
         },
       }}
     />
-  )
-}
+  );
+};
 
 const ProductActions = ({ product }: { product: ExtendedAdminProduct }) => {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
-  const { mutateAsync } = useDeleteProduct(product.id)
+  const { t } = useTranslation();
+  const prompt = usePrompt();
+  const { mutateAsync } = useDeleteProduct(product.id);
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -166,10 +164,10 @@ const ProductActions = ({ product }: { product: ExtendedAdminProduct }) => {
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await mutateAsync(undefined, {
@@ -178,15 +176,15 @@ const ProductActions = ({ product }: { product: ExtendedAdminProduct }) => {
           description: t("products.toasts.delete.success.description", {
             title: product.title,
           }),
-        })
+        });
       },
       onError: (e) => {
         toast.error(t("products.toasts.delete.error.header"), {
           description: e.message,
-        })
+        });
       },
-    })
-  }
+    });
+  };
 
   return (
     <ActionMenu
@@ -202,14 +200,14 @@ const ProductActions = ({ product }: { product: ExtendedAdminProduct }) => {
         },
       ]}
     />
-  )
-}
+  );
+};
 
-const columnHelper = createColumnHelper<ExtendedAdminProduct>()
+const columnHelper = createColumnHelper<ExtendedAdminProduct>();
 
 const useColumns = () => {
-  const { t } = useTranslation()
-  const base = useProductTableColumns()
+  const { t } = useTranslation();
+  const base = useProductTableColumns();
 
   const columns = useMemo(
     () => [
@@ -227,7 +225,7 @@ const useColumns = () => {
                 table.toggleAllPageRowsSelected(!!value)
               }
             />
-          )
+          );
         },
         cell: ({ row }) => {
           return (
@@ -235,22 +233,22 @@ const useColumns = () => {
               checked={row.getIsSelected()}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
               onClick={(e) => {
-                e.stopPropagation()
+                e.stopPropagation();
               }}
             />
-          )
+          );
         },
       }),
       ...base,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
-          return <ProductActions product={row.original} />
+          return <ProductActions product={row.original} />;
         },
       }),
     ],
-    [base, t]
-  )
+    [base, t],
+  );
 
-  return columns
-}
+  return columns;
+};
