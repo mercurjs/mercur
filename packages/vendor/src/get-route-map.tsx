@@ -561,7 +561,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/promotions"),
+                    lazy: async () => {
+                      const { PromotionListPage } =
+                        await import("./pages/promotions");
+                      return {
+                        Component: PromotionListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "create",
@@ -572,8 +578,10 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/promotions/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/promotions/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -587,7 +595,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/promotions/[id]"),
+                        lazy: async () => {
+                          const { PromotionDetailPage } =
+                            await import("./pages/promotions/[id]");
+                          return {
+                            Component: PromotionDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",
@@ -618,7 +632,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/campaigns"),
+                    lazy: async () => {
+                      const { CampaignListPage } =
+                        await import("./pages/campaigns");
+                      return {
+                        Component: CampaignListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "create",
@@ -629,8 +649,10 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/campaigns/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/campaigns/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -644,7 +666,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/campaigns/[id]"),
+                        lazy: async () => {
+                          const { CampaignDetailPage } =
+                            await import("./pages/campaigns/[id]");
+                          return {
+                            Component: CampaignDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "edit",
