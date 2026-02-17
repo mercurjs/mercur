@@ -1,5 +1,6 @@
 import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
-import { AlgoliaEvents, Modules, SellerEvents } from '@mercurjs/framework'
+import { AlgoliaEvents, SellerEvents } from '@mercurjs/framework'
+import { Modules } from '@medusajs/framework/utils'
 
 export default async function sellerUpdatedHandler({
     event,
