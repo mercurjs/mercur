@@ -23,9 +23,7 @@ export const ProductCreate = () => {
     isPending: isSalesChannelPending,
     isError: isSalesChannelError,
     error: salesChannelError,
-  } = useSalesChannel(store?.default_sales_channel_id!, {
-    enabled: !!store?.default_sales_channel_id,
-  });
+  } = useSalesChannel(store?.default_sales_channel_id!);
 
   const {
     regions,
