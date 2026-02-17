@@ -1,9 +1,12 @@
+import { Children, ReactNode } from "react";
+
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
-import { SellerGeneralSection } from "./_components/seller-general-section";
 import { useMe } from "@/hooks/api";
 
-const SellerDetail = () => {
+import { SellerGeneralSection } from "./_components/seller-general-section";
+
+const Root = ({ children }: { children?: ReactNode }) => {
   const { seller, isPending, isError, error } = useMe();
 
   if (isPending || !seller) {
@@ -16,9 +19,15 @@ const SellerDetail = () => {
 
   return (
     <SingleColumnPage data={seller} hasOutlet>
-      <SellerGeneralSection seller={seller} />
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <SellerGeneralSection seller={seller} />
+      )}
     </SingleColumnPage>
   );
 };
 
-export const Component = SellerDetail;
+export const SellerDetailPage = Object.assign(Root, {
+  GeneralSection: SellerGeneralSection,
+});

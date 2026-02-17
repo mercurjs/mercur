@@ -879,7 +879,12 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/settings/seller"),
+                    lazy: async () => {
+                      const { SellerDetailPage } = await import(
+                        "./pages/settings/seller"
+                      );
+                      return { Component: SellerDetailPage };
+                    },
                     children: [
                       {
                         path: "edit",
