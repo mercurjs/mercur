@@ -1,5 +1,4 @@
 import { Buildings, PencilSquare, Trash } from "@medusajs/icons";
-import { HttpTypes } from "@medusajs/types";
 import { Container, StatusBadge, Text, toast, usePrompt } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
@@ -9,6 +8,7 @@ import { LinkButton } from "@components/common/link-button";
 import { useDeleteStockLocation } from "@hooks/api/stock-locations";
 import { getFormattedAddress } from "@lib/addresses";
 import { FulfillmentSetType } from "@pages/settings/locations/_common/constants";
+import { HttpTypes } from "@mercurjs/types";
 
 // type SalesChannelsProps = {
 //   salesChannels?: HttpTypes.AdminSalesChannel[] | null
@@ -47,7 +47,7 @@ import { FulfillmentSetType } from "@pages/settings/locations/_common/constants"
 // }
 
 type FulfillmentSetProps = {
-  fulfillmentSet?: HttpTypes.AdminFulfillmentSet;
+  fulfillmentSet?: HttpTypes.VendorFulfillmentSetResponse["fulfillment_set"];
   type: FulfillmentSetType;
 };
 
@@ -79,7 +79,7 @@ function FulfillmentSet(props: FulfillmentSetProps) {
 }
 
 type LocationProps = {
-  location: HttpTypes.AdminStockLocation;
+  location: HttpTypes.VendorStockLocationResponse["stock_location"];
 };
 
 function LocationListItem(props: LocationProps) {
@@ -131,7 +131,15 @@ function LocationListItem(props: LocationProps) {
             <Text weight="plus">{location.name}</Text>
             <Text className="text-ui-fg-subtle txt-small">
               {getFormattedAddress({
-                address: location.address,
+                address: {
+                  company: location.address?.company,
+                  address_1: location.address?.address_1,
+                  address_2: location.address?.address_2,
+                  city: location.address?.city,
+                  postal_code: location.address?.postal_code,
+                  province: location.address?.province,
+                  country_code: location.address?.country_code,
+                },
               }).join(", ")}
             </Text>
           </div>

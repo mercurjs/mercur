@@ -47,6 +47,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     {
       fields: LOCATION_LIST_FIELDS,
     },
+    // @ts-expect-error
     { initialData },
   );
 

@@ -25,7 +25,20 @@ export const isSameAddress = (
 export const getFormattedAddress = ({
   address,
 }: {
-  address?: HttpTypes.AdminOrderAddress | null
+  address?: {
+    first_name?: string | null
+    last_name?: string | null
+    company?: string | null
+    address_1?: string | null
+    address_2?: string | null
+    city?: string | null
+    postal_code?: string | null
+    province?: string | null
+    country_code?: string | null
+    country?: {
+      display_name?: string | null
+    } | null
+  } | null
 }) => {
   if (!address) {
     return []
