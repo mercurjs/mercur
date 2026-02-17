@@ -267,7 +267,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/categories"),
+                    lazy: async () => {
+                      const { CategoryListPage } =
+                        await import("./pages/categories");
+                      return {
+                        Component: CategoryListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "organize",
@@ -278,8 +284,10 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/categories/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/categories/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -293,7 +301,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/categories/[id]"),
+                        lazy: async () => {
+                          const { CategoryDetailPage } =
+                            await import("./pages/categories/[id]");
+                          return {
+                            Component: CategoryDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "products",
@@ -325,7 +339,13 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/collections"),
+                    lazy: async () => {
+                      const { CollectionListPage } =
+                        await import("./pages/collections");
+                      return {
+                        Component: CollectionListPage,
+                      };
+                    },
                     children: [
                       {
                         path: "create",
@@ -336,8 +356,10 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
+                      const { loader } =
                         await import("./pages/collections/[id]");
+                      const { Breadcrumb } =
+                        await import("./pages/collections/[id]/breadcrumb");
                       return {
                         Component: Outlet,
                         loader,
@@ -351,7 +373,13 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/collections/[id]"),
+                        lazy: async () => {
+                          const { CollectionDetailPage } =
+                            await import("./pages/collections/[id]");
+                          return {
+                            Component: CollectionDetailPage,
+                          };
+                        },
                         children: [
                           {
                             path: "add-products",
