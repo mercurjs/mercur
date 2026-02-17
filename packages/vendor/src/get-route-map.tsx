@@ -889,7 +889,12 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/settings/locations"),
+                    lazy: async () => {
+                      const { LocationListPage } = await import(
+                        "./pages/settings/locations"
+                      );
+                      return { Component: LocationListPage };
+                    },
                     children: [
                       {
                         path: "create",
@@ -906,8 +911,12 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () =>
-                          import("./pages/settings/shipping-profiles"),
+                        lazy: async () => {
+                          const { ShippingProfileListPage } = await import(
+                            "./pages/settings/shipping-profiles"
+                          );
+                          return { Component: ShippingProfileListPage };
+                        },
                         children: [
                           {
                             path: "create",
@@ -919,10 +928,17 @@ export function getRouteMap({
                       {
                         path: ":shipping_profile_id",
                         lazy: async () => {
-                          const { Component, Breadcrumb, loader } =
-                            await import("./pages/settings/shipping-profiles/[id]");
+                          const { shippingProfileLoader: loader } =
+                            await import(
+                              "./pages/settings/shipping-profiles/[id]"
+                            );
+                          const {
+                            ShippingProfileDetailBreadcrumb: Breadcrumb,
+                          } = await import(
+                            "./pages/settings/shipping-profiles/[id]/breadcrumb"
+                          );
                           return {
-                            Component,
+                            Component: Outlet,
                             loader,
                             handle: {
                               breadcrumb: (match: UIMatch<any>) => (
@@ -933,9 +949,25 @@ export function getRouteMap({
                         },
                         children: [
                           {
-                            path: "metadata/edit",
-                            lazy: () =>
-                              import("./pages/settings/shipping-profiles/[id]/metadata"),
+                            path: "",
+                            lazy: async () => {
+                              const { ShippingProfileDetailPage } =
+                                await import(
+                                  "./pages/settings/shipping-profiles/[id]"
+                                );
+                              return {
+                                Component: ShippingProfileDetailPage,
+                              };
+                            },
+                            children: [
+                              {
+                                path: "metadata/edit",
+                                lazy: () =>
+                                  import(
+                                    "./pages/settings/shipping-profiles/[id]/metadata"
+                                  ),
+                              },
+                            ],
                           },
                         ],
                       },
@@ -944,10 +976,15 @@ export function getRouteMap({
                   {
                     path: ":location_id",
                     lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
-                        await import("./pages/settings/locations/[location_id]");
+                      const { loader } = await import(
+                        "./pages/settings/locations/[location_id]"
+                      );
+                      const { LocationDetailBreadcrumb: Breadcrumb } =
+                        await import(
+                          "./pages/settings/locations/[location_id]/breadcrumb"
+                        );
                       return {
-                        Component,
+                        Component: Outlet,
                         loader,
                         handle: {
                           breadcrumb: (match: UIMatch<any>) => (
@@ -958,49 +995,78 @@ export function getRouteMap({
                     },
                     children: [
                       {
-                        path: "edit",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/edit"),
-                      },
-                      {
-                        path: "sales-channels",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/sales-channels"),
-                      },
-                      {
-                        path: "fulfillment-providers",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-providers"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zones/create",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zones/create"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/edit",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/edit"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/areas",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/areas"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/create",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/create"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/edit",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/edit"),
-                      },
-                      {
-                        path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/pricing",
-                        lazy: () =>
-                          import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/pricing"),
+                        path: "",
+                        lazy: async () => {
+                          const { LocationDetailPage } = await import(
+                            "./pages/settings/locations/[location_id]"
+                          );
+                          return { Component: LocationDetailPage };
+                        },
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import(
+                                "./pages/settings/locations/[location_id]/edit"
+                              ),
+                          },
+                          {
+                            path: "sales-channels",
+                            lazy: () =>
+                              import(
+                                "./pages/settings/locations/[location_id]/sales-channels"
+                              ),
+                          },
+                          {
+                            path: "fulfillment-providers",
+                            lazy: () =>
+                              import(
+                                "./pages/settings/locations/[location_id]/fulfillment-providers"
+                              ),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zones/create",
+                            lazy: () =>
+                              import(
+                                "./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zones/create"
+                              ),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/edit",
+                            lazy: () =>
+                              import(
+                                "./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/edit"
+                              ),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/areas",
+                            lazy: () =>
+                              import(
+                                "./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/areas"
+                              ),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/create",
+                            lazy: () =>
+                              import(
+                                "./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/create"
+                              ),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/edit",
+                            lazy: () =>
+                              import(
+                                "./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/edit"
+                              ),
+                          },
+                          {
+                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/pricing",
+                            lazy: () =>
+                              import(
+                                "./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/pricing"
+                              ),
+                          },
+                        ],
                       },
                     ],
                   },

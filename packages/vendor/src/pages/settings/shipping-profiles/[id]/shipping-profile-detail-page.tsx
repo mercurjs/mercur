@@ -1,13 +1,15 @@
+import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
+import { SingleColumnPage } from "@components/layout/pages";
 import { useShippingProfile } from "@hooks/api/shipping-profiles";
+
 import { ShippingProfileGeneralSection } from "./_components/shipping-profile-general-section";
 
-import { SingleColumnPage } from "@components/layout/pages";
-import { shippingProfileLoader } from "./loader";
+import type { shippingProfileLoader } from "./loader";
 
-const ShippingProfileDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const { shipping_profile_id } = useParams();
 
   const initialData = useLoaderData() as Awaited<
@@ -32,11 +34,15 @@ const ShippingProfileDetail = () => {
 
   return (
     <SingleColumnPage data={shipping_profile}>
-      <ShippingProfileGeneralSection profile={shipping_profile} />
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <ShippingProfileGeneralSection profile={shipping_profile} />
+      )}
     </SingleColumnPage>
   );
 };
 
-export const Component = ShippingProfileDetail;
-export { shippingProfileLoader as loader } from "./loader";
-export { ShippingProfileDetailBreadcrumb as Breadcrumb } from "./breadcrumb";
+export const ShippingProfileDetailPage = Object.assign(Root, {
+  GeneralSection: ShippingProfileGeneralSection,
+});
