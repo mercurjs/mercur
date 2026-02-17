@@ -624,6 +624,9 @@ Obsłużone przez DELETE `/vendor/products/:id/attributes/:attribute_id` — z w
 
 ### 7.1 🔴 Brak ProductUpdateRequest event w attribute route'ach
 
+:exclamation::exclamation::exclamation: **Notatka Developera:**
+Brak decyzji (wymagań) co do tego jak requesty mają wpływać na atrybuty produktów.
+
 **Status:** `TBD`
 
 **Pliki:**
