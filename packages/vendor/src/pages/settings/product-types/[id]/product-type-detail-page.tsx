@@ -1,14 +1,18 @@
+import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
 import { useProductType } from "@hooks/api/product-types";
+
 import { ProductTypeGeneralSection } from "./_components/product-type-general-section";
 import { ProductTypeProductSection } from "./_components/product-type-product-section";
-import { productTypeLoader } from "./loader";
 
-const ProductTypeDetail = () => {
+import type { productTypeLoader } from "./loader";
+
+const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams();
+
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof productTypeLoader>
   >;
@@ -31,12 +35,19 @@ const ProductTypeDetail = () => {
 
   return (
     <SingleColumnPage data={product_type}>
-      <ProductTypeGeneralSection productType={product_type} />
-      <ProductTypeProductSection productType={product_type} />
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <ProductTypeGeneralSection productType={product_type} />
+          <ProductTypeProductSection productType={product_type} />
+        </>
+      )}
     </SingleColumnPage>
   );
 };
 
-export const Component = ProductTypeDetail;
-export { productTypeLoader as loader } from "./loader";
-export { ProductTypeDetailBreadcrumb as Breadcrumb } from "./breadcrumb";
+export const ProductTypeDetailPage = Object.assign(Root, {
+  GeneralSection: ProductTypeGeneralSection,
+  ProductSection: ProductTypeProductSection,
+});
