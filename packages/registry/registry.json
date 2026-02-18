@@ -226,6 +226,80 @@
       "categories": [
         "reviews"
       ]
+    },
+    {
+      "name": "product-import-export",
+      "description": "CSV product import & export for vendors. Includes API routes, workflows, and vendor portal drawers.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "docs": "## Product Import/Export Block\n\n### Configuration\n\nNo additional modules needed — uses built-in Medusa product CSV steps.\n\n### Middleware Setup\n\nAdd the import middleware to your `src/api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from '@medusajs/medusa'\nimport { productImportExportMiddlewares } from './vendor/products/middlewares'\n\nexport default defineMiddlewares({\n  routes: [...productImportExportMiddlewares],\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nmercurjs codegen\n```\n\n### Vendor Navigation\n\nThe block includes a `products/page.tsx` that overrides the default product list page, adding Import and Export buttons in the header. The buttons open drawer routes at `/products/import` and `/products/export`.",
+      "files": [
+        {
+          "path": "product-import-export/workflows/steps/get-seller-products.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "product-import-export/workflows/steps/validate-products-to-import.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "product-import-export/workflows/import-seller-products.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "product-import-export/workflows/export-seller-products.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "product-import-export/api/vendor/products/import/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "product-import-export/api/vendor/products/export/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "product-import-export/api/vendor/products/_helpers/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "product-import-export/api/vendor/products/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "product-import-export/vendor/src/hooks/api/product-import-export.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "product-import-export/vendor/src/pages/products/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "product-import-export/vendor/src/pages/products/import/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "product-import-export/vendor/src/pages/products/import/_components/upload-import.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "product-import-export/vendor/src/pages/products/import/_components/import-summary.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "product-import-export/vendor/src/pages/products/import/_helpers/import-template.ts",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "product-import-export/vendor/src/pages/products/export/page.tsx",
+          "type": "registry:vendor"
+        }
+      ],
+      "categories": [
+        "api",
+        "workflow",
+        "vendor"
+      ]
     }
   ]
 }
