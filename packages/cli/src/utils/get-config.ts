@@ -13,8 +13,8 @@ export const DEFAULT_WORKFLOWS = "packages/api/src/workflows";
 export const DEFAULT_API = "packages/api/src/api";
 export const DEFAULT_LINKS = "packages/api/src/links";
 export const DEFAULT_MODULES = "packages/api/src/modules";
-export const DEFAULT_VENDOR = "apps/vendor/src/pages";
-export const DEFAULT_ADMIN = "apps/admin/src/pages";
+export const DEFAULT_VENDOR = "apps/vendor/src";
+export const DEFAULT_ADMIN = "apps/admin/src";
 export const DEFAULT_LIB = "packages/api/src/lib";
 
 export const explorer = cosmiconfig("blocks", {
