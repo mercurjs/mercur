@@ -1,6 +1,6 @@
 import * as fs from "fs/promises";
 import * as path from "path";
-import { preFlightRegistryBuild } from "@/src/preflights/preflight-registry";
+import { preFlightRegistryBuild } from "@/src/preflights/preflight-registry-build";
 import { recursivelyResolveFileImports } from "@/src/registry/utils";
 import { registryItemSchema, registrySchema } from "@/src/registry/schema";
 import { configSchema } from "@/src/schema";

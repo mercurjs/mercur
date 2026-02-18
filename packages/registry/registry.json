@@ -179,6 +179,10 @@
           "type": "registry:api"
         },
         {
+          "path": "reviews/vendor/lib/client.ts",
+          "type": "registry:vendor"
+        },
+        {
           "path": "reviews/vendor/hooks/api/reviews.tsx",
           "type": "registry:vendor"
         },

@@ -3,6 +3,7 @@ import path from "path";
 import { DIST_DIR, defaultMedusaRoutes, defaultMercurRoutes } from "./constants";
 import { ensureDir } from "./fs";
 import { getRoutes, type RouteInfo } from "./routes";
+import { normalizeApiPath, normalizePathSep } from "./path";
 import { toCamelCase } from "../utils/to-camel-case";
 
 export { getRoutes, type RouteInfo } from "./routes";
@@ -138,23 +139,20 @@ export async function writeRouteTypes(rootDir: string) {
     await fs.writeFile(entryFilePath, routeTypes, "utf-8");
 }
 
-export async function writeRegistryRouteTypes(rootDir: string, apiDirs: { block: string; apiDir: string }[]) {
+export async function writeRegistryRouteTypes(rootDir: string, routeFilePaths: string[]) {
     const entryFilePath = path.join(rootDir, DIST_DIR, "index.ts");
     const entryDir = path.dirname(entryFilePath);
 
     await ensureDir(entryDir);
 
-    const allRoutes = (
-        await Promise.all(
-            apiDirs.map(async ({ block, apiDir }) => {
-                const routes = await getRoutes(apiDir);
-                return routes.map((route) => ({
-                    ...route,
-                    filePath: `${block}/api/${route.filePath}`,
-                }));
-            })
-        )
-    ).flat();
+    const allRoutes: RouteInfo[] = routeFilePaths.map((filePath) => {
+        const apiIndex = filePath.indexOf("/api/");
+        const relativePath = apiIndex !== -1 ? filePath.slice(apiIndex + "/api/".length) : filePath;
+        return {
+            filePath,
+            route: normalizeApiPath(normalizePathSep(relativePath)),
+        };
+    });
 
     const registryImportPath = (filePath: string) =>
         `../../src/${filePath.replace(/\.ts$/, "")}`;
