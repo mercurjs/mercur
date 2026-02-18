@@ -29,10 +29,9 @@
     "medusa-v2"
   ],
   "scripts": {
-    "build": "tsx scripts/build.ts",
-    "build:medusa": "medusa plugin:build",
+    "build": "tsc --declaration --outDir .medusa/server",
     "dev": "medusa plugin:develop",
-    "prepublishOnly": "tsx scripts/build.ts"
+    "prepublishOnly": "tsc --declaration --outDir .medusa/server"
   },
   "devDependencies": {
     "cors": "^2.8.5",

@@ -4,7 +4,7 @@ import {
 } from "@medusajs/framework/workflows-sdk";
 import { emitEventStep } from "@medusajs/medusa/core-flows";
 
-import { UpdateReviewDTO, ReviewEvents } from "../../../modules/reviews";
+import { UpdateReviewDTO } from "../../../modules/reviews";
 import { updateReviewStep } from "../steps";
 
 export const updateReviewWorkflow = createWorkflow(
@@ -13,10 +13,6 @@ export const updateReviewWorkflow = createWorkflow(
   },
   function (input: UpdateReviewDTO) {
     const review = updateReviewStep(input);
-    emitEventStep({
-      eventName: ReviewEvents.REVIEW_CHANGED,
-      data: { review },
-    });
 
     return new WorkflowResponse(review);
   }

@@ -263,11 +263,13 @@
         "@medusajs/medusa": "^2.13.0",
         "@medusajs/ui": "4.1.1",
         "@mercurjs/client": "*",
+        "@mercurjs/core-plugin": "*",
         "@mercurjs/dashboard-shared": "*",
         "@tanstack/react-query": "5.64.2",
         "@tanstack/react-table": "8.20.5",
         "react-i18next": "13.5.0",
         "react-router-dom": "6.30.3",
+        "zod": "3.25.76",
       },
       "devDependencies": {
         "@medusajs/cli": "^2.13.0",
