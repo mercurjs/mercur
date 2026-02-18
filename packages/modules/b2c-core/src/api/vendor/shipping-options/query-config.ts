@@ -7,8 +7,10 @@ export const vendorShippingOptionFields = [
   'metadata',
   'created_at',
   'updated_at',
+  '*rules',
   '*type',
   '*prices',
+  '*prices.price_rules',
   '*service_zone',
   '*shipping_profile',
   '*provider'

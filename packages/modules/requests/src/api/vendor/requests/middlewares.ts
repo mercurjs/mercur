@@ -1,27 +1,29 @@
 import {
   MiddlewareRoute,
   validateAndTransformBody,
-  validateAndTransformQuery,
-} from "@medusajs/framework";
+  validateAndTransformQuery
+} from '@medusajs/framework';
 
-import sellerRequest from "../../../links/seller-request";
 import {
   checkResourceOwnershipByResourceId,
-  filterBySellerId,
-} from "@mercurjs/framework";
-import { applyRequestsStatusFilter } from "../../middlewares/apply-request-status-filter";
-import { applyRequestsTypeFilter } from "../../middlewares/apply-request-type-filter";
-import { vendorRequestsConfig } from "./query-config";
+  filterBySellerId
+} from '@mercurjs/framework';
+
+import sellerRequest from '../../../links/seller-request';
+import { applyRequestsStatusFilter } from '../../middlewares/apply-request-status-filter';
+import { applyRequestsTypeFilter } from '../../middlewares/apply-request-type-filter';
+import { vendorRequestsConfig } from './query-config';
 import {
+  VendorBatchRequests,
   VendorCreateRequest,
   VendorGetRequestsParams,
-  VendorUpdateRequestData,
-} from "./validators";
+  VendorUpdateRequestData
+} from './validators';
 
 export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
   {
-    method: ["GET"],
-    matcher: "/vendor/requests",
+    method: ['GET'],
+    matcher: '/vendor/requests',
     middlewares: [
       validateAndTransformQuery(
         VendorGetRequestsParams,
@@ -29,12 +31,12 @@ export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
       ),
       filterBySellerId(),
       applyRequestsStatusFilter(),
-      applyRequestsTypeFilter(),
-    ],
+      applyRequestsTypeFilter()
+    ]
   },
   {
-    method: ["GET"],
-    matcher: "/vendor/requests/:id",
+    method: ['GET'],
+    matcher: '/vendor/requests/:id',
     middlewares: [
       validateAndTransformQuery(
         VendorGetRequestsParams,
@@ -42,13 +44,13 @@ export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
       ),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerRequest.entryPoint,
-        filterField: "request_id",
-      }),
-    ],
+        filterField: 'request_id'
+      })
+    ]
   },
   {
-    method: ["POST"],
-    matcher: "/vendor/requests/:id",
+    method: ['POST'],
+    matcher: '/vendor/requests/:id',
     middlewares: [
       validateAndTransformBody(VendorUpdateRequestData),
       validateAndTransformQuery(
@@ -57,19 +59,24 @@ export const vendorRequestsMiddlewares: MiddlewareRoute[] = [
       ),
       checkResourceOwnershipByResourceId({
         entryPoint: sellerRequest.entryPoint,
-        filterField: "request_id",
-      }),
-    ],
+        filterField: 'request_id'
+      })
+    ]
   },
   {
-    method: ["POST"],
-    matcher: "/vendor/requests",
+    method: ['POST'],
+    matcher: '/vendor/requests',
     middlewares: [
       validateAndTransformBody(VendorCreateRequest),
       validateAndTransformQuery(
         VendorGetRequestsParams,
         vendorRequestsConfig.retrieve
-      ),
-    ],
+      )
+    ]
   },
+  {
+    method: ['POST'],
+    matcher: '/vendor/requests/batch',
+    middlewares: [validateAndTransformBody(VendorBatchRequests)]
+  }
 ];

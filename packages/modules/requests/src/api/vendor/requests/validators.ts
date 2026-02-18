@@ -1,10 +1,10 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
-import { createFindParams } from '@medusajs/medusa/api/utils/validators'
+import { createFindParams } from '@medusajs/medusa/api/utils/validators';
 
 export type VendorGetRequestsParamsType = z.infer<
   typeof VendorGetRequestsParams
->
+>;
 export const VendorGetRequestsParams = createFindParams({
   offset: 0,
   limit: 50
@@ -21,7 +21,7 @@ export const VendorGetRequestsParams = createFindParams({
     ])
     .optional(),
   status: z.enum(['accepted', 'rejected', 'pending']).optional()
-})
+});
 
 /**
  * @schema ProductCategoryRequest
@@ -58,7 +58,7 @@ const ProductCategoryRequest = z.object({
     description: z.string().optional(),
     parent_category_id: z.string().nullable().default(null)
   })
-})
+});
 
 /**
  * @schema ProductCollectionRequest
@@ -87,7 +87,7 @@ const ProductCollectionRequest = z.object({
     title: z.string(),
     handle: z.string()
   })
-})
+});
 
 /**
  * @schema ProductCollectionUpdateRequest
@@ -122,7 +122,7 @@ const ProductCollectionUpdateRequest = z.object({
     title: z.string().optional(),
     handle: z.string().optional()
   })
-})
+});
 
 /**
  * @schema ReviewRemoveRequest
@@ -151,7 +151,7 @@ const ReviewRemoveRequest = z.object({
     review_id: z.string(),
     reason: z.string()
   })
-})
+});
 
 /**
  * @schema ProductTypeRequest
@@ -180,7 +180,7 @@ const ProductTypeRequest = z.object({
     value: z.string(),
     metadata: z.record(z.unknown()).nullish()
   })
-})
+});
 
 /**
  * @schema ProductTagRequest
@@ -209,7 +209,7 @@ const ProductTagRequest = z.object({
     value: z.string(),
     metadata: z.record(z.unknown()).nullish()
   })
-})
+});
 
 /**
  * @schema VendorCreateRequest
@@ -227,7 +227,7 @@ const ProductTagRequest = z.object({
  *       - $ref: "#/components/schemas/ProductTypeRequest"
  *       - $ref: "#/components/schemas/ProductTagRequest"
  */
-export type VendorCreateRequestType = z.infer<typeof VendorCreateRequest>
+export type VendorCreateRequestType = z.infer<typeof VendorCreateRequest>;
 export const VendorCreateRequest = z.object({
   request: z.discriminatedUnion('type', [
     ProductCategoryRequest,
@@ -237,7 +237,7 @@ export const VendorCreateRequest = z.object({
     ProductTypeRequest,
     ProductTagRequest
   ])
-})
+});
 
 const UpdateProductCollectionRequest = z.object({
   type: z.literal('product_collection'),
@@ -245,7 +245,7 @@ const UpdateProductCollectionRequest = z.object({
     title: z.string().optional(),
     handle: z.string().optional()
   })
-})
+});
 
 const UpdateReviewRemoveRequest = z.object({
   type: z.literal('review_remove'),
@@ -253,7 +253,7 @@ const UpdateReviewRemoveRequest = z.object({
     review_id: z.string().optional(),
     reason: z.string().optional()
   })
-})
+});
 
 const UpdateProductCategoryRequest = z.object({
   type: z.literal('product_category'),
@@ -263,7 +263,7 @@ const UpdateProductCategoryRequest = z.object({
     description: z.string().optional(),
     parent_category_id: z.string().nullable().optional()
   })
-})
+});
 
 /**
  * @schema VendorUpdateRequestData
@@ -283,7 +283,7 @@ const UpdateProductCategoryRequest = z.object({
  */
 export type VendorUpdateRequestDataType = z.infer<
   typeof VendorUpdateRequestData
->
+>;
 export const VendorUpdateRequestData = z.object({
   request: z.discriminatedUnion('type', [
     UpdateProductCategoryRequest,
@@ -292,4 +292,66 @@ export const VendorUpdateRequestData = z.object({
     ProductTypeRequest,
     ProductTagRequest
   ])
-})
+});
+
+/* Batch Requests Schema */
+
+/**
+ * @schema VendorBatchRequestUpdateItem
+ * type: object
+ * required:
+ *   - id
+ *   - request
+ * properties:
+ *   id:
+ *     type: string
+ *     description: The ID of the request to update
+ *   request:
+ *     type: object
+ *     description: The updated request data
+ *     oneOf:
+ *       - $ref: "#/components/schemas/ProductCollectionRequest"
+ *       - $ref: "#/components/schemas/ProductCategoryRequest"
+ *       - $ref: "#/components/schemas/ReviewRemoveRequest"
+ *       - $ref: "#/components/schemas/ProductTypeRequest"
+ *       - $ref: "#/components/schemas/ProductTagRequest"
+ */
+const VendorBatchRequestUpdateItem = z.object({
+  id: z.string(),
+  request: z.discriminatedUnion('type', [
+    UpdateProductCategoryRequest,
+    UpdateProductCollectionRequest,
+    UpdateReviewRemoveRequest,
+    ProductTypeRequest,
+    ProductTagRequest
+  ])
+});
+
+/**
+ * @schema VendorBatchRequests
+ * type: object
+ * properties:
+ *   create:
+ *     type: array
+ *     description: Requests to create
+ *     items:
+ *       $ref: "#/components/schemas/VendorCreateRequest"
+ *   update:
+ *     type: array
+ *     description: Requests to update
+ *     items:
+ *       $ref: "#/components/schemas/VendorBatchRequestUpdateItem"
+ *   delete:
+ *     type: array
+ *     description: Request IDs to delete/cancel
+ *     items:
+ *       type: string
+ */
+export type VendorBatchRequestsType = z.infer<typeof VendorBatchRequests>;
+export const VendorBatchRequests = z
+  .object({
+    create: z.array(VendorCreateRequest).optional(),
+    update: z.array(VendorBatchRequestUpdateItem).optional(),
+    delete: z.array(z.string()).optional()
+  })
+  .strict();
