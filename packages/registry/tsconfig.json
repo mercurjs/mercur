@@ -1,7 +1,10 @@
 {
 	"compilerOptions": {
+		"jsx": "react-jsx",
 		"lib": [
-			"ESNext"
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
 		],
 		"types": [
 			"node"

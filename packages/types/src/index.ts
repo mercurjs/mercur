@@ -1,3 +1,5 @@
+export * from '@medusajs/types'
+
 // Seller types
 export * from "./seller"
 

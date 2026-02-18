@@ -8,7 +8,7 @@
       "description": "A review system with product and seller reviews, ratings, customer/vendor/admin API routes, and workflows.",
       "dependencies": [],
       "registryDependencies": [],
-      "docs": "## Reviews Block Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\nThis block provides:\n- **Review Module** - Data model for product and seller reviews with ratings (1-5)\n- **Links** - Connects reviews to customers, orders, products, and sellers\n- **Workflows** - Create, update, and delete review workflows with validation\n- **API Routes** - Admin, store (customer), and vendor (seller) endpoints\n- **Subscriber** - Handles review deletion on remove-review-request events\n\n### API Endpoints\n\n**Admin:**\n- `GET /admin/reviews` - List all reviews\n- `GET /admin/reviews/:id` - Get review by ID\n\n**Store (Customer):**\n- `GET /store/reviews` - List customer's reviews\n- `POST /store/reviews` - Create a review\n- `GET /store/reviews/:id` - Get review by ID\n- `POST /store/reviews/:id` - Update a review\n- `DELETE /store/reviews/:id` - Delete a review\n\n**Vendor (Seller):**\n- `GET /vendor/sellers/me/reviews` - List seller's reviews\n- `GET /vendor/sellers/me/reviews/:id` - Get review by ID\n- `POST /vendor/sellers/me/reviews/:id` - Respond to a review (seller_note)",
+      "docs": "## Reviews Block Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\nThis block provides:\n- **Review Module** - Data model for product and seller reviews with ratings (1-5)\n- **Links** - Connects reviews to customers, orders, products, and sellers\n- **Workflows** - Create, update, and delete review workflows with validation\n- **API Routes** - Admin, store (customer), and vendor (seller) endpoints\n- **Subscriber** - Handles review deletion on remove-review-request events\n\n### API Endpoints\n\n**Admin:**\n- `GET /admin/reviews` - List all reviews\n- `GET /admin/reviews/:id` - Get review by ID\n\n**Store (Customer):**\n- `GET /store/reviews` - List customer's reviews\n- `POST /store/reviews` - Create a review\n- `GET /store/reviews/:id` - Get review by ID\n- `POST /store/reviews/:id` - Update a review\n- `DELETE /store/reviews/:id` - Delete a review\n\n**Vendor (Seller):**\n- `GET /vendor/reviews` - List seller's reviews\n- `GET /vendor/reviews/:id` - Get review by ID\n- `POST /vendor/reviews/:id` - Respond to a review (seller_note)\n\n### UI Extensions\n\n**Admin Dashboard:**\n- Review list page with data table, pagination, and filters\n- Review detail page with rating, reference, notes, and timestamps\n\n**Vendor Portal:**\n- Review list page with data table, pagination, and filters\n- Review detail page with rating, reference, notes, and timestamps",
       "files": [
         {
           "path": "reviews/modules/reviews/index.ts",
@@ -177,11 +177,82 @@
         {
           "path": "reviews/subscribers/remove-review-request-removed.ts",
           "type": "registry:api"
+        },
+        {
+          "path": "reviews/vendor/hooks/api/reviews.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/hooks/table/columns/use-review-table-columns.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/hooks/table/filters/use-review-table-filters.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/hooks/table/query/use-review-table-query.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/index.ts",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/review-list-page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/[id]/index.ts",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/[id]/review-detail-page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/[id]/breadcrumb.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/admin/hooks/api/reviews.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/hooks/table/columns/use-review-table-columns.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/hooks/table/filters/use-review-table-filters.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/hooks/table/query/use-review-table-query.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/index.ts",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/review-list-page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/[id]/index.ts",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/[id]/review-detail-page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/[id]/breadcrumb.tsx",
+          "type": "registry:admin"
         }
       ],
       "categories": [
-        "reviews",
-        "marketplace"
+        "reviews"
       ]
     }
   ]

@@ -24,6 +24,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@mercurjs/dashboard-shared": "*",
     "@mercurjs/client": "*",
     "@ariakit/react": "^0.4.15",
     "@babel/runtime": "^7.26.10",
