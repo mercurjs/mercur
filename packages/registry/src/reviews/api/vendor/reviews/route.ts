@@ -2,10 +2,11 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
 import sellerReview from '../../../links/seller-review'
+import { VendorReviewListResponse } from '../../../modules/reviews/types'
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<VendorReviewListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -18,8 +19,8 @@ export const GET = async (
 
   res.json({
     reviews: reviews.map((relation) => relation.review),
-    count: metadata?.count,
-    offset: metadata?.skip,
-    limit: metadata?.take
+    count: metadata?.count ?? 0,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? 0
   })
 }

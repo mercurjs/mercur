@@ -1,13 +1,14 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import { VendorReviewResponse } from '../../../../modules/reviews/types'
 import { updateReviewWorkflow } from '../../../../workflows/review/workflows'
 import { validateSellerReview } from '../helpers'
 import { VendorUpdateReviewType } from '../validators'
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<VendorReviewResponse>
 ) => {
   const { id } = req.params
 
@@ -32,7 +33,7 @@ export const GET = async (
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateReviewType>,
-  res: MedusaResponse
+  res: MedusaResponse<VendorReviewResponse>
 ) => {
   const { id } = req.params
 

@@ -90,7 +90,7 @@ function generateTypeFromTree(node: RouteNode, indent: string = "    "): string 
     return parts.join(" & ");
 }
 
-export function generateRouteTypesFile(routes: RouteInfo[]): string {
+export function generateRouteTypesFile(routes: RouteInfo[], importPathFn?: (filePath: string) => string): string {
     // Use Map to handle route deduplication (user routes override default routes)
     const routeMap = new Map<string, string>();
 
@@ -104,9 +104,11 @@ export function generateRouteTypesFile(routes: RouteInfo[]): string {
         routeMap.set(route, importType);
     }
 
+    const resolveImportPath = importPathFn ?? generateImportPath;
+
     // Then, override with user's custom routes (user takes priority)
     for (const route of routes) {
-        const importPath = generateImportPath(route.filePath);
+        const importPath = resolveImportPath(route.filePath);
         routeMap.set(route.route, `typeof import("${importPath}")`);
     }
 
@@ -137,7 +139,7 @@ export async function writeRouteTypes(rootDir: string) {
 }
 
 export async function writeRegistryRouteTypes(rootDir: string, apiDirs: { block: string; apiDir: string }[]) {
-    const entryFilePath = path.join(rootDir, "_generated", "index.ts");
+    const entryFilePath = path.join(rootDir, DIST_DIR, "index.ts");
     const entryDir = path.dirname(entryFilePath);
 
     await ensureDir(entryDir);
@@ -148,13 +150,16 @@ export async function writeRegistryRouteTypes(rootDir: string, apiDirs: { block:
                 const routes = await getRoutes(apiDir);
                 return routes.map((route) => ({
                     ...route,
-                    filePath: path.join(block, "api", route.filePath),
+                    filePath: `${block}/api/${route.filePath}`,
                 }));
             })
         )
     ).flat();
 
-    const routeTypes = generateRouteTypesFile(allRoutes);
+    const registryImportPath = (filePath: string) =>
+        `../../src/${filePath.replace(/\.ts$/, "")}`;
+
+    const routeTypes = generateRouteTypesFile(allRoutes, registryImportPath);
 
     await fs.writeFile(entryFilePath, routeTypes, "utf-8");
 }

@@ -5,12 +5,13 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 import customerReview from "../../../links/customer-review";
+import { StoreReviewListResponse, StoreReviewResponse } from "../../../modules/reviews/types";
 import { createReviewWorkflow } from "../../../workflows/review/workflows";
 import { StoreCreateReviewType, StoreGetReviewsParamsType } from "./validators";
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<StoreCreateReviewType>,
-  res: MedusaResponse
+  res: MedusaResponse<StoreReviewResponse>
 ) => {
   const { result } = await createReviewWorkflow.run({
     container: req.scope,
@@ -37,7 +38,7 @@ export const POST = async (
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<StoreGetReviewsParamsType>,
-  res: MedusaResponse
+  res: MedusaResponse<StoreReviewListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
@@ -52,8 +53,8 @@ export const GET = async (
 
   res.json({
     reviews: reviews.map((relation) => relation.review),
-    count: metadata?.count,
-    offset: metadata?.skip,
-    limit: metadata?.take,
+    count: metadata?.count ?? 0,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? 0,
   });
 };

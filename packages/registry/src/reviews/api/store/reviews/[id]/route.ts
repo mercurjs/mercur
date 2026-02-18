@@ -1,6 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import { StoreReviewDeleteResponse, StoreReviewResponse } from '../../../../modules/reviews/types'
 import {
   deleteReviewWorkflow,
   updateReviewWorkflow
@@ -10,7 +11,7 @@ import { StoreGetReviewsParamsType, StoreUpdateReviewType } from '../validators'
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<StoreUpdateReviewType>,
-  res: MedusaResponse
+  res: MedusaResponse<StoreReviewResponse>
 ) => {
   const { id } = req.params
 
@@ -40,7 +41,7 @@ export const POST = async (
 
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<StoreReviewDeleteResponse>
 ) => {
   const { id } = req.params
 
@@ -52,7 +53,7 @@ export const DELETE = async (
   })
 
   res.json({
-    id,
+    id: id!,
     object: 'review',
     deleted: true
   })
@@ -60,7 +61,7 @@ export const DELETE = async (
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<StoreGetReviewsParamsType>,
-  res: MedusaResponse
+  res: MedusaResponse<StoreReviewResponse>
 ) => {
   const { id } = req.params
 
