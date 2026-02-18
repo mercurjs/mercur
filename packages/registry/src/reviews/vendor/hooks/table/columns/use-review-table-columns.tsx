@@ -1,23 +1,20 @@
-import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
-import { StatusBadge, Text } from "@medusajs/ui"
-import {
-  DateCell,
-  DateHeader,
-} from "@mercurjs/dashboard-shared/src/components/table/table-cells/common/date-cell"
-import { ReviewDTO } from "../../api/reviews"
+import { createColumnHelper } from "@tanstack/react-table";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { StatusBadge, Text } from "@medusajs/ui";
+import { DateCell, DateHeader } from "@mercurjs/dashboard-shared";
+import { ReviewDTO } from "../../api/reviews";
 
-const columnHelper = createColumnHelper<ReviewDTO>()
+const columnHelper = createColumnHelper<ReviewDTO>();
 
 const ratingColor = (rating: number) => {
-  if (rating >= 4) return "green" as const
-  if (rating >= 3) return "orange" as const
-  return "red" as const
-}
+  if (rating >= 4) return "green" as const;
+  if (rating >= 3) return "orange" as const;
+  return "red" as const;
+};
 
 export const useReviewTableColumns = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -28,12 +25,10 @@ export const useReviewTableColumns = () => {
           </div>
         ),
         cell: ({ getValue }) => {
-          const rating = getValue()
+          const rating = getValue();
           return (
-            <StatusBadge color={ratingColor(rating)}>
-              {rating} / 5
-            </StatusBadge>
-          )
+            <StatusBadge color={ratingColor(rating)}>{rating} / 5</StatusBadge>
+          );
         },
       }),
       columnHelper.accessor("reference", {
@@ -43,12 +38,12 @@ export const useReviewTableColumns = () => {
           </div>
         ),
         cell: ({ getValue }) => {
-          const reference = getValue()
+          const reference = getValue();
           return (
             <Text size="small" leading="compact" className="text-ui-fg-subtle">
               {reference.charAt(0).toUpperCase() + reference.slice(1)}
             </Text>
-          )
+          );
         },
       }),
       columnHelper.accessor("customer_note", {
@@ -58,7 +53,7 @@ export const useReviewTableColumns = () => {
           </div>
         ),
         cell: ({ getValue }) => {
-          const note = getValue()
+          const note = getValue();
           return (
             <div className="flex h-full w-full items-center overflow-hidden">
               <Text
@@ -69,17 +64,17 @@ export const useReviewTableColumns = () => {
                 {note || "-"}
               </Text>
             </div>
-          )
+          );
         },
       }),
       columnHelper.accessor("created_at", {
         header: () => <DateHeader />,
         cell: ({ getValue }) => {
-          const date = new Date(getValue())
-          return <DateCell date={date} />
+          const date = new Date(getValue());
+          return <DateCell date={date} />;
         },
       }),
     ],
-    [t]
-  )
-}
+    [t],
+  );
+};
