@@ -2,7 +2,8 @@
 import { Command } from "commander";
 import packageJson from "../package.json";
 import { add } from "./commands/add";
-import { build } from "./commands/registry-build";
+import { registryBuild } from "./commands/registry-build";
+import { registryCodegen } from "./commands/registry-codegen";
 import { codegen } from "./commands/codegen";
 import { create } from "./commands/create";
 import { diff } from "./commands/diff";
@@ -27,7 +28,8 @@ async function main() {
 
   program
     .addCommand(add)
-    .addCommand(build)
+    .addCommand(registryBuild)
+    .addCommand(registryCodegen)
     .addCommand(codegen)
     .addCommand(create)
     .addCommand(diff)

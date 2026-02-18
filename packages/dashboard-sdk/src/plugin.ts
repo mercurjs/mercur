@@ -42,11 +42,17 @@ export function dashboardPlugin(): Vite.Plugin {
 
     return {
         name: "@mercurjs/dashboard-sdk",
+        async config(viteConfig) {
+            root = viteConfig.root || process.cwd()
+            config = await loadMercurConfig(root)
+            return {
+                define: {
+                    "__BACKEND_URL__": JSON.stringify(config.backendUrl),
+                }
+            }
+        },
         configResolved(resolvedConfig) {
             root = resolvedConfig.root
-        },
-        async buildStart() {
-            config = await loadMercurConfig(root)
         },
         resolveId(id) {
             if (isVirtualModule(id)) {

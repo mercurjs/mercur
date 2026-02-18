@@ -1,5 +1,4 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { sdk } from "@mercurjs/dashboard-shared";
 import { queryKeysFactory } from "@mercurjs/dashboard-shared";
 
 export interface ReviewDTO {

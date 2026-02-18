@@ -135,3 +135,26 @@ export async function writeRouteTypes(rootDir: string) {
 
     await fs.writeFile(entryFilePath, routeTypes, "utf-8");
 }
+
+export async function writeRegistryRouteTypes(rootDir: string, apiDirs: { block: string; apiDir: string }[]) {
+    const entryFilePath = path.join(rootDir, "_generated", "index.ts");
+    const entryDir = path.dirname(entryFilePath);
+
+    await ensureDir(entryDir);
+
+    const allRoutes = (
+        await Promise.all(
+            apiDirs.map(async ({ block, apiDir }) => {
+                const routes = await getRoutes(apiDir);
+                return routes.map((route) => ({
+                    ...route,
+                    filePath: path.join(block, "api", route.filePath),
+                }));
+            })
+        )
+    ).flat();
+
+    const routeTypes = generateRouteTypesFile(allRoutes);
+
+    await fs.writeFile(entryFilePath, routeTypes, "utf-8");
+}

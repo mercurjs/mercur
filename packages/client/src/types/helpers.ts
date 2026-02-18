@@ -17,9 +17,7 @@ export type PrettifyDeep<T, Depth extends number = 4> = Depth extends never
 const _errorSymbol = Symbol();
 export type ErrorSymbol = typeof _errorSymbol;
 
-export type TypeError<TMessage extends string> = TMessage & {
-    _: typeof _errorSymbol;
-};
+export type TypeError<TMessage extends string> = TMessage
 
 export type InferInput<TRequest> = TRequest extends { validatedBody: infer Input }
     ? Input
