@@ -1,16 +1,23 @@
-import { MedusaService } from '@medusajs/framework/utils'
-import { Knex } from '@mikro-orm/knex'
+import {
+  InjectManager,
+  MedusaContext,
+  MedusaService,
+} from '@medusajs/framework/utils'
+import { Context } from '@medusajs/framework/types'
+import { EntityManager } from '@medusajs/framework/mikro-orm/knex'
 
 import { Review } from './models/review'
 
 class ReviewModuleService extends MedusaService({
   Review
 }) {
+  @InjectManager()
   async getAvgRating(
     type: 'seller' | 'product',
-    id: string
+    id: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>
   ): Promise<string | null> {
-    const knex = this.__container__.resolve('__pg_connection__') as Knex
+    const knex = sharedContext!.manager!.getKnex()
 
     const joinField = type === 'product' ? 'product_id' : 'seller_id'
     const joinTable =
@@ -26,8 +33,12 @@ class ReviewModuleService extends MedusaService({
     return result?.avg ?? null
   }
 
-  async getSellersWithRating(fields: string[]) {
-    const knex = this.__container__.resolve('__pg_connection__') as Knex
+  @InjectManager()
+  async getSellersWithRating(
+    fields: string[],
+    @MedusaContext() sharedContext?: Context<EntityManager>
+  ) {
+    const knex = sharedContext!.manager!.getKnex()
 
     const result = await knex
       .select(...fields.map((f) => `seller.${f}`))
@@ -44,8 +55,12 @@ class ReviewModuleService extends MedusaService({
     return result
   }
 
-  async getProductsWithRating(fields: string[]) {
-    const knex = this.__container__.resolve('__pg_connection__') as Knex
+  @InjectManager()
+  async getProductsWithRating(
+    fields: string[],
+    @MedusaContext() sharedContext?: Context<EntityManager>
+  ) {
+    const knex = sharedContext!.manager!.getKnex()
 
     const result = await knex
       .select(...fields.map((f) => `product.${f}`))
