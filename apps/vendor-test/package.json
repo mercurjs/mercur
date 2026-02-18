@@ -12,6 +12,7 @@
   "dependencies": {
     "@medusajs/icons": "^2.13.1",
     "@mercurjs/dashboard-sdk": "*",
+    "@medusajs/ui": "4.1.1",
     "@mercurjs/vendor": "*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"

@@ -11,7 +11,7 @@ import { useReviewTableFilters } from "../../hooks/table/filters/use-review-tabl
 
 const PAGE_SIZE = 10;
 
-export const ReviewListPage = () => {
+const ReviewListPage = () => {
   const { t } = useTranslation();
   const { raw, searchParams } = useReviewTableQuery({
     pageSize: PAGE_SIZE,
@@ -73,3 +73,5 @@ export const ReviewListPage = () => {
     </SingleColumnPage>
   );
 };
+
+export default ReviewListPage;

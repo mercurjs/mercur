@@ -14,7 +14,7 @@ import {
 
 const PAGE_SIZE = 10;
 
-export const ReviewListPage = () => {
+const ReviewListPage = () => {
   const { t } = useTranslation();
   const { raw, searchParams } = useReviewTableQuery({
     pageSize: PAGE_SIZE,
@@ -76,3 +76,5 @@ export const ReviewListPage = () => {
     </SingleColumnPage>
   );
 };
+
+export default ReviewListPage;

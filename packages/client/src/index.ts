@@ -27,7 +27,7 @@ export class ClientError extends Error {
     }
 }
 
-export function createClient<TRoutes>(options: ClientOptions): InferClient<TRoutes> {
+export function createClient(options: ClientOptions) {
     const { baseUrl, fetchOptions: defaultFetchOptions } = options;
 
     return createRecursiveProxy((path, args) => {
@@ -94,5 +94,5 @@ export function createClient<TRoutes>(options: ClientOptions): InferClient<TRout
             const isJsonRequest = headers.get("accept")?.includes("application/json");
             return isJsonRequest ? await response.json() : response;
         });
-    }) as InferClient<TRoutes>;
+    })
 }

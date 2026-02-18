@@ -50,6 +50,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@medusajs/icons": "^2.13.1",
+        "@medusajs/ui": "4.1.1",
         "@mercurjs/dashboard-sdk": "*",
         "@mercurjs/vendor": "*",
         "react": "^18.0.0",
@@ -340,6 +341,7 @@
         "@medusajs/ui-preset": "2.13.1",
         "@mercurjs/core-plugin": "*",
         "@mercurjs/dashboard-sdk": "*",
+        "@mercurjs/types": "*",
         "@types/react": "^18.2.66",
         "@types/react-dom": "^18.2.22",
         "tsup": "^8.0.2",

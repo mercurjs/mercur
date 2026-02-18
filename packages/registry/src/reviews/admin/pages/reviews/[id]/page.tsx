@@ -99,3 +99,5 @@ export const ReviewDetailPage = () => {
     </SingleColumnPage>
   );
 };
+
+export default ReviewDetailPage;
