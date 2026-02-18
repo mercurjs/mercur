@@ -4,7 +4,7 @@
   "description": "A review system with product and seller reviews, ratings, customer/vendor/admin API routes, and workflows.",
   "dependencies": [],
   "registryDependencies": [],
-  "docs": "## Reviews Block Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\nThis block provides:\n- **Review Module** - Data model for product and seller reviews with ratings (1-5)\n- **Links** - Connects reviews to customers, orders, products, and sellers\n- **Workflows** - Create, update, and delete review workflows with validation\n- **API Routes** - Admin, store (customer), and vendor (seller) endpoints\n- **Subscriber** - Handles review deletion on remove-review-request events\n\n### API Endpoints\n\n**Admin:**\n- `GET /admin/reviews` - List all reviews\n- `GET /admin/reviews/:id` - Get review by ID\n\n**Store (Customer):**\n- `GET /store/reviews` - List customer's reviews\n- `POST /store/reviews` - Create a review\n- `GET /store/reviews/:id` - Get review by ID\n- `POST /store/reviews/:id` - Update a review\n- `DELETE /store/reviews/:id` - Delete a review\n\n**Vendor (Seller):**\n- `GET /vendor/reviews` - List seller's reviews\n- `GET /vendor/reviews/:id` - Get review by ID\n- `POST /vendor/reviews/:id` - Respond to a review (seller_note)\n\n### UI Extensions\n\n**Admin Dashboard:**\n- Review list page with data table, pagination, and filters\n- Review detail page with rating, reference, notes, and timestamps\n\n**Vendor Portal:**\n- Review list page with data table, pagination, and filters\n- Review detail page with rating, reference, notes, and timestamps",
+  "docs": "## Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```",
   "categories": [
     "reviews"
   ],
@@ -58,10 +58,6 @@
       "path": "reviews/links/seller-review.ts",
       "content": "import { defineLink } from \"@medusajs/framework/utils\";\n\nimport ReviewModule from \"../modules/reviews\";\nimport SellerModule from \"@mercurjs/core-plugin/modules/seller\";\n\nexport default defineLink(SellerModule.linkable.seller, {\n  linkable: ReviewModule.linkable.review,\n  isList: true,\n});\n",
       "type": "registry:link"
-    },
-    {
-      "path": "reviews/workflows/index.ts",
-      "type": "registry:workflow"
     },
     {
       "path": "reviews/workflows/review/index.ts",
@@ -214,10 +210,6 @@
       "type": "registry:api"
     },
     {
-      "path": "reviews/subscribers/remove-review-request-removed.ts",
-      "type": "registry:api"
-    },
-    {
       "path": "reviews/vendor/lib/client.ts",
       "content": "import { createClient, InferClient } from \"@mercurjs/client\"\nimport { Routes } from '../../../../.mercur/_generated'\n\ndeclare const __BACKEND_URL__: string\n\nexport const client: InferClient<Routes> = createClient({\n  baseUrl: __BACKEND_URL__,\n})\n",
       "type": "registry:vendor"
@@ -243,19 +235,13 @@
       "type": "registry:vendor"
     },
     {
-      "path": "reviews/vendor/pages/reviews/index.ts",
+      "path": "reviews/vendor/pages/reviews/page.tsx",
+      "content": "import { useTranslation } from \"react-i18next\";\nimport { keepPreviousData } from \"@tanstack/react-query\";\nimport { Container, Heading } from \"@medusajs/ui\";\n\nimport { _DataTable, SingleColumnPage } from \"@mercurjs/dashboard-shared\";\nimport { useDataTable } from \"@mercurjs/dashboard-shared\";\nimport { useReviews } from \"../../hooks/api/reviews\";\nimport { useReviewTableColumns } from \"../../hooks/table/columns/use-review-table-columns\";\nimport { useReviewTableQuery } from \"../../hooks/table/query/use-review-table-query\";\nimport { useReviewTableFilters } from \"../../hooks/table/filters/use-review-table-filters\";\n\nconst PAGE_SIZE = 10;\n\nconst ReviewListPage = () => {\n  const { t } = useTranslation();\n  const { raw, searchParams } = useReviewTableQuery({\n    pageSize: PAGE_SIZE,\n  });\n\n  const { reviews, count, isError, error, isLoading } = useReviews(\n    searchParams,\n    {\n      placeholderData: keepPreviousData,\n    },\n  );\n\n  const columns = useReviewTableColumns();\n  const filters = useReviewTableFilters();\n\n  const { table } = useDataTable({\n    data: reviews ?? [],\n    columns,\n    enablePagination: true,\n    count: count,\n    pageSize: PAGE_SIZE,\n  });\n\n  if (isError) {\n    throw error;\n  }\n\n  return (\n    <SingleColumnPage>\n      <Container className=\"divide-y p-0\">\n        <div className=\"flex items-center justify-between px-6 py-4\">\n          <Heading>Reviews</Heading>\n        </div>\n        <_DataTable\n          columns={columns}\n          table={table}\n          pagination\n          filters={filters}\n          navigateTo={(row) => `/reviews/${row.original.id}`}\n          count={count}\n          isLoading={isLoading}\n          pageSize={PAGE_SIZE}\n          orderBy={[\n            {\n              key: \"created_at\",\n              label: t(\"fields.createdAt\"),\n            },\n            {\n              key: \"updated_at\",\n              label: t(\"fields.updatedAt\"),\n            },\n          ]}\n          queryObject={raw}\n          noRecords={{\n            message: \"No reviews found\",\n          }}\n        />\n      </Container>\n    </SingleColumnPage>\n  );\n};\n\nexport default ReviewListPage;\n",
       "type": "registry:vendor"
     },
     {
-      "path": "reviews/vendor/pages/reviews/review-list-page.tsx",
-      "type": "registry:vendor"
-    },
-    {
-      "path": "reviews/vendor/pages/reviews/[id]/index.ts",
-      "type": "registry:vendor"
-    },
-    {
-      "path": "reviews/vendor/pages/reviews/[id]/review-detail-page.tsx",
+      "path": "reviews/vendor/pages/reviews/[id]/page.tsx",
+      "content": "import { useParams } from \"react-router-dom\";\nimport { Container, Heading, StatusBadge, Text } from \"@medusajs/ui\";\n\nimport {\n  SingleColumnPageSkeleton,\n  SingleColumnPage,\n} from \"@mercurjs/dashboard-shared\";\nimport { useReview, ReviewDTO } from \"../../../hooks/api/reviews\";\n\nconst ratingColor = (rating: number) => {\n  if (rating >= 4) return \"green\" as const;\n  if (rating >= 3) return \"orange\" as const;\n  return \"red\" as const;\n};\n\nconst ReviewGeneralSection = ({ review }: { review: ReviewDTO }) => {\n  return (\n    <Container className=\"divide-y p-0\">\n      <div className=\"flex items-center justify-between px-6 py-4\">\n        <Heading>{review.id}</Heading>\n        <div className=\"flex items-center gap-x-2\">\n          <StatusBadge color={ratingColor(review.rating)}>\n            {review.rating} / 5\n          </StatusBadge>\n        </div>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Reference\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {review.reference.charAt(0).toUpperCase() + review.reference.slice(1)}\n        </Text>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Customer Note\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {review.customer_note || \"-\"}\n        </Text>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Seller Note\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {review.seller_note || \"-\"}\n        </Text>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Created At\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {new Date(review.created_at).toLocaleDateString(undefined, {\n            year: \"numeric\",\n            month: \"long\",\n            day: \"numeric\",\n            hour: \"2-digit\",\n            minute: \"2-digit\",\n          })}\n        </Text>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Updated At\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {new Date(review.updated_at).toLocaleDateString(undefined, {\n            year: \"numeric\",\n            month: \"long\",\n            day: \"numeric\",\n            hour: \"2-digit\",\n            minute: \"2-digit\",\n          })}\n        </Text>\n      </div>\n    </Container>\n  );\n};\n\nexport const ReviewDetailPage = () => {\n  const { id } = useParams();\n\n  const { review, isLoading, isError, error } = useReview(id!);\n\n  if (isLoading || !review) {\n    return <SingleColumnPageSkeleton sections={1} />;\n  }\n\n  if (isError) {\n    throw error;\n  }\n\n  return (\n    <SingleColumnPage showMetadata>\n      <ReviewGeneralSection review={review} />\n    </SingleColumnPage>\n  );\n};\n\nexport default ReviewDetailPage;\n",
       "type": "registry:vendor"
     },
     {
@@ -284,19 +270,18 @@
       "type": "registry:admin"
     },
     {
-      "path": "reviews/admin/pages/reviews/index.ts",
+      "path": "reviews/admin/lib/client.ts",
+      "content": "import { createClient, InferClient } from \"@mercurjs/client\"\nimport { Routes } from '../../../../.mercur/_generated'\n\ndeclare const __BACKEND_URL__: string\n\nexport const client: InferClient<Routes> = createClient({\n  baseUrl: __BACKEND_URL__,\n})\n",
       "type": "registry:admin"
     },
     {
-      "path": "reviews/admin/pages/reviews/review-list-page.tsx",
+      "path": "reviews/admin/pages/reviews/page.tsx",
+      "content": "import { useTranslation } from \"react-i18next\";\nimport { keepPreviousData } from \"@tanstack/react-query\";\nimport { Container, Heading } from \"@medusajs/ui\";\n\nimport { useReviews } from \"../../hooks/api/reviews\";\nimport { useReviewTableColumns } from \"../../hooks/table/columns/use-review-table-columns\";\nimport { useReviewTableQuery } from \"../../hooks/table/query/use-review-table-query\";\nimport { useReviewTableFilters } from \"../../hooks/table/filters/use-review-table-filters\";\nimport {\n  _DataTable,\n  SingleColumnPage,\n  useDataTable,\n} from \"@mercurjs/dashboard-shared\";\n\nconst PAGE_SIZE = 10;\n\nconst ReviewListPage = () => {\n  const { t } = useTranslation();\n  const { raw, searchParams } = useReviewTableQuery({\n    pageSize: PAGE_SIZE,\n  });\n\n  const { reviews, count, isError, error, isLoading } = useReviews(\n    searchParams,\n    {\n      placeholderData: keepPreviousData,\n    },\n  );\n\n  const columns = useReviewTableColumns();\n  const filters = useReviewTableFilters();\n\n  const { table } = useDataTable({\n    data: reviews ?? [],\n    columns,\n    enablePagination: true,\n    count: count,\n    pageSize: PAGE_SIZE,\n  });\n\n  if (isError) {\n    throw error;\n  }\n\n  return (\n    <SingleColumnPage>\n      <Container className=\"divide-y p-0\">\n        <div className=\"flex items-center justify-between px-6 py-4\">\n          <Heading>Reviews</Heading>\n        </div>\n        <_DataTable\n          columns={columns}\n          table={table}\n          pagination\n          filters={filters}\n          navigateTo={(row) => `/reviews/${row.original.id}`}\n          count={count}\n          isLoading={isLoading}\n          pageSize={PAGE_SIZE}\n          orderBy={[\n            {\n              key: \"created_at\",\n              label: t(\"fields.createdAt\"),\n            },\n            {\n              key: \"updated_at\",\n              label: t(\"fields.updatedAt\"),\n            },\n          ]}\n          queryObject={raw}\n          noRecords={{\n            message: \"No reviews found\",\n          }}\n        />\n      </Container>\n    </SingleColumnPage>\n  );\n};\n\nexport default ReviewListPage;\n",
       "type": "registry:admin"
     },
     {
-      "path": "reviews/admin/pages/reviews/[id]/index.ts",
-      "type": "registry:admin"
-    },
-    {
-      "path": "reviews/admin/pages/reviews/[id]/review-detail-page.tsx",
+      "path": "reviews/admin/pages/reviews/[id]/page.tsx",
+      "content": "import { useParams } from \"react-router-dom\";\nimport { Container, Heading, StatusBadge, Text } from \"@medusajs/ui\";\n\nimport {\n  SingleColumnPageSkeleton,\n  SingleColumnPage,\n} from \"@mercurjs/dashboard-shared\";\nimport { useReview, ReviewDTO } from \"../../../hooks/api/reviews\";\n\nconst ratingColor = (rating: number) => {\n  if (rating >= 4) return \"green\" as const;\n  if (rating >= 3) return \"orange\" as const;\n  return \"red\" as const;\n};\n\nconst ReviewGeneralSection = ({ review }: { review: ReviewDTO }) => {\n  return (\n    <Container className=\"divide-y p-0\">\n      <div className=\"flex items-center justify-between px-6 py-4\">\n        <Heading>{review.id}</Heading>\n        <div className=\"flex items-center gap-x-2\">\n          <StatusBadge color={ratingColor(review.rating)}>\n            {review.rating} / 5\n          </StatusBadge>\n        </div>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Reference\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {review.reference.charAt(0).toUpperCase() + review.reference.slice(1)}\n        </Text>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Customer Note\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {review.customer_note || \"-\"}\n        </Text>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Seller Note\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {review.seller_note || \"-\"}\n        </Text>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Created At\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {new Date(review.created_at).toLocaleDateString(undefined, {\n            year: \"numeric\",\n            month: \"long\",\n            day: \"numeric\",\n            hour: \"2-digit\",\n            minute: \"2-digit\",\n          })}\n        </Text>\n      </div>\n      <div className=\"text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4\">\n        <Text size=\"small\" leading=\"compact\" weight=\"plus\">\n          Updated At\n        </Text>\n        <Text size=\"small\" leading=\"compact\">\n          {new Date(review.updated_at).toLocaleDateString(undefined, {\n            year: \"numeric\",\n            month: \"long\",\n            day: \"numeric\",\n            hour: \"2-digit\",\n            minute: \"2-digit\",\n          })}\n        </Text>\n      </div>\n    </Container>\n  );\n};\n\nexport const ReviewDetailPage = () => {\n  const { id } = useParams();\n\n  const { review, isLoading, isError, error } = useReview(id!);\n\n  if (isLoading || !review) {\n    return <SingleColumnPageSkeleton sections={1} />;\n  }\n\n  if (isError) {\n    throw error;\n  }\n\n  return (\n    <SingleColumnPage showMetadata>\n      <ReviewGeneralSection review={review} />\n    </SingleColumnPage>\n  );\n};\n\nexport default ReviewDetailPage;\n",
       "type": "registry:admin"
     },
     {
