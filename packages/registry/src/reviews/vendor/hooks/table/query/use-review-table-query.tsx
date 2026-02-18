@@ -1,9 +1,9 @@
-import { useQueryParams } from "@mercurjs/dashboard-shared/src/hooks/use-query-params"
+import { useQueryParams } from "@mercurjs/dashboard-shared";
 
 type UseReviewTableQueryProps = {
-  prefix?: string
-  pageSize?: number
-}
+  prefix?: string;
+  pageSize?: number;
+};
 
 export const useReviewTableQuery = ({
   prefix,
@@ -11,10 +11,10 @@ export const useReviewTableQuery = ({
 }: UseReviewTableQueryProps) => {
   const queryObject = useQueryParams(
     ["offset", "q", "created_at", "updated_at", "order"],
-    prefix
-  )
+    prefix,
+  );
 
-  const { offset, created_at, updated_at, q, order } = queryObject
+  const { offset, created_at, updated_at, q, order } = queryObject;
 
   const searchParams: Record<string, any> = {
     limit: pageSize,
@@ -23,10 +23,10 @@ export const useReviewTableQuery = ({
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     order: order ? order : "-created_at",
     q,
-  }
+  };
 
   return {
     searchParams,
     raw: queryObject,
-  }
-}
+  };
+};
