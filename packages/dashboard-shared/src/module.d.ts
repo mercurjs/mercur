@@ -1,6 +1,6 @@
 declare module "virtual:mercur/config" {
-    import { MercurConfig } from '@mercurjs/dashboard-sdk'
-    const config: MercurConfig
+    import { BuiltMercurConfig } from '@mercurjs/dashboard-sdk'
+    const config: BuiltMercurConfig
     export default config
 }
 

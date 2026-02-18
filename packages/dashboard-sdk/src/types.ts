@@ -14,6 +14,7 @@ export interface MercurConfig {
 }
 
 export interface BuiltMercurConfig extends MercurConfig {
+    backendUrl: string;
     root: string
     srcDir: string
     configPath: string

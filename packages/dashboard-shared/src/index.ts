@@ -1,4 +1,3 @@
-export { sdk, backendUrl, } from "./lib/client"
 export {
   queryKeysFactory,
   type TQueryKey,

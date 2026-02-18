@@ -10,6 +10,7 @@ function buildConfig(config: MercurConfig, root: string): BuiltMercurConfig {
 
     return {
         ...config,
+        backendUrl: config.backendUrl ?? "http://localhost:9000",
         root,
         srcDir,
         configPath: path.resolve(root, CONFIG_NAME),
