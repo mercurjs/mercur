@@ -14,7 +14,10 @@
     "./package.json": "./package.json",
     "./workflows": "./.medusa/server/src/workflows/index.js",
     "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
-    "./modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./modules/*": {
+      "types": "./.medusa/server/src/modules/*/index.d.ts",
+      "default": "./.medusa/server/src/modules/*/index.js"
+    },
     "./providers/*": "./.medusa/server/src/providers/*/index.js",
     "./*": "./.medusa/server/src/*.js"
   },

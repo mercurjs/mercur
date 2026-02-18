@@ -17,34 +17,13 @@
 		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": true,
 		"esModuleInterop": true,
+		"experimentalDecorators": true,
 		"skipLibCheck": true,
 		"declaration": true,
 		"outDir": "./dist",
 		"preserveWatchOutput": true,
 		"baseUrl": ".",
-		"paths": {
-			"@/workflows/*": [
-				"./src/workflows/*"
-			],
-			"@/api/*": [
-				"./src/api/*"
-			],
-			"@/links/*": [
-				"./src/links/*"
-			],
-			"@/modules/*": [
-				"./src/modules/*"
-			],
-			"@/vendor/*": [
-				"./src/vendor/*"
-			],
-			"@/admin/*": [
-				"./src/admin/*"
-			],
-			"@/lib/*": [
-				"./src/lib/*"
-			],
-		}
+		"paths": {}
 	},
 	"include": [
 		"src/**/*"
