@@ -4,74 +4,259 @@
   "homepage": "https://mercurjs.com",
   "items": [
     {
-      "name": "block-1",
-      "description": "A block with a test module, product-test link, and API route.",
-      "dependencies": [],
-      "registryDependencies": [
-        "block-2"
-      ],
-      "docs": "## Test Block Configuration\n\nAdd the test module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/test',\n    options: {\n      apiKey: process.env.TEST_API_KEY,\n    },\n  },\n]\n```\n\n## Environment Variables\n\nAdd the following to your `.env` file:\n\n```\nTEST_API_KEY=your-api-key\n```",
-      "files": [
-        {
-          "path": "block-1/modules/test/index.ts",
-          "type": "registry:module"
-        },
-        {
-          "path": "block-1/modules/test/service.ts",
-          "type": "registry:module"
-        },
-        {
-          "path": "block-1/modules/test/models/test.ts",
-          "type": "registry:module"
-        },
-        {
-          "path": "block-1/links/product-test.ts",
-          "type": "registry:link"
-        },
-        {
-          "path": "block-1/api/hello/test/route.ts",
-          "type": "registry:api"
-        }
-      ],
-      "categories": [
-        "test"
-      ]
-    },
-    {
-      "name": "block-2",
-      "description": "A block with a sample module, product-sample link, workflow, and API route.",
+      "name": "reviews",
+      "description": "A review system with product and seller reviews, ratings, customer/vendor/admin API routes, and workflows.",
       "dependencies": [],
       "registryDependencies": [],
-      "docs": "## Sample Block Configuration\n\nAdd the sample module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/sample',\n    options: {\n      apiKey: process.env.SAMPLE_API_KEY,\n    },\n  },\n]\n```\n\n## Environment Variables\n\nAdd the following to your `.env` file:\n\n```\nSAMPLE_API_KEY=your-api-key\n```",
+      "docs": "## Reviews Block Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\nThis block provides:\n- **Review Module** - Data model for product and seller reviews with ratings (1-5)\n- **Links** - Connects reviews to customers, orders, products, and sellers\n- **Workflows** - Create, update, and delete review workflows with validation\n- **API Routes** - Admin, store (customer), and vendor (seller) endpoints\n- **Subscriber** - Handles review deletion on remove-review-request events\n\n### API Endpoints\n\n**Admin:**\n- `GET /admin/reviews` - List all reviews\n- `GET /admin/reviews/:id` - Get review by ID\n\n**Store (Customer):**\n- `GET /store/reviews` - List customer's reviews\n- `POST /store/reviews` - Create a review\n- `GET /store/reviews/:id` - Get review by ID\n- `POST /store/reviews/:id` - Update a review\n- `DELETE /store/reviews/:id` - Delete a review\n\n**Vendor (Seller):**\n- `GET /vendor/reviews` - List seller's reviews\n- `GET /vendor/reviews/:id` - Get review by ID\n- `POST /vendor/reviews/:id` - Respond to a review (seller_note)\n\n### UI Extensions\n\n**Admin Dashboard:**\n- Review list page with data table, pagination, and filters\n- Review detail page with rating, reference, notes, and timestamps\n\n**Vendor Portal:**\n- Review list page with data table, pagination, and filters\n- Review detail page with rating, reference, notes, and timestamps",
       "files": [
         {
-          "path": "block-2/modules/sample/index.ts",
+          "path": "reviews/modules/reviews/index.ts",
           "type": "registry:module"
         },
         {
-          "path": "block-2/modules/sample/service.ts",
+          "path": "reviews/modules/reviews/service.ts",
           "type": "registry:module"
         },
         {
-          "path": "block-2/modules/sample/models/sample.ts",
+          "path": "reviews/modules/reviews/models/review.ts",
           "type": "registry:module"
         },
         {
-          "path": "block-2/links/product-sample.ts",
+          "path": "reviews/modules/reviews/types/index.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "reviews/modules/reviews/types/common.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "reviews/modules/reviews/types/mutations.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "reviews/links/customer-review.ts",
           "type": "registry:link"
         },
         {
-          "path": "block-2/workflows/hello-world/hello-world.ts",
+          "path": "reviews/links/order-review.ts",
+          "type": "registry:link"
+        },
+        {
+          "path": "reviews/links/product-review.ts",
+          "type": "registry:link"
+        },
+        {
+          "path": "reviews/links/seller-review.ts",
+          "type": "registry:link"
+        },
+        {
+          "path": "reviews/workflows/index.ts",
           "type": "registry:workflow"
         },
         {
-          "path": "block-2/api/hello/workflow/route.ts",
+          "path": "reviews/workflows/review/index.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/workflows/review/steps/index.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/workflows/review/steps/create-review.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/workflows/review/steps/update-review.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/workflows/review/steps/delete-review.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/workflows/review/steps/validate-review.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/workflows/review/workflows/index.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/workflows/review/workflows/create-review.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/workflows/review/workflows/update-review.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/workflows/review/workflows/delete-review.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "reviews/api/middlewares.ts",
           "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/admin/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/admin/reviews/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/admin/reviews/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/admin/reviews/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/admin/reviews/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/admin/reviews/[id]/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/store/reviews/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/store/reviews/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/store/reviews/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/store/reviews/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/store/reviews/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/store/reviews/[id]/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/vendor/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/vendor/reviews/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/vendor/reviews/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/vendor/reviews/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/vendor/reviews/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/vendor/reviews/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/api/vendor/reviews/[id]/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/subscribers/remove-review-request-removed.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "reviews/vendor/lib/client.ts",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/hooks/api/reviews.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/hooks/table/columns/use-review-table-columns.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/hooks/table/filters/use-review-table-filters.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/hooks/table/query/use-review-table-query.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/index.ts",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/review-list-page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/[id]/index.ts",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/[id]/review-detail-page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/vendor/pages/reviews/[id]/breadcrumb.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "reviews/admin/hooks/api/reviews.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/hooks/table/columns/use-review-table-columns.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/hooks/table/filters/use-review-table-filters.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/hooks/table/query/use-review-table-query.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/index.ts",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/review-list-page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/[id]/index.ts",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/[id]/review-detail-page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "reviews/admin/pages/reviews/[id]/breadcrumb.tsx",
+          "type": "registry:admin"
         }
       ],
       "categories": [
-        "sample",
-        "workflow"
+        "reviews"
       ]
     }
   ]

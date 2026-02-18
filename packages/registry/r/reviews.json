@@ -1,0 +1,308 @@
+{
+  "$schema": "https://registry.mercurjs.com/registry-item.json",
+  "name": "reviews",
+  "description": "A review system with product and seller reviews, ratings, customer/vendor/admin API routes, and workflows.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "docs": "## Reviews Block Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\nThis block provides:\n- **Review Module** - Data model for product and seller reviews with ratings (1-5)\n- **Links** - Connects reviews to customers, orders, products, and sellers\n- **Workflows** - Create, update, and delete review workflows with validation\n- **API Routes** - Admin, store (customer), and vendor (seller) endpoints\n- **Subscriber** - Handles review deletion on remove-review-request events\n\n### API Endpoints\n\n**Admin:**\n- `GET /admin/reviews` - List all reviews\n- `GET /admin/reviews/:id` - Get review by ID\n\n**Store (Customer):**\n- `GET /store/reviews` - List customer's reviews\n- `POST /store/reviews` - Create a review\n- `GET /store/reviews/:id` - Get review by ID\n- `POST /store/reviews/:id` - Update a review\n- `DELETE /store/reviews/:id` - Delete a review\n\n**Vendor (Seller):**\n- `GET /vendor/reviews` - List seller's reviews\n- `GET /vendor/reviews/:id` - Get review by ID\n- `POST /vendor/reviews/:id` - Respond to a review (seller_note)\n\n### UI Extensions\n\n**Admin Dashboard:**\n- Review list page with data table, pagination, and filters\n- Review detail page with rating, reference, notes, and timestamps\n\n**Vendor Portal:**\n- Review list page with data table, pagination, and filters\n- Review detail page with rating, reference, notes, and timestamps",
+  "categories": [
+    "reviews"
+  ],
+  "files": [
+    {
+      "path": "reviews/modules/reviews/index.ts",
+      "content": "import { Module } from \"@medusajs/framework/utils\";\n\nimport ReviewModuleService from \"./service\";\n\nexport const REVIEW_MODULE = \"review\";\n\nexport * from \"./types\";\nexport { ReviewModuleService };\n\nexport default Module(REVIEW_MODULE, {\n  service: ReviewModuleService,\n});\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "reviews/modules/reviews/service.ts",
+      "content": "import {\n  InjectManager,\n  MedusaContext,\n  MedusaService,\n} from '@medusajs/framework/utils'\nimport { Context } from '@medusajs/framework/types'\nimport { EntityManager } from '@medusajs/framework/mikro-orm/knex'\n\nimport { Review } from './models/review'\n\nclass ReviewModuleService extends MedusaService({\n  Review\n}) {\n  @InjectManager()\n  async getAvgRating(\n    type: 'seller' | 'product',\n    id: string,\n    @MedusaContext() sharedContext?: Context<EntityManager>\n  ): Promise<string | null> {\n    const knex = sharedContext!.manager!.getKnex()\n\n    const joinField = type === 'product' ? 'product_id' : 'seller_id'\n    const joinTable =\n      type === 'product'\n        ? 'product_product_review_review'\n        : 'seller_seller_review_review'\n\n    const [result] = await knex('review')\n      .avg('review.rating')\n      .leftJoin(joinTable, `${joinTable}.review_id`, 'review.id')\n      .where(`${joinTable}.${joinField}`, id)\n\n    return result?.avg ?? null\n  }\n\n  @InjectManager()\n  async getSellersWithRating(\n    fields: string[],\n    @MedusaContext() sharedContext?: Context<EntityManager>\n  ) {\n    const knex = sharedContext!.manager!.getKnex()\n\n    const result = await knex\n      .select(...fields.map((f) => `seller.${f}`))\n      .avg('review.rating as rating')\n      .from('seller')\n      .leftJoin(\n        'seller_seller_review_review',\n        'seller.id',\n        'seller_seller_review_review.seller_id'\n      )\n      .leftJoin('review', 'review.id', 'seller_seller_review_review.review_id')\n      .groupBy('seller.id')\n\n    return result\n  }\n\n  @InjectManager()\n  async getProductsWithRating(\n    fields: string[],\n    @MedusaContext() sharedContext?: Context<EntityManager>\n  ) {\n    const knex = sharedContext!.manager!.getKnex()\n\n    const result = await knex\n      .select(...fields.map((f) => `product.${f}`))\n      .avg('review.rating as rating')\n      .from('product')\n      .leftJoin(\n        'product_product_review_review',\n        'product.id',\n        'product_product_review_review.product_id'\n      )\n      .leftJoin('review', 'review.id', 'product_product_review_review.review_id')\n      .groupBy('product.id')\n\n    return result\n  }\n}\n\nexport default ReviewModuleService\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "reviews/modules/reviews/models/review.ts",
+      "content": "import { model } from '@medusajs/framework/utils'\n\nexport const Review = model.define('review', {\n  id: model.id({ prefix: 'rev' }).primaryKey(),\n  reference: model.enum(['product', 'seller']),\n  rating: model.number(),\n  customer_note: model.text().nullable(),\n  seller_note: model.text().nullable()\n})\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "reviews/modules/reviews/types/index.ts",
+      "content": "export * from \"./common\"\nexport * from \"./mutations\"\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "reviews/modules/reviews/types/common.ts",
+      "content": "import { DeleteResponse, PaginatedResponse } from \"@mercurjs/types\"\n\nexport type ReviewReference = \"product\" | \"seller\"\n\nexport interface ReviewDTO {\n  id: string\n  reference: ReviewReference\n  rating: number\n  customer_note: string | null\n  seller_note: string | null\n  created_at: Date\n  updated_at: Date\n  deleted_at: Date | null\n}\n\nexport interface AdminReviewResponse {\n  review: ReviewDTO\n}\n\nexport type AdminReviewListResponse = PaginatedResponse<{\n  reviews: ReviewDTO[]\n}>\n\nexport interface StoreReviewResponse {\n  review: ReviewDTO\n}\n\nexport type StoreReviewListResponse = PaginatedResponse<{\n  reviews: ReviewDTO[]\n}>\n\nexport type StoreReviewDeleteResponse = DeleteResponse<\"review\">\n\nexport interface VendorReviewResponse {\n  review: ReviewDTO\n}\n\nexport type VendorReviewListResponse = PaginatedResponse<{\n  reviews: ReviewDTO[]\n}>\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "reviews/modules/reviews/types/mutations.ts",
+      "content": "import { ReviewReference } from \"./common\"\n\nexport interface CreateReviewDTO {\n  reference: ReviewReference\n  reference_id: string\n  rating: number\n  customer_note?: string | null\n  customer_id: string\n  order_id: string\n}\n\nexport interface UpdateReviewDTO {\n  id: string\n  rating?: number\n  customer_note?: string | null\n  seller_note?: string | null\n}\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "reviews/links/customer-review.ts",
+      "content": "import { defineLink } from \"@medusajs/framework/utils\";\nimport CustomerModule from \"@medusajs/medusa/customer\";\n\nimport ReviewModule from \"../modules/reviews\";\n\nexport default defineLink(CustomerModule.linkable.customer, {\n  linkable: ReviewModule.linkable.review,\n  isList: true,\n});\n",
+      "type": "registry:link"
+    },
+    {
+      "path": "reviews/links/order-review.ts",
+      "content": "import { defineLink } from \"@medusajs/framework/utils\";\nimport OrderModule from \"@medusajs/medusa/order\";\n\nimport ReviewModule from \"../modules/reviews\";\n\nexport default defineLink(OrderModule.linkable.order, {\n  linkable: ReviewModule.linkable.review,\n  isList: true,\n});\n",
+      "type": "registry:link"
+    },
+    {
+      "path": "reviews/links/product-review.ts",
+      "content": "import { defineLink } from \"@medusajs/framework/utils\";\nimport ProductModule from \"@medusajs/medusa/product\";\n\nimport ReviewModule from \"../modules/reviews\";\n\nexport default defineLink(ProductModule.linkable.product, {\n  linkable: ReviewModule.linkable.review,\n  isList: true,\n});\n",
+      "type": "registry:link"
+    },
+    {
+      "path": "reviews/links/seller-review.ts",
+      "content": "import { defineLink } from \"@medusajs/framework/utils\";\n\nimport ReviewModule from \"../modules/reviews\";\nimport SellerModule from \"@mercurjs/core-plugin/modules/seller\";\n\nexport default defineLink(SellerModule.linkable.seller, {\n  linkable: ReviewModule.linkable.review,\n  isList: true,\n});\n",
+      "type": "registry:link"
+    },
+    {
+      "path": "reviews/workflows/index.ts",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/index.ts",
+      "content": "export * from \"./workflows\";\nexport * from \"./steps\";\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/steps/index.ts",
+      "content": "export * from './create-review'\nexport * from './update-review'\nexport * from './delete-review'\nexport * from './validate-review'\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/steps/create-review.ts",
+      "content": "import { ContainerRegistrationKeys, Modules } from \"@medusajs/framework/utils\";\nimport { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\";\n\nimport { REVIEW_MODULE, ReviewModuleService, CreateReviewDTO } from \"../../../modules/reviews\";\n\nexport const createReviewStep = createStep(\n  \"create-review\",\n  async (input: CreateReviewDTO, { container }) => {\n    const service = container.resolve<ReviewModuleService>(REVIEW_MODULE);\n    const link = container.resolve(ContainerRegistrationKeys.LINK);\n\n    const review = await service.createReviews(input);\n\n    await link.create([\n      {\n        [Modules.CUSTOMER]: {\n          customer_id: input.customer_id,\n        },\n        [REVIEW_MODULE]: {\n          review_id: review.id,\n        },\n      },\n      {\n        [Modules.ORDER]: {\n          order_id: input.order_id,\n        },\n        [REVIEW_MODULE]: {\n          review_id: review.id,\n        },\n      },\n    ]);\n    return new StepResponse(review);\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/steps/update-review.ts",
+      "content": "import { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\";\n\nimport { REVIEW_MODULE, ReviewModuleService, UpdateReviewDTO } from \"../../../modules/reviews\";\n\nexport const updateReviewStep = createStep(\n  \"update-review\",\n  async (input: UpdateReviewDTO, { container }) => {\n    const service = container.resolve<ReviewModuleService>(REVIEW_MODULE);\n\n    const review = await service.updateReviews(input);\n\n    return new StepResponse(review);\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/steps/delete-review.ts",
+      "content": "import { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\";\n\nimport { REVIEW_MODULE, ReviewModuleService } from \"../../../modules/reviews\";\n\nexport const deleteReviewStep = createStep(\n  \"delete-review\",\n  async (id: string, { container }) => {\n    const service = container.resolve<ReviewModuleService>(REVIEW_MODULE);\n\n    await service.softDeleteReviews(id);\n\n    return new StepResponse(id);\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/steps/validate-review.ts",
+      "content": "import {\n  ContainerRegistrationKeys,\n  MedusaError,\n} from \"@medusajs/framework/utils\";\nimport { createStep } from \"@medusajs/framework/workflows-sdk\";\n\nimport { CreateReviewDTO } from \"../../../modules/reviews\";\nimport orderReview from \"../../../links/order-review\";\n\nexport const validateReviewStep = createStep(\n  \"validate-review\",\n  async (reviewToCreate: CreateReviewDTO, { container }) => {\n    const query = container.resolve(ContainerRegistrationKeys.QUERY);\n\n    const {\n      data: [order],\n    } = await query.graph({\n      entity: \"order\",\n      fields: [\"id\"],\n      filters: {\n        id: reviewToCreate.order_id,\n        customer_id: reviewToCreate.customer_id,\n      },\n    });\n\n    if (!order) {\n      throw new MedusaError(MedusaError.Types.INVALID_DATA, \"Order not found!\");\n    }\n\n    const { data } = await query.graph({\n      entity: orderReview.entryPoint,\n      fields: [\"review.reference\", \"review.product.id\", \"review.seller.id\"],\n      filters: {\n        order_id: reviewToCreate.order_id,\n      },\n    });\n\n    const reviews = data.map((relation) => relation.review);\n\n    if (\n      reviews.some(\n        (rev) =>\n          rev.reference === reviewToCreate.reference &&\n          rev[rev.reference].id === reviewToCreate.reference_id\n      )\n    ) {\n      throw new MedusaError(\n        MedusaError.Types.INVALID_DATA,\n        \"Review already exists\"\n      );\n    }\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/workflows/index.ts",
+      "content": "export * from './create-review'\nexport * from './delete-review'\nexport * from './update-review'\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/workflows/create-review.ts",
+      "content": "import { Modules } from \"@medusajs/framework/utils\";\nimport {\n  WorkflowResponse,\n  createWorkflow,\n  transform,\n} from \"@medusajs/framework/workflows-sdk\";\nimport {\n  createRemoteLinkStep,\n} from \"@medusajs/medusa/core-flows\";\n\nimport { CreateReviewDTO, REVIEW_MODULE } from \"../../../modules/reviews\";\nconst SELLER_MODULE = \"seller\";\n\nimport { createReviewStep, validateReviewStep } from \"../steps\";\n\nexport const createReviewWorkflow = createWorkflow(\n  {\n    name: \"create-review\",\n  },\n  function (input: CreateReviewDTO) {\n    validateReviewStep(input);\n    const review = createReviewStep(input);\n\n    const link = transform({ input, review }, ({ input, review }) => {\n      return input.reference === \"product\"\n        ? [\n          {\n            [Modules.PRODUCT]: {\n              product_id: input.reference_id,\n            },\n            [REVIEW_MODULE]: {\n              review_id: review.id,\n            },\n          },\n        ]\n        : [\n          {\n            [SELLER_MODULE]: {\n              seller_id: input.reference_id,\n            },\n            [REVIEW_MODULE]: {\n              review_id: review.id,\n            },\n          },\n        ];\n    });\n\n    createRemoteLinkStep(link);\n\n    return new WorkflowResponse(review);\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/workflows/update-review.ts",
+      "content": "import {\n  WorkflowResponse,\n  createWorkflow,\n} from \"@medusajs/framework/workflows-sdk\";\nimport { emitEventStep } from \"@medusajs/medusa/core-flows\";\n\nimport { UpdateReviewDTO } from \"../../../modules/reviews\";\nimport { updateReviewStep } from \"../steps\";\n\nexport const updateReviewWorkflow = createWorkflow(\n  {\n    name: \"update-review\",\n  },\n  function (input: UpdateReviewDTO) {\n    const review = updateReviewStep(input);\n\n    return new WorkflowResponse(review);\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/workflows/review/workflows/delete-review.ts",
+      "content": "import {\n  WorkflowResponse,\n  createWorkflow,\n} from \"@medusajs/framework/workflows-sdk\";\n\nimport { deleteReviewStep } from \"../steps\";\n\nexport const deleteReviewWorkflow = createWorkflow(\n  {\n    name: \"delete-review\",\n  },\n  function (id: string) {\n    deleteReviewStep(id);\n\n    return new WorkflowResponse(id);\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "reviews/api/middlewares.ts",
+      "content": "import { defineMiddlewares } from \"@medusajs/medusa\";\n\nimport { adminMiddlewares } from \"./admin/middlewares\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\nimport { storeReviewMiddlewares } from \"./store/reviews/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...adminMiddlewares, ...vendorMiddlewares, ...storeReviewMiddlewares],\n});\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/admin/middlewares.ts",
+      "content": "import { MiddlewareRoute } from \"@medusajs/framework\";\nimport { reviewsMiddlewares } from \"./reviews/middlewares\";\n\nexport const adminMiddlewares: MiddlewareRoute[] = [...reviewsMiddlewares];\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/admin/reviews/route.ts",
+      "content": "import { MedusaRequest, MedusaResponse } from '@medusajs/framework'\nimport { ContainerRegistrationKeys } from '@medusajs/framework/utils'\n\nimport { AdminReviewListResponse } from '../../../modules/reviews/types'\n\nexport async function GET(\n  req: MedusaRequest,\n  res: MedusaResponse<AdminReviewListResponse>\n): Promise<void> {\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n  const { data: reviews, metadata } = await query.graph({\n    entity: 'review',\n    fields: req.queryConfig.fields,\n    filters: req.filterableFields,\n    pagination: req.queryConfig.pagination\n  })\n\n  res.json({\n    reviews,\n    count: metadata?.count ?? 0,\n    offset: metadata?.skip ?? 0,\n    limit: metadata?.take ?? 0\n  })\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/admin/reviews/middlewares.ts",
+      "content": "import { validateAndTransformQuery } from \"@medusajs/framework\";\nimport { MiddlewareRoute } from \"@medusajs/medusa\";\n\nimport { adminReviewsConfig } from \"./query-config\";\nimport { AdminGetReviewsParams } from \"./validators\";\n\nexport const reviewsMiddlewares: MiddlewareRoute[] = [\n  {\n    method: [\"GET\"],\n    matcher: \"/admin/reviews\",\n    middlewares: [\n      validateAndTransformQuery(AdminGetReviewsParams, adminReviewsConfig.list),\n    ],\n  },\n  {\n    method: [\"GET\"],\n    matcher: \"/admin/reviews/:id\",\n    middlewares: [\n      validateAndTransformQuery(\n        AdminGetReviewsParams,\n        adminReviewsConfig.retrieve\n      ),\n    ],\n  },\n];\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/admin/reviews/query-config.ts",
+      "content": "export const adminReviewsFields = [\n  'id',\n  'reference',\n  'rating',\n  'customer_note',\n  'seller_note',\n  'created_at',\n  'updated_at'\n]\n\nexport const adminReviewsConfig = {\n  list: {\n    defaults: adminReviewsFields,\n    isList: true\n  },\n  retrieve: {\n    defaults: adminReviewsFields,\n    isList: false\n  }\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/admin/reviews/validators.ts",
+      "content": "import { z } from 'zod'\n\nimport { createFindParams } from '@medusajs/medusa/api/utils/validators'\n\nexport type AdminGetReviewsParamsType = z.infer<typeof AdminGetReviewsParams>\nexport const AdminGetReviewsParams = createFindParams({\n  offset: 0,\n  limit: 50\n}).extend({\n  reference: z.enum(['product', 'seller']).optional()\n})\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/admin/reviews/[id]/route.ts",
+      "content": "import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'\nimport { ContainerRegistrationKeys } from '@medusajs/framework/utils'\n\nimport { AdminReviewResponse } from '../../../../modules/reviews/types'\n\nexport async function GET(\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse<AdminReviewResponse>\n): Promise<void> {\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  const {\n    data: [review]\n  } = await query.graph({\n    entity: 'review',\n    fields: req.queryConfig.fields,\n    filters: {\n      id: req.params.id\n    }\n  })\n\n  res.json({ review })\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/store/reviews/route.ts",
+      "content": "import {\n  AuthenticatedMedusaRequest,\n  MedusaResponse,\n} from \"@medusajs/framework\";\nimport { ContainerRegistrationKeys } from \"@medusajs/framework/utils\";\n\nimport customerReview from \"../../../links/customer-review\";\nimport { StoreReviewListResponse, StoreReviewResponse } from \"../../../modules/reviews/types\";\nimport { createReviewWorkflow } from \"../../../workflows/review/workflows\";\nimport { StoreCreateReviewType, StoreGetReviewsParamsType } from \"./validators\";\n\nexport const POST = async (\n  req: AuthenticatedMedusaRequest<StoreCreateReviewType>,\n  res: MedusaResponse<StoreReviewResponse>\n) => {\n  const { result } = await createReviewWorkflow.run({\n    container: req.scope,\n    input: {\n      ...req.validatedBody,\n      customer_id: req.auth_context.actor_id,\n    },\n  });\n\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);\n\n  const {\n    data: [review],\n  } = await query.graph({\n    entity: \"review\",\n    fields: req.queryConfig.fields,\n    filters: {\n      id: result.id,\n    },\n  });\n\n  res.status(201).json({ review });\n};\n\nexport const GET = async (\n  req: AuthenticatedMedusaRequest<StoreGetReviewsParamsType>,\n  res: MedusaResponse<StoreReviewListResponse>\n) => {\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);\n\n  const { data: reviews, metadata } = await query.graph({\n    entity: customerReview.entryPoint,\n    fields: req.queryConfig.fields.map((field) => `review.${field}`),\n    filters: {\n      customer_id: req.auth_context.actor_id,\n    },\n    pagination: req.queryConfig.pagination,\n  });\n\n  res.json({\n    reviews: reviews.map((relation) => relation.review),\n    count: metadata?.count ?? 0,\n    offset: metadata?.skip ?? 0,\n    limit: metadata?.take ?? 0,\n  });\n};\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/store/reviews/middlewares.ts",
+      "content": "import {\n  validateAndTransformBody,\n  validateAndTransformQuery,\n} from \"@medusajs/framework\";\nimport { MiddlewareRoute } from \"@medusajs/medusa\";\n\nimport { storeReviewQueryConfig } from \"./query-config\";\nimport {\n  StoreCreateReview,\n  StoreGetReviewsParams,\n  StoreUpdateReview,\n} from \"./validators\";\n\nexport const storeReviewMiddlewares: MiddlewareRoute[] = [\n  {\n    method: [\"GET\"],\n    matcher: \"/store/reviews\",\n    middlewares: [\n      validateAndTransformQuery(\n        StoreGetReviewsParams,\n        storeReviewQueryConfig.list\n      ),\n    ],\n  },\n  {\n    method: [\"POST\"],\n    matcher: \"/store/reviews\",\n    middlewares: [\n      validateAndTransformQuery(\n        StoreGetReviewsParams,\n        storeReviewQueryConfig.retrieve\n      ),\n      validateAndTransformBody(StoreCreateReview),\n    ],\n  },\n  {\n    method: [\"GET\"],\n    matcher: \"/store/reviews/:id\",\n    middlewares: [\n      validateAndTransformQuery(\n        StoreGetReviewsParams,\n        storeReviewQueryConfig.retrieve\n      ),\n    ],\n  },\n  {\n    method: [\"DELETE\"],\n    matcher: \"/store/reviews/:id\",\n    middlewares: [],\n  },\n  {\n    method: [\"POST\"],\n    matcher: \"/store/reviews/:id\",\n    middlewares: [\n      validateAndTransformQuery(\n        StoreGetReviewsParams,\n        storeReviewQueryConfig.retrieve\n      ),\n      validateAndTransformBody(StoreUpdateReview),\n    ],\n  },\n];\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/store/reviews/helpers.ts",
+      "content": "import { MedusaContainer } from \"@medusajs/framework\"\nimport {\n  ContainerRegistrationKeys,\n  MedusaError,\n} from \"@medusajs/framework/utils\"\n\nimport customerReview from \"../../../links/customer-review\"\n\nexport const validateCustomerReview = async (\n  scope: MedusaContainer,\n  customerId: string,\n  reviewId: string\n) => {\n  const query = scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  const {\n    data: [customerReviewLink],\n  } = await query.graph({\n    entity: customerReview.entryPoint,\n    filters: {\n      customer_id: customerId,\n      review_id: reviewId,\n    },\n    fields: [\"customer_id\", \"review_id\"],\n  })\n\n  if (!customerReviewLink) {\n    throw new MedusaError(\n      MedusaError.Types.NOT_FOUND,\n      `Review with id: ${reviewId} was not found`\n    )\n  }\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/store/reviews/query-config.ts",
+      "content": "export const storeReviewFields = [\n  'id',\n  'reference',\n  'rating',\n  'customer_note',\n  'customer.first_name',\n  'customer.last_name',\n  'seller_note',\n  'created_at',\n  'updated_at'\n]\n\nexport const storeReviewQueryConfig = {\n  list: {\n    defaults: storeReviewFields,\n    isList: true\n  },\n  retrieve: {\n    defaults: storeReviewFields,\n    isList: false\n  }\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/store/reviews/validators.ts",
+      "content": "import { z } from 'zod'\n\nimport { createFindParams } from '@medusajs/medusa/api/utils/validators'\n\nexport type StoreGetReviewsParamsType = z.infer<typeof StoreGetReviewsParams>\nexport const StoreGetReviewsParams = createFindParams({\n  offset: 0,\n  limit: 50\n})\n\nexport type StoreCreateReviewType = z.infer<typeof StoreCreateReview>\nexport const StoreCreateReview = z.object({\n  order_id: z.string(),\n  reference: z.enum(['seller', 'product']),\n  reference_id: z.string(),\n  rating: z.number().int().min(1).max(5),\n  customer_note: z.string().max(300).nullable()\n})\n\nexport type StoreUpdateReviewType = z.infer<typeof StoreUpdateReview>\nexport const StoreUpdateReview = z.object({\n  rating: z.number().int().min(1).max(5),\n  customer_note: z.string().max(300).nullable()\n})\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/store/reviews/[id]/route.ts",
+      "content": "import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'\nimport { ContainerRegistrationKeys } from '@medusajs/framework/utils'\n\nimport { StoreReviewDeleteResponse, StoreReviewResponse } from '../../../../modules/reviews/types'\nimport {\n  deleteReviewWorkflow,\n  updateReviewWorkflow\n} from '../../../../workflows/review/workflows'\nimport { validateCustomerReview } from '../helpers'\nimport { StoreGetReviewsParamsType, StoreUpdateReviewType } from '../validators'\n\nexport const POST = async (\n  req: AuthenticatedMedusaRequest<StoreUpdateReviewType>,\n  res: MedusaResponse<StoreReviewResponse>\n) => {\n  const { id } = req.params\n\n  await validateCustomerReview(req.scope, req.auth_context.actor_id, id!)\n\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  await updateReviewWorkflow.run({\n    container: req.scope,\n    input: { id, ...req.validatedBody }\n  })\n\n  const {\n    data: [review]\n  } = await query.graph({\n    entity: 'review',\n    fields: req.queryConfig.fields,\n    filters: {\n      id\n    }\n  })\n\n  res.json({\n    review\n  })\n}\n\nexport const DELETE = async (\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse<StoreReviewDeleteResponse>\n) => {\n  const { id } = req.params\n\n  await validateCustomerReview(req.scope, req.auth_context.actor_id, id!)\n\n  await deleteReviewWorkflow.run({\n    container: req.scope,\n    input: id\n  })\n\n  res.json({\n    id: id!,\n    object: 'review',\n    deleted: true\n  })\n}\n\nexport const GET = async (\n  req: AuthenticatedMedusaRequest<StoreGetReviewsParamsType>,\n  res: MedusaResponse<StoreReviewResponse>\n) => {\n  const { id } = req.params\n\n  await validateCustomerReview(req.scope, req.auth_context.actor_id, id!)\n\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  const {\n    data: [review]\n  } = await query.graph({\n    entity: 'review',\n    fields: req.queryConfig.fields,\n    filters: {\n      id\n    }\n  })\n\n  res.json({\n    review\n  })\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/vendor/middlewares.ts",
+      "content": "import { MiddlewareRoute } from \"@medusajs/framework\";\nimport { vendorReviewsMiddlewares } from \"./reviews/middlewares\";\n\nexport const vendorMiddlewares: MiddlewareRoute[] = [\n  ...vendorReviewsMiddlewares,\n];\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/vendor/reviews/middlewares.ts",
+      "content": "import {\n  AuthenticatedMedusaRequest,\n  maybeApplyLinkFilter,\n  MedusaNextFunction,\n  MedusaResponse,\n  MiddlewareRoute,\n} from \"@medusajs/framework/http\";\nimport {\n  validateAndTransformBody,\n  validateAndTransformQuery,\n} from \"@medusajs/framework\";\n\nimport sellerReview from \"../../../links/seller-review\";\nimport { vendorReviewQueryConfig } from \"./query-config\";\nimport { VendorGetReviewsParams, VendorUpdateReview } from \"./validators\";\n\nconst applySellerReviewLinkFilter = (\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse,\n  next: MedusaNextFunction\n) => {\n  req.filterableFields.seller_id = req.auth_context.actor_id;\n\n  return maybeApplyLinkFilter({\n    entryPoint: sellerReview.entryPoint,\n    resourceId: \"review_id\",\n    filterableField: \"seller_id\",\n  })(req, res, next);\n};\n\nexport const vendorReviewsMiddlewares: MiddlewareRoute[] = [\n  {\n    method: [\"GET\"],\n    matcher: \"/vendor/reviews\",\n    middlewares: [\n      validateAndTransformQuery(\n        VendorGetReviewsParams,\n        vendorReviewQueryConfig.list\n      ),\n      applySellerReviewLinkFilter,\n    ],\n  },\n  {\n    method: [\"GET\"],\n    matcher: \"/vendor/reviews/:id\",\n    middlewares: [\n      validateAndTransformQuery(\n        VendorGetReviewsParams,\n        vendorReviewQueryConfig.retrieve\n      ),\n    ],\n  },\n  {\n    method: [\"POST\"],\n    matcher: \"/vendor/reviews/:id\",\n    middlewares: [\n      validateAndTransformQuery(\n        VendorGetReviewsParams,\n        vendorReviewQueryConfig.retrieve\n      ),\n      validateAndTransformBody(VendorUpdateReview),\n    ],\n  },\n];\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/vendor/reviews/helpers.ts",
+      "content": "import { MedusaContainer } from \"@medusajs/framework\"\nimport {\n  ContainerRegistrationKeys,\n  MedusaError,\n} from \"@medusajs/framework/utils\"\n\nimport sellerReview from \"../../../links/seller-review\"\n\nexport const validateSellerReview = async (\n  scope: MedusaContainer,\n  sellerId: string,\n  reviewId: string\n) => {\n  const query = scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  const {\n    data: [sellerReviewLink],\n  } = await query.graph({\n    entity: sellerReview.entryPoint,\n    filters: {\n      seller_id: sellerId,\n      review_id: reviewId,\n    },\n    fields: [\"seller_id\", \"review_id\"],\n  })\n\n  if (!sellerReviewLink) {\n    throw new MedusaError(\n      MedusaError.Types.NOT_FOUND,\n      `Review with id: ${reviewId} was not found`\n    )\n  }\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/vendor/reviews/query-config.ts",
+      "content": "export const vendorReviewFields = [\n  \"id\",\n  \"rating\",\n  \"customer_note\",\n  \"customer_id\",\n  \"seller_note\",\n  \"created_at\",\n  \"updated_at\",\n];\n\nexport const vendorReviewQueryConfig = {\n  list: {\n    defaults: vendorReviewFields,\n    isList: true,\n  },\n  retrieve: {\n    defaults: vendorReviewFields,\n    isList: false,\n  },\n};\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/vendor/reviews/validators.ts",
+      "content": "import { z } from \"zod\";\nimport { createFindParams } from \"@medusajs/medusa/api/utils/validators\";\n\nexport type VendorGetReviewsParamsType = z.infer<typeof VendorGetReviewsParams>;\nexport const VendorGetReviewsParams = createFindParams({\n  offset: 0,\n  limit: 50,\n});\n\nexport type VendorUpdateReviewType = z.infer<typeof VendorUpdateReview>;\nexport const VendorUpdateReview = z.object({\n  seller_note: z.string().max(300),\n});\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/vendor/reviews/route.ts",
+      "content": "import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'\nimport { ContainerRegistrationKeys } from '@medusajs/framework/utils'\n\nimport sellerReview from '../../../links/seller-review'\nimport { VendorReviewListResponse } from '../../../modules/reviews/types'\n\nexport const GET = async (\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse<VendorReviewListResponse>\n) => {\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  const { data: reviews, metadata } = await query.graph({\n    entity: sellerReview.entryPoint,\n    fields: req.queryConfig.fields.map((field) => `review.${field}`),\n    filters: req.filterableFields,\n    pagination: req.queryConfig.pagination\n  })\n\n  res.json({\n    reviews: reviews.map((relation) => relation.review),\n    count: metadata?.count ?? 0,\n    offset: metadata?.skip ?? 0,\n    limit: metadata?.take ?? 0\n  })\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/api/vendor/reviews/[id]/route.ts",
+      "content": "import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'\nimport { ContainerRegistrationKeys } from '@medusajs/framework/utils'\n\nimport { VendorReviewResponse } from '../../../../modules/reviews/types'\nimport { updateReviewWorkflow } from '../../../../workflows/review/workflows'\nimport { validateSellerReview } from '../helpers'\nimport { VendorUpdateReviewType } from '../validators'\n\nexport const GET = async (\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse<VendorReviewResponse>\n) => {\n  const { id } = req.params\n\n  await validateSellerReview(req.scope, req.auth_context.actor_id, id!)\n\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  const {\n    data: [review]\n  } = await query.graph({\n    entity: 'review',\n    fields: req.queryConfig.fields,\n    filters: {\n      id\n    }\n  })\n\n  res.json({\n    review\n  })\n}\n\nexport const POST = async (\n  req: AuthenticatedMedusaRequest<VendorUpdateReviewType>,\n  res: MedusaResponse<VendorReviewResponse>\n) => {\n  const { id } = req.params\n\n  await validateSellerReview(req.scope, req.auth_context.actor_id, id!)\n\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  await updateReviewWorkflow.run({\n    container: req.scope,\n    input: { id, ...req.validatedBody }\n  })\n\n  const {\n    data: [review]\n  } = await query.graph({\n    entity: 'review',\n    fields: req.queryConfig.fields,\n    filters: {\n      id\n    }\n  })\n\n  res.json({\n    review\n  })\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/subscribers/remove-review-request-removed.ts",
+      "type": "registry:api"
+    },
+    {
+      "path": "reviews/vendor/lib/client.ts",
+      "content": "import { createClient, InferClient } from \"@mercurjs/client\"\nimport { Routes } from '../../../../.mercur/_generated'\n\ndeclare const __BACKEND_URL__: string\n\nexport const client: InferClient<Routes> = createClient({\n  baseUrl: __BACKEND_URL__,\n})\n",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/vendor/hooks/api/reviews.tsx",
+      "content": "import { useQuery, UseQueryOptions } from \"@tanstack/react-query\";\nimport { queryKeysFactory } from \"@mercurjs/dashboard-shared\";\nimport { client } from \"../../lib/client\";\nimport {\n  ClientError,\n  InferClientInput,\n  InferClientOutput,\n} from \"@mercurjs/client\";\n\nconst REVIEWS_QUERY_KEY = \"vendor_reviews\" as const;\nexport const reviewsQueryKeys = queryKeysFactory(REVIEWS_QUERY_KEY);\n\nexport type ReviewDTO = InferClientOutput<\n  typeof client.vendor.reviews.$id.query\n>[\"review\"];\n\nexport const useReviews = (\n  query?: InferClientInput<typeof client.vendor.reviews.query>,\n  options?: Omit<\n    UseQueryOptions<\n      unknown,\n      ClientError,\n      InferClientOutput<typeof client.vendor.reviews.query>\n    >,\n    \"queryKey\" | \"queryFn\"\n  >,\n) => {\n  const { data, ...rest } = useQuery({\n    queryKey: reviewsQueryKeys.list(query),\n    queryFn: async () =>\n      client.vendor.reviews.query({\n        ...query,\n      }),\n    ...options,\n  });\n\n  return { ...data, ...rest };\n};\n\nexport const useReview = (\n  id: string,\n  query?: InferClientInput<typeof client.vendor.reviews.$id.query>,\n  options?: Omit<\n    UseQueryOptions<\n      unknown,\n      ClientError,\n      InferClientOutput<typeof client.vendor.reviews.$id.query>\n    >,\n    \"queryKey\" | \"queryFn\"\n  >,\n) => {\n  const { data, ...rest } = useQuery({\n    queryKey: reviewsQueryKeys.detail(id, query),\n    queryFn: async () =>\n      client.vendor.reviews.$id.query({\n        $id: id,\n        ...query,\n      }),\n    ...options,\n  });\n\n  return { ...data, ...rest };\n};\n",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/vendor/hooks/table/columns/use-review-table-columns.tsx",
+      "content": "import { createColumnHelper } from \"@tanstack/react-table\";\nimport { useMemo } from \"react\";\nimport { useTranslation } from \"react-i18next\";\nimport { StatusBadge, Text } from \"@medusajs/ui\";\nimport { DateCell, DateHeader } from \"@mercurjs/dashboard-shared\";\nimport { ReviewDTO } from \"../../api/reviews\";\n\nconst columnHelper = createColumnHelper<ReviewDTO>();\n\nconst ratingColor = (rating: number) => {\n  if (rating >= 4) return \"green\" as const;\n  if (rating >= 3) return \"orange\" as const;\n  return \"red\" as const;\n};\n\nexport const useReviewTableColumns = () => {\n  const { t } = useTranslation();\n\n  return useMemo(\n    () => [\n      columnHelper.accessor(\"rating\", {\n        header: () => (\n          <div className=\"flex h-full w-full items-center\">\n            <span className=\"truncate\">Rating</span>\n          </div>\n        ),\n        cell: ({ getValue }) => {\n          const rating = getValue();\n          return (\n            <StatusBadge color={ratingColor(rating)}>{rating} / 5</StatusBadge>\n          );\n        },\n      }),\n      columnHelper.accessor(\"reference\", {\n        header: () => (\n          <div className=\"flex h-full w-full items-center\">\n            <span className=\"truncate\">Reference</span>\n          </div>\n        ),\n        cell: ({ getValue }) => {\n          const reference = getValue();\n          return (\n            <Text size=\"small\" leading=\"compact\" className=\"text-ui-fg-subtle\">\n              {reference.charAt(0).toUpperCase() + reference.slice(1)}\n            </Text>\n          );\n        },\n      }),\n      columnHelper.accessor(\"customer_note\", {\n        header: () => (\n          <div className=\"flex h-full w-full items-center\">\n            <span className=\"truncate\">Customer Note</span>\n          </div>\n        ),\n        cell: ({ getValue }) => {\n          const note = getValue();\n          return (\n            <div className=\"flex h-full w-full items-center overflow-hidden\">\n              <Text\n                size=\"small\"\n                leading=\"compact\"\n                className=\"text-ui-fg-subtle truncate\"\n              >\n                {note || \"-\"}\n              </Text>\n            </div>\n          );\n        },\n      }),\n      columnHelper.accessor(\"created_at\", {\n        header: () => <DateHeader />,\n        cell: ({ getValue }) => {\n          const date = new Date(getValue());\n          return <DateCell date={date} />;\n        },\n      }),\n    ],\n    [t],\n  );\n};\n",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/vendor/hooks/table/filters/use-review-table-filters.tsx",
+      "content": "import { useTranslation } from \"react-i18next\";\nimport { useMemo } from \"react\";\n\nimport type { Filter } from \"@mercurjs/dashboard-shared\";\n\nexport const useReviewTableFilters = (): Filter[] => {\n  const { t } = useTranslation();\n\n  return useMemo(() => {\n    const filters: Filter[] = [];\n\n    const dateFilters: Filter[] = [\n      { label: t(\"fields.createdAt\"), key: \"created_at\" },\n      { label: t(\"fields.updatedAt\"), key: \"updated_at\" },\n    ].map((f) => ({\n      key: f.key,\n      label: f.label,\n      type: \"date\",\n    }));\n\n    filters.push(...dateFilters);\n\n    return filters;\n  }, [t]);\n};\n",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/vendor/hooks/table/query/use-review-table-query.tsx",
+      "content": "import { useQueryParams } from \"@mercurjs/dashboard-shared\";\n\ntype UseReviewTableQueryProps = {\n  prefix?: string;\n  pageSize?: number;\n};\n\nexport const useReviewTableQuery = ({\n  prefix,\n  pageSize = 20,\n}: UseReviewTableQueryProps) => {\n  const queryObject = useQueryParams(\n    [\"offset\", \"q\", \"created_at\", \"updated_at\", \"order\"],\n    prefix,\n  );\n\n  const { offset, created_at, updated_at, q, order } = queryObject;\n\n  const searchParams: Record<string, any> = {\n    limit: pageSize,\n    offset: offset ? Number(offset) : 0,\n    created_at: created_at ? JSON.parse(created_at) : undefined,\n    updated_at: updated_at ? JSON.parse(updated_at) : undefined,\n    order: order ? order : \"-created_at\",\n    q,\n  };\n\n  return {\n    searchParams,\n    raw: queryObject,\n  };\n};\n",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/vendor/pages/reviews/index.ts",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/vendor/pages/reviews/review-list-page.tsx",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/vendor/pages/reviews/[id]/index.ts",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/vendor/pages/reviews/[id]/review-detail-page.tsx",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/vendor/pages/reviews/[id]/breadcrumb.tsx",
+      "content": "import { UIMatch } from \"react-router-dom\"\n\nimport { useReview } from \"../../../hooks/api/reviews\"\n\nexport const Breadcrumb = (props: UIMatch) => {\n  const { id } = props.params || {}\n\n  const { review } = useReview(id!, undefined, {\n    enabled: Boolean(id),\n  })\n\n  if (!review) {\n    return null\n  }\n\n  return <span>{review.id}</span>\n}\n",
+      "type": "registry:vendor"
+    },
+    {
+      "path": "reviews/admin/hooks/api/reviews.tsx",
+      "content": "import { useQuery, UseQueryOptions } from \"@tanstack/react-query\";\nimport { queryKeysFactory } from \"@mercurjs/dashboard-shared\";\nimport { client } from \"../../lib/client\";\nimport {\n  ClientError,\n  InferClientInput,\n  InferClientOutput,\n} from \"@mercurjs/client\";\n\nconst REVIEWS_QUERY_KEY = \"admin_reviews\" as const;\nexport const reviewsQueryKeys = queryKeysFactory(REVIEWS_QUERY_KEY);\n\nexport type ReviewDTO = InferClientOutput<\n  typeof client.admin.reviews.$id.query\n>[\"review\"];\n\nexport const useReviews = (\n  query?: InferClientInput<typeof client.admin.reviews.query>,\n  options?: Omit<\n    UseQueryOptions<\n      unknown,\n      ClientError,\n      InferClientOutput<typeof client.admin.reviews.query>\n    >,\n    \"queryKey\" | \"queryFn\"\n  >,\n) => {\n  const { data, ...rest } = useQuery({\n    queryKey: reviewsQueryKeys.list(query),\n    queryFn: async () =>\n      client.admin.reviews.query({\n        ...query,\n      }),\n    ...options,\n  });\n\n  return { ...data, ...rest };\n};\n\nexport const useReview = (\n  id: string,\n  query?: InferClientInput<typeof client.admin.reviews.$id.query>,\n  options?: Omit<\n    UseQueryOptions<\n      unknown,\n      ClientError,\n      InferClientOutput<typeof client.admin.reviews.$id.query>\n    >,\n    \"queryKey\" | \"queryFn\"\n  >,\n) => {\n  const { data, ...rest } = useQuery({\n    queryKey: reviewsQueryKeys.detail(id, query),\n    queryFn: async () =>\n      client.admin.reviews.$id.query({\n        $id: id,\n        ...query,\n      }),\n    ...options,\n  });\n\n  return { ...data, ...rest };\n};\n",
+      "type": "registry:admin"
+    },
+    {
+      "path": "reviews/admin/hooks/table/columns/use-review-table-columns.tsx",
+      "content": "import { createColumnHelper } from \"@tanstack/react-table\";\nimport { useMemo } from \"react\";\nimport { useTranslation } from \"react-i18next\";\nimport { StatusBadge, Text } from \"@medusajs/ui\";\nimport { DateCell, DateHeader } from \"@mercurjs/dashboard-shared\";\nimport { ReviewDTO } from \"../../api/reviews\";\n\nconst columnHelper = createColumnHelper<ReviewDTO>();\n\nconst ratingColor = (rating: number) => {\n  if (rating >= 4) return \"green\" as const;\n  if (rating >= 3) return \"orange\" as const;\n  return \"red\" as const;\n};\n\nexport const useReviewTableColumns = () => {\n  const { t } = useTranslation();\n\n  return useMemo(\n    () => [\n      columnHelper.accessor(\"rating\", {\n        header: () => (\n          <div className=\"flex h-full w-full items-center\">\n            <span className=\"truncate\">Rating</span>\n          </div>\n        ),\n        cell: ({ getValue }) => {\n          const rating = getValue();\n          return (\n            <StatusBadge color={ratingColor(rating)}>{rating} / 5</StatusBadge>\n          );\n        },\n      }),\n      columnHelper.accessor(\"reference\", {\n        header: () => (\n          <div className=\"flex h-full w-full items-center\">\n            <span className=\"truncate\">Reference</span>\n          </div>\n        ),\n        cell: ({ getValue }) => {\n          const reference = getValue();\n          return (\n            <Text size=\"small\" leading=\"compact\" className=\"text-ui-fg-subtle\">\n              {reference.charAt(0).toUpperCase() + reference.slice(1)}\n            </Text>\n          );\n        },\n      }),\n      columnHelper.accessor(\"customer_note\", {\n        header: () => (\n          <div className=\"flex h-full w-full items-center\">\n            <span className=\"truncate\">Customer Note</span>\n          </div>\n        ),\n        cell: ({ getValue }) => {\n          const note = getValue();\n          return (\n            <div className=\"flex h-full w-full items-center overflow-hidden\">\n              <Text\n                size=\"small\"\n                leading=\"compact\"\n                className=\"text-ui-fg-subtle truncate\"\n              >\n                {note || \"-\"}\n              </Text>\n            </div>\n          );\n        },\n      }),\n      columnHelper.accessor(\"created_at\", {\n        header: () => <DateHeader />,\n        cell: ({ getValue }) => {\n          const date = new Date(getValue());\n          return <DateCell date={date} />;\n        },\n      }),\n    ],\n    [t],\n  );\n};\n",
+      "type": "registry:admin"
+    },
+    {
+      "path": "reviews/admin/hooks/table/filters/use-review-table-filters.tsx",
+      "content": "import { useTranslation } from \"react-i18next\";\nimport { useMemo } from \"react\";\n\nimport type { Filter } from \"@mercurjs/dashboard-shared\";\n\nexport const useReviewTableFilters = (): Filter[] => {\n  const { t } = useTranslation();\n\n  return useMemo(() => {\n    const filters: Filter[] = [];\n\n    const dateFilters: Filter[] = [\n      { label: t(\"fields.createdAt\"), key: \"created_at\" },\n      { label: t(\"fields.updatedAt\"), key: \"updated_at\" },\n    ].map((f) => ({\n      key: f.key,\n      label: f.label,\n      type: \"date\",\n    }));\n\n    filters.push(...dateFilters);\n\n    return filters;\n  }, [t]);\n};\n",
+      "type": "registry:admin"
+    },
+    {
+      "path": "reviews/admin/hooks/table/query/use-review-table-query.tsx",
+      "content": "import { useQueryParams } from \"@mercurjs/dashboard-shared\";\n\ntype UseReviewTableQueryProps = {\n  prefix?: string;\n  pageSize?: number;\n};\n\nexport const useReviewTableQuery = ({\n  prefix,\n  pageSize = 20,\n}: UseReviewTableQueryProps) => {\n  const queryObject = useQueryParams(\n    [\"offset\", \"q\", \"created_at\", \"updated_at\", \"order\"],\n    prefix,\n  );\n\n  const { offset, created_at, updated_at, q, order } = queryObject;\n\n  const searchParams: Record<string, any> = {\n    limit: pageSize,\n    offset: offset ? Number(offset) : 0,\n    created_at: created_at ? JSON.parse(created_at) : undefined,\n    updated_at: updated_at ? JSON.parse(updated_at) : undefined,\n    order: order ? order : \"-created_at\",\n    q,\n  };\n\n  return {\n    searchParams,\n    raw: queryObject,\n  };\n};\n",
+      "type": "registry:admin"
+    },
+    {
+      "path": "reviews/admin/pages/reviews/index.ts",
+      "type": "registry:admin"
+    },
+    {
+      "path": "reviews/admin/pages/reviews/review-list-page.tsx",
+      "type": "registry:admin"
+    },
+    {
+      "path": "reviews/admin/pages/reviews/[id]/index.ts",
+      "type": "registry:admin"
+    },
+    {
+      "path": "reviews/admin/pages/reviews/[id]/review-detail-page.tsx",
+      "type": "registry:admin"
+    },
+    {
+      "path": "reviews/admin/pages/reviews/[id]/breadcrumb.tsx",
+      "content": "import { UIMatch } from \"react-router-dom\"\n\nimport { useReview } from \"../../../hooks/api/reviews\"\n\nexport const Breadcrumb = (props: UIMatch) => {\n  const { id } = props.params || {}\n\n  const { review } = useReview(id!, undefined, {\n    enabled: Boolean(id),\n  })\n\n  if (!review) {\n    return null\n  }\n\n  return <span>{review.id}</span>\n}\n",
+      "type": "registry:admin"
+    }
+  ]
+}
