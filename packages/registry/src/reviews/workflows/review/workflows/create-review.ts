@@ -6,10 +6,9 @@ import {
 } from "@medusajs/framework/workflows-sdk";
 import {
   createRemoteLinkStep,
-  emitEventStep,
 } from "@medusajs/medusa/core-flows";
 
-import { CreateReviewDTO, ReviewEvents, REVIEW_MODULE } from "../../../modules/reviews";
+import { CreateReviewDTO, REVIEW_MODULE } from "../../../modules/reviews";
 const SELLER_MODULE = "seller";
 
 import { createReviewStep, validateReviewStep } from "../steps";

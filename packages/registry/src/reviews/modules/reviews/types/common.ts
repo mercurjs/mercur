@@ -10,7 +10,3 @@ export interface ReviewDTO {
   updated_at: Date
   deleted_at: Date | null
 }
-
-export const ReviewEvents = {
-  REVIEW_CHANGED: "review.changed",
-} as const
