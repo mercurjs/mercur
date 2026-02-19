@@ -302,6 +302,185 @@
       ]
     },
     {
+      "name": "team-management",
+      "description": "Team member management with invitations, roles, and vendor portal pages.",
+      "dependencies": ["jsonwebtoken", "@types/jsonwebtoken"],
+      "registryDependencies": [],
+      "docs": "## Configuration\n\nAdd the member module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/member',\n  },\n]\n```\n\n## Middlewares\n\nAdd the team management middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...vendorMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the middleware imports and spread them into your existing `routes` array.\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nmercurjs codegen\n```",
+      "files": [
+        {
+          "path": "team-management/modules/member/index.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "team-management/modules/member/service.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "team-management/modules/member/types.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "team-management/modules/member/models/member.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "team-management/modules/member/models/member-invite.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "team-management/links/seller-member.ts",
+          "type": "registry:link"
+        },
+        {
+          "path": "team-management/links/seller-member-invite.ts",
+          "type": "registry:link"
+        },
+        {
+          "path": "team-management/workflows/member/steps/create-member.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/steps/update-member.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/steps/delete-member.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/steps/create-member-invite.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/steps/validate-member-invite.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/steps/update-member-invite.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/steps/delete-member-invite.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/workflows/invite-member.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/workflows/accept-member-invite.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/workflows/update-member.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/workflows/delete-member.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/workflows/member/workflows/delete-member-invite.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "team-management/api/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/members/_helpers/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/members/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/members/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/members/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/members/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/members/[id]/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/invites/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/invites/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/invites/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/invites/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/invites/accept/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/vendor/lib/client.ts",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/hooks/api/members.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/hooks/api/invites.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/hooks/table/columns/use-member-table-columns.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/hooks/table/query/use-member-table-query.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/pages/users/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/pages/users/[id]/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/pages/users/[id]/breadcrumb.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/pages/users/[id]/edit/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/pages/users/invite/page.tsx",
+          "type": "registry:vendor"
+        }
+      ],
+      "categories": [
+        "module",
+        "workflow",
+        "api",
+        "vendor"
+      ]
+    },
+    {
       "name": "wishlist",
       "description": "Customer wishlist with product bookmarking, pricing context, and store API endpoints.",
       "dependencies": [],
