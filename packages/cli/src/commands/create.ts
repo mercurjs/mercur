@@ -24,7 +24,7 @@ import validateProjectName from "validate-npm-package-name";
 import waitOn from "wait-on";
 
 // todo: change to main after new release
-const DEFAULT_BRANCH = "new";
+const DEFAULT_BRANCH = "canary";
 const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
