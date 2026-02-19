@@ -21,7 +21,8 @@ export const vendorProductCollectionsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetProductCollectionsParams,
         vendorProductCollectionQueryConfig.list
-      )
+      ),
+      filterBySellerId()
     ]
   },
   {
