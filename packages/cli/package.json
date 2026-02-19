@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/cli",
-  "version": "0.0.0",
+  "version": "2.0.0-canary.0",
   "type": "module",
   "description": "Mercur CLI",
   "author": "MercurJS (https://github.com/mercurjs)",

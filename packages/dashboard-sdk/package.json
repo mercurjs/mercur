@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/dashboard-sdk",
-  "version": "0.0.1",
+  "version": "2.0.0-canary.0",
   "type": "module",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
