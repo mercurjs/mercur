@@ -9,8 +9,12 @@ export const vendorProductCategoryFields = [
   'updated_at',
   'metadata',
   '*parent_category',
-  '*category_children'
-]
+  '*category_children',
+  'category_detail.*',
+  'category_detail.media.id',
+  'category_detail.media.url',
+  'category_detail.media.alt_text'
+];
 
 export const vendorProductCategoryQueryConfig = {
   list: {
@@ -21,7 +25,7 @@ export const vendorProductCategoryQueryConfig = {
     defaults: vendorProductCategoryFields,
     isList: false
   }
-}
+};
 
 export const vendorProductCategoryProductsFields = [
   'id',
@@ -32,7 +36,7 @@ export const vendorProductCategoryProductsFields = [
   'collection.id',
   'collection.title',
   'variants.id'
-]
+];
 export const vendorProductCategoryProductsQueryConfig = {
   list: {
     defaults: vendorProductCategoryProductsFields,
@@ -42,4 +46,4 @@ export const vendorProductCategoryProductsQueryConfig = {
     defaults: vendorProductCategoryProductsFields,
     isList: false
   }
-}
+};
