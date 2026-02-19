@@ -6,11 +6,12 @@ import { createStep } from "@medusajs/framework/workflows-sdk";
 
 import { CreateReviewDTO } from "../../../modules/reviews";
 import orderReview from "../../../links/order-review";
+import { Query } from "@medusajs/framework";
 
 export const validateReviewStep = createStep(
   "validate-review",
   async (reviewToCreate: CreateReviewDTO, { container }) => {
-    const query = container.resolve(ContainerRegistrationKeys.QUERY);
+    const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY);
 
     const {
       data: [order],

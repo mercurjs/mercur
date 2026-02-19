@@ -1,5 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { Link } from "@medusajs/framework/modules-sdk"
 import { MercurModules } from "@mercurjs/types"
 
 type LinkSellerCampaignStepInput = {
@@ -10,7 +11,7 @@ type LinkSellerCampaignStepInput = {
 export const linkSellerCampaignStep = createStep(
   "link-seller-campaign",
   async (input: LinkSellerCampaignStepInput, { container }) => {
-    const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+    const remoteLink: Link = container.resolve(ContainerRegistrationKeys.LINK)
 
     const links = input.campaign_ids.map((campaignId) => ({
       [Modules.PROMOTION]: {
@@ -31,7 +32,7 @@ export const linkSellerCampaignStep = createStep(
   async (data, { container }) => {
     if (!data) return
 
-    const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+    const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = data.campaign_ids.map((campaignId) => ({
       [Modules.PROMOTION]: {

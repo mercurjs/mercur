@@ -6,6 +6,7 @@ import {
 } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { Logger } from "@medusajs/medusa"
 import { SellerDTO } from "@mercurjs/types"
 
 type ValidateSellerCartItemsStepInput = {
@@ -23,7 +24,7 @@ type ValidateSellerCartItemsStepInput = {
 export const validateSellerCartItemsStep = createStep(
     "validate-seller-cart-items",
     (input: ValidateSellerCartItemsStepInput, { container }) => {
-        const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
+        const logger: Logger = container.resolve(ContainerRegistrationKeys.LOGGER)
 
         const itemsWithMissingSellers = input.cart.items.filter((item) => {
             return !item.variant.product.seller?.id

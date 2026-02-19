@@ -2,12 +2,13 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk";
 
 import { REVIEW_MODULE, ReviewModuleService, CreateReviewDTO } from "../../../modules/reviews";
+import { Link } from "@medusajs/framework/modules-sdk";
 
 export const createReviewStep = createStep(
   "create-review",
   async (input: CreateReviewDTO, { container }) => {
     const service = container.resolve<ReviewModuleService>(REVIEW_MODULE);
-    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const link = container.resolve<Link>(ContainerRegistrationKeys.LINK);
 
     const review = await service.createReviews(input);
 

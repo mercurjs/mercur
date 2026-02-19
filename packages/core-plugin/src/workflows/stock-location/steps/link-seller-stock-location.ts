@@ -1,6 +1,7 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
+import { Link } from "@medusajs/framework/modules-sdk"
 
 type LinkSellerStockLocationStepInput = {
   seller_id: string
@@ -10,7 +11,7 @@ type LinkSellerStockLocationStepInput = {
 export const linkSellerStockLocationStep = createStep(
   "link-seller-stock-location",
   async (input: LinkSellerStockLocationStepInput, { container }) => {
-    const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+    const remoteLink: Link = container.resolve(ContainerRegistrationKeys.LINK)
 
     const links = input.stock_location_ids.map((stockLocationId) => ({
       [Modules.STOCK_LOCATION]: {
@@ -31,7 +32,7 @@ export const linkSellerStockLocationStep = createStep(
   async (data, { container }) => {
     if (!data) return
 
-    const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+    const remoteLink: Link = container.resolve(ContainerRegistrationKeys.LINK)
 
     const links = data.stock_location_ids.map((stockLocationId) => ({
       [Modules.STOCK_LOCATION]: {

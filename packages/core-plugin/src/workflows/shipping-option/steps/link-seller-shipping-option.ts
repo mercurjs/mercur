@@ -1,5 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { Link } from "@medusajs/framework/modules-sdk"
 import { MercurModules } from "@mercurjs/types"
 
 type LinkSellerShippingOptionStepInput = {
@@ -10,7 +11,7 @@ type LinkSellerShippingOptionStepInput = {
 export const linkSellerShippingOptionStep = createStep(
   "link-seller-shipping-option",
   async (input: LinkSellerShippingOptionStepInput, { container }) => {
-    const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+    const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.shipping_option_ids.map((shippingOptionId) => ({
       [Modules.FULFILLMENT]: {
@@ -31,7 +32,7 @@ export const linkSellerShippingOptionStep = createStep(
   async (data, { container }) => {
     if (!data) return
 
-    const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+    const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = data.shipping_option_ids.map((shippingOptionId) => ({
       [Modules.FULFILLMENT]: {

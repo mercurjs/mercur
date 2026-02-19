@@ -2,6 +2,7 @@ import { createProductsWorkflow } from "@medusajs/medusa/core-flows"
 import { StepResponse } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { LinkDefinition } from "@medusajs/framework/types"
+import { Link, Query } from "@medusajs/framework/modules-sdk"
 import { MercurModules } from "@mercurjs/types"
 
 createProductsWorkflow.hooks.productsCreated(
@@ -13,8 +14,8 @@ createProductsWorkflow.hooks.productsCreated(
       )
     }
 
-    const link = container.resolve(ContainerRegistrationKeys.LINK)
-    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    const link: Link = container.resolve(ContainerRegistrationKeys.LINK)
+    const query: Query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     const links: LinkDefinition[] = []
     const inventoryLinks: LinkDefinition[] = []
@@ -77,7 +78,7 @@ createProductsWorkflow.hooks.productsCreated(
 
     const { productLinks, inventoryLinks } = data
 
-    const link = container.resolve(ContainerRegistrationKeys.LINK)
+    const link: Link = container.resolve(ContainerRegistrationKeys.LINK)
 
     if (productLinks?.length) {
       await link.dismiss(productLinks)

@@ -1,3 +1,4 @@
+import { Query } from "@medusajs/framework"
 import {
     AddItemAdjustmentAction,
     AddShippingMethodAdjustment,
@@ -25,7 +26,7 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
         data: PrepareSellerAdjustmentsFromPromotionActionsStepInput,
         { container }
     ) => {
-        const query = container.resolve(ContainerRegistrationKeys.QUERY)
+        const query: Query = container.resolve(ContainerRegistrationKeys.QUERY)
 
         const { actions = [] } = data
 

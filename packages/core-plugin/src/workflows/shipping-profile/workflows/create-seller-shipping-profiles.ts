@@ -7,13 +7,13 @@ import {
 import { CreateShippingProfileDTO } from "@medusajs/framework/types"
 
 import { linkSellerShippingProfileStep } from "../steps"
+import { CreateShippingProfilesWorkflowOutput } from "@medusajs/types/dist/workflow/fulfillment"
 
 type CreateSellerShippingProfilesWorkflowInput = {
   shipping_profiles: CreateShippingProfileDTO[]
   seller_id: string
 }
-
-export const createSellerShippingProfilesWorkflow = createWorkflow(
+export const createSellerShippingProfilesWorkflow: ReturnType<typeof createWorkflow<CreateSellerShippingProfilesWorkflowInput, CreateShippingProfilesWorkflowOutput, any>> = createWorkflow(
   "create-seller-shipping-profiles",
   function (input: CreateSellerShippingProfilesWorkflowInput) {
     const createdShippingProfiles = createShippingProfilesWorkflow.runAsStep({

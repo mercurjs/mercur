@@ -1,5 +1,5 @@
 {
-  "name": "mercur-new",
+  "name": "mercur",
   "private": true,
   "scripts": {
     "build": "turbo run build",

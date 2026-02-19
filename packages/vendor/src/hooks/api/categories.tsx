@@ -8,6 +8,7 @@ import {
   QueryKey,
   UseInfiniteQueryOptions,
   UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   useMutation,
   useQuery,
@@ -17,6 +18,7 @@ import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { productsQueryKeys } from "./products";
 import { useInfiniteList } from "../use-infinite-list";
+import { AdminProductCategoryResponse, HttpTypes } from "@mercurjs/types";
 
 const CATEGORIES_QUERY_KEY = "categories" as const;
 export const categoriesQueryKeys = queryKeysFactory(CATEGORIES_QUERY_KEY);
@@ -25,17 +27,18 @@ export const useProductCategory = (
   id: string,
   query?: Omit<
     InferClientInput<typeof sdk.vendor.productCategories.$id.query>,
-      "$id"
+    "$id"
   >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.productCategories.$id.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: categoriesQueryKeys.detail(id, query),
-    queryFn: () => sdk.vendor.productCategories.$id.query({ $id: id, ...query }),
+    queryFn: () =>
+      sdk.vendor.productCategories.$id.query({ $id: id, ...query }),
     ...options,
   });
 
@@ -48,7 +51,7 @@ export const useProductCategories = (
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.productCategories.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: categoriesQueryKeys.list(query),
@@ -79,7 +82,7 @@ export const useInfiniteCategories = (
       number
     >,
     "queryFn" | "queryKey" | "initialPageParam" | "getNextPageParam"
-  >
+  >,
 ) => {
   return useInfiniteList({
     queryKey: (params) => categoriesQueryKeys.list(params),
@@ -94,7 +97,7 @@ export const useCreateProductCategory = (
     InferClientOutput<typeof sdk.vendor.productCategories.mutate>,
     ClientError,
     InferClientInput<typeof sdk.vendor.productCategories.mutate>
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.vendor.productCategories.mutate(payload),
@@ -118,7 +121,7 @@ export const useUpdateProductCategory = (
       InferClientInput<typeof sdk.vendor.productCategories.$id.mutate>,
       "$id"
     >
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -143,7 +146,7 @@ export const useDeleteProductCategory = (
     InferClientOutput<typeof sdk.vendor.productCategories.$id.delete>,
     ClientError,
     void
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: () => sdk.vendor.productCategories.$id.delete({ $id: id }),
@@ -161,40 +164,47 @@ export const useDeleteProductCategory = (
   });
 };
 
-export const useUpdateProductCategoryProducts = (
+type UseUpdateProductCategoryProducts = (
   id: string,
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.productCategories.$id.products.mutate>,
     ClientError,
-    Omit<
-      InferClientInput<typeof sdk.vendor.productCategories.$id.products.mutate>,
-      "$id"
-    >
-  >
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.productCategories.$id.products.mutate({ $id: id, ...payload }),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: categoriesQueryKeys.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: categoriesQueryKeys.details(),
-      });
-      /**
-       * Invalidate products list query to ensure that the products collections are updated.
-       */
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.lists(),
-      });
+    Omit<AdminProductCategoryResponse, "$id">
+  >,
+) => UseMutationResult<
+  InferClientOutput<typeof sdk.vendor.productCategories.$id.products.mutate>,
+  ClientError,
+  Omit<AdminProductCategoryResponse, "$id">
+>;
 
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.details(),
-      });
+export const useUpdateProductCategoryProducts: UseUpdateProductCategoryProducts =
+  (id, options) => {
+    return useMutation({
+      mutationFn: (payload) =>
+        sdk.vendor.productCategories.$id.products.mutate({
+          $id: id,
+          ...payload,
+        }),
+      onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries({
+          queryKey: categoriesQueryKeys.lists(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: categoriesQueryKeys.details(),
+        });
+        /**
+         * Invalidate products list query to ensure that the products collections are updated.
+         */
+        queryClient.invalidateQueries({
+          queryKey: productsQueryKeys.lists(),
+        });
 
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
+        queryClient.invalidateQueries({
+          queryKey: productsQueryKeys.details(),
+        });
+
+        options?.onSuccess?.(data, variables, context);
+      },
+      ...options,
+    });
+  };

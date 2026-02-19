@@ -8,6 +8,7 @@ import {
   QueryKey,
   UseInfiniteQueryOptions,
   UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   useMutation,
   useQuery,
@@ -27,7 +28,7 @@ export const useCollection = (
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.collections.$id.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: collectionsQueryKeys.detail(id),
@@ -44,7 +45,7 @@ export const useCollections = (
     unknown,
     ClientError,
     InferClientOutput<typeof sdk.vendor.collections.query>
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: collectionsQueryKeys.list(query),
@@ -75,7 +76,7 @@ export const useInfiniteCollections = (
       number
     >,
     "queryFn" | "queryKey" | "initialPageParam" | "getNextPageParam"
-  >
+  >,
 ) => {
   return useInfiniteList({
     queryKey: (params) => collectionsQueryKeys.list(params),
@@ -91,7 +92,7 @@ export const useUpdateCollection = (
     InferClientOutput<typeof sdk.vendor.collections.$id.mutate>,
     ClientError,
     Omit<InferClientInput<typeof sdk.vendor.collections.$id.mutate>, "$id">
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -110,7 +111,7 @@ export const useUpdateCollection = (
   });
 };
 
-export const useUpdateCollectionProducts = (
+type UseUpdateCollectionProducts = (
   id: string,
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.collections.$id.products.mutate>,
@@ -119,7 +120,19 @@ export const useUpdateCollectionProducts = (
       InferClientInput<typeof sdk.vendor.collections.$id.products.mutate>,
       "$id"
     >
+  >,
+) => UseMutationResult<
+  InferClientOutput<typeof sdk.vendor.collections.$id.products.mutate>,
+  ClientError,
+  Omit<
+    InferClientInput<typeof sdk.vendor.collections.$id.products.mutate>,
+    "$id"
   >
+>;
+
+export const useUpdateCollectionProducts: UseUpdateCollectionProducts = (
+  id,
+  options,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -136,50 +149,6 @@ export const useUpdateCollectionProducts = (
        */
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.lists(),
-      });
-
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-export const useCreateCollection = (
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.collections.mutate>,
-    ClientError,
-    InferClientInput<typeof sdk.vendor.collections.mutate>
-  >
-) => {
-  return useMutation({
-    mutationFn: (payload) => sdk.vendor.collections.mutate(payload),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueryKeys.lists(),
-      });
-
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-export const useDeleteCollection = (
-  id: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.collections.$id.delete>,
-    ClientError,
-    void
-  >
-) => {
-  return useMutation({
-    mutationFn: () => sdk.vendor.collections.$id.delete({ $id: id }),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueryKeys.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueryKeys.detail(id),
       });
 
       options?.onSuccess?.(data, variables, context);

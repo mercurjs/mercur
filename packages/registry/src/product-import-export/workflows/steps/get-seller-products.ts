@@ -1,5 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { Query } from "@medusajs/framework/modules-sdk"
 
 type GetSellerProductsStepInput = {
   seller_id: string
@@ -8,7 +9,7 @@ type GetSellerProductsStepInput = {
 export const getSellerProductsStep = createStep(
   "get-seller-products",
   async (input: GetSellerProductsStepInput, { container }) => {
-    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY)
 
     const { data: relations } = await query.graph({
       entity: "product_seller",
