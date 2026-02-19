@@ -1,0 +1,350 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "MercurJS documentation",
+  "logo": {
+    "dark": "/logo.svg",
+    "light": "/logo_dark.svg"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#000000",
+    "light": "#ffffff",
+    "dark": "#000000"
+  },
+  "topbarLinks": [
+    {
+      "name": "Contact us",
+      "url": "https://www.mercurjs.com/contact"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Learn more",
+    "url": "https://www.mercurjs.com"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Docs",
+        "groups": [
+          {
+            "group": "Quick start",
+            "pages": [
+              "introduction",
+              "get-started"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "components/backend",
+              "components/admin-panel",
+              "components/vendor-panel",
+              "components/storefront"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "core-concepts/seller",
+              "core-concepts/order-splitting",
+              "core-concepts/payouts",
+              "core-concepts/commission",
+              "core-concepts/marketplace-settings",
+              "core-concepts/requests",
+              "core-concepts/reviews",
+              "core-concepts/notifications"
+            ]
+          },
+          {
+            "group": "Product",
+            "pages": [
+              "product/framework",
+              "product/core-commerce-modules",
+              "product/core-infrastructure-modules",
+              {
+                "group": "Mercur marketplace modules",
+                "pages": [
+                  {
+                    "group": "Core",
+                    "pages": [
+                      {
+                        "group": "Attribute module",
+                        "pages": [
+                          "product/modules/b2c-core/attribute/attribute-concept",
+                          "product/modules/b2c-core/attribute/attribute-links",
+                          "product/modules/b2c-core/attribute/attributes-data-models-ref",
+                          "product/modules/b2c-core/attribute/attributes-services"
+                        ]
+                      },
+                      {
+                        "group": "Configuration module",
+                        "pages": [
+                          "product/modules/b2c-core/configuration/configuration-concept",
+                          "product/modules/b2c-core/configuration/configuration-data-models-ref",
+                          "product/modules/b2c-core/configuration/configuration-services"
+                        ]
+                      },
+                      {
+                        "group": "Marketplace module",
+                        "pages": [
+                          "product/modules/b2c-core/marketplace/marketplace-concept",
+                          "product/modules/b2c-core/marketplace/marketplace-links",
+                          "product/modules/b2c-core/marketplace/marketplace-data-model-reference",
+                          "product/modules/b2c-core/marketplace/marketplace-service"
+                        ]
+                      },
+                      {
+                        "group": "Payout module",
+                        "pages": [
+                          "product/modules/b2c-core/payout/payout-concept",
+                          "product/modules/b2c-core/payout/payout-links",
+                          "product/modules/b2c-core/payout/payout-data-model-reference",
+                          "product/modules/b2c-core/payout/payout-services"
+                        ]
+                      },
+                      {
+                        "group": "Secondary Category Module",
+                        "pages": [
+                          "product/modules/b2c-core/secondary-categories/secondary-categories-concept",
+                          "product/modules/b2c-core/secondary-categories/secondary-category-links",
+                          "product/modules/b2c-core/secondary-categories/sec-cat-data-model-reference",
+                          "product/modules/b2c-core/secondary-categories/secondary-category-services"
+                        ]
+                      },
+                      {
+                        "group": "Seller module",
+                        "pages": [
+                          "product/modules/b2c-core/seller/seller-concept",
+                          "product/modules/b2c-core/seller/seller-module-options",
+                          "product/modules/b2c-core/seller/seller-links",
+                          "product/modules/b2c-core/seller/seller-data-model-reference",
+                          "product/modules/b2c-core/seller/seller-services"
+                        ]
+                      },
+                      {
+                        "group": "Split Order Payment Module",
+                        "pages": [
+                          "product/modules/b2c-core/split-order-payment/split-order-payment-concept",
+                          "product/modules/b2c-core/split-order-payment/split-order-links",
+                          "product/modules/b2c-core/split-order-payment/split-order-data-model-reference",
+                          "product/modules/b2c-core/split-order-payment/split-order-services"
+                        ]
+                      },
+                      {
+                        "group": "Taxcode module",
+                        "pages": [
+                          "product/modules/b2c-core/taxcode/taxcode-concept",
+                          "product/modules/b2c-core/taxcode/taxcode-links",
+                          "product/modules/b2c-core/taxcode/taxcode-data-model-reference",
+                          "product/modules/b2c-core/taxcode/taxcode-services"
+                        ]
+                      },
+                      {
+                        "group": "Wishlist module",
+                        "pages": [
+                          "product/modules/b2c-core/wishlist/wishlist-concept",
+                          "product/modules/b2c-core/wishlist/wishlist-links",
+                          "product/modules/b2c-core/wishlist/wishlist-data-model-reference",
+                          "product/modules/b2c-core/wishlist/wishlist-services"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "group": "Commission",
+                    "pages": [
+                      {
+                        "group": "Commission module",
+                        "pages": [
+                          "product/modules/commission/commission/commission-concept",
+                          "product/modules/commission/commission/commission-data-model-reference",
+                          "product/modules/commission/commission/commission-services"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "group": "Requests",
+                    "pages": [
+                      {
+                        "group": "Request module",
+                        "pages": [
+                          "product/modules/requests/requests/requests-concept",
+                          "product/modules/requests/requests/requests-links",
+                          "product/modules/requests/requests/request-data-model-reference",
+                          "product/modules/requests/requests/requests-services"
+                        ]
+                      },
+                      {
+                        "group": "Order Return Request module",
+                        "pages": [
+                          "product/modules/requests/order-return-request/order-return-request",
+                          "product/modules/requests/order-return-request/order-return-request-links",
+                          "product/modules/requests/order-return-request/order-return-request-data-model-reference",
+                          "product/modules/requests/order-return-request/order-return-request-services"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "group": "Reviews",
+                    "pages": [
+                      {
+                        "group": "Reviews module",
+                        "pages": [
+                          "product/modules/reviews/reviews/reviews-concept",
+                          "product/modules/reviews/reviews/review-links",
+                          "product/modules/reviews/reviews/review-data-model-reference",
+                          "product/modules/reviews/reviews/review-service"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Workflows",
+                "pages": [
+                  {
+                    "group": "Core",
+                    "pages": [
+                      "docs/product/workflows/core/price-list-workflows",
+                      "docs/product/workflows/core/attribute",
+                      "docs/product/workflows/core/campaign-workflows",
+                      "docs/product/workflows/core/cart-workflows",
+                      "docs/product/workflows/core/configuration-workflows",
+                      "docs/product/workflows/core/customer-groups-workflows",
+                      "docs/product/workflows/core/fulfillment-set-workflows",
+                      "docs/product/workflows/core/order-workflows",
+                      "docs/product/workflows/core/order-set-workflows",
+                      "docs/product/workflows/core/payout-workflows",
+                      "docs/product/workflows/core/product-workflows",
+                      "docs/product/workflows/core/promotions-workflows",
+                      "docs/product/workflows/core/seller-workflows",
+                      "docs/product/workflows/core/split-order-payment",
+                      "docs/product/workflows/core/wishlist-workflows",
+                      "docs/product/workflows/core/common-workflows",
+                      "docs/product/workflows/core/hooks"
+                    ]
+                  },
+                  {
+                    "group": "Commission",
+                    "pages": [
+                      "docs/product/workflows/commission/commission-workflows"
+                    ]
+                  },
+                  {
+                    "group": "Requests",
+                    "pages": [
+                      "docs/product/workflows/requests/requests",
+                      "docs/product/workflows/requests/order-return-request-workflows"
+                    ]
+                  },
+                  {
+                    "group": "Reviews",
+                    "pages": [
+                      "docs/product/workflows/reviews/review-workflows"
+                    ]
+                  }
+                ]
+              },
+              "docs/product/js-sdk",
+              "docs/product/api",
+              {
+                "group": "Events",
+                "pages": [
+                  "docs/product/events/core-events",
+                  "docs/product/events/request-events",
+                  "docs/product/events/reviews-events"
+                ]
+              },
+              {
+                "group": "Scheduled Jobs",
+                "pages": [
+                  "docs/product/scheduled-jobs/core-scheduled-jobs"
+                ]
+              },
+              {
+                "group": "Subscribers",
+                "pages": [
+                  "docs/product/subscribers/core",
+                  "docs/product/subscribers/commission",
+                  "docs/product/subscribers/requests",
+                  "docs/product/subscribers/reviews"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/algolia",
+              "integrations/resend",
+              "integrations/stripe"
+            ]
+          },
+          {
+            "group": "Deployment",
+            "pages": [
+              "medusa-cloud"
+            ]
+          },
+          {
+            "group": "Development",
+            "pages": [
+              "development/set-up"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "help/llm",
+              "help/mcp",
+              "help/support"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "API Documentation",
+            "openapi": "api-reference/combined.oas.json"
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": []
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/mercurjs/mercur",
+      "linkedin": "https://www.linkedin.com/company/mercurjs/",
+      "discord": "https://discord.gg/NTWNa49S"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      {
+        "title": "Request a feature",
+        "description": "Join the discussion on GitHub to request a new feature",
+        "icon": "plus",
+        "href": "https://github.com/mercurjs/mercur/discussions/categories/ideas"
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+---
+title: "Reviews Events"
+description: "Events emitted by the Reviews Module workflows"
+---
+
+# Reviews Events Reference
+
+This documentation page includes the list of all events emitted by the Reviews Module's workflows.
+
+## Review Events
+
+### Summary
+
+| Event                   | Description                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------- |
+| algolia.reviews.changed | Emitted when a review is created or updated, triggering search index synchronization. |
+
+### algolia.reviews.changed
+
+Emitted when a review is created or updated, triggering search index synchronization in Algolia. This event is used to keep the search index up-to-date with review data changes.
+
+#### Payload
+
+```ts
+{
+  review, // The review object
+}
+```
+
+**Review Object Properties:**
+
+```ts
+{
+  id, // The ID of the review
+  reference, // The reference type ("product" or "seller")
+  reference_id, // The ID of the product or seller being reviewed
+  rating, // The rating value (1-5)
+  customer_note, // The customer's review comment
+  seller_note, // The seller's response (if any)
+  customer_id, // The ID of the customer who created the review
+  created_at, // The date the review was created
+  updated_at, // The date the review was last updated
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [createReviewWorkflow](https://docs.mercurjs.com/docs/product/workflows/reviews/review-workflows) - Emitted after a review is successfully created
+- [updateReviewWorkflow](https://docs.mercurjs.com/docs/product/workflows/reviews/review-workflows) - Emitted after a review is successfully updated
+
+---
+
+## Notes
+
+### Event Usage
+
+The `algolia.reviews.changed` event is primarily used for search index synchronization. When emitted, subscribers can:
+
+1. **Update Search Indexes**: Keep Algolia search indexes synchronized with the latest review data
+2. **Recalculate Ratings**: Trigger recalculation of aggregate ratings for products or sellers
+3. **Send Notifications**: Notify relevant parties (sellers, admins) about new or updated reviews
+4. **Analytics**: Track review activity for analytics and reporting purposes
+
+### Review Deletion
+
+Note that the `deleteReviewWorkflow` does **not** emit any events. Review deletions are handled through workflow hooks rather than events. If you need to react to review deletions, use the workflow's `reviewDeleted` hook or subscribe to the `requests.review.removed` event from the Requests Module, which triggers the deletion workflow.
+
+### Review References
+
+Reviews can be associated with two types of entities:
+
+- **Products** (`reference: "product"`) - Customer reviews of products they purchased
+- **Sellers** (`reference: "seller"`) - Customer reviews of their experience with sellers
+
+The event payload includes the full review object, allowing subscribers to determine which type of entity was reviewed and take appropriate actions.
+
+---

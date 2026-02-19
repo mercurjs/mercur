@@ -1,0 +1,96 @@
+---
+title: "Request Module Links"
+description: "Module links for the Request Module"
+---
+
+# Links between Request Module and Other Modules
+
+This document showcases the module links defined between the Request Module and other Commerce Modules.
+
+## Summary
+
+The Request Module has the following links to other modules:
+
+| First Data Model | Second Data Model | Type                 | Description                                                                 |
+| ---------------- | ----------------- | -------------------- | --------------------------------------------------------------------------- |
+| Seller           | Request           | Stored - one-to-many | Associates a seller with their submitted requests for marketplace resources |
+
+---
+
+## Seller Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Request Module's `Request` data model. This allows sellers to submit requests for creating new marketplace resources (products, categories, collections, etc.) that require admin approval.
+
+### Retrieve with Query
+
+To retrieve the requests of a seller with Query, pass `request.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "request.*",
+      ],
+    })
+    
+    // sellers[0].request
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "request.*",
+      ],
+    })
+    
+    // sellers[0].request
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the requests of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      request: {
+        request_id: "req_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      request: {
+        request_id: "req_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>

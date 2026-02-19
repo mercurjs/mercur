@@ -1,0 +1,442 @@
+---
+title: "Review Workflows"
+description: "Reference documentation for the Review Module workflows and steps"
+---
+
+# Workflows
+
+## createReviewWorkflow
+
+This documentation provides a reference to the `createReviewWorkflow`. It belongs to the `@mercurjs/reviews` package.
+
+This workflow creates a review for a product or seller. It validates that the customer owns the order and hasn't already reviewed the same reference, creates the review, links it to the product or seller and customer, and emits an event for search index updates. It exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/reviews/src/workflows/review/workflows/create-review.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/reviews/src/api/store/reviews/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+    import { createReviewWorkflow } from "../../../workflows/review/workflows";
+    import { StoreCreateReviewType } from "./validators";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<StoreCreateReviewType>,
+      res: MedusaResponse
+    ) => {
+      const { result } = await createReviewWorkflow.run({
+        container: req.scope,
+        input: {
+          ...req.validatedBody,
+          customer_id: req.auth_context.actor_id,
+        },
+      });
+    
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    
+      const {
+        data: [review],
+      } = await query.graph({
+        entity: "review",
+        fields: req.queryConfig.fields,
+        filters: {
+          id: result.id,
+        },
+      });
+    
+      res.status(201).json({ review });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateReviewStep](#validatereviewstep): Validates that the customer owns the order and hasn't already reviewed this reference.
+- [createReviewStep](#createreviewstep): Creates the review record and links it to customer and order.
+- **createRemoteLinkStep**: Links the review to the product or seller based on the reference type.
+- **emitEventStep**: Emits a `review.changed` event for search index updates.
+
+### Hooks
+
+- **reviewCreated**: Hook that fires after a review is created, providing the `review_id`.
+
+### Input
+
+<ParamField body="input" type="CreateReviewDTO" required>
+  The review creation details.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order this review is associated with.
+    </ParamField>
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer creating the review.
+    </ParamField>
+    <ParamField body="reference" type="string" required>
+      The type of entity being reviewed. Available types:
+
+      - `product` - Review for a product
+      - `seller` - Review for a seller
+    </ParamField>
+    <ParamField body="reference_id" type="string" required>
+      The ID of the product or seller being reviewed.
+    </ParamField>
+    <ParamField body="rating" type="number" required>
+      The rating value (1-5).
+    </ParamField>
+    <ParamField body="customer_note" type="string">
+      The customer's review comment (max 300 characters).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ReviewDTO" type="ReviewDTO">
+  The created review.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the review.
+    </ResponseField>
+    <ResponseField name="reference" type="string">
+      The reference type (product or seller).
+    </ResponseField>
+    <ResponseField name="rating" type="number">
+      The rating value (1-5).
+    </ResponseField>
+    <ResponseField name="customer_note" type="string">
+      The customer's review comment.
+    </ResponseField>
+    <ResponseField name="customer_id" type="string">
+      The ID of the customer who created the review.
+    </ResponseField>
+    <ResponseField name="seller_note" type="string">
+      The seller's response note (null initially).
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the review was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the review was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## deleteReviewWorkflow
+
+This documentation provides a reference to the `deleteReviewWorkflow`. It belongs to the `@mercurjs/reviews` package.
+
+This workflow soft deletes a review. It exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/reviews/src/workflows/review/workflows/delete-review.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/reviews/src/api/store/reviews/[id]/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { deleteReviewWorkflow } from '../../../../workflows/review/workflows'
+    
+    export const DELETE = async (
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) => {
+      const { id } = req.params
+      await deleteReviewWorkflow.run({
+        container: req.scope,
+        input: id
+      })
+    
+      res.json({
+        id,
+        object: 'review',
+        deleted: true
+      })
+    }
+    ```
+  </Tab>
+  <Tab title="Subscriber">
+    ```ts packages/modules/reviews/src/subscribers/remove-review-request-removed.ts
+    import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
+    import { RemoveReviewRequestUpdatedEvent } from "@mercurjs/framework";
+    import { deleteReviewWorkflow } from "../workflows";
+    
+    export default async function commissionOrderSetPlacedHandler({
+      event,
+      container,
+    }: SubscriberArgs<{ id: string }>) {
+      await deleteReviewWorkflow.run({
+        container,
+        input: {
+          id: event.data.id,
+        },
+      });
+    }
+    
+    export const config: SubscriberConfig = {
+      event: RemoveReviewRequestUpdatedEvent.REMOVED,
+      context: {
+        subscriberId: "remove-review-request-removed-handler",
+      },
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [deleteReviewStep](#deletereviewstep): Soft deletes the review.
+
+### Hooks
+
+- **reviewDeleted**: Hook that fires after a review is deleted, providing the `review_id`.
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the review to delete.
+</ParamField>
+
+### Output
+
+<ResponseField name="string" type="string">
+  The ID of the deleted review.
+</ResponseField>
+
+---
+
+## updateReviewWorkflow
+
+This documentation provides a reference to the `updateReviewWorkflow`. It belongs to the `@mercurjs/reviews` package.
+
+This workflow updates a review's rating, customer note, or seller note. It emits an event for search index updates and exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/reviews/src/workflows/review/workflows/update-review.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Customer Update">
+    ```ts packages/modules/reviews/src/api/store/reviews/[id]/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { updateReviewWorkflow } from '../../../../workflows/review/workflows'
+    import { StoreUpdateReviewType } from '../validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<StoreUpdateReviewType>,
+      res: MedusaResponse
+    ) => {
+      const { id } = req.params
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      await updateReviewWorkflow.run({
+        container: req.scope,
+        input: { id, ...req.validatedBody }
+      })
+    
+      const {
+        data: [review]
+      } = await query.graph({
+        entity: 'review',
+        fields: req.queryConfig.fields,
+        filters: {
+          id
+        }
+      })
+    
+      res.json({
+        review
+      })
+    }
+    ```
+  </Tab>
+  <Tab title="Vendor Update">
+    ```ts packages/modules/reviews/src/api/vendor/sellers/me/reviews/[id]/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { updateReviewWorkflow } from '../../../../../../workflows/review/workflows'
+    import { VendorUpdateReviewType } from '../../../validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorUpdateReviewType>,
+      res: MedusaResponse
+    ) => {
+      const { id } = req.params
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      await updateReviewWorkflow.run({
+        container: req.scope,
+        input: { id, ...req.validatedBody }
+      })
+    
+      const {
+        data: [review]
+      } = await query.graph({
+        entity: 'review',
+        fields: req.queryConfig.fields,
+        filters: {
+          id
+        }
+      })
+    
+      res.json({
+        review
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updateReviewStep](#updatereviewstep): Updates the review record.
+- **emitEventStep**: Emits a `review.changed` event for search index updates.
+
+### Hooks
+
+- **reviewUpdated**: Hook that fires after a review is updated, providing the `review_id`.
+
+### Input
+
+<ParamField body="input" type="UpdateReviewDTO" required>
+  The review update details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the review to update.
+    </ParamField>
+    <ParamField body="rating" type="number">
+      The new rating value (1-5).
+    </ParamField>
+    <ParamField body="customer_note" type="string">
+      The updated customer comment (max 300 characters).
+    </ParamField>
+    <ParamField body="seller_note" type="string">
+      The seller's response to the review.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ReviewDTO" type="ReviewDTO">
+  The updated review.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the review.
+    </ResponseField>
+    <ResponseField name="rating" type="number">
+      The rating value.
+    </ResponseField>
+    <ResponseField name="customer_note" type="string">
+      The customer's comment.
+    </ResponseField>
+    <ResponseField name="seller_note" type="string">
+      The seller's response.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the review was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# Steps
+
+## createReviewStep
+
+Creates a review record and links it to the customer and order. The step creates the links using the Link service to establish relationships with the customer and order entities.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/reviews/src/workflows/review/steps/create-review.ts)
+
+### Input
+
+<ParamField body="input" type="CreateReviewDTO" required>
+  The review creation details.
+</ParamField>
+
+### Output
+
+<ResponseField name="ReviewDTO" type="ReviewDTO">
+  The created review.
+</ResponseField>
+
+---
+
+## deleteReviewStep
+
+Soft deletes a review record from the database.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/reviews/src/workflows/review/steps/delete-review.ts)
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the review to delete.
+</ParamField>
+
+### Output
+
+<ResponseField name="string" type="string">
+  The ID of the deleted review.
+</ResponseField>
+
+---
+
+## updateReviewStep
+
+Updates a review record with new rating, customer note, or seller note.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/reviews/src/workflows/review/steps/update-review.ts)
+
+### Input
+
+<ParamField body="input" type="UpdateReviewDTO" required>
+  The review update details.
+</ParamField>
+
+### Output
+
+<ResponseField name="ReviewDTO" type="ReviewDTO">
+  The updated review.
+</ResponseField>
+
+---
+
+## validateReviewStep
+
+Validates a review creation by checking:
+
+1. The customer owns the order being reviewed
+2. The customer hasn't already reviewed the same product or seller for this order
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/reviews/src/workflows/review/steps/validate-review.ts)
+
+### Input
+
+<ParamField body="reviewToCreate" type="CreateReviewDTO" required>
+  The review data to validate.
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an `INVALID_DATA` error if:
+
+  - Order doesn't belong to the customer
+  - Review already exists for this reference on this order
+</ResponseField>

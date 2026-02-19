@@ -1,0 +1,611 @@
+---
+title: "Configuration Module Service Reference"
+description: "Reference documentation for the Configuration Module service methods"
+---
+
+# IConfigurationModuleService Reference
+
+This section of the documentation provides a reference to the `IConfigurationModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Configuration Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Configuration Module.
+
+## Methods
+
+- [createConfigurationRules](#createconfigurationrules)
+- [updateConfigurationRules](#updateconfigurationrules)
+- [deleteConfigurationRules](#deleteconfigurationrules)
+- [retrieveConfigurationRule](#retrieveconfigurationrule)
+- [listConfigurationRules](#listconfigurationrules)
+- [listAndCountConfigurationRules](#listandcountconfigurationrules)
+- [softDeleteConfigurationRules](#softdeleteconfigurationrules)
+- [restoreConfigurationRules](#restoreconfigurationrules)
+- [isRuleEnabled](#isruleenabled)
+
+---
+
+# createConfigurationRules
+
+This section provides a reference to the `createConfigurationRules` method. This belongs to the Configuration Module.
+
+## createConfigurationRules(data, sharedContext?): Promise\<ConfigurationRuleDTO[]>
+
+This method creates configuration rules.
+
+### Example
+
+```ts
+const rules = await configurationModuleService.createConfigurationRules([
+  {
+    rule_type: "require_product_approval",
+    is_enabled: true,
+  },
+  {
+    rule_type: "product_import_enabled",
+    is_enabled: false,
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateConfigurationRuleDTO[]" required>
+  The configuration rules to be created.
+
+  <Expandable title="properties">
+    <ParamField body="rule_type" type='"global_product_catalog" | "require_product_approval" | "product_request_enabled" | "product_import_enabled"' required>
+      The type of the configuration rule.
+    </ParamField>
+
+    <ParamField body="is_enabled" type="boolean" required>
+      Whether the configuration rule is enabled.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<ConfigurationRuleDTO[]>">
+  The created configuration rules.
+</ResponseField>
+
+## createConfigurationRules(data, sharedContext?): Promise\<ConfigurationRuleDTO>
+
+This method creates a configuration rule.
+
+### Example
+
+```ts
+const rule = await configurationModuleService.createConfigurationRules({
+  rule_type: "require_product_approval",
+  is_enabled: true,
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateConfigurationRuleDTO" required>
+  The configuration rule to be created.
+
+  <Expandable title="properties">
+    <ParamField body="rule_type" type='"global_product_catalog" | "require_product_approval" | "product_request_enabled" | "product_import_enabled"' required>
+      The type of the configuration rule.
+    </ParamField>
+
+    <ParamField body="is_enabled" type="boolean" required>
+      Whether the configuration rule is enabled.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<ConfigurationRuleDTO>">
+  The created configuration rule.
+</ResponseField>
+
+---
+
+# updateConfigurationRules
+
+This section provides a reference to the `updateConfigurationRules` method. This belongs to the Configuration Module.
+
+## updateConfigurationRules(id, data, sharedContext?): Promise\<ConfigurationRuleDTO>
+
+This method updates an existing configuration rule.
+
+### Example
+
+```ts
+const rule = await configurationModuleService.updateConfigurationRules("conf_123", {
+  is_enabled: false,
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the configuration rule.
+</ParamField>
+
+<ParamField body="data" type="UpdateConfigurationRuleDTO" required>
+  The attributes to update in the configuration rule.
+
+  <Expandable title="properties">
+    <ParamField body="is_enabled" type="boolean" required>
+      Whether the configuration rule is enabled.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<ConfigurationRuleDTO>">
+  The updated configuration rule.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the configuration rule.
+    </ResponseField>
+
+    <ResponseField name="rule_type" type="string">
+      The type of the configuration rule.
+    </ResponseField>
+
+    <ResponseField name="is_enabled" type="boolean">
+      Whether the configuration rule is enabled.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the configuration rule.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the configuration rule.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteConfigurationRules
+
+This section provides a reference to the `deleteConfigurationRules` method. This belongs to the Configuration Module.
+
+## deleteConfigurationRules(ids, sharedContext?): Promise\<void>
+
+This method deletes configuration rules by their IDs.
+
+### Example
+
+```ts
+await configurationModuleService.deleteConfigurationRules(["conf_123", "conf_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the configuration rules.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the configuration rules are deleted successfully.
+</ResponseField>
+
+## deleteConfigurationRules(id, sharedContext?): Promise\<void>
+
+This method deletes a configuration rule by its ID.
+
+### Example
+
+```ts
+await configurationModuleService.deleteConfigurationRules("conf_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the configuration rule.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the configuration rule is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveConfigurationRule
+
+This section provides a reference to the `retrieveConfigurationRule` method. This belongs to the Configuration Module.
+
+This method retrieves a configuration rule by its ID.
+
+## Example
+
+```ts
+const rule = await configurationModuleService.retrieveConfigurationRule("conf_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the configuration rule.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<ConfigurationRuleDTO>">
+  The configurations determining how the configuration rule is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<ConfigurationRuleDTO>">
+  The retrieved configuration rule.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the configuration rule.
+    </ResponseField>
+
+    <ResponseField name="rule_type" type="string">
+      The type of the configuration rule.
+    </ResponseField>
+
+    <ResponseField name="is_enabled" type="boolean">
+      Whether the configuration rule is enabled.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the configuration rule.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the configuration rule.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listConfigurationRules
+
+This section provides a reference to the `listConfigurationRules` method. This belongs to the Configuration Module.
+
+This method retrieves a paginated list of configuration rules based on optional filters and configuration.
+
+## Example
+
+To retrieve a list of configuration rules using their IDs:
+
+```ts
+const rules = await configurationModuleService.listConfigurationRules({
+  id: ["conf_123", "conf_321"],
+})
+```
+
+To retrieve enabled rules:
+
+```ts
+const rules = await configurationModuleService.listConfigurationRules({
+  is_enabled: true,
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const rules = await configurationModuleService.listConfigurationRules(
+  {
+    rule_type: "require_product_approval",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableConfigurationRuleProps">
+  The filters to apply on the retrieved configuration rules.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the configuration rules by.
+    </ParamField>
+
+    <ParamField body="rule_type" type="string | string[]">
+      Filter configuration rules by their rule types.
+    </ParamField>
+
+    <ParamField body="is_enabled" type="boolean">
+      Filter by whether configuration rules are enabled.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<ConfigurationRuleDTO>">
+  The configurations determining how the configuration rule is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<ConfigurationRuleDTO[]>">
+  The list of configuration rules.
+</ResponseField>
+
+---
+
+# listAndCountConfigurationRules
+
+This section provides a reference to the `listAndCountConfigurationRules` method. This belongs to the Configuration Module.
+
+This method retrieves a paginated list of configuration rules along with the total count of available configuration rules satisfying the provided filters.
+
+## Example
+
+To retrieve a list of configuration rules using their IDs:
+
+```ts
+const [rules, count] = await configurationModuleService.listAndCountConfigurationRules({
+  id: ["conf_123", "conf_321"],
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const [rules, count] = await configurationModuleService.listAndCountConfigurationRules(
+  {
+    is_enabled: true,
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableConfigurationRuleProps">
+  The filters to apply on the retrieved configuration rules.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the configuration rules by.
+    </ParamField>
+
+    <ParamField body="rule_type" type="string | string[]">
+      Filter configuration rules by their rule types.
+    </ParamField>
+
+    <ParamField body="is_enabled" type="boolean">
+      Filter by whether configuration rules are enabled.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<ConfigurationRuleDTO>">
+  The configurations determining how the configuration rule is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[ConfigurationRuleDTO[], number]>">
+  The list of configuration rules along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteConfigurationRules
+
+This section provides a reference to the `softDeleteConfigurationRules` method. This belongs to the Configuration Module.
+
+This method soft deletes configuration rules by their IDs.
+
+## Example
+
+```ts
+await configurationModuleService.softDeleteConfigurationRules([
+  "conf_123",
+  "conf_321",
+])
+```
+
+## Parameters
+
+<ParamField body="configurationRuleIds" type="string[]" required>
+  The IDs of the configuration rules.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreConfigurationRules
+
+This section provides a reference to the `restoreConfigurationRules` method. This belongs to the Configuration Module.
+
+This method restores soft deleted configuration rules by their IDs.
+
+## Example
+
+```ts
+await configurationModuleService.restoreConfigurationRules(["conf_123", "conf_321"])
+```
+
+## Parameters
+
+<ParamField body="configurationRuleIds" type="string[]" required>
+  The IDs of the configuration rules.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the configuration rule.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# isRuleEnabled
+
+This section provides a reference to the `isRuleEnabled` method. This belongs to the Configuration Module.
+
+This method checks whether a specific configuration rule is enabled. If the rule doesn't exist in the database, it returns the default value for that rule type.
+
+## Example
+
+```ts
+const isEnabled = await configurationModuleService.isRuleEnabled("require_product_approval")
+```
+
+## Parameters
+
+<ParamField body="type" type="ConfigurationRuleType" required>
+  The type of the configuration rule to check. Can be `global_product_catalog`, `require_product_approval`, `product_request_enabled`, or `product_import_enabled`.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<boolean>">
+  A boolean indicating whether the configuration rule is enabled.
+</ResponseField>

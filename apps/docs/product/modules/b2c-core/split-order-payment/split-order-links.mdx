@@ -1,0 +1,98 @@
+---
+title: "Split Order Payment Module Links"
+description: "Module links for the Split Order Payment Module"
+---
+
+# Links between Split Order Payment Module and Other Modules
+
+This document showcases the module links defined between the Split Order Payment Module and other Commerce Modules.
+
+## Summary
+
+The Split Order Payment Module has the following links to other modules:
+
+| First Data Model | Second Data Model | Type                | Description                                                                             |
+| ---------------- | ----------------- | ------------------- | --------------------------------------------------------------------------------------- |
+| Order            | SplitOrderPayment | Stored - one-to-one | Associates an order with its split payment record tracking the seller's payment portion |
+
+---
+
+## Order Module
+
+Mercur defines a link between the Order Module's `Order` data model and the Split Order Payment Module's `SplitOrderPayment` data model. This allows tracking payment amounts (authorized, captured, refunded) specific to each seller's portion of an order in a multi-vendor marketplace.
+
+### Retrieve with Query
+
+To retrieve the split order payment of an order with Query, pass `split_order_payment.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: orders } = await query.graph({
+      entity: "order",
+      fields: [
+        "*",
+        "split_order_payment.*",
+      ],
+    })
+    
+    // orders[0].split_order_payment
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        "*",
+        "split_order_payment.*",
+      ],
+    })
+    
+    // orders[0].split_order_payment
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the split order payment of an order, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+      split_order_payment: {
+        split_order_payment_id: "sp_ord_pay_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+      split_order_payment: {
+        split_order_payment_id: "sp_ord_pay_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,461 @@
+---
+title: "Order Workflows"
+description: "Reference documentation for the Order Module workflows and steps"
+---
+
+# Workflows
+
+## cancelOrderWorkflow
+
+This documentation provides a reference to the `cancelOrderWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow cancels an order and handles all associated cleanup including inventory reservation deletion, payment refunds, and payout reversals. It validates that all fulfillments are canceled before proceeding and ensures data consistency across the marketplace.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order/workflows/cancel-order.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/orders/[id]/cancel/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { getVendorOrdersListWorkflow } from '../../../../../workflows/order/workflows'
+    import { cancelOrderWorkflow } from '../../../../../workflows/order/workflows/cancel-order'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) => {
+      const { id } = req.params
+    
+      await cancelOrderWorkflow(req.scope).run({
+        input: {
+          order_id: id,
+          canceled_by: req.auth_context.actor_id
+        }
+      })
+    
+      const {
+        result: [order]
+      } = await getVendorOrdersListWorkflow(req.scope).run({
+        input: {
+          fields: req.queryConfig.fields,
+          variables: {
+            filters: {
+              id
+            }
+          }
+        }
+      })
+    
+      res.json({ order })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **useQueryGraphStep**: Fetches the order with fulfillments, payment, and payout details.
+- [cancelValidateOrder](#cancelvalidateorder): Validates that the order can be canceled (not already canceled, all fulfillments canceled).
+- **deleteReservationsByLineItemsStep**: Removes inventory reservations for the order items.
+- **cancelOrdersStep**: Marks the order as canceled.
+- **refundSplitOrderPaymentWorkflow**: Refunds the payment to the customer.
+- **createPayoutReversalStep**: Creates a reversal for any payout that was already processed.
+- **emitEventStep**: Emits the `order.canceled` event.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The order cancellation details.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order to cancel.
+    </ParamField>
+    <ParamField body="canceled_by" type="string">
+      The ID of the user canceling the order.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="string" type="string">
+  The ID of the canceled order.
+</ResponseField>
+
+---
+
+## getVendorOrdersListWorkflow
+
+This documentation provides a reference to the `getVendorOrdersListWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow retrieves a list of orders with aggregated payment and fulfillment status. It enhances the standard order data by computing the fulfillment status based on the order's fulfillments and their states.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order/workflows/get-vendor-order-list.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/orders/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import sellerOrderLink from '../../../links/seller-order'
+    import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+    import { getVendorOrdersListWorkflow } from '../../../workflows/order/workflows'
+    import { VendorGetOrderParamsType } from './validators'
+    
+    export const GET = async (
+      req: AuthenticatedMedusaRequest<VendorGetOrderParamsType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      const { data: orderRelations } = await query.graph({
+        entity: sellerOrderLink.entryPoint,
+        fields: ['order_id'],
+        filters: {
+          seller_id: seller.id,
+          deleted_at: {
+            $eq: null
+          }
+        }
+      })
+    
+      const { result } = await getVendorOrdersListWorkflow(req.scope).run({
+        input: {
+          fields: req.queryConfig.fields,
+          variables: {
+            filters: {
+              ...req.filterableFields,
+              id: orderRelations.map((relation) => relation.order_id)
+            },
+            ...req.queryConfig.pagination
+          }
+        }
+      })
+    
+      const { rows, metadata } = result as any
+    
+      res.json({
+        orders: rows,
+        count: metadata?.count,
+        offset: metadata?.skip,
+        limit: metadata?.take
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **useRemoteQueryStep**: Fetches the orders with specified fields including items, fulfillments, and split payment data.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The order list query parameters.
+
+  <Expandable title="properties">
+    <ParamField body="fields" type="string[]" required>
+      Array of fields to include in the response. The workflow automatically adds required fields for status aggregation.
+    </ParamField>
+    <ParamField body="variables" type="object" required>
+      Query variables including filters and pagination.
+
+      <Expandable title="properties">
+        <ParamField body="filters" type="object">
+          Filters to apply to the order query (e.g., status, date range, seller ID).
+        </ParamField>
+        <ParamField body="limit" type="number">
+          The number of orders to return.
+        </ParamField>
+        <ParamField body="offset" type="number">
+          The number of orders to skip.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="OrderDTO[]" type="OrderDTO[]">
+  Array of orders with aggregated statuses.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the order.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      The order status.
+    </ResponseField>
+    <ResponseField name="payment_status" type="string">
+      The payment status derived from split_order_payment.
+    </ResponseField>
+    <ResponseField name="fulfillment_status" type="string">
+      The aggregated fulfillment status. Possible values:
+
+      - `not_fulfilled` - No fulfillments created
+      - `partially_fulfilled` - Some items fulfilled
+      - `fulfilled` - All items fulfilled (packed)
+      - `partially_shipped` - Some fulfillments shipped
+      - `shipped` - All fulfillments shipped
+      - `partially_delivered` - Some fulfillments delivered
+      - `delivered` - All fulfillments delivered
+      - `canceled` - All fulfillments canceled
+    </ResponseField>
+    <ResponseField name="items" type="LineItemDTO[]">
+      The order line items.
+    </ResponseField>
+    <ResponseField name="fulfillments" type="FulfillmentDTO[]">
+      The order fulfillments.
+    </ResponseField>
+    <ResponseField name="split_order_payment" type="SplitOrderPaymentDTO">
+      The split payment information for this seller's order.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## processPayoutForOrderWorkflow
+
+This documentation provides a reference to the `processPayoutForOrderWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow processes a payout for a completed order by calculating the amount after commissions, creating the payout via the payment provider, and linking it to the order. It handles both success and failure scenarios, emitting appropriate events.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order/workflows/process-payout-for-order.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Subscriber">
+    ```ts packages/modules/b2c-core/src/subscribers/payout-order.ts
+    import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
+    import { PayoutWorkflowEvents } from '@mercurjs/framework'
+    import { processPayoutForOrderWorkflow } from '../workflows/order/workflows'
+    
+    export default async function payoutOrderHandler({
+      event,
+      container
+    }: SubscriberArgs<{ order_id: string }>) {
+      await processPayoutForOrderWorkflow(container).run({
+        input: {
+          order_id: event.data.order_id
+        },
+        context: {
+          transactionId: event.data.order_id
+        }
+      })
+    }
+    
+    export const config: SubscriberConfig = {
+      event: PayoutWorkflowEvents.RECEIVED,
+      context: {
+        subscriberId: 'payout-order-handler'
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateNoExistingPayoutForOrderStep](#validatenoexistingpayoutfororderstep): Ensures no payout has already been created for this order.
+- **useQueryGraphStep**: Fetches the order with seller, payment, and commission details.
+- [validateSellerPayoutAccountStep](#validatesellerpayoutaccountstep): Validates that the seller has an active payout account.
+- [calculatePayoutForOrderStep](#calculatepayoutfororderstep): Calculates the payout amount after deducting commissions and refunds.
+- [createPayoutStep](#createpayoutstep): Creates the payout via the payment provider.
+- **createRemoteLinkStep**: Links the payout to the order (on success).
+- **emitEventStep**: Emits either `payout.succeeded` or `payout.failed` event based on the outcome.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The payout processing details.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order to process payout for.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+This workflow does not return a value.
+
+---
+
+# Steps
+
+## calculatePayoutForOrderStep
+
+Calculates the payout amount for an order by subtracting total commissions and refunds from the captured payment amount.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order/steps/calculate-payout-for-order.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order to calculate payout for.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="BigNumber" type="BigNumber">
+  The calculated payout amount (captured_amount - refunded_amount - total_commission).
+</ResponseField>
+
+---
+
+## calculateTotalCommissionStep
+
+Calculates the total commission amount for an order by summing all commission lines associated with the order's line items.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order/steps/calculate-total-commission.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order to calculate commission for.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="total_commission" type="BigNumber">
+      The sum of all commission line values for the order.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## cancelValidateOrder
+
+Validates that an order can be canceled. It checks that the order is not already canceled and that all fulfillments have been canceled first.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order/workflows/cancel-order.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="order" type="OrderDTO" required>
+      The order to validate, including fulfillments and payment collections.
+    </ParamField>
+    <ParamField body="input" type="object">
+      Additional cancellation input parameters.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an error if validation fails.
+</ResponseField>
+
+---
+
+## createPayoutStep
+
+Creates a payout via the payment provider. This step handles errors gracefully and returns both the payout result and error status.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order/steps/create-payout.ts)
+
+### Input
+
+<ParamField body="input" type="CreatePayoutDTO" required>
+  The payout creation details.
+
+  <Expandable title="properties">
+    <ParamField body="transaction_id" type="string" required>
+      The ID of the related transaction (order ID).
+    </ParamField>
+    <ParamField body="amount" type="BigNumber" required>
+      The amount to pay out.
+    </ParamField>
+    <ParamField body="currency_code" type="string" required>
+      The currency code (e.g., "usd").
+    </ParamField>
+    <ParamField body="account_id" type="string" required>
+      The ID of the seller's payout account.
+    </ParamField>
+    <ParamField body="source_transaction" type="string" required>
+      The source payment transaction ID from the payment provider.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="payout" type="PayoutDTO | null">
+      The created payout, or null if creation failed.
+    </ResponseField>
+    <ResponseField name="err" type="boolean">
+      Whether an error occurred during payout creation.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## validateNoExistingPayoutForOrderStep
+
+Validates that no payout has already been created for the given order. Throws an error if a payout already exists.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order/steps/validate-no-existing-payout-for-order.ts)
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The order ID to check for existing payouts.
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws a `DUPLICATE_ERROR` if a payout already exists for the order.
+</ResponseField>
+
+---
+
+## validateSellerPayoutAccountStep
+
+Validates that a seller has a payout account and that the account is active. Throws an error if the seller has no payout account or if the account is not active.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order/steps/validate-seller-payout-account.ts)
+
+### Input
+
+<ParamField body="seller" type="SellerWithPayoutAccountDTO" required>
+  The seller to validate, including payout account details.
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an `INVALID_DATA` error if validation fails.
+</ResponseField>

@@ -1,0 +1,32 @@
+---
+title: "Review Module Data Models"
+description: "Reference documentation for the Review Module data models"
+---
+
+## Relations Overview
+
+| Relationship                        | Type                | Description                       |
+| ----------------------------------- | ------------------- | --------------------------------- |
+| Review → Product (Product Module)   | Read-only - has one | A review can reference a product  |
+| Review → Seller (Seller Module)     | Read-only - has one | A review can reference a seller   |
+| Review → Customer (Customer Module) | Read-only - has one | A review is created by a customer |
+
+## Data Models
+
+- [Review](#review)
+
+## Review
+
+This documentation provides a reference to the Review data model. It belongs to the Review Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/reviews/src/modules/reviews/models/review.ts)
+</Info>
+
+| Field           | Type                                  | Description                                                      |
+| --------------- | ------------------------------------- | ---------------------------------------------------------------- |
+| `id`            | `PrimaryKeyModifier<IdProperty>`      | The ID of the review.                                            |
+| `reference`     | `EnumProperty<["product", "seller"]>` | The type of entity being reviewed. Can be `product` or `seller`. |
+| `rating`        | `NumberProperty`                      | The rating value of the review (1-5).                            |
+| `customer_note` | `TextProperty`                        | The customer's written review comment.                           |
+| `seller_note`   | `TextProperty`                        | The seller's response to the review.                             |

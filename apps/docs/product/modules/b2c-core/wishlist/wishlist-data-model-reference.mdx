@@ -1,0 +1,27 @@
+---
+title: "Wishlist Module Data Models"
+description: "Reference documentation for the Wishlist Module data models"
+---
+
+## Relations Overview
+
+| Relationship | Type | Description |
+| --- | --- | --- |
+| Wishlist → Product (Product Module) | Read-only - has one | A wishlist item references a product |
+
+## Data Models
+
+- [Wishlist](#wishlist)
+
+## Wishlist
+
+This documentation provides a reference to the Wishlist data model. It belongs to the Wishlist Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/wishlist/models/wishlist.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the wishlist. |
+| `reference` | `EnumProperty<["product"]>` | The type of the wishlist reference. Currently only supports `product`. |

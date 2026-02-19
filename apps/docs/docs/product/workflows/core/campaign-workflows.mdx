@@ -1,0 +1,115 @@
+---
+title: "Campaign Workflows"
+description: "Reference documentation for the Campaign Module workflows and steps"
+---
+
+# Workflows
+
+## createVendorCampaignWorkflow
+
+This documentation provides a reference to the `createVendorCampaignWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a new campaign and links it to the seller creating it. This allows for seller-specific campaigns within the marketplace.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/campaigns/workflows/create-vendor-campaign.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/campaigns/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework";
+    import { createVendorCampaignWorkflow } from "../../../workflows/campaigns/workflows";
+    import { VendorCreateCampaignType } from "./validators";
+    import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreateCampaignType>,
+      res: MedusaResponse
+    ) => {
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context?.actor_id,
+        req.scope
+      );
+    
+      const { result } = await createVendorCampaignWorkflow(req.scope).run({
+        input: { 
+          campaign: req.validatedBody, 
+          seller_id: seller.id 
+        },
+      });
+    
+      res.status(201).json({ campaign: result[0] });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **createCampaignsWorkflow**: Creates the campaign using Medusa's core workflow.
+- **createRemoteLinkStep**: Links the created campaign to the seller (using `SELLER_MODULE`) and the promotion module.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="campaign" type="CreateCampaignDTO" required>
+      The details of the campaign to create.
+
+      <Expandable title="properties">
+        <ParamField body="name" type="string" required>
+          The name of the campaign.
+        </ParamField>
+        <ParamField body="campaign_identifier" type="string" required>
+          The identifier of the campaign.
+        </ParamField>
+        <ParamField body="description" type="string">
+          The description of the campaign.
+        </ParamField>
+        <ParamField body="starts_at" type="Date">
+          The start date of the campaign.
+        </ParamField>
+        <ParamField body="ends_at" type="Date">
+          The end date of the campaign.
+        </ParamField>
+        <ParamField body="budget" type="object">
+          The budget configuration for the campaign.
+
+          <Expandable title="properties">
+            <ParamField body="type" type="string" required>
+              The type of budget (e.g. 'spend', 'usage').
+            </ParamField>
+            <ParamField body="limit" type="number" required>
+              The limit for the budget.
+            </ParamField>
+            <ParamField body="currency_code" type="string">
+              The currency code for the budget (required if type is 'spend').
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller creating the campaign.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="CampaignDTO[]" type="CampaignDTO[]">
+  The created campaigns.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the campaign.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The name of the campaign.
+    </ResponseField>
+    <ResponseField name="campaign_identifier" type="string">
+      The campaign identifier.
+    </ResponseField>
+  </Expandable>
+</ResponseField>

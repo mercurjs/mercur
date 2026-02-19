@@ -1,0 +1,34 @@
+---
+title: "Marketplace Module Data Models"
+description: "Reference documentation for the Marketplace Module data models"
+---
+
+## Relations Overview
+
+| Relationship | Type | Description |
+| --- | --- | --- |
+| OrderSet → Cart (Cart Module) | Read-only - has one | An order set is created from a cart |
+| OrderSet → Customer (Customer Module) | Read-only - has one | An order set belongs to a customer |
+| OrderSet → SalesChannel (Sales Channel Module) | Read-only - has one | An order set is associated with a sales channel |
+| OrderSet → PaymentCollection (Payment Module) | Read-only - has one | An order set has a payment collection |
+
+## Data Models
+
+- [OrderSet](#orderset)
+
+## OrderSet
+
+This documentation provides a reference to the OrderSet data model. It belongs to the Marketplace Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/marketplace/models/order-set.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the order set. |
+| `display_id` | `NumberProperty` | The display ID of the order set |
+| `sales_channel_id` | `TextProperty` | The ID of the order set's sales channel. |
+| `cart_id` | `TextProperty` | The ID of the cart that the order set was created from. |
+| `customer_id` | `TextProperty` | The ID of the order set's customer. |
+| `payment_collection_id` | `TextProperty` | The ID of the order set's payment collection. |

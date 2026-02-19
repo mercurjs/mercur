@@ -1,0 +1,365 @@
+---
+title: "Requests Subscribers"
+description: "Event subscribers in the Requests Module"
+---
+
+# Requests Subscribers Reference
+
+## Request Creation Subscribers
+
+### product-request-to-create
+
+Creates a product creation request workflow when a product needs approval.
+
+**Event**: `requests.product.to_create` (ProductRequestUpdatedEvent.TO_CREATE)\
+**Source**: `packages/modules/requests/src/subscribers/product-request-to-create.ts`
+
+#### Functionality
+
+When a product needs to be created as a request:
+
+1. Receives product data and seller ID from the event
+2. Executes `createProductRequestWorkflow` to create the request record
+3. Links the request to the seller
+4. Emits additional events for notifications
+
+#### Event Payload
+
+```ts
+{
+  data: CreateRequestDTO, // The request data
+  seller_id: string // The ID of the seller creating the product
+}
+```
+
+---
+
+### product-update-request-to-create
+
+Creates a product update request workflow when product modifications need approval.
+
+**Event**: `requests.product_update.to_create` (ProductUpdateRequestUpdatedEvent.TO_CREATE)\
+**Source**: `packages/modules/requests/src/subscribers/product-update-request-to-create.ts`
+
+#### Functionality
+
+When a product update needs approval:
+
+1. Checks if product approval is required via configuration rules
+2. If approval is required, executes `createProductUpdateRequestWorkflow`
+3. Sets the product status to "proposed"
+4. Creates the request record and links it to the seller
+
+#### Configuration Check
+
+Only creates the request if `REQUIRE_PRODUCT_APPROVAL` configuration rule is enabled. If disabled, product updates go through directly without approval.
+
+---
+
+### seller-creation-request-to-create
+
+Creates a seller registration request workflow.
+
+**Event**: `requests.seller.to_create` (SellerRequest.TO_CREATE)\
+**Source**: `packages/modules/requests/src/subscribers/seller-creation-request-to-create.ts`
+
+#### Functionality
+
+When a seller registration needs to be processed:
+
+1. Receives seller registration data from the event
+2. Executes `createSellerCreationRequestWorkflow` to create the request record
+3. Emits events for admin notifications
+
+---
+
+### import-seller-products-to-create
+
+Creates bulk product requests when products are imported via CSV.
+
+**Event**: `requests.import_seller_products.to_create` (ImportSellerProductsRequestUpdatedEvent.TO_CREATE)\
+**Source**: `packages/modules/requests/src/subscribers/import-seller-products-to-create.ts`
+
+#### Functionality
+
+When products are imported in bulk:
+
+1. Receives an array of product request payloads and seller ID
+2. Executes `importSellerProductsRequestWorkflow` to create multiple requests
+3. Links all requests to the seller
+4. Emits individual creation events for each product request
+
+#### Event Payload
+
+```ts
+{
+  seller_id: string, // The seller importing products
+  request_payloads: CreateRequestDTO[] // Array of product data
+}
+```
+
+---
+
+## Auto-Approval Subscribers
+
+### product-request-created
+
+Automatically approves product creation requests if approval is not required.
+
+**Event**: `requests.product.created` (ProductRequestUpdatedEvent.CREATED)\
+**Source**: `packages/modules/requests/src/subscribers/product-request-created.ts`
+
+#### Functionality
+
+When a product request is created:
+
+1. Retrieves the request from the database
+2. Checks if the request is not in draft status
+3. Checks configuration rule `REQUIRE_PRODUCT_APPROVAL`
+4. If approval is not required, automatically accepts the request:
+   - Executes `acceptProductRequestWorkflow`
+   - Sets reviewer as "system"
+   - Adds note "auto accepted"
+   - Publishes the product
+
+#### Use Cases
+
+- Streamlined seller onboarding without manual approval overhead
+- Trusted seller programs where products don't need review
+- Self-service marketplaces with post-moderation policies
+
+---
+
+### product-update-request-created
+
+Automatically approves product update requests if approval is not required.
+
+**Event**: `requests.product_update.created` (ProductUpdateRequestUpdatedEvent.CREATED)\
+**Source**: `packages/modules/requests/src/subscribers/product-update-request-created.ts`
+
+#### Functionality
+
+Identical to `product-request-created` but for product updates:
+
+1. Checks if approval is required
+2. Auto-accepts if approval is disabled
+3. Allows sellers to update products without admin intervention
+
+---
+
+## Product Status Synchronization Subscriber
+
+### product-updated
+
+Synchronizes request status with product status changes.
+
+**Event**: `product.updated` (Medusa core event)\
+**Source**: `packages/modules/requests/src/subscribers/product-updated.ts`
+
+#### Functionality
+
+When a product status changes:
+
+1. **Finds Related Requests**: Queries for all requests linked to the product
+2. **Pending → Published**: If product becomes "published" and request is "pending", marks request as "accepted"
+3. **Pending → Rejected**: If product becomes "rejected" and request is "pending", marks request as "rejected"
+4. **Any → Proposed**: If product becomes "proposed" (edited), sets request back to "pending"
+
+#### Status Flow
+
+```
+Product Status Change → Find Requests → Update Request Status
+  published     →      pending        →      accepted
+  rejected      →      pending        →      rejected
+  proposed      →      any            →      pending
+```
+
+#### Use Cases
+
+- Manual product moderation by admins
+- Keeping request records in sync with actual product status
+- Audit trail for product lifecycle
+
+---
+
+## Notification Subscribers
+
+### notification-admin-request-created
+
+Notifies admins in the admin panel when any request is created.
+
+**Event**: `requests.*.created` (RequestUpdated.CREATED)\
+**Source**: `packages/modules/requests/src/subscribers/notification-admin-request-created.ts`
+
+#### Functionality
+
+When any request is created:
+
+1. Extracts the request type from the event data
+2. Humanizes the type for display (e.g., "product" → "Product Request")
+3. Creates an admin UI notification:
+   - **Title**: Dynamically generated based on request type (e.g., "New Product Request")
+   - **Description**: "You have received a new request from a seller 🔔"
+   - **Redirect**: "/admin/requests"
+   - **Channel**: "feed"
+
+---
+
+### Seller Notification Subscribers
+
+These subscribers notify sellers about request status changes via vendor panel notifications.
+
+#### notification-seller-product-request-accepted
+
+Notifies sellers when their product creation request is accepted.
+
+**Event**: `requests.product.accepted` (ProductRequestUpdatedEvent.ACCEPTED)\
+**Template**: `seller_product_request_accepted_notification`
+
+#### notification-seller-product-request-rejected
+
+Notifies sellers when their product creation request is rejected.
+
+**Event**: `requests.product.rejected` (ProductRequestUpdatedEvent.REJECTED)\
+**Template**: `seller_product_request_rejected_notification`
+
+#### notification-seller-product-category-request-accepted
+
+Notifies sellers when their product category creation request is accepted.
+
+**Event**: `requests.product_category.accepted`\
+**Template**: `seller_product_category_request_accepted_notification`
+
+#### notification-seller-product-category-request-rejected
+
+Notifies sellers when their product category creation request is rejected.
+
+**Event**: `requests.product_category.rejected`\
+**Template**: `seller_product_category_request_rejected_notification`
+
+#### notification-seller-product-collection-request-accepted
+
+Notifies sellers when their product collection creation request is accepted.
+
+**Event**: `requests.product_collection.accepted`\
+**Template**: `seller_product_collection_request_accepted_notification`
+
+#### notification-seller-product-collection-request-rejected
+
+Notifies sellers when their product collection creation request is rejected.
+
+**Event**: `requests.product_collection.rejected`\
+**Template**: `seller_product_collection_request_rejected_notification`
+
+#### notification-seller-product-type-request-accepted
+
+Notifies sellers when their product type creation request is accepted.
+
+**Event**: `requests.product_type.accepted`\
+**Template**: `seller_product_type_request_accepted_notification`
+
+#### notification-seller-product-type-request-rejected
+
+Notifies sellers when their product type creation request is rejected.
+
+**Event**: `requests.product_type.rejected`\
+**Template**: `seller_product_type_request_rejected_notification`
+
+#### notification-seller-product-tag-request-accepted
+
+Notifies sellers when their product tag creation request is accepted.
+
+**Event**: `requests.product_tag.accepted`\
+**Template**: `seller_product_tag_request_accepted_notification`
+
+#### notification-seller-product-tag-request-rejected
+
+Notifies sellers when their product tag creation request is rejected.
+
+**Event**: `requests.product_tag.rejected`\
+**Template**: `seller_product_tag_request_rejected_notification`
+
+#### Notification Behavior
+
+All seller notification subscribers:
+
+1. Check if the request type matches (skips if not)
+2. Retrieve the member (seller) who submitted the request
+3. Verify the member has an email address
+4. Send a vendor UI notification using `sendVendorUIRequestNotification`
+5. Target the **vendor_feed** channel for in-app notifications
+
+Some subscribers also check the `REQUIRE_PRODUCT_APPROVAL` configuration before sending notifications (e.g., product request accepted).
+
+---
+
+## Notes
+
+### Configuration-Based Behavior
+
+The Requests Module uses configuration rules to control approval flows:
+
+**`REQUIRE_PRODUCT_APPROVAL`**:
+
+- **Enabled**: Products go through approval workflow, admins must review
+- **Disabled**: Products are auto-approved, sellers can publish directly
+
+This allows marketplaces to:
+
+- Start with strict moderation for new sellers
+- Transition to self-service for trusted sellers
+- Implement tiered seller programs
+
+### Event-Driven Request Lifecycle
+
+The request lifecycle is entirely event-driven:
+
+1. **Creation Event** (`to_create`) → Create request record
+2. **Created Event** (`created`) → Auto-approve if configured
+3. **Status Change Events** (`accepted`/`rejected`) → Send notifications
+4. **Product Status Sync** → Keep requests in sync with actual data
+
+### Request Types Supported
+
+The module handles requests for:
+
+- **Products**: New product creation
+- **Product Updates**: Modifications to existing products
+- **Product Categories**: New category creation
+- **Product Collections**: New collection creation
+- **Product Types**: New type creation
+- **Product Tags**: New tag creation
+- **Sellers**: Seller registration
+- **Reviews**: Review removal requests
+
+### Notification Channels
+
+**Admin Notifications**:
+
+- Channel: `feed`
+- Template: `admin-ui`
+- Displayed in admin panel
+- Include redirect links
+
+**Seller Notifications**:
+
+- Channel: `vendor_feed`
+- Custom templates per request type
+- Displayed in vendor panel
+- Include request details and status
+
+### Performance and Scalability
+
+**Bulk Import Handling**:
+
+- The `import-seller-products-to-create` subscriber processes arrays of products
+- Each product creates a separate request for tracking
+- Events are emitted in batches for efficiency
+
+**Auto-Approval Optimization**:
+
+- Configuration checks prevent unnecessary database queries
+- Early returns skip processing when approval is required
+- System user avoids auth overhead
+
+---

@@ -1,0 +1,133 @@
+---
+title: "Product Workflows"
+description: "Reference documentation for the Product Module workflows and steps"
+---
+
+# Workflows
+
+## updateProductStatusWorkflow
+
+This documentation provides a reference to the `updateProductStatusWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow updates a product's status. It is commonly used in approval flows to change a product from draft to published status, or to reject products that don't meet marketplace requirements.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/product/workflows/update-product-status.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Requests Module Step">
+    ```ts packages/modules/requests/src/workflows/requests/steps/update-related-product-status.ts
+    import { createStep } from "@medusajs/framework/workflows-sdk";
+    import {
+      REQUESTS_MODULE,
+      RequestsModuleService,
+    } from "../../../modules/requests";
+    import { updateProductStatusWorkflow } from "@mercurjs/framework";
+    
+    export const updateRelatedProductStatusStep = createStep(
+      "update-related-product-status",
+      async (id: string, { container }) => {
+        const service = container.resolve<RequestsModuleService>(REQUESTS_MODULE);
+    
+        const request = await service.retrieveRequest(id);
+    
+        if (
+          ["product", "product_update"].includes(request.type) &&
+          request.status === "rejected"
+        ) {
+          await updateProductStatusWorkflow.run({
+            container,
+            input: {
+              id: request.data.product_id,
+              status: "rejected",
+            },
+          });
+        }
+      }
+    );
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updateProductStatusStep](#updateproductstatusstep): Updates the product status.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The product status update details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the product to update.
+    </ParamField>
+    <ParamField body="status" type="ProductStatus" required>
+      The new status for the product. Available statuses:
+
+      - `draft` - Product is in draft mode
+      - `proposed` - Product is proposed and awaiting approval
+      - `published` - Product is published and visible
+      - `rejected` - Product has been rejected
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ProductDTO" type="ProductDTO">
+  The updated product.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the product.
+    </ResponseField>
+    <ResponseField name="status" type="ProductStatus">
+      The updated status of the product.
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      The title of the product.
+    </ResponseField>
+    <ResponseField name="handle" type="string">
+      The handle of the product.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the product was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the product was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# Steps
+
+## updateProductStatusStep
+
+Updates a product's status using the Product Module service.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/product/steps/update-product-status.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The product status update details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the product to update.
+    </ParamField>
+    <ParamField body="status" type="ProductStatus" required>
+      The new status for the product.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ProductDTO" type="ProductDTO">
+  The updated product.
+</ResponseField>

@@ -1,0 +1,57 @@
+---
+title: "Order Return Request Module Data Models"
+description: "Reference documentation for the Order Return Request Module data models"
+---
+
+## Relations Overview
+
+| Relationship | Type | Description |
+| --- | --- | --- |
+| OrderReturnRequest → OrderReturnRequestLineItem | One-to-Many | A return request has many line items |
+| OrderReturnRequest → Customer (Customer Module) | Read-only - has one | A return request belongs to a customer |
+| OrderReturnRequest → ShippingOption (Fulfillment Module) | Read-only - has one | A return request references a shipping option |
+| OrderReturnRequestLineItem → LineItem (Order Module) | Read-only - has one | A return request line item references an order line item |
+
+## Data Models
+
+- [OrderReturnRequest](#orderreturnrequest)
+- [OrderReturnRequestLineItem](#orderreturnrequestlineitem)
+
+## OrderReturnRequest
+
+This documentation provides a reference to the OrderReturnRequest data model. It belongs to the Order Return Request Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/modules/order-return-request/models/return-request.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the order return request. |
+| `customer_id` | `TextProperty` | The ID of the customer who created the return request. |
+| `customer_note` | `TextProperty` | The customer's note explaining the reason for the return. |
+| `shipping_option_id` | `TextProperty` | The ID of the shipping option for returning the items. |
+| `vendor_reviewer_id` | `TextProperty` | The ID of the vendor member who reviewed the request. |
+| `vendor_reviewer_note` | `TextProperty` | The vendor's note regarding the return request. |
+| `vendor_review_date` | `DateTimeProperty` | The date when the vendor reviewed the request. |
+| `admin_reviewer_id` | `TextProperty` | The ID of the admin user who reviewed the escalated request. |
+| `admin_reviewer_note` | `TextProperty` | The admin's note regarding the return request. |
+| `admin_review_date` | `DateTimeProperty` | The date when the admin reviewed the request. |
+| `status` | `EnumProperty<["pending", "refunded", "withdrawn", "escalated", "canceled"]>` | The status of the return request. Defaults to `pending`. |
+| `line_items` | `HasMany<OrderReturnRequestLineItem>` | The associated [OrderReturnRequestLineItem](#orderreturnrequestlineitem) records. |
+
+## OrderReturnRequestLineItem
+
+This documentation provides a reference to the OrderReturnRequestLineItem data model. It belongs to the Order Return Request Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/modules/order-return-request/models/return-request-line-item.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the order return request line item. |
+| `line_item_id` | `TextProperty` | The ID of the original order line item being returned. |
+| `quantity` | `NumberProperty` | The quantity of the item to be returned. |
+| `reason_id` | `TextProperty` | The ID of the return reason. |
+| `return_request` | `BelongsTo<OrderReturnRequest>` | The associated [OrderReturnRequest](#orderreturnrequest). |

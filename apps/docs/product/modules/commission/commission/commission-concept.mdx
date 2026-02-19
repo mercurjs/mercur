@@ -1,0 +1,301 @@
+---
+title: "Commission Module"
+description: "Learn about the Commission Module and how to use it in your application"
+---
+
+# Commission Module
+
+In this section of the documentation, you will find resources to learn more about the Commission Module and how to use it in your application.
+
+Mercur has marketplace commission features available out-of-the-box through the Commission Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Commission Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Commission Features
+
+- **Flexible Commission Rules**: Create commission rules based on seller, product type, product category, or combinations thereof.
+- **Priority-Based Rule Selection**: Automatically select the most specific applicable commission rule using a priority system.
+- **Multiple Commission Types**: Support for both percentage-based and flat-rate commissions with min/max limits.
+- **Tax-Inclusive Options**: Calculate commissions with or without tax included.
+- **Automatic Calculation**: Calculate commission for all line items when orders are placed.
+- **Line-Level Tracking**: Store commission amount for each individual line item in an order.
+
+---
+
+## How to Use the Commission Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+You can build custom workflows and steps. Mercur provides pre-built workflows for commission operations in the `@mercurjs/commission` package.
+
+For example, the `calculateCommissionWorkflow`:
+
+```ts src/workflows/commission/calculate-commission.ts
+import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
+import { calculateCommissionLinesStep } from '../steps/calculate-commission-lines'
+import { createCommissionLinesStep } from '../steps/create-commission-lines'
+
+type WorkflowInput = {
+  order_id: string
+  seller_id: string
+}
+
+export const calculateCommissionWorkflow = createWorkflow(
+  'calculate-commission-workflow',
+  function (input: WorkflowInput) {
+    // Calculate commission for all line items in the order
+    const lines = calculateCommissionLinesStep(input)
+
+    // Create commission line records
+    return new WorkflowResponse(createCommissionLinesStep(lines))
+  }
+)
+```
+
+You can then execute the workflow e.g. in your custom subscribers:
+
+### Subscriber
+
+```ts src/subscribers/commission-order-set-placed.ts
+import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { OrderSetWorkflowEvents, SELLER_ORDER_LINK } from "@mercurjs/framework"
+import { calculateCommissionWorkflow } from "../workflows/commission/workflows"
+
+export default async function commissionOrderSetPlacedHandler({
+  event,
+  container,
+}: SubscriberArgs<{ id: string }>) {
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+  // Get all orders from the order set
+  const {
+    data: [set],
+  } = await query.graph({
+    entity: "order_set",
+    fields: ["orders.id"],
+    filters: {
+      id: event.data.id,
+    },
+  })
+
+  const ordersCreated = set.orders.map((o) => o.id)
+
+  // Calculate commission for each order
+  for (const order_id of ordersCreated) {
+    const {
+      data: [seller],
+    } = await query.graph({
+      entity: SELLER_ORDER_LINK,
+      fields: ["seller_id"],
+      filters: {
+        order_id: order_id,
+      },
+    })
+
+    if (!seller) {
+      return
+    }
+
+    await calculateCommissionWorkflow.run({
+      input: {
+        order_id: order_id,
+        seller_id: seller.seller_id,
+      },
+      container,
+    })
+  }
+}
+
+export const config: SubscriberConfig = {
+  event: OrderSetWorkflowEvents.PLACED,
+  context: {
+    subscriberId: "commission-order-set-placed-handler",
+  },
+}
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to commissions in Mercur.
+
+## Commission Rule
+
+A commission rule defines when and how marketplace commissions should be calculated. It is represented by the [CommissionRule data model](../data-model/commission-module-data-reference#commissionrule).
+
+A commission rule holds information about:
+
+- Rule name (for identification)
+- Reference type (what the rule applies to)
+- Reference ID (which specific entity)
+- Active status (whether the rule is currently applied)
+- Associated commission rate
+
+Commission rules determine which fees apply to products based on seller, product type, or category.
+
+---
+
+## Rule Reference Types
+
+Commission rules support six reference types with a priority system for selecting the applicable rule:
+
+### Priority Order (Highest to Lowest)
+
+1. **seller+product_type**: Most specific - applies to products of a specific type sold by a specific seller
+2. **seller+product_category**: Applies to products in a specific category sold by a specific seller
+3. **seller**: Applies to all products sold by a specific seller
+4. **product_type**: Applies to all products of a specific type regardless of seller
+5. **product_category**: Applies to all products in a specific category regardless of seller
+6. **site**: Default commission applied to all products (lowest priority)
+
+When calculating commission, the system searches from highest to lowest priority and uses the first matching active rule.
+
+### Reference ID Format
+
+- **site**: Empty string `""`
+- **seller**: `"sel_123"`
+- **product_type**: `"ptyp_456"`
+- **product_category**: `"pcat_789"`
+- **seller+product_type**: `"sel_123+ptyp_456"`
+- **seller+product_category**: `"sel_123+pcat_789"`
+
+---
+
+## Commission Rate
+
+A commission rate defines how the commission amount is calculated. It is represented by the [CommissionRate data model](../data-model/commission-module-data-reference#commissionrate).
+
+### Commission Types
+
+**Percentage-Based:**
+
+```ts
+{
+  type: "percentage",
+  percentage_rate: 10,  // 10% of item price
+  include_tax: false,
+}
+```
+
+**Flat-Rate:**
+
+```ts
+{
+  type: "flat",
+  price_set_id: "ps_123",  // Fixed amount from price set
+  include_tax: false,
+}
+```
+
+### Min/Max Limits
+
+Commission rates can have minimum and maximum limits:
+
+```ts
+{
+  type: "percentage",
+  percentage_rate: 10,
+  min_price_set_id: "ps_min",  // Minimum $5 commission
+  max_price_set_id: "ps_max",  // Maximum $100 commission
+  include_tax: false,
+}
+```
+
+The calculated commission is clamped between these boundaries.
+
+---
+
+## Commission Line
+
+A commission line represents the actual calculated commission for a specific order line item. It is represented by the [CommissionLine data model](../data-model/commission-module-data-reference#commissionline).
+
+A commission line holds information about:
+
+- The order line item ID it applies to
+- The commission rule that was used
+- Currency code
+- Calculated commission value
+
+Commission lines are created automatically when orders are placed and used for:
+
+- Financial reporting
+- Payout calculations (subtracting commission from seller payout)
+- Analytics and insights
+
+---
+
+## Automatic Commission Calculation
+
+When an order set is placed, commission is calculated automatically:
+
+**Process:**
+
+1. `OrderSetWorkflowEvents.PLACED` event is emitted
+2. Subscriber retrieves all orders in the order set
+3. For each order:
+   - Find the seller via `SELLER_ORDER_LINK`
+   - Execute `calculateCommissionWorkflow`
+   - Calculate commission for each line item
+   - Create commission line records
+
+This ensures every order has accurate commission tracking for marketplace revenue.
+
+---
+
+## Commission Calculation Algorithm
+
+For each line item in an order:
+
+1. **Build Context**: Extract `seller_id`, `product_type_id`, `product_category_id`
+2. **Select Rule**: Call `selectCommissionForProductLine` with context
+3. **Apply Rule**: Use the selected rule's rate to calculate commission
+4. **Apply Limits**: Clamp result between min/max if specified
+5. **Store Line**: Create commission line record with calculated value
+
+The `selectCommissionForProductLine` method queries rules in priority order and returns the first match.
+
+---
+
+## Tax Inclusivity
+
+The `include_tax` property determines whether commission is calculated on the pre-tax or post-tax amount:
+
+**Tax-Exclusive (include_tax: false)**
+
+```
+Item price: $100
+Tax (10%): $10
+Total: $110
+Commission (10%): $100 × 10% = $10
+```
+
+**Tax-Inclusive (include_tax: true)**
+
+```
+Item price: $100
+Tax (10%): $10
+Total: $110
+Commission (10%): $110 × 10% = $11
+```
+
+This allows marketplaces to choose whether they earn commission on the tax portion.
+
+---
+
+## Use Cases
+
+**1. Seller-Specific Rates** Charge lower commission for premium sellers or those with high sales volume.
+
+**2. Category-Based Pricing** Charge different commissions for different product categories (e.g., 10% for electronics, 15% for luxury goods).
+
+**3. Seller + Category Combination** Create special commission rates for specific seller-category combinations (e.g., Seller A's electronics get 8% instead of the default 10%).
+
+**4. Minimum Commission** Ensure the marketplace earns at least \$5 per sale using min_price_set_id, even for low-value items.
+
+**5. Maximum Commission** Cap commissions at \$100 for high-value items to remain competitive with other marketplaces.
+
+**6. Default Site Commission** Set a baseline 12% commission for all products, then override with specific rules as needed.

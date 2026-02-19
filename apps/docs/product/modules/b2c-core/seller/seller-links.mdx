@@ -1,0 +1,1151 @@
+---
+title: "Seller Module Links"
+description: "Module links for the Seller Module"
+---
+
+# Links between Seller Module and Other Modules
+
+This document showcases the module links defined between the Seller Module and other Commerce Modules.
+
+## Summary
+
+The Seller Module has the following links to other modules:
+
+| First Data Model | Second Data Model | Type                 | Description                                      |
+| ---------------- | ----------------- | -------------------- | ------------------------------------------------ |
+| Seller           | Product           | Stored - one-to-many | Associates a seller with their products          |
+| Seller           | Order             | Stored - one-to-many | Associates a seller with their orders            |
+| Seller           | Return            | Stored - one-to-many | Associates a seller with order returns           |
+| Seller           | PayoutAccount     | Stored - one-to-one  | Associates a seller with their payout account    |
+| Seller           | StockLocation     | Stored - one-to-many | Associates a seller with their stock locations   |
+| Seller           | FulfillmentSet    | Stored - one-to-many | Associates a seller with their fulfillment sets  |
+| Seller           | ServiceZone       | Stored - one-to-many | Associates a seller with their service zones     |
+| Seller           | ShippingOption    | Stored - one-to-many | Associates a seller with their shipping options  |
+| Seller           | ShippingProfile   | Stored - one-to-many | Associates a seller with their shipping profiles |
+| Seller           | InventoryItem     | Stored - one-to-many | Associates a seller with their inventory items   |
+| Seller           | CustomerGroup     | Stored - one-to-many | Associates a seller with their customer groups   |
+| Seller           | PriceList         | Stored - one-to-many | Associates a seller with their price lists       |
+| Seller           | Promotion         | Stored - one-to-many | Associates a seller with their promotions        |
+| Seller           | Campaign          | Stored - one-to-many | Associates a seller with their campaigns         |
+
+---
+
+## Product Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Product Module's `Product` data model. This allows each seller to have their own products in the marketplace.
+
+### Retrieve with Query
+
+To retrieve the products of a seller with Query, pass `product.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "product.*",
+      ],
+    })
+    
+    // sellers[0].product
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "product.*",
+      ],
+    })
+    
+    // sellers[0].product
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the products of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Order Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Order Module's `Order` data model. This allows tracking which orders belong to each seller in the marketplace.
+
+### Retrieve with Query
+
+To retrieve the orders of a seller with Query, pass `order.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "order.*",
+      ],
+    })
+    
+    // sellers[0].order
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "order.*",
+      ],
+    })
+    
+    // sellers[0].order
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the orders of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Order Module - Returns
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Order Module's `Return` data model. This allows tracking which returns belong to each seller.
+
+### Retrieve with Query
+
+To retrieve the returns of a seller with Query, pass `return.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "return.*",
+      ],
+    })
+    
+    // sellers[0].return
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "return.*",
+      ],
+    })
+    
+    // sellers[0].return
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the returns of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.ORDER]: {
+        return_id: "ret_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.ORDER]: {
+        return_id: "ret_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Payout Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Payout Module's `PayoutAccount` data model. This allows each seller to have a payout account for receiving payments from the marketplace.
+
+### Retrieve with Query
+
+To retrieve the payout account of a seller with Query, pass `payout_account.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "payout_account.*",
+      ],
+    })
+    
+    // sellers[0].payout_account
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "payout_account.*",
+      ],
+    })
+    
+    // sellers[0].payout_account
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the payout account of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      payout: {
+        payout_account_id: "pacc_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      payout: {
+        payout_account_id: "pacc_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Stock Location Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Stock Location Module's `StockLocation` data model. This allows each seller to have their own stock locations (warehouses).
+
+### Retrieve with Query
+
+To retrieve the stock locations of a seller with Query, pass `stock_location.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "stock_location.*",
+      ],
+    })
+    
+    // sellers[0].stock_location
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "stock_location.*",
+      ],
+    })
+    
+    // sellers[0].stock_location
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the stock locations of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.STOCK_LOCATION]: {
+        stock_location_id: "sloc_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.STOCK_LOCATION]: {
+        stock_location_id: "sloc_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Fulfillment Module
+
+Mercur defines multiple links between the Seller Module and the Fulfillment Module to enable sellers to manage their own fulfillment configurations.
+
+### FulfillmentSet
+
+A link between `Seller` and `FulfillmentSet` allows sellers to have their own fulfillment sets.
+
+#### Retrieve with Query
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "fulfillment_set.*",
+      ],
+    })
+    
+    // sellers[0].fulfillment_set
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "fulfillment_set.*",
+      ],
+    })
+    
+    // sellers[0].fulfillment_set
+    ```
+  </Tab>
+</Tabs>
+
+#### Manage with Link
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.FULFILLMENT]: {
+        fulfillment_set_id: "fset_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.FULFILLMENT]: {
+        fulfillment_set_id: "fset_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+### ServiceZone
+
+A link between `Seller` and `ServiceZone` allows sellers to define their own service zones.
+
+#### Retrieve with Query
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "service_zone.*",
+      ],
+    })
+    
+    // sellers[0].service_zone
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "service_zone.*",
+      ],
+    })
+    
+    // sellers[0].service_zone
+    ```
+  </Tab>
+</Tabs>
+
+#### Manage with Link
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.FULFILLMENT]: {
+        service_zone_id: "serzo_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.FULFILLMENT]: {
+        service_zone_id: "serzo_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+### ShippingOption
+
+A link between `Seller` and `ShippingOption` allows sellers to configure their own shipping options.
+
+#### Retrieve with Query
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "shipping_option.*",
+      ],
+    })
+    
+    // sellers[0].shipping_option
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "shipping_option.*",
+      ],
+    })
+    
+    // sellers[0].shipping_option
+    ```
+  </Tab>
+</Tabs>
+
+#### Manage with Link
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.FULFILLMENT]: {
+        shipping_option_id: "so_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.FULFILLMENT]: {
+        shipping_option_id: "so_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+### ShippingProfile
+
+A link between `Seller` and `ShippingProfile` allows sellers to manage their own shipping profiles.
+
+#### Retrieve with Query
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "shipping_profile.*",
+      ],
+    })
+    
+    // sellers[0].shipping_profile
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "shipping_profile.*",
+      ],
+    })
+    
+    // sellers[0].shipping_profile
+    ```
+  </Tab>
+</Tabs>
+
+#### Manage with Link
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.FULFILLMENT]: {
+        shipping_profile_id: "sp_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.FULFILLMENT]: {
+        shipping_profile_id: "sp_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Inventory Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Inventory Module's `InventoryItem` data model. This allows each seller to manage their own inventory items.
+
+### Retrieve with Query
+
+To retrieve the inventory items of a seller with Query, pass `inventory_item.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "inventory_item.*",
+      ],
+    })
+    
+    // sellers[0].inventory_item
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "inventory_item.*",
+      ],
+    })
+    
+    // sellers[0].inventory_item
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the inventory items of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.INVENTORY]: {
+        inventory_item_id: "iitem_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.INVENTORY]: {
+        inventory_item_id: "iitem_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Customer Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Customer Module's `CustomerGroup` data model. This allows sellers to create and manage their own customer groups for targeted marketing.
+
+### Retrieve with Query
+
+To retrieve the customer groups of a seller with Query, pass `customer_group.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "customer_group.*",
+      ],
+    })
+    
+    // sellers[0].customer_group
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "customer_group.*",
+      ],
+    })
+    
+    // sellers[0].customer_group
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the customer groups of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.CUSTOMER]: {
+        customer_group_id: "cgrp_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.CUSTOMER]: {
+        customer_group_id: "cgrp_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Pricing Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Pricing Module's `PriceList` data model. This allows sellers to create and manage their own price lists.
+
+### Retrieve with Query
+
+To retrieve the price lists of a seller with Query, pass `price_list.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "price_list.*",
+      ],
+    })
+    
+    // sellers[0].price_list
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "price_list.*",
+      ],
+    })
+    
+    // sellers[0].price_list
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the price lists of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.PRICING]: {
+        price_list_id: "pl_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.PRICING]: {
+        price_list_id: "pl_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Promotion Module
+
+Mercur defines links between the Seller Module and the Promotion Module to enable sellers to manage their own promotions and campaigns.
+
+### Promotion
+
+A link between `Seller` and `Promotion` allows sellers to create their own promotions.
+
+#### Retrieve with Query
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "promotion.*",
+      ],
+    })
+    
+    // sellers[0].promotion
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "promotion.*",
+      ],
+    })
+    
+    // sellers[0].promotion
+    ```
+  </Tab>
+</Tabs>
+
+#### Manage with Link
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.PROMOTION]: {
+        promotion_id: "promo_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.PROMOTION]: {
+        promotion_id: "promo_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+### Campaign
+
+A link between `Seller` and `Campaign` allows sellers to organize promotions into campaigns.
+
+#### Retrieve with Query
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "campaign.*",
+      ],
+    })
+    
+    // sellers[0].campaign
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "campaign.*",
+      ],
+    })
+    
+    // sellers[0].campaign
+    ```
+  </Tab>
+</Tabs>
+
+#### Manage with Link
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.PROMOTION]: {
+        campaign_id: "camp_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      [Modules.PROMOTION]: {
+        campaign_id: "camp_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>

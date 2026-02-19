@@ -1,0 +1,94 @@
+---
+title: "Core commerce modules"
+description: "Learn how Mercur builds on Medusa’s core commerce modules"
+---
+
+# Core commerce modules
+
+Mercur is built on top of **Medusa’s core commerce modules**.\
+These modules provide the foundational commerce primitives used in every Mercur marketplace: products, pricing, carts, orders, customers, payments, fulfillment, inventory, and more.
+
+Mercur does **not replace** these modules.\
+Instead, it creates additional marketplace domain logic - such as sellers, commissions, order splitting, payouts, requests, reviews, and vendor-level operations.
+
+Below is an overview of every Medusa core module, along with a short description and a reference link to the official Medusa documentation where you can learn more about each module.
+
+---
+
+<Card title="API Key Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/api-key" cta="Learn more from the Medusa docs">
+  Handles API key management and authentication for programmatic access.
+</Card>
+
+<Card title="Auth Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/auth" cta="Learn more from the Medusa docs">
+  Provides authentication flows, hashing utilities, and identity management.
+</Card>
+
+<Card title="Cart Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/cart" cta="Learn more from the Medusa docs">
+  Manages carts, line items, promotions, and total calculations. Used by Mercur for multi-vendor cart orchestration.
+</Card>
+
+<Card title="Currency Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/currency" cta="Learn more from the Medusa docs">
+  Defines currencies and formatting rules.
+</Card>
+
+<Card title="Customer Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/customer" cta="Learn more from the Medusa docs">
+  Stores customer profiles, addresses, and preferences.
+</Card>
+
+<Card title="Fulfillment Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/fulfillment" cta="Learn more from the Medusa docs">
+  Handles fulfillment providers and shipping. Mercur extends it with vendor-level fulfillment flows.
+</Card>
+
+<Card title="Inventory Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/inventory" cta="Learn more from the Medusa docs">
+  Controls stock levels, reservations, and inventory adjustments.
+</Card>
+
+<Card title="Order Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/order" cta="Learn more from the Medusa docs">
+  Manages orders, statuses, and returns. Mercur extends it with multi-seller order splitting logic.
+</Card>
+
+<Card title="Payment Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/payment" cta="Learn more from the Medusa docs">
+  Integrates payment providers and transaction flows. Used by Mercur for multi-vendor payments and payouts.
+</Card>
+
+<Card title="Pricing Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/pricing" cta="Learn more from the Medusa docs">
+  Defines pricing structures, price lists, and contextual price calculations.
+</Card>
+
+<Card title="Product Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/product" cta="Learn more from the Medusa docs">
+  Defines products, variants, options, and collections. Mercur adds seller ownership, moderation, and request flows.
+</Card>
+
+<Card title="Promotion Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/promotion" cta="Learn more from the Medusa docs">
+  Handles discounts, promotion rules, and coupon codes.
+</Card>
+
+<Card title="Region Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/region" cta="Learn more from the Medusa docs">
+  Manages regions, currencies, and tax settings for contextual pricing.
+</Card>
+
+<Card title="Sales Channel Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/sales-channel" cta="Learn more from the Medusa docs">
+  Supports product availability across multiple sales channels.
+</Card>
+
+<Card title="Stock Location Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/stock-location" cta="Learn more from the Medusa docs">
+  Defines physical or virtual locations where inventory is stored.
+</Card>
+
+<Card title="Store Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/store" cta="Learn more from the Medusa docs">
+  Stores global configuration and metadata for the storefront.
+</Card>
+
+<Card title="Tax Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/tax" cta="Learn more from the Medusa docs">
+  Manages tax rules and region-based tax calculations.
+</Card>
+
+<Card title="User Module" horizontal href="https://docs.medusajs.com/resources/commerce-modules/user" cta="Learn more from the Medusa docs">
+  Handles internal user accounts. Mercur extends this with vendor roles and permissions.
+</Card>
+
+---
+
+By keeping all Medusa modules intact and fully accessible, Mercur ensures developers retain complete control over both the **commerce layer** and the **marketplace domain layer**.
+
+---

@@ -1,0 +1,27 @@
+---
+title: "Secondary Categories Module Data Models"
+description: "Reference documentation for the Secondary Categories Module data models"
+---
+
+## Relations Overview
+
+| Relationship | Type | Description |
+| --- | --- | --- |
+| SecondaryCategory → ProductCategory (Product Module) | Read-only - has one | A secondary category references a product category |
+
+## Data Models
+
+- [SecondaryCategory](#secondarycategory)
+
+## SecondaryCategory
+
+This documentation provides a reference to the SecondaryCategory data model. It belongs to the Secondary Categories Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/secondary_categories/models/secondary_category.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the secondary category. |
+| `category_id` | `TextProperty` | The ID of the product category that this secondary category references. |

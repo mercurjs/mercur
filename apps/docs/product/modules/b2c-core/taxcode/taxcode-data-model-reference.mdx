@@ -1,0 +1,27 @@
+---
+title: "Tax Code Module Data Models"
+description: "Reference documentation for the Tax Code Module data models"
+---
+
+## Relations Overview
+
+This module has no relations to other data models.
+
+## Data Models
+
+- [TaxCode](#taxcode)
+
+## TaxCode
+
+This documentation provides a reference to the TaxCode data model. It belongs to the Tax Code Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/taxcode/models/taxcode.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the tax code. |
+| `name` | `TextProperty` | The name of the tax code. Defaults to empty string. |
+| `description` | `TextProperty` | The description of the tax code. Defaults to empty string. |
+| `code` | `TextProperty` | The unique code of the tax code. |

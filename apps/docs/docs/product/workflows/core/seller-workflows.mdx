@@ -1,0 +1,1692 @@
+---
+title: "Seller Workflows"
+description: "Reference documentation for the Seller Module workflows and steps"
+---
+
+# Workflows
+
+## acceptMemberInvitesWorkflow
+
+This documentation provides a reference to the `acceptMemberInvitesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow accepts a member invitation by validating the invite token, creating a new member, updating the invite status, and linking the new member to the authentication system.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/accept-member-invite.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/invites/accept/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+    import { acceptMemberInvitesWorkflow } from "../../../../workflows/seller/workflows";
+    import { VendorAcceptMemberInviteType } from "../validators";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorAcceptMemberInviteType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    
+      const { result } = await acceptMemberInvitesWorkflow(req.scope).run({
+        input: {
+          invite: req.validatedBody,
+          authIdentityId: req.auth_context.auth_identity_id,
+        },
+      });
+    
+      const {
+        data: [invite],
+      } = await query.graph(
+        {
+          entity: "member_invite",
+          fields: req.queryConfig.fields,
+          filters: { id: result.id },
+        },
+        { throwIfKeyNotFound: true }
+      );
+    
+      res.json({ invite });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateMemberInviteStep](#validatememberinvitestep): Validates the invite token and retrieves the invite details.
+- [createMemberStep](#creatememberstep): Creates the new member.
+- [updateMemberInviteStep](#updatememberinvitestep): Marks the invite as accepted.
+- **setAuthAppMetadataStep**: Links the member to the authentication identity.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The invite acceptance details.
+
+  <Expandable title="properties">
+    <ParamField body="invite" type="AcceptMemberInviteDTO" required>
+      The invite acceptance data.
+
+      <Expandable title="properties">
+        <ParamField body="token" type="string" required>
+          The invitation token.
+        </ParamField>
+        <ParamField body="name" type="string" required>
+          The name of the member accepting the invitation.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="authIdentityId" type="string" required>
+      The ID of the authentication identity to link to the member.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="MemberInviteDTO" type="MemberInviteDTO">
+  The accepted member invite.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the invite.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The email address of the invited member.
+    </ResponseField>
+    <ResponseField name="accepted" type="boolean">
+      Whether the invite has been accepted.
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      The role assigned to the invited member.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## createOnboardingForSellerWorkflow
+
+This documentation provides a reference to the `createOnboardingForSellerWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a payout onboarding flow for a seller. It validates that the seller has a payout account and then initializes the onboarding process with the payment provider.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/create-onboarding-for-seller.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/payout-account/onboarding/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils'
+    import { createOnboardingForSellerWorkflow } from '../../../../workflows/seller/workflows'
+    import { VendorCreateOnboardingType } from '../validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreateOnboardingType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      const { result } = await createOnboardingForSellerWorkflow(req.scope).run({
+        context: { transactionId: seller.id },
+        input: {
+          seller_id: seller.id,
+          context: req.validatedBody.context ?? {}
+        }
+      })
+    
+      const {
+        data: [payoutAccount]
+      } = await query.graph(
+        {
+          entity: 'payout_account',
+          fields: req.queryConfig.fields,
+          filters: {
+            id: result.payout_account_id
+          }
+        },
+        { throwIfKeyNotFound: true }
+      )
+    
+      res.status(200).json({
+        payout_account: payoutAccount
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validatePayoutAccountExistsForSellerStep](#validatepayoutaccountexistsforsellerStep): Validates that the seller has a payout account.
+- [createPayoutOnboardingStep](#createpayoutonboardingstep): Creates the onboarding flow with the payment provider.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The onboarding creation details.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller to create onboarding for.
+    </ParamField>
+    <ParamField body="context" type="Record<string, unknown>" required>
+      Additional context data required by the payment provider (e.g., return URLs).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="OnboardingDTO" type="OnboardingDTO">
+  The created onboarding.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the onboarding.
+    </ResponseField>
+    <ResponseField name="payout_account_id" type="string">
+      The ID of the associated payout account.
+    </ResponseField>
+    <ResponseField name="data" type="Record<string, unknown>">
+      Provider-specific onboarding data (e.g., onboarding URL).
+    </ResponseField>
+    <ResponseField name="context" type="Record<string, unknown>">
+      The context data provided during creation.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the onboarding was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the onboarding was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## createPayoutAccountForSellerWorkflow
+
+This documentation provides a reference to the `createPayoutAccountForSellerWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a payout account for a seller and links it to the seller. It validates that no payout account already exists for the seller and then creates the account with the payment provider. This workflow is idempotent.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/create-payout-account-for-seller.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/payout-account/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+    import {
+      createPayoutAccountForSellerWorkflow,
+    } from '../../../workflows/seller/workflows'
+    import { VendorCreatePayoutAccountType } from './validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreatePayoutAccountType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      const { result } = await createPayoutAccountForSellerWorkflow(req.scope).run({
+        context: { transactionId: seller.id },
+        input: {
+          seller_id: seller.id,
+          context: req.validatedBody.context ?? {}
+        }
+      })
+    
+      const {
+        data: [payoutAccount]
+      } = await query.graph(
+        {
+          entity: 'payout_account',
+          fields: req.queryConfig.fields,
+          filters: {
+            id: result.id
+          }
+        },
+        { throwIfKeyNotFound: true }
+      )
+    
+      res.status(201).json({
+        payout_account: payoutAccount
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateNoExistingPayoutAccountForSellerStep](#validatenoexistingpayoutaccountforsellerstep): Validates that no payout account exists for the seller.
+- [createPayoutAccountStep](#createpayoutaccountstep): Creates the payout account with the payment provider.
+- **createRemoteLinkStep**: Links the payout account to the seller.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The payout account creation details.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller to create the payout account for.
+    </ParamField>
+    <ParamField body="context" type="Record<string, unknown>" required>
+      Additional context data required by the payment provider.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="PayoutAccountDTO" type="PayoutAccountDTO">
+  The created payout account.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout account.
+    </ResponseField>
+    <ResponseField name="reference_id" type="string">
+      The external reference ID from the payment provider.
+    </ResponseField>
+    <ResponseField name="status" type="PayoutAccountStatus">
+      The status of the payout account (pending, active, or disabled).
+    </ResponseField>
+    <ResponseField name="data" type="Record<string, unknown>">
+      Provider-specific account data.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the account was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the account was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## createSellerWorkflow
+
+This documentation provides a reference to the `createSellerWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a new seller in the marketplace, including creating the initial member, setting up seller onboarding, linking to authentication, and creating a default shipping profile. It exposes a `sellerCreated` hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/create-seller.ts)
+
+### Steps
+
+- [createSellerStep](#createsellerstep): Creates the seller record.
+- [createMemberStep](#creatememberstep): Creates the initial member for the seller.
+- [createSellerOnboardingStep](#createselleronboardingstep): Creates the onboarding record.
+- **setAuthAppMetadataStep**: Links the member to the authentication identity.
+- [createSellerShippingProfileStep](#createsellerShippingprofilestep): Creates a default shipping profile for the seller.
+
+### Hooks
+
+- **sellerCreated**: Hook that fires after a seller is created, providing the `sellerId`.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The seller creation details.
+
+  <Expandable title="properties">
+    <ParamField body="seller" type="CreateSellerDTO" required>
+      The seller details.
+
+      <Expandable title="properties">
+        <ParamField body="name" type="string" required>
+          The name of the seller's store.
+        </ParamField>
+        <ParamField body="description" type="string">
+          A description of the seller's store.
+        </ParamField>
+        <ParamField body="address_line" type="string">
+          The street address of the seller.
+        </ParamField>
+        <ParamField body="city" type="string">
+          The city of the seller.
+        </ParamField>
+        <ParamField body="postal_code" type="string">
+          The postal code of the seller.
+        </ParamField>
+        <ParamField body="country_code" type="string">
+          The country code of the seller.
+        </ParamField>
+        <ParamField body="tax_id" type="string">
+          The tax ID of the seller.
+        </ParamField>
+        <ParamField body="photo" type="string">
+          The photo URL of the seller's store.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="member" type="Omit<CreateMemberDTO, 'seller_id'>" required>
+      The initial member details.
+
+      <Expandable title="properties">
+        <ParamField body="name" type="string" required>
+          The name of the member.
+        </ParamField>
+        <ParamField body="email" type="string" required>
+          The email address of the member.
+        </ParamField>
+        <ParamField body="role" type="string" required>
+          The role of the member.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="auth_identity_id" type="string" required>
+      The ID of the authentication identity to link to the member.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="SellerDTO" type="SellerDTO">
+  The created seller.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the seller.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The name of the seller's store.
+    </ResponseField>
+    <ResponseField name="handle" type="string">
+      The URL-friendly handle (generated from name).
+    </ResponseField>
+    <ResponseField name="status" type="SellerStatus">
+      The status of the seller (active or suspended).
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the seller was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the seller was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## createVendorPromotionWorkflow
+
+This documentation provides a reference to the `createVendorPromotionWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a promotion for a seller. It validates that the campaign belongs to the seller, that the target type is items only, and that all targeted products belong to the seller.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/workflows/create-vendor-promotion.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/promotions/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+    import { createVendorPromotionWorkflow } from '../../../workflows/promotions/workflows'
+    import { VendorCreatePromotionType } from './validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreatePromotionType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context?.actor_id,
+        req.scope
+      )
+    
+      const { result } = await createVendorPromotionWorkflow.run({
+        container: req.scope,
+        input: { promotion: req.validatedBody, seller_id: seller.id }
+      })
+    
+      const {
+        data: [promotion]
+      } = await query.graph({
+        entity: 'promotion',
+        fields: req.queryConfig.fields,
+        filters: {
+          id: result[0].id
+        }
+      })
+    
+      res.status(201).json({ promotion })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [verifyVendorCampaignStep](#verifyvendorcampaignstep): Validates campaign ownership.
+- [verifyVendorPromotionStep](#verifyvendorpromotionstep): Validates the promotion target type.
+- [verifyVendorTargetPromotionRulesStep](#verifyvendortargetpromotionrulesstep): Validates product ownership in target rules.
+- **createPromotionsWorkflow**: Creates the promotion using Medusa's core workflow.
+- **createRemoteLinkStep**: Links the promotion and campaign to the seller.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The promotion creation details.
+
+  <Expandable title="properties">
+    <ParamField body="promotion" type="CreatePromotionDTO" required>
+      The promotion details (see createVendorPromotionWorkflow in promotions-workflows.md for full structure).
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller creating the promotion.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="PromotionDTO[]" type="PromotionDTO[]">
+  Array containing the created promotion.
+</ResponseField>
+
+---
+
+## deleteMemberInvitesWorkflow
+
+This documentation provides a reference to the `deleteMemberInvitesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow deletes a member invitation.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/delete-member-invite.ts)
+
+### Steps
+
+- [deleteMemberInvitesStep](#deletememberinvitesstep): Deletes the member invite.
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the member invite to delete.
+</ParamField>
+
+### Output
+
+This workflow does not return a value.
+
+---
+
+## deleteMemberWorkflow
+
+This documentation provides a reference to the `deleteMemberWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow deletes a member from a seller's team.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/delete-member.ts)
+
+### Steps
+
+- [deleteMemberStep](#deletememberstep): Deletes the member.
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the member to delete.
+</ParamField>
+
+### Output
+
+This workflow does not return a value.
+
+---
+
+## deleteSellerWorkflow
+
+This documentation provides a reference to the `deleteSellerWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow deletes a seller from the marketplace.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/delete-seller.ts)
+
+### Steps
+
+- [deleteSellerStep](#deletesellerstep): Deletes the seller.
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the seller to delete.
+</ParamField>
+
+### Output
+
+This workflow does not return a value.
+
+---
+
+## exportSellerProductsWorkflow
+
+This documentation provides a reference to the `exportSellerProductsWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow exports all products for a seller to a CSV file. It retrieves the seller's products and generates a downloadable CSV file containing product details, variants, and pricing information.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/export-seller-products.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/products/export/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils'
+    import { exportSellerProductsWorkflow } from '../../../../workflows/seller/workflows'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) => {
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      const { result: fileData } = await exportSellerProductsWorkflow.run({
+        container: req.scope,
+        input: seller.id
+      })
+    
+      res.json({
+        url: fileData.url
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [getSellerProductsStep](#getsellerproductsstep): Retrieves all products for the seller.
+- **generateProductCsvStep**: Generates a CSV file from the product data using Medusa's core step.
+- **useRemoteQueryStep**: Retrieves the file details including the download URL.
+
+### Input
+
+<ParamField body="seller_id" type="string" required>
+  The ID of the seller whose products to export.
+</ParamField>
+
+### Output
+
+<ResponseField name="FileDTO" type="FileDTO">
+  The generated CSV file details.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the file.
+    </ResponseField>
+    <ResponseField name="url" type="string">
+      The download URL for the CSV file.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## importSellerProductsWorkflow
+
+This documentation provides a reference to the `importSellerProductsWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow imports products from a CSV file for a seller. It parses the CSV, validates the products, creates them with "proposed" status, and emits an event to create product requests for admin approval.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/import-seller-products.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/products/import/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { MedusaError } from '@medusajs/framework/utils'
+    import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils'
+    import { importSellerProductsWorkflow } from '../../../../workflows/seller/workflows'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) => {
+      const input = (req as any).file
+    
+      if (!input) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          'No file was uploaded for importing'
+        )
+      }
+    
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      const { result: products } = await importSellerProductsWorkflow.run({
+        container: req.scope,
+        input: {
+          file_content: input.buffer.toString('utf-8'),
+          seller_id: seller.id,
+          submitter_id: req.auth_context.actor_id
+        }
+      })
+    
+      res.status(201).json({ products })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **parseProductCsvStep**: Parses the CSV file into product objects using Medusa's core step.
+- [validateProductsToImportStep](#validateproductstoimportstep): Validates and transforms products, setting status to "proposed".
+- **createProductsWorkflow**: Creates the products using Medusa's core workflow.
+- **emitEventStep**: Emits an event to trigger product request creation.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The product import details.
+
+  <Expandable title="properties">
+    <ParamField body="file_content" type="string" required>
+      The CSV file content as a string.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller importing products.
+    </ParamField>
+    <ParamField body="submitter_id" type="string" required>
+      The ID of the member submitting the import.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ProductDTO[]" type="ProductDTO[]">
+  Array of created products (in proposed status).
+</ResponseField>
+
+---
+
+## inviteMemberWorkflow
+
+This documentation provides a reference to the `inviteMemberWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a member invitation for a seller's team.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/invite-member.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/invites/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+    import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
+    import { inviteMemberWorkflow } from "../../../workflows/seller/workflows";
+    import { VendorInviteMemberType } from "./validators";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorInviteMemberType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope,
+        ["id", "name"]
+      );
+    
+      const { result: created } = await inviteMemberWorkflow(req.scope).run({
+        input: {
+          ...req.validatedBody,
+          seller_id: seller.id,
+        },
+      });
+    
+      // ... query invite and emit event
+    
+      res.status(201).json({ invite });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [createMemberInviteStep](#creatememberinvitestep): Creates the member invitation.
+
+### Input
+
+<ParamField body="input" type="CreateMemberInviteDTO" required>
+  The invitation details.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller creating the invitation.
+    </ParamField>
+    <ParamField body="email" type="string" required>
+      The email address of the person to invite.
+    </ParamField>
+    <ParamField body="role" type="string" required>
+      The role to assign to the invited member.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="MemberInviteDTO" type="MemberInviteDTO">
+  The created member invitation.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the invitation.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The email address of the invited person.
+    </ResponseField>
+    <ResponseField name="token" type="string">
+      The unique invitation token.
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      The role assigned to the invitation.
+    </ResponseField>
+    <ResponseField name="seller_id" type="string">
+      The ID of the seller who created the invitation.
+    </ResponseField>
+    <ResponseField name="accepted" type="boolean">
+      Whether the invitation has been accepted.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## inviteSellerWorkflow
+
+This documentation provides a reference to the `inviteSellerWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow sends an invitation email to a potential seller to join the marketplace platform.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/invite-seller.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/admin/sellers/invite/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { inviteSellerWorkflow } from '../../../../workflows/seller/workflows'
+    import { AdminInviteSellerType } from '../validators'
+    
+    export async function POST(
+      req: MedusaRequest<AdminInviteSellerType>,
+      res: MedusaResponse
+    ): Promise<void> {
+      const { result: invitation } = await inviteSellerWorkflow.run({
+        container: req.scope,
+        input: req.validatedBody
+      })
+    
+      res.status(201).json({ invitation })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [sendSellerInvitationEmailStep](#sendsellerinvitationemailstep): Sends the invitation email.
+
+### Input
+
+<ParamField body="input" type="CreateSellerInvitationDTO" required>
+  The invitation details.
+
+  <Expandable title="properties">
+    <ParamField body="email" type="string" required>
+      The email address to send the invitation to.
+    </ParamField>
+    <ParamField body="registration_url" type="string">
+      The registration URL to include in the invitation email.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="NotificationDTO" type="NotificationDTO">
+  The notification details for the sent invitation email.
+</ResponseField>
+
+---
+
+## recalculateOnboardingWorkflow
+
+This documentation provides a reference to the `recalculateOnboardingWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow recalculates a seller's onboarding status by checking various completion criteria including store information, products added, shipping locations configured, and Stripe connection established.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/recalculate-onboarding.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/sellers/me/onboarding/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { fetchSellerByAuthActorId } from '../../../../../shared/infra/http/utils'
+    import { recalculateOnboardingWorkflow } from '../../../../../workflows/seller/workflows'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      await recalculateOnboardingWorkflow.run({
+        container: req.scope,
+        input: seller.id
+      })
+    
+      const {
+        data: [onboarding]
+      } = await query.graph({
+        entity: 'seller_onboarding',
+        fields: req.queryConfig.fields,
+        filters: {
+          seller_id: seller.id
+        }
+      })
+    
+      res.json({ onboarding })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [recalculateOnboardingStep](#recalculateonboardingstep): Recalculates and updates the onboarding status.
+
+### Input
+
+<ParamField body="seller_id" type="string" required>
+  The ID of the seller to recalculate onboarding for.
+</ParamField>
+
+### Output
+
+<ResponseField name="SellerOnboardingDTO" type="SellerOnboardingDTO">
+  The updated onboarding status.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the onboarding record.
+    </ResponseField>
+    <ResponseField name="seller_id" type="string">
+      The ID of the seller.
+    </ResponseField>
+    <ResponseField name="store_information" type="boolean">
+      Whether store information is complete.
+    </ResponseField>
+    <ResponseField name="products" type="boolean">
+      Whether products have been added.
+    </ResponseField>
+    <ResponseField name="locations_shipping" type="boolean">
+      Whether shipping locations are configured.
+    </ResponseField>
+    <ResponseField name="stripe_connection" type="boolean">
+      Whether Stripe connection is established.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## syncStripeAccountWorkflow
+
+This documentation provides a reference to the `syncStripeAccountWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow synchronizes the status of a payout account with the payment provider (Stripe Connect). It retrieves the latest account status from the provider and updates the local record.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/sync-stripe-account.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/payout-account/route.ts
+    import { syncStripeAccountWorkflow } from '../../../workflows/seller/workflows'
+    
+    // Inside GET handler
+    if (payout_account.status !== 'active') {
+      await syncStripeAccountWorkflow.run({
+        container: req.scope,
+        input: payout_account.id
+      })
+    
+      // Refresh payout account data
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [syncStripeAccountStep](#syncstripeaccountstep): Synchronizes the account status with Stripe.
+
+### Input
+
+<ParamField body="account_id" type="string" required>
+  The ID of the payout account to synchronize.
+</ParamField>
+
+### Output
+
+<ResponseField name="PayoutAccountDTO" type="PayoutAccountDTO">
+  The synchronized payout account.
+</ResponseField>
+
+---
+
+## updateMemberWorkflow
+
+This documentation provides a reference to the `updateMemberWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow updates a member's details.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/update-member.ts)
+
+### Steps
+
+- [updateMemberStep](#updatememberstep): Updates the member.
+
+### Input
+
+<ParamField body="input" type="UpdateMemberDTO" required>
+  The member update details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the member to update.
+    </ParamField>
+    <ParamField body="name" type="string">
+      The new name.
+    </ParamField>
+    <ParamField body="role" type="string">
+      The new role.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="MemberDTO" type="MemberDTO">
+  The updated member.
+</ResponseField>
+
+---
+
+## updateSellerWorkflow
+
+This documentation provides a reference to the `updateSellerWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow updates a seller's details.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/workflows/update-seller.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/sellers/me/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils/seller'
+    import { updateSellerWorkflow } from '../../../../workflows/seller/workflows'
+    import { VendorUpdateSellerType } from '../validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorUpdateSellerType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const { id } = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      await updateSellerWorkflow(req.scope).run({
+        input: {
+          id,
+          ...req.validatedBody
+        }
+      })
+    
+      const {
+        data: [seller]
+      } = await query.graph(
+        {
+          entity: 'seller',
+          fields: req.queryConfig.fields,
+          filters: { id }
+        },
+        { throwIfKeyNotFound: true }
+      )
+    
+      res.json({ seller })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updateSellerStep](#updatesellerstep): Updates the seller.
+
+### Input
+
+<ParamField body="input" type="UpdateSellerDTO" required>
+  The seller update details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the seller to update.
+    </ParamField>
+    <ParamField body="name" type="string">
+      The new name.
+    </ParamField>
+    <ParamField body="description" type="string">
+      The new description.
+    </ParamField>
+    <ParamField body="address_line" type="string">
+      The new address line.
+    </ParamField>
+    <ParamField body="city" type="string">
+      The new city.
+    </ParamField>
+    <ParamField body="postal_code" type="string">
+      The new postal code.
+    </ParamField>
+    <ParamField body="country_code" type="string">
+      The new country code.
+    </ParamField>
+    <ParamField body="tax_id" type="string">
+      The new tax ID.
+    </ParamField>
+    <ParamField body="photo" type="string">
+      The new photo URL.
+    </ParamField>
+    <ParamField body="status" type="SellerStatus">
+      The new status (active or suspended).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="SellerDTO" type="SellerDTO">
+  The updated seller.
+</ResponseField>
+
+---
+
+# Steps
+
+## createMemberInviteStep
+
+Creates a member invitation record. If an error occurs after creation, the step's compensation function automatically deletes the created invite.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/create-member-invites.ts)
+
+### Input
+
+<ParamField body="input" type="CreateMemberInviteDTO" required>
+  The invitation details.
+</ParamField>
+
+### Output
+
+<ResponseField name="MemberInviteDTO" type="MemberInviteDTO">
+  The created member invitation.
+</ResponseField>
+
+---
+
+## createMemberStep
+
+Creates a member for a seller. If an error occurs after creation, the step's compensation function automatically deletes the created member.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/create-member.ts)
+
+### Input
+
+<ParamField body="input" type="CreateMemberDTO" required>
+  The member details.
+</ParamField>
+
+### Output
+
+<ResponseField name="MemberDTO" type="MemberDTO">
+  The created member.
+</ResponseField>
+
+---
+
+## createPayoutAccountStep
+
+Creates a payout account with the payment provider. If an error occurs after creation, the step's compensation function automatically deletes the created account.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/create-payment-account.ts)
+
+### Input
+
+<ParamField body="input" type="CreatePayoutAccountDTO" required>
+  The payout account details.
+</ParamField>
+
+### Output
+
+<ResponseField name="PayoutAccountDTO" type="PayoutAccountDTO">
+  The created payout account.
+</ResponseField>
+
+---
+
+## createPayoutOnboardingStep
+
+Initializes an onboarding flow for a payout account with the payment provider (e.g., creates a Stripe Connect onboarding link).
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/create-payout-onboarding.ts)
+
+### Input
+
+<ParamField body="input" type="CreateOnboardingDTO" required>
+  The onboarding initialization details.
+</ParamField>
+
+### Output
+
+<ResponseField name="OnboardingDTO" type="OnboardingDTO">
+  The created onboarding with provider-specific data (e.g., onboarding URL).
+</ResponseField>
+
+---
+
+## createSellerOnboardingStep
+
+Creates an onboarding record for a newly created seller to track their setup progress.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/create-seller-onboarding.ts)
+
+### Input
+
+<ParamField body="input" type="SellerDTO" required>
+  The seller for which to create onboarding.
+</ParamField>
+
+### Output
+
+<ResponseField name="SellerOnboardingDTO" type="SellerOnboardingDTO">
+  The created onboarding record.
+</ResponseField>
+
+---
+
+## createSellerShippingProfileStep
+
+Creates a default shipping profile for a seller and links it to the seller. This enables the seller to configure shipping options.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/create-seller-shipping-profile.ts)
+
+### Input
+
+<ParamField body="input" type="SellerDTO" required>
+  The seller for which to create the shipping profile.
+</ParamField>
+
+### Output
+
+This step does not return a value.
+
+---
+
+## createSellerStep
+
+Creates a seller record. It automatically generates a URL-friendly handle from the seller name. If an error occurs after creation, the step's compensation function automatically deletes the created seller.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/create-seller.ts)
+
+### Input
+
+<ParamField body="input" type="CreateSellerDTO" required>
+  The seller details.
+</ParamField>
+
+### Output
+
+<ResponseField name="SellerDTO" type="SellerDTO">
+  The created seller with auto-generated handle.
+</ResponseField>
+
+---
+
+## deleteMemberInvitesStep
+
+Deletes a member invitation.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/delete-member-invite.ts)
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the invitation to delete.
+</ParamField>
+
+### Output
+
+This step does not return a value.
+
+---
+
+## deleteMemberStep
+
+Deletes a member from a seller's team.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/delete-member.ts)
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the member to delete.
+</ParamField>
+
+### Output
+
+This step does not return a value.
+
+---
+
+## deleteSellerStep
+
+Deletes a seller from the marketplace.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/delete-seller.ts)
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the seller to delete.
+</ParamField>
+
+### Output
+
+This step does not return a value.
+
+---
+
+## getSellerProductsStep
+
+Retrieves all products for a seller with comprehensive fields including variants, prices, options, tags, and images. Used for product export functionality.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/get-seller-products.ts)
+
+### Input
+
+<ParamField body="seller_id" type="string" required>
+  The ID of the seller whose products to retrieve.
+</ParamField>
+
+### Output
+
+<ResponseField name="ProductDTO[]" type="ProductDTO[]">
+  Array of products with full details including variants, prices, options, tags, and images.
+</ResponseField>
+
+---
+
+## recalculateOnboardingStep
+
+Recalculates a seller's onboarding status by checking multiple completion criteria:
+
+- Store information completeness (name, address, tax ID, etc.)
+- Products added
+- Shipping locations configured
+- Stripe connection established
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/recalculate-onboarding.ts)
+
+### Input
+
+<ParamField body="seller_id" type="string" required>
+  The ID of the seller to recalculate onboarding for.
+</ParamField>
+
+### Output
+
+<ResponseField name="SellerOnboardingDTO" type="SellerOnboardingDTO">
+  The updated onboarding status with boolean flags for each completion criterion.
+</ResponseField>
+
+---
+
+## sendSellerInvitationEmailStep
+
+Sends an invitation email to a potential seller with a registration link. Throws an error if the notification provider fails.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/send-invitation-email.ts)
+
+### Input
+
+<ParamField body="input" type="CreateSellerInvitationDTO" required>
+  The invitation details.
+</ParamField>
+
+### Output
+
+<ResponseField name="NotificationDTO" type="NotificationDTO">
+  The sent notification details.
+</ResponseField>
+
+---
+
+## syncStripeAccountStep
+
+Synchronizes a payout account's status with the payment provider by fetching the latest account details from Stripe Connect.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/sync-stripe-account.ts)
+
+### Input
+
+<ParamField body="account_id" type="string" required>
+  The ID of the payout account to synchronize.
+</ParamField>
+
+### Output
+
+<ResponseField name="PayoutAccountDTO" type="PayoutAccountDTO">
+  The synchronized payout account.
+</ResponseField>
+
+---
+
+## updateMemberInviteStep
+
+Updates a member invitation, typically to mark it as accepted.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/update-member-invite.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the invite to update.
+    </ParamField>
+    <ParamField body="accepted" type="boolean" required>
+      Whether the invite has been accepted.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="MemberInviteDTO" type="MemberInviteDTO">
+  The updated member invitation.
+</ResponseField>
+
+---
+
+## updateMemberStep
+
+Updates a member's details.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/update-member.ts)
+
+### Input
+
+<ParamField body="input" type="UpdateMemberDTO" required>
+  The member update details.
+</ParamField>
+
+### Output
+
+<ResponseField name="MemberDTO" type="MemberDTO">
+  The updated member.
+</ResponseField>
+
+---
+
+## updateSellerStep
+
+Updates a seller's details.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/update-seller.ts)
+
+### Input
+
+<ParamField body="input" type="UpdateSellerDTO" required>
+  The seller update details.
+</ParamField>
+
+### Output
+
+<ResponseField name="SellerDTO" type="SellerDTO">
+  The updated seller.
+</ResponseField>
+
+---
+
+## validateMemberInviteStep
+
+Validates a member invitation token and retrieves the associated invite details.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/validate-member-invites.ts)
+
+### Input
+
+<ParamField body="input" type="AcceptMemberInviteDTO" required>
+  The invite acceptance data including the token.
+</ParamField>
+
+### Output
+
+<ResponseField name="MemberInviteDTO" type="MemberInviteDTO">
+  The validated member invite with seller details.
+</ResponseField>
+
+---
+
+## validateNoExistingPayoutAccountForSellerStep
+
+Validates that a seller does not already have a payout account. Throws an error if a payout account exists.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/validate-no-existing-payout-account-for-seller.ts)
+
+### Input
+
+<ParamField body="sellerId" type="string" required>
+  The ID of the seller to check.
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws a `DUPLICATE_ERROR` if a payout account already exists.
+</ResponseField>
+
+---
+
+## validatePayoutAccountExistsForSellerStep
+
+Validates that a seller has a payout account. Throws an error if no payout account exists and returns the payout account ID if found.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/validate-payout-account-exists-for-seller.ts)
+
+### Input
+
+<ParamField body="sellerId" type="string" required>
+  The ID of the seller to check.
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout account.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## validateProductsToImportStep
+
+Validates products from a CSV import, parses them according to the product schema, and sets their status to "proposed" for admin approval.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/seller/steps/validate-products-to-import.ts)
+
+### Input
+
+<ParamField body="products" type="unknown[]" required>
+  Array of product objects parsed from CSV.
+</ParamField>
+
+### Output
+
+<ResponseField name="CreateProductDTO[]" type="CreateProductDTO[]">
+  Array of validated product creation DTOs with status set to "proposed".
+</ResponseField>
+
+---
+
+## verifyVendorCampaignStep
+
+Validates that a campaign belongs to the seller. If no campaign is specified, the validation is skipped.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/steps/verify-vendor-campaign.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="promotion" type="object" required>
+      The promotion data.
+
+      <Expandable title="properties">
+        <ParamField body="campaign_id" type="string">
+          The ID of the campaign to verify.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an `INVALID_DATA` error if the campaign doesn't belong to the seller.
+</ResponseField>
+
+---
+
+## verifyVendorPromotionStep
+
+Validates that a vendor promotion uses the correct target type. Vendor promotions must target items only.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/steps/verify-vendor-promotion.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="promotion" type="CreatePromotionDTO" required>
+      The promotion data to validate.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an `INVALID_DATA` error if target_type is not "items".
+</ResponseField>
+
+---
+
+## verifyVendorTargetPromotionRulesStep
+
+Validates that target promotion rules only use the allowed attribute (`items.product.id`) and that all targeted products belong to the seller.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/steps/verify-vendor-target-promotion-rules.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="rules" type="CreatePromotionRuleDTO[]">
+      Array of target rules to validate.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an `INVALID_DATA` error if:
+
+  - Rules use attributes other than "items.product.id"
+  - Any targeted product doesn't belong to the seller
+</ResponseField>

@@ -1,0 +1,185 @@
+---
+title: "Wishlist Module Links"
+description: "Module links for the Wishlist Module"
+---
+
+# Links between Wishlist Module and Other Modules
+
+This document showcases the module links defined between the Wishlist Module and other Commerce Modules.
+
+## Summary
+
+The Wishlist Module has the following links to other modules:
+
+| First Data Model | Second Data Model | Type                 | Description                               |
+| ---------------- | ----------------- | -------------------- | ----------------------------------------- |
+| Customer         | Wishlist          | Stored - one-to-one  | Associates a customer with their wishlist |
+| Wishlist         | Product           | Stored - one-to-many | Associates wishlist items with products   |
+
+---
+
+## Customer Module
+
+Mercur defines a link between the Customer Module's `Customer` data model and the Wishlist Module's `Wishlist` data model. This allows each customer to have a wishlist for saving products they're interested in.
+
+### Retrieve with Query
+
+To retrieve the wishlist of a customer with Query, pass `wishlist.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: customers } = await query.graph({
+      entity: "customer",
+      fields: [
+        "*",
+        "wishlist.*",
+      ],
+    })
+    
+    // customers[0].wishlist
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: customers } = useQueryGraphStep({
+      entity: "customer",
+      fields: [
+        "*",
+        "wishlist.*",
+      ],
+    })
+    
+    // customers[0].wishlist
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the wishlist of a customer, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.CUSTOMER]: {
+        customer_id: "cus_123",
+      },
+      wishlist: {
+        wishlist_id: "wish_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.CUSTOMER]: {
+        customer_id: "cus_123",
+      },
+      wishlist: {
+        wishlist_id: "wish_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Product Module
+
+Mercur defines a link between the Wishlist Module's `Wishlist` data model and the Product Module's `Product` data model. This allows wishlist items to reference specific products that customers want to save for later.
+
+### Retrieve with Query
+
+To retrieve the products in a wishlist with Query, pass `product.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: wishlists } = await query.graph({
+      entity: "wishlist",
+      fields: [
+        "*",
+        "product.*",
+      ],
+    })
+    
+    // wishlists[0].product
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: wishlists } = useQueryGraphStep({
+      entity: "wishlist",
+      fields: [
+        "*",
+        "product.*",
+      ],
+    })
+    
+    // wishlists[0].product
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the products in a wishlist, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      wishlist: {
+        wishlist_id: "wish_123",
+      },
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      wishlist: {
+        wishlist_id: "wish_123",
+      },
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Both links have `deleteCascade` enabled, meaning when a customer is deleted, their wishlist and all wishlist items are automatically deleted.
+</Note>

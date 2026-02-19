@@ -1,0 +1,426 @@
+---
+title: "Price List Workflows"
+description: "Reference documentation for the Price List Module workflows and steps"
+---
+
+# Workflows
+
+## batchVendorPriceListPricesWorkflow
+
+This documentation provides a reference to the `batchVendorPriceListPricesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow performs batch operations on price list prices, including creating, updating, and deleting prices. It validates that the seller owns all products being priced and that price IDs being updated belong to the specified price list.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/price-list/workflows/batch-vendor-price-list-prices.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/price-lists/[id]/products/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { fetchPriceListPriceIdsForProduct } from '@medusajs/medusa/api/admin/price-lists/helpers'
+    import { batchVendorPriceListPricesWorkflow } from '../../../../../workflows/price-list/workflows'
+    import { VendorUpdateProductsOnPriceListType } from '../../validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorUpdateProductsOnPriceListType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const { id } = req.params
+      const { remove = [], create = [], update = [] } = req.validatedBody
+    
+      const productPriceIds = await fetchPriceListPriceIdsForProduct(
+        id,
+        remove,
+        req.scope
+      )
+    
+      await batchVendorPriceListPricesWorkflow.run({
+        container: req.scope,
+        input: {
+          id,
+          create,
+          update,
+          delete: productPriceIds
+        }
+      })
+    
+      const {
+        data: [price_list]
+      } = await query.graph({
+        entity: 'price_list',
+        fields: req.queryConfig.fields,
+        filters: {
+          id: req.params.id
+        }
+      })
+    
+      res.json({ price_list })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateVendorPriceListPricesStep](#validatevendorpricelistpricesstep): Validates that the seller owns the products and that price IDs are valid.
+- **batchPriceListPricesWorkflow**: Creates, updates, and deletes prices using Medusa's core workflow.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The batch price list operation details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the price list to update.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller who owns the price list.
+    </ParamField>
+    <ParamField body="delete" type="string[]" required>
+      Array of price IDs to delete from the price list.
+    </ParamField>
+    <ParamField body="create" type="CreatePriceListPriceWorkflowDTO[]" required>
+      Array of prices to create.
+
+      <Expandable title="properties">
+        <ParamField body="variant_id" type="string" required>
+          The ID of the product variant.
+        </ParamField>
+        <ParamField body="currency_code" type="string" required>
+          The currency code (e.g., "usd").
+        </ParamField>
+        <ParamField body="amount" type="number" required>
+          The price amount.
+        </ParamField>
+        <ParamField body="min_quantity" type="number">
+          The minimum quantity required for this price.
+        </ParamField>
+        <ParamField body="max_quantity" type="number">
+          The maximum quantity allowed for this price.
+        </ParamField>
+        <ParamField body="rules" type="Record<string, string>">
+          Additional pricing rules.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="update" type="UpdatePriceListPriceWorkflowDTO[]" required>
+      Array of prices to update.
+
+      <Expandable title="properties">
+        <ParamField body="id" type="string" required>
+          The ID of the price to update.
+        </ParamField>
+        <ParamField body="variant_id" type="string" required>
+          The ID of the product variant.
+        </ParamField>
+        <ParamField body="currency_code" type="string">
+          The currency code.
+        </ParamField>
+        <ParamField body="amount" type="number">
+          The new price amount.
+        </ParamField>
+        <ParamField body="min_quantity" type="number">
+          The minimum quantity.
+        </ParamField>
+        <ParamField body="max_quantity" type="number">
+          The maximum quantity.
+        </ParamField>
+        <ParamField body="rules" type="Record<string, string>">
+          Additional pricing rules.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="PriceListDTO" type="PriceListDTO">
+  The result from the batch operation.
+</ResponseField>
+
+---
+
+## createVendorPriceListPricesWorkflow
+
+This documentation provides a reference to the `createVendorPriceListPricesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates prices for a price list. It validates that the seller owns all product variants being priced before creating the prices.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/price-list/workflows/create-vendor-price-list-prices.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/price-lists/[id]/prices/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+    import { fetchSellerByAuthActorId } from "../../../../../shared/infra/http/utils";
+    import { createVendorPriceListPricesWorkflow } from "../../../../../workflows/price-list/workflows";
+    import { VendorCreatePriceListPriceType } from "../../validators";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreatePriceListPriceType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const id = req.params.id;
+    
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      );
+    
+      await createVendorPriceListPricesWorkflow.run({
+        container: req.scope,
+        input: {
+          price_list_id: id,
+          prices: [req.validatedBody],
+          seller_id: seller.id,
+        },
+      });
+    
+      const { data: price_list } = await query.graph({
+        entity: "price_list",
+        fields: req.queryConfig.fields,
+        filters: {
+          id: req.params.id,
+        },
+      });
+    
+      res.status(201).json({ price_list });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateVendorPriceListPricesStep](#validatevendorpricelistpricesstep): Validates that the seller owns the product variants.
+- **createPriceListPricesWorkflow**: Creates the prices using Medusa's core workflow.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The price creation details.
+
+  <Expandable title="properties">
+    <ParamField body="price_list_id" type="string" required>
+      The ID of the price list to add prices to.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller creating the prices.
+    </ParamField>
+    <ParamField body="prices" type="CreatePriceListPriceWorkflowDTO[]" required>
+      Array of prices to create.
+
+      <Expandable title="properties">
+        <ParamField body="variant_id" type="string" required>
+          The ID of the product variant.
+        </ParamField>
+        <ParamField body="currency_code" type="string" required>
+          The currency code (e.g., "usd").
+        </ParamField>
+        <ParamField body="amount" type="number" required>
+          The price amount.
+        </ParamField>
+        <ParamField body="min_quantity" type="number">
+          The minimum quantity required for this price.
+        </ParamField>
+        <ParamField body="max_quantity" type="number">
+          The maximum quantity allowed for this price.
+        </ParamField>
+        <ParamField body="rules" type="Record<string, string>">
+          Additional pricing rules.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="PriceListDTO" type="PriceListDTO">
+  The result from the price creation operation.
+</ResponseField>
+
+---
+
+## createVendorPriceListWorkflow
+
+This documentation provides a reference to the `createVendorPriceListWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a price list for a seller and links it to the seller. It validates that the seller owns all product variants included in the initial prices and establishes the necessary connection between the price list and seller.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/price-list/workflows/create-vendor-price-list.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/price-lists/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+    import { createVendorPriceListWorkflow } from '../../../workflows/price-list/workflows'
+    import { VendorCreatePriceListType } from './validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreatePriceListType>,
+      res: MedusaResponse
+    ) => {
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      const {
+        result: [price_list]
+      } = await createVendorPriceListWorkflow.run({
+        container: req.scope,
+        input: { price_lists_data: req.validatedBody, seller_id: seller.id }
+      })
+    
+      res.status(201).json({ price_list })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateVendorPriceListPricesStep](#validatevendorpricelistpricesstep): Validates that the seller owns all product variants in the initial prices.
+- **createPriceListsWorkflow**: Creates the price list using Medusa's core workflow.
+- **createRemoteLinkStep**: Links the created price list to the seller.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The price list creation details.
+
+  <Expandable title="properties">
+    <ParamField body="price_lists_data" type="CreatePriceListWorkflowInputDTO" required>
+      The price list details.
+
+      <Expandable title="properties">
+        <ParamField body="title" type="string" required>
+          The title of the price list.
+        </ParamField>
+        <ParamField body="description" type="string" required>
+          The description of the price list.
+        </ParamField>
+        <ParamField body="status" type="PriceListStatus">
+          The status of the price list. Available statuses:
+
+          - `draft` - Price list is in draft mode
+          - `active` - Price list is active and applied
+        </ParamField>
+        <ParamField body="type" type="PriceListType">
+          The type of the price list. Available types:
+
+          - `sale` - Represents a sale price
+          - `override` - Overrides existing prices
+        </ParamField>
+        <ParamField body="starts_at" type="string">
+          The date the price list becomes active (ISO 8601 format).
+        </ParamField>
+        <ParamField body="ends_at" type="string">
+          The date the price list expires (ISO 8601 format).
+        </ParamField>
+        <ParamField body="rules" type="Record<string, string[]>">
+          Rules that determine when the price list applies (e.g., customer group rules).
+        </ParamField>
+        <ParamField body="prices" type="CreatePriceListPriceWorkflowDTO[]">
+          Array of initial prices to create with the price list.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller creating the price list.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="PriceListDTO[]" type="PriceListDTO[]">
+  Array containing the created price list.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the price list.
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      The title of the price list.
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      The description of the price list.
+    </ResponseField>
+    <ResponseField name="status" type="PriceListStatus">
+      The status of the price list.
+    </ResponseField>
+    <ResponseField name="type" type="PriceListType">
+      The type of the price list.
+    </ResponseField>
+    <ResponseField name="starts_at" type="Date">
+      The date the price list starts.
+    </ResponseField>
+    <ResponseField name="ends_at" type="Date">
+      The date the price list ends.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the price list was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the price list was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# Steps
+
+## validateVendorPriceListPricesStep
+
+Validates price list price operations for a vendor. It performs two types of validation:
+
+1. For create operations: Verifies that the seller owns all product variants being priced.
+2. For update operations: Verifies that all price IDs being updated belong to the specified price list.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/price-list/steps/validate-vendor-price-list-prices.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The validation parameters.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller performing the operation.
+    </ParamField>
+    <ParamField body="create" type="CreatePriceListPriceWorkflowDTO[]">
+      Array of prices to create (validates product ownership).
+    </ParamField>
+    <ParamField body="update" type="UpdatePriceListPriceWorkflowDTO[]">
+      Array of prices to update (validates price IDs belong to price list).
+    </ParamField>
+    <ParamField body="price_list_id" type="string">
+      The ID of the price list (required when updating prices).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an `INVALID_DATA` error if validation fails.
+</ResponseField>

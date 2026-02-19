@@ -1,0 +1,20 @@
+---
+title: "Resend email service"
+---
+
+### Introduction
+
+Mercur uses <a href="https://resend.com">Resend</a> as an email service provider to handle notifications. The integration enables sending emails for various events such as order confirmations, password resets, and seller notifications.
+
+### Setup
+
+To use Resend with Mercur, you'll need to:
+
+1. Create a Resend account at <a href="https://resend.com">resend.com</a>
+2. Obtain your API key from the Resend dashboard
+3. Add the following environment variables to your `.env` file:
+
+```
+RESEND_API_KEY=your_api_key_here
+RESEND_FROM_EMAIL=sender_email_address
+```

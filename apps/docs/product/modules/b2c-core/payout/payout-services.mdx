@@ -1,0 +1,2288 @@
+---
+title: "Payout Module Service Reference"
+description: "Reference documentation for the Payout Module service methods"
+---
+
+# IPayoutModuleService Reference
+
+This section of the documentation provides a reference to the `IPayoutModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Payout Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Payout Module.
+
+## Methods
+
+### PayoutAccount Methods
+- [createPayoutAccount](#createpayoutaccount)
+- [updatePayoutAccounts](#updatepayoutaccounts)
+- [deletePayoutAccounts](#deletepayoutaccounts)
+- [retrievePayoutAccount](#retrievepayoutaccount)
+- [listPayoutAccounts](#listpayoutaccounts)
+- [listAndCountPayoutAccounts](#listandcountpayoutaccounts)
+- [softDeletePayoutAccounts](#softdeletepayoutaccounts)
+- [restorePayoutAccounts](#restorepayoutaccounts)
+- [syncStripeAccount](#syncstripeaccount)
+
+### Onboarding Methods
+- [initializeOnboarding](#initializeonboarding)
+- [updateOnboardings](#updateonboardings)
+- [deleteOnboardings](#deleteonboardings)
+- [retrieveOnboarding](#retrieveonboarding)
+- [listOnboardings](#listonboardings)
+- [listAndCountOnboardings](#listandcountonboardings)
+- [softDeleteOnboardings](#softdeleteonboardings)
+- [restoreOnboardings](#restoreonboardings)
+
+### Payout Methods
+- [createPayout](#createpayout)
+- [createPayouts](#createpayouts)
+- [updatePayouts](#updatepayouts)
+- [deletePayouts](#deletepayouts)
+- [retrievePayout](#retrievepayout)
+- [listPayouts](#listpayouts)
+- [listAndCountPayouts](#listandcountpayouts)
+- [softDeletePayouts](#softdeletepayouts)
+- [restorePayouts](#restorepayouts)
+
+### Payout Reversal Methods
+- [createPayoutReversal](#createpayoutreversal)
+- [createPayoutReversals](#createpayoutreversals)
+- [updatePayoutReversals](#updatepayoutreversals)
+- [deletePayoutReversals](#deletepayoutreversals)
+- [retrievePayoutReversal](#retrievepayoutreversal)
+- [listPayoutReversals](#listpayoutreversals)
+- [listAndCountPayoutReversals](#listandcountpayoutreversals)
+- [softDeletePayoutReversals](#softdeletepayoutreversals)
+- [restorePayoutReversals](#restorepayoutreversals)
+
+### Webhook Methods
+- [getWebhookActionAndData](#getwebhookactionanddata)
+
+---
+
+# createPayoutAccount
+
+This section provides a reference to the `createPayoutAccount` method. This belongs to the Payout Module.
+
+This method creates a payout account by initializing it with the payout provider (e.g., Stripe Connect).
+
+## Example
+
+```ts
+const payoutAccount = await payoutModuleService.createPayoutAccount({
+  context: {
+    seller_id: "sel_123",
+    country: "US",
+    business_type: "company",
+  },
+})
+```
+
+## Parameters
+
+<ParamField body="data" type="CreatePayoutAccountDTO" required>
+  The payout account to be created.
+
+  <Expandable title="properties">
+    <ParamField body="context" type="Record<string, unknown>" required>
+      Context data passed to the payout provider (e.g., seller information, business details for Stripe Connect account creation).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutAccountDTO>">
+  The created payout account.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout account.
+    </ResponseField>
+
+    <ResponseField name="reference_id" type="string">
+      The ID of the payout account in the external provider's system (e.g., Stripe Connect account ID).
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The data returned by the payout provider when the account is created.
+    </ResponseField>
+
+    <ResponseField name="status" type='"pending" | "active" | "disabled"'>
+      The status of the payout account.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the payout account.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the payout account.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# syncStripeAccount
+
+This section provides a reference to the `syncStripeAccount` method. This belongs to the Payout Module.
+
+This method syncs a payout account with the Stripe Connect account status. It fetches the latest account details from Stripe and updates the local payout account status based on whether the account is fully verified and authorized.
+
+## Example
+
+```ts
+const payoutAccount = await payoutModuleService.syncStripeAccount("pacc_123")
+```
+
+## Parameters
+
+<ParamField body="account_id" type="string" required>
+  The ID of the payout account to sync.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutAccountDTO>">
+  The synced payout account with updated status.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout account.
+    </ResponseField>
+
+    <ResponseField name="reference_id" type="string">
+      The ID of the payout account in Stripe.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The complete Stripe account data.
+    </ResponseField>
+
+    <ResponseField name="status" type='"pending" | "active" | "disabled"'>
+      The updated status of the payout account. Set to `active` if the Stripe account is fully verified and authorized.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the payout account.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the payout account.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# initializeOnboarding
+
+This section provides a reference to the `initializeOnboarding` method. This belongs to the Payout Module.
+
+This method initializes or updates the onboarding process for a payout account with the payout provider. If an onboarding record already exists, it updates it; otherwise, it creates a new one.
+
+## Example
+
+```ts
+const onboarding = await payoutModuleService.initializeOnboarding({
+  payout_account_id: "pacc_123",
+  context: {
+    refresh_url: "https://example.com/onboarding",
+    return_url: "https://example.com/dashboard",
+  },
+})
+```
+
+## Parameters
+
+<ParamField body="data" type="CreateOnboardingDTO" required>
+  The onboarding data.
+
+  <Expandable title="properties">
+    <ParamField body="payout_account_id" type="string" required>
+      The ID of the payout account to initialize onboarding for.
+    </ParamField>
+
+    <ParamField body="context" type="Record<string, unknown>" required>
+      Context data passed to the payout provider (e.g., redirect URLs for Stripe Connect onboarding flow).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<OnboardingDTO>">
+  The initialized or updated onboarding record.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the onboarding.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The onboarding data returned by the payout provider (e.g., Stripe onboarding URL).
+    </ResponseField>
+
+    <ResponseField name="context" type="Record<string, unknown>">
+      Additional context data for the onboarding process.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the onboarding.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the onboarding.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# createPayout
+
+This section provides a reference to the `createPayout` method. This belongs to the Payout Module.
+
+This method creates a payout by processing a money transfer through the payout provider (e.g., Stripe Transfer).
+
+## Example
+
+```ts
+const payout = await payoutModuleService.createPayout({
+  amount: 10000,
+  currency_code: "usd",
+  account_id: "pacc_123",
+  transaction_id: "txn_123",
+  source_transaction: "ch_456",
+})
+```
+
+## Parameters
+
+<ParamField body="input" type="CreatePayoutDTO" required>
+  The payout to be created.
+
+  <Expandable title="properties">
+    <ParamField body="amount" type="BigNumberInput" required>
+      The amount to transfer to the seller.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string" required>
+      The ISO 3 currency code. For example, `usd`.
+    </ParamField>
+
+    <ParamField body="account_id" type="string" required>
+      The ID of the payout account to transfer funds to.
+    </ParamField>
+
+    <ParamField body="transaction_id" type="string" required>
+      The ID of the transaction related to this payout.
+    </ParamField>
+
+    <ParamField body="source_transaction" type="string" required>
+      The ID of the source transaction (e.g., Stripe charge ID).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutDTO>">
+  The created payout.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout.
+    </ResponseField>
+
+    <ResponseField name="amount" type="BigNumberInput">
+      The amount of the payout.
+    </ResponseField>
+
+    <ResponseField name="currency_code" type="string">
+      The ISO 3 currency code of the payout.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The payout data returned by the payout provider (e.g., Stripe transfer details).
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the payout.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the payout.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# createPayoutReversal
+
+This section provides a reference to the `createPayoutReversal` method. This belongs to the Payout Module.
+
+This method creates a payout reversal by reversing a previous payout through the payout provider.
+
+## Example
+
+```ts
+const reversal = await payoutModuleService.createPayoutReversal({
+  payout_id: "pout_123",
+  amount: 5000,
+  currency_code: "usd",
+})
+```
+
+## Parameters
+
+<ParamField body="input" type="CreatePayoutReversalDTO" required>
+  The payout reversal to be created.
+
+  <Expandable title="properties">
+    <ParamField body="payout_id" type="string" required>
+      The ID of the payout to reverse.
+    </ParamField>
+
+    <ParamField body="amount" type="BigNumberInput" required>
+      The amount to reverse.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string" required>
+      The ISO 3 currency code. For example, `usd`.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutReversalDTO>">
+  The created payout reversal.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout reversal.
+    </ResponseField>
+
+    <ResponseField name="amount" type="BigNumberInput">
+      The amount of the reversal.
+    </ResponseField>
+
+    <ResponseField name="currency_code" type="string">
+      The ISO 3 currency code of the reversal.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The reversal data returned by the payout provider.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the payout reversal.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the payout reversal.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# getWebhookActionAndData
+
+This section provides a reference to the `getWebhookActionAndData` method. This belongs to the Payout Module.
+
+This method processes webhook events from the payout provider and returns the action type and associated data.
+
+## Example
+
+```ts
+const result = await payoutModuleService.getWebhookActionAndData({
+  data: webhookEvent,
+  rawData: req.rawBody,
+  headers: req.headers,
+})
+```
+
+## Parameters
+
+<ParamField body="input" type="PayoutWebhookActionPayload" required>
+  The webhook payload data.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="Record<string, unknown>" required>
+      The parsed webhook event data.
+    </ParamField>
+
+    <ParamField body="rawData" type="string | Buffer" required>
+      The raw webhook body (needed for signature verification).
+    </ParamField>
+
+    <ParamField body="headers" type="Record<string, unknown>" required>
+      The webhook request headers (contains signature).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutWebhookActionAndDataResponse>">
+  The webhook action and associated data.
+
+  <Expandable title="properties">
+    <ResponseField name="action" type='"account_authorized" | "account_deauthorized" | "account_requires_action"'>
+      The action type determined from the webhook event.
+    </ResponseField>
+
+    <ResponseField name="data" type="object">
+      The data associated with the webhook action.
+
+      <Expandable title="properties">
+        <ResponseField name="account_id" type="string">
+          The ID of the payout account affected by this webhook.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# updatePayoutAccounts
+
+This section provides a reference to the `updatePayoutAccounts` method. This belongs to the Payout Module.
+
+## updatePayoutAccounts(id, data, sharedContext?): Promise\<PayoutAccountDTO>
+
+This method updates an existing payout account.
+
+### Example
+
+```ts
+const payoutAccount = await payoutModuleService.updatePayoutAccounts("pacc_123", {
+  status: "active",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the payout account.
+</ParamField>
+
+<ParamField body="data" type="UpdatePayoutAccountDTO" required>
+  The attributes to update in the payout account.
+
+  <Expandable title="properties">
+    <ParamField body="reference_id" type="string">
+      The ID of the payout account in the external provider's system.
+    </ParamField>
+
+    <ParamField body="data" type="Record<string, unknown>">
+      The data returned by the payout provider.
+    </ParamField>
+
+    <ParamField body="status" type='"pending" | "active" | "disabled"'>
+      The status of the payout account.
+    </ParamField>
+
+    <ParamField body="context" type="Record<string, unknown>">
+      Additional context data for the payout account.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<PayoutAccountDTO>">
+  The updated payout account.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout account.
+    </ResponseField>
+
+    <ResponseField name="reference_id" type="string">
+      The ID of the payout account in the external provider's system.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The data returned by the payout provider.
+    </ResponseField>
+
+    <ResponseField name="status" type='"pending" | "active" | "disabled"'>
+      The status of the payout account.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the payout account.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the payout account.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deletePayoutAccounts
+
+This section provides a reference to the `deletePayoutAccounts` method. This belongs to the Payout Module.
+
+## deletePayoutAccounts(ids, sharedContext?): Promise\<void>
+
+This method deletes payout accounts by their IDs.
+
+### Example
+
+```ts
+await payoutModuleService.deletePayoutAccounts(["pacc_123", "pacc_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the payout accounts.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the payout accounts are deleted successfully.
+</ResponseField>
+
+## deletePayoutAccounts(id, sharedContext?): Promise\<void>
+
+This method deletes a payout account by its ID.
+
+### Example
+
+```ts
+await payoutModuleService.deletePayoutAccounts("pacc_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the payout account.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the payout account is deleted successfully.
+</ResponseField>
+
+---
+
+# retrievePayoutAccount
+
+This section provides a reference to the `retrievePayoutAccount` method. This belongs to the Payout Module.
+
+This method retrieves a payout account by its ID.
+
+## Example
+
+```ts
+const payoutAccount = await payoutModuleService.retrievePayoutAccount("pacc_123")
+```
+
+To retrieve relationships:
+
+```ts
+const payoutAccount = await payoutModuleService.retrievePayoutAccount(
+  "pacc_123",
+  {
+    relations: ["onboarding", "payouts"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the payout account.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<PayoutAccountDTO>">
+  The configurations determining how the payout account is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["onboarding", "payouts"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutAccountDTO>">
+  The retrieved payout account.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout account.
+    </ResponseField>
+
+    <ResponseField name="reference_id" type="string">
+      The ID of the payout account in the external provider's system.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The data returned by the payout provider.
+    </ResponseField>
+
+    <ResponseField name="status" type='"pending" | "active" | "disabled"'>
+      The status of the payout account.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the payout account.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the payout account.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listPayoutAccounts
+
+This section provides a reference to the `listPayoutAccounts` method. This belongs to the Payout Module.
+
+This method retrieves a paginated list of payout accounts based on optional filters and configuration.
+
+## Example
+
+```ts
+const payoutAccounts = await payoutModuleService.listPayoutAccounts({
+  status: "active",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const payoutAccounts = await payoutModuleService.listPayoutAccounts(
+  {
+    status: "active",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterablePayoutAccountProps">
+  The filters to apply on the retrieved payout accounts.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the payout accounts by.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string | string[]">
+      Filter payout accounts by their provider reference IDs.
+    </ParamField>
+
+    <ParamField body="status" type="string | string[]">
+      Filter payout accounts by their status.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<PayoutAccountDTO>">
+  The configurations determining how the payout account is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutAccountDTO[]>">
+  The list of payout accounts.
+</ResponseField>
+
+---
+
+# listAndCountPayoutAccounts
+
+This section provides a reference to the `listAndCountPayoutAccounts` method. This belongs to the Payout Module.
+
+This method retrieves a paginated list of payout accounts along with the total count of available payout accounts satisfying the provided filters.
+
+## Example
+
+```ts
+const [payoutAccounts, count] = await payoutModuleService.listAndCountPayoutAccounts({
+  status: "active",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterablePayoutAccountProps">
+  The filters to apply on the retrieved payout accounts.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the payout accounts by.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string | string[]">
+      Filter payout accounts by their provider reference IDs.
+    </ParamField>
+
+    <ParamField body="status" type="string | string[]">
+      Filter payout accounts by their status.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<PayoutAccountDTO>">
+  The configurations determining how the payout account is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[PayoutAccountDTO[], number]>">
+  The list of payout accounts along with their total count.
+</ResponseField>
+
+---
+
+# softDeletePayoutAccounts
+
+This section provides a reference to the `softDeletePayoutAccounts` method. This belongs to the Payout Module.
+
+This method soft deletes payout accounts by their IDs.
+
+## Example
+
+```ts
+await payoutModuleService.softDeletePayoutAccounts([
+  "pacc_123",
+  "pacc_321",
+])
+```
+
+## Parameters
+
+<ParamField body="payoutAccountIds" type="string[]" required>
+  The IDs of the payout accounts.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restorePayoutAccounts
+
+This section provides a reference to the `restorePayoutAccounts` method. This belongs to the Payout Module.
+
+This method restores soft deleted payout accounts by their IDs.
+
+## Example
+
+```ts
+await payoutModuleService.restorePayoutAccounts(["pacc_123", "pacc_321"])
+```
+
+## Parameters
+
+<ParamField body="payoutAccountIds" type="string[]" required>
+  The IDs of the payout accounts.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the payout account.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# updateOnboardings
+
+This section provides a reference to the `updateOnboardings` method. This belongs to the Payout Module.
+
+## updateOnboardings(id, data, sharedContext?): Promise\<OnboardingDTO>
+
+This method updates an existing onboarding record.
+
+### Example
+
+```ts
+const onboarding = await payoutModuleService.updateOnboardings("onb_123", {
+  data: { url: "https://connect.stripe.com/setup/..." },
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the onboarding.
+</ParamField>
+
+<ParamField body="data" type="UpdateOnboardingDTO" required>
+  The attributes to update in the onboarding.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="Record<string, unknown>">
+      The onboarding data returned by the payout provider.
+    </ParamField>
+
+    <ParamField body="context" type="Record<string, unknown>">
+      Additional context data for the onboarding process.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<OnboardingDTO>">
+  The updated onboarding.
+</ResponseField>
+
+---
+
+# deleteOnboardings
+
+This section provides a reference to the `deleteOnboardings` method. This belongs to the Payout Module.
+
+## deleteOnboardings(ids, sharedContext?): Promise\<void>
+
+This method deletes onboardings by their IDs.
+
+### Example
+
+```ts
+await payoutModuleService.deleteOnboardings(["onb_123", "onb_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the onboardings.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the onboardings are deleted successfully.
+</ResponseField>
+
+## deleteOnboardings(id, sharedContext?): Promise\<void>
+
+This method deletes an onboarding by its ID.
+
+### Example
+
+```ts
+await payoutModuleService.deleteOnboardings("onb_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the onboarding.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the onboarding is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveOnboarding
+
+This section provides a reference to the `retrieveOnboarding` method. This belongs to the Payout Module.
+
+This method retrieves an onboarding by its ID.
+
+## Example
+
+```ts
+const onboarding = await payoutModuleService.retrieveOnboarding("onb_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the onboarding.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OnboardingDTO>">
+  The configurations determining how the onboarding is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<OnboardingDTO>">
+  The retrieved onboarding.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the onboarding.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The onboarding data returned by the payout provider.
+    </ResponseField>
+
+    <ResponseField name="context" type="Record<string, unknown>">
+      Additional context data for the onboarding process.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the onboarding.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the onboarding.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listOnboardings
+
+This section provides a reference to the `listOnboardings` method. This belongs to the Payout Module.
+
+This method retrieves a paginated list of onboardings based on optional filters and configuration.
+
+## Example
+
+```ts
+const onboardings = await payoutModuleService.listOnboardings({
+  payout_account_id: "pacc_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableOnboardingProps">
+  The filters to apply on the retrieved onboardings.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the onboardings by.
+    </ParamField>
+
+    <ParamField body="payout_account_id" type="string | string[]">
+      Filter onboardings by their payout account IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OnboardingDTO>">
+  The configurations determining how the onboarding is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<OnboardingDTO[]>">
+  The list of onboardings.
+</ResponseField>
+
+---
+
+# listAndCountOnboardings
+
+This section provides a reference to the `listAndCountOnboardings` method. This belongs to the Payout Module.
+
+This method retrieves a paginated list of onboardings along with the total count of available onboardings satisfying the provided filters.
+
+## Example
+
+```ts
+const [onboardings, count] = await payoutModuleService.listAndCountOnboardings({
+  payout_account_id: "pacc_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableOnboardingProps">
+  The filters to apply on the retrieved onboardings.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the onboardings by.
+    </ParamField>
+
+    <ParamField body="payout_account_id" type="string | string[]">
+      Filter onboardings by their payout account IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OnboardingDTO>">
+  The configurations determining how the onboarding is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[OnboardingDTO[], number]>">
+  The list of onboardings along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteOnboardings
+
+This section provides a reference to the `softDeleteOnboardings` method. This belongs to the Payout Module.
+
+This method soft deletes onboardings by their IDs.
+
+## Example
+
+```ts
+await payoutModuleService.softDeleteOnboardings([
+  "onb_123",
+  "onb_321",
+])
+```
+
+## Parameters
+
+<ParamField body="onboardingIds" type="string[]" required>
+  The IDs of the onboardings.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreOnboardings
+
+This section provides a reference to the `restoreOnboardings` method. This belongs to the Payout Module.
+
+This method restores soft deleted onboardings by their IDs.
+
+## Example
+
+```ts
+await payoutModuleService.restoreOnboardings(["onb_123", "onb_321"])
+```
+
+## Parameters
+
+<ParamField body="onboardingIds" type="string[]" required>
+  The IDs of the onboardings.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the onboarding.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createPayouts
+
+This section provides a reference to the `createPayouts` method. This belongs to the Payout Module.
+
+## createPayouts(data, sharedContext?): Promise\<PayoutDTO[]>
+
+This method creates payouts.
+
+### Example
+
+```ts
+const payouts = await payoutModuleService.createPayouts([
+  {
+    amount: 10000,
+    currency_code: "usd",
+    payout_account_id: "pacc_123",
+    data: { transfer_id: "tr_123" },
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreatePayoutDTO[]" required>
+  The payouts to be created.
+
+  <Expandable title="properties">
+    <ParamField body="amount" type="BigNumberInput" required>
+      The amount of the payout.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string" required>
+      The ISO 3 currency code. For example, `usd`.
+    </ParamField>
+
+    <ParamField body="payout_account_id" type="string" required>
+      The ID of the payout account.
+    </ParamField>
+
+    <ParamField body="data" type="Record<string, unknown>">
+      The payout data from the provider.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<PayoutDTO[]>">
+  The created payouts.
+</ResponseField>
+
+---
+
+# updatePayouts
+
+This section provides a reference to the `updatePayouts` method. This belongs to the Payout Module.
+
+## updatePayouts(id, data, sharedContext?): Promise\<PayoutDTO>
+
+This method updates an existing payout.
+
+### Example
+
+```ts
+const payout = await payoutModuleService.updatePayouts("pout_123", {
+  data: { status: "paid" },
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the payout.
+</ParamField>
+
+<ParamField body="data" type="UpdatePayoutDTO" required>
+  The attributes to update in the payout.
+
+  <Expandable title="properties">
+    <ParamField body="amount" type="BigNumberInput">
+      The amount of the payout.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string">
+      The ISO 3 currency code.
+    </ParamField>
+
+    <ParamField body="data" type="Record<string, unknown>">
+      The payout data from the provider.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<PayoutDTO>">
+  The updated payout.
+</ResponseField>
+
+---
+
+# deletePayouts
+
+This section provides a reference to the `deletePayouts` method. This belongs to the Payout Module.
+
+## deletePayouts(ids, sharedContext?): Promise\<void>
+
+This method deletes payouts by their IDs.
+
+### Example
+
+```ts
+await payoutModuleService.deletePayouts(["pout_123", "pout_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the payouts.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the payouts are deleted successfully.
+</ResponseField>
+
+## deletePayouts(id, sharedContext?): Promise\<void>
+
+This method deletes a payout by its ID.
+
+### Example
+
+```ts
+await payoutModuleService.deletePayouts("pout_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the payout.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the payout is deleted successfully.
+</ResponseField>
+
+---
+
+# retrievePayout
+
+This section provides a reference to the `retrievePayout` method. This belongs to the Payout Module.
+
+This method retrieves a payout by its ID.
+
+## Example
+
+```ts
+const payout = await payoutModuleService.retrievePayout("pout_123")
+```
+
+To retrieve relationships:
+
+```ts
+const payout = await payoutModuleService.retrievePayout(
+  "pout_123",
+  {
+    relations: ["payout_account", "reversals"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the payout.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<PayoutDTO>">
+  The configurations determining how the payout is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["payout_account", "reversals"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutDTO>">
+  The retrieved payout.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout.
+    </ResponseField>
+
+    <ResponseField name="amount" type="BigNumberInput">
+      The amount of the payout.
+    </ResponseField>
+
+    <ResponseField name="currency_code" type="string">
+      The ISO 3 currency code of the payout.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The payout data returned by the payout provider.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the payout.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the payout.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listPayouts
+
+This section provides a reference to the `listPayouts` method. This belongs to the Payout Module.
+
+This method retrieves a paginated list of payouts based on optional filters and configuration.
+
+## Example
+
+```ts
+const payouts = await payoutModuleService.listPayouts({
+  payout_account_id: "pacc_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterablePayoutProps">
+  The filters to apply on the retrieved payouts.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the payouts by.
+    </ParamField>
+
+    <ParamField body="payout_account_id" type="string | string[]">
+      Filter payouts by their payout account IDs.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string | string[]">
+      Filter payouts by their currency codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<PayoutDTO>">
+  The configurations determining how the payout is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutDTO[]>">
+  The list of payouts.
+</ResponseField>
+
+---
+
+# listAndCountPayouts
+
+This section provides a reference to the `listAndCountPayouts` method. This belongs to the Payout Module.
+
+This method retrieves a paginated list of payouts along with the total count of available payouts satisfying the provided filters.
+
+## Example
+
+```ts
+const [payouts, count] = await payoutModuleService.listAndCountPayouts({
+  payout_account_id: "pacc_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterablePayoutProps">
+  The filters to apply on the retrieved payouts.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the payouts by.
+    </ParamField>
+
+    <ParamField body="payout_account_id" type="string | string[]">
+      Filter payouts by their payout account IDs.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string | string[]">
+      Filter payouts by their currency codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<PayoutDTO>">
+  The configurations determining how the payout is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[PayoutDTO[], number]>">
+  The list of payouts along with their total count.
+</ResponseField>
+
+---
+
+# softDeletePayouts
+
+This section provides a reference to the `softDeletePayouts` method. This belongs to the Payout Module.
+
+This method soft deletes payouts by their IDs.
+
+## Example
+
+```ts
+await payoutModuleService.softDeletePayouts([
+  "pout_123",
+  "pout_321",
+])
+```
+
+## Parameters
+
+<ParamField body="payoutIds" type="string[]" required>
+  The IDs of the payouts.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restorePayouts
+
+This section provides a reference to the `restorePayouts` method. This belongs to the Payout Module.
+
+This method restores soft deleted payouts by their IDs.
+
+## Example
+
+```ts
+await payoutModuleService.restorePayouts(["pout_123", "pout_321"])
+```
+
+## Parameters
+
+<ParamField body="payoutIds" type="string[]" required>
+  The IDs of the payouts.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the payout.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createPayoutReversals
+
+This section provides a reference to the `createPayoutReversals` method. This belongs to the Payout Module.
+
+## createPayoutReversals(data, sharedContext?): Promise\<PayoutReversalDTO[]>
+
+This method creates payout reversals.
+
+### Example
+
+```ts
+const reversals = await payoutModuleService.createPayoutReversals([
+  {
+    amount: 5000,
+    currency_code: "usd",
+    payout_id: "pout_123",
+    data: { reversal_id: "trr_123" },
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreatePayoutReversalDTO[]" required>
+  The payout reversals to be created.
+
+  <Expandable title="properties">
+    <ParamField body="amount" type="BigNumberInput" required>
+      The amount to reverse.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string" required>
+      The ISO 3 currency code. For example, `usd`.
+    </ParamField>
+
+    <ParamField body="payout_id" type="string" required>
+      The ID of the payout being reversed.
+    </ParamField>
+
+    <ParamField body="data" type="Record<string, unknown>">
+      The reversal data from the provider.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<PayoutReversalDTO[]>">
+  The created payout reversals.
+</ResponseField>
+
+---
+
+# updatePayoutReversals
+
+This section provides a reference to the `updatePayoutReversals` method. This belongs to the Payout Module.
+
+## updatePayoutReversals(id, data, sharedContext?): Promise\<PayoutReversalDTO>
+
+This method updates an existing payout reversal.
+
+### Example
+
+```ts
+const reversal = await payoutModuleService.updatePayoutReversals("prev_123", {
+  data: { status: "succeeded" },
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the payout reversal.
+</ParamField>
+
+<ParamField body="data" type="UpdatePayoutReversalDTO" required>
+  The attributes to update in the payout reversal.
+
+  <Expandable title="properties">
+    <ParamField body="amount" type="BigNumberInput">
+      The amount of the reversal.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string">
+      The ISO 3 currency code.
+    </ParamField>
+
+    <ParamField body="data" type="Record<string, unknown>">
+      The reversal data from the provider.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<PayoutReversalDTO>">
+  The updated payout reversal.
+</ResponseField>
+
+---
+
+# deletePayoutReversals
+
+This section provides a reference to the `deletePayoutReversals` method. This belongs to the Payout Module.
+
+## deletePayoutReversals(ids, sharedContext?): Promise\<void>
+
+This method deletes payout reversals by their IDs.
+
+### Example
+
+```ts
+await payoutModuleService.deletePayoutReversals(["prev_123", "prev_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the payout reversals.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the payout reversals are deleted successfully.
+</ResponseField>
+
+## deletePayoutReversals(id, sharedContext?): Promise\<void>
+
+This method deletes a payout reversal by its ID.
+
+### Example
+
+```ts
+await payoutModuleService.deletePayoutReversals("prev_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the payout reversal.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the payout reversal is deleted successfully.
+</ResponseField>
+
+---
+
+# retrievePayoutReversal
+
+This section provides a reference to the `retrievePayoutReversal` method. This belongs to the Payout Module.
+
+This method retrieves a payout reversal by its ID.
+
+## Example
+
+```ts
+const reversal = await payoutModuleService.retrievePayoutReversal("prev_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the payout reversal.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<PayoutReversalDTO>">
+  The configurations determining how the payout reversal is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutReversalDTO>">
+  The retrieved payout reversal.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout reversal.
+    </ResponseField>
+
+    <ResponseField name="amount" type="BigNumberInput">
+      The amount of the reversal.
+    </ResponseField>
+
+    <ResponseField name="currency_code" type="string">
+      The ISO 3 currency code of the reversal.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The reversal data returned by the payout provider.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the payout reversal.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the payout reversal.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listPayoutReversals
+
+This section provides a reference to the `listPayoutReversals` method. This belongs to the Payout Module.
+
+This method retrieves a paginated list of payout reversals based on optional filters and configuration.
+
+## Example
+
+```ts
+const reversals = await payoutModuleService.listPayoutReversals({
+  payout_id: "pout_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterablePayoutReversalProps">
+  The filters to apply on the retrieved payout reversals.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the payout reversals by.
+    </ParamField>
+
+    <ParamField body="payout_id" type="string | string[]">
+      Filter payout reversals by their payout IDs.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string | string[]">
+      Filter payout reversals by their currency codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<PayoutReversalDTO>">
+  The configurations determining how the payout reversal is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<PayoutReversalDTO[]>">
+  The list of payout reversals.
+</ResponseField>
+
+---
+
+# listAndCountPayoutReversals
+
+This section provides a reference to the `listAndCountPayoutReversals` method. This belongs to the Payout Module.
+
+This method retrieves a paginated list of payout reversals along with the total count of available payout reversals satisfying the provided filters.
+
+## Example
+
+```ts
+const [reversals, count] = await payoutModuleService.listAndCountPayoutReversals({
+  payout_id: "pout_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterablePayoutReversalProps">
+  The filters to apply on the retrieved payout reversals.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the payout reversals by.
+    </ParamField>
+
+    <ParamField body="payout_id" type="string | string[]">
+      Filter payout reversals by their payout IDs.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string | string[]">
+      Filter payout reversals by their currency codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<PayoutReversalDTO>">
+  The configurations determining how the payout reversal is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[PayoutReversalDTO[], number]>">
+  The list of payout reversals along with their total count.
+</ResponseField>
+
+---
+
+# softDeletePayoutReversals
+
+This section provides a reference to the `softDeletePayoutReversals` method. This belongs to the Payout Module.
+
+This method soft deletes payout reversals by their IDs.
+
+## Example
+
+```ts
+await payoutModuleService.softDeletePayoutReversals([
+  "prev_123",
+  "prev_321",
+])
+```
+
+## Parameters
+
+<ParamField body="payoutReversalIds" type="string[]" required>
+  The IDs of the payout reversals.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restorePayoutReversals
+
+This section provides a reference to the `restorePayoutReversals` method. This belongs to the Payout Module.
+
+This method restores soft deleted payout reversals by their IDs.
+
+## Example
+
+```ts
+await payoutModuleService.restorePayoutReversals(["prev_123", "prev_321"])
+```
+
+## Parameters
+
+<ParamField body="payoutReversalIds" type="string[]" required>
+  The IDs of the payout reversals.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the payout reversal.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

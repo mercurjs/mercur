@@ -1,0 +1,716 @@
+---
+title: "Review Module Service Reference"
+description: "Reference documentation for the Review Module service methods"
+---
+
+# IReviewModuleService Reference
+
+This section of the documentation provides a reference to the `IReviewModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Review Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Review Module.
+
+## Methods
+
+- [createReviews](#createreviews)
+- [updateReviews](#updatereviews)
+- [deleteReviews](#deletereviews)
+- [retrieveReview](#retrievereview)
+- [listReviews](#listreviews)
+- [listAndCountReviews](#listandcountreviews)
+- [softDeleteReviews](#softdeletereviews)
+- [restoreReviews](#restorereviews)
+
+---
+
+# createReviews
+
+This section provides a reference to the `createReviews` method. This belongs to the Review Module.
+
+## createReviews(data, sharedContext?): Promise\<ReviewDTO[]>
+
+This method creates reviews.
+
+### Example
+
+Creating product reviews:
+
+```ts
+const reviews = await reviewModuleService.createReviews([
+  {
+    order_id: "ord_123",
+    reference: "product",
+    reference_id: "prod_123",
+    rating: 5,
+    customer_note: "Excellent product!",
+    customer_id: "cus_123",
+  },
+])
+```
+
+Creating seller reviews:
+
+```ts
+const reviews = await reviewModuleService.createReviews([
+  {
+    order_id: "ord_123",
+    reference: "seller",
+    reference_id: "sel_123",
+    rating: 4,
+    customer_note: "Good service",
+    customer_id: "cus_123",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateReviewDTO[]" required>
+  The reviews to be created.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order this review is associated with.
+    </ParamField>
+
+    <ParamField body="reference" type='"product" | "seller"' required>
+      The type of entity being reviewed.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string" required>
+      The ID of the entity being reviewed (product ID or seller ID).
+    </ParamField>
+
+    <ParamField body="rating" type="number" required>
+      The rating value (1-5).
+    </ParamField>
+
+    <ParamField body="customer_note" type="string | null">
+      The customer's written review comment.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer who created the review.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<ReviewDTO[]>">
+  The created reviews.
+</ResponseField>
+
+## createReviews(data, sharedContext?): Promise\<ReviewDTO>
+
+This method creates a review.
+
+### Example
+
+```ts
+const review = await reviewModuleService.createReviews({
+  order_id: "ord_123",
+  reference: "product",
+  reference_id: "prod_123",
+  rating: 5,
+  customer_note: "Excellent product!",
+  customer_id: "cus_123",
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateReviewDTO" required>
+  The review to be created.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order this review is associated with.
+    </ParamField>
+
+    <ParamField body="reference" type='"product" | "seller"' required>
+      The type of entity being reviewed.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string" required>
+      The ID of the entity being reviewed (product ID or seller ID).
+    </ParamField>
+
+    <ParamField body="rating" type="number" required>
+      The rating value (1-5).
+    </ParamField>
+
+    <ParamField body="customer_note" type="string | null">
+      The customer's written review comment.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer who created the review.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<ReviewDTO>">
+  The created review.
+</ResponseField>
+
+---
+
+# updateReviews
+
+This section provides a reference to the `updateReviews` method. This belongs to the Review Module.
+
+## updateReviews(id, data, sharedContext?): Promise\<ReviewDTO>
+
+This method updates an existing review.
+
+### Example
+
+Customer updating their review:
+
+```ts
+const review = await reviewModuleService.updateReviews("rev_123", {
+  rating: 4,
+  customer_note: "Updated my review",
+})
+```
+
+Seller responding to a review:
+
+```ts
+const review = await reviewModuleService.updateReviews("rev_123", {
+  seller_note: "Thank you for your feedback!",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the review.
+</ParamField>
+
+<ParamField body="data" type="UpdateReviewDTO" required>
+  The attributes to update in the review.
+
+  <Expandable title="properties">
+    <ParamField body="rating" type="number">
+      The rating value (1-5).
+    </ParamField>
+
+    <ParamField body="customer_note" type="string">
+      The customer's written review comment.
+    </ParamField>
+
+    <ParamField body="seller_note" type="string">
+      The seller's response to the review.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<ReviewDTO>">
+  The updated review.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the review.
+    </ResponseField>
+
+    <ResponseField name="reference" type='"product" | "seller"'>
+      The type of entity being reviewed.
+    </ResponseField>
+
+    <ResponseField name="rating" type="number">
+      The rating value (1-5).
+    </ResponseField>
+
+    <ResponseField name="customer_note" type="string | null">
+      The customer's written review comment.
+    </ResponseField>
+
+    <ResponseField name="customer_id" type="string">
+      The ID of the customer who created the review.
+    </ResponseField>
+
+    <ResponseField name="seller_note" type="string | null">
+      The seller's response to the review.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the review.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date | null">
+      The updated date of the review.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteReviews
+
+This section provides a reference to the `deleteReviews` method. This belongs to the Review Module.
+
+## deleteReviews(ids, sharedContext?): Promise\<void>
+
+This method deletes reviews by their IDs.
+
+### Example
+
+```ts
+await reviewModuleService.deleteReviews(["rev_123", "rev_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the reviews.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the reviews are deleted successfully.
+</ResponseField>
+
+## deleteReviews(id, sharedContext?): Promise\<void>
+
+This method deletes a review by its ID.
+
+### Example
+
+```ts
+await reviewModuleService.deleteReviews("rev_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the review.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the review is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveReview
+
+This section provides a reference to the `retrieveReview` method. This belongs to the Review Module.
+
+This method retrieves a review by its ID.
+
+## Example
+
+```ts
+const review = await reviewModuleService.retrieveReview("rev_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the review.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<ReviewDTO>">
+  The configurations determining how the review is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. Use Query to retrieve linked customer, product, or seller data.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<ReviewDTO>">
+  The retrieved review.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the review.
+    </ResponseField>
+
+    <ResponseField name="reference" type='"product" | "seller"'>
+      The type of entity being reviewed.
+    </ResponseField>
+
+    <ResponseField name="rating" type="number">
+      The rating value (1-5).
+    </ResponseField>
+
+    <ResponseField name="customer_note" type="string | null">
+      The customer's written review comment.
+    </ResponseField>
+
+    <ResponseField name="customer_id" type="string">
+      The ID of the customer who created the review.
+    </ResponseField>
+
+    <ResponseField name="seller_note" type="string | null">
+      The seller's response to the review.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the review.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date | null">
+      The updated date of the review.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listReviews
+
+This section provides a reference to the `listReviews` method. This belongs to the Review Module.
+
+This method retrieves a paginated list of reviews based on optional filters and configuration.
+
+## Example
+
+To retrieve product reviews:
+
+```ts
+const reviews = await reviewModuleService.listReviews({
+  reference: "product",
+  reference_id: "prod_123",
+})
+```
+
+To retrieve seller reviews:
+
+```ts
+const reviews = await reviewModuleService.listReviews({
+  reference: "seller",
+  reference_id: "sel_123",
+})
+```
+
+To retrieve a customer's reviews:
+
+```ts
+const reviews = await reviewModuleService.listReviews({
+  customer_id: "cus_123",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const reviews = await reviewModuleService.listReviews(
+  {
+    reference: "product",
+    reference_id: "prod_123",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableReviewProps">
+  The filters to apply on the retrieved reviews.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the reviews by.
+    </ParamField>
+
+    <ParamField body="reference" type="string | string[]">
+      Filter reviews by their reference type (`product` or `seller`).
+    </ParamField>
+
+    <ParamField body="reference_id" type="string | string[]">
+      Filter reviews by the ID of the entity being reviewed.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string | string[]">
+      Filter reviews by their customer IDs.
+    </ParamField>
+
+    <ParamField body="rating" type="number | number[]">
+      Filter reviews by their rating values.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<ReviewDTO>">
+  The configurations determining how the review is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<ReviewDTO[]>">
+  The list of reviews.
+</ResponseField>
+
+---
+
+# listAndCountReviews
+
+This section provides a reference to the `listAndCountReviews` method. This belongs to the Review Module.
+
+This method retrieves a paginated list of reviews along with the total count of available reviews satisfying the provided filters.
+
+## Example
+
+To retrieve product reviews with count:
+
+```ts
+const [reviews, count] = await reviewModuleService.listAndCountReviews({
+  reference: "product",
+  reference_id: "prod_123",
+})
+```
+
+To retrieve 5-star reviews:
+
+```ts
+const [reviews, count] = await reviewModuleService.listAndCountReviews({
+  rating: 5,
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const [reviews, count] = await reviewModuleService.listAndCountReviews(
+  {
+    customer_id: "cus_123",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableReviewProps">
+  The filters to apply on the retrieved reviews.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the reviews by.
+    </ParamField>
+
+    <ParamField body="reference" type="string | string[]">
+      Filter reviews by their reference type (`product` or `seller`).
+    </ParamField>
+
+    <ParamField body="reference_id" type="string | string[]">
+      Filter reviews by the ID of the entity being reviewed.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string | string[]">
+      Filter reviews by their customer IDs.
+    </ParamField>
+
+    <ParamField body="rating" type="number | number[]">
+      Filter reviews by their rating values.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<ReviewDTO>">
+  The configurations determining how the review is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[ReviewDTO[], number]>">
+  The list of reviews along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteReviews
+
+This section provides a reference to the `softDeleteReviews` method. This belongs to the Review Module.
+
+This method soft deletes reviews by their IDs.
+
+## Example
+
+```ts
+await reviewModuleService.softDeleteReviews([
+  "rev_123",
+  "rev_321",
+])
+```
+
+## Parameters
+
+<ParamField body="reviewIds" type="string[]" required>
+  The IDs of the reviews.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreReviews
+
+This section provides a reference to the `restoreReviews` method. This belongs to the Review Module.
+
+This method restores soft deleted reviews by their IDs.
+
+## Example
+
+```ts
+await reviewModuleService.restoreReviews(["rev_123", "rev_321"])
+```
+
+## Parameters
+
+<ParamField body="reviewIds" type="string[]" required>
+  The IDs of the reviews.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the review.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

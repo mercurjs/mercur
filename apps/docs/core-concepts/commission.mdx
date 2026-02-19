@@ -1,0 +1,96 @@
+---
+title: "Marketplace commission"
+---
+
+Marketplace admin can set commission rates in various combinations, which enables to charge different commission for different product types, categories, sellers etc.
+
+# Commission rule reference types
+
+Each commission rule has its reference. A reference entity types are listed below. There are simple (one `reference_id` at once), and combined types, that take into account more than one reference at once. Each combination (`reference` and `reference_id`) are required to be unique.
+
+- `site` - default commission applied for all products in the marketplace, can be overriden by other rules,
+- `product_type` - applied to products of specified type,
+- `product_category` - applied to products from specified category,
+- `seller+product_category` - applied to products from specified category, and sold by specified seller,
+- `seller+product_type` - applied to products of specified type, and sold by specified seller,
+- `seller` - applied to products sold by specified seller.
+
+# Commission rules priority
+
+Multiple different condition rates can be applied to each of the items in order. That's why some of the rules are more important that others, and during commission calculation process only one is applied. Rule reference types priority is described below.
+
+1. `seller+product_type`
+2. `seller+product_category`
+3. `seller`
+4. `product_type`
+5. `product_category`
+6. `site`
+
+# Commission rate
+
+Each rule should have applicable rate attached. Commission rate entity describes the details on how the commission should be calculated. Available options:
+
+- `type` - `flat` or `percentage`
+- `percentage_rate` - applicable if `type` is `percentage`
+- `include_tax` - indicates if commission should be calculated including tax
+- `price_set_id` - applicable if `type` is `flat`
+- `max_price_set_id` - maximum commission value
+- `min_price_set_id` - minimum commission value
+
+# Commission rate types
+
+- `flat` - share for marketplace is a fixed amount,
+- `percentage` - share for marketplace is a percent of price.
+
+# Calculation
+
+```mermaid
+flowchart LR
+
+id1(Take order line_item)
+id2(Select applicable rule)
+id3{Select associated rate}
+id4a(Select appropiate price from price_set, return as a value)
+id4b(Calculate % of the line_item price, return as a value)
+id5(Clamp commission value between min_price/max_price)
+id6(Save commission_line)
+
+
+id1-->id2
+id2-->id3
+id3--type == flat-->id4a
+id3--type == percentage-->id4b
+id4a-->id5
+id4b-->id5
+id5-->id6
+
+```
+
+# Database models
+
+```mermaid
+erDiagram
+    commission_rule ||--o| commission_rate : has
+    commission_rule {
+        uuid id
+        string name
+        string reference
+        string reference_id
+    }
+    commission_rate {
+        uuid id
+        string type
+        float percentage_rate
+        bool include_tax
+        string price_set_id
+        string max_price_set_id
+        string min_price_set_id
+    }
+    commission_line {
+        uuid id
+        string item_line_id
+        string rule_id
+        string currency_code
+        float value
+    }
+```

@@ -1,0 +1,405 @@
+---
+title: "Core Subscribers"
+description: "Event subscribers in the Core Mercur Module"
+---
+
+# Core Subscribers Reference
+
+Subscribers are functions that handle events emitted in the Medusa application, allowing you to execute custom logic in response to system events. They enable event-driven architecture by reacting to changes in your commerce system, such as order placements, payment captures, or data updates. Learn more about subscribers in the [Medusa documentation](https://docs.medusajs.com/learn/fundamentals/events-and-subscribers#content).
+
+## Payout Subscribers
+
+### payout-order-handler
+
+Processes payouts for orders when a payout event is received.
+
+**Event**: `payout.received` (PayoutWorkflowEvents.RECEIVED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/payout-order.ts`
+
+#### Functionality
+
+When the `payout.received` event is triggered, this subscriber:
+
+1. Receives the order ID from the event payload
+2. Executes the `processPayoutForOrderWorkflow` to create and process the payout
+3. Uses the order ID as a transaction ID for idempotency
+
+#### Event Payload
+
+```ts
+{
+  order_id: string // The ID of the order to process for payout
+}
+```
+
+#### Use Cases
+
+- Automated payout processing triggered by scheduled jobs
+- Manual payout retries for failed orders
+- Catch-up processing for orders missing payouts
+
+---
+
+### payout-webhook-handler
+
+Handles webhook events from payment providers for payout account updates.
+
+**Event**: `payout_account.webhook_received` (PayoutWebhookEvents.ACCOUNT_WEBHOOK_RECEIVED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/payout-webhook.ts`
+
+#### Functionality
+
+When webhook events are received from payment providers, this subscriber:
+
+1. Deserializes the webhook data (handles Buffer serialization)
+2. Uses the payout service to parse and validate the webhook
+3. Determines the appropriate action (account authorized, deauthorized, requires action)
+4. Executes the `processPayoutWebhookActionWorkflow` with the parsed data
+
+#### Event Payload
+
+```ts
+{
+  rawData: Buffer | ArrayBuffer, // Raw webhook data from payment provider
+  signature: string // Webhook signature for verification
+}
+```
+
+#### Use Cases
+
+- Stripe Connect account status updates
+- Payment provider webhook processing
+- Payout account authorization changes
+- Account requirement notifications
+
+---
+
+## Order and Payment Subscribers
+
+### order-set-placed-payment-capture
+
+Captures payment when an order set is placed with multiple seller orders.
+
+**Event**: `order_set.placed` (OrderSetWorkflowEvents.PLACED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/order-set-placed-payment-capture.ts`
+
+#### Functionality
+
+When an order set is placed, this subscriber:
+
+1. Retrieves the order set and associated payment collection
+2. Validates that payment exists
+3. Executes the `capturePaymentWorkflow` to capture the payment
+4. Marks all split order payments as captured via `markSplitOrderPaymentsAsCapturedWorkflow`
+5. Throws an error if payment capture fails
+
+#### Event Payload
+
+```ts
+{
+  id: string // The ID of the order set
+}
+```
+
+#### Use Cases
+
+- Multi-seller order payment capture
+- Split payment processing
+- Payment validation and error handling
+
+---
+
+### split-payment-payment-captured
+
+Updates split order payment status when a payment is captured.
+
+**Event**: `payment.captured` (PaymentEvents.CAPTURED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/split-payment-payment-captured.ts`
+
+#### Functionality
+
+When a payment is captured, this subscriber:
+
+1. Retrieves the payment and its associated payment collection
+2. Executes the `markSplitOrderPaymentsAsCapturedWorkflow` to update all related split order payments
+
+#### Event Payload
+
+```ts
+{
+  id: string // The ID of the captured payment
+}
+```
+
+#### Use Cases
+
+- Synchronizing split payment statuses
+- Tracking payment capture across multiple seller orders
+- Maintaining payment consistency
+
+---
+
+## Notification Subscribers
+
+### notification-seller-new-order
+
+Sends notifications to sellers when they receive a new order.
+
+**Event**: `order.placed` (OrderWorkflowEvents.PLACED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/notification-seller-new-order.ts`
+
+#### Functionality
+
+When an order is placed, this subscriber:
+
+1. Retrieves order details including seller and customer information
+2. Validates that the order and seller email exist
+3. Creates a notification in the seller feed
+4. Includes order ID and customer name in the notification
+
+#### Event Payload
+
+```ts
+{
+  id: string // The ID of the placed order
+}
+```
+
+#### Use Cases
+
+- Seller order notifications
+- In-app notification feed updates
+- Email notifications to sellers
+- Order management alerts
+
+---
+
+### notification-admin-new-order-set
+
+Notifies admins when a customer places an order from multiple sellers.
+
+**Event**: `order_set.placed` (OrderSetWorkflowEvents.PLACED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/notification-admin-new-order-set.ts`
+
+#### Functionality
+
+When an order set is placed, this subscriber:
+
+1. Retrieves the order set and counts the number of orders
+2. Only proceeds if the order set contains 2 or more orders (multi-seller)
+3. Creates an admin UI notification
+4. Includes a redirect link to the orders page
+
+#### Event Payload
+
+```ts
+{
+  id: string // The ID of the order set
+}
+```
+
+#### Use Cases
+
+- Admin dashboard notifications
+- Multi-seller order monitoring
+- Order management alerts
+- Administrative oversight
+
+---
+
+## Seller Management Subscribers
+
+### seller-creation-request-accepted
+
+Creates a seller account when a seller registration request is accepted.
+
+**Event**: `requests.seller.accepted` (SellerAccountRequestUpdatedEvent.ACCEPTED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/seller-creation-request-accepted.ts`
+
+#### Functionality
+
+When a seller creation request is accepted, this subscriber:
+
+1. Extracts seller, member, and authentication data from the request
+2. Executes the `createSellerWorkflow` to create the seller account
+3. Logs the successful creation with seller and request IDs
+
+#### Event Payload
+
+```ts
+{
+  id: string, // The request ID
+  data: {
+    member: object, // Member information
+    seller: object, // Seller information
+    auth_identity_id: string // Authentication identity ID
+  }
+}
+```
+
+#### Use Cases
+
+- Automated seller onboarding
+- Request approval workflow completion
+- Seller account provisioning
+
+---
+
+### seller-status-changed
+
+Updates product search indexes when a seller's status changes.
+
+**Event**: `seller.store_status_changed` (SellerEvents.STORE_STATUS_CHANGED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/seller-status-changed.ts`
+
+#### Functionality
+
+When a seller's store status changes, this subscriber:
+
+1. Retrieves all products associated with the seller
+2. Emits an `algolia.products.changed` event with the product IDs
+3. Skips processing if the seller has no products
+
+#### Event Payload
+
+```ts
+{
+  id: string, // The seller ID
+  store_status: StoreStatus // The new store status (active, inactive, etc.)
+}
+```
+
+#### Use Cases
+
+- Search index synchronization
+- Product visibility updates
+- Store status propagation
+- Marketplace product filtering
+
+---
+
+## Algolia Search Index Subscribers
+
+These subscribers maintain search index synchronization by listening to intermediate events and triggering Algolia product updates.
+
+### algolia-fulfillment-set-changed
+
+Updates product indexes when fulfillment set configurations change.
+
+**Event**: `algolia.intermediate.fulfillment_set.changed` (IntermediateEvents.FULFULLMENT_SET_CHANGED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/algolia-fulfillment-set-changed.ts`
+
+#### Functionality
+
+1. Retrieves the seller associated with the fulfillment set
+2. Fetches all products belonging to that seller
+3. Emits `algolia.products.changed` event to update product indexes
+
+---
+
+### algolia-inventory-item-changed
+
+Updates product indexes when inventory levels change.
+
+**Event**: `algolia.intermediate.inventory_item.changed` (IntermediateEvents.INVENTORY_ITEM_CHANGED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/algolia-inventory-item.changed.ts`
+
+#### Functionality
+
+1. Retrieves inventory items and their associated product variants
+2. Extracts unique product IDs from variants
+3. Emits `algolia.products.changed` event to update product indexes
+
+---
+
+### algolia-service-zone-changed
+
+Updates product indexes when service zone configurations change.
+
+**Event**: `algolia.intermediate.service_zone.changed` (IntermediateEvents.SERVICE_ZONE_CHANGED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/algolia-service-zone-changed.ts`
+
+#### Functionality
+
+1. Retrieves the seller associated with the service zone
+2. Fetches all products belonging to that seller
+3. Emits `algolia.products.changed` event to update product indexes
+
+---
+
+### algolia-shipping-option-changed
+
+Updates product indexes when shipping option configurations change.
+
+**Event**: `algolia.intermediate.shipping_option.changed` (IntermediateEvents.SHIPPING_OPTION_CHANGED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/algolia-shipping-option-changed.ts`
+
+#### Functionality
+
+1. Retrieves the seller associated with the shipping option
+2. Fetches all products belonging to that seller
+3. Emits `algolia.products.changed` event to update product indexes
+
+---
+
+### algolia-stock-location-changed
+
+Updates product indexes when stock location configurations change.
+
+**Event**: `algolia.intermediate.stock_location.changed` (IntermediateEvents.STOCK_LOCATION_CHANGED)\
+**Source**: `packages/modules/b2c-core/src/subscribers/algolia-stock-location-changed.ts`
+
+#### Functionality
+
+1. Retrieves the seller associated with the stock location
+2. Fetches all products belonging to that seller
+3. Emits `algolia.products.changed` event to update product indexes
+
+---
+
+## Notes
+
+### Event-Driven Architecture
+
+Subscribers implement an event-driven architecture pattern:
+
+- **Decoupling**: Workflows emit events without knowing who will handle them
+- **Scalability**: Multiple subscribers can react to the same event
+- **Reliability**: Event bus handles retries and delivery guarantees
+- **Extensibility**: New subscribers can be added without modifying existing code
+
+### Subscriber Configuration
+
+Each subscriber exports a configuration object with:
+
+- **event**: The event name to listen for
+- **subscriberId**: A unique identifier for the subscriber
+- **context**: Optional metadata for the subscriber
+
+### Error Handling
+
+Subscribers should implement appropriate error handling:
+
+- Failed subscribers are automatically retried based on event bus configuration
+- Critical failures should be logged for monitoring
+- Validation errors should return early to avoid unnecessary processing
+
+### Algolia Synchronization Pattern
+
+The Algolia subscribers use an intermediate events pattern:
+
+1. **Intermediate Events**: Emitted when shipping, inventory, or fulfillment data changes
+2. **Subscriber Processing**: Identifies affected products
+3. **Product Events**: Emits consolidated `algolia.products.changed` events
+4. **Index Updates**: Separate Algolia module subscriber handles actual index updates
+
+This pattern prevents duplicate index updates and improves performance by batching related changes.
+
+### Performance Considerations
+
+- Subscribers run asynchronously and don't block the main application flow
+- Heavy operations should be delegated to workflows for better error recovery
+- Batch operations where possible (e.g., processing multiple product IDs at once)
+- Use early returns to skip unnecessary processing
+
+---

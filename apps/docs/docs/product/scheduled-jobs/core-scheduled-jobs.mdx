@@ -1,0 +1,167 @@
+---
+title: "Core Scheduled Job"
+description: "Scheduled jobs in the Core Mercur Module"
+---
+
+# Core Scheduled Jobs Reference
+
+Scheduled jobs are functions executed at specified intervals in the background of your Mercur application. They are used to perform recurring tasks such as processing payouts, sending notifications, and maintaining data consistency. Learn more about scheduled jobs in the [Medusa documentation](https://docs.medusajs.com/resources/scheduled-jobs).
+
+## Daily Payouts Job
+
+### Overview
+
+The `daily-payouts` job processes pending payouts for completed orders. It runs daily at midnight, identifying all orders that don't have associated payouts and emitting events to trigger payout processing workflows.
+
+### Configuration
+
+- **Name**: `daily-payouts`
+- **Schedule**: `0 0 * * *` (Every day at midnight)
+- **Source**: `packages/modules/b2c-core/src/jobs/daily-payouts.ts`
+
+### Functionality
+
+The job performs the following operations:
+
+1. **Query Pending Orders**: Identifies orders that don't have associated payouts by performing a left join between the `order` and `order_payout` tables
+2. **Batch Processing**: Processes orders in batches of 100 to manage system load
+3. **Event Emission**: Emits `payout.received` events for each order that needs payout processing
+4. **Retry Configuration**: Each event is configured with:
+   - 3 retry attempts
+   - Staggered delays to prevent system overload
+   - Progressive delay calculation: `(1200ms * order_count * offset) / BATCH_SIZE`
+
+### Event Emitted
+
+```ts
+{
+  name: "payout.received",
+  data: {
+    order_id: string // The ID of the order to process
+  },
+  options: {
+    attempts: 3,
+    delay: number // Calculated delay in milliseconds
+  }
+}
+```
+
+### Use Cases
+
+- **Automated Payout Processing**: Ensures all completed orders are processed for seller payouts
+- **Failed Payout Recovery**: Catches orders that may have failed during initial payout processing
+- **Batch Operations**: Handles large volumes of orders efficiently with batching and retry logic
+
+---
+
+## Daily Payouts Summary Job
+
+### Overview
+
+The `daily-payouts-summary` job sends daily payout summary notifications to sellers with active payout accounts. It runs every day at 8 AM, compiling payout information from the previous 24 hours and notifying sellers about their earnings.
+
+### Configuration
+
+- **Name**: `daily-payouts-summary`
+- **Schedule**: `0 8 * * *` (Every day at 8 AM)
+- **Source**: `packages/modules/b2c-core/src/jobs/daily-payouts-summary.ts`
+
+### Functionality
+
+The job performs the following operations:
+
+1. **Fetch Active Accounts**: Retrieves all payout accounts with `ACTIVE` status along with seller information
+2. **Calculate Time Range**: Determines the 24-hour period from the current time
+3. **Query Payouts**: For each active payout account, fetches payouts created within the time range
+4. **Aggregate Data**: Collects detailed payout and order information including:
+   - Payout ID, amount, and currency
+   - Associated order ID and display ID
+   - Creation timestamps
+5. **Send Notifications**: Emits notification events for sellers who received payouts in the period
+
+### Event Emitted
+
+```ts
+{
+  name: "payout.notification_sent",
+  data: {
+    seller: {
+      id: string,
+      email: string,
+      name: string
+    },
+    payouts: Array<{
+      id: string,
+      created_at: Date,
+      amount: number,
+      currency_code: string,
+      order: {
+        id: string,
+        created_at: Date,
+        display_id: number
+      }
+    }>
+  }
+}
+```
+
+### Use Cases
+
+- **Seller Communication**: Keeps sellers informed about their daily earnings
+- **Transparency**: Provides detailed breakdown of payouts and associated orders
+- **Email Notifications**: Triggers email notifications with payout summaries
+- **Reporting**: Enables sellers to track their payment history
+
+---
+
+## Notes
+
+### Cron Expression Format
+
+Both jobs use cron expressions to define their schedules. The format is:
+
+```
+* * * * *
+│ │ │ │ │
+│ │ │ │ └─ Day of week (0-7, Sunday is 0 or 7)
+│ │ │ └─── Month (1-12)
+│ │ └───── Day of month (1-31)
+│ └─────── Hour (0-23)
+└───────── Minute (0-59)
+```
+
+Use [crontab.guru](https://crontab.guru/) to validate and understand cron expressions.
+
+### Event-Driven Architecture
+
+These jobs follow an event-driven pattern:
+
+- They don't process payouts directly
+- They emit events that trigger workflows
+- This separation allows for better error handling, retries, and monitoring
+- Workflows can be executed independently if needed
+
+### Performance Considerations
+
+**Daily Payouts Job:**
+
+- Implements batching (100 orders per batch) to manage memory and database load
+- Uses progressive delays to prevent overwhelming the event system
+- Configures retry attempts to handle transient failures
+
+**Daily Payouts Summary Job:**
+
+- Only processes accounts with active status
+- Skips sellers with no payouts in the time period
+- Aggregates notifications into a single event per seller
+
+### Monitoring
+
+To monitor these jobs:
+
+- Check application logs for job execution timestamps
+- Monitor event bus metrics for `payout.received` and `payout.notification_sent` events
+- Track workflow execution success rates
+- Set up alerts for job failures or unusual patterns
+
+---

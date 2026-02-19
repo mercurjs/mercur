@@ -1,0 +1,243 @@
+---
+title: "Payout Workflows"
+description: "Reference documentation for the Payout Module workflows and steps"
+---
+
+# Workflows
+
+## processPayoutWebhookActionWorkflow
+
+This documentation provides a reference to the `processPayoutWebhookActionWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow processes webhook events from the payout provider (e.g., Stripe Connect) and takes appropriate actions based on the webhook type. Currently, it handles account authorization events by updating the payout account status to active.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/payout/workflows/process-payout-webhook-action.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Subscriber">
+    ```ts packages/modules/b2c-core/src/subscribers/payout-webhook.ts
+    import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
+    import {
+      PayoutWebhookActionPayload,
+      PayoutWebhookEvents,
+    } from "@mercurjs/framework";
+    import { PAYOUT_MODULE } from "../modules/payout";
+    import { PayoutModuleService } from "../modules/payout";
+    import { processPayoutWebhookActionWorkflow } from "../workflows/payout/workflows";
+    
+    export default async function payoutWebhookHandler({
+      event,
+      container,
+    }: SubscriberArgs<PayoutWebhookActionPayload>) {
+      const payoutService: PayoutModuleService = container.resolve(PAYOUT_MODULE);
+    
+      const input = event.data;
+    
+      // Parse webhook data
+      const actionAndData = await payoutService.getWebhookActionAndData(input);
+    
+      if (!actionAndData) {
+        return;
+      }
+    
+      await processPayoutWebhookActionWorkflow(container).run({
+        input: {
+          action: actionAndData.action,
+          data: actionAndData.data,
+        },
+      });
+    }
+    
+    export const config: SubscriberConfig = {
+      event: PayoutWebhookEvents.ACCOUNT_WEBHOOK_RECEIVED,
+      context: {
+        subscriberId: "payout-account-webhook-handler",
+      },
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updatePayoutAccountStep](#updatepayoutaccountstep): Updates the payout account status when the account is authorized.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The webhook action and data.
+
+  <Expandable title="properties">
+    <ParamField body="action" type="PayoutWebhookAction" required>
+      The webhook action type. Available actions:
+
+      - `account_authorized` - Account has been authorized and is ready to receive payouts
+      - `account_deauthorized` - Account has been deauthorized
+      - `account_requires_action` - Account requires additional action from the seller
+    </ParamField>
+    <ParamField body="data" type="object" required>
+      The webhook payload data.
+
+      <Expandable title="properties">
+        <ParamField body="account_id" type="string" required>
+          The ID of the payout account.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+This workflow does not return a value.
+
+---
+
+# Steps
+
+## createPayoutReversalStep
+
+Creates a reversal (refund) for a payout that was previously processed. This is typically used when an order is canceled after the seller has already been paid out. The step handles errors gracefully and returns both the reversal result and error status.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/payout/steps/create-payout-reversal.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Cancel Order Workflow">
+    ```ts packages/modules/b2c-core/src/workflows/order/workflows/cancel-order.ts
+    import { createPayoutReversalStep } from '../../payout/steps'
+    
+    // ... inside cancelOrderWorkflow
+    
+    const payoutId = transform({ order }, ({ order }) => {
+      return order.payouts && order.payouts[0] ? order.payouts[0].id : null
+    })
+    
+    parallelize(
+      // ... other steps
+      createPayoutReversalStep({
+        payout_id: payoutId,
+        amount: order.split_order_payment.captured_amount,
+        currency_code: order.currency_code
+      })
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The payout reversal details.
+
+  <Expandable title="properties">
+    <ParamField body="payout_id" type="string | null" required>
+      The ID of the payout to reverse. If null, the step does nothing.
+    </ParamField>
+    <ParamField body="amount" type="BigNumberInput" required>
+      The amount to reverse.
+    </ParamField>
+    <ParamField body="currency_code" type="string" required>
+      The currency code (e.g., "usd").
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="payoutReversal" type="PayoutDTO | null">
+      The created payout reversal, or null if creation failed or payout_id was null.
+    </ResponseField>
+    <ResponseField name="err" type="boolean">
+      Whether an error occurred during reversal creation.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## updatePayoutAccountStep
+
+Updates a payout account's details. This step includes a compensation function that restores the previous account state if a subsequent step in the workflow fails, ensuring data consistency.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/payout/steps/update-payout-account.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Webhook Processing">
+    ```ts packages/modules/b2c-core/src/workflows/payout/workflows/process-payout-webhook-action.ts
+    import { PayoutAccountStatus, PayoutWebhookAction } from "@mercurjs/framework";
+    import { updatePayoutAccountStep } from '../steps'
+    
+    // ... inside processPayoutWebhookActionWorkflow
+    
+    when(
+      { action: input.action },
+      ({ action }) => action === PayoutWebhookAction.ACCOUNT_AUTHORIZED
+    ).then(() => {
+      updatePayoutAccountStep({
+        id: input.data.account_id,
+        status: PayoutAccountStatus.ACTIVE
+      })
+    })
+    ```
+  </Tab>
+</Tabs>
+
+### Input
+
+<ParamField body="input" type="UpdatePayoutAccountDTO" required>
+  The payout account updates.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the payout account to update.
+    </ParamField>
+    <ParamField body="status" type="PayoutAccountStatus">
+      The new status of the payout account. Available statuses:
+
+      - `pending` - Account is pending authorization
+      - `active` - Account is active and can receive payouts
+      - `disabled` - Account is disabled
+    </ParamField>
+    <ParamField body="reference_id" type="string">
+      The external reference ID from the payment provider.
+    </ParamField>
+    <ParamField body="data" type="Record<string, unknown>">
+      Additional data about the payout account.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="PayoutAccountDTO" type="PayoutAccountDTO">
+  The updated payout account.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the payout account.
+    </ResponseField>
+    <ResponseField name="reference_id" type="string">
+      The external reference ID from the payment provider.
+    </ResponseField>
+    <ResponseField name="status" type="PayoutAccountStatus">
+      The status of the payout account.
+    </ResponseField>
+    <ResponseField name="data" type="Record<string, unknown>">
+      Additional provider-specific data.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the account was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the account was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>

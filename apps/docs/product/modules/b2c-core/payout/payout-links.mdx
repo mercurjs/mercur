@@ -1,0 +1,179 @@
+---
+title: "Payout Module Links"
+description: "Module links for the Payout Module"
+---
+
+# Links between Payout Module and Other Modules
+
+This document showcases the module links defined between the Payout Module and other Commerce Modules.
+
+## Summary
+
+The Payout Module has the following links to other modules:
+
+| First Data Model | Second Data Model | Type                 | Description                                              |
+| ---------------- | ----------------- | -------------------- | -------------------------------------------------------- |
+| Order            | Payout            | Stored - one-to-many | Associates an order with its payout transfers to sellers |
+| Seller           | PayoutAccount     | Stored - one-to-one  | Associates a seller with their payout account            |
+
+---
+
+## Order Module
+
+Mercur defines a link between the Order Module's `Order` data model and the Payout Module's `Payout` data model. This allows tracking which payouts were created for a specific order.
+
+### Retrieve with Query
+
+To retrieve the payouts of an order with Query, pass `payout.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: orders } = await query.graph({
+      entity: "order",
+      fields: [
+        "*",
+        "payout.*",
+      ],
+    })
+    
+    // orders[0].payout
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        "*",
+        "payout.*",
+      ],
+    })
+    
+    // orders[0].payout
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the payouts of an order, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+      payout: {
+        payout_id: "pout_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+      payout: {
+        payout_id: "pout_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Seller Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Payout Module's `PayoutAccount` data model. This allows each seller to have a payout account for receiving payments from the marketplace.
+
+### Retrieve with Query
+
+To retrieve the payout account of a seller with Query, pass `payout_account.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "payout_account.*",
+      ],
+    })
+    
+    // sellers[0].payout_account
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "payout_account.*",
+      ],
+    })
+    
+    // sellers[0].payout_account
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the payout account of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      payout: {
+        payout_account_id: "pacc_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      payout: {
+        payout_account_id: "pacc_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>

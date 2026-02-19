@@ -1,0 +1,114 @@
+---
+title: "Reviews Subscribers"
+description: "Event subscribers in the Reviews Module"
+---
+
+# Reviews Subscribers Reference
+
+## Review Removal Subscriber
+
+### remove-review-request-removed-handler
+
+Deletes a review when a review removal request is approved.
+
+**Event**: `requests.review.removed` (RemoveReviewRequestUpdatedEvent.REMOVED)  
+**Source**: `packages/modules/reviews/src/subscribers/remove-review-request-removed.ts`
+
+#### Functionality
+
+When a review removal request is accepted by an admin:
+
+1. Receives the review ID from the event payload
+2. Executes `deleteReviewWorkflow` to soft delete the review
+3. Removes the review from the database (soft delete)
+4. Workflow hooks trigger any necessary cleanup or notifications
+
+#### Event Payload
+
+```ts
+{
+  id: string // The ID of the review to delete
+}
+```
+
+#### Workflow Execution
+
+```ts
+deleteReviewWorkflow.run({
+  container,
+  input: {
+    id: event.data.id // Review ID to delete
+  }
+})
+```
+
+#### Use Cases
+
+- **Content Moderation**: Allows admins to remove inappropriate or fraudulent reviews
+- **Customer Requests**: Handles customer requests to delete their reviews
+- **Policy Enforcement**: Removes reviews that violate marketplace policies
+- **Legal Compliance**: Supports right-to-be-forgotten and similar regulations
+
+***
+
+## Notes
+
+### Review Removal Process
+
+The review removal follows a two-step approval process:
+
+1. **Request Creation**: Customer or admin creates a review removal request
+2. **Admin Approval**: Admin reviews and approves the removal request
+3. **Event Emission**: `requests.review.removed` event is emitted
+4. **This Subscriber**: Executes the actual deletion workflow
+5. **Soft Delete**: Review is marked as deleted but retained in database
+
+This multi-step process ensures:
+- Audit trail for all review deletions
+- Admin oversight on moderation actions
+- Ability to restore accidentally deleted reviews
+- Compliance with data retention policies
+
+### Integration with Requests Module
+
+This subscriber bridges the Requests Module and Reviews Module:
+
+**Requests Module**:
+- Handles the approval workflow
+- Emits `requests.review.removed` event when approved
+
+**Reviews Module**:
+- This subscriber listens to the event
+- Executes the actual deletion
+
+This separation allows:
+- Consistent approval process across all request types
+- Reviews module remains focused on review management
+- Clear responsibility boundaries between modules
+
+### Soft Delete vs Hard Delete
+
+The `deleteReviewWorkflow` performs a **soft delete**:
+
+**Soft Delete**:
+- Review record remains in database
+- Marked with `deleted_at` timestamp
+- Excluded from normal queries
+- Can be restored if needed
+- Maintains referential integrity
+
+**Why Soft Delete?**:
+- Audit and compliance requirements
+- Ability to investigate disputes
+- Accidental deletion recovery
+- Data analytics and reporting
+
+### Workflow Hooks
+
+The `deleteReviewWorkflow` exposes a `reviewDeleted` hook that can be used for:
+- Updating aggregate ratings
+- Notifying the review author
+- Logging deletion for compliance
+- Triggering search index updates
+
+***

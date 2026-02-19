@@ -1,0 +1,847 @@
+---
+title: "Attribute Workflows"
+description: "Reference documentation for the Attribute Module workflows and steps"
+---
+
+# Workflows
+
+## createAttributePossibleValuesWorkflow
+
+This documentation provides a reference to the `createAttributePossibleValuesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates one or more possible values for an attribute.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/workflows/create-attribute-possible-values.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts src/api/workflow/route.ts
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { createAttributePossibleValuesWorkflow } from "@mercurjs/b2c-core"
+    
+    export async function POST(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ) {
+      const { result } = await createAttributePossibleValuesWorkflow(req.scope)
+        .run({
+          input: [{
+            value: "Red",
+            rank: 0,
+            attribute_id: "attr_123",
+            metadata: {
+              hex: "#FF0000"
+            }
+          }]
+        })
+    
+      res.send(result)
+    }
+    ```
+  </Tab>
+  <Tab title="Subscriber">
+    ```ts src/subscribers/attribute-created.ts
+    import {
+      type SubscriberConfig,
+      type SubscriberArgs,
+    } from "@medusajs/framework"
+    import { createAttributePossibleValuesWorkflow } from "@mercurjs/b2c-core"
+    
+    export default async function handleAttributeCreated({
+      event: { data },
+      container,
+    }: SubscriberArgs<{ id: string }>) {
+      const { result } = await createAttributePossibleValuesWorkflow(container)
+        .run({
+          input: [{
+            value: "Default",
+            rank: 0,
+            attribute_id: data.id
+          }]
+        })
+    
+      console.log(result)
+    }
+    
+    export const config: SubscriberConfig = {
+      event: "attribute.created",
+    }
+    ```
+  </Tab>
+  <Tab title="Scheduled Job">
+    ```ts src/jobs/sync-values.ts
+    import { MedusaContainer } from "@medusajs/framework/types"
+    import { createAttributePossibleValuesWorkflow } from "@mercurjs/b2c-core"
+    
+    export default async function myCustomJob(
+      container: MedusaContainer
+    ) {
+      const { result } = await createAttributePossibleValuesWorkflow(container)
+        .run({
+          input: [{
+            value: "New Collection",
+            rank: 1,
+            attribute_id: "attr_collection"
+          }]
+        })
+    
+      console.log(result)
+    }
+    
+    export const config = {
+      name: "sync-values-daily",
+      schedule: "0 0 * * *",
+    }
+    ```
+  </Tab>
+  <Tab title="Another Workflow">
+    ```ts src/workflows/my-workflow.ts
+    import { createWorkflow } from "@medusajs/framework/workflows-sdk"
+    import { createAttributePossibleValuesWorkflow } from "@mercurjs/b2c-core"
+    
+    const myWorkflow = createWorkflow(
+      "my-workflow",
+      () => {
+        const result = createAttributePossibleValuesWorkflow
+          .runAsStep({
+            input: [{
+              value: "Blue",
+              rank: 1,
+              attribute_id: "attr_123"
+            }]
+          })
+      }
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [createAttributePossibleValuesStep](#createattributepossiblevaluesstep): This step creates one or more attribute possible values.
+
+### Input
+
+<ParamField body="input" type="CreateAttributeValueDTO[]" required>
+  The list of attribute values to create.
+
+  <Expandable title="properties">
+    <ParamField body="value" type="string" required>
+      The value of the attribute option (e.g. "Red", "XL").
+    </ParamField>
+    <ParamField body="rank" type="number" required>
+      The rank or order of the value used for sorting.
+    </ParamField>
+    <ParamField body="attribute_id" type="string" required>
+      The ID of the attribute this value belongs to.
+    </ParamField>
+    <ParamField body="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributePossibleValueDTO[]" type="AttributePossibleValueDTO[]">
+  The created attribute possible values.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the attribute value.
+    </ResponseField>
+    <ResponseField name="value" type="string">
+      The value of the attribute option.
+    </ResponseField>
+    <ResponseField name="rank" type="number">
+      The rank of the value.
+    </ResponseField>
+    <ResponseField name="attribute_id" type="string">
+      The ID of the parent attribute.
+    </ResponseField>
+    <ResponseField name="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## createAttributeValueWorkflow
+
+This documentation provides a reference to the `createAttributeValueWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates an attribute value for a product and links it to the product. It handles the creation of the attribute value and the remote link between the product and the attribute value. It also includes validation to ensure the value is allowed for the attribute and that the product is associated with the attribute's categories.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/workflows/create-attribute-value.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts src/api/workflow/route.ts
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { createAttributeValueWorkflow } from "@mercurjs/b2c-core"
+    
+    export async function POST(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ) {
+      const { result } = await createAttributeValueWorkflow(req.scope)
+        .run({
+          input: {
+            attribute_id: "attr_123",
+            product_id: "prod_123",
+            value: "Red"
+          }
+        })
+    
+      res.send(result)
+    }
+    ```
+  </Tab>
+  <Tab title="Another Workflow">
+    ```ts src/workflows/my-workflow.ts
+    import { createWorkflow } from "@medusajs/framework/workflows-sdk"
+    import { createAttributeValueWorkflow } from "@mercurjs/b2c-core"
+    
+    const myWorkflow = createWorkflow(
+      "my-workflow",
+      () => {
+        const result = createAttributeValueWorkflow
+          .runAsStep({
+            input: {
+              attribute_id: "attr_123",
+              product_id: "prod_123",
+              value: "Red"
+            }
+          })
+      }
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateAttributeValueStep](#validateattributevaluestep): Validates that the value is allowed for the attribute and the product is compatible.
+- [createAttributeValueStep](#createattributevaluestep): Creates the attribute value record.
+- **createRemoteLinkStep**: Links the created attribute value to the product.
+
+### Input
+
+<ParamField body="input" type="CreateProductAttributeValueDTO" required>
+  The details of the attribute value to create and link.
+
+  <Expandable title="properties">
+    <ParamField body="attribute_id" type="string" required>
+      The ID of the attribute.
+    </ParamField>
+    <ParamField body="product_id" type="string" required>
+      The ID of the product to assign the value to.
+    </ParamField>
+    <ParamField body="value" type="string" required>
+      The value to assign (must be one of the possible values if defined).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributeValueDTO" type="AttributeValueDTO">
+  The created attribute value.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the attribute value.
+    </ResponseField>
+    <ResponseField name="value" type="string">
+      The assigned value.
+    </ResponseField>
+    <ResponseField name="attribute_id" type="string">
+      The ID of the attribute.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## createAttributesWorkflow
+
+This documentation provides a reference to the `createAttributesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates one or more attributes and optionally links them to product categories.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/workflows/create-attributes.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts src/api/workflow/route.ts
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { createAttributesWorkflow } from "@mercurjs/b2c-core"
+    
+    export async function POST(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ) {
+      const { result } = await createAttributesWorkflow(req.scope)
+        .run({
+          input: {
+            attributes: [{
+              name: "Material",
+              handle: "material",
+              ui_component: "select",
+              is_filterable: true,
+              product_category_ids: ["pcat_123"]
+            }]
+          }
+        })
+    
+      res.send(result)
+    }
+    ```
+  </Tab>
+  <Tab title="Another Workflow">
+    ```ts src/workflows/my-workflow.ts
+    import { createWorkflow } from "@medusajs/framework/workflows-sdk"
+    import { createAttributesWorkflow } from "@mercurjs/b2c-core"
+    
+    const myWorkflow = createWorkflow(
+      "my-workflow",
+      () => {
+        const result = createAttributesWorkflow
+          .runAsStep({
+            input: {
+              attributes: [{
+                name: "Material",
+                ui_component: "select"
+              }]
+            }
+          })
+      }
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [createAttributesStep](#createattributesstep): Creates the attributes.
+- **createRemoteLinkStep**: Links the created attributes to the specified product categories.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="attributes" type="CreateAttributeDTO[]" required>
+      The list of attributes to create.
+
+      <Expandable title="properties">
+        <ParamField body="name" type="string" required>
+          The name of the attribute.
+        </ParamField>
+        <ParamField body="ui_component" type="string" required>
+          The UI component type (e.g., 'select', 'text').
+        </ParamField>
+        <ParamField body="description" type="string">
+          The description of the attribute.
+        </ParamField>
+        <ParamField body="handle" type="string">
+          The handle for the attribute. Defaults to slugified name.
+        </ParamField>
+        <ParamField body="is_filterable" type="boolean">
+          Whether the attribute can be used for filtering.
+        </ParamField>
+        <ParamField body="is_required" type="boolean">
+          Whether the attribute is required.
+        </ParamField>
+        <ParamField body="product_category_ids" type="string[]">
+          List of product category IDs to link this attribute to.
+        </ParamField>
+        <ParamField body="possible_values" type="CreateAttributeValueDTO[]">
+          List of possible values for this attribute.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributeDTO[]" type="AttributeDTO[]">
+  The created attributes.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the attribute.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The name of the attribute.
+    </ResponseField>
+    <ResponseField name="handle" type="string">
+      The handle of the attribute.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## deleteAttributeValueWorkflow
+
+This documentation provides a reference to the `deleteAttributeValueWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow deletes one or more attribute values (the actual assigned values to products, not the definition possible values) and cleans up the links to products.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/workflows/delete-attribute-value.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts src/api/workflow/route.ts
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { deleteAttributeValueWorkflow } from "@mercurjs/b2c-core"
+    
+    export async function POST(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ) {
+      const { result } = await deleteAttributeValueWorkflow(req.scope)
+        .run({
+          input: ["attr_val_123", "attr_val_456"]
+        })
+    
+      res.send(result)
+    }
+    ```
+  </Tab>
+  <Tab title="Another Workflow">
+    ```ts src/workflows/my-workflow.ts
+    import { createWorkflow } from "@medusajs/framework/workflows-sdk"
+    import { deleteAttributeValueWorkflow } from "@mercurjs/b2c-core"
+    
+    const myWorkflow = createWorkflow(
+      "my-workflow",
+      () => {
+        const result = deleteAttributeValueWorkflow
+          .runAsStep({
+            input: "attr_val_123"
+          })
+      }
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **useQueryGraphStep**: Fetches the links between the attribute values and products to be dismissed.
+- [deleteAttributeValueStep](#deleteattributevaluestep): Soft deletes the attribute values.
+- **dismissRemoteLinkStep**: Removes the links between the attribute values and products.
+
+### Input
+
+<ParamField body="input" type="string | string[]" required>
+  The ID or IDs of the attribute values to delete.
+</ParamField>
+
+### Output
+
+<ResponseField name="string[]" type="string[]">
+  The IDs of the deleted attribute values.
+</ResponseField>
+
+---
+
+## deleteAttributeWorkflow
+
+This documentation provides a reference to the `deleteAttributeWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow deletes an attribute definition.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/workflows/delete-attribute.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts src/api/workflow/route.ts
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { deleteAttributeWorkflow } from "@mercurjs/b2c-core"
+    
+    export async function POST(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ) {
+      const { result } = await deleteAttributeWorkflow(req.scope)
+        .run({
+          input: {
+            id: "attr_123"
+          }
+        })
+    
+      res.send(result)
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [deleteAttributeStep](#deleteattributestep): Deletes the attribute and its associated links.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the attribute to delete.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  The workflow does not return a value.
+</ResponseField>
+
+---
+
+## updateAttributePossibleValueWorkflow
+
+This documentation provides a reference to the `updateAttributePossibleValueWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow updates a possible value definition of an attribute (e.g., changing "Blue" to "Navy").
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/workflows/update-attribute-possible-value.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts src/api/workflow/route.ts
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { updateAttributePossibleValueWorkflow } from "@mercurjs/b2c-core"
+    
+    export async function POST(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ) {
+      const { result } = await updateAttributePossibleValueWorkflow(req.scope)
+        .run({
+          input: {
+            id: "attr_val_def_123",
+            value: "Navy",
+            rank: 2
+          }
+        })
+    
+      res.send(result)
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updateAttributePossibleValueStep](#updateattributepossiblevaluestep): Updates the attribute possible value.
+
+### Input
+
+<ParamField body="input" type="UpdateAttributeValueDTO" required>
+  The details to update.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the possible value to update.
+    </ParamField>
+    <ParamField body="value" type="string">
+      The new value.
+    </ParamField>
+    <ParamField body="rank" type="number">
+      The new rank.
+    </ParamField>
+    <ParamField body="metadata" type="Record<string, unknown>">
+      New metadata.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributePossibleValueDTO" type="AttributePossibleValueDTO">
+  The updated attribute possible value.
+</ResponseField>
+
+---
+
+## updateAttributesWorkflow
+
+This documentation provides a reference to the `updateAttributesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow updates one or more attributes, including their details, possible values, and category associations.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/workflows/update-attributes.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts src/api/workflow/route.ts
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { updateAttributesWorkflow } from "@mercurjs/b2c-core"
+    
+    export async function POST(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ) {
+      const { result } = await updateAttributesWorkflow(req.scope)
+        .run({
+          input: {
+            attributes: [{
+              id: "attr_123",
+              name: "Fabric",
+              product_category_ids: ["pcat_new_category"]
+            }]
+          }
+        })
+    
+      res.send(result)
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updateAttributesStep](#updateattributesstep): Updates the attributes and their possible values.
+- **useQueryGraphStep**: Fetches current category links to determine what to add or remove.
+- **dismissRemoteLinkStep**: Removes links to categories that are no longer associated.
+- **createRemoteLinkStep**: Creates links to newly associated categories.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="attributes" type="UpdateAttributeDTO[]" required>
+      The list of attributes to update.
+
+      <Expandable title="properties">
+        <ParamField body="id" type="string" required>
+          The ID of the attribute.
+        </ParamField>
+        <ParamField body="name" type="string">
+          The new name.
+        </ParamField>
+        <ParamField body="product_category_ids" type="string[]">
+          The new list of product category IDs. Replaces existing links.
+        </ParamField>
+        <ParamField body="possible_values" type="CreateAttributeValueDTO[]">
+          The new list of possible values. This handles upsert/replace logic.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributeDTO[]" type="AttributeDTO[]">
+  The updated attributes.
+</ResponseField>
+
+---
+
+# Steps
+
+## createAttributePossibleValuesStep
+
+Creates one or more attribute possible values.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/steps/create-attribute-possible-values.ts)
+
+### Input
+
+<ParamField body="data" type="CreateAttributeValueDTO[]" required>
+  List of values to create.
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributePossibleValueDTO[]" type="AttributePossibleValueDTO[]">
+  The created values.
+</ResponseField>
+
+---
+
+## createAttributeValueStep
+
+Creates an attribute value (assigned value).
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/steps/create-attribute-value.ts)
+
+### Input
+
+<ParamField body="input" type="Omit<CreateProductAttributeValueDTO, 'product_id'>" required>
+  The value data (excluding product ID which is linked separately).
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributeValueDTO" type="AttributeValueDTO">
+  The created value.
+</ResponseField>
+
+---
+
+## createAttributesStep
+
+Creates one or more attributes. It validates that no attribute with the same name exists.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/steps/create-attributes.ts)
+
+### Input
+
+<ParamField body="data" type="Omit<CreateAttributeDTO, 'product_category_ids'>[]" required>
+  List of attributes to create.
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributeDTO[]" type="AttributeDTO[]">
+  The created attributes.
+</ResponseField>
+
+---
+
+## deleteAttributeValueStep
+
+Soft deletes attribute values.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/steps/delete-attribute-value.ts)
+
+### Input
+
+<ParamField body="ids" type="string[]" required>
+  IDs of the values to delete.
+</ParamField>
+
+### Output
+
+<ResponseField name="string[]" type="string[]">
+  The IDs of deleted values.
+</ResponseField>
+
+---
+
+## deleteAttributeStep
+
+Soft deletes an attribute and removes its links.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/steps/delete-attribute.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      ID of the attribute to delete.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  No return value.
+</ResponseField>
+
+---
+
+## updateAttributePossibleValueStep
+
+Updates a single attribute possible value.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/steps/update-attribute-possible-value.ts)
+
+### Input
+
+<ParamField body="payload" type="UpdateAttributeValueDTO" required>
+  The update data.
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributePossibleValueDTO" type="AttributePossibleValueDTO">
+  The updated value.
+</ResponseField>
+
+---
+
+## updateAttributesStep
+
+Updates attributes and their possible values. Uses upsert/replace logic for values.
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/steps/update-attributes.ts)
+
+### Input
+
+<ParamField body="data" type="UpdateAttributeDTO[]" required>
+  List of attributes to update.
+</ParamField>
+
+### Output
+
+<ResponseField name="AttributeDTO[]" type="AttributeDTO[]">
+  The updated attributes.
+</ResponseField>
+
+---
+
+## validateAttributeValueStep
+
+Validates that a value is allowed for a given attribute and product. It checks:
+
+1. If the value is in the attribute's `possible_values` (if restricted).
+2. If the product belongs to a category allowed by the attribute.
+3. If the product already has a value for this attribute (duplicate check).
+
+[Source code](packages/modules/b2c-core/src/workflows/attribute/steps/validate-attribute-value.ts)
+
+### Input
+
+<ParamField body="input" type="CreateProductAttributeValueDTO" required>
+  The value creation payload to validate.
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an error if validation fails.
+</ResponseField>

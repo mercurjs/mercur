@@ -1,0 +1,171 @@
+---
+title: "Commission Subscribers"
+description: "Event subscribers in the Commission Module"
+---
+
+# Commission Subscribers Reference
+
+## Commission Calculation Subscriber
+
+### commission-order-set-placed-handler
+
+Automatically calculates and creates commission lines for all orders when an order set is placed.
+
+**Event**: `order_set.placed` (OrderSetWorkflowEvents.PLACED)  
+**Source**: `packages/modules/commission/src/subscribers/commission-order-set-placed.ts`
+
+#### Functionality
+
+When an order set is placed (typically when a customer completes checkout with items from multiple sellers), this subscriber:
+
+1. **Retrieves Order Set**: Fetches the order set and all associated orders
+2. **Iterates Through Orders**: Processes each order in the set individually
+3. **Identifies Sellers**: For each order, retrieves the associated seller using the seller-order link
+4. **Calculates Commission**: Executes the `calculateCommissionWorkflow` for each order-seller pair
+5. **Skips Invalid Orders**: Returns early if no seller is found for an order
+
+#### Event Payload
+
+```ts
+{
+  id: string // The ID of the order set that was placed
+}
+```
+
+#### Workflow Execution
+
+For each order in the order set, the subscriber executes:
+
+```ts
+calculateCommissionWorkflow.run({
+  input: {
+    order_id: string,  // The ID of the individual order
+    seller_id: string  // The ID of the seller who owns the order
+  },
+  container
+})
+```
+
+The workflow then:
+1. Determines applicable commission rules based on seller, product category, and product type
+2. Calculates commission amounts for each line item
+3. Creates commission line records in the database
+
+#### Use Cases
+
+- **Automated Commission Tracking**: Ensures every order has commission records created immediately
+- **Multi-Seller Orders**: Handles orders from multiple sellers in a single transaction
+- **Commission Calculation**: Applies the appropriate commission rules based on seller and product configuration
+- **Financial Reporting**: Provides data for seller payouts and marketplace revenue tracking
+
+#### Data Flow
+
+```
+Order Set Placed
+      ↓
+Subscriber Triggered
+      ↓
+Retrieve Order Set → Get All Orders
+      ↓
+For Each Order:
+  → Get Seller
+  → Execute calculateCommissionWorkflow
+      ↓
+      → Find Commission Rules
+      → Calculate Commission for Each Line Item
+      → Create Commission Lines
+      ↓
+Commission Records Created
+```
+
+#### Commission Calculation Logic
+
+The workflow uses a priority-based rule selection:
+
+1. **Seller + Product Type**: Most specific rule
+2. **Seller + Product Category**: Seller-specific category rule
+3. **Seller**: General seller rule
+4. **Product Type**: Marketplace-wide type rule
+5. **Product Category**: Marketplace-wide category rule
+6. **Site Default**: Fallback rule for all products
+
+For each line item, the commission is calculated based on the rule type:
+- **Percentage Rate**: `(item_price * percentage) / 100`
+- **Flat Rate**: Fixed amount from the price set
+
+Min/max limits are applied if configured in the commission rule.
+
+#### Error Handling
+
+- **Missing Seller**: Returns early without throwing an error
+- **Workflow Failures**: Handled by the workflow's built-in retry and compensation mechanisms
+- **Invalid Data**: Validated within the `calculateCommissionWorkflow`
+
+#### Performance Considerations
+
+- **Sequential Processing**: Orders are processed one at a time to maintain data consistency
+- **Batch Potential**: Could be optimized to process multiple orders in parallel if needed
+- **Database Queries**: Uses GraphQL queries for efficient data retrieval
+- **Idempotency**: Commission calculations are idempotent and can be safely retried
+
+***
+
+## Notes
+
+### Event-Driven Commission Calculation
+
+The Commission Module uses an event-driven approach for commission calculation:
+
+**Advantages:**
+- **Automatic Execution**: Commission is calculated without manual intervention
+- **Decoupled Architecture**: Commission logic is separate from order placement logic
+- **Extensibility**: Other modules can listen to the same event for additional processing
+- **Reliability**: Event bus ensures the subscriber is executed even if there are temporary failures
+
+**Order Set vs Individual Orders:**
+- The subscriber listens to `order_set.placed` rather than `order.placed`
+- This ensures commission is calculated after all orders in a multi-seller purchase are created
+- Single-seller purchases also go through the order set workflow, so all orders are covered
+
+### Subscriber Configuration
+
+The subscriber is configured with:
+
+```ts
+{
+  event: OrderSetWorkflowEvents.PLACED,
+  context: {
+    subscriberId: "commission-order-set-placed-handler"
+  }
+}
+```
+
+- **event**: Specifies which event triggers this subscriber
+- **subscriberId**: Unique identifier for tracking and debugging
+- **context**: Optional metadata that can be used for filtering or monitoring
+
+### Integration with Payout System
+
+Commission lines created by this subscriber are later used for:
+
+1. **Payout Calculation**: The payout system reads commission lines to calculate seller earnings
+2. **Financial Reports**: Admin dashboards show commission breakdown by order
+3. **Seller Statements**: Sellers can view commission applied to their orders
+4. **Revenue Tracking**: Marketplace operators track total commission earned
+
+The commission lines are linked to orders through the database, allowing queries like:
+- "Show me all commission for this seller"
+- "What was the commission on this specific order?"
+- "Calculate total marketplace revenue for this period"
+
+### Testing and Debugging
+
+To test or debug commission calculation:
+
+1. **Check Event Emission**: Verify that `order_set.placed` events are being emitted
+2. **Subscriber Execution**: Check logs for the subscriber ID
+3. **Commission Rules**: Ensure appropriate commission rules exist
+4. **Commission Lines**: Query the `commission_line` table to verify records were created
+5. **Workflow Logs**: Review workflow execution logs for detailed calculation steps
+
+***

@@ -1,0 +1,62 @@
+---
+title: "Seller Module Options"
+description: "Configuration options for the Seller Module"
+---
+
+# Seller Module Options
+
+In this document, you'll learn about the options of the Seller Module.
+
+## validInviteDuration
+
+The `validInviteDuration` option configures how long member invitation tokens remain valid before expiring.
+
+**Type**: `number`  
+**Default**: `604800000` (7 days in milliseconds)  
+**Unit**: Milliseconds
+
+When a seller invites a team member, a JWT token is generated with an expiration time. This option controls that duration.
+
+For example, to set invitations to expire after 3 days:
+
+```ts title="medusa-config.ts"
+module.exports = defineConfig({
+  // ...
+  modules: [
+    {
+      resolve: "@mercurjs/b2c-core",
+      options: {
+        seller: {
+          validInviteDuration: 259200000, // 3 days in milliseconds
+        },
+      },
+    },
+  ],
+})
+```
+
+### Calculation
+
+To convert days to milliseconds:
+```
+days × 24 hours × 60 minutes × 60 seconds × 1000 milliseconds
+```
+
+**Common Values:**
+- 1 day: `86400000`
+- 3 days: `259200000`
+- 7 days: `604800000` (default)
+- 14 days: `1209600000`
+- 30 days: `2592000000`
+
+### Use Cases
+
+**Shorter Duration (1-3 days)**
+- High-security marketplaces
+- Urgent team additions
+- Reduces risk of token compromise
+
+**Longer Duration (14-30 days)**
+- Casual onboarding processes
+- International teams across time zones
+- Reduces need to resend invitations

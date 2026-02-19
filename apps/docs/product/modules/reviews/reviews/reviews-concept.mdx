@@ -1,0 +1,329 @@
+---
+title: "Review Module"
+description: "Learn about the Review Module and how to use it in your application"
+---
+
+# Review Module
+
+In this section of the documentation, you will find resources to learn more about the Review Module and how to use it in your application.
+
+Mercur has product and seller review features available out-of-the-box through the Review Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Review Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Review Features
+
+- **Dual Review Types**: Support reviews for both products and sellers using a single unified system.
+- **Rating System**: 1-5 star rating system for quantitative feedback.
+- **Customer Notes**: Allow customers to write detailed review comments.
+- **Seller Responses**: Enable sellers to respond to reviews about their products or service.
+- **Order Verification**: Link reviews to orders to ensure only verified purchasers can review.
+- **Review Removal Requests**: Allow sellers to request removal of unfair reviews through the request system.
+
+---
+
+## How to Use the Review Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+You can build custom workflows and steps. Mercur provides pre-built workflows for review operations in the `@mercurjs/reviews` package.
+
+For example, the `createReviewWorkflow`:
+
+```ts title="src/workflows/review/create-review.ts"
+import { Modules } from "@medusajs/framework/utils"
+import {
+  WorkflowResponse,
+  createHook,
+  createWorkflow,
+  transform,
+} from "@medusajs/framework/workflows-sdk"
+import {
+  createRemoteLinkStep,
+  emitEventStep,
+} from "@medusajs/medusa/core-flows"
+import { AlgoliaEvents, CreateReviewDTO } from "@mercurjs/framework"
+import { REVIEW_MODULE } from "../../../modules/reviews"
+import { createReviewStep, validateReviewStep } from "../steps"
+
+const SELLER_MODULE = "seller"
+
+export const createReviewWorkflow = createWorkflow(
+  {
+    name: "create-review",
+  },
+  function (input: CreateReviewDTO) {
+    // Validate review data
+    validateReviewStep(input)
+    
+    // Create the review
+    const review = createReviewStep(input)
+
+    // Create appropriate module link based on reference type
+    const link = transform({ input, review }, ({ input, review }) => {
+      return input.reference === "product"
+        ? [
+            {
+              [Modules.PRODUCT]: {
+                product_id: input.reference_id,
+              },
+              [REVIEW_MODULE]: {
+                review_id: review.id,
+              },
+            },
+          ]
+        : [
+            {
+              [SELLER_MODULE]: {
+                seller_id: input.reference_id,
+              },
+              [REVIEW_MODULE]: {
+                review_id: review.id,
+              },
+            },
+          ]
+    })
+
+    createRemoteLinkStep(link)
+    
+    // Emit event for search engine reindexing
+    emitEventStep({
+      eventName: AlgoliaEvents.REVIEW_CHANGED,
+      data: { review },
+    })
+
+    // Emit workflow hook
+    const reviewCreatedHook = createHook("reviewCreated", {
+      review_id: review.id,
+    })
+    
+    return new WorkflowResponse(review, {
+      hooks: [reviewCreatedHook],
+    })
+  }
+)
+```
+
+You can then execute the workflow in your custom API routes:
+
+### API Route
+
+```ts title="src/api/store/reviews/route.ts"
+import {
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { createReviewWorkflow } from "../../../workflows/review/workflows"
+
+export const POST = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  // Execute the createReviewWorkflow
+  const { result } = await createReviewWorkflow.run({
+    container: req.scope,
+    input: {
+      ...req.validatedBody,
+      customer_id: req.auth_context.actor_id,
+    },
+  })
+
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [review],
+  } = await query.graph({
+    entity: "review",
+    fields: req.queryConfig.fields,
+    filters: {
+      id: result.id,
+    },
+  })
+
+  res.status(201).json({ review })
+}
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to reviews in Mercur.
+
+## Review
+
+A review represents customer feedback about a product or seller. It is represented by the [Review data model](../data-model/review-module-data-reference#review).
+
+A review holds information about:
+
+- Reference type (product or seller)
+- Rating value (1-5)
+- Customer note (written review comment)
+- Customer ID (who wrote the review)
+- Seller note (seller's response to the review)
+- Created and updated timestamps
+
+This enables a two-way feedback system where customers can share experiences and sellers can engage with feedback.
+
+---
+
+## Dual Reference System
+
+The Review Module uses a single data model to handle two types of reviews:
+
+### Product Reviews
+
+**Reference**: `product`  
+**Reference ID**: Product ID  
+**Purpose**: Rate and review specific products
+
+Customers can review:
+- Product quality
+- Accuracy of description
+- Value for money
+- Overall satisfaction
+
+Product reviews help other customers make informed purchase decisions and provide sellers with product feedback.
+
+### Seller Reviews
+
+**Reference**: `seller`  
+**Reference ID**: Seller ID  
+**Purpose**: Rate and review seller service
+
+Customers can review:
+- Shipping speed
+- Communication quality
+- Packaging quality
+- Overall seller experience
+
+Seller reviews build marketplace trust and help customers choose reliable vendors.
+
+---
+
+## Rating System
+
+Reviews use a 1-5 star rating system:
+
+- **5 stars**: Excellent
+- **4 stars**: Good
+- **3 stars**: Average
+- **2 stars**: Below Average
+- **1 star**: Poor
+
+The `rating` field stores the numeric value (1-5). Marketplaces can calculate:
+- Average ratings per product/seller
+- Rating distributions (e.g., "80% 5-star reviews")
+- Trending ratings over time
+
+---
+
+## Customer Notes
+
+The `customer_note` field allows customers to write detailed review comments (up to 300 characters in typical implementations).
+
+This provides qualitative feedback beyond the numeric rating:
+- Specific product details
+- Use case descriptions
+- Pros and cons
+- Recommendations
+
+Customer notes are displayed publicly to help other shoppers.
+
+---
+
+## Seller Responses
+
+The `seller_note` field allows sellers to respond to reviews:
+
+**Use Cases:**
+- Thank customers for positive reviews
+- Address concerns in negative reviews
+- Provide additional product information
+- Offer solutions to problems
+
+Seller responses demonstrate:
+- Customer service quality
+- Responsiveness
+- Professionalism
+- Commitment to customer satisfaction
+
+This two-way communication builds trust and shows sellers actively engage with feedback.
+
+---
+
+## Order Verification
+
+Reviews are linked to orders through module links, ensuring:
+
+- Only verified purchasers can review
+- Customers can only review products/sellers they've bought from
+- One review per customer per product/seller per order
+- Review authenticity is guaranteed
+
+This prevents fake reviews and maintains marketplace integrity.
+
+---
+
+## Review Removal System
+
+Sellers can request review removal through the Request Module when they believe a review:
+- Violates marketplace policies
+- Contains inappropriate content
+- Is fraudulent or fake
+- Is unfair or inaccurate
+
+**Process:**
+1. Seller creates `review_remove` request with review ID and reason
+2. Admin reviews the request and both the original review
+3. If approved: `RemoveReviewRequestUpdatedEvent.REMOVED` is emitted
+4. Subscriber triggers `deleteReviewWorkflow`
+5. Review is deleted from the system
+
+This provides a dispute resolution mechanism while maintaining review integrity.
+
+---
+
+## Search Engine Integration
+
+When reviews are created or updated, the workflow emits `AlgoliaEvents.REVIEW_CHANGED`:
+
+```ts
+emitEventStep({
+  eventName: AlgoliaEvents.REVIEW_CHANGED,
+  data: { review },
+})
+```
+
+This triggers:
+- Product reindexing with updated average rating
+- Seller profile reindexing with updated rating
+- Search results updated with current ratings
+
+Keeping search indexes synchronized ensures customers always see accurate ratings.
+
+---
+
+## Use Cases
+
+**1. Product Feedback**
+Customer purchases a product, receives it, and leaves a 5-star review praising quality.
+
+**2. Seller Service Review**
+Customer reviews seller's fast shipping and excellent communication with 4 stars.
+
+**3. Seller Response**
+Seller receives 3-star review, responds professionally addressing the customer's concern and offering a solution.
+
+**4. Review Removal**
+Seller receives unfair 1-star review from competitor, requests removal, admin investigates and approves removal.
+
+**5. Average Rating Display**
+Marketplace calculates and displays average rating (4.7/5 from 234 reviews) on product pages.
+
+**6. Verified Purchase Badge**
+Reviews linked to orders display "Verified Purchase" badge, increasing trust.
+

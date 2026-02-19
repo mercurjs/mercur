@@ -1,0 +1,332 @@
+---
+title: "Workflow Hooks"
+description: "Reference documentation for Mercur's workflow hook handlers that extend Medusa's core commerce workflows"
+---
+
+# Overview
+
+Workflow hooks are specific points in Medusa's core workflows where you can inject custom functionality. Learn more about [workflow hooks in Medusa's documentation](https://docs.medusajs.com/learn/fundamentals/workflows/workflow-hooks#content).
+
+The hooks documented below extend Medusa's core commerce workflows to add marketplace-specific functionality such as seller associations, inventory management, secondary categories, and search index synchronization.
+
+---
+
+# Product Hooks
+
+## createProductsWorkflow.hooks.productsCreated
+
+This hook handler extends Medusa's `createProductsWorkflow` to add marketplace-specific functionality when products are created.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/hooks/product-created.ts)
+
+### Functionality
+
+- Links products to sellers
+- Links inventory items to sellers
+- Creates and links secondary categories
+- Assigns default seller shipping profiles
+- Emits `products.changed` event for Algolia indexing
+- Handles attribute value creation for products
+
+### Hook Input
+
+<ParamField body="products" type="ProductDTO[]" required>
+  Array of created products.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Additional data passed from API route or workflow.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string">
+      The ID of the seller creating the products. When provided, creates seller-product and seller-inventory links.
+    </ParamField>
+
+    <ParamField body="secondary_categories" type="object[]">
+      Array of secondary category assignments.
+
+      <Expandable title="properties">
+        <ParamField body="handle" type="string" required>
+          The product handle to match.
+        </ParamField>
+
+        <ParamField body="secondary_categories_ids" type="string[]" required>
+          Array of secondary category IDs to link to the product.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Compensation
+
+The hook includes a compensation function that dismisses all created product links if a subsequent step fails.
+
+---
+
+## updateProductsWorkflow.hooks.productsUpdated
+
+This hook handler extends Medusa's `updateProductsWorkflow` to update marketplace-specific relationships and trigger search index updates when products are updated.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/hooks/product-updated.ts)
+
+### Functionality
+
+- Updates attribute values for products
+- Manages secondary category links (add/remove)
+- Emits `products.changed` event for Algolia indexing
+
+### Hook Input
+
+<ParamField body="products" type="ProductDTO[]" required>
+  Array of updated products.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Additional data passed from API route or workflow.
+
+  <Expandable title="properties">
+    <ParamField body="secondary_categories" type="object[]">
+      Array of secondary category updates.
+
+      <Expandable title="properties">
+        <ParamField body="product_id" type="string" required>
+          The ID of the product to update.
+        </ParamField>
+
+        <ParamField body="add" type="string[]">
+          Array of secondary category IDs to add.
+        </ParamField>
+
+        <ParamField body="remove" type="string[]">
+          Array of secondary category IDs to remove.
+        </ParamField>
+
+        <ParamField body="secondary_categories_ids" type="string[]">
+          Array of secondary category IDs (alternative to add/remove).
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+---
+
+## deleteProductsWorkflow.hooks.productsDeleted
+
+This hook handler extends Medusa's `deleteProductsWorkflow` to trigger search index updates when products are deleted.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/hooks/product-deleted.ts)
+
+### Functionality
+
+- Emits `products.deleted` event for Algolia index removal
+
+### Hook Input
+
+<ParamField body="ids" type="string[]" required>
+  Array of deleted product IDs.
+</ParamField>
+
+---
+
+## createProductVariantsWorkflow.hooks.productVariantsCreated
+
+This hook handler extends Medusa's `createProductVariantsWorkflow` to link newly created variants' inventory items to sellers.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/hooks/product-variant-created.ts)
+
+### Functionality
+
+- Links inventory items to sellers for variants with inventory management enabled
+
+### Hook Input
+
+<ParamField body="product_variants" type="ProductVariantDTO[]" required>
+  Array of created product variants.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Additional data passed from API route or workflow.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string">
+      The ID of the seller. If not provided, no links are created.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+---
+
+## updateProductVariantsWorkflow.hooks.productVariantsUpdated
+
+This hook handler extends Medusa's `updateProductVariantsWorkflow` to trigger search index updates for products when their variants are updated.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/hooks/product-variants-updated.ts)
+
+### Functionality
+
+- Emits `products.changed` event for Algolia indexing of affected products
+
+### Hook Input
+
+<ParamField body="product_variants" type="ProductVariantDTO[]" required>
+  Array of updated product variants (includes product_id).
+</ParamField>
+
+---
+
+## updateCollectionsWorkflow.hooks.collectionsUpdated
+
+This hook handler extends Medusa's `updateCollectionsWorkflow` to trigger search index updates for products when their collections are updated.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/hooks/product-collections-updated.ts)
+
+### Functionality
+
+- Emits `products.changed` event for Algolia indexing of products in updated collections
+
+### Hook Input
+
+<ParamField body="collections" type="ProductCollectionDTO[]" required>
+  Array of updated collections (includes products array).
+</ParamField>
+
+---
+
+## updateProductOptionsWorkflow.hooks.productOptionsUpdated
+
+This hook handler extends Medusa's `updateProductOptionsWorkflow` to trigger search index updates for products when their options are updated.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/hooks/product-options-updated.ts)
+
+### Functionality
+
+- Emits `products.changed` event for Algolia indexing of affected products
+
+### Hook Input
+
+<ParamField body="product_options" type="ProductOptionDTO[]" required>
+  Array of updated product options (includes product_id).
+</ParamField>
+
+---
+
+## updateProductTagsWorkflow.hooks.productTagsUpdated
+
+This hook handler extends Medusa's `updateProductTagsWorkflow` to trigger search index updates for products when their tags are updated.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/hooks/product-tags-updated.ts)
+
+### Functionality
+
+- Emits `products.changed` event for Algolia indexing of products with updated tags
+
+### Hook Input
+
+<ParamField body="product_tags" type="ProductTagDTO[]" required>
+  Array of updated product tags (includes products array).
+</ParamField>
+
+---
+
+# Order Hooks
+
+## createOrderShipmentWorkflow.hooks.shipmentCreated
+
+This hook handler extends Medusa's `createOrderShipmentWorkflow` to automatically complete orders when shipments are created and payment has been captured.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/hooks/order-shipment-created.ts)
+
+### Functionality
+
+- Retrieves order details from the fulfillment
+- Checks if payment status is "captured"
+- Automatically completes the order if payment is captured
+
+### Hook Input
+
+<ParamField body="shipment" type="FulfillmentDTO" required>
+  The created shipment (fulfillment) object.
+</ParamField>
+
+---
+
+# Usage Examples
+
+## Accessing Hook Handlers
+
+Hook handlers are automatically registered when the Medusa application starts. They're defined in files under `src/workflows/hooks/` and consume hooks from Medusa's core workflows.
+
+For example, the product creation hook in action:
+
+```ts title="packages/modules/b2c-core/src/workflows/hooks/product-created.ts"
+import { createProductsWorkflow } from "@medusajs/medusa/core-flows"
+
+createProductsWorkflow.hooks.productsCreated(
+  async (
+    {
+      products,
+      additional_data,
+    },
+    { container }
+  ) => {
+    // Link products to seller
+    if (additional_data?.seller_id) {
+      const remoteLinks = products.map((product) => ({
+        [SELLER_MODULE]: {
+          seller_id: additional_data.seller_id,
+        },
+        [Modules.PRODUCT]: {
+          product_id: product.id,
+        },
+      }));
+
+      await remoteLink.create(remoteLinks);
+    }
+
+    // Emit event for search indexing
+    await container.resolve(Modules.EVENT_BUS).emit({
+      name: AlgoliaEvents.PRODUCTS_CHANGED,
+      data: { ids: products.map((product) => product.id) },
+    });
+
+    return new StepResponse(
+      undefined,
+      products.map((product) => product.id)
+    );
+  },
+  async (productIds: string[] | null, { container }) => {
+    // Compensation: remove links if workflow fails
+    if (!productIds) return;
+
+    const remoteLink = container.resolve(ContainerRegistrationKeys.REMOTE_LINK);
+    await remoteLink.dismiss(
+      productIds.map((productId) => ({
+        [Modules.PRODUCT]: {
+          product_id: productId,
+        },
+      }))
+    );
+  }
+);
+```
+
+## Passing Additional Data
+
+To pass additional data (like `seller_id`) to hook handlers, include it when calling the workflow:
+
+```ts
+await createProductsWorkflow(req.scope).run({
+  input: {
+    products: [
+      // product data
+    ],
+    additional_data: {
+      seller_id: "sel_123",
+    },
+  },
+});
+```
+
+For more information on passing additional data, see [Medusa's Additional Data documentation](https://docs.medusajs.com/learn/fundamentals/api-routes/additional-data).

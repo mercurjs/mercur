@@ -1,0 +1,1930 @@
+---
+title: "Commission Module Service Reference"
+description: "Reference documentation for the Commission Module service methods"
+---
+
+# ICommissionModuleService Reference
+
+This section of the documentation provides a reference to the `ICommissionModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Commission Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Commission Module.
+
+## Methods
+
+### Commission Rule Methods
+- [createCommissionRules](#createcommissionrules)
+- [updateCommissionRules](#updatecommissionrules)
+- [deleteCommissionRules](#deletecommissionrules)
+- [retrieveCommissionRule](#retrievecommissionrule)
+- [listCommissionRules](#listcommissionrules)
+- [listAndCountCommissionRules](#listandcountcommissionrules)
+- [softDeleteCommissionRules](#softdeletecommissionrules)
+- [restoreCommissionRules](#restorecommissionrules)
+
+### Commission Rate Methods
+- [createCommissionRates](#createcommissionrates)
+- [updateCommissionRates](#updatecommissionrates)
+- [deleteCommissionRates](#deletecommissionrates)
+- [retrieveCommissionRate](#retrievecommissionrate)
+- [listCommissionRates](#listcommissionrates)
+- [listAndCountCommissionRates](#listandcountcommissionrates)
+- [softDeleteCommissionRates](#softdeletecommissionrates)
+- [restoreCommissionRates](#restorecommissionrates)
+
+### Commission Line Methods
+- [createCommissionLines](#createcommissionlines)
+- [updateCommissionLines](#updatecommissionlines)
+- [deleteCommissionLines](#deletecommissionlines)
+- [retrieveCommissionLine](#retrievecommissionline)
+- [listCommissionLines](#listcommissionlines)
+- [listAndCountCommissionLines](#listandcountcommissionlines)
+- [softDeleteCommissionLines](#softdeletecommissionlines)
+- [restoreCommissionLines](#restorecommissionlines)
+
+### Custom Methods
+- [selectCommissionForProductLine](#selectcommissionforproductline)
+
+---
+
+# selectCommissionForProductLine
+
+This section provides a reference to the `selectCommissionForProductLine` method. This belongs to the Commission Module.
+
+This method selects the applicable commission rule for a given product line item based on the commission rule priority system. It searches through rules in priority order and returns the first matching active rule.
+
+## Priority Order
+
+1. `seller+product_type` (highest priority)
+2. `seller+product_category`
+3. `seller`
+4. `product_type`
+5. `product_category`
+6. `site` (lowest priority/default)
+
+## Example
+
+```ts
+const rule = await commissionModuleService.selectCommissionForProductLine({
+  seller_id: "sel_123",
+  product_type_id: "ptyp_456",
+  product_category_id: "pcat_789",
+})
+```
+
+## Parameters
+
+<ParamField body="ctx" type="CommissionCalculationContext" required>
+  The calculation context containing product and seller information.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller.
+    </ParamField>
+
+    <ParamField body="product_type_id" type="string" required>
+      The ID of the product type.
+    </ParamField>
+
+    <ParamField body="product_category_id" type="string" required>
+      The ID of the product category.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRuleDTO | null>">
+  The first applicable commission rule found, or `null` if no rule matches.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the commission rule.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the commission rule.
+    </ResponseField>
+
+    <ResponseField name="reference" type="string">
+      The type of the commission rule reference.
+    </ResponseField>
+
+    <ResponseField name="reference_id" type="string">
+      The ID of the referenced entity.
+    </ResponseField>
+
+    <ResponseField name="rate" type="CommissionRateDTO">
+      The associated commission rate.
+
+      <Expandable title="properties">
+        <ResponseField name="id" type="string">
+          The ID of the commission rate.
+        </ResponseField>
+
+        <ResponseField name="type" type='"flat" | "percentage"'>
+          The type of the commission rate.
+        </ResponseField>
+
+        <ResponseField name="percentage_rate" type="number | null">
+          The percentage rate for percentage-based commissions.
+        </ResponseField>
+
+        <ResponseField name="include_tax" type="boolean">
+          Whether the commission calculation includes tax.
+        </ResponseField>
+
+        <ResponseField name="price_set_id" type="string | null">
+          The ID of the price set used for flat-rate commissions.
+        </ResponseField>
+
+        <ResponseField name="max_price_set_id" type="string | null">
+          The ID of the price set defining the maximum commission amount.
+        </ResponseField>
+
+        <ResponseField name="min_price_set_id" type="string | null">
+          The ID of the price set defining the minimum commission amount.
+        </ResponseField>
+
+        <ResponseField name="created_at" type="Date">
+          The created date of the commission rate.
+        </ResponseField>
+
+        <ResponseField name="updated_at" type="Date">
+          The updated date of the commission rate.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the commission rule.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the commission rule.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# createCommissionRules
+
+This section provides a reference to the `createCommissionRules` method. This belongs to the Commission Module.
+
+## createCommissionRules(data, sharedContext?): Promise\<CommissionRuleDTO[]>
+
+This method creates commission rules.
+
+### Example
+
+```ts
+const rules = await commissionModuleService.createCommissionRules([
+  {
+    name: "Default Site Commission",
+    reference: "site",
+    reference_id: "",
+    is_active: true,
+    rate: {
+      type: "percentage",
+      percentage_rate: 10,
+      include_tax: false,
+    },
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateCommissionRuleDTO[]" required>
+  The commission rules to be created.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the commission rule.
+    </ParamField>
+
+    <ParamField body="reference" type="string" required>
+      The type of the commission rule reference. Can be `site`, `product_type`, `product_category`, `seller+product_category`, `seller+product_type`, or `seller`.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string" required>
+      The ID of the referenced entity. Empty string for `site` reference type.
+    </ParamField>
+
+    <ParamField body="is_active" type="boolean" required>
+      Whether the commission rule is active.
+    </ParamField>
+
+    <ParamField body="rate" type="CreateCommissionRateDTO" required>
+      The commission rate configuration.
+
+      <Expandable title="properties">
+        <ParamField body="type" type='"flat" | "percentage"' required>
+          The type of the commission rate.
+        </ParamField>
+
+        <ParamField body="percentage_rate" type="number">
+          The percentage rate for percentage-based commissions.
+        </ParamField>
+
+        <ParamField body="include_tax" type="boolean" required>
+          Whether the commission calculation includes tax.
+        </ParamField>
+
+        <ParamField body="price_set" type="Price[]">
+          The price set for flat-rate commissions.
+
+          <Expandable title="properties">
+            <ParamField body="amount" type="number" required>
+              The commission amount.
+            </ParamField>
+
+            <ParamField body="currency_code" type="string" required>
+              The ISO 3 currency code.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+
+        <ParamField body="min_price_set" type="Price[]">
+          The minimum commission amount price set.
+        </ParamField>
+
+        <ParamField body="max_price_set" type="Price[]">
+          The maximum commission amount price set.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRuleDTO[]>">
+  The created commission rules.
+</ResponseField>
+
+## createCommissionRules(data, sharedContext?): Promise\<CommissionRuleDTO>
+
+This method creates a commission rule.
+
+### Example
+
+```ts
+const rule = await commissionModuleService.createCommissionRules({
+  name: "Electronics Category Commission",
+  reference: "product_category",
+  reference_id: "pcat_electronics",
+  is_active: true,
+  rate: {
+    type: "percentage",
+    percentage_rate: 15,
+    include_tax: false,
+  },
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateCommissionRuleDTO" required>
+  The commission rule to be created.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the commission rule.
+    </ParamField>
+
+    <ParamField body="reference" type="string" required>
+      The type of the commission rule reference. Can be `site`, `product_type`, `product_category`, `seller+product_category`, `seller+product_type`, or `seller`.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string" required>
+      The ID of the referenced entity. Empty string for `site` reference type.
+    </ParamField>
+
+    <ParamField body="is_active" type="boolean" required>
+      Whether the commission rule is active.
+    </ParamField>
+
+    <ParamField body="rate" type="CreateCommissionRateDTO" required>
+      The commission rate configuration.
+
+      <Expandable title="properties">
+        <ParamField body="type" type='"flat" | "percentage"' required>
+          The type of the commission rate.
+        </ParamField>
+
+        <ParamField body="percentage_rate" type="number">
+          The percentage rate for percentage-based commissions.
+        </ParamField>
+
+        <ParamField body="include_tax" type="boolean" required>
+          Whether the commission calculation includes tax.
+        </ParamField>
+
+        <ParamField body="price_set" type="Price[]">
+          The price set for flat-rate commissions.
+
+          <Expandable title="properties">
+            <ParamField body="amount" type="number" required>
+              The commission amount.
+            </ParamField>
+
+            <ParamField body="currency_code" type="string" required>
+              The ISO 3 currency code.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+
+        <ParamField body="min_price_set" type="Price[]">
+          The minimum commission amount price set.
+        </ParamField>
+
+        <ParamField body="max_price_set" type="Price[]">
+          The maximum commission amount price set.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRuleDTO>">
+  The created commission rule.
+</ResponseField>
+
+---
+
+# updateCommissionRules
+
+This section provides a reference to the `updateCommissionRules` method. This belongs to the Commission Module.
+
+## updateCommissionRules(id, data, sharedContext?): Promise\<CommissionRuleDTO>
+
+This method updates an existing commission rule.
+
+### Example
+
+```ts
+const rule = await commissionModuleService.updateCommissionRules("com_rule_123", {
+  name: "Updated Commission Rule",
+  is_active: false,
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the commission rule.
+</ParamField>
+
+<ParamField body="data" type="UpdateCommissionRuleDTO" required>
+  The attributes to update in the commission rule.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string">
+      The name of the commission rule.
+    </ParamField>
+
+    <ParamField body="reference" type="string">
+      The type of the commission rule reference.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string">
+      The ID of the referenced entity.
+    </ParamField>
+
+    <ParamField body="is_active" type="boolean">
+      Whether the commission rule is active.
+    </ParamField>
+
+    <ParamField body="rate" type="UpdateCommissionRateDTO">
+      The commission rate configuration to update.
+
+      <Expandable title="properties">
+        <ParamField body="id" type="string" required>
+          The ID of the commission rate.
+        </ParamField>
+
+        <ParamField body="type" type='"flat" | "percentage"'>
+          The type of the commission rate.
+        </ParamField>
+
+        <ParamField body="percentage_rate" type="number">
+          The percentage rate for percentage-based commissions.
+        </ParamField>
+
+        <ParamField body="include_tax" type="boolean">
+          Whether the commission calculation includes tax.
+        </ParamField>
+
+        <ParamField body="price_set" type="Price[]">
+          The price set for flat-rate commissions.
+        </ParamField>
+
+        <ParamField body="min_price_set" type="Price[]">
+          The minimum commission amount price set.
+        </ParamField>
+
+        <ParamField body="max_price_set" type="Price[]">
+          The maximum commission amount price set.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRuleDTO>">
+  The updated commission rule.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the commission rule.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the commission rule.
+    </ResponseField>
+
+    <ResponseField name="reference" type="string">
+      The type of the commission rule reference.
+    </ResponseField>
+
+    <ResponseField name="reference_id" type="string">
+      The ID of the referenced entity.
+    </ResponseField>
+
+    <ResponseField name="rate" type="CommissionRateDTO">
+      The associated commission rate.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the commission rule.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the commission rule.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteCommissionRules
+
+This section provides a reference to the `deleteCommissionRules` method. This belongs to the Commission Module.
+
+## deleteCommissionRules(ids, sharedContext?): Promise\<void>
+
+This method deletes commission rules by their IDs.
+
+### Example
+
+```ts
+await commissionModuleService.deleteCommissionRules(["com_rule_123", "com_rule_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the commission rules.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the commission rules are deleted successfully.
+</ResponseField>
+
+## deleteCommissionRules(id, sharedContext?): Promise\<void>
+
+This method deletes a commission rule by its ID.
+
+### Example
+
+```ts
+await commissionModuleService.deleteCommissionRules("com_rule_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the commission rule.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the commission rule is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveCommissionRule
+
+This section provides a reference to the `retrieveCommissionRule` method. This belongs to the Commission Module.
+
+This method retrieves a commission rule by its ID.
+
+## Example
+
+```ts
+const rule = await commissionModuleService.retrieveCommissionRule("com_rule_123")
+```
+
+To retrieve with the rate:
+
+```ts
+const rule = await commissionModuleService.retrieveCommissionRule(
+  "com_rule_123",
+  {
+    relations: ["rate"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the commission rule.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<CommissionRuleDTO>">
+  The configurations determining how the commission rule is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["rate"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRuleDTO>">
+  The retrieved commission rule.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the commission rule.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the commission rule.
+    </ResponseField>
+
+    <ResponseField name="reference" type="string">
+      The type of the commission rule reference.
+    </ResponseField>
+
+    <ResponseField name="reference_id" type="string">
+      The ID of the referenced entity.
+    </ResponseField>
+
+    <ResponseField name="rate" type="CommissionRateDTO">
+      The associated commission rate (if included in relations).
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the commission rule.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the commission rule.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listCommissionRules
+
+This section provides a reference to the `listCommissionRules` method. This belongs to the Commission Module.
+
+This method retrieves a paginated list of commission rules based on optional filters and configuration.
+
+## Example
+
+To retrieve active commission rules:
+
+```ts
+const rules = await commissionModuleService.listCommissionRules({
+  is_active: true,
+})
+```
+
+To retrieve rules for a specific seller:
+
+```ts
+const rules = await commissionModuleService.listCommissionRules({
+  reference: "seller",
+  reference_id: "sel_123",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const rules = await commissionModuleService.listCommissionRules(
+  {
+    is_active: true,
+  },
+  {
+    take: 20,
+    skip: 2,
+    relations: ["rate"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableCommissionRuleProps">
+  The filters to apply on the retrieved commission rules.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the commission rules by.
+    </ParamField>
+
+    <ParamField body="name" type="string | string[]">
+      Filter commission rules by their names.
+    </ParamField>
+
+    <ParamField body="reference" type="string | string[]">
+      Filter commission rules by their reference types.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string | string[]">
+      Filter commission rules by their reference IDs.
+    </ParamField>
+
+    <ParamField body="is_active" type="boolean">
+      Filter by whether commission rules are active.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<CommissionRuleDTO>">
+  The configurations determining how the commission rule is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["rate"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRuleDTO[]>">
+  The list of commission rules.
+</ResponseField>
+
+---
+
+# listAndCountCommissionRules
+
+This section provides a reference to the `listAndCountCommissionRules` method. This belongs to the Commission Module.
+
+This method retrieves a paginated list of commission rules along with the total count of available commission rules satisfying the provided filters.
+
+## Example
+
+```ts
+const [rules, count] = await commissionModuleService.listAndCountCommissionRules({
+  is_active: true,
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableCommissionRuleProps">
+  The filters to apply on the retrieved commission rules.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the commission rules by.
+    </ParamField>
+
+    <ParamField body="name" type="string | string[]">
+      Filter commission rules by their names.
+    </ParamField>
+
+    <ParamField body="reference" type="string | string[]">
+      Filter commission rules by their reference types.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string | string[]">
+      Filter commission rules by their reference IDs.
+    </ParamField>
+
+    <ParamField body="is_active" type="boolean">
+      Filter by whether commission rules are active.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<CommissionRuleDTO>">
+  The configurations determining how the commission rule is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[CommissionRuleDTO[], number]>">
+  The list of commission rules along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteCommissionRules
+
+This section provides a reference to the `softDeleteCommissionRules` method. This belongs to the Commission Module.
+
+This method soft deletes commission rules by their IDs.
+
+## Example
+
+```ts
+await commissionModuleService.softDeleteCommissionRules([
+  "com_rule_123",
+  "com_rule_321",
+])
+```
+
+## Parameters
+
+<ParamField body="commissionRuleIds" type="string[]" required>
+  The IDs of the commission rules.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreCommissionRules
+
+This section provides a reference to the `restoreCommissionRules` method. This belongs to the Commission Module.
+
+This method restores soft deleted commission rules by their IDs.
+
+## Example
+
+```ts
+await commissionModuleService.restoreCommissionRules(["com_rule_123", "com_rule_321"])
+```
+
+## Parameters
+
+<ParamField body="commissionRuleIds" type="string[]" required>
+  The IDs of the commission rules.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the commission rule.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createCommissionRates
+
+This section provides a reference to the `createCommissionRates` method. This belongs to the Commission Module.
+
+## createCommissionRates(data, sharedContext?): Promise\<CommissionRateDTO[]>
+
+This method creates commission rates.
+
+### Example
+
+```ts
+const rates = await commissionModuleService.createCommissionRates([
+  {
+    type: "percentage",
+    percentage_rate: 10,
+    include_tax: false,
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateCommissionRateDTO[]" required>
+  The commission rates to be created.
+
+  <Expandable title="properties">
+    <ParamField body="type" type='"flat" | "percentage"' required>
+      The type of the commission rate.
+    </ParamField>
+
+    <ParamField body="percentage_rate" type="number">
+      The percentage rate for percentage-based commissions.
+    </ParamField>
+
+    <ParamField body="include_tax" type="boolean" required>
+      Whether the commission calculation includes tax.
+    </ParamField>
+
+    <ParamField body="price_set" type="Price[]">
+      The price set for flat-rate commissions.
+
+      <Expandable title="properties">
+        <ParamField body="amount" type="number" required>
+          The commission amount.
+        </ParamField>
+
+        <ParamField body="currency_code" type="string" required>
+          The ISO 3 currency code.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="min_price_set" type="Price[]">
+      The minimum commission amount price set.
+    </ParamField>
+
+    <ParamField body="max_price_set" type="Price[]">
+      The maximum commission amount price set.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRateDTO[]>">
+  The created commission rates.
+</ResponseField>
+
+---
+
+# updateCommissionRates
+
+This section provides a reference to the `updateCommissionRates` method. This belongs to the Commission Module.
+
+## updateCommissionRates(id, data, sharedContext?): Promise\<CommissionRateDTO>
+
+This method updates an existing commission rate.
+
+### Example
+
+```ts
+const rate = await commissionModuleService.updateCommissionRates("com_rate_123", {
+  percentage_rate: 15,
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the commission rate.
+</ParamField>
+
+<ParamField body="data" type="UpdateCommissionRateDTO" required>
+  The attributes to update in the commission rate.
+
+  <Expandable title="properties">
+    <ParamField body="type" type='"flat" | "percentage"'>
+      The type of the commission rate.
+    </ParamField>
+
+    <ParamField body="percentage_rate" type="number">
+      The percentage rate for percentage-based commissions.
+    </ParamField>
+
+    <ParamField body="include_tax" type="boolean">
+      Whether the commission calculation includes tax.
+    </ParamField>
+
+    <ParamField body="price_set" type="Price[]">
+      The price set for flat-rate commissions.
+    </ParamField>
+
+    <ParamField body="min_price_set" type="Price[]">
+      The minimum commission amount price set.
+    </ParamField>
+
+    <ParamField body="max_price_set" type="Price[]">
+      The maximum commission amount price set.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRateDTO>">
+  The updated commission rate.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the commission rate.
+    </ResponseField>
+
+    <ResponseField name="type" type='"flat" | "percentage"'>
+      The type of the commission rate.
+    </ResponseField>
+
+    <ResponseField name="percentage_rate" type="number | null">
+      The percentage rate for percentage-based commissions.
+    </ResponseField>
+
+    <ResponseField name="include_tax" type="boolean">
+      Whether the commission calculation includes tax.
+    </ResponseField>
+
+    <ResponseField name="price_set_id" type="string | null">
+      The ID of the price set used for flat-rate commissions.
+    </ResponseField>
+
+    <ResponseField name="max_price_set_id" type="string | null">
+      The ID of the price set defining the maximum commission amount.
+    </ResponseField>
+
+    <ResponseField name="min_price_set_id" type="string | null">
+      The ID of the price set defining the minimum commission amount.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the commission rate.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the commission rate.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteCommissionRates
+
+This section provides a reference to the `deleteCommissionRates` method. This belongs to the Commission Module.
+
+## deleteCommissionRates(ids, sharedContext?): Promise\<void>
+
+This method deletes commission rates by their IDs.
+
+### Example
+
+```ts
+await commissionModuleService.deleteCommissionRates(["com_rate_123", "com_rate_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the commission rates.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the commission rates are deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveCommissionRate
+
+This section provides a reference to the `retrieveCommissionRate` method. This belongs to the Commission Module.
+
+This method retrieves a commission rate by its ID.
+
+## Example
+
+```ts
+const rate = await commissionModuleService.retrieveCommissionRate("com_rate_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the commission rate.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<CommissionRateDTO>">
+  The configurations determining how the commission rate is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRateDTO>">
+  The retrieved commission rate.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the commission rate.
+    </ResponseField>
+
+    <ResponseField name="type" type='"flat" | "percentage"'>
+      The type of the commission rate.
+    </ResponseField>
+
+    <ResponseField name="percentage_rate" type="number | null">
+      The percentage rate for percentage-based commissions.
+    </ResponseField>
+
+    <ResponseField name="include_tax" type="boolean">
+      Whether the commission calculation includes tax.
+    </ResponseField>
+
+    <ResponseField name="price_set_id" type="string | null">
+      The ID of the price set used for flat-rate commissions.
+    </ResponseField>
+
+    <ResponseField name="max_price_set_id" type="string | null">
+      The ID of the price set defining the maximum commission amount.
+    </ResponseField>
+
+    <ResponseField name="min_price_set_id" type="string | null">
+      The ID of the price set defining the minimum commission amount.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the commission rate.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the commission rate.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listCommissionRates
+
+This section provides a reference to the `listCommissionRates` method. This belongs to the Commission Module.
+
+This method retrieves a paginated list of commission rates based on optional filters and configuration.
+
+## Example
+
+```ts
+const rates = await commissionModuleService.listCommissionRates({
+  type: "percentage",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableCommissionRateProps">
+  The filters to apply on the retrieved commission rates.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the commission rates by.
+    </ParamField>
+
+    <ParamField body="type" type="string | string[]">
+      Filter commission rates by their types.
+    </ParamField>
+
+    <ParamField body="include_tax" type="boolean">
+      Filter by whether commission rates include tax in calculation.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<CommissionRateDTO>">
+  The configurations determining how the commission rate is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<CommissionRateDTO[]>">
+  The list of commission rates.
+</ResponseField>
+
+---
+
+# listAndCountCommissionRates
+
+This section provides a reference to the `listAndCountCommissionRates` method. This belongs to the Commission Module.
+
+This method retrieves a paginated list of commission rates along with the total count of available commission rates satisfying the provided filters.
+
+## Example
+
+```ts
+const [rates, count] = await commissionModuleService.listAndCountCommissionRates({
+  type: "percentage",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableCommissionRateProps">
+  The filters to apply on the retrieved commission rates.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the commission rates by.
+    </ParamField>
+
+    <ParamField body="type" type="string | string[]">
+      Filter commission rates by their types.
+    </ParamField>
+
+    <ParamField body="include_tax" type="boolean">
+      Filter by whether commission rates include tax in calculation.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<CommissionRateDTO>">
+  The configurations determining how the commission rate is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[CommissionRateDTO[], number]>">
+  The list of commission rates along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteCommissionRates
+
+This section provides a reference to the `softDeleteCommissionRates` method. This belongs to the Commission Module.
+
+This method soft deletes commission rates by their IDs.
+
+## Example
+
+```ts
+await commissionModuleService.softDeleteCommissionRates([
+  "com_rate_123",
+  "com_rate_321",
+])
+```
+
+## Parameters
+
+<ParamField body="commissionRateIds" type="string[]" required>
+  The IDs of the commission rates.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreCommissionRates
+
+This section provides a reference to the `restoreCommissionRates` method. This belongs to the Commission Module.
+
+This method restores soft deleted commission rates by their IDs.
+
+## Example
+
+```ts
+await commissionModuleService.restoreCommissionRates(["com_rate_123", "com_rate_321"])
+```
+
+## Parameters
+
+<ParamField body="commissionRateIds" type="string[]" required>
+  The IDs of the commission rates.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the commission rate.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createCommissionLines
+
+This section provides a reference to the `createCommissionLines` method. This belongs to the Commission Module.
+
+## createCommissionLines(data, sharedContext?): Promise\<CommissionLineDTO[]>
+
+This method creates commission lines.
+
+### Example
+
+```ts
+const lines = await commissionModuleService.createCommissionLines([
+  {
+    item_line_id: "ordli_123",
+    rule_id: "com_rule_123",
+    currency_code: "usd",
+    value: 500,
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateCommissionLineDTO[]" required>
+  The commission lines to be created.
+
+  <Expandable title="properties">
+    <ParamField body="item_line_id" type="string" required>
+      The ID of the order line item that this commission applies to.
+    </ParamField>
+
+    <ParamField body="rule_id" type="string" required>
+      The ID of the commission rule that was applied.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string" required>
+      The ISO 3 currency code of the commission.
+    </ParamField>
+
+    <ParamField body="value" type="BigNumberValue" required>
+      The calculated commission amount.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<CommissionLineDTO[]>">
+  The created commission lines.
+</ResponseField>
+
+---
+
+# updateCommissionLines
+
+This section provides a reference to the `updateCommissionLines` method. This belongs to the Commission Module.
+
+## updateCommissionLines(id, data, sharedContext?): Promise\<CommissionLineDTO>
+
+This method updates an existing commission line.
+
+### Example
+
+```ts
+const line = await commissionModuleService.updateCommissionLines("com_line_123", {
+  value: 600,
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the commission line.
+</ParamField>
+
+<ParamField body="data" type="UpdateCommissionLineDTO" required>
+  The attributes to update in the commission line.
+
+  <Expandable title="properties">
+    <ParamField body="item_line_id" type="string">
+      The ID of the order line item that this commission applies to.
+    </ParamField>
+
+    <ParamField body="rule_id" type="string">
+      The ID of the commission rule that was applied.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string">
+      The ISO 3 currency code of the commission.
+    </ParamField>
+
+    <ParamField body="value" type="BigNumberValue">
+      The calculated commission amount.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<CommissionLineDTO>">
+  The updated commission line.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the commission line.
+    </ResponseField>
+
+    <ResponseField name="item_line_id" type="string">
+      The ID of the order line item that this commission applies to.
+    </ResponseField>
+
+    <ResponseField name="rule_id" type="string">
+      The ID of the commission rule that was applied.
+    </ResponseField>
+
+    <ResponseField name="currency_code" type="string">
+      The ISO 3 currency code of the commission.
+    </ResponseField>
+
+    <ResponseField name="value" type="BigNumberValue">
+      The calculated commission amount.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the commission line.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the commission line.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteCommissionLines
+
+This section provides a reference to the `deleteCommissionLines` method. This belongs to the Commission Module.
+
+## deleteCommissionLines(ids, sharedContext?): Promise\<void>
+
+This method deletes commission lines by their IDs.
+
+### Example
+
+```ts
+await commissionModuleService.deleteCommissionLines(["com_line_123", "com_line_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the commission lines.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the commission lines are deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveCommissionLine
+
+This section provides a reference to the `retrieveCommissionLine` method. This belongs to the Commission Module.
+
+This method retrieves a commission line by its ID.
+
+## Example
+
+```ts
+const line = await commissionModuleService.retrieveCommissionLine("com_line_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the commission line.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<CommissionLineDTO>">
+  The configurations determining how the commission line is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<CommissionLineDTO>">
+  The retrieved commission line.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the commission line.
+    </ResponseField>
+
+    <ResponseField name="item_line_id" type="string">
+      The ID of the order line item that this commission applies to.
+    </ResponseField>
+
+    <ResponseField name="rule_id" type="string">
+      The ID of the commission rule that was applied.
+    </ResponseField>
+
+    <ResponseField name="currency_code" type="string">
+      The ISO 3 currency code of the commission.
+    </ResponseField>
+
+    <ResponseField name="value" type="BigNumberValue">
+      The calculated commission amount.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the commission line.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the commission line.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listCommissionLines
+
+This section provides a reference to the `listCommissionLines` method. This belongs to the Commission Module.
+
+This method retrieves a paginated list of commission lines based on optional filters and configuration.
+
+## Example
+
+To retrieve commission lines for a specific order line item:
+
+```ts
+const lines = await commissionModuleService.listCommissionLines({
+  item_line_id: "ordli_123",
+})
+```
+
+To retrieve commission lines by rule:
+
+```ts
+const lines = await commissionModuleService.listCommissionLines({
+  rule_id: "com_rule_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableCommissionLineProps">
+  The filters to apply on the retrieved commission lines.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the commission lines by.
+    </ParamField>
+
+    <ParamField body="item_line_id" type="string | string[]">
+      Filter commission lines by their order line item IDs.
+    </ParamField>
+
+    <ParamField body="rule_id" type="string | string[]">
+      Filter commission lines by their commission rule IDs.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string | string[]">
+      Filter commission lines by their currency codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<CommissionLineDTO>">
+  The configurations determining how the commission line is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<CommissionLineDTO[]>">
+  The list of commission lines.
+</ResponseField>
+
+---
+
+# listAndCountCommissionLines
+
+This section provides a reference to the `listAndCountCommissionLines` method. This belongs to the Commission Module.
+
+This method retrieves a paginated list of commission lines along with the total count of available commission lines satisfying the provided filters.
+
+## Example
+
+```ts
+const [lines, count] = await commissionModuleService.listAndCountCommissionLines({
+  item_line_id: "ordli_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableCommissionLineProps">
+  The filters to apply on the retrieved commission lines.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the commission lines by.
+    </ParamField>
+
+    <ParamField body="item_line_id" type="string | string[]">
+      Filter commission lines by their order line item IDs.
+    </ParamField>
+
+    <ParamField body="rule_id" type="string | string[]">
+      Filter commission lines by their commission rule IDs.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string | string[]">
+      Filter commission lines by their currency codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<CommissionLineDTO>">
+  The configurations determining how the commission line is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[CommissionLineDTO[], number]>">
+  The list of commission lines along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteCommissionLines
+
+This section provides a reference to the `softDeleteCommissionLines` method. This belongs to the Commission Module.
+
+This method soft deletes commission lines by their IDs.
+
+## Example
+
+```ts
+await commissionModuleService.softDeleteCommissionLines([
+  "com_line_123",
+  "com_line_321",
+])
+```
+
+## Parameters
+
+<ParamField body="commissionLineIds" type="string[]" required>
+  The IDs of the commission lines.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreCommissionLines
+
+This section provides a reference to the `restoreCommissionLines` method. This belongs to the Commission Module.
+
+This method restores soft deleted commission lines by their IDs.
+
+## Example
+
+```ts
+await commissionModuleService.restoreCommissionLines(["com_line_123", "com_line_321"])
+```
+
+## Parameters
+
+<ParamField body="commissionLineIds" type="string[]" required>
+  The IDs of the commission lines.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the commission line.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

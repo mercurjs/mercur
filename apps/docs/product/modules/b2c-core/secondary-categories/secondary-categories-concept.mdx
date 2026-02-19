@@ -1,0 +1,273 @@
+---
+title: "Secondary Category Module"
+description: "Learn about the Secondary Category Module and how to use it in your application"
+---
+
+# Secondary Category Module
+
+In this section of the documentation, you will find resources to learn more about the Secondary Category Module and how to use it in your application.
+
+Mercur has secondary product categorization features available out-of-the-box through the Secondary Category Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Secondary Category Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Secondary Category Features
+
+- **Flexible Product Categorization**: Allow products to belong to multiple categories beyond their primary category.
+- **Category-Based Navigation**: Enable products to appear in multiple category browsing contexts.
+- **Dynamic Category Assignment**: Add or remove secondary categories when creating or updating products.
+- **Cross-Category Discovery**: Help customers discover products through multiple categorization paths.
+
+---
+
+## How to Use the Secondary Category Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+Secondary categories are managed through workflow hooks on Medusa's core `updateProductsWorkflow`. Mercur extends this workflow to handle secondary category assignments:
+
+```ts title="src/workflows/hooks/product-updated.ts"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { updateProductsWorkflow } from "@medusajs/medusa/core-flows"
+import { Link } from "@medusajs/framework/modules-sdk"
+import { SECONDARY_CATEGORY_MODULE } from "../../modules/secondary_categories"
+import SecondaryCategoryModuleService from "../../modules/secondary_categories/service"
+import secondaryCategoryProduct from "../../links/secondary-category-product"
+
+export const updateProductSubcategories = async (
+  products,
+  additional_data,
+  container
+) => {
+  const link: Link = container.resolve(ContainerRegistrationKeys.LINK)
+  const secondaryCategoryService: SecondaryCategoryModuleService =
+    container.resolve(SECONDARY_CATEGORY_MODULE)
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+  const entries = additional_data?.secondary_categories ?? []
+  if (!entries.length || !products?.length) return
+
+  await Promise.all(
+    products.map(async (product) => {
+      const match = entries.find(e => e.product_id === product.id)
+      if (!match) return
+
+      const toAddIds = [...new Set(match.add ?? match.secondary_categories_ids ?? [])]
+      const toRemoveIds = [...new Set(match.remove ?? [])]
+
+      // Remove secondary categories
+      if (toRemoveIds.length) {
+        await Promise.all(
+          toRemoveIds.map(async (secId) => {
+            const secondaryCategories =
+              await secondaryCategoryService.listSecondaryCategories({
+                category_id: secId
+              })
+
+            const { data: [secondaryCategoryLink] } = await query.graph({
+              entity: secondaryCategoryProduct.entryPoint,
+              fields: ['secondary_category_id'],
+              filters: {
+                secondary_category_id: secondaryCategories.map(sc => sc.id),
+                product_id: product.id
+              }
+            })
+
+            await link.dismiss({
+              [Modules.PRODUCT]: { product_id: product.id },
+              [SECONDARY_CATEGORY_MODULE]: {
+                secondary_category_id: secondaryCategoryLink.secondary_category_id
+              }
+            })
+          })
+        )
+      }
+
+      // Add secondary categories
+      if (toAddIds.length) {
+        await Promise.all(
+          toAddIds.map((secId) =>
+            link.create({
+              [Modules.PRODUCT]: { product_id: product.id },
+              [SECONDARY_CATEGORY_MODULE]: { secondary_category_id: secId },
+            })
+          )
+        )
+      }
+    })
+  )
+}
+
+// Hook into Medusa's updateProductsWorkflow
+updateProductsWorkflow.hooks.productsUpdated(
+  async ({ products, additional_data }, { container }) => {
+    await updateProductSubcategories(
+      products,
+      additional_data,
+      container
+    )
+  }
+)
+```
+
+You can then use this in product update operations through Medusa's core workflow:
+
+### Workflow Usage
+
+```ts
+import { updateProductsWorkflow } from "@medusajs/medusa/core-flows"
+
+// When updating products, pass secondary categories in additional_data
+const { result } = await updateProductsWorkflow(container).run({
+  input: {
+    selector: { id: "prod_123" },
+    update: {
+      title: "Updated Product",
+    },
+    additional_data: {
+      secondary_categories: [
+        {
+          product_id: "prod_123",
+          add: ["pcat_summer", "pcat_sale"],
+          remove: ["pcat_winter"],
+        },
+      ],
+    },
+  },
+})
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to secondary categories in Mercur.
+
+## Secondary Category
+
+A secondary category is a reference to a Medusa product category that allows products to be organized under multiple categories simultaneously. It is represented by the [SecondaryCategory data model](../data-model/secondary-categories-module-data-reference#secondarycategory).
+
+A secondary category holds:
+- A unique ID
+- A reference to a product category via `category_id`
+
+Unlike primary categories (managed directly in the Product Module), secondary categories enable many-to-many relationships between products and categories.
+
+---
+
+## Primary vs Secondary Categories
+
+### Primary Category
+
+In Medusa's Product Module, each product can belong to multiple categories through the built-in many-to-many relationship. These are considered the product's **primary categories**.
+
+### Secondary Category
+
+Mercur's Secondary Category Module provides an **additional layer** of categorization:
+- Products can be tagged with secondary categories
+- Useful for cross-cutting concerns (e.g., "Sale Items", "Seasonal", "Featured")
+- Separate from the primary category hierarchy
+- Can be managed independently without affecting product category structure
+
+---
+
+## Why Secondary Categories?
+
+**Use Case Example:**
+
+A dress might have:
+- **Primary Category**: Women's Clothing → Dresses
+- **Secondary Categories**: 
+  - Summer Collection
+  - Sale Items
+  - New Arrivals
+  - Wedding Guest Outfits
+
+This allows the product to appear in multiple navigation contexts without disrupting the main category tree structure.
+
+---
+
+## Dynamic Assignment
+
+Secondary categories can be dynamically assigned when creating or updating products through the `additional_data` parameter:
+
+```ts
+{
+  additional_data: {
+    secondary_categories: [
+      {
+        product_id: "prod_123",
+        add: ["pcat_summer", "pcat_sale"],        // Add these
+        remove: ["pcat_winter"],                   // Remove this
+        secondary_categories_ids: ["pcat_new"]     // Alternative to 'add'
+      },
+    ],
+  },
+}
+```
+
+The system automatically:
+1. Creates or retrieves secondary category records for the specified category IDs
+2. Creates module links between products and secondary categories
+3. Removes links for categories in the `remove` array
+
+---
+
+## Workflow Hook Integration
+
+Secondary categories are managed through a workflow hook on Medusa's `updateProductsWorkflow`:
+
+```ts
+updateProductsWorkflow.hooks.productsUpdated(
+  async ({ products, additional_data }, { container }) => {
+    await updateProductSubcategories(
+      products,
+      additional_data,
+      container
+    )
+  }
+)
+```
+
+This ensures secondary categories are updated atomically with product updates, maintaining data consistency through Medusa's workflow system.
+
+---
+
+## Querying Products with Secondary Categories
+
+When retrieving products, you can include secondary categories in the query fields:
+
+```ts
+const { data: products } = await query.graph({
+  entity: "product",
+  fields: [
+    "*",
+    "*secondary_categories",
+  ],
+})
+
+// products[0].secondary_categories
+```
+
+This is commonly included in product list and detail queries to display all categorization contexts.
+
+---
+
+## Use Cases
+
+**1. Seasonal Collections**
+Tag products with "Spring Collection", "Summer Sale", etc., without moving them from their primary categories.
+
+**2. Special Promotions**
+Group products under "Black Friday Deals" or "Clearance" without affecting their permanent category structure.
+
+**3. Lifestyle Categories**
+Create cross-category groupings like "Eco-Friendly", "Luxury", "Budget-Friendly" that span multiple product types.
+
+**4. Featured Products**
+Mark products as "Staff Picks", "Bestsellers", or "New Arrivals" for homepage and landing page display.
+
+**5. Event-Based Grouping**
+Organize products for specific events like "Wedding Collection", "Back to School", "Holiday Gifts" that cut across traditional categories.

@@ -1,0 +1,509 @@
+---
+title: "Cart Workflows"
+description: "Reference documentation for the Cart Module workflows and steps"
+---
+
+# Workflows
+
+## addSellerShippingMethodToCartWorkflow
+
+This documentation provides a reference to the `addSellerShippingMethodToCartWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow adds a shipping method to a cart, ensuring it's linked to the correct seller. It handles replacing existing shipping methods for the same seller and validating the new option.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/cart/workflows/add-seller-shipping-method-to-cart.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/store/carts/[id]/shipping-methods/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { StoreAddCartShippingMethodsType } from '@medusajs/medusa/api/store/carts/validators'
+    import { addSellerShippingMethodToCartWorkflow } from '../../../../../workflows/cart/workflows'
+    
+    export const POST = async (
+      req: MedusaRequest<StoreAddCartShippingMethodsType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      await addSellerShippingMethodToCartWorkflow(req.scope).run({
+        input: {
+          cart_id: req.params.id,
+          option: {
+            id: req.validatedBody.option_id,
+            data: req.validatedBody.data
+          }
+        }
+      })
+    
+      const {
+        data: [cart]
+      } = await query.graph({
+        entity: 'cart',
+        filters: {
+          id: req.params.id
+        },
+        fields: req.queryConfig.fields
+      })
+    
+      res.json({ cart })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **validateCartShippingOptionsStep**: Validates that the shipping option is valid for the cart and compatible with other options.
+- **addShippingMethodToCartWorkflow**: Adds the shipping method to the cart using Medusa's core workflow.
+- **useQueryGraphStep**: Fetches seller shipping options to correctly map the new method to a seller and handle replacements.
+- **addShippingMethodToCartStep**: Finalizes the addition of the shipping method, ensuring it replaces any existing method for the same seller.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="cart_id" type="string" required>
+      The ID of the cart to add the shipping method to.
+    </ParamField>
+    <ParamField body="option" type="object" required>
+      The shipping option to add.
+
+      <Expandable title="properties">
+        <ParamField body="id" type="string" required>
+          The ID of the shipping option.
+        </ParamField>
+        <ParamField body="data" type="Record<string, any>">
+          Additional data for the shipping method.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+---
+
+## deleteSellerLineItemWorkflow
+
+This documentation provides a reference to the `deleteSellerLineItemWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow deletes a line item from a cart and also removes any associated shipping method for that seller if it's no longer valid (e.g. if the cart no longer has items from that seller).
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/cart/workflows/delete-seller-line-item.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/store/carts/[id]/line-items/[line_id]/route.ts
+    import { MedusaRequest } from '@medusajs/framework'
+    import { MedusaResponse } from '@medusajs/framework/http'
+    import { deleteSellerLineItemWorkflow } from '../../../../../../workflows/cart/workflows'
+    
+    export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
+      const id = req.params.line_id
+    
+      await deleteSellerLineItemWorkflow(req.scope).run({
+        input: { cart_id: req.params.id, id }
+      })
+    
+      res.status(200).json({
+        id: id,
+        object: 'line-item',
+        deleted: true
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **useQueryGraphStep**: Fetches the line item and cart details to determine the seller and associated shipping options.
+- **removeShippingMethodFromCartStep**: Removes the shipping method if the item being deleted was the last one for that seller.
+- **deleteLineItemsWorkflow**: Deletes the line item from the cart.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="cart_id" type="string" required>
+      The ID of the cart.
+    </ParamField>
+    <ParamField body="id" type="string" required>
+      The ID of the line item to delete.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+---
+
+## listSellerReturnShippingOptionsForOrderWorkflow
+
+This documentation provides a reference to the `listSellerReturnShippingOptionsForOrderWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow retrieves available return shipping options for a specific order, filtering them based on the seller associated with the order.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/cart/workflows/list-seller-return-shipping-options-for-order.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/store/shipping-options/return/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { listSellerReturnShippingOptionsForOrderWorkflow } from '../../../../workflows/cart/workflows'
+    import { StoreGetReturnShippingOptionsParamsType } from '../validators'
+    
+    export const GET = async (
+      req: AuthenticatedMedusaRequest<StoreGetReturnShippingOptionsParamsType>,
+      res: MedusaResponse
+    ) => {
+      const { order_id } = req.validatedQuery
+    
+      const { result: shippingOptions } =
+        await listSellerReturnShippingOptionsForOrderWorkflow.run({
+          container: req.scope,
+          input: {
+            order_id
+          }
+        })
+    
+      res.json({
+        shipping_options: shippingOptions
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **useQueryGraphStep**: Fetches the order to identify the cart and seller shipping options.
+- **listShippingOptionsForCartWorkflow**: Retrieves available shipping options for the cart using Medusa's core workflow.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order to list return shipping options for.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ShippingOptionDTO[]" type="ShippingOptionDTO[]">
+  The list of available return shipping options.
+</ResponseField>
+
+---
+
+## listSellerShippingOptionsForCartWorkflow
+
+This documentation provides a reference to the `listSellerShippingOptionsForCartWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow lists valid shipping options for a cart, ensuring that only options relevant to the sellers present in the cart are returned. It filters out options for sellers that already have a shipping method selected, unless it's for a replacement.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/cart/workflows/list-seller-shipping-options-for-cart.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/store/shipping-options/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
+    import { listSellerShippingOptionsForCartWorkflow } from '../../../workflows/cart/workflows'
+    
+    export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+      const { cart_id, is_return } = req.filterableFields as {
+        cart_id: string
+        is_return: boolean
+      }
+    
+      const { result: shipping_options } =
+        await listSellerShippingOptionsForCartWorkflow.run({
+          container: req.scope,
+          input: { cart_id, is_return: !!is_return }
+        })
+    
+      res.json({ shipping_options })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **listShippingOptionsForCartWorkflow**: Lists all potential shipping options for the cart.
+- [filterSellerShippingOptionsStep](#filtersellershippingoptionsstep): Filters the options to ensure they match the sellers of the items in the cart and handles logic for existing selections.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="cart_id" type="string" required>
+      The ID of the cart.
+    </ParamField>
+    <ParamField body="is_return" type="boolean" required>
+      Whether to list return shipping options.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ShippingOptionDTO[]" type="ShippingOptionDTO[]">
+  The filtered list of shipping options.
+</ResponseField>
+
+---
+
+## removeCartShippingMethodsWorkflow
+
+This documentation provides a reference to the `removeCartShippingMethodsWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow removes specified shipping methods from a cart.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/cart/workflows/remove-cart-shipping-method.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/store/carts/[id]/shipping-methods/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { removeCartShippingMethodsWorkflow } from '../../../../../workflows/cart/workflows'
+    import { StoreDeleteCartShippingMethodsType } from '../../validators'
+    
+    export const DELETE = async (
+      req: MedusaRequest<StoreDeleteCartShippingMethodsType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      await removeCartShippingMethodsWorkflow.run({
+        container: req.scope,
+        input: req.validatedBody
+      })
+    
+      const {
+        data: [cart]
+      } = await query.graph({
+        entity: 'cart',
+        filters: {
+          id: req.params.id
+        },
+        fields: req.queryConfig.fields
+      })
+    
+      res.json({ cart })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **removeShippingMethodFromCartStep**: Removes the shipping methods from the cart.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="shipping_method_ids" type="string[]" required>
+      The IDs of the shipping methods to remove.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+---
+
+## splitAndCompleteCartWorkflow
+
+This documentation provides a reference to the `splitAndCompleteCartWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow completes a cart by splitting it into multiple orders based on the sellers of the items. It handles payment authorization, inventory reservation, and creating the `OrderSet` which groups the individual seller orders.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/cart/workflows/split-and-complete-cart.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/store/carts/[id]/complete/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
+    import { splitAndCompleteCartWorkflow } from '../../../../../workflows/cart/workflows'
+    import { getFormattedOrderSetListWorkflow } from '../../../../../workflows/order-set/workflows'
+    
+    export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
+      const cart_id = req.params.id
+    
+      const { result } = await splitAndCompleteCartWorkflow(req.scope).run({
+        input: { id: cart_id },
+        context: { transactionId: cart_id }
+      })
+    
+      const {
+        result: { data }
+      } = await getFormattedOrderSetListWorkflow(req.scope).run({
+        input: { filters: { id: result.id } }
+      })
+    
+      res.json({
+        order_set: data[0]
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **useRemoteQueryStep**: Fetches the cart and checks for an existing OrderSet.
+- [validateCartSellersStep](#validatecartsellersstep): Validates the sellers associated with the cart items.
+- [validateCartShippingOptionsStep](#validatecartshippingoptionsstep): Validates the shipping options for each seller.
+- **validateCartPaymentsStep**: Validates the payment sessions.
+- **authorizePaymentSessionStep**: Authorizes the payment.
+- **registerUsageStep**: Registers promotion usage.
+- [createOrderSetStep](#createordersetstep): Creates the OrderSet entity.
+- **createOrdersStep**: Creates individual orders for each seller.
+- [createSplitOrderPaymentsStep](#createsplitorderpaymentsstep): Creates payment records for each split order.
+- **createRemoteLinkStep**: Links orders to sellers, the OrderSet, and payment collections.
+- **reserveInventoryStep**: Reserves inventory for the items.
+- **updateCartsStep**: Updates the cart status to completed.
+- **emitEventStep**: Emits `order.placed` and `order-set.placed` events.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the cart to complete.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="OrderSetDTO" type="OrderSetDTO">
+  The created OrderSet.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the OrderSet.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# Steps
+
+## createOrderSetStep
+
+Creates an `OrderSet` record which groups multiple orders created from a single cart.
+
+[Source code](packages/modules/b2c-core/src/workflows/cart/steps/create-order-set.ts)
+
+### Input
+
+<ParamField body="input" type="CreateOrderSetDTO" required>
+  The data to create the OrderSet.
+</ParamField>
+
+### Output
+
+<ResponseField name="OrderSetDTO" type="OrderSetDTO">
+  The created OrderSet.
+</ResponseField>
+
+---
+
+## filterSellerShippingOptionsStep
+
+Filters a list of shipping options to only include those relevant for the sellers currently in the cart that still need a shipping method selected.
+
+[Source code](packages/modules/b2c-core/src/workflows/cart/steps/filter-seller-shipping-options.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="shipping_options" type="ShippingOptionDTO[]" required>
+      The list of available shipping options.
+    </ParamField>
+    <ParamField body="cart_id" type="string" required>
+      The ID of the cart.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ShippingOptionDTO[]" type="ShippingOptionDTO[]">
+  The filtered list of shipping options.
+</ResponseField>
+
+---
+
+## validateCartSellersStep
+
+Validates that all items in the cart are associated with valid sellers.
+
+[Source code](packages/modules/b2c-core/src/workflows/cart/steps/validate-cart-sellers.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="line_items" type="LineItemDTO[]" required>
+      The line items in the cart.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an error if validation fails.
+</ResponseField>
+
+---
+
+## validateCartShippingOptionsStep
+
+Validates that the selected shipping options are valid for the items in the cart and their respective sellers.
+
+[Source code](packages/modules/b2c-core/src/workflows/cart/steps/validate-cart-shipping-options.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="cart_id" type="string" required>
+      The ID of the cart.
+    </ParamField>
+    <ParamField body="option_ids" type="string[]" required>
+      The IDs of the selected shipping options.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="sellerProducts" type="any[]">
+      The seller product links.
+    </ResponseField>
+    <ResponseField name="sellerShippingOptions" type="any[]">
+      The seller shipping option links.
+    </ResponseField>
+  </Expandable>
+</ResponseField>

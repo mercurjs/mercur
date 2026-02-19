@@ -1,0 +1,184 @@
+---
+title: "Attribute Module Links"
+description: "Module links for the Attribute Module"
+---
+
+# Links between Attribute Module and Other Modules
+
+This document showcases the module links defined between the Attribute Module and other Commerce Modules.
+
+## Summary
+
+The Attribute Module has the following links to other modules:
+
+| First Data Model | Second Data Model | Type                  | Description                                                    |
+| ---------------- | ----------------- | --------------------- | -------------------------------------------------------------- |
+| Product          | AttributeValue    | Stored - many-to-many | Associates products with their attribute values                |
+| ProductCategory  | Attribute         | Stored - many-to-many | Associates product categories with their applicable attributes |
+
+---
+
+## Product Module
+
+Mercur defines a link between the Product Module's `Product` data model and the Attribute Module's `AttributeValue` data model. This allows products to have multiple attribute values assigned to them (e.g., Material: "Cotton", Color: "Blue").
+
+### Retrieve with Query
+
+To retrieve the attribute values of a product with Query, pass `attribute_value_link.attribute_value.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: products } = await query.graph({
+      entity: "product",
+      fields: [
+        "*",
+        "attribute_value_link.attribute_value.*",
+        "attribute_value_link.attribute_value.attribute.*",
+      ],
+    })
+    
+    // products[0].attribute_value_link[0].attribute_value
+    // products[0].attribute_value_link[0].attribute_value.attribute
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: products } = useQueryGraphStep({
+      entity: "product",
+      fields: [
+        "*",
+        "attribute_value_link.attribute_value.*",
+        "attribute_value_link.attribute_value.attribute.*",
+      ],
+    })
+    
+    // products[0].attribute_value_link[0].attribute_value
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the attribute values of a product, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+      attribute: {
+        attribute_value_id: "attr_val_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+      attribute: {
+        attribute_value_id: "attr_val_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Product Module - Categories
+
+Mercur defines a link between the Product Module's `ProductCategory` data model and the Attribute Module's `Attribute` data model. This allows product categories to define which attributes are applicable for products in that category (e.g., "Electronics" category might have "Battery Life" and "Screen Size" attributes).
+
+### Retrieve with Query
+
+To retrieve the attributes of a product category with Query, pass `attribute_link.attribute.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: categories } = await query.graph({
+      entity: "product_category",
+      fields: [
+        "*",
+        "attribute_link.attribute.*",
+      ],
+    })
+    
+    // categories[0].attribute_link[0].attribute
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: categories } = useQueryGraphStep({
+      entity: "product_category",
+      fields: [
+        "*",
+        "attribute_link.attribute.*",
+      ],
+    })
+    
+    // categories[0].attribute_link[0].attribute
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the attributes of a product category, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.PRODUCT]: {
+        product_category_id: "pcat_123",
+      },
+      attribute: {
+        attribute_id: "attr_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.PRODUCT]: {
+        product_category_id: "pcat_123",
+      },
+      attribute: {
+        attribute_id: "attr_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>

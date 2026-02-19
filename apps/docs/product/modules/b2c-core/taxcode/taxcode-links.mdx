@@ -1,0 +1,98 @@
+---
+title: "Tax Code Module Links"
+description: "Module links for the Tax Code Module"
+---
+
+# Links between Tax Code Module and Other Modules
+
+This document showcases the module links defined between the Tax Code Module and other Commerce Modules.
+
+## Summary
+
+The Tax Code Module has the following links to other modules:
+
+| First Data Model | Second Data Model | Type                 | Description                                                         |
+| ---------------- | ----------------- | -------------------- | ------------------------------------------------------------------- |
+| ProductCategory  | TaxCode           | Stored - many-to-one | Associates product categories with tax codes for tax classification |
+
+---
+
+## Product Module
+
+Mercur defines a link between the Product Module's `ProductCategory` data model and the Tax Code Module's `TaxCode` data model. This allows product categories to be associated with specific tax codes for proper tax calculation and compliance.
+
+### Retrieve with Query
+
+To retrieve the tax code of a product category with Query, pass `tax_code.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: categories } = await query.graph({
+      entity: "product_category",
+      fields: [
+        "*",
+        "tax_code.*",
+      ],
+    })
+    
+    // categories[0].tax_code
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: categories } = useQueryGraphStep({
+      entity: "product_category",
+      fields: [
+        "*",
+        "tax_code.*",
+      ],
+    })
+    
+    // categories[0].tax_code
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the tax code of a product category, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.PRODUCT]: {
+        product_category_id: "pcat_123",
+      },
+      taxcode: {
+        tax_code_id: "taxc_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.PRODUCT]: {
+        product_category_id: "pcat_123",
+      },
+      taxcode: {
+        tax_code_id: "taxc_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>

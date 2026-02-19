@@ -1,0 +1,80 @@
+---
+title: "Stripe Payments"
+---
+
+### Introduction
+
+Mercur uses <a href="https://stripe.com">Stripe</a> as the default payment and payout provider. The integration enables secure payment processing, automatic payouts to sellers, and commission handling for marketplace transactions.
+
+### Setup
+
+To use Stripe with Mercur, you'll need to:
+
+1. Create a Stripe account at <a href="https://stripe.com">stripe.com</a>
+2. Enable Stripe Connect in your Stripe Dashboard
+3. Obtain your API keys from the Stripe Dashboard
+4. Add the following environment variables to your `.env` file:
+
+```
+STRIPE_SECRET_KEY=your_secret_key_here
+STRIPE_WEBHOOK_SECRET=your_webhook_secret_here
+```
+
+### Stripe Connect Configuration
+
+**Enable Stripe Connect**:
+
+- Go to your Stripe Dashboard
+- Navigate to Settings > Connect settings
+- Enable Connect and configure your account settings
+- Set up your Connect branding and terms of service
+
+### Seller Onboarding
+
+Sellers need to complete the Stripe Connect onboarding process to receive payouts:
+
+1. **Create Payout Account**:
+
+   - Sellers create a payout account through the vendor panel
+   - System generates a Stripe Connect onboarding link
+   - Sellers complete the onboarding process
+
+2. **Onboarding Flow**:
+   ```mermaid
+   graph TD
+       A[Seller Creates Account] --> B[Stripe Onboarding]
+       B --> C[Provide Business Details]
+       C --> D[Add Bank Account]
+       D --> E[Complete Verification]
+       E --> F[Account Active]
+   ```
+
+### Commission Setup
+
+Configure commission rates in the admin panel. Marketplace commission is deducted from payout amount.
+
+1. **Commission Types**:
+
+   - Percentage-based: Set a percentage of the order total
+   - Flat rate: Set a fixed amount per order
+
+2. **Commission Rules**:
+   - Set different rates for different product types
+   - Configure rates per seller
+   - Set category-specific rates
+   - Define global default rates
+
+### Testing
+
+**Test Cards**:
+
+```
+Success: 4242 4242 4242 4242
+Decline: 4000 0000 0000 0002
+```
+
+### Additional Resources
+
+- [Stripe Documentation](https://stripe.com/docs)
+- [Stripe Connect Guide](https://stripe.com/docs/connect)
+- [Stripe API Reference](https://stripe.com/docs/api)

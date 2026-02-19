@@ -1,0 +1,238 @@
+---
+title: "Wishlist Module"
+description: "Learn about the Wishlist Module and how to use it in your application"
+---
+
+# Wishlist Module
+
+In this section of the documentation, you will find resources to learn more about the Wishlist Module and how to use it in your application.
+
+Mercur has wishlist features available out-of-the-box through the Wishlist Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Wishlist Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Wishlist Features
+
+- **Product Wishlists**: Allow customers to save products they're interested in for future purchase consideration.
+- **Customer-Specific Wishlists**: Each customer has their own isolated wishlist with saved items.
+- **Price Calculation**: Automatically calculate current prices for wishlist products including promotional pricing.
+- **Product Availability**: Track product availability and variant information for wishlisted items.
+- **Easy Management**: Add and remove products from wishlist with simple workflows.
+
+---
+
+## How to Use the Wishlist Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+You can build custom workflows and steps. Mercur provides pre-built workflows for wishlist operations in the `@mercurjs/b2c-core` package.
+
+For example, the `createWishlistEntryWorkflow`:
+
+```ts title="src/workflows/wishlist/create-wishlist.ts"
+import {
+  WorkflowResponse,
+  createWorkflow
+} from '@medusajs/framework/workflows-sdk'
+import { CreateWishlistDTO } from '@mercurjs/framework'
+import { createWishlistEntryStep } from '../steps'
+
+export const createWishlistEntryWorkflow = createWorkflow(
+  {
+    name: 'create-wishlist'
+  },
+  function (input: CreateWishlistDTO) {
+    return new WorkflowResponse(createWishlistEntryStep(input))
+  }
+)
+```
+
+You can then execute the workflow in your custom API routes:
+
+### API Route
+
+```ts title="src/api/store/wishlist/route.ts"
+import {
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import customerWishlist from "../../../links/customer-wishlist"
+import { createWishlistEntryWorkflow } from "../../../workflows/wishlist/workflows"
+import { calculateWishlistProductsPrice } from "../../../modules/wishlist/utils"
+
+// Create wishlist entry
+export const POST = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  const { result } = await createWishlistEntryWorkflow.run({
+    container: req.scope,
+    input: {
+      ...req.validatedBody,
+      customer_id: req.auth_context.actor_id,
+    },
+  })
+
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [wishlist],
+  } = await query.graph({
+    entity: "wishlist",
+    fields: req.queryConfig.fields,
+    filters: {
+      id: result.id,
+    },
+  })
+
+  res.status(201).json({ wishlist })
+}
+
+// Get customer's wishlist
+export const GET = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: wishlists, metadata } = await query.graph({
+    entity: customerWishlist.entryPoint,
+    fields: [
+      ...req.queryConfig.fields.map((field) => `wishlist.products.${field}`),
+      "wishlist.products.variants.prices.*",
+    ],
+    filters: {
+      customer_id: req.auth_context.actor_id,
+    },
+    pagination: req.queryConfig.pagination,
+  })
+
+  // Calculate current prices for wishlist products
+  const formattedWithPrices = await calculateWishlistProductsPrice(
+    req.scope,
+    wishlists
+  )
+
+  res.json({
+    wishlists: formattedWithPrices,
+    count: metadata?.count,
+    offset: metadata?.skip,
+    limit: metadata?.take,
+  })
+}
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to wishlists in Mercur.
+
+## Wishlist
+
+A wishlist is a collection of products that a customer has saved for future consideration. It is represented by the [Wishlist data model](../data-model/wishlist-module-data-reference#wishlist).
+
+A wishlist entry holds information about:
+
+- A unique ID
+- The type of reference (currently only `product`)
+- Created and updated timestamps
+
+Each wishlist entry represents a single saved product for a customer.
+
+---
+
+## Customer-Product Relationship
+
+Wishlists create a many-to-many relationship between customers and products:
+
+- **Customer → Wishlist** (one-to-one): Each customer has one wishlist container
+- **Wishlist → Product** (one-to-many): The wishlist can contain many saved products
+
+This is implemented through module links that connect:
+1. Customer to their Wishlist
+2. Wishlist to multiple Products
+
+The system automatically handles the relationship management when customers add or remove products.
+
+---
+
+## Reference Types
+
+The `reference` field indicates what type of entity is being saved to the wishlist:
+
+### product (Currently Supported)
+
+Saves a product reference to the wishlist. This is the standard wishlist functionality for e-commerce.
+
+### Future Extensibility
+
+The reference system is designed to be extensible. Future implementations could add:
+- `seller`: Save favorite sellers
+- `collection`: Save favorite collections
+- `search`: Save search queries
+
+Currently, only `product` references are implemented.
+
+---
+
+## Price Calculation
+
+When retrieving wishlist items, Mercur automatically calculates current prices through the `calculateWishlistProductsPrice` utility:
+
+**What it does:**
+- Fetches current prices for wishlist products
+- Applies any active promotions or price lists
+- Includes variant pricing information
+- Respects customer group pricing if applicable
+- Returns formatted product objects with calculated prices
+
+This ensures customers always see up-to-date pricing when viewing their wishlist, even if prices have changed since they saved the products.
+
+---
+
+## Delete Cascade
+
+Both wishlist module links have `deleteCascade` enabled:
+
+- When a **customer is deleted**, their wishlist is automatically deleted
+- When a **wishlist is deleted**, all wishlist entries are automatically removed
+
+This ensures data consistency and prevents orphaned records when cleaning up customer data.
+
+---
+
+## Authentication Integration
+
+Wishlists are customer-specific and require authentication:
+
+- Routes use `authenticate("customer")` middleware
+- Wishlist entries are filtered by `customer_id` from `req.auth_context.actor_id`
+- Customers can only see and manage their own wishlist items
+
+This security model ensures wishlist privacy and data isolation between customers.
+
+---
+
+## Use Cases
+
+**1. Save for Later**
+Customers browse the marketplace and save interesting products to revisit later without adding them to cart.
+
+**2. Gift Lists**
+Customers create wishlists of desired products that they can share for birthdays, holidays, or registries.
+
+**3. Price Tracking**
+Customers save expensive items and check back periodically to see if prices have dropped or promotions applied.
+
+**4. Comparison Shopping**
+Customers save multiple similar products to compare features, prices, and reviews before making a purchase decision.
+
+**5. Stock Notifications**
+(Future enhancement) Notify customers when wishlist items come back in stock or go on sale.
+
+**6. Personalization**
+Use wishlist data to personalize product recommendations and marketing communications.

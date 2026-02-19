@@ -1,0 +1,72 @@
+---
+title: "Common Workflow Steps"
+description: "Reference documentation for shared workflow steps used across multiple modules"
+---
+
+# Steps
+
+## emitMultipleEventsStep
+
+Emits multiple events to the event bus in parallel. This step is commonly used to notify other systems (like search indexes or notification services) about changes to data. It's a shared utility step used across various workflows in the codebase.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/common/steps/emit-multiple-events-step.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Create Service Zones">
+    ```ts packages/modules/b2c-core/src/workflows/fulfillment-set/create-vendor-service-zone.ts
+    import { IntermediateEvents } from "@mercurjs/framework";
+    import { emitMultipleEventsStep } from "../common/steps";
+    
+    // ... inside createVendorServiceZonesWorkflow
+    
+    const events = transform(zones, (zones) =>
+      zones.map((z) => ({
+        name: IntermediateEvents.SERVICE_ZONE_CHANGED,
+        data: { id: z.id },
+      }))
+    );
+    
+    createRemoteLinkStep(links);
+    emitMultipleEventsStep(events);
+    ```
+  </Tab>
+  <Tab title="Delete Service Zones">
+    ```ts packages/modules/b2c-core/src/workflows/fulfillment-set/delete-vendor-service-zone.ts
+    import { IntermediateEvents } from "@mercurjs/framework";
+    import { emitMultipleEventsStep } from "../common/steps";
+    
+    // ... inside deleteVendorServiceZonesWorkflow
+    
+    const events = transform(ids, (ids) =>
+      ids.map((id) => ({
+        name: IntermediateEvents.SERVICE_ZONE_CHANGED,
+        data: { id },
+      }))
+    );
+    
+    dismissRemoteLinkStep(links);
+    emitMultipleEventsStep(events);
+    ```
+  </Tab>
+</Tabs>
+
+### Input
+
+<ParamField body="input" type="object[]" required>
+  Array of events to emit.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the event to emit (e.g., "service_zone.changed", "product.updated").
+    </ParamField>
+    <ParamField body="data" type="Record<string, any>" required>
+      The event payload data. Typically includes an ID or other identifying information.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+This step does not return a value.

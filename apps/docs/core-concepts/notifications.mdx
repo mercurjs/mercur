@@ -1,0 +1,126 @@
+---
+title: "Notifications"
+---
+
+# Overview
+
+Mercur uses a notification system that supports multiple channels including email and in-app feeds. The system is built using the Resend service for email notifications and a local notification provider for in-app feeds.
+
+## Notification Channels
+
+- **Email**: Used for transactional emails and important updates
+- **Feed**: Used for in-app notifications in the admin panel
+- **Seller Feed**: Used for in-app notifications in the seller dashboard
+
+## Email Notifications
+
+### Buyer Notifications
+
+1. **Account Created**
+
+   - Template: `buyerAccountCreatedEmailTemplate`
+   - Trigger: When a new buyer account is created
+   - Content: Welcome message with buyer's name
+
+2. **New Order**
+
+   - Template: `buyerNewOrderEmailTemplate`
+   - Trigger: When an order is placed
+   - Content: Order confirmation with order details and items
+
+3. **Order Canceled**
+
+   - Template: `buyerCancelOrderEmailTemplate`
+   - Trigger: When an order is canceled
+   - Content: Order cancellation confirmation with order details
+
+4. **Order Shipped**
+   - Template: `buyerOrderShippedEmailTemplate`
+   - Trigger: When an order is shipped
+   - Content: Shipping confirmation with tracking details
+
+### Seller Notifications
+
+1. **Account Submission**
+
+   - Template: `sellerAccountSubmissionEmailTemplate`
+   - Trigger: When a seller submits their account for review
+   - Content: Confirmation of submission receipt with seller's name
+
+2. **Account Approval**
+
+   - Template: `sellerAccountApprovedEmailTemplate`
+   - Trigger: When admin approves a seller's account
+   - Content: Approval confirmation with seller's name
+
+3. **Account Rejection**
+
+   - Template: `sellerAccountRejectedEmailTemplate`
+   - Trigger: When admin rejects a seller's account
+   - Content: Rejection notification
+
+4. **Product Approval**
+
+   - Template: `sellerProductApprovedEmailTemplate`
+   - Trigger: When admin accepts a seller's product listing
+   - Content: Approval notification
+
+5. **Product Rejection**
+
+   - Template: `sellerProductRejectedEmailTemplate`
+   - Trigger: When admin rejects a seller's product listing
+   - Content: Rejection notification
+
+6. **Team Invitation**
+
+   - Template: `sellerTeamInviteEmailTemplate`
+   - Trigger: When a seller is invited to join a team
+   - Content:
+     - Invitation details
+     - Store name
+     - Team member name
+     - Registration link
+
+7. **New Order**
+
+   - Template: `sellerNewOrderEmailTemplate`
+   - Trigger: When a new order is placed
+   - Content:
+     - Order ID
+     - Customer name
+     - Order details
+     - Seller name
+
+8. **New Seller Invitation**
+   - Template: `newSellerInvitation`
+   - Trigger: When marketplace administrator invites seller to join the platform
+   - Content: Registration link and platform information
+
+### Admin Notifications
+
+1. **Request Management**
+   - New Seller Request: `adminSellerRequestCreatedEmailTemplate`
+
+## In-App Notifications
+
+### Admin Feed
+
+- New request notifications
+- Other system notifications (Medusa defaults)
+
+### Seller Feed
+
+- **Product Requests** - approved/rejected
+- **Product Category Requests** - approved/rejected
+- **Product Collection Requests** - approved/rejected
+- **Product Type Requests** - approved/rejected
+- **Product Tag Requests** - approved/rejected
+- **Order Notifications** - new order created
+
+## System Notifications
+
+1. **Password Reset**
+
+   - Template: `forgotPasswordEmailTemplate`
+   - Trigger: When a user requests a password reset
+   - Content: Password reset link and instructions

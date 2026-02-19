@@ -1,0 +1,687 @@
+---
+title: "Marketplace Module Service Reference"
+description: "Reference documentation for the Marketplace Module service methods"
+---
+
+# IMarketplaceModuleService Reference
+
+This section of the documentation provides a reference to the `IMarketplaceModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Marketplace Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Marketplace Module.
+
+## Methods
+
+- [createOrderSets](#createordersets)
+- [updateOrderSets](#updateordersets)
+- [deleteOrderSets](#deleteordersets)
+- [retrieveOrderSet](#retrieveorderset)
+- [listOrderSets](#listordersets)
+- [listAndCountOrderSets](#listandcountordersets)
+- [softDeleteOrderSets](#softdeleteordersets)
+- [restoreOrderSets](#restoreordersets)
+
+---
+
+# createOrderSets
+
+This section provides a reference to the `createOrderSets` method. This belongs to the Marketplace Module.
+
+## createOrderSets(data, sharedContext?): Promise\<OrderSetDTO[]>
+
+This method creates order sets.
+
+### Example
+
+```ts
+const orderSets = await marketplaceModuleService.createOrderSets([
+  {
+    cart_id: "cart_123",
+    customer_id: "cus_123",
+    sales_channel_id: "sc_123",
+    payment_collection_id: "paycol_123",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateOrderSetDTO[]" required>
+  The order sets to be created.
+
+  <Expandable title="properties">
+    <ParamField body="cart_id" type="string" required>
+      The ID of the cart that the order set was created from.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer who owns the order set.
+    </ParamField>
+
+    <ParamField body="sales_channel_id" type="string" required>
+      The ID of the sales channel the order set belongs to.
+    </ParamField>
+
+    <ParamField body="payment_collection_id" type="string" required>
+      The ID of the payment collection associated with the order set.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<OrderSetDTO[]>">
+  The created order sets.
+</ResponseField>
+
+## createOrderSets(data, sharedContext?): Promise\<OrderSetDTO>
+
+This method creates an order set.
+
+### Example
+
+```ts
+const orderSet = await marketplaceModuleService.createOrderSets({
+  cart_id: "cart_123",
+  customer_id: "cus_123",
+  sales_channel_id: "sc_123",
+  payment_collection_id: "paycol_123",
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateOrderSetDTO" required>
+  The order set to be created.
+
+  <Expandable title="properties">
+    <ParamField body="cart_id" type="string" required>
+      The ID of the cart that the order set was created from.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer who owns the order set.
+    </ParamField>
+
+    <ParamField body="sales_channel_id" type="string" required>
+      The ID of the sales channel the order set belongs to.
+    </ParamField>
+
+    <ParamField body="payment_collection_id" type="string" required>
+      The ID of the payment collection associated with the order set.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<OrderSetDTO>">
+  The created order set.
+</ResponseField>
+
+---
+
+# updateOrderSets
+
+This section provides a reference to the `updateOrderSets` method. This belongs to the Marketplace Module.
+
+## updateOrderSets(id, data, sharedContext?): Promise\<OrderSetDTO>
+
+This method updates an existing order set.
+
+### Example
+
+```ts
+const orderSet = await marketplaceModuleService.updateOrderSets("ordset_123", {
+  payment_collection_id: "paycol_456",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the order set.
+</ParamField>
+
+<ParamField body="data" type="UpdateOrderSetDTO" required>
+  The attributes to update in the order set.
+
+  <Expandable title="properties">
+    <ParamField body="cart_id" type="string">
+      The ID of the cart that the order set was created from.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string">
+      The ID of the customer who owns the order set.
+    </ParamField>
+
+    <ParamField body="sales_channel_id" type="string">
+      The ID of the sales channel the order set belongs to.
+    </ParamField>
+
+    <ParamField body="payment_collection_id" type="string">
+      The ID of the payment collection associated with the order set.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<OrderSetDTO>">
+  The updated order set.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the order set.
+    </ResponseField>
+
+    <ResponseField name="display_id" type="number">
+      The display ID of the order set.
+    </ResponseField>
+
+    <ResponseField name="cart_id" type="string">
+      The ID of the cart that the order set was created from.
+    </ResponseField>
+
+    <ResponseField name="customer_id" type="string">
+      The ID of the customer who owns the order set.
+    </ResponseField>
+
+    <ResponseField name="sales_channel_id" type="string">
+      The ID of the sales channel the order set belongs to.
+    </ResponseField>
+
+    <ResponseField name="payment_collection_id" type="string">
+      The ID of the payment collection associated with the order set.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the order set.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the order set.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteOrderSets
+
+This section provides a reference to the `deleteOrderSets` method. This belongs to the Marketplace Module.
+
+## deleteOrderSets(ids, sharedContext?): Promise\<void>
+
+This method deletes order sets by their IDs.
+
+### Example
+
+```ts
+await marketplaceModuleService.deleteOrderSets(["ordset_123", "ordset_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the order sets.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the order sets are deleted successfully.
+</ResponseField>
+
+## deleteOrderSets(id, sharedContext?): Promise\<void>
+
+This method deletes an order set by its ID.
+
+### Example
+
+```ts
+await marketplaceModuleService.deleteOrderSets("ordset_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the order set.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the order set is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveOrderSet
+
+This section provides a reference to the `retrieveOrderSet` method. This belongs to the Marketplace Module.
+
+This method retrieves an order set by its ID.
+
+## Example
+
+```ts
+const orderSet = await marketplaceModuleService.retrieveOrderSet("ordset_123")
+```
+
+To retrieve relationships:
+
+```ts
+const orderSet = await marketplaceModuleService.retrieveOrderSet(
+  "ordset_123",
+  {
+    relations: ["customer", "cart", "sales_channel"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the order set.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OrderSetDTO>">
+  The configurations determining how the order set is retrieved. Its properties, such as `select` or `relations`, accept the attributes or relations associated with an order set.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. Use Query to retrieve linked data models from other modules.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<OrderSetDTO>">
+  The retrieved order set.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the order set.
+    </ResponseField>
+
+    <ResponseField name="display_id" type="number">
+      The display ID of the order set.
+    </ResponseField>
+
+    <ResponseField name="cart_id" type="string">
+      The ID of the cart that the order set was created from.
+    </ResponseField>
+
+    <ResponseField name="customer_id" type="string">
+      The ID of the customer who owns the order set.
+    </ResponseField>
+
+    <ResponseField name="sales_channel_id" type="string">
+      The ID of the sales channel the order set belongs to.
+    </ResponseField>
+
+    <ResponseField name="payment_collection_id" type="string">
+      The ID of the payment collection associated with the order set.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the order set.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the order set.
+    </ResponseField>
+
+    <ResponseField name="customer" type="CustomerDTO">
+      The associated customer (if included in relations).
+    </ResponseField>
+
+    <ResponseField name="cart" type="CartDTO">
+      The associated cart (if included in relations).
+    </ResponseField>
+
+    <ResponseField name="sales_channel" type="SalesChannelDTO">
+      The associated sales channel (if included in relations).
+    </ResponseField>
+
+    <ResponseField name="payment_collection" type="PaymentCollectionDTO">
+      The associated payment collection (if included in relations).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listOrderSets
+
+This section provides a reference to the `listOrderSets` method. This belongs to the Marketplace Module.
+
+This method retrieves a paginated list of order sets based on optional filters and configuration.
+
+## Example
+
+To retrieve a list of order sets using their IDs:
+
+```ts
+const orderSets = await marketplaceModuleService.listOrderSets({
+  id: ["ordset_123", "ordset_321"],
+})
+```
+
+To retrieve order sets for a specific customer:
+
+```ts
+const orderSets = await marketplaceModuleService.listOrderSets({
+  customer_id: "cus_123",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const orderSets = await marketplaceModuleService.listOrderSets(
+  {
+    customer_id: "cus_123",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableOrderSetProps">
+  The filters to apply on the retrieved order sets.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the order sets by.
+    </ParamField>
+
+    <ParamField body="cart_id" type="string | string[]">
+      Filter order sets by their cart IDs.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string | string[]">
+      Filter order sets by their customer IDs.
+    </ParamField>
+
+    <ParamField body="sales_channel_id" type="string | string[]">
+      Filter order sets by their sales channel IDs.
+    </ParamField>
+
+    <ParamField body="payment_collection_id" type="string | string[]">
+      Filter order sets by their payment collection IDs.
+    </ParamField>
+
+    <ParamField body="display_id" type="number | number[]">
+      Filter order sets by their display IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OrderSetDTO>">
+  The configurations determining how the order set is retrieved. Its properties, such as `select` or `relations`, accept the attributes or relations associated with an order set.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records. Its keys are the names of attributes of the entity, and a key's value can either be `ASC` to sort retrieved records in an ascending order, or `DESC` to sort retrieved records in a descending order.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<OrderSetDTO[]>">
+  The list of order sets.
+</ResponseField>
+
+---
+
+# listAndCountOrderSets
+
+This section provides a reference to the `listAndCountOrderSets` method. This belongs to the Marketplace Module.
+
+This method retrieves a paginated list of order sets along with the total count of available order sets satisfying the provided filters.
+
+## Example
+
+To retrieve a list of order sets using their IDs:
+
+```ts
+const [orderSets, count] = await marketplaceModuleService.listAndCountOrderSets({
+  id: ["ordset_123", "ordset_321"],
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const [orderSets, count] = await marketplaceModuleService.listAndCountOrderSets(
+  {
+    customer_id: "cus_123",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableOrderSetProps">
+  The filters to apply on the retrieved order sets.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the order sets by.
+    </ParamField>
+
+    <ParamField body="cart_id" type="string | string[]">
+      Filter order sets by their cart IDs.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string | string[]">
+      Filter order sets by their customer IDs.
+    </ParamField>
+
+    <ParamField body="sales_channel_id" type="string | string[]">
+      Filter order sets by their sales channel IDs.
+    </ParamField>
+
+    <ParamField body="payment_collection_id" type="string | string[]">
+      Filter order sets by their payment collection IDs.
+    </ParamField>
+
+    <ParamField body="display_id" type="number | number[]">
+      Filter order sets by their display IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OrderSetDTO>">
+  The configurations determining how the order set is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[OrderSetDTO[], number]>">
+  The list of order sets along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteOrderSets
+
+This section provides a reference to the `softDeleteOrderSets` method. This belongs to the Marketplace Module.
+
+This method soft deletes order sets by their IDs.
+
+## Example
+
+```ts
+await marketplaceModuleService.softDeleteOrderSets([
+  "ordset_123",
+  "ordset_321",
+])
+```
+
+## Parameters
+
+<ParamField body="orderSetIds" type="string[]" required>
+  The IDs of the order sets.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreOrderSets
+
+This section provides a reference to the `restoreOrderSets` method. This belongs to the Marketplace Module.
+
+This method restores soft deleted order sets by their IDs.
+
+## Example
+
+```ts
+await marketplaceModuleService.restoreOrderSets(["ordset_123", "ordset_321"])
+```
+
+## Parameters
+
+<ParamField body="orderSetIds" type="string[]" required>
+  The IDs of the order sets.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the order set.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

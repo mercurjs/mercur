@@ -1,0 +1,474 @@
+---
+title: "Split Order Payment Workflows"
+description: "Reference documentation for the Split Order Payment Module workflows and steps"
+---
+
+# Workflows
+
+## markSplitOrderPaymentsAsCapturedWorkflow
+
+This documentation provides a reference to the `markSplitOrderPaymentsAsCapturedWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow marks all split order payments associated with a payment collection as captured. It updates the payment status to "captured" and sets the captured amount equal to the authorized amount. This is typically triggered after a successful payment capture.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/split-order-payment/workflows/mark-split-order-payments-as-captured.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Payment Captured Subscriber">
+    ```ts packages/modules/b2c-core/src/subscribers/split-payment-payment-captured.ts
+    import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
+    import { Modules, PaymentEvents } from '@medusajs/framework/utils'
+    import { markSplitOrderPaymentsAsCapturedWorkflow } from '../workflows/split-order-payment/workflows'
+    
+    export default async function paymentCapturedHandler({
+      event,
+      container
+    }: SubscriberArgs<{ id: string }>) {
+      const payment_id = event.data.id
+      const paymentService = container.resolve(Modules.PAYMENT)
+    
+      const payment = await paymentService.retrievePayment(payment_id, {
+        relations: ['payment_collection']
+      })
+    
+      await markSplitOrderPaymentsAsCapturedWorkflow.run({
+        container,
+        input: payment.payment_collection_id
+      })
+    }
+    
+    export const config: SubscriberConfig = {
+      event: PaymentEvents.CAPTURED,
+      context: {
+        subscriberId: 'split-payment-payment-captured-handler'
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Order Set Placed Subscriber">
+    ```ts packages/modules/b2c-core/src/subscribers/order-set-placed-payment-capture.ts
+    import { SubscriberConfig } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { SubscriberArgs } from '@medusajs/medusa'
+    import { capturePaymentWorkflow } from '@medusajs/medusa/core-flows'
+    import { OrderSetWorkflowEvents } from '@mercurjs/framework'
+    import { markSplitOrderPaymentsAsCapturedWorkflow } from '../workflows/split-order-payment/workflows'
+    
+    export default async function orderSetPlacedHandler({
+      event,
+      container
+    }: SubscriberArgs<{ id: string }>) {
+      const query = container.resolve(ContainerRegistrationKeys.QUERY)
+      const { id: orderSetId } = event.data
+    
+      const {
+        data: [order_set]
+      } = await query.graph({
+        entity: 'order_set',
+        fields: ['payment_collection_id'],
+        filters: {
+          id: orderSetId
+        }
+      })
+    
+      const {
+        data: [payment_collection]
+      } = await query.graph({
+        entity: 'payment_collection',
+        fields: ['status', 'payments.*'],
+        filters: {
+          id: order_set.payment_collection_id
+        }
+      })
+    
+      const { result } = await capturePaymentWorkflow.run({
+        container,
+        input: {
+          payment_id: payment_collection.payments[0].id
+        }
+      })
+    
+      await markSplitOrderPaymentsAsCapturedWorkflow.run({
+        container,
+        input: order_set.payment_collection_id
+      })
+    }
+    
+    export const config: SubscriberConfig = {
+      event: OrderSetWorkflowEvents.PLACED,
+      context: {
+        subscriberId: 'order-set-placed-payment-capture'
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **useQueryGraphStep**: Fetches all split order payments for the payment collection.
+- [updateSplitOrderPaymentsStep](#updatesplitorderpaymentsstep): Updates the payments to set status to "captured" and captured_amount to authorized_amount.
+
+### Input
+
+<ParamField body="payment_collection_id" type="string" required>
+  The ID of the payment collection whose split order payments should be marked as captured.
+</ParamField>
+
+### Output
+
+<ResponseField name="SplitOrderPaymentDTO[]" type="SplitOrderPaymentDTO[]">
+  Array of updated split order payments.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the split order payment.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      The payment status (set to "captured").
+    </ResponseField>
+    <ResponseField name="captured_amount" type="number">
+      The captured amount (equal to authorized_amount).
+    </ResponseField>
+    <ResponseField name="authorized_amount" type="number">
+      The authorized amount.
+    </ResponseField>
+    <ResponseField name="refunded_amount" type="number">
+      The refunded amount.
+    </ResponseField>
+    <ResponseField name="currency_code" type="string">
+      The currency code.
+    </ResponseField>
+    <ResponseField name="payment_collection_id" type="string">
+      The ID of the payment collection.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## partialPaymentRefundWorkflow
+
+This documentation provides a reference to the `partialPaymentRefundWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow processes a partial refund for a split order payment. It validates the refund amount, processes the refund with the payment provider, and adds a refund transaction to the order. This workflow is nested within the `refundSplitOrderPaymentWorkflow`.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/split-order-payment/workflows/partial-payment-refund.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Refund Workflow">
+    ```ts packages/modules/b2c-core/src/workflows/split-order-payment/workflows/refund-split-order-payment.ts
+    import { partialPaymentRefundWorkflow } from './partial-payment-refund'
+    
+    export const refundSplitOrderPaymentWorkflow = createWorkflow(
+      {
+        name: 'refund-split-order-payment'
+      },
+      function (input: RefundSplitOrderPaymentsDTO) {
+        const updatePayload = validateRefundSplitOrderPaymentStep(input)
+        const splitOrderPayment = updateSplitOrderPaymentsStep(
+          transform(updatePayload, (updatePayload) => [updatePayload])
+        )
+        partialPaymentRefundWorkflow.runAsStep({ input })
+        return new WorkflowResponse(splitOrderPayment)
+      }
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [selectAndValidatePaymentRefundStep](#selectandvalidatepaymentrefundstep): Validates the refund amount and retrieves payment details.
+- **refundPaymentsStep**: Processes the refund with the payment provider using Medusa's core step.
+- **addOrderTransactionStep**: Adds a refund transaction record to the order.
+
+### Input
+
+<ParamField body="input" type="RefundSplitOrderPaymentsDTO" required>
+  The refund details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the split order payment to refund.
+    </ParamField>
+    <ParamField body="amount" type="number" required>
+      The amount to refund.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="PaymentDTO[]" type="PaymentDTO[]">
+  Array of refunded payments.
+</ResponseField>
+
+---
+
+## refundSplitOrderPaymentWorkflow
+
+This documentation provides a reference to the `refundSplitOrderPaymentWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow refunds a split order payment by validating the refund, updating the split payment record, and processing the actual refund through the payment provider. It updates the payment status to "partially_refunded" or "refunded" based on the remaining amount.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/split-order-payment/workflows/refund-split-order-payment.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Order Cancellation">
+    ```ts packages/modules/b2c-core/src/workflows/order/workflows/cancel-order.ts
+    import { refundSplitOrderPaymentWorkflow } from '../../split-order-payment/workflows'
+    
+    // ... inside cancelOrderWorkflow
+    
+    parallelize(
+      deleteReservationsByLineItemsStep(lineItemIds),
+      cancelOrdersStep({ orderIds: [order.id] }),
+      refundSplitOrderPaymentWorkflow.runAsStep({
+        input: {
+          id: order.split_order_payment.id,
+          amount: order.split_order_payment.captured_amount
+        }
+      }),
+      createPayoutReversalStep({
+        payout_id: payoutId,
+        amount: order.split_order_payment.captured_amount,
+        currency_code: order.currency_code
+      }),
+      emitEventStep({
+        eventName: OrderWorkflowEvents.CANCELED,
+        data: { id: order.id }
+      })
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateRefundSplitOrderPaymentStep](#validaterefundsplitorderpaymentstep): Validates the refund amount and calculates the new status.
+- [updateSplitOrderPaymentsStep](#updatesplitorderpaymentsstep): Updates the split payment with new refunded amount and status.
+- **partialPaymentRefundWorkflow**: Processes the actual refund with the payment provider.
+
+### Input
+
+<ParamField body="input" type="RefundSplitOrderPaymentsDTO" required>
+  The refund details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the split order payment to refund.
+    </ParamField>
+    <ParamField body="amount" type="number" required>
+      The amount to refund.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="SplitOrderPaymentDTO[]" type="SplitOrderPaymentDTO[]">
+  Array containing the updated split order payment.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the split order payment.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      The updated status ("partially_refunded" or "refunded").
+    </ResponseField>
+    <ResponseField name="refunded_amount" type="number">
+      The total refunded amount.
+    </ResponseField>
+    <ResponseField name="captured_amount" type="number">
+      The captured amount.
+    </ResponseField>
+    <ResponseField name="authorized_amount" type="number">
+      The authorized amount.
+    </ResponseField>
+    <ResponseField name="currency_code" type="string">
+      The currency code.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# Steps
+
+## createSplitOrderPaymentsStep
+
+Creates split order payment records for each order in a multi-vendor cart and links them to their respective orders. If an error occurs after creation, the step's compensation function automatically deletes the created payments and their links.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/split-order-payment/steps/create-split-order-payments.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Cart Completion Workflow">
+    ```ts packages/modules/b2c-core/src/workflows/cart/workflows/split-and-complete-cart.ts
+    import { createSplitOrderPaymentsStep } from "../../split-order-payment/steps";
+    
+    // ... inside splitAndCompleteCartWorkflow
+    
+    const splitPaymentsToCreate = transform(
+      { createdOrders, payment },
+      ({ createdOrders, payment }) => {
+        return createdOrders.map((order) => ({
+          order_id: order.id,
+          status: "pending",
+          currency_code: order.currency_code,
+          authorized_amount: MathBN.convert(
+            order.summary?.accounting_total || 0
+          ).toNumber(),
+          payment_collection_id: payment!.payment_collection_id,
+        }));
+      }
+    );
+    
+    parallelize(
+      createSplitOrderPaymentsStep(splitPaymentsToCreate),
+      // ... other parallel steps
+    );
+    ```
+  </Tab>
+</Tabs>
+
+### Input
+
+<ParamField body="input" type="CreateSplitOrderPaymentsDTO[]" required>
+  Array of split order payments to create.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order this payment is for.
+    </ParamField>
+    <ParamField body="status" type="string" required>
+      The initial status of the payment (typically "pending").
+    </ParamField>
+    <ParamField body="currency_code" type="string" required>
+      The currency code (e.g., "usd").
+    </ParamField>
+    <ParamField body="authorized_amount" type="number" required>
+      The authorized payment amount.
+    </ParamField>
+    <ParamField body="payment_collection_id" type="string" required>
+      The ID of the payment collection.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="SplitOrderPaymentDTO[]" type="SplitOrderPaymentDTO[]">
+  Array of created split order payments.
+</ResponseField>
+
+---
+
+## selectAndValidatePaymentRefundStep
+
+Validates that a refund amount is valid for a split order payment by checking the refundable amount against captures and previous refunds. Returns the payment details needed for processing the refund.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/split-order-payment/workflows/partial-payment-refund.ts)
+
+### Input
+
+<ParamField body="input" type="RefundSplitOrderPaymentsDTO" required>
+  The refund validation details.
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="payment_id" type="string">
+      The ID of the payment to refund.
+    </ResponseField>
+    <ResponseField name="currency_code" type="string">
+      The currency code.
+    </ResponseField>
+    <ResponseField name="amount" type="number">
+      The validated refund amount.
+    </ResponseField>
+    <ResponseField name="order_id" type="string">
+      The ID of the associated order.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## updateSplitOrderPaymentsStep
+
+Updates split order payment records. This step includes a compensation function that restores the previous payment state if a subsequent step in the workflow fails.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/split-order-payment/steps/update-split-order-payment.ts)
+
+### Input
+
+<ParamField body="input" type="UpdateSplitOrderPaymentsDTO[]" required>
+  Array of split order payment updates.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the split order payment to update.
+    </ParamField>
+    <ParamField body="status" type="string">
+      The new payment status (e.g., "captured", "partially_refunded", "refunded").
+    </ParamField>
+    <ParamField body="authorized_amount" type="number">
+      The new authorized amount.
+    </ParamField>
+    <ParamField body="captured_amount" type="number">
+      The new captured amount.
+    </ParamField>
+    <ParamField body="refunded_amount" type="number">
+      The new refunded amount.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="SplitOrderPaymentDTO[]" type="SplitOrderPaymentDTO[]">
+  Array of updated split order payments.
+</ResponseField>
+
+---
+
+## validateRefundSplitOrderPaymentStep
+
+Validates a refund request by checking that the refund amount is positive and does not exceed the refundable amount (captured - already refunded). Calculates the new status based on whether the full amount is being refunded.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/split-order-payment/steps/validate-refund-split-order-payment.ts)
+
+### Input
+
+<ParamField body="input" type="RefundSplitOrderPaymentsDTO" required>
+  The refund validation details.
+</ParamField>
+
+### Output
+
+<ResponseField name="UpdateSplitOrderPaymentsDTO" type="UpdateSplitOrderPaymentsDTO">
+  The validated update payload.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the split order payment.
+    </ResponseField>
+    <ResponseField name="refunded_amount" type="number">
+      The new total refunded amount.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      The new status ("partially_refunded" if amount remains, "refunded" if fully refunded).
+    </ResponseField>
+  </Expandable>
+</ResponseField>

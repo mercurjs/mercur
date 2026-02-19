@@ -1,0 +1,328 @@
+---
+title: "Seller Module"
+description: "Learn about the Seller Module and how to use it in your application"
+---
+
+# Seller Module
+
+In this section of the documentation, you will find resources to learn more about the Seller Module and how to use it in your application.
+
+Mercur has multi-vendor management features available out-of-the-box through the Seller Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Seller Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Seller Features
+
+- **Seller Management**: Create and manage seller accounts with business information and store status.
+- **Team Member Management**: Handle multiple team members per seller with role-based access (owner, admin, member).
+- **Member Invitations**: Send JWT-based invitations to team members with expiration and validation.
+- **Seller Onboarding**: Track seller onboarding progress through multiple setup steps.
+- **Store Status Control**: Manage seller store status (ACTIVE, INACTIVE, SUSPENDED) to control marketplace access.
+- **Resource Isolation**: Each seller has isolated access to their own products, orders, inventory, and shipping configurations.
+
+---
+
+## How to Use the Seller Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+You can build custom workflows and steps. Mercur provides pre-built workflows for seller operations in the `@mercurjs/b2c-core` package.
+
+For example, the `createSellerWorkflow`:
+
+```ts title="src/workflows/seller/create-seller.ts"
+import { transform } from "@medusajs/framework/workflows-sdk"
+import { setAuthAppMetadataStep } from "@medusajs/medusa/core-flows"
+import {
+  WorkflowResponse,
+  createHook,
+  createWorkflow,
+} from "@medusajs/workflows-sdk"
+import { CreateMemberDTO, CreateSellerDTO } from "@mercurjs/framework"
+import {
+  createMemberStep,
+  createSellerOnboardingStep,
+  createSellerStep,
+  createSellerShippingProfileStep,
+} from "../steps"
+
+type CreateSellerWorkflowInput = {
+  seller: CreateSellerDTO
+  member: Omit<CreateMemberDTO, "seller_id">
+  auth_identity_id: string
+}
+
+export const createSellerWorkflow = createWorkflow(
+  "create-seller",
+  function (input: CreateSellerWorkflowInput) {
+    // Create the seller
+    const seller = createSellerStep(input.seller)
+
+    // Create the first member (owner) with seller_id
+    const memberInput = transform(
+      { seller, member: input.member },
+      ({ member, seller }) => ({
+        ...member,
+        seller_id: seller.id,
+      })
+    )
+
+    const member = createMemberStep(memberInput)
+    
+    // Initialize onboarding tracker
+    createSellerOnboardingStep(seller)
+
+    // Link auth identity to seller member
+    setAuthAppMetadataStep({
+      authIdentityId: input.auth_identity_id,
+      actorType: "seller",
+      value: member.id,
+    })
+
+    // Create default shipping profile
+    createSellerShippingProfileStep(seller)
+    
+    // Emit workflow hook for extensibility
+    const sellerCreatedHook = createHook("sellerCreated", {
+      sellerId: seller.id,
+    })
+    
+    return new WorkflowResponse(seller, { hooks: [sellerCreatedHook] })
+  }
+)
+```
+
+You can then execute the workflow in your custom API routes, scheduled jobs, or subscribers:
+
+### Subscriber
+
+```ts title="src/subscribers/seller-creation-request-accepted.ts"
+import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import {
+  RequestDTO,
+  SellerAccountRequestUpdatedEvent,
+} from "@mercurjs/framework"
+import { createSellerWorkflow } from "../workflows"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+
+export default async function sellerCreationRequestAcceptedHandler({
+  event,
+  container,
+}: SubscriberArgs<RequestDTO>) {
+  const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
+  const request = event.data
+
+  // Execute the createSellerWorkflow when admin accepts seller registration
+  const { result: seller } = await createSellerWorkflow.run({
+    container,
+    input: {
+      member: request.data.member as any,
+      seller: request.data.seller as any,
+      auth_identity_id: request.data.auth_identity_id as string,
+    },
+  })
+
+  logger.info(
+    `Seller creation request accepted: ${request.id}, seller: ${seller.id}`
+  )
+}
+
+export const config: SubscriberConfig = {
+  event: SellerAccountRequestUpdatedEvent.ACCEPTED,
+  context: {
+    subscriberId: "seller-creation-request-accepted-handler",
+  },
+}
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to sellers in Mercur.
+
+## Seller
+
+A seller is a vendor entity in the marketplace that can manage products, orders, and customers. It is represented by the [Seller data model](../data-model/seller-module-data-reference#seller).
+
+A seller holds information about:
+
+- Business details (name, description, contact information)
+- Business address and tax identification
+- Store status (ACTIVE, INACTIVE, SUSPENDED)
+- A unique handle for storefront URLs
+- Team members who can manage the seller's resources
+- Onboarding progress
+
+Each seller operates independently in the marketplace, with their own isolated resources including products, orders, inventory, shipping options, promotions, and customer groups.
+
+---
+
+## Store Status
+
+A seller's store can be in one of three states:
+
+### ACTIVE
+
+The seller is fully operational and can:
+- List and sell products
+- Receive and fulfill orders
+- Manage all marketplace resources
+- Access the vendor panel
+
+This is the default status for approved sellers.
+
+### INACTIVE
+
+The seller account exists but is not currently operational. This status might be used for:
+- Sellers who haven't completed onboarding
+- Temporarily closed stores
+- Sellers taking a break from the marketplace
+
+Inactive sellers cannot list products or process new orders.
+
+### SUSPENDED
+
+The seller has been suspended by marketplace administrators, typically due to:
+- Policy violations
+- Customer complaints
+- Payment issues
+
+Suspended sellers can only access order and fulfillment management to handle existing commitments, but cannot create new listings or receive new orders.
+
+---
+
+## Member
+
+A member represents a user who can manage a seller's marketplace operations. It is represented by the [Member data model](../data-model/seller-module-data-reference#member).
+
+### Member Roles
+
+Members can have one of three roles:
+
+**owner**: Full administrative control
+- Manage seller business information
+- Invite and remove team members
+- Access financial and payout settings
+- Delete the seller account
+
+**admin**: Operational management
+- Manage products, inventory, and orders
+- Configure shipping and promotions
+- View reports and analytics
+- Cannot modify business settings or team members
+
+**member**: Limited access
+- View and fulfill orders
+- Update inventory
+- Cannot modify products or settings
+
+This role-based system allows sellers to delegate responsibilities while maintaining control over sensitive operations.
+
+---
+
+## Member Invite
+
+A member invite represents a pending invitation to join a seller's team. It is represented by the [MemberInvite data model](../data-model/seller-module-data-reference#memberinvite).
+
+### Invitation Flow
+
+1. **Existing member creates invite**: Owner or admin generates invitation with email and role
+2. **JWT token generated**: System creates signed JWT token with 7-day expiration
+3. **Email sent**: Invitation email with unique link sent to invitee
+4. **Recipient accepts**: User clicks link and completes registration
+5. **Token validation**: System verifies token is valid and not expired
+6. **Member created**: New member account created and linked to seller
+7. **Invite marked accepted**: Invite record updated to prevent reuse
+
+The JWT token includes the invite ID and is signed with the application's JWT secret, ensuring secure invite handling.
+
+---
+
+## Seller Onboarding
+
+Seller onboarding tracks the setup progress of new sellers through required steps. It is represented by the [SellerOnboarding data model](../data-model/seller-module-data-reference#selleronboarding).
+
+### Onboarding Steps
+
+**1. store_information** (boolean)
+- Business name, description, contact details
+- Business address and tax ID
+- Store branding (logo, photos)
+
+**2. stripe_connection** (boolean)
+- Payout account creation
+- Stripe Connect onboarding
+- Bank account verification
+
+**3. locations_shipping** (boolean)
+- Stock location setup
+- Shipping zones and options
+- Fulfillment configuration
+
+**4. products** (boolean)
+- First product creation
+- Inventory setup
+- Pricing configuration
+
+The `isOnboardingCompleted` method checks if all four steps are complete, determining if the seller can start selling.
+
+---
+
+## Resource Isolation
+
+The Seller Module implements multi-tenancy through module links, giving each seller their own isolated resources:
+
+**Commerce Resources:**
+- Products and inventory
+- Orders and returns
+- Customer groups
+- Promotions and campaigns
+- Price lists
+
+**Fulfillment Resources:**
+- Stock locations
+- Fulfillment sets
+- Service zones
+- Shipping options
+- Shipping profiles
+
+This isolation ensures:
+- Data security (sellers only see their own data)
+- Independent operations (one seller's actions don't affect others)
+- Scalability (resources scale per seller)
+
+---
+
+## Authentication Integration
+
+The Seller Module integrates with Medusa's Auth Module to enable member authentication:
+
+- Members are a custom actor type (`seller`)
+- Auth identities store `member_id` in `app_metadata`
+- Routes are protected with `authenticate("seller")` middleware
+- Member ID is used to resolve seller ownership
+
+This allows the same authentication system to handle customers, admin users, and seller members with different permissions.
+
+---
+
+## Use Cases
+
+**1. Vendor Registration**
+New vendors register, complete onboarding, and start selling on the marketplace.
+
+**2. Team Collaboration**
+Sellers invite team members with different roles to collaborate on store management.
+
+**3. Store Suspension**
+Marketplace admin suspends a seller for policy violations while allowing them to fulfill existing orders.
+
+**4. Multi-Store Management**
+A business creates multiple seller accounts for different brands or product lines.
+
+**5. Status-Based Product Visibility**
+When a seller is suspended, their products are automatically hidden from search results (via the status change subscriber).
+

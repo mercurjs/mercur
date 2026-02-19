@@ -1,0 +1,70 @@
+---
+title: "Attribute Module Data Models"
+description: "Reference documentation for the Attribute Module data models"
+---
+
+## Relations Overview
+
+| Relationship                       | Type        | Description                           |
+| ---------------------------------- | ----------- | ------------------------------------- |
+| Attribute → AttributeValue         | One-to-Many | An attribute has many values          |
+| Attribute → AttributePossibleValue | One-to-Many | An attribute has many possible values |
+
+## Data Models
+
+- [Attribute](#attribute)
+- [AttributeValue](#attributevalue)
+- [AttributePossibleValue](#attributepossiblevalue)
+
+## Attribute
+
+This documentation provides a reference to the Attribute data model. It belongs to the Attribute Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/attribute/models/attribute.ts)
+</Info>
+
+| Field             | Type                                                                                    | Description                                                               |
+| ----------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `id`              | `PrimaryKeyModifier<IdProperty>`                                                        | The ID of the attribute.                                                  |
+| `name`            | `TextProperty`                                                                          | The name of the attribute                                                 |
+| `description`     | `TextProperty`                                                                          | The description of the attribute                                          |
+| `is_required`     | `BooleanProperty`                                                                       | Whether the attribute is required. Defaults to `false`.                   |
+| `is_filterable`   | `BooleanProperty`                                                                       | Whether the attribute is filterable. Defaults to `true`.                  |
+| `handle`          | `TextProperty`                                                                          | The unique handle of the attribute                                        |
+| `ui_component`    | `EnumProperty<["select", "multivalue", "unit", "toggle", "text_area", "color_picker"]>` | The UI component type for rendering the attribute. Defaults to `select`.  |
+| `metadata`        | `JSONProperty`                                                                          | Holds custom data in key-value pairs.                                     |
+| `values`          | `HasMany<AttributeValue>`                                                               | The associated [AttributeValue](#attributevalue) records.                 |
+| `possible_values` | `HasMany<AttributePossibleValue>`                                                       | The associated [AttributePossibleValue](#attributepossiblevalue) records. |
+
+## AttributeValue
+
+This documentation provides a reference to the AttributeValue data model. It belongs to the Attribute Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/attribute/models/attribute-value.ts)
+</Info>
+
+| Field       | Type                             | Description                             |
+| ----------- | -------------------------------- | --------------------------------------- |
+| `id`        | `PrimaryKeyModifier<IdProperty>` | The ID of the attribute value.          |
+| `value`     | `TextProperty`                   | The value of the attribute value        |
+| `rank`      | `NumberProperty`                 | The rank of the attribute value         |
+| `metadata`  | `JSONProperty`                   | Holds custom data in key-value pairs.   |
+| `attribute` | `BelongsTo<Attribute>`           | The associated [Attribute](#attribute). |
+
+## AttributePossibleValue
+
+This documentation provides a reference to the AttributePossibleValue data model. It belongs to the Attribute Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/attribute/models/attribute-possible-value.ts)
+</Info>
+
+| Field       | Type                             | Description                               |
+| ----------- | -------------------------------- | ----------------------------------------- |
+| `id`        | `PrimaryKeyModifier<IdProperty>` | The ID of the attribute possible value.   |
+| `value`     | `TextProperty`                   | The value of the attribute possible value |
+| `rank`      | `NumberProperty`                 | The rank of the attribute possible value  |
+| `metadata`  | `JSONProperty`                   | Holds custom data in key-value pairs.     |
+| `attribute` | `BelongsTo<Attribute>`           | The associated [Attribute](#attribute).   |

@@ -1,0 +1,988 @@
+---
+title: "Requests Workflows"
+description: "Reference documentation for the Requests Module workflows and steps"
+---
+
+# Workflows
+
+## acceptProductCategoryRequestWorkflow
+
+This documentation provides a reference to the `acceptProductCategoryRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow accepts a product category creation request by creating the category and updating the request status to "accepted".
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/accept-product-category-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route (via utility)">
+    ```ts packages/modules/requests/src/api/admin/requests/[id]/route.ts
+    import { getRequestWorkflowByType } from '../../../../workflows/requests/utils/select-workflow'
+    
+    // ... inside POST handler
+    
+    const workflow = getRequestWorkflowByType(request.type)
+    
+    const { result: createdResource } = await workflow(req.scope).run({
+      input: {
+        id: req.params.id,
+        reviewer_id: req.auth_context.actor_id,
+        data: request.data,
+        ...req.validatedBody
+      },
+      throwOnError: true
+    })
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **createProductCategoriesWorkflow**: Creates the product category using Medusa's core workflow.
+- **updateRequestWorkflow**: Updates the request status to "accepted".
+
+### Input
+
+<ParamField body="input" type="AcceptRequestDTO" required>
+  The request acceptance details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the request to accept.
+    </ParamField>
+    <ParamField body="reviewer_id" type="string" required>
+      The ID of the admin reviewer.
+    </ParamField>
+    <ParamField body="reviewer_note" type="string" required>
+      The reviewer's note.
+    </ParamField>
+    <ParamField body="status" type="RequestStatus" required>
+      The new status (should be "accepted").
+    </ParamField>
+    <ParamField body="data" type="object" required>
+      The product category data.
+
+      <Expandable title="properties">
+        <ParamField body="name" type="string" required>
+          The name of the category.
+        </ParamField>
+        <ParamField body="description" type="string">
+          The description of the category.
+        </ParamField>
+        <ParamField body="handle" type="string">
+          The handle (auto-generated from name if empty).
+        </ParamField>
+        <ParamField body="parent_category_id" type="string">
+          The ID of the parent category.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ProductCategoryDTO" type="ProductCategoryDTO">
+  The created product category.
+</ResponseField>
+
+---
+
+## acceptProductCollectionRequestWorkflow
+
+This documentation provides a reference to the `acceptProductCollectionRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow accepts a product collection creation request by creating the collection and updating the request status to "accepted".
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/accept-product-collection-request.ts)
+
+### Steps
+
+- **createCollectionsWorkflow**: Creates the product collection using Medusa's core workflow.
+- **updateRequestWorkflow**: Updates the request status to "accepted".
+
+### Input
+
+<ParamField body="input" type="AcceptRequestDTO" required>
+  The request acceptance details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="object" required>
+      The product collection data.
+
+      <Expandable title="properties">
+        <ParamField body="title" type="string" required>
+          The title of the collection.
+        </ParamField>
+        <ParamField body="handle" type="string">
+          The handle (auto-generated from title if empty).
+        </ParamField>
+        <ParamField body="metadata" type="Record<string, unknown>">
+          Additional metadata.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ProductCollectionDTO" type="ProductCollectionDTO">
+  The created product collection.
+</ResponseField>
+
+---
+
+## acceptProductRequestWorkflow
+
+This documentation provides a reference to the `acceptProductRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow accepts a product creation request by setting the product status to "published" and updating the request status to "accepted".
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/accept-product-request.ts)
+
+### Steps
+
+- **updateProductStatusStep**: Sets the product status to "published".
+- **updateRequestWorkflow**: Updates the request status to "accepted".
+
+### Input
+
+<ParamField body="input" type="AcceptRequestDTO" required>
+  The request acceptance details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="object" required>
+      The request data.
+
+      <Expandable title="properties">
+        <ParamField body="product_id" type="string" required>
+          The ID of the product to publish.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ProductDTO" type="ProductDTO">
+  The published product.
+</ResponseField>
+
+---
+
+## acceptProductTagRequestWorkflow
+
+This documentation provides a reference to the `acceptProductTagRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow accepts a product tag creation request by creating the tag and updating the request status to "accepted".
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/accept-product-tag-request.ts)
+
+### Steps
+
+- **createProductTagsWorkflow**: Creates the product tag using Medusa's core workflow.
+- **updateRequestWorkflow**: Updates the request status to "accepted".
+
+### Input
+
+<ParamField body="input" type="AcceptRequestDTO" required>
+  The request acceptance details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="object" required>
+      The product tag data.
+
+      <Expandable title="properties">
+        <ParamField body="value" type="string" required>
+          The value of the tag.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ProductTagDTO" type="ProductTagDTO">
+  The created product tag.
+</ResponseField>
+
+---
+
+## acceptProductTypeRequestWorkflow
+
+This documentation provides a reference to the `acceptProductTypeRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow accepts a product type creation request by creating the type and updating the request status to "accepted".
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/accept-product-type-request.ts)
+
+### Steps
+
+- **createProductTypesWorkflow**: Creates the product type using Medusa's core workflow.
+- **updateRequestWorkflow**: Updates the request status to "accepted".
+
+### Input
+
+<ParamField body="input" type="AcceptRequestDTO" required>
+  The request acceptance details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="object" required>
+      The product type data.
+
+      <Expandable title="properties">
+        <ParamField body="value" type="string" required>
+          The value of the type.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ProductTypeDTO" type="ProductTypeDTO">
+  The created product type.
+</ResponseField>
+
+---
+
+## acceptReviewRemoveRequestWorkflow
+
+This documentation provides a reference to the `acceptReviewRemoveRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow accepts a review removal request by emitting an event to trigger review deletion and updating the request status to "accepted".
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/accept-review-remove-request.ts)
+
+### Steps
+
+- **emitEventStep**: Emits a review removal event.
+- **updateRequestWorkflow**: Updates the request status to "accepted".
+
+### Input
+
+<ParamField body="input" type="AcceptRequestDTO" required>
+  The request acceptance details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="object" required>
+      The review removal data.
+
+      <Expandable title="properties">
+        <ParamField body="review_id" type="string" required>
+          The ID of the review to remove.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="boolean" type="boolean">
+  Returns true after processing.
+</ResponseField>
+
+---
+
+## acceptSellerCreationRequestWorkflow
+
+This documentation provides a reference to the `acceptSellerCreationRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow accepts a seller creation request by updating the request status to "accepted". The actual seller creation is handled separately.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/accept-seller-creation-request.ts)
+
+### Steps
+
+- **updateRequestWorkflow**: Updates the request status to "accepted".
+
+### Input
+
+<ParamField body="input" type="AcceptRequestDTO" required>
+  The request acceptance details.
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  Returns an empty object.
+</ResponseField>
+
+---
+
+## createProductRequestWorkflow
+
+This documentation provides a reference to the `createProductRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow creates a product creation request, links it to the seller, and emits events for notification and tracking. It exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/create-product-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Subscriber">
+    ```ts packages/modules/requests/src/subscribers/product-request-to-create.ts
+    import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
+    import {
+      CreateRequestDTO,
+      ProductRequestUpdatedEvent,
+    } from "@mercurjs/framework";
+    import {
+      createProductRequestWorkflow,
+    } from "../workflows";
+    
+    export default async function productRequestToCreateHandler({
+      event,
+      container,
+    }: SubscriberArgs<{
+      data: CreateRequestDTO;
+      seller_id: string;
+    }>) {
+      const input = event.data;
+    
+      await createProductRequestWorkflow.run({
+        container,
+        input,
+      });
+    }
+    
+    export const config: SubscriberConfig = {
+      event: ProductRequestUpdatedEvent.TO_CREATE,
+      context: {
+        subscriberId: "product-request-to-create",
+      },
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [createRequestStep](#createrequeststep): Creates the request record.
+- **createRemoteLinkStep**: Links the request to the seller.
+- **emitMultipleEventsStep**: Emits `requests.*.created` and `product_request.created` events.
+
+### Hooks
+
+- **productRequestCreated**: Hook that fires after a product request is created, providing the `requestId` and `sellerId`.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The product request creation details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="CreateRequestDTO" required>
+      The request data.
+
+      <Expandable title="properties">
+        <ParamField body="type" type="string" required>
+          The request type (should be "product").
+        </ParamField>
+        <ParamField body="data" type="any" required>
+          The product data to be created upon approval.
+        </ParamField>
+        <ParamField body="submitter_id" type="string" required>
+          The ID of the member submitting the request.
+        </ParamField>
+        <ParamField body="status" type="RequestStatus">
+          The initial status (defaults to "pending").
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller creating the product request.
+    </ParamField>
+    <ParamField body="additional_data" type="any">
+      Additional data to pass along.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO[]" type="RequestDTO[]">
+  Array containing the created request.
+</ResponseField>
+
+---
+
+## createProductUpdateRequestWorkflow
+
+This documentation provides a reference to the `createProductUpdateRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow creates a product update request by setting the product status to "proposed", creating the request record, linking it to the seller, and emitting events. It exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/create-product-update-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Subscriber">
+    ```ts packages/modules/requests/src/subscribers/product-update-request-to-create.ts
+    import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
+    import {
+      checkConfigurationRule,
+      ConfigurationRuleType,
+      CreateRequestDTO,
+      ProductUpdateRequestUpdatedEvent,
+    } from "@mercurjs/framework";
+    import { createProductUpdateRequestWorkflow } from "../workflows/requests/workflows/create-product-update-request";
+    
+    export default async function productUpdateRequestToCreateHandler({
+      event,
+      container,
+    }: SubscriberArgs<{
+      data: CreateRequestDTO;
+      seller_id: string;
+      additional_data?: any;
+    }>) {
+      const input = event.data;
+    
+      if (
+        await checkConfigurationRule(
+          container,
+          ConfigurationRuleType.REQUIRE_PRODUCT_APPROVAL
+        )
+      ) {
+        await createProductUpdateRequestWorkflow.run({
+          container,
+          input,
+        });
+      }
+    }
+    
+    export const config: SubscriberConfig = {
+      event: ProductUpdateRequestUpdatedEvent.TO_CREATE,
+      context: {
+        subscriberId: "product-update-request-to-create",
+      },
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **updateProductStatusStep**: Sets the product status to "proposed".
+- [createRequestStep](#createrequeststep): Creates the request record with type "product_update".
+- **createRemoteLinkStep**: Links the request to the seller.
+- **emitMultipleEventsStep**: Emits `requests.*.created` and `product_update_request.created` events.
+
+### Hooks
+
+- **productUpdateRequestCreated**: Hook that fires after a product update request is created, providing the `requestId` and `sellerId`.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The product update request creation details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="CreateRequestDTO" required>
+      The request data.
+
+      <Expandable title="properties">
+        <ParamField body="data" type="object" required>
+          The product update data.
+
+          <Expandable title="properties">
+            <ParamField body="product_id" type="string" required>
+              The ID of the product to update.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="submitter_id" type="string" required>
+          The ID of the member submitting the request.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller.
+    </ParamField>
+    <ParamField body="additional_data" type="any">
+      Additional data to pass along.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO[]" type="RequestDTO[]">
+  Array containing the created request.
+</ResponseField>
+
+---
+
+## createRequestWorkflow
+
+This documentation provides a reference to the `createRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow creates a general request, links it to the seller, and emits a creation event. It exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/create-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/requests/src/api/vendor/requests/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+    import { fetchSellerByAuthActorId } from "@mercurjs/framework";
+    import { createRequestWorkflow } from "../../../workflows/requests/workflows";
+    import { VendorCreateRequestType } from "./validators";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreateRequestType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      );
+    
+      const { result } = await createRequestWorkflow.run({
+        input: {
+          data: {
+            submitter_id: req.auth_context.actor_id,
+            ...req.validatedBody.request,
+          },
+          seller_id: seller.id,
+        },
+        container: req.scope,
+      });
+    
+      const {
+        data: [request],
+      } = await query.graph({
+        entity: "request",
+        fields: req.queryConfig.fields,
+        filters: {
+          id: result[0].id,
+        },
+      });
+    
+      res.status(201).json({ request });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [createRequestStep](#createrequeststep): Creates the request record.
+- **createRemoteLinkStep**: Links the request to the seller.
+- **emitEventStep**: Emits a `requests.*.created` event.
+
+### Hooks
+
+- **requestCreated**: Hook that fires after a request is created, providing the `requestId` and `sellerId`.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The request creation details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="CreateRequestDTO" required>
+      The request data.
+
+      <Expandable title="properties">
+        <ParamField body="type" type="string" required>
+          The type of request (e.g., "product_category", "product_collection", "product_type", "product_tag", "review_remove").
+        </ParamField>
+        <ParamField body="data" type="any" required>
+          The data for the resource to be created upon approval.
+        </ParamField>
+        <ParamField body="submitter_id" type="string" required>
+          The ID of the member submitting the request.
+        </ParamField>
+        <ParamField body="status" type="RequestStatus">
+          The initial status (defaults to "pending").
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller creating the request.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO[]" type="RequestDTO[]">
+  Array containing the created request.
+</ResponseField>
+
+---
+
+## createSellerCreationRequestWorkflow
+
+This documentation provides a reference to the `createSellerCreationRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow creates a seller registration request and emits events for notification and tracking. It exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/create-seller-creation-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Subscriber">
+    ```ts packages/modules/requests/src/subscribers/seller-creation-request-to-create.ts
+    import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
+    import { CreateRequestDTO, SellerRequest } from "@mercurjs/framework";
+    import { createSellerCreationRequestWorkflow } from "../workflows";
+    
+    export default async function sellerCreationRequestToCreateHandler({
+      event,
+      container,
+    }: SubscriberArgs<CreateRequestDTO>) {
+      const input = event.data;
+    
+      await createSellerCreationRequestWorkflow.run({
+        container,
+        input,
+      });
+    }
+    
+    export const config: SubscriberConfig = {
+      event: SellerRequest.TO_CREATE,
+      context: {
+        subscriberId: "seller-creation-request-to-create",
+      },
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [createRequestStep](#createrequeststep): Creates the request record.
+- **emitMultipleEventsStep**: Emits `seller_request.created` and `requests.*.created` events.
+
+### Hooks
+
+- **sellerCreationRequestCreated**: Hook that fires after a seller creation request is created, providing the `requestId`.
+
+### Input
+
+<ParamField body="input" type="CreateRequestDTO" required>
+  The seller creation request data.
+
+  <Expandable title="properties">
+    <ParamField body="type" type="string" required>
+      The request type (should be "seller").
+    </ParamField>
+    <ParamField body="data" type="any" required>
+      The seller data to be created upon approval.
+    </ParamField>
+    <ParamField body="submitter_id" type="string" required>
+      The ID of the user submitting the request.
+    </ParamField>
+    <ParamField body="status" type="RequestStatus">
+      The initial status (defaults to "pending").
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO[]" type="RequestDTO[]">
+  Array containing the created request.
+</ResponseField>
+
+---
+
+## importSellerProductsRequestWorkflow
+
+This documentation provides a reference to the `importSellerProductsRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow creates multiple product requests from a CSV import. It creates request records for each product, links them to the seller, and emits events for each created request.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/import-seller-products-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Subscriber">
+    ```ts packages/modules/requests/src/subscribers/import-seller-products-to-create.ts
+    import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
+    import {
+      CreateRequestDTO,
+      ImportSellerProductsRequestUpdatedEvent,
+    } from "@mercurjs/framework";
+    import {
+      importSellerProductsRequestWorkflow,
+    } from "../workflows";
+    
+    export default async function sellerCreationRequestToCreateHandler({
+      event,
+      container,
+    }: SubscriberArgs<{
+      seller_id: string;
+      request_payloads: CreateRequestDTO[];
+    }>) {
+      const input = event.data;
+    
+      await importSellerProductsRequestWorkflow.run({
+        container,
+        input,
+      });
+    }
+    
+    export const config: SubscriberConfig = {
+      event: ImportSellerProductsRequestUpdatedEvent.TO_CREATE,
+      context: {
+        subscriberId: "import-seller-products-to-create",
+      },
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [createRequestStep](#createrequeststep): Creates multiple request records.
+- **createRemoteLinkStep**: Links each request to the seller.
+- **emitMultipleEventsStep**: Emits `product_request.created` events for each request.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The bulk product request creation details.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller importing products.
+    </ParamField>
+    <ParamField body="request_payloads" type="CreateRequestDTO[]" required>
+      Array of request payloads for each imported product.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO[]" type="RequestDTO[]">
+  Array of created requests.
+</ResponseField>
+
+---
+
+## updateRequestDataWorkflow
+
+This documentation provides a reference to the `updateRequestDataWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow updates the data field of a pending or draft request. It's used to modify request details before they're reviewed.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/update-request-data.ts)
+
+### Steps
+
+- [updateRequestDataStep](#updaterequestdatastep): Updates the request data after validation.
+
+### Input
+
+<ParamField body="input" type="UpdateRequestDataDTO" required>
+  The request data update details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the request to update.
+    </ParamField>
+    <ParamField body="type" type="string" required>
+      The type of the request (must match existing request type).
+    </ParamField>
+    <ParamField body="data" type="any" required>
+      The new data to merge with existing request data.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO" type="RequestDTO">
+  The updated request.
+</ResponseField>
+
+---
+
+## updateRequestWorkflow
+
+This documentation provides a reference to the `updateRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow updates a request's status and reviewer information, updates related product status if rejected, and emits a status-specific event. It exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/workflows/update-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/requests/src/api/admin/requests/[id]/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { updateRequestWorkflow } from '../../../../workflows/requests/workflows'
+    
+    // For rejection
+    await updateRequestWorkflow.run({
+      input: {
+        id: req.params.id,
+        reviewer_id: req.auth_context.actor_id,
+        ...req.validatedBody
+      },
+      container: req.scope
+    })
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updateRequestStep](#updaterequeststep): Updates the request record.
+- [updateRelatedProductStatusStep](#updaterelatedproductstatusstep): Updates product status to "rejected" if applicable.
+- **emitEventStep**: Emits a dynamic event based on request type and status (e.g., `requests.product.accepted`).
+
+### Hooks
+
+- **requestUpdated**: Hook that fires after a request is updated, providing the request `id`.
+
+### Input
+
+<ParamField body="input" type="UpdateRequestDTO" required>
+  The request update details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the request to update.
+    </ParamField>
+    <ParamField body="reviewer_id" type="string">
+      The ID of the reviewer.
+    </ParamField>
+    <ParamField body="reviewer_note" type="string">
+      The reviewer's note.
+    </ParamField>
+    <ParamField body="status" type="RequestStatus" required>
+      The new status ("accepted", "rejected", "pending", or "draft").
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO" type="RequestDTO">
+  The updated request.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the request.
+    </ResponseField>
+    <ResponseField name="type" type="string">
+      The type of request.
+    </ResponseField>
+    <ResponseField name="status" type="RequestStatus">
+      The updated status.
+    </ResponseField>
+    <ResponseField name="reviewer_id" type="string">
+      The ID of the reviewer.
+    </ResponseField>
+    <ResponseField name="reviewer_note" type="string">
+      The reviewer's note.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# Steps
+
+## createRequestStep
+
+Creates one or more request records in the database. Accepts either a single request or an array of requests.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/steps/create-request.ts)
+
+### Input
+
+<ParamField body="input" type="CreateRequestDTO | CreateRequestDTO[]" required>
+  The request(s) to create.
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO[]" type="RequestDTO[]">
+  Array of created requests.
+</ResponseField>
+
+---
+
+## updateRelatedProductStatusStep
+
+Updates the status of a product related to a request. Specifically handles product and product_update request types that have been rejected by setting the product status to "rejected".
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/steps/update-related-product-status.ts)
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the request to check and process.
+</ParamField>
+
+### Output
+
+This step does not return a value.
+
+---
+
+## updateRequestDataStep
+
+Updates the data field of a request. Validates that the request is in "pending" or "draft" status and that the request type matches before merging the new data with existing data.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/steps/update-request-data.ts)
+
+### Input
+
+<ParamField body="input" type="UpdateRequestDataDTO" required>
+  The request data update details.
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO" type="RequestDTO">
+  The updated request. Throws an `INVALID_DATA` error if:
+
+  - Request is not in "pending" or "draft" status
+  - Request type doesn't match
+</ResponseField>
+
+---
+
+## updateRequestStep
+
+Updates a request record in the database with new status and reviewer information.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/requests/steps/update-request.ts)
+
+### Input
+
+<ParamField body="input" type="UpdateRequestDTO" required>
+  The request update details.
+</ParamField>
+
+### Output
+
+<ResponseField name="RequestDTO" type="RequestDTO">
+  The updated request.
+</ResponseField>

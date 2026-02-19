@@ -1,0 +1,888 @@
+---
+title: "Core Events"
+description: "Events emitted by the Core Mercur Module workflows"
+---
+
+# Core Events Reference
+
+This documentation page includes the list of all events emitted by the Core B2C Module's workflows.
+
+## Order Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|order.canceled|Emitted when a vendor order is canceled. This event is from Medusa core but is emitted by the Core B2C Module's custom cancel order workflow.|
+
+### order.canceled
+
+Emitted when a vendor order is canceled. This event is from Medusa core but is emitted by the Core B2C Module's custom cancel order workflow.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the order
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [cancelOrderWorkflow](https://docs.mercurjs.com/docs/product/workflows/core/order-workflows)
+
+***
+
+## Order Set Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|order_set.placed|Emitted when an order set is placed after a cart with multiple sellers is completed.|
+
+### order_set.placed
+
+Emitted when an order set is placed after a cart with multiple sellers is completed.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the order set
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [splitAndCompleteCartWorkflow](https://docs.mercurjs.com/docs/product/workflows/core/cart-workflows)
+
+***
+
+## Payout Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|payout.succeeded|Emitted when a payout is successfully created for an order.|
+|payout.failed|Emitted when a payout creation fails for an order.|
+|payout.received|Emitted when an order is ready to be processed for payout. This event is typically used to trigger the payout processing workflow.|
+
+### payout.succeeded
+
+Emitted when a payout is successfully created for an order.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the payout
+  order_id, // The ID of the order
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [processPayoutForOrderWorkflow](https://docs.mercurjs.com/docs/product/workflows/core/payout-workflows)
+
+***
+
+### payout.failed
+
+Emitted when a payout creation fails for an order.
+
+#### Payload
+
+```ts
+{
+  order_id, // The ID of the order
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [processPayoutForOrderWorkflow](https://docs.mercurjs.com/docs/product/workflows/core/payout-workflows)
+
+***
+
+### payout.received
+
+Emitted when an order is ready to be processed for payout. This event is typically used to trigger the payout processing workflow.
+
+#### Payload
+
+```ts
+{
+  order_id, // The ID of the order
+}
+```
+
+#### Jobs Emitting this Event
+
+This event is emitted by scheduled jobs:
+
+- `daily-payouts` - Runs daily at midnight to process pending payouts
+
+***
+
+## Payout Webhook Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|payout_account.webhook_received|Emitted when a webhook is received from the payment provider for a payout account.|
+
+### payout_account.webhook_received
+
+Emitted when a webhook is received from the payment provider for a payout account.
+
+#### Payload
+
+```ts
+{
+  rawData, // The raw webhook data from the payment provider
+  signature, // The webhook signature for verification
+}
+```
+
+#### API Routes Emitting this Event
+
+This event is emitted by API routes that handle payment provider webhooks.
+
+***
+
+## Seller Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|seller.store_status_changed|Emitted when a seller's store status changes (e.g., active, inactive, suspended).|
+
+### seller.store_status_changed
+
+Emitted when a seller's store status changes (e.g., active, inactive, suspended).
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the seller
+  store_status, // The new store status
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [updateSellerWorkflow](https://docs.mercurjs.com/docs/product/workflows/core/seller-workflows)
+
+***
+
+## Seller Team Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|seller.team.invite.created|Emitted when a team member is invited to join a seller's team.|
+
+### seller.team.invite.created
+
+Emitted when a team member is invited to join a seller's team.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the invite
+  email, // The email address of the invited member
+  token, // The invitation token
+  user_name, // The name of the invited user
+  store_name, // The name of the seller's store
+}
+```
+
+#### API Routes Emitting this Event
+
+This event is emitted by API routes that handle team member invitations.
+
+***
+
+## Request Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|requests.seller.accepted|Emitted when a seller account creation request is accepted.|
+|requests.seller.rejected|Emitted when a seller account creation request is rejected.|
+|requests.seller.created|Emitted when a seller account creation request is created.|
+|requests.seller.to_create|Emitted when a seller account needs to be created as a request.|
+|requests.product.created|Emitted when a product creation request is created.|
+|requests.product.accepted|Emitted when a product creation request is accepted.|
+|requests.product.rejected|Emitted when a product creation request is rejected.|
+|requests.product.to_create|Emitted when products need to be created as requests.|
+|requests.product_update.created|Emitted when a product update request is created.|
+|requests.product_update.accepted|Emitted when a product update request is accepted.|
+|requests.product_update.rejected|Emitted when a product update request is rejected.|
+|requests.product_update.to_create|Emitted when product updates need to be created as requests.|
+|requests.product_category.accepted|Emitted when a product category request is accepted.|
+|requests.product_category.rejected|Emitted when a product category request is rejected.|
+|requests.product_collection.accepted|Emitted when a product collection request is accepted.|
+|requests.product_collection.rejected|Emitted when a product collection request is rejected.|
+|requests.product_type.accepted|Emitted when a product type request is accepted.|
+|requests.product_type.rejected|Emitted when a product type request is rejected.|
+|requests.product_tag.accepted|Emitted when a product tag request is accepted.|
+|requests.product_tag.rejected|Emitted when a product tag request is rejected.|
+|requests.import_seller_products.to_create|Emitted when products are imported for a seller and need to be created as requests.|
+|requests.review.removed|Emitted when a review removal request is processed.|
+|requests.\*.created|Emitted when any type of request is created.|
+
+### requests.seller.accepted
+
+Emitted when a seller account creation request is accepted.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+  data, // The request data containing seller and member information
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Request approval workflows in the admin panel
+
+***
+
+### requests.seller.rejected
+
+Emitted when a seller account creation request is rejected.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Request approval workflows in the admin panel
+
+***
+
+### requests.seller.created
+
+Emitted when a seller account creation request is created.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Seller registration workflows
+
+***
+
+### requests.seller.to_create
+
+Emitted when a seller account needs to be created as a request.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Seller registration workflows
+
+***
+
+### requests.product.created
+
+Emitted when a product creation request is created.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product creation workflows
+
+***
+
+### requests.product.accepted
+
+Emitted when a product creation request is accepted.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product approval workflows in the admin panel
+
+***
+
+### requests.product.rejected
+
+Emitted when a product creation request is rejected.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product approval workflows in the admin panel
+
+***
+
+### requests.product.to_create
+
+Emitted when products need to be created as requests.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product creation workflows
+
+***
+
+### requests.product_update.created
+
+Emitted when a product update request is created.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product update workflows
+
+***
+
+### requests.product_update.accepted
+
+Emitted when a product update request is accepted.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product approval workflows in the admin panel
+
+***
+
+### requests.product_update.rejected
+
+Emitted when a product update request is rejected.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product approval workflows in the admin panel
+
+***
+
+### requests.product_update.to_create
+
+Emitted when product updates need to be created as requests.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product update workflows
+
+***
+
+### requests.product_category.accepted
+
+Emitted when a product category request is accepted.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Category approval workflows in the admin panel
+
+***
+
+### requests.product_category.rejected
+
+Emitted when a product category request is rejected.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Category approval workflows in the admin panel
+
+***
+
+### requests.product_collection.accepted
+
+Emitted when a product collection request is accepted.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Collection approval workflows in the admin panel
+
+***
+
+### requests.product_collection.rejected
+
+Emitted when a product collection request is rejected.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Collection approval workflows in the admin panel
+
+***
+
+### requests.product_type.accepted
+
+Emitted when a product type request is accepted.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product type approval workflows in the admin panel
+
+***
+
+### requests.product_type.rejected
+
+Emitted when a product type request is rejected.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product type approval workflows in the admin panel
+
+***
+
+### requests.product_tag.accepted
+
+Emitted when a product tag request is accepted.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product tag approval workflows in the admin panel
+
+***
+
+### requests.product_tag.rejected
+
+Emitted when a product tag request is rejected.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Product tag approval workflows in the admin panel
+
+***
+
+### requests.import_seller_products.to_create
+
+Emitted when products are imported for a seller and need to be created as requests.
+
+#### Payload
+
+```ts
+{
+  request_payloads, // Array of product request payloads
+  seller_id, // The ID of the seller
+  submitter_id, // The ID of the user who submitted the import
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [importSellerProductsWorkflow](https://docs.mercurjs.com/docs/product/workflows/core/seller-workflows)
+
+***
+
+### requests.review.removed
+
+Emitted when a review removal request is processed.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- Review removal workflows
+
+***
+
+### requests.\*.created
+
+Emitted when any type of request is created.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+This is a wildcard event that matches all request creation events.
+
+***
+
+## Algolia Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|algolia.products.changed|Emitted when products need to be updated in Algolia search index.|
+|algolia.products.deleted|Emitted when products need to be removed from Algolia search index.|
+|algolia.reviews.changed|Emitted when reviews need to be updated in Algolia search index.|
+
+### algolia.products.changed
+
+Emitted when products need to be updated in Algolia search index.
+
+#### Payload
+
+```ts
+{
+  ids, // Array of product IDs that changed
+}
+```
+
+#### Hooks Emitting this Event
+
+This event is emitted by workflow hooks:
+
+- `createProductsWorkflow.hooks.productsCreated`
+- `updateProductsWorkflow.hooks.productsUpdated`
+- `updateProductVariantsWorkflow.hooks.productVariantsUpdated`
+- `updateProductOptionsWorkflow.hooks.productOptionsUpdated`
+- `updateProductTagsWorkflow.hooks.productTagsUpdated`
+- `updateCollectionsWorkflow.hooks.collectionsUpdated`
+
+***
+
+### algolia.products.deleted
+
+Emitted when products need to be removed from Algolia search index.
+
+#### Payload
+
+```ts
+{
+  ids, // Array of product IDs that were deleted
+}
+```
+
+#### Hooks Emitting this Event
+
+This event is emitted by workflow hooks:
+
+- `deleteProductsWorkflow.hooks.productsDeleted`
+
+***
+
+### algolia.reviews.changed
+
+Emitted when reviews need to be updated in Algolia search index.
+
+#### Payload
+
+```ts
+{
+  ids, // Array of review IDs that changed
+}
+```
+
+#### Workflows Emitting this Event
+
+This event is emitted by review management workflows.
+
+***
+
+## Intermediate Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|algolia.intermediate.fulfillment_set.changed|Emitted when fulfillment set changes affect product availability.|
+|algolia.intermediate.service_zone.changed|Emitted when service zone changes affect product availability.|
+|algolia.intermediate.shipping_option.changed|Emitted when shipping option changes affect product availability.|
+|algolia.intermediate.stock_location.changed|Emitted when stock location changes affect product availability.|
+|algolia.intermediate.inventory_item.changed|Emitted when inventory item changes affect product availability.|
+
+### algolia.intermediate.fulfillment_set.changed
+
+Emitted when fulfillment set changes affect product availability.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the fulfillment set
+}
+```
+
+#### Workflows Emitting this Event
+
+This event is emitted by fulfillment set management workflows.
+
+***
+
+### algolia.intermediate.service_zone.changed
+
+Emitted when service zone changes affect product availability.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the service zone
+}
+```
+
+#### Workflows Emitting this Event
+
+This event is emitted by service zone management workflows.
+
+***
+
+### algolia.intermediate.shipping_option.changed
+
+Emitted when shipping option changes affect product availability.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the shipping option
+}
+```
+
+#### Workflows Emitting this Event
+
+This event is emitted by shipping option management workflows.
+
+***
+
+### algolia.intermediate.stock_location.changed
+
+Emitted when stock location changes affect product availability.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the stock location
+}
+```
+
+#### Workflows Emitting this Event
+
+This event is emitted by stock location management workflows.
+
+***
+
+### algolia.intermediate.inventory_item.changed
+
+Emitted when inventory item changes affect product availability.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the inventory item
+}
+```
+
+#### Workflows Emitting this Event
+
+This event is emitted by inventory management workflows.
+
+***
+

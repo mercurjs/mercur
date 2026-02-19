@@ -1,0 +1,304 @@
+---
+title: "Fulfillment Set Workflows"
+description: "Reference documentation for the Fulfillment Set Module workflows and steps"
+---
+
+# Workflows
+
+## createLocationFulfillmentSetAndAssociateWithSellerWorkflow
+
+This documentation provides a reference to the `createLocationFulfillmentSetAndAssociateWithSellerWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a fulfillment set for a stock location and associates it with a seller. It establishes the necessary links between the stock location, fulfillment set, and seller to enable shipping configuration.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/fulfillment-set/create-location-fulfillment-set-and-associate-with-seller.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/stock-locations/[id]/fulfillment-sets/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http";
+    import { fetchSellerByAuthActorId } from "../../../../../shared/infra/http/utils";
+    import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from "../../../../../workflows/fulfillment-set";
+    import { VendorCreateStockLocationFulfillmentSetType } from "../../validators";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreateStockLocationFulfillmentSetType>,
+      res: MedusaResponse
+    ) => {
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      );
+    
+      await createLocationFulfillmentSetAndAssociateWithSellerWorkflow(
+        req.scope
+      ).run({
+        input: {
+          location_id: req.params.id,
+          fulfillment_set_data: {
+            name: req.validatedBody.name,
+            type: req.validatedBody.type,
+          },
+          seller_id: seller.id,
+        },
+      });
+    
+      // ... query and return stock location
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **createFulfillmentSets**: Creates the fulfillment set using Medusa's core step.
+- **createRemoteLinkStep**: Creates two links: one between the stock location and fulfillment set, and another between the seller and fulfillment set.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The fulfillment set creation and association details.
+
+  <Expandable title="properties">
+    <ParamField body="location_id" type="string" required>
+      The ID of the stock location to associate with the fulfillment set.
+    </ParamField>
+    <ParamField body="fulfillment_set_data" type="object" required>
+      The fulfillment set details.
+
+      <Expandable title="properties">
+        <ParamField body="name" type="string" required>
+          The name of the fulfillment set.
+        </ParamField>
+        <ParamField body="type" type="string" required>
+          The type of the fulfillment set (e.g., "shipping", "pickup").
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller to associate with the fulfillment set.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+This workflow does not return a value.
+
+---
+
+## createVendorServiceZonesWorkflow
+
+This documentation provides a reference to the `createVendorServiceZonesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates one or more service zones for a fulfillment set and links them to a seller. It also emits intermediate events to trigger updates in search indexes and other systems.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/fulfillment-set/create-vendor-service-zone.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/fulfillment-sets/[id]/service-zones/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { fetchSellerByAuthActorId } from "../../../../../shared/infra/http/utils";
+    import { createVendorServiceZonesWorkflow } from "../../../../../workflows/fulfillment-set";
+    import { VendorCreateServiceZoneType } from "../../validators";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreateServiceZoneType>,
+      res: MedusaResponse
+    ) => {
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      );
+    
+      await createVendorServiceZonesWorkflow(req.scope).run({
+        input: {
+          data: [{ fulfillment_set_id: req.params.id, ...req.validatedBody }],
+          seller_id: seller.id,
+        },
+      });
+    
+      // ... query and return fulfillment set
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **createServiceZonesWorkflow**: Creates the service zones using Medusa's core workflow.
+- **createRemoteLinkStep**: Links the created service zones to the seller.
+- [emitMultipleEventsStep](#emitmultipleeventsstep): Emits `service_zone.changed` events for search index updates.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The service zone creation details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="CreateServiceZoneDTO[]" required>
+      Array of service zones to create.
+
+      <Expandable title="properties">
+        <ParamField body="name" type="string" required>
+          The name of the service zone.
+        </ParamField>
+        <ParamField body="fulfillment_set_id" type="string" required>
+          The ID of the fulfillment set this service zone belongs to.
+        </ParamField>
+        <ParamField body="geo_zones" type="GeoZoneDTO[]">
+          Array of geographical zones that define the service area. Each geo zone can be of type:
+
+          - `country` - Covers an entire country
+          - `province` - Covers a specific province/state
+          - `city` - Covers a specific city
+          - `zip` - Covers specific postal codes
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller creating the service zones.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ServiceZoneDTO[]" type="ServiceZoneDTO[]">
+  The created service zones.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the service zone.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The name of the service zone.
+    </ResponseField>
+    <ResponseField name="fulfillment_set_id" type="string">
+      The ID of the associated fulfillment set.
+    </ResponseField>
+    <ResponseField name="geo_zones" type="GeoZoneDTO[]">
+      The geographical zones that define the service area.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the service zone was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the service zone was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## deleteVendorServiceZonesWorkflow
+
+This documentation provides a reference to the `deleteVendorServiceZonesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow deletes one or more service zones, removes their links to the seller, and emits events to update dependent systems.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/fulfillment-set/delete-vendor-service-zone.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/fulfillment-sets/[id]/service-zones/[zone_id]/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { fetchSellerByAuthActorId } from "../../../../../../shared/infra/http/utils";
+    import { deleteVendorServiceZonesWorkflow } from "../../../../../../workflows/fulfillment-set";
+    
+    export const DELETE = async (
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) => {
+      const { zone_id } = req.params;
+    
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      );
+      
+      await deleteVendorServiceZonesWorkflow.run({
+        container: req.scope,
+        input: {
+          ids: [zone_id],
+          seller_id: seller.id,
+        },
+      });
+    
+      res.json({ id: zone_id, object: "service_zone", deleted: true });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **deleteServiceZonesWorkflow**: Deletes the service zones using Medusa's core workflow.
+- **dismissRemoteLinkStep**: Removes the links between the service zones and the seller.
+- [emitMultipleEventsStep](#emitmultipleeventsstep): Emits `service_zone.changed` events for search index updates.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The service zone deletion details.
+
+  <Expandable title="properties">
+    <ParamField body="ids" type="string[]" required>
+      Array of service zone IDs to delete.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller who owns the service zones.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="string[]" type="string[]">
+  The IDs of the deleted service zones.
+</ResponseField>
+
+---
+
+# Steps
+
+## emitMultipleEventsStep
+
+Emits multiple events to the event bus. This step is commonly used to notify other systems (like search indexes) about changes to data.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/common/steps/emit-multiple-events-step.ts)
+
+### Input
+
+<ParamField body="input" type="object[]" required>
+  Array of events to emit.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the event to emit (e.g., "service_zone.changed").
+    </ParamField>
+    <ParamField body="data" type="Record<string, any>" required>
+      The event payload data.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+This step does not return a value.

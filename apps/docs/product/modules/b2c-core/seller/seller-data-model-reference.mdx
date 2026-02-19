@@ -1,0 +1,101 @@
+---
+title: "Seller Module Data Models"
+description: "Reference documentation for the Seller Module data models"
+---
+
+## Relations Overview
+
+| Relationship | Type | Description |
+| --- | --- | --- |
+| Seller → Member | One-to-Many | A seller has many team members |
+| Seller → MemberInvite | One-to-Many | A seller has many pending member invitations |
+| Seller → SellerOnboarding | One-to-One | A seller has one onboarding record |
+
+## Data Models
+
+- [Seller](#seller)
+- [Member](#member)
+- [MemberInvite](#memberinvite)
+- [SellerOnboarding](#selleronboarding)
+
+## Seller
+
+This documentation provides a reference to the Seller data model. It belongs to the Seller Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/seller/models/seller.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the seller. |
+| `store_status` | `EnumProperty<["ACTIVE", "INACTIVE", "SUSPENDED"]>` | The status of the seller's store. Defaults to `ACTIVE`. |
+| `name` | `TextProperty` | The name of the seller |
+| `handle` | `TextProperty` | The unique handle of the seller |
+| `description` | `TextProperty` | The description of the seller |
+| `photo` | `TextProperty` | The photo URL of the seller |
+| `email` | `TextProperty` | The email of the seller |
+| `phone` | `TextProperty` | The phone of the seller |
+| `address_line` | `TextProperty` | The address line of the seller |
+| `city` | `TextProperty` | The city of the seller |
+| `state` | `TextProperty` | The state of the seller |
+| `postal_code` | `TextProperty` | The postal code of the seller |
+| `country_code` | `TextProperty` | The country code of the seller |
+| `tax_id` | `TextProperty` | The tax ID of the seller |
+| `members` | `HasMany<Member>` | The associated [Member](#member) records. |
+| `invites` | `HasMany<MemberInvite>` | The associated [MemberInvite](#memberinvite) records. |
+| `onboarding` | `HasOne<SellerOnboarding>` | The associated [SellerOnboarding](#selleronboarding) record. |
+
+## Member
+
+This documentation provides a reference to the Member data model. It belongs to the Seller Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/seller/models/member.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the member. |
+| `role` | `EnumProperty<["owner", "admin", "member"]>` | The role of the member in the seller's team. Defaults to `owner`. |
+| `name` | `TextProperty` | The name of the member |
+| `email` | `TextProperty` | The email of the member |
+| `bio` | `TextProperty` | The bio of the member |
+| `phone` | `TextProperty` | The phone of the member |
+| `photo` | `TextProperty` | The photo URL of the member |
+| `seller` | `BelongsTo<Seller>` | The associated [Seller](#seller). |
+
+## MemberInvite
+
+This documentation provides a reference to the MemberInvite data model. It belongs to the Seller Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/seller/models/invite.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the member invite. |
+| `email` | `TextProperty` | The email of the invited member. |
+| `role` | `EnumProperty<["owner", "admin", "member"]>` | The role that will be assigned to the member. Defaults to `owner`. |
+| `token` | `TextProperty` | The invitation token. |
+| `expires_at` | `DateTimeProperty` | The date and time when the invitation expires. |
+| `accepted` | `BooleanProperty` | Whether the invitation has been accepted. Defaults to `false`. |
+| `seller` | `BelongsTo<Seller>` | The associated [Seller](#seller). |
+
+## SellerOnboarding
+
+This documentation provides a reference to the SellerOnboarding data model. It belongs to the Seller Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/seller/models/onboarding.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the seller onboarding. |
+| `store_information` | `BooleanProperty` | Whether the store information step is completed. Defaults to `false`. |
+| `stripe_connection` | `BooleanProperty` | Whether the Stripe connection step is completed. Defaults to `false`. |
+| `locations_shipping` | `BooleanProperty` | Whether the locations and shipping setup step is completed. Defaults to `false`. |
+| `products` | `BooleanProperty` | Whether the products setup step is completed. Defaults to `false`. |
+| `seller` | `BelongsTo<Seller>` | The associated [Seller](#seller). |

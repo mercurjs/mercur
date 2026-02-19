@@ -1,0 +1,281 @@
+---
+title: "Marketplace Module"
+description: "Learn about the Marketplace Module and how to use it in your application"
+---
+
+# Marketplace Module
+
+In this section of the documentation, you will find resources to learn more about the Marketplace Module and how to use it in your application.
+
+Mercur has order set management features available out-of-the-box through the Marketplace Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Marketplace Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Marketplace Features
+
+- **Order Set Management**: Group multiple vendor orders from a single customer checkout into an order set for unified tracking.
+- **Multi-Vendor Order Tracking**: Associate multiple orders with a single cart and payment collection when customers purchase from multiple sellers.
+- **Order Aggregation**: Calculate aggregated totals, status, and fulfillment information across all orders in a set.
+- **Unified Customer View**: Provide customers with a single view of their multi-vendor orders while maintaining individual order records per seller.
+
+---
+
+## How to Use the Marketplace Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+You can build custom workflows and steps. Mercur provides pre-built workflows for marketplace operations in the `@mercurjs/b2c-core` package.
+
+For example, the `getFormattedOrderSetListWorkflow`:
+
+```ts title="src/workflows/order-set/get-formatted-order-set-list.ts"
+import { deduplicate } from '@medusajs/framework/utils'
+import {
+  WorkflowResponse,
+  createWorkflow,
+  transform
+} from '@medusajs/framework/workflows-sdk'
+import { useQueryGraphStep } from '@medusajs/medusa/core-flows'
+import { formatOrderSets } from '../utils'
+
+export const getFormattedOrderSetListWorkflow = createWorkflow(
+  'get-formatted-order-set-list',
+  function (input: {
+    fields?: string[]
+    filters?: Record<string, any>
+    pagination?: {
+      skip: number
+      take?: number
+      order?: Record<string, any>
+    }
+  }) {
+    const fields = transform(input, ({ fields }) => {
+      return deduplicate([
+        ...(fields ?? []),
+        'id',
+        'display_id',
+        'customer.*',
+        'cart.*',
+        'payment_collection.*',
+        'orders.id',
+        'orders.status',
+        'orders.payment_status',
+        'orders.fulfillment_status',
+        'orders.total',
+        'orders.subtotal',
+        'orders.tax_total',
+        'orders.items.*',
+        'orders.fulfillments.*'
+      ])
+    })
+
+    const { data, metadata } = useQueryGraphStep({
+      entity: 'order_set',
+      fields,
+      filters: input.filters,
+      pagination: input.pagination
+    })
+
+    const formattedOrderSets = transform(data, formatOrderSets)
+
+    return new WorkflowResponse({ data: formattedOrderSets, metadata })
+  }
+)
+```
+
+You can then execute the workflow in your custom API routes, scheduled jobs, or subscribers:
+
+### API Route
+
+```ts title="src/api/admin/order-sets/route.ts"
+import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { getFormattedOrderSetListWorkflow } from '../../../workflows/order-set/workflows'
+
+export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+  const { filterableFields, queryConfig } = req
+
+  if (filterableFields['order_id']) {
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+    const {
+      data: [order_set]
+    } = await query.graph({
+      entity: 'order_set_order',
+      fields: ['order_set_id'],
+      filters: {
+        order_id: req.filterableFields['order_id']
+      }
+    })
+
+    delete filterableFields['order_id']
+    filterableFields['id'] = order_set.order_set_id
+  }
+
+  const {
+    result: { data, metadata }
+  } = await getFormattedOrderSetListWorkflow(req.scope).run({
+    input: {
+      fields: queryConfig.fields,
+      filters: filterableFields,
+      pagination: queryConfig.pagination
+    }
+  })
+
+  res.json({
+    order_sets: data,
+    count: metadata!.count,
+    offset: metadata!.skip,
+    limit: metadata!.take
+  })
+}
+```
+
+### Subscriber
+
+```ts title="src/subscribers/notification-admin-new-order-set.ts"
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
+import { SubscriberArgs, SubscriberConfig } from '@medusajs/medusa'
+import { OrderSetWorkflowEvents } from '@mercurjs/framework'
+
+export default async function newOrderSetAdminNotifyHandler({
+  event,
+  container
+}: SubscriberArgs<{ id: string }>) {
+  const notificationService = container.resolve(Modules.NOTIFICATION)
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const { id: orderSetId } = event.data
+
+  const {
+    data: [order_set]
+  } = await query.graph({
+    entity: 'order_set',
+    fields: ['orders.id'],
+    filters: {
+      id: orderSetId
+    }
+  })
+
+  if (!order_set || order_set.orders.length < 2) {
+    return
+  }
+
+  await notificationService.createNotifications({
+    to: '',
+    channel: 'feed',
+    template: 'admin-ui',
+    content: {
+      subject: `New Order Set Placed`
+    },
+    data: {
+      title: `New order set placed`,
+      description: 'Someone has placed a new order from multiple sellers 🔔',
+      redirect: '/admin/orders'
+    }
+  })
+}
+
+export const config: SubscriberConfig = {
+  event: OrderSetWorkflowEvents.PLACED,
+  context: {
+    subscriberId: 'new-order-set-admin-notify-handler'
+  }
+}
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to order sets in Mercur.
+
+## Order Set
+
+An order set is a grouping of multiple orders created from a single cart in a multi-vendor marketplace. It is represented by the [OrderSet data model](../data-model/marketplace-module-data-reference#orderset).
+
+When a customer checks out a cart containing products from multiple sellers, Mercur:
+1. Creates one `OrderSet` to represent the entire purchase
+2. Creates individual `Order` records for each seller
+3. Links all orders to the order set
+
+An order set holds information about:
+
+- The cart that was used for the purchase
+- The customer who made the purchase
+- The sales channel where the purchase was made
+- The payment collection containing payment details
+- All individual seller orders created from the cart
+
+This architecture allows the marketplace to maintain both a unified customer view (the order set) and individual seller order management.
+
+---
+
+## Why Order Sets?
+
+In a traditional single-vendor e-commerce platform, one cart results in one order. In a multi-vendor marketplace, this creates complexity:
+
+**Without Order Sets:**
+- Customer sees multiple separate orders (confusing UX)
+- No unified tracking for a single purchase session
+- Difficult to aggregate totals and status
+- Payment tracking becomes fragmented
+
+**With Order Sets:**
+- Customer sees one unified order set (better UX)
+- Single reference point for the entire purchase
+- Easy aggregation of totals across vendors
+- Simplified payment and fulfillment tracking
+
+---
+
+## Order Set Properties
+
+### Display ID
+
+The `display_id` is an auto-incrementing number that provides a user-friendly reference for the order set (e.g., #1001, #1002). This is what customers see instead of the UUID.
+
+### Linked Entities
+
+An order set maintains read-only links to:
+- **Customer**: The customer who placed the order
+- **Cart**: The cart that was converted to orders
+- **SalesChannel**: The channel where the purchase was made
+- **PaymentCollection**: The payment information for the entire order set
+
+---
+
+## Formatted Order Sets
+
+Mercur provides a `formatOrderSets` utility that aggregates information from individual orders to present unified order set data:
+
+**Aggregated Properties:**
+- **status**: Overall order set status (derived from individual order statuses)
+- **payment_status**: Overall payment status (from payment collection)
+- **fulfillment_status**: Overall fulfillment status (across all orders)
+- **total**: Sum of all order totals
+- **subtotal**: Sum of all order subtotals
+- **tax_total**: Sum of all tax amounts
+- **shipping_total**: Sum of all shipping amounts
+
+This allows displaying a single "order" to customers while maintaining separate orders for each seller behind the scenes.
+
+---
+
+## Use Cases
+
+**1. Multi-Vendor Checkout**
+Customer adds products from 3 different sellers to cart and checks out once, creating 1 order set with 3 individual orders.
+
+**2. Customer Order History**
+Display unified order history to customers, showing order sets rather than confusing them with multiple orders per purchase.
+
+**3. Admin Order Management**
+Administrators can view all orders from a single checkout session grouped together for support and analytics.
+
+**4. Payment Reconciliation**
+Track that a single payment collection was split across multiple vendor orders through the order set.
+
+**5. Fulfillment Tracking**
+Monitor overall fulfillment progress across all sellers involved in a single customer purchase.

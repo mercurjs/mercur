@@ -1,0 +1,85 @@
+---
+title: "Payout Module Data Models"
+description: "Reference documentation for the Payout Module data models"
+---
+
+## Relations Overview
+
+| Relationship               | Type        | Description                                |
+| -------------------------- | ----------- | ------------------------------------------ |
+| PayoutAccount → Onboarding | One-to-One  | A payout account has one onboarding record |
+| PayoutAccount → Payout     | One-to-Many | A payout account has many payouts          |
+| Payout → PayoutReversal    | One-to-Many | A payout can have many reversals           |
+
+## Data Models
+
+- [PayoutAccount](#payoutaccount)
+- [Onboarding](#onboarding)
+- [Payout](#payout)
+- [PayoutReversal](#payoutreversal)
+
+## PayoutAccount
+
+This documentation provides a reference to the PayoutAccount data model. It belongs to the Payout Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/payout/models/payout-account.ts)
+</Info>
+
+| Field          | Type                                              | Description                                                                                       |
+| -------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `id`           | `PrimaryKeyModifier<IdProperty>`                  | The ID of the payout account.                                                                     |
+| `status`       | `EnumProperty<["pending", "active", "disabled"]>` | The status of the payout account. Defaults to `pending`.                                          |
+| `reference_id` | `TextProperty`                                    | The ID of the payout account in the external provider's system (e.g., Stripe Connect account ID). |
+| `data`         | `JSONProperty`                                    | The data returned by the payout provider when the account is created.                             |
+| `context`      | `JSONProperty`                                    | Additional context data for the payout account.                                                   |
+| `onboarding`   | `HasOne<Onboarding>`                              | The associated [Onboarding](#onboarding) record.                                                  |
+| `payouts`      | `HasMany<Payout>`                                 | The associated [Payout](#payout) records.                                                         |
+
+## Onboarding
+
+This documentation provides a reference to the Onboarding data model. It belongs to the Payout Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/payout/models/onboarding.ts)
+</Info>
+
+| Field            | Type                             | Description                                          |
+| ---------------- | -------------------------------- | ---------------------------------------------------- |
+| `id`             | `PrimaryKeyModifier<IdProperty>` | The ID of the onboarding.                            |
+| `data`           | `JSONProperty`                   | The onboarding data returned by the payout provider. |
+| `context`        | `JSONProperty`                   | Additional context data for the onboarding process.  |
+| `payout_account` | `BelongsTo<PayoutAccount>`       | The associated [PayoutAccount](#payoutaccount).      |
+
+## Payout
+
+This documentation provides a reference to the Payout data model. It belongs to the Payout Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/payout/models/payout.ts)
+</Info>
+
+| Field            | Type                             | Description                                                                    |
+| ---------------- | -------------------------------- | ------------------------------------------------------------------------------ |
+| `id`             | `PrimaryKeyModifier<IdProperty>` | The ID of the payout.                                                          |
+| `currency_code`  | `TextProperty`                   | The ISO 3 currency code of the payout. For example, `usd`.                     |
+| `amount`         | `BigNumberProperty`              | The amount of the payout                                                       |
+| `data`           | `JSONProperty`                   | The payout data returned by the payout provider (e.g., Stripe payout details). |
+| `payout_account` | `BelongsTo<PayoutAccount>`       | The associated [PayoutAccount](#payoutaccount).                                |
+| `reversals`      | `HasMany<PayoutReversal>`        | The associated [PayoutReversal](#payoutreversal) records.                      |
+
+## PayoutReversal
+
+This documentation provides a reference to the PayoutReversal data model. It belongs to the Payout Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/payout/models/payout-reversal.ts)
+</Info>
+
+| Field           | Type                             | Description                                                         |
+| --------------- | -------------------------------- | ------------------------------------------------------------------- |
+| `id`            | `PrimaryKeyModifier<IdProperty>` | The ID of the payout reversal.                                      |
+| `currency_code` | `TextProperty`                   | The ISO 3 currency code of the payout reversal. For example, `usd`. |
+| `amount`        | `BigNumberProperty`              | The amount of the payout reversal                                   |
+| `data`          | `JSONProperty`                   | The reversal data returned by the payout provider.                  |
+| `payout`        | `BelongsTo<Payout>`              | The associated [Payout](#payout).                                   |

@@ -1,0 +1,207 @@
+---
+title: "Configuration Workflows"
+description: "Reference documentation for the Configuration Module workflows and steps"
+---
+
+# Workflows
+
+## createConfigurationRuleWorkflow
+
+This documentation provides a reference to the `createConfigurationRuleWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a configuration rule that controls marketplace settings such as product approval requirements, product request enablement, and product import functionality.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/configuration/workflows/create-configuration-rule.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/admin/configuration/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { createConfigurationRuleWorkflow } from '../../../workflows/configuration/workflows'
+    import { AdminCreateRuleType } from './validators'
+    
+    export const POST = async (
+      req: MedusaRequest<AdminCreateRuleType>,
+      res: MedusaResponse
+    ) => {
+      const { result: configuration_rule } =
+        await createConfigurationRuleWorkflow.run({
+          container: req.scope,
+          input: req.validatedBody
+        })
+    
+      res.status(201).json({ configuration_rule })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [createConfigurationRuleStep](#createconfigurationrulestep): Creates the configuration rule.
+
+### Input
+
+<ParamField body="input" type="CreateConfigurationRuleDTO" required>
+  The configuration rule to create.
+
+  <Expandable title="properties">
+    <ParamField body="rule_type" type="ConfigurationRuleType" required>
+      The type of the configuration rule. Available types:
+
+      - `global_product_catalog` - Controls global product catalog access
+      - `require_product_approval` - Requires admin approval for new products
+      - `product_request_enabled` - Enables sellers to submit product requests
+      - `product_import_enabled` - Enables product import functionality
+    </ParamField>
+    <ParamField body="is_enabled" type="boolean" required>
+      Whether the configuration rule is enabled.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ConfigurationRuleDTO" type="ConfigurationRuleDTO">
+  The created configuration rule.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the configuration rule.
+    </ResponseField>
+    <ResponseField name="rule_type" type="ConfigurationRuleType">
+      The type of the configuration rule.
+    </ResponseField>
+    <ResponseField name="is_enabled" type="boolean">
+      Whether the rule is enabled.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the rule was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the rule was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## updateConfigurationRuleWorkflow
+
+This documentation provides a reference to the `updateConfigurationRuleWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow updates an existing configuration rule, allowing administrators to enable or disable marketplace features.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/configuration/workflows/update-configuration-rule.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/admin/configuration/[id]/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { updateConfigurationRuleWorkflow } from '../../../../workflows/configuration/workflows'
+    import { AdminUpdateRuleType } from '../validators'
+    
+    export const POST = async (
+      req: MedusaRequest<AdminUpdateRuleType>,
+      res: MedusaResponse
+    ) => {
+      const { result: configuration_rule } =
+        await updateConfigurationRuleWorkflow.run({
+          container: req.scope,
+          input: { ...req.validatedBody, id: req.params.id }
+        })
+    
+      res.json({ configuration_rule })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updateConfigurationRuleStep](#updateconfigurationrulestep): Updates the configuration rule.
+
+### Input
+
+<ParamField body="input" type="UpdateConfigurationRuleDTO" required>
+  The configuration rule updates.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the configuration rule to update.
+    </ParamField>
+    <ParamField body="is_enabled" type="boolean" required>
+      Whether the configuration rule should be enabled.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="ConfigurationRuleDTO" type="ConfigurationRuleDTO">
+  The updated configuration rule.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the configuration rule.
+    </ResponseField>
+    <ResponseField name="rule_type" type="ConfigurationRuleType">
+      The type of the configuration rule.
+    </ResponseField>
+    <ResponseField name="is_enabled" type="boolean">
+      Whether the rule is enabled.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the rule was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the rule was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# Steps
+
+## createConfigurationRuleStep
+
+Creates a configuration rule. If an error occurs after creation, the step's compensation function automatically deletes the created rule.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/configuration/steps/create-configuration-rule.ts)
+
+### Input
+
+<ParamField body="input" type="CreateConfigurationRuleDTO" required>
+  The configuration rule to create.
+</ParamField>
+
+### Output
+
+<ResponseField name="ConfigurationRuleDTO" type="ConfigurationRuleDTO">
+  The created configuration rule.
+</ResponseField>
+
+---
+
+## updateConfigurationRuleStep
+
+Updates an existing configuration rule.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/configuration/steps/update-configuration-rule.ts)
+
+### Input
+
+<ParamField body="input" type="UpdateConfigurationRuleDTO" required>
+  The configuration rule updates.
+</ParamField>
+
+### Output
+
+<ResponseField name="ConfigurationRuleDTO" type="ConfigurationRuleDTO">
+  The updated configuration rule.
+</ResponseField>

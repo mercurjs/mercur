@@ -1,0 +1,345 @@
+---
+title: "Review Module Links"
+description: "Module links for the Review Module"
+---
+
+# Links between Review Module and Other Modules
+
+This document showcases the module links defined between the Review Module and other Commerce Modules.
+
+## Summary
+
+The Review Module has the following links to other modules:
+
+| First Data Model | Second Data Model | Type                 | Description                                        |
+| ---------------- | ----------------- | -------------------- | -------------------------------------------------- |
+| Customer         | Review            | Stored - one-to-many | Associates a customer with their submitted reviews |
+| Order            | Review            | Stored - one-to-many | Associates an order with its reviews               |
+| Product          | Review            | Stored - one-to-many | Associates a product with its reviews              |
+| Seller           | Review            | Stored - one-to-many | Associates a seller with reviews about them        |
+
+---
+
+## Customer Module
+
+Mercur defines a link between the Customer Module's `Customer` data model and the Review Module's `Review` data model. This allows tracking all reviews submitted by a specific customer.
+
+### Retrieve with Query
+
+To retrieve the reviews of a customer with Query, pass `review.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: customers } = await query.graph({
+      entity: "customer",
+      fields: [
+        "*",
+        "review.*",
+      ],
+    })
+    
+    // customers[0].review
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: customers } = useQueryGraphStep({
+      entity: "customer",
+      fields: [
+        "*",
+        "review.*",
+      ],
+    })
+    
+    // customers[0].review
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the reviews of a customer, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.CUSTOMER]: {
+        customer_id: "cus_123",
+      },
+      review: {
+        review_id: "rev_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.CUSTOMER]: {
+        customer_id: "cus_123",
+      },
+      review: {
+        review_id: "rev_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Order Module
+
+Mercur defines a link between the Order Module's `Order` data model and the Review Module's `Review` data model. This ensures customers can only review products or sellers from orders they've actually purchased.
+
+### Retrieve with Query
+
+To retrieve the reviews of an order with Query, pass `review.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: orders } = await query.graph({
+      entity: "order",
+      fields: [
+        "*",
+        "review.*",
+      ],
+    })
+    
+    // orders[0].review
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        "*",
+        "review.*",
+      ],
+    })
+    
+    // orders[0].review
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the reviews of an order, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+      review: {
+        review_id: "rev_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+      review: {
+        review_id: "rev_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Product Module
+
+Mercur defines a link between the Product Module's `Product` data model and the Review Module's `Review` data model. This allows products to have multiple customer reviews for ratings and feedback.
+
+### Retrieve with Query
+
+To retrieve the reviews of a product with Query, pass `review.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: products } = await query.graph({
+      entity: "product",
+      fields: [
+        "*",
+        "review.*",
+      ],
+    })
+    
+    // products[0].review
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: products } = useQueryGraphStep({
+      entity: "product",
+      fields: [
+        "*",
+        "review.*",
+      ],
+    })
+    
+    // products[0].review
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the reviews of a product, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+      review: {
+        review_id: "rev_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+      review: {
+        review_id: "rev_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Seller Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Review Module's `Review` data model. This allows sellers to receive customer reviews about their service and performance.
+
+### Retrieve with Query
+
+To retrieve the reviews of a seller with Query, pass `review.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "review.*",
+      ],
+    })
+    
+    // sellers[0].review
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "review.*",
+      ],
+    })
+    
+    // sellers[0].review
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the reviews of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      review: {
+        review_id: "rev_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      review: {
+        review_id: "rev_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>

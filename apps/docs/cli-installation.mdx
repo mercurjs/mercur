@@ -1,0 +1,57 @@
+---
+title: "CLI installation"
+description: "Install all Mercur components on your local machine"
+---
+
+<Info>
+  There are two ways of installing Mercur: the CLI script or <a href="/installation">
+  manual installation</a>
+
+  .
+</Info>
+
+Follow these steps to install and run all Mercur components on your operating system:
+
+**Step 1**: Install `mercur-cli` using NPM:
+
+```bash
+npm i -g mercur-cli
+```
+
+**Step 2**: Run CLI installation:
+
+```bash
+mercur-cli install
+```
+
+or
+
+```bash
+npx mercur-cli install
+```
+
+The script will guide you through the installation process. You will have to enter project name and database connection parameters. Also, you'll be asked if you want to install Mercur Storefront and Vendor panel.
+
+**Step 3**: After installation is done, move to the project catalog and start the servers:
+
+```bash
+cd <yourProjectName>
+
+mercur-cli dev
+```
+
+The script automatically configures environment variables, and runs seed. The default credentials for created users are:
+
+**Vendor:**
+
+```
+email: seller@mercurjs.com
+password: secret
+```
+
+**Admin:**
+
+```
+email: admin@mercurjs.com
+password: admin
+```

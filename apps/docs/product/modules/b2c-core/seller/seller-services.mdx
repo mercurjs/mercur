@@ -1,0 +1,2647 @@
+---
+title: "Seller Module Service Reference"
+description: "Reference documentation for the Seller Module service methods"
+---
+
+# ISellerModuleService Reference
+
+This section of the documentation provides a reference to the `ISellerModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Seller Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Seller Module.
+
+## Methods
+
+### Seller Methods
+- [createSellers](#createsellers)
+- [updateSellers](#updatesellers)
+- [deleteSellers](#deletesellers)
+- [retrieveSeller](#retrieveseller)
+- [listSellers](#listsellers)
+- [listAndCountSellers](#listandcountsellers)
+- [softDeleteSellers](#softdeletesellers)
+- [restoreSellers](#restoresellers)
+
+### Member Methods
+- [createMembers](#createmembers)
+- [updateMembers](#updatemembers)
+- [deleteMembers](#deletemembers)
+- [retrieveMember](#retrievemember)
+- [listMembers](#listmembers)
+- [listAndCountMembers](#listandcountmembers)
+- [softDeleteMembers](#softdeletemembers)
+- [restoreMembers](#restoremembers)
+
+### Member Invite Methods
+- [createMemberInvites](#creatememberinvites)
+- [updateMemberInvites](#updatememberinvites)
+- [deleteMemberInvites](#deletememberinvites)
+- [retrieveMemberInvite](#retrievememberinvite)
+- [listMemberInvites](#listmemberinvites)
+- [listAndCountMemberInvites](#listandcountmemberinvites)
+- [softDeleteMemberInvites](#softdeletememberinvites)
+- [restoreMemberInvites](#restorememberinvites)
+- [validateInviteToken](#validateinvitetoken)
+
+### Seller Onboarding Methods
+- [createSellerOnboardings](#createselleronboardings)
+- [updateSellerOnboardings](#updateselleronboardings)
+- [deleteSellerOnboardings](#deleteselleronboardings)
+- [retrieveSellerOnboarding](#retrieveselleronboarding)
+- [listSellerOnboardings](#listselleronboardings)
+- [listAndCountSellerOnboardings](#listandcountselleronboardings)
+- [softDeleteSellerOnboardings](#softdeleteselleronboardings)
+- [restoreSellerOnboardings](#restoreselleronboardings)
+- [isOnboardingCompleted](#isonboardingcompleted)
+
+---
+
+# createSellers
+
+This section provides a reference to the `createSellers` method. This belongs to the Seller Module.
+
+## createSellers(data, sharedContext?): Promise\<SellerDTO[]>
+
+This method creates sellers.
+
+### Example
+
+```ts
+const sellers = await sellerModuleService.createSellers([
+  {
+    name: "Acme Store",
+    handle: "acme-store",
+    email: "contact@acme.com",
+    description: "Quality products for everyone",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateSellerDTO[]" required>
+  The sellers to be created.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the seller.
+    </ParamField>
+
+    <ParamField body="handle" type="string">
+      The unique handle of the seller.
+    </ParamField>
+
+    <ParamField body="email" type="string">
+      The email of the seller.
+    </ParamField>
+
+    <ParamField body="phone" type="string">
+      The phone of the seller.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the seller.
+    </ParamField>
+
+    <ParamField body="photo" type="string">
+      The photo URL of the seller.
+    </ParamField>
+
+    <ParamField body="address_line" type="string">
+      The address line of the seller.
+    </ParamField>
+
+    <ParamField body="city" type="string">
+      The city of the seller.
+    </ParamField>
+
+    <ParamField body="state" type="string">
+      The state of the seller.
+    </ParamField>
+
+    <ParamField body="postal_code" type="string">
+      The postal code of the seller.
+    </ParamField>
+
+    <ParamField body="country_code" type="string">
+      The country code of the seller.
+    </ParamField>
+
+    <ParamField body="tax_id" type="string">
+      The tax ID of the seller.
+    </ParamField>
+
+    <ParamField body="store_status" type='"ACTIVE" | "INACTIVE" | "SUSPENDED"'>
+      The status of the seller's store.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SellerDTO[]>">
+  The created sellers.
+</ResponseField>
+
+## createSellers(data, sharedContext?): Promise\<SellerDTO>
+
+This method creates a seller.
+
+### Example
+
+```ts
+const seller = await sellerModuleService.createSellers({
+  name: "Acme Store",
+  handle: "acme-store",
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateSellerDTO" required>
+  The seller to be created.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the seller.
+    </ParamField>
+
+    <ParamField body="handle" type="string">
+      The unique handle of the seller.
+    </ParamField>
+
+    <ParamField body="email" type="string">
+      The email of the seller.
+    </ParamField>
+
+    <ParamField body="phone" type="string">
+      The phone of the seller.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the seller.
+    </ParamField>
+
+    <ParamField body="photo" type="string">
+      The photo URL of the seller.
+    </ParamField>
+
+    <ParamField body="address_line" type="string">
+      The address line of the seller.
+    </ParamField>
+
+    <ParamField body="city" type="string">
+      The city of the seller.
+    </ParamField>
+
+    <ParamField body="state" type="string">
+      The state of the seller.
+    </ParamField>
+
+    <ParamField body="postal_code" type="string">
+      The postal code of the seller.
+    </ParamField>
+
+    <ParamField body="country_code" type="string">
+      The country code of the seller.
+    </ParamField>
+
+    <ParamField body="tax_id" type="string">
+      The tax ID of the seller.
+    </ParamField>
+
+    <ParamField body="store_status" type='"ACTIVE" | "INACTIVE" | "SUSPENDED"'>
+      The status of the seller's store.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SellerDTO>">
+  The created seller.
+</ResponseField>
+
+---
+
+# updateSellers
+
+This section provides a reference to the `updateSellers` method. This belongs to the Seller Module.
+
+## updateSellers(id, data, sharedContext?): Promise\<SellerDTO>
+
+This method updates an existing seller.
+
+### Example
+
+```ts
+const seller = await sellerModuleService.updateSellers("sel_123", {
+  name: "Updated Store Name",
+  description: "New description",
+  store_status: "ACTIVE",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the seller.
+</ParamField>
+
+<ParamField body="data" type="UpdateSellerDTO" required>
+  The attributes to update in the seller.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string">
+      The name of the seller.
+    </ParamField>
+
+    <ParamField body="email" type="string">
+      The email of the seller.
+    </ParamField>
+
+    <ParamField body="phone" type="string">
+      The phone of the seller.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the seller.
+    </ParamField>
+
+    <ParamField body="address_line" type="string">
+      The address line of the seller.
+    </ParamField>
+
+    <ParamField body="city" type="string">
+      The city of the seller.
+    </ParamField>
+
+    <ParamField body="state" type="string">
+      The state of the seller.
+    </ParamField>
+
+    <ParamField body="postal_code" type="string">
+      The postal code of the seller.
+    </ParamField>
+
+    <ParamField body="country_code" type="string">
+      The country code of the seller.
+    </ParamField>
+
+    <ParamField body="tax_id" type="string">
+      The tax ID of the seller.
+    </ParamField>
+
+    <ParamField body="handle" type="string">
+      The unique handle of the seller.
+    </ParamField>
+
+    <ParamField body="photo" type="string">
+      The photo URL of the seller.
+    </ParamField>
+
+    <ParamField body="store_status" type='"ACTIVE" | "INACTIVE" | "SUSPENDED"'>
+      The status of the seller's store.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SellerDTO>">
+  The updated seller.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the seller.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the seller.
+    </ResponseField>
+
+    <ResponseField name="handle" type="string">
+      The unique handle of the seller.
+    </ResponseField>
+
+    <ResponseField name="email" type="string | null">
+      The email of the seller.
+    </ResponseField>
+
+    <ResponseField name="phone" type="string | null">
+      The phone of the seller.
+    </ResponseField>
+
+    <ResponseField name="description" type="string | null">
+      The description of the seller.
+    </ResponseField>
+
+    <ResponseField name="photo" type="string | null">
+      The photo URL of the seller.
+    </ResponseField>
+
+    <ResponseField name="address_line" type="string | null">
+      The address line of the seller.
+    </ResponseField>
+
+    <ResponseField name="city" type="string | null">
+      The city of the seller.
+    </ResponseField>
+
+    <ResponseField name="state" type="string | null">
+      The state of the seller.
+    </ResponseField>
+
+    <ResponseField name="postal_code" type="string | null">
+      The postal code of the seller.
+    </ResponseField>
+
+    <ResponseField name="country_code" type="string | null">
+      The country code of the seller.
+    </ResponseField>
+
+    <ResponseField name="tax_id" type="string | null">
+      The tax ID of the seller.
+    </ResponseField>
+
+    <ResponseField name="store_status" type="StoreStatus">
+      The status of the seller's store.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the seller.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the seller.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteSellers
+
+This section provides a reference to the `deleteSellers` method. This belongs to the Seller Module.
+
+## deleteSellers(ids, sharedContext?): Promise\<void>
+
+This method deletes sellers by their IDs.
+
+### Example
+
+```ts
+await sellerModuleService.deleteSellers(["sel_123", "sel_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the sellers.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the sellers are deleted successfully.
+</ResponseField>
+
+## deleteSellers(id, sharedContext?): Promise\<void>
+
+This method deletes a seller by its ID.
+
+### Example
+
+```ts
+await sellerModuleService.deleteSellers("sel_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the seller.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the seller is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveSeller
+
+This section provides a reference to the `retrieveSeller` method. This belongs to the Seller Module.
+
+This method retrieves a seller by its ID.
+
+## Example
+
+```ts
+const seller = await sellerModuleService.retrieveSeller("sel_123")
+```
+
+To retrieve relationships:
+
+```ts
+const seller = await sellerModuleService.retrieveSeller(
+  "sel_123",
+  {
+    relations: ["members", "onboarding", "invites"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the seller.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SellerDTO>">
+  The configurations determining how the seller is retrieved. Its properties, such as `select` or `relations`, accept the attributes or relations associated with a seller.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["members", "onboarding", "invites"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<SellerDTO>">
+  The retrieved seller.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the seller.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the seller.
+    </ResponseField>
+
+    <ResponseField name="handle" type="string">
+      The unique handle of the seller.
+    </ResponseField>
+
+    <ResponseField name="email" type="string | null">
+      The email of the seller.
+    </ResponseField>
+
+    <ResponseField name="phone" type="string | null">
+      The phone of the seller.
+    </ResponseField>
+
+    <ResponseField name="description" type="string | null">
+      The description of the seller.
+    </ResponseField>
+
+    <ResponseField name="photo" type="string | null">
+      The photo URL of the seller.
+    </ResponseField>
+
+    <ResponseField name="address_line" type="string | null">
+      The address line of the seller.
+    </ResponseField>
+
+    <ResponseField name="city" type="string | null">
+      The city of the seller.
+    </ResponseField>
+
+    <ResponseField name="state" type="string | null">
+      The state of the seller.
+    </ResponseField>
+
+    <ResponseField name="postal_code" type="string | null">
+      The postal code of the seller.
+    </ResponseField>
+
+    <ResponseField name="country_code" type="string | null">
+      The country code of the seller.
+    </ResponseField>
+
+    <ResponseField name="tax_id" type="string | null">
+      The tax ID of the seller.
+    </ResponseField>
+
+    <ResponseField name="store_status" type="StoreStatus">
+      The status of the seller's store.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the seller.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the seller.
+    </ResponseField>
+
+    <ResponseField name="members" type="MemberDTO[]">
+      The associated members (if included in relations).
+    </ResponseField>
+
+    <ResponseField name="onboarding" type="SellerOnboardingDTO">
+      The associated onboarding record (if included in relations).
+    </ResponseField>
+
+    <ResponseField name="invites" type="MemberInviteDTO[]">
+      The associated member invites (if included in relations).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listSellers
+
+This section provides a reference to the `listSellers` method. This belongs to the Seller Module.
+
+This method retrieves a paginated list of sellers based on optional filters and configuration.
+
+## Example
+
+To retrieve a list of sellers using their IDs:
+
+```ts
+const sellers = await sellerModuleService.listSellers({
+  id: ["sel_123", "sel_321"],
+})
+```
+
+To retrieve active sellers:
+
+```ts
+const sellers = await sellerModuleService.listSellers({
+  store_status: "ACTIVE",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const sellers = await sellerModuleService.listSellers(
+  {
+    store_status: "ACTIVE",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableSellerProps">
+  The filters to apply on the retrieved sellers.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the sellers by.
+    </ParamField>
+
+    <ParamField body="name" type="string | string[]">
+      Filter sellers by their names.
+    </ParamField>
+
+    <ParamField body="handle" type="string | string[]">
+      Filter sellers by their handles.
+    </ParamField>
+
+    <ParamField body="email" type="string | string[]">
+      Filter sellers by their email addresses.
+    </ParamField>
+
+    <ParamField body="store_status" type="string | string[]">
+      Filter sellers by their store status.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SellerDTO>">
+  The configurations determining how the seller is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<SellerDTO[]>">
+  The list of sellers.
+</ResponseField>
+
+---
+
+# listAndCountSellers
+
+This section provides a reference to the `listAndCountSellers` method. This belongs to the Seller Module.
+
+This method retrieves a paginated list of sellers along with the total count of available sellers satisfying the provided filters.
+
+## Example
+
+```ts
+const [sellers, count] = await sellerModuleService.listAndCountSellers({
+  store_status: "ACTIVE",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableSellerProps">
+  The filters to apply on the retrieved sellers.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the sellers by.
+    </ParamField>
+
+    <ParamField body="name" type="string | string[]">
+      Filter sellers by their names.
+    </ParamField>
+
+    <ParamField body="handle" type="string | string[]">
+      Filter sellers by their handles.
+    </ParamField>
+
+    <ParamField body="email" type="string | string[]">
+      Filter sellers by their email addresses.
+    </ParamField>
+
+    <ParamField body="store_status" type="string | string[]">
+      Filter sellers by their store status.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SellerDTO>">
+  The configurations determining how the seller is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[SellerDTO[], number]>">
+  The list of sellers along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteSellers
+
+This section provides a reference to the `softDeleteSellers` method. This belongs to the Seller Module.
+
+This method soft deletes sellers by their IDs.
+
+## Example
+
+```ts
+await sellerModuleService.softDeleteSellers([
+  "sel_123",
+  "sel_321",
+])
+```
+
+## Parameters
+
+<ParamField body="sellerIds" type="string[]" required>
+  The IDs of the sellers.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreSellers
+
+This section provides a reference to the `restoreSellers` method. This belongs to the Seller Module.
+
+This method restores soft deleted sellers by their IDs.
+
+## Example
+
+```ts
+await sellerModuleService.restoreSellers(["sel_123", "sel_321"])
+```
+
+## Parameters
+
+<ParamField body="sellerIds" type="string[]" required>
+  The IDs of the sellers.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the seller.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createMembers
+
+This section provides a reference to the `createMembers` method. This belongs to the Seller Module.
+
+## createMembers(data, sharedContext?): Promise\<MemberDTO[]>
+
+This method creates members.
+
+### Example
+
+```ts
+const members = await sellerModuleService.createMembers([
+  {
+    seller_id: "sel_123",
+    name: "John Doe",
+    email: "john@example.com",
+    role: "admin",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateMemberDTO[]" required>
+  The members to be created.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller this member belongs to.
+    </ParamField>
+
+    <ParamField body="name" type="string" required>
+      The name of the member.
+    </ParamField>
+
+    <ParamField body="email" type="string" required>
+      The email of the member.
+    </ParamField>
+
+    <ParamField body="role" type='"owner" | "admin" | "member"'>
+      The role of the member in the seller's team.
+    </ParamField>
+
+    <ParamField body="bio" type="string">
+      The bio of the member.
+    </ParamField>
+
+    <ParamField body="photo" type="string">
+      The photo URL of the member.
+    </ParamField>
+
+    <ParamField body="phone" type="string">
+      The phone of the member.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<MemberDTO[]>">
+  The created members.
+</ResponseField>
+
+## createMembers(data, sharedContext?): Promise\<MemberDTO>
+
+This method creates a member.
+
+### Example
+
+```ts
+const member = await sellerModuleService.createMembers({
+  seller_id: "sel_123",
+  name: "John Doe",
+  email: "john@example.com",
+  role: "admin",
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateMemberDTO" required>
+  The member to be created.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller this member belongs to.
+    </ParamField>
+
+    <ParamField body="name" type="string" required>
+      The name of the member.
+    </ParamField>
+
+    <ParamField body="email" type="string" required>
+      The email of the member.
+    </ParamField>
+
+    <ParamField body="role" type='"owner" | "admin" | "member"'>
+      The role of the member in the seller's team.
+    </ParamField>
+
+    <ParamField body="bio" type="string">
+      The bio of the member.
+    </ParamField>
+
+    <ParamField body="photo" type="string">
+      The photo URL of the member.
+    </ParamField>
+
+    <ParamField body="phone" type="string">
+      The phone of the member.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<MemberDTO>">
+  The created member.
+</ResponseField>
+
+---
+
+# updateMembers
+
+This section provides a reference to the `updateMembers` method. This belongs to the Seller Module.
+
+## updateMembers(id, data, sharedContext?): Promise\<MemberDTO>
+
+This method updates an existing member.
+
+### Example
+
+```ts
+const member = await sellerModuleService.updateMembers("mem_123", {
+  name: "Jane Doe",
+  role: "owner",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the member.
+</ParamField>
+
+<ParamField body="data" type="UpdateMemberDTO" required>
+  The attributes to update in the member.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string">
+      The name of the member.
+    </ParamField>
+
+    <ParamField body="email" type="string">
+      The email of the member.
+    </ParamField>
+
+    <ParamField body="role" type='"owner" | "admin" | "member"'>
+      The role of the member in the seller's team.
+    </ParamField>
+
+    <ParamField body="bio" type="string">
+      The bio of the member.
+    </ParamField>
+
+    <ParamField body="photo" type="string">
+      The photo URL of the member.
+    </ParamField>
+
+    <ParamField body="phone" type="string">
+      The phone of the member.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<MemberDTO>">
+  The updated member.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the member.
+    </ResponseField>
+
+    <ResponseField name="name" type="string | null">
+      The name of the member.
+    </ResponseField>
+
+    <ResponseField name="email" type="string | null">
+      The email of the member.
+    </ResponseField>
+
+    <ResponseField name="role" type="MemberRole">
+      The role of the member.
+    </ResponseField>
+
+    <ResponseField name="bio" type="string | null">
+      The bio of the member.
+    </ResponseField>
+
+    <ResponseField name="photo" type="string | null">
+      The photo URL of the member.
+    </ResponseField>
+
+    <ResponseField name="phone" type="string | null">
+      The phone of the member.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the member.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the member.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteMembers
+
+This section provides a reference to the `deleteMembers` method. This belongs to the Seller Module.
+
+## deleteMembers(ids, sharedContext?): Promise\<void>
+
+This method deletes members by their IDs.
+
+### Example
+
+```ts
+await sellerModuleService.deleteMembers(["mem_123", "mem_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the members.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the members are deleted successfully.
+</ResponseField>
+
+## deleteMembers(id, sharedContext?): Promise\<void>
+
+This method deletes a member by its ID.
+
+### Example
+
+```ts
+await sellerModuleService.deleteMembers("mem_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the member.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the member is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveMember
+
+This section provides a reference to the `retrieveMember` method. This belongs to the Seller Module.
+
+This method retrieves a member by its ID.
+
+## Example
+
+```ts
+const member = await sellerModuleService.retrieveMember("mem_123")
+```
+
+To retrieve the seller relationship:
+
+```ts
+const member = await sellerModuleService.retrieveMember(
+  "mem_123",
+  {
+    relations: ["seller"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the member.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<MemberDTO>">
+  The configurations determining how the member is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["seller"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<MemberDTO>">
+  The retrieved member.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the member.
+    </ResponseField>
+
+    <ResponseField name="name" type="string | null">
+      The name of the member.
+    </ResponseField>
+
+    <ResponseField name="email" type="string | null">
+      The email of the member.
+    </ResponseField>
+
+    <ResponseField name="role" type="MemberRole">
+      The role of the member.
+    </ResponseField>
+
+    <ResponseField name="bio" type="string | null">
+      The bio of the member.
+    </ResponseField>
+
+    <ResponseField name="photo" type="string | null">
+      The photo URL of the member.
+    </ResponseField>
+
+    <ResponseField name="phone" type="string | null">
+      The phone of the member.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the member.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the member.
+    </ResponseField>
+
+    <ResponseField name="seller" type="SellerDTO">
+      The associated seller (if included in relations).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listMembers
+
+This section provides a reference to the `listMembers` method. This belongs to the Seller Module.
+
+This method retrieves a paginated list of members based on optional filters and configuration.
+
+## Example
+
+```ts
+const members = await sellerModuleService.listMembers({
+  seller_id: "sel_123",
+})
+```
+
+To filter by role:
+
+```ts
+const members = await sellerModuleService.listMembers({
+  seller_id: "sel_123",
+  role: "admin",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableMemberProps">
+  The filters to apply on the retrieved members.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the members by.
+    </ParamField>
+
+    <ParamField body="seller_id" type="string | string[]">
+      Filter members by their seller IDs.
+    </ParamField>
+
+    <ParamField body="email" type="string | string[]">
+      Filter members by their email addresses.
+    </ParamField>
+
+    <ParamField body="role" type="string | string[]">
+      Filter members by their roles.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<MemberDTO>">
+  The configurations determining how the member is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<MemberDTO[]>">
+  The list of members.
+</ResponseField>
+
+---
+
+# listAndCountMembers
+
+This section provides a reference to the `listAndCountMembers` method. This belongs to the Seller Module.
+
+This method retrieves a paginated list of members along with the total count of available members satisfying the provided filters.
+
+## Example
+
+```ts
+const [members, count] = await sellerModuleService.listAndCountMembers({
+  seller_id: "sel_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableMemberProps">
+  The filters to apply on the retrieved members.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the members by.
+    </ParamField>
+
+    <ParamField body="seller_id" type="string | string[]">
+      Filter members by their seller IDs.
+    </ParamField>
+
+    <ParamField body="email" type="string | string[]">
+      Filter members by their email addresses.
+    </ParamField>
+
+    <ParamField body="role" type="string | string[]">
+      Filter members by their roles.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<MemberDTO>">
+  The configurations determining how the member is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[MemberDTO[], number]>">
+  The list of members along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteMembers
+
+This section provides a reference to the `softDeleteMembers` method. This belongs to the Seller Module.
+
+This method soft deletes members by their IDs.
+
+## Example
+
+```ts
+await sellerModuleService.softDeleteMembers([
+  "mem_123",
+  "mem_321",
+])
+```
+
+## Parameters
+
+<ParamField body="memberIds" type="string[]" required>
+  The IDs of the members.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreMembers
+
+This section provides a reference to the `restoreMembers` method. This belongs to the Seller Module.
+
+This method restores soft deleted members by their IDs.
+
+## Example
+
+```ts
+await sellerModuleService.restoreMembers(["mem_123", "mem_321"])
+```
+
+## Parameters
+
+<ParamField body="memberIds" type="string[]" required>
+  The IDs of the members.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the member.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createMemberInvites
+
+This section provides a reference to the `createMemberInvites` method. This belongs to the Seller Module.
+
+This method creates member invites with automatically generated JWT tokens.
+
+## createMemberInvites(data, sharedContext?): Promise\<MemberInviteDTO[]>
+
+### Example
+
+```ts
+const invites = await sellerModuleService.createMemberInvites([
+  {
+    seller_id: "sel_123",
+    email: "newmember@example.com",
+    role: "member",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateMemberInviteDTO[]" required>
+  The member invites to be created.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller this invite belongs to.
+    </ParamField>
+
+    <ParamField body="email" type="string" required>
+      The email of the invited member.
+    </ParamField>
+
+    <ParamField body="role" type='"owner" | "admin" | "member"'>
+      The role that will be assigned to the member.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<MemberInviteDTO[]>">
+  The created member invites with generated tokens.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the member invite.
+    </ResponseField>
+
+    <ResponseField name="email" type="string">
+      The email of the invited member.
+    </ResponseField>
+
+    <ResponseField name="role" type="MemberRole">
+      The role that will be assigned to the member.
+    </ResponseField>
+
+    <ResponseField name="token" type="string">
+      The JWT invitation token.
+    </ResponseField>
+
+    <ResponseField name="expires_at" type="Date">
+      The date and time when the invitation expires.
+    </ResponseField>
+
+    <ResponseField name="accepted" type="boolean">
+      Whether the invitation has been accepted.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the invite.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the invite.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# validateInviteToken
+
+This section provides a reference to the `validateInviteToken` method. This belongs to the Seller Module.
+
+This method validates a member invitation JWT token and returns the associated invite if valid.
+
+## Example
+
+```ts
+const invite = await sellerModuleService.validateInviteToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+```
+
+## Parameters
+
+<ParamField body="token" type="string" required>
+  The JWT invitation token to validate.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<MemberInviteDTO>">
+  The validated member invite.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the member invite.
+    </ResponseField>
+
+    <ResponseField name="email" type="string">
+      The email of the invited member.
+    </ResponseField>
+
+    <ResponseField name="role" type="MemberRole">
+      The role that will be assigned to the member.
+    </ResponseField>
+
+    <ResponseField name="token" type="string">
+      The JWT invitation token.
+    </ResponseField>
+
+    <ResponseField name="expires_at" type="Date">
+      The date and time when the invitation expires.
+    </ResponseField>
+
+    <ResponseField name="accepted" type="boolean">
+      Whether the invitation has been accepted.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the invite.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the invite.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<Note>
+  This method throws an error if the invite has already been accepted or has expired.
+</Note>
+
+---
+
+# updateMemberInvites
+
+This section provides a reference to the `updateMemberInvites` method. This belongs to the Seller Module.
+
+## updateMemberInvites(id, data, sharedContext?): Promise\<MemberInviteDTO>
+
+This method updates an existing member invite.
+
+### Example
+
+```ts
+const invite = await sellerModuleService.updateMemberInvites("meminv_123", {
+  accepted: true,
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the member invite.
+</ParamField>
+
+<ParamField body="data" type="UpdateMemberInviteDTO" required>
+  The attributes to update in the member invite.
+
+  <Expandable title="properties">
+    <ParamField body="email" type="string">
+      The email of the invited member.
+    </ParamField>
+
+    <ParamField body="role" type='"owner" | "admin" | "member"'>
+      The role that will be assigned to the member.
+    </ParamField>
+
+    <ParamField body="accepted" type="boolean">
+      Whether the invitation has been accepted.
+    </ParamField>
+
+    <ParamField body="token" type="string">
+      The JWT invitation token.
+    </ParamField>
+
+    <ParamField body="expires_at" type="Date">
+      The date and time when the invitation expires.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<MemberInviteDTO>">
+  The updated member invite.
+</ResponseField>
+
+---
+
+# deleteMemberInvites
+
+This section provides a reference to the `deleteMemberInvites` method. This belongs to the Seller Module.
+
+## deleteMemberInvites(ids, sharedContext?): Promise\<void>
+
+This method deletes member invites by their IDs.
+
+### Example
+
+```ts
+await sellerModuleService.deleteMemberInvites(["meminv_123", "meminv_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the member invites.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the member invites are deleted successfully.
+</ResponseField>
+
+## deleteMemberInvites(id, sharedContext?): Promise\<void>
+
+This method deletes a member invite by its ID.
+
+### Example
+
+```ts
+await sellerModuleService.deleteMemberInvites("meminv_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the member invite.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the member invite is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveMemberInvite
+
+This section provides a reference to the `retrieveMemberInvite` method. This belongs to the Seller Module.
+
+This method retrieves a member invite by its ID.
+
+## Example
+
+```ts
+const invite = await sellerModuleService.retrieveMemberInvite("meminv_123")
+```
+
+To retrieve the seller relationship:
+
+```ts
+const invite = await sellerModuleService.retrieveMemberInvite(
+  "meminv_123",
+  {
+    relations: ["seller"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the member invite.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<MemberInviteDTO>">
+  The configurations determining how the member invite is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["seller"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<MemberInviteDTO>">
+  The retrieved member invite.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the member invite.
+    </ResponseField>
+
+    <ResponseField name="email" type="string">
+      The email of the invited member.
+    </ResponseField>
+
+    <ResponseField name="role" type="MemberRole">
+      The role that will be assigned to the member.
+    </ResponseField>
+
+    <ResponseField name="token" type="string">
+      The JWT invitation token.
+    </ResponseField>
+
+    <ResponseField name="expires_at" type="Date">
+      The date and time when the invitation expires.
+    </ResponseField>
+
+    <ResponseField name="accepted" type="boolean">
+      Whether the invitation has been accepted.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the invite.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the invite.
+    </ResponseField>
+
+    <ResponseField name="seller" type="SellerDTO">
+      The associated seller (if included in relations).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listMemberInvites
+
+This section provides a reference to the `listMemberInvites` method. This belongs to the Seller Module.
+
+This method retrieves a paginated list of member invites based on optional filters and configuration.
+
+## Example
+
+```ts
+const invites = await sellerModuleService.listMemberInvites({
+  seller_id: "sel_123",
+  accepted: false,
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableMemberInviteProps">
+  The filters to apply on the retrieved member invites.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the member invites by.
+    </ParamField>
+
+    <ParamField body="seller_id" type="string | string[]">
+      Filter member invites by their seller IDs.
+    </ParamField>
+
+    <ParamField body="email" type="string | string[]">
+      Filter member invites by their email addresses.
+    </ParamField>
+
+    <ParamField body="accepted" type="boolean">
+      Filter member invites by whether they have been accepted.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<MemberInviteDTO>">
+  The configurations determining how the member invite is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<MemberInviteDTO[]>">
+  The list of member invites.
+</ResponseField>
+
+---
+
+# listAndCountMemberInvites
+
+This section provides a reference to the `listAndCountMemberInvites` method. This belongs to the Seller Module.
+
+This method retrieves a paginated list of member invites along with the total count of available member invites satisfying the provided filters.
+
+## Example
+
+```ts
+const [invites, count] = await sellerModuleService.listAndCountMemberInvites({
+  seller_id: "sel_123",
+  accepted: false,
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableMemberInviteProps">
+  The filters to apply on the retrieved member invites.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the member invites by.
+    </ParamField>
+
+    <ParamField body="seller_id" type="string | string[]">
+      Filter member invites by their seller IDs.
+    </ParamField>
+
+    <ParamField body="email" type="string | string[]">
+      Filter member invites by their email addresses.
+    </ParamField>
+
+    <ParamField body="accepted" type="boolean">
+      Filter member invites by whether they have been accepted.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<MemberInviteDTO>">
+  The configurations determining how the member invite is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[MemberInviteDTO[], number]>">
+  The list of member invites along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteMemberInvites
+
+This section provides a reference to the `softDeleteMemberInvites` method. This belongs to the Seller Module.
+
+This method soft deletes member invites by their IDs.
+
+## Example
+
+```ts
+await sellerModuleService.softDeleteMemberInvites([
+  "meminv_123",
+  "meminv_321",
+])
+```
+
+## Parameters
+
+<ParamField body="memberInviteIds" type="string[]" required>
+  The IDs of the member invites.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreMemberInvites
+
+This section provides a reference to the `restoreMemberInvites` method. This belongs to the Seller Module.
+
+This method restores soft deleted member invites by their IDs.
+
+## Example
+
+```ts
+await sellerModuleService.restoreMemberInvites(["meminv_123", "meminv_321"])
+```
+
+## Parameters
+
+<ParamField body="memberInviteIds" type="string[]" required>
+  The IDs of the member invites.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the member invite.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createSellerOnboardings
+
+This section provides a reference to the `createSellerOnboardings` method. This belongs to the Seller Module.
+
+## createSellerOnboardings(data, sharedContext?): Promise\<SellerOnboardingDTO[]>
+
+This method creates seller onboarding records.
+
+### Example
+
+```ts
+const onboardings = await sellerModuleService.createSellerOnboardings([
+  {
+    seller_id: "sel_123",
+    store_information: true,
+    stripe_connection: false,
+    locations_shipping: false,
+    products: false,
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateSellerOnboardingDTO[]" required>
+  The seller onboardings to be created.
+
+  <Expandable title="properties">
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller this onboarding belongs to.
+    </ParamField>
+
+    <ParamField body="store_information" type="boolean">
+      Whether the store information step is completed.
+    </ParamField>
+
+    <ParamField body="stripe_connection" type="boolean">
+      Whether the Stripe connection step is completed.
+    </ParamField>
+
+    <ParamField body="locations_shipping" type="boolean">
+      Whether the locations and shipping setup step is completed.
+    </ParamField>
+
+    <ParamField body="products" type="boolean">
+      Whether the products setup step is completed.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SellerOnboardingDTO[]>">
+  The created seller onboardings.
+</ResponseField>
+
+---
+
+# updateSellerOnboardings
+
+This section provides a reference to the `updateSellerOnboardings` method. This belongs to the Seller Module.
+
+## updateSellerOnboardings(id, data, sharedContext?): Promise\<SellerOnboardingDTO>
+
+This method updates an existing seller onboarding record.
+
+### Example
+
+```ts
+const onboarding = await sellerModuleService.updateSellerOnboardings("sel_onb_123", {
+  store_information: true,
+  stripe_connection: true,
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the seller onboarding.
+</ParamField>
+
+<ParamField body="data" type="UpdateSellerOnboardingDTO" required>
+  The attributes to update in the seller onboarding.
+
+  <Expandable title="properties">
+    <ParamField body="store_information" type="boolean">
+      Whether the store information step is completed.
+    </ParamField>
+
+    <ParamField body="stripe_connection" type="boolean">
+      Whether the Stripe connection step is completed.
+    </ParamField>
+
+    <ParamField body="locations_shipping" type="boolean">
+      Whether the locations and shipping setup step is completed.
+    </ParamField>
+
+    <ParamField body="products" type="boolean">
+      Whether the products setup step is completed.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SellerOnboardingDTO>">
+  The updated seller onboarding.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the seller onboarding.
+    </ResponseField>
+
+    <ResponseField name="store_information" type="boolean">
+      Whether the store information step is completed.
+    </ResponseField>
+
+    <ResponseField name="stripe_connection" type="boolean">
+      Whether the Stripe connection step is completed.
+    </ResponseField>
+
+    <ResponseField name="locations_shipping" type="boolean">
+      Whether the locations and shipping setup step is completed.
+    </ResponseField>
+
+    <ResponseField name="products" type="boolean">
+      Whether the products setup step is completed.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the seller onboarding.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the seller onboarding.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# isOnboardingCompleted
+
+This section provides a reference to the `isOnboardingCompleted` method. This belongs to the Seller Module.
+
+This method checks whether a seller has completed all onboarding steps.
+
+## Example
+
+```ts
+const isCompleted = await sellerModuleService.isOnboardingCompleted("sel_123")
+```
+
+## Parameters
+
+<ParamField body="seller_id" type="string" required>
+  The ID of the seller to check.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<boolean>">
+  A boolean indicating whether all onboarding steps are completed. Returns `true` if all four steps (`store_information`, `stripe_connection`, `locations_shipping`, `products`) are completed, otherwise `false`.
+</ResponseField>
+
+---
+
+# deleteSellerOnboardings
+
+This section provides a reference to the `deleteSellerOnboardings` method. This belongs to the Seller Module.
+
+## deleteSellerOnboardings(ids, sharedContext?): Promise\<void>
+
+This method deletes seller onboardings by their IDs.
+
+### Example
+
+```ts
+await sellerModuleService.deleteSellerOnboardings(["sel_onb_123", "sel_onb_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the seller onboardings.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the seller onboardings are deleted successfully.
+</ResponseField>
+
+## deleteSellerOnboardings(id, sharedContext?): Promise\<void>
+
+This method deletes a seller onboarding by its ID.
+
+### Example
+
+```ts
+await sellerModuleService.deleteSellerOnboardings("sel_onb_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the seller onboarding.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the seller onboarding is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveSellerOnboarding
+
+This section provides a reference to the `retrieveSellerOnboarding` method. This belongs to the Seller Module.
+
+This method retrieves a seller onboarding by its ID.
+
+## Example
+
+```ts
+const onboarding = await sellerModuleService.retrieveSellerOnboarding("sel_onb_123")
+```
+
+To retrieve the seller relationship:
+
+```ts
+const onboarding = await sellerModuleService.retrieveSellerOnboarding(
+  "sel_onb_123",
+  {
+    relations: ["seller"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the seller onboarding.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SellerOnboardingDTO>">
+  The configurations determining how the seller onboarding is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["seller"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<SellerOnboardingDTO>">
+  The retrieved seller onboarding.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the seller onboarding.
+    </ResponseField>
+
+    <ResponseField name="store_information" type="boolean">
+      Whether the store information step is completed.
+    </ResponseField>
+
+    <ResponseField name="stripe_connection" type="boolean">
+      Whether the Stripe connection step is completed.
+    </ResponseField>
+
+    <ResponseField name="locations_shipping" type="boolean">
+      Whether the locations and shipping setup step is completed.
+    </ResponseField>
+
+    <ResponseField name="products" type="boolean">
+      Whether the products setup step is completed.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the seller onboarding.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the seller onboarding.
+    </ResponseField>
+
+    <ResponseField name="seller" type="SellerDTO">
+      The associated seller (if included in relations).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listSellerOnboardings
+
+This section provides a reference to the `listSellerOnboardings` method. This belongs to the Seller Module.
+
+This method retrieves a paginated list of seller onboardings based on optional filters and configuration.
+
+## Example
+
+```ts
+const onboardings = await sellerModuleService.listSellerOnboardings({
+  seller_id: "sel_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableSellerOnboardingProps">
+  The filters to apply on the retrieved seller onboardings.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the seller onboardings by.
+    </ParamField>
+
+    <ParamField body="seller_id" type="string | string[]">
+      Filter seller onboardings by their seller IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SellerOnboardingDTO>">
+  The configurations determining how the seller onboarding is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<SellerOnboardingDTO[]>">
+  The list of seller onboardings.
+</ResponseField>
+
+---
+
+# listAndCountSellerOnboardings
+
+This section provides a reference to the `listAndCountSellerOnboardings` method. This belongs to the Seller Module.
+
+This method retrieves a paginated list of seller onboardings along with the total count of available seller onboardings satisfying the provided filters.
+
+## Example
+
+```ts
+const [onboardings, count] = await sellerModuleService.listAndCountSellerOnboardings({
+  seller_id: "sel_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableSellerOnboardingProps">
+  The filters to apply on the retrieved seller onboardings.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the seller onboardings by.
+    </ParamField>
+
+    <ParamField body="seller_id" type="string | string[]">
+      Filter seller onboardings by their seller IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SellerOnboardingDTO>">
+  The configurations determining how the seller onboarding is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[SellerOnboardingDTO[], number]>">
+  The list of seller onboardings along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteSellerOnboardings
+
+This section provides a reference to the `softDeleteSellerOnboardings` method. This belongs to the Seller Module.
+
+This method soft deletes seller onboardings by their IDs.
+
+## Example
+
+```ts
+await sellerModuleService.softDeleteSellerOnboardings([
+  "sel_onb_123",
+  "sel_onb_321",
+])
+```
+
+## Parameters
+
+<ParamField body="sellerOnboardingIds" type="string[]" required>
+  The IDs of the seller onboardings.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreSellerOnboardings
+
+This section provides a reference to the `restoreSellerOnboardings` method. This belongs to the Seller Module.
+
+This method restores soft deleted seller onboardings by their IDs.
+
+## Example
+
+```ts
+await sellerModuleService.restoreSellerOnboardings(["sel_onb_123", "sel_onb_321"])
+```
+
+## Parameters
+
+<ParamField body="sellerOnboardingIds" type="string[]" required>
+  The IDs of the seller onboardings.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the seller onboarding.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

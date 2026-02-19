@@ -1,0 +1,33 @@
+---
+title: "OpenAPI"
+---
+
+Mercur uses OpenAPI to define the API endpoints, request and response schemas. You can use **http-client** package which is already defined in the project to generate types and a fetch client:
+
+```bash
+yarn codegen
+```
+
+The output of this process is a set of fetch functions and types.
+
+With all of that setup, calling your API from your application becomes very easy.
+
+```ts
+// Import the generated API function
+import { vendorCreateSeller } from "@mercurjs/http-client";
+// Import the generated types
+import {
+  VendorCreateSeller,
+  VendorCreateSeller201,
+} from "@mercurjs/http-client/types";
+
+// Usage example
+const createSeller = async (
+  body: VendorCreateSeller
+): Promise<VendorCreateSeller201> => {
+  const response = await vendorCreateSeller({
+    body,
+  });
+  // ...
+};
+```

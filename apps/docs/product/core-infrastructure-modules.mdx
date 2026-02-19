@@ -1,0 +1,68 @@
+---
+title: "Core infrastructure modules"
+description: "Learn how Mercur uses Medusa’s core infrastructure modules for events, files, notifications, caching, workflows, and more."
+---
+
+Mercur builds on top of **Medusa’s core infrastructure modules** to provide a scalable, event-driven, and extendable foundation for marketplace logic.
+
+These modules provide the architectural capabilities that power Mercur’s internals:
+
+- Event emission and subscribers
+- Workflows and distributed transaction orchestration
+- File storage (local or cloud)
+- Notification pipelines (email, SMS, internal channels)
+- Caching and performance
+- Distributed locking
+- Analytics
+
+Mercur uses these modules exactly as Medusa designed them and layers marketplace-specific behaviors on top.
+
+Below is a list of all Medusa core infrastructure modules.
+
+---
+
+<Card title="Analytics Module" horizontal href="https://docs.medusajs.com/resources/infrastructure-modules/analytics" cta="Learn more from the Medusa docs">
+  Tracks system and user events (such as cart updates or order placements) and forwards them to analytics providers.
+</Card>
+
+<Card title="Caching Module" horizontal href="https://docs.medusajs.com/resources/infrastructure-modules/caching" cta="Learn more from the Medusa docs">
+  Provides high-performance caching for frequently accessed data. Supports Redis, Memcached, and custom providers.
+</Card>
+
+<Card title="Event Module" horizontal href="https://docs.medusajs.com/resources/infrastructure-modules/event" cta="Learn more from the Medusa docs">
+  Implements the publish/subscribe system used to emit events and run subscribers. Supports Local and Redis providers.
+</Card>
+
+<Card title="File Module" horizontal href="https://docs.medusajs.com/resources/infrastructure-modules/file" cta="Learn more from the Medusa docs">
+  Handles file upload, retrieval, and storage. Used for assets such as product images. Supports Local and S3 providers.
+</Card>
+
+<Card title="Locking Module" horizontal href="https://docs.medusajs.com/resources/infrastructure-modules/locking" cta="Learn more from the Medusa docs">
+  Provides distributed locking to prevent race conditions during concurrent operations. Supports Redis and PostgreSQL providers.
+</Card>
+
+<Card title="Notification Module" horizontal href="https://docs.medusajs.com/resources/infrastructure-modules/notification" cta="Learn more from the Medusa docs">
+  Sends notifications through channels like email or SMS. Supports SendGrid, Resend, Slack, and Local providers.
+</Card>
+
+<Card title="Workflow Engine Module" horizontal href="https://docs.medusajs.com/resources/infrastructure-modules/workflow-engine" cta="Learn more from the Medusa docs">
+  Tracks and manages the execution of workflows and steps with strong consistency guarantees. Supports In-Memory and Redis engines.
+</Card>
+
+---
+
+# How Mercur Uses These Modules
+
+Mercur relies on Medusa’s infrastructure layer to power marketplace-specific concerns:
+
+- Event Module → seller actions, approval flows, requests, commissions
+- Workflow Engine → multi-step processes like onboarding, payouts, order splitting
+- File Module → seller product images, documents, attachments
+- Caching Module → all cart-related operations
+- Locking Module → concurrency protection for order splitting and inventory updates
+- Notification Module → seller/admin notifications
+- Analytics Module → seller performance and buyer activity tracking
+
+By building on Medusa’s infrastructure modules, Mercur ensures performance, and full compatibility with the broader Medusa ecosystem - while letting you extend or swap providers as needed for your marketplace architecture.
+
+---

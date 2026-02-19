@@ -1,0 +1,54 @@
+---
+title: "Setting up for development"
+description: "For those who want to not only use Mercur but also contribute to its development"
+---
+
+Mercur is built as a set of Medusa plugins, ready to be pulled from NPM and installed in your project. If you want to modify or add new features to Mercur, you don't want to use prebuilt packages, but set up a development version.
+
+**Step 1**: Fork Mercur
+![Fork Mercur](/images/fork-mercur.png)
+
+**Step 2**: Clone forked repository
+
+```bash
+git clone https://github.com/<YOUR-USERNAME>/<MERCUR-REPO>
+```
+
+**Step 3**: Install dependencies and build
+
+```bash
+cd <MERCUR-REPO>
+yarn install
+yarn build
+```
+
+**Step 4**: Configure environment variables
+
+```bash
+cd apps/backend
+cp .env.template .env
+```
+
+Now, fill the newly created `.env` file with your variables.
+
+**Step 5**: Create database, migrate, and create admin account
+
+```bash
+npx medusa db:create
+npx medusa db:migrate
+npx medusa user --email admin@mercurjs.com --password secret
+```
+
+<Info>Optionally: run `yarn seed` to fill database with example data</Info>
+
+**Step 6**: Start the application (from the `/apps/backend` directory!)
+
+```bash
+yarn dev
+```
+
+Now you are ready!
+
+Please note that if you make any changes to one of the plugins, you have to rebuild it before it is loaded into Mercur. To do that, navigate to the plugin directory and run the `yarn build` command. Optionally, you can run `yarn dev` in both the plugin directory and the backend app—all the changes will be built automatically, and the backend will restart.
+
+More on plugins: <a href="https://docs.medusajs.com/learn/fundamentals/plugins/create">Medusa Plugin Docs</a>

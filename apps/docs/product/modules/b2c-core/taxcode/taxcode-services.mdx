@@ -1,0 +1,658 @@
+---
+title: "Tax Code Module Service Reference"
+description: "Reference documentation for the Tax Code Module service methods"
+---
+
+# ITaxCodeModuleService Reference
+
+This section of the documentation provides a reference to the `ITaxCodeModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Tax Code Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Tax Code Module.
+
+## Methods
+
+- [createTaxCodes](#createtaxcodes)
+- [updateTaxCodes](#updatetaxcodes)
+- [deleteTaxCodes](#deletetaxcodes)
+- [retrieveTaxCode](#retrievetaxcode)
+- [listTaxCodes](#listtaxcodes)
+- [listAndCountTaxCodes](#listandcounttaxcodes)
+- [softDeleteTaxCodes](#softdeletetaxcodes)
+- [restoreTaxCodes](#restoretaxcodes)
+- [getTaxCodes](#gettaxcodes)
+
+---
+
+# createTaxCodes
+
+This section provides a reference to the `createTaxCodes` method. This belongs to the Tax Code Module.
+
+## createTaxCodes(data, sharedContext?): Promise\<TaxCodeDTO[]>
+
+This method creates tax codes.
+
+### Example
+
+```ts
+const taxCodes = await taxCodeModuleService.createTaxCodes([
+  {
+    name: "General",
+    code: "txcd_00000000",
+    description: "General - Tangible Goods",
+  },
+  {
+    name: "Clothing",
+    code: "txcd_20010000",
+    description: "Clothing",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateTaxCodeDTO[]" required>
+  The tax codes to be created.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the tax code.
+    </ParamField>
+
+    <ParamField body="code" type="string" required>
+      The unique code of the tax code.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the tax code.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<TaxCodeDTO[]>">
+  The created tax codes.
+</ResponseField>
+
+## createTaxCodes(data, sharedContext?): Promise\<TaxCodeDTO>
+
+This method creates a tax code.
+
+### Example
+
+```ts
+const taxCode = await taxCodeModuleService.createTaxCodes({
+  name: "General",
+  code: "txcd_00000000",
+  description: "General - Tangible Goods",
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateTaxCodeDTO" required>
+  The tax code to be created.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the tax code.
+    </ParamField>
+
+    <ParamField body="code" type="string" required>
+      The unique code of the tax code.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the tax code.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<TaxCodeDTO>">
+  The created tax code.
+</ResponseField>
+
+---
+
+# updateTaxCodes
+
+This section provides a reference to the `updateTaxCodes` method. This belongs to the Tax Code Module.
+
+## updateTaxCodes(id, data, sharedContext?): Promise\<TaxCodeDTO>
+
+This method updates an existing tax code.
+
+### Example
+
+```ts
+const taxCode = await taxCodeModuleService.updateTaxCodes("taxc_123", {
+  name: "Updated General",
+  description: "Updated description",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the tax code.
+</ParamField>
+
+<ParamField body="data" type="UpdateTaxCodeDTO" required>
+  The attributes to update in the tax code.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string">
+      The name of the tax code.
+    </ParamField>
+
+    <ParamField body="code" type="string">
+      The unique code of the tax code.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the tax code.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<TaxCodeDTO>">
+  The updated tax code.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the tax code.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the tax code.
+    </ResponseField>
+
+    <ResponseField name="code" type="string">
+      The unique code of the tax code.
+    </ResponseField>
+
+    <ResponseField name="description" type="string">
+      The description of the tax code.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the tax code.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the tax code.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteTaxCodes
+
+This section provides a reference to the `deleteTaxCodes` method. This belongs to the Tax Code Module.
+
+## deleteTaxCodes(ids, sharedContext?): Promise\<void>
+
+This method deletes tax codes by their IDs.
+
+### Example
+
+```ts
+await taxCodeModuleService.deleteTaxCodes(["taxc_123", "taxc_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the tax codes.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the tax codes are deleted successfully.
+</ResponseField>
+
+## deleteTaxCodes(id, sharedContext?): Promise\<void>
+
+This method deletes a tax code by its ID.
+
+### Example
+
+```ts
+await taxCodeModuleService.deleteTaxCodes("taxc_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the tax code.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the tax code is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveTaxCode
+
+This section provides a reference to the `retrieveTaxCode` method. This belongs to the Tax Code Module.
+
+This method retrieves a tax code by its ID.
+
+## Example
+
+```ts
+const taxCode = await taxCodeModuleService.retrieveTaxCode("taxc_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the tax code.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<TaxCodeDTO>">
+  The configurations determining how the tax code is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<TaxCodeDTO>">
+  The retrieved tax code.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the tax code.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the tax code.
+    </ResponseField>
+
+    <ResponseField name="code" type="string">
+      The unique code of the tax code.
+    </ResponseField>
+
+    <ResponseField name="description" type="string">
+      The description of the tax code.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the tax code.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the tax code.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listTaxCodes
+
+This section provides a reference to the `listTaxCodes` method. This belongs to the Tax Code Module.
+
+This method retrieves a paginated list of tax codes based on optional filters and configuration.
+
+## Example
+
+To retrieve a list of tax codes using their IDs:
+
+```ts
+const taxCodes = await taxCodeModuleService.listTaxCodes({
+  id: ["taxc_123", "taxc_321"],
+})
+```
+
+To retrieve tax codes by code:
+
+```ts
+const taxCodes = await taxCodeModuleService.listTaxCodes({
+  code: "txcd_00000000",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const taxCodes = await taxCodeModuleService.listTaxCodes(
+  {},
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableTaxCodeProps">
+  The filters to apply on the retrieved tax codes.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the tax codes by.
+    </ParamField>
+
+    <ParamField body="name" type="string | string[]">
+      Filter tax codes by their names.
+    </ParamField>
+
+    <ParamField body="code" type="string | string[]">
+      Filter tax codes by their codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<TaxCodeDTO>">
+  The configurations determining how the tax code is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<TaxCodeDTO[]>">
+  The list of tax codes.
+</ResponseField>
+
+---
+
+# listAndCountTaxCodes
+
+This section provides a reference to the `listAndCountTaxCodes` method. This belongs to the Tax Code Module.
+
+This method retrieves a paginated list of tax codes along with the total count of available tax codes satisfying the provided filters.
+
+## Example
+
+To retrieve a list of tax codes with count:
+
+```ts
+const [taxCodes, count] = await taxCodeModuleService.listAndCountTaxCodes({
+  id: ["taxc_123", "taxc_321"],
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const [taxCodes, count] = await taxCodeModuleService.listAndCountTaxCodes(
+  {},
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableTaxCodeProps">
+  The filters to apply on the retrieved tax codes.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the tax codes by.
+    </ParamField>
+
+    <ParamField body="name" type="string | string[]">
+      Filter tax codes by their names.
+    </ParamField>
+
+    <ParamField body="code" type="string | string[]">
+      Filter tax codes by their codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<TaxCodeDTO>">
+  The configurations determining how the tax code is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[TaxCodeDTO[], number]>">
+  The list of tax codes along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteTaxCodes
+
+This section provides a reference to the `softDeleteTaxCodes` method. This belongs to the Tax Code Module.
+
+This method soft deletes tax codes by their IDs.
+
+## Example
+
+```ts
+await taxCodeModuleService.softDeleteTaxCodes([
+  "taxc_123",
+  "taxc_321",
+])
+```
+
+## Parameters
+
+<ParamField body="taxCodeIds" type="string[]" required>
+  The IDs of the tax codes.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreTaxCodes
+
+This section provides a reference to the `restoreTaxCodes` method. This belongs to the Tax Code Module.
+
+This method restores soft deleted tax codes by their IDs.
+
+## Example
+
+```ts
+await taxCodeModuleService.restoreTaxCodes(["taxc_123", "taxc_321"])
+```
+
+## Parameters
+
+<ParamField body="taxCodeIds" type="string[]" required>
+  The IDs of the tax codes.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the tax code.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# getTaxCodes
+
+This section provides a reference to the `getTaxCodes` method. This belongs to the Tax Code Module.
+
+This method fetches all available tax codes from Stripe's Tax Code API. It automatically handles pagination to retrieve all tax codes across multiple API calls.
+
+## Example
+
+```ts
+const stripeTaxCodes = await taxCodeModuleService.getTaxCodes()
+
+// Example response structure:
+// [
+//   { id: "txcd_00000000", name: "General - Tangible Goods", description: "..." },
+//   { id: "txcd_20010000", name: "Clothing", description: "..." },
+//   ...
+// ]
+```
+
+## Parameters
+
+This method takes no parameters.
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<Stripe.TaxCode[]>">
+  An array of all available Stripe tax codes.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The Stripe tax code ID.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the tax code.
+    </ResponseField>
+
+    <ResponseField name="description" type="string">
+      The description of the tax code.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<Note>
+  This method automatically handles Stripe API pagination, fetching up to 100 records per request and continuing until all tax codes are retrieved.
+</Note>

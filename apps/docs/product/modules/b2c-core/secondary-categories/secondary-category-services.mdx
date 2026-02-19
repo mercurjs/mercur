@@ -1,0 +1,561 @@
+---
+title: "Secondary Category Module Service Reference"
+description: "Reference documentation for the Secondary Category Module service methods"
+---
+
+# ISecondaryCategoryModuleService Reference
+
+This section of the documentation provides a reference to the `ISecondaryCategoryModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Secondary Category Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Secondary Category Module.
+
+## Methods
+
+- [createSecondaryCategories](#createsecondarycategories)
+- [updateSecondaryCategories](#updatesecondarycategories)
+- [deleteSecondaryCategories](#deletesecondarycategories)
+- [retrieveSecondaryCategory](#retrievesecondarycategory)
+- [listSecondaryCategories](#listsecondarycategories)
+- [listAndCountSecondaryCategories](#listandcountsecondarycategories)
+- [softDeleteSecondaryCategories](#softdeletesecondarycategories)
+- [restoreSecondaryCategories](#restoresecondarycategories)
+
+---
+
+# createSecondaryCategories
+
+This section provides a reference to the `createSecondaryCategories` method. This belongs to the Secondary Category Module.
+
+## createSecondaryCategories(data, sharedContext?): Promise\<SecondaryCategoryDTO[]>
+
+This method creates secondary categories.
+
+### Example
+
+```ts
+const secondaryCategories = await secondaryCategoryModuleService.createSecondaryCategories([
+  {
+    category_id: "pcat_123",
+  },
+  {
+    category_id: "pcat_456",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateSecondaryCategoryDTO[]" required>
+  The secondary categories to be created.
+
+  <Expandable title="properties">
+    <ParamField body="category_id" type="string" required>
+      The ID of the product category that this secondary category references.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SecondaryCategoryDTO[]>">
+  The created secondary categories.
+</ResponseField>
+
+## createSecondaryCategories(data, sharedContext?): Promise\<SecondaryCategoryDTO>
+
+This method creates a secondary category.
+
+### Example
+
+```ts
+const secondaryCategory = await secondaryCategoryModuleService.createSecondaryCategories({
+  category_id: "pcat_123",
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateSecondaryCategoryDTO" required>
+  The secondary category to be created.
+
+  <Expandable title="properties">
+    <ParamField body="category_id" type="string" required>
+      The ID of the product category that this secondary category references.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SecondaryCategoryDTO>">
+  The created secondary category.
+</ResponseField>
+
+---
+
+# updateSecondaryCategories
+
+This section provides a reference to the `updateSecondaryCategories` method. This belongs to the Secondary Category Module.
+
+## updateSecondaryCategories(id, data, sharedContext?): Promise\<SecondaryCategoryDTO>
+
+This method updates an existing secondary category.
+
+### Example
+
+```ts
+const secondaryCategory = await secondaryCategoryModuleService.updateSecondaryCategories("sec_cat_123", {
+  category_id: "pcat_789",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the secondary category.
+</ParamField>
+
+<ParamField body="data" type="UpdateSecondaryCategoryDTO" required>
+  The attributes to update in the secondary category.
+
+  <Expandable title="properties">
+    <ParamField body="category_id" type="string">
+      The ID of the product category that this secondary category references.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SecondaryCategoryDTO>">
+  The updated secondary category.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the secondary category.
+    </ResponseField>
+
+    <ResponseField name="category_id" type="string">
+      The ID of the product category that this secondary category references.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the secondary category.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the secondary category.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteSecondaryCategories
+
+This section provides a reference to the `deleteSecondaryCategories` method. This belongs to the Secondary Category Module.
+
+## deleteSecondaryCategories(ids, sharedContext?): Promise\<void>
+
+This method deletes secondary categories by their IDs.
+
+### Example
+
+```ts
+await secondaryCategoryModuleService.deleteSecondaryCategories(["sec_cat_123", "sec_cat_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the secondary categories.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the secondary categories are deleted successfully.
+</ResponseField>
+
+## deleteSecondaryCategories(id, sharedContext?): Promise\<void>
+
+This method deletes a secondary category by its ID.
+
+### Example
+
+```ts
+await secondaryCategoryModuleService.deleteSecondaryCategories("sec_cat_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the secondary category.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the secondary category is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveSecondaryCategory
+
+This section provides a reference to the `retrieveSecondaryCategory` method. This belongs to the Secondary Category Module.
+
+This method retrieves a secondary category by its ID.
+
+## Example
+
+```ts
+const secondaryCategory = await secondaryCategoryModuleService.retrieveSecondaryCategory("sec_cat_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the secondary category.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SecondaryCategoryDTO>">
+  The configurations determining how the secondary category is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<SecondaryCategoryDTO>">
+  The retrieved secondary category.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the secondary category.
+    </ResponseField>
+
+    <ResponseField name="category_id" type="string">
+      The ID of the product category that this secondary category references.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the secondary category.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the secondary category.
+    </ResponseField>
+
+    <ResponseField name="deleted_at" type="Date | null">
+      The deleted date of the secondary category.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listSecondaryCategories
+
+This section provides a reference to the `listSecondaryCategories` method. This belongs to the Secondary Category Module.
+
+This method retrieves a paginated list of secondary categories based on optional filters and configuration.
+
+## Example
+
+To retrieve a list of secondary categories using their IDs:
+
+```ts
+const secondaryCategories = await secondaryCategoryModuleService.listSecondaryCategories({
+  id: ["sec_cat_123", "sec_cat_321"],
+})
+```
+
+To retrieve secondary categories for a specific product category:
+
+```ts
+const secondaryCategories = await secondaryCategoryModuleService.listSecondaryCategories({
+  category_id: "pcat_123",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const secondaryCategories = await secondaryCategoryModuleService.listSecondaryCategories(
+  {
+    category_id: "pcat_123",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableSecondaryCategoryProps">
+  The filters to apply on the retrieved secondary categories.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the secondary categories by.
+    </ParamField>
+
+    <ParamField body="category_id" type="string | string[]">
+      Filter secondary categories by their product category IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SecondaryCategoryDTO>">
+  The configurations determining how the secondary category is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<SecondaryCategoryDTO[]>">
+  The list of secondary categories.
+</ResponseField>
+
+---
+
+# listAndCountSecondaryCategories
+
+This section provides a reference to the `listAndCountSecondaryCategories` method. This belongs to the Secondary Category Module.
+
+This method retrieves a paginated list of secondary categories along with the total count of available secondary categories satisfying the provided filters.
+
+## Example
+
+To retrieve a list of secondary categories using their IDs:
+
+```ts
+const [secondaryCategories, count] = await secondaryCategoryModuleService.listAndCountSecondaryCategories({
+  id: ["sec_cat_123", "sec_cat_321"],
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const [secondaryCategories, count] = await secondaryCategoryModuleService.listAndCountSecondaryCategories(
+  {
+    category_id: "pcat_123",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableSecondaryCategoryProps">
+  The filters to apply on the retrieved secondary categories.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the secondary categories by.
+    </ParamField>
+
+    <ParamField body="category_id" type="string | string[]">
+      Filter secondary categories by their product category IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SecondaryCategoryDTO>">
+  The configurations determining how the secondary category is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[SecondaryCategoryDTO[], number]>">
+  The list of secondary categories along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteSecondaryCategories
+
+This section provides a reference to the `softDeleteSecondaryCategories` method. This belongs to the Secondary Category Module.
+
+This method soft deletes secondary categories by their IDs.
+
+## Example
+
+```ts
+await secondaryCategoryModuleService.softDeleteSecondaryCategories([
+  "sec_cat_123",
+  "sec_cat_321",
+])
+```
+
+## Parameters
+
+<ParamField body="secondaryCategoryIds" type="string[]" required>
+  The IDs of the secondary categories.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreSecondaryCategories
+
+This section provides a reference to the `restoreSecondaryCategories` method. This belongs to the Secondary Category Module.
+
+This method restores soft deleted secondary categories by their IDs.
+
+## Example
+
+```ts
+await secondaryCategoryModuleService.restoreSecondaryCategories(["sec_cat_123", "sec_cat_321"])
+```
+
+## Parameters
+
+<ParamField body="secondaryCategoryIds" type="string[]" required>
+  The IDs of the secondary categories.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the secondary category.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

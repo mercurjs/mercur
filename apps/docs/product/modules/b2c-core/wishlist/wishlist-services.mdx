@@ -1,0 +1,594 @@
+---
+title: "Wishlist Module Service Reference"
+description: "Reference documentation for the Wishlist Module service methods"
+---
+
+# IWishlistModuleService Reference
+
+This section of the documentation provides a reference to the `IWishlistModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Wishlist Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Wishlist Module.
+
+## Methods
+
+- [createWishlists](#createwishlists)
+- [updateWishlists](#updatewishlists)
+- [deleteWishlists](#deletewishlists)
+- [retrieveWishlist](#retrievewishlist)
+- [listWishlists](#listwishlists)
+- [listAndCountWishlists](#listandcountwishlists)
+- [softDeleteWishlists](#softdeletewishlists)
+- [restoreWishlists](#restorewishlists)
+
+---
+
+# createWishlists
+
+This section provides a reference to the `createWishlists` method. This belongs to the Wishlist Module.
+
+## createWishlists(data, sharedContext?): Promise\<WishlistDTO[]>
+
+This method creates wishlist items.
+
+### Example
+
+```ts
+const wishlists = await wishlistModuleService.createWishlists([
+  {
+    reference: "product",
+    reference_id: "prod_123",
+    customer_id: "cus_123",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateWishlistDTO[]" required>
+  The wishlist items to be created.
+
+  <Expandable title="properties">
+    <ParamField body="reference" type='"product"' required>
+      The type of the wishlist reference. Currently only supports `product`.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string" required>
+      The ID of the referenced entity (e.g., product ID).
+    </ParamField>
+
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer who owns this wishlist item.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<WishlistDTO[]>">
+  The created wishlist items.
+</ResponseField>
+
+## createWishlists(data, sharedContext?): Promise\<WishlistDTO>
+
+This method creates a wishlist item.
+
+### Example
+
+```ts
+const wishlist = await wishlistModuleService.createWishlists({
+  reference: "product",
+  reference_id: "prod_123",
+  customer_id: "cus_123",
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateWishlistDTO" required>
+  The wishlist item to be created.
+
+  <Expandable title="properties">
+    <ParamField body="reference" type='"product"' required>
+      The type of the wishlist reference. Currently only supports `product`.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string" required>
+      The ID of the referenced entity (e.g., product ID).
+    </ParamField>
+
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer who owns this wishlist item.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<WishlistDTO>">
+  The created wishlist item.
+</ResponseField>
+
+---
+
+# updateWishlists
+
+This section provides a reference to the `updateWishlists` method. This belongs to the Wishlist Module.
+
+## updateWishlists(id, data, sharedContext?): Promise\<WishlistDTO>
+
+This method updates an existing wishlist item.
+
+### Example
+
+```ts
+const wishlist = await wishlistModuleService.updateWishlists("wish_123", {
+  reference_id: "prod_456",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the wishlist item.
+</ParamField>
+
+<ParamField body="data" type="UpdateWishlistDTO" required>
+  The attributes to update in the wishlist item.
+
+  <Expandable title="properties">
+    <ParamField body="reference" type='"product"'>
+      The type of the wishlist reference.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string">
+      The ID of the referenced entity.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<WishlistDTO>">
+  The updated wishlist item.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the wishlist item.
+    </ResponseField>
+
+    <ResponseField name="reference" type='"product"'>
+      The type of the wishlist reference.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the wishlist item.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the wishlist item.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteWishlists
+
+This section provides a reference to the `deleteWishlists` method. This belongs to the Wishlist Module.
+
+## deleteWishlists(ids, sharedContext?): Promise\<void>
+
+This method deletes wishlist items by their IDs.
+
+### Example
+
+```ts
+await wishlistModuleService.deleteWishlists(["wish_123", "wish_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the wishlist items.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the wishlist items are deleted successfully.
+</ResponseField>
+
+## deleteWishlists(id, sharedContext?): Promise\<void>
+
+This method deletes a wishlist item by its ID.
+
+### Example
+
+```ts
+await wishlistModuleService.deleteWishlists("wish_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the wishlist item.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the wishlist item is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveWishlist
+
+This section provides a reference to the `retrieveWishlist` method. This belongs to the Wishlist Module.
+
+This method retrieves a wishlist item by its ID.
+
+## Example
+
+```ts
+const wishlist = await wishlistModuleService.retrieveWishlist("wish_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the wishlist item.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<WishlistDTO>">
+  The configurations determining how the wishlist item is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. Use Query to retrieve linked product data.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<WishlistDTO>">
+  The retrieved wishlist item.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the wishlist item.
+    </ResponseField>
+
+    <ResponseField name="reference" type='"product"'>
+      The type of the wishlist reference.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the wishlist item.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the wishlist item.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listWishlists
+
+This section provides a reference to the `listWishlists` method. This belongs to the Wishlist Module.
+
+This method retrieves a paginated list of wishlist items based on optional filters and configuration.
+
+## Example
+
+To retrieve a customer's wishlist:
+
+```ts
+const wishlists = await wishlistModuleService.listWishlists({
+  customer_id: "cus_123",
+})
+```
+
+To retrieve wishlist items for specific products:
+
+```ts
+const wishlists = await wishlistModuleService.listWishlists({
+  reference_id: ["prod_123", "prod_456"],
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const wishlists = await wishlistModuleService.listWishlists(
+  {
+    customer_id: "cus_123",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableWishlistProps">
+  The filters to apply on the retrieved wishlist items.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the wishlist items by.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string | string[]">
+      Filter wishlist items by their customer IDs.
+    </ParamField>
+
+    <ParamField body="reference" type="string | string[]">
+      Filter wishlist items by their reference type.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string | string[]">
+      Filter wishlist items by their reference IDs (e.g., product IDs).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<WishlistDTO>">
+  The configurations determining how the wishlist item is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<WishlistDTO[]>">
+  The list of wishlist items.
+</ResponseField>
+
+---
+
+# listAndCountWishlists
+
+This section provides a reference to the `listAndCountWishlists` method. This belongs to the Wishlist Module.
+
+This method retrieves a paginated list of wishlist items along with the total count of available wishlist items satisfying the provided filters.
+
+## Example
+
+To retrieve a customer's wishlist with count:
+
+```ts
+const [wishlists, count] = await wishlistModuleService.listAndCountWishlists({
+  customer_id: "cus_123",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const [wishlists, count] = await wishlistModuleService.listAndCountWishlists(
+  {
+    customer_id: "cus_123",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableWishlistProps">
+  The filters to apply on the retrieved wishlist items.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the wishlist items by.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string | string[]">
+      Filter wishlist items by their customer IDs.
+    </ParamField>
+
+    <ParamField body="reference" type="string | string[]">
+      Filter wishlist items by their reference type.
+    </ParamField>
+
+    <ParamField body="reference_id" type="string | string[]">
+      Filter wishlist items by their reference IDs (e.g., product IDs).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<WishlistDTO>">
+  The configurations determining how the wishlist item is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[WishlistDTO[], number]>">
+  The list of wishlist items along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteWishlists
+
+This section provides a reference to the `softDeleteWishlists` method. This belongs to the Wishlist Module.
+
+This method soft deletes wishlist items by their IDs.
+
+## Example
+
+```ts
+await wishlistModuleService.softDeleteWishlists([
+  "wish_123",
+  "wish_321",
+])
+```
+
+## Parameters
+
+<ParamField body="wishlistIds" type="string[]" required>
+  The IDs of the wishlist items.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreWishlists
+
+This section provides a reference to the `restoreWishlists` method. This belongs to the Wishlist Module.
+
+This method restores soft deleted wishlist items by their IDs.
+
+## Example
+
+```ts
+await wishlistModuleService.restoreWishlists(["wish_123", "wish_321"])
+```
+
+## Parameters
+
+<ParamField body="wishlistIds" type="string[]" required>
+  The IDs of the wishlist items.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the wishlist item.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

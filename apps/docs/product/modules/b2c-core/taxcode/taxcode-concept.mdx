@@ -1,0 +1,148 @@
+---
+title: "Tax Code Module"
+description: "Learn about the Tax Code Module and how to use it in your application"
+---
+
+# Tax Code Module
+
+In this section of the documentation, you will find resources to learn more about the Tax Code Module and how to use it in your application.
+
+Mercur has tax code management features available out-of-the-box through the Tax Code Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Tax Code Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Tax Code Features
+
+- **Tax Code Storage**: Store standardized tax classification codes for products and categories.
+- **Stripe Integration**: Fetch and sync tax codes from Stripe's Tax Code API.
+- **Category Association**: Link tax codes to product categories for automatic tax classification.
+- **Tax Compliance**: Enable proper tax calculation based on product type and jurisdiction.
+
+---
+
+## How to Use the Tax Code Module
+
+The Tax Code Module provides a service method to sync tax codes from Stripe:
+
+```ts
+import { TAXCODE_MODULE } from "./modules/taxcode"
+
+// In a workflow or API route
+const taxCodeService = container.resolve(TAXCODE_MODULE)
+
+// Fetch all available tax codes from Stripe
+const stripeTaxCodes = await taxCodeService.getTaxCodes()
+
+// Create tax code records in the database
+const taxCodes = await taxCodeService.createTaxCodes(
+  stripeTaxCodes.map(code => ({
+    code: code.id,
+    name: code.name,
+    description: code.description,
+  }))
+)
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to tax codes in Mercur.
+
+## Tax Code
+
+A tax code is a standardized classification code used for tax calculation and compliance. It is represented by the [TaxCode data model](../data-model/taxcode-module-data-reference#taxcode).
+
+A tax code holds information about:
+
+- A unique code identifier (e.g., `txcd_00000000` for general goods)
+- A human-readable name
+- A description explaining what products fall under this code
+- Created and updated timestamps
+
+Tax codes follow standardized formats like:
+- Stripe tax codes
+- HS (Harmonized System) codes for customs
+- Product tax categories for sales tax
+
+---
+
+## Stripe Tax Code Integration
+
+The Tax Code Module includes integration with Stripe's tax code system through the `getTaxCodes()` method.
+
+### How It Works
+
+1. Module connects to Stripe API using configured API key
+2. Fetches tax codes in batches of 100 (Stripe's limit)
+3. Automatically paginates through all available tax codes
+4. Returns complete array of Stripe tax code objects
+
+```ts
+// Example Stripe tax codes:
+// txcd_00000000 - General - Tangible Goods
+// txcd_20010000 - Clothing
+// txcd_10000000 - Books
+// txcd_99999999 - Electronically supplied services
+```
+
+This allows marketplaces to maintain a synchronized catalog of valid tax codes without manual entry.
+
+---
+
+## Category-Level Tax Classification
+
+Tax codes can be associated with product categories through module links:
+
+**ProductCategory → TaxCode** (many-to-one)
+
+This enables:
+- Automatic tax classification for products in a category
+- Consistent tax handling across similar products
+- Simplified tax configuration (set once per category vs per product)
+
+For example:
+- "Electronics" category → `txcd_10200000` (Electronic equipment)
+- "Clothing" category → `txcd_20010000` (Clothing)
+- "Books" category → `txcd_10000000` (Books)
+
+---
+
+## Tax Code vs Tax Rate
+
+It's important to distinguish between tax codes and tax rates:
+
+**Tax Code** (This module):
+- Classification code for product type
+- Determines which tax rules apply
+- Managed in Tax Code Module
+- Example: "txcd_20010000" (Clothing)
+
+**Tax Rate** (Medusa Tax Module):
+- Percentage amount to charge
+- Varies by jurisdiction
+- Managed in Tax Module
+- Example: 8.5% sales tax for California
+
+Tax codes help tax systems determine **which** rate to apply, while tax rates determine **how much** tax to charge.
+
+---
+
+## Use Cases
+
+**1. Stripe Tax Integration**
+Sync marketplace with Stripe's complete tax code catalog for accurate tax calculation with Stripe Tax.
+
+**2. Product Tax Classification**
+Assign appropriate tax codes to product categories, ensuring all products are classified correctly for tax purposes.
+
+**3. International Commerce**
+Use HS codes for customs declarations and international shipping requirements.
+
+**4. Tax Compliance**
+Maintain proper tax records for audit purposes by classifying all products with standardized codes.
+
+**5. Multi-Jurisdiction Support**
+Different jurisdictions may tax product categories differently (e.g., clothing is tax-exempt in some states); tax codes help systems apply the right rules.

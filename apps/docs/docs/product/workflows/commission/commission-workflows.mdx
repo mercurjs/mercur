@@ -1,0 +1,1115 @@
+---
+title: "Commission Workflows"
+description: "Reference documentation for the Commission Module workflows and steps"
+---
+
+# Workflows
+
+## calculateCommissionWorkflow
+
+This documentation provides a reference to the `calculateCommissionWorkflow`. It belongs to the `@mercurjs/commission` package.
+
+This workflow calculates and creates commission lines for an order. It determines the applicable commission rule for each line item based on seller, product category, and product type, then calculates the commission amount according to the rule's rate configuration (percentage or flat).
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/workflows/calculate-commission.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Subscriber">
+    ```ts packages/modules/commission/src/subscribers/commission-order-set-placed.ts
+    import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
+    import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+    import { OrderSetWorkflowEvents, SELLER_ORDER_LINK } from "@mercurjs/framework";
+    import { calculateCommissionWorkflow } from "../workflows/commission/workflows";
+    
+    export default async function commissionOrderSetPlacedHandler({
+      event,
+      container,
+    }: SubscriberArgs<{ id: string }>) {
+      const query = container.resolve(ContainerRegistrationKeys.QUERY);
+    
+      const {
+        data: [set],
+      } = await query.graph({
+        entity: "order_set",
+        fields: ["orders.id"],
+        filters: {
+          id: event.data.id,
+        },
+      });
+    
+      const ordersCreated = set.orders.map((o) => o.id);
+    
+      for (const order_id of ordersCreated) {
+        const {
+          data: [seller],
+        } = await query.graph({
+          entity: SELLER_ORDER_LINK,
+          fields: ["seller_id"],
+          filters: {
+            order_id: order_id,
+          },
+        });
+    
+        if (!seller) {
+          return;
+        }
+    
+        await calculateCommissionWorkflow.run({
+          input: {
+            order_id: order_id,
+            seller_id: seller.seller_id,
+          },
+          container,
+        });
+      }
+    }
+    
+    export const config: SubscriberConfig = {
+      event: OrderSetWorkflowEvents.PLACED,
+      context: {
+        subscriberId: "commission-order-set-placed-handler",
+      },
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [calculateCommissionLinesStep](#calculatecommissionlinesstep): Calculates commission amounts for each line item based on applicable rules.
+- [createCommissionLinesStep](#createcommissionlinesstep): Creates commission line records in the database.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The commission calculation details.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order to calculate commission for.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller whose commission to calculate.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="CommissionLineDTO[]" type="CommissionLineDTO[]">
+  Array of created commission lines.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the commission line.
+    </ResponseField>
+    <ResponseField name="item_line_id" type="string">
+      The ID of the order line item.
+    </ResponseField>
+    <ResponseField name="rule_id" type="string">
+      The ID of the applied commission rule.
+    </ResponseField>
+    <ResponseField name="currency_code" type="string">
+      The currency code.
+    </ResponseField>
+    <ResponseField name="value" type="BigNumber">
+      The calculated commission amount.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the commission line was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the commission line was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## createCommissionRuleWorkflow
+
+This documentation provides a reference to the `createCommissionRuleWorkflow`. It belongs to the `@mercurjs/commission` package.
+
+This workflow creates a commission rule with its associated rate. It validates that no duplicate rule exists for the same reference and reference_id combination, creates price sets for flat rates or min/max limits, and exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/workflows/create-commission-rule.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/commission/src/api/admin/commission/rules/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import {
+      createCommissionRuleWorkflow,
+    } from '../../../../workflows/commission/workflows'
+    import {
+      AdminCreateCommissionRuleType,
+      validateCommissionRate,
+      validateCommissionRule
+    } from '../validators'
+    
+    export async function POST(
+      req: MedusaRequest<AdminCreateCommissionRuleType>,
+      res: MedusaResponse
+    ): Promise<void> {
+      validateCommissionRate(req.validatedBody.rate)
+      validateCommissionRule(req.validatedBody)
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      const { result } = await createCommissionRuleWorkflow.run({
+        input: req.validatedBody,
+        container: req.scope,
+        throwOnError: true
+      })
+    
+      const {
+        data: [commission_rule]
+      } = await query.graph({
+        entity: 'commission_rule',
+        fields: req.queryConfig.fields,
+        filters: {
+          id: result.id
+        }
+      })
+    
+      res.status(201).json({
+        commission_rule
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [checkForDuplicateStep](#checkforduplicatestep): Validates that no duplicate rule exists.
+- [createCommissionRuleStep](#createcommissionrulestep): Creates the commission rule with rate and price sets.
+
+### Hooks
+
+- **commissionRuleCreated**: Hook that fires after a commission rule is created, providing the `commission_rule_id`.
+
+### Input
+
+<ParamField body="input" type="CreateCommissionRuleDTO" required>
+  The commission rule creation details.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the commission rule.
+    </ParamField>
+    <ParamField body="reference" type="string" required>
+      The reference type. Available types:
+
+      - `site` - Default commission for all products
+      - `product_type` - Applied to products of specified type
+      - `product_category` - Applied to products from specified category
+      - `seller` - Applied to products sold by specified seller
+      - `seller+product_category` - Applied to products from specified category and seller
+      - `seller+product_type` - Applied to products of specified type and seller
+    </ParamField>
+    <ParamField body="reference_id" type="string" required>
+      The ID(s) of the reference entity. For combined types, use format "seller_id+entity_id".
+    </ParamField>
+    <ParamField body="is_active" type="boolean" required>
+      Whether the rule is active.
+    </ParamField>
+    <ParamField body="rate" type="CreateCommissionRateDTO" required>
+      The commission rate configuration.
+
+      <Expandable title="properties">
+        <ParamField body="type" type="string" required>
+          The type of commission: "percentage" or "flat".
+        </ParamField>
+        <ParamField body="include_tax" type="boolean" required>
+          Whether to include tax in the commission calculation.
+        </ParamField>
+        <ParamField body="percentage_rate" type="number">
+          The percentage rate (required if type is "percentage").
+        </ParamField>
+        <ParamField body="price_set" type="Price[]">
+          Price set for flat commission (required if type is "flat").
+
+          <Expandable title="properties">
+            <ParamField body="amount" type="number" required>
+              The commission amount.
+            </ParamField>
+            <ParamField body="currency_code" type="string" required>
+              The currency code.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="min_price_set" type="Price[]">
+          Minimum commission price set.
+        </ParamField>
+        <ParamField body="max_price_set" type="Price[]">
+          Maximum commission price set.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="CommissionRuleDTO" type="CommissionRuleDTO">
+  The created commission rule.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the commission rule.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The name of the rule.
+    </ResponseField>
+    <ResponseField name="reference" type="string">
+      The reference type.
+    </ResponseField>
+    <ResponseField name="reference_id" type="string">
+      The reference ID.
+    </ResponseField>
+    <ResponseField name="rate" type="CommissionRateDTO">
+      The associated commission rate.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the rule was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the rule was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## deleteCommissionRuleWorkflow
+
+This documentation provides a reference to the `deleteCommissionRuleWorkflow`. It belongs to the `@mercurjs/commission` package.
+
+This workflow soft deletes a commission rule. It exposes a hook for custom extensions after the rule is deleted.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/workflows/delete-commission-rule.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/commission/src/api/admin/commission/rules/[id]/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import {
+      deleteCommissionRuleWorkflow,
+    } from '../../../../../workflows/commission/workflows'
+    
+    export async function DELETE(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ): Promise<void> {
+      const { result } = await deleteCommissionRuleWorkflow.run({
+        input: req.params.id,
+        container: req.scope
+      })
+    
+      res.json({
+        id: result,
+        object: 'commission_rule',
+        deleted: true
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [deleteCommissionRuleStep](#deletecommissionrulestep): Soft deletes the commission rule.
+
+### Hooks
+
+- **commissionRuleDeleted**: Hook that fires after a commission rule is deleted, providing the `commission_rule_id`.
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the commission rule to delete.
+</ParamField>
+
+### Output
+
+<ResponseField name="string" type="string">
+  The ID of the deleted commission rule.
+</ResponseField>
+
+---
+
+## listCommissionLinesWorkflow
+
+This documentation provides a reference to the `listCommissionLinesWorkflow`. It belongs to the `@mercurjs/commission` package.
+
+This workflow retrieves commission lines with optional filtering by date range and seller, and optional expansion to include related order and rule details.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/workflows/list-commission-lines.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/commission/src/api/admin/commission/commission-lines/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { listCommissionLinesWorkflow } from '../../../../workflows/commission/workflows'
+    import { AdminGetCommissionLinesParamsType } from '../validators'
+    
+    export async function GET(
+      req: MedusaRequest<AdminGetCommissionLinesParamsType>,
+      res: MedusaResponse
+    ): Promise<void> {
+      const {
+        result: { lines: commission_lines, count }
+      } = await listCommissionLinesWorkflow(req.scope).run({
+        input: {
+          expand: true,
+          pagination: {
+            skip: req.queryConfig.pagination.skip,
+            take: req.queryConfig.pagination.take || 20
+          },
+          filters: req.filterableFields
+        }
+      })
+    
+      res.json({
+        commission_lines,
+        count,
+        offset: req.queryConfig.pagination.skip,
+        limit: req.queryConfig.pagination.take
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [listCommissionLinesStep](#listcommissionlinesstep): Retrieves and optionally expands commission lines.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The commission lines query parameters.
+
+  <Expandable title="properties">
+    <ParamField body="expand" type="boolean" required>
+      Whether to expand commission lines with related order and rule details.
+    </ParamField>
+    <ParamField body="pagination" type="object" required>
+      Pagination configuration.
+
+      <Expandable title="properties">
+        <ParamField body="skip" type="number" required>
+          The number of items to skip.
+        </ParamField>
+        <ParamField body="take" type="number" required>
+          The number of items to return.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="filters" type="object" required>
+      Filters to apply.
+
+      <Expandable title="properties">
+        <ParamField body="start_date" type="Date">
+          Filter commission lines created after this date.
+        </ParamField>
+        <ParamField body="end_date" type="Date">
+          Filter commission lines created before this date.
+        </ParamField>
+        <ParamField body="seller_id" type="string">
+          Filter commission lines by seller ID.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="lines" type="CommissionLineDTO[]">
+      Array of commission lines (expanded with order and rule details if expand is true).
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      The total count of commission lines.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## listCommissionRulesWorkflow
+
+This documentation provides a reference to the `listCommissionRulesWorkflow`. It belongs to the `@mercurjs/commission` package.
+
+This workflow retrieves commission rules with expanded reference values and formatted rate information. It transforms rules to include human-readable reference values (e.g., seller names, category names) and formatted fee values.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/workflows/list-commission-rules.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/commission/src/api/admin/commission/rules/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import {
+      listCommissionRulesWorkflow
+    } from '../../../../workflows/commission/workflows'
+    
+    export async function GET(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ): Promise<void> {
+      const { result } = await listCommissionRulesWorkflow.run({
+        container: req.scope,
+        input: { pagination: req.queryConfig.pagination }
+      })
+    
+      res.json({
+        commission_rules: result.commission_rules,
+        count: result.count,
+        offset: req.queryConfig.pagination.skip,
+        limit: req.queryConfig.pagination.take
+      })
+    }
+    ```
+  </Tab>
+  <Tab title="Get Single Rule">
+    ```ts packages/modules/commission/src/api/admin/commission/rules/[id]/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { listCommissionRulesWorkflow } from '../../../../../workflows/commission/workflows'
+    
+    export async function GET(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ): Promise<void> {
+      const {
+        result: {
+          commission_rules: [commission_rule]
+        }
+      } = await listCommissionRulesWorkflow.run({
+        container: req.scope,
+        input: {
+          ids: [req.params.id]
+        }
+      })
+    
+      res.json({
+        commission_rule
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [findCommissionRulesStep](#findcommissionrulesstep): Retrieves commission rules with rate and price set details.
+- [findCommissionReferencesStep](#findcommissionreferencesstep): Fetches reference entity names (sellers, product types, categories).
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The commission rules query parameters.
+
+  <Expandable title="properties">
+    <ParamField body="pagination" type="object">
+      Pagination configuration.
+
+      <Expandable title="properties">
+        <ParamField body="skip" type="number" required>
+          The number of items to skip.
+        </ParamField>
+        <ParamField body="take" type="number">
+          The number of items to return.
+        </ParamField>
+        <ParamField body="order" type="Record<string, any>">
+          Sorting configuration.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="ids" type="string[]">
+      Filter by specific rule IDs. If provided, only these rules are returned.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="commission_rules" type="AdminCommissionAggregate[]">
+      Array of commission rules with expanded reference values and formatted rates.
+
+      <Expandable title="properties">
+        <ResponseField name="id" type="string">
+          The ID of the rule.
+        </ResponseField>
+        <ResponseField name="name" type="string">
+          The name of the rule.
+        </ResponseField>
+        <ResponseField name="reference" type="string">
+          The reference type.
+        </ResponseField>
+        <ResponseField name="reference_id" type="string">
+          The reference ID.
+        </ResponseField>
+        <ResponseField name="ref_value" type="string">
+          Human-readable reference value (e.g., seller name, category name).
+        </ResponseField>
+        <ResponseField name="is_active" type="boolean">
+          Whether the rule is active.
+        </ResponseField>
+        <ResponseField name="type" type="string">
+          The rate type (percentage or flat).
+        </ResponseField>
+        <ResponseField name="include_tax" type="boolean">
+          Whether tax is included in calculation.
+        </ResponseField>
+        <ResponseField name="percentage_rate" type="number">
+          The percentage rate (if applicable).
+        </ResponseField>
+        <ResponseField name="fee_value" type="string">
+          Formatted fee value (e.g., "15%" or "10USD/20EUR").
+        </ResponseField>
+        <ResponseField name="price_set" type="Price[]">
+          Flat rate prices (if applicable).
+        </ResponseField>
+        <ResponseField name="min_price_set" type="Price[]">
+          Minimum commission prices.
+        </ResponseField>
+        <ResponseField name="max_price_set" type="Price[]">
+          Maximum commission prices.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      The total count of commission rules.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## listOrderCommissionLinesWorkflow
+
+This documentation provides a reference to the `listOrderCommissionLinesWorkflow`. It belongs to the `@mercurjs/commission` package.
+
+This workflow retrieves all commission lines for a specific order and calculates the total commission amount.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/workflows/list-order-commission-lines.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/commission/src/api/vendor/orders/[id]/commission/route.ts
+    import { AuthenticatedMedusaRequest } from "@medusajs/framework";
+    import { MedusaResponse } from "@medusajs/framework";
+    import { listOrderCommissionLinesWorkflow } from "../../../../../workflows";
+    
+    export const GET = async (
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) => {
+      const { id } = req.params;
+    
+      const { result: commission } = await listOrderCommissionLinesWorkflow(
+        req.scope
+      ).run({
+        input: {
+          order_id: id,
+        },
+      });
+    
+      res.json({ commission });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [listOrderCommissionLinesStep](#listordercommissionlinesstep): Retrieves commission lines and calculates total.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order to retrieve commission lines for.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="commission_value" type="object">
+      The total commission for the order.
+
+      <Expandable title="properties">
+        <ResponseField name="amount" type="BigNumber">
+          The total commission amount.
+        </ResponseField>
+        <ResponseField name="currency_code" type="string">
+          The currency code.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="commission_lines" type="CommissionLineDTO[]">
+      Array of commission lines for the order.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## updateCommissionRuleWorkflow
+
+This documentation provides a reference to the `updateCommissionRuleWorkflow`. It belongs to the `@mercurjs/commission` package.
+
+This workflow updates an existing commission rule.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/workflows/update-commission-rule.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/commission/src/api/admin/commission/rules/[id]/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import {
+      updateCommissionRuleWorkflow
+    } from '../../../../../workflows/commission/workflows'
+    import { AdminUpdateCommissionRuleType } from '../../validators'
+    
+    export async function POST(
+      req: MedusaRequest<AdminUpdateCommissionRuleType>,
+      res: MedusaResponse
+    ): Promise<void> {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      await updateCommissionRuleWorkflow.run({
+        input: { ...req.validatedBody, id: req.params.id },
+        container: req.scope
+      })
+    
+      const {
+        data: [commission_rule]
+      } = await query.graph({
+        entity: 'commission_rule',
+        fields: req.queryConfig.fields,
+        filters: {
+          id: req.params.id
+        }
+      })
+    
+      res.status(200).json({
+        commission_rule
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updateCommissionRuleStep](#updatecommissionrulestep): Updates the commission rule.
+
+### Input
+
+<ParamField body="input" type="UpdateCommissionRuleDTO" required>
+  The commission rule update details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the commission rule to update.
+    </ParamField>
+    <ParamField body="name" type="string">
+      The new name.
+    </ParamField>
+    <ParamField body="reference" type="string">
+      The new reference type.
+    </ParamField>
+    <ParamField body="reference_id" type="string">
+      The new reference ID.
+    </ParamField>
+    <ParamField body="is_active" type="boolean">
+      Whether the rule should be active.
+    </ParamField>
+    <ParamField body="rate" type="CreateCommissionRateDTO">
+      Updates to the commission rate.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="CommissionRuleDTO" type="CommissionRuleDTO">
+  The updated commission rule.
+</ResponseField>
+
+---
+
+## upsertDefaultCommissionRuleWorkflow
+
+This documentation provides a reference to the `upsertDefaultCommissionRuleWorkflow`. It belongs to the `@mercurjs/commission` package.
+
+This workflow creates or updates the default site-wide commission rule. If a default rule already exists, it deletes the old one before creating the new one.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/workflows/upsert-default-commission-rule.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/commission/src/api/admin/commission/default/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import {
+      listCommissionRulesWorkflow,
+      upsertDefaultCommissionRuleWorkflow
+    } from '../../../../workflows/commission/workflows'
+    import {
+      AdminUpsertDefaultCommissionRuleType,
+      validateCommissionRate
+    } from '../validators'
+    
+    export async function POST(
+      req: MedusaRequest<AdminUpsertDefaultCommissionRuleType>,
+      res: MedusaResponse
+    ): Promise<void> {
+      validateCommissionRate(req.validatedBody.rate)
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      await upsertDefaultCommissionRuleWorkflow.run({
+        container: req.scope,
+        input: req.validatedBody
+      })
+    
+      const {
+        data: [default_rule]
+      } = await query.graph({
+        entity: 'commission_rule',
+        fields: ['id'],
+        filters: {
+          reference: 'site'
+        }
+      })
+    
+      const {
+        result: {
+          commission_rules: [commission_rule]
+        }
+      } = await listCommissionRulesWorkflow.run({
+        container: req.scope,
+        input: {
+          ids: [default_rule.id]
+        }
+      })
+    
+      res.json({
+        commission_rule
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **useQueryGraphStep**: Checks if a default rule exists.
+- [deleteCommissionRuleStep](#deletecommissionrulestep): Deletes the existing default rule (if present).
+- [createCommissionRuleStep](#createcommissionrulestep): Creates the new default rule.
+
+### Input
+
+<ParamField body="input" type="CreateCommissionRuleDTO" required>
+  The default commission rule details (reference will be set to "site").
+</ParamField>
+
+### Output
+
+<ResponseField name="CommissionRuleDTO" type="CommissionRuleDTO">
+  The created default commission rule.
+</ResponseField>
+
+---
+
+# Steps
+
+## calculateCommissionLinesStep
+
+Calculates commission amounts for each line item in an order. For each item, it:
+
+1. Fetches the product's category
+2. Selects the applicable commission rule based on priority (seller+type \> seller+category \> seller \> type \> category \> site)
+3. Calculates the commission value based on the rule's rate type (percentage or flat)
+4. Applies min/max limits if configured
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/calculate-commission-lines.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="CreateCommissionLineDTO[]" type="CreateCommissionLineDTO[]">
+  Array of commission line data to be created.
+</ResponseField>
+
+---
+
+## checkForDuplicateStep
+
+Validates that no commission rule already exists for the given reference and reference_id combination. Throws an error if a duplicate is found.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/check-for-duplicate.ts)
+
+### Input
+
+<ParamField body="input" type="CreateCommissionRuleDTO" required>
+  The commission rule to validate.
+</ParamField>
+
+### Output
+
+<ResponseField name="boolean" type="boolean">
+  Returns true if no duplicate exists.
+</ResponseField>
+
+---
+
+## createCommissionLinesStep
+
+Creates commission line records in the database.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/create-commission-lines.ts)
+
+### Input
+
+<ParamField body="input" type="CreateCommissionLineDTO[]" required>
+  Array of commission lines to create.
+</ParamField>
+
+### Output
+
+<ResponseField name="CommissionLineDTO[]" type="CommissionLineDTO[]">
+  The created commission lines.
+</ResponseField>
+
+---
+
+## createCommissionRuleStep
+
+Creates a commission rule with its rate and associated price sets. If an error occurs after creation, the step's compensation function automatically deletes the created rule.
+
+For flat rates, it creates price sets for the base commission and optional min/max limits. For percentage rates, it creates price sets only for min/max limits if provided.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/create-commission-rule.ts)
+
+### Input
+
+<ParamField body="input" type="CreateCommissionRuleDTO" required>
+  The commission rule creation details.
+</ParamField>
+
+### Output
+
+<ResponseField name="CommissionRuleDTO" type="CommissionRuleDTO">
+  The created commission rule.
+</ResponseField>
+
+---
+
+## deleteCommissionRuleStep
+
+Soft deletes a commission rule. The step includes a compensation function that restores the rule if a subsequent step fails.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/delete-commission-rule.ts)
+
+### Input
+
+<ParamField body="id" type="string" required>
+  The ID of the commission rule to delete.
+</ParamField>
+
+### Output
+
+<ResponseField name="string" type="string">
+  The ID of the deleted commission rule.
+</ResponseField>
+
+---
+
+## findCommissionReferencesStep
+
+Fetches the names of referenced entities (sellers, product types, product categories) for display purposes. It extracts IDs from the rules (including combined references) and queries the database for the corresponding entity names.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/find-commission-references.ts)
+
+### Input
+
+<ParamField body="input" type="object[]" required>
+  Array of commission rules to find references for.
+
+  <Expandable title="properties">
+    <ParamField body="reference" type="string" required>
+      The reference type.
+    </ParamField>
+    <ParamField body="reference_id" type="string" required>
+      The reference ID.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="sellers" type="Array<{id: string, value: string}>">
+      Array of seller IDs and names.
+    </ResponseField>
+    <ResponseField name="productTypes" type="Array<{id: string, value: string}>">
+      Array of product type IDs and values.
+    </ResponseField>
+    <ResponseField name="productCategories" type="Array<{id: string, value: string}>">
+      Array of product category IDs and names.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## findCommissionRulesStep
+
+Retrieves commission rules with their rates and price set details. It excludes the site-wide default rule unless specific IDs are provided. Returns rules formatted with aggregated price set information.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/find-commission-rules.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="pagination" type="object">
+      Pagination configuration.
+    </ParamField>
+    <ParamField body="ids" type="string[]">
+      Specific rule IDs to retrieve.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="commission_rules" type="any[]">
+      Array of commission rules with expanded rate and price set details.
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      The total count of rules.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## listCommissionLinesStep
+
+Retrieves commission lines with optional filtering and expansion. When expand is true, it includes related order and rule details. Supports filtering by date range and seller.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/list-commission-lines.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The commission lines query parameters.
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="lines" type="CommissionLineDTO[]">
+      Array of commission lines (expanded if requested).
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      The total count of commission lines.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## listOrderCommissionLinesStep
+
+Retrieves all commission lines for a specific order and calculates the total commission amount by summing all line values.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/list-order-commission-lines.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="commission_value" type="object">
+      The total commission.
+    </ResponseField>
+    <ResponseField name="commission_lines" type="CommissionLineDTO[]">
+      Array of commission lines.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## updateCommissionRuleStep
+
+Updates a commission rule. This step includes a compensation function that restores the previous rule state if a subsequent step in the workflow fails.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/workflows/commission/steps/update-commission-rule.ts)
+
+### Input
+
+<ParamField body="input" type="UpdateCommissionRuleDTO" required>
+  The commission rule update details.
+</ParamField>
+
+### Output
+
+<ResponseField name="CommissionRuleDTO" type="CommissionRuleDTO">
+  The updated commission rule.
+</ResponseField>

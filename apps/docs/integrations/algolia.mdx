@@ -1,0 +1,34 @@
+---
+title: "Algolia search engine"
+---
+
+### Introduction
+
+Mercur uses <a href="https://www.algolia.com/">Algolia</a> as a search engine to boost product search accuracy and serving trending/recommended items. The integration features auto product indexing, whenever any of the product attributes was changed or a new product review is created.
+
+### Setup
+
+In order to use Algolia, an account is needed. After registration, enter `ALGOLIA_APP_ID` and `ALGOLIA_API_KEY` obtained from the Algolia dashboard into the `.env` file.
+
+### Configuration
+
+<a href="https://www.algolia.com/doc/rest-api/search/#tag/Indices/operation/setSettings">
+  See the full settings reference here!
+</a>
+
+### Events
+
+In order to persist consistency between database and Algolia, every time any change in indexed entities happens an event is emitted, for example:
+
+- `algolia.products.changed`
+- `algolia.products.deleted`
+
+We use also intermediate events, that also should trigger synchronization with Algolia (of related products):
+
+- `algolia.intermediate.fulfillment_set.changed`
+- `algolia.intermediate.service_zone.changed`
+- `algolia.intermediate.shipping_option.changed`
+- `algolia.intermediate.stock_location.changed`
+- `algolia.intermediate.inventory_item.changed`
+
+Each event is connected to the subscriber, which is responsible for refetching the entity and updating it in Algolia.

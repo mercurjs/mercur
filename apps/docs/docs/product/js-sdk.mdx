@@ -1,0 +1,481 @@
+---
+title: "JS SDK"
+description: "Learn how to use Medusa's JS SDK to interact with Mercur's marketplace APIs"
+---
+
+# JavaScript SDK
+
+Mercur uses **Medusa's JavaScript SDK** to communicate with the backend APIs. The JS SDK provides a type-safe, promise-based interface for sending requests to Admin, Store, and Vendor APIs.
+
+<Note>
+  Mercur does not have a custom SDK. It uses Medusa's official JS SDK, which works seamlessly with all Mercur endpoints, including custom marketplace routes.
+</Note>
+
+---
+
+## Installation
+
+### In Admin and Vendor Panels
+
+The Medusa JS SDK is available by default in your Medusa application. No installation is required for admin and vendor customizations.
+
+### In External Projects
+
+For storefronts or external applications, install the SDK:
+
+```bash npm2yarn
+npm install @medusajs/js-sdk@latest @medusajs/types@latest
+```
+
+---
+
+## Setup
+
+### Admin Panel
+
+```ts src/lib/client/client.ts
+import Medusa from "@medusajs/js-sdk"
+
+export const backendUrl = __BACKEND_URL__ ?? "/"
+
+export const sdk = new Medusa({
+  baseUrl: backendUrl,
+})
+```
+
+### Vendor Panel
+
+```ts src/lib/client/client.ts
+import Medusa from "@medusajs/js-sdk"
+
+export const backendUrl = __BACKEND_URL__ ?? "/"
+export const publishableApiKey = __PUBLISHABLE_API_KEY__ ?? ""
+
+export const sdk = new Medusa({
+  baseUrl: backendUrl,
+  publishableKey: publishableApiKey,
+})
+```
+
+### Storefront (Next.js)
+
+```ts src/lib/config.ts
+import Medusa from "@medusajs/js-sdk"
+
+const MEDUSA_BACKEND_URL = process.env.MEDUSA_BACKEND_URL || "http://localhost:9000"
+
+export const sdk = new Medusa({
+  baseUrl: MEDUSA_BACKEND_URL,
+  debug: process.env.NODE_ENV === "development",
+  publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
+})
+```
+
+<Info>
+  Learn more about SDK configurations in the [Medusa JS SDK documentation](https://docs.medusajs.com/js-sdk#js-sdk-configurations).
+</Info>
+
+---
+
+## Authentication
+
+The JS SDK handles authentication automatically by storing and managing authorization headers or sessions.
+
+### Login
+
+<Tabs>
+  <Tab title="Admin User">
+    ```ts
+    await sdk.auth.login("user", "emailpass", {
+      email: "admin@mercurjs.com",
+      password: "secret",
+    })
+    
+    // All subsequent requests are authenticated
+    ```
+  </Tab>
+  <Tab title="Seller (Vendor)">
+    ```ts
+    await sdk.auth.login("seller", "emailpass", {
+      email: "seller@mercurjs.com",
+      password: "secret",
+    })
+    
+    // Seller is now authenticated for vendor API routes
+    ```
+  </Tab>
+  <Tab title="Customer">
+    ```ts
+    await sdk.auth.login("customer", "emailpass", {
+      email: "customer@example.com",
+      password: "password",
+    })
+    
+    // Customer can now access protected store routes
+    ```
+  </Tab>
+</Tabs>
+
+### Logout
+
+```ts
+await sdk.auth.logout()
+
+// User is logged out, subsequent requests are unauthenticated
+```
+
+<Card title="Authentication Guide" icon="lock" href="https://docs.medusajs.com/js-sdk/auth/overview">
+  Learn more about authentication methods, storage options, and API keys in Medusa's authentication guide.
+</Card>
+
+---
+
+## Using SDK with Medusa Core APIs
+
+The JS SDK provides methods for all Medusa core APIs. These work identically in Mercur.
+
+### Store API
+
+In storefronts, use the SDK's built-in store methods for core commerce operations:
+
+```ts
+// List products
+const { products } = await sdk.store.product.list({
+  limit: 20,
+  country_code: "us",
+})
+
+// Manage cart
+const { cart } = await sdk.store.cart.create({ region_id: "reg_123" })
+
+await sdk.store.cart.createLineItem(cart.id, {
+  variant_id: "variant_123",
+  quantity: 1,
+})
+
+// Complete checkout
+const { order } = await sdk.store.payment.completeCart(cart.id)
+```
+
+<Card title="Store API Reference" icon="store" href="https://docs.medusajs.com/resources/references/js-sdk/store/cart">
+  View all available store methods in the Medusa documentation.
+</Card>
+
+---
+
+## Using SDK with Mercur Endpoints
+
+For Mercur's marketplace-specific APIs, use the `sdk.client.fetch` method. This is the standard approach used across all Mercur applications.
+
+### Vendor Panel Examples
+
+```ts
+import { sdk } from "../../lib/client"
+
+// List seller's products
+const { products } = await sdk.client.fetch("/vendor/products", {
+  method: "GET",
+  query: {
+    limit: 20,
+    offset: 0,
+  },
+})
+
+// Get single order with details
+const { order } = await sdk.client.fetch(`/vendor/orders/${orderId}`, {
+  method: "GET",
+})
+
+// Create product
+const { product } = await sdk.client.fetch("/vendor/products", {
+  method: "POST",
+  body: {
+    title: "New Product",
+    // ... other fields
+  },
+})
+
+// Update product
+await sdk.client.fetch(`/vendor/products/${productId}`, {
+  method: "POST",
+  body: {
+    title: "Updated Title",
+  },
+})
+
+// Delete product
+await sdk.client.fetch(`/vendor/products/${productId}`, {
+  method: "DELETE",
+})
+```
+
+### Admin Panel Examples
+
+```ts
+import { sdk } from "../lib/client"
+
+// List all sellers
+const { sellers, count } = await sdk.client.fetch("/admin/sellers", {
+  method: "GET",
+  query: {
+    limit: 20,
+    offset: 0,
+    status: "ACTIVE",
+  },
+})
+
+// Get seller details
+const { seller } = await sdk.client.fetch(`/admin/sellers/${sellerId}`, {
+  method: "GET",
+  query: {
+    fields: "id,email,name,created_at,store_status",
+  },
+})
+
+// List requests
+const { requests } = await sdk.client.fetch("/admin/requests", {
+  method: "GET",
+  query: {
+    status: "pending",
+    type: "product",
+  },
+})
+
+// Review request
+await sdk.client.fetch(`/admin/requests/${requestId}`, {
+  method: "POST",
+  body: {
+    status: "accepted",
+    reviewer_note: "Approved",
+  },
+})
+
+// Invite seller
+await sdk.client.fetch("/admin/sellers/invite", {
+  method: "POST",
+  body: {
+    email: "newseller@example.com",
+  },
+})
+```
+
+### Storefront Examples
+
+```ts
+import { sdk } from "../lib/config"
+
+// Get seller by handle
+const { seller } = await sdk.client.fetch(`/store/seller/${handle}`, {
+  method: "GET",
+  query: {
+    fields: "+created_at,+reviews.rating,+reviews.customer_note",
+  },
+  cache: "no-cache",
+})
+
+// List product reviews
+const { reviews } = await sdk.client.fetch("/store/reviews", {
+  method: "GET",
+  query: {
+    product_id: "prod_123",
+    fields: "*seller,+customer.id",
+  },
+})
+
+// Create review
+await sdk.client.fetch("/store/reviews", {
+  method: "POST",
+  body: {
+    order_id: "order_123",
+    reference: "product",
+    reference_id: "prod_123",
+    rating: 5,
+    customer_note: "Excellent product!",
+  },
+})
+```
+
+---
+
+## Using with React Query
+
+<Note>
+  This section applies only to **Admin Panel** and **Vendor Panel** (React applications). The Next.js storefront uses server actions and Next.js caching instead of React Query.
+</Note>
+
+Mercur's Admin and Vendor panels use [Tanstack Query](https://tanstack.com/query/latest) extensively with the SDK for optimal caching and state management.
+
+### Query Hook Pattern
+
+```tsx
+import { useQuery } from "@tanstack/react-query"
+import { sdk } from "../../lib/client"
+
+export const useSellers = (query?: Record<string, any>) => {
+  const { data, ...rest } = useQuery({
+    queryKey: ["sellers", query],
+    queryFn: () =>
+      sdk.client.fetch("/admin/sellers", {
+        method: "GET",
+        query,
+      }),
+  })
+
+  return {
+    sellers: data?.sellers,
+    count: data?.count,
+    ...rest,
+  }
+}
+
+// Usage in component
+function SellerList() {
+  const { sellers, isLoading } = useSellers({ limit: 20 })
+
+  if (isLoading) return <div>Loading...</div>
+
+  return (
+    <ul>
+      {sellers?.map((seller) => (
+        <li key={seller.id}>{seller.company_name}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+### Mutation Hook Pattern
+
+```tsx
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { sdk } from "../../lib/client"
+
+export const useUpdateSeller = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      sdk.client.fetch(`/admin/sellers/${id}`, {
+        method: "POST",
+        body: data,
+      }),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["sellers"] })
+      queryClient.invalidateQueries({ queryKey: ["sellers", id] })
+    },
+  })
+}
+
+// Usage in component
+function UpdateSellerButton({ sellerId }) {
+  const { mutate, isPending } = useUpdateSeller()
+
+  const handleUpdate = () => {
+    mutate({
+      id: sellerId,
+      data: { store_status: "ACTIVE" },
+    })
+  }
+
+  return (
+    <button onClick={handleUpdate} disabled={isPending}>
+      {isPending ? "Updating..." : "Activate Seller"}
+    </button>
+  )
+}
+```
+
+---
+
+## Next.js Storefront Pattern
+
+The Next.js storefront uses a different pattern with server actions and Next.js caching:
+
+```ts src/lib/data/cart.ts
+'use server'
+
+import { sdk } from '../config'
+import { revalidateTag } from 'next/cache'
+
+export async function addToCart({ 
+  variantId, 
+  quantity, 
+  countryCode 
+}: {
+  variantId: string
+  quantity: number
+  countryCode: string
+}) {
+  const cart = await getOrSetCart(countryCode)
+  
+  const headers = {
+    ...(await getAuthHeaders())
+  }
+
+  await sdk.store.cart.createLineItem(
+    cart.id,
+    { variant_id: variantId, quantity },
+    {},
+    headers
+  )
+  
+  // Revalidate Next.js cache
+  const cartCacheTag = await getCacheTag('carts')
+  revalidateTag(cartCacheTag)
+}
+```
+
+This approach leverages:
+
+- **Server Actions** (`'use server'`) for mutations
+- **Next.js Cache** (`revalidateTag`) for cache invalidation
+- **Built-in SDK methods** for core Medusa operations
+- **`sdk.client.fetch`** for Mercur-specific endpoints
+
+---
+
+## Error Handling
+
+The SDK throws a `FetchError` object when a request fails:
+
+```ts
+import { FetchError } from "@medusajs/js-sdk"
+
+try {
+  const { seller } = await sdk.client.fetch("/vendor/sellers/me", {
+    method: "GET",
+  })
+} catch (error) {
+  const fetchError = error as FetchError
+
+  if (fetchError.status === 401) {
+    // Redirect to login
+    router.push("/login")
+  } else if (fetchError.status === 404) {
+    // Handle not found
+    console.error("Seller not found")
+  } else {
+    // Handle other errors
+    console.error(fetchError.message)
+  }
+}
+```
+
+---
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="Medusa JS SDK Overview" icon="book" href="https://docs.medusajs.com/js-sdk">
+    Complete guide to JS SDK configuration, setup, and usage
+  </Card>
+  <Card title="Admin API Methods" icon="gear" href="https://docs.medusajs.com/resources/references/js-sdk/admin/apiKey">
+    Reference for all admin-level SDK methods
+  </Card>
+  <Card title="Store API Methods" icon="store" href="https://docs.medusajs.com/resources/references/js-sdk/store/cart">
+    Reference for all storefront SDK methods
+  </Card>
+  <Card title="Authentication Methods" icon="lock" href="https://docs.medusajs.com/resources/references/js-sdk/auth/callback">
+    Reference for authentication-related SDK methods
+  </Card>
+</CardGroup>

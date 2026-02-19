@@ -1,0 +1,295 @@
+---
+title: "Order Return Request Module"
+description: "Learn about the Order Return Request Module and how to use it in your application"
+---
+
+# Order Return Request Module
+
+In this section of the documentation, you will find resources to learn more about the Order Return Request Module and how to use it in your application.
+
+Mercur has order return management features available out-of-the-box through the Order Return Request Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Order Return Request Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Order Return Request Features
+
+- **Customer Return Requests**: Allow customers to request returns for purchased items with reasons and notes.
+- **Multi-Tier Review System**: Support both vendor review and admin escalation for dispute resolution.
+- **Line Item Tracking**: Track which specific items and quantities are being returned.
+- **Status Workflow**: Manage return requests through multiple statuses (pending, refunded, withdrawn, escalated, canceled).
+- **Reviewer Notes**: Store notes from both vendors and admins explaining their decisions.
+- **Shipping Integration**: Associate return requests with shipping options for return logistics.
+
+---
+
+## How to Use the Order Return Request Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+You can build custom workflows and steps. Mercur provides pre-built workflows for return request operations in the `@mercurjs/requests` package.
+
+For example, the `createOrderReturnRequestWorkflow`:
+
+```ts title="src/workflows/order-return-request/create-return-request.ts"
+import { Modules } from "@medusajs/framework/utils"
+import {
+  WorkflowResponse,
+  createHook,
+  createWorkflow,
+  transform,
+} from "@medusajs/framework/workflows-sdk"
+import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+import { CreateOrderReturnRequestDTO } from "@mercurjs/framework"
+import { ORDER_RETURN_MODULE } from "../../../modules/order-return-request"
+import { SELLER_MODULE } from "@mercurjs/framework"
+import {
+  createOrderReturnRequestStep,
+  validateOrderReturnRequestStep,
+} from "../steps"
+
+export const createOrderReturnRequestWorkflow = createWorkflow(
+  "create-order-return-request",
+  function (input: { data: CreateOrderReturnRequestDTO; seller_id: string }) {
+    // Validate the return request data
+    validateOrderReturnRequestStep(input.data)
+    
+    // Create the return request
+    const request = createOrderReturnRequestStep(input.data)
+    const requestId = transform({ request }, ({ request }) => request.id)
+
+    // Create module links
+    createRemoteLinkStep([
+      {
+        [SELLER_MODULE]: {
+          seller_id: input.seller_id,
+        },
+        [ORDER_RETURN_MODULE]: {
+          order_return_request_id: requestId,
+        },
+      },
+      {
+        [ORDER_RETURN_MODULE]: {
+          order_return_request_id: requestId,
+        },
+        [Modules.ORDER]: {
+          order_id: input.data.order_id,
+        },
+      },
+    ])
+
+    // Emit workflow hook
+    const orderReturnRequestCreatedHook = createHook(
+      "orderReturnRequestCreated",
+      {
+        requestId: request.id,
+      }
+    )
+
+    return new WorkflowResponse(request, {
+      hooks: [orderReturnRequestCreatedHook],
+    })
+  }
+)
+```
+
+You can then execute the workflow in your custom API routes:
+
+### API Route
+
+```ts title="src/api/store/return-request/route.ts"
+import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { createOrderReturnRequestWorkflow } from "../../../workflows/order-return-request/workflows"
+import sellerOrder from '../../../links/seller-order'
+
+export const POST = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  // Get seller_id from the order
+  const {
+    data: [resource],
+  } = await query.graph({
+    entity: sellerOrder.entryPoint,
+    fields: ["seller_id"],
+    filters: {
+      order_id: req.validatedBody.order_id,
+    },
+  })
+
+  // Execute the createOrderReturnRequestWorkflow
+  const { result: order_return_request } =
+    await createOrderReturnRequestWorkflow.run({
+      container: req.scope,
+      input: {
+        data: { ...req.validatedBody, customer_id: req.auth_context.actor_id },
+        seller_id: resource.seller_id,
+      },
+    })
+
+  res.json({ order_return_request })
+}
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to order return requests in Mercur.
+
+## Order Return Request
+
+An order return request represents a customer's request to return items from an order. It is represented by the [OrderReturnRequest data model](../data-model/order-return-request-module-data-reference#orderreturnrequest).
+
+An order return request holds information about:
+
+- The customer who submitted the request
+- Customer's note explaining the return reason
+- Shipping option for return logistics
+- Vendor reviewer information (ID, note, review date)
+- Admin reviewer information (ID, note, review date)
+- Current status in the review workflow
+- Associated line items being returned
+
+This enables a structured return process with accountability and tracking at each stage.
+
+---
+
+## Return Request Status Workflow
+
+Return requests follow a multi-tier approval workflow with five possible statuses:
+
+### pending
+
+**Initial state** when customer creates the return request.
+- Awaiting vendor review
+- Customer has submitted their reason
+- No action taken yet
+
+### refunded
+
+**Approved by vendor** - the return is accepted.
+- Vendor agrees with the return reason
+- Return and refund process proceeds
+- Customer receives refund
+- Items are returned to seller
+
+### withdrawn
+
+**Rejected by vendor** - the return is denied.
+- Vendor determines return doesn't meet criteria
+- Vendor provides explanation in `vendor_reviewer_note`
+- No refund issued
+- Customer keeps the items
+
+### escalated
+
+**Disputed by vendor** - vendor disagrees with return reason.
+- Vendor believes return is unfair or against policy
+- Request is escalated to marketplace admin for final decision
+- Admin reviews both customer and vendor perspectives
+- Admin makes final decision (refunded or canceled)
+
+### canceled
+
+**Rejected by admin** - admin sides with vendor on escalated request.
+- Admin reviewed escalated request
+- Admin determined vendor was correct to deny
+- Admin provides explanation in `admin_reviewer_note`
+- No refund issued
+
+---
+
+## Return Request Line Item
+
+A return request line item specifies which products and quantities are being returned. It is represented by the [OrderReturnRequestLineItem data model](../data-model/order-return-request-module-data-reference#orderreturnrequestlineitem).
+
+Each line item includes:
+- Original order line item ID
+- Quantity to be returned (can be partial)
+- Return reason ID (optional)
+
+This granular tracking allows customers to return specific items or quantities from an order, not just the entire order.
+
+---
+
+## Multi-Tier Review System
+
+The return request system implements a two-tier review process:
+
+### Tier 1: Vendor Review
+
+**Reviewer**: Seller member  
+**Actions**: Refunded, Withdrawn, Escalated  
+**Fields**: `vendor_reviewer_id`, `vendor_reviewer_note`, `vendor_review_date`
+
+Vendors handle the first level of review, deciding whether to:
+- Accept the return (refunded)
+- Deny the return (withdrawn)
+- Dispute the return (escalated)
+
+### Tier 2: Admin Review (Escalations Only)
+
+**Reviewer**: Marketplace admin  
+**Actions**: Refunded, Canceled  
+**Fields**: `admin_reviewer_id`, `admin_reviewer_note`, `admin_review_date`
+
+Admins only review escalated requests, providing final arbitration when vendors and customers disagree.
+
+This system balances seller autonomy with marketplace oversight.
+
+---
+
+## Return Request Validation
+
+The `validateOrderReturnRequestStep` ensures return requests meet requirements:
+
+- Order exists and belongs to the customer
+- Line items exist in the order
+- Quantities don't exceed ordered amounts
+- Order is in a returnable state
+- Return window hasn't expired (if configured)
+
+This prevents fraudulent or invalid return requests.
+
+---
+
+## Workflow Integration
+
+Return requests integrate with other marketplace workflows:
+
+**On Creation:**
+- Links created to Seller and Order
+- Workflow hook emitted for extensibility
+- Notifications can be triggered
+
+**On Status Change:**
+- Return and refund workflows triggered (if refunded)
+- Inventory updated (if items returned to stock)
+- Payout adjustments made (if already paid out)
+
+---
+
+## Use Cases
+
+**1. Standard Return**
+Customer receives damaged item, creates return request, vendor approves, refund processed.
+
+**2. Vendor Denial**
+Customer requests return after 30-day window, vendor denies with explanation, customer keeps item.
+
+**3. Escalation to Admin**
+Customer claims item is counterfeit, vendor disputes, admin reviews and makes final decision.
+
+**4. Partial Return**
+Customer orders 3 items but only wants to return 1; line item tracking handles partial returns.
+
+**5. Return Reason Tracking**
+Marketplace tracks return reasons (damaged, wrong item, not as described) for quality insights.
+
+**6. Multi-Vendor Returns**
+Customer bought from 3 sellers, creates separate return requests for each seller's items.

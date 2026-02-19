@@ -1,0 +1,437 @@
+---
+title: "Order Return Request Workflows"
+description: "Reference documentation for the Order Return Request Module workflows and steps"
+---
+
+# Workflows
+
+## createOrderReturnRequestWorkflow
+
+This documentation provides a reference to the `createOrderReturnRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow creates an order return request from a customer. It validates that no return request already exists for the order, verifies that line items and return reasons are valid, creates the request, and links it to both the seller and the order. It exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/order-return-request/workflows/create-return-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/requests/src/api/store/return-request/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+    import { SELLER_ORDER_LINK } from "@mercurjs/framework";
+    import { createOrderReturnRequestWorkflow } from "../../../workflows/order-return-request/workflows";
+    import { StoreCreateReturnRequestType } from "./validators";
+    
+    export async function POST(
+      req: AuthenticatedMedusaRequest<StoreCreateReturnRequestType>,
+      res: MedusaResponse
+    ): Promise<void> {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    
+      const {
+        data: [resource],
+      } = await query.graph({
+        entity: SELLER_ORDER_LINK,
+        fields: ["seller_id"],
+        filters: {
+          order_id: req.validatedBody.order_id,
+        },
+      });
+    
+      const { result: order_return_request } =
+        await createOrderReturnRequestWorkflow.run({
+          container: req.scope,
+          input: {
+            data: { ...req.validatedBody, customer_id: req.auth_context.actor_id },
+            seller_id: resource.seller_id,
+          },
+        });
+    
+      res.json({ order_return_request });
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [validateOrderReturnRequestStep](#validateorderreturnrequeststep): Validates that no return request exists, line items are valid, and return reasons exist.
+- [createOrderReturnRequestStep](#createorderreturnrequeststep): Creates the return request record.
+- **createRemoteLinkStep**: Creates links between the return request and the seller, and between the return request and the order.
+
+### Hooks
+
+- **orderReturnRequestCreated**: Hook that fires after a return request is created, providing the `requestId`.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The return request creation details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="CreateOrderReturnRequestDTO" required>
+      The return request data.
+
+      <Expandable title="properties">
+        <ParamField body="order_id" type="string" required>
+          The ID of the order to return.
+        </ParamField>
+        <ParamField body="customer_id" type="string" required>
+          The ID of the customer creating the return request.
+        </ParamField>
+        <ParamField body="customer_note" type="string" required>
+          The customer's note explaining the reason for return.
+        </ParamField>
+        <ParamField body="line_items" type="object[]" required>
+          Array of line items to return.
+
+          <Expandable title="properties">
+            <ParamField body="line_item_id" type="string" required>
+              The ID of the line item to return.
+            </ParamField>
+            <ParamField body="quantity" type="number" required>
+              The quantity to return.
+            </ParamField>
+            <ParamField body="reason_id" type="string">
+              The ID of the return reason.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="shipping_option_id" type="string">
+          The ID of the shipping option for the return.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller whose order is being returned.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="OrderReturnRequestDTO" type="OrderReturnRequestDTO">
+  The created order return request.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the return request.
+    </ResponseField>
+    <ResponseField name="line_items" type="OrderReturnRequestLineItemDTO[]">
+      The line items to return.
+    </ResponseField>
+    <ResponseField name="customer_id" type="string">
+      The ID of the customer.
+    </ResponseField>
+    <ResponseField name="customer_note" type="string">
+      The customer's note.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      The status of the return request (initially "pending").
+    </ResponseField>
+    <ResponseField name="shipping_option_id" type="string">
+      The ID of the shipping option.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## proceedReturnRequestWorkflow
+
+This documentation provides a reference to the `proceedReturnRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow processes the actual return after a return request has been approved (status set to "refunded"). It begins the return order process, requests the item returns, and confirms the return. This workflow is nested within the `updateOrderReturnRequestWorkflow`.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/order-return-request/workflows/proceed-return-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Update Workflow">
+    ```ts packages/modules/requests/src/workflows/order-return-request/workflows/update-return-request.ts
+    import { proceedReturnRequestWorkflow } from "./proceed-return-request";
+    
+    // ... inside updateOrderReturnRequestWorkflow
+    
+    when(input, (input) => input.status === "refunded").then(() => {
+      proceedReturnRequestWorkflow.runAsStep({ input });
+    });
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [retrieveOrderFromReturnRequestStep](#retrieveorderfromreturnrequeststep): Retrieves the order and return request details.
+- **beginReturnOrderWorkflow**: Begins the return order process using Medusa's core workflow.
+- **requestItemReturnWorkflow**: Requests the specific items to be returned using Medusa's core workflow.
+- **confirmReturnRequestWorkflow**: Confirms the return request using Medusa's core workflow.
+
+### Input
+
+<ParamField body="input" type="VendorUpdateOrderReturnRequestDTO | AdminUpdateOrderReturnRequestDTO" required>
+  The return request update details (must have status "refunded").
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="return_id" type="string">
+      The ID of the created return.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## updateOrderReturnRequestWorkflow
+
+This documentation provides a reference to the `updateOrderReturnRequestWorkflow`. It belongs to the `@mercurjs/requests` package.
+
+This workflow updates an order return request. When the status is set to "refunded", it automatically triggers the return processing workflow. After updating, it links any created returns to the seller. It exposes a hook for custom extensions.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/order-return-request/workflows/update-return-request.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/requests/src/api/vendor/return-request/[id]/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import {
+      ContainerRegistrationKeys,
+      MedusaError
+    } from '@medusajs/framework/utils'
+    import { updateOrderReturnRequestWorkflow } from '../../../../workflows/order-return-request/workflows'
+    import { VendorUpdateOrderReturnRequestType } from '../validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorUpdateOrderReturnRequestType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      const {
+        data: [request]
+      } = await query.graph({
+        entity: 'order_return_request',
+        fields: req.queryConfig.fields,
+        filters: {
+          id: req.params.id,
+          status: 'pending'
+        }
+      })
+    
+      if (!request) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_ARGUMENT,
+          'Request is not in pending state!'
+        )
+      }
+    
+      const { result: order_return_request } =
+        await updateOrderReturnRequestWorkflow.run({
+          input: {
+            id: req.params.id,
+            ...req.validatedBody,
+            vendor_reviewer_id: req.auth_context.actor_id,
+            vendor_review_date: new Date()
+          },
+          container: req.scope
+        })
+    
+      res.json({ order_return_request })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [updateOrderReturnRequestStep](#updateorderreturnrequeststep): Updates the return request status and reviewer details.
+- **proceedReturnRequestWorkflow**: Processes the return (only when status is "refunded").
+- **useQueryGraphStep**: Retrieves order and return details for linking.
+- **createRemoteLinkStep**: Links any created returns to the seller.
+
+### Hooks
+
+- **orderReturnRequestUpdated**: Hook that fires after a return request is updated, providing the `requestId`.
+
+### Input
+
+<ParamField body="input" type="VendorUpdateOrderReturnRequestDTO | AdminUpdateOrderReturnRequestDTO" required>
+  The return request update details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the return request to update.
+    </ParamField>
+    <ParamField body="status" type="OrderReturnRequestStatus" required>
+      The new status. Available statuses:
+
+      - `pending` - Request is pending review
+      - `refunded` - Request accepted, triggers return processing
+      - `withdrawn` - Request withdrawn by seller
+      - `escalated` - Escalated to admin for review
+      - `canceled` - Canceled by admin
+    </ParamField>
+    <ParamField body="vendor_reviewer_id" type="string">
+      The ID of the vendor reviewer (for vendor updates).
+    </ParamField>
+    <ParamField body="vendor_reviewer_note" type="string">
+      The vendor's review note (for vendor updates).
+    </ParamField>
+    <ParamField body="vendor_review_date" type="Date">
+      The date of vendor review (for vendor updates).
+    </ParamField>
+    <ParamField body="admin_reviewer_id" type="string">
+      The ID of the admin reviewer (for admin updates).
+    </ParamField>
+    <ParamField body="admin_reviewer_note" type="string">
+      The admin's review note (for admin updates).
+    </ParamField>
+    <ParamField body="admin_review_date" type="Date">
+      The date of admin review (for admin updates).
+    </ParamField>
+    <ParamField body="location_id" type="string">
+      The stock location ID for processing the return (required when status is "refunded").
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="OrderReturnRequestDTO" type="OrderReturnRequestDTO">
+  The updated order return request.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the return request.
+    </ResponseField>
+    <ResponseField name="status" type="OrderReturnRequestStatus">
+      The updated status.
+    </ResponseField>
+    <ResponseField name="vendor_reviewer_id" type="string">
+      The ID of the vendor reviewer.
+    </ResponseField>
+    <ResponseField name="vendor_reviewer_note" type="string">
+      The vendor's review note.
+    </ResponseField>
+    <ResponseField name="vendor_review_date" type="Date">
+      The date of vendor review.
+    </ResponseField>
+    <ResponseField name="admin_reviewer_id" type="string">
+      The ID of the admin reviewer.
+    </ResponseField>
+    <ResponseField name="admin_reviewer_note" type="string">
+      The admin's review note.
+    </ResponseField>
+    <ResponseField name="admin_review_date" type="Date">
+      The date of admin review.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# Steps
+
+## createOrderReturnRequestStep
+
+Creates an order return request record in the database.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/order-return-request/steps/create-return-request.ts)
+
+### Input
+
+<ParamField body="input" type="CreateOrderReturnRequestDTO" required>
+  The return request creation details.
+</ParamField>
+
+### Output
+
+<ResponseField name="OrderReturnRequestDTO" type="OrderReturnRequestDTO">
+  The created return request.
+</ResponseField>
+
+---
+
+## retrieveOrderFromReturnRequestStep
+
+Retrieves the order and complete return request details including line items and seller information. Used to prepare data for return processing.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/order-return-request/steps/retrieve-order-from-return-request.ts)
+
+### Input
+
+<ParamField body="request" type="VendorUpdateOrderReturnRequestDTO | AdminUpdateOrderReturnRequestDTO" required>
+  The return request with the ID to retrieve.
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="order_id" type="string">
+      The ID of the order.
+    </ResponseField>
+    <ResponseField name="order_return_request" type="OrderReturnRequestDTO">
+      The complete return request details including line items and seller.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## updateOrderReturnRequestStep
+
+Updates an order return request record. This step includes a compensation function that restores the previous request state if a subsequent step in the workflow fails.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/order-return-request/steps/update-return-request.ts)
+
+### Input
+
+<ParamField body="input" type="VendorUpdateOrderReturnRequestDTO | AdminUpdateOrderReturnRequestDTO" required>
+  The return request update details.
+</ParamField>
+
+### Output
+
+<ResponseField name="OrderReturnRequestDTO" type="OrderReturnRequestDTO">
+  The updated return request.
+</ResponseField>
+
+---
+
+## validateOrderReturnRequestStep
+
+Validates a return request creation by checking:
+
+1. No return request already exists for the order
+2. All line item IDs belong to the order
+3. All return reason IDs are valid
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/workflows/order-return-request/steps/validate-order-return-request.ts)
+
+### Input
+
+<ParamField body="input" type="CreateOrderReturnRequestDTO" required>
+  The return request data to validate.
+</ParamField>
+
+### Output
+
+<ResponseField name="boolean" type="boolean">
+  Returns true if validation passes. Throws an `INVALID_ARGUMENT` error if:
+
+  - A return request already exists for the order
+  - Any line item ID is invalid
+  - Any return reason ID is invalid
+</ResponseField>

@@ -1,0 +1,241 @@
+---
+title: "Requests Events"
+description: "Events emitted by the Requests Module workflows"
+---
+
+# Requests Events Reference
+
+This documentation page includes the list of all events emitted by the Requests Module's workflows.
+
+## Request Status Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|requests.{type}.{status}|Dynamic event emitted when a request's status changes. The event name is composed of the request type and new status.|
+|requests.product.accepted|Emitted when a product creation request is accepted.|
+|requests.product.rejected|Emitted when a product creation request is rejected.|
+|requests.product.pending|Emitted when a product creation request status is set to pending.|
+|requests.product.draft|Emitted when a product creation request status is set to draft.|
+|requests.product_update.accepted|Emitted when a product update request is accepted.|
+|requests.product_update.rejected|Emitted when a product update request is rejected.|
+|requests.product_update.pending|Emitted when a product update request status is set to pending.|
+|requests.product_update.draft|Emitted when a product update request status is set to draft.|
+|requests.product_category.accepted|Emitted when a product category creation request is accepted.|
+|requests.product_category.rejected|Emitted when a product category creation request is rejected.|
+|requests.product_category.pending|Emitted when a product category creation request status is set to pending.|
+|requests.product_category.draft|Emitted when a product category creation request status is set to draft.|
+|requests.product_collection.accepted|Emitted when a product collection creation request is accepted.|
+|requests.product_collection.rejected|Emitted when a product collection creation request is rejected.|
+|requests.product_collection.pending|Emitted when a product collection creation request status is set to pending.|
+|requests.product_collection.draft|Emitted when a product collection creation request status is set to draft.|
+|requests.product_type.accepted|Emitted when a product type creation request is accepted.|
+|requests.product_type.rejected|Emitted when a product type creation request is rejected.|
+|requests.product_type.pending|Emitted when a product type creation request status is set to pending.|
+|requests.product_type.draft|Emitted when a product type creation request status is set to draft.|
+|requests.product_tag.accepted|Emitted when a product tag creation request is accepted.|
+|requests.product_tag.rejected|Emitted when a product tag creation request is rejected.|
+|requests.product_tag.pending|Emitted when a product tag creation request status is set to pending.|
+|requests.product_tag.draft|Emitted when a product tag creation request status is set to draft.|
+|requests.seller.accepted|Emitted when a seller account creation request is accepted.|
+|requests.seller.rejected|Emitted when a seller account creation request is rejected.|
+|requests.seller.pending|Emitted when a seller account creation request status is set to pending.|
+|requests.seller.draft|Emitted when a seller account creation request status is set to draft.|
+|requests.review_remove.accepted|Emitted when a review removal request is accepted.|
+|requests.review_remove.rejected|Emitted when a review removal request is rejected.|
+|requests.review_remove.pending|Emitted when a review removal request status is set to pending.|
+|requests.review_remove.draft|Emitted when a review removal request status is set to draft.|
+
+### requests.{type}.{status}
+
+Dynamic event emitted when a request's status changes. The event name is composed of the request type (e.g., `product`, `product_update`, `product_category`, `seller`) and the new status (e.g., `accepted`, `rejected`, `pending`, `draft`).
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+  type, // The type of the request
+  status, // The new status of the request
+  data, // The request data
+  submitter_id, // The ID of the submitter
+  reviewer_id, // The ID of the reviewer (if applicable)
+  reviewer_note, // The reviewer's note (if applicable)
+  created_at, // The creation date
+  updated_at, // The last update date
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [updateRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [acceptProductRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [acceptProductCategoryRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [acceptProductCollectionRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [acceptProductTypeRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [acceptProductTagRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [acceptSellerCreationRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [acceptReviewRemoveRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+
+***
+
+## Request Creation Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|requests.\*.created|Wildcard event emitted when any type of request is created.|
+|requests.seller.created|Emitted when a seller account creation request is created.|
+|requests.product.created|Emitted when a product creation request is created.|
+|requests.product_update.created|Emitted when a product update request is created.|
+
+### requests.\*.created
+
+Wildcard event emitted when any type of request is created. This event can be used to handle all request creations uniformly.
+
+#### Payload
+
+```ts
+{
+  type, // The type of request
+  data, // The request data
+  submitter_id, // The ID of the submitter
+  status, // The initial status (typically "pending")
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [createRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [createSellerCreationRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [createProductRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [createProductUpdateRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+
+***
+
+### requests.seller.created
+
+Emitted when a seller account creation request is created.
+
+#### Payload
+
+```ts
+{
+  type, // The request type ("seller")
+  data, // The seller data to be created upon approval
+  submitter_id, // The ID of the submitter
+  status, // The initial status
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [createSellerCreationRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+
+***
+
+### requests.product.created
+
+Emitted when a product creation request is created.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [createProductRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+- [importSellerProductsRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+
+***
+
+### requests.product_update.created
+
+Emitted when a product update request is created.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the request
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [createProductUpdateRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+
+***
+
+## Review Events
+
+### Summary
+
+|Event|Description|
+|---|---|
+|requests.review.removed|Emitted when a review removal request is accepted and the review should be removed.|
+
+### requests.review.removed
+
+Emitted when a review removal request is accepted and the review should be removed. This event triggers the actual review deletion in the review module.
+
+#### Payload
+
+```ts
+{
+  id, // The ID of the review to remove
+}
+```
+
+#### Workflows Emitting this Event
+
+The following workflows emit this event when they're executed. These workflows are executed by the application's API routes.
+
+- [acceptReviewRemoveRequestWorkflow](https://docs.mercurjs.com/docs/product/workflows/requests/requests)
+
+***
+
+## Notes
+
+### Dynamic Event Pattern
+
+The Requests Module uses a dynamic event naming pattern for status updates: `requests.{type}.{status}`. This means that when a request's status changes, an event is emitted with a name that includes both the request type and the new status.
+
+**Request Types:**
+- `product` - Product creation requests
+- `product_update` - Product update requests
+- `product_category` - Product category creation requests
+- `product_collection` - Product collection creation requests
+- `product_type` - Product type creation requests
+- `product_tag` - Product tag creation requests
+- `seller` - Seller account creation requests
+- `review_remove` - Review removal requests
+
+**Status Values:**
+- `accepted` - Request has been approved
+- `rejected` - Request has been denied
+- `pending` - Request is awaiting review
+- `draft` - Request is in draft status
+
+This allows subscribers to listen to specific combinations, such as:
+- `requests.product.accepted` - When a product request is accepted
+- `requests.seller.rejected` - When a seller registration is rejected
+- Or use wildcard patterns to handle multiple events
+
+***

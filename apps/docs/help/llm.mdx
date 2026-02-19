@@ -1,0 +1,42 @@
+---
+title: "LLM"
+description: "How Mercur documentation is optimized for LLMs."
+---
+
+# LLM
+
+Mercur’s documentation is optimized to be easily indexed and understood by Large Language Models (LLMs).\
+\
+This helps AI tools answer technical questions about Mercur more accurately by giving them a clear map of the documentation structure.
+
+LLM indexing works similarly to how a sitemap helps search engines: AI tools read a structured file describing your docs and use it to locate relevant content quickly.
+
+---
+
+## llms.txt
+
+The `llms.txt` file is an industry standard (see [llmstxt.org](https://llmstxt.org)) designed to help LLMs:
+
+- understand the structure of your documentation
+- discover all available pages
+- resolve links and relationships between topics
+- retrieve page descriptions
+- provide more precise answers to developers
+
+Your documentation site automatically includes an `llms.txt` file at the root of the project.\
+It stays up to date with your docs structure and requires no maintenance.
+
+To view it, append `/llms.txt` to your documentation URL:
+
+https://docs.mercurjs.com/llms.txt
+
+---
+
+## llms-full.txt
+
+The `llms-full.txt` file contains the _entire contents_ of your documentation in a single file.\
+LLMs can use it to analyze the full context of your docs when providing answers, explanations, or troubleshooting steps.
+
+You can view it at:
+
+https://docs.mercurjs.com/llms-full.txt

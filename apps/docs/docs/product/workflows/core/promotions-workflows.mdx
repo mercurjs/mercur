@@ -1,0 +1,581 @@
+---
+title: "Promotions Workflows"
+description: "Reference documentation for the Promotions Module workflows and steps"
+---
+
+# Workflows
+
+## batchVendorPromotionRulesWorkflow
+
+This documentation provides a reference to the `batchVendorPromotionRulesWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow performs batch operations on promotion rules, including creating and deleting rules. When creating target rules, it validates that the seller owns all products being targeted by the rules.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/workflows/batch-vendor-promotion-rules.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/promotions/[id]/target-rules/batch/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse
+    } from '@medusajs/framework/http'
+    import { ContainerRegistrationKeys, RuleType } from '@medusajs/framework/utils'
+    import { fetchSellerByAuthActorId } from '../../../../../../shared/infra/http/utils'
+    import { batchVendorPromotionRulesWorkflow } from '../../../../../../workflows/promotions/workflows'
+    import { VendorBatchPromotionRulesType } from '../../../validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorBatchPromotionRulesType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const id = req.params.id
+    
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      await batchVendorPromotionRulesWorkflow(req.scope).run({
+        input: {
+          data: {
+            id,
+            rule_type: RuleType.TARGET_RULES,
+            create: req.validatedBody.create,
+            delete: req.validatedBody.delete
+          },
+          seller_id: seller.id
+        }
+      })
+    
+      const {
+        data: [promotion]
+      } = await query.graph({
+        entity: 'promotion',
+        fields: req.queryConfig.fields,
+        filters: {
+          id: req.params.id
+        }
+      })
+    
+      res.json({ promotion })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [verifyVendorTargetPromotionRulesStep](#verifyvendortargetpromotionrulesstep): Validates seller ownership of products in target rules (only for target_rules type).
+- **batchPromotionRulesWorkflow**: Creates and deletes promotion rules using Medusa's core workflow.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The batch promotion rules operation details.
+
+  <Expandable title="properties">
+    <ParamField body="data" type="BatchPromotionRulesWorkflowInput" required>
+      The batch operation data.
+
+      <Expandable title="properties">
+        <ParamField body="id" type="string" required>
+          The ID of the promotion.
+        </ParamField>
+        <ParamField body="rule_type" type="RuleType" required>
+          The type of rules to batch. Available types:
+
+          - `rules` - Standard promotion rules
+          - `target_rules` - Target rules (product targeting)
+          - `buy_rules` - Buy X get Y rules
+        </ParamField>
+        <ParamField body="create" type="CreatePromotionRuleDTO[]" required>
+          Array of rules to create.
+
+          <Expandable title="properties">
+            <ParamField body="attribute" type="string" required>
+              The attribute to match (e.g., "items.product.id").
+            </ParamField>
+            <ParamField body="operator" type="string" required>
+              The operator for the rule (e.g., "in", "eq").
+            </ParamField>
+            <ParamField body="values" type="string | string[]" required>
+              The values to match against.
+            </ParamField>
+            <ParamField body="description" type="string">
+              Optional description of the rule.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="delete" type="string[]" required>
+          Array of rule IDs to delete.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller performing the operation.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+This workflow does not return a value.
+
+---
+
+## createVendorPromotionWorkflow
+
+This documentation provides a reference to the `createVendorPromotionWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a promotion for a seller and links it to the seller. It validates that the seller owns the campaign (if specified), that the promotion uses the correct target type, and that all targeted products belong to the seller.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/workflows/create-vendor-promotion.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/promotions/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { fetchSellerByAuthActorId } from '../../../shared/infra/http/utils'
+    import { createVendorPromotionWorkflow } from '../../../workflows/promotions/workflows'
+    import { VendorCreatePromotionType } from './validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreatePromotionType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context?.actor_id,
+        req.scope
+      )
+    
+      const { result } = await createVendorPromotionWorkflow.run({
+        container: req.scope,
+        input: { promotion: req.validatedBody, seller_id: seller.id }
+      })
+    
+      const {
+        data: [promotion]
+      } = await query.graph({
+        entity: 'promotion',
+        fields: req.queryConfig.fields,
+        filters: {
+          id: result[0].id
+        }
+      })
+    
+      res.status(201).json({ promotion })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [verifyVendorCampaignStep](#verifyvendorcampaignstep): Validates that the campaign (if specified) belongs to the seller.
+- [verifyVendorPromotionStep](#verifyvendorpromotionstep): Validates that the promotion uses the correct target type (items only).
+- [verifyVendorTargetPromotionRulesStep](#verifyvendortargetpromotionrulesstep): Validates that all targeted products belong to the seller.
+- **createPromotionsWorkflow**: Creates the promotion using Medusa's core workflow.
+- **createRemoteLinkStep**: Links the promotion (and optionally the campaign) to the seller.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The promotion creation details.
+
+  <Expandable title="properties">
+    <ParamField body="promotion" type="CreatePromotionDTO" required>
+      The promotion details.
+
+      <Expandable title="properties">
+        <ParamField body="code" type="string" required>
+          The promotion code (e.g., "SUMMER2024").
+        </ParamField>
+        <ParamField body="type" type="PromotionType" required>
+          The type of the promotion. For vendors, must be `standard`.
+        </ParamField>
+        <ParamField body="is_automatic" type="boolean">
+          Whether the promotion is applied automatically. Default: false.
+        </ParamField>
+        <ParamField body="status" type="PromotionStatus">
+          The status of the promotion. Available statuses:
+
+          - `draft` - Promotion is in draft mode
+          - `active` - Promotion is active
+          - `inactive` - Promotion is inactive
+        </ParamField>
+        <ParamField body="campaign_id" type="string">
+          The ID of the campaign to associate with (must be seller's own campaign).
+        </ParamField>
+        <ParamField body="campaign" type="CreateCampaignDTO">
+          Inline campaign creation data.
+        </ParamField>
+        <ParamField body="application_method" type="object" required>
+          The application method configuration.
+
+          <Expandable title="properties">
+            <ParamField body="type" type="ApplicationMethodType" required>
+              The discount type. For vendors, must be `percentage`.
+            </ParamField>
+            <ParamField body="target_type" type="ApplicationMethodTargetType" required>
+              The target type. For vendors, must be `items`.
+            </ParamField>
+            <ParamField body="value" type="number" required>
+              The percentage discount value.
+            </ParamField>
+            <ParamField body="allocation" type="ApplicationMethodAllocation" required>
+              How the discount is allocated:
+
+              - `each` - Applied to each item
+              - `across` - Applied across all items
+            </ParamField>
+            <ParamField body="target_rules" type="CreatePromotionRuleDTO[]" required>
+              Rules defining which products the promotion targets.
+            </ParamField>
+            <ParamField body="max_quantity" type="number">
+              Maximum quantity of items the promotion can be applied to.
+            </ParamField>
+            <ParamField body="apply_to_quantity" type="number">
+              Number of items to apply the discount to.
+            </ParamField>
+            <ParamField body="buy_rules_min_quantity" type="number">
+              Minimum quantity to buy for "Buy X Get Y" promotions.
+            </ParamField>
+            <ParamField body="description" type="string">
+              Description of the application method.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        <ParamField body="rules" type="CreatePromotionRuleDTO[]">
+          Standard promotion rules (conditions for applying the promotion).
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller creating the promotion.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="PromotionDTO[]" type="PromotionDTO[]">
+  Array containing the created promotion.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the promotion.
+    </ResponseField>
+    <ResponseField name="code" type="string">
+      The promotion code.
+    </ResponseField>
+    <ResponseField name="type" type="PromotionType">
+      The type of the promotion.
+    </ResponseField>
+    <ResponseField name="status" type="PromotionStatus">
+      The status of the promotion.
+    </ResponseField>
+    <ResponseField name="is_automatic" type="boolean">
+      Whether the promotion is applied automatically.
+    </ResponseField>
+    <ResponseField name="campaign_id" type="string">
+      The ID of the associated campaign.
+    </ResponseField>
+    <ResponseField name="campaign" type="CampaignDTO">
+      The associated campaign details.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the promotion was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the promotion was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## updateVendorPromotionWorkflow
+
+This documentation provides a reference to the `updateVendorPromotionWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow updates an existing promotion. It validates that any new campaign association belongs to the seller.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/workflows/update-vendor-promotion.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/promotions/[id]/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils'
+    import { updateVendorPromotionWorkflow } from '../../../../workflows/promotions/workflows'
+    import { VendorUpdatePromotionType } from '../validators'
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorUpdatePromotionType>,
+      res: MedusaResponse
+    ) => {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      )
+    
+      await updateVendorPromotionWorkflow.run({
+        container: req.scope,
+        input: {
+          promotion: {
+            id: req.params.id,
+            ...req.validatedBody
+          },
+          seller_id: seller.id
+        }
+      })
+    
+      const {
+        data: [promotion]
+      } = await query.graph({
+        entity: 'promotion',
+        fields: req.queryConfig.fields,
+        filters: {
+          id: req.params.id
+        }
+      })
+    
+      res.status(200).json({ promotion })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [verifyVendorCampaignStep](#verifyvendorcampaignstep): Validates that the campaign (if being updated) belongs to the seller.
+- **updatePromotionsWorkflow**: Updates the promotion using Medusa's core workflow.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The promotion update details.
+
+  <Expandable title="properties">
+    <ParamField body="promotion" type="UpdatePromotionDTO" required>
+      The promotion update data.
+
+      <Expandable title="properties">
+        <ParamField body="id" type="string" required>
+          The ID of the promotion to update.
+        </ParamField>
+        <ParamField body="code" type="string">
+          The new promotion code.
+        </ParamField>
+        <ParamField body="is_automatic" type="boolean">
+          Whether the promotion should be applied automatically.
+        </ParamField>
+        <ParamField body="status" type="PromotionStatus">
+          The new status (draft, active, or inactive).
+        </ParamField>
+        <ParamField body="campaign_id" type="string">
+          The ID of a campaign to associate with.
+        </ParamField>
+        <ParamField body="application_method" type="object">
+          Updates to the application method.
+
+          <Expandable title="properties">
+            <ParamField body="value" type="number">
+              The new percentage discount value.
+            </ParamField>
+            <ParamField body="max_quantity" type="number">
+              The new maximum quantity.
+            </ParamField>
+            <ParamField body="apply_to_quantity" type="number">
+              The new apply to quantity.
+            </ParamField>
+            <ParamField body="buy_rules_min_quantity" type="number">
+              The new buy rules minimum quantity.
+            </ParamField>
+            <ParamField body="description" type="string">
+              The new description.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller updating the promotion.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="PromotionDTO[]" type="PromotionDTO[]">
+  Array containing the updated promotion.
+</ResponseField>
+
+---
+
+# Steps
+
+## registerUsageStep
+
+Registers promotion usage when a promotion is applied to a cart. This step tracks how many times a promotion code has been used and includes a compensation function to revert the usage if the order is not completed.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/steps/register-usage-step.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Cart Completion Workflow">
+    ```ts packages/modules/b2c-core/src/workflows/cart/workflows/split-and-complete-cart.ts
+    import { registerUsageStep } from "../../promotions/steps";
+    
+    // ... inside splitAndCompleteCartWorkflow
+    
+    const promotionUsage = transform(
+      { lineItemAdjustments, shippingAdjustments },
+      ({ lineItemAdjustments, shippingAdjustments }) => {
+        const promotionUsage = [];
+    
+        for (const adjustment of lineItemAdjustments) {
+          promotionUsage.push({
+            amount: adjustment.amount,
+            code: adjustment.code!,
+          });
+        }
+    
+        for (const adjustment of shippingAdjustments) {
+          promotionUsage.push({
+            amount: adjustment.amount,
+            code: adjustment.code!,
+          });
+        }
+    
+        return promotionUsage;
+      }
+    );
+    
+    registerUsageStep(promotionUsage);
+    ```
+  </Tab>
+</Tabs>
+
+### Input
+
+<ParamField body="data" type="UsageComputedActions[]" required>
+  Array of promotion usage records to register.
+
+  <Expandable title="properties">
+    <ParamField body="amount" type="BigNumberInput" required>
+      The discount amount applied.
+    </ParamField>
+    <ParamField body="code" type="string" required>
+      The promotion code that was used.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+This step does not return a value.
+
+---
+
+## verifyVendorCampaignStep
+
+Validates that a campaign belongs to the seller. If no campaign is specified, the validation is skipped.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/steps/verify-vendor-campaign.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="promotion" type="object" required>
+      The promotion data.
+
+      <Expandable title="properties">
+        <ParamField body="campaign_id" type="string">
+          The ID of the campaign to verify.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an `INVALID_DATA` error if the campaign doesn't belong to the seller.
+</ResponseField>
+
+---
+
+## verifyVendorPromotionStep
+
+Validates that a vendor promotion uses the correct target type. Vendor promotions must target items only, not shipping or order totals.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/steps/verify-vendor-promotion.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="promotion" type="CreatePromotionDTO" required>
+      The promotion data to validate.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an `INVALID_DATA` error if the target_type is not "items".
+</ResponseField>
+
+---
+
+## verifyVendorTargetPromotionRulesStep
+
+Validates that target promotion rules only use the allowed attribute (`items.product.id`) and that all targeted products belong to the seller. This ensures vendors can only create promotions for their own products.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/promotions/steps/verify-vendor-target-promotion-rules.ts)
+
+### Input
+
+<ParamField body="input" type="object" required>
+  <Expandable title="properties">
+    <ParamField body="rules" type="CreatePromotionRuleDTO[]">
+      Array of target rules to validate.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="void" type="void">
+  Throws an `INVALID_DATA` error if:
+
+  - Rules use attributes other than "items.product.id"
+  - Any targeted product doesn't belong to the seller
+</ResponseField>

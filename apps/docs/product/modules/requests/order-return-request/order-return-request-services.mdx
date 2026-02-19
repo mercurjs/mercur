@@ -1,0 +1,1286 @@
+---
+title: "Order Return Request Module Service Reference"
+description: "Reference documentation for the Order Return Request Module service methods"
+---
+
+# IOrderReturnRequestModuleService Reference
+
+This section of the documentation provides a reference to the `IOrderReturnRequestModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Order Return Request Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Order Return Request Module.
+
+## Methods
+
+### Order Return Request Methods
+- [createOrderReturnRequests](#createorderreturnrequests)
+- [updateOrderReturnRequests](#updateorderreturnrequests)
+- [deleteOrderReturnRequests](#deleteorderreturnrequests)
+- [retrieveOrderReturnRequest](#retrieveorderreturnrequest)
+- [listOrderReturnRequests](#listorderreturnrequests)
+- [listAndCountOrderReturnRequests](#listandcountorderreturnrequests)
+- [softDeleteOrderReturnRequests](#softdeleteorderreturnrequests)
+- [restoreOrderReturnRequests](#restoreorderreturnrequests)
+
+### Order Return Request Line Item Methods
+- [createOrderReturnRequestLineItems](#createorderreturnrequestlineitems)
+- [updateOrderReturnRequestLineItems](#updateorderreturnrequestlineitems)
+- [deleteOrderReturnRequestLineItems](#deleteorderreturnrequestlineitems)
+- [retrieveOrderReturnRequestLineItem](#retrieveorderreturnrequestlineitem)
+- [listOrderReturnRequestLineItems](#listorderreturnrequestlineitems)
+- [listAndCountOrderReturnRequestLineItems](#listandcountorderreturnrequestlineitems)
+- [softDeleteOrderReturnRequestLineItems](#softdeleteorderreturnrequestlineitems)
+- [restoreOrderReturnRequestLineItems](#restoreorderreturnrequestlineitems)
+
+---
+
+# createOrderReturnRequests
+
+This section provides a reference to the `createOrderReturnRequests` method. This belongs to the Order Return Request Module.
+
+## createOrderReturnRequests(data, sharedContext?): Promise\<OrderReturnRequestDTO[]>
+
+This method creates order return requests.
+
+### Example
+
+```ts
+const returnRequests = await orderReturnRequestModuleService.createOrderReturnRequests([
+  {
+    order_id: "ord_123",
+    customer_id: "cus_123",
+    customer_note: "Product arrived damaged",
+    shipping_option_id: "so_123",
+    line_items: [
+      { line_item_id: "ordli_123", quantity: 1, reason_id: "reason_123" },
+    ],
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateOrderReturnRequestDTO[]" required>
+  The order return requests to be created.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order this return request is for.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer who created the return request.
+    </ParamField>
+
+    <ParamField body="customer_note" type="string" required>
+      The customer's note explaining the reason for the return.
+    </ParamField>
+
+    <ParamField body="shipping_option_id" type="string">
+      The ID of the shipping option for returning the items.
+    </ParamField>
+
+    <ParamField body="line_items" type="Array<{ line_item_id: string; quantity: number; reason_id?: string }>" required>
+      The line items to be returned.
+
+      <Expandable title="properties">
+        <ParamField body="line_item_id" type="string" required>
+          The ID of the original order line item being returned.
+        </ParamField>
+
+        <ParamField body="quantity" type="number" required>
+          The quantity of the item to be returned.
+        </ParamField>
+
+        <ParamField body="reason_id" type="string">
+          The ID of the return reason.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<OrderReturnRequestDTO[]>">
+  The created order return requests.
+</ResponseField>
+
+## createOrderReturnRequests(data, sharedContext?): Promise\<OrderReturnRequestDTO>
+
+This method creates an order return request.
+
+### Example
+
+```ts
+const returnRequest = await orderReturnRequestModuleService.createOrderReturnRequests({
+  order_id: "ord_123",
+  customer_id: "cus_123",
+  customer_note: "Product arrived damaged",
+  shipping_option_id: "so_123",
+  line_items: [
+    { line_item_id: "ordli_123", quantity: 1, reason_id: "reason_123" },
+  ],
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateOrderReturnRequestDTO" required>
+  The order return request to be created.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order this return request is for.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer who created the return request.
+    </ParamField>
+
+    <ParamField body="customer_note" type="string" required>
+      The customer's note explaining the reason for the return.
+    </ParamField>
+
+    <ParamField body="shipping_option_id" type="string">
+      The ID of the shipping option for returning the items.
+    </ParamField>
+
+    <ParamField body="line_items" type="Array<{ line_item_id: string; quantity: number; reason_id?: string }>" required>
+      The line items to be returned.
+
+      <Expandable title="properties">
+        <ParamField body="line_item_id" type="string" required>
+          The ID of the original order line item being returned.
+        </ParamField>
+
+        <ParamField body="quantity" type="number" required>
+          The quantity of the item to be returned.
+        </ParamField>
+
+        <ParamField body="reason_id" type="string">
+          The ID of the return reason.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<OrderReturnRequestDTO>">
+  The created order return request.
+</ResponseField>
+
+---
+
+# updateOrderReturnRequests
+
+This section provides a reference to the `updateOrderReturnRequests` method. This belongs to the Order Return Request Module.
+
+## updateOrderReturnRequests(id, data, sharedContext?): Promise\<OrderReturnRequestDTO>
+
+This method updates an existing order return request.
+
+### Example
+
+Vendor reviewing a return request:
+
+```ts
+const returnRequest = await orderReturnRequestModuleService.updateOrderReturnRequests("oretreq_123", {
+  vendor_reviewer_id: "mem_123",
+  vendor_reviewer_note: "Approved for return",
+  vendor_review_date: new Date(),
+  status: "refunded",
+})
+```
+
+Admin reviewing an escalated return request:
+
+```ts
+const returnRequest = await orderReturnRequestModuleService.updateOrderReturnRequests("oretreq_123", {
+  admin_reviewer_id: "user_123",
+  admin_reviewer_note: "Customer is right, approve the return",
+  admin_review_date: new Date(),
+  status: "refunded",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the order return request.
+</ParamField>
+
+<ParamField body="data" type="UpdateOrderReturnRequestDTO" required>
+  The attributes to update in the order return request.
+
+  <Expandable title="properties">
+    <ParamField body="customer_note" type="string">
+      The customer's note explaining the reason for the return.
+    </ParamField>
+
+    <ParamField body="shipping_option_id" type="string">
+      The ID of the shipping option for returning the items.
+    </ParamField>
+
+    <ParamField body="vendor_reviewer_id" type="string">
+      The ID of the vendor member who reviewed the request.
+    </ParamField>
+
+    <ParamField body="vendor_reviewer_note" type="string">
+      The vendor's note regarding the return request.
+    </ParamField>
+
+    <ParamField body="vendor_review_date" type="Date">
+      The date when the vendor reviewed the request.
+    </ParamField>
+
+    <ParamField body="admin_reviewer_id" type="string">
+      The ID of the admin user who reviewed the escalated request.
+    </ParamField>
+
+    <ParamField body="admin_reviewer_note" type="string">
+      The admin's note regarding the return request.
+    </ParamField>
+
+    <ParamField body="admin_review_date" type="Date">
+      The date when the admin reviewed the request.
+    </ParamField>
+
+    <ParamField body="status" type='"pending" | "refunded" | "withdrawn" | "escalated" | "canceled"' required>
+      The status of the return request.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<OrderReturnRequestDTO>">
+  The updated order return request.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the order return request.
+    </ResponseField>
+
+    <ResponseField name="customer_id" type="string">
+      The ID of the customer who created the return request.
+    </ResponseField>
+
+    <ResponseField name="customer_note" type="string">
+      The customer's note explaining the reason for the return.
+    </ResponseField>
+
+    <ResponseField name="shipping_option_id" type="string | null">
+      The ID of the shipping option for returning the items.
+    </ResponseField>
+
+    <ResponseField name="vendor_reviewer_id" type="string | null">
+      The ID of the vendor member who reviewed the request.
+    </ResponseField>
+
+    <ResponseField name="vendor_reviewer_note" type="string | null">
+      The vendor's note regarding the return request.
+    </ResponseField>
+
+    <ResponseField name="vendor_review_date" type="Date | null">
+      The date when the vendor reviewed the request.
+    </ResponseField>
+
+    <ResponseField name="admin_reviewer_id" type="string | null">
+      The ID of the admin user who reviewed the escalated request.
+    </ResponseField>
+
+    <ResponseField name="admin_reviewer_note" type="string | null">
+      The admin's note regarding the return request.
+    </ResponseField>
+
+    <ResponseField name="admin_review_date" type="Date | null">
+      The date when the admin reviewed the request.
+    </ResponseField>
+
+    <ResponseField name="status" type='"pending" | "refunded" | "withdrawn" | "escalated" | "canceled"'>
+      The status of the return request.
+    </ResponseField>
+
+    <ResponseField name="line_items" type="OrderReturnRequestLineItemDTO[]">
+      The associated line items (if included in relations).
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the order return request.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the order return request.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteOrderReturnRequests
+
+This section provides a reference to the `deleteOrderReturnRequests` method. This belongs to the Order Return Request Module.
+
+## deleteOrderReturnRequests(ids, sharedContext?): Promise\<void>
+
+This method deletes order return requests by their IDs.
+
+### Example
+
+```ts
+await orderReturnRequestModuleService.deleteOrderReturnRequests(["oretreq_123", "oretreq_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the order return requests.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the order return requests are deleted successfully.
+</ResponseField>
+
+## deleteOrderReturnRequests(id, sharedContext?): Promise\<void>
+
+This method deletes an order return request by its ID.
+
+### Example
+
+```ts
+await orderReturnRequestModuleService.deleteOrderReturnRequests("oretreq_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the order return request.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the order return request is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveOrderReturnRequest
+
+This section provides a reference to the `retrieveOrderReturnRequest` method. This belongs to the Order Return Request Module.
+
+This method retrieves an order return request by its ID.
+
+## Example
+
+```ts
+const returnRequest = await orderReturnRequestModuleService.retrieveOrderReturnRequest("oretreq_123")
+```
+
+To retrieve with line items:
+
+```ts
+const returnRequest = await orderReturnRequestModuleService.retrieveOrderReturnRequest(
+  "oretreq_123",
+  {
+    relations: ["line_items"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the order return request.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OrderReturnRequestDTO>">
+  The configurations determining how the order return request is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["line_items"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<OrderReturnRequestDTO>">
+  The retrieved order return request.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the order return request.
+    </ResponseField>
+
+    <ResponseField name="customer_id" type="string">
+      The ID of the customer who created the return request.
+    </ResponseField>
+
+    <ResponseField name="customer_note" type="string">
+      The customer's note explaining the reason for the return.
+    </ResponseField>
+
+    <ResponseField name="shipping_option_id" type="string | null">
+      The ID of the shipping option for returning the items.
+    </ResponseField>
+
+    <ResponseField name="vendor_reviewer_id" type="string | null">
+      The ID of the vendor member who reviewed the request.
+    </ResponseField>
+
+    <ResponseField name="vendor_reviewer_note" type="string | null">
+      The vendor's note regarding the return request.
+    </ResponseField>
+
+    <ResponseField name="vendor_review_date" type="Date | null">
+      The date when the vendor reviewed the request.
+    </ResponseField>
+
+    <ResponseField name="admin_reviewer_id" type="string | null">
+      The ID of the admin user who reviewed the escalated request.
+    </ResponseField>
+
+    <ResponseField name="admin_reviewer_note" type="string | null">
+      The admin's note regarding the return request.
+    </ResponseField>
+
+    <ResponseField name="admin_review_date" type="Date | null">
+      The date when the admin reviewed the request.
+    </ResponseField>
+
+    <ResponseField name="status" type='"pending" | "refunded" | "withdrawn" | "escalated" | "canceled"'>
+      The status of the return request.
+    </ResponseField>
+
+    <ResponseField name="line_items" type="OrderReturnRequestLineItemDTO[]">
+      The associated line items (if included in relations).
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the order return request.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the order return request.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listOrderReturnRequests
+
+This section provides a reference to the `listOrderReturnRequests` method. This belongs to the Order Return Request Module.
+
+This method retrieves a paginated list of order return requests based on optional filters and configuration.
+
+## Example
+
+To retrieve pending return requests:
+
+```ts
+const returnRequests = await orderReturnRequestModuleService.listOrderReturnRequests({
+  status: "pending",
+})
+```
+
+To retrieve return requests for a specific customer:
+
+```ts
+const returnRequests = await orderReturnRequestModuleService.listOrderReturnRequests({
+  customer_id: "cus_123",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const returnRequests = await orderReturnRequestModuleService.listOrderReturnRequests(
+  {
+    status: "pending",
+  },
+  {
+    take: 20,
+    skip: 2,
+    relations: ["line_items"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableOrderReturnRequestProps">
+  The filters to apply on the retrieved order return requests.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the order return requests by.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string | string[]">
+      Filter order return requests by their customer IDs.
+    </ParamField>
+
+    <ParamField body="status" type="string | string[]">
+      Filter order return requests by their status.
+    </ParamField>
+
+    <ParamField body="vendor_reviewer_id" type="string | string[]">
+      Filter order return requests by their vendor reviewer IDs.
+    </ParamField>
+
+    <ParamField body="admin_reviewer_id" type="string | string[]">
+      Filter order return requests by their admin reviewer IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OrderReturnRequestDTO>">
+  The configurations determining how the order return request is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["line_items"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<OrderReturnRequestDTO[]>">
+  The list of order return requests.
+</ResponseField>
+
+---
+
+# listAndCountOrderReturnRequests
+
+This section provides a reference to the `listAndCountOrderReturnRequests` method. This belongs to the Order Return Request Module.
+
+This method retrieves a paginated list of order return requests along with the total count of available order return requests satisfying the provided filters.
+
+## Example
+
+```ts
+const [returnRequests, count] = await orderReturnRequestModuleService.listAndCountOrderReturnRequests({
+  status: "pending",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableOrderReturnRequestProps">
+  The filters to apply on the retrieved order return requests.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the order return requests by.
+    </ParamField>
+
+    <ParamField body="customer_id" type="string | string[]">
+      Filter order return requests by their customer IDs.
+    </ParamField>
+
+    <ParamField body="status" type="string | string[]">
+      Filter order return requests by their status.
+    </ParamField>
+
+    <ParamField body="vendor_reviewer_id" type="string | string[]">
+      Filter order return requests by their vendor reviewer IDs.
+    </ParamField>
+
+    <ParamField body="admin_reviewer_id" type="string | string[]">
+      Filter order return requests by their admin reviewer IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OrderReturnRequestDTO>">
+  The configurations determining how the order return request is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[OrderReturnRequestDTO[], number]>">
+  The list of order return requests along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteOrderReturnRequests
+
+This section provides a reference to the `softDeleteOrderReturnRequests` method. This belongs to the Order Return Request Module.
+
+This method soft deletes order return requests by their IDs.
+
+## Example
+
+```ts
+await orderReturnRequestModuleService.softDeleteOrderReturnRequests([
+  "oretreq_123",
+  "oretreq_321",
+])
+```
+
+## Parameters
+
+<ParamField body="orderReturnRequestIds" type="string[]" required>
+  The IDs of the order return requests.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreOrderReturnRequests
+
+This section provides a reference to the `restoreOrderReturnRequests` method. This belongs to the Order Return Request Module.
+
+This method restores soft deleted order return requests by their IDs.
+
+## Example
+
+```ts
+await orderReturnRequestModuleService.restoreOrderReturnRequests(["oretreq_123", "oretreq_321"])
+```
+
+## Parameters
+
+<ParamField body="orderReturnRequestIds" type="string[]" required>
+  The IDs of the order return requests.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the order return request.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createOrderReturnRequestLineItems
+
+This section provides a reference to the `createOrderReturnRequestLineItems` method. This belongs to the Order Return Request Module.
+
+## createOrderReturnRequestLineItems(data, sharedContext?): Promise\<OrderReturnRequestLineItemDTO[]>
+
+This method creates order return request line items.
+
+### Example
+
+```ts
+const lineItems = await orderReturnRequestModuleService.createOrderReturnRequestLineItems([
+  {
+    return_request_id: "oretreq_123",
+    line_item_id: "ordli_123",
+    quantity: 2,
+    reason_id: "reason_123",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateOrderReturnRequestLineItemDTO[]" required>
+  The order return request line items to be created.
+
+  <Expandable title="properties">
+    <ParamField body="return_request_id" type="string" required>
+      The ID of the return request this line item belongs to.
+    </ParamField>
+
+    <ParamField body="line_item_id" type="string" required>
+      The ID of the original order line item being returned.
+    </ParamField>
+
+    <ParamField body="quantity" type="number" required>
+      The quantity of the item to be returned.
+    </ParamField>
+
+    <ParamField body="reason_id" type="string">
+      The ID of the return reason.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<OrderReturnRequestLineItemDTO[]>">
+  The created order return request line items.
+</ResponseField>
+
+---
+
+# updateOrderReturnRequestLineItems
+
+This section provides a reference to the `updateOrderReturnRequestLineItems` method. This belongs to the Order Return Request Module.
+
+## updateOrderReturnRequestLineItems(id, data, sharedContext?): Promise\<OrderReturnRequestLineItemDTO>
+
+This method updates an existing order return request line item.
+
+### Example
+
+```ts
+const lineItem = await orderReturnRequestModuleService.updateOrderReturnRequestLineItems("oretreqli_123", {
+  quantity: 1,
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the order return request line item.
+</ParamField>
+
+<ParamField body="data" type="UpdateOrderReturnRequestLineItemDTO" required>
+  The attributes to update in the order return request line item.
+
+  <Expandable title="properties">
+    <ParamField body="line_item_id" type="string">
+      The ID of the original order line item being returned.
+    </ParamField>
+
+    <ParamField body="quantity" type="number">
+      The quantity of the item to be returned.
+    </ParamField>
+
+    <ParamField body="reason_id" type="string">
+      The ID of the return reason.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<OrderReturnRequestLineItemDTO>">
+  The updated order return request line item.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the order return request line item.
+    </ResponseField>
+
+    <ResponseField name="line_item_id" type="string">
+      The ID of the original order line item being returned.
+    </ResponseField>
+
+    <ResponseField name="quantity" type="number">
+      The quantity of the item to be returned.
+    </ResponseField>
+
+    <ResponseField name="reason_id" type="string | null">
+      The ID of the return reason.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the line item.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the line item.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteOrderReturnRequestLineItems
+
+This section provides a reference to the `deleteOrderReturnRequestLineItems` method. This belongs to the Order Return Request Module.
+
+## deleteOrderReturnRequestLineItems(ids, sharedContext?): Promise\<void>
+
+This method deletes order return request line items by their IDs.
+
+### Example
+
+```ts
+await orderReturnRequestModuleService.deleteOrderReturnRequestLineItems(["oretreqli_123", "oretreqli_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the order return request line items.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the order return request line items are deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveOrderReturnRequestLineItem
+
+This section provides a reference to the `retrieveOrderReturnRequestLineItem` method. This belongs to the Order Return Request Module.
+
+This method retrieves an order return request line item by its ID.
+
+## Example
+
+```ts
+const lineItem = await orderReturnRequestModuleService.retrieveOrderReturnRequestLineItem("oretreqli_123")
+```
+
+To retrieve with the return request:
+
+```ts
+const lineItem = await orderReturnRequestModuleService.retrieveOrderReturnRequestLineItem(
+  "oretreqli_123",
+  {
+    relations: ["return_request"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the order return request line item.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OrderReturnRequestLineItemDTO>">
+  The configurations determining how the order return request line item is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["return_request"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<OrderReturnRequestLineItemDTO>">
+  The retrieved order return request line item.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the order return request line item.
+    </ResponseField>
+
+    <ResponseField name="line_item_id" type="string">
+      The ID of the original order line item being returned.
+    </ResponseField>
+
+    <ResponseField name="quantity" type="number">
+      The quantity of the item to be returned.
+    </ResponseField>
+
+    <ResponseField name="reason_id" type="string | null">
+      The ID of the return reason.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the line item.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the line item.
+    </ResponseField>
+
+    <ResponseField name="return_request" type="OrderReturnRequestDTO">
+      The associated return request (if included in relations).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listOrderReturnRequestLineItems
+
+This section provides a reference to the `listOrderReturnRequestLineItems` method. This belongs to the Order Return Request Module.
+
+This method retrieves a paginated list of order return request line items based on optional filters and configuration.
+
+## Example
+
+To retrieve line items for a specific return request:
+
+```ts
+const lineItems = await orderReturnRequestModuleService.listOrderReturnRequestLineItems({
+  return_request_id: "oretreq_123",
+})
+```
+
+To retrieve line items for specific order line items:
+
+```ts
+const lineItems = await orderReturnRequestModuleService.listOrderReturnRequestLineItems({
+  line_item_id: ["ordli_123", "ordli_456"],
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableOrderReturnRequestLineItemProps">
+  The filters to apply on the retrieved order return request line items.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the order return request line items by.
+    </ParamField>
+
+    <ParamField body="return_request_id" type="string | string[]">
+      Filter line items by their return request IDs.
+    </ParamField>
+
+    <ParamField body="line_item_id" type="string | string[]">
+      Filter line items by their order line item IDs.
+    </ParamField>
+
+    <ParamField body="reason_id" type="string | string[]">
+      Filter line items by their return reason IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OrderReturnRequestLineItemDTO>">
+  The configurations determining how the order return request line item is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<OrderReturnRequestLineItemDTO[]>">
+  The list of order return request line items.
+</ResponseField>
+
+---
+
+# listAndCountOrderReturnRequestLineItems
+
+This section provides a reference to the `listAndCountOrderReturnRequestLineItems` method. This belongs to the Order Return Request Module.
+
+This method retrieves a paginated list of order return request line items along with the total count of available order return request line items satisfying the provided filters.
+
+## Example
+
+```ts
+const [lineItems, count] = await orderReturnRequestModuleService.listAndCountOrderReturnRequestLineItems({
+  return_request_id: "oretreq_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableOrderReturnRequestLineItemProps">
+  The filters to apply on the retrieved order return request line items.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the order return request line items by.
+    </ParamField>
+
+    <ParamField body="return_request_id" type="string | string[]">
+      Filter line items by their return request IDs.
+    </ParamField>
+
+    <ParamField body="line_item_id" type="string | string[]">
+      Filter line items by their order line item IDs.
+    </ParamField>
+
+    <ParamField body="reason_id" type="string | string[]">
+      Filter line items by their return reason IDs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<OrderReturnRequestLineItemDTO>">
+  The configurations determining how the order return request line item is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[OrderReturnRequestLineItemDTO[], number]>">
+  The list of order return request line items along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteOrderReturnRequestLineItems
+
+This section provides a reference to the `softDeleteOrderReturnRequestLineItems` method. This belongs to the Order Return Request Module.
+
+This method soft deletes order return request line items by their IDs.
+
+## Example
+
+```ts
+await orderReturnRequestModuleService.softDeleteOrderReturnRequestLineItems([
+  "oretreqli_123",
+  "oretreqli_321",
+])
+```
+
+## Parameters
+
+<ParamField body="orderReturnRequestLineItemIds" type="string[]" required>
+  The IDs of the order return request line items.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreOrderReturnRequestLineItems
+
+This section provides a reference to the `restoreOrderReturnRequestLineItems` method. This belongs to the Order Return Request Module.
+
+This method restores soft deleted order return request line items by their IDs.
+
+## Example
+
+```ts
+await orderReturnRequestModuleService.restoreOrderReturnRequestLineItems(["oretreqli_123", "oretreqli_321"])
+```
+
+## Parameters
+
+<ParamField body="orderReturnRequestLineItemIds" type="string[]" required>
+  The IDs of the order return request line items.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the order return request line item.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

@@ -1,0 +1,55 @@
+---
+title: "Medusa Cloud deployment"
+description: "Install and deploy Mercur on Medusa Cloud"
+---
+
+### Introduction
+
+Medusa Cloud is a dedicated hosting service for Medusa-based applications. It automatically detects changes on your repository, pulls and builds the code, sets up a database, Redis and file storage.
+
+In order to start using Medusa Cloud, head to the <a href="https://cloud.medusajs.com/signup">Medusa Cloud signup page</a>. After registration is complete and your account is active, you should authorize the Medusa Cloud Github app in your organization/account.
+
+<Info>Medusa Cloud hosts only backend and admin panel.</Info>
+
+### Setup
+
+1. On the main dashboard view, click "Create project" button.
+2. Thanks to the Github integration, Medusa Cloud can access your codebase and automatically pull the code. Choose your Mercur repository from the list and click "Continue".
+   ![Choose repository](/images/cloud_2.png)
+3. Under project details, choose a name for your project. You can also pick your custom subdomain.
+   ![Basic project settings](/images/cloud_3.png)
+4. Head to the "Build details" section. First, under "Project root directory" enter "/apps/backend". Then, choose the first admin user credentials.
+   ![Build details](/images/cloud_4.png)
+5. Last configuration step is about environment variables. Remember, Medusa Cloud automatically sets up a database, Redis and file storage, so you don't have to worry about them.
+   ![Environment variables](/images/cloud_5.png)
+
+Only the following variables should be set:
+
+```
+STRIPE_SECRET_API_KEY=
+STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET=
+
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+
+ALGOLIA_APP_ID=
+ALGOLIA_API_KEY=
+
+VITE_TALK_JS_APP_ID=
+VITE_TALK_JS_SECRET_API_KEY=
+
+STORE_CORS=
+ADMIN_CORS=
+VENDOR_CORS=
+
+VENDOR_PANEL_URL=
+STOREFRONT_URL=
+BACKEND_URL=
+```
+
+6. After completing those steps, click "Create". The build and deploy process will start, and it can take a few minutes to complete.
+
+Later, you can change those variables in environment settings, as well as change the deployment branch. Medusa Cloud will automatically pull and rebuild your environment if a new commit is pushed on this branch.
+
+![ENV settings](/images/cloud_6.png)
+![Branch settings](/images/cloud_7.png)

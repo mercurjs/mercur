@@ -1,0 +1,70 @@
+---
+title: "Commission Module Data Models"
+description: "Reference documentation for the Commission Module data models"
+---
+
+## Relations Overview
+
+| Relationship | Type | Description |
+| --- | --- | --- |
+| CommissionRule → CommissionRate | One-to-One | A commission rule has one commission rate |
+| CommissionLine → CommissionRule | Read-only - has one | A commission line references a commission rule |
+| CommissionLine → LineItem (Order Module) | Read-only - has one | A commission line references an order line item |
+
+## Data Models
+
+- [CommissionRule](#commissionrule)
+- [CommissionRate](#commissionrate)
+- [CommissionLine](#commissionline)
+
+## CommissionRule
+
+This documentation provides a reference to the CommissionRule data model. It belongs to the Commission Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/modules/commission/models/commission_rule.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the commission rule. |
+| `name` | `TextProperty` | The name of the commission rule |
+| `reference` | `TextProperty` | The type of the commission rule. Can be `site`, `product_type`, `product_category`, `seller+product_category`, `seller+product_type`, or `seller`. |
+| `reference_id` | `TextProperty` | The ID of the referenced entity (e.g., seller ID, product type ID). |
+| `is_active` | `BooleanProperty` | Whether the commission rule is active. Defaults to `true`. |
+| `rate` | `HasOne<CommissionRate>` | The associated [CommissionRate](#commissionrate). |
+
+## CommissionRate
+
+This documentation provides a reference to the CommissionRate data model. It belongs to the Commission Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/modules/commission/models/commission_rate.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the commission rate. |
+| `type` | `TextProperty` | The type of the commission rate. Can be `flat` or `percentage`. |
+| `percentage_rate` | `NumberProperty` | The percentage rate for percentage-based commissions. |
+| `include_tax` | `BooleanProperty` | Whether the commission calculation includes tax. |
+| `price_set_id` | `TextProperty` | The ID of the price set used for flat-rate commissions. |
+| `max_price_set_id` | `TextProperty` | The ID of the price set defining the maximum commission amount. |
+| `min_price_set_id` | `TextProperty` | The ID of the price set defining the minimum commission amount. |
+| `rule` | `BelongsTo<CommissionRule>` | The associated [CommissionRule](#commissionrule). |
+
+## CommissionLine
+
+This documentation provides a reference to the CommissionLine data model. It belongs to the Commission Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/commission/src/modules/commission/models/commission_line.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the commission line. |
+| `item_line_id` | `TextProperty` | The ID of the order line item that this commission applies to. |
+| `rule_id` | `TextProperty` | The ID of the commission rule that was applied. |
+| `currency_code` | `TextProperty` | The ISO 3 currency code of the commission. For example, `usd`. |
+| `value` | `BigNumberProperty` | The calculated commission amount. |

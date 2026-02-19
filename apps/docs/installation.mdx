@@ -1,0 +1,184 @@
+---
+title: "Manual installation"
+description: "Install Mercur backend on your local machine"
+---
+
+<Info>
+  There are two ways of installing Mercur: the
+  <a href="/cli-installation">CLI script</a> or manual installation.
+</Info>
+
+Follow these steps to install and run Mercur backend on your operating system:
+
+**Step 1**: Create empty Medusa application using tool:
+
+```bash
+npx create-medusa-app@latest my-medusa-store
+```
+
+**Step 2**: Install following dependencies:
+
+```
+  @mercurjs/framework
+  @mercurjs/b2c-core
+  @mercurjs/commission
+  @mercurjs/reviews
+  @mercurjs/requests
+  @mercurjs/algolia
+  @mercurjs/resend
+  @mercurjs/payment-stripe-connect
+```
+
+<Info>
+  First two packages: `@mercurjs/framework` and `@mercurjs/b2c-core` are
+  required, the rest of them are optional. We strongly recommend installing them
+  all to avoid problems and missing features.
+</Info>
+
+**Step 3**: Configure plugins in `medusa-config.ts`
+
+```
+import { defineConfig, loadEnv } from '@medusajs/framework/utils'
+
+loadEnv(process.env.NODE_ENV || 'development', process.cwd())
+
+module.exports = defineConfig({
+  projectConfig: {
+    databaseUrl: process.env.DATABASE_URL,
+    http: {
+      storeCors: process.env.STORE_CORS!,
+      adminCors: process.env.ADMIN_CORS!,
+      // @ts-expect-error: vendorCors is not a valid config
+      vendorCors: process.env.VENDOR_CORS!,
+      authCors: process.env.AUTH_CORS!,
+      jwtSecret: process.env.JWT_SECRET || 'supersecret',
+      cookieSecret: process.env.COOKIE_SECRET || 'supersecret'
+    }
+  },
+  plugins: [
+    {
+      resolve: '@mercurjs/b2c-core',
+      options: {}
+    },
+    {
+      resolve: '@mercurjs/commission',
+      options: {}
+    },
+    {
+      resolve: '@mercurjs/algolia',
+      options: {
+        apiKey: process.env.ALGOLIA_API_KEY,
+        appId: process.env.ALGOLIA_APP_ID
+      }
+    },
+    {
+      resolve: '@mercurjs/reviews',
+      options: {}
+    },
+    {
+      resolve: '@mercurjs/requests',
+      options: {}
+    },
+    {
+      resolve: '@mercurjs/resend',
+      options: {}
+    }
+  ],
+  modules: [
+    {
+      resolve: '@medusajs/medusa/payment',
+      options: {
+        providers: [
+          {
+            resolve:
+              '@mercurjs/payment-stripe-connect/providers/stripe-connect',
+            id: 'stripe-connect',
+            options: {
+              apiKey: process.env.STRIPE_SECRET_API_KEY
+            }
+          }
+        ]
+      }
+    },
+    {
+      resolve: '@medusajs/medusa/notification',
+      options: {
+        providers: [
+          {
+            resolve: '@mercurjs/resend/providers/resend',
+            id: 'resend',
+            options: {
+              channels: ['email'],
+              api_key: process.env.RESEND_API_KEY,
+              from: process.env.RESEND_FROM_EMAIL
+            }
+          },
+          {
+            resolve: '@medusajs/medusa/notification-local',
+            id: 'local',
+            options: {
+              channels: ['feed', 'seller_feed']
+            }
+          }
+        ]
+      }
+    }
+  ]
+})
+```
+
+**Step 4**: Configure database credentials in the `.env` file
+
+```
+# Replace user, password, address and port parameters with your values
+DATABASE_URL=postgres://[user]:[password]@[address]:[port]/$DB_NAME
+# For example:
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/$DB_NAME
+```
+
+<Warning>
+  Do not delete `$DB_NAME` from the connection string. You'll be prompted to
+  choose database name during the next step.
+</Warning>
+
+**Step 5**: Configure rest of your environment variables
+
+```
+STRIPE_SECRET_API_KEY=
+STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET=
+
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+
+ALGOLIA_APP_ID=
+ALGOLIA_API_KEY=
+
+VITE_TALK_JS_APP_ID=
+VITE_TALK_JS_SECRET_API_KEY=
+
+STORE_CORS=
+ADMIN_CORS=
+VENDOR_CORS=
+
+VENDOR_PANEL_URL=
+STOREFRONT_URL=
+BACKEND_URL=
+```
+
+**Step 6**: Setup database and run migrations
+
+```bash
+yarn medusa db:create && yarn medusa db:migrate
+```
+
+**Step 7**: Create admin user
+
+```bash
+npx medusa user --email <email> --password <password>
+```
+
+**Step 8**: Run application
+
+```bash
+yarn dev
+```

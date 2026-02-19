@@ -1,0 +1,179 @@
+---
+title: "Order Return Request Module Links"
+description: "Module links for the Order Return Request Module"
+---
+
+# Links between Order Return Request Module and Other Modules
+
+This document showcases the module links defined between the Order Return Request Module and other Commerce Modules.
+
+## Summary
+
+The Order Return Request Module has the following links to other modules:
+
+| First Data Model   | Second Data Model  | Type                 | Description                                        |
+| ------------------ | ------------------ | -------------------- | -------------------------------------------------- |
+| OrderReturnRequest | Order              | Stored - many-to-one | Associates return requests with the original order |
+| Seller             | OrderReturnRequest | Stored - one-to-many | Associates a seller with their return requests     |
+
+---
+
+## Order Module
+
+Mercur defines a link between the Order Return Request Module's `OrderReturnRequest` data model and the Order Module's `Order` data model. This allows return requests to be associated with the original order being returned.
+
+### Retrieve with Query
+
+To retrieve the order of a return request with Query, pass `order.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: returnRequests } = await query.graph({
+      entity: "order_return_request",
+      fields: [
+        "*",
+        "order.*",
+      ],
+    })
+    
+    // returnRequests[0].order
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: returnRequests } = useQueryGraphStep({
+      entity: "order_return_request",
+      fields: [
+        "*",
+        "order.*",
+      ],
+    })
+    
+    // returnRequests[0].order
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the order association of a return request, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      order_return_request: {
+        order_return_request_id: "oretreq_123",
+      },
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      order_return_request: {
+        order_return_request_id: "oretreq_123",
+      },
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Seller Module
+
+Mercur defines a link between the Seller Module's `Seller` data model and the Order Return Request Module's `OrderReturnRequest` data model. This allows tracking which return requests belong to each seller for vendor review and processing.
+
+### Retrieve with Query
+
+To retrieve the return requests of a seller with Query, pass `order_return_request.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: sellers } = await query.graph({
+      entity: "seller",
+      fields: [
+        "*",
+        "order_return_request.*",
+      ],
+    })
+    
+    // sellers[0].order_return_request
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: sellers } = useQueryGraphStep({
+      entity: "seller",
+      fields: [
+        "*",
+        "order_return_request.*",
+      ],
+    })
+    
+    // sellers[0].order_return_request
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the return requests of a seller, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    // ...
+    
+    await link.create({
+      seller: {
+        seller_id: "sel_123",
+      },
+      order_return_request: {
+        order_return_request_id: "oretreq_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      seller: {
+        seller_id: "sel_123",
+      },
+      order_return_request: {
+        order_return_request_id: "oretreq_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,33 @@
+---
+title: "Request Module Data Models"
+description: "Reference documentation for the Request Module data models"
+---
+
+## Relations Overview
+
+| Relationship | Type | Description |
+| --- | --- | --- |
+| Request → Member (Seller Module) | Read-only - has one | A request is submitted by a seller member |
+| Request → User (User Module) | Read-only - has one | A request is reviewed by an admin user |
+
+## Data Models
+
+- [Request](#request)
+
+## Request
+
+This documentation provides a reference to the Request data model. It belongs to the Request Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/requests/src/modules/requests/models/request.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the request. |
+| `type` | `TextProperty` | The type of the request. Can be `product`, `product_collection`, `product_type`, `product_category`, `product_tag`, or `review_remove`. |
+| `data` | `JSONProperty` | The request payload containing the proposed entity data. |
+| `submitter_id` | `TextProperty` | The ID of the seller member who submitted the request. |
+| `reviewer_id` | `TextProperty` | The ID of the admin user who reviewed the request. |
+| `reviewer_note` | `TextProperty` | The admin's note explaining their decision. |
+| `status` | `EnumProperty<["draft", "pending", "accepted", "rejected"]>` | The status of the request. Defaults to `pending`. |

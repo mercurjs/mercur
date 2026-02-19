@@ -1,0 +1,98 @@
+---
+title: "Secondary Category Module Links"
+description: "Module links for the Secondary Category Module"
+---
+
+# Links between Secondary Category Module and Other Modules
+
+This document showcases the module links defined between the Secondary Category Module and other Commerce Modules.
+
+## Summary
+
+The Secondary Category Module has the following links to other modules:
+
+| First Data Model | Second Data Model | Type                  | Description                                                               |
+| ---------------- | ----------------- | --------------------- | ------------------------------------------------------------------------- |
+| Product          | SecondaryCategory | Stored - many-to-many | Associates products with secondary categories for additional organization |
+
+---
+
+## Product Module
+
+Mercur defines a link between the Product Module's `Product` data model and the Secondary Category Module's `SecondaryCategory` data model. This allows products to be organized under secondary categories in addition to their primary category, enabling more flexible product categorization and navigation.
+
+### Retrieve with Query
+
+To retrieve the secondary categories of a product with Query, pass `secondary_category.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: products } = await query.graph({
+      entity: "product",
+      fields: [
+        "*",
+        "secondary_category.*",
+      ],
+    })
+    
+    // products[0].secondary_category
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: products } = useQueryGraphStep({
+      entity: "product",
+      fields: [
+        "*",
+        "secondary_category.*",
+      ],
+    })
+    
+    // products[0].secondary_category
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the secondary categories of a product, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+      secondary_category: {
+        secondary_category_id: "sec_cat_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      [Modules.PRODUCT]: {
+        product_id: "prod_123",
+      },
+      secondary_category: {
+        secondary_category_id: "sec_cat_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>

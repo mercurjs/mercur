@@ -1,0 +1,101 @@
+---
+title: "Customer Groups Workflows"
+description: "Reference documentation for the Customer Groups Module workflows and steps"
+---
+
+# Workflows
+
+## createSellerCustomerGroupWorkflow
+
+This documentation provides a reference to the `createSellerCustomerGroupWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow creates a customer group for a seller and links it to the seller. It ensures that customer groups are properly associated with their respective sellers in the marketplace.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/customer-groups/workflows/create-seller-customer-group.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/vendor/customer-groups/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { fetchSellerByAuthActorId } from "../../../shared/infra/http/utils";
+    import { createSellerCustomerGroupWorkflow } from "../../../workflows/customer-groups/workflows";
+    import { VendorCreateCustomerGroupType } from "./validators";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<VendorCreateCustomerGroupType>,
+      res: MedusaResponse
+    ) => {
+      const seller = await fetchSellerByAuthActorId(
+        req.auth_context.actor_id,
+        req.scope
+      );
+    
+      const { result: customer_group } =
+        await createSellerCustomerGroupWorkflow.run({
+          container: req.scope,
+          input: {
+            ...req.validatedBody,
+            created_by: req.auth_context.actor_id,
+            seller_id: seller.id,
+          },
+        });
+    
+      res.status(201).json({
+        customer_group,
+      });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **createCustomerGroupsWorkflow**: Creates the customer group using Medusa's core workflow.
+- **createRemoteLinkStep**: Links the created customer group to the seller.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The customer group creation details.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the customer group.
+    </ParamField>
+    <ParamField body="created_by" type="string" required>
+      The ID of the user creating the customer group.
+    </ParamField>
+    <ParamField body="seller_id" type="string" required>
+      The ID of the seller this customer group belongs to.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="CustomerGroupDTO" type="CustomerGroupDTO">
+  The created customer group.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the customer group.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The name of the customer group.
+    </ResponseField>
+    <ResponseField name="created_by" type="string">
+      The ID of the user who created the group.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the customer group was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the customer group was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>

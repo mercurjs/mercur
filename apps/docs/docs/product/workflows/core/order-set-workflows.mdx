@@ -1,0 +1,255 @@
+---
+title: "Order Set Workflows"
+description: "Reference documentation for the Order Set Module workflows and steps"
+---
+
+# Workflows
+
+## getFormattedOrderSetListWorkflow
+
+This documentation provides a reference to the `getFormattedOrderSetListWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow retrieves order sets with calculated totals and aggregated statuses. An order set represents a group of orders created from a single cart in a multi-vendor marketplace. The workflow computes the overall payment status, fulfillment status, and financial totals by aggregating data from all orders within each set.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/order-set/workflows/get-formatted-order-set-list.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="Store API Route">
+    ```ts packages/modules/b2c-core/src/api/store/order-set/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+    import { getFormattedOrderSetListWorkflow } from '../../../workflows/order-set/workflows'
+    import { defaultStoreRetrieveOrderSetFields } from './query-config'
+    
+    export async function GET(
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ): Promise<void> {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    
+      const { data: order_set_ids, metadata } = await query.graph({
+        entity: 'order_set',
+        fields: ['id'],
+        filters: {
+          customer_id: req.auth_context.actor_id
+        },
+        pagination: req.queryConfig.pagination
+      })
+    
+      const {
+        result: { data: order_sets }
+      } = await getFormattedOrderSetListWorkflow(req.scope).run({
+        input: {
+          filters: { id: order_set_ids.map((set) => set.id) },
+          fields: defaultStoreRetrieveOrderSetFields
+        }
+      })
+    
+      res.json({
+        order_sets,
+        count: metadata?.count,
+        offset: metadata?.skip,
+        limit: metadata?.take
+      })
+    }
+    ```
+  </Tab>
+  <Tab title="Retrieve Single Order Set">
+    ```ts packages/modules/b2c-core/src/api/store/order-set/[id]/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { getFormattedOrderSetListWorkflow } from '../../../../workflows/order-set/workflows'
+    import { defaultStoreRetrieveOrderSetFields } from '../query-config'
+    
+    export async function GET(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ): Promise<void> {
+      const { id } = req.params
+    
+      const {
+        result: { data }
+      } = await getFormattedOrderSetListWorkflow(req.scope).run({
+        input: { filters: { id }, fields: defaultStoreRetrieveOrderSetFields }
+      })
+    
+      res.json({
+        order_set: data[0]
+      })
+    }
+    ```
+  </Tab>
+  <Tab title="After Cart Completion">
+    ```ts packages/modules/b2c-core/src/api/store/carts/[id]/complete/route.ts
+    import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
+    import { splitAndCompleteCartWorkflow } from '../../../../../workflows/cart/workflows'
+    import { getFormattedOrderSetListWorkflow } from '../../../../../workflows/order-set/workflows'
+    
+    export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
+      const cart_id = req.params.id
+    
+      const { result } = await splitAndCompleteCartWorkflow(req.scope).run({
+        input: { id: cart_id },
+        context: { transactionId: cart_id }
+      })
+    
+      const {
+        result: { data }
+      } = await getFormattedOrderSetListWorkflow(req.scope).run({
+        input: { filters: { id: result.id } }
+      })
+    
+      res.json({
+        order_set: data[0]
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- **useQueryGraphStep**: Fetches order sets with related orders, items, fulfillments, and payment data.
+- **transform (formatOrderSets)**: Aggregates order data to calculate totals and statuses for the entire order set.
+
+### Input
+
+<ParamField body="input" type="object" required>
+  The order set query parameters.
+
+  <Expandable title="properties">
+    <ParamField body="fields" type="string[]">
+      Array of fields to include in the response. The workflow automatically adds required fields including order details, customer info, and fulfillments.
+    </ParamField>
+    <ParamField body="filters" type="Record<string, any>">
+      Filters to apply to the order set query.
+
+      <Expandable title="properties">
+        <ParamField body="id" type="string | string[]">
+          Filter by order set ID(s).
+        </ParamField>
+        <ParamField body="customer_id" type="string">
+          Filter by customer ID.
+        </ParamField>
+        <ParamField body="created_at" type="object">
+          Filter by creation date range.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    <ParamField body="pagination" type="object">
+      Pagination configuration.
+
+      <Expandable title="properties">
+        <ParamField body="skip" type="number" required>
+          The number of items to skip.
+        </ParamField>
+        <ParamField body="take" type="number">
+          The number of items to return.
+        </ParamField>
+        <ParamField body="order" type="Record<string, any>">
+          Sorting configuration.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="data" type="FormattedOrderSetDTO[]">
+      Array of formatted order sets with calculated totals and statuses.
+
+      <Expandable title="properties">
+        <ResponseField name="id" type="string">
+          The ID of the order set.
+        </ResponseField>
+        <ResponseField name="display_id" type="number">
+          The display ID of the order set.
+        </ResponseField>
+        <ResponseField name="customer_id" type="string">
+          The ID of the customer who created the order set.
+        </ResponseField>
+        <ResponseField name="customer" type="CustomerDTO">
+          The customer details.
+        </ResponseField>
+        <ResponseField name="cart_id" type="string">
+          The ID of the original cart.
+        </ResponseField>
+        <ResponseField name="cart" type="CartDTO">
+          The original cart details.
+        </ResponseField>
+        <ResponseField name="payment_collection_id" type="string">
+          The ID of the payment collection.
+        </ResponseField>
+        <ResponseField name="payment_collection" type="PaymentCollectionDTO">
+          The payment collection details.
+        </ResponseField>
+        <ResponseField name="orders" type="OrderDTO[]">
+          Array of orders in this order set, each with aggregated fulfillment and payment status.
+        </ResponseField>
+        <ResponseField name="status" type="OrderStatus">
+          The aggregated order status. Determined by:
+
+          - `completed` - All orders are completed
+          - `canceled` - All orders are canceled
+          - `requires_action` - At least one order requires action
+          - `pending` - Default state
+        </ResponseField>
+        <ResponseField name="payment_status" type="PaymentCollectionStatus">
+          The payment status from the payment collection (e.g., `captured`, `authorized`, `pending`).
+        </ResponseField>
+        <ResponseField name="fulfillment_status" type="FulfillmentStatus">
+          The aggregated fulfillment status across all orders. Determined by:
+
+          - `canceled` - All orders canceled
+          - `delivered` - All orders delivered
+          - `fulfilled` - All orders fulfilled
+          - `shipped` - All orders shipped
+          - `partially_delivered` - Some orders delivered
+          - `partially_shipped` - Some orders shipped
+          - `partially_fulfilled` - Some orders fulfilled
+          - `not_fulfilled` - Default state
+        </ResponseField>
+        <ResponseField name="total" type="BigNumber">
+          The total amount (sum of all order totals).
+        </ResponseField>
+        <ResponseField name="subtotal" type="BigNumber">
+          The subtotal (total minus tax_total).
+        </ResponseField>
+        <ResponseField name="tax_total" type="BigNumber">
+          The total tax amount across all orders.
+        </ResponseField>
+        <ResponseField name="shipping_total" type="BigNumber">
+          The total shipping cost across all orders.
+        </ResponseField>
+        <ResponseField name="shipping_tax_total" type="BigNumber">
+          The total shipping tax across all orders.
+        </ResponseField>
+        <ResponseField name="created_at" type="Date">
+          The date the order set was created.
+        </ResponseField>
+        <ResponseField name="updated_at" type="Date">
+          The date the order set was last updated.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="metadata" type="object">
+      Pagination metadata.
+
+      <Expandable title="properties">
+        <ResponseField name="count" type="number">
+          The total number of order sets.
+        </ResponseField>
+        <ResponseField name="skip" type="number">
+          The number of items skipped.
+        </ResponseField>
+        <ResponseField name="take" type="number">
+          The number of items returned.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>

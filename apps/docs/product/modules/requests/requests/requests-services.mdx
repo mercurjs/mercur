@@ -1,0 +1,709 @@
+---
+title: "Request Module Service Reference"
+description: "Reference documentation for the Request Module service methods"
+---
+
+# IRequestModuleService Reference
+
+This section of the documentation provides a reference to the `IRequestModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Request Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Request Module.
+
+## Methods
+
+- [createRequests](#createrequests)
+- [updateRequests](#updaterequests)
+- [deleteRequests](#deleterequests)
+- [retrieveRequest](#retrieverequest)
+- [listRequests](#listrequests)
+- [listAndCountRequests](#listandcountrequests)
+- [softDeleteRequests](#softdeleterequests)
+- [restoreRequests](#restorerequests)
+
+---
+
+# createRequests
+
+This section provides a reference to the `createRequests` method. This belongs to the Request Module.
+
+## createRequests(data, sharedContext?): Promise\<RequestDTO[]>
+
+This method creates requests.
+
+### Example
+
+```ts
+const requests = await requestModuleService.createRequests([
+  {
+    type: "product",
+    submitter_id: "mem_123",
+    data: {
+      title: "New Product",
+      description: "Product description",
+    },
+    status: "pending",
+  },
+  {
+    type: "product_category",
+    submitter_id: "mem_123",
+    data: {
+      name: "Electronics",
+      parent_category_id: null,
+    },
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateRequestDTO[]" required>
+  The requests to be created.
+
+  <Expandable title="properties">
+    <ParamField body="type" type="string" required>
+      The type of the request. Can be `product`, `product_collection`, `product_type`, `product_category`, `product_tag`, or `review_remove`.
+    </ParamField>
+
+    <ParamField body="submitter_id" type="string" required>
+      The ID of the seller member who submitted the request.
+    </ParamField>
+
+    <ParamField body="data" type="any" required>
+      The request payload containing the proposed entity data.
+    </ParamField>
+
+    <ParamField body="status" type='"pending" | "accepted" | "rejected" | "draft"'>
+      The status of the request.
+    </ParamField>
+
+    <ParamField body="reviewer_id" type="string">
+      The ID of the admin user who reviewed the request.
+    </ParamField>
+
+    <ParamField body="reviewer_note" type="string">
+      The admin's note explaining their decision.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<RequestDTO[]>">
+  The created requests.
+</ResponseField>
+
+## createRequests(data, sharedContext?): Promise\<RequestDTO>
+
+This method creates a request.
+
+### Example
+
+```ts
+const request = await requestModuleService.createRequests({
+  type: "product",
+  submitter_id: "mem_123",
+  data: {
+    title: "New Product",
+    description: "Product description",
+  },
+  status: "pending",
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateRequestDTO" required>
+  The request to be created.
+
+  <Expandable title="properties">
+    <ParamField body="type" type="string" required>
+      The type of the request. Can be `product`, `product_collection`, `product_type`, `product_category`, `product_tag`, or `review_remove`.
+    </ParamField>
+
+    <ParamField body="submitter_id" type="string" required>
+      The ID of the seller member who submitted the request.
+    </ParamField>
+
+    <ParamField body="data" type="any" required>
+      The request payload containing the proposed entity data.
+    </ParamField>
+
+    <ParamField body="status" type='"pending" | "accepted" | "rejected" | "draft"'>
+      The status of the request.
+    </ParamField>
+
+    <ParamField body="reviewer_id" type="string">
+      The ID of the admin user who reviewed the request.
+    </ParamField>
+
+    <ParamField body="reviewer_note" type="string">
+      The admin's note explaining their decision.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<RequestDTO>">
+  The created request.
+</ResponseField>
+
+---
+
+# updateRequests
+
+This section provides a reference to the `updateRequests` method. This belongs to the Request Module.
+
+## updateRequests(id, data, sharedContext?): Promise\<RequestDTO>
+
+This method updates an existing request.
+
+### Example
+
+Accepting a request:
+
+```ts
+const request = await requestModuleService.updateRequests("req_123", {
+  reviewer_id: "user_123",
+  reviewer_note: "Looks good, approved",
+  status: "accepted",
+})
+```
+
+Rejecting a request:
+
+```ts
+const request = await requestModuleService.updateRequests("req_123", {
+  reviewer_id: "user_123",
+  reviewer_note: "Duplicate product",
+  status: "rejected",
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the request.
+</ParamField>
+
+<ParamField body="data" type="UpdateRequestDTO" required>
+  The attributes to update in the request.
+
+  <Expandable title="properties">
+    <ParamField body="reviewer_id" type="string">
+      The ID of the admin user who reviewed the request.
+    </ParamField>
+
+    <ParamField body="reviewer_note" type="string">
+      The admin's note explaining their decision.
+    </ParamField>
+
+    <ParamField body="status" type='"pending" | "accepted" | "rejected" | "draft"' required>
+      The status of the request.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<RequestDTO>">
+  The updated request.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the request.
+    </ResponseField>
+
+    <ResponseField name="type" type="string">
+      The type of the request.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The request payload containing the proposed entity data.
+    </ResponseField>
+
+    <ResponseField name="submitter_id" type="string">
+      The ID of the seller member who submitted the request.
+    </ResponseField>
+
+    <ResponseField name="reviewer_id" type="string">
+      The ID of the admin user who reviewed the request.
+    </ResponseField>
+
+    <ResponseField name="reviewer_note" type="string">
+      The admin's note explaining their decision.
+    </ResponseField>
+
+    <ResponseField name="status" type='"pending" | "accepted" | "rejected"'>
+      The status of the request.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the request.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the request.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteRequests
+
+This section provides a reference to the `deleteRequests` method. This belongs to the Request Module.
+
+## deleteRequests(ids, sharedContext?): Promise\<void>
+
+This method deletes requests by their IDs.
+
+### Example
+
+```ts
+await requestModuleService.deleteRequests(["req_123", "req_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the requests.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the requests are deleted successfully.
+</ResponseField>
+
+## deleteRequests(id, sharedContext?): Promise\<void>
+
+This method deletes a request by its ID.
+
+### Example
+
+```ts
+await requestModuleService.deleteRequests("req_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the request.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the request is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveRequest
+
+This section provides a reference to the `retrieveRequest` method. This belongs to the Request Module.
+
+This method retrieves a request by its ID.
+
+## Example
+
+```ts
+const request = await requestModuleService.retrieveRequest("req_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the request.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<RequestDTO>">
+  The configurations determining how the request is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. Use Query to retrieve linked submitter or reviewer data.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<RequestDTO>">
+  The retrieved request.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the request.
+    </ResponseField>
+
+    <ResponseField name="type" type="string">
+      The type of the request.
+    </ResponseField>
+
+    <ResponseField name="data" type="Record<string, unknown>">
+      The request payload containing the proposed entity data.
+    </ResponseField>
+
+    <ResponseField name="submitter_id" type="string">
+      The ID of the seller member who submitted the request.
+    </ResponseField>
+
+    <ResponseField name="reviewer_id" type="string">
+      The ID of the admin user who reviewed the request.
+    </ResponseField>
+
+    <ResponseField name="reviewer_note" type="string">
+      The admin's note explaining their decision.
+    </ResponseField>
+
+    <ResponseField name="status" type='"pending" | "accepted" | "rejected"'>
+      The status of the request.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="Date">
+      The created date of the request.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="Date">
+      The updated date of the request.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listRequests
+
+This section provides a reference to the `listRequests` method. This belongs to the Request Module.
+
+This method retrieves a paginated list of requests based on optional filters and configuration.
+
+## Example
+
+To retrieve pending requests:
+
+```ts
+const requests = await requestModuleService.listRequests({
+  status: "pending",
+})
+```
+
+To retrieve requests by type:
+
+```ts
+const requests = await requestModuleService.listRequests({
+  type: "product",
+})
+```
+
+To retrieve requests from a specific seller:
+
+```ts
+const requests = await requestModuleService.listRequests({
+  submitter_id: "mem_123",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const requests = await requestModuleService.listRequests(
+  {
+    status: "pending",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableRequestProps">
+  The filters to apply on the retrieved requests.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the requests by.
+    </ParamField>
+
+    <ParamField body="type" type="string | string[]">
+      Filter requests by their types.
+    </ParamField>
+
+    <ParamField body="submitter_id" type="string | string[]">
+      Filter requests by their submitter IDs.
+    </ParamField>
+
+    <ParamField body="reviewer_id" type="string | string[]">
+      Filter requests by their reviewer IDs.
+    </ParamField>
+
+    <ParamField body="status" type="string | string[]">
+      Filter requests by their status.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<RequestDTO>">
+  The configurations determining how the request is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<RequestDTO[]>">
+  The list of requests.
+</ResponseField>
+
+---
+
+# listAndCountRequests
+
+This section provides a reference to the `listAndCountRequests` method. This belongs to the Request Module.
+
+This method retrieves a paginated list of requests along with the total count of available requests satisfying the provided filters.
+
+## Example
+
+To retrieve pending requests with count:
+
+```ts
+const [requests, count] = await requestModuleService.listAndCountRequests({
+  status: "pending",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const [requests, count] = await requestModuleService.listAndCountRequests(
+  {
+    type: "product",
+    status: "pending",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableRequestProps">
+  The filters to apply on the retrieved requests.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the requests by.
+    </ParamField>
+
+    <ParamField body="type" type="string | string[]">
+      Filter requests by their types.
+    </ParamField>
+
+    <ParamField body="submitter_id" type="string | string[]">
+      Filter requests by their submitter IDs.
+    </ParamField>
+
+    <ParamField body="reviewer_id" type="string | string[]">
+      Filter requests by their reviewer IDs.
+    </ParamField>
+
+    <ParamField body="status" type="string | string[]">
+      Filter requests by their status.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<RequestDTO>">
+  The configurations determining how the request is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[RequestDTO[], number]>">
+  The list of requests along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteRequests
+
+This section provides a reference to the `softDeleteRequests` method. This belongs to the Request Module.
+
+This method soft deletes requests by their IDs.
+
+## Example
+
+```ts
+await requestModuleService.softDeleteRequests([
+  "req_123",
+  "req_321",
+])
+```
+
+## Parameters
+
+<ParamField body="requestIds" type="string[]" required>
+  The IDs of the requests.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreRequests
+
+This section provides a reference to the `restoreRequests` method. This belongs to the Request Module.
+
+This method restores soft deleted requests by their IDs.
+
+## Example
+
+```ts
+await requestModuleService.restoreRequests(["req_123", "req_321"])
+```
+
+## Parameters
+
+<ParamField body="requestIds" type="string[]" required>
+  The IDs of the requests.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the request.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

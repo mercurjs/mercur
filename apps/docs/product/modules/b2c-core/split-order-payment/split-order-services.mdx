@@ -1,0 +1,647 @@
+---
+title: "Split Order Payment Module Service Reference"
+description: "Reference documentation for the Split Order Payment Module service methods"
+---
+
+# ISplitOrderPaymentModuleService Reference
+
+This section of the documentation provides a reference to the `ISplitOrderPaymentModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Split Order Payment Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Split Order Payment Module.
+
+## Methods
+
+- [createSplitOrderPayments](#createsplitorderpayments)
+- [updateSplitOrderPayments](#updatesplitorderpayments)
+- [deleteSplitOrderPayments](#deletesplitorderpayments)
+- [retrieveSplitOrderPayment](#retrievesplitorderpayment)
+- [listSplitOrderPayments](#listsplitorderpayments)
+- [listAndCountSplitOrderPayments](#listandcountsplitorderpayments)
+- [softDeleteSplitOrderPayments](#softdeletesplitorderpayments)
+- [restoreSplitOrderPayments](#restoresplitorderpayments)
+
+---
+
+# createSplitOrderPayments
+
+This section provides a reference to the `createSplitOrderPayments` method. This belongs to the Split Order Payment Module.
+
+## createSplitOrderPayments(data, sharedContext?): Promise\<SplitOrderPaymentDTO[]>
+
+This method creates split order payments.
+
+### Example
+
+```ts
+const splitPayments = await splitOrderPaymentModuleService.createSplitOrderPayments([
+  {
+    order_id: "ord_123",
+    status: "authorized",
+    currency_code: "usd",
+    authorized_amount: 5000,
+    payment_collection_id: "paycol_123",
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateSplitOrderPaymentsDTO[]" required>
+  The split order payments to be created.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order this split payment is associated with.
+    </ParamField>
+
+    <ParamField body="status" type="string" required>
+      The status of the split order payment.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string" required>
+      The ISO 3 currency code. For example, `usd`.
+    </ParamField>
+
+    <ParamField body="authorized_amount" type="number" required>
+      The authorized amount for this seller's portion of the order.
+    </ParamField>
+
+    <ParamField body="payment_collection_id" type="string" required>
+      The ID of the payment collection that this split payment is part of.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SplitOrderPaymentDTO[]>">
+  The created split order payments.
+</ResponseField>
+
+## createSplitOrderPayments(data, sharedContext?): Promise\<SplitOrderPaymentDTO>
+
+This method creates a split order payment.
+
+### Example
+
+```ts
+const splitPayment = await splitOrderPaymentModuleService.createSplitOrderPayments({
+  order_id: "ord_123",
+  status: "authorized",
+  currency_code: "usd",
+  authorized_amount: 5000,
+  payment_collection_id: "paycol_123",
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateSplitOrderPaymentsDTO" required>
+  The split order payment to be created.
+
+  <Expandable title="properties">
+    <ParamField body="order_id" type="string" required>
+      The ID of the order this split payment is associated with.
+    </ParamField>
+
+    <ParamField body="status" type="string" required>
+      The status of the split order payment.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string" required>
+      The ISO 3 currency code. For example, `usd`.
+    </ParamField>
+
+    <ParamField body="authorized_amount" type="number" required>
+      The authorized amount for this seller's portion of the order.
+    </ParamField>
+
+    <ParamField body="payment_collection_id" type="string" required>
+      The ID of the payment collection that this split payment is part of.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SplitOrderPaymentDTO>">
+  The created split order payment.
+</ResponseField>
+
+---
+
+# updateSplitOrderPayments
+
+This section provides a reference to the `updateSplitOrderPayments` method. This belongs to the Split Order Payment Module.
+
+## updateSplitOrderPayments(id, data, sharedContext?): Promise\<SplitOrderPaymentDTO>
+
+This method updates an existing split order payment.
+
+### Example
+
+```ts
+const splitPayment = await splitOrderPaymentModuleService.updateSplitOrderPayments("sp_ord_pay_123", {
+  status: "captured",
+  captured_amount: 5000,
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the split order payment.
+</ParamField>
+
+<ParamField body="data" type="UpdateSplitOrderPaymentsDTO" required>
+  The attributes to update in the split order payment.
+
+  <Expandable title="properties">
+    <ParamField body="status" type="string">
+      The status of the split order payment.
+    </ParamField>
+
+    <ParamField body="authorized_amount" type="number">
+      The authorized amount for this seller's portion of the order.
+    </ParamField>
+
+    <ParamField body="captured_amount" type="number">
+      The captured amount for this seller's portion of the order.
+    </ParamField>
+
+    <ParamField body="refunded_amount" type="number">
+      The refunded amount for this seller's portion of the order.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<SplitOrderPaymentDTO>">
+  The updated split order payment.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the split order payment.
+    </ResponseField>
+
+    <ResponseField name="status" type="string">
+      The status of the split order payment.
+    </ResponseField>
+
+    <ResponseField name="currency_code" type="string">
+      The ISO 3 currency code of the split order payment.
+    </ResponseField>
+
+    <ResponseField name="authorized_amount" type="number">
+      The authorized amount for this seller's portion of the order.
+    </ResponseField>
+
+    <ResponseField name="captured_amount" type="number">
+      The captured amount for this seller's portion of the order.
+    </ResponseField>
+
+    <ResponseField name="refunded_amount" type="number">
+      The refunded amount for this seller's portion of the order.
+    </ResponseField>
+
+    <ResponseField name="payment_collection_id" type="string">
+      The ID of the payment collection that this split payment is part of.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteSplitOrderPayments
+
+This section provides a reference to the `deleteSplitOrderPayments` method. This belongs to the Split Order Payment Module.
+
+## deleteSplitOrderPayments(ids, sharedContext?): Promise\<void>
+
+This method deletes split order payments by their IDs.
+
+### Example
+
+```ts
+await splitOrderPaymentModuleService.deleteSplitOrderPayments(["sp_ord_pay_123", "sp_ord_pay_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the split order payments.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the split order payments are deleted successfully.
+</ResponseField>
+
+## deleteSplitOrderPayments(id, sharedContext?): Promise\<void>
+
+This method deletes a split order payment by its ID.
+
+### Example
+
+```ts
+await splitOrderPaymentModuleService.deleteSplitOrderPayments("sp_ord_pay_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the split order payment.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the split order payment is deleted successfully.
+</ResponseField>
+
+---
+
+# retrieveSplitOrderPayment
+
+This section provides a reference to the `retrieveSplitOrderPayment` method. This belongs to the Split Order Payment Module.
+
+This method retrieves a split order payment by its ID.
+
+## Example
+
+```ts
+const splitPayment = await splitOrderPaymentModuleService.retrieveSplitOrderPayment("sp_ord_pay_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the split order payment.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SplitOrderPaymentDTO>">
+  The configurations determining how the split order payment is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<SplitOrderPaymentDTO>">
+  The retrieved split order payment.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the split order payment.
+    </ResponseField>
+
+    <ResponseField name="status" type="string">
+      The status of the split order payment.
+    </ResponseField>
+
+    <ResponseField name="currency_code" type="string">
+      The ISO 3 currency code of the split order payment.
+    </ResponseField>
+
+    <ResponseField name="authorized_amount" type="number">
+      The authorized amount for this seller's portion of the order.
+    </ResponseField>
+
+    <ResponseField name="captured_amount" type="number">
+      The captured amount for this seller's portion of the order.
+    </ResponseField>
+
+    <ResponseField name="refunded_amount" type="number">
+      The refunded amount for this seller's portion of the order.
+    </ResponseField>
+
+    <ResponseField name="payment_collection_id" type="string">
+      The ID of the payment collection that this split payment is part of.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listSplitOrderPayments
+
+This section provides a reference to the `listSplitOrderPayments` method. This belongs to the Split Order Payment Module.
+
+This method retrieves a paginated list of split order payments based on optional filters and configuration.
+
+## Example
+
+To retrieve split order payments for a specific payment collection:
+
+```ts
+const splitPayments = await splitOrderPaymentModuleService.listSplitOrderPayments({
+  payment_collection_id: "paycol_123",
+})
+```
+
+To filter by status:
+
+```ts
+const splitPayments = await splitOrderPaymentModuleService.listSplitOrderPayments({
+  status: "captured",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const splitPayments = await splitOrderPaymentModuleService.listSplitOrderPayments(
+  {
+    payment_collection_id: "paycol_123",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableSplitOrderPaymentProps">
+  The filters to apply on the retrieved split order payments.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the split order payments by.
+    </ParamField>
+
+    <ParamField body="payment_collection_id" type="string | string[]">
+      Filter split order payments by their payment collection IDs.
+    </ParamField>
+
+    <ParamField body="status" type="string | string[]">
+      Filter split order payments by their status.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string | string[]">
+      Filter split order payments by their currency codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SplitOrderPaymentDTO>">
+  The configurations determining how the split order payment is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<SplitOrderPaymentDTO[]>">
+  The list of split order payments.
+</ResponseField>
+
+---
+
+# listAndCountSplitOrderPayments
+
+This section provides a reference to the `listAndCountSplitOrderPayments` method. This belongs to the Split Order Payment Module.
+
+This method retrieves a paginated list of split order payments along with the total count of available split order payments satisfying the provided filters.
+
+## Example
+
+To retrieve a list of split order payments with count:
+
+```ts
+const [splitPayments, count] = await splitOrderPaymentModuleService.listAndCountSplitOrderPayments({
+  payment_collection_id: "paycol_123",
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination:
+
+```ts
+const [splitPayments, count] = await splitOrderPaymentModuleService.listAndCountSplitOrderPayments(
+  {
+    status: "captured",
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableSplitOrderPaymentProps">
+  The filters to apply on the retrieved split order payments.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the split order payments by.
+    </ParamField>
+
+    <ParamField body="payment_collection_id" type="string | string[]">
+      Filter split order payments by their payment collection IDs.
+    </ParamField>
+
+    <ParamField body="status" type="string | string[]">
+      Filter split order payments by their status.
+    </ParamField>
+
+    <ParamField body="currency_code" type="string | string[]">
+      Filter split order payments by their currency codes.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<SplitOrderPaymentDTO>">
+  The configurations determining how the split order payment is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[SplitOrderPaymentDTO[], number]>">
+  The list of split order payments along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteSplitOrderPayments
+
+This section provides a reference to the `softDeleteSplitOrderPayments` method. This belongs to the Split Order Payment Module.
+
+This method soft deletes split order payments by their IDs.
+
+## Example
+
+```ts
+await splitOrderPaymentModuleService.softDeleteSplitOrderPayments([
+  "sp_ord_pay_123",
+  "sp_ord_pay_321",
+])
+```
+
+## Parameters
+
+<ParamField body="splitOrderPaymentIds" type="string[]" required>
+  The IDs of the split order payments.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreSplitOrderPayments
+
+This section provides a reference to the `restoreSplitOrderPayments` method. This belongs to the Split Order Payment Module.
+
+This method restores soft deleted split order payments by their IDs.
+
+## Example
+
+```ts
+await splitOrderPaymentModuleService.restoreSplitOrderPayments(["sp_ord_pay_123", "sp_ord_pay_321"])
+```
+
+## Parameters
+
+<ParamField body="splitOrderPaymentIds" type="string[]" required>
+  The IDs of the split order payments.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the split order payment.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

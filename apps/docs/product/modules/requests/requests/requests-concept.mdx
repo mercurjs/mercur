@@ -1,0 +1,345 @@
+---
+title: "Request Module"
+description: "Learn about the Request Module and how to use it in your application"
+---
+
+# Request Module
+
+In this section of the documentation, you will find resources to learn more about the Request Module and how to use it in your application.
+
+Mercur has seller request and approval features available out-of-the-box through the Request Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Request Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Request Features
+
+- **Seller Proposals**: Allow sellers to propose new marketplace resources (products, categories, collections, types, tags).
+- **Admin Approval Workflow**: Require admin review and approval before seller-proposed resources go live.
+- **Request Types**: Support multiple request types for different marketplace entities.
+- **Review Notes**: Store admin explanations for approval or rejection decisions.
+- **Status Tracking**: Track requests through draft, pending, accepted, and rejected statuses.
+- **Automatic Resource Creation**: Automatically create the proposed resource when a request is accepted.
+
+---
+
+## How to Use the Request Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+You can build custom workflows and steps. Mercur provides pre-built workflows for request operations in the `@mercurjs/requests` package.
+
+For example, the `acceptProductRequestWorkflow`:
+
+```ts title="src/workflows/requests/accept-product-request.ts"
+import { WorkflowResponse, createWorkflow } from "@medusajs/workflows-sdk"
+import { AcceptRequestDTO, updateProductStatusStep } from "@mercurjs/framework"
+import { updateRequestWorkflow } from "./update-request"
+import { ProductStatus } from "@medusajs/framework/utils"
+
+export const acceptProductRequestWorkflow = createWorkflow(
+  "accept-product-request",
+  function (input: AcceptRequestDTO) {
+    // Update the product status to published
+    const product = updateProductStatusStep({
+      id: input.data.product_id,
+      status: ProductStatus.PUBLISHED,
+    })
+
+    // Update the request status to accepted
+    updateRequestWorkflow.runAsStep({ input })
+    
+    return new WorkflowResponse(product)
+  }
+)
+```
+
+You can then execute the workflow in your custom API routes, scheduled jobs, or subscribers:
+
+### API Route
+
+```ts title="src/api/admin/requests/route.ts"
+import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+
+export async function GET(
+  req: MedusaRequest,
+  res: MedusaResponse
+): Promise<void> {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: requests, metadata } = await query.graph({
+    entity: 'request',
+    fields: req.queryConfig.fields,
+    filters: {
+      ...req.filterableFields,
+      status: req.filterableFields.status || { $ne: 'draft' }
+    },
+    pagination: req.queryConfig.pagination
+  })
+
+  res.json({
+    requests,
+    count: metadata?.count,
+    offset: metadata?.skip,
+    limit: metadata?.take
+  })
+}
+```
+
+### Subscriber
+
+```ts title="src/subscribers/product-request-to-create.ts"
+import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import {
+  CreateRequestDTO,
+  ProductRequestUpdatedEvent,
+} from "@mercurjs/framework"
+import { createProductRequestWorkflow } from "../workflows"
+
+export default async function productRequestToCreateHandler({
+  event,
+  container,
+}: SubscriberArgs<{
+  data: CreateRequestDTO
+  seller_id: string
+}>) {
+  const input = event.data
+
+  await createProductRequestWorkflow.run({
+    container,
+    input,
+  })
+}
+
+export const config: SubscriberConfig = {
+  event: ProductRequestUpdatedEvent.TO_CREATE,
+  context: {
+    subscriberId: "product-request-to-create",
+  },
+}
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to requests in Mercur.
+
+## Request
+
+A request represents a seller's proposal to create a new marketplace resource that requires admin approval. It is represented by the [Request data model](../data-model/request-module-data-reference#request).
+
+A request holds information about:
+
+- Request type (what kind of resource is being proposed)
+- Request data (the payload containing the proposed resource details)
+- Submitter ID (the seller member who created the request)
+- Reviewer ID (the admin who reviewed the request)
+- Reviewer note (admin's explanation of their decision)
+- Status (current state in the approval workflow)
+
+This enables controlled marketplace growth where admins can review and approve seller contributions.
+
+---
+
+## Request Types
+
+The Request Module supports multiple request types for different marketplace entities:
+
+### product
+
+Seller proposes a new product to be added to the marketplace catalog.
+
+**Data payload includes:**
+- Product title, description, handle
+- Product type, collection, category
+- Variants, options, pricing
+- Images and metadata
+
+### product_category
+
+Seller proposes a new product category.
+
+**Data payload includes:**
+- Category name, description
+- Parent category ID (for hierarchy)
+- Handle for URL
+
+### product_collection
+
+Seller proposes a new product collection.
+
+**Data payload includes:**
+- Collection title, handle
+- Description and metadata
+
+### product_type
+
+Seller proposes a new product type classification.
+
+**Data payload includes:**
+- Type value (e.g., "Electronics", "Apparel")
+
+### product_tag
+
+Seller proposes a new product tag.
+
+**Data payload includes:**
+- Tag value (e.g., "Eco-Friendly", "Sale")
+
+### review_remove
+
+Seller requests removal of an unfair or policy-violating review.
+
+**Data payload includes:**
+- Review ID to be removed
+- Reason for removal request
+
+### product_update
+
+Seller proposes updates to an existing product that requires approval.
+
+**Data payload includes:**
+- Product ID
+- Fields to be updated
+- New values
+
+---
+
+## Request Status Workflow
+
+Requests follow a four-state workflow:
+
+### draft
+
+**Initial state** for requests being prepared.
+- Not yet submitted for review
+- Can be edited or deleted
+- Not visible to admins
+
+### pending
+
+**Submitted for review**.
+- Awaiting admin decision
+- Visible in admin request queue
+- Cannot be edited by seller
+
+### accepted
+
+**Approved by admin**.
+- Resource is automatically created from request data
+- Request marked as accepted
+- Seller notified of approval
+- Resource goes live in marketplace
+
+### rejected
+
+**Denied by admin**.
+- Resource is not created
+- Admin provides explanation in `reviewer_note`
+- Seller notified of rejection
+- Request archived
+
+---
+
+## Automatic Resource Creation
+
+When a request is accepted, the appropriate workflow automatically creates the resource:
+
+**Product Request → Product**
+```ts
+acceptProductRequestWorkflow
+  → updateProductStatusStep (set to PUBLISHED)
+  → updateRequestWorkflow (mark as accepted)
+```
+
+**Category Request → ProductCategory**
+```ts
+acceptProductCategoryRequestWorkflow
+  → createProductCategoriesStep
+  → updateRequestWorkflow
+```
+
+**Collection Request → ProductCollection**
+```ts
+acceptProductCollectionRequestWorkflow
+  → createCollectionsStep
+  → updateRequestWorkflow
+```
+
+This ensures consistency between the request approval and resource creation.
+
+---
+
+## Event-Driven Architecture
+
+The Request Module uses an event-driven pattern for resource creation:
+
+1. **Request Created**: Seller creates request with status "pending"
+2. **Admin Reviews**: Admin accepts the request
+3. **Event Emitted**: `ProductRequestUpdatedEvent.TO_CREATE` emitted
+4. **Subscriber Triggered**: `product-request-to-create` subscriber executes
+5. **Workflow Runs**: `createProductRequestWorkflow` creates the resource
+6. **Request Updated**: Request status updated to "accepted"
+
+This decouples request approval from resource creation, allowing for flexible workflows and error handling.
+
+---
+
+## Configuration Integration
+
+The Request Module integrates with the Configuration Module to control availability:
+
+```ts
+const isEnabled = await checkConfigurationRule(
+  req.scope,
+  "product_request_enabled"
+)
+
+if (!isEnabled) {
+  return res.status(403).json({
+    message: "Product request functionality is disabled"
+  })
+}
+```
+
+Marketplace admins can enable or disable the request system globally through configuration rules.
+
+---
+
+## Notification Integration
+
+The Request Module triggers notifications for key events:
+
+**For Admins:**
+- New request created → Admin notification in feed
+
+**For Sellers:**
+- Request accepted → Success notification with resource details
+- Request rejected → Rejection notification with admin's reason
+
+This keeps both parties informed throughout the approval process.
+
+---
+
+## Use Cases
+
+**1. Curated Marketplace**
+Sellers propose new products; admins review for quality, accuracy, and policy compliance before approval.
+
+**2. Category Expansion**
+Sellers request new product categories when existing ones don't fit their products; admins approve to grow the catalog.
+
+**3. Tag Management**
+Sellers propose new tags for better product organization; admins approve to maintain tag consistency.
+
+**4. Review Moderation**
+Sellers request removal of unfair reviews; admins review both sides and make final decision.
+
+**5. Product Updates**
+In strict marketplaces, even product edits require approval to maintain quality standards.
+
+**6. Seller Onboarding**
+New seller registration goes through request approval before account activation.

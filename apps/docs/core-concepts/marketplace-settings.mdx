@@ -1,0 +1,28 @@
+---
+title: "Marketplace settings"
+---
+
+# Settings reference
+
+Currently there are three settings the marketplace admin can change:
+
+- `require_product_approval` - decide whether seller-added products require admin approval before becoming ready to list,
+- `product_request_enabled` - allow sellers to propose new products for inclusion in the catalog,
+- `product_import_enabled` - allow sellers to import products via `csv` file.
+
+All settings are `false` by default.
+
+# Example Scenarios
+
+1. ** Require Admin Approval ON, Sellers Can Request Products ON**:
+   - Sellers can list inventory for global products.
+   - Sellers can request new global/unique products.
+   - All inventory and product additions require admin approval.
+2. **Require Admin Approval OFF**:
+   - Sellers freely add products without needing admin approval.
+   - Admin does not need to manage requests or approve listings.
+
+# Verification middleware
+
+The middleware `checkConfigurationRule` is used to restrict route availability according to the setting value, and can be found in `@mercurjs/b2c-core/src/shared/infra/http/middlewares/check-configuration-rule.ts`. It takes two arguments, `rule_type` and `expected_value`.
+Advanced users can use it to modify the default Mercur behaviour.

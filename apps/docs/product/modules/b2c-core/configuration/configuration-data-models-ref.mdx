@@ -1,0 +1,28 @@
+---
+title: "Configuration Module Data Models"
+description: "Reference documentation for the Configuration Module data models"
+---
+
+## Relations Overview
+
+This module has no relations to other data models.
+
+## Data Models
+
+- [ConfigurationRule](#configurationrule)
+
+## ConfigurationRule
+
+This documentation provides a reference to the ConfigurationRule data model. It belongs to the Configuration Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/configuration/models/configuration-rule.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the configuration rule. |
+| `rule_type` | `EnumProperty<["global_product_catalog", "require_product_approval", "product_request_enabled", "product_import_enabled"]>` | The type of the configuration rule. This field is unique. |
+| `is_enabled` | `BooleanProperty` | Whether the configuration rule is enabled. |
+
+

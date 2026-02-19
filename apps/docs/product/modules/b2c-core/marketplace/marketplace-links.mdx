@@ -1,0 +1,282 @@
+---
+title: "Marketplace Module Links"
+description: "Module links for the Marketplace Module"
+---
+
+# Links between Marketplace Module and Other Modules
+
+This document showcases the module links defined between the Marketplace Module and other Commerce Modules.
+
+## Summary
+
+The Marketplace Module has the following links to other modules:
+
+Read-only links are used to query data across modules, but the relations aren't stored in a pivot table in the database.
+
+| First Data Model | Second Data Model | Type                 | Description                                              |
+| ---------------- | ----------------- | -------------------- | -------------------------------------------------------- |
+| OrderSet         | Order             | Stored - one-to-many | Associates an order set with its multiple vendor orders  |
+| OrderSet         | Customer          | Read-only - has one  | Retrieves the customer who owns the order set            |
+| OrderSet         | Cart              | Read-only - has one  | Retrieves the cart that was used to create the order set |
+| OrderSet         | SalesChannel      | Read-only - has one  | Retrieves the sales channel of the order set             |
+| OrderSet         | PaymentCollection | Read-only - has one  | Retrieves the payment collection for the order set       |
+
+---
+
+## Order Module
+
+Mercur defines a link between the Marketplace Module's `OrderSet` data model and the Order Module's `Order` data model. This allows an order set to be associated with multiple orders (one per seller in a multi-vendor cart).
+
+### Retrieve with Query
+
+To retrieve the orders of an order set with Query, pass `order.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: orderSets } = await query.graph({
+      entity: "order_set",
+      fields: [
+        "*",
+        "order.*",
+      ],
+    })
+    
+    // orderSets[0].order
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: orderSets } = useQueryGraphStep({
+      entity: "order_set",
+      fields: [
+        "*",
+        "order.*",
+      ],
+    })
+    
+    // orderSets[0].order
+    ```
+  </Tab>
+</Tabs>
+
+### Manage with Link
+
+To manage the orders of an order set, use Link:
+
+<Tabs>
+  <Tab title="link.create">
+    ```ts
+    import { Modules } from "@medusajs/framework/utils"
+    
+    // ...
+    
+    await link.create({
+      marketplace: {
+        order_set_id: "ordset_123",
+      },
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+    })
+    ```
+  </Tab>
+  <Tab title="createRemoteLinkStep">
+    ```ts
+    import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    createRemoteLinkStep({
+      marketplace: {
+        order_set_id: "ordset_123",
+      },
+      [Modules.ORDER]: {
+        order_id: "ord_123",
+      },
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Customer Module
+
+Mercur defines a read-only link between the Marketplace Module's `OrderSet` data model and the Customer Module's `Customer` data model. Because the link is read-only from the `OrderSet`'s side, you can only retrieve the customer of an order set, and not the other way around.
+
+### Retrieve with Query
+
+To retrieve the customer of an order set with Query, pass `customer.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: orderSets } = await query.graph({
+      entity: "order_set",
+      fields: [
+        "*",
+        "customer.*",
+      ],
+    })
+    
+    // orderSets[0].customer
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: orderSets } = useQueryGraphStep({
+      entity: "order_set",
+      fields: [
+        "*",
+        "customer.*",
+      ],
+    })
+    
+    // orderSets[0].customer
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Cart Module
+
+Mercur defines a read-only link between the Marketplace Module's `OrderSet` data model and the Cart Module's `Cart` data model. Because the link is read-only from the `OrderSet`'s side, you can only retrieve the cart of an order set, and not the other way around.
+
+The cart of an order set is determined by the `cart_id` property of the `OrderSet` data model.
+
+### Retrieve with Query
+
+To retrieve the cart of an order set with Query, pass `cart.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: orderSets } = await query.graph({
+      entity: "order_set",
+      fields: [
+        "*",
+        "cart.*",
+      ],
+    })
+    
+    // orderSets[0].cart
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: orderSets } = useQueryGraphStep({
+      entity: "order_set",
+      fields: [
+        "*",
+        "cart.*",
+      ],
+    })
+    
+    // orderSets[0].cart
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Sales Channel Module
+
+Mercur defines a read-only link between the Marketplace Module's `OrderSet` data model and the Sales Channel Module's `SalesChannel` data model. Because the link is read-only from the `OrderSet`'s side, you can only retrieve the sales channel of an order set, and not the other way around.
+
+The sales channel of an order set is determined by the `sales_channel_id` property of the `OrderSet` data model.
+
+### Retrieve with Query
+
+To retrieve the sales channel of an order set with Query, pass `sales_channel.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: orderSets } = await query.graph({
+      entity: "order_set",
+      fields: [
+        "*",
+        "sales_channel.*",
+      ],
+    })
+    
+    // orderSets[0].sales_channel
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: orderSets } = useQueryGraphStep({
+      entity: "order_set",
+      fields: [
+        "*",
+        "sales_channel.*",
+      ],
+    })
+    
+    // orderSets[0].sales_channel
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Payment Module
+
+Mercur defines a read-only link between the Marketplace Module's `OrderSet` data model and the Payment Module's `PaymentCollection` data model. Because the link is read-only from the `OrderSet`'s side, you can only retrieve the payment collection of an order set, and not the other way around.
+
+The payment collection of an order set is determined by the `payment_collection_id` property of the `OrderSet` data model.
+
+### Retrieve with Query
+
+To retrieve the payment collection of an order set with Query, pass `payment_collection.*` in `fields`:
+
+<Tabs>
+  <Tab title="query.graph">
+    ```ts
+    const { data: orderSets } = await query.graph({
+      entity: "order_set",
+      fields: [
+        "*",
+        "payment_collection.*",
+      ],
+    })
+    
+    // orderSets[0].payment_collection
+    ```
+  </Tab>
+  <Tab title="useQueryGraphStep">
+    ```ts
+    import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+    
+    // ...
+    
+    const { data: orderSets } = useQueryGraphStep({
+      entity: "order_set",
+      fields: [
+        "*",
+        "payment_collection.*",
+      ],
+    })
+    
+    // orderSets[0].payment_collection
+    ```
+  </Tab>
+</Tabs>

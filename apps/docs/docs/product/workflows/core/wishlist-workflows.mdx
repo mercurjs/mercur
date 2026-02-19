@@ -1,0 +1,215 @@
+---
+title: "Wishlist Workflows"
+description: "Reference documentation for the Wishlist Module workflows and steps"
+---
+
+# Workflows
+
+## createWishlistEntryWorkflow
+
+This documentation provides a reference to the `createWishlistEntryWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow adds a product to a customer's wishlist. If the customer doesn't have a wishlist yet, it creates one and links it to the customer. It then links the specified product to the wishlist.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/wishlist/workflows/create-wishlist.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/store/wishlist/route.ts
+    import {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework";
+    import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+    import { createWishlistEntryWorkflow } from "../../../workflows/wishlist/workflows";
+    import { StoreCreateWishlistType } from "./validators";
+    
+    export const POST = async (
+      req: AuthenticatedMedusaRequest<StoreCreateWishlistType>,
+      res: MedusaResponse
+    ) => {
+      const { result } = await createWishlistEntryWorkflow.run({
+        container: req.scope,
+        input: {
+          ...req.validatedBody,
+          customer_id: req.auth_context.actor_id,
+        },
+      });
+    
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    
+      const {
+        data: [wishlist],
+      } = await query.graph({
+        entity: "wishlist",
+        fields: req.queryConfig.fields,
+        filters: {
+          id: result.id,
+        },
+      });
+    
+      res.status(201).json({ wishlist });
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [createWishlistEntryStep](#createwishlistentrystep): Creates or retrieves the wishlist and links the product to it.
+
+### Input
+
+<ParamField body="input" type="CreateWishlistDTO" required>
+  The wishlist entry creation details.
+
+  <Expandable title="properties">
+    <ParamField body="customer_id" type="string" required>
+      The ID of the customer adding the product to their wishlist.
+    </ParamField>
+    <ParamField body="reference" type="string" required>
+      The type of resource being added. Must be "product".
+    </ParamField>
+    <ParamField body="reference_id" type="string" required>
+      The ID of the product being added to the wishlist.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="WishlistDTO" type="WishlistDTO">
+  The wishlist containing the newly added product.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the wishlist.
+    </ResponseField>
+    <ResponseField name="created_at" type="Date">
+      The date the wishlist was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="Date">
+      The date the wishlist was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## deleteWishlistEntryWorkflow
+
+This documentation provides a reference to the `deleteWishlistEntryWorkflow`. It belongs to the `@mercurjs/b2c-core` package.
+
+This workflow removes a product from a customer's wishlist by dismissing the link between the wishlist and the product.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/wishlist/workflows/delete-wishlist.ts)
+
+### Examples
+
+<Tabs>
+  <Tab title="API Route">
+    ```ts packages/modules/b2c-core/src/api/store/wishlist/[id]/product/[reference_id]/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
+    import { deleteWishlistEntryWorkflow } from '../../../../../../workflows/wishlist/workflows'
+    
+    export const DELETE = async (
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) => {
+      await deleteWishlistEntryWorkflow.run({
+        container: req.scope,
+        input: req.params
+      })
+    
+      res.json({
+        ...req.params,
+        object: 'wishlist',
+        deleted: true
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Steps
+
+- [deleteWishlistEntryStep](#deletewishlistentrystep): Removes the link between the wishlist and the product.
+
+### Input
+
+<ParamField body="input" type="DeleteWishlistDTO" required>
+  The wishlist entry deletion details.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the wishlist.
+    </ParamField>
+    <ParamField body="reference_id" type="string" required>
+      The ID of the product to remove from the wishlist.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the wishlist.
+    </ResponseField>
+    <ResponseField name="reference_id" type="string">
+      The ID of the removed product.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# Steps
+
+## createWishlistEntryStep
+
+Creates or retrieves a wishlist for a customer and links a product to it. If the customer doesn't have a wishlist, it creates one and links it to the customer. Then it creates a link between the wishlist and the specified product.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/wishlist/steps/create-wishlist.ts)
+
+### Input
+
+<ParamField body="input" type="CreateWishlistDTO" required>
+  The wishlist entry creation details.
+</ParamField>
+
+### Output
+
+<ResponseField name="WishlistDTO" type="WishlistDTO">
+  The wishlist containing the newly linked product.
+</ResponseField>
+
+---
+
+## deleteWishlistEntryStep
+
+Removes the link between a wishlist and a product, effectively removing the product from the customer's wishlist.
+
+[Source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/workflows/wishlist/steps/delete-wishlist.ts)
+
+### Input
+
+<ParamField body="input" type="DeleteWishlistDTO" required>
+  The wishlist entry deletion details.
+</ParamField>
+
+### Output
+
+<ResponseField name="object" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the wishlist.
+    </ResponseField>
+    <ResponseField name="reference_id" type="string">
+      The ID of the removed product.
+    </ResponseField>
+  </Expandable>
+</ResponseField>

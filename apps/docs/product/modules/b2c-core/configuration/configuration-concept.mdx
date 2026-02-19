@@ -1,0 +1,212 @@
+---
+title: "Configuration Module"
+description: "Learn about the Configuration Module and how to use it in your application"
+---
+
+# Configuration Module
+
+In this section of the documentation, you will find resources to learn more about the Configuration Module and how to use it in your application.
+
+Mercur has marketplace configuration features available out-of-the-box through the Configuration Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Configuration Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Configuration Features
+
+- **Marketplace Settings Management**: Create and manage marketplace-wide configuration rules that control platform behavior.
+- **Dynamic Rule Checking**: Programmatically check whether specific features are enabled at runtime.
+- **Default Values**: Fall back to predefined default values when rules aren't explicitly configured in the database.
+- **Feature Toggles**: Enable or disable key marketplace features such as product approval requirements and import capabilities.
+
+---
+
+## How to Use the Configuration Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+You can build custom workflows and steps. Mercur provides pre-built workflows for common configuration operations in the `@mercurjs/b2c-core` package.
+
+For example, the `createConfigurationRuleWorkflow`:
+
+```ts title="src/workflows/configuration/create-configuration-rule.ts"
+import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
+import { CreateConfigurationRuleDTO } from '@mercurjs/framework'
+import { createConfigurationRuleStep } from '../steps'
+
+export const createConfigurationRuleWorkflow = createWorkflow(
+  'create-configuration-rule',
+  function (input: CreateConfigurationRuleDTO) {
+    return new WorkflowResponse(createConfigurationRuleStep(input))
+  }
+)
+```
+
+You can then execute the workflow in your custom API routes:
+
+### API Route
+
+```ts title="src/api/admin/configuration/route.ts"
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework"
+import { createConfigurationRuleWorkflow } from '../../../workflows/configuration/workflows'
+
+export const POST = async (
+  req: MedusaRequest,
+  res: MedusaResponse
+) => {
+  // Execute the createConfigurationRuleWorkflow
+  const { result: configuration_rule } =
+    await createConfigurationRuleWorkflow.run({
+      container: req.scope,
+      input: req.validatedBody
+    })
+
+  res.status(201).json({ configuration_rule })
+}
+```
+
+Learn more about workflows in [this documentation](https://docs.medusajs.com/learn/fundamentals/workflows).
+
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to marketplace configuration in Mercur.
+
+## Configuration Rule
+
+A configuration rule is a marketplace-wide setting that controls the behavior of specific platform features. It is represented by the [ConfigurationRule data model](../data-model/configuration-module-data-reference#configurationrule).
+
+A configuration rule holds information about:
+
+- The type of rule being configured
+- Whether the rule is currently enabled
+- Created and updated timestamps
+
+Each rule type controls a specific aspect of the marketplace's functionality and can be toggled on or off by marketplace administrators.
+
+---
+
+## Rule Types
+
+Mercur supports four configuration rule types that control key marketplace behaviors:
+
+### global_product_catalog
+
+Controls whether the marketplace uses a global product catalog where all sellers share the same product definitions.
+
+- **Default**: `false`
+- **When enabled**: Products are shared across sellers (managed centrally)
+- **When disabled**: Each seller manages their own unique products
+
+### require_product_approval
+
+Controls whether products added by sellers require administrator approval before becoming available to customers.
+
+- **Default**: `false`
+- **When enabled**: New products remain in "draft" status until admin approves
+- **When disabled**: Seller products go live immediately
+
+### product_request_enabled
+
+Controls whether sellers can submit requests to create new marketplace-wide products, categories, collections, and other resources.
+
+- **Default**: `true`
+- **When enabled**: Sellers can submit proposals for new marketplace resources
+- **When disabled**: Request submission functionality is unavailable to sellers
+
+### product_import_enabled
+
+Controls whether sellers can import products in bulk using CSV files.
+
+- **Default**: `true`
+- **When enabled**: Sellers have access to bulk product import functionality
+- **When disabled**: Sellers must create products one by one through the UI
+
+---
+
+## Default Values
+
+The Configuration Module implements a fallback system to ensure the marketplace can function even when rules aren't explicitly stored in the database.
+
+Each rule type has a predefined default value:
+
+```ts
+const ConfigurationRuleDefaults = new Map([
+  ['global_product_catalog', false],
+  ['product_request_enabled', true],
+  ['require_product_approval', false],
+  ['product_import_enabled', true],
+])
+```
+
+When checking if a rule is enabled, the system:
+1. First attempts to retrieve the rule from the database
+2. If not found, returns the default value
+3. If an error occurs, falls back to the default value
+
+This ensures the marketplace remains functional during initial setup or if configuration rules are accidentally deleted.
+
+---
+
+## Dynamic Rule Checking
+
+The `isRuleEnabled` method allows programmatic checking of configuration rules at runtime:
+
+```ts
+const isApprovalRequired = await configurationModuleService.isRuleEnabled(
+  "require_product_approval"
+)
+
+if (isApprovalRequired) {
+  // Set product status to draft
+  productData.status = "draft"
+} else {
+  // Publish product immediately
+  productData.status = "published"
+}
+```
+
+This pattern is used throughout Mercur to conditionally enable or disable features based on marketplace configuration.
+
+---
+
+## Configuration in Middleware
+
+Mercur provides a `checkConfigurationRule` utility function for use in API route middlewares:
+
+```ts
+import { checkConfigurationRule } from "@mercurjs/framework"
+
+// In a middleware
+const isEnabled = await checkConfigurationRule(
+  req.scope,
+  "product_request_enabled"
+)
+
+if (!isEnabled) {
+  return res.status(403).json({
+    message: "Product request functionality is disabled"
+  })
+}
+```
+
+This allows routes to be conditionally enabled or disabled based on marketplace settings, providing flexibility in how the platform is operated.
+
+---
+
+## Use Cases
+
+**1. Curated Marketplace**
+Enable `require_product_approval` to manually review all products before they go live, ensuring quality control.
+
+**2. Open Marketplace**
+Disable `require_product_approval` to allow sellers to list products immediately, reducing administrative overhead.
+
+**3. Centralized Catalog**
+Enable `global_product_catalog` for marketplaces where products are managed centrally and sellers only manage inventory.
+
+**4. Seller-Driven Growth**
+Enable `product_request_enabled` to allow sellers to propose new product categories and types, growing the catalog organically.
+
+**5. Controlled Product Import**
+Disable `product_import_enabled` during initial marketplace launch to ensure data quality, then enable it once processes are established.

@@ -1,0 +1,32 @@
+---
+title: "Split Order Payment Module Data Models"
+description: "Reference documentation for the Split Order Payment Module data models"
+---
+
+## Relations Overview
+
+| Relationship | Type | Description |
+| --- | --- | --- |
+| SplitOrderPayment → PaymentCollection (Payment Module) | Read-only - has one | A split order payment references a payment collection |
+
+## Data Models
+
+- [SplitOrderPayment](#splitorderpayment)
+
+## SplitOrderPayment
+
+This documentation provides a reference to the SplitOrderPayment data model. It belongs to the Split Order Payment Module.
+
+<Info>
+  [View source code](https://github.com/mercurjs/mercur/blob/main/packages/modules/b2c-core/src/modules/split-order-payment/models/split-order-payment.ts)
+</Info>
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `PrimaryKeyModifier<IdProperty>` | The ID of the split order payment. |
+| `status` | `TextProperty` | The status of the split order payment. |
+| `currency_code` | `TextProperty` | The ISO 3 currency code of the split order payment. For example, `usd`. |
+| `authorized_amount` | `BigNumberProperty` | The authorized amount for this seller's portion of the order. |
+| `captured_amount` | `BigNumberProperty` | The captured amount for this seller's portion of the order. Defaults to `0`. |
+| `refunded_amount` | `BigNumberProperty` | The refunded amount for this seller's portion of the order. Defaults to `0`. |
+| `payment_collection_id` | `TextProperty` | The ID of the payment collection that this split payment is part of. |

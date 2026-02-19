@@ -1,0 +1,1767 @@
+---
+title: "Attribute Module Service Reference"
+description: "Reference documentation for the Attribute Module service methods"
+---
+
+# IAttributeModuleService Reference
+
+This section of the documentation provides a reference to the `IAttributeModuleService` interface's methods. This is the interface developers use to use the functionalities provided by the Attribute Module.
+
+<Warning>
+You should only use the methods in this reference when implementing complex customizations. For common cases, check out available workflows instead.
+</Warning>
+
+The main service interface for the Attribute Module.
+
+## Methods
+
+- [createAttributes](#createattributes)
+- [updateAttributes](#updateattributes)
+- [deleteAttributes](#deleteattributes)
+- [retrieveAttribute](#retrieveattribute)
+- [listAttributes](#listattributes)
+- [listAndCountAttributes](#listandcountattributes)
+- [softDeleteAttributes](#softdeleteattributes)
+- [restoreAttributes](#restoreattributes)
+- [createAttributeValues](#createattributevalues)
+- [updateAttributeValues](#updateattributevalues)
+- [deleteAttributeValues](#deleteattributevalues)
+- [retrieveAttributeValue](#retrieveattributevalue)
+- [listAttributeValues](#listattributevalues)
+- [listAndCountAttributeValues](#listandcountattributevalues)
+- [softDeleteAttributeValues](#softdeleteattributevalues)
+- [restoreAttributeValues](#restoreattributevalues)
+- [createAttributePossibleValues](#createattributepossiblevalues)
+- [updateAttributePossibleValues](#updateattributepossiblevalues)
+- [deleteAttributePossibleValues](#deleteattributepossiblevalues)
+- [retrieveAttributePossibleValue](#retrieveattributepossiblevalue)
+- [listAttributePossibleValues](#listattributepossiblevalues)
+- [listAndCountAttributePossibleValues](#listandcountattributepossiblevalues)
+- [softDeleteAttributePossibleValues](#softdeleteattributepossiblevalues)
+- [restoreAttributePossibleValues](#restoreattributepossiblevalues)
+- [updateAttributeWithUpsertOrReplacePossibleValues](#updateattributewithupsertorreplacepossiblevalues)
+
+---
+
+# createAttributes
+
+This section provides a reference to the `createAttributes` method. This belongs to the Attribute Module.
+
+## createAttributes(data, sharedContext?): Promise\<AttributeDTO[]>
+
+This method creates attributes.
+
+### Example
+
+```ts
+const attributes = await attributeModuleService.createAttributes([
+  {
+    name: "Material",
+    handle: "material",
+    ui_component: "select",
+    is_filterable: true,
+    is_required: false,
+    possible_values: [
+      { value: "Cotton", rank: 1 },
+      { value: "Polyester", rank: 2 },
+    ],
+  },
+])
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateAttributeDTO[]" required>
+  The attributes to be created.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the attribute.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the attribute.
+    </ParamField>
+
+    <ParamField body="handle" type="string">
+      The unique handle of the attribute.
+    </ParamField>
+
+    <ParamField body="is_filterable" type="boolean">
+      Whether the attribute is filterable.
+    </ParamField>
+
+    <ParamField body="is_required" type="boolean">
+      Whether the attribute is required.
+    </ParamField>
+
+    <ParamField body="ui_component" type='"select" | "multivalue" | "unit" | "toggle" | "text_area" | "color_picker"' required>
+      The UI component type for rendering the attribute.
+    </ParamField>
+
+    <ParamField body="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ParamField>
+
+    <ParamField body="possible_values" type="CreateAttributeValueDTO[]">
+      The predefined possible values for the attribute.
+
+      <Expandable title="properties">
+        <ParamField body="value" type="string" required>
+          The value of the attribute possible value.
+        </ParamField>
+
+        <ParamField body="rank" type="number" required>
+          The rank of the attribute possible value.
+        </ParamField>
+
+        <ParamField body="metadata" type="Record<string, unknown>">
+          Holds custom data in key-value pairs.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="product_category_ids" type="string[]">
+      The IDs of product categories to associate with this attribute.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<AttributeDTO[]>">
+  The created attributes.
+</ResponseField>
+
+## createAttributes(data, sharedContext?): Promise\<AttributeDTO>
+
+This method creates an attribute.
+
+### Example
+
+```ts
+const attribute = await attributeModuleService.createAttributes({
+  name: "Size",
+  handle: "size",
+  ui_component: "select",
+  is_filterable: true,
+})
+```
+
+### Parameters
+
+<ParamField body="data" type="CreateAttributeDTO" required>
+  The attribute to be created.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>
+      The name of the attribute.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the attribute.
+    </ParamField>
+
+    <ParamField body="handle" type="string">
+      The unique handle of the attribute.
+    </ParamField>
+
+    <ParamField body="is_filterable" type="boolean">
+      Whether the attribute is filterable.
+    </ParamField>
+
+    <ParamField body="is_required" type="boolean">
+      Whether the attribute is required.
+    </ParamField>
+
+    <ParamField body="ui_component" type='"select" | "multivalue" | "unit" | "toggle" | "text_area" | "color_picker"' required>
+      The UI component type for rendering the attribute.
+    </ParamField>
+
+    <ParamField body="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ParamField>
+
+    <ParamField body="possible_values" type="CreateAttributeValueDTO[]">
+      The predefined possible values for the attribute.
+
+      <Expandable title="properties">
+        <ParamField body="value" type="string" required>
+          The value of the attribute possible value.
+        </ParamField>
+
+        <ParamField body="rank" type="number" required>
+          The rank of the attribute possible value.
+        </ParamField>
+
+        <ParamField body="metadata" type="Record<string, unknown>">
+          Holds custom data in key-value pairs.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="product_category_ids" type="string[]">
+      The IDs of product categories to associate with this attribute.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<AttributeDTO>">
+  The created attribute.
+</ResponseField>
+
+---
+
+# updateAttributeWithUpsertOrReplacePossibleValues
+
+This section provides a reference to the `updateAttributeWithUpsertOrReplacePossibleValues` method. This belongs to the Attribute Module.
+
+## updateAttributeWithUpsertOrReplacePossibleValues(input, sharedContext?): Promise\<void>
+
+This method updates an attribute and upserts or replaces its possible values in a single operation. If `id` is not provided for `possible_values` entries, it will lookup the database by `attributePossibleValue.value` to update or create accordingly.
+
+### Example
+
+```ts
+await attributeModuleService.updateAttributeWithUpsertOrReplacePossibleValues({
+  id: "attr_123",
+  name: "Updated Material",
+  possible_values: [
+    { id: "attr_pos_val_1", value: "Cotton", rank: 1 },
+    { value: "Silk", rank: 3 }, // Will be created
+  ],
+})
+```
+
+### Parameters
+
+<ParamField body="input" type="UpdateAttributeDTO | UpdateAttributeDTO[]" required>
+  The attribute(s) to update with possible values to upsert.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the attribute to update.
+    </ParamField>
+
+    <ParamField body="name" type="string">
+      The name of the attribute.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the attribute.
+    </ParamField>
+
+    <ParamField body="handle" type="string">
+      The unique handle of the attribute.
+    </ParamField>
+
+    <ParamField body="is_filterable" type="boolean">
+      Whether the attribute is filterable.
+    </ParamField>
+
+    <ParamField body="is_required" type="boolean">
+      Whether the attribute is required.
+    </ParamField>
+
+    <ParamField body="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ParamField>
+
+    <ParamField body="possible_values" type="UpsertAttributeValueDTO[]">
+      The possible values to upsert.
+
+      <Expandable title="properties">
+        <ParamField body="id" type="string">
+          The ID of the existing possible value (for updates).
+        </ParamField>
+
+        <ParamField body="value" type="string">
+          The value of the attribute possible value.
+        </ParamField>
+
+        <ParamField body="rank" type="number">
+          The rank of the attribute possible value.
+        </ParamField>
+
+        <ParamField body="metadata" type="Record<string, unknown>">
+          Holds custom data in key-value pairs.
+        </ParamField>
+
+        <ParamField body="attribute_id" type="string">
+          The ID of the attribute this value belongs to.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="product_category_ids" type="{ id: string }[]">
+      The product categories to associate with this attribute.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the attribute and its possible values are updated successfully.
+</ResponseField>
+
+---
+
+# listAttributes
+
+This section provides a reference to the `listAttributes` method. This belongs to the Attribute Module.
+
+This method retrieves a paginated list of attributes based on optional filters and configuration.
+
+## Example
+
+To retrieve a list of attributes using their IDs:
+
+```ts
+const attributes = await attributeModuleService.listAttributes({
+  id: ["attr_123", "attr_321"],
+})
+```
+
+To retrieve filterable attributes:
+
+```ts
+const attributes = await attributeModuleService.listAttributes({
+  is_filterable: true,
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const attributes = await attributeModuleService.listAttributes(
+  {
+    id: ["attr_123", "attr_321"],
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableAttributeProps">
+  The filters to apply on the retrieved attributes.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the attributes by.
+    </ParamField>
+
+    <ParamField body="name" type="string | string[]">
+      Filter attributes by their names.
+    </ParamField>
+
+    <ParamField body="handle" type="string | string[]">
+      Filter attributes by their handles.
+    </ParamField>
+
+    <ParamField body="is_filterable" type="boolean">
+      Filter by whether attributes are filterable.
+    </ParamField>
+
+    <ParamField body="is_required" type="boolean">
+      Filter by whether attributes are required.
+    </ParamField>
+
+    <ParamField body="ui_component" type="string | string[]">
+      Filter attributes by their UI component type.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<AttributeDTO>">
+  The configurations determining how the attribute is retrieved. Its properties, such as `select` or `relations`, accept the attributes or relations associated with an attribute.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["possible_values", "values"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records. Its keys are the names of attributes of the entity, and a key's value can either be `ASC` to sort retrieved records in an ascending order, or `DESC` to sort retrieved records in a descending order.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributeDTO[]>">
+  The list of attributes.
+</ResponseField>
+
+---
+
+# retrieveAttribute
+
+This section provides a reference to the `retrieveAttribute` method. This belongs to the Attribute Module.
+
+This method retrieves an attribute by its ID.
+
+## Example
+
+```ts
+const attribute = await attributeModuleService.retrieveAttribute("attr_123")
+```
+
+To retrieve relationships:
+
+```ts
+const attribute = await attributeModuleService.retrieveAttribute(
+  "attr_123",
+  {
+    relations: ["possible_values", "values"],
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the attribute.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<AttributeDTO>">
+  The configurations determining how the attribute is retrieved. Its properties, such as `select` or `relations`, accept the attributes or relations associated with an attribute.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result. For example, `["possible_values", "values"]`.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributeDTO>">
+  The retrieved attribute.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the attribute.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the attribute.
+    </ResponseField>
+
+    <ResponseField name="description" type="string">
+      The description of the attribute.
+    </ResponseField>
+
+    <ResponseField name="handle" type="string">
+      The unique handle of the attribute.
+    </ResponseField>
+
+    <ResponseField name="is_filterable" type="boolean">
+      Whether the attribute is filterable.
+    </ResponseField>
+
+    <ResponseField name="is_required" type="boolean">
+      Whether the attribute is required.
+    </ResponseField>
+
+    <ResponseField name="ui_component" type="string">
+      The UI component type for rendering the attribute.
+    </ResponseField>
+
+    <ResponseField name="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="string">
+      The created date of the attribute.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="string">
+      The updated date of the attribute.
+    </ResponseField>
+
+    <ResponseField name="possible_values" type="AttributePossibleValueDTO[]">
+      The associated possible values (if included in relations).
+
+      <Expandable title="properties">
+        <ResponseField name="id" type="string">
+          The ID of the attribute possible value.
+        </ResponseField>
+
+        <ResponseField name="value" type="string">
+          The value of the attribute possible value.
+        </ResponseField>
+
+        <ResponseField name="rank" type="number">
+          The rank of the attribute possible value.
+        </ResponseField>
+
+        <ResponseField name="metadata" type="Record<string, unknown>">
+          Holds custom data in key-value pairs.
+        </ResponseField>
+
+        <ResponseField name="created_at" type="string">
+          The created date of the possible value.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="values" type="AttributeValueDTO[]">
+      The associated attribute values (if included in relations).
+
+      <Expandable title="properties">
+        <ResponseField name="id" type="string">
+          The ID of the attribute value.
+        </ResponseField>
+
+        <ResponseField name="value" type="string">
+          The value of the attribute value.
+        </ResponseField>
+
+        <ResponseField name="rank" type="number">
+          The rank of the attribute value.
+        </ResponseField>
+
+        <ResponseField name="metadata" type="Record<string, unknown>">
+          Holds custom data in key-value pairs.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# updateAttributes
+
+This section provides a reference to the `updateAttributes` method. This belongs to the Attribute Module.
+
+## updateAttributes(id, data, sharedContext?): Promise\<AttributeDTO>
+
+This method updates an existing attribute.
+
+### Example
+
+```ts
+const attribute = await attributeModuleService.updateAttributes("attr_123", {
+  name: "Updated Material",
+  is_filterable: false,
+})
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the attribute.
+</ParamField>
+
+<ParamField body="data" type="UpdateAttributeDTO" required>
+  The attributes to update in the attribute.
+
+  <Expandable title="properties">
+    <ParamField body="name" type="string">
+      The name of the attribute.
+    </ParamField>
+
+    <ParamField body="description" type="string">
+      The description of the attribute.
+    </ParamField>
+
+    <ParamField body="handle" type="string">
+      The unique handle of the attribute.
+    </ParamField>
+
+    <ParamField body="is_filterable" type="boolean">
+      Whether the attribute is filterable.
+    </ParamField>
+
+    <ParamField body="is_required" type="boolean">
+      Whether the attribute is required.
+    </ParamField>
+
+    <ParamField body="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<AttributeDTO>">
+  The updated attribute.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the attribute.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      The name of the attribute.
+    </ResponseField>
+
+    <ResponseField name="description" type="string">
+      The description of the attribute.
+    </ResponseField>
+
+    <ResponseField name="handle" type="string">
+      The unique handle of the attribute.
+    </ResponseField>
+
+    <ResponseField name="is_filterable" type="boolean">
+      Whether the attribute is filterable.
+    </ResponseField>
+
+    <ResponseField name="is_required" type="boolean">
+      Whether the attribute is required.
+    </ResponseField>
+
+    <ResponseField name="ui_component" type="string">
+      The UI component type for rendering the attribute.
+    </ResponseField>
+
+    <ResponseField name="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="string">
+      The created date of the attribute.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="string">
+      The updated date of the attribute.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# deleteAttributes
+
+This section provides a reference to the `deleteAttributes` method. This belongs to the Attribute Module.
+
+## deleteAttributes(ids, sharedContext?): Promise\<void>
+
+This method deletes attributes by their IDs.
+
+### Example
+
+```ts
+await attributeModuleService.deleteAttributes(["attr_123", "attr_321"])
+```
+
+### Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the attributes.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the attributes are deleted successfully.
+</ResponseField>
+
+## deleteAttributes(id, sharedContext?): Promise\<void>
+
+This method deletes an attribute by its ID.
+
+### Example
+
+```ts
+await attributeModuleService.deleteAttributes("attr_123")
+```
+
+### Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the attribute.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+### Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the attribute is deleted successfully.
+</ResponseField>
+
+---
+
+# listAndCountAttributes
+
+This section provides a reference to the `listAndCountAttributes` method. This belongs to the Attribute Module.
+
+This method retrieves a paginated list of attributes along with the total count of available attributes satisfying the provided filters.
+
+## Example
+
+To retrieve a list of attributes using their IDs:
+
+```ts
+const [attributes, count] = await attributeModuleService.listAndCountAttributes({
+  id: ["attr_123", "attr_321"],
+})
+```
+
+By default, only the first `15` records are retrieved. You can control pagination by specifying the `skip` and `take` properties of the `config` parameter:
+
+```ts
+const [attributes, count] = await attributeModuleService.listAndCountAttributes(
+  {
+    id: ["attr_123", "attr_321"],
+  },
+  {
+    take: 20,
+    skip: 2,
+  }
+)
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableAttributeProps">
+  The filters to apply on the retrieved attributes.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the attributes by.
+    </ParamField>
+
+    <ParamField body="name" type="string | string[]">
+      Filter attributes by their names.
+    </ParamField>
+
+    <ParamField body="handle" type="string | string[]">
+      Filter attributes by their handles.
+    </ParamField>
+
+    <ParamField body="is_filterable" type="boolean">
+      Filter by whether attributes are filterable.
+    </ParamField>
+
+    <ParamField body="is_required" type="boolean">
+      Filter by whether attributes are required.
+    </ParamField>
+
+    <ParamField body="ui_component" type="string | string[]">
+      Filter attributes by their UI component type.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<AttributeDTO>">
+  The configurations determining how the attribute is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+
+    <ParamField body="withDeleted" type="boolean">
+      A boolean indicating whether deleted records should also be retrieved as part of the result.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[AttributeDTO[], number]>">
+  The list of attributes along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteAttributes
+
+This section provides a reference to the `softDeleteAttributes` method. This belongs to the Attribute Module.
+
+This method soft deletes attributes by their IDs.
+
+## Example
+
+```ts
+await attributeModuleService.softDeleteAttributes([
+  "attr_123",
+  "attr_321",
+])
+```
+
+## Parameters
+
+<ParamField body="attributeIds" type="string[]" required>
+  The IDs of the attributes.
+</ParamField>
+
+<ParamField body="config" type="SoftDeleteReturn<TReturnableLinkableKeys>">
+  An object that is used to specify an entity's related entities that should be soft-deleted when the main entity is soft-deleted.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreAttributes
+
+This section provides a reference to the `restoreAttributes` method. This belongs to the Attribute Module.
+
+This method restores soft deleted attributes by their IDs.
+
+## Example
+
+```ts
+await attributeModuleService.restoreAttributes(["attr_123", "attr_321"])
+```
+
+## Parameters
+
+<ParamField body="attributeIds" type="string[]" required>
+  The IDs of the attributes.
+</ParamField>
+
+<ParamField body="config" type="RestoreReturn<TReturnableLinkableKeys>">
+  Configurations determining which relations to restore along with each of the attribute.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createAttributeValues
+
+This section provides a reference to the `createAttributeValues` method. This belongs to the Attribute Module.
+
+This method creates attribute values.
+
+## Example
+
+```ts
+const attributeValues = await attributeModuleService.createAttributeValues([
+  {
+    attribute_id: "attr_123",
+    value: "Large",
+    rank: 1,
+  },
+])
+```
+
+## Parameters
+
+<ParamField body="data" type="CreateAttributeValueDTO[]" required>
+  The attribute values to be created.
+
+  <Expandable title="properties">
+    <ParamField body="value" type="string" required>
+      The value of the attribute value.
+    </ParamField>
+
+    <ParamField body="rank" type="number" required>
+      The rank of the attribute value.
+    </ParamField>
+
+    <ParamField body="attribute_id" type="string" required>
+      The ID of the attribute this value belongs to.
+    </ParamField>
+
+    <ParamField body="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributeValueDTO[]>">
+  The created attribute values.
+</ResponseField>
+
+---
+
+# updateAttributeValues
+
+This section provides a reference to the `updateAttributeValues` method. This belongs to the Attribute Module.
+
+This method updates existing attribute values.
+
+## Example
+
+```ts
+const attributeValues = await attributeModuleService.updateAttributeValues([
+  {
+    id: "attr_val_123",
+    value: "Extra Large",
+    rank: 4,
+  },
+])
+```
+
+## Parameters
+
+<ParamField body="data" type="UpdateAttributeValueDTO[]" required>
+  The attribute values to update.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the attribute value.
+    </ParamField>
+
+    <ParamField body="value" type="string">
+      The value of the attribute value.
+    </ParamField>
+
+    <ParamField body="rank" type="number">
+      The rank of the attribute value.
+    </ParamField>
+
+    <ParamField body="metadata" type="Record<string, unknown> | null">
+      Holds custom data in key-value pairs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributeValueDTO[]>">
+  The updated attribute values.
+</ResponseField>
+
+---
+
+# deleteAttributeValues
+
+This section provides a reference to the `deleteAttributeValues` method. This belongs to the Attribute Module.
+
+This method deletes attribute values by their IDs.
+
+## Example
+
+```ts
+await attributeModuleService.deleteAttributeValues(["attr_val_123", "attr_val_321"])
+```
+
+## Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the attribute values.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the attribute values are deleted successfully.
+</ResponseField>
+
+---
+
+# listAttributeValues
+
+This section provides a reference to the `listAttributeValues` method. This belongs to the Attribute Module.
+
+This method retrieves a paginated list of attribute values based on optional filters and configuration.
+
+## Example
+
+```ts
+const attributeValues = await attributeModuleService.listAttributeValues({
+  attribute_id: "attr_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableAttributeValueProps">
+  The filters to apply on the retrieved attribute values.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the attribute values by.
+    </ParamField>
+
+    <ParamField body="attribute_id" type="string | string[]">
+      Filter attribute values by their attribute IDs.
+    </ParamField>
+
+    <ParamField body="value" type="string | string[]">
+      Filter attribute values by their values.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<AttributeValueDTO>">
+  The configurations determining how the attribute value is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributeValueDTO[]>">
+  The list of attribute values.
+</ResponseField>
+
+---
+
+# retrieveAttributeValue
+
+This section provides a reference to the `retrieveAttributeValue` method. This belongs to the Attribute Module.
+
+This method retrieves an attribute value by its ID.
+
+## Example
+
+```ts
+const attributeValue = await attributeModuleService.retrieveAttributeValue("attr_val_123")
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the attribute value.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<AttributeValueDTO>">
+  The configurations determining how the attribute value is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributeValueDTO>">
+  The retrieved attribute value.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the attribute value.
+    </ResponseField>
+
+    <ResponseField name="value" type="string">
+      The value of the attribute value.
+    </ResponseField>
+
+    <ResponseField name="rank" type="number">
+      The rank of the attribute value.
+    </ResponseField>
+
+    <ResponseField name="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listAndCountAttributeValues
+
+This section provides a reference to the `listAndCountAttributeValues` method. This belongs to the Attribute Module.
+
+This method retrieves a paginated list of attribute values along with the total count of available attribute values satisfying the provided filters.
+
+## Example
+
+```ts
+const [attributeValues, count] = await attributeModuleService.listAndCountAttributeValues({
+  attribute_id: "attr_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableAttributeValueProps">
+  The filters to apply on the retrieved attribute values.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the attribute values by.
+    </ParamField>
+
+    <ParamField body="attribute_id" type="string | string[]">
+      Filter attribute values by their attribute IDs.
+    </ParamField>
+
+    <ParamField body="value" type="string | string[]">
+      Filter attribute values by their values.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<AttributeValueDTO>">
+  The configurations determining how the attribute value is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[AttributeValueDTO[], number]>">
+  The list of attribute values along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteAttributeValues
+
+This section provides a reference to the `softDeleteAttributeValues` method. This belongs to the Attribute Module.
+
+This method soft deletes attribute values by their IDs.
+
+## Example
+
+```ts
+await attributeModuleService.softDeleteAttributeValues([
+  "attr_val_123",
+  "attr_val_321",
+])
+```
+
+## Parameters
+
+<ParamField body="attributeValueIds" type="string[]" required>
+  The IDs of the attribute values.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreAttributeValues
+
+This section provides a reference to the `restoreAttributeValues` method. This belongs to the Attribute Module.
+
+This method restores soft deleted attribute values by their IDs.
+
+## Example
+
+```ts
+await attributeModuleService.restoreAttributeValues(["attr_val_123", "attr_val_321"])
+```
+
+## Parameters
+
+<ParamField body="attributeValueIds" type="string[]" required>
+  The IDs of the attribute values.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# createAttributePossibleValues
+
+This section provides a reference to the `createAttributePossibleValues` method. This belongs to the Attribute Module.
+
+This method creates attribute possible values.
+
+## Example
+
+```ts
+const possibleValues = await attributeModuleService.createAttributePossibleValues([
+  {
+    attribute_id: "attr_123",
+    value: "Small",
+    rank: 1,
+  },
+])
+```
+
+## Parameters
+
+<ParamField body="data" type="CreateAttributePossibleValueDTO[]" required>
+  The attribute possible values to be created.
+
+  <Expandable title="properties">
+    <ParamField body="attribute_id" type="string" required>
+      The ID of the attribute this possible value belongs to.
+    </ParamField>
+
+    <ParamField body="value" type="string" required>
+      The value of the attribute possible value.
+    </ParamField>
+
+    <ParamField body="rank" type="number" required>
+      The rank of the attribute possible value.
+    </ParamField>
+
+    <ParamField body="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributePossibleValueDTO[]>">
+  The created attribute possible values.
+</ResponseField>
+
+---
+
+# updateAttributePossibleValues
+
+This section provides a reference to the `updateAttributePossibleValues` method. This belongs to the Attribute Module.
+
+This method updates existing attribute possible values.
+
+## Example
+
+```ts
+const possibleValues = await attributeModuleService.updateAttributePossibleValues([
+  {
+    id: "attr_pos_val_123",
+    value: "Extra Small",
+    rank: 0,
+  },
+])
+```
+
+## Parameters
+
+<ParamField body="data" type="UpdateAttributePossibleValueDTO[]" required>
+  The attribute possible values to update.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>
+      The ID of the attribute possible value.
+    </ParamField>
+
+    <ParamField body="value" type="string">
+      The value of the attribute possible value.
+    </ParamField>
+
+    <ParamField body="rank" type="number">
+      The rank of the attribute possible value.
+    </ParamField>
+
+    <ParamField body="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributePossibleValueDTO[]>">
+  The updated attribute possible values.
+</ResponseField>
+
+---
+
+# deleteAttributePossibleValues
+
+This section provides a reference to the `deleteAttributePossibleValues` method. This belongs to the Attribute Module.
+
+This method deletes attribute possible values by their IDs.
+
+## Example
+
+```ts
+await attributeModuleService.deleteAttributePossibleValues([
+  "attr_pos_val_123",
+  "attr_pos_val_321",
+])
+```
+
+## Parameters
+
+<ParamField body="ids" type="string[]" required>
+  The IDs of the attribute possible values.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void>">
+  Resolves when the attribute possible values are deleted successfully.
+</ResponseField>
+
+---
+
+# listAttributePossibleValues
+
+This section provides a reference to the `listAttributePossibleValues` method. This belongs to the Attribute Module.
+
+This method retrieves a paginated list of attribute possible values based on optional filters and configuration.
+
+## Example
+
+```ts
+const possibleValues = await attributeModuleService.listAttributePossibleValues({
+  attribute_id: "attr_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableAttributePossibleValueProps">
+  The filters to apply on the retrieved attribute possible values.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the attribute possible values by.
+    </ParamField>
+
+    <ParamField body="attribute_id" type="string | string[]">
+      Filter attribute possible values by their attribute IDs.
+    </ParamField>
+
+    <ParamField body="value" type="string | string[]">
+      Filter attribute possible values by their values.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<AttributePossibleValueDTO>">
+  The configurations determining how the attribute possible value is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributePossibleValueDTO[]>">
+  The list of attribute possible values.
+</ResponseField>
+
+---
+
+# retrieveAttributePossibleValue
+
+This section provides a reference to the `retrieveAttributePossibleValue` method. This belongs to the Attribute Module.
+
+This method retrieves an attribute possible value by its ID.
+
+## Example
+
+```ts
+const possibleValue = await attributeModuleService.retrieveAttributePossibleValue(
+  "attr_pos_val_123"
+)
+```
+
+## Parameters
+
+<ParamField body="id" type="string" required>
+  The ID of the attribute possible value.
+</ParamField>
+
+<ParamField body="config" type="FindConfig<AttributePossibleValueDTO>">
+  The configurations determining how the attribute possible value is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<AttributePossibleValueDTO>">
+  The retrieved attribute possible value.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The ID of the attribute possible value.
+    </ResponseField>
+
+    <ResponseField name="value" type="string">
+      The value of the attribute possible value.
+    </ResponseField>
+
+    <ResponseField name="rank" type="number">
+      The rank of the attribute possible value.
+    </ResponseField>
+
+    <ResponseField name="metadata" type="Record<string, unknown>">
+      Holds custom data in key-value pairs.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="string">
+      The created date of the possible value.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+# listAndCountAttributePossibleValues
+
+This section provides a reference to the `listAndCountAttributePossibleValues` method. This belongs to the Attribute Module.
+
+This method retrieves a paginated list of attribute possible values along with the total count of available attribute possible values satisfying the provided filters.
+
+## Example
+
+```ts
+const [possibleValues, count] = await attributeModuleService.listAndCountAttributePossibleValues({
+  attribute_id: "attr_123",
+})
+```
+
+## Parameters
+
+<ParamField body="filters" type="FilterableAttributePossibleValueProps">
+  The filters to apply on the retrieved attribute possible values.
+
+  <Expandable title="properties">
+    <ParamField body="id" type="string | string[]">
+      The IDs to filter the attribute possible values by.
+    </ParamField>
+
+    <ParamField body="attribute_id" type="string | string[]">
+      Filter attribute possible values by their attribute IDs.
+    </ParamField>
+
+    <ParamField body="value" type="string | string[]">
+      Filter attribute possible values by their values.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="config" type="FindConfig<AttributePossibleValueDTO>">
+  The configurations determining how the attribute possible value is retrieved.
+
+  <Expandable title="properties">
+    <ParamField body="select" type="string[]">
+      An array of strings, each being attribute names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="skip" type="number">
+      A number indicating the number of records to skip before retrieving the results.
+    </ParamField>
+
+    <ParamField body="take" type="number">
+      A number indicating the number of records to return in the result.
+    </ParamField>
+
+    <ParamField body="relations" type="string[]">
+      An array of strings, each being relation names of the entity to retrieve in the result.
+    </ParamField>
+
+    <ParamField body="order" type='Record<string, "ASC" | "DESC">'>
+      An object used to specify how to sort the returned records.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<[AttributePossibleValueDTO[], number]>">
+  The list of attribute possible values along with their total count.
+</ResponseField>
+
+---
+
+# softDeleteAttributePossibleValues
+
+This section provides a reference to the `softDeleteAttributePossibleValues` method. This belongs to the Attribute Module.
+
+This method soft deletes attribute possible values by their IDs.
+
+## Example
+
+```ts
+await attributeModuleService.softDeleteAttributePossibleValues([
+  "attr_pos_val_123",
+  "attr_pos_val_321",
+])
+```
+
+## Parameters
+
+<ParamField body="attributePossibleValueIds" type="string[]" required>
+  The IDs of the attribute possible values.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were also soft deleted. If there are no related records, the promise resolves to `void`.
+</ResponseField>
+
+---
+
+# restoreAttributePossibleValues
+
+This section provides a reference to the `restoreAttributePossibleValues` method. This belongs to the Attribute Module.
+
+This method restores soft deleted attribute possible values by their IDs.
+
+## Example
+
+```ts
+await attributeModuleService.restoreAttributePossibleValues([
+  "attr_pos_val_123",
+  "attr_pos_val_321",
+])
+```
+
+## Parameters
+
+<ParamField body="attributePossibleValueIds" type="string[]" required>
+  The IDs of the attribute possible values.
+</ParamField>
+
+<ParamField body="sharedContext" type="Context">
+  A context used to share resources, such as transaction manager, between the application and the module.
+</ParamField>
+
+## Returns
+
+<ResponseField name="Promise" type="Promise<void | Record<string, string[]>>">
+  An object that includes the IDs of related records that were restored. If there are no related records restored, the promise resolves to `void`.
+</ResponseField>

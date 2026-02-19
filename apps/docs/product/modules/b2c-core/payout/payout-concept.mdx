@@ -1,0 +1,247 @@
+---
+title: "Payout Module"
+description: "Learn about the Payout Module and how to use it in your application"
+---
+
+# Payout Module
+
+In this section of the documentation, you will find resources to learn more about the Payout Module and how to use it in your application.
+
+Mercur has seller payout features available out-of-the-box through the Payout Module. A [module](https://docs.medusajs.com/learn/fundamentals/modules) is a standalone package that provides features for a single domain. Each of Mercur's marketplace features are placed in custom modules, such as this Payout Module.
+
+Learn more about why modules are isolated in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules/isolation).
+
+## Payout Features
+
+- **Payout Account Management**: Create and manage seller payout accounts integrated with payment providers like Stripe Connect.
+- **Seller Onboarding**: Handle the onboarding process for sellers to connect their bank accounts and receive payments.
+- **Automated Payouts**: Process payouts to sellers automatically based on completed orders.
+- **Payout Reversals**: Handle refunds and chargebacks by creating payout reversals.
+- **Webhook Integration**: Process asynchronous events from payment providers to update account status.
+
+---
+
+## How to Use the Payout Module
+
+In your Medusa application, you build flows around Commerce Modules. A flow is built as a [Workflow](https://docs.medusajs.com/learn/fundamentals/workflows), which is a special function composed of a series of steps that guarantees data consistency and reliable roll-back mechanism.
+
+You can build custom workflows and steps. Mercur provides pre-built workflows for payout operations in the `@mercurjs/b2c-core` package.
+
+For example, the `processPayoutWebhookActionWorkflow`:
+
+```ts src/workflows/payout/process-payout-webhook-action.ts
+import { when } from '@medusajs/framework/workflows-sdk'
+import { createWorkflow } from '@medusajs/workflows-sdk'
+import {
+  PayoutAccountStatus,
+  PayoutWebhookAction,
+  PayoutWebhookActionAndDataResponse
+} from '@mercurjs/framework'
+import { updatePayoutAccountStep } from '../steps'
+
+type ProcessPayoutWebhookActionInput = {
+  action: PayoutWebhookActionAndDataResponse['action']
+  data: PayoutWebhookActionAndDataResponse['data']
+}
+
+export const processPayoutWebhookActionWorkflow = createWorkflow(
+  'process-payout-action',
+  function (input: ProcessPayoutWebhookActionInput) {
+    // Conditional workflow execution based on webhook action
+    when(
+      { action: input.action },
+      ({ action }) => action === PayoutWebhookAction.ACCOUNT_AUTHORIZED
+    ).then(() => {
+      updatePayoutAccountStep({
+        id: input.data.account_id,
+        status: PayoutAccountStatus.ACTIVE
+      })
+    })
+  }
+)
+```
+
+You can then execute the workflow in your subscribers:
+
+
+### Subscriber
+
+```ts src/subscribers/payout-webhook.ts
+import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import {
+  PayoutWebhookActionPayload,
+  PayoutWebhookEvents,
+} from "@mercurjs/framework"
+import { PAYOUT_MODULE } from "../modules/payout"
+import { PayoutModuleService } from "../modules/payout"
+import { processPayoutWebhookActionWorkflow } from "../workflows/payout/workflows"
+
+export default async function payoutWebhookHandler({
+  event,
+  container,
+}: SubscriberArgs<PayoutWebhookActionPayload>) {
+  const payoutService: PayoutModuleService = container.resolve(PAYOUT_MODULE)
+
+  const input = event.data
+
+  // Handle Buffer serialization
+  if (input.rawData?.type === "Buffer") {
+    input.rawData = Buffer.from(input.rawData.data)
+  }
+
+  // Validate webhook and determine action
+  const actionAndData = await payoutService.getWebhookActionAndData(input)
+
+  if (!actionAndData) {
+    return
+  }
+
+  // Process the webhook action
+  await processPayoutWebhookActionWorkflow(container).run({
+    input: {
+      action: actionAndData.action,
+      data: actionAndData.data,
+    },
+  })
+}
+
+export const config: SubscriberConfig = {
+  event: PayoutWebhookEvents.ACCOUNT_WEBHOOK_RECEIVED,
+  context: {
+    subscriberId: "payout-account-webhook-handler",
+  },
+}
+```
+---
+
+# Concepts
+
+In this document, you'll learn about the main concepts related to payouts in Mercur.
+
+## Payout Account
+
+A payout account represents a seller's connection to a payment provider for receiving funds from the marketplace. It is represented by the [PayoutAccount data model](../data-model/payout-module-data-reference#payoutaccount).
+
+A payout account holds information about:
+
+- The seller's reference ID in the external provider's system (e.g., Stripe Connect account ID)
+- Account status (pending, active, disabled)
+- Provider-specific account data
+- Associated onboarding record
+- History of payouts
+
+Each seller must create and complete verification for a payout account before they can receive payments from orders.
+
+---
+
+## Payout Account Status
+
+A payout account can be in one of three states:
+
+### pending
+
+The account is created but not yet fully verified. The seller needs to complete the onboarding process by providing business information, bank account details, and identity verification.
+
+### active
+
+The account is fully verified and authorized to receive payouts. The seller has completed all required steps in the onboarding flow.
+
+### disabled
+
+The account has been deactivated, either by the seller, the marketplace administrator, or the payment provider. No payouts can be sent to disabled accounts.
+
+---
+
+## Onboarding
+
+The onboarding process guides sellers through connecting their payout account with the payment provider. It is represented by the [Onboarding data model](../data-model/payout-module-data-reference#onboarding).
+
+### Onboarding Flow
+
+1. **Create Payout Account**: Seller initiates account creation through the vendor panel
+2. **Initialize Onboarding**: System generates an onboarding URL from the payment provider (e.g., Stripe Connect onboarding link)
+3. **Complete Verification**: Seller completes identity and business verification on the provider's platform
+4. **Webhook Callback**: Provider sends webhook to notify account authorization
+5. **Account Activation**: System updates account status to `active` via webhook handler
+
+The onboarding record stores:
+
+- Provider-specific data (e.g., onboarding URL, session ID)
+- Context data (e.g., redirect URLs)
+
+---
+
+## Payout
+
+A payout represents a money transfer from the marketplace to a seller. It is represented by the [Payout data model](../data-model/payout-module-data-reference#payout).
+
+Payouts are created automatically by the marketplace system (not manually by sellers) when:
+
+- An order is completed
+- The seller's payout account is active
+- The commission has been calculated
+
+A payout includes:
+
+- The amount being transferred
+- Currency code
+- Provider transfer data (e.g., Stripe transfer ID)
+- Associated payout account
+
+---
+
+## Payout Reversal
+
+A payout reversal represents a refund or chargeback of a previous payout. It is represented by the [PayoutReversal data model](../data-model/payout-module-data-reference#payoutreversal).
+
+Reversals are created when:
+
+- A customer receives a refund for their order
+- A chargeback occurs
+- An order is canceled after payout
+
+The reversal amount is deducted from the seller's future payouts or handled through the payment provider's dispute resolution process.
+
+---
+
+## Webhook Processing
+
+Mercur uses webhooks from payment providers to handle asynchronous payout events:
+
+### Webhook Actions
+
+- **account_authorized**: Seller completed onboarding, account is now active
+- **account_deauthorized**: Seller disconnected their account
+- **account_requires_action**: Additional verification required
+
+The `payout-webhook` subscriber listens for webhook events, validates the signature, determines the action, and executes the appropriate workflow to update account status.
+
+---
+
+## Automated Payout Schedule
+
+The `daily-payouts` scheduled job runs every day at midnight to process pending payouts:
+
+**Process:**
+
+1. Query database for orders without associated payouts
+2. Batch orders in groups of 100 for performance
+3. Emit payout events with staggered delays to avoid overwhelming the payment provider
+4. Each event triggers payout creation workflow
+5. Failed events are retried up to 3 times
+
+This ensures sellers receive payments automatically without manual intervention.
+
+---
+
+## Use Cases
+
+**1. Seller Onboarding** New sellers create payout accounts and complete Stripe Connect onboarding to receive marketplace payments.
+
+**2. Automated Seller Payments** Daily job processes all completed orders and transfers funds to sellers automatically, minus marketplace commission.
+
+**3. Refund Handling** When customers receive refunds, payout reversals are created to deduct amounts from seller accounts.
+
+**4. Account Verification** Webhook integration keeps payout account status synchronized with Stripe's verification process.
+
+**5. Multi-Currency Support** Payouts support multiple currencies, allowing international marketplaces to pay sellers in their local currency.

@@ -1,0 +1,60 @@
+---
+title: "Payouts"
+---
+
+Mercur comes with a `Payout` module that allows you to manage payout accounts, onboardings and money transfers.
+
+<Info>
+  Mercur by default supports{" "}
+  <a href="https://stripe.com/connect">Stripe Connect</a> as a payout provider.
+</Info>
+
+```mermaid
+graph TD
+    subgraph SellerModule[Seller Module]
+        Seller
+    end
+
+    subgraph PayoutModule[Payout Module]
+        PayoutAccount
+        Payout
+        Onboarding
+    end
+
+    Seller --> PayoutAccount
+    PayoutAccount -->|One-to-Many| Payout
+    PayoutAccount -->|One-to-One| Onboarding
+```
+
+# Seller Onboarding Flow
+
+```mermaid
+graph TD
+    subgraph SellerActions[Seller Actions]
+        A[Seller Creates Payout Account] --> B[Seller Creates Onboarding]
+        B --> C[Seller Completes Onboarding]
+    end
+
+    subgraph PayoutProvider[Payout Provider Actions]
+        C --> D[Payout Provider Consumes Webhook Event]
+        D --> E[Payout Provider Validates Onboarding]
+        E --> F[Payout Provider Authorizes Payout Account]
+        F --> G[Update Payout Account Status to Active]
+    end
+```
+
+# Payout Flow
+
+Payout events can be consumed by subscribing to the `payout.succeeded` and `payout.failed` events. This allows you to perform actions like sending notification emails to sellers when payouts are processed successfully or fail.
+
+```mermaid
+graph TD
+    subgraph PayoutFlow[Payout Flow]
+        A[Start Midnight Cron Job] --> B[List Orders Without Payout]
+        B --> C{Validate Seller Details}
+        C -->|Valid| D[Create Payout Using Payout Provider]
+        C -->|Invalid| H[End Process]
+        D -->|Success| G[Emit Success Event]
+        D -->|Failure| E[Emit Fail Event]
+    end
+```

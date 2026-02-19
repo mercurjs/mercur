@@ -1,0 +1,285 @@
+---
+title: "API"
+description: "Complete API reference for Medusa Core and Mercur marketplace endpoints"
+---
+
+# API Reference
+
+The Mercur API is built on top of Medusa Commerce, combining Medusa's powerful core e-commerce APIs with custom marketplace-specific endpoints. All API routes are RESTful and support standard HTTP methods (GET, POST, PUT, DELETE) with JSON request and response formats.
+
+## API Structure
+
+The Mercur platform exposes three distinct API groups, each serving different user types and use cases:
+
+<CardGroup cols={3}>
+  <Card title="Admin API" icon="shield-halved">
+    Comprehensive management interface for marketplace administrators to oversee sellers, orders, commissions, requests, and all marketplace operations.
+  </Card>
+  <Card title="Store API" icon="store">
+    Customer-facing API for browsing products, managing carts, placing orders, creating reviews, and managing wishlists in the marketplace storefront.
+  </Card>
+  <Card title="Vendor API" icon="shop">
+    Seller self-service portal providing complete tools for managing products, inventory, orders, fulfillment, payouts, and customer relationships.
+  </Card>
+</CardGroup>
+
+## Endpoint Distribution
+
+| API Group  | Total Endpoints | Medusa Core | Mercur Marketplace |
+| ---------- | --------------- | ----------- | ------------------ |
+| Admin API  | 242             | 216         | 26                 |
+| Store API  | 57              | 47          | 10                 |
+| Vendor API | 107             | 0           | 107                |
+| **Total**  | **406**         | **263**     | **143**            |
+
+## Admin API
+
+The Admin API provides comprehensive management capabilities for marketplace administrators. It combines all of Medusa's standard e-commerce admin functionality with Mercur's marketplace-specific features.
+
+### Medusa Core Admin Endpoints (216)
+
+Standard Medusa endpoints provide complete e-commerce management:
+
+- **Catalog Management**: Products, variants, collections, categories, tags, types, options
+- **Order Management**: Orders, draft orders, claims, exchanges, returns, fulfillments
+- **Customer Management**: Customers, customer groups, addresses
+- **Inventory & Fulfillment**: Stock locations, inventory items, reservations, shipping options, shipping profiles
+- **Payments & Pricing**: Payment collections, refunds, price lists, price preferences, regions, currencies
+- **Sales & Marketing**: Promotions, gift cards, sales channels
+- **User & Access Control**: Users, invites, API keys
+- **System Operations**: Uploads, workflows, stores
+
+### Mercur Custom Admin Endpoints (26)
+
+Mercur adds marketplace-specific administrative capabilities:
+
+#### Sellers Management
+
+- **Seller Operations**: List, create, update, delete sellers
+- **Seller Invitations**: Invite new sellers to join the marketplace
+- **Seller Oversight**: View seller products, orders, and customer groups
+
+#### Request Approval System
+
+- **Request Management**: Review and approve/reject seller requests
+- **Product Approval**: Moderate product listings, categories, collections, tags, and types
+- **Seller Onboarding**: Handle seller registration requests
+
+#### Commission Management
+
+- **Commission Rules**: Define marketplace commission rates by seller, category, or product type
+- **Commission Tracking**: View commission lines for orders and calculate marketplace revenue
+- **Default Rates**: Set site-wide default commission rates
+
+#### Marketplace Configuration
+
+- **Configuration Rules**: Control marketplace behavior (e.g., require product approval)
+- **Feature Flags**: Enable/disable marketplace features
+
+#### Order Sets
+
+- **Multi-Seller Orders**: View and manage orders from multiple sellers in a single purchase
+- **Order Aggregation**: Track related orders placed together
+
+#### Product Attributes
+
+- **Custom Attributes**: Define product-specific attributes (e.g., material, size, color)
+- **Attribute Values**: Manage attribute options and values
+- **Attribute Categories**: Assign attributes to specific product categories
+
+#### Campaigns
+
+- **Promotion Campaigns**: Group promotions into marketing campaigns
+- **Campaign Management**: Create, update, and organize promotional events
+
+#### Notifications
+
+- **Notification Center**: View and manage admin notifications
+- **Alert System**: Monitor marketplace events and activities
+
+#### Search Integration
+
+- **Algolia Sync**: Trigger manual search index synchronization
+
+## Store API
+
+The Store API enables customer-facing functionality in your marketplace storefront. It extends Medusa's core customer APIs with marketplace-specific features.
+
+### Medusa Core Store Endpoints (47)
+
+Standard Medusa endpoints for customer operations:
+
+- **Shopping Experience**: Carts, products, collections, categories
+- **Customer Account**: Registration, authentication, profile management, addresses
+- **Order Processing**: Order placement, order history, payment collections
+- **Product Discovery**: Product search, filtering, collections
+- **Regional Support**: Regions, currencies, shipping options
+- **Payments**: Gift cards, payment providers, payment sessions
+
+### Mercur Custom Store Endpoints (10)
+
+Mercur adds marketplace-specific customer features:
+
+#### Multi-Seller Order Management
+
+- **Order Sets**: View aggregated order information from multi-seller purchases
+
+#### Return Requests
+
+- **Customer Returns**: Create and manage return requests for products
+- **Return Tracking**: View return request status and details
+
+#### Product Reviews
+
+- **Review System**: Create, update, and delete product and seller reviews
+- **Rating Management**: Submit ratings and feedback for purchases
+
+#### Seller Discovery
+
+- **Seller Listings**: Browse active sellers in the marketplace
+- **Seller Profiles**: View seller information and ratings
+
+#### Shipping Options
+
+- **Dynamic Shipping**: Get available shipping options based on cart contents and seller locations
+- **Shipping Calculation**: Calculate shipping costs for multi-seller orders
+- **Return Shipping**: Get return shipping options for order returns
+
+#### Wishlist
+
+- **Wishlist Management**: Add and remove products from customer wishlist
+- **Wishlist Tracking**: Save products for future purchase
+
+## Vendor API
+
+The Vendor API is entirely custom to Mercur and provides a complete self-service portal for marketplace sellers. This comprehensive API enables sellers to manage every aspect of their business independently.
+
+### Vendor API Endpoints (107)
+
+All vendor endpoints are Mercur-specific marketplace features:
+
+#### Seller Profile & Team
+
+- **Profile Management**: View and update seller information
+- **Team Members**: Manage team members and permissions
+- **Team Invitations**: Invite and manage team member access
+- **Onboarding**: Track seller onboarding progress
+
+#### Product Management
+
+- **Product Catalog**: Create, update, delete products and variants
+- **Product Options**: Manage product options and configurations
+- **Product Status**: Control product visibility and approval status
+- **Product Attributes**: Apply custom attributes to products
+- **Bulk Operations**: Import/export products, batch updates
+
+#### Inventory & Fulfillment
+
+- **Inventory Items**: Manage stock levels across locations
+- **Stock Locations**: Create and manage warehouse locations
+- **Location Levels**: Update stock quantities per location
+- **Fulfillment Sets**: Configure fulfillment capabilities
+- **Service Zones**: Define shipping coverage areas
+- **Shipping Options**: Create custom shipping methods
+- **Shipping Profiles**: Manage shipping configurations
+- **Fulfillment Providers**: Integrate with fulfillment services
+
+#### Order Management
+
+- **Order Processing**: View and manage seller orders
+- **Order Fulfillment**: Create shipments and track deliveries
+- **Order Completion**: Mark orders as completed
+- **Order Cancellation**: Cancel orders with automatic refunds
+- **Order Changes**: Track and manage order modifications
+- **Commission Tracking**: View commission applied to orders
+
+#### Returns & Exchanges
+
+- **Return Requests**: View and manage customer return requests
+- **Return Processing**: Accept returned items and issue refunds
+- **Return Items**: Add or remove items from return processing
+- **Return Dismissal**: Dismiss invalid return items
+
+#### Pricing & Promotions
+
+- **Price Lists**: Create special pricing for customer segments
+- **Price Preferences**: Set default pricing strategies
+- **Promotions**: Create discount codes and promotional campaigns
+- **Promotion Rules**: Define eligibility and application rules
+- **Campaigns**: Organize promotions into marketing campaigns
+- **Rule Attributes**: Configure promotion targeting options
+
+#### Customer Management
+
+- **Customer Lists**: View customers who purchased from the seller
+- **Customer Details**: Access customer information and order history
+- **Customer Groups**: Create and manage customer segments
+- **Group Assignments**: Add/remove customers from groups
+
+#### Financial Management
+
+- **Payout Account**: Manage payment provider account (Stripe Connect)
+- **Payout Tracking**: View payout history and pending payouts
+- **Commission View**: See marketplace commission on orders
+- **Account Onboarding**: Complete payment provider setup
+- **Account Sync**: Synchronize with payment provider
+
+#### Catalog Organization
+
+- **Product Categories**: Create and manage product categories
+- **Product Collections**: Organize products into collections
+- **Product Tags**: Tag products for filtering and search
+- **Product Types**: Define product type classifications
+
+#### Marketplace Integration
+
+- **Attributes**: View and apply marketplace-defined attributes
+- **Configuration**: Access marketplace settings and rules
+- **Regions**: View available regions and shipping zones
+- **Sales Channels**: Access marketplace sales channels
+- **Stores**: View store information
+
+#### Requests & Approvals
+
+- **Request Tracking**: View status of submitted requests
+- **Request Updates**: Modify pending requests
+- **Approval Status**: Track product and resource approval workflow
+
+#### Notifications & Statistics
+
+- **Notifications**: View seller notifications and alerts
+- **Statistics**: Access seller performance metrics and analytics
+- **Reservation Tracking**: Monitor inventory reservations
+
+## Using the Mercur API
+
+### Interactive API Reference
+
+All 406 endpoints (263 from Medusa Core + 143 from Mercur) are documented in our interactive API reference with request examples, response schemas, and authentication details.
+
+<Card title="Complete API Reference" icon="book-open" href="https://docs.mercurjs.com/api-reference/admin-api-keys/list-api-keys">
+  Browse all endpoints with interactive documentation and test them directly in your browser.
+</Card>
+
+### JavaScript SDK
+
+The recommended way to interact with the Mercur API is through the JavaScript SDK. The SDK provides type-safe methods, automatic authentication handling, and works seamlessly with all Mercur endpoints.
+
+<Card title="JavaScript SDK Documentation" icon="code" href="https://docs.mercurjs.com/docs/product/js-sdk">
+  Learn how to install, configure, and use the JS SDK to interact with Admin, Store, and Vendor APIs.
+</Card>
+
+### Medusa Core API Documentation
+
+For detailed information about Medusa's core e-commerce endpoints, authentication patterns, and standard workflows:
+
+<CardGroup cols={2}>
+  <Card title="Medusa Admin API" icon="shield" href="https://docs.medusajs.com/api/admin">
+    Complete reference for all Medusa core admin endpoints
+  </Card>
+  <Card title="Medusa Store API" icon="store" href="https://docs.medusajs.com/api/store">
+    Complete reference for all Medusa core store endpoints
+  </Card>
+</CardGroup>
+
+---

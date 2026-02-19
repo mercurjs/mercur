@@ -1,0 +1,89 @@
+---
+title: "Framework"
+description: "Learn how Mercur builds on Medusa’s Framework to stay fully extensible and customizable."
+---
+
+# Framework
+
+Mercur is built on top of the **Medusa Framework**, not just Medusa’s commerce modules.\
+This is important because the Framework provides the low-level building blocks developers use to customize, extend, and orchestrate complex commerce applications.
+
+Mercur was designed to **preserve 100% of Medusa’s extensibility** meaning every concept from Medusa’s Framework remains available:
+
+- You can add modules
+- Extend data models
+- Build custom workflows
+- Hook into events
+- Define API routes
+- Run scheduled jobs
+- Link data across modules
+- Package extensions into plugins
+
+This ensures that Mercur remains open, transparent, and easy for teams to build on without losing the power of Medusa.
+
+Below are the core Medusa Framework concepts Mercur is built on.
+
+---
+
+# Framework components
+
+<Card title="Medusa Container" horizontal href="https://docs.medusajs.com/learn/fundamentals/medusa-container" cta="Learn more from the Medusa docs">
+  A globally accessible dependency container that stores all registered modules, services, workflows, and tools. Used across API routes, workflows, subscribers, jobs, and scripts.
+</Card>
+
+<Card title="Modules" horizontal href="https://docs.medusajs.com/learn/fundamentals/modules" cta="Learn more from the Medusa docs">
+  Encapsulated domain units with their own data models, services, and logic. Mercur adds marketplace modules on top of Medusa’s module system.
+</Card>
+
+<Card title="Module Links" horizontal href="https://docs.medusajs.com/learn/fundamentals/module-links" cta="Learn more from the Medusa docs">
+  Mechanism for linking data models across isolated modules while preserving module boundaries. Supports linking Mercur marketplace models to Medusa core models.
+</Card>
+
+<Card title="Data Models" horizontal href="https://docs.medusajs.com/learn/fundamentals/data-models" cta="Learn more from the Medusa docs">
+  Database tables defined inside modules using Medusa’s Data Modeling Language (DML). Used throughout Mercur’s marketplace-specific modules.
+</Card>
+
+<Card title="API Routes" horizontal href="https://docs.medusajs.com/learn/fundamentals/api-routes" cta="Learn more from the Medusa docs">
+  File-based REST endpoints used to expose module and workflow logic to clients. Mercur uses this to define Storefront, Admin, and Vendor Panel APIs.
+</Card>
+
+<Card title="Workflows" horizontal href="https://docs.medusajs.com/learn/fundamentals/workflows" cta="Learn more from the Medusa docs">
+  Durable, step-based, rollback-safe units of business logic. Mercur relies heavily on workflows for commissions, order splitting, payouts, onboarding, and more.
+</Card>
+
+<Card title="Events & Subscribers" horizontal href="https://docs.medusajs.com/learn/fundamentals/events-and-subscribers" cta="Learn more from the Medusa docs">
+  Event-driven architecture for reacting to operations (e.g., order.placed). Mercur uses subscribers for notifications, indexing, moderation, and vendor operations.
+</Card>
+
+<Card title="Scheduled Jobs" horizontal href="https://docs.medusajs.com/learn/fundamentals/scheduled-jobs" cta="Learn more from the Medusa docs">
+  Cron-based or interval-based recurring jobs. Useful for background tasks such as syncing, cleanup, or analytics aggregation in Mercur.
+</Card>
+
+<Card title="Plugins" horizontal href="https://docs.medusajs.com/learn/fundamentals/plugins" cta="Learn more from the Medusa docs">
+  Bundled, reusable packages containing modules, routes, workflows, jobs, links, subscribers, and more. Mercur itself is delivered as modular packages compatible with this system.
+</Card>
+
+---
+
+# Why this matters
+
+Mercur extends Medusa and it does not constrain it.
+
+Because Mercur keeps Medusa’s entire Framework intact:
+
+- You can build custom modules the same way you would in Medusa.
+- You can extend core marketplace logic using module links.
+- You can add your own workflows into Mercur’s flows.
+- You can hook into Mercur’s events with subscribers.
+- You can introduce new API routes or extend existing ones.
+- You can package your own marketplace extensions into plugins.
+
+This means Mercur acts as a **native layer on top of Medusa**, not a closed system.
+
+Everything Medusa can do, Mercur also can do.
+
+And everything Mercur adds you can extend or replace same as Medusa core logic. 
+
+This makes Mercur suitable for custom marketplace architectures where long-term ownership and deep extensibility are required.
+
+---
