@@ -33,6 +33,7 @@
     "@medusajs/cli": "^2.13.0",
     "@medusajs/framework": "^2.13.0",
     "@medusajs/dashboard": "^2.13.0",
+    "@medusajs/admin-shared": "^2.13.0",
     "@medusajs/medusa": "^2.13.0",
     "@medusajs/draft-order": "2.13.0",
     "@mercurjs/core-plugin": "2.0.0-canary.0",
