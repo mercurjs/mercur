@@ -1,45 +1,45 @@
-import { useState } from "react"
-import { Button, toast } from "@medusajs/ui"
-import { Trash } from "@medusajs/icons"
+import { useState } from "react";
+import { Button, toast } from "@medusajs/ui";
+import { Trash } from "@medusajs/icons";
 
-import { FileUpload, FilePreview } from "@mercurjs/dashboard-shared"
-import type { FileType } from "@mercurjs/dashboard-shared"
-import { useImportProducts } from "../../../../hooks/api/product-import-export"
-import { downloadImportTemplate } from "../_helpers/import-template"
+import { FileUpload, FilePreview } from "@mercurjs/dashboard-shared";
+import type { FileType } from "@mercurjs/dashboard-shared";
+import { useImportProducts } from "../../../../hooks/api/product-import-export";
+import { downloadImportTemplate } from "../helpers/import-template";
 
 type UploadImportProps = {
-  onSuccess: (summary: { created: number }) => void
-}
+  onSuccess: (summary: { created: number }) => void;
+};
 
 export const UploadImport = ({ onSuccess }: UploadImportProps) => {
-  const [file, setFile] = useState<FileType | null>(null)
+  const [file, setFile] = useState<FileType | null>(null);
 
   const { mutateAsync: importProducts, isPending } = useImportProducts({
     onSuccess: (data) => {
       toast.success(
-        `Successfully imported ${data.summary?.created ?? 0} product(s).`
-      )
-      onSuccess(data.summary)
+        `Successfully imported ${data.summary?.created ?? 0} product(s).`,
+      );
+      onSuccess(data.summary);
     },
     onError: (error) => {
-      toast.error(error.message)
+      toast.error(error.message);
     },
-  })
+  });
 
   const handleFileUpload = (files: FileType[]) => {
     if (files.length > 0) {
-      setFile(files[0] ?? null)
+      setFile(files[0] ?? null);
     }
-  }
+  };
 
   const handleImport = async () => {
-    if (!file) return
-    await importProducts(file.file)
-  }
+    if (!file) return;
+    await importProducts(file.file);
+  };
 
   const handleRemoveFile = () => {
-    setFile(null)
-  }
+    setFile(null);
+  };
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -86,15 +86,11 @@ export const UploadImport = ({ onSuccess }: UploadImportProps) => {
 
       {file && (
         <div className="flex justify-end">
-          <Button
-            onClick={handleImport}
-            isLoading={isPending}
-            disabled={!file}
-          >
+          <Button onClick={handleImport} isLoading={isPending} disabled={!file}>
             Import Products
           </Button>
         </div>
       )}
     </div>
-  )
-}
+  );
+};

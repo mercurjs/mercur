@@ -1,12 +1,12 @@
-import { useState } from "react"
-import { Button, Heading } from "@medusajs/ui"
+import { useState } from "react";
+import { Button, Heading } from "@medusajs/ui";
 
-import { RouteDrawer } from "@mercurjs/dashboard-shared"
-import { UploadImport } from "./_components/upload-import"
-import { ImportSummary } from "./_components/import-summary"
+import { RouteDrawer } from "@mercurjs/dashboard-shared";
+import { UploadImport } from "./components/upload-import";
+import { ImportSummary } from "./components/import-summary";
 
 export default function ProductImportPage() {
-  const [summary, setSummary] = useState<{ created: number } | null>(null)
+  const [summary, setSummary] = useState<{ created: number } | null>(null);
 
   return (
     <RouteDrawer>
@@ -27,11 +27,9 @@ export default function ProductImportPage() {
       </RouteDrawer.Body>
       <RouteDrawer.Footer>
         <RouteDrawer.Close asChild>
-          <Button variant="secondary">
-            {summary ? "Done" : "Cancel"}
-          </Button>
+          <Button variant="secondary">{summary ? "Done" : "Cancel"}</Button>
         </RouteDrawer.Close>
       </RouteDrawer.Footer>
     </RouteDrawer>
-  )
+  );
 }
