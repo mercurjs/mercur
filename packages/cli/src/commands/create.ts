@@ -29,7 +29,8 @@ const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
   basic: "basic",
-  registry: "registry",
+  // todo: add registry template back in after new release
+  // registry: "registry",
 } as const;
 
 export const create = new Command()

@@ -15,4 +15,8 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     }
   },
+  plugins: [{
+    resolve: "@mercurjs/core-plugin",
+    options: {}
+  }]
 })

@@ -32,7 +32,8 @@
     "@medusajs/admin-sdk": "^2.13.0",
     "@medusajs/cli": "^2.13.0",
     "@medusajs/framework": "^2.13.0",
-    "@medusajs/medusa": "^2.13.0"
+    "@medusajs/medusa": "^2.13.0",
+    "@mercurjs/core-plugin": "2.0.0-canary.0"
   },
   "devDependencies": {
     "@medusajs/test-utils": "^2.13.0",
