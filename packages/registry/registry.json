@@ -171,10 +171,6 @@
           "type": "registry:api"
         },
         {
-          "path": "reviews/vendor/lib/client.ts",
-          "type": "registry:vendor"
-        },
-        {
           "path": "reviews/vendor/hooks/api/reviews.tsx",
           "type": "registry:vendor"
         },
@@ -216,10 +212,6 @@
         },
         {
           "path": "reviews/admin/hooks/table/query/use-review-table-query.tsx",
-          "type": "registry:admin"
-        },
-        {
-          "path": "reviews/admin/lib/client.ts",
           "type": "registry:admin"
         },
         {

@@ -210,11 +210,6 @@
       "type": "registry:api"
     },
     {
-      "path": "reviews/vendor/lib/client.ts",
-      "content": "import { createClient, InferClient } from \"@mercurjs/client\"\nimport { Routes } from '../../../../.mercur/_generated'\n\ndeclare const __BACKEND_URL__: string\n\nexport const client: InferClient<Routes> = createClient({\n  baseUrl: __BACKEND_URL__,\n})\n",
-      "type": "registry:vendor"
-    },
-    {
       "path": "reviews/vendor/hooks/api/reviews.tsx",
       "content": "import { useQuery, UseQueryOptions } from \"@tanstack/react-query\";\nimport { queryKeysFactory } from \"@mercurjs/dashboard-shared\";\nimport { client } from \"../../lib/client\";\nimport {\n  ClientError,\n  InferClientInput,\n  InferClientOutput,\n} from \"@mercurjs/client\";\n\nconst REVIEWS_QUERY_KEY = \"vendor_reviews\" as const;\nexport const reviewsQueryKeys = queryKeysFactory(REVIEWS_QUERY_KEY);\n\nexport type ReviewDTO = InferClientOutput<\n  typeof client.vendor.reviews.$id.query\n>[\"review\"];\n\nexport const useReviews = (\n  query?: InferClientInput<typeof client.vendor.reviews.query>,\n  options?: Omit<\n    UseQueryOptions<\n      unknown,\n      ClientError,\n      InferClientOutput<typeof client.vendor.reviews.query>\n    >,\n    \"queryKey\" | \"queryFn\"\n  >,\n) => {\n  const { data, ...rest } = useQuery({\n    queryKey: reviewsQueryKeys.list(query),\n    queryFn: async () =>\n      client.vendor.reviews.query({\n        ...query,\n      }),\n    ...options,\n  });\n\n  return { ...data, ...rest };\n};\n\nexport const useReview = (\n  id: string,\n  query?: InferClientInput<typeof client.vendor.reviews.$id.query>,\n  options?: Omit<\n    UseQueryOptions<\n      unknown,\n      ClientError,\n      InferClientOutput<typeof client.vendor.reviews.$id.query>\n    >,\n    \"queryKey\" | \"queryFn\"\n  >,\n) => {\n  const { data, ...rest } = useQuery({\n    queryKey: reviewsQueryKeys.detail(id, query),\n    queryFn: async () =>\n      client.vendor.reviews.$id.query({\n        $id: id,\n        ...query,\n      }),\n    ...options,\n  });\n\n  return { ...data, ...rest };\n};\n",
       "type": "registry:vendor"
@@ -267,11 +262,6 @@
     {
       "path": "reviews/admin/hooks/table/query/use-review-table-query.tsx",
       "content": "import { useQueryParams } from \"@mercurjs/dashboard-shared\";\n\ntype UseReviewTableQueryProps = {\n  prefix?: string;\n  pageSize?: number;\n};\n\nexport const useReviewTableQuery = ({\n  prefix,\n  pageSize = 20,\n}: UseReviewTableQueryProps) => {\n  const queryObject = useQueryParams(\n    [\"offset\", \"q\", \"created_at\", \"updated_at\", \"order\"],\n    prefix,\n  );\n\n  const { offset, created_at, updated_at, q, order } = queryObject;\n\n  const searchParams: Record<string, any> = {\n    limit: pageSize,\n    offset: offset ? Number(offset) : 0,\n    created_at: created_at ? JSON.parse(created_at) : undefined,\n    updated_at: updated_at ? JSON.parse(updated_at) : undefined,\n    order: order ? order : \"-created_at\",\n    q,\n  };\n\n  return {\n    searchParams,\n    raw: queryObject,\n  };\n};\n",
-      "type": "registry:admin"
-    },
-    {
-      "path": "reviews/admin/lib/client.ts",
-      "content": "import { createClient, InferClient } from \"@mercurjs/client\"\nimport { Routes } from '../../../../.mercur/_generated'\n\ndeclare const __BACKEND_URL__: string\n\nexport const client: InferClient<Routes> = createClient({\n  baseUrl: __BACKEND_URL__,\n})\n",
       "type": "registry:admin"
     },
     {

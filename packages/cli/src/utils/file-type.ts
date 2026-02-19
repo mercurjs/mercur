@@ -20,8 +20,6 @@ export function getTargetDir(file: {
 }
 
 
-
-
 export function resolveFilePath(file: z.infer<typeof registryItemFileSchema>, config: Config, options: {
   isSrcDir: boolean;
   path: string
@@ -47,17 +45,18 @@ export function resolveNestedFilePath(
   const fileSegments = normalizedFilePath.split("/")
   const targetSegments = normalizedTargetDir.split("/")
 
-  // Find the last matching segment from targetDir in filePath
-  const lastTargetSegment = targetSegments[targetSegments.length - 1]
-  const commonDirIndex = fileSegments.findIndex(
-    (segment) => segment === lastTargetSegment
-  )
+  // Search target segments from the end to find the first match in filePath
+  for (let i = targetSegments.length - 1; i >= 0; i--) {
+    const commonDirIndex = fileSegments.findIndex(
+      (segment) => segment === targetSegments[i]
+    )
 
-  if (commonDirIndex === -1) {
-    // Return just the filename if no common directory is found
-    return fileSegments[fileSegments.length - 1]
+    if (commonDirIndex !== -1) {
+      // Return everything after the common directory
+      return fileSegments.slice(commonDirIndex + 1).join("/")
+    }
   }
 
-  // Return everything after the common directory
-  return fileSegments.slice(commonDirIndex + 1).join("/")
+  // Return just the filename if no common directory is found
+  return fileSegments[fileSegments.length - 1]
 }
