@@ -11,7 +11,7 @@
   "files": [
     {
       "path": "reviews/modules/reviews/index.ts",
-      "content": "import { Module } from \"@medusajs/framework/utils\";\n\nimport ReviewModuleService from \"./service\";\n\nexport const REVIEW_MODULE = \"review\";\n\nexport * from \"./types\";\nexport { ReviewModuleService };\n\nexport default Module(REVIEW_MODULE, {\n  service: ReviewModuleService,\n});\n",
+      "content": "import { Module } from \"@medusajs/framework/utils\";\n\nimport ReviewModuleService from \"./service\";\n\nexport const REVIEW_MODULE = \"reviews\";\n\nexport * from \"./types\";\nexport { ReviewModuleService };\n\nexport default Module(REVIEW_MODULE, {\n  service: ReviewModuleService,\n});\n",
       "type": "registry:module"
     },
     {

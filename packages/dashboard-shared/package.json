@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/dashboard-shared",
-  "version": "2.0.0-canary.5",
+  "version": "2.0.0-canary.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -23,7 +23,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@mercurjs/client": "2.0.0-canary.5",
+    "@mercurjs/client": "2.0.0-canary.6",
     "@ariakit/react": "^0.4.15",
     "@babel/runtime": "^7.26.10",
     "@dnd-kit/core": "^6.1.0",

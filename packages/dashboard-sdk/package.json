@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/dashboard-sdk",
-  "version": "2.0.0-canary.5",
+  "version": "2.0.0-canary.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",

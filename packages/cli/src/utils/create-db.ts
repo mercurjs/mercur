@@ -99,7 +99,7 @@ async function runPostDbSetup(args: DbSetupArgs & {
     return { success: false, dbName, connectionString: null };
   }
 
-  const seeded = await seedDatabase({ projectDir });
+  const seeded = await seedDatabase({ projectDir, spinner });
   if (!seeded) {
     return { success: false, dbName, connectionString: null };
   }
@@ -311,10 +311,10 @@ async function createAdminInvite({ projectDir }: { projectDir: string }): Promis
   }
 }
 
-async function seedDatabase({ projectDir }: { projectDir: string }): Promise<boolean> {
+async function seedDatabase({ projectDir, spinner: parentSpinner }: DbSetupArgs): Promise<boolean> {
   const apiDir = path.join(projectDir, API_DIR);
   const packageManager = await getPackageManager(apiDir);
-  const seedSpinner = spinner("Seeding database...").start();
+  const seedSpinner = parentSpinner || spinner("Seeding database...").start();
 
   try {
     const seedCmd = packageManager === "yarn"
@@ -325,9 +325,12 @@ async function seedDatabase({ projectDir }: { projectDir: string }): Promise<boo
           ? ["bun", "run", "seed"]
           : ["npm", "run", "seed"];
 
+    seedSpinner.text = "Seeding database...";
     await execa(seedCmd[0], seedCmd.slice(1), { cwd: apiDir });
 
-    seedSpinner.succeed("Database seeded successfully.");
+    if (!parentSpinner) {
+      seedSpinner.succeed("Database seeded successfully.");
+    }
     return true;
   } catch (err) {
     seedSpinner.fail("Failed to seed database.");
