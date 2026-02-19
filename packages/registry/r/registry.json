@@ -8,7 +8,7 @@
       "description": "A review system with product and seller reviews, ratings, customer/vendor/admin API routes, and workflows.",
       "dependencies": [],
       "registryDependencies": [],
-      "docs": "## Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\n## Middlewares\n\nAdd the review middlewares to your `src/api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { adminMiddlewares } from \"./admin/middlewares\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\nimport { storeReviewMiddlewares } from \"./store/reviews/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...adminMiddlewares, ...vendorMiddlewares, ...storeReviewMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the review middleware imports and spread them into your existing `routes` array.",
+      "docs": "## Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\n## Middlewares\n\nAdd the review middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { adminMiddlewares } from \"./admin/middlewares\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\nimport { storeReviewMiddlewares } from \"./store/reviews/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...adminMiddlewares, ...vendorMiddlewares, ...storeReviewMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the review middleware imports and spread them into your existing `routes` array.",
       "files": [
         {
           "path": "reviews/modules/reviews/index.ts",
@@ -230,9 +230,9 @@
     {
       "name": "product-import-export",
       "description": "CSV product import & export for vendors. Includes API routes, workflows, and vendor portal drawers.",
-      "dependencies": [],
+      "dependencies": ["multer", "@types/multer"],
       "registryDependencies": [],
-      "docs": "## Product Import/Export Block\n\n### Configuration\n\nNo additional modules needed — uses built-in Medusa product CSV steps.\n\n### Middleware Setup\n\nAdd the import middleware to your `src/api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from '@medusajs/medusa'\nimport { productImportExportMiddlewares } from './vendor/products/middlewares'\n\nexport default defineMiddlewares({\n  routes: [...productImportExportMiddlewares],\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nmercurjs codegen\n```\n\n### Vendor Navigation\n\nThe block includes a `products/page.tsx` that overrides the default product list page, adding Import and Export buttons in the header. The buttons open drawer routes at `/products/import` and `/products/export`.",
+      "docs": "## Product Import/Export Block\n\n### Configuration\n\nNo additional modules needed — uses built-in Medusa product CSV steps.\n\n### Middleware Setup\n\nAdd the import middleware to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from '@medusajs/medusa'\nimport { productImportExportMiddlewares } from './vendor/products/middlewares'\n\nexport default defineMiddlewares({\n  routes: [...productImportExportMiddlewares],\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nmercurjs codegen\n```\n\n### Vendor Navigation\n\nThe block includes a `products/page.tsx` that overrides the default product list page, adding Import and Export buttons in the header. The buttons open drawer routes at `/products/import` and `/products/export`.",
       "files": [
         {
           "path": "product-import-export/workflows/steps/get-seller-products.ts",
@@ -267,35 +267,35 @@
           "type": "registry:api"
         },
         {
-          "path": "product-import-export/vendor/src/lib/client.ts",
+          "path": "product-import-export/vendor/lib/client.ts",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/src/hooks/api/product-import-export.tsx",
+          "path": "product-import-export/vendor/hooks/api/product-import-export.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/src/pages/products/page.tsx",
+          "path": "product-import-export/vendor/pages/products/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/src/pages/products/import/page.tsx",
+          "path": "product-import-export/vendor/pages/products/import/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/src/pages/products/import/_components/upload-import.tsx",
+          "path": "product-import-export/vendor/pages/products/import/_components/upload-import.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/src/pages/products/import/_components/import-summary.tsx",
+          "path": "product-import-export/vendor/pages/products/import/_components/import-summary.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/src/pages/products/import/_helpers/import-template.ts",
+          "path": "product-import-export/vendor/pages/products/import/_helpers/import-template.ts",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/src/pages/products/export/page.tsx",
+          "path": "product-import-export/vendor/pages/products/export/page.tsx",
           "type": "registry:vendor"
         }
       ],

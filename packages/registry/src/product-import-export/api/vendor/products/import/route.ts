@@ -7,8 +7,8 @@ import { importSellerProductsWorkflow } from "../../../../workflows/import-selle
 import { fetchSellerByAuthActorId } from "../_helpers/helpers"
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  req: AuthenticatedMedusaRequest<{ file: Express.Multer.File }>,
+  res: MedusaResponse<{ summary: { created: number } }>
 ) => {
   const file = (req as any).file as Express.Multer.File | undefined
 

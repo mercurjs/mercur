@@ -8,7 +8,7 @@ import { fetchSellerByAuthActorId } from "../_helpers/helpers"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<{ url: string }>
 ) => {
   const seller = await fetchSellerByAuthActorId(
     req.auth_context.actor_id,

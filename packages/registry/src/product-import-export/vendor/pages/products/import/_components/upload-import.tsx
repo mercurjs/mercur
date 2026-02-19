@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Button, toast } from "@medusajs/ui"
+import { Trash } from "@medusajs/icons"
 
 import { FileUpload, FilePreview } from "@mercurjs/dashboard-shared"
 import type { FileType } from "@mercurjs/dashboard-shared"
@@ -27,7 +28,7 @@ export const UploadImport = ({ onSuccess }: UploadImportProps) => {
 
   const handleFileUpload = (files: FileType[]) => {
     if (files.length > 0) {
-      setFile(files[0])
+      setFile(files[0] ?? null)
     }
   }
 
@@ -73,6 +74,7 @@ export const UploadImport = ({ onSuccess }: UploadImportProps) => {
             {
               actions: [
                 {
+                  icon: <Trash />,
                   label: "Remove",
                   onClick: handleRemoveFile,
                 },

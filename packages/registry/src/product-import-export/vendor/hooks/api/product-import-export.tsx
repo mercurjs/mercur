@@ -2,38 +2,21 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { UseMutationOptions } from "@tanstack/react-query"
 import { queryKeysFactory } from "@mercurjs/dashboard-shared"
 import { ClientError } from "@mercurjs/client"
-import { client, backendUrl } from "../../lib/client"
+import { client } from "../../lib/client"
 
 const PRODUCTS_QUERY_KEY = "vendor_products" as const
 export const productsQueryKeys = queryKeysFactory(PRODUCTS_QUERY_KEY)
 
+type ImportProductsResponse = { summary: { created: number } }
+type ExportProductsResponse = { url: string }
+
 export const useImportProducts = (
-  options?: UseMutationOptions<{ summary: { created: number } }, ClientError, File>
+  options?: UseMutationOptions<ImportProductsResponse, ClientError, File>
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData()
-      formData.append("file", file)
-
-      const response = await fetch(`${backendUrl}/vendor/products/import`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const err = await response.json()
-        throw new ClientError(
-          err.message || "Import failed",
-          response.statusText,
-          response.status
-        )
-      }
-
-      return response.json()
-    },
+    mutationFn: async (file: any) => client.vendor.products.import.mutate({file, fetchOptions: {headers:{'Content-Type': 'multipart/form-data'}}}),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() })
       options?.onSuccess?.(data, variables, context)
@@ -43,7 +26,7 @@ export const useImportProducts = (
 }
 
 export const useExportProducts = (
-  options?: UseMutationOptions<{ url: string }, ClientError, void>
+  options?: UseMutationOptions<ExportProductsResponse, ClientError, void>
 ) => {
   return useMutation({
     mutationFn: async () =>

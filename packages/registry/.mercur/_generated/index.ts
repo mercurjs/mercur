@@ -616,6 +616,8 @@ export type Routes = {
                     $variantId: typeof import("@mercurjs/core-plugin/api/vendor/products/[id]/variants/[variant_id]/route");
                 };
             };
+            import: typeof import("../../src/product-import-export/api/vendor/products/import/route");
+            export: typeof import("../../src/product-import-export/api/vendor/products/export/route");
         };
         promotions: typeof import("@mercurjs/core-plugin/api/vendor/promotions/route") & {
             $id: typeof import("@mercurjs/core-plugin/api/vendor/promotions/[id]/route") & {
