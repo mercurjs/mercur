@@ -22,7 +22,9 @@ mercur/
 ## Key Concepts
 
 ### Blocks
+
 Reusable code pieces that can be installed via CLI:
+
 - **Modules** - Data models and business logic
 - **Links** - Relationships between modules
 - **Workflows** - Multi-step business processes
@@ -33,9 +35,11 @@ Reusable code pieces that can be installed via CLI:
 ## CLI Commands (`packages/cli`)
 
 ### `mercurjs create [name]`
+
 Create a new Mercur project from template.
 
 **Options:**
+
 - `-t, --template <template>` - Template: `basic` or `registry`
 - `--no-deps` - Skip dependency installation
 - `--skip-db` - Skip database configuration
@@ -43,54 +47,69 @@ Create a new Mercur project from template.
 - `--db-connection-string <string>` - PostgreSQL connection string
 
 ### `mercurjs init`
+
 Initialize project configuration (`blocks.json`).
 
 **Options:**
+
 - `-y, --yes` - Skip confirmation
 - `-d, --defaults` - Use default paths
 - `-s, --silent` - Mute output
 
 ### `mercurjs add <blocks...>`
+
 Add blocks from registry to project.
 
 **Options:**
+
 - `-y, --yes` - Skip confirmation
 - `-o, --overwrite` - Overwrite existing files
 - `-s, --silent` - Mute output
 
 ### `mercurjs search`
+
 Search available blocks in registries.
 
 **Options:**
+
 - `-q, --query <query>` - Search query
 - `-r, --registry <registry>` - Registry to search (default: `@mercurjs`)
 
 ### `mercurjs view <blocks...>`
+
 Display detailed block information.
 
 ### `mercurjs build [registry]`
+
 Build registry into JSON files for distribution.
 
 **Options:**
+
 - `-o, --output <path>` - Output directory (default: `./r`)
 - `-v, --verbose` - Show detailed output
 
 ### `mercurjs diff <blocks...>`
+
 Compare local blocks against registry versions.
 
 ### `mercurjs codegen`
+
 Generate TypeScript types from API routes.
 
 **Options:**
+
 - `-w, --watch` - Watch mode for auto-regeneration
 
 ### `mercurjs info`
+
 Display project configuration and diagnostics.
 
 ### `mercurjs telemetry`
+
 Control anonymous usage data collection.
 
 **Options:**
+
 - `--enable` - Enable telemetry
 - `--disable` - Disable telemetry
 
@@ -99,19 +118,22 @@ Control anonymous usage data collection.
 Vite plugin providing build-time integration for dashboard applications.
 
 ### Features
+
 - **Configuration Management** - Loads `mercur.config.ts`
 - **Route Generation** - Auto-generates routes from file-based structure
 - **Component Registration** - Lazy-loads custom components via virtual modules
 - **Hot Module Reloading** - Detects changes and restarts dev server
 
 ### Virtual Modules
+
 ```typescript
-import routes from 'virtual:mercur/routes'       // Generated route array
-import config from 'virtual:mercur/config'       // Configuration object
-import components from 'virtual:mercur/components' // Component registry
+import routes from "virtual:mercur/routes"; // Generated route array
+import config from "virtual:mercur/config"; // Configuration object
+import components from "virtual:mercur/components"; // Component registry
 ```
 
 ### File-Based Routing
+
 - `src/pages/page.tsx` → `/`
 - `src/pages/users/[id]/page.tsx` → `/users/:id`
 - `src/pages/users/[[id]]/page.tsx` → `/users/:id?` (optional)
@@ -120,13 +142,14 @@ import components from 'virtual:mercur/components' // Component registry
 - `src/pages/dashboard/@sidebar/page.tsx` → Parallel route
 
 ### Usage
+
 ```typescript
 // vite.config.ts
-import { dashboardPlugin } from '@mercurjs/dashboard-sdk'
+import { dashboardPlugin } from "@mercurjs/dashboard-sdk";
 
 export default {
-  plugins: [react(), dashboardPlugin()]
-}
+  plugins: [react(), dashboardPlugin()],
+};
 ```
 
 ## Vendor Package (`packages/vendor`)
@@ -152,6 +175,7 @@ MedusaJS v2 plugin providing marketplace functionality.
 - `medusa-config.ts` - MedusaJS configuration
 
 ## Supported Deployment Vendors
+
 - Medusa Cloud
 - Railway
 - Render
