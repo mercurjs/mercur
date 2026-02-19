@@ -1,6 +1,11 @@
 {
   "name": "@mercurjs/core-plugin",
   "version": "2.0.0-canary.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mercurjs/mercur",
+    "directory": "packages/core-plugin"
+  },
   "description": "Core plugin for MercurJS.",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
