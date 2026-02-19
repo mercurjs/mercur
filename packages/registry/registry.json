@@ -267,6 +267,10 @@
           "type": "registry:api"
         },
         {
+          "path": "product-import-export/vendor/src/lib/client.ts",
+          "type": "registry:vendor"
+        },
+        {
           "path": "product-import-export/vendor/src/hooks/api/product-import-export.tsx",
           "type": "registry:vendor"
         },

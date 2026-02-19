@@ -1,15 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { UseMutationOptions } from "@tanstack/react-query"
 import { queryKeysFactory } from "@mercurjs/dashboard-shared"
-import config from "virtual:mercur/config"
-
-const backendUrl = config.backendUrl ?? "http://localhost:9000"
+import { ClientError } from "@mercurjs/client"
+import { client, backendUrl } from "../../lib/client"
 
 const PRODUCTS_QUERY_KEY = "vendor_products" as const
 export const productsQueryKeys = queryKeysFactory(PRODUCTS_QUERY_KEY)
 
 export const useImportProducts = (
-  options?: UseMutationOptions<any, Error, File>
+  options?: UseMutationOptions<{ summary: { created: number } }, ClientError, File>
 ) => {
   const queryClient = useQueryClient()
 
@@ -26,7 +25,11 @@ export const useImportProducts = (
 
       if (!response.ok) {
         const err = await response.json()
-        throw new Error(err.message || "Import failed")
+        throw new ClientError(
+          err.message || "Import failed",
+          response.statusText,
+          response.status
+        )
       }
 
       return response.json()
@@ -40,25 +43,11 @@ export const useImportProducts = (
 }
 
 export const useExportProducts = (
-  options?: UseMutationOptions<{ url: string }, Error, void>
+  options?: UseMutationOptions<{ url: string }, ClientError, void>
 ) => {
   return useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`${backendUrl}/vendor/products/export`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (!response.ok) {
-        const err = await response.json()
-        throw new Error(err.message || "Export failed")
-      }
-
-      return response.json()
-    },
+    mutationFn: async () =>
+      client.vendor.products.export.mutate(),
     onSuccess: (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)
     },
