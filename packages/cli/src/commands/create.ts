@@ -79,25 +79,49 @@ export const create = new Command()
 
         projectName = enteredName;
 
-        let template = opts.template;
-        if (!template) {
-          const { selectedTemplate } = await prompts({
-            type: "select",
-            name: "selectedTemplate",
-            message: `Which ${highlighter.info(
-              "template"
-            )} would you like to use?`,
-            choices: Object.entries(CREATE_TEMPLATES).map(([key, value]) => ({
-              title: value,
-              value: key,
-            })),
+        // todo: uncomment when more templates are available
+        // let template = opts.template;
+        // if (!template) {
+        //   const { selectedTemplate } = await prompts({
+        //     type: "select",
+        //     name: "selectedTemplate",
+        //     message: `Which ${highlighter.info(
+        //       "template"
+        //     )} would you like to use?`,
+        //     choices: Object.entries(CREATE_TEMPLATES).map(([key, value]) => ({
+        //       title: value,
+        //       value: key,
+        //     })),
+        //   });
+
+        //   if (!selectedTemplate) {
+        //     process.exit(0);
+        //   }
+
+        //   template = selectedTemplate;
+        // }
+        const template = opts.template || "basic";
+
+        if (!opts.skipEmail) {
+          const { wantsEmail } = await prompts({
+            type: "confirm",
+            name: "wantsEmail",
+            message: "Mind sharing your email? We reach out for priority support, community events, and invite-only meetups. We never spam.",
+            initial: false,
           });
 
-          if (!selectedTemplate) {
-            process.exit(0);
-          }
+          if (wantsEmail) {
+            const { email } = await prompts({
+              type: "text",
+              name: "email",
+              message: "Enter your email:",
+              format: (value: string) => value.trim(),
+            });
 
-          template = selectedTemplate;
+            if (email) {
+              setTelemetryEmail(email);
+            }
+          }
         }
 
         const projectDir = path.resolve(opts.cwd, projectName);
@@ -176,28 +200,6 @@ export const create = new Command()
           }
         } else {
           spinner("Database setup skipped.").warn();
-        }
-
-        if (!opts.skipEmail) {
-          const { wantsEmail } = await prompts({
-            type: "confirm",
-            name: "wantsEmail",
-            message: "Mind sharing your email? We reach out for priority support, community events, and invite-only meetups. We never spam.",
-            initial: false,
-          });
-
-          if (wantsEmail) {
-            const { email } = await prompts({
-              type: "text",
-              name: "email",
-              message: "Enter your email:",
-              format: (value: string) => value.trim(),
-            });
-
-            if (email) {
-              setTelemetryEmail(email);
-            }
-          }
         }
 
         await manageEnvFiles({
