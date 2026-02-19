@@ -28,8 +28,8 @@ Where `X` is the next incremental number (0, 1, 2, ...).
 
 ```bash
 git add -A
-git commit -m "chore: v1.6.0-canary.X"
-git tag v1.6.0-canary.X
+git commit -m "chore: v2.0.0-canary.X"
+git tag v2.0.0-canary.X
 git push origin <branch> --tags
 ```
 
@@ -58,3 +58,4 @@ v2.0.0             # stable (when ready)
 
 - `NPM_TOKEN` secret in GitHub repo settings (npm automation token)
 - Use conventional commits (`feat:`, `fix:`, `chore:`) for changelog generation
+- All GitHub Actions must be pinned to full-length commit SHAs (org policy)
