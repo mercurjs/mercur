@@ -6,12 +6,12 @@
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit"
   },
   "dependencies": {
-    "@medusajs/framework": "^2.13.1",
-    "@medusajs/medusa": "^2.13.1",
+    "@medusajs/framework": "^2.13.0",
+    "@medusajs/medusa": "^2.13.0",
     "@mercurjs/core-plugin": "*",
     "jsonwebtoken": "^9.0.2",
     "scrypt-kdf": "^2.0.1",
-    "@medusajs/draft-order": "^2.13.1"
+    "@medusajs/draft-order": "^2.13.0"
   },
   "devDependencies": {
     "@medusajs/test-utils": "^2.13.0",
@@ -21,6 +21,6 @@
     "@types/node": "^20.12.11",
     "jest": "^30.2.0",
     "typescript": "5.9.3",
-    "@medusajs/types": "2.13.1"
+    "@medusajs/types": "2.13.0"
   }
 }

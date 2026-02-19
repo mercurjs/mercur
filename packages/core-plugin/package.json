@@ -47,7 +47,7 @@
     "@medusajs/medusa": "^2.13.0",
     "@medusajs/test-utils": "^2.13.0",
     "@medusajs/ui": "4.1.1",
-    "@mercurjs/types": "*",
+    "@mercurjs/types": "workspace:*",
     "@swc/core": "^1.7.28",
     "@types/cors": "^2.8.17",
     "@types/multer": "^2.0.0",
@@ -61,7 +61,7 @@
     "tsx": "^4.19.2",
     "typescript": "5.9.3",
     "yalc": "^1.0.0-pre.53",
-    "@medusajs/types": "2.13.1",
+    "@medusajs/types": "2.13.0",
     "zod": "3.25.76"
   },
   "peerDependencies": {

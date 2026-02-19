@@ -23,7 +23,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@mercurjs/client": "*",
+    "@mercurjs/client": "workspace:*",
     "@ariakit/react": "^0.4.15",
     "@babel/runtime": "^7.26.10",
     "@dnd-kit/core": "^6.1.0",
@@ -33,7 +33,7 @@
     "@hookform/resolvers": "3.4.2",
     "@medusajs/admin-shared": "^2.13.0",
     "@medusajs/dashboard": "^2.13.0",
-    "@medusajs/icons": "2.13.1",
+    "@medusajs/icons": "2.13.0",
     "@medusajs/ui": "4.1.1",
     "@radix-ui/react-dialog": "1.1.4",
     "@radix-ui/react-dismissable-layer": "1.1.4",
@@ -63,9 +63,9 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
-    "@mercurjs/types": "*",
-    "@mercurjs/core-plugin": "*",
-    "@mercurjs/dashboard-sdk": "*",
+    "@mercurjs/types": "workspace:*",
+    "@mercurjs/core-plugin": "workspace:*",
+    "@mercurjs/dashboard-sdk": "workspace:*",
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
     "@types/lodash.debounce": "^4.0.8",

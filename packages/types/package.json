@@ -25,7 +25,7 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@medusajs/types": "2.13.1"
+    "@medusajs/types": "2.13.0"
   },
   "devDependencies": {
     "typescript": "5.9.3"
