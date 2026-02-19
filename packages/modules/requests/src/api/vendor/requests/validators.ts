@@ -337,3 +337,65 @@ export const VendorUpdateRequestData = z.object({
     ProductTagRequest
   ])
 });
+
+/* Batch Requests Schema */
+
+/**
+ * @schema VendorBatchRequestUpdateItem
+ * type: object
+ * required:
+ *   - id
+ *   - request
+ * properties:
+ *   id:
+ *     type: string
+ *     description: The ID of the request to update
+ *   request:
+ *     type: object
+ *     description: The updated request data
+ *     oneOf:
+ *       - $ref: "#/components/schemas/ProductCollectionRequest"
+ *       - $ref: "#/components/schemas/ProductCategoryRequest"
+ *       - $ref: "#/components/schemas/ReviewRemoveRequest"
+ *       - $ref: "#/components/schemas/ProductTypeRequest"
+ *       - $ref: "#/components/schemas/ProductTagRequest"
+ */
+const VendorBatchRequestUpdateItem = z.object({
+  id: z.string(),
+  request: z.discriminatedUnion('type', [
+    UpdateProductCategoryRequest,
+    UpdateProductCollectionRequest,
+    UpdateReviewRemoveRequest,
+    ProductTypeRequest,
+    ProductTagRequest
+  ])
+});
+
+/**
+ * @schema VendorBatchRequests
+ * type: object
+ * properties:
+ *   create:
+ *     type: array
+ *     description: Requests to create
+ *     items:
+ *       $ref: "#/components/schemas/VendorCreateRequest"
+ *   update:
+ *     type: array
+ *     description: Requests to update
+ *     items:
+ *       $ref: "#/components/schemas/VendorBatchRequestUpdateItem"
+ *   delete:
+ *     type: array
+ *     description: Request IDs to delete/cancel
+ *     items:
+ *       type: string
+ */
+export type VendorBatchRequestsType = z.infer<typeof VendorBatchRequests>;
+export const VendorBatchRequests = z
+  .object({
+    create: z.array(VendorCreateRequest).optional(),
+    update: z.array(VendorBatchRequestUpdateItem).optional(),
+    delete: z.array(z.string()).optional()
+  })
+  .strict();
