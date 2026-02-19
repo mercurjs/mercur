@@ -36,6 +36,7 @@ export async function setupDatabase(args: {
 
   const { client, dbConnectionString } = await getDbClient({
     dbConnectionString: args.dbConnectionString,
+    dbName,
     spinner: args.spinner,
   });
 
@@ -121,9 +122,11 @@ interface DbClientResult {
 
 async function getDbClient({
   dbConnectionString,
+  dbName,
   spinner: spinnerRef,
 }: {
   dbConnectionString?: string;
+  dbName: string;
   spinner?: Ora;
 }): Promise<DbClientResult> {
   if (dbConnectionString) {
@@ -143,19 +146,23 @@ async function getDbClient({
   let postgresPassword = "";
 
   try {
-    const defaultCredentials = {
+    const client = new pg.Client({
       user: postgresUsername,
       password: postgresPassword,
       host: DEFAULT_DB_HOST,
       port: DEFAULT_DB_PORT,
-      db: "postgres",
-    };
-
-    const client = new pg.Client(defaultCredentials);
+      database: "postgres",
+    });
     await client.connect();
     return {
       client,
-      dbConnectionString: formatConnectionString(defaultCredentials),
+      dbConnectionString: formatConnectionString({
+        user: postgresUsername,
+        password: postgresPassword,
+        host: DEFAULT_DB_HOST,
+        port: DEFAULT_DB_PORT,
+        db: dbName,
+      }),
     };
   } catch {
     spinnerRef?.stop();
@@ -199,7 +206,7 @@ async function getDbClient({
           password: postgresPassword,
           host: DEFAULT_DB_HOST,
           port: DEFAULT_DB_PORT,
-          db: postgresUsername,
+          db: dbName,
         }),
       };
     } catch (err) {

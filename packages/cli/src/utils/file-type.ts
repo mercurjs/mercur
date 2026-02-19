@@ -1,5 +1,5 @@
 import type z from "zod";
-import type { RegistryItemCategory, registryItemFileSchema } from "../registry/schema";
+import type { registryItemFileSchema } from "../registry/schema";
 import type { Config } from "../schema";
 import path from "path";
 /**
