@@ -10,7 +10,7 @@ import {
 import { createRemoteLinkStep } from "@medusajs/medusa/core-flows";
 
 import { ATTRIBUTE_MODULE } from "../../../modules/attribute";
-import { CreateAttributeDTO } from "@mercurjs/framework";
+import { AttributeSource, CreateAttributeDTO } from "@mercurjs/framework";
 
 import { createAttributesStep } from "../steps/create-attributes";
 
@@ -20,6 +20,10 @@ type CreateAttributesWorkflowInput = {
   attributes: CreateAttributeDTO[];
 };
 
+/**
+ * Workflow for creating admin attributes.
+ * Enforces source: "admin" for all attributes created through this workflow.
+ */
 export const createAttributesWorkflow = createWorkflow(
   createAttributesWorkflowId,
   (input: WorkflowData<CreateAttributesWorkflowInput>) => {
@@ -28,7 +32,11 @@ export const createAttributesWorkflow = createWorkflow(
       ({ attributes }) => {
         return attributes.map((attribute) => {
           delete attribute.product_category_ids;
-          return attribute;
+          // Enforce admin source for attributes created through admin API
+          return {
+            ...attribute,
+            source: AttributeSource.ADMIN,
+          };
         });
       }
     );

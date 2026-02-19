@@ -1,9 +1,10 @@
-import { AttributeUIComponent } from './common'
+import { AttributeSource, AttributeUIComponent } from './common'
 
 export interface CreateAttributeValueDTO {
   value: string
   rank: number
   attribute_id: string
+  source?: AttributeSource
   metadata?: Record<string, unknown>
 }
 
@@ -23,6 +24,7 @@ export interface UpsertAttributeValueDTO {
   id?: string
   value?: string
   rank?: number
+  source?: AttributeSource
   metadata?: Record<string, unknown>
   attribute_id?: string
 }
@@ -33,6 +35,7 @@ export interface CreateAttributeDTO {
   handle?: string
   is_filterable?: boolean
   is_required?: boolean
+  source?: AttributeSource
   metadata?: Record<string, unknown>
   ui_component: AttributeUIComponent
   possible_values?: Omit<CreateAttributeValueDTO, 'attribute_id'>[]
@@ -43,6 +46,7 @@ export interface UpdateAttributeValueDTO {
   id: string
   value?: string
   rank?: number
+  source?: AttributeSource
   metadata?: Record<string, unknown> | null
 }
 
@@ -50,4 +54,5 @@ export type CreateProductAttributeValueDTO = {
   attribute_id: string
   product_id: string
   value: string
+  source?: AttributeSource
 }

@@ -6,9 +6,7 @@ import { AlgoliaEvents } from "@mercurjs/framework";
 import { productsUpdatedHookHandler } from "../attribute/utils";
 import { Link } from "@medusajs/framework/modules-sdk";
 import { SECONDARY_CATEGORY_MODULE } from "../../modules/secondary_categories";
-import { getSecondaryCategories } from "./product-created";
-import SecondaryCategoryModuleService from "../../modules/secondary_categories/service";
-import secondaryCategoryProduct from "../../links/secondary-category-product";
+import { getOrCreateSecondaryCategories } from "./product-created";
 
 type ProductLike = { id: string };
 type SecCatEntry = {
@@ -24,18 +22,15 @@ export const updateProductSubcategories = async (
   container: any
 ) => {
   const link: Link = container.resolve(ContainerRegistrationKeys.LINK);
-  const secondaryCategoryService: SecondaryCategoryModuleService =
-    container.resolve(SECONDARY_CATEGORY_MODULE);
-  const query = container.resolve(ContainerRegistrationKeys.QUERY);
 
-  const entries = additional_data?.secondary_categories ?? [];
-  if (!entries.length || !products?.length) return;
+  const incomingSecondaryCategories = additional_data?.secondary_categories ?? [];
+  if (!incomingSecondaryCategories.length || !products?.length) return;
 
-  const byId = new Map(entries.map((e) => [e.product_id, e]));
+  const incomingSecondaryCategoryByProductIdMap = new Map(incomingSecondaryCategories.map((incomingSecondaryCategory) => [incomingSecondaryCategory.product_id, incomingSecondaryCategory]));
 
   await Promise.all(
     products.map(async (product) => {
-      const match = byId.get(product.id);
+      const match = incomingSecondaryCategoryByProductIdMap.get(product.id);
       if (!match) return;
 
       const toAddRaw = match.add ?? match.secondary_categories_ids ?? [];
@@ -46,7 +41,7 @@ export const updateProductSubcategories = async (
 
       let confirmedAddIds: string[] = [];
       if (toAddIds.length) {
-        const existingOrCreated = await getSecondaryCategories(
+        const existingOrCreated = await getOrCreateSecondaryCategories(
           toAddIds,
           container
         );
@@ -55,47 +50,28 @@ export const updateProductSubcategories = async (
 
       if (toRemoveIds.length) {
         await Promise.all(
-          toRemoveIds.map(async (secId) => {
-            const secondaryCategories =
-              await secondaryCategoryService.listSecondaryCategories({
-                category_id: secId
-              })
-
-            const {
-              data: [secondaryCategoryLink]
-            } = await query.graph({
-              entity: secondaryCategoryProduct.entryPoint,
-              fields: ['secondary_category_id'],
-              filters: {
-                secondary_category_id: secondaryCategories.map(
-                  (secondaryCategory) => secondaryCategory.id
-                ),
-                product_id: product.id
+          toRemoveIds.map(async (secondCategoryId) => {
+            link.dismiss({
+              [Modules.PRODUCT]: { product_id: product.id },
+              [SECONDARY_CATEGORY_MODULE]: {
+                secondary_category_id:
+                  secondCategoryId
               }
             })
-
-            link
-              .dismiss({
-                [Modules.PRODUCT]: { product_id: product.id },
-                [SECONDARY_CATEGORY_MODULE]: {
-                  secondary_category_id:
-                    secondaryCategoryLink.secondary_category_id
-                }
-              })
-              .catch(() => {})
+              .catch(() => { })
           })
         )
       }
 
       if (confirmedAddIds.length) {
         await Promise.all(
-          confirmedAddIds.map((secId) =>
+          confirmedAddIds.map((secondaryCategoryId) =>
             link
               .create({
                 [Modules.PRODUCT]: { product_id: product.id },
-                [SECONDARY_CATEGORY_MODULE]: { secondary_category_id: secId },
+                [SECONDARY_CATEGORY_MODULE]: { secondary_category_id: secondaryCategoryId },
               })
-              .catch(() => {})
+              .catch(() => { })
           )
         );
       }

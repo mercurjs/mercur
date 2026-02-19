@@ -117,6 +117,9 @@ export const GET = async (
 
   const { is_global, ...filterableFields } = req.filterableFields
 
+  // Admin API only shows admin-sourced attributes by default
+  filterableFields['source'] = 'admin'
+
   if (is_global) {
     const { data: attributes } = await query.graph({
       entity: categoryAttribute.entryPoint,
