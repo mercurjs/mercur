@@ -240,15 +240,30 @@ function formatConnectionString({
 
 async function runMigrations({ projectDir, spinner: parentSpinner }: DbSetupArgs): Promise<boolean> {
   const apiDir = path.join(projectDir, API_DIR);
+  const packageManager = await getPackageManager(apiDir);
   const migrationSpinner = parentSpinner || spinner("Running migrations...").start();
+
+  const buildCmd = packageManager === "yarn"
+    ? ["yarn", "run", "build"]
+    : packageManager === "pnpm"
+      ? ["pnpm", "run", "build"]
+      : packageManager === "bun"
+        ? ["bun", "run", "build"]
+        : ["npm", "run", "build"];
+
+  const runnerCmd = packageManager === "pnpm"
+    ? ["pnpm", "dlx"]
+    : packageManager === "bun"
+      ? ["bunx"]
+      : ["npx"];
 
   try {
     // Build first - compiles TypeScript so ts-node is not needed
     migrationSpinner.text = "Building project...";
-    await execa("npm", ["run", "build"], { cwd: apiDir });
+    await execa(buildCmd[0], buildCmd.slice(1), { cwd: apiDir });
 
     migrationSpinner.text = "Running database migrations...";
-    await execa("npx", ["medusa", "db:migrate"], { cwd: apiDir });
+    await execa(runnerCmd[0], [...runnerCmd.slice(1), "medusa", "db:migrate"], { cwd: apiDir });
 
     if (!parentSpinner) {
       migrationSpinner.succeed("Migrations completed successfully.");
@@ -265,9 +280,16 @@ async function runMigrations({ projectDir, spinner: parentSpinner }: DbSetupArgs
 
 async function createAdminInvite({ projectDir }: { projectDir: string }): Promise<string | null> {
   const apiDir = path.join(projectDir, API_DIR);
+  const packageManager = await getPackageManager(apiDir);
+
+  const runnerCmd = packageManager === "pnpm"
+    ? ["pnpm", "dlx"]
+    : packageManager === "bun"
+      ? ["bunx"]
+      : ["npx"];
 
   try {
-    const result = await execa("npx", ["medusa", "user", "-e", ADMIN_EMAIL, "--invite"], {
+    const result = await execa(runnerCmd[0], [...runnerCmd.slice(1), "medusa", "user", "-e", ADMIN_EMAIL, "--invite"], {
       cwd: apiDir,
     });
 
