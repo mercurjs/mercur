@@ -259,16 +259,12 @@
           "type": "registry:api"
         },
         {
-          "path": "product-import-export/api/vendor/products/_helpers/helpers.ts",
+          "path": "product-import-export/api/vendor/products/helpers/helpers.ts",
           "type": "registry:api"
         },
         {
           "path": "product-import-export/api/vendor/products/middlewares.ts",
           "type": "registry:api"
-        },
-        {
-          "path": "product-import-export/vendor/lib/client.ts",
-          "type": "registry:vendor"
         },
         {
           "path": "product-import-export/vendor/hooks/api/product-import-export.tsx",
@@ -283,15 +279,15 @@
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/pages/products/import/_components/upload-import.tsx",
+          "path": "product-import-export/vendor/pages/products/import/components/upload-import.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/pages/products/import/_components/import-summary.tsx",
+          "path": "product-import-export/vendor/pages/products/import/components/import-summary.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/pages/products/import/_helpers/import-template.ts",
+          "path": "product-import-export/vendor/pages/products/import/helpers/import-template.ts",
           "type": "registry:vendor"
         },
         {

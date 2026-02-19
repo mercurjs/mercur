@@ -4,7 +4,7 @@ import {
 } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/framework/utils"
 import { importSellerProductsWorkflow } from "../../../../workflows/import-seller-products"
-import { fetchSellerByAuthActorId } from "../_helpers/helpers"
+import { fetchSellerByAuthActorId } from "../helpers/helpers"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<{ file: Express.Multer.File }>,
