@@ -15,6 +15,7 @@ export default function App() {
     return {
       settingsRoutes: createRouteMap(getRoutesByType(customRoutes, "settings")),
       mainRoutes: createRouteMap(getRoutesByType(customRoutes, "main")),
+      publicRoutes: createRouteMap(getRoutesByType(customRoutes, "public")),
     };
   }, [customRoutes]);
 

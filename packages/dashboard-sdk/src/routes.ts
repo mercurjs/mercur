@@ -9,6 +9,7 @@ type Route = {
     path: string
     handle?: string
     loader?: string
+    isPublic?: boolean
     children?: Route[]
 }
 
@@ -76,6 +77,15 @@ function hasDefaultExport(filePath: string): boolean {
     }
 }
 
+function hasConfigPublic(filePath: string): boolean {
+    try {
+        const content = fs.readFileSync(filePath, "utf-8")
+        return /export\s+const\s+config\s*=\s*\{[^}]*public\s*:\s*true/.test(content)
+    } catch {
+        return false
+    }
+}
+
 function getNamedExports(filePath: string): { hasHandle: boolean; hasLoader: boolean } {
     try {
         const content = fs.readFileSync(filePath, "utf-8")
@@ -135,13 +145,15 @@ function generateRouteObject(
     routePath: string,
     index: number,
     hasHandle: boolean,
-    hasLoader: boolean
+    hasLoader: boolean,
+    isPublic: boolean
 ): Route {
     return {
         Component: generateRouteComponentName(index),
         path: routePath,
         handle: hasHandle ? generateHandleName(index) : undefined,
         loader: hasLoader ? generateLoaderName(index) : undefined,
+        isPublic,
     }
 }
 
@@ -156,6 +168,10 @@ function formatRoute(route: Route, indent: string = "    "): string {
 
     if (route.loader) {
         result += `,\n${indent}    loader: ${route.loader}`
+    }
+
+    if (route.isPublic) {
+        result += `,\n${indent}    isPublic: true`
     }
 
     if (route.children?.length) {
@@ -176,10 +192,11 @@ function parseFile(file: string, pagesDir: string, index: number): RouteResult |
     }
 
     const { hasHandle, hasLoader } = getNamedExports(file)
+    const isPublic = hasConfigPublic(file)
     const routePath = getRoute(file, pagesDir)
 
     const imports = generateImports(file, index, hasHandle, hasLoader)
-    const route = generateRouteObject(routePath, index, hasHandle, hasLoader)
+    const route = generateRouteObject(routePath, index, hasHandle, hasLoader, isPublic)
 
     return {
         imports,
