@@ -6,7 +6,7 @@ const MediaSchema = z.union([
         url: z.string(),
         alt_text: z.string().optional(),
     }),
-    z.string(),
+    z.string().startsWith('cat_med'),
 ]);
 
 export type UpdateCategoryDetailType = z.infer<typeof UpdateCategoryDetail>;

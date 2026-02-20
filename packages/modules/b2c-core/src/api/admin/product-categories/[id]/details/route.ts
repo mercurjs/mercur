@@ -1,6 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
-import categoryCategoryDetails from "../../../../../links/category-category-details";
 import { createCategoryDetailWorkflow, updateCategoryDetailWorkflow } from "../../../../../workflows/category-detail";
 import { defaultAdminCategoryDetailFields } from "../../query-config";
 import { UpdateCategoryDetailType } from "../../validators";
@@ -107,13 +106,13 @@ export const POST = async (req: MedusaRequest<UpdateCategoryDetailType>, res: Me
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
     const { data: [category] } = await query.graph({
-        entity: categoryCategoryDetails.entryPoint,
+        entity: 'product_category',
         filters: {
-            product_category_id: id
+            id
         },
         fields: [
-            'product_category_id',
-            'category_detail_id'
+            'id',
+            'category_detail.id'
         ],
     });
 
@@ -121,7 +120,7 @@ export const POST = async (req: MedusaRequest<UpdateCategoryDetailType>, res: Me
         throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Category not found');
     }
 
-    if (!category.category_detail_id) {
+    if (!category.category_detail?.id) {
         const { result: createdCategoryDetail } = await createCategoryDetailWorkflow.run({
             container: req.scope,
             input: {
@@ -129,13 +128,13 @@ export const POST = async (req: MedusaRequest<UpdateCategoryDetailType>, res: Me
             }
         });
 
-        category.category_detail_id = createdCategoryDetail.id;
+        category.category_detail = { id: createdCategoryDetail.id };
     }
 
     await updateCategoryDetailWorkflow.run({
         container: req.scope,
         input: {
-            category_detail_id: category.category_detail_id,
+            category_detail_id: category.category_detail.id,
             ...req.validatedBody
         }
     });
@@ -143,7 +142,7 @@ export const POST = async (req: MedusaRequest<UpdateCategoryDetailType>, res: Me
     const { data: [categoryDetail] } = await query.graph({
         entity: 'category_detail',
         filters: {
-            id: category.category_detail_id
+            id: category.category_detail.id
         },
         fields: defaultAdminCategoryDetailFields
     });
@@ -197,12 +196,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
     const { data: [category] } = await query.graph({
-        entity: categoryCategoryDetails.entryPoint,
+        entity: 'product_category',
         filters: {
-            product_category_id: id
+           id
         },
         fields: [
-            'category_detail_id',
             ...defaultAdminCategoryDetailFields.map(field => `category_detail.${field}`),
         ],
     });
@@ -212,7 +210,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     }
 
     res.json({
-        category_detail: category.category_detail,
+        category_detail: category.category_detail || null,
     });
 };
 

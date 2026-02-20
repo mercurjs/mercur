@@ -6,7 +6,7 @@ const MediaSchema = z.union([
         url: z.string(),
         alt_text: z.string().optional(),
     }),
-    z.string(),
+    z.string().startsWith('coll_med'),
 ]);
 
 export type UpdateCollectionDetailType = z.infer<typeof UpdateCollectionDetail>;
