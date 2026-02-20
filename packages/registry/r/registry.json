@@ -300,6 +300,88 @@
         "workflow",
         "vendor"
       ]
+    },
+    {
+      "name": "wishlist",
+      "description": "Customer wishlist with product bookmarking, pricing context, and store API endpoints.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "docs": "## Configuration\n\nAdd the wishlist module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/wishlist',\n  },\n]\n```\n\n## Middlewares\n\nAdd the wishlist middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { storeMiddlewares } from \"./store/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...storeMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the wishlist middleware imports and spread them into your existing `routes` array.\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nmercurjs codegen\n```",
+      "files": [
+        {
+          "path": "wishlist/modules/wishlist/index.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "wishlist/modules/wishlist/service.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "wishlist/modules/wishlist/models/wishlist.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "wishlist/modules/wishlist/types.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "wishlist/modules/wishlist/utils.ts",
+          "type": "registry:module"
+        },
+        {
+          "path": "wishlist/links/customer-wishlist.ts",
+          "type": "registry:link"
+        },
+        {
+          "path": "wishlist/links/wishlist-product.ts",
+          "type": "registry:link"
+        },
+        {
+          "path": "wishlist/workflows/wishlist/steps/create-wishlist.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "wishlist/workflows/wishlist/steps/delete-wishlist.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "wishlist/workflows/wishlist/workflows/create-wishlist.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "wishlist/workflows/wishlist/workflows/delete-wishlist.ts",
+          "type": "registry:workflow"
+        },
+        {
+          "path": "wishlist/api/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "wishlist/api/store/wishlist/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "wishlist/api/store/wishlist/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "wishlist/api/store/wishlist/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "wishlist/api/store/wishlist/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "wishlist/api/store/wishlist/product/[reference_id]/route.ts",
+          "type": "registry:api"
+        }
+      ],
+      "categories": [
+        "module",
+        "workflow",
+        "api"
+      ]
     }
   ]
 }

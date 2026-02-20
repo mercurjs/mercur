@@ -525,6 +525,11 @@ export type Routes = {
         reviews: typeof import("../../src/reviews/api/store/reviews/route") & {
             $id: typeof import("../../src/reviews/api/store/reviews/[id]/route");
         };
+        wishlist: typeof import("../../src/wishlist/api/store/wishlist/route") & {
+            product: {
+                $referenceId: typeof import("../../src/wishlist/api/store/wishlist/product/[reference_id]/route");
+            };
+        };
     };
     vendor: {
         campaigns: typeof import("@mercurjs/core-plugin/api/vendor/campaigns/route") & {

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://registry.mercurjs.com/registry-item.json",
+  "name": "wishlist",
+  "description": "Customer wishlist with product bookmarking, pricing context, and store API endpoints.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "docs": "## Configuration\n\nAdd the wishlist module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/wishlist',\n  },\n]\n```\n\n## Middlewares\n\nAdd the wishlist middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { storeMiddlewares } from \"./store/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...storeMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the wishlist middleware imports and spread them into your existing `routes` array.\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nmercurjs codegen\n```",
+  "categories": [
+    "module",
+    "workflow",
+    "api"
+  ],
+  "files": [
+    {
+      "path": "wishlist/modules/wishlist/index.ts",
+      "content": "import { Module } from \"@medusajs/framework/utils\";\n\nimport WishlistModuleService from \"./service\";\n\nexport const WISHLIST_MODULE = \"wishlist\";\nexport { WishlistModuleService };\nexport * from \"./types\";\nexport * from \"./utils\";\n\nexport default Module(WISHLIST_MODULE, {\n  service: WishlistModuleService,\n});\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "wishlist/modules/wishlist/service.ts",
+      "content": "import { MedusaService } from \"@medusajs/framework/utils\";\n\nimport { Wishlist } from \"./models/wishlist\";\n\nclass WishlistModuleService extends MedusaService({\n  Wishlist,\n}) {}\n\nexport default WishlistModuleService;\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "wishlist/modules/wishlist/models/wishlist.ts",
+      "content": "import { model } from \"@medusajs/framework/utils\";\n\nexport const Wishlist = model.define(\"wishlist\", {\n  id: model.id({ prefix: \"wish\" }).primaryKey(),\n  reference: model.enum([\"product\"]),\n});\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "wishlist/modules/wishlist/types.ts",
+      "content": "export type CreateWishlistDTO = {\n  reference: \"product\";\n  reference_id: string;\n  customer_id: string;\n};\n\nexport type DeleteWishlistDTO = {\n  id: string;\n  reference_id: string;\n};\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "wishlist/modules/wishlist/utils.ts",
+      "content": "import { MedusaContainer } from \"@medusajs/framework\";\n\nexport async function getWishlistFromCustomerId(\n  container: MedusaContainer,\n  customerId: string\n) {\n  const knex = container.resolve(\"__pg_connection__\");\n\n  const wishlist = await knex(\"wishlist\")\n    .select(\"wishlist.id\")\n    .join(\n      \"customer_customer_wishlist_wishlist\",\n      \"wishlist.id\",\n      \"customer_customer_wishlist_wishlist.wishlist_id\"\n    )\n    .where(\"customer_customer_wishlist_wishlist.customer_id\", customerId)\n    .first();\n\n  return wishlist;\n}\n",
+      "type": "registry:module"
+    },
+    {
+      "path": "wishlist/links/customer-wishlist.ts",
+      "content": "import { defineLink } from \"@medusajs/framework/utils\";\nimport CustomerModule from \"@medusajs/medusa/customer\";\n\nimport WishlistModule from \"../modules/wishlist\";\n\nexport default defineLink(CustomerModule.linkable.customer, {\n  linkable: WishlistModule.linkable.wishlist,\n  deleteCascade: true,\n  isList: false,\n});\n",
+      "type": "registry:link"
+    },
+    {
+      "path": "wishlist/links/wishlist-product.ts",
+      "content": "import { defineLink } from \"@medusajs/framework/utils\";\nimport ProductModule from \"@medusajs/medusa/product\";\n\nimport WishlistModule from \"../modules/wishlist\";\n\nexport default defineLink(\n  { linkable: WishlistModule.linkable.wishlist, isList: true },\n  {\n    linkable: ProductModule.linkable.product,\n    deleteCascade: false,\n    isList: true,\n  }\n);\n",
+      "type": "registry:link"
+    },
+    {
+      "path": "wishlist/workflows/wishlist/steps/create-wishlist.ts",
+      "content": "import { Modules, ContainerRegistrationKeys } from \"@medusajs/framework/utils\";\nimport { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\";\n\nimport { CreateWishlistDTO } from \"../../../modules/wishlist\";\nimport {\n  WISHLIST_MODULE,\n  WishlistModuleService,\n} from \"../../../modules/wishlist\";\nimport { getWishlistFromCustomerId } from \"../../../modules/wishlist/utils\";\n\nexport const createWishlistEntryStep = createStep(\n  \"create-wishlist\",\n  async (input: CreateWishlistDTO, { container }) => {\n    const service = container.resolve<WishlistModuleService>(WISHLIST_MODULE);\n    const link = container.resolve(ContainerRegistrationKeys.LINK);\n\n    let wishlist = await getWishlistFromCustomerId(\n      container,\n      input.customer_id\n    );\n    if (!wishlist) {\n      wishlist = await service.createWishlists(input);\n      link.create([\n        {\n          [Modules.CUSTOMER]: {\n            customer_id: input.customer_id,\n          },\n          [WISHLIST_MODULE]: {\n            wishlist_id: wishlist.id,\n          },\n        },\n      ]);\n    }\n\n    await link.create([\n      {\n        [WISHLIST_MODULE]: {\n          wishlist_id: wishlist.id,\n        },\n        [Modules.PRODUCT]: {\n          product_id: input.reference_id,\n        },\n      },\n    ]);\n    return new StepResponse(wishlist);\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "wishlist/workflows/wishlist/steps/delete-wishlist.ts",
+      "content": "import { ContainerRegistrationKeys, Modules } from \"@medusajs/framework/utils\";\nimport { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\";\n\nimport { DeleteWishlistDTO } from \"../../../modules/wishlist\";\nimport { WISHLIST_MODULE } from \"../../../modules/wishlist\";\n\nexport const deleteWishlistEntryStep = createStep(\n  \"delete-wishlist\",\n  async (input: DeleteWishlistDTO, { container }) => {\n    const { id, reference_id } = input;\n    const link = container.resolve(ContainerRegistrationKeys.LINK);\n\n    await link.dismiss([\n      {\n        [WISHLIST_MODULE]: {\n          wishlist_id: id,\n        },\n        [Modules.PRODUCT]: {\n          product_id: reference_id,\n        },\n      },\n    ]);\n\n    return new StepResponse({ id, reference_id });\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "wishlist/workflows/wishlist/workflows/create-wishlist.ts",
+      "content": "import {\n  WorkflowResponse,\n  createWorkflow,\n} from \"@medusajs/framework/workflows-sdk\";\n\nimport { CreateWishlistDTO } from \"../../../modules/wishlist\";\nimport { createWishlistEntryStep } from \"../steps/create-wishlist\";\n\nexport const createWishlistEntryWorkflow = createWorkflow(\n  {\n    name: \"create-wishlist\",\n  },\n  function (input: CreateWishlistDTO) {\n    return new WorkflowResponse(createWishlistEntryStep(input));\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "wishlist/workflows/wishlist/workflows/delete-wishlist.ts",
+      "content": "import {\n  WorkflowResponse,\n  createWorkflow,\n} from \"@medusajs/framework/workflows-sdk\";\n\nimport { DeleteWishlistDTO } from \"../../../modules/wishlist\";\nimport { deleteWishlistEntryStep } from \"../steps/delete-wishlist\";\n\nexport const deleteWishlistEntryWorkflow = createWorkflow(\n  {\n    name: \"delete-wishlist\",\n  },\n  function (input: DeleteWishlistDTO) {\n    return new WorkflowResponse(deleteWishlistEntryStep(input));\n  }\n);\n",
+      "type": "registry:workflow"
+    },
+    {
+      "path": "wishlist/api/middlewares.ts",
+      "content": "import { storeWishlistMiddlewares } from \"./store/wishlist/middlewares\";\n\nexport const storeMiddlewares = [...storeWishlistMiddlewares];\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "wishlist/api/store/wishlist/route.ts",
+      "content": "import {\n  AuthenticatedMedusaRequest,\n  MedusaResponse,\n} from \"@medusajs/framework\";\nimport {\n  ContainerRegistrationKeys,\n  isPresent,\n  QueryContext,\n} from \"@medusajs/framework/utils\";\n\nimport customerWishlist from \"../../../links/customer-wishlist\";\nimport { createWishlistEntryWorkflow } from \"../../../workflows/wishlist/workflows/create-wishlist\";\nimport { StoreCreateWishlistType } from \"./validators\";\n\nexport const POST = async (\n  req: AuthenticatedMedusaRequest<StoreCreateWishlistType>,\n  res: MedusaResponse\n) => {\n  const { result } = await createWishlistEntryWorkflow.run({\n    container: req.scope,\n    input: {\n      ...req.validatedBody,\n      customer_id: req.auth_context.actor_id,\n    },\n  });\n\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);\n\n  const {\n    data: [wishlist],\n  } = await query.graph({\n    entity: \"wishlist\",\n    fields: req.queryConfig.fields,\n    filters: {\n      id: result.id,\n    },\n  });\n\n  res.status(201).json({ wishlist });\n};\n\nexport const GET = async (\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse\n) => {\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);\n  const customerId = req.auth_context.actor_id;\n\n  const {\n    data: [wishlist],\n  } = await query.graph({\n    entity: customerWishlist.entryPoint,\n    fields: [\"wishlist.products.id\"],\n    filters: {\n      customer_id: customerId,\n    },\n  });\n\n  const productIds: string[] = [];\n  wishlist.wishlist.products.forEach((product) => {\n    productIds.push(product.id);\n  });\n\n  let context: object = {};\n\n  if (isPresent(req.pricingContext)) {\n    const pricingContext = { ...req.pricingContext, customer_id: customerId };\n    context = {\n      variants: {\n        calculated_price: QueryContext(pricingContext),\n      },\n    };\n  }\n\n  const { data: products, metadata } = await query.graph({\n    entity: \"product\",\n    fields: req.queryConfig.fields,\n    filters: {\n      id: productIds,\n    },\n    pagination: req.queryConfig.pagination,\n    context,\n  });\n\n  res.json({\n    products,\n    count: metadata?.count,\n    offset: metadata?.skip,\n    limit: metadata?.take,\n  });\n};\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "wishlist/api/store/wishlist/middlewares.ts",
+      "content": "import {\n  validateAndTransformBody,\n  validateAndTransformQuery,\n} from \"@medusajs/framework\";\nimport { authenticate, MiddlewareRoute } from \"@medusajs/medusa\";\n\nimport { isPresent, ProductStatus } from \"@medusajs/framework/utils\";\nimport { listProductQueryConfig } from \"@medusajs/medusa/api/store/products/query-config\";\nimport { StoreGetProductsParams } from \"@medusajs/medusa/api/store/products/validators\";\nimport { storeWishlistQueryConfig } from \"./query-config\";\nimport { StoreCreateWishlist, StoreGetWishlistsParams } from \"./validators\";\n\nimport {\n  applyDefaultFilters,\n  clearFiltersByKey,\n  maybeApplyLinkFilter,\n} from \"@medusajs/framework/http\";\nimport {\n  filterByValidSalesChannels,\n  normalizeDataForContext,\n  setPricingContext,\n  setTaxContext,\n} from \"@medusajs/medusa/api/utils/middlewares/index\";\n\nexport const storeWishlistMiddlewares: MiddlewareRoute[] = [\n  {\n    method: [\"GET\"],\n    matcher: \"/store/wishlist\",\n    middlewares: [\n      authenticate(\"customer\", [\"bearer\", \"session\"]),\n      validateAndTransformQuery(StoreGetProductsParams, listProductQueryConfig),\n      filterByValidSalesChannels(),\n      maybeApplyLinkFilter({\n        entryPoint: \"product_sales_channel\",\n        resourceId: \"product_id\",\n        filterableField: \"sales_channel_id\",\n      }),\n      applyDefaultFilters({\n        status: ProductStatus.PUBLISHED,\n        categories: (filters: any, _fields: string[]) => {\n          const categoryIds = filters.category_id;\n          delete filters.category_id;\n\n          if (!isPresent(categoryIds)) {\n            return;\n          }\n\n          return { id: categoryIds, is_internal: false, is_active: true };\n        },\n      }),\n      normalizeDataForContext(),\n      setPricingContext(),\n      setTaxContext(),\n      clearFiltersByKey([\"region_id\", \"country_code\", \"province\", \"cart_id\"]),\n    ],\n  },\n  {\n    method: [\"POST\"],\n    matcher: \"/store/wishlist\",\n    middlewares: [\n      authenticate(\"customer\", [\"bearer\", \"session\"]),\n      validateAndTransformQuery(\n        StoreGetWishlistsParams,\n        storeWishlistQueryConfig.retrieve\n      ),\n      validateAndTransformBody(StoreCreateWishlist),\n    ],\n  },\n  {\n    method: [\"DELETE\"],\n    matcher: \"/store/wishlist/product/:reference_id\",\n    middlewares: [authenticate(\"customer\", [\"bearer\", \"session\"])],\n  },\n];\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "wishlist/api/store/wishlist/validators.ts",
+      "content": "import { z } from \"zod\";\n\nimport { createFindParams } from \"@medusajs/medusa/api/utils/validators\";\n\nexport type StoreGetWishlistsParamsType = z.infer<\n  typeof StoreGetWishlistsParams\n>;\n\nexport const StoreGetWishlistsParams = createFindParams({\n  offset: 0,\n  limit: 50,\n});\n\nexport type StoreCreateWishlistType = z.infer<typeof StoreCreateWishlist>;\n\nexport const StoreCreateWishlist = z.object({\n  reference: z.enum([\"product\"]),\n  reference_id: z.string(),\n});\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "wishlist/api/store/wishlist/query-config.ts",
+      "content": "export const storeWishlistFields = [\n  \"id\",\n  \"title\",\n  \"handle\",\n  \"subtitle\",\n  \"description\",\n  \"is_giftcard\",\n  \"status\",\n  \"thumbnail\",\n  \"weight\",\n  \"length\",\n  \"height\",\n  \"width\",\n  \"origin_country\",\n  \"hs_code\",\n  \"mid_code\",\n  \"material\",\n  \"discountable\",\n  \"external_id\",\n  \"metadata\",\n  \"type_id\",\n  \"type\",\n  \"collection_id\",\n  \"collection\",\n  \"created_at\",\n  \"updated_at\",\n  \"deleted_at\",\n  \"variant_id\",\n];\n\nexport const storeWishlistQueryConfig = {\n  list: {\n    defaults: storeWishlistFields,\n    isList: true,\n  },\n  retrieve: {\n    defaults: storeWishlistFields,\n    isList: false,\n  },\n};\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "wishlist/api/store/wishlist/product/[reference_id]/route.ts",
+      "content": "import {\n  AuthenticatedMedusaRequest,\n  MedusaResponse,\n} from \"@medusajs/framework\";\nimport { MedusaError } from \"@medusajs/framework/utils\";\n\nimport { deleteWishlistEntryWorkflow } from \"../../../../../workflows/wishlist/workflows/delete-wishlist\";\nimport { getWishlistFromCustomerId } from \"../../../../../modules/wishlist/utils\";\n\nexport const DELETE = async (\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse\n) => {\n  const wishlist = await getWishlistFromCustomerId(\n    req.scope,\n    req.auth_context.actor_id\n  );\n\n  if (!wishlist) {\n    throw new MedusaError(\n      MedusaError.Types.NOT_FOUND,\n      \"Wishlist not found for current customer\"\n    );\n  }\n\n  await deleteWishlistEntryWorkflow.run({\n    container: req.scope,\n    input: {\n      id: wishlist.id,\n      reference_id: req.params.reference_id,\n    },\n  });\n\n  res.json({\n    id: wishlist.id,\n    reference_id: req.params.reference_id,\n    object: \"wishlist\",\n    deleted: true,\n  });\n};\n",
+      "type": "registry:api"
+    }
+  ]
+}
