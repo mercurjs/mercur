@@ -98,7 +98,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         })
       );
 
-      const { sellerProducts, sellerShippingOptions } =
+      const { sellerProducts, sellerShippingOptions, adminShippingOptions } =
         validateCartShippingOptionsStep(validateCartShippingOptionsInput);
 
       const paymentSessions = validateCartPaymentsStep({ cart });
@@ -109,8 +109,8 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
       });
 
       const { ordersToCreate, sellers, variants } = transform(
-        { cart, sellerProducts, sellerShippingOptions },
-        ({ cart, sellerProducts, sellerShippingOptions }) => {
+        { cart, sellerProducts, sellerShippingOptions, adminShippingOptions },
+        ({ cart, sellerProducts, sellerShippingOptions, adminShippingOptions }) => {
           const productSellerMap = new Map<string, string>(
             sellerProducts.map((sp) => [sp.product_id, sp.seller_id])
           );
@@ -120,6 +120,16 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
               sp.seller_id,
             ])
           );
+
+          // Supplement with admin shipping options from cart metadata
+          for (const adminOption of adminShippingOptions ?? []) {
+            if (!shippingOptionSellerMap.has(adminOption.shipping_option_id)) {
+              shippingOptionSellerMap.set(
+                adminOption.shipping_option_id,
+                adminOption.seller_id
+              );
+            }
+          }
           const sellerLineItemsMap = new Map<string, any[]>();
           const sellerShippingMethodsMap = new Map<
             string,
@@ -239,7 +249,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
             });
           }
 
-          return {computedActions: promotionUsage, registrationContext: { customer_id: cart.customer?.id ?? null, customer_email: cart.email ?? null}};
+          return { computedActions: promotionUsage, registrationContext: { customer_id: cart.customer?.id ?? null, customer_email: cart.email ?? null } };
         }
       );
 
