@@ -33,6 +33,10 @@ Mercur exposes three sets of HTTP endpoints:
 
 Each route is composed of a handler, middleware, query configuration, and validators.
 
+## Core Plugin
+
+The core plugin (`@mercurjs/core-plugin`) is the main package that contains all of Mercur's marketplace logic — modules, links, workflows, API routes, subscribers, and providers. It is installed as a standard MedusaJS plugin and serves as the foundation that blocks extend.
+
 ## Modules
 
 Modules encapsulate data models and business logic for a specific domain. Each module is self-contained with its own models, service, and migrations. Mercur's marketplace modules include Seller, Commission, Payout, Marketplace, Requests, Reviews, and others. They communicate through [Links](#links) and [Workflows](#workflows), never directly.
