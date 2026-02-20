@@ -153,7 +153,7 @@ function generateRouteObject(
         path: routePath,
         handle: hasHandle ? generateHandleName(index) : undefined,
         loader: hasLoader ? generateLoaderName(index) : undefined,
-        isPublic: isPublic || undefined,
+        isPublic,
     }
 }
 
