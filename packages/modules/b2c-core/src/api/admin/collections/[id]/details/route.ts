@@ -1,8 +1,14 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
-import { createCollectionDetailWorkflow, updateCollectionDetailWorkflow } from "../../../../../workflows/collection-detail";
-import { defaultAdminCollectionDetailFields } from "../../query-config";
-import { UpdateCollectionDetailType } from "../../validators";
+import { MedusaRequest, MedusaResponse } from '@medusajs/framework';
+import {
+  ContainerRegistrationKeys,
+  MedusaError
+} from '@medusajs/framework/utils';
+import {
+  createCollectionDetailWorkflow,
+  updateCollectionDetailWorkflow
+} from '../../../../../workflows/collection-detail';
+import { defaultAdminCollectionDetailFields } from '../../query-config';
+import { UpdateCollectionDetailType } from '../../validators';
 
 /**
  * @oas [post] /admin/collections/{id}/details
@@ -103,57 +109,62 @@ import { UpdateCollectionDetailType } from "../../validators";
  *   - api_token: []
  *   - cookie_auth: []
  */
-export const POST = async (req: MedusaRequest<UpdateCollectionDetailType>, res: MedusaResponse) => {
-    const { id } = req.params;
+export const POST = async (
+  req: MedusaRequest<UpdateCollectionDetailType>,
+  res: MedusaResponse
+) => {
+  const { id } = req.params;
 
-    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-    const { data: [collection] } = await query.graph({
-        entity: 'product_collection',
-        filters: {
-            id
-        },
-        fields: [
-            'id',
-            'collection_detail.id'
-        ],
-    });
+  const {
+    data: [collection]
+  } = await query.graph({
+    entity: 'product_collection',
+    filters: {
+      id
+    },
+    fields: ['id', 'collection_detail.id']
+  });
 
-    if (!collection) {
-        throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Collection not found');
-    }
+  if (!collection) {
+    throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Collection not found');
+  }
 
-    if (!collection.collection_detail_id) {
-        const { result: createdCollectionDetail } = await createCollectionDetailWorkflow.run({
-            container: req.scope,
-            input: {
-                product_collection_id: id
-            }
-        });
-
-        collection.collection_detail = { id: createdCollectionDetail.id };
-    }
-
-    await updateCollectionDetailWorkflow.run({
+  if (!collection.collection_detail?.id) {
+    const { result: createdCollectionDetail } =
+      await createCollectionDetailWorkflow.run({
         container: req.scope,
         input: {
-            collection_detail_id: collection.collection_detail.id,
-            ...req.validatedBody
+          product_collection_id: id
         }
-    });
+      });
 
-    const { data: [collectionDetail] } = await query.graph({
-        entity: 'collection_detail',
-        filters: {
-            id: collection.collection_detail.id
-        },
-        fields: defaultAdminCollectionDetailFields
-    });
+    collection.collection_detail = { id: createdCollectionDetail.id };
+  }
 
-    res.json({
-        collection_detail: collectionDetail,
-    });
-}
+  await updateCollectionDetailWorkflow.run({
+    container: req.scope,
+    input: {
+      collection_detail_id: collection.collection_detail.id,
+      ...req.validatedBody
+    }
+  });
+
+  const {
+    data: [collectionDetail]
+  } = await query.graph({
+    entity: 'collection_detail',
+    filters: {
+      id: collection.collection_detail.id
+    },
+    fields: defaultAdminCollectionDetailFields
+  });
+
+  res.json({
+    collection_detail: collectionDetail
+  });
+};
 
 /**
  * @oas [get] /admin/collections/{id}/details
@@ -195,25 +206,29 @@ export const POST = async (req: MedusaRequest<UpdateCollectionDetailType>, res: 
  *   - cookie_auth: []
  */
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-    const { id } = req.params;
-    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  const { id } = req.params;
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-    const { data: [collection] } = await query.graph({
-        entity: 'product_collection',
-        filters: {
-            id
-        },
-        fields: [
-            'id',
-            ...defaultAdminCollectionDetailFields.map(field => `collection_detail.${field}`),
-        ],
-    });
+  const {
+    data: [collection]
+  } = await query.graph({
+    entity: 'product_collection',
+    filters: {
+      id
+    },
+    fields: [
+      'id',
+      ...defaultAdminCollectionDetailFields.map(
+        (field) => `collection_detail.${field}`
+      )
+    ]
+  });
 
-    if (!collection) {
-        throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Collection not found');
-    }
+  if (!collection) {
+    throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Collection not found');
+  }
 
-    res.json({
-        collection_detail: collection.collection_detail || null,
-    });
+  res.json({
+    collection_detail: collection.collection_detail || null
+  });
 };
