@@ -44,9 +44,11 @@ function mergeRoutes(
 export function getRouteMap({
   settingsRoutes: customSettingsRoutes,
   mainRoutes: customMainRoutes,
+  publicRoutes: customPublicRoutes = [],
 }: {
   settingsRoutes: RouteObject[];
   mainRoutes: RouteObject[];
+  publicRoutes?: RouteObject[];
 }) {
   return [
     // PROTECTED - MAIN LAYOUT
@@ -1313,6 +1315,7 @@ export function getRouteMap({
               path: "/reset-password",
               lazy: () => import("./pages/reset-password"),
             },
+            ...customPublicRoutes,
             {
               path: "*",
               lazy: () => import("./pages/no-match"),

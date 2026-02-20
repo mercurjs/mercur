@@ -7,6 +7,7 @@ export type Route = {
     path: string
     loader?: LoaderFunction
     handle?: object
+    isPublic?: boolean
     children?: Route[]
 }
 
@@ -228,12 +229,15 @@ export const createRouteMap = (
 
 const settingsRouteRegex = /^\/settings\//
 
-export const getRoutesByType = (routes: Route[], type: "settings" | "main") => {
+export const getRoutesByType = (routes: Route[], type: "settings" | "main" | "public") => {
     return routes.filter((route) => {
-        if (type === "settings") {
-            return settingsRouteRegex.test(route.path)
+        if (type === "public") {
+            return route.isPublic === true
         }
-        return !settingsRouteRegex.test(route.path)
+        if (type === "settings") {
+            return !route.isPublic && settingsRouteRegex.test(route.path)
+        }
+        return !route.isPublic && !settingsRouteRegex.test(route.path)
     })
 }
 

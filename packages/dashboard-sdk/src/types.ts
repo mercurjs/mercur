@@ -26,4 +26,5 @@ export type RouteConfig = {
     rank?: number
     nested?: string
     translationNs?: string
+    public?: boolean
 }
