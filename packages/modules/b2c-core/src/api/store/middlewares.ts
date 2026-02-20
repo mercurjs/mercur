@@ -1,6 +1,8 @@
 import { MiddlewareRoute, authenticate } from "@medusajs/framework";
 
 import { storeCartsMiddlewares } from "./carts/middlewares";
+import { storeCustomerAvatarMiddlewares } from "./custom/customers/me/avatar/middlewares";
+import { storeCustomerMeMiddlewares } from "./custom/customers/me/middlewares";
 import { storeOrderSetMiddlewares } from "./order-set/middlewares";
 import { storeProductsMiddlewares } from "./products/middlewares";
 import { storeReturnsMiddlewares } from "./returns/middlewares";
@@ -18,6 +20,8 @@ export const storeMiddlewares: MiddlewareRoute[] = [
     middlewares: [authenticate("customer", ["bearer", "session"])],
   },
   ...storeCartsMiddlewares,
+  ...storeCustomerAvatarMiddlewares,
+  ...storeCustomerMeMiddlewares,
   ...storeOrderSetMiddlewares,
   ...storeProductsMiddlewares,
   ...storeSellerMiddlewares,
