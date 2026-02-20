@@ -1,7 +1,8 @@
 export enum AlgoliaEvents {
   PRODUCTS_CHANGED = 'algolia.products.changed',
   PRODUCTS_DELETED = 'algolia.products.deleted',
-  REVIEW_CHANGED = 'algolia.reviews.changed'
+  REVIEW_CHANGED = 'algolia.reviews.changed',
+  SELLERS_CHANGED = 'algolia.sellers.changed'
 }
 
 export enum IntermediateEvents {
