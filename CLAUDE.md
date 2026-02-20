@@ -6,6 +6,8 @@ Open source marketplace platform built on MedusaJS. Follows a shadcn-like CLI ap
 
 ```
 mercur/
+├── apps/
+│   └── docs/             # Documentation site (Mintlify)
 ├── packages/
 │   ├── cli/              # @mercurjs/cli - CLI tool
 │   ├── client/           # @mercurjs/client - API client
@@ -159,6 +161,15 @@ React-based vendor portal UI framework.
 ## Core Package (`packages/core`)
 
 MedusaJS v2 plugin providing marketplace functionality.
+
+## Documentation (`apps/docs`)
+
+Documentation site built with [Mintlify](https://mintlify.com). Configuration lives in `docs.json`.
+
+- **Content format**: MDX files
+- **API Reference**: Auto-generated from OpenAPI spec (`api-reference/combined.oas.json`)
+- **Sections**: Quick start, Core Concepts, Product (modules, workflows, events, subscribers), Integrations, Deployment, API Reference, Changelog
+- **Dev server**: `mintlify dev` from `apps/docs/`
 
 ## Architecture
 
