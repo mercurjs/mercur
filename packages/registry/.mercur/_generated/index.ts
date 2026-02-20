@@ -708,5 +708,6 @@ export type Routes = {
         reviews: typeof import("../../src/reviews/api/vendor/reviews/route") & {
             $id: typeof import("../../src/reviews/api/vendor/reviews/[id]/route");
         };
+        notifications: typeof import("../../src/vendor-notifications/api/vendor/notifications/route");
     };
 };

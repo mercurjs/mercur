@@ -6,6 +6,7 @@ export interface MercurConfig {
     components?: {
         MainSidebar?: string
         SettingsSidebar?: string
+        TopbarActions?: string
     },
     i18n?: {
         defaultLanguage: string

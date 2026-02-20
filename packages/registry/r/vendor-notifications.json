@@ -1,0 +1,49 @@
+{
+  "$schema": "https://registry.mercurjs.com/registry-item.json",
+  "name": "vendor-notifications",
+  "description": "Vendor notification feed with bell icon in navbar and vendor API endpoint.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "docs": "## Vendor Notifications\n\nThis block adds vendor notifications: a bell icon in the navbar and a `GET /vendor/notifications` API endpoint.\n\n### Notification Provider Setup\n\nConfigure the local notification provider in `medusa-config.ts` to include the `seller_feed` channel:\n\n```ts\n{\n  resolve: '@medusajs/medusa/notification',\n  options: {\n    providers: [\n      {\n        resolve: '@medusajs/medusa/notification-local',\n        id: 'local',\n        options: {\n          channels: ['feed', 'seller_feed']\n        }\n      }\n    ]\n  }\n}\n```\n\n### Middleware Setup\n\nAdd the vendor notification middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...vendorMiddlewares],\n});\n```\n\n### TopbarActions Component\n\nAdd the TopbarActions component to your `mercur.config.ts`:\n\n```ts\nexport default {\n  components: {\n    TopbarActions: './components/topbar-actions'\n  }\n}\n```\n\n### Sending Notifications\n\nTo send vendor notifications from subscribers:\n\n```ts\nawait notificationService.createNotifications({\n  to: sellerId,\n  channel: 'seller_feed',\n  template: 'your-template',\n  data: { title: 'New order', description: '...' }\n})\n```\n\n### Run codegen\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
+  "categories": [
+    "api",
+    "vendor"
+  ],
+  "files": [
+    {
+      "path": "vendor-notifications/api/middlewares.ts",
+      "content": "import { vendorNotificationMiddlewares } from \"./vendor/notifications/middlewares\"\n\nexport const vendorMiddlewares = [...vendorNotificationMiddlewares]\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "vendor-notifications/api/vendor/notifications/route.ts",
+      "content": "import { AuthenticatedMedusaRequest, MedusaResponse } from \"@medusajs/framework\"\nimport { ContainerRegistrationKeys } from \"@medusajs/framework/utils\"\nimport { fetchSellerByAuthActorId } from \"./helpers/helpers\"\n\nexport async function GET(\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse\n): Promise<void> {\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n  const seller = await fetchSellerByAuthActorId(\n    req.auth_context.actor_id,\n    req.scope\n  )\n\n  const { data: notifications, metadata } = await query.graph({\n    entity: \"notification\",\n    fields: req.queryConfig.fields,\n    filters: { channel: \"seller_feed\", to: seller.id },\n    pagination: req.queryConfig.pagination,\n  })\n\n  res.json({\n    notifications,\n    count: metadata?.count,\n    offset: metadata?.skip,\n    limit: metadata?.take,\n  })\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "vendor-notifications/api/vendor/notifications/middlewares.ts",
+      "content": "import { validateAndTransformQuery } from \"@medusajs/framework\"\nimport { MiddlewareRoute } from \"@medusajs/medusa\"\nimport { vendorNotificationQueryConfig } from \"./query-config\"\nimport { VendorGetNotificationParams } from \"./validators\"\n\nexport const vendorNotificationMiddlewares: MiddlewareRoute[] = [\n  {\n    method: [\"GET\"],\n    matcher: \"/vendor/notifications\",\n    middlewares: [\n      validateAndTransformQuery(\n        VendorGetNotificationParams,\n        vendorNotificationQueryConfig.list\n      ),\n    ],\n  },\n]\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "vendor-notifications/api/vendor/notifications/validators.ts",
+      "content": "import { z } from \"zod\"\nimport { createFindParams } from \"@medusajs/medusa/api/utils/validators\"\n\nexport type VendorGetNotificationParamsType = z.infer<\n  typeof VendorGetNotificationParams\n>\nexport const VendorGetNotificationParams = createFindParams({\n  offset: 0,\n  limit: 50,\n  order: \"-created_at\",\n})\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "vendor-notifications/api/vendor/notifications/query-config.ts",
+      "content": "export const defaultVendorNotificationFields = [\n  \"id\",\n  \"to\",\n  \"channel\",\n  \"template\",\n  \"data\",\n  \"created_at\",\n  \"updated_at\",\n]\n\nexport const vendorNotificationQueryConfig = {\n  list: {\n    defaults: defaultVendorNotificationFields,\n    isList: true,\n  },\n  retrieve: {\n    defaults: defaultVendorNotificationFields,\n    isList: false,\n  },\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "vendor-notifications/api/vendor/notifications/helpers/helpers.ts",
+      "content": "import { ContainerRegistrationKeys } from \"@medusajs/framework/utils\"\nimport { MedusaContainer } from \"@medusajs/framework/types\"\n\nexport const fetchSellerByAuthActorId = async (\n  authActorId: string,\n  scope: MedusaContainer,\n  fields: string[] = [\"id\"]\n) => {\n  const query = scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  const {\n    data: [seller],\n  } = await query.graph({\n    entity: \"seller\",\n    filters: { id: authActorId },\n    fields,\n  })\n\n  return seller\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "vendor-notifications/vendor/components/topbar-actions.tsx",
+      "content": "import { Notifications } from \"@mercurjs/vendor\"\n\nexport default function TopbarActions() {\n  return <Notifications />\n}\n",
+      "type": "registry:vendor"
+    }
+  ]
+}

@@ -92,7 +92,7 @@ export const Notifications = () => {
             queryFn={(params: any) =>
               fetchQuery(`/vendor/notifications`, {
                 method: "GET",
-                query: { ...params, channel: "feed" },
+                query: { ...params },
               })
             }
             queryOptions={{ enabled: open }}

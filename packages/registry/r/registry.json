@@ -382,6 +382,47 @@
         "workflow",
         "api"
       ]
+    },
+    {
+      "name": "vendor-notifications",
+      "description": "Vendor notification feed with bell icon in navbar and vendor API endpoint.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "docs": "## Vendor Notifications\n\nThis block adds vendor notifications: a bell icon in the navbar and a `GET /vendor/notifications` API endpoint.\n\n### Notification Provider Setup\n\nConfigure the local notification provider in `medusa-config.ts` to include the `seller_feed` channel:\n\n```ts\n{\n  resolve: '@medusajs/medusa/notification',\n  options: {\n    providers: [\n      {\n        resolve: '@medusajs/medusa/notification-local',\n        id: 'local',\n        options: {\n          channels: ['feed', 'seller_feed']\n        }\n      }\n    ]\n  }\n}\n```\n\n### Middleware Setup\n\nAdd the vendor notification middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...vendorMiddlewares],\n});\n```\n\n### TopbarActions Component\n\nAdd the TopbarActions component to your `mercur.config.ts`:\n\n```ts\nexport default {\n  components: {\n    TopbarActions: './components/topbar-actions'\n  }\n}\n```\n\n### Sending Notifications\n\nTo send vendor notifications from subscribers:\n\n```ts\nawait notificationService.createNotifications({\n  to: sellerId,\n  channel: 'seller_feed',\n  template: 'your-template',\n  data: { title: 'New order', description: '...' }\n})\n```\n\n### Run codegen\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
+      "files": [
+        {
+          "path": "vendor-notifications/api/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/helpers/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/vendor/components/topbar-actions.tsx",
+          "type": "registry:vendor"
+        }
+      ],
+      "categories": [
+        "api",
+        "vendor"
+      ]
     }
   ]
 }
