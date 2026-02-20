@@ -382,6 +382,47 @@
         "workflow",
         "api"
       ]
+    },
+    {
+      "name": "vendor-notifications",
+      "description": "Vendor notification feed with bell icon in navbar and vendor API endpoint.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "docs": "## Vendor Notifications\n\nThis block adds vendor notifications: a bell icon in the navbar and a `GET /vendor/notifications` API endpoint.\n\n### 1. Notification Provider\n\nAdd the `seller_feed` channel to the local notification provider in `medusa-config.ts`:\n\n```ts\n{\n  resolve: '@medusajs/medusa/notification',\n  options: {\n    providers: [\n      {\n        resolve: '@medusajs/medusa/notification-local',\n        id: 'local',\n        options: {\n          channels: ['feed', 'seller_feed']\n        }\n      }\n    ]\n  }\n}\n```\n\n### 2. Middleware Setup\n\nImport `vendorNotificationMiddlewares` and add it to your `src/api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorNotificationMiddlewares } from \"./vendor/notifications/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [\n    // ...your existing middlewares,\n    ...vendorNotificationMiddlewares,\n  ],\n});\n```\n\n### 3. TopbarActions Component\n\nRegister the `TopbarActions` component in your vendor app's `mercur.config.ts`:\n\n```ts\nimport { defineConfig } from '@mercurjs/dashboard-sdk'\n\nexport default defineConfig({\n  components: {\n    TopbarActions: './components/topbar-actions',\n  },\n})\n```\n\n### 4. Sending Notifications\n\nCreate a subscriber to send notifications to sellers. Example (`src/subscribers/seller-product-notification.ts`):\n\n```ts\nimport type { SubscriberArgs, SubscriberConfig } from \"@medusajs/framework\"\nimport { ContainerRegistrationKeys, Modules } from \"@medusajs/framework/utils\"\n\nexport default async function handler({\n  event: { data },\n  container,\n}: SubscriberArgs<{ id: string }>) {\n  const query = container.resolve(ContainerRegistrationKeys.QUERY)\n  const notificationService = container.resolve(Modules.NOTIFICATION)\n\n  // Example: look up the seller linked to a product\n  const { data: [product] } = await query.graph({\n    entity: \"product\",\n    fields: [\"id\", \"title\", \"seller.*\"],\n    filters: { id: data.id },\n  })\n\n  if (!product?.seller?.id) return\n\n  await notificationService.createNotifications({\n    to: product.seller.id,\n    channel: \"seller_feed\",\n    template: \"product-created\",\n    data: {\n      title: \"Product created\",\n      description: `Your product \\\"${product.title}\\\" has been created.`,\n    },\n  })\n}\n\nexport const config: SubscriberConfig = {\n  event: \"product.created\",\n}\n```\n\n### 5. Run codegen\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
+      "files": [
+        {
+          "path": "vendor-notifications/api/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/api/vendor/notifications/helpers/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "vendor-notifications/vendor/components/topbar-actions.tsx",
+          "type": "registry:vendor"
+        }
+      ],
+      "categories": [
+        "api",
+        "vendor"
+      ]
     }
   ]
 }
