@@ -1,0 +1,113 @@
+---
+title: "Commission"
+description: "How marketplace commissions work in Mercur — rates, rules, calculation, and the commission pipeline."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+Commissions are how the marketplace earns revenue. Rather than storing a single commission percentage, Mercur uses a **rule-based system** where commission rates are matched to line items and shipping methods based on configurable conditions.
+
+## Commission rates
+
+A **CommissionRate** defines how much commission the marketplace takes. Each rate has a type, a target, and an optional set of rules that determine when it applies.
+
+| Field | Description |
+|-------|-------------|
+| `name` | Human-readable name (e.g. "Default Product Commission") |
+| `code` | Unique system identifier |
+| `type` | `FIXED` (flat amount) or `PERCENTAGE` |
+| `target` | `ITEM` (applies to line items) or `SHIPPING` (applies to shipping methods) |
+| `value` | The rate value — either a fixed amount or a percentage |
+| `min_amount` | Optional minimum commission (floor) |
+| `include_tax` | Whether to include tax in the base amount for calculation |
+| `priority` | Higher priority rates are evaluated first |
+| `currency_code` | Optional — restricts the rate to a specific currency |
+
+## Commission rules
+
+Rules determine **when** a rate applies. A rate without rules acts as a **default** — it applies to all items or shipping methods of its target type. Rules narrow the scope.
+
+Each rule has a `reference` (the type of condition) and a `reference_id` (the value to match):
+
+| Reference | Matches against |
+|-----------|----------------|
+| `product` | A specific product ID |
+| `product_type` | Products of a given type |
+| `product_collection` | Products in a collection |
+| `product_category` | Products in a category |
+| `seller` | Products owned by a specific seller |
+| `shipping_option_type` | Shipping options of a given type |
+
+A single rate can have multiple rules. The rate applies if **any** of its rules match.
+
+### Priority and matching
+
+Rates are evaluated in **descending priority order**. The first matching rate wins — subsequent rates are not applied. This lets you set up specific overrides with high priority and catch-all defaults with low priority.
+
+**Example configuration:**
+
+| Rate | Priority | Rules | Type | Value |
+|------|----------|-------|------|-------|
+| Electronics Commission | 10 | `product_category: "electronics"` | Percentage | 12% |
+| Premium Seller Rate | 5 | `seller: "slr_abc123"` | Percentage | 8% |
+| Default Commission | 0 | _(none — matches all)_ | Percentage | 15% |
+
+An electronics product from the premium seller would match the Electronics Commission rate (priority 10), not the seller-specific rate (priority 5).
+
+## The calculation pipeline
+
+The `getCommissionLines` method calculates commissions for a given cart or order context:
+
+**1. Load rates**
+- All enabled commission rates are loaded with their rules, ordered by priority (highest first)
+- Rates are separated into `ITEM` and `SHIPPING` targets
+
+**2. Match items**
+- For each line item, the system iterates through item-target rates in priority order
+- It checks each rate's rules against the item's product, type, collection, category, and seller
+- Rates with no rules match everything (defaults)
+- First match wins
+
+**3. Calculate amount**
+- Base amount is the item subtotal (optionally including tax if `include_tax` is true)
+- For `PERCENTAGE` rates: `commission = (base_amount × value) / 100`
+- For `FIXED` rates: `commission = value`
+- If the result is below `min_amount`, the minimum is used instead
+
+**4. Match and calculate shipping**
+- Same process repeats for shipping methods using shipping-target rates
+- Matches against `shipping_option_type` rules
+
+**5. Output**
+- Returns an array of `CommissionLine` records, one per item and shipping method
+
+<Info>
+  All commission calculations use `BigNumber` arithmetic for precision. This is critical for financial accuracy — standard floating-point math can introduce rounding errors.
+</Info>
+
+## Commission lines
+
+A **CommissionLine** is the calculated commission for a single line item or shipping method. It stores:
+
+| Field | Description |
+|-------|-------------|
+| `item_id` | References the order line item or shipping method |
+| `commission_rate_id` | The rate that was applied |
+| `code` | Code of the applied rate |
+| `rate` | The actual rate value used |
+| `amount` | The calculated commission amount |
+
+Commission lines are linked to order line items via a **read-only link**. This means you can query an order's line items and include their commission data in a single request.
+
+## How commission connects to payouts
+
+Commission lines are the bridge between orders and seller earnings:
+
+1. An order is completed → commission lines are calculated for each item
+2. When the order is credited to the seller's payout account, the total commission is subtracted:
+   ```
+   seller_earnings = order.total - sum(commission_line.amount)
+   ```
+3. The marketplace retains the commission amount
+
+This separation means commission rates can be changed at any time without affecting already-calculated orders — the `CommissionLine` records serve as a permanent audit trail.

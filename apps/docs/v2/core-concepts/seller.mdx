@@ -1,0 +1,110 @@
+---
+title: "Seller"
+description: "How sellers work in Mercur — registration, lifecycle, product ownership, and order splitting."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+In a marketplace, the **Seller** is the central actor. Every product, order, shipment, and payout ultimately ties back to a seller. Mercur's seller module manages the full vendor lifecycle — from registration through order fulfillment.
+
+## Seller lifecycle
+
+A seller progresses through a defined set of statuses:
+
+```
+PENDING → ACTIVE → (optionally) SUSPENDED
+```
+
+1. **PENDING** — A new seller registers and starts in this state. They can set up their profile but cannot sell.
+2. **ACTIVE** — An admin approves the seller. Only active sellers' products appear in the storefront and can be purchased.
+3. **SUSPENDED** — An admin can suspend a seller at any time, removing their products from sale.
+
+### Seller profile
+
+Each seller has a profile with:
+
+| Field | Description |
+|-------|-------------|
+| `name` | Display name (required) |
+| `handle` | Unique, URL-safe identifier (auto-generated from name) |
+| `email` | Contact email |
+| `phone` | Contact phone |
+| `logo` | Logo URL for storefront/portal |
+| `cover_image` | Cover image URL |
+| `address_1`, `city`, `country_code`, `province`, `postal_code` | Business address |
+
+Handles are validated to be URL-safe (alphanumeric characters, hyphens, and underscores only).
+
+## Product ownership
+
+Products in Mercur are always owned by a seller. This relationship is established via a **link** between the `Product` entity (from Medusa core) and the `Seller` entity. When a seller creates a product, this link is automatically created.
+
+This ownership is what drives the core marketplace behavior — it determines which seller receives an order, which shipping options apply, and how commissions are calculated.
+
+## Order splitting
+
+When a customer adds products from multiple sellers to their cart and checks out, Mercur does not create a single order. Instead, it splits the cart into **one order per seller**.
+
+### The split order pipeline
+
+The `completeCartWithSplitOrdersWorkflow` handles this process:
+
+**1. Validation**
+- Acquires a distributed lock on the cart to prevent concurrent completions
+- Validates that every cart item has an assigned seller
+- Validates that items requiring shipping have seller-specific shipping methods
+
+**2. Grouping by seller**
+- Cart items are grouped by their seller
+- Shipping methods are matched to the corresponding seller's shipping options
+- Addresses, tax lines, and promotion adjustments are copied per seller
+
+**3. Order creation**
+- A separate order is created for each seller, containing only that seller's items and shipping methods
+- An **OrderGroup** is created to tie all seller orders back to the original cart transaction
+- Inventory is reserved across all orders in parallel
+
+**4. Payment splitting**
+- The total payment is proportionally allocated across seller orders
+- Formula: `(seller_order_total / payment_total) × capture_amount`
+- Each seller order gets its own payment transaction record
+
+**5. Post-creation**
+- Commission lines are calculated for each order
+- Seller–customer relationships are created (for first-purchase tracking)
+- `order.placed` events are emitted for each seller order
+- An `order_group.created` event is emitted for the group
+
+### OrderGroup
+
+The `OrderGroup` entity represents the customer's view of their purchase. It groups all seller orders from a single checkout and provides computed fields:
+
+- `seller_count` — Number of distinct sellers in the order
+- `total` — Combined total across all seller orders
+
+<Info>
+  The order splitting process uses distributed locking with a 30-second timeout and 2-minute TTL to ensure only one completion attempt can proceed at a time.
+</Info>
+
+## Relationships
+
+A seller is linked to many entities across the system:
+
+| Entity | Relationship | Purpose |
+|--------|-------------|---------|
+| Products | One-to-many | Products the seller owns |
+| Orders | One-to-many | Orders placed for this seller's items |
+| Customers | Many-to-many | Customers who have purchased from this seller |
+| Shipping Options | One-to-many | Seller-specific shipping methods |
+| Stock Locations | One-to-many | Warehouses and fulfillment locations |
+| Payout Account | One-to-one | Financial account for receiving payouts |
+| Promotions | One-to-many | Seller-created promotions and discounts |
+| Price Lists | One-to-many | Custom pricing rules |
+
+## Extension points
+
+The order completion workflow provides hooks for custom logic:
+
+- **`validate`** — Add custom pre-completion validation
+- **`beforePaymentAuthorization`** — Run logic before payment is captured
+- **`orderGroupCreated`** — React to the completed order group
