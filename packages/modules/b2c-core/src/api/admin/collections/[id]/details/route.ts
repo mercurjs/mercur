@@ -1,6 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
-import collectionCollectionDetails from "../../../../../links/collection-collection-details";
 import { createCollectionDetailWorkflow, updateCollectionDetailWorkflow } from "../../../../../workflows/collection-detail";
 import { defaultAdminCollectionDetailFields } from "../../query-config";
 import { UpdateCollectionDetailType } from "../../validators";
@@ -110,13 +109,13 @@ export const POST = async (req: MedusaRequest<UpdateCollectionDetailType>, res: 
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
     const { data: [collection] } = await query.graph({
-        entity: collectionCollectionDetails.entryPoint,
+        entity: 'product_collection',
         filters: {
-            product_collection_id: id
+            id
         },
         fields: [
-            'product_collection_id',
-            'collection_detail_id'
+            'id',
+            'collection_detail.id'
         ],
     });
 
@@ -132,13 +131,13 @@ export const POST = async (req: MedusaRequest<UpdateCollectionDetailType>, res: 
             }
         });
 
-        collection.collection_detail_id = createdCollectionDetail.id;
+        collection.collection_detail = { id: createdCollectionDetail.id };
     }
 
     await updateCollectionDetailWorkflow.run({
         container: req.scope,
         input: {
-            collection_detail_id: collection.collection_detail_id,
+            collection_detail_id: collection.collection_detail.id,
             ...req.validatedBody
         }
     });
@@ -146,7 +145,7 @@ export const POST = async (req: MedusaRequest<UpdateCollectionDetailType>, res: 
     const { data: [collectionDetail] } = await query.graph({
         entity: 'collection_detail',
         filters: {
-            id: collection.collection_detail_id
+            id: collection.collection_detail.id
         },
         fields: defaultAdminCollectionDetailFields
     });
@@ -200,12 +199,12 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
     const { data: [collection] } = await query.graph({
-        entity: collectionCollectionDetails.entryPoint,
+        entity: 'product_collection',
         filters: {
-            product_collection_id: id
+            id
         },
         fields: [
-            'collection_detail_id',
+            'id',
             ...defaultAdminCollectionDetailFields.map(field => `collection_detail.${field}`),
         ],
     });
@@ -215,6 +214,6 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     }
 
     res.json({
-        collection_detail: collection.collection_detail,
+        collection_detail: collection.collection_detail || null,
     });
 };
