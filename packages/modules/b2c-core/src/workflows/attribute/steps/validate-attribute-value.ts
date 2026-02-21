@@ -5,9 +5,10 @@ import {
 } from "@medusajs/framework/utils";
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk";
 
-import { CreateProductAttributeValueDTO } from "@mercurjs/framework";
+import { AttributeUIComponent, CreateProductAttributeValueDTO } from "@mercurjs/framework";
 
 import productAttributeValue from "../../../links/product-attribute-value";
+import { isValidUnitValue } from "../utils/validate-unit-value";
 
 export const validateAttributeValueStepId = "validate-attribute-value";
 
@@ -20,17 +21,25 @@ export const validateAttributeValueStep = createStep(
       data: [attribute],
     } = await query.graph({
       entity: "attribute",
-      fields: ["product_categories.id", "possible_values.value"],
+      fields: ["ui_component", "product_categories.id", "possible_values.value"],
       filters: {
         id: input.attribute_id,
       },
     });
 
+
+    if (attribute.ui_component === AttributeUIComponent.UNIT && !isValidUnitValue(input.value)) {
+      throw new MedusaError(
+        MedusaErrorTypes.INVALID_DATA,
+        `Attribute ${input.attribute_id} value must be a valid number`
+      );
+    }
+
     const allowedValues = attribute.possible_values
       ?.filter((posVal) => posVal != null)
       .map((posVal) => posVal.value);
 
-    if (allowedValues?.length && !allowedValues.includes(input.value)) {
+    if (allowedValues?.length && !allowedValues.includes(String(input.value))) {
       throw new MedusaError(
         MedusaErrorTypes.INVALID_DATA,
         `Attribute ${input.attribute_id} doesn't define ${input.value} as a possible_value`
@@ -82,7 +91,7 @@ export const validateAttributeValueStep = createStep(
       attributeValues.some(
         (value) =>
           value.attribute_id === input.attribute_id &&
-          value.value === input.value
+          value.value === String(input.value)
       )
     ) {
       throw new MedusaError(

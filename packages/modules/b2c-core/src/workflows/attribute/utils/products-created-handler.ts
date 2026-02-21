@@ -47,7 +47,7 @@ export const productsCreatedHookHandler = async ({
       await createAttributeValueWorkflow(container).run({
         input: {
           attribute_id: attrVal.attribute_id,
-          value: attrVal.value,
+          value: String(attrVal.value),
           product_id: product.id,
         },
       });

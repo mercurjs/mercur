@@ -7,7 +7,7 @@ import {
   ATTRIBUTE_MODULE,
   AttributeModuleService,
 } from "../../../modules/attribute";
-import { UpdateAttributeDTO } from "@mercurjs/framework";
+import { AttributeUIComponent, UpdateAttributeDTO } from "@mercurjs/framework";
 
 const updateAttributesStepId = "update-attributes";
 
@@ -21,6 +21,16 @@ export const updateAttributesStep = createStep(
     });
 
     const normalized = data.map((attr) => {
+      if (attr.ui_component === AttributeUIComponent.TOGGLE) {
+        return {
+          ...attr,
+          possible_values: [
+            { value: "true", rank: 0, attribute_id: attr.id },
+            { value: "false", rank: 1, attribute_id: attr.id },
+          ],
+        };
+      }
+
       const { possible_values: values, ...attribute } = attr;
       const valuesWithAttribute = values?.map((val) => ({
         ...val,
