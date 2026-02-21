@@ -3,6 +3,9 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 import sellerStockLocationLink from "../../../links/seller-stock-location";
 
+/**
+ * @deprecated This endpoint is deprecated. Use `GET /admin/custom/stock-locations` instead.
+ */
 export async function GET(
   req: MedusaRequest,
   res: MedusaResponse
