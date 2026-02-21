@@ -5,3 +5,4 @@ export * from "./admin";
 export * from "./hosts";
 export * from "./configuration";
 export * from "./store";
+export * from "./intersect-sets";
