@@ -13,24 +13,66 @@ import {
   createStockLocationsWorkflow,
   createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
-  updateStoresWorkflow
+  updateStoresWorkflow,
+  updateTaxRegionsWorkflow,
+  createUserAccountWorkflow
 } from '@medusajs/medusa/core-flows'
 
+import { SELLER_MODULE } from '@mercurjs/b2c-core/modules/seller'
 import {
-  CONFIGURATION_MODULE,
-  ConfigurationModuleService,
-  ConfigurationRuleDefaults
-} from '@mercurjs/configuration'
-import { SELLER_MODULE } from '@mercurjs/seller'
+  createConfigurationRuleWorkflow,
+  createLocationFulfillmentSetAndAssociateWithSellerWorkflow,
+  createSellerWorkflow
+} from '@mercurjs/b2c-core/workflows'
+import { createCommissionRuleWorkflow } from '@mercurjs/commission/workflows'
+import {
+  ConfigurationRuleDefaults,
+  SELLER_SHIPPING_PROFILE_LINK
+} from '@mercurjs/framework'
 
-import sellerShippingProfile from '../../links/seller-shipping-profile'
-import { createCommissionRuleWorkflow } from '../../workflows/commission/workflows'
-import { createConfigurationRuleWorkflow } from '../../workflows/configuration/workflows'
-import { createLocationFulfillmentSetAndAssociateWithSellerWorkflow } from '../../workflows/fulfillment-set/workflows'
-import { createSellerWorkflow } from '../../workflows/seller/workflows'
 import { productsToInsert } from './seed-products'
 
 const countries = ['be', 'de', 'dk', 'se', 'fr', 'es', 'it', 'pl', 'cz', 'nl']
+
+export async function createAdminUser(container: MedusaContainer) {
+  const authService = container.resolve(Modules.AUTH)
+  const userService = container.resolve(Modules.USER)
+  
+  // Check if admin user already exists
+  const [existingUser] = await userService.listUsers({
+    email: 'admin@mercurjs.com'
+  })
+  
+  if (existingUser) {
+    return existingUser
+  }
+  
+  // Create auth identity with password
+  const { authIdentity } = await authService.register('emailpass', {
+    body: {
+      email: 'admin@mercurjs.com',
+      password: 'supersecret'
+    }
+  })
+  
+  if (!authIdentity?.id) {
+    throw new Error('Failed to create admin auth identity')
+  }
+  
+  // Create admin user account
+  const { result: user } = await createUserAccountWorkflow(container).run({
+    input: {
+      userData: {
+        email: 'admin@mercurjs.com',
+        first_name: 'Admin',
+        last_name: 'User'
+      },
+      authIdentityId: authIdentity.id
+    }
+  })
+  
+  return user
+}
 
 export async function createSalesChannel(container: MedusaContainer) {
   const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL)
@@ -74,12 +116,6 @@ export async function createStore(
     input: {
       selector: { id: store.id },
       update: {
-        supported_currencies: [
-          {
-            currency_code: 'eur',
-            is_default: true
-          }
-        ],
         default_sales_channel_id: salesChannelId,
         default_region_id: regionId
       }
@@ -102,9 +138,16 @@ export async function createRegions(container: MedusaContainer) {
     }
   })
 
-  await createTaxRegionsWorkflow(container).run({
+  const { result: taxRegions } = await createTaxRegionsWorkflow(container).run({
     input: countries.map((country_code) => ({
       country_code
+    }))
+  })
+
+  await updateTaxRegionsWorkflow(container).run({
+    input: taxRegions.map((taxRegion) => ({
+      id: taxRegion.id,
+      provider_id: 'tp_system'
     }))
   })
 
@@ -367,7 +410,7 @@ export async function createSellerShippingOption(
   const {
     data: [shippingProfile]
   } = await query.graph({
-    entity: sellerShippingProfile.entryPoint,
+    entity: SELLER_SHIPPING_PROFILE_LINK,
     fields: ['shipping_profile_id'],
     filters: {
       seller_id: sellerId
@@ -507,22 +550,13 @@ export async function createDefaultCommissionLevel(container: MedusaContainer) {
 }
 
 export async function createConfigurationRules(container: MedusaContainer) {
-  const configurationService =
-    container.resolve<ConfigurationModuleService>(CONFIGURATION_MODULE)
-
   for (const [ruleType, isEnabled] of ConfigurationRuleDefaults) {
-    const [existingRule] = await configurationService.listConfigurationRules({
-      rule_type: ruleType
+    await createConfigurationRuleWorkflow.run({
+      container,
+      input: {
+        rule_type: ruleType,
+        is_enabled: isEnabled
+      }
     })
-
-    if (!existingRule) {
-      await createConfigurationRuleWorkflow.run({
-        container,
-        input: {
-          rule_type: ruleType,
-          is_enabled: isEnabled
-        }
-      })
-    }
   }
 }

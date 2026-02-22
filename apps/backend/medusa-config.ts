@@ -3,9 +3,19 @@ import { defineConfig, loadEnv } from '@medusajs/framework/utils'
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 module.exports = defineConfig({
+  admin: {
+    disable: true // Disable built-in admin - using separate admin-panel container
+  },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
+    databaseDriverOptions: process.env.NODE_ENV === 'production' ? {
+      connection: { 
+        ssl: {
+          rejectUnauthorized: false
+        }
+      }
+    } : undefined,
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -94,19 +104,14 @@ module.exports = defineConfig({
     { resolve: '@mercurjs/wishlist' },
     { resolve: '@mercurjs/split-order-payment' },
     { resolve: '@mercurjs/attribute' },
+  plugins: [
     {
-      resolve: '@mercurjs/taxcode',
-      options: {
-        apiKey: process.env.STRIPE_SECRET_API_KEY
-      }
+      resolve: '@mercurjs/b2c-core',
+      options: {}
     },
-    { resolve: '@mercurjs/commission' },
     {
-      resolve: '@mercurjs/payout',
-      options: {
-        apiKey: process.env.STRIPE_SECRET_API_KEY,
-        webhookSecret: process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET
-      }
+      resolve: '@mercurjs/commission',
+      options: {}
     },
     {
       resolve: '@mercurjs/algolia',
@@ -116,14 +121,55 @@ module.exports = defineConfig({
       }
     },
     {
+      resolve: '@mercurjs/reviews',
+      options: {}
+    },
+    {
+      resolve: '@mercurjs/requests',
+      options: {}
+    },
+    {
+      resolve: '@mercurjs/resend',
+      options: {}
+    }
+  ],
+  modules: [
+    ...(process.env.S3_ACCESS_KEY_ID
+      ? [
+          {
+            resolve: "@medusajs/medusa/file",
+            options: {
+              providers: [
+                {
+                  resolve: '@medusajs/medusa/file-s3',
+                  id: 's3',
+                  options: {
+                    file_url: process.env.S3_FILE_URL,
+                    access_key_id: process.env.S3_ACCESS_KEY_ID,
+                    secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
+                    region: process.env.S3_REGION,
+                    bucket: process.env.S3_BUCKET,
+                    endpoint: process.env.S3_ENDPOINT
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      : []),
+    {
       resolve: '@medusajs/medusa/payment',
       options: {
         providers: [
           {
-            resolve: '@mercurjs/payment-stripe-connect',
+            resolve:
+              '@mercurjs/payment-stripe-connect/providers/stripe-connect',
             id: 'stripe-connect',
             options: {
-              apiKey: process.env.STRIPE_SECRET_API_KEY
+              apiKey: process.env.STRIPE_SECRET_API_KEY,
+              webhookSecret:
+                process.env.STRIPE_PAYMENT_WEBHOOK_SECRET ??
+                process.env.STRIPE_WEBHOOK_SECRET
             }
           }
         ]
@@ -134,7 +180,7 @@ module.exports = defineConfig({
       options: {
         providers: [
           {
-            resolve: '@mercurjs/resend',
+            resolve: '@mercurjs/resend/providers/resend',
             id: 'resend',
             options: {
               channels: ['email'],
@@ -151,6 +197,9 @@ module.exports = defineConfig({
           }
         ]
       }
+    },
+    {
+      resolve: '@medusajs/index'
     }
   ]
 })

@@ -50,11 +50,6 @@ export const AlgoliaProductValidator = z.object({
     )
     .optional(),
   variants: z.any().nullable().default(null),
-  brand: z
-    .object({
-      name: z.string(),
-    })
-    .optional(),
   attribute_values: z
     .array(
       z.object({
@@ -102,7 +97,7 @@ export const AlgoliaVariantValidator = z.object({
   weight: z.number().nullish(),
   length: z.number().nullish(),
   height: z.number().nullish(),
-  wifth: z.number().nullish(),
+  width: z.number().nullish(),
   variant_rank: z.number().nullish(),
   options: z.array(
     z.object({
