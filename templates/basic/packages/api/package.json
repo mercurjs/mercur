@@ -36,8 +36,8 @@
     "@medusajs/admin-shared": "^2.13.0",
     "@medusajs/medusa": "^2.13.0",
     "@medusajs/draft-order": "2.13.0",
-    "@mercurjs/core-plugin": "2.0.0-canary.17",
-    "@mercurjs/types": "2.0.0-canary.17",
+    "@mercurjs/core-plugin": "2.0.0-canary.18",
+    "@mercurjs/types": "2.0.0-canary.18",
     "zod": "3.25.76"
   },
   "devDependencies": {
