@@ -50,12 +50,7 @@ export function dashboardPlugin(): Vite.Plugin {
                     "__BACKEND_URL__": JSON.stringify(config.backendUrl),
                 },
                 optimizeDeps: {
-                    exclude: ['@mercurjs/vendor', 'virtual:mercur/config'],
-                    include: [
-                        'react-fast-compare',
-                        'use-sync-external-store/shim',
-                        'use-sync-external-store/shim/with-selector',
-                    ],
+                    exclude: ['virtual:mercur/config'],
                 },
             }
         },
