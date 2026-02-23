@@ -12,6 +12,7 @@
   "dependencies": {
     "@medusajs/icons": "^2.13.0",
     "@mercurjs/dashboard-sdk": "2.0.0-canary.19",
+    "@mercurjs/dashboard-shared": "2.0.0-canary.19",
     "@mercurjs/vendor": "2.0.0-canary.19",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

@@ -57,9 +57,10 @@ function filePathToRegex(filePath: string, apiDir: string): RegExp {
   return new RegExp("^\\/" + regexSegments.join("\\/") + "$")
 }
 
-export function scanUnauthenticatedRoutes(vendorDir: string): RegExp[] {
-  const apiDir = path.dirname(vendorDir)
-  const routeFiles = crawlRoutes(vendorDir)
+export function scanUnauthenticatedRoutes(projectRoot: string): RegExp[] {
+  const vendorApiDir = path.join(projectRoot, "src", "api", "vendor")
+  const apiDir = path.join(projectRoot, "src", "api")
+  const routeFiles = crawlRoutes(vendorApiDir)
   const patterns: RegExp[] = []
 
   for (const file of routeFiles) {

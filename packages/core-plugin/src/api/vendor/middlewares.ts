@@ -44,7 +44,7 @@ import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
 const unauthenticatedRoutes = [
   /^\/vendor\/sellers$/,
-  ...scanUnauthenticatedRoutes(__dirname),
+  ...scanUnauthenticatedRoutes(process.cwd()),
 ]
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
