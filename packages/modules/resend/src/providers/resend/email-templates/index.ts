@@ -4,6 +4,7 @@ import { BuyerAccountCreatedEmailTemplate } from "./buyer-account-created";
 import { BuyerCancelOrderEmailTemplate } from "./buyer-cancel-order";
 import { BuyerNewOrderEmailTemplate } from "./buyer-new-order";
 import { BuyerOrderShippedEmailTemplate } from "./buyer-shipped-order";
+import { BuyerOrderTransferRequestEmailTemplate } from "./buyer-order-transfer-request";
 import { ForgotPasswordEmailTemplate } from "./forgot-password";
 import { NewAdminInviteEmailTemplate } from "./new-admin-invitation";
 import { NewSellerInviteEmailTemplate } from "./new-seller-invitation";
@@ -24,6 +25,8 @@ export const emailTemplates: any = {
   buyerCancelOrderEmailTemplate: BuyerCancelOrderEmailTemplate,
   buyerNewOrderEmailTemplate: BuyerNewOrderEmailTemplate,
   buyerOrderShippedEmailTemplate: BuyerOrderShippedEmailTemplate,
+  buyerOrderTransferRequestEmailTemplate:
+    BuyerOrderTransferRequestEmailTemplate,
   forgotPasswordEmailTemplate: ForgotPasswordEmailTemplate,
   sellerAccountApprovedEmailTemplate: SellerAccountApprovedEmailTemplate,
   sellerAccountRejectedEmailTemplate: SellerAccountRejectedEmailTemplate,
