@@ -48,7 +48,10 @@ export function dashboardPlugin(): Vite.Plugin {
             return {
                 define: {
                     "__BACKEND_URL__": JSON.stringify(config.backendUrl),
-                }
+                },
+                optimizeDeps: {
+                    exclude: ['@mercurjs/vendor', 'virtual:mercur/config'],
+                },
             }
         },
         configResolved(resolvedConfig) {
