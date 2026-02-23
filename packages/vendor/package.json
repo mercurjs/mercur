@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/vendor",
-  "version": "2.0.0-canary.19",
+  "version": "2.0.0-canary.20",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -29,8 +29,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@mercurjs/dashboard-shared": "2.0.0-canary.19",
-    "@mercurjs/client": "2.0.0-canary.19",
+    "@mercurjs/dashboard-shared": "2.0.0-canary.20",
+    "@mercurjs/client": "2.0.0-canary.20",
     "@ariakit/react": "^0.4.15",
     "@babel/runtime": "^7.26.10",
     "@dnd-kit/core": "^6.1.0",
