@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.64.2",
-    "qs": "^6.12.1"
+    "qs": "^6.15.0"
   },
   "devDependencies": {
     "@medusajs/framework": "^2.13.0",

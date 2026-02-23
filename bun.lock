@@ -38,7 +38,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.0.0-canary.6",
+      "version": "2.0.0-canary.7",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -78,10 +78,10 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.0.0-canary.6",
+      "version": "2.0.0-canary.7",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
-        "qs": "^6.12.1",
+        "qs": "^6.15.0",
       },
       "devDependencies": {
         "@medusajs/framework": "^2.13.0",
@@ -95,7 +95,7 @@
     },
     "packages/core-plugin": {
       "name": "@mercurjs/core-plugin",
-      "version": "2.0.0-canary.6",
+      "version": "2.0.0-canary.7",
       "devDependencies": {
         "@medusajs/cli": "^2.13.0",
         "@medusajs/core-flows": "^2.13.0",
@@ -133,7 +133,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.0.0-canary.6",
+      "version": "2.0.0-canary.7",
       "dependencies": {
         "esbuild-register": "^3.6.0",
       },
@@ -147,7 +147,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.0.0-canary.6",
+      "version": "2.0.0-canary.7",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -231,7 +231,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.0.0-canary.6",
+      "version": "2.0.0-canary.7",
       "dependencies": {
         "@medusajs/types": "2.13.0",
       },
@@ -241,7 +241,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.0.0-canary.6",
+      "version": "2.0.0-canary.7",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
