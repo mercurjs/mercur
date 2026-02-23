@@ -136,6 +136,7 @@ export const create = new Command()
         downloadSpinner.succeed("Template downloaded successfully.");
 
         const packageManager = await getPackageManager(projectDir);
+        await setPackageManagerField(projectDir, packageManager);
 
         if (!opts.deps) {
           spinner("Dependency installation skipped.").warn();
@@ -369,6 +370,17 @@ function createTerminalLink(text: string, url: string) {
   return terminalLink(text, url, {
     fallback: (text, url) => `${text}: ${kleur.cyan().underline(url)}`,
   });
+}
+
+async function setPackageManagerField(
+  projectDir: string,
+  packageManager: string
+): Promise<void> {
+  const packageJsonPath = path.join(projectDir, "package.json");
+  const packageJson = await fs.readJSON(packageJsonPath);
+  const { stdout: version } = await execa(packageManager, ["--version"]);
+  packageJson.packageManager = `${packageManager}@${version.trim()}`;
+  await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
 }
 
 async function initGit(projectDir: string): Promise<void> {
