@@ -51,6 +51,11 @@ export function dashboardPlugin(): Vite.Plugin {
                 },
                 optimizeDeps: {
                     exclude: ['@mercurjs/vendor', 'virtual:mercur/config'],
+                    include: [
+                        'react-fast-compare',
+                        'use-sync-external-store/shim',
+                        'use-sync-external-store/shim/with-selector',
+                    ],
                 },
             }
         },
