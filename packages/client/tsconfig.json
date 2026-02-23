@@ -5,13 +5,10 @@
       "DOM",
       "DOM.Iterable"
     ],
-    "target": "ES6",
     "outDir": "./dist/esm",
     "esModuleInterop": true,
     "declarationMap": true,
     "declaration": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": true,
@@ -20,7 +17,10 @@
     "strictFunctionTypes": true,
     "noImplicitThis": true,
     "allowJs": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "module": "esnext",
+    "target": "ESNext",
+    "moduleResolution": "Node",
   },
   "include": [
     "./src/**/*"
