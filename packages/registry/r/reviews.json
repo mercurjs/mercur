@@ -4,7 +4,7 @@
   "description": "A review system with product and seller reviews, ratings, customer/vendor/admin API routes, and workflows.",
   "dependencies": [],
   "registryDependencies": [],
-  "docs": "## Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\n## Middlewares\n\nAdd the review middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { adminMiddlewares } from \"./admin/middlewares\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\nimport { storeReviewMiddlewares } from \"./store/reviews/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...adminMiddlewares, ...vendorMiddlewares, ...storeReviewMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the review middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block and adding the module configuration, generate and run the migrations to create the necessary tables in your database:\n\n```bash\nnpx medusa db:generate reviews\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli codegen\n```",
+  "docs": "## Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\n## Middlewares\n\nAdd the review middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { reviewsMiddlewares } from \"./admin/reviews/middlewares\";\nimport { vendorReviewsMiddlewares } from \"./vendor/reviews/middlewares\";\nimport { storeReviewMiddlewares } from \"./store/reviews/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...reviewsMiddlewares, ...vendorReviewsMiddlewares, ...storeReviewMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the review middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block and adding the module configuration, generate and run the migrations to create the necessary tables in your database:\n\n```bash\nnpx medusa db:generate reviews\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli codegen\n```",
   "categories": [
     "reviews"
   ],
@@ -110,11 +110,6 @@
       "type": "registry:workflow"
     },
     {
-      "path": "reviews/api/admin/middlewares.ts",
-      "content": "import { MiddlewareRoute } from \"@medusajs/framework\";\nimport { reviewsMiddlewares } from \"./reviews/middlewares\";\n\nexport const adminMiddlewares: MiddlewareRoute[] = [...reviewsMiddlewares];\n",
-      "type": "registry:api"
-    },
-    {
       "path": "reviews/api/admin/reviews/route.ts",
       "content": "import { MedusaRequest, MedusaResponse } from '@medusajs/framework'\nimport { ContainerRegistrationKeys } from '@medusajs/framework/utils'\n\nimport { AdminReviewListResponse } from '../../../modules/reviews/types'\n\nexport async function GET(\n  req: MedusaRequest,\n  res: MedusaResponse<AdminReviewListResponse>\n): Promise<void> {\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n  const { data: reviews, metadata } = await query.graph({\n    entity: 'review',\n    fields: req.queryConfig.fields,\n    filters: req.filterableFields,\n    pagination: req.queryConfig.pagination\n  })\n\n  res.json({\n    reviews,\n    count: metadata?.count ?? 0,\n    offset: metadata?.skip ?? 0,\n    limit: metadata?.take ?? 0\n  })\n}\n",
       "type": "registry:api"
@@ -167,11 +162,6 @@
     {
       "path": "reviews/api/store/reviews/[id]/route.ts",
       "content": "import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'\nimport { ContainerRegistrationKeys } from '@medusajs/framework/utils'\n\nimport { StoreReviewDeleteResponse, StoreReviewResponse } from '../../../../modules/reviews/types'\nimport {\n  deleteReviewWorkflow,\n  updateReviewWorkflow\n} from '../../../../workflows/review/workflows'\nimport { validateCustomerReview } from '../helpers'\nimport { StoreGetReviewsParamsType, StoreUpdateReviewType } from '../validators'\n\nexport const POST = async (\n  req: AuthenticatedMedusaRequest<StoreUpdateReviewType>,\n  res: MedusaResponse<StoreReviewResponse>\n) => {\n  const { id } = req.params\n\n  await validateCustomerReview(req.scope, req.auth_context.actor_id, id!)\n\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  await updateReviewWorkflow.run({\n    container: req.scope,\n    input: { id, ...req.validatedBody }\n  })\n\n  const {\n    data: [review]\n  } = await query.graph({\n    entity: 'review',\n    fields: req.queryConfig.fields,\n    filters: {\n      id\n    }\n  })\n\n  res.json({\n    review\n  })\n}\n\nexport const DELETE = async (\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse<StoreReviewDeleteResponse>\n) => {\n  const { id } = req.params\n\n  await validateCustomerReview(req.scope, req.auth_context.actor_id, id!)\n\n  await deleteReviewWorkflow.run({\n    container: req.scope,\n    input: id\n  })\n\n  res.json({\n    id: id!,\n    object: 'review',\n    deleted: true\n  })\n}\n\nexport const GET = async (\n  req: AuthenticatedMedusaRequest<StoreGetReviewsParamsType>,\n  res: MedusaResponse<StoreReviewResponse>\n) => {\n  const { id } = req.params\n\n  await validateCustomerReview(req.scope, req.auth_context.actor_id, id!)\n\n  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)\n\n  const {\n    data: [review]\n  } = await query.graph({\n    entity: 'review',\n    fields: req.queryConfig.fields,\n    filters: {\n      id\n    }\n  })\n\n  res.json({\n    review\n  })\n}\n",
-      "type": "registry:api"
-    },
-    {
-      "path": "reviews/api/vendor/middlewares.ts",
-      "content": "import { MiddlewareRoute } from \"@medusajs/framework\";\nimport { vendorReviewsMiddlewares } from \"./reviews/middlewares\";\n\nexport const vendorMiddlewares: MiddlewareRoute[] = [\n  ...vendorReviewsMiddlewares,\n];\n",
       "type": "registry:api"
     },
     {

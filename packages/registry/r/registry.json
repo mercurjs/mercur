@@ -8,7 +8,7 @@
       "description": "A review system with product and seller reviews, ratings, customer/vendor/admin API routes, and workflows.",
       "dependencies": [],
       "registryDependencies": [],
-      "docs": "## Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\n## Middlewares\n\nAdd the review middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { adminMiddlewares } from \"./admin/middlewares\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\nimport { storeReviewMiddlewares } from \"./store/reviews/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...adminMiddlewares, ...vendorMiddlewares, ...storeReviewMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the review middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block and adding the module configuration, generate and run the migrations to create the necessary tables in your database:\n\n```bash\nnpx medusa db:generate reviews\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli codegen\n```",
+      "docs": "## Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\n## Middlewares\n\nAdd the review middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { reviewsMiddlewares } from \"./admin/reviews/middlewares\";\nimport { vendorReviewsMiddlewares } from \"./vendor/reviews/middlewares\";\nimport { storeReviewMiddlewares } from \"./store/reviews/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...reviewsMiddlewares, ...vendorReviewsMiddlewares, ...storeReviewMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the review middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block and adding the module configuration, generate and run the migrations to create the necessary tables in your database:\n\n```bash\nnpx medusa db:generate reviews\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli codegen\n```",
       "files": [
         {
           "path": "reviews/modules/reviews/index.ts",
@@ -91,10 +91,6 @@
           "type": "registry:workflow"
         },
         {
-          "path": "reviews/api/admin/middlewares.ts",
-          "type": "registry:api"
-        },
-        {
           "path": "reviews/api/admin/reviews/route.ts",
           "type": "registry:api"
         },
@@ -136,10 +132,6 @@
         },
         {
           "path": "reviews/api/store/reviews/[id]/route.ts",
-          "type": "registry:api"
-        },
-        {
-          "path": "reviews/api/vendor/middlewares.ts",
           "type": "registry:api"
         },
         {
