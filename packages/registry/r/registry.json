@@ -8,7 +8,7 @@
       "description": "A review system with product and seller reviews, ratings, customer/vendor/admin API routes, and workflows.",
       "dependencies": [],
       "registryDependencies": [],
-      "docs": "## Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\n## Middlewares\n\nAdd the review middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { adminMiddlewares } from \"./admin/middlewares\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\nimport { storeReviewMiddlewares } from \"./store/reviews/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...adminMiddlewares, ...vendorMiddlewares, ...storeReviewMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the review middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block and adding the module configuration, generate and run the migrations to create the necessary tables in your database:\n\n```bash\nnpx medusa db:generate reviews\nnpx medusa db:migrate\n```",
+      "docs": "## Configuration\n\nAdd the review module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/reviews',\n  },\n]\n```\n\n## Middlewares\n\nAdd the review middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { adminMiddlewares } from \"./admin/middlewares\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\nimport { storeReviewMiddlewares } from \"./store/reviews/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...adminMiddlewares, ...vendorMiddlewares, ...storeReviewMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the review middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block and adding the module configuration, generate and run the migrations to create the necessary tables in your database:\n\n```bash\nnpx medusa db:generate reviews\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli codegen\n```",
       "files": [
         {
           "path": "reviews/modules/reviews/index.ts",
@@ -230,7 +230,10 @@
     {
       "name": "product-import-export",
       "description": "CSV product import & export for vendors. Includes API routes, workflows, and vendor portal drawers.",
-      "dependencies": ["multer", "@types/multer"],
+      "dependencies": [
+        "multer",
+        "@types/multer"
+      ],
       "registryDependencies": [],
       "docs": "## Product Import/Export Block\n\n### Configuration\n\nNo additional modules needed — uses built-in Medusa product CSV steps.\n\n### Middleware Setup\n\nAdd the import middleware to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from '@medusajs/medusa'\nimport { productImportExportMiddlewares } from './vendor/products/middlewares'\n\nexport default defineMiddlewares({\n  routes: [...productImportExportMiddlewares],\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```\n\n### Vendor Navigation\n\nThe block includes a `products/page.tsx` that overrides the default product list page, adding Import and Export buttons in the header. The buttons open drawer routes at `/products/import` and `/products/export`.",
       "files": [
