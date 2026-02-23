@@ -24,16 +24,6 @@ registry/
     └── my-block.json      # Block JSON with embedded file contents
 ```
 
-## Creating a registry
-
-Scaffold a new registry project:
-
-```bash
-npx @mercurjs/cli create my-registry --template registry
-```
-
-This creates a project with a `registry.json`, a `blocks.json` for path aliases, and a `src/` directory for your block source code.
-
 ## registry.json
 
 The `registry.json` file defines your registry and all its blocks:
@@ -72,29 +62,29 @@ The `registry.json` file defines your registry and all its blocks:
 
 ### Block properties
 
-| Property | Description |
-|----------|-------------|
-| `name` | Block identifier used in `npx @mercurjs/cli add` |
-| `description` | Short description shown in search results |
-| `dependencies` | NPM packages to install |
+| Property               | Description                                                    |
+| ---------------------- | -------------------------------------------------------------- |
+| `name`                 | Block identifier used in `npx @mercurjs/cli add`               |
+| `description`          | Short description shown in search results                      |
+| `dependencies`         | NPM packages to install                                        |
 | `registryDependencies` | Other blocks this block depends on (e.g. `@mercurjs/wishlist`) |
-| `docs` | Markdown shown to the user after installation |
-| `files` | List of source files with their paths and types |
-| `categories` | Tags for search and filtering |
+| `docs`                 | Markdown shown to the user after installation                  |
+| `files`                | List of source files with their paths and types                |
+| `categories`           | Tags for search and filtering                                  |
 
 ### File types
 
 Each file in a block has a `type` that determines where it gets placed in the target project:
 
-| Type | Target alias |
-|------|-------------|
-| `registry:module` | `modules` |
-| `registry:workflow` | `workflows` |
-| `registry:api` | `api` |
-| `registry:link` | `links` |
-| `registry:vendor` | `vendor` |
-| `registry:admin` | `admin` |
-| `registry:lib` | `lib` |
+| Type                | Target alias |
+| ------------------- | ------------ |
+| `registry:module`   | `modules`    |
+| `registry:workflow` | `workflows`  |
+| `registry:api`      | `api`        |
+| `registry:link`     | `links`      |
+| `registry:vendor`   | `vendor`     |
+| `registry:admin`    | `admin`      |
+| `registry:lib`      | `lib`        |
 
 These map to the aliases defined in the consumer's `blocks.json`.
 
@@ -108,10 +98,10 @@ npx @mercurjs/cli build
 
 This reads `registry.json`, resolves all imports for each block, embeds the file contents, and outputs one JSON file per block to the `r/` directory.
 
-| Option | Description |
-|--------|-------------|
+| Option                | Description                       |
+| --------------------- | --------------------------------- |
 | `-o, --output <path>` | Output directory (default: `./r`) |
-| `-v, --verbose` | Show detailed output |
+| `-v, --verbose`       | Show detailed output              |
 
 The build step also automatically resolves NPM dependencies from your source imports — you don't need to list every transitive dependency manually.
 
