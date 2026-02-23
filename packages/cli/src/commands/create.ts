@@ -223,13 +223,12 @@ export const create = new Command()
         if (dbResult?.success) {
           spinner("Starting development server...").info();
 
-          const apiDir = path.join(projectDir, "packages", "api");
           const inviteUrl = dbResult.inviteToken
             ? `http://localhost:9000/app/invite?token=${dbResult.inviteToken}&first_run=true`
             : "http://localhost:9000/app";
 
           const serverProcess = exec(`${packageManager === "npm" ? "npm run" : packageManager} dev`, {
-            cwd: apiDir,
+            cwd: projectDir,
             env: process.env,
           });
 
