@@ -50,7 +50,7 @@ export function dashboardPlugin(): Vite.Plugin {
                     "__BACKEND_URL__": JSON.stringify(config.backendUrl),
                 },
                 optimizeDeps: {
-                    exclude: ['virtual:mercur/config'],
+                    exclude: ['virtual:mercur/config', 'virtual:mercur/routes', 'virtual:mercur/components', 'virtual:mercur/menu-items', 'virtual:mercur/i18n']
                 },
             }
         },
