@@ -19,7 +19,7 @@ import {
 
 const applySellerInviteFilter = (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
+  _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
   req.filterableFields.seller_id = req.auth_context.actor_id
