@@ -42,13 +42,26 @@ export const VendorGetRequestsParams = createFindParams({
  *         description: The name of the product category
  *       handle:
  *         type: string
- *         description: The description of the product category
+ *         description: The handle of the product category
  *       description:
  *         type: string
  *         description: The description of the product category
  *       parent_category_id:
  *         type: string
  *         description: The id of the parent category
+ *       details:
+ *         type: object
+ *         description: Media details for the category
+ *         properties:
+ *           icon:
+ *             type: string
+ *             nullable: true
+ *           banner:
+ *             type: string
+ *             nullable: true
+ *           thumbnail:
+ *             type: string
+ *             nullable: true
  */
 const ProductCategoryRequest = z.object({
   type: z.literal('product_category'),
@@ -56,7 +69,14 @@ const ProductCategoryRequest = z.object({
     name: z.string(),
     handle: z.string(),
     description: z.string().optional(),
-    parent_category_id: z.string().nullable().default(null)
+    parent_category_id: z.string().nullable().default(null),
+    details: z
+      .object({
+        icon: z.string().nullable().default(null),
+        banner: z.string().nullable().default(null),
+        thumbnail: z.string().nullable().default(null)
+      })
+      .optional()
   })
 });
 
@@ -79,13 +99,37 @@ const ProductCategoryRequest = z.object({
  *         description: The title of the product collection
  *       handle:
  *         type: string
- *         description: The description of the product category
+ *         description: The handle of the product collection
+ *       details:
+ *         type: object
+ *         description: Media details for the collection
+ *         properties:
+ *           icon:
+ *             type: string
+ *             nullable: true
+ *           banner:
+ *             type: string
+ *             nullable: true
+ *           thumbnail:
+ *             type: string
+ *             nullable: true
+ *           rank:
+ *             type: number
+ *             nullable: true
  */
 const ProductCollectionRequest = z.object({
   type: z.literal('product_collection'),
   data: z.object({
     title: z.string(),
-    handle: z.string()
+    handle: z.string(),
+    details: z
+      .object({
+        icon: z.string().nullable().default(null),
+        banner: z.string().nullable().default(null),
+        thumbnail: z.string().nullable().default(null),
+        rank: z.number().nullable().default(null)
+      })
+      .optional()
   })
 });
 

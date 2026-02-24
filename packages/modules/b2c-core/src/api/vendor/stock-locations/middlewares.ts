@@ -57,6 +57,16 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
     ]
   },
   {
+    method: ['DELETE'],
+    matcher: '/vendor/stock-locations/:id',
+    middlewares: [
+      checkResourceOwnershipByResourceId({
+        entryPoint: sellerStockLocationLink.entryPoint,
+        filterField: 'stock_location_id'
+      }),
+    ]
+  },
+  {
     method: ['POST'],
     matcher: '/vendor/stock-locations/:id',
     middlewares: [

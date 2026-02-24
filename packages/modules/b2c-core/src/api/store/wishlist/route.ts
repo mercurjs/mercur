@@ -1,12 +1,16 @@
 import {
   AuthenticatedMedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework";
-import { ContainerRegistrationKeys, isPresent, QueryContext } from "@medusajs/framework/utils";
+  MedusaResponse
+} from '@medusajs/framework';
+import {
+  ContainerRegistrationKeys,
+  QueryContext,
+  isPresent
+} from '@medusajs/framework/utils';
 
-import customerWishlist from "../../../links/customer-wishlist";
-import { createWishlistEntryWorkflow } from "../../../workflows/wishlist/workflows";
-import { StoreCreateWishlistType } from "./validators";
+import customerWishlist from '../../../links/customer-wishlist';
+import { createWishlistEntryWorkflow } from '../../../workflows/wishlist/workflows';
+import { StoreCreateWishlistType } from './validators';
 
 /**
  * @oas [post] /store/wishlist
@@ -64,20 +68,20 @@ export const POST = async (
     container: req.scope,
     input: {
       ...req.validatedBody,
-      customer_id: req.auth_context.actor_id,
-    },
+      customer_id: req.auth_context.actor_id
+    }
   });
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
   const {
-    data: [wishlist],
+    data: [wishlist]
   } = await query.graph({
-    entity: "wishlist",
+    entity: 'wishlist',
     fields: req.queryConfig.fields,
     filters: {
-      id: result.id,
-    },
+      id: result.id
+    }
   });
 
   res.status(201).json({ wishlist });
@@ -822,19 +826,19 @@ export const POST = async (
  *     label: JS SDK
  *     source: |-
  *       import Medusa from "@medusajs/js-sdk"
- * 
+ *
  *       let MEDUSA_BACKEND_URL = "http://localhost:9000"
- * 
+ *
  *       if (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) {
  *         MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
  *       }
- * 
+ *
  *       export const sdk = new Medusa({
  *         baseUrl: MEDUSA_BACKEND_URL,
  *         debug: process.env.NODE_ENV === "development",
  *         publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
  *       })
- * 
+ *
  *       sdk.store.product.list()
  *       .then(({ products, count, offset, limit }) => {
  *         console.log(products)
@@ -894,8 +898,8 @@ export const POST = async (
  *     $ref: "#/components/responses/invalid_request_error"
  *   "500":
  *     $ref: "#/components/responses/500_error"
- * 
-*/
+ *
+ */
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -904,47 +908,54 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
   const customerId = req.auth_context.actor_id;
 
-  const { data: [wishlist] } = await query.graph({
+  const {
+    data: [wishlist]
+  } = await query.graph({
     entity: customerWishlist.entryPoint,
-    fields: [
-      "wishlist.products.id",
-    ],
+    fields: ['wishlist.products.id'],
     filters: {
-      customer_id: customerId,
-    },
+      customer_id: customerId
+    }
   });
 
-  const productIds: string[] = [];
-  wishlist.wishlist.products.forEach((product) => {
-    productIds.push(product.id);
-  });
+  const productIds: string[] = (wishlist?.wishlist?.products ?? [])
+    .map((product) => product?.id)
+    .filter((id): id is string => id != null);
+
+  if (productIds.length === 0) {
+    return res.json({
+      products: [],
+      count: 0,
+      offset: 0,
+      limit: 0
+    });
+  }
 
   let context: object = {};
 
   if (isPresent(req.pricingContext)) {
-    const pricingContext = {...req.pricingContext, customer_id: customerId}
+    const pricingContext = { ...req.pricingContext, customer_id: customerId };
     context = {
-        "variants": {
-            "calculated_price": QueryContext(pricingContext)
-        }
-    }
+      variants: {
+        calculated_price: QueryContext(pricingContext)
+      }
+    };
   }
 
   const { data: products, metadata } = await query.graph({
     entity: 'product',
     fields: req.queryConfig.fields,
     filters: {
-      id: productIds,
+      id: productIds
     },
     pagination: req.queryConfig.pagination,
-    context,
+    context
   });
-
 
   res.json({
     products,
     count: metadata?.count,
     offset: metadata?.skip,
-    limit: metadata?.take,
+    limit: metadata?.take
   });
 };
