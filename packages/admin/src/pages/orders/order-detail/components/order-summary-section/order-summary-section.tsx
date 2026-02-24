@@ -60,7 +60,6 @@ import {
 import { getTotalCaptured } from "../../../../../lib/payment.ts";
 import { getLoyaltyPlugin } from "../../../../../lib/plugins.ts";
 import { getReturnableQuantity } from "../../../../../lib/rma.ts";
-import { CopyPaymentLink } from "../copy-payment-link/copy-payment-link.tsx";
 import ReturnInfoPopover from "./return-info-popover.tsx";
 import ShippingInfoPopover from "./shipping-info-popover.tsx";
 import { formatPercentage } from "../../../../../lib/percentage-helpers.ts";
@@ -265,13 +264,6 @@ export const OrderSummarySection = ({
                 {t("orders.allocateItems.action")}
               </Link>
             </Button>
-          )}
-
-          {showPayment && (
-            <CopyPaymentLink
-              paymentCollection={unpaidPaymentCollection}
-              order={order}
-            />
           )}
 
           {showPayment && (

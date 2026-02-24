@@ -1,26 +1,66 @@
-import { Badge, Button, Container, Heading, Text } from "@medusajs/ui";
+import {
+  Badge,
+  Button,
+  Container,
+  Heading,
+  StatusBadge,
+  Text,
+} from "@medusajs/ui";
 import { useNavigate, useParams } from "react-router-dom";
-import { useOrderSet } from "../../../../../hooks/api/sellers";
-import { PaymentStatusBadge } from "../../../../../components/common/payments-status-badge";
-import { OrderStatusBadge } from "../../../../../components/common/order-status-badge";
+import { HttpTypes } from "@mercurjs/types";
+import {
+  getCanceledOrderStatus,
+  getOrderPaymentStatus,
+} from "@/lib/order-helpers";
+import { useTranslation } from "react-i18next";
+import { useOrderGroup } from "@/hooks/api";
+
+const OrderBadge = ({ order }: { order: HttpTypes.AdminOrder }) => {
+  const { t } = useTranslation();
+  const orderStatus = getCanceledOrderStatus(t, order.status);
+
+  if (!orderStatus) {
+    return null;
+  }
+
+  return (
+    <StatusBadge color={orderStatus.color} className="text-nowrap">
+      {orderStatus.label}
+    </StatusBadge>
+  );
+};
+
+const PaymentBadge = ({ order }: { order: HttpTypes.AdminOrder }) => {
+  const { t } = useTranslation();
+
+  const { label, color } = getOrderPaymentStatus(t, order.payment_status);
+
+  return (
+    <StatusBadge color={color} className="text-nowrap">
+      {label}
+    </StatusBadge>
+  );
+};
 
 export const OrderRemainingOrdersGroupSection = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data, isLoading } = useOrderSet(id!);
+  const { order_group, isLoading } = useOrderGroup(id!);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  const { order_sets } = data || {};
-
-  const { orders } = order_sets?.[0] || {};
+  const { orders } = order_group || {};
 
   return (
     <Container data-testid="order-remaining-orders-group-section">
-      <Heading level="h2" className="text-lg font-medium" data-testid="order-remaining-orders-group-heading">
+      <Heading
+        level="h2"
+        className="text-lg font-medium"
+        data-testid="order-remaining-orders-group-heading"
+      >
         Remaining orders group
       </Heading>
       <div data-testid="order-remaining-orders-group-list">
@@ -48,20 +88,26 @@ export const OrderRemainingOrdersGroupSection = () => {
                   >
                     #{order.display_id}
                   </Heading>
-                  <div className="flex w-2/3" data-testid={`order-remaining-orders-group-item-${order.id}-badges`}>
+                  <div
+                    className="flex w-2/3"
+                    data-testid={`order-remaining-orders-group-item-${order.id}-badges`}
+                  >
                     <Badge className="scale-75 -mr-8">
                       <span className="text-xs mr-2">Payment</span>
-                      <PaymentStatusBadge
-                        status={order.payment_collections[0].status}
-                      />
+                      <PaymentBadge order={order} />
                     </Badge>
                     <Badge className="scale-75 -mr-4">
                       <span className="text-xs mr-2">Order</span>
-                      <OrderStatusBadge status={order.status} />
+                      <OrderBadge order={order} />
                     </Badge>
                   </div>
                 </div>
-                <Text className="truncate" data-testid={`order-remaining-orders-group-item-${order.id}-items`}>{items}</Text>
+                <Text
+                  className="truncate"
+                  data-testid={`order-remaining-orders-group-item-${order.id}-items`}
+                >
+                  {items}
+                </Text>
               </div>
             </Button>
           );

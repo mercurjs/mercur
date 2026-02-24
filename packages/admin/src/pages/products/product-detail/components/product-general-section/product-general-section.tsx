@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { SectionRow } from "../../../../../components/common/section";
 import { useDeleteProduct } from "../../../../../hooks/api/products";
-import { useExtension } from "../../../../../providers/extension-provider";
 
 const productStatusColor = (status: string) => {
   switch (status) {
@@ -35,9 +34,6 @@ export const ProductGeneralSection = ({
   const { t } = useTranslation();
   const prompt = usePrompt();
   const navigate = useNavigate();
-  const { getDisplays } = useExtension();
-
-  const displays = getDisplays("product", "general");
 
   const { mutateAsync } = useDeleteProduct(product.id);
 
@@ -125,9 +121,6 @@ export const ProductGeneralSection = ({
         value={product.discountable ? t("fields.true") : t("fields.false")}
         data-testid="product-discountable-row"
       />
-      {displays.map((Component, index) => {
-        return <Component key={index} data={product} />;
-      })}
     </Container>
   );
 };
