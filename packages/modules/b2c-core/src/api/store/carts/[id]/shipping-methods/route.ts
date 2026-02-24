@@ -1,15 +1,17 @@
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
-import { StoreAddCartShippingMethodsType } from '@medusajs/medusa/api/store/carts/validators'
 
 import {
   addSellerShippingMethodToCartWorkflow,
   removeCartShippingMethodsWorkflow
 } from '../../../../../workflows/cart/workflows'
-import { StoreDeleteCartShippingMethodsType } from '../../validators'
+import {
+  StoreAddCartShippingMethodsWithSellerType,
+  StoreDeleteCartShippingMethodsType
+} from '../../validators'
 
 export const POST = async (
-  req: MedusaRequest<StoreAddCartShippingMethodsType>,
+  req: MedusaRequest<StoreAddCartShippingMethodsWithSellerType>,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -20,7 +22,8 @@ export const POST = async (
       option: {
         id: req.validatedBody.option_id,
         data: req.validatedBody.data
-      }
+      },
+      seller_id: req.validatedBody.seller_id
     }
   })
 

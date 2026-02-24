@@ -29,7 +29,7 @@ export const validateCartShippingOptionsStep = createStep(
       data: [cart]
     } = await query.graph({
       entity: 'cart',
-      fields: ['id', 'items.product_id'],
+      fields: ['id', 'items.product_id', 'metadata'],
       filters: { id: input.cart_id }
     })
 
@@ -62,9 +62,49 @@ export const validateCartShippingOptionsStep = createStep(
       }
     }
 
+    // Identify admin options: option_ids not found in seller-shipping-option link
+    const sellerLinkedOptionIds = new Set(
+      sellerShippingOptions.map((so) => so.shipping_option_id)
+    )
+    const adminOptionIds = input.option_ids.filter(
+      (id) => !sellerLinkedOptionIds.has(id)
+    )
+
+    // Validate admin options using cart metadata mapping
+    const adminShippingSellerMap =
+      (cart.metadata?.admin_shipping_seller_map as Record<string, string>) ?? {}
+
+    const adminShippingOptions: {
+      shipping_option_id: string
+      seller_id: string
+    }[] = []
+
+    for (const optionId of adminOptionIds) {
+      const sellerEntry = Object.entries(adminShippingSellerMap).find(
+        ([, mappedOptionId]) => mappedOptionId === optionId
+      )
+
+      if (sellerEntry) {
+        const [sellerId] = sellerEntry
+
+        if (!sellers.has(sellerId)) {
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `Admin shipping option with id: ${optionId} is mapped to seller ${sellerId} who has no products in the cart`
+          )
+        }
+
+        adminShippingOptions.push({
+          shipping_option_id: optionId,
+          seller_id: sellerId
+        })
+      }
+    }
+
     return new StepResponse({
       sellerProducts,
-      sellerShippingOptions
+      sellerShippingOptions,
+      adminShippingOptions
     })
   }
 )

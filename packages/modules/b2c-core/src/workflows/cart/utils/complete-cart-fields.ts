@@ -1,5 +1,6 @@
 export const completeCartFields = [
   'id',
+  'metadata',
   'currency_code',
   'email',
   'created_at',
