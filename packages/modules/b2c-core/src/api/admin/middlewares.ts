@@ -1,15 +1,14 @@
 import { MiddlewareRoute } from '@medusajs/framework';
 
 import { attributeMiddlewares } from './attributes/middlewares';
-import { adminClaimInboundItemsMiddlewares } from './claims/[id]/inbound/items/middlewares';
+import { collectionsMiddlewares } from './collections/middlewares';
 import { configurationMiddleware } from './configuration/middlewares';
 import { adminCustomMiddlewares } from './custom/middlewares';
-import { adminExchangeInboundItemsMiddlewares } from './exchanges/[id]/inbound/items/middlewares';
 import { orderSetsMiddlewares } from './order-sets/middlewares';
 import { adminOrdersMiddlewares } from './orders/middlewares';
+import { productCategoriesMiddlewares } from './product-categories/middlewares';
 import { adminProductsMiddlewares } from './products/middlewares';
 import { adminReservationsMiddlewares } from './reservations/middlewares';
-import { adminReturnRequestItemsMiddlewares } from './returns/[id]/request-items/middlewares';
 import { sellerMiddlewares } from './sellers/middlewares';
 
 export const adminMiddlewares: MiddlewareRoute[] = [
@@ -21,7 +20,6 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminCustomMiddlewares,
   ...adminOrdersMiddlewares,
   ...adminReservationsMiddlewares,
-  ...adminReturnRequestItemsMiddlewares,
-  ...adminExchangeInboundItemsMiddlewares,
-  ...adminClaimInboundItemsMiddlewares
+  ...collectionsMiddlewares,
+  ...productCategoriesMiddlewares
 ];

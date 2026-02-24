@@ -12,15 +12,23 @@ export const acceptProductCategoryRequestWorkflow = createWorkflow(
 
     const handle = createHandleFromNameStep(input)
 
-    const categoryData = transform({ input, handle }, ({ input, handle }) => ({
-      ...input.data,
-      handle,
-      is_active: true
-    }))
+    const categoryData = transform({ input, handle }, ({ input, handle }) => {
+      const { details: _details, ...rest } = input.data
+      return {
+        ...rest,
+        handle,
+        is_active: true
+      }
+    })
+
+    const additionalData = transform({ input }, ({ input }) =>
+      input.data.details ? { details: input.data.details } : undefined
+    )
 
     const productCategory = createProductCategoriesWorkflow.runAsStep({
       input: {
-        product_categories: [categoryData]
+        product_categories: [categoryData],
+        additional_data: additionalData
       }
     })
 

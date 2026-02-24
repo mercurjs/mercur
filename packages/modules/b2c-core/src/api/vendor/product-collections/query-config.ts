@@ -4,6 +4,10 @@ export const vendorProductCollectionFields = [
   'handle',
   'created_at',
   'updated_at',
+  'collection_detail.*',
+  'collection_detail.media.id',
+  'collection_detail.media.url',
+  'collection_detail.media.alt_text',
   'metadata'
 ]
 
