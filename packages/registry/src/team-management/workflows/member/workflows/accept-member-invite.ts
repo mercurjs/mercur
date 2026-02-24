@@ -35,6 +35,8 @@ export const acceptMemberInviteWorkflow = createWorkflow(
       authIdentityId: input.authIdentityId,
       actorType: "seller",
       value: member.seller_id,
+    }).config({
+      name: "link-seller-to-auth-identity",
     })
 
     // link member to auth identity
@@ -42,6 +44,8 @@ export const acceptMemberInviteWorkflow = createWorkflow(
       authIdentityId: input.authIdentityId,
       actorType: "member",
       value: member.id,
+    }).config({
+      name: "link-member-to-auth-identity",
     })
 
     return new WorkflowResponse(invite)
