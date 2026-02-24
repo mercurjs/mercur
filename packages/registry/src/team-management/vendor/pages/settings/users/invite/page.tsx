@@ -4,7 +4,7 @@ import { z } from "zod"
 import { Button, Input, StatusBadge, Text, toast } from "@medusajs/ui"
 
 import { RouteDrawer } from "@mercurjs/dashboard-shared"
-import { useCreateInvite, useInvites } from "../../../hooks/api/invites"
+import { useCreateInvite, useInvites } from "../../../../hooks/api/invites"
 
 const InviteSchema = z.object({
   email: z.string().email("Please enter a valid email address"),

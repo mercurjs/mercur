@@ -46,6 +46,13 @@ class MemberModuleService extends MedusaService({
 
   async validateInviteToken(token: string) {
     const jwtSecret = this.httpConfig_.jwtSecret
+    if (!jwtSecret) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "JWT secret is not configured"
+      )
+    }
+
     const decoded: JwtPayload = jwt.verify(token, jwtSecret, {
       complete: true,
     })

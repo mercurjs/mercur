@@ -1,6 +1,6 @@
-import { UIMatch } from "react-router-dom"
+import type { UIMatch } from "react-router-dom"
 
-import { useMember } from "../../../hooks/api/members"
+import { useMember } from "../../../../hooks/api/members"
 
 export const Breadcrumb = (props: UIMatch) => {
   const { id } = props.params || {}

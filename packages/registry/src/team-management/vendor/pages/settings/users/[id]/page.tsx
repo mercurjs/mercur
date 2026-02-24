@@ -6,8 +6,8 @@ import {
   SingleColumnPage,
   ActionMenu,
 } from "@mercurjs/dashboard-shared"
-import { useMember, useDeleteMember } from "../../../hooks/api/members"
-import type { MemberDTO } from "../../../hooks/api/members"
+import { useMember, useDeleteMember } from "../../../../hooks/api/members"
+import type { MemberDTO } from "../../../../hooks/api/members"
 import { PencilSquare, Trash } from "@medusajs/icons"
 
 const MemberGeneralSection = ({ member }: { member: MemberDTO }) => {
@@ -25,7 +25,7 @@ const MemberGeneralSection = ({ member }: { member: MemberDTO }) => {
 
     if (confirmed) {
       await deleteMember()
-      navigate("/users", { replace: true })
+      navigate("/settings/users", { replace: true })
     }
   }
 
@@ -40,7 +40,7 @@ const MemberGeneralSection = ({ member }: { member: MemberDTO }) => {
                 {
                   label: "Edit",
                   icon: <PencilSquare />,
-                  to: `/users/${member.id}/edit`,
+                  to: `/settings/users/${member.id}/edit`,
                 },
               ],
             },

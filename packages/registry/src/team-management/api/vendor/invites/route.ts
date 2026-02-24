@@ -6,7 +6,6 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import sellerMemberInvite from "../../../links/seller-member-invite"
 import { VendorMemberInviteListResponse, VendorMemberInviteResponse } from "../../../modules/member"
-import { fetchSellerByAuthActorId } from "../members/_helpers/helpers"
 import { inviteMemberWorkflow } from "../../../workflows/member/workflows/invite-member"
 import { VendorInviteMemberType } from "./validators"
 

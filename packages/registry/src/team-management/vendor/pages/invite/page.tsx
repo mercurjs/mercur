@@ -11,6 +11,10 @@ import {
   useAcceptInvite,
 } from "../../hooks/api/invites"
 
+export const config = {
+  public: true,
+}
+
 const CreateAccountSchema = z
   .object({
     email: z.string().email(),

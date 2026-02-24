@@ -301,7 +301,7 @@
       "description": "Team member management with invitations, roles, and vendor portal pages.",
       "dependencies": ["jsonwebtoken", "@types/jsonwebtoken", "react-jwt"],
       "registryDependencies": [],
-      "docs": "## Configuration\n\nAdd the member module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/member',\n    definition: {\n      isQueryable: true,\n    },\n  },\n]\n```\n\n## Middlewares\n\nAdd the team management middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...vendorMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the middleware imports and spread them into your existing `routes` array.\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nmercurjs codegen\n```",
+      "docs": "## Team Management\n\nThis block adds team member management: invite members, assign roles, and manage your vendor team.\n\n### 1. Module Configuration\n\nAdd the member module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/member',\n    definition: {\n      isQueryable: true,\n    },\n  },\n]\n```\n\n> **Important:** `isQueryable: true` is required — without it, API routes cannot query member data.\n\n### 2. Middleware Setup\n\nImport the member and invite middlewares in your `src/api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorMembersMiddlewares } from \"./vendor/members/middlewares\";\nimport { vendorInvitesMiddlewares } from \"./vendor/invites/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [\n    // ...your existing middlewares,\n    ...vendorMembersMiddlewares,\n    ...vendorInvitesMiddlewares,\n  ],\n});\n```\n\n### 3. Database Migrations\n\nGenerate and run migrations for the member module:\n\n```bash\nnpx medusa db:generate member\nnpx medusa db:migrate\n```\n\n### 4. Vendor App Dependencies\n\nInstall required dependencies in your vendor app:\n\n```bash\nnpm install react-hook-form @hookform/resolvers zod @tanstack/react-table react-jwt\n```\n\n### 5. Run codegen\n\nRegenerate SDK types so the vendor hooks can call the new API routes:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
       "files": [
         {
           "path": "team-management/modules/member/index.ts",
@@ -428,10 +428,6 @@
           "type": "registry:api"
         },
         {
-          "path": "team-management/vendor/lib/client.ts",
-          "type": "registry:vendor"
-        },
-        {
           "path": "team-management/vendor/hooks/api/members.tsx",
           "type": "registry:vendor"
         },
@@ -448,23 +444,27 @@
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/[id]/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/[id]/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/[id]/breadcrumb.tsx",
+          "path": "team-management/vendor/pages/settings/users/[id]/breadcrumb.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/[id]/edit/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/[id]/edit/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/invite/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/invite/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/pages/invite/page.tsx",
           "type": "registry:vendor"
         }
       ],
