@@ -4,6 +4,7 @@ export * from "./campaigns";
 export * from "./categories";
 export * from "./collections";
 export * from "./currencies";
+export * from "./customer-groups";
 export * from "./customers";
 export * from "./fulfillment";
 export * from "./fulfillment-providers";
