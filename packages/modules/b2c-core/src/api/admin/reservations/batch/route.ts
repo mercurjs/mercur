@@ -1,11 +1,7 @@
-import {
-  createReservationsWorkflow,
-  updateReservationsWorkflow
-} from '@medusajs/core-flows';
 import { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils';
 
-import { validateAndDeleteReservationsWorkflow } from '../../../../workflows/reservations';
+import { batchReservationsWorkflow } from '../../../../workflows/reservations';
 import { AdminBatchReservationsBodyType } from '../validators';
 
 /**
@@ -69,29 +65,11 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-  const {
-    create = [],
-    update = [],
-    delete: idsToDelete = []
-  } = req.validatedBody;
+  const { result } = await batchReservationsWorkflow(req.scope).run({
+    input: req.validatedBody
+  });
 
-  if (idsToDelete.length) {
-    await validateAndDeleteReservationsWorkflow(req.scope).run({
-      input: { ids: idsToDelete }
-    });
-  }
-
-  const createdResults = create.length
-    ? await createReservationsWorkflow(req.scope).run({
-        input: { reservations: create }
-      })
-    : { result: [] };
-
-  const updatedResults = update.length
-    ? await updateReservationsWorkflow(req.scope).run({
-        input: { updates: update }
-      })
-    : { result: [] };
+  const { createdIds, updatedIds, deletedIds } = result;
 
   const fetchByIds = async (ids: string[]) => {
     if (!ids.length) {
@@ -112,9 +90,6 @@ export const POST = async (
     return ids.map((id) => byId.get(id)).filter(Boolean);
   };
 
-  const createdIds = createdResults.result.map((reservation) => reservation.id);
-  const updatedIds = updatedResults.result.map((reservation) => reservation.id);
-
   const [created, updated] = await Promise.all([
     fetchByIds(createdIds),
     fetchByIds(updatedIds)
@@ -123,6 +98,6 @@ export const POST = async (
   res.status(201).json({
     created,
     updated,
-    deleted: idsToDelete
+    deleted: deletedIds
   });
 };
