@@ -1,9 +1,12 @@
 import {
+  createHook,
+  Hook,
+  ReturnWorkflow,
   WorkflowResponse,
   createWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import { setAuthAppMetadataStep } from "@medusajs/medusa/core-flows"
-import { CreateSellerDTO } from "@mercurjs/types"
+import { CreateSellerDTO, SellerDTO } from "@mercurjs/types"
 
 import { createSellerStep } from "../steps"
 
@@ -12,7 +15,7 @@ type CreateSellerWorkflowInput = {
   auth_identity_id: string
 }
 
-export const createSellerWorkflow = createWorkflow(
+export const createSellerWorkflow: ReturnWorkflow<CreateSellerWorkflowInput, SellerDTO, [Hook<"sellerCreated", { seller: SellerDTO, auth_identity_id: string }, unknown>]> = createWorkflow(
   "create-seller",
   function (input: CreateSellerWorkflowInput) {
     const seller = createSellerStep(input.seller)
@@ -23,6 +26,13 @@ export const createSellerWorkflow = createWorkflow(
       value: seller.id,
     })
 
-    return new WorkflowResponse(seller)
+    const sellerCreated = createHook("sellerCreated", {
+      seller,
+      auth_identity_id: input.auth_identity_id,
+    })
+
+    return new WorkflowResponse(seller, {
+      hooks: [sellerCreated],
+    })
   }
 )

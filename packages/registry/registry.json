@@ -388,6 +388,10 @@
           "type": "registry:workflow"
         },
         {
+          "path": "team-management/workflows/hooks/seller-created.ts",
+          "type": "registry:workflow"
+        },
+        {
           "path": "team-management/api/vendor/members/helpers.ts",
           "type": "registry:api"
         },
@@ -409,6 +413,10 @@
         },
         {
           "path": "team-management/api/vendor/members/[id]/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "team-management/api/vendor/members/me/route.ts",
           "type": "registry:api"
         },
         {
