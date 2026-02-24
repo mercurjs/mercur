@@ -6,7 +6,7 @@
     "api": "packages/api/src/api",
     "modules": "packages/api/src/modules",
     "vendor": "apps/vendor/src",
-    "admin": "packages/api/src/admin",
+    "admin": "apps/admin/src",
     "lib": "packages/api/src/lib"
   },
   "registries": {}

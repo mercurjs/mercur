@@ -2,7 +2,6 @@ import {
   PaginatedResponse,
   ProductDTO,
   ProductVariantDTO,
-  SalesChannelDTO,
 } from "@medusajs/types"
 
 export interface VendorProductResponse {
@@ -46,8 +45,4 @@ export interface VendorDeleteResponse {
    * Whether the resource was deleted.
    */
   deleted: boolean
-}
-
-export interface VendorProduct extends ProductDTO {
-  sales_channels?: SalesChannelDTO[];
 }

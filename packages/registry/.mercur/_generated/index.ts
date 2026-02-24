@@ -708,6 +708,12 @@ export type Routes = {
         reviews: typeof import("../../src/reviews/api/vendor/reviews/route") & {
             $id: typeof import("../../src/reviews/api/vendor/reviews/[id]/route");
         };
+        members: typeof import("../../src/team-management/api/vendor/members/route") & {
+            $id: typeof import("../../src/team-management/api/vendor/members/[id]/route");
+        };
+        invites: typeof import("../../src/team-management/api/vendor/invites/route") & {
+            accept: typeof import("../../src/team-management/api/vendor/invites/accept/route");
+        };
         notifications: typeof import("../../src/vendor-notifications/api/vendor/notifications/route");
     };
 };

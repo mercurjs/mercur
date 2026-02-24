@@ -14,6 +14,7 @@
     "turbo": "^2.7.4",
     "typescript": "5.9.3"
   },
+  "packageManager": "bun@1.2.2",
   "engines": {
     "node": ">=18"
   },

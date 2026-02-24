@@ -4,7 +4,7 @@ import { MiddlewareRoute } from "@medusajs/medusa";
 import { adminReviewsConfig } from "./query-config";
 import { AdminGetReviewsParams } from "./validators";
 
-export const adminReviewsMiddlewares: MiddlewareRoute[] = [
+export const reviewsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
     matcher: "/admin/reviews",

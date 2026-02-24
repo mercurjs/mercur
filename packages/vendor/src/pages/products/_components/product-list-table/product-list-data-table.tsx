@@ -139,6 +139,14 @@ export const ProductListDataTable = () => {
           shortcut: "d",
         },
       ]}
+      noRecords={{
+        title: t("products.list.noRecordsTitle"),
+        message: t("products.list.noRecordsMessage"),
+        action: {
+          to: "/products/create",
+          label: t("actions.add"),
+        },
+      }}
     />
   );
 };

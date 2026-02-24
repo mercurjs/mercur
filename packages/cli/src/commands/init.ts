@@ -162,7 +162,7 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
         type: "text",
         name: "admin",
         message: `Configure the import alias for ${highlighter.info("admin")}:`,
-        initial: "packages/api/src/admin",
+        initial: "apps/admin/src",
       },
       {
         type: "text",
@@ -186,7 +186,7 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
       links: options.links ?? "packages/api/src/links",
       modules: options.modules ?? "packages/api/src/modules",
       vendor: options.vendor ?? "apps/vendor/src",
-      admin: options.admin ?? "packages/api/src/admin",
+      admin: options.admin ?? "apps/admin/src",
       lib: options.lib ?? "packages/api/src/lib",
     },
     registries: BUILTIN_REGISTRIES,

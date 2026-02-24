@@ -1,0 +1,46 @@
+---
+title: "Quick Start"
+description: "Create a new Mercur 2.0 marketplace project using the CLI."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+## Create a new project
+
+```bash
+npx @mercurjs/cli@canary create my-marketplace
+```
+
+The CLI will guide you through template selection, database configuration, and dependency installation.
+
+## Add blocks
+
+Browse and install blocks — the building units of your marketplace:
+
+```bash
+# Search available blocks
+npx @mercurjs/cli@canary search
+
+# Add blocks to your project
+npx @mercurjs/cli@canary add reviews commission requests
+```
+
+## Start developing
+
+```bash
+cd my-marketplace
+yarn dev
+```
+
+Your marketplace backend will be running at `http://localhost:9000`.
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title="Browse Blocks" icon="cubes" href="/canary/blocks">
+    Explore all available modules, workflows, and extensions.
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/cli-installation">
+    Learn all CLI commands and options.
+  </Card>
+</CardGroup>

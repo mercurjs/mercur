@@ -1,4 +1,4 @@
-import qs from "qs";
+import { stringify } from "qs";
 import { createRecursiveProxy } from "./create-proxy";
 import { ActionType, ClientOptions, InferClient, PrettifyDeep } from "./types";
 export type { InferClient } from "./types";
@@ -61,7 +61,7 @@ export function createClient(options: ClientOptions) {
         let body: string | undefined;
 
         if (method === "GET" && Object.keys(rest).length > 0) {
-            url.search = qs.stringify(rest, { skipNulls: true });
+            url.search = stringify(rest, { skipNulls: true });
         } else if (method !== "GET" && Object.keys(rest).length > 0) {
             body = JSON.stringify(rest);
         }

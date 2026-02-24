@@ -1,6 +1,6 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { fetchSellerByAuthActorId } from "./helpers/helpers"
+import { fetchSellerByAuthActorId } from "./helpers"
 
 export async function GET(
   req: AuthenticatedMedusaRequest,

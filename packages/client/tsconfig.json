@@ -6,6 +6,7 @@
       "DOM.Iterable"
     ],
     "target": "ES6",
+    "outDir": "./dist/esm",
     "esModuleInterop": true,
     "declarationMap": true,
     "declaration": true,
