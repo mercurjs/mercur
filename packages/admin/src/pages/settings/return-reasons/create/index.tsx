@@ -1,12 +1,10 @@
 import { RouteFocusModal } from "@components/modals"
 import { ReturnReasonCreateForm } from "./_components/return-reason-create-form"
 
-const ReturnReasonCreate = () => {
+export const Component = () => {
   return (
-    <RouteFocusModal>
+    <RouteFocusModal data-testid="return-reason-create-modal">
       <ReturnReasonCreateForm />
     </RouteFocusModal>
   )
 }
-
-export const Component = ReturnReasonCreate

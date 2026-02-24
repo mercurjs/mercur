@@ -1,5 +1,11 @@
-import { XCircle } from "@medusajs/icons"
-import { AdminOrderLineItem } from "@medusajs/types"
+import { Buildings, XCircle } from "@medusajs/icons"
+import {
+  AdminOrder,
+  AdminOrderFulfillment,
+  AdminOrderLineItem,
+  HttpTypes,
+  OrderLineItemDTO,
+} from "@medusajs/types"
 import {
   Button,
   Container,
@@ -24,14 +30,10 @@ import {
 import { useStockLocation } from "@hooks/api/stock-locations"
 import { formatProvider } from "@lib/format-provider"
 import { getLocaleAmount } from "@lib/money-amount-helpers"
-import { FulfillmentSetType } from "@pages/settings/locations/_common/constants"
-import {
-  ExtendedAdminOrder,
-  ExtendedAdminOrderFulfillment,
-} from "@custom-types/order"
+import { FulfillmentSetType } from "@pages/settings/locations/common/constants"
 
 type OrderFulfillmentSectionProps = {
-  order: ExtendedAdminOrder
+  order: AdminOrder
 }
 
 export const OrderFulfillmentSection = ({
@@ -40,7 +42,7 @@ export const OrderFulfillmentSection = ({
   const fulfillments = order.fulfillments || []
 
   return (
-    <div className="flex flex-col gap-y-3">
+    <div className="flex flex-col gap-y-3" data-testid="order-fulfillment-section">
       <UnfulfilledItemBreakdown order={order} />
       {fulfillments.map((f, index) => (
         <Fulfillment key={f.id} index={index} fulfillment={f} order={order} />
@@ -53,7 +55,7 @@ const UnfulfilledItem = ({
   item,
   currencyCode,
 }: {
-  item: AdminOrderLineItem
+  item: OrderLineItemDTO & { variant: HttpTypes.AdminProductVariant }
   currencyCode: string
 }) => {
   return (
@@ -107,22 +109,14 @@ const UnfulfilledItem = ({
   )
 }
 
-const UnfulfilledItemBreakdown = ({ order }: { order: ExtendedAdminOrder }) => {
+const UnfulfilledItemBreakdown = ({ order }: { order: AdminOrder }) => {
   // Create an array of order items that haven't been fulfilled or at least not fully fulfilled
   const unfulfilledItemsWithShipping = order.items!.filter(
-    (i) =>
-      i.requires_shipping &&
-      i.detail &&
-      i.quantity &&
-      i.detail.fulfilled_quantity < i.quantity
+    (i) => i.requires_shipping && i.detail.fulfilled_quantity < i.quantity
   )
 
   const unfulfilledItemsWithoutShipping = order.items!.filter(
-    (i) =>
-      !i.requires_shipping &&
-      i.detail &&
-      i.quantity &&
-      i.detail.fulfilled_quantity < i.quantity
+    (i) => !i.requires_shipping && i.detail.fulfilled_quantity < i.quantity
   )
 
   return (
@@ -151,7 +145,7 @@ const UnfulfilledItemDisplay = ({
   unfulfilledItems,
   requiresShipping = false,
 }: {
-  order: ExtendedAdminOrder
+  order: AdminOrder
   unfulfilledItems: AdminOrderLineItem[]
   requiresShipping: boolean
 }) => {
@@ -162,23 +156,38 @@ const UnfulfilledItemDisplay = ({
   }
 
   return (
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">{t("orders.fulfillment.unfulfilledItems")}</Heading>
+    <Container className="divide-y p-0" data-testid="order-fulfillment-unfulfilled">
+      <div className="flex items-center justify-between px-6 py-4" data-testid="order-fulfillment-unfulfilled-header">
+        <Heading level="h2" data-testid="order-fulfillment-unfulfilled-heading">{t("orders.fulfillment.unfulfilledItems")}</Heading>
 
-        <div className="flex items-center gap-x-4">
+        <div className="flex items-center gap-x-4" data-testid="order-fulfillment-unfulfilled-badges">
           {requiresShipping && (
-            <StatusBadge color="red" className="text-nowrap">
+            <StatusBadge color="red" className="text-nowrap" data-testid="order-fulfillment-unfulfilled-requires-shipping-badge">
               {t("orders.fulfillment.requiresShipping")}
             </StatusBadge>
           )}
 
-          <StatusBadge color="red" className="text-nowrap">
+          <StatusBadge color="red" className="text-nowrap" data-testid="order-fulfillment-unfulfilled-awaiting-badge">
             {t("orders.fulfillment.awaitingFulfillmentBadge")}
           </StatusBadge>
+
+          <ActionMenu
+            groups={[
+              {
+                actions: [
+                  {
+                    label: t("orders.fulfillment.fulfillItems"),
+                    icon: <Buildings />,
+                    to: `/orders/${order.id}/fulfillment?requires_shipping=${requiresShipping}`,
+                  },
+                ],
+              },
+            ]}
+            data-testid="order-fulfillment-unfulfilled-action-menu"
+          />
         </div>
       </div>
-      <div>
+      <div data-testid="order-fulfillment-unfulfilled-items">
         {unfulfilledItems.map((item: AdminOrderLineItem) => (
           <UnfulfilledItem
             key={item.id}
@@ -186,13 +195,6 @@ const UnfulfilledItemDisplay = ({
             currencyCode={order.currency_code}
           />
         ))}
-      </div>
-      <div className="px-6 py-4 flex justify-end">
-        <Link
-          to={`/orders/${order.id}/fulfillment?requires_shipping=${requiresShipping}`}
-        >
-          <Button>Fulfill items</Button>
-        </Link>
       </div>
     </Container>
   )
@@ -203,8 +205,8 @@ const Fulfillment = ({
   order,
   index,
 }: {
-  fulfillment: ExtendedAdminOrderFulfillment
-  order: ExtendedAdminOrder
+  fulfillment: AdminOrderFulfillment
+  order: AdminOrder
   index: number
 }) => {
   const { t } = useTranslation()
@@ -319,22 +321,24 @@ const Fulfillment = ({
     throw error
   }
 
+  const isValidUrl = (url?: string) => url && url.length > 0 && url !== "#"
+
   return (
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">
+    <Container className="divide-y p-0" data-testid={`order-fulfillment-${fulfillment.id}`}>
+      <div className="flex items-center justify-between px-6 py-4" data-testid={`order-fulfillment-${fulfillment.id}-header`}>
+        <Heading level="h2" data-testid={`order-fulfillment-${fulfillment.id}-heading`}>
           {t("orders.fulfillment.number", {
             number: index + 1,
           })}
         </Heading>
-        <div className="flex items-center gap-x-4">
+        <div className="flex items-center gap-x-4" data-testid={`order-fulfillment-${fulfillment.id}-status-container`}>
           <Tooltip
             content={format(
               new Date(statusTimestamp),
               "dd MMM, yyyy, HH:mm:ss"
             )}
           >
-            <StatusBadge color={statusColor} className="text-nowrap">
+            <StatusBadge color={statusColor} className="text-nowrap" data-testid={`order-fulfillment-${fulfillment.id}-status-badge`}>
               {statusText}
             </StatusBadge>
           </Tooltip>
@@ -346,11 +350,15 @@ const Fulfillment = ({
                     label: t("actions.cancel"),
                     icon: <XCircle />,
                     onClick: handleCancel,
-                    disabled: !!fulfillment.canceled_at,
+                    disabled:
+                      !!fulfillment.canceled_at ||
+                      !!fulfillment.shipped_at ||
+                      !!fulfillment.delivered_at,
                   },
                 ],
               },
             ]}
+            data-testid={`order-fulfillment-${fulfillment.id}-action-menu`}
           />
         </div>
       </div>
@@ -359,7 +367,7 @@ const Fulfillment = ({
           {t("orders.fulfillment.itemsLabel")}
         </Text>
         <ul>
-          {(fulfillment.items || []).map((f_item) => (
+          {fulfillment.items.map((f_item) => (
             <li key={f_item.line_item_id}>
               <Text size="small" leading="compact">
                 {f_item.quantity}x {f_item.title}
@@ -404,22 +412,37 @@ const Fulfillment = ({
           {fulfillment.labels && fulfillment.labels.length > 0 ? (
             <ul>
               {fulfillment.labels.map((tlink) => {
-                const hasUrl =
-                  !!tlink.tracking_url?.length && tlink.tracking_url !== "#"
+                const hasTrackingUrl = isValidUrl(tlink.tracking_url)
+                const hasLabelUrl = isValidUrl(tlink.label_url)
 
-                if (hasUrl) {
+                if (hasTrackingUrl || hasLabelUrl) {
                   return (
                     <li key={tlink.tracking_number}>
-                      <a
-                        href={tlink.tracking_url || ""}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover transition-fg"
-                      >
-                        <Text size="small" leading="compact">
-                          {tlink.tracking_number}
-                        </Text>
-                      </a>
+                      {hasTrackingUrl && (
+                        <a
+                          href={tlink.tracking_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover transition-fg"
+                        >
+                          <Text size="small" leading="compact" as="span">
+                            {tlink.tracking_number}
+                          </Text>
+                        </a>
+                      )}
+                      {hasTrackingUrl && hasLabelUrl && " - "}
+                      {hasLabelUrl && (
+                        <a
+                          href={tlink.label_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover transition-fg"
+                        >
+                          <Text size="small" leading="compact" as="span">
+                            Label
+                          </Text>
+                        </a>
+                      )}
                     </li>
                   )
                 }
@@ -442,9 +465,9 @@ const Fulfillment = ({
       </div>
 
       {(showShippingButton || showDeliveryButton) && (
-        <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
+        <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4" data-testid={`order-fulfillment-${fulfillment.id}-actions`}>
           {showDeliveryButton && (
-            <Button onClick={handleMarkAsDelivered} variant="secondary">
+            <Button onClick={handleMarkAsDelivered} variant="secondary" data-testid={`order-fulfillment-${fulfillment.id}-mark-delivered-button`}>
               {t(
                 isPickUpFulfillment
                   ? "orders.fulfillment.markAsPickedUp"
@@ -457,6 +480,7 @@ const Fulfillment = ({
             <Button
               onClick={() => navigate(`./${fulfillment.id}/create-shipment`)}
               variant="secondary"
+              data-testid={`order-fulfillment-${fulfillment.id}-mark-shipped-button`}
             >
               {t("orders.fulfillment.markAsShipped")}
             </Button>

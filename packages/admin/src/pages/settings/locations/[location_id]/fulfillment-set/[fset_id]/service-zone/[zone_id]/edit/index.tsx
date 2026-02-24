@@ -4,7 +4,7 @@ import { json, useParams } from "react-router-dom"
 
 import { RouteDrawer } from "@components/modals"
 import { useStockLocation } from "@hooks/api/stock-locations"
-import { EditServiceZoneForm } from "./_components/edit-service-zone-form"
+import { EditServiceZoneForm } from "@pages/settings/locations/location-service-zone-edit/components/edit-region-form"
 
 const LocationServiceZoneEdit = () => {
   const { t } = useTranslation()
@@ -21,9 +21,7 @@ const LocationServiceZoneEdit = () => {
 
   if (!isPending && !isFetching && !serviceZone) {
     throw json(
-      {
-        message: `Service zone with ID ${zone_id} was not found`,
-      },
+      { message: `Service zone with ID ${zone_id} was not found` },
       404
     )
   }
@@ -33,9 +31,9 @@ const LocationServiceZoneEdit = () => {
   }
 
   return (
-    <RouteDrawer prev={`/settings/locations/${location_id}`}>
-      <RouteDrawer.Header>
-        <Heading>{t("stockLocations.serviceZones.edit.header")}</Heading>
+    <RouteDrawer prev={`/settings/locations/${location_id}`} data-testid="location-service-zone-edit-drawer">
+      <RouteDrawer.Header data-testid="location-service-zone-edit-drawer-header">
+        <Heading data-testid="location-service-zone-edit-drawer-heading">{t("stockLocations.serviceZones.edit.header")}</Heading>
       </RouteDrawer.Header>
       {serviceZone && (
         <EditServiceZoneForm

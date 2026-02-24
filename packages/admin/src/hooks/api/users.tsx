@@ -1,151 +1,150 @@
+import { FetchError } from "@medusajs/js-sdk"
+import { HttpTypes } from "@medusajs/types"
 import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client";
-import {
+  QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query";
-import { sdk, fetchQuery } from "../../lib/client";
-import { queryClient } from "../../lib/query-client";
-import { queryKeysFactory } from "../../lib/query-key-factory";
+} from "@tanstack/react-query"
+import { sdk } from "../../lib/client"
+import { queryClient } from "../../lib/query-client"
+import { queryKeysFactory } from "../../lib/query-key-factory"
 
-const USERS_QUERY_KEY = "users" as const;
+const USERS_QUERY_KEY = "users" as const
 const usersQueryKeys = {
   ...queryKeysFactory(USERS_QUERY_KEY),
   me: () => [USERS_QUERY_KEY, "me"],
-};
+}
 
 export const useMe = (
-  query?: Omit<InferClientInput<typeof sdk.vendor.sellers.me.query>, "$id">,
+  query?: HttpTypes.AdminUserParams,
   options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.sellers.me.query>
+    HttpTypes.AdminUserResponse,
+    FetchError,
+    HttpTypes.AdminUserResponse,
+    QueryKey
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.sellers.me.query({ ...query }),
+    queryFn: () => sdk.admin.user.me(query),
     queryKey: usersQueryKeys.me(),
     ...options,
-  });
+  })
 
   return {
     ...data,
     ...rest,
-  };
-};
+  }
+}
 
 export const useUser = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.vendor.users.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.users.$id.query>
+  query?: HttpTypes.AdminUserParams,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminUserResponse,
+      FetchError,
+      HttpTypes.AdminUserResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.users.$id.query({ $id: id, ...query }),
+    queryFn: () => sdk.admin.user.retrieve(id, query),
     queryKey: usersQueryKeys.detail(id),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useUsers = (
-  query?: InferClientInput<typeof sdk.vendor.users.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.users.query>
+  query?: HttpTypes.AdminUserListParams,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminUserListResponse,
+      FetchError,
+      HttpTypes.AdminUserListResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.users.query({ ...query }),
+    queryFn: () => sdk.admin.user.list(query),
     queryKey: usersQueryKeys.list(query),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
-export const useUpdateUser = (
-  id: string,
+export const useCreateUser = (
+  query?: HttpTypes.AdminUserParams,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.users.$id.mutate>,
-    ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.users.$id.mutate>, "$id">
+    HttpTypes.AdminUserResponse,
+    FetchError,
+    HttpTypes.AdminCreateUser,
+    QueryKey
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.vendor.users.$id.mutate({ $id: id, ...payload }),
+    mutationFn: (payload) => sdk.admin.user.create(payload, query),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() })
 
-      // We invalidate the me query in case the user updates their own profile
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() });
-
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
+
+export const useUpdateUser = (
+  id: string,
+  query?: HttpTypes.AdminUserParams,
+  options?: UseMutationOptions<
+    HttpTypes.AdminUserResponse,
+    FetchError,
+    HttpTypes.AdminUpdateUser,
+    QueryKey
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.admin.user.update(id, payload, query),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() })
+
+      // We invalidate the me query in case the user updates their own profile
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
 
 export const useDeleteUser = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.users.$id.delete>,
-    ClientError,
+    HttpTypes.AdminUserDeleteResponse,
+    FetchError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.users.$id.delete({ $id: id }),
+    mutationFn: () => sdk.admin.user.delete(id),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() })
 
       // We invalidate the me query in case the user updates their own profile
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() });
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
-
-export const useUpdateMe = (
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.sellers.me.mutate>,
-    ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.sellers.me.mutate>, "$id">
-  >
-) => {
-  return useMutation({
-    mutationFn: (payload) => sdk.vendor.sellers.me.mutate(payload),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() });
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-export const useUserMe = (
-  query?: Record<string, any>,
-  options?: UseQueryOptions<any, Error, any>
-) => {
-  const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.sellers.me.query({ ...query }),
-    queryKey: usersQueryKeys.me(),
-    ...options,
-  });
-
-  return { ...data, ...rest };
-};
+  })
+}

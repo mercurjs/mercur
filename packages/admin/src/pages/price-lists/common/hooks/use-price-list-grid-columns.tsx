@@ -11,10 +11,9 @@ import {
 import { createDataGridPriceColumns } from "@components/data-grid/helpers/create-data-grid-price-columns"
 import { PricingCreateSchemaType } from "../../price-list-create/components/price-list-create-form/schema"
 import { isProductRow } from "../utils"
-import { ExtendedAdminProduct, ExtendedAdminProductVariant } from "@custom-types/products"
 
 const columnHelper = createDataGridHelper<
- ExtendedAdminProduct | ExtendedAdminProductVariant,
+  HttpTypes.AdminProduct | HttpTypes.AdminProductVariant,
   PricingCreateSchemaType
 >()
 
@@ -30,7 +29,7 @@ export const usePriceListGridColumns = ({
   const { t } = useTranslation()
 
   const colDefs: ColumnDef<
-    ExtendedAdminProduct | ExtendedAdminProductVariant
+    HttpTypes.AdminProduct | HttpTypes.AdminProductVariant
   >[] = useMemo(() => {
     return [
       columnHelper.column({
@@ -60,10 +59,11 @@ export const usePriceListGridColumns = ({
         disableHiding: true,
       }),
       ...createDataGridPriceColumns<
-        ExtendedAdminProduct | ExtendedAdminProductVariant,
+        HttpTypes.AdminProduct | HttpTypes.AdminProductVariant,
         PricingCreateSchemaType
       >({
         currencies: currencies.map((c) => c.currency_code),
+        regions,
         pricePreferences,
         isReadyOnly: (context) => {
           const entity = context.row.original
@@ -83,7 +83,6 @@ export const usePriceListGridColumns = ({
           return `products.${entity.product_id}.variants.${entity.id}.region_prices.${value}.amount`
         },
         t,
-        showCurrentPriceCell: true,
       }),
     ]
   }, [t, currencies, regions, pricePreferences])

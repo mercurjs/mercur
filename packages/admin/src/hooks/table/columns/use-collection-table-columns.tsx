@@ -1,14 +1,13 @@
-import { createColumnHelper } from "@tanstack/react-table";
-import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { TextCell } from "../../../components/table/table-cells/common/text-cell";
-import { HttpTypes } from "@mercurjs/types";
+import { HttpTypes } from "@medusajs/types"
+import { createColumnHelper } from "@tanstack/react-table"
+import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+import { TextCell } from "../../../components/table/table-cells/common/text-cell"
 
-const columnHelper =
-  createColumnHelper<HttpTypes.VendorCollectionResponse["collection"]>();
+const columnHelper = createColumnHelper<HttpTypes.AdminCollection>()
 
 export const useCollectionTableColumns = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return useMemo(
     () => [
@@ -23,12 +22,12 @@ export const useCollectionTableColumns = () => {
       columnHelper.accessor("products", {
         header: t("fields.products"),
         cell: ({ getValue }) => {
-          const count = getValue()?.length || undefined;
+          const count = getValue()?.length || undefined
 
-          return <TextCell text={count} />;
+          return <TextCell text={count} />
         },
       }),
     ],
-    [t],
-  );
-};
+    [t]
+  )
+}

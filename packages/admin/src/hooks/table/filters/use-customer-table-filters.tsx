@@ -21,15 +21,17 @@ export const useCustomerTableFilters = (
   )
 
   let filters: Filter[] = []
-
+  
   if (customer_groups && !isGroupsExcluded) {
     const customerGroupFilter: Filter = {
       key: "groups",
       label: t("customers.groups.label"),
       type: "select",
       multiple: true,
-      options: customer_groups.map((s) => ({
-        label: s.name,
+      options: customer_groups
+      .filter((s) => s?.name)
+      .map((s) => ({
+        label: s.name as string,
         value: s.id,
       })),
     }

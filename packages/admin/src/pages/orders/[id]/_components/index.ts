@@ -1,6 +1,0 @@
-export * from "./order-activity-section"
-export * from "./order-customer-section"
-export * from "./order-fulfillment-section"
-export * from "./order-general-section"
-export * from "./order-payment-section"
-export * from "./order-summary-section"

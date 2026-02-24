@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom"
+
 import { RouteFocusModal } from "@components/modals"
 import { useTaxRegion } from "@hooks/api/tax-regions"
-import { TaxRegionProvinceCreateForm } from "./_components/tax-region-province-create-form"
+import { TaxRegionProvinceCreateForm } from "@pages/settings/tax-regions/tax-region-province-create/components/tax-region-province-create-form"
 
 const TaxProvinceCreate = () => {
   const { id } = useParams()
@@ -15,7 +16,7 @@ const TaxProvinceCreate = () => {
   }
 
   return (
-    <RouteFocusModal>
+    <RouteFocusModal data-testid="tax-region-province-create-modal">
       {ready && <TaxRegionProvinceCreateForm parent={tax_region} />}
     </RouteFocusModal>
   )

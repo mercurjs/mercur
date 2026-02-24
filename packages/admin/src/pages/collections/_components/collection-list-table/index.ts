@@ -1,3 +1,2 @@
-export * from "./collection-list-table"
-export * from "./collection-list-header"
-export * from "./collection-list-data-table"
+export { CollectionListTable } from "./collection-list-table"
+export { CollectionRowActions } from "./collection-row-actions"

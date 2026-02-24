@@ -1,18 +1,20 @@
+import { useEffect } from "react";
+
 import {
   ApplicationMethodTargetTypeValues,
   HttpTypes,
   RuleTypeValues,
 } from "@medusajs/types";
 import { Input } from "@medusajs/ui";
+
 import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useEffect, useRef } from "react";
 
-import { Form } from "../../../../../../components/common/form";
-import { Combobox } from "../../../../../../components/inputs/combobox";
-import { useStore } from "../../../../../../hooks/api";
-import { useComboboxData } from "../../../../../../hooks/use-combobox-data";
-import { sdk } from "../../../../../../lib/client";
+import { Form } from "../../../../../../../../../POC PRojects/core-admin/src/components/common/form";
+import { Combobox } from "../../../../../../../../../POC PRojects/core-admin/src/components/inputs/combobox";
+import { useStore } from "../../../../../../../../../POC PRojects/core-admin/src/hooks/api";
+import { useComboboxData } from "../../../../../../../../../POC PRojects/core-admin/src/hooks/use-combobox-data";
+import { sdk } from "../../../../../../../../../POC PRojects/core-admin/src/lib/client";
 
 type RuleValueFormFieldType = {
   form: any;
@@ -62,18 +64,20 @@ export const RuleValueFormField = ({
 
   const { store, isLoading: isStoreLoading } = useStore();
 
+  const watchValue = useWatch({
+    control: form.control,
+    name: name,
+  });
+
   const comboboxData = useComboboxData({
     queryFn: async (params) => {
-      return await sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query(
+      return await sdk.admin.promotion.listRuleValues(
+        ruleType,
+        attribute?.id!,
         {
-          limit: params?.limit ?? 100,
-          offset: params?.offset ?? 0,
-          $ruleType: ruleType,
-          $ruleAttributeId: attribute?.id!,
           ...params,
           ...buildFilters(attribute?.id, store!),
-          application_method_target_type:
-            applicationMethodTargetType as ApplicationMethodTargetTypeValues,
+          application_method_target_type: applicationMethodTargetType,
         },
       );
     },
@@ -83,6 +87,8 @@ export const RuleValueFormField = ({
       !isStoreLoading,
     getOptions: (data) => data.values,
     queryKey: ["rule-value-options", ruleType, attribute?.id],
+    defaultValue: watchValue,
+    defaultValueKey: "value",
   });
 
   const watchOperator = useWatch({
@@ -90,18 +96,15 @@ export const RuleValueFormField = ({
     name: operator,
   });
 
-  const prevOperatorRef = useRef(watchOperator);
-
   useEffect(() => {
-    // Skip if operator hasn't actually changed (e.g. initial load from API).
-    // The old dirty-fields check was unreliable because `replace()` in
-    // useFieldArray marks all fields as dirty, causing values to be wiped
-    // on initial render when editing existing rules.
-    if (prevOperatorRef.current === watchOperator) {
+    const hasDirtyRules = Object.keys(form.formState.dirtyFields).length > 0;
+
+    /**
+     * Don't reset values if fileds didn't change - this is to prevent reset of form on initial render when editing an existing rule
+     */
+    if (!hasDirtyRules) {
       return;
     }
-
-    prevOperatorRef.current = watchOperator;
 
     if (watchOperator === "eq") {
       form.setValue(name, "");
@@ -110,6 +113,9 @@ export const RuleValueFormField = ({
     }
   }, [watchOperator]);
 
+  const fieldIndex = name.split(".").slice(-2, -1)[0];
+  const testIdBase = `rule-value-form-field-${ruleType}-${fieldIndex}`;
+
   return (
     <Form.Field
       key={`${identifier}.${scope}.${name}-${fieldRule.attribute}`}
@@ -117,8 +123,11 @@ export const RuleValueFormField = ({
       render={({ field: { onChange, ref, ...field } }) => {
         if (attribute?.field_type === "number") {
           return (
-            <Form.Item className="basis-1/2">
-              <Form.Control>
+            <Form.Item
+              className="basis-1/2"
+              data-testid={`${testIdBase}-number-item`}
+            >
+              <Form.Control data-testid={`${testIdBase}-number-control`}>
                 <Input
                   {...field}
                   type="number"
@@ -127,30 +136,38 @@ export const RuleValueFormField = ({
                   ref={ref}
                   min={1}
                   disabled={!fieldRule.attribute}
+                  data-testid={`${testIdBase}-number-input`}
                 />
               </Form.Control>
-              <Form.ErrorMessage />
+              <Form.ErrorMessage data-testid={`${testIdBase}-number-error`} />
             </Form.Item>
           );
         } else if (attribute?.field_type === "text") {
           return (
-            <Form.Item className="basis-1/2">
-              <Form.Control>
+            <Form.Item
+              className="basis-1/2"
+              data-testid={`${testIdBase}-text-item`}
+            >
+              <Form.Control data-testid={`${testIdBase}-text-control`}>
                 <Input
                   {...field}
                   ref={ref}
                   onChange={onChange}
                   className="bg-ui-bg-base"
                   disabled={!fieldRule.attribute}
+                  data-testid={`${testIdBase}-text-input`}
                 />
               </Form.Control>
-              <Form.ErrorMessage />
+              <Form.ErrorMessage data-testid={`${testIdBase}-text-error`} />
             </Form.Item>
           );
         } else {
           return (
-            <Form.Item className="basis-1/2">
-              <Form.Control>
+            <Form.Item
+              className="basis-1/2"
+              data-testid={`${testIdBase}-combobox-item`}
+            >
+              <Form.Control data-testid={`${testIdBase}-combobox-control`}>
                 <Combobox
                   {...field}
                   {...comboboxData}
@@ -162,9 +179,10 @@ export const RuleValueFormField = ({
                   }
                   disabled={!watchOperator}
                   onChange={onChange}
+                  data-testid={`${testIdBase}-combobox`}
                 />
               </Form.Control>
-              <Form.ErrorMessage />
+              <Form.ErrorMessage data-testid={`${testIdBase}-combobox-error`} />
             </Form.Item>
           );
         }

@@ -2,10 +2,10 @@ import { json, useParams } from "react-router-dom"
 
 import { RouteFocusModal } from "@components/modals"
 import { useStockLocation } from "@hooks/api/stock-locations"
-import { CreateServiceZoneForm } from "./_components/create-service-zone-form"
+import { CreateServiceZoneForm } from "@pages/settings/locations/location-service-zone-create/components/create-service-zone-form"
 import { FulfillmentSetType } from "@pages/settings/locations/_common/constants"
 
-function LocationCreateServiceZone() {
+const LocationCreateServiceZone = () => {
   const { fset_id, location_id } = useParams()
 
   const { stock_location, isPending, isFetching, isError, error } =
@@ -34,7 +34,7 @@ function LocationCreateServiceZone() {
   }
 
   return (
-    <RouteFocusModal prev={`/settings/locations/${location_id}`}>
+    <RouteFocusModal prev={`/settings/locations/${location_id}`} data-testid="location-service-zone-create-modal">
       {fulfillmentSet && (
         <CreateServiceZoneForm
           fulfillmentSet={fulfillmentSet}

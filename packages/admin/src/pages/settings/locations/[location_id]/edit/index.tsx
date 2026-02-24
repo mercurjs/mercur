@@ -1,9 +1,10 @@
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+
 import { RouteDrawer } from "@components/modals"
 import { useStockLocation } from "@hooks/api/stock-locations"
-import { EditLocationForm } from "./_components/edit-location-form"
+import { EditLocationForm } from "@pages/settings/locations/location-edit/components/edit-location-form"
 
 const LocationEdit = () => {
   const { t } = useTranslation()
@@ -23,9 +24,9 @@ const LocationEdit = () => {
   }
 
   return (
-    <RouteDrawer>
-      <RouteDrawer.Header>
-        <Heading className="capitalize">{t("locations.editLocation")}</Heading>
+    <RouteDrawer data-testid="location-edit-drawer">
+      <RouteDrawer.Header data-testid="location-edit-drawer-header">
+        <Heading className="capitalize" data-testid="location-edit-drawer-heading">{t("locations.editLocation")}</Heading>
       </RouteDrawer.Header>
       {ready && <EditLocationForm location={stock_location} />}
     </RouteDrawer>

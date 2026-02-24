@@ -1,11 +1,13 @@
-// Route: /promotions/create
 import { RouteFocusModal } from "@components/modals"
-import { CreatePromotionForm } from "./create-promotion-form/create-promotion-form"
 
-export const Component = () => {
+import { CreatePromotionForm } from "../promotion-create/components/create-promotion-form/create-promotion-form"
+
+const PromotionCreate = () => {
   return (
     <RouteFocusModal>
       <CreatePromotionForm />
     </RouteFocusModal>
   )
 }
+
+export const Component = PromotionCreate

@@ -1,9 +1,13 @@
-export * from "./product-additional-attribute-section"
-export * from "./product-attribute-section"
-export * from "./product-general-section"
-export * from "./product-media-section"
-export * from "./product-option-section"
-export * from "./product-organization-section"
-export * from "./product-sales-channel-section"
-export * from "./product-shipping-profile-section"
-export * from "./product-variant-section"
+export {
+  ProductDetailPage,
+  loader,
+  Breadcrumb,
+  PRODUCT_DETAIL_FIELDS,
+  type ProductDetailPageProps,
+} from "./product-detail-page"
+
+export {
+  useProductDetailContext,
+  ProductDetailProvider,
+  type ProductDetailContextValue,
+} from "./product-detail-context"

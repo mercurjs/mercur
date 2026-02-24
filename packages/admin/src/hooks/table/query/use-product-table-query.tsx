@@ -1,14 +1,18 @@
-import { HttpTypes } from "@medusajs/types"
-import { useQueryParams } from "../../use-query-params"
+import type { HttpTypes } from "@medusajs/types"
+import type { ExtendedAdminProductListParams } from "@custom-types/product"
+import { useQueryParams } from "@hooks/use-query-params"
 
 type UseProductTableQueryProps = {
   prefix?: string
   pageSize?: number
 }
 
+type ExtendedAdminProductListParams = HttpTypes.AdminProductListParams & {
+  tag_id?: string[]
+}
+
 const DEFAULT_FIELDS =
-  // TODO: Remove exclusion once we avoid including unnecessary relations by default in the query config
-  "id,title,handle,status,*collection,*sales_channels,variants.id,thumbnail,-type,-options,-tags,-images,-variants"
+  "id,title,handle,status,*collection,*sales_channels,variants.id,thumbnail"
 
 export const useProductTableQuery = ({
   prefix,
@@ -48,7 +52,7 @@ export const useProductTableQuery = ({
     q,
   } = queryObject
 
-  const searchParams: HttpTypes.AdminProductListParams = {
+  const searchParams: ExtendedAdminProductListParams = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
     sales_channel_id: sales_channel_id?.split(","),

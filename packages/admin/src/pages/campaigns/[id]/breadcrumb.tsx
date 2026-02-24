@@ -1,14 +1,16 @@
-import { HttpTypes } from "@medusajs/types";
-import { UIMatch } from "react-router-dom";
+import { HttpTypes } from "@medusajs/types"
+import { UIMatch } from "react-router-dom"
 
-import { useCampaign } from "@hooks/api/campaigns";
+import { useCampaign } from "@hooks/api"
 
-import { CAMPAIGN_DETAIL_FIELDS } from "./constants";
+import { CAMPAIGN_DETAIL_FIELDS } from "../_common/constants"
 
-type CampaignDetailBreadcrumbProps = UIMatch<HttpTypes.AdminCampaignResponse>;
+type CampaignDetailBreadcrumbProps = UIMatch<HttpTypes.AdminCampaignResponse>
 
-export const Breadcrumb = (props: CampaignDetailBreadcrumbProps) => {
-  const { id } = props.params || {};
+export const CampaignDetailBreadcrumb = (
+  props: CampaignDetailBreadcrumbProps
+) => {
+  const { id } = props.params || {}
 
   const { campaign } = useCampaign(
     id!,
@@ -18,12 +20,12 @@ export const Breadcrumb = (props: CampaignDetailBreadcrumbProps) => {
     {
       initialData: props.data,
       enabled: Boolean(id),
-    },
-  );
+    }
+  )
 
   if (!campaign) {
-    return null;
+    return null
   }
 
-  return <span>{campaign.name}</span>;
-};
+  return <span>{campaign.name}</span>
+}

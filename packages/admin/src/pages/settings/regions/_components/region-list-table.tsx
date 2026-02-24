@@ -61,16 +61,32 @@ export const RegionListTable = () => {
   }
 
   return (
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
+    <Container
+      className="divide-y p-0"
+      data-testid="region-list-table-container"
+    >
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="region-list-table-header"
+      >
         <div>
-          <Heading>{t("regions.domain")}</Heading>
-          <Text className="text-ui-fg-subtle" size="small">
+          <Heading data-testid="region-list-table-heading">
+            {t("regions.domain")}
+          </Heading>
+          <Text
+            className="text-ui-fg-subtle"
+            size="small"
+            data-testid="region-list-table-subtitle"
+          >
             {t("regions.subtitle")}
           </Text>
         </div>
         <Link to="/settings/regions/create">
-          <Button size="small" variant="secondary">
+          <Button
+            size="small"
+            variant="secondary"
+            data-testid="region-list-table-create-button"
+          >
             {t("actions.create")}
           </Button>
         </Link>
@@ -95,6 +111,7 @@ export const RegionListTable = () => {
         noRecords={{
           message: t("regions.list.noRecordsMessage"),
         }}
+        data-testid="region-list-table"
       />
     </Container>
   )
@@ -154,6 +171,7 @@ const RegionActions = ({ region }: { region: HttpTypes.AdminRegion }) => {
           ],
         },
       ]}
+      data-testid={`region-list-table-action-menu-${region.id}`}
     />
   )
 }

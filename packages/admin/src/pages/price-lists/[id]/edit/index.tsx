@@ -1,12 +1,12 @@
-// Route: /price-lists/:id/edit
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { RouteDrawer } from "@components/modals"
 import { usePriceList } from "@hooks/api/price-lists"
-import { PriceListEditForm } from "./price-list-edit-form"
 
-export const Component = () => {
+import { PriceListEditForm } from "@pages/price-lists/price-list-edit/components/price-list-edit-form"
+
+const PriceListEdit = () => {
   const { t } = useTranslation()
   const { id } = useParams()
 
@@ -27,3 +27,5 @@ export const Component = () => {
     </RouteDrawer>
   )
 }
+
+export const Component = PriceListEdit

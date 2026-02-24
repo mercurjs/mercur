@@ -1,20 +1,14 @@
-// Route: /price-lists/create
 import { RouteFocusModal } from "@components/modals"
-import { usePriceListCurrencyData } from "../common/hooks/use-price-list-currency-data"
-import { PriceListCreateForm } from "./price-list-create-form"
 
-export const Component = () => {
+import { usePriceListCurrencyData } from "@pages/price-lists/common/hooks/use-price-list-currency-data"
+import { PriceListCreateForm } from "@pages/price-lists/price-list-create/components/price-list-create-form"
+
+const PriceListCreate = () => {
   const { isReady, regions, currencies, pricePreferences } =
     usePriceListCurrencyData()
 
   return (
     <RouteFocusModal>
-      <RouteFocusModal.Title asChild>
-        <span className="sr-only">Create Price List</span>
-      </RouteFocusModal.Title>
-      <RouteFocusModal.Description className="sr-only">
-        Create a new price list with custom pricing
-      </RouteFocusModal.Description>
       {isReady && (
         <PriceListCreateForm
           regions={regions}
@@ -25,3 +19,5 @@ export const Component = () => {
     </RouteFocusModal>
   )
 }
+
+export const Component = PriceListCreate

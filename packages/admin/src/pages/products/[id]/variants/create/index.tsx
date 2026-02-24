@@ -1,8 +1,12 @@
 // Route: /products/:id/variants/create
+// Create product variant modal
+
 import { useParams } from "react-router-dom"
 import { RouteFocusModal } from "@components/modals"
 import { useProduct } from "@hooks/api/products"
-import { CreateProductVariantForm } from "./create-product-variant-form"
+
+// Import form component
+import { CreateProductVariantForm } from "./_components/create-product-variant-form"
 
 export const Component = () => {
   const { id } = useParams()

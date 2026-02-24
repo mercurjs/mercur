@@ -1,18 +1,17 @@
 import { LoaderFunctionArgs } from "react-router-dom"
 
 import { stockLocationsQueryKeys } from "@hooks/api/stock-locations"
-import { fetchQuery } from "@lib/client"
+import { sdk } from "@lib/client"
 import { queryClient } from "@lib/query-client"
-import { LOCATION_DETAILS_FIELD } from "./constants"
+import { LOCATION_DETAILS_FIELD } from "../_common/constants"
 
 const locationQuery = (id: string) => ({
   queryKey: stockLocationsQueryKeys.detail(id, {
     fields: LOCATION_DETAILS_FIELD,
   }),
   queryFn: async () =>
-    fetchQuery(`/vendor/stock-locations/${id}`, {
-      method: "GET",
-      query: { fields: LOCATION_DETAILS_FIELD },
+    sdk.admin.stockLocation.retrieve(id, {
+      fields: LOCATION_DETAILS_FIELD,
     }),
 })
 

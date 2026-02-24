@@ -1,1 +1,1 @@
-export * from "./collection-general-section"
+export { CollectionGeneralSection } from "./collection-general-section"

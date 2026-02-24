@@ -1,21 +1,22 @@
-import { useLoaderData, useParams } from "react-router-dom";
+import { useLoaderData, useParams } from "react-router-dom"
 
-import { useRegion } from "@hooks/api/regions";
-import { RegionCountrySection } from "./_components/region-country-section";
-import { RegionGeneralSection } from "./_components/region-general-section";
+import { SingleColumnPageSkeleton } from "@components/common/skeleton"
+import { SingleColumnPage } from "@components/layout/pages"
+import { usePricePreferences } from "@hooks/api/price-preferences"
+import { useRegion } from "@hooks/api/regions"
+import { useExtension } from "@providers/extension-provider"
 
-import { SingleColumnPageSkeleton } from "@components/common/skeleton";
-import { SingleColumnPage } from "@components/layout/pages";
-import { usePricePreferences } from "@hooks/api/price-preferences";
-import { REGION_DETAIL_FIELDS } from "./constants";
-
-export { regionLoader as loader } from "./loader";
-export { RegionDetailBreadcrumb as Breadcrumb } from "./breadcrumb";
+import { REGION_DETAIL_FIELDS } from "../_common/constants"
+import { RegionCountrySection } from "./_components/region-country-section"
+import { RegionGeneralSection } from "./_components/region-general-section"
+import { regionLoader } from "./loader"
 
 const RegionDetail = () => {
-  const initialData = useLoaderData() as any;
+  const initialData = useLoaderData() as Awaited<
+    ReturnType<typeof regionLoader>
+  >
 
-  const { id } = useParams();
+  const { id } = useParams()
   const {
     region,
     isPending: isLoading,
@@ -26,8 +27,8 @@ const RegionDetail = () => {
     { fields: REGION_DETAIL_FIELDS },
     {
       initialData,
-    },
-  );
+    }
+  )
 
   const {
     price_preferences: pricePreferences,
@@ -39,30 +40,42 @@ const RegionDetail = () => {
       attribute: "region_id",
       value: id,
     },
-    { enabled: !!region },
-  );
+    { enabled: !!region }
+  )
+
+  const { getWidgets } = useExtension()
 
   if (isLoading || isLoadingPreferences || !region) {
-    return <SingleColumnPageSkeleton sections={2} />;
+    return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />
   }
 
   if (isRegionError) {
-    throw regionError;
+    throw regionError
   }
 
   if (isPreferencesError) {
-    throw preferencesError;
+    throw preferencesError
   }
 
   return (
-    <SingleColumnPage data={region} showMetadata showJSON>
+    <SingleColumnPage
+      widgets={{
+        before: getWidgets("region.details.before"),
+        after: getWidgets("region.details.after"),
+      }}
+      data={region}
+      showMetadata
+      showJSON
+    >
       <RegionGeneralSection
         region={region}
         pricePreferences={pricePreferences ?? []}
       />
       <RegionCountrySection region={region} />
     </SingleColumnPage>
-  );
-};
+  )
+}
 
-export const Component = RegionDetail;
+export const Component = RegionDetail
+export { regionLoader as loader } from "./loader"
+export { RegionDetailBreadcrumb as Breadcrumb } from "./breadcrumb"

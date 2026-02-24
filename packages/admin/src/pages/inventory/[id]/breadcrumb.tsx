@@ -1,21 +1,31 @@
-import { HttpTypes } from "@medusajs/types";
-import { UIMatch } from "react-router-dom";
+import { HttpTypes } from "@medusajs/types"
+import { UIMatch } from "react-router-dom"
 
-import { useInventoryItem } from "@hooks/api/inventory";
-
-import { INVENTORY_DETAIL_FIELDS } from "./constants";
+import { useInventoryItem } from "@hooks/api"
+import { INVENTORY_DETAIL_FIELDS } from "../_common/constants"
 
 type InventoryDetailBreadcrumbProps =
-  UIMatch<HttpTypes.AdminInventoryItemResponse>;
+  UIMatch<HttpTypes.AdminInventoryItemResponse>
 
-export const Breadcrumb = (props: InventoryDetailBreadcrumbProps) => {
-  const { id } = props.params || {};
+export const InventoryDetailBreadcrumb = (
+  props: InventoryDetailBreadcrumbProps
+) => {
+  const { id } = props.params || {}
+
   const { inventory_item } = useInventoryItem(
     id!,
-    { fields: INVENTORY_DETAIL_FIELDS },
-    { initialData: props.data, enabled: Boolean(id) },
-  );
+    {
+      fields: INVENTORY_DETAIL_FIELDS,
+    },
+    {
+      initialData: props.data,
+      enabled: Boolean(id),
+    }
+  )
 
-  if (!inventory_item) return null;
-  return <span>{inventory_item.title ?? inventory_item.sku ?? id}</span>;
-};
+  if (!inventory_item) {
+    return null
+  }
+
+  return <span>{inventory_item.title ?? inventory_item.sku ?? id}</span>
+}

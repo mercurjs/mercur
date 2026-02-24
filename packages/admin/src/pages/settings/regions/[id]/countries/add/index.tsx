@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom"
+
 import { RouteFocusModal } from "@components/modals"
 import { useRegion } from "@hooks/api/regions"
+
 import { AddCountriesForm } from "./_components/add-countries-form"
 
 const RegionAddCountries = () => {
@@ -20,7 +22,7 @@ const RegionAddCountries = () => {
   }
 
   return (
-    <RouteFocusModal>
+    <RouteFocusModal data-testid="region-add-countries-modal">
       {!isLoading && region && <AddCountriesForm region={region} />}
     </RouteFocusModal>
   )

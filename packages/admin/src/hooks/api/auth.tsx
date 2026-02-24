@@ -1,157 +1,75 @@
-import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client";
-import { UseMutationOptions, useMutation } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import { FetchError } from "@medusajs/js-sdk"
+import { HttpTypes } from "@medusajs/types"
+import { UseMutationOptions, useMutation } from "@tanstack/react-query"
+import { sdk } from "../../lib/client"
 
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.$actorType.$authProvider.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.auth.$actorType.$authProvider.mutate>,
-      "$actorType" | "$authProvider"
-    >
-  >,
+    | string
+    | {
+        location: string
+      },
+    FetchError,
+    HttpTypes.AdminSignUpWithEmailPassword
+  >
 ) => {
   return useMutation({
-    mutationFn: async (payload) => {
-      const data = (await sdk.auth.$actorType.$authProvider.mutate({
-        $actorType: "seller",
-        $authProvider: "emailpass",
-        ...payload,
-      })) as { token: string };
-
-      await sdk.auth.session.mutate({
-        fetchOptions: {
-          headers: {
-            Authorization: `Bearer ${data.token}`,
-          },
-        },
-      });
-
-      return data;
-    },
+    mutationFn: (payload) => sdk.auth.login("user", "emailpass", payload),
     onSuccess: async (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useSignUpWithEmailPass = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.$actorType.$authProvider.register.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<
-        typeof sdk.auth.$actorType.$authProvider.register.mutate
-      >,
-      "$actorType" | "$authProvider"
-    >
-  >,
+    string,
+    FetchError,
+    HttpTypes.AdminSignInWithEmailPassword
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.auth.$actorType.$authProvider.register.mutate({
-        $actorType: "seller",
-        $authProvider: "emailpass",
-        ...payload,
-      }),
+    mutationFn: (payload) => sdk.auth.register("user", "emailpass", payload),
     onSuccess: async (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
-
-export const useSignUpForInvite = (
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.$actorType.$authProvider.register.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<
-        typeof sdk.auth.$actorType.$authProvider.register.mutate
-      >,
-      "$actorType" | "$authProvider"
-    >
-  >,
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.auth.$actorType.$authProvider.register.mutate({
-        $actorType: "seller",
-        $authProvider: "emailpass",
-        ...payload,
-      }),
-    ...options,
-  });
-};
+  })
+}
 
 export const useResetPasswordForEmailPass = (
-  options?: UseMutationOptions<
-    InferClientOutput<
-      typeof sdk.auth.$actorType.$authProvider.resetPassword.mutate
-    >,
-    ClientError,
-    { email: string }
-  >,
+  options?: UseMutationOptions<void, FetchError, { email: string }>
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.auth.$actorType.$authProvider.resetPassword.mutate({
-        $actorType: "seller",
-        $authProvider: "emailpass",
+      sdk.auth.resetPassword("user", "emailpass", {
         identifier: payload.email,
-        metadata: {},
       }),
     onSuccess: async (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
-export const useLogout = (
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.session.delete>,
-    ClientError
-  >,
-) => {
+export const useLogout = (options?: UseMutationOptions<void, FetchError>) => {
   return useMutation({
-    mutationFn: () => sdk.auth.session.delete({}),
+    mutationFn: () => sdk.auth.logout(),
     ...options,
-  });
-};
+  })
+}
 
 export const useUpdateProviderForEmailPass = (
   token: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.$actorType.$authProvider.update.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.auth.$actorType.$authProvider.update.mutate>,
-      "$actorType" | "$authProvider"
-    >
-  >,
+  options?: UseMutationOptions<void, FetchError, HttpTypes.AdminUpdateProvider>
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.auth.$actorType.$authProvider.update.mutate({
-        $actorType: "seller",
-        $authProvider: "emailpass",
-        ...payload,
-        fetchOptions: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      }),
+      sdk.auth.updateProvider("user", "emailpass", payload, token),
     onSuccess: async (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}

@@ -1,49 +1,39 @@
-// Route: /reservations/:id
-import { useParams } from "react-router-dom"
-import { HttpTypes } from "@medusajs/types"
-import { UIMatch } from "react-router-dom"
+import { useLoaderData, useParams } from "react-router-dom"
+
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
-import { useDashboardExtension } from "@/extensions"
-import { useReservationItem } from "@hooks/api/reservations"
 import { useInventoryItem } from "@hooks/api"
+import { useReservationItem } from "@hooks/api/reservations"
+import { useExtension } from "@providers/extension-provider"
+
+import { InventoryItemGeneralSection } from "@pages/inventory/inventory-detail/components/inventory-item-general-section"
+
 import { ReservationGeneralSection } from "./_components/reservation-general-section"
-import { InventoryItemGeneralSection } from "../../inventory/[id]/_components/inventory-item-general-section"
+import { reservationItemLoader } from "./loader"
 
-type ReservationDetailBreadcrumbProps =
-  UIMatch<HttpTypes.AdminReservationResponse>
-
-export const Breadcrumb = (props: ReservationDetailBreadcrumbProps) => {
-  const { id } = props.params || {}
-
-  const { reservation } = useReservationItem(id!, undefined, {
-    enabled: Boolean(id),
-  })
-
-  if (!reservation) {
-    return null
-  }
-
-  const display =
-    reservation?.inventory_item?.title ??
-    reservation?.inventory_item?.sku ??
-    reservation.id
-
-  return <span>{display}</span>
-}
-
-export const Component = () => {
+const ReservationDetail = () => {
   const { id } = useParams()
 
-  const { reservation, isLoading } = useReservationItem(id!)
+  const initialData = useLoaderData() as Awaited<
+    ReturnType<typeof reservationItemLoader>
+  >
+
+  const { reservation, isLoading, isError, error } = useReservationItem(
+    id!,
+    undefined,
+    {
+      initialData,
+    }
+  )
 
   // TEMP: fetch directly since the fields are not populated with reservation call
   const { inventory_item } = useInventoryItem(
     reservation?.inventory_item?.id!,
-    { fields: "*location_levels" }
+    undefined,
+    { enabled: !!reservation?.inventory_item?.id! }
   )
 
-  const { getWidgets } = useDashboardExtension()
+  const { getWidgets } = useExtension()
 
   if (isLoading || !reservation) {
     return (
@@ -56,6 +46,10 @@ export const Component = () => {
     )
   }
 
+  if (isError) {
+    throw error
+  }
+
   return (
     <TwoColumnPage
       widgets={{
@@ -65,15 +59,21 @@ export const Component = () => {
         sideAfter: getWidgets("reservation.details.side.after"),
       }}
       data={reservation}
+      showJSON
+      showMetadata
     >
       <TwoColumnPage.Main>
         <ReservationGeneralSection reservation={reservation} />
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
         {inventory_item && (
-          <InventoryItemGeneralSection inventoryItem={inventory_item!} />
+          <InventoryItemGeneralSection inventoryItem={inventory_item} />
         )}
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   )
 }
+
+export const Component = ReservationDetail
+export { reservationItemLoader as loader } from "./loader"
+export { ReservationDetailBreadcrumb as Breadcrumb } from "./breadcrumb"

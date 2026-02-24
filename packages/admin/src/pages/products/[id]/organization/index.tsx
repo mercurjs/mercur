@@ -5,14 +5,15 @@ import { useParams } from "react-router-dom"
 
 import { RouteDrawer } from "@components/modals"
 import { useProduct } from "@hooks/api/products"
-import { ProductOrganizationForm } from "./product-organization-form"
+import { PRODUCT_DETAIL_FIELDS } from "@pages/products/common/constants"
+import { ProductOrganizationForm } from "./_components/product-organization-form"
 
 export const Component = () => {
   const { id } = useParams()
   const { t } = useTranslation()
 
   const { product, isLoading, isError, error } = useProduct(id!, {
-    fields: "*categories",
+    fields: PRODUCT_DETAIL_FIELDS,
   })
 
   if (isError) {
@@ -20,10 +21,10 @@ export const Component = () => {
   }
 
   return (
-    <RouteDrawer>
-      <RouteDrawer.Header>
-        <RouteDrawer.Title asChild>
-          <Heading>{t("products.organization.edit.header")}</Heading>
+    <RouteDrawer data-testid="product-organization-drawer">
+      <RouteDrawer.Header data-testid="product-organization-drawer-header">
+        <RouteDrawer.Title asChild data-testid="product-organization-drawer-title">
+          <Heading data-testid="product-organization-drawer-title-text">{t("products.organization.edit.header")}</Heading>
         </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isLoading && product && <ProductOrganizationForm product={product} />}

@@ -1,1 +1,0 @@
-export { ProductAdditionalAttributesSection } from "./ProductAdditionalAttributesSection"

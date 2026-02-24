@@ -1,6 +1,5 @@
-// Route: /collections/create
 import { RouteFocusModal } from "@components/modals"
-import { CreateCollectionForm } from "./create-collection-form"
+import { CreateCollectionForm } from "./_components/create-collection-form"
 
 export const Component = () => {
   return (

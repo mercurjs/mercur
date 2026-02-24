@@ -1,128 +1,130 @@
-import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client";
-import {
+import type { FetchError } from "@medusajs/js-sdk"
+import type { HttpTypes } from "@medusajs/types"
+import type {
+  QueryKey,
   UseMutationOptions,
-  UseQueryOptions,
+  UseQueryOptions} from "@tanstack/react-query";
+import {
   useMutation,
   useQuery,
-} from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
-import { queryClient } from "../../lib/query-client";
-import { queryKeysFactory } from "../../lib/query-key-factory";
-import { taxRegionsQueryKeys } from "./tax-regions";
+} from "@tanstack/react-query"
 
-const TAX_RATES_QUERY_KEY = "tax_rates" as const;
-export const taxRatesQueryKeys = queryKeysFactory(TAX_RATES_QUERY_KEY);
+import { taxRegionsQueryKeys } from "./tax-regions"
+import type { ExtendedAdminTaxRateResponse } from "@custom-types/tax-rates"
+import { queryKeysFactory } from "@lib/query-key-factory";
+import { sdk } from "@lib/client";
+import { queryClient } from "@lib/query-client";
+
+const TAX_RATES_QUERY_KEY = "tax_rates" as const
+export const taxRatesQueryKeys = queryKeysFactory(TAX_RATES_QUERY_KEY)
 
 export const useTaxRate = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.vendor.taxRates.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.taxRates.$id.query>
+  query?: Record<string, unknown>,
+  options?: Omit<
+    UseQueryOptions<
+      ExtendedAdminTaxRateResponse,
+      FetchError,
+      ExtendedAdminTaxRateResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: taxRatesQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.taxRates.$id.query({ $id: id, ...query }),
+    queryFn: async () => sdk.admin.taxRate.retrieve(id, query) as Promise<ExtendedAdminTaxRateResponse>,
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useTaxRates = (
-  query?: InferClientInput<typeof sdk.vendor.taxRates.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.taxRates.query>
+  query?: Record<string, unknown>,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminTaxRateListResponse,
+      FetchError,
+      HttpTypes.AdminTaxRateListResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.taxRates.query({ ...query }),
+    queryFn: () => sdk.admin.taxRate.list(query),
     queryKey: taxRatesQueryKeys.list(query),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useUpdateTaxRate = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.taxRates.$id.mutate>,
-    ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.taxRates.$id.mutate>, "$id">
+    HttpTypes.AdminTaxRateResponse,
+    FetchError,
+    HttpTypes.AdminUpdateTaxRate
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.taxRates.$id.mutate({ $id: id, ...payload }),
+    mutationFn: (payload) => sdk.admin.taxRate.update(id, payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: taxRatesQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: taxRatesQueryKeys.lists() })
       queryClient.invalidateQueries({
         queryKey: taxRatesQueryKeys.detail(id),
-      });
+      })
 
-      queryClient.invalidateQueries({
-        queryKey: taxRegionsQueryKeys.details(),
-      });
+      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.details() })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useCreateTaxRate = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.taxRates.mutate>,
-    ClientError,
-    InferClientInput<typeof sdk.vendor.taxRates.mutate>
+    HttpTypes.AdminTaxRateResponse,
+    FetchError,
+    HttpTypes.AdminCreateTaxRate
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.vendor.taxRates.mutate(payload),
+    mutationFn: (payload) => sdk.admin.taxRate.create(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: taxRatesQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: taxRatesQueryKeys.lists() })
 
-      queryClient.invalidateQueries({
-        queryKey: taxRegionsQueryKeys.details(),
-      });
+      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.details() })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useDeleteTaxRate = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.taxRates.$id.delete>,
-    ClientError,
+    HttpTypes.AdminTaxRateDeleteResponse,
+    FetchError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.taxRates.$id.delete({ $id: id }),
+    mutationFn: () => sdk.admin.taxRate.delete(id),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: taxRatesQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: taxRatesQueryKeys.lists() })
       queryClient.invalidateQueries({
         queryKey: taxRatesQueryKeys.detail(id),
-      });
+      })
 
-      queryClient.invalidateQueries({
-        queryKey: taxRegionsQueryKeys.details(),
-      });
+      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.details() })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}

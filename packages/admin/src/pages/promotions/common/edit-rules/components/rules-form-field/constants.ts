@@ -1,6 +1,4 @@
-import { ExtendedPromotionRule } from "@custom-types/promotion"
-
-export const requiredProductRule: ExtendedPromotionRule = {
+export const requiredProductRule = {
   id: "product",
   attribute: "items.product.id",
   attribute_label: "Product",

@@ -1,12 +1,10 @@
 import { RouteFocusModal } from "@components/modals"
 import { CreateProductTypeForm } from "./_components/create-product-type-form"
 
-const ProductTypeCreate = () => {
+export const Component = () => {
   return (
-    <RouteFocusModal>
+    <RouteFocusModal data-testid="product-type-create-modal">
       <CreateProductTypeForm />
     </RouteFocusModal>
   )
 }
-
-export const Component = ProductTypeCreate

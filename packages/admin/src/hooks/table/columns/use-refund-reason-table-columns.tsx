@@ -1,13 +1,16 @@
-import { HttpTypes } from "@medusajs/types"
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
-import { createDataTableColumnHelper } from "@medusajs/ui"
-import { DescriptionCell } from "../../../components/table/table-cells/sales-channel/description-cell"
+import { useMemo } from "react";
 
-const columnHelper = createDataTableColumnHelper<HttpTypes.AdminRefundReason>()
+import { createDataTableColumnHelper } from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
+
+import { DescriptionCell } from "../../../components/table/table-cells/sales-channel/description-cell";
+import { AdminRefundReason } from "../../../types/refund-reasons/common";
+
+const columnHelper = createDataTableColumnHelper<AdminRefundReason>();
 
 export const useRefundReasonTableColumns = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -34,6 +37,6 @@ export const useRefundReasonTableColumns = () => {
         sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
       }),
     ],
-    [t]
-  )
-}
+    [t],
+  );
+};

@@ -1,210 +1,154 @@
+import { FetchError } from "@medusajs/js-sdk"
+import { HttpTypes } from "@medusajs/types"
 import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client";
-import {
-  InfiniteData,
   QueryKey,
-  UseInfiniteQueryOptions,
   UseMutationOptions,
-  UseMutationResult,
   UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
-import { queryClient } from "../../lib/query-client";
-import { queryKeysFactory } from "../../lib/query-key-factory";
-import { productsQueryKeys } from "./products";
-import { useInfiniteList } from "../use-infinite-list";
-import { AdminProductCategoryResponse, HttpTypes } from "@mercurjs/types";
+} from "@tanstack/react-query"
+import { sdk } from "../../lib/client"
+import { queryClient } from "../../lib/query-client"
+import { queryKeysFactory } from "../../lib/query-key-factory"
+import { productsQueryKeys } from "./products"
 
-const CATEGORIES_QUERY_KEY = "categories" as const;
-export const categoriesQueryKeys = queryKeysFactory(CATEGORIES_QUERY_KEY);
+const CATEGORIES_QUERY_KEY = "categories" as const
+export const categoriesQueryKeys = queryKeysFactory(CATEGORIES_QUERY_KEY)
 
 export const useProductCategory = (
   id: string,
-  query?: Omit<
-    InferClientInput<typeof sdk.vendor.productCategories.$id.query>,
-    "$id"
-  >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.productCategories.$id.query>
-  >,
+  query?: HttpTypes.AdminProductCategoryParams,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminProductCategoryResponse,
+      FetchError,
+      HttpTypes.AdminProductCategoryResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
+  >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: categoriesQueryKeys.detail(id, query),
-    queryFn: () =>
-      sdk.vendor.productCategories.$id.query({ $id: id, ...query }),
+    queryFn: () => sdk.admin.productCategory.retrieve(id, query),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useProductCategories = (
-  query?: InferClientInput<typeof sdk.vendor.productCategories.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.productCategories.query>
-  >,
+  query?: HttpTypes.AdminProductCategoryListParams,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminProductCategoryListResponse,
+      FetchError,
+      HttpTypes.AdminProductCategoryListResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
+  >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: categoriesQueryKeys.list(query),
-    queryFn: () => sdk.vendor.productCategories.query({ ...query }),
+    queryFn: () => sdk.admin.productCategory.list(query),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
-
-export const useInfiniteCategories = (
-  query?: Omit<
-    InferClientInput<typeof sdk.vendor.productCategories.query>,
-    "offset" | "limit"
-  > & {
-    limit?: number;
-  },
-  options?: Omit<
-    UseInfiniteQueryOptions<
-      InferClientOutput<typeof sdk.vendor.productCategories.query>,
-      ClientError,
-      InfiniteData<
-        InferClientOutput<typeof sdk.vendor.productCategories.query>,
-        number
-      >,
-      InferClientOutput<typeof sdk.vendor.productCategories.query>,
-      QueryKey,
-      number
-    >,
-    "queryFn" | "queryKey" | "initialPageParam" | "getNextPageParam"
-  >,
-) => {
-  return useInfiniteList({
-    queryKey: (params) => categoriesQueryKeys.list(params),
-    queryFn: (params) => sdk.vendor.productCategories.query(params),
-    query,
-    options,
-  });
-};
+  return { ...data, ...rest }
+}
 
 export const useCreateProductCategory = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.productCategories.mutate>,
-    ClientError,
-    InferClientInput<typeof sdk.vendor.productCategories.mutate>
-  >,
+    HttpTypes.AdminProductCategoryResponse,
+    FetchError,
+    HttpTypes.AdminCreateProductCategory
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.vendor.productCategories.mutate(payload),
+    mutationFn: (payload) => sdk.admin.productCategory.create(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: categoriesQueryKeys.lists(),
-      });
+      queryClient.invalidateQueries({ queryKey: categoriesQueryKeys.lists() })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useUpdateProductCategory = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.productCategories.$id.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.vendor.productCategories.$id.mutate>,
-      "$id"
-    >
-  >,
+    HttpTypes.AdminProductCategoryResponse,
+    FetchError,
+    HttpTypes.AdminUpdateProductCategory
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.productCategories.$id.mutate({ $id: id, ...payload }),
+    mutationFn: (payload) => sdk.admin.productCategory.update(id, payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: categoriesQueryKeys.lists(),
-      });
+      queryClient.invalidateQueries({ queryKey: categoriesQueryKeys.lists() })
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.detail(id),
-      });
+      })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useDeleteProductCategory = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.productCategories.$id.delete>,
-    ClientError,
+    HttpTypes.AdminProductCategoryDeleteResponse,
+    FetchError,
     void
-  >,
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.productCategories.$id.delete({ $id: id }),
+    mutationFn: () => sdk.admin.productCategory.delete(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.detail(id),
-      });
-      queryClient.invalidateQueries({
-        queryKey: categoriesQueryKeys.lists(),
-      });
+      })
+      queryClient.invalidateQueries({ queryKey: categoriesQueryKeys.lists() })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
-type UseUpdateProductCategoryProducts = (
+export const useUpdateProductCategoryProducts = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.productCategories.$id.products.mutate>,
-    ClientError,
-    Omit<AdminProductCategoryResponse, "$id">
-  >,
-) => UseMutationResult<
-  InferClientOutput<typeof sdk.vendor.productCategories.$id.products.mutate>,
-  ClientError,
-  Omit<AdminProductCategoryResponse, "$id">
->;
+    HttpTypes.AdminProductCategoryResponse,
+    FetchError,
+    HttpTypes.AdminUpdateProductCategoryProducts
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.productCategory.updateProducts(id, payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: categoriesQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueryKeys.details(),
+      })
+      /**
+       * Invalidate products list query to ensure that the products collections are updated.
+       */
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.lists(),
+      })
 
-export const useUpdateProductCategoryProducts: UseUpdateProductCategoryProducts =
-  (id, options) => {
-    return useMutation({
-      mutationFn: (payload) =>
-        sdk.vendor.productCategories.$id.products.mutate({
-          $id: id,
-          ...payload,
-        }),
-      onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries({
-          queryKey: categoriesQueryKeys.lists(),
-        });
-        queryClient.invalidateQueries({
-          queryKey: categoriesQueryKeys.details(),
-        });
-        /**
-         * Invalidate products list query to ensure that the products collections are updated.
-         */
-        queryClient.invalidateQueries({
-          queryKey: productsQueryKeys.lists(),
-        });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.details(),
+      })
 
-        queryClient.invalidateQueries({
-          queryKey: productsQueryKeys.details(),
-        });
-
-        options?.onSuccess?.(data, variables, context);
-      },
-      ...options,
-    });
-  };
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}

@@ -36,10 +36,6 @@ export const useProductTableFilters = (
     offset: 0,
   })
 
-  // const { product_tags } = useAdminProductTags({
-  //   limit: 1000,
-  //   offset: 0,
-  // })
 
   const isSalesChannelExcluded = exclude?.includes("sales_channel_id")
 
@@ -53,7 +49,8 @@ export const useProductTableFilters = (
     }
   )
 
-  const isCategoryExcluded = exclude?.includes("categories")
+  // Commented out as it's not used yet. Seems it might be helpful in future
+  // const isCategoryExcluded = exclude?.includes("categories")
 
   // const { product_categories } = useAdminProductCategories({
   //   limit: 1000,
@@ -64,7 +61,7 @@ export const useProductTableFilters = (
   //  enabled: !isCategoryExcluded,
   // })
 
-  const isCollectionExcluded = exclude?.includes("collections")
+  // const isCollectionExcluded = exclude?.includes("collections")
 
   // const { collections } = useAdminCollections(
   //   {
@@ -126,6 +123,7 @@ export const useProductTableFilters = (
     filters = [...filters, salesChannelFilter]
   }
 
+  // Commented out as it's not used yet. Seems it might be helpful in future
   // if (product_categories) {
   //   const categoryFilter: Filter = {
   //     key: "category_id",

@@ -1,9 +1,10 @@
 import { RouteFocusModal } from "@components/modals"
-import { CreateLocationForm } from "./_components/create-location-form"
+
+import { CreateLocationForm } from "@pages/settings/locations/location-create/components/create-location-form"
 
 const LocationCreate = () => {
   return (
-    <RouteFocusModal>
+    <RouteFocusModal data-testid="location-create-modal">
       <CreateLocationForm />
     </RouteFocusModal>
   )

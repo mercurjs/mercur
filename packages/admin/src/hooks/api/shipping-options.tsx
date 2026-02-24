@@ -1,128 +1,128 @@
 import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client";
-import {
-  UseMutationOptions,
-  UseQueryOptions,
+  QueryKey,
   useMutation,
+  UseMutationOptions,
   useQuery,
-} from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
-import { queryClient } from "../../lib/query-client";
-import { queryKeysFactory } from "../../lib/query-key-factory";
-import { stockLocationsQueryKeys } from "./stock-locations";
+  UseQueryOptions,
+} from "@tanstack/react-query"
 
-const SHIPPING_OPTIONS_QUERY_KEY = "shipping_options" as const;
+import { FetchError } from "@medusajs/js-sdk"
+import { HttpTypes } from "@medusajs/types"
+import { sdk } from "../../lib/client"
+import { queryClient } from "../../lib/query-client"
+import { queryKeysFactory } from "../../lib/query-key-factory"
+import { stockLocationsQueryKeys } from "./stock-locations"
+
+const SHIPPING_OPTIONS_QUERY_KEY = "shipping_options" as const
 export const shippingOptionsQueryKeys = queryKeysFactory(
   SHIPPING_OPTIONS_QUERY_KEY
-);
+)
 
 export const useShippingOption = (
   id: string,
-  query?: Omit<
-    InferClientInput<typeof sdk.vendor.shippingOptions.$id.query>,
-      "$id"
-  >,
+  query?: Record<string, unknown>,
   options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.shippingOptions.$id.query>
+    HttpTypes.AdminShippingOptionResponse,
+    Error,
+    HttpTypes.AdminShippingOptionResponse,
+    QueryKey
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.shippingOptions.$id.query({ $id: id, ...query }),
+    queryFn: () => sdk.admin.shippingOption.retrieve(id, query),
     queryKey: shippingOptionsQueryKeys.detail(id),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useShippingOptions = (
-  query?: InferClientInput<typeof sdk.vendor.shippingOptions.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.shippingOptions.query>
+  query?: HttpTypes.AdminShippingOptionListParams,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminShippingOptionListResponse,
+      FetchError,
+      HttpTypes.AdminShippingOptionListResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.shippingOptions.query({ ...query }),
+    queryFn: () => sdk.admin.shippingOption.list(query),
     queryKey: shippingOptionsQueryKeys.list(query),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useCreateShippingOptions = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.shippingOptions.mutate>,
-    ClientError,
-    InferClientInput<typeof sdk.vendor.shippingOptions.mutate>
+    HttpTypes.AdminShippingOptionResponse,
+    FetchError,
+    HttpTypes.AdminCreateShippingOption
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.vendor.shippingOptions.mutate(payload),
+    mutationFn: (payload) => sdk.admin.shippingOption.create(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: shippingOptionsQueryKeys.all,
-      });
-      options?.onSuccess?.(data, variables, context);
+      })
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useUpdateShippingOptions = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.shippingOptions.$id.mutate>,
-    ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.shippingOptions.$id.mutate>, "$id">
+    HttpTypes.AdminShippingOptionResponse,
+    FetchError,
+    HttpTypes.AdminUpdateShippingOption
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.shippingOptions.$id.mutate({ $id: id, ...payload }),
+    mutationFn: (payload) => sdk.admin.shippingOption.update(id, payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: shippingOptionsQueryKeys.all,
-      });
-      options?.onSuccess?.(data, variables, context);
+      })
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useDeleteShippingOption = (
-  id: string,
+  optionId: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.shippingOptions.$id.delete>,
-    ClientError,
+    HttpTypes.AdminShippingOptionDeleteResponse,
+    FetchError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.shippingOptions.$id.delete({ $id: id }),
+    mutationFn: () => sdk.admin.shippingOption.delete(optionId),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: shippingOptionsQueryKeys.all,
-      });
+      })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}

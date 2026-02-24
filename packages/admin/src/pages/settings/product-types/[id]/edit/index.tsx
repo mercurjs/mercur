@@ -5,7 +5,7 @@ import { RouteDrawer } from "@components/modals"
 import { useProductType } from "@hooks/api/product-types"
 import { EditProductTypeForm } from "./_components/edit-product-type-form"
 
-const ProductTypeEdit = () => {
+export const Component = () => {
   const { id } = useParams()
   const { t } = useTranslation()
 
@@ -18,13 +18,11 @@ const ProductTypeEdit = () => {
   }
 
   return (
-    <RouteDrawer>
-      <RouteDrawer.Header>
-        <Heading>{t("productTypes.edit.header")}</Heading>
+    <RouteDrawer data-testid="product-type-edit-drawer">
+      <RouteDrawer.Header data-testid="product-type-edit-drawer-header">
+        <Heading data-testid="product-type-edit-drawer-heading">{t("productTypes.edit.header")}</Heading>
       </RouteDrawer.Header>
       {ready && <EditProductTypeForm productType={product_type} />}
     </RouteDrawer>
   )
 }
-
-export const Component = ProductTypeEdit

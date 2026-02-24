@@ -54,28 +54,35 @@ export const ReturnReasonEditForm = ({
   })
 
   return (
-    <RouteDrawer.Form form={form}>
+    <RouteDrawer.Form form={form} data-testid="return-reason-edit-form">
       <KeyboundForm
         className="flex size-full flex-col overflow-hidden"
         onSubmit={handleSubmit}
       >
-        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-4 overflow-auto">
+        <RouteDrawer.Body
+          className="flex flex-1 flex-col gap-y-4 overflow-auto"
+          data-testid="return-reason-edit-form-body"
+        >
           <Form.Field
             control={form.control}
             name="value"
             render={({ field }) => {
               return (
-                <Form.Item>
-                  <Form.Label tooltip={t("returnReasons.fields.value.tooltip")}>
+                <Form.Item data-testid="return-reason-edit-form-value-item">
+                  <Form.Label
+                    tooltip={t("returnReasons.fields.value.tooltip")}
+                    data-testid="return-reason-edit-form-value-label"
+                  >
                     {t("returnReasons.fields.value.label")}
                   </Form.Label>
-                  <Form.Control>
+                  <Form.Control data-testid="return-reason-edit-form-value-control">
                     <Input
                       {...field}
                       placeholder={t("returnReasons.fields.value.placeholder")}
+                      data-testid="return-reason-edit-form-value-input"
                     />
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="return-reason-edit-form-value-error" />
                 </Form.Item>
               )
             }}
@@ -85,17 +92,18 @@ export const ReturnReasonEditForm = ({
             name="label"
             render={({ field }) => {
               return (
-                <Form.Item>
-                  <Form.Label>
+                <Form.Item data-testid="return-reason-edit-form-label-item">
+                  <Form.Label data-testid="return-reason-edit-form-label-label">
                     {t("returnReasons.fields.label.label")}
                   </Form.Label>
-                  <Form.Control>
+                  <Form.Control data-testid="return-reason-edit-form-label-control">
                     <Input
                       {...field}
                       placeholder={t("returnReasons.fields.label.placeholder")}
+                      data-testid="return-reason-edit-form-label-input"
                     />
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="return-reason-edit-form-label-error" />
                 </Form.Item>
               )
             }}
@@ -105,32 +113,46 @@ export const ReturnReasonEditForm = ({
             name="description"
             render={({ field }) => {
               return (
-                <Form.Item>
-                  <Form.Label optional>
+                <Form.Item data-testid="return-reason-edit-form-description-item">
+                  <Form.Label
+                    optional
+                    data-testid="return-reason-edit-form-description-label"
+                  >
                     {t("returnReasons.fields.description.label")}
                   </Form.Label>
-                  <Form.Control>
+                  <Form.Control data-testid="return-reason-edit-form-description-control">
                     <Textarea
                       {...field}
                       placeholder={t(
                         "returnReasons.fields.description.placeholder"
                       )}
+                      data-testid="return-reason-edit-form-description-input"
                     />
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="return-reason-edit-form-description-error" />
                 </Form.Item>
               )
             }}
           />
         </RouteDrawer.Body>
-        <RouteDrawer.Footer>
+        <RouteDrawer.Footer data-testid="return-reason-edit-form-footer">
           <div className="flex items-center justify-end gap-x-2">
             <RouteDrawer.Close asChild>
-              <Button variant="secondary" size="small" type="button">
+              <Button
+                variant="secondary"
+                size="small"
+                type="button"
+                data-testid="return-reason-edit-form-cancel-button"
+              >
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button size="small" type="submit" isLoading={isPending}>
+            <Button
+              size="small"
+              type="submit"
+              isLoading={isPending}
+              data-testid="return-reason-edit-form-save-button"
+            >
               {t("actions.save")}
             </Button>
           </div>

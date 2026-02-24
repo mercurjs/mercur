@@ -7,10 +7,10 @@ import {
   isProvinceInCountry,
 } from "@lib/data/country-states"
 
-type TaxRegionDetailBreadcrumbProps = UIMatch<HttpTypes.AdminTaxRegionResponse>
+type TaxRegionProvinceBreadcrumbProps = UIMatch<HttpTypes.AdminTaxRegionResponse>
 
-export const TaxRegionDetailBreadcrumb = (
-  props: TaxRegionDetailBreadcrumbProps
+export const TaxRegionProvinceBreadcrumb = (
+  props: TaxRegionProvinceBreadcrumbProps
 ) => {
   const { province_id } = props.params || {}
 

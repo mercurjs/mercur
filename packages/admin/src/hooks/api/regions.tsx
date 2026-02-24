@@ -1,126 +1,131 @@
+import { HttpTypes, PaginatedResponse } from "@medusajs/types"
 import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client";
-import {
+  QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
-import { queryClient } from "../../lib/query-client";
-import { queryKeysFactory } from "../../lib/query-key-factory";
-import { pricePreferencesQueryKeys } from "./price-preferences";
+} from "@tanstack/react-query"
+import { sdk } from "../../lib/client"
+import { queryClient } from "../../lib/query-client"
+import { queryKeysFactory } from "../../lib/query-key-factory"
+import { pricePreferencesQueryKeys } from "./price-preferences"
+import { FetchError } from "@medusajs/js-sdk"
 
-const REGIONS_QUERY_KEY = "regions" as const;
-export const regionsQueryKeys = queryKeysFactory(REGIONS_QUERY_KEY);
+const REGIONS_QUERY_KEY = "regions" as const
+export const regionsQueryKeys = queryKeysFactory(REGIONS_QUERY_KEY)
 
 export const useRegion = (
   id: string,
-  query?: Omit<InferClientInput<typeof sdk.vendor.regions.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.regions.$id.query>
+  query?: Record<string, any>,
+  options?: Omit<
+    UseQueryOptions<
+      { region: HttpTypes.AdminRegion },
+      FetchError,
+      { region: HttpTypes.AdminRegion },
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: regionsQueryKeys.detail(id, query),
-    queryFn: async () => sdk.vendor.regions.$id.query({ $id: id, ...query }),
+    queryFn: async () => sdk.admin.region.retrieve(id, query),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useRegions = (
-  query?: InferClientInput<typeof sdk.vendor.regions.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.regions.query>
+  query?: Record<string, any>,
+  options?: Omit<
+    UseQueryOptions<
+      PaginatedResponse<{ regions: HttpTypes.AdminRegion[] }>,
+      FetchError,
+      PaginatedResponse<{ regions: HttpTypes.AdminRegion[] }>,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.regions.query({ ...query }),
+    queryFn: () => sdk.admin.region.list(query),
     queryKey: regionsQueryKeys.list(query),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useCreateRegion = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.regions.mutate>,
-    ClientError,
-    InferClientInput<typeof sdk.vendor.regions.mutate>
+    { region: HttpTypes.AdminRegion },
+    FetchError,
+    HttpTypes.AdminCreateRegion
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.vendor.regions.mutate(payload),
+    mutationFn: (payload) => sdk.admin.region.create(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() })
 
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.list(),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.details(),
-      });
+      })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useUpdateRegion = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.regions.$id.mutate>,
-    ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.regions.$id.mutate>, "$id">
+    { region: HttpTypes.AdminRegion },
+    FetchError,
+    HttpTypes.AdminUpdateRegion
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.regions.$id.mutate({ $id: id, ...payload }),
+    mutationFn: (payload) => sdk.admin.region.update(id, payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.details() });
+      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.details() })
 
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.list(),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.details(),
-      });
+      })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useDeleteRegion = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.regions.$id.delete>,
-    ClientError,
+    HttpTypes.AdminRegionDeleteResponse,
+    FetchError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.regions.$id.delete({ $id: id }),
+    mutationFn: () => sdk.admin.region.delete(id),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.detail(id) })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}

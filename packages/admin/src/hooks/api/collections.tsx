@@ -1,158 +1,149 @@
+import { FetchError } from "@medusajs/js-sdk"
+import { FindParams, HttpTypes, PaginatedResponse } from "@medusajs/types"
 import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client";
-import {
-  InfiniteData,
   QueryKey,
-  UseInfiniteQueryOptions,
   UseMutationOptions,
-  UseMutationResult,
   UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
-import { queryClient } from "../../lib/query-client";
-import { queryKeysFactory } from "../../lib/query-key-factory";
-import { productsQueryKeys } from "./products";
-import { useInfiniteList } from "../use-infinite-list";
+} from "@tanstack/react-query"
+import { sdk } from "../../lib/client"
+import { queryClient } from "../../lib/query-client"
+import { queryKeysFactory } from "../../lib/query-key-factory"
+import { productsQueryKeys } from "./products"
 
-const COLLECTION_QUERY_KEY = "collections" as const;
-export const collectionsQueryKeys = queryKeysFactory(COLLECTION_QUERY_KEY);
+const COLLECTION_QUERY_KEY = "collections" as const
+export const collectionsQueryKeys = queryKeysFactory(COLLECTION_QUERY_KEY)
 
 export const useCollection = (
   id: string,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.collections.$id.query>
-  >,
+  options?: Omit<
+    UseQueryOptions<
+      { collection: HttpTypes.AdminCollection },
+      FetchError,
+      { collection: HttpTypes.AdminCollection },
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
+  >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: collectionsQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.collections.$id.query({ $id: id }),
+    queryFn: async () => sdk.admin.productCollection.retrieve(id),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useCollections = (
-  query?: InferClientInput<typeof sdk.vendor.collections.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.collections.query>
-  >,
+  query?: FindParams & HttpTypes.AdminCollectionListParams,
+  options?: Omit<
+    UseQueryOptions<
+      PaginatedResponse<{ collections: HttpTypes.AdminCollection[] }>,
+      FetchError,
+      PaginatedResponse<{ collections: HttpTypes.AdminCollection[] }>,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
+  >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: collectionsQueryKeys.list(query),
-    queryFn: async () => sdk.vendor.collections.query({ ...query }),
+    queryFn: async () => sdk.admin.productCollection.list(query),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
-
-export const useInfiniteCollections = (
-  query?: Omit<
-    InferClientInput<typeof sdk.vendor.collections.query>,
-    "offset" | "limit"
-  > & {
-    limit?: number;
-  },
-  options?: Omit<
-    UseInfiniteQueryOptions<
-      InferClientOutput<typeof sdk.vendor.collections.query>,
-      ClientError,
-      InfiniteData<
-        InferClientOutput<typeof sdk.vendor.collections.query>,
-        number
-      >,
-      InferClientOutput<typeof sdk.vendor.collections.query>,
-      QueryKey,
-      number
-    >,
-    "queryFn" | "queryKey" | "initialPageParam" | "getNextPageParam"
-  >,
-) => {
-  return useInfiniteList({
-    queryKey: (params) => collectionsQueryKeys.list(params),
-    queryFn: (params) => sdk.vendor.collections.query(params),
-    query,
-    options,
-  });
-};
+  return { ...data, ...rest }
+}
 
 export const useUpdateCollection = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.collections.$id.mutate>,
-    ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.collections.$id.mutate>, "$id">
-  >,
+    HttpTypes.AdminCollectionResponse,
+    FetchError,
+    HttpTypes.AdminUpdateCollection
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.collections.$id.mutate({ $id: id, ...payload }),
+    mutationFn: (payload) => sdk.admin.productCollection.update(id, payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueryKeys.lists(),
-      });
+      queryClient.invalidateQueries({ queryKey: collectionsQueryKeys.lists() })
       queryClient.invalidateQueries({
         queryKey: collectionsQueryKeys.detail(id),
-      });
+      })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
-type UseUpdateCollectionProducts = (
+export const useUpdateCollectionProducts = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.collections.$id.products.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.vendor.collections.$id.products.mutate>,
-      "$id"
-    >
-  >,
-) => UseMutationResult<
-  InferClientOutput<typeof sdk.vendor.collections.$id.products.mutate>,
-  ClientError,
-  Omit<
-    InferClientInput<typeof sdk.vendor.collections.$id.products.mutate>,
-    "$id"
+    HttpTypes.AdminCollectionResponse,
+    FetchError,
+    HttpTypes.AdminUpdateCollectionProducts
   >
->;
-
-export const useUpdateCollectionProducts: UseUpdateCollectionProducts = (
-  id,
-  options,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.collections.$id.products.mutate({ $id: id, ...payload }),
+      sdk.admin.productCollection.updateProducts(id, payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueryKeys.lists(),
-      });
+      queryClient.invalidateQueries({ queryKey: collectionsQueryKeys.lists() })
       queryClient.invalidateQueries({
         queryKey: collectionsQueryKeys.detail(id),
-      });
+      })
       /**
        * Invalidate products list query to ensure that the products collections are updated.
        */
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.lists(),
-      });
+      })
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
+
+export const useCreateCollection = (
+  options?: UseMutationOptions<
+    HttpTypes.AdminCollectionResponse,
+    FetchError,
+    HttpTypes.AdminCreateCollection
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.admin.productCollection.create(payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: collectionsQueryKeys.lists() })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
+export const useDeleteCollection = (
+  id: string,
+  options?: UseMutationOptions<
+    HttpTypes.AdminCollectionDeleteResponse,
+    FetchError,
+    void
+  >
+) => {
+  return useMutation({
+    mutationFn: () => sdk.admin.productCollection.delete(id),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: collectionsQueryKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueryKeys.detail(id),
+      })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}

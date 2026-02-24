@@ -1,21 +1,23 @@
 import { PlusMini, Trash } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
+import type { HttpTypes } from "@medusajs/types"
 import { Checkbox, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import {
-  ColumnDef,
-  RowSelectionState,
+  type ColumnDef,
+  type RowSelectionState,
   createColumnHelper,
 } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+
 import { ActionMenu } from "@components/common/action-menu"
 import { _DataTable } from "@components/table/data-table"
 import { useUpdateRegion } from "@hooks/api/regions"
 import { useDataTable } from "@hooks/use-data-table"
-import { StaticCountry } from "@lib/data/countries"
-import { useCountries } from "@pages/settings/regions/_common/hooks/use-countries"
-import { useCountryTableColumns } from "@pages/settings/regions/_common/hooks/use-country-table-columns"
-import { useCountryTableQuery } from "@pages/settings/regions/_common/hooks/use-country-table-query"
+import type { StaticCountry } from "@lib/data/countries"
+
+import { useCountries } from "../../_common/hooks/use-countries"
+import { useCountryTableColumns } from "../../_common/hooks/use-country-table-columns"
+import { useCountryTableQuery } from "../../_common/hooks/use-country-table-query"
 import { convertToStaticCountries } from "./helpers"
 
 type RegionCountrySectionProps = {
@@ -100,9 +102,17 @@ export const RegionCountrySection = ({ region }: RegionCountrySectionProps) => {
   }
 
   return (
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">{t("fields.countries")}</Heading>
+    <Container
+      className="divide-y p-0"
+      data-testid="region-country-section-container"
+    >
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="region-country-section-header"
+      >
+        <Heading level="h2" data-testid="region-country-section-heading">
+          {t("fields.countries")}
+        </Heading>
         <ActionMenu
           groups={[
             {
@@ -115,6 +125,7 @@ export const RegionCountrySection = ({ region }: RegionCountrySectionProps) => {
               ],
             },
           ]}
+          data-testid="region-country-section-action-menu"
         />
       </div>
       <_DataTable
@@ -137,6 +148,7 @@ export const RegionCountrySection = ({ region }: RegionCountrySectionProps) => {
             shortcut: "r",
           },
         ]}
+        data-testid="region-country-section-table"
       />
     </Container>
   )
@@ -153,6 +165,11 @@ const CountryActions = ({
   const prompt = usePrompt()
   const { mutateAsync } = useUpdateRegion(region.id)
 
+  const payload = region.countries
+    ?.filter((c) => c.iso_2 !== country.iso_2)
+    .map((c) => c.iso_2)
+    .filter((iso): iso is string => iso !== undefined)
+
   const handleRemove = async () => {
     const res = await prompt({
       title: t("general.areYouSure"),
@@ -168,11 +185,6 @@ const CountryActions = ({
     if (!res) {
       return
     }
-
-    const payload = region.countries
-      ?.filter((c) => c.iso_2 !== country.iso_2)
-      .map((c) => c.iso_2)
-      .filter((iso): iso is string => iso !== undefined)
 
     await mutateAsync(
       {
@@ -202,6 +214,7 @@ const CountryActions = ({
           ],
         },
       ]}
+      data-testid={`region-country-section-action-menu-${country.iso_2}`}
     />
   )
 }
@@ -226,6 +239,7 @@ const useColumns = () => {
               onCheckedChange={(value) =>
                 table.toggleAllPageRowsSelected(!!value)
               }
+              data-testid="region-country-section-select-all-checkbox"
             />
           )
         },
@@ -237,6 +251,7 @@ const useColumns = () => {
               onClick={(e) => {
                 e.stopPropagation()
               }}
+              data-testid={`region-country-section-select-checkbox-${row.original.iso_2}`}
             />
           )
         },

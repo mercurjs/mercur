@@ -1,17 +1,23 @@
-import { HttpTypes } from "@medusajs/types";
-import { UIMatch } from "react-router-dom";
-
-import { useCollection } from "@hooks/api/collections";
+import { HttpTypes } from "@medusajs/types"
+import { UIMatch } from "react-router-dom"
+import { useCollection } from "@hooks/api"
 
 type CollectionDetailBreadcrumbProps =
-  UIMatch<HttpTypes.AdminCollectionResponse>;
+  UIMatch<HttpTypes.AdminCollectionResponse>
 
-export const Breadcrumb = (props: CollectionDetailBreadcrumbProps) => {
-  const { id } = props.params || {};
+export const CollectionDetailBreadcrumb = (
+  props: CollectionDetailBreadcrumbProps
+) => {
+  const { id } = props.params || {}
+
   const { collection } = useCollection(id!, {
-    initialData: { collection: props.data?.collection },
-  });
+    initialData: props.data,
+    enabled: Boolean(id),
+  })
 
-  if (!collection) return null;
-  return <span>{collection.title}</span>;
-};
+  if (!collection) {
+    return null
+  }
+
+  return <span>{collection.title}</span>
+}

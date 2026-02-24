@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
-  RowSelectionState,
+  type RowSelectionState,
   createColumnHelper,
 } from "@tanstack/react-table"
 import { useEffect, useMemo, useState } from "react"
@@ -8,20 +8,22 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
-import { HttpTypes } from "@medusajs/types"
+import type { HttpTypes } from "@medusajs/types"
 import { Button, Checkbox, toast } from "@medusajs/ui"
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "@components/modals"
+
+import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { _DataTable } from "@components/table/data-table"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useUpdateRegion } from "@hooks/api/regions"
 import { useDataTable } from "@hooks/use-data-table"
-import { countries as staticCountries, StaticCountry } from "@lib/data/countries"
-import { useCountries } from "@pages/settings/regions/_common/hooks/use-countries"
-import { useCountryTableColumns } from "@pages/settings/regions/_common/hooks/use-country-table-columns"
-import { useCountryTableQuery } from "@pages/settings/regions/_common/hooks/use-country-table-query"
+import {
+  countries as staticCountries,
+  type StaticCountry,
+} from "@lib/data/countries"
+
+import { useCountries } from "../../../../_common/hooks/use-countries"
+import { useCountryTableColumns } from "../../../../_common/hooks/use-country-table-columns"
+import { useCountryTableQuery } from "../../../../_common/hooks/use-country-table-query"
 
 type AddCountriesFormProps = {
   region: HttpTypes.AdminRegion
@@ -66,12 +68,12 @@ export const AddCountriesForm = ({ region }: AddCountriesFormProps) => {
     countries: staticCountries.map((c, i) => ({
       display_name: c.display_name,
       name: c.name,
-      id: i as any,
+      id: i,
       iso_2: c.iso_2,
       iso_3: c.iso_3,
       num_code: c.num_code,
       region_id: null,
-      region: {} as HttpTypes.AdminRegion,
+      region: {},
     })),
     ...searchParams,
   })
@@ -123,24 +125,17 @@ export const AddCountriesForm = ({ region }: AddCountriesFormProps) => {
   })
 
   return (
-    <RouteFocusModal.Form form={form}>
+    <RouteFocusModal.Form form={form} data-testid="region-add-countries-form">
       <KeyboundForm
         onSubmit={handleSubmit}
         className="flex h-full flex-col overflow-hidden"
       >
-        <RouteFocusModal.Header>
-          <div className="flex items-center justify-end gap-x-2">
-            <RouteFocusModal.Close asChild>
-              <Button size="small" variant="secondary">
-                {t("actions.cancel")}
-              </Button>
-            </RouteFocusModal.Close>
-            <Button size="small" isLoading={isLoading} type="submit">
-              {t("actions.add")}
-            </Button>
-          </div>
-        </RouteFocusModal.Header>
-        <RouteFocusModal.Body className="overflow-hidden">
+        <RouteFocusModal.Header data-testid="region-add-countries-form-header" />
+
+        <RouteFocusModal.Body
+          className="overflow-hidden"
+          data-testid="region-add-countries-form-body"
+        >
           <_DataTable
             table={table}
             columns={columns}
@@ -155,8 +150,28 @@ export const AddCountriesForm = ({ region }: AddCountriesFormProps) => {
             ]}
             queryObject={raw}
             prefix={PREFIX}
+            data-testid="region-add-countries-form-table"
           />
         </RouteFocusModal.Body>
+        <RouteFocusModal.Footer data-testid="region-add-countries-form-footer">
+          <RouteFocusModal.Close asChild>
+            <Button
+              size="small"
+              variant="secondary"
+              data-testid="region-add-countries-form-cancel-button"
+            >
+              {t("actions.cancel")}
+            </Button>
+          </RouteFocusModal.Close>
+          <Button
+            size="small"
+            isLoading={isLoading}
+            type="submit"
+            data-testid="region-add-countries-form-add-button"
+          >
+            {t("actions.add")}
+          </Button>
+        </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
   )
@@ -182,6 +197,7 @@ const useColumns = () => {
               onCheckedChange={(value) =>
                 table.toggleAllPageRowsSelected(!!value)
               }
+              data-testid="region-add-countries-form-select-all-checkbox"
             />
           )
         },
@@ -196,6 +212,7 @@ const useColumns = () => {
               onClick={(e) => {
                 e.stopPropagation()
               }}
+              data-testid={`region-add-countries-form-select-checkbox-${row.original.iso_2}`}
             />
           )
         },

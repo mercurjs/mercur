@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 
 import { RouteFocusModal } from "@components/modals"
 import { useProduct } from "@hooks/api/products"
-import { EditSalesChannelsForm } from "./edit-sales-channels-form"
+import { EditSalesChannelsForm } from "./_components/edit-sales-channels-form"
 
 export const Component = () => {
   const { id } = useParams()
@@ -14,7 +14,7 @@ export const Component = () => {
   }
 
   return (
-    <RouteFocusModal>
+    <RouteFocusModal data-testid="product-sales-channels-modal">
       {!isLoading && product && <EditSalesChannelsForm product={product} />}
     </RouteFocusModal>
   )

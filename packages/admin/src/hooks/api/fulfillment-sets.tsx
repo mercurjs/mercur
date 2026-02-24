@@ -1,9 +1,7 @@
+import { FetchError } from "@medusajs/js-sdk"
+import { HttpTypes } from "@medusajs/types"
 import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client"
-import {
+  QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
@@ -22,14 +20,17 @@ export const fulfillmentSetsQueryKeys = queryKeysFactory(
 
 export const useDeleteFulfillmentSet = (
   id: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.fulfillmentSets.$id.delete>,
-    ClientError,
-    void
+  options?: Omit<
+    UseMutationOptions<
+      HttpTypes.AdminFulfillmentSetDeleteResponse,
+      FetchError,
+      void
+    >,
+    "mutationFn"
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.fulfillmentSets.$id.delete({ $id: id }),
+    mutationFn: () => sdk.admin.fulfillmentSet.delete(id),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: fulfillmentSetsQueryKeys.detail(id),
@@ -55,23 +56,24 @@ export const useDeleteFulfillmentSet = (
 export const useFulfillmentSetServiceZone = (
   fulfillmentSetId: string,
   serviceZoneId: string,
-  query?: Omit<
-    InferClientInput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.query>,
-    "$id" | "$zoneId"
-  >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.query>
+  query?: HttpTypes.SelectParams,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminServiceZoneResponse,
+      FetchError,
+      HttpTypes.AdminServiceZoneResponse,
+      QueryKey
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>
-      sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.query({
-        $id: fulfillmentSetId,
-        $zoneId: serviceZoneId,
-        ...query,
-      }),
+      sdk.admin.fulfillmentSet.retrieveServiceZone(
+        fulfillmentSetId,
+        serviceZoneId,
+        query
+      ),
     queryKey: fulfillmentSetsQueryKeys.detail(fulfillmentSetId, query),
     ...options,
   })
@@ -81,21 +83,19 @@ export const useFulfillmentSetServiceZone = (
 
 export const useCreateFulfillmentSetServiceZone = (
   fulfillmentSetId: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.mutate>,
-      "$id"
-    >
+  options?: Omit<
+    UseMutationOptions<
+      HttpTypes.AdminFulfillmentSetResponse,
+      FetchError,
+      HttpTypes.AdminCreateFulfillmentSetServiceZone,
+      QueryKey
+    >,
+    "mutationFn"
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.fulfillmentSets.$id.serviceZones.mutate({
-        $id: fulfillmentSetId,
-        ...payload,
-      }),
+      sdk.admin.fulfillmentSet.createServiceZone(fulfillmentSetId, payload),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: fulfillmentSetsQueryKeys.lists(),
@@ -113,22 +113,23 @@ export const useCreateFulfillmentSetServiceZone = (
 export const useUpdateFulfillmentSetServiceZone = (
   fulfillmentSetId: string,
   serviceZoneId: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.mutate>,
-      "$id" | "$zoneId"
-    >
+  options?: Omit<
+    UseMutationOptions<
+      HttpTypes.AdminFulfillmentSetResponse,
+      FetchError,
+      HttpTypes.AdminUpdateFulfillmentSetServiceZone,
+      QueryKey
+    >,
+    "mutationFn"
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.mutate({
-        $id: fulfillmentSetId,
-        $zoneId: serviceZoneId,
-        ...payload,
-      }),
+      sdk.admin.fulfillmentSet.updateServiceZone(
+        fulfillmentSetId,
+        serviceZoneId,
+        payload
+      ),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: fulfillmentSetsQueryKeys.lists(),
@@ -146,18 +147,21 @@ export const useUpdateFulfillmentSetServiceZone = (
 export const useDeleteFulfillmentServiceZone = (
   fulfillmentSetId: string,
   serviceZoneId: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.delete>,
-    ClientError,
-    void
+  options?: Omit<
+    UseMutationOptions<
+      HttpTypes.AdminServiceZoneDeleteResponse,
+      FetchError,
+      void
+    >,
+    "mutationFn"
   >
 ) => {
   return useMutation({
     mutationFn: () =>
-      sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.delete({
-        $id: fulfillmentSetId,
-        $zoneId: serviceZoneId,
-      }),
+      sdk.admin.fulfillmentSet.deleteServiceZone(
+        fulfillmentSetId,
+        serviceZoneId
+      ),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: fulfillmentSetsQueryKeys.lists(),

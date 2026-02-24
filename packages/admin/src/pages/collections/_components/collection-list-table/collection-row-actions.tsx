@@ -1,4 +1,4 @@
-import { Trash } from "@medusajs/icons"
+import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -38,6 +38,15 @@ export const CollectionRowActions = ({
   return (
     <ActionMenu
       groups={[
+        {
+          actions: [
+            {
+              label: t("actions.edit"),
+              to: `/collections/${collection.id}/edit`,
+              icon: <PencilSquare />,
+            },
+          ],
+        },
         {
           actions: [
             {

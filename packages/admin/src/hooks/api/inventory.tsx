@@ -1,305 +1,288 @@
+import type { FetchError } from "@medusajs/js-sdk"
+import type { HttpTypes } from "@medusajs/types"
 import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client";
-import {
-  UseMutationOptions,
-  UseQueryOptions,
+  type QueryKey,
+  type UseMutationOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query";
+} from "@tanstack/react-query"
 
-import { sdk, fetchQuery } from "../../lib/client";
-import { queryClient } from "../../lib/query-client";
-import { queryKeysFactory } from "../../lib/query-key-factory";
-import { variantsQueryKeys } from "./products";
+import { sdk } from "@lib/client"
+import { queryClient } from "@lib/query-client"
+import { queryKeysFactory } from "@lib/query-key-factory"
+import { variantsQueryKeys } from "./products"
+import type { ExtendedAdminInventoryItemResponse, ExtendedInventoryItemLevelsResponse } from "@custom-types/inventory"
 
-const INVENTORY_ITEMS_QUERY_KEY = "inventory_items" as const;
+const INVENTORY_ITEMS_QUERY_KEY = "inventory_items" as const
 export const inventoryItemsQueryKeys = queryKeysFactory(
-  INVENTORY_ITEMS_QUERY_KEY,
-);
+  INVENTORY_ITEMS_QUERY_KEY
+)
 
-const INVENTORY_ITEM_LEVELS_QUERY_KEY = "inventory_item_levels" as const;
+const INVENTORY_ITEM_LEVELS_QUERY_KEY = "inventory_item_levels" as const
 export const inventoryItemLevelsQueryKeys = queryKeysFactory(
-  INVENTORY_ITEM_LEVELS_QUERY_KEY,
-);
+  INVENTORY_ITEM_LEVELS_QUERY_KEY
+)
 
 export const useInventoryItems = (
-  query?: InferClientInput<typeof sdk.vendor.inventoryItems.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.inventoryItems.query>
-  >,
+  query?: HttpTypes.AdminInventoryItemParams,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminInventoryItemListResponse,
+      FetchError,
+      HttpTypes.AdminInventoryItemListResponse,
+      QueryKey
+    >,
+    "queryKey" | "queryFn"
+  >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.inventoryItems.query({ ...query }),
+    queryFn: () => sdk.admin.inventoryItem.list(query),
     queryKey: inventoryItemsQueryKeys.list(query),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useInventoryItem = (
   id: string,
-  query?: Omit<
-    InferClientInput<typeof sdk.vendor.inventoryItems.$id.query>,
-    "$id"
-  >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.inventoryItems.$id.query>
-  >,
+  query?: Record<string, unknown>,
+  options?: Omit<
+    UseQueryOptions<
+      ExtendedAdminInventoryItemResponse,
+      FetchError,
+      ExtendedAdminInventoryItemResponse,
+      QueryKey
+    >,
+    "queryKey" | "queryFn"
+  >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.vendor.inventoryItems.$id.query({ $id: id, ...query }),
+    queryFn: () => sdk.admin.inventoryItem.retrieve(id, query) as Promise<ExtendedAdminInventoryItemResponse>,
     queryKey: inventoryItemsQueryKeys.detail(id),
     ...options,
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useCreateInventoryItem = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.inventoryItems.mutate>,
-    ClientError,
-    InferClientInput<typeof sdk.vendor.inventoryItems.mutate>
-  >,
+    HttpTypes.AdminInventoryItemResponse,
+    FetchError,
+    HttpTypes.AdminCreateInventoryItem
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.vendor.inventoryItems.mutate(payload),
+    mutationFn: (payload: HttpTypes.AdminCreateInventoryItem) =>
+      sdk.admin.inventoryItem.create(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
-      });
-      options?.onSuccess?.(data, variables, context);
+      })
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useUpdateInventoryItem = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.inventoryItems.$id.mutate>,
-    ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.inventoryItems.$id.mutate>, "$id">
-  >,
+    HttpTypes.AdminInventoryItemResponse,
+    FetchError,
+    HttpTypes.AdminUpdateInventoryItem
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.inventoryItems.$id.mutate({ $id: id, ...payload }),
+    mutationFn: (payload: HttpTypes.AdminUpdateInventoryItem) =>
+      sdk.admin.inventoryItem.update(id, payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.detail(id),
-      });
-      options?.onSuccess?.(data, variables, context);
+      })
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useDeleteInventoryItem = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.inventoryItems.$id.delete>,
-    ClientError,
+    HttpTypes.AdminInventoryItemDeleteResponse,
+    FetchError,
     void
-  >,
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.vendor.inventoryItems.$id.delete({ $id: id }),
+    mutationFn: () => sdk.admin.inventoryItem.delete(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.detail(id),
-      });
-      options?.onSuccess?.(data, variables, context);
+      })
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useDeleteInventoryItemLevel = (
   inventoryItemId: string,
   locationId: string,
   options?: UseMutationOptions<
-    InferClientOutput<
-      typeof sdk.vendor.inventoryItems.$id.locationLevels.$locationId.delete
-    >,
-    ClientError,
+    HttpTypes.AdminInventoryLevelDeleteResponse,
+    FetchError,
     void
-  >,
+  >
 ) => {
   return useMutation({
     mutationFn: () =>
-      sdk.vendor.inventoryItems.$id.locationLevels.$locationId.delete({
-        $id: inventoryItemId,
-        $locationId: locationId,
-      }),
+      sdk.admin.inventoryItem.deleteLevel(inventoryItemId, locationId),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.detail(inventoryItemId),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: inventoryItemLevelsQueryKeys.detail(inventoryItemId),
-      });
-      options?.onSuccess?.(data, variables, context);
+      })
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useInventoryItemLevels = (
   inventoryItemId: string,
-  query?: Omit<
-    InferClientInput<typeof sdk.vendor.inventoryItems.$id.locationLevels.query>,
-    "$id"
-  >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.inventoryItems.$id.locationLevels.query>
-  >,
+  query?: Record<string, unknown>,
+  options?: Omit<
+    UseQueryOptions<
+      ExtendedInventoryItemLevelsResponse,
+      FetchError,
+      ExtendedInventoryItemLevelsResponse,
+      QueryKey
+    >,
+    "queryKey" | "queryFn"
+  >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () =>
-      sdk.vendor.inventoryItems.$id.locationLevels.query({
-        $id: inventoryItemId,
-        limit: query?.limit ?? 100,
-        offset: query?.offset ?? 0,
-        ...query,
-      }),
+    queryFn: () => sdk.admin.inventoryItem.listLevels(inventoryItemId, query) as Promise<ExtendedInventoryItemLevelsResponse>,
     queryKey: inventoryItemLevelsQueryKeys.list({
       ...(query || {}),
       inventoryItemId,
     }),
     ...options,
-    enabled:
-      !!inventoryItemId &&
-      (options?.enabled !== undefined ? options.enabled : true),
-  });
+  })
 
-  return { ...data, ...rest };
-};
+  return { ...data, ...rest }
+}
 
 export const useUpdateInventoryLevel = (
   inventoryItemId: string,
   locationId: string,
   options?: UseMutationOptions<
-    InferClientOutput<
-      typeof sdk.vendor.inventoryItems.$id.locationLevels.$locationId.mutate
-    >,
-    ClientError,
-    Omit<
-      InferClientInput<
-        typeof sdk.vendor.inventoryItems.$id.locationLevels.$locationId.mutate
-      >,
-      "$id" | "$locationId"
-    >
-  >,
+    HttpTypes.AdminInventoryItemResponse,
+    FetchError,
+    HttpTypes.AdminUpdateInventoryLevel
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.inventoryItems.$id.locationLevels.$locationId.mutate({
-        $id: inventoryItemId,
-        $locationId: locationId,
-        ...payload,
-      }),
+    mutationFn: (payload: HttpTypes.AdminUpdateInventoryLevel) =>
+      sdk.admin.inventoryItem.updateLevel(inventoryItemId, locationId, payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.detail(inventoryItemId),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: inventoryItemLevelsQueryKeys.detail(inventoryItemId),
-      });
+      })
+      queryClient.invalidateQueries({
+        queryKey: inventoryItemLevelsQueryKeys.list({ inventoryItemId }),
+      })
       queryClient.invalidateQueries({
         queryKey: variantsQueryKeys.details(),
-      });
-      options?.onSuccess?.(data, variables, context);
+      })
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useBatchInventoryItemLocationLevels = (
   inventoryItemId: string,
   options?: UseMutationOptions<
-    InferClientOutput<
-      typeof sdk.vendor.inventoryItems.$id.locationLevels.batch.mutate
-    >,
-    ClientError,
-    Omit<
-      InferClientInput<
-        typeof sdk.vendor.inventoryItems.$id.locationLevels.batch.mutate
-      >,
-      "$id"
-    >
-  >,
+    HttpTypes.AdminBatchInventoryItemLocationLevelsResponse,
+    FetchError,
+    HttpTypes.AdminBatchInventoryItemLocationLevels
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.inventoryItems.$id.locationLevels.batch.mutate({
-        $id: inventoryItemId,
-        ...payload,
-      }),
+    mutationFn: (payload) => {
+      return sdk.admin.inventoryItem.batchInventoryItemLocationLevels(
+        inventoryItemId,
+        {
+          ...payload,
+          // force: true is required for admin batch endpoint to delete levels with stocked items
+          force: !!payload?.delete?.length || payload.force,
+        }
+      )
+    },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.detail(inventoryItemId),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: inventoryItemLevelsQueryKeys.detail(inventoryItemId),
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: inventoryItemLevelsQueryKeys.list({ inventoryItemId }),
-      });
-      options?.onSuccess?.(data, variables, context);
+      })
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}
 
 export const useBatchInventoryItemsLocationLevels = (
   options?: UseMutationOptions<
-    InferClientOutput<
-      typeof sdk.vendor.inventoryItems.locationLevels.batch.mutate
-    >,
-    ClientError,
-    InferClientInput<
-      typeof sdk.vendor.inventoryItems.locationLevels.batch.mutate
-    >
-  >,
+    HttpTypes.AdminBatchInventoryItemsLocationLevelsResponse,
+    FetchError,
+    HttpTypes.AdminBatchInventoryItemsLocationLevels
+  >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.inventoryItems.locationLevels.batch.mutate(payload),
+    mutationFn: (payload) => {
+      return sdk.admin.inventoryItem.batchInventoryItemsLocationLevels({
+        ...payload,
+      // force: true is required for admin batch endpoint to delete levels with stocked items
+        force: !!payload?.delete?.length || payload.force,
+      })
+    },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.all,
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: variantsQueryKeys.lists(),
-      });
-      options?.onSuccess?.(data, variables, context);
+      })
+      options?.onSuccess?.(data, variables, context)
     },
     ...options,
-  });
-};
+  })
+}

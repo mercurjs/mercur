@@ -4,7 +4,7 @@ import { json, useParams } from "react-router-dom"
 
 import { RouteDrawer } from "@components/modals"
 import { useShippingOptions } from "@hooks/api/shipping-options"
-import { EditShippingOptionForm } from "./_components/edit-shipping-option-form"
+import { EditShippingOptionForm } from "@pages/settings/locations/location-service-zone-shipping-option-edit/components/edit-region-form"
 import { FulfillmentSetType } from "@pages/settings/locations/_common/constants"
 
 const LocationServiceZoneShippingOptionEdit = () => {
@@ -14,16 +14,15 @@ const LocationServiceZoneShippingOptionEdit = () => {
 
   const { shipping_options, isPending, isFetching, isError, error } =
     useShippingOptions({
+      id: so_id,
       fields: "+service_zone.fulfillment_set.type",
     })
 
-  const shippingOption = shipping_options?.find((so) => so?.id === so_id)
+  const shippingOption = shipping_options?.find((so) => so.id === so_id)
 
   if (!isPending && !isFetching && !shippingOption) {
     throw json(
-      {
-        message: `Shipping option with ID ${so_id} was not found`,
-      },
+      { message: `Shipping option with ID ${so_id} was not found` },
       404
     )
   }
@@ -37,9 +36,9 @@ const LocationServiceZoneShippingOptionEdit = () => {
     FulfillmentSetType.Pickup
 
   return (
-    <RouteDrawer>
-      <RouteDrawer.Header>
-        <Heading>
+    <RouteDrawer data-testid="location-shipping-option-edit-drawer">
+      <RouteDrawer.Header data-testid="location-shipping-option-edit-drawer-header">
+        <Heading data-testid="location-shipping-option-edit-drawer-heading">
           {t(
             `stockLocations.${isPickup ? "pickupOptions" : "shippingOptions"}.edit.header`
           )}

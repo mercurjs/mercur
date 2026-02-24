@@ -1,10 +1,15 @@
-import { HttpTypes } from "@medusajs/types";
-import { useQueryParams } from "../../use-query-params";
+import { useQueryParams } from "@hooks/use-query-params"
+import type { HttpTypes } from "@medusajs/types"
 
 type UseOrderTableQueryProps = {
-  prefix?: string;
-  pageSize?: number;
-};
+  prefix?: string
+  pageSize?: number
+}
+
+type ExtendedAdminOrderFilters = HttpTypes.AdminOrderFilters & {
+  fulfillment_status?: string[]
+  payment_status?: string[]
+}
 
 export const useOrderTableQuery = ({
   prefix,
@@ -22,8 +27,8 @@ export const useOrderTableQuery = ({
       "fulfillment_status",
       "order",
     ],
-    prefix,
-  );
+    prefix
+  )
 
   const {
     offset,
@@ -35,9 +40,9 @@ export const useOrderTableQuery = ({
     region_id,
     q,
     order,
-  } = queryObject;
+  } = queryObject
 
-  const searchParams: HttpTypes.AdminOrderFilters = {
+  const searchParams: ExtendedAdminOrderFilters ={
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
     sales_channel_id: sales_channel_id?.split(","),
@@ -46,12 +51,12 @@ export const useOrderTableQuery = ({
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     region_id: region_id?.split(","),
-    order: order ? order : "-created_at",
+    order: order ? order : "-display_id",
     q,
-  };
+  }
 
   return {
     searchParams,
     raw: queryObject,
-  };
-};
+  }
+}

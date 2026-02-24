@@ -1,3 +1,4 @@
-export * from "./category-general-section"
-export * from "./category-organize-section"
-export * from "./category-product-section"
+export { CategoryDetailPage, type CategoryDetailPageProps, useCategoryDetailContext } from "./category-detail-page"
+export { CategoryGeneralSection } from "./sections/category-general-section"
+export { CategoryOrganizeSection } from "./sections/category-organize-section"
+export { CategoryProductSection } from "./sections/category-product-section"

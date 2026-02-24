@@ -1,1 +1,1 @@
-export * from "./collection-product-section"
+export { CollectionProductSection } from "./collection-product-section"

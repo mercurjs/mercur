@@ -1,13 +1,14 @@
-// Route: /campaigns/:id/edit
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+
 import { RouteDrawer } from "@components/modals"
 import { VisuallyHidden } from "@components/utilities/visually-hidden"
 import { useCampaign } from "@hooks/api/campaigns"
-import { EditCampaignForm } from "./edit-campaign-form"
 
-export const Component = () => {
+import { EditCampaignForm } from "./_components/edit-campaign-form"
+
+const CampaignEdit = () => {
   const { t } = useTranslation()
 
   const { id } = useParams()
@@ -32,3 +33,5 @@ export const Component = () => {
     </RouteDrawer>
   )
 }
+
+export const Component = CampaignEdit

@@ -1,10 +1,10 @@
-// Route: /reservations
 import { SingleColumnPage } from "@components/layout/pages"
-import { useDashboardExtension } from "@/extensions"
+import { useExtension } from "@providers/extension-provider"
+
 import { ReservationListTable } from "./_components/reservation-list-table"
 
-export const Component = () => {
-  const { getWidgets } = useDashboardExtension()
+const ReservationList = () => {
+  const { getWidgets } = useExtension()
 
   return (
     <SingleColumnPage
@@ -17,3 +17,5 @@ export const Component = () => {
     </SingleColumnPage>
   )
 }
+
+export const Component = ReservationList

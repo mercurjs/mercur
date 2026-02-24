@@ -1,8 +1,23 @@
-import { useRegions } from "../../../../hooks/api/regions"
-import { useStore } from "../../../../hooks/api/store"
-import { usePricePreferences } from "../../../../hooks/api/price-preferences"
+import { HttpTypes } from "@medusajs/types"
+import { useRegions } from "@hooks/api/regions"
+import { useStore } from "@hooks/api/store"
+import { usePricePreferences } from "@hooks/api/price-preferences"
 
-export const usePriceListCurrencyData = () => {
+type UsePriceListCurrencyDataReturn =
+  | {
+      isReady: false
+      currencies: undefined
+      regions: undefined
+      pricePreferences: undefined
+    }
+  | {
+      isReady: true
+      currencies: HttpTypes.AdminStoreCurrency[]
+      regions: HttpTypes.AdminRegion[]
+      pricePreferences: HttpTypes.AdminPricePreference[]
+    }
+
+export const usePriceListCurrencyData = (): UsePriceListCurrencyDataReturn => {
   const {
     store,
     isPending: isStorePending,

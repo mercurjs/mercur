@@ -1,11 +1,12 @@
 import { LoaderFunctionArgs } from "react-router-dom"
+
 import { taxRegionsQueryKeys } from "@hooks/api/tax-regions"
-import { fetchQuery } from "@lib/client"
+import { sdk } from "@lib/client"
 import { queryClient } from "@lib/query-client"
 
 const taxRegionDetailQuery = (id: string) => ({
   queryKey: taxRegionsQueryKeys.detail(id),
-  queryFn: async () => fetchQuery(`/vendor/tax-regions/${id}`, { method: "GET" }),
+  queryFn: async () => sdk.admin.taxRegion.retrieve(id),
 })
 
 export const taxRegionLoader = async ({ params }: LoaderFunctionArgs) => {

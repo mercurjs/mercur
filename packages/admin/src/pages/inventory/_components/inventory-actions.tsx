@@ -48,6 +48,7 @@ export const InventoryActions = ({ item }: { item: InventoryItemDTO }) => {
           ],
         },
       ]}
+      data-testid={`inventory-item-actions-${item.id}`}
     />
   )
 }

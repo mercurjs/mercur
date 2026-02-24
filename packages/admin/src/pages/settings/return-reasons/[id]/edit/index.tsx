@@ -1,11 +1,12 @@
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+
 import { RouteDrawer } from "@components/modals"
 import { useReturnReason } from "@hooks/api/return-reasons"
 import { ReturnReasonEditForm } from "./_components/return-reason-edit-form"
 
-const ReturnReasonEdit = () => {
+export const Component = () => {
   const { id } = useParams()
   const { t } = useTranslation()
 
@@ -18,10 +19,12 @@ const ReturnReasonEdit = () => {
   }
 
   return (
-    <RouteDrawer>
-      <RouteDrawer.Header>
+    <RouteDrawer data-testid="return-reason-edit-drawer">
+      <RouteDrawer.Header data-testid="return-reason-edit-drawer-header">
         <RouteDrawer.Title asChild>
-          <Heading>{t("returnReasons.edit.header")}</Heading>
+          <Heading data-testid="return-reason-edit-drawer-heading">
+            {t("returnReasons.edit.header")}
+          </Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
           {t("returnReasons.edit.subtitle")}
@@ -31,5 +34,3 @@ const ReturnReasonEdit = () => {
     </RouteDrawer>
   )
 }
-
-export const Component = ReturnReasonEdit

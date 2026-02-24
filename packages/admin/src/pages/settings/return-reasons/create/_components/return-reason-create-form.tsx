@@ -3,11 +3,9 @@ import { Button, Heading, Input, Text, Textarea, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
+
 import { Form } from "@components/common/form"
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "@components/modals"
+import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useCreateReturnReason } from "@hooks/api/return-reasons"
 
@@ -49,20 +47,32 @@ export const ReturnReasonCreateForm = () => {
   })
 
   return (
-    <RouteFocusModal.Form form={form}>
+    <RouteFocusModal.Form form={form} data-testid="return-reason-create-form">
       <KeyboundForm
         className="flex size-full flex-col overflow-hidden"
         onSubmit={handleSubmit}
       >
-        <RouteFocusModal.Header />
-        <RouteFocusModal.Body className="flex flex-1 justify-center overflow-auto px-6 py-16">
+        <RouteFocusModal.Header data-testid="return-reason-create-form-header" />
+        <RouteFocusModal.Body
+          className="flex flex-1 justify-center overflow-auto px-6 py-16"
+          data-testid="return-reason-create-form-body"
+        >
           <div className="flex w-full max-w-[720px] flex-col gap-y-8">
-            <div className="flex flex-col gap-y-1">
+            <div
+              className="flex flex-col gap-y-1"
+              data-testid="return-reason-create-form-header-section"
+            >
               <RouteFocusModal.Title asChild>
-                <Heading>{t("returnReasons.create.header")}</Heading>
+                <Heading data-testid="return-reason-create-form-heading">
+                  {t("returnReasons.create.header")}
+                </Heading>
               </RouteFocusModal.Title>
               <RouteFocusModal.Description asChild>
-                <Text size="small" className="text-ui-fg-subtle">
+                <Text
+                  size="small"
+                  className="text-ui-fg-subtle"
+                  data-testid="return-reason-create-form-subtitle"
+                >
                   {t("returnReasons.create.subtitle")}
                 </Text>
               </RouteFocusModal.Description>
@@ -73,21 +83,23 @@ export const ReturnReasonCreateForm = () => {
                 name="value"
                 render={({ field }) => {
                   return (
-                    <Form.Item>
+                    <Form.Item data-testid="return-reason-create-form-value-item">
                       <Form.Label
                         tooltip={t("returnReasons.fields.value.tooltip")}
+                        data-testid="return-reason-create-form-value-label"
                       >
                         {t("returnReasons.fields.value.label")}
                       </Form.Label>
-                      <Form.Control>
+                      <Form.Control data-testid="return-reason-create-form-value-control">
                         <Input
                           {...field}
                           placeholder={t(
                             "returnReasons.fields.value.placeholder"
                           )}
+                          data-testid="return-reason-create-form-value-input"
                         />
                       </Form.Control>
-                      <Form.ErrorMessage />
+                      <Form.ErrorMessage data-testid="return-reason-create-form-value-error" />
                     </Form.Item>
                   )
                 }}
@@ -97,19 +109,20 @@ export const ReturnReasonCreateForm = () => {
                 name="label"
                 render={({ field }) => {
                   return (
-                    <Form.Item>
-                      <Form.Label>
+                    <Form.Item data-testid="return-reason-create-form-label-item">
+                      <Form.Label data-testid="return-reason-create-form-label-label">
                         {t("returnReasons.fields.label.label")}
                       </Form.Label>
-                      <Form.Control>
+                      <Form.Control data-testid="return-reason-create-form-label-control">
                         <Input
                           {...field}
                           placeholder={t(
                             "returnReasons.fields.label.placeholder"
                           )}
+                          data-testid="return-reason-create-form-label-input"
                         />
                       </Form.Control>
-                      <Form.ErrorMessage />
+                      <Form.ErrorMessage data-testid="return-reason-create-form-label-error" />
                     </Form.Item>
                   )
                 }}
@@ -120,33 +133,47 @@ export const ReturnReasonCreateForm = () => {
               name="description"
               render={({ field }) => {
                 return (
-                  <Form.Item>
-                    <Form.Label optional>
+                  <Form.Item data-testid="return-reason-create-form-description-item">
+                    <Form.Label
+                      optional
+                      data-testid="return-reason-create-form-description-label"
+                    >
                       {t("returnReasons.fields.description.label")}
                     </Form.Label>
-                    <Form.Control>
+                    <Form.Control data-testid="return-reason-create-form-description-control">
                       <Textarea
                         {...field}
                         placeholder={t(
                           "returnReasons.fields.description.placeholder"
                         )}
+                        data-testid="return-reason-create-form-description-input"
                       />
                     </Form.Control>
-                    <Form.ErrorMessage />
+                    <Form.ErrorMessage data-testid="return-reason-create-form-description-error" />
                   </Form.Item>
                 )
               }}
             />
           </div>
         </RouteFocusModal.Body>
-        <RouteFocusModal.Footer>
+        <RouteFocusModal.Footer data-testid="return-reason-create-form-footer">
           <div className="flex items-center justify-end gap-2">
             <RouteFocusModal.Close asChild>
-              <Button size="small" variant="secondary" type="button">
+              <Button
+                size="small"
+                variant="secondary"
+                type="button"
+                data-testid="return-reason-create-form-cancel-button"
+              >
                 {t("actions.cancel")}
               </Button>
             </RouteFocusModal.Close>
-            <Button size="small" type="submit" isLoading={isPending}>
+            <Button
+              size="small"
+              type="submit"
+              isLoading={isPending}
+              data-testid="return-reason-create-form-save-button"
+            >
               {t("actions.save")}
             </Button>
           </div>

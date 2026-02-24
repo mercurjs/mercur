@@ -1,6 +1,7 @@
 // Route: /categories/:id/organize
+
 import { RouteFocusModal } from "@components/modals"
-import { OrganizeCategoryForm } from "./organize-category-form"
+import { OrganizeCategoryForm } from "./_components/organize-category-form"
 
 export const Component = () => {
   return (

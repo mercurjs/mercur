@@ -2,11 +2,10 @@ import { json, useParams, useSearchParams } from "react-router-dom"
 
 import { RouteFocusModal } from "@components/modals"
 import { useStockLocation } from "@hooks/api/stock-locations"
-import { CreateShippingOptionsForm } from "./_components/create-shipping-options-form"
-import { LOC_CREATE_SHIPPING_OPTION_FIELDS } from "./constants"
-import { FulfillmentSetType } from "@pages/settings/locations/_common/constants"
+import { CreateShippingOptionsForm } from "@pages/settings/locations/location-service-zone-shipping-option-create/components/create-shipping-options-form"
+import { FulfillmentSetType, LOC_CREATE_SHIPPING_OPTION_FIELDS } from "@pages/settings/locations/_common/constants"
 
-function LocationServiceZoneShippingOptionCreate() {
+const LocationServiceZoneShippingOptionCreate = () => {
   const { location_id, fset_id, zone_id } = useParams()
   const [searchParams] = useSearchParams()
   const isReturn = searchParams.has("is_return")
@@ -22,9 +21,7 @@ function LocationServiceZoneShippingOptionCreate() {
 
   if (!isPending && !isFetching && !fulfillmentSet) {
     throw json(
-      {
-        message: `Fulfillment set with ID ${fset_id} was not found`,
-      },
+      { message: `Fulfillment set with ID ${fset_id} was not found` },
       404
     )
   }
@@ -33,9 +30,7 @@ function LocationServiceZoneShippingOptionCreate() {
 
   if (!isPending && !isFetching && !zone) {
     throw json(
-      {
-        message: `Service zone with ID ${zone_id} was not found`,
-      },
+      { message: `Service zone with ID ${zone_id} was not found` },
       404
     )
   }
@@ -45,7 +40,7 @@ function LocationServiceZoneShippingOptionCreate() {
   }
 
   return (
-    <RouteFocusModal prev={`/settings/locations/${location_id}`}>
+    <RouteFocusModal prev={`/settings/locations/${location_id}`} data-testid="location-shipping-option-create-modal">
       {zone && (
         <CreateShippingOptionsForm
           zone={zone}

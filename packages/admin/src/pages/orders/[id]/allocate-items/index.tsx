@@ -1,9 +1,8 @@
-// Route: /orders/:id/allocate-items
 import { useParams } from "react-router-dom"
 
 import { useOrder } from "@hooks/api/orders"
 import { RouteFocusModal } from "@components/modals"
-import { OrderAllocateItemsForm } from "./order-create-fulfillment-form"
+import { OrderAllocateItemsForm } from "./_components/order-create-fulfillment-form"
 
 export const Component = () => {
   const { id } = useParams()
@@ -20,7 +19,7 @@ export const Component = () => {
   const ready = !isLoading && order
 
   return (
-    <RouteFocusModal>
+    <RouteFocusModal data-testid="order-allocate-items-modal">
       {ready && <OrderAllocateItemsForm order={order} />}
     </RouteFocusModal>
   )

@@ -4,10 +4,10 @@ import {
   TriangleRightMini,
   TrianglesMini,
   XMarkMini,
-} from "@medusajs/icons";
-import { AdminProductCategoryResponse } from "@medusajs/types";
-import { Divider, Text, clx } from "@medusajs/ui";
-import { Popover as RadixPopover } from "radix-ui";
+} from "@medusajs/icons"
+import { AdminProductCategoryResponse } from "@medusajs/types"
+import { Divider, Text, clx } from "@medusajs/ui"
+import { Popover as RadixPopover } from "radix-ui"
 import {
   CSSProperties,
   ComponentPropsWithoutRef,
@@ -20,46 +20,47 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react";
-import { Trans, useTranslation } from "react-i18next";
-import { TextSkeleton } from "../../../../../components/common/skeleton";
-import { useProductCategories } from "../../../../../hooks/api/categories";
-import { useDebouncedSearch } from "../../../../../hooks/use-debounced-search";
+} from "react"
+import { Trans, useTranslation } from "react-i18next"
+import { TextSkeleton } from "@components/common/skeleton"
+import { useProductCategories } from "@hooks/api/categories"
+import { useDebouncedSearch } from "@hooks/use-debounced-search"
 
-interface CategoryComboboxProps extends Omit<
-  ComponentPropsWithoutRef<"input">,
-  "value" | "defaultValue" | "onChange"
-> {
-  value: string[];
-  onChange: (value: string[]) => void;
+interface CategoryComboboxProps
+  extends Omit<
+    ComponentPropsWithoutRef<"input">,
+    "value" | "defaultValue" | "onChange"
+  > {
+  value: string[]
+  onChange: (value: string[]) => void
 }
 
 type Level = {
-  id: string;
-  label: string;
-};
+  id: string
+  label: string
+}
 
-const TABLUAR_NUM_WIDTH = 8;
-const TAG_BASE_WIDTH = 28;
+const TABLUAR_NUM_WIDTH = 8
+const TAG_BASE_WIDTH = 28
 
 export const CategoryCombobox = forwardRef<
   HTMLInputElement,
   CategoryComboboxProps
 >(({ value, onChange, className, ...props }, ref) => {
-  const innerRef = useRef<HTMLInputElement>(null);
+  const innerRef = useRef<HTMLInputElement>(null)
 
   useImperativeHandle<HTMLInputElement | null, HTMLInputElement | null>(
     ref,
     () => innerRef.current,
-    [],
-  );
+    []
+  )
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
-  const { i18n, t } = useTranslation();
+  const { i18n, t } = useTranslation()
 
-  const [level, setLevel] = useState<Level[]>([]);
-  const { searchValue, onSearchValueChange, query } = useDebouncedSearch();
+  const [level, setLevel] = useState<Level[]>([])
+  const { searchValue, onSearchValueChange, query } = useDebouncedSearch()
 
   const { product_categories, isPending, isError, error } =
     useProductCategories(
@@ -70,10 +71,10 @@ export const CategoryCombobox = forwardRef<
       },
       {
         enabled: open,
-      },
-    );
+      }
+    )
 
-  const [showLoading, setShowLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(false)
 
   /**
    * We add a small artificial delay to the end of the loading state,
@@ -81,167 +82,159 @@ export const CategoryCombobox = forwardRef<
    * navigating between levels or searching.
    */
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
 
     if (isPending) {
-      setShowLoading(true);
+      setShowLoading(true)
     } else {
       timeoutId = setTimeout(() => {
-        setShowLoading(false);
-      }, 150);
+        setShowLoading(false)
+      }, 150)
     }
 
     return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [isPending]);
+      clearTimeout(timeoutId)
+    }
+  }, [isPending])
 
   useEffect(() => {
     if (searchValue) {
-      setLevel([]);
+      setLevel([])
     }
-  }, [searchValue]);
+  }, [searchValue])
 
   function handleLevelUp(e: MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
-    setLevel(level.slice(0, level.length - 1));
+    setLevel(level.slice(0, level.length - 1))
 
-    innerRef.current?.focus();
+    innerRef.current?.focus()
   }
 
   function handleLevelDown(option: ProductCategoryOption) {
     return (e: MouseEvent<HTMLButtonElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault()
+      e.stopPropagation()
 
-      setLevel([...level, { id: option.value, label: option.label }]);
+      setLevel([...level, { id: option.value, label: option.label }])
 
-      innerRef.current?.focus();
-    };
+      innerRef.current?.focus()
+    }
   }
 
   const handleSelect = useCallback(
     (option: ProductCategoryOption) => {
       return (e: MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault()
+        e.stopPropagation()
 
         if (isSelected(value, option.value)) {
-          onChange(value.filter((v) => v !== option.value));
+          onChange(value.filter((v) => v !== option.value))
         } else {
-          onChange([...value, option.value]);
+          onChange([...value, option.value])
         }
 
-        innerRef.current?.focus();
-      };
+        innerRef.current?.focus()
+      }
     },
-    [value, onChange],
-  );
+    [value, onChange]
+  )
 
   function handleOpenChange(open: boolean) {
     if (!open) {
-      onSearchValueChange("");
-      setLevel([]);
+      onSearchValueChange("")
+      setLevel([])
     }
 
     if (open) {
       requestAnimationFrame(() => {
-        innerRef.current?.focus();
-      });
+        innerRef.current?.focus()
+      })
     }
 
-    setOpen(open);
+    setOpen(open)
   }
 
-  const options = getOptions(product_categories || []);
+  const options = getOptions(product_categories || [])
 
-  const showTag = value.length > 0;
-  const showSelected = !open && value.length > 0;
+  const showTag = value.length > 0
+  const showSelected = !open && value.length > 0
 
   const tagWidth = useMemo(() => {
-    const count = value.length;
-    const digits = count.toString().length;
+    const count = value.length
+    const digits = count.toString().length
 
-    return TAG_BASE_WIDTH + digits * TABLUAR_NUM_WIDTH;
-  }, [value]);
+    return TAG_BASE_WIDTH + digits * TABLUAR_NUM_WIDTH
+  }, [value])
 
-  const showLevelUp = !searchValue && level.length > 0;
+  const showLevelUp = !searchValue && level.length > 0
 
-  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1)
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (!open) {
-        return;
+        return
       }
 
-      const optionsLength = showLevelUp ? options.length + 1 : options.length;
+      const optionsLength = showLevelUp ? options.length + 1 : options.length
 
       if (e.key === "ArrowDown") {
-        e.preventDefault();
+        e.preventDefault()
         setFocusedIndex((prev) => {
-          const nextIndex = prev < optionsLength - 1 ? prev + 1 : prev;
-          return nextIndex;
-        });
+          const nextIndex = prev < optionsLength - 1 ? prev + 1 : prev
+          return nextIndex
+        })
       } else if (e.key === "ArrowUp") {
-        e.preventDefault();
+        e.preventDefault()
         setFocusedIndex((prev) => {
-          return prev > 0 ? prev - 1 : prev;
-        });
+          return prev > 0 ? prev - 1 : prev
+        })
       } else if (e.key === "ArrowRight") {
-        const index = showLevelUp ? focusedIndex - 1 : focusedIndex;
-        const hasChildren = options[index]?.has_children;
+        const index = showLevelUp ? focusedIndex - 1 : focusedIndex
+        const hasChildren = options[index]?.has_children
 
         if (!hasChildren || !!searchValue) {
-          return;
+          return
         }
 
-        e.preventDefault();
+        e.preventDefault()
         setLevel([
           ...level,
           {
             id: options[index].value,
             label: options[index].label,
           },
-        ]);
-        setFocusedIndex(0);
+        ])
+        setFocusedIndex(0)
       } else if (e.key === "Enter" && focusedIndex !== -1) {
-        e.preventDefault();
+        e.preventDefault()
 
         if (showLevelUp && focusedIndex === 0) {
-          setLevel(level.slice(0, level.length - 1));
-          setFocusedIndex(0);
-          return;
+          setLevel(level.slice(0, level.length - 1))
+          setFocusedIndex(0)
+          return
         }
 
-        const index = showLevelUp ? focusedIndex - 1 : focusedIndex;
+        const index = showLevelUp ? focusedIndex - 1 : focusedIndex
 
-        handleSelect(options[index])(e as any);
+        handleSelect(options[index])(e as any)
       }
     },
-    [
-      open,
-      focusedIndex,
-      options,
-      level,
-      handleSelect,
-      searchValue,
-      showLevelUp,
-    ],
-  );
+    [open, focusedIndex, options, level, handleSelect, searchValue, showLevelUp]
+  )
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown)
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [handleKeyDown]);
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [handleKeyDown])
 
   if (isError) {
-    throw error;
+    throw error
   }
 
   return (
@@ -250,7 +243,7 @@ export const CategoryCombobox = forwardRef<
         asChild
         onClick={() => {
           if (!open) {
-            handleOpenChange(true);
+            handleOpenChange(true)
           }
         }}
       >
@@ -269,7 +262,7 @@ export const CategoryCombobox = forwardRef<
               // between levels.
               "shadow-borders-interactive-with-active": open,
             },
-            className,
+            className
           )}
           style={
             {
@@ -281,8 +274,8 @@ export const CategoryCombobox = forwardRef<
             <button
               type="button"
               onClick={(e) => {
-                e.preventDefault();
-                onChange([]);
+                e.preventDefault()
+                onChange([])
               }}
               className="bg-ui-bg-base hover:bg-ui-bg-base-hover txt-compact-small-plus text-ui-fg-subtle focus-within:border-ui-fg-interactive transition-fg absolute start-0.5 top-0.5 flex h-[28px] items-center rounded-[4px] border py-[3px] ps-1.5 pe-1 outline-none"
             >
@@ -301,7 +294,7 @@ export const CategoryCombobox = forwardRef<
             ref={innerRef}
             value={searchValue}
             onChange={(e) => {
-              onSearchValueChange(e.target.value);
+              onSearchValueChange(e.target.value)
             }}
             className={clx(
               "txt-compact-small size-full cursor-pointer appearance-none bg-transparent pe-8 outline-none",
@@ -311,7 +304,7 @@ export const CategoryCombobox = forwardRef<
               {
                 "ps-2": !showTag,
                 "ps-[calc(var(--tag-width)+8px)]": showTag,
-              },
+              }
             )}
             {...props}
           />
@@ -332,18 +325,18 @@ export const CategoryCombobox = forwardRef<
           "max-h-[200px] overflow-y-auto",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
-          "data-[side=bottom]:slide-in-from-top-2 data-[side=start]:slide-in-from-end-2 data-[side=end]:slide-in-from-start-2 data-[side=top]:slide-in-from-bottom-2",
+          "data-[side=bottom]:slide-in-from-top-2 data-[side=start]:slide-in-from-end-2 data-[side=end]:slide-in-from-start-2 data-[side=top]:slide-in-from-bottom-2"
         )}
         onInteractOutside={(e) => {
-          e.preventDefault();
+          e.preventDefault()
 
-          const target = e.target as HTMLElement;
+          const target = e.target as HTMLElement
 
           if (target.closest("[data-anchor]")) {
-            return;
+            return
           }
 
-          handleOpenChange(false);
+          handleOpenChange(false)
         }}
       >
         {showLevelUp && (
@@ -354,7 +347,7 @@ export const CategoryCombobox = forwardRef<
                 role="button"
                 className={clx(
                   "transition-fg grid w-full appearance-none grid-cols-[20px_1fr] items-center justify-center gap-2 rounded-md px-2 py-1.5 text-start outline-none",
-                  "data-[active=true]:bg-ui-bg-field-hover",
+                  "data-[active=true]:bg-ui-bg-field-hover"
                 )}
                 type="button"
                 onClick={handleLevelUp}
@@ -381,7 +374,7 @@ export const CategoryCombobox = forwardRef<
                   "transition-fg bg-ui-bg-base grid cursor-pointer grid-cols-1 items-center gap-2 overflow-hidden",
                   {
                     "grid-cols-[1fr_32px]": option.has_children && !searchValue,
-                  },
+                  }
                 )}
               >
                 <button
@@ -394,7 +387,7 @@ export const CategoryCombobox = forwardRef<
                   role="option"
                   className={clx(
                     "grid h-full w-full appearance-none grid-cols-[20px_1fr] items-center gap-2 overflow-hidden rounded-md px-2 py-1.5 text-start outline-none",
-                    "data-[active=true]:bg-ui-bg-field-hover",
+                    "data-[active=true]:bg-ui-bg-field-hover"
                   )}
                   onClick={handleSelect(option)}
                   onMouseEnter={() =>
@@ -419,7 +412,7 @@ export const CategoryCombobox = forwardRef<
                   <button
                     className={clx(
                       "text-ui-fg-muted flex size-8 appearance-none items-center justify-center rounded-md outline-none",
-                      "hover:bg-ui-bg-base-hover active:bg-ui-bg-base-pressed",
+                      "hover:bg-ui-bg-base-hover active:bg-ui-bg-base-pressed"
                     )}
                     type="button"
                     onClick={handleLevelDown(option)}
@@ -462,45 +455,45 @@ export const CategoryCombobox = forwardRef<
         </div>
       </RadixPopover.Content>
     </RadixPopover.Root>
-  );
-});
+  )
+})
 
-CategoryCombobox.displayName = "CategoryCombobox";
+CategoryCombobox.displayName = "CategoryCombobox"
 
 type ProductCategoryOption = {
-  value: string;
-  label: string;
-  has_children: boolean;
-};
+  value: string
+  label: string
+  has_children: boolean
+}
 
 function getParentId(level: Level[]): string {
   if (!level.length) {
-    return "null";
+    return "null"
   }
 
-  return level[level.length - 1].id;
+  return level[level.length - 1].id
 }
 
 function getParentLabel(level: Level[]): string | null {
   if (!level.length) {
-    return null;
+    return null
   }
 
-  return level[level.length - 1].label;
+  return level[level.length - 1].label
 }
 
 function getOptions(
-  categories: AdminProductCategoryResponse["product_category"][],
+  categories: AdminProductCategoryResponse["product_category"][]
 ): ProductCategoryOption[] {
   return categories.map((cat) => {
     return {
       value: cat.id,
       label: cat.name,
       has_children: cat.category_children?.length > 0,
-    };
-  });
+    }
+  })
 }
 
 function isSelected(values: string[], value: string): boolean {
-  return values.includes(value);
+  return values.includes(value)
 }

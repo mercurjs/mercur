@@ -1,3 +1,12 @@
-export * from "./customer-general-section"
-export * from "./customer-group-section"
-export * from "./customer-order-section"
+export {
+  CustomerDetailPage,
+  loader,
+  Breadcrumb,
+  type CustomerDetailPageProps,
+} from "./customer-detail-page"
+
+export {
+  useCustomerDetailContext,
+  CustomerDetailProvider,
+  type CustomerDetailContextValue,
+} from "./customer-detail-context"

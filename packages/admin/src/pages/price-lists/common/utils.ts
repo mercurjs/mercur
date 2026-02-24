@@ -8,7 +8,6 @@ import {
   PriceListCreateProductVariantSchema,
   PriceListCreateProductsSchema,
 } from "./schemas"
-import { ExtendedAdminProduct, ExtendedAdminProductVariant } from "@custom-types/products"
 
 const getValues = (priceList: HttpTypes.AdminPriceList) => {
   const startsAt = priceList.starts_at
@@ -61,8 +60,8 @@ export const getPriceListStatus = (
 }
 
 export const isProductRow = (
-  row: ExtendedAdminProduct | ExtendedAdminProductVariant
-): row is ExtendedAdminProduct => {
+  row: HttpTypes.AdminProduct | HttpTypes.AdminProductVariant
+): row is HttpTypes.AdminProduct => {
   return "variants" in row
 }
 

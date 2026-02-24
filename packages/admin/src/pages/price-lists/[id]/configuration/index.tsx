@@ -1,50 +1,55 @@
-import { Heading } from "@medusajs/ui";
-import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
-import { RouteDrawer } from "@components/modals";
-// import { useCustomerGroups } from "@hooks/api/customer-groups";
-import { usePriceList } from "@hooks/api/price-lists";
-import { PriceListConfigurationForm } from "./price-list-configuration-form";
+import { Heading } from "@medusajs/ui"
+import { useTranslation } from "react-i18next"
+import { useParams } from "react-router-dom"
+import { RouteDrawer } from "@components/modals"
+import { useCustomerGroups } from "@hooks/api/customer-groups"
+import { usePriceList } from "@hooks/api/price-lists"
 
-export const Component = () => {
-  const { t } = useTranslation();
-  const { id } = useParams();
+import { PriceListConfigurationForm } from "@pages/price-lists/price-list-configuration/components/price-list-configuration-form"
 
-  const { price_list, isPending, isError, error } = usePriceList(id!);
+const PriceListConfiguration = () => {
+  const { t } = useTranslation()
+  const { id } = useParams()
 
-  // const customerGroupIds =
-  //   price_list?.price_list_rules?.find(
-  //     (rule: any) => rule.attribute === "customer.groups.id",
-  //   )?.value || ([] as string[]);
+  const { price_list, isPending, isError, error } = usePriceList(id!)
 
-  // const {
-  //   customer_groups: customerGroupsData,
-  //   isPending: isCustomerGroupsPending,
-  //   isError: isCustomerGroupsError,
-  //   error: customerGroupsError,
-  // } = useCustomerGroups(undefined, { enabled: !!customerGroupIds?.length })
+  const customerGroupIds = price_list?.rules?.["customer.groups.id"] as
+    | string[]
+    | undefined
 
-  // const customerGroups = customerGroupsData?.map((item) => item.customer_group)
+  const {
+    customer_groups,
+    isPending: isCustomerGroupsPending,
+    isError: isCustomerGroupsError,
+    error: customerGroupsError,
+  } = useCustomerGroups(
+    {
+      id: customerGroupIds,
+    },
+    { enabled: !!customerGroupIds?.length }
+  )
 
-  // const initialCustomerGroups = (customerGroups || []).filter((group) =>
-  //   customerGroupIds.includes(group.id)
-  // )
+  const initialCustomerGroups =
+    customer_groups?.map((group) => ({
+      id: group.id,
+      name: group.name!,
+    })) || []
 
-  // const isCustomerGroupsReady = isPending
-  //   ? false
-  //   : !!customerGroupIds?.length && isCustomerGroupsPending
-  //     ? false
-  //     : true
+  const isCustomerGroupsReady = isPending
+    ? false
+    : !!customerGroupIds?.length && isCustomerGroupsPending
+      ? false
+      : true
 
-  const ready = !isPending && !!price_list; // && isCustomerGroupsReady
+  const ready = !isPending && !!price_list && isCustomerGroupsReady
 
   if (isError) {
-    throw error;
+    throw error
   }
 
-  // if (isCustomerGroupsError) {
-  //   throw customerGroupsError;
-  // }
+  if (isCustomerGroupsError) {
+    throw customerGroupsError
+  }
 
   return (
     <RouteDrawer>
@@ -56,9 +61,11 @@ export const Component = () => {
       {ready && (
         <PriceListConfigurationForm
           priceList={price_list}
-          customerGroups={[]}
+          customerGroups={initialCustomerGroups}
         />
       )}
     </RouteDrawer>
-  );
-};
+  )
+}
+
+export const Component = PriceListConfiguration

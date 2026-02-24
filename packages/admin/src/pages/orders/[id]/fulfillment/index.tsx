@@ -1,9 +1,8 @@
-// Route: /orders/:id/fulfillment
 import { useParams, useSearchParams } from "react-router-dom"
 
 import { RouteFocusModal } from "@components/modals"
 import { useOrder } from "@hooks/api/orders"
-import { OrderCreateFulfillmentForm } from "./order-create-fulfillment-form"
+import { OrderCreateFulfillmentForm } from "./_components/order-create-fulfillment-form"
 
 export const Component = () => {
   const { id } = useParams()
@@ -11,7 +10,8 @@ export const Component = () => {
   const requiresShipping = searchParams.get("requires_shipping") === "true"
 
   const { order, isLoading, isError, error } = useOrder(id!, {
-    fields: "*items.variant.product.shipping_profile",
+    fields:
+      "currency_code,*items,*items.variant,+items.variant.product.shipping_profile.id,*shipping_address,+shipping_methods.shipping_option_id",
   })
 
   if (isError) {
@@ -21,7 +21,7 @@ export const Component = () => {
   const ready = !isLoading && order
 
   return (
-    <RouteFocusModal>
+    <RouteFocusModal data-testid="order-create-fulfillment-modal">
       {ready && (
         <OrderCreateFulfillmentForm
           order={order}

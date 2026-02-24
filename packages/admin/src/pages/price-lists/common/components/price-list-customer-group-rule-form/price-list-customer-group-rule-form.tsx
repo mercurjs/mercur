@@ -8,15 +8,15 @@ import {
 } from "@tanstack/react-table"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { StackedDrawer } from "@components/modals/stacked-drawer"
-import { StackedFocusModal } from "@components/modals/stacked-focus-modal"
-import { _DataTable } from "@components/table/data-table"
-import { useCustomerGroups } from "@hooks/api/customer-groups"
-import { useCustomerGroupTableFilters } from "@hooks/table/filters/use-customer-group-table-filters"
-import { useCustomerGroupTableQuery } from "@hooks/table/query/use-customer-group-table-query"
-import { useDataTable } from "@hooks/use-data-table"
+import { StackedDrawer } from "../../../../../../../../POC PRojects/core-admin/src/components/modals/stacked-drawer"
+import { StackedFocusModal } from "../../../../../../../../POC PRojects/core-admin/src/components/modals/stacked-focus-modal"
+import { _DataTable } from "../../../../../../../../POC PRojects/core-admin/src/components/table/data-table"
+import { useCustomerGroups } from "../../../../../../../../POC PRojects/core-admin/src/hooks/api/customer-groups"
+import { useCustomerGroupTableColumns } from "../../../../../../../../POC PRojects/core-admin/src/hooks/table/columns/use-customer-group-table-columns"
+import { useCustomerGroupTableFilters } from "../../../../../../../../POC PRojects/core-admin/src/hooks/table/filters/use-customer-group-table-filters"
+import { useCustomerGroupTableQuery } from "../../../../../../../../POC PRojects/core-admin/src/hooks/table/query/use-customer-group-table-query"
+import { useDataTable } from "../../../../../../../../POC PRojects/core-admin/src/hooks/use-data-table"
 import { PriceListCustomerGroup } from "../../schemas"
-import { TextCell, TextHeader } from "@components/table/table-cells/common/text-cell"
 
 const PAGE_SIZE = 50
 const PREFIX = "cg"
@@ -58,25 +58,13 @@ export const PriceListCustomerGroupRuleForm = ({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-
-  // Get the sort parameter from the raw object
-  const sortParam = raw.order
-    ? raw.order.startsWith("-")
-      ? raw.order
-      : raw.order
-    : undefined
-
-  const { customer_groups: customerGroupsData, count, isLoading, isError, error } =
+  const { customer_groups, count, isLoading, isError, error } =
     useCustomerGroups(
       { ...searchParams, fields: "id,name,customers.id" },
       {
         placeholderData: keepPreviousData,
-      },
-      sortParam ? { sort: sortParam } : undefined
+      }
     )
-
-  const customerGroups = customerGroupsData
-    ?.map((item) => item.customer_group)
 
   const updater: OnChangeFn<RowSelectionState> = (value) => {
     const state = typeof value === "function" ? value(rowSelection) : value
@@ -88,12 +76,9 @@ export const PriceListCustomerGroupRuleForm = ({
     const removedIds = currentIds.filter((id) => !ids.includes(id))
 
     const newCustomerGroups =
-      customerGroups
+      customer_groups
         ?.filter((cg) => newIds.includes(cg.id))
-        .map((cg) => ({
-          id: cg.id,
-          name: cg.name!,
-        })) || []
+        .map((cg) => ({ id: cg.id, name: cg.name! })) || []
 
     const filteredIntermediate = intermediate.filter(
       (cg) => !removedIds.includes(cg.id)
@@ -111,7 +96,7 @@ export const PriceListCustomerGroupRuleForm = ({
   const columns = useColumns()
 
   const { table } = useDataTable({
-    data: customerGroups || [],
+    data: customer_groups || [],
     columns,
     count,
     enablePagination: true,
@@ -141,16 +126,16 @@ export const PriceListCustomerGroupRuleForm = ({
           count={count}
           isLoading={isLoading}
           filters={filters}
-          layout="fill"
-          pagination
-          search
-          prefix={PREFIX}
-          queryObject={raw}
           orderBy={[
             { key: "name", label: t("fields.name") },
             { key: "created_at", label: t("fields.createdAt") },
             { key: "updated_at", label: t("fields.updatedAt") },
           ]}
+          layout="fill"
+          pagination
+          search
+          prefix={PREFIX}
+          queryObject={raw}
         />
       </Component.Body>
       <Component.Footer>
@@ -170,7 +155,7 @@ export const PriceListCustomerGroupRuleForm = ({
 const columnHelper = createColumnHelper<HttpTypes.AdminCustomerGroup>()
 
 const useColumns = () => {
-  const { t } = useTranslation()
+  const base = useCustomerGroupTableColumns()
 
   return useMemo(
     () => [
@@ -202,17 +187,8 @@ const useColumns = () => {
           )
         },
       }),
-      columnHelper.accessor("name", {
-        header: () => <TextHeader text={t("fields.name")} />,
-        cell: ({ row }) => {
-          return (
-            <TextCell
-              text={row.original?.name || "-"}
-            />
-          )
-        },
-      }),
+      ...base,
     ],
-    [t]
+    [base]
   )
 }

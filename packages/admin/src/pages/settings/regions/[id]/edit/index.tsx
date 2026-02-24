@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
 import { RouteDrawer } from "@components/modals"
-import { usePaymentProviders } from "@hooks/api/payments"
+import { usePricePreferences } from "@hooks/api/price-preferences"
 import { useRegion } from "@hooks/api/regions"
 import { useStore } from "@hooks/api/store"
 import { currencies } from "@lib/data/currencies"
+
 import { EditRegionForm } from "./_components/edit-region-form"
-import { usePricePreferences } from "@hooks/api/price-preferences"
 
 const RegionEdit = () => {
   const { t } = useTranslation()
@@ -48,10 +48,6 @@ const RegionEdit = () => {
   const storeCurrencies = (store?.supported_currencies ?? []).map(
     (c) => currencies[c.currency_code.toUpperCase()]
   )
-  const { payment_providers: paymentProviders = [] } = usePaymentProviders({
-    limit: 999,
-    is_enabled: true,
-  })
 
   if (isRegionError) {
     throw regionError
@@ -66,15 +62,16 @@ const RegionEdit = () => {
   }
 
   return (
-    <RouteDrawer>
-      <RouteDrawer.Header>
-        <Heading>{t("regions.editRegion")}</Heading>
+    <RouteDrawer data-testid="region-edit-drawer">
+      <RouteDrawer.Header data-testid="region-edit-drawer-header">
+        <Heading data-testid="region-edit-drawer-heading">
+          {t("regions.editRegion")}
+        </Heading>
       </RouteDrawer.Header>
       {!isLoading && region && (
         <EditRegionForm
           region={region}
           currencies={storeCurrencies}
-          paymentProviders={paymentProviders}
           pricePreferences={pricePreferences}
         />
       )}
