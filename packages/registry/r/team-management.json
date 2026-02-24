@@ -78,7 +78,7 @@
     },
     {
       "path": "team-management/workflows/member/workflows/invite-member.ts",
-      "content": "import { WorkflowResponse, createWorkflow, transform } from \"@medusajs/framework/workflows-sdk\"\n\nimport { CreateMemberInviteDTO } from \"../../../modules/member\"\nimport { createMemberInviteStep } from \"../steps/create-member-invite\"\n\nexport const inviteMemberWorkflow = createWorkflow(\n  \"invite-member\",\n  function (input: CreateMemberInviteDTO) {\n    const invite = createMemberInviteStep(input)\n\n    return new WorkflowResponse(invite)\n  }\n)\n",
+      "content": "import { WorkflowResponse, createWorkflow } from \"@medusajs/framework/workflows-sdk\"\n\nimport { CreateMemberInviteDTO } from \"../../../modules/member\"\nimport { createMemberInviteStep } from \"../steps/create-member-invite\"\n\nexport const inviteMemberWorkflow = createWorkflow(\n  \"invite-member\",\n  function (input: CreateMemberInviteDTO) {\n    const invite = createMemberInviteStep(input)\n\n    return new WorkflowResponse(invite)\n  }\n)\n",
       "type": "registry:workflow"
     },
     {

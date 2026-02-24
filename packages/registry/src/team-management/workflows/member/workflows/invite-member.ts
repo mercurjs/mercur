@@ -1,4 +1,4 @@
-import { WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
+import { WorkflowResponse, createWorkflow } from "@medusajs/framework/workflows-sdk"
 
 import { CreateMemberInviteDTO } from "../../../modules/member"
 import { createMemberInviteStep } from "../steps/create-member-invite"
