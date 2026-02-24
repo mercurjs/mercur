@@ -1,0 +1,72 @@
+---
+title: "Installation"
+description: "Install Mercur and set up your marketplace project."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+## Requirements
+
+- [Node.js v20+](https://nodejs.org/en/download) (LTS version)
+- [Git](https://git-scm.com/downloads)
+- [PostgreSQL](https://www.postgresql.org/download/) installed and running
+
+## Create a new project
+
+Use the Mercur CLI to scaffold a new project:
+
+```bash
+npx @mercurjs/cli@canary create my-marketplace
+```
+
+The CLI will guide you through template selection and database configuration.
+
+## Initialize an existing project
+
+If you have an existing Medusa project, initialize Mercur in it:
+
+```bash
+npx @mercurjs/cli@canary init
+```
+
+This creates a `blocks.json` configuration file in your project.
+
+## Add blocks
+
+Install blocks from the registry:
+
+```bash
+npx @mercurjs/cli@canary add <block-name>
+```
+
+Browse available blocks:
+
+```bash
+npx @mercurjs/cli@canary search
+```
+
+## Run database migrations
+
+After adding blocks that include modules:
+
+```bash
+npx medusa db:generate <module1> <module2> ...
+npx medusa db:migrate
+```
+
+## Start the development server
+
+```bash
+npx medusa develop
+```
+
+## Default credentials
+
+If you used the CLI to create a new project with seed data:
+
+**Vendor:**
+
+```
+email: seller@medusa-test.com
+password: supersecret
+```

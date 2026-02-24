@@ -1,0 +1,104 @@
+---
+title: "Blocks"
+description: "Self-contained pieces of marketplace functionality that get copied into your project as source code."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+Blocks are the unit of distribution in Mercur. Each block is a self-contained feature — a reviews system, a wishlist, product import/export — that you install directly into your project. Unlike packages, blocks are copied as source code. You own every file and can modify anything.
+
+## Installing blocks
+
+```bash
+npx @mercurjs/cli@canary add reviews
+npx @mercurjs/cli@canary add wishlist product-import-export
+```
+
+The CLI fetches the block from the [registry](/v2/developer-guide/registry), resolves dependencies, transforms imports to match your project's path aliases, and copies the files into the right directories.
+
+## What's inside a block
+
+A block can contain any combination of:
+
+| Type | What it is | Example |
+|------|-----------|---------|
+| **Modules** | Data models and business logic | Review model, wishlist service |
+| **Workflows** | Multi-step business processes | Create review, export products |
+| **API Routes** | HTTP endpoints | `GET /store/reviews`, `POST /vendor/products/import` |
+| **Links** | Relationships between modules | Product-review link, customer-wishlist link |
+| **Vendor extensions** | Vendor portal pages and components | Reviews list page, import drawer |
+| **Admin extensions** | Admin panel pages and components | Reviews moderation page |
+
+For example, the `reviews` block includes a module (data model + service), workflows (create/update/delete), API routes (store, vendor, admin), links (product-review, seller-review), and UI pages for both the vendor portal and admin panel.
+
+## Block structure
+
+Blocks follow a consistent directory convention:
+
+```
+reviews/
+├── modules/reviews/       # Data model, service, types
+├── workflows/review/      # Steps and workflow definitions
+├── links/                 # product-review, seller-review, etc.
+├── api/
+│   ├── admin/reviews/     # Admin API routes
+│   ├── vendor/reviews/    # Vendor API routes
+│   └── store/reviews/     # Store API routes
+├── vendor/pages/reviews/  # Vendor portal UI
+└── admin/pages/reviews/   # Admin panel UI
+```
+
+Files are placed into your project based on the aliases in your `blocks.json`:
+
+```json blocks.json
+{
+  "aliases": {
+    "modules": "packages/api/src/modules",
+    "workflows": "packages/api/src/workflows",
+    "api": "packages/api/src/api",
+    "links": "packages/api/src/links",
+    "vendor": "apps/vendor/src",
+    "admin": "apps/admin/src"
+  }
+}
+```
+
+## Post-installation
+
+After adding a block, the CLI shows setup instructions. Typically you need to:
+
+1. **Register the module** in `medusa-config.ts`
+2. **Add middlewares** to your `api/middlewares.ts`
+3. **Run migrations** with `npx medusa db:generate` and `npx medusa db:migrate`
+4. **Regenerate types** with `npx @mercurjs/cli@canary codegen`
+
+## Updating blocks
+
+Check for changes against the registry:
+
+```bash
+npx @mercurjs/cli@canary diff reviews
+```
+
+If there are updates you want, re-install with the overwrite flag:
+
+```bash
+npx @mercurjs/cli@canary add reviews --overwrite
+```
+
+Since blocks are source code in your project, you control when and how updates are applied.
+
+## Available blocks
+
+Search the registry to see what's available:
+
+```bash
+npx @mercurjs/cli@canary search
+npx @mercurjs/cli@canary search --query wishlist
+```
+
+View details about a specific block:
+
+```bash
+npx @mercurjs/cli@canary view reviews
+```

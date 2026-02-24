@@ -78,184 +78,184 @@ export const create = new Command()
         }
 
         projectName = enteredName;
+      }
 
-        // todo: uncomment when more templates are available
-        // let template = opts.template;
-        // if (!template) {
-        //   const { selectedTemplate } = await prompts({
-        //     type: "select",
-        //     name: "selectedTemplate",
-        //     message: `Which ${highlighter.info(
-        //       "template"
-        //     )} would you like to use?`,
-        //     choices: Object.entries(CREATE_TEMPLATES).map(([key, value]) => ({
-        //       title: value,
-        //       value: key,
-        //     })),
-        //   });
+      // todo: uncomment when more templates are available
+      // let template = opts.template;
+      // if (!template) {
+      //   const { selectedTemplate } = await prompts({
+      //     type: "select",
+      //     name: "selectedTemplate",
+      //     message: `Which ${highlighter.info(
+      //       "template"
+      //     )} would you like to use?`,
+      //     choices: Object.entries(CREATE_TEMPLATES).map(([key, value]) => ({
+      //       title: value,
+      //       value: key,
+      //     })),
+      //   });
 
-        //   if (!selectedTemplate) {
-        //     process.exit(0);
-        //   }
+      //   if (!selectedTemplate) {
+      //     process.exit(0);
+      //   }
 
-        //   template = selectedTemplate;
-        // }
-        const template = opts.template || "basic";
+      //   template = selectedTemplate;
+      // }
+      const template = opts.template || "basic";
 
-        if (!opts.skipEmail) {
-          const { wantsEmail } = await prompts({
-            type: "confirm",
-            name: "wantsEmail",
-            message: "Mind sharing your email? We reach out for priority support, community events, and invite-only meetups. We never spam.",
-            initial: false,
+      if (!opts.skipEmail) {
+        const { wantsEmail } = await prompts({
+          type: "confirm",
+          name: "wantsEmail",
+          message: "Mind sharing your email? We reach out for priority support, community events, and invite-only meetups. We never spam.",
+          initial: false,
+        });
+
+        if (wantsEmail) {
+          const { email } = await prompts({
+            type: "text",
+            name: "email",
+            message: "Enter your email:",
+            format: (value: string) => value.trim(),
           });
 
-          if (wantsEmail) {
-            const { email } = await prompts({
-              type: "text",
-              name: "email",
-              message: "Enter your email:",
-              format: (value: string) => value.trim(),
-            });
-
-            if (email) {
-              setTelemetryEmail(email);
-            }
+          if (email) {
+            setTelemetryEmail(email);
           }
         }
+      }
 
-        const projectDir = path.resolve(opts.cwd, projectName);
+      const projectDir = path.resolve(opts.cwd, projectName);
 
-        await createOrFindProjectDir(projectDir);
+      await createOrFindProjectDir(projectDir);
 
-        const downloadSpinner = spinner("Downloading template...").start();
-        await downloadTemplate({
+      const downloadSpinner = spinner("Downloading template...").start();
+      await downloadTemplate({
+        projectDir,
+        template: template,
+      });
+      downloadSpinner.succeed("Template downloaded successfully.");
+
+      const packageManager = await getPackageManager(projectDir);
+      await setPackageManagerField(projectDir, packageManager);
+
+      if (!opts.deps) {
+        spinner("Dependency installation skipped.").warn();
+      } else {
+        const initialInstallSpinner = spinner("Installing dependencies...").start();
+        const installStart = Date.now();
+        const result = await installDeps({
           projectDir,
-          template: template,
+          packageManager,
         });
-        downloadSpinner.succeed("Template downloaded successfully.");
-
-        const packageManager = await getPackageManager(projectDir);
-
-        if (!opts.deps) {
-          spinner("Dependency installation skipped.").warn();
+        const installDuration = ((Date.now() - installStart) / 1000).toFixed(1);
+        if (result) {
+          initialInstallSpinner.succeed(`Dependencies installed successfully in ${installDuration}s.`);
         } else {
-          const initialInstallSpinner = spinner("Installing dependencies...").start();
-          const installStart = Date.now();
-          const result = await installDeps({
-            projectDir,
-            packageManager,
-          });
-          const installDuration = ((Date.now() - installStart) / 1000).toFixed(1);
-          if (result) {
-            initialInstallSpinner.succeed(`Dependencies installed successfully in ${installDuration}s.`);
-          } else {
-            initialInstallSpinner.fail(`Failed to install dependencies`);
-            await sendTelemetryEvent({
-              type: 'create',
-              payload: {
-                outcome: 'dependency_installation_failed',
-                packageManager,
-              }
-            }, {
-              cwd: projectDir,
-            })
-            process.exit(1);
-          }
-        }
-
-        let dbConnectionString: string | undefined = opts.dbConnectionString;
-        let dbResult: SetupDatabaseResult | undefined;
-
-        if (!opts.skipDb) {
-          const dbSpinner = spinner("Setting up database...").start();
-          dbResult = await setupDatabase({
-            projectDir,
-            projectName,
-            dbConnectionString,
-            spinner: dbSpinner,
-          });
-
-          if (dbResult.success) {
-            if (dbResult.alreadyExists) {
-              dbSpinner.warn(
-                `Database ${highlighter.info(dbResult.dbName)} already exists. Skipping database creation.`
-              );
-            } else {
-              dbSpinner.succeed(
-                `Database ${highlighter.info(dbResult.dbName)} setup successfully.`
-              );
+          initialInstallSpinner.fail(`Failed to install dependencies`);
+          await sendTelemetryEvent({
+            type: 'create',
+            payload: {
+              outcome: 'dependency_installation_failed',
+              packageManager,
             }
-            dbConnectionString = dbResult.connectionString!;
-          } else {
-            dbSpinner.fail("Failed to setup database.");
-            logger.log(feedbackOutro());
-            await sendTelemetryEvent({
-              type: 'create',
-              payload: {
-                outcome: 'database_setup_failed',
-              }
-            }, { cwd: projectDir });
-            process.exit(1);
-          }
-        } else {
-          spinner("Database setup skipped.").warn();
+          }, {
+            cwd: projectDir,
+          })
+          process.exit(1);
         }
+      }
 
-        await manageEnvFiles({
+      let dbConnectionString: string | undefined = opts.dbConnectionString;
+      let dbResult: SetupDatabaseResult | undefined;
+
+      if (!opts.skipDb) {
+        const dbSpinner = spinner("Setting up database...").start();
+        dbResult = await setupDatabase({
           projectDir,
-          databaseUri: dbConnectionString,
+          projectName,
+          dbConnectionString,
+          spinner: dbSpinner,
         });
 
-        await initGit(projectDir);
-
-        await sendTelemetryEvent({
-          type: 'create',
-          payload: {
-            outcome: 'created'
+        if (dbResult.success) {
+          if (dbResult.alreadyExists) {
+            dbSpinner.warn(
+              `Database ${highlighter.info(dbResult.dbName)} already exists. Skipping database creation.`
+            );
+          } else {
+            dbSpinner.succeed(
+              `Database ${highlighter.info(dbResult.dbName)} setup successfully.`
+            );
           }
-        }, {
-          cwd: projectDir,
-        });
-
-        spinner("Mercur project successfully created!").succeed();
-
-        if (dbResult?.success) {
-          spinner("Starting development server...").info();
-
-          const apiDir = path.join(projectDir, "packages", "api");
-          const inviteUrl = dbResult.inviteToken
-            ? `http://localhost:9000/app/invite?token=${dbResult.inviteToken}&first_run=true`
-            : "http://localhost:9000/app";
-
-          const serverProcess = exec(`${packageManager === "npm" ? "npm run" : packageManager} dev`, {
-            cwd: apiDir,
-            env: process.env,
-          });
-
-          serverProcess.stdout?.pipe(process.stdout);
-          serverProcess.stderr?.pipe(process.stderr);
-
-          waitOn({
-            resources: ["http://localhost:9000/health"],
-            timeout: 60000,
-          }).then(async () => {
-            try {
-              await open(inviteUrl);
-            } catch {
-              spinner("Open this URL in your browser to create your admin account:").info();
-              logger.log(highlighter.info(inviteUrl));
-            }
-          }).catch(() => {
-            spinner("To create your admin account, visit:").info();
-            logger.log(highlighter.info(inviteUrl));
-          });
+          dbConnectionString = dbResult.connectionString!;
         } else {
-          logger.log(kleur.bgGreen(kleur.black(" Next Steps ")));
-          logger.log(successMessage(projectDir, packageManager));
+          dbSpinner.fail("Failed to setup database.");
           logger.log(feedbackOutro());
-          logger.break();
+          await sendTelemetryEvent({
+            type: 'create',
+            payload: {
+              outcome: 'database_setup_failed',
+            }
+          }, { cwd: projectDir });
+          process.exit(1);
         }
+      } else {
+        spinner("Database setup skipped.").warn();
+      }
+
+      await manageEnvFiles({
+        projectDir,
+        databaseUri: dbConnectionString,
+      });
+
+      await initGit(projectDir);
+
+      await sendTelemetryEvent({
+        type: 'create',
+        payload: {
+          outcome: 'created'
+        }
+      }, {
+        cwd: projectDir,
+      });
+
+      spinner("Mercur project successfully created!").succeed();
+
+      if (dbResult?.success) {
+        spinner("Starting development server...").info();
+
+        const inviteUrl = dbResult.inviteToken
+          ? `http://localhost:9000/app/invite?token=${dbResult.inviteToken}&first_run=true`
+          : "http://localhost:9000/app";
+
+        const serverProcess = exec(`${packageManager === "npm" ? "npm run" : packageManager} dev`, {
+          cwd: projectDir,
+          env: process.env,
+        });
+
+        serverProcess.stdout?.pipe(process.stdout);
+        serverProcess.stderr?.pipe(process.stderr);
+
+        waitOn({
+          resources: ["http://localhost:9000/health"],
+          timeout: 60000,
+        }).then(async () => {
+          try {
+            await open(inviteUrl);
+          } catch {
+            spinner("Open this URL in your browser to create your admin account:").info();
+            logger.log(highlighter.info(inviteUrl));
+          }
+        }).catch(() => {
+          spinner("To create your admin account, visit:").info();
+          logger.log(highlighter.info(inviteUrl));
+        });
+      } else {
+        logger.log(kleur.bgGreen(kleur.black(" Next Steps ")));
+        logger.log(successMessage(projectDir, packageManager));
+        logger.log(feedbackOutro());
+        logger.break();
       }
     } catch (error) {
       logger.break();
@@ -370,6 +370,17 @@ function createTerminalLink(text: string, url: string) {
   return terminalLink(text, url, {
     fallback: (text, url) => `${text}: ${kleur.cyan().underline(url)}`,
   });
+}
+
+async function setPackageManagerField(
+  projectDir: string,
+  packageManager: string
+): Promise<void> {
+  const packageJsonPath = path.join(projectDir, "package.json");
+  const packageJson = await fs.readJSON(packageJsonPath);
+  const { stdout: version } = await execa(packageManager, ["--version"]);
+  packageJson.packageManager = `${packageManager}@${version.trim()}`;
+  await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
 }
 
 async function initGit(projectDir: string): Promise<void> {

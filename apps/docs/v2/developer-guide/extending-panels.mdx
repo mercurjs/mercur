@@ -1,0 +1,225 @@
+---
+title: "Extending Panels"
+description: "Add pages, customize navigation, branding, and replace components in the admin and vendor panels."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+Both the admin panel and vendor portal use the same SDK (`@mercurjs/dashboard-sdk`). Customization is file-based and convention-driven — you add pages by creating files, configure navigation through exports, and override components through config.
+
+## Setup
+
+Every panel project needs two files at its root:
+
+### Vite config
+
+```typescript vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { dashboardPlugin } from '@mercurjs/dashboard-sdk'
+
+export default defineConfig({
+  plugins: [react(), dashboardPlugin()],
+})
+```
+
+### Mercur config
+
+```typescript mercur.config.ts
+import { defineConfig } from '@mercurjs/dashboard-sdk'
+
+export default defineConfig({
+  name: 'My Marketplace',
+  logo: 'https://example.com/logo.svg',
+})
+```
+
+Available options:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `name` | `string` | Application name shown in the sidebar |
+| `logo` | `string` | URL to a logo image |
+| `components` | `object` | Component overrides (see [Replacing components](#replacing-components)) |
+| `i18n` | `object` | Internationalization settings |
+| `backendUrl` | `string` | Medusa backend URL (default: `http://localhost:9000`) |
+
+## Adding pages
+
+Create a `page.tsx` file inside `src/pages/` and export a default React component. The route is determined by the file path.
+
+```tsx src/pages/reviews/page.tsx
+import { Star } from "@medusajs/icons"
+import type { RouteConfig } from "@mercurjs/dashboard-sdk"
+
+export const config: RouteConfig = {
+  label: "Reviews",
+  icon: Star,
+  rank: 10,
+}
+
+export default function ReviewsPage() {
+  return <div>Reviews</div>
+}
+```
+
+This creates a `/reviews` route and adds a "Reviews" item to the sidebar.
+
+### The `config` export
+
+The `config` export controls how the page appears in navigation:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `label` | `string` | **Required.** Text shown in the sidebar menu |
+| `icon` | `ComponentType` | Icon component (e.g. from `@medusajs/icons`) |
+| `rank` | `number` | Sort order — lower numbers appear first |
+| `nested` | `string` | Parent path for nested menu items |
+| `translationNs` | `string` | i18n namespace for the label |
+| `public` | `boolean` | If `true`, the route is accessible without authentication |
+
+Pages without a `config` export are still routed but won't appear in the sidebar.
+
+## Routing conventions
+
+File paths map to URL routes automatically:
+
+| File path | Route | Description |
+|-----------|-------|-------------|
+| `src/pages/page.tsx` | `/` | Root page |
+| `src/pages/reviews/page.tsx` | `/reviews` | Static segment |
+| `src/pages/reviews/[id]/page.tsx` | `/reviews/:id` | Dynamic segment |
+| `src/pages/reviews/[[id]]/page.tsx` | `/reviews/:id?` | Optional dynamic segment |
+| `src/pages/search/[*].tsx` | `/search/*` | Catch-all |
+| `src/pages/(settings)/page.tsx` | Route grouping | Groups routes without adding a URL segment |
+| `src/pages/dashboard/@sidebar/page.tsx` | Parallel route | Renders alongside parent |
+
+## Navigation
+
+Sidebar items are generated from pages that export a `config` with a `label`.
+
+### Ordering
+
+Use `rank` to control the order. Lower values appear higher:
+
+```tsx
+// src/pages/orders/page.tsx
+export const config: RouteConfig = {
+  label: "Orders",
+  icon: ShoppingCart,
+  rank: 1,
+}
+
+// src/pages/products/page.tsx
+export const config: RouteConfig = {
+  label: "Products",
+  icon: Tag,
+  rank: 2,
+}
+```
+
+### Nested menus
+
+Use `nested` to group pages under a parent:
+
+```tsx src/pages/settings/shipping/page.tsx
+export const config: RouteConfig = {
+  label: "Shipping",
+  nested: "/settings",
+}
+```
+
+This places "Shipping" as a child item under `/settings` in the sidebar.
+
+## Branding
+
+Set `name` and `logo` in `mercur.config.ts` to customize the sidebar header:
+
+```typescript mercur.config.ts
+import { defineConfig } from '@mercurjs/dashboard-sdk'
+
+export default defineConfig({
+  name: 'WeTest',
+  logo: 'https://ui-avatars.com/api/?name=WeTest&background=18181B&color=fff&size=200&bold=true&format=svg',
+})
+```
+
+## Replacing components
+
+Override built-in layout components in `mercur.config.ts`:
+
+```typescript mercur.config.ts
+import { defineConfig } from '@mercurjs/dashboard-sdk'
+
+export default defineConfig({
+  name: 'My Marketplace',
+  components: {
+    MainSidebar: 'components/custom-sidebar',
+    SettingsSidebar: 'components/custom-settings-sidebar',
+    TopbarActions: 'components/custom-topbar-actions',
+  },
+})
+```
+
+Paths are relative to `src/`. Each file must have a default export:
+
+```tsx src/components/custom-topbar-actions.tsx
+export default function CustomTopbarActions() {
+  return (
+    <div>
+      <button>Help</button>
+      <button>Notifications</button>
+    </div>
+  )
+}
+```
+
+| Component | Description |
+|-----------|-------------|
+| `MainSidebar` | Primary navigation sidebar |
+| `SettingsSidebar` | Settings section sidebar |
+| `TopbarActions` | Action buttons in the top bar |
+
+## Internationalization
+
+**1. Create translation resources**
+
+```typescript src/i18n/index.ts
+export default {
+  en: {
+    reviews: {
+      title: "Reviews",
+      description: "Manage product reviews",
+    },
+  },
+  de: {
+    reviews: {
+      title: "Bewertungen",
+      description: "Produktbewertungen verwalten",
+    },
+  },
+}
+```
+
+**2. Reference the namespace in your page config**
+
+```tsx src/pages/reviews/page.tsx
+export const config: RouteConfig = {
+  label: "reviews.title",
+  icon: Star,
+  translationNs: "reviews",
+}
+```
+
+**3. Set the default language**
+
+```typescript mercur.config.ts
+import { defineConfig } from '@mercurjs/dashboard-sdk'
+
+export default defineConfig({
+  name: 'My Marketplace',
+  i18n: {
+    defaultLanguage: 'en',
+  },
+})
+```

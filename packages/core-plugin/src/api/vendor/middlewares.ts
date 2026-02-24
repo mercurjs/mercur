@@ -39,9 +39,13 @@ import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewar
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorStoresMiddlewares } from "./stores/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
-import { unlessBaseUrl } from "../utils"
+import { scanUnauthenticatedRoutes, unlessBaseUrl } from "../utils"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
+const unauthenticatedRoutes = [
+  /^\/vendor\/sellers$/,
+  ...scanUnauthenticatedRoutes(process.cwd()),
+]
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
   {
@@ -70,7 +74,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/*",
     middlewares: [
       unlessBaseUrl(
-        /^\/vendor\/sellers$/,
+        unauthenticatedRoutes,
         authenticate("seller", ["bearer", "session"], {
           allowUnregistered: false,
         })

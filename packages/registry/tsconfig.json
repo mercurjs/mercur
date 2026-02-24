@@ -26,7 +26,8 @@
 		"outDir": "./dist",
 		"preserveWatchOutput": true,
 		"baseUrl": ".",
-		"paths": {}
+		"paths": {},
+		"verbatimModuleSyntax": false
 	},
 	"include": [
 		"src/**/*"

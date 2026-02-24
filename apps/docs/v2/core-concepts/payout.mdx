@@ -1,0 +1,114 @@
+---
+title: "Payout"
+description: "How seller payouts work in Mercur — accounts, balances, transactions, and the payout pipeline."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+The payout module handles the financial side of a marketplace — tracking how much each seller has earned, maintaining their balance, and processing transfers to their bank accounts or payment accounts.
+
+## Payout account
+
+Every seller that wants to receive funds needs a **PayoutAccount**. This account is the central entity that links a seller to their financial balance and to an external payment provider (e.g. Stripe Connect).
+
+### Account lifecycle
+
+```
+PENDING → ACTIVE
+           ↓
+        RESTRICTED → ACTIVE (or REJECTED)
+```
+
+| Status | Description |
+|--------|-------------|
+| `PENDING` | Account created, awaiting provider onboarding |
+| `ACTIVE` | Fully onboarded, can receive payouts |
+| `RESTRICTED` | Provider has flagged the account (e.g. missing KYC) |
+| `REJECTED` | Provider rejected the account |
+
+### Onboarding
+
+When a payout account is created, an **Onboarding** record is attached to it. This stores provider-specific data needed for identity verification or account setup (e.g. Stripe Connect onboarding links). The onboarding data is merged with the account data before being sent to the provider.
+
+<Info>
+  Payout account creation uses idempotency keys to prevent duplicate accounts if the request is retried.
+</Info>
+
+## Balance tracking
+
+Each payout account maintains a **PayoutBalance** per currency. The balance is updated automatically when transactions are added or removed.
+
+Balances are stored with dual precision:
+- `balance` — Display value for UI
+- `raw_balance` — High-precision value (string with 20-digit precision) for accurate financial calculations
+
+All balance calculations use `BigNumber` arithmetic to avoid floating-point errors.
+
+## Transactions
+
+A **PayoutTransaction** represents a credit or debit against a seller's payout account. Transactions are the building blocks of the balance — every balance change is backed by a transaction record.
+
+Each transaction stores:
+
+| Field | Description |
+|-------|-------------|
+| `amount` | The transaction amount |
+| `currency_code` | Currency of the transaction |
+| `reference` | Type of source (e.g. `"order"`) |
+| `reference_id` | ID of the source entity |
+
+<Info>
+  Balance updates use `SERIALIZABLE` transaction isolation to prevent race conditions when multiple orders are credited simultaneously.
+</Info>
+
+## The payout pipeline
+
+### Crediting an order
+
+When an order is completed, the `creditOrderToPayoutAccountWorkflow` calculates the seller's earnings and credits their account:
+
+1. **Fetch order** — Loads the order with its items, commission lines, and seller's payout account
+2. **Validate account** — Confirms the seller has a linked payout account
+3. **Calculate net earnings** — Sums commission amounts across all items and subtracts from the order total:
+   ```
+   net_amount = order.total - total_commission
+   ```
+4. **Create transaction** — Records a `PayoutTransaction` with `reference: "order"` pointing to the order ID
+5. **Update balance** — Adds the transaction amount to the seller's `PayoutBalance` for that currency
+
+### Processing payouts
+
+The `processPayoutWorkflow` handles webhook events from the external payment provider. It uses conditional branching to update the correct entity:
+
+**Account events:**
+- `account.activated` → Status set to `ACTIVE`
+- `account.restricted` → Status set to `RESTRICTED`
+- `account.rejected` → Status set to `REJECTED`
+
+**Payout events:**
+- `payout.processing` → Status set to `PROCESSING`
+- `payout.paid` → Status set to `PAID`
+- `payout.failed` → Status set to `FAILED`
+- `payout.canceled` → Status set to `CANCELED`
+
+### Payout validation
+
+Before a payout is initiated, the system validates:
+1. The account status is `ACTIVE`
+2. The account has sufficient balance in the requested currency
+
+## Data model overview
+
+```
+PayoutAccount
+├── Onboarding (one-to-one)
+├── PayoutBalance (one-to-many, per currency)
+├── PayoutTransaction (one-to-many, credits/debits)
+└── Payout (one-to-many, actual transfers)
+```
+
+## Provider abstraction
+
+The payout module is **provider-agnostic**. A `PayoutProviderService` acts as a bridge to the external payment processor. It delegates all external operations — creating accounts, processing payouts, parsing webhooks — to a pluggable provider implementation.
+
+The module expects exactly one payout provider to be registered. Provider-specific data is stored in the `data` JSON fields on accounts, payouts, and onboarding records.

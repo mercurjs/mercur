@@ -1,0 +1,132 @@
+---
+title: "API Client"
+description: "Type-safe client for consuming Mercur APIs."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+`@mercurjs/client` provides a type-safe way to interact with your Mercur backend. Every endpoint, request input, and response is fully typed — inferred directly from your backend routes.
+
+## Installation
+
+```bash
+npm install @mercurjs/client
+```
+
+## Create a client
+
+```typescript
+import { createClient } from "@mercurjs/client";
+import type { Routes } from "./.mercur/_generated";
+
+export const client = createClient<Routes>({
+  baseUrl: "http://localhost:9000",
+});
+```
+
+<Info>
+  The `Routes` type is generated from your backend using `@mercurjs/cli@canary
+  codegen`. This gives the client full type safety with zero manual type
+  definitions.
+</Info>
+
+You can pass default fetch options for authentication or other headers:
+
+```typescript
+export const client = createClient<Routes>({
+  baseUrl: "http://localhost:9000",
+  fetchOptions: {
+    credentials: "include",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  },
+});
+```
+
+## Calling APIs
+
+The client exposes three methods:
+
+```typescript
+// GET — fetch data
+const { reviews } = await client.vendor.reviews.query({ limit: 10 });
+
+// POST — create or update
+const { product } = await client.vendor.products.mutate({
+  title: "New Product",
+  status: "draft",
+});
+
+// DELETE — remove a resource
+await client.vendor.reviews.$id.delete({ $id: "rev_123" });
+```
+
+Use `$`-prefixed keys for path parameters:
+
+```typescript
+const { review } = await client.vendor.reviews.$id.query({
+  $id: "rev_123",
+});
+```
+
+Override fetch options per request when needed:
+
+```typescript
+const { reviews } = await client.vendor.reviews.query({
+  fetchOptions: {
+    signal: abortController.signal,
+  },
+});
+```
+
+## Inferring types
+
+Extract input and output types from any client method using `InferClientInput` and `InferClientOutput`:
+
+```typescript
+import type { InferClientInput, InferClientOutput } from "@mercurjs/client";
+
+type ListInput = InferClientInput<typeof client.vendor.reviews.query>;
+type ReviewDTO = InferClientOutput<
+  typeof client.vendor.reviews.$id.query
+>["review"];
+```
+
+## React Query
+
+The client returns plain Promises, so it works with any data-fetching library. Here's a typical pattern with TanStack React Query:
+
+```typescript
+import { useQuery } from "@tanstack/react-query";
+import { client } from "../lib/client";
+
+export function useReviews(
+  query?: InferClientInput<typeof client.vendor.reviews.query>,
+) {
+  const { data, ...rest } = useQuery({
+    queryKey: ["reviews", query],
+    queryFn: () => client.vendor.reviews.query(query),
+  });
+
+  return { ...data, ...rest };
+}
+```
+
+## Error handling
+
+Failed requests throw a `ClientError`:
+
+```typescript
+import { ClientError } from "@mercurjs/client";
+
+try {
+  await client.vendor.reviews.$id.query({ $id: "invalid" });
+} catch (error) {
+  if (error instanceof ClientError) {
+    error.message; // "Review not found"
+    error.status; // 404
+    error.statusText; // "Not Found"
+  }
+}
+```

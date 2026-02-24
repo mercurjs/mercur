@@ -1,0 +1,174 @@
+---
+title: "CLI"
+description: "Install blocks, scaffold projects, and generate types from the command line."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+The Mercur CLI (`@mercurjs/cli@canary`) manages your marketplace project — creating projects, installing blocks, generating types, and checking for updates.
+
+## Installation
+
+```bash
+npm install -g @mercurjs/cli@canary
+```
+
+## Commands
+
+### create
+
+Scaffold a new Mercur project from a template.
+
+```bash
+npx @mercurjs/cli@canary create my-marketplace
+```
+
+The CLI will prompt you for database credentials and install dependencies automatically.
+
+| Option | Description |
+|--------|-------------|
+| `-t, --template <template>` | Template to use (default: `basic`) |
+| `--no-deps` | Skip dependency installation |
+| `--skip-db` | Skip database configuration |
+| `--db-connection-string <string>` | PostgreSQL connection string |
+
+### init
+
+Initialize an existing project by creating a `blocks.json` configuration file.
+
+```bash
+npx @mercurjs/cli@canary init
+```
+
+This sets up path aliases so the CLI knows where to place blocks in your project:
+
+```json
+{
+  "aliases": {
+    "modules": "packages/api/src/modules",
+    "workflows": "packages/api/src/workflows",
+    "api": "packages/api/src/api",
+    "links": "packages/api/src/links",
+    "vendor": "apps/vendor/src",
+    "admin": "apps/admin/src"
+  }
+}
+```
+
+| Option | Description |
+|--------|-------------|
+| `-d, --defaults` | Use default paths without prompting |
+| `-s, --silent` | Suppress output |
+
+### add
+
+Install blocks from the registry into your project.
+
+```bash
+npx @mercurjs/cli@canary add wishlist
+npx @mercurjs/cli@canary add product-review order-tracking
+```
+
+Blocks are copied directly into your project as source code. The CLI resolves dependencies, transforms imports to match your path aliases, and installs required packages.
+
+| Option | Description |
+|--------|-------------|
+| `-o, --overwrite` | Overwrite existing files |
+| `-y, --yes` | Skip confirmation |
+| `-s, --silent` | Suppress output |
+
+### search
+
+Find available blocks in the registry.
+
+```bash
+npx @mercurjs/cli@canary search --query wishlist
+```
+
+| Option | Description |
+|--------|-------------|
+| `-q, --query <query>` | Search by name or description |
+| `-r, --registry <registry>` | Registry to search (default: `@mercurjs`) |
+
+### view
+
+Display detailed information about a block.
+
+```bash
+npx @mercurjs/cli@canary view wishlist
+```
+
+### diff
+
+Compare local blocks against registry versions to check for updates.
+
+```bash
+npx @mercurjs/cli@canary diff wishlist
+```
+
+If there are changes you want, update with:
+
+```bash
+npx @mercurjs/cli@canary add wishlist --overwrite
+```
+
+### codegen
+
+Generate TypeScript types from your API routes. Used by the [API Client](/v2/developer-guide/api-client) for type-safe requests.
+
+```bash
+npx @mercurjs/cli@canary codegen
+```
+
+| Option | Description |
+|--------|-------------|
+| `-w, --watch` | Watch for changes and regenerate automatically |
+
+### registry:build
+
+Build a custom registry from a `registry.json` file.
+
+```bash
+npx @mercurjs/cli@canary build
+```
+
+| Option | Description |
+|--------|-------------|
+| `-o, --output <path>` | Output directory (default: `./r`) |
+| `-v, --verbose` | Show detailed output |
+
+### info
+
+Display project configuration and diagnostics.
+
+```bash
+npx @mercurjs/cli@canary info
+```
+
+### telemetry
+
+Control anonymous usage data collection.
+
+```bash
+npx @mercurjs/cli@canary telemetry --disable
+npx @mercurjs/cli@canary telemetry --enable
+```
+
+## Custom registries
+
+Add custom block registries to your `blocks.json`:
+
+```json
+{
+  "registries": {
+    "@mercurjs": "https://registry.mercurjs.com/{name}",
+    "@my-registry": "https://my-registry.com/blocks/{name}.json"
+  }
+}
+```
+
+Use `{name}` as a placeholder for block names. Reference custom registries with the `-r` flag:
+
+```bash
+npx @mercurjs/cli@canary search --query review --registry @my-registry
+```
