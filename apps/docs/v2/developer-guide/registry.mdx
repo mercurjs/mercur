@@ -9,7 +9,7 @@ A registry is a collection of blocks that can be installed into any Mercur proje
 
 ## How it works
 
-A registry is a set of JSON files — one per block — served over HTTP. When you run `npx @mercurjs/cli add`, the CLI fetches the block's JSON, resolves its dependencies, and copies the source files into your project.
+A registry is a set of JSON files — one per block — served over HTTP. When you run `npx @mercurjs/cli@canary add`, the CLI fetches the block's JSON, resolves its dependencies, and copies the source files into your project.
 
 ```
 registry/
@@ -64,7 +64,7 @@ The `registry.json` file defines your registry and all its blocks:
 
 | Property               | Description                                                    |
 | ---------------------- | -------------------------------------------------------------- |
-| `name`                 | Block identifier used in `npx @mercurjs/cli add`               |
+| `name`                 | Block identifier used in `npx @mercurjs/cli@canary add`               |
 | `description`          | Short description shown in search results                      |
 | `dependencies`         | NPM packages to install                                        |
 | `registryDependencies` | Other blocks this block depends on (e.g. `@mercurjs/wishlist`) |
@@ -93,7 +93,7 @@ These map to the aliases defined in the consumer's `blocks.json`.
 Build your registry into distributable JSON files:
 
 ```bash
-npx @mercurjs/cli build
+npx @mercurjs/cli@canary build
 ```
 
 This reads `registry.json`, resolves all imports for each block, embeds the file contents, and outputs one JSON file per block to the `r/` directory.
@@ -124,7 +124,7 @@ Add your registry to `blocks.json` in any Mercur project:
 Use `{name}` as a placeholder for block names. Then install blocks from it:
 
 ```bash
-npx @mercurjs/cli add @my-org/reviews
+npx @mercurjs/cli@canary add @my-org/reviews
 ```
 
 ### Authentication

@@ -10,8 +10,8 @@ Blocks are the unit of distribution in Mercur. Each block is a self-contained fe
 ## Installing blocks
 
 ```bash
-npx @mercurjs/cli add reviews
-npx @mercurjs/cli add wishlist product-import-export
+npx @mercurjs/cli@canary add reviews
+npx @mercurjs/cli@canary add wishlist product-import-export
 ```
 
 The CLI fetches the block from the [registry](/v2/developer-guide/registry), resolves dependencies, transforms imports to match your project's path aliases, and copies the files into the right directories.
@@ -70,20 +70,20 @@ After adding a block, the CLI shows setup instructions. Typically you need to:
 1. **Register the module** in `medusa-config.ts`
 2. **Add middlewares** to your `api/middlewares.ts`
 3. **Run migrations** with `npx medusa db:generate` and `npx medusa db:migrate`
-4. **Regenerate types** with `npx @mercurjs/cli codegen`
+4. **Regenerate types** with `npx @mercurjs/cli@canary codegen`
 
 ## Updating blocks
 
 Check for changes against the registry:
 
 ```bash
-npx @mercurjs/cli diff reviews
+npx @mercurjs/cli@canary diff reviews
 ```
 
 If there are updates you want, re-install with the overwrite flag:
 
 ```bash
-npx @mercurjs/cli add reviews --overwrite
+npx @mercurjs/cli@canary add reviews --overwrite
 ```
 
 Since blocks are source code in your project, you control when and how updates are applied.
@@ -93,12 +93,12 @@ Since blocks are source code in your project, you control when and how updates a
 Search the registry to see what's available:
 
 ```bash
-npx @mercurjs/cli search
-npx @mercurjs/cli search --query wishlist
+npx @mercurjs/cli@canary search
+npx @mercurjs/cli@canary search --query wishlist
 ```
 
 View details about a specific block:
 
 ```bash
-npx @mercurjs/cli view reviews
+npx @mercurjs/cli@canary view reviews
 ```
