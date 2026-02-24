@@ -1,14 +1,12 @@
-import { MedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 
-import orderSetOrder from '../../../links/order-set-order'
-import { getFormattedOrderSetListWorkflow } from '../../../workflows/order-set/workflows'
+import { filterAndListOrderSetsWorkflow } from "../../../workflows/order-set/workflows";
 
 /**
  * @oas [get] /admin/order-sets
  * operationId: "AdminListOrderSets"
  * summary: "List Order Sets"
- * description: "Retrieves a list of order sets with optional filtering."
+ * description: "Retrieves a list of order sets with optional filtering and search."
  * x-authenticated: true
  * parameters:
  *   - name: offset
@@ -35,6 +33,42 @@ import { getFormattedOrderSetListWorkflow } from '../../../workflows/order-set/w
  *       type: string
  *     required: false
  *     description: Filter order sets by a specific order ID.
+ *   - name: q
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Search query to filter order sets by Vendor name, Customer email/name, Group ID (display_id), or Order ID.
+ *   - name: seller_id
+ *     in: query
+ *     schema:
+ *       oneOf:
+ *         - type: string
+ *         - type: array
+ *           items:
+ *             type: string
+ *     required: false
+ *     description: Filter order sets by seller ID(s).
+ *   - name: payment_status
+ *     in: query
+ *     schema:
+ *       oneOf:
+ *         - type: string
+ *         - type: array
+ *           items:
+ *             type: string
+ *     required: false
+ *     description: Filter order sets by payment status(es).
+ *   - name: fulfillment_status
+ *     in: query
+ *     schema:
+ *       oneOf:
+ *         - type: string
+ *         - type: array
+ *           items:
+ *             type: string
+ *     required: false
+ *     description: Filter order sets by fulfillment status(es).
  * responses:
  *   "200":
  *     description: OK
@@ -63,39 +97,20 @@ import { getFormattedOrderSetListWorkflow } from '../../../workflows/order-set/w
  *   - cookie_auth: []
  */
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const { filterableFields, queryConfig } = req
+  const { filterableFields, queryConfig } = req;
 
-  if (filterableFields['order_id']) {
-    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-    const {
-      data: [order_set]
-    } = await query.graph({
-      entity: orderSetOrder.entryPoint,
-      fields: ['order_set_id'],
-      filters: {
-        order_id: req.filterableFields['order_id']
-      }
-    })
-
-    delete filterableFields['order_id']
-    filterableFields['id'] = order_set.order_set_id
-  }
-
-  const {
-    result: { data, metadata }
-  } = await getFormattedOrderSetListWorkflow(req.scope).run({
+  const { result } = await filterAndListOrderSetsWorkflow(req.scope).run({
     input: {
-      fields: queryConfig.fields,
       filters: filterableFields,
-      pagination: queryConfig.pagination
-    }
-  })
+      fields: queryConfig.fields,
+      pagination: queryConfig.pagination,
+    },
+  });
 
   res.json({
-    order_sets: data,
-    count: metadata!.count,
-    offset: metadata!.skip,
-    limit: metadata!.take
-  })
-}
+    order_sets: result!.data,
+    count: result!.metadata!.count,
+    offset: result!.metadata!.skip,
+    limit: result!.metadata!.take,
+  });
+};

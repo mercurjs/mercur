@@ -38,3 +38,25 @@ export const filterSellerProductsByCollection = async (
 
   return { productIds, count: totalCount }
 }
+
+export const filterSellerProductIds = async (
+  container: MedusaContainer,
+  sellerId: string,
+  productIds: string[]
+): Promise<Set<string>> => {
+  if (!productIds.length) {
+    return new Set()
+  }
+
+  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+
+  const rows: string[] = await knex('seller_seller_product_product')
+    .where({
+      seller_id: sellerId,
+      deleted_at: null
+    })
+    .whereIn('product_id', productIds)
+    .pluck('product_id')
+
+  return new Set(rows)
+}

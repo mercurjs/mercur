@@ -1,5 +1,6 @@
 import {
   acceptProductCategoryRequestWorkflow,
+  acceptProductCollectionRequestWorkflow,
   acceptProductCollectionUpdateRequestWorkflow,
   acceptProductRequestWorkflow,
   acceptProductTagRequestWorkflow,
@@ -13,6 +14,7 @@ const workflowMap: Record<string, any> = {
   product: acceptProductRequestWorkflow,
   product_import: acceptProductRequestWorkflow,
   product_update: acceptProductRequestWorkflow,
+  product_collection: acceptProductCollectionRequestWorkflow,
   product_collection_update: acceptProductCollectionUpdateRequestWorkflow,
   product_category: acceptProductCategoryRequestWorkflow,
   product_type: acceptProductTypeRequestWorkflow,
