@@ -1,4 +1,5 @@
 import {
+  authenticate,
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework";
@@ -16,6 +17,7 @@ export const storeReviewMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/store/reviews",
     middlewares: [
+      authenticate("customer", ["session", "bearer"]),
       validateAndTransformQuery(
         StoreGetReviewsParams,
         storeReviewQueryConfig.list
@@ -26,6 +28,7 @@ export const storeReviewMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/store/reviews",
     middlewares: [
+      authenticate("customer", ["session", "bearer"]),
       validateAndTransformQuery(
         StoreGetReviewsParams,
         storeReviewQueryConfig.retrieve
@@ -37,6 +40,7 @@ export const storeReviewMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/store/reviews/:id",
     middlewares: [
+      authenticate("customer", ["session", "bearer"]),
       validateAndTransformQuery(
         StoreGetReviewsParams,
         storeReviewQueryConfig.retrieve
@@ -46,12 +50,15 @@ export const storeReviewMiddlewares: MiddlewareRoute[] = [
   {
     method: ["DELETE"],
     matcher: "/store/reviews/:id",
-    middlewares: [],
+    middlewares: [
+      authenticate("customer", ["session", "bearer"]),
+    ],
   },
   {
     method: ["POST"],
     matcher: "/store/reviews/:id",
     middlewares: [
+      authenticate("customer", ["session", "bearer"]),
       validateAndTransformQuery(
         StoreGetReviewsParams,
         storeReviewQueryConfig.retrieve
