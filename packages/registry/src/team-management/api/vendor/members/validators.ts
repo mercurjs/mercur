@@ -6,7 +6,11 @@ export type VendorGetMemberParamsType = z.infer<typeof VendorGetMemberParams>
 export const VendorGetMemberParams = createFindParams({
   offset: 0,
   limit: 50,
-})
+}).merge(
+  z.object({
+    q: z.string().optional(),
+  })
+)
 
 export type VendorUpdateMemberType = z.infer<typeof VendorUpdateMember>
 export const VendorUpdateMember = z

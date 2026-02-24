@@ -43,7 +43,7 @@ export const POST = async (
 
   await updateMemberWorkflow(req.scope).run({
     input: {
-      id,
+      id: id!,
       ...req.validatedBody,
     },
   })

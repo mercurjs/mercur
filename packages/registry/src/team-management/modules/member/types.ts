@@ -56,7 +56,7 @@ export type MemberInviteDTO = {
   email: string
   role: MemberRole
   token: string
-  expires_at: Date
+  expires_at: Date | string
   accepted: boolean
   seller?: { id: string }
 }

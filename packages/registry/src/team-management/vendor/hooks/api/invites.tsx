@@ -8,12 +8,6 @@ import { queryKeysFactory } from "@mercurjs/dashboard-shared"
 import { client } from "../../lib/client"
 import type { ClientError, InferClientInput, InferClientOutput } from "@mercurjs/client"
 
-declare const __BACKEND_URL__: string
-
-const BACKEND_URL = (typeof __BACKEND_URL__ !== "undefined"
-  ? __BACKEND_URL__
-  : "http://localhost:9000") as string
-
 const INVITES_QUERY_KEY = "vendor_invites" as const
 export const invitesQueryKeys = queryKeysFactory(INVITES_QUERY_KEY)
 
@@ -67,30 +61,21 @@ export const useCreateInvite = (
 
 export const useSignUpForInvite = (
   options?: UseMutationOptions<
-    string,
-    Error,
-    { email: string; password: string }
+    InferClientOutput<typeof client.auth.$actorType.$authProvider.register.mutate>,
+    ClientError,
+    Omit<
+      InferClientInput<typeof client.auth.$actorType.$authProvider.register.mutate>,
+      "$actorType" | "$authProvider"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: async (payload) => {
-      const res = await fetch(
-        `${BACKEND_URL}/auth/seller/emailpass/register`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      )
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.message || "Failed to create account")
-      }
-
-      const data = await res.json()
-      return data.token as string
-    },
+    mutationFn: (payload) =>
+      client.auth.$actorType.$authProvider.register.mutate({
+        $actorType: "seller",
+        $authProvider: "emailpass",
+        ...payload,
+      }),
     ...options,
   })
 }
@@ -99,7 +84,7 @@ export const useAcceptInvite = (
   inviteToken: string,
   options?: UseMutationOptions<
     unknown,
-    Error,
+    ClientError,
     { name: string; auth_token: string }
   >
 ) => {
@@ -107,21 +92,15 @@ export const useAcceptInvite = (
     mutationFn: async (payload) => {
       const { auth_token, ...rest } = payload
 
-      const res = await fetch(`${BACKEND_URL}/vendor/invites/accept`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
+      return client.vendor.invites.accept.mutate({
+        token: inviteToken,
+        ...rest,
+        fetchOptions: {
+          headers: {
+            Authorization: `Bearer ${auth_token}`,
+          },
         },
-        body: JSON.stringify({ token: inviteToken, ...rest }),
       })
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.message || "Failed to accept invite")
-      }
-
-      return res.json()
     },
     ...options,
   })

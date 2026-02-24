@@ -1,4 +1,5 @@
 import {
+  authenticate,
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
@@ -59,6 +60,9 @@ export const vendorInvitesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/invites/accept",
     middlewares: [
+      authenticate("seller", ["bearer", "session"], {
+        allowUnregistered: true,
+      }),
       validateAndTransformBody(VendorAcceptMemberInvite),
       validateAndTransformQuery(
         VendorGetMemberInviteParams,

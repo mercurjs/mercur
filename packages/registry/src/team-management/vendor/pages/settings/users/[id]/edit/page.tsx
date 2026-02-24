@@ -5,7 +5,7 @@ import { z } from "zod"
 import { Button, Input } from "@medusajs/ui"
 
 import { RouteDrawer, useRouteModal } from "@mercurjs/dashboard-shared"
-import { useMember, useUpdateMember } from "../../../../hooks/api/members"
+import { useMember, useUpdateMember } from "../../../../../hooks/api/members"
 
 const EditMemberSchema = z.object({
   name: z.string().min(1, "Name is required"),
