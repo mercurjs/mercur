@@ -18,7 +18,7 @@
   "files": [
     {
       "path": "team-management/modules/member/index.ts",
-      "content": "import { Module } from \"@medusajs/framework/utils\"\n\nimport MemberModuleService from \"./service\"\nimport seedMembersForSellersLoader from \"./loaders\"\n\nexport const MEMBER_MODULE = \"member\"\n\nexport * from \"./types\"\nexport { MemberModuleService }\n\nexport default Module(MEMBER_MODULE, {\n  service: MemberModuleService,\n  loaders: [seedMembersForSellersLoader],\n})\n",
+      "content": "import { Module } from \"@medusajs/framework/utils\"\n\nimport MemberModuleService from \"./service\"\n\nexport const MEMBER_MODULE = \"member\"\n\nexport * from \"./types\"\nexport { MemberModuleService }\n\nexport default Module(MEMBER_MODULE, {\n  service: MemberModuleService,\n})\n",
       "type": "registry:module"
     },
     {
@@ -39,11 +39,6 @@
     {
       "path": "team-management/modules/member/models/member-invite.ts",
       "content": "import { model } from \"@medusajs/framework/utils\"\n\nexport const MemberInvite = model.define(\"member_invite\", {\n  id: model.id({ prefix: \"meminv\" }).primaryKey(),\n  seller_id: model.text(),\n  email: model.text(),\n  role: model.enum([\"owner\", \"admin\", \"member\"]).default(\"owner\"),\n  token: model.text(),\n  expires_at: model.dateTime(),\n  accepted: model.boolean().default(false),\n})\n",
-      "type": "registry:module"
-    },
-    {
-      "path": "team-management/modules/member/loaders/index.ts",
-      "content": "import { LoaderOptions } from \"@medusajs/framework/types\"\nimport { ContainerRegistrationKeys } from \"@medusajs/framework/utils\"\n\nimport { MEMBER_MODULE } from \"../index\"\nimport MemberModuleService from \"../service\"\n\nexport default async function seedMembersForSellersLoader({\n  container,\n}: LoaderOptions) {\n  const logger = container.resolve(ContainerRegistrationKeys.LOGGER)\n  const query = container.resolve(ContainerRegistrationKeys.QUERY)\n  const memberService =\n    container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n  try {\n    const { data: sellers } = await query.graph({\n      entity: \"seller\",\n      fields: [\"id\", \"name\", \"email\"],\n    })\n\n    if (!sellers.length) {\n      return\n    }\n\n    const { data: existingMembers } = await query.graph({\n      entity: \"member\",\n      fields: [\"seller_id\"],\n    })\n\n    const sellersWithMembers = new Set(\n      existingMembers.map((m) => m.seller_id)\n    )\n\n    const sellersWithoutMembers = sellers.filter(\n      (s) => !sellersWithMembers.has(s.id)\n    )\n\n    if (!sellersWithoutMembers.length) {\n      return\n    }\n\n    logger.info(\n      `[Member Module] Found ${sellersWithoutMembers.length} seller(s) without members. Creating owner members...`\n    )\n\n    for (const seller of sellersWithoutMembers) {\n      await memberService.createMembers({\n        name: seller.name,\n        email: seller.email,\n        role: \"owner\",\n        seller_id: seller.id,\n      })\n\n      logger.info(\n        `[Member Module] Created owner member for seller \"${seller.name}\" (${seller.id})`\n      )\n    }\n  } catch (error) {\n    logger.error(`[Member Module] Failed to seed members:`)\n    console.error(error)\n  }\n}\n",
       "type": "registry:module"
     },
     {

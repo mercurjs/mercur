@@ -328,10 +328,6 @@
           "type": "registry:module"
         },
         {
-          "path": "team-management/modules/member/loaders/index.ts",
-          "type": "registry:module"
-        },
-        {
           "path": "team-management/workflows/member/steps/create-member.ts",
           "type": "registry:workflow"
         },
