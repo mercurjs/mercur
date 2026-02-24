@@ -4,6 +4,7 @@ export const vendorMemberInviteFields = [
   "role",
   "expires_at",
   "accepted",
+  "seller_id",
 ]
 
 export const vendorMemberInviteQueryConfig = {

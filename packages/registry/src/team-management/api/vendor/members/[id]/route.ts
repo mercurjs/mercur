@@ -7,7 +7,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { VendorMemberResponse } from "../../../../modules/member"
 import { deleteMemberWorkflow } from "../../../../workflows/member/workflows/delete-member"
 import { updateMemberWorkflow } from "../../../../workflows/member/workflows/update-member"
-import { validateSellerMember } from "../_helpers/helpers"
+import { validateSellerMember } from "../helpers"
 import { VendorUpdateMemberType } from "../validators"
 
 export const GET = async (
@@ -43,7 +43,7 @@ export const POST = async (
 
   await updateMemberWorkflow(req.scope).run({
     input: {
-      id,
+      id: id!,
       ...req.validatedBody,
     },
   })

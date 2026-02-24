@@ -3,12 +3,13 @@ import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk";
 
 import { DeleteWishlistDTO } from "../../../modules/wishlist";
 import { WISHLIST_MODULE } from "../../../modules/wishlist";
+import { Link } from "@medusajs/framework/modules-sdk";
 
 export const deleteWishlistEntryStep = createStep(
   "delete-wishlist",
   async (input: DeleteWishlistDTO, { container }) => {
     const { id, reference_id } = input;
-    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const link = container.resolve<Link>(ContainerRegistrationKeys.LINK);
 
     await link.dismiss([
       {

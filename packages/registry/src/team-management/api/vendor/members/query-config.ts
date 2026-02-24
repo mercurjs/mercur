@@ -6,7 +6,7 @@ export const vendorMemberFields = [
   "bio",
   "phone",
   "photo",
-  "*seller",
+  "seller_id",
 ]
 
 export const vendorMemberQueryConfig = {

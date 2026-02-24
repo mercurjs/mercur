@@ -17,9 +17,9 @@ export const acceptMemberInviteWorkflow = createWorkflow(
   function (input: AcceptMemberInviteWorkflowInput) {
     const invite = validateMemberInviteStep(input.invite)
 
-    const [member] = parallelize(
+    parallelize(
       createMemberStep({
-        seller_id: invite.seller.id,
+        seller_id: invite.seller_id,
         name: input.invite.name,
         role: invite.role,
         email: invite.email,
@@ -33,7 +33,7 @@ export const acceptMemberInviteWorkflow = createWorkflow(
     setAuthAppMetadataStep({
       authIdentityId: input.authIdentityId,
       actorType: "seller",
-      value: invite.seller.id,
+      value: invite.seller_id,
     })
 
     return new WorkflowResponse(invite)

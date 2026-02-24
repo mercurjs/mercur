@@ -7,12 +7,13 @@ import {
   WishlistModuleService,
 } from "../../../modules/wishlist";
 import { getWishlistFromCustomerId } from "../../../modules/wishlist/utils";
+import { Link } from "@medusajs/framework/modules-sdk";
 
 export const createWishlistEntryStep = createStep(
   "create-wishlist",
   async (input: CreateWishlistDTO, { container }) => {
     const service = container.resolve<WishlistModuleService>(WISHLIST_MODULE);
-    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const link = container.resolve<Link>(ContainerRegistrationKeys.LINK);
 
     let wishlist = await getWishlistFromCustomerId(
       container,

@@ -58,7 +58,7 @@ export type MemberInviteDTO = {
   token: string
   expires_at: Date
   accepted: boolean
-  seller?: { id: string }
+  seller_id: string
 }
 
 export type VendorMemberListResponse = {

@@ -11,6 +11,7 @@ import {
 import customerWishlist from "../../../links/customer-wishlist";
 import { createWishlistEntryWorkflow } from "../../../workflows/wishlist/workflows/create-wishlist";
 import { StoreCreateWishlistType } from "./validators";
+import { ProductDTO } from "@mercurjs/types";
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<StoreCreateWishlistType>,
@@ -57,7 +58,7 @@ export const GET = async (
   });
 
   const productIds: string[] = [];
-  wishlist.wishlist.products.forEach((product) => {
+  wishlist.wishlist.products.forEach((product: ProductDTO) => {
     productIds.push(product.id);
   });
 

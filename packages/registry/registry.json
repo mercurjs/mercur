@@ -306,7 +306,7 @@
       "description": "Team member management with invitations, roles, and vendor portal pages.",
       "dependencies": ["jsonwebtoken", "@types/jsonwebtoken", "react-jwt"],
       "registryDependencies": [],
-      "docs": "## Configuration\n\nAdd the member module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/member',\n    definition: {\n      isQueryable: true,\n    },\n  },\n]\n```\n\n## Middlewares\n\nAdd the team management middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorMiddlewares } from \"./vendor/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...vendorMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the middleware imports and spread them into your existing `routes` array.\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nmercurjs codegen\n```",
+      "docs": "## Configuration\n\nAdd the member module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/member',\n    definition: {\n      isQueryable: true,\n    },\n  },\n]\n```\n\n## Middlewares\n\nAdd the team management middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorMembersMiddlewares } from \"./vendor/members/middlewares\";\nimport { vendorInvitesMiddlewares } from \"./vendor/invites/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...vendorMembersMiddlewares, ...vendorInvitesMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block and adding the module configuration, generate and run the migrations to create the necessary tables in your database:\n\n```bash\nnpx medusa db:generate member\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
       "files": [
         {
           "path": "team-management/modules/member/index.ts",
@@ -329,12 +329,8 @@
           "type": "registry:module"
         },
         {
-          "path": "team-management/links/seller-member.ts",
-          "type": "registry:link"
-        },
-        {
-          "path": "team-management/links/seller-member-invite.ts",
-          "type": "registry:link"
+          "path": "team-management/modules/member/loaders/index.ts",
+          "type": "registry:module"
         },
         {
           "path": "team-management/workflows/member/steps/create-member.ts",
@@ -385,11 +381,7 @@
           "type": "registry:workflow"
         },
         {
-          "path": "team-management/api/middlewares.ts",
-          "type": "registry:api"
-        },
-        {
-          "path": "team-management/api/vendor/members/_helpers/helpers.ts",
+          "path": "team-management/api/vendor/members/helpers.ts",
           "type": "registry:api"
         },
         {
@@ -470,6 +462,10 @@
         },
         {
           "path": "team-management/vendor/pages/users/invite/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "team-management/vendor/pages/invite/page.tsx",
           "type": "registry:vendor"
         }
       ],
@@ -590,7 +586,7 @@
           "type": "registry:api"
         },
         {
-          "path": "vendor-notifications/api/vendor/notifications/helpers/helpers.ts",
+          "path": "vendor-notifications/api/vendor/notifications/helpers.ts",
           "type": "registry:api"
         },
         {

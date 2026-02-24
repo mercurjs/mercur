@@ -1,6 +1,5 @@
 import {
   AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaResponse,
 } from "@medusajs/framework/http"
@@ -10,20 +9,13 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
-import sellerMember from "../../../../links/seller-member"
-
-export const applySellerMemberLinkFilter = (
+export const applySellerMemberFilter = (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
   req.filterableFields.seller_id = req.auth_context.actor_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: sellerMember.entryPoint,
-    resourceId: "member_id",
-    filterableField: "seller_id",
-  })(req, res, next)
+  next()
 }
 
 export const validateSellerMember = async (
@@ -34,17 +26,17 @@ export const validateSellerMember = async (
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const {
-    data: [link],
+    data: [member],
   } = await query.graph({
-    entity: sellerMember.entryPoint,
+    entity: "member",
     filters: {
+      id: memberId,
       seller_id: sellerId,
-      member_id: memberId,
     },
-    fields: ["seller_id", "member_id"],
+    fields: ["id"],
   })
 
-  if (!link) {
+  if (!member) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
       `Member with id: ${memberId} was not found`

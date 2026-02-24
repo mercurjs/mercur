@@ -4,13 +4,11 @@ import {
 } from "@medusajs/framework"
 import {
   AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 
-import sellerMemberInvite from "../../../links/seller-member-invite"
 import { vendorMemberInviteQueryConfig } from "./query-config"
 import {
   VendorAcceptMemberInvite,
@@ -18,18 +16,13 @@ import {
   VendorInviteMember,
 } from "./validators"
 
-const applySellerInviteLinkFilter = (
+const applySellerInviteFilter = (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
   req.filterableFields.seller_id = req.auth_context.actor_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: sellerMemberInvite.entryPoint,
-    resourceId: "member_invite_id",
-    filterableField: "seller_id",
-  })(req, res, next)
+  next()
 }
 
 export const vendorInvitesMiddlewares: MiddlewareRoute[] = [
@@ -41,7 +34,7 @@ export const vendorInvitesMiddlewares: MiddlewareRoute[] = [
         VendorGetMemberInviteParams,
         vendorMemberInviteQueryConfig.list
       ),
-      applySellerInviteLinkFilter,
+      applySellerInviteFilter,
     ],
   },
   {
