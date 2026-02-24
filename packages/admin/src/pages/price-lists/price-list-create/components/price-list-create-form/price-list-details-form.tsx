@@ -15,15 +15,15 @@ import {
 import { useFieldArray, type UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { Form } from "../../../../../../../../POC PRojects/core-admin/src/components/common/form"
-import { StackedFocusModal } from "../../../../../../../../POC PRojects/core-admin/src/components/modals/stacked-focus-modal"
-import { useStackedModal } from "../../../../../../../../POC PRojects/core-admin/src/components/modals/stacked-modal-provider"
+import { Form } from "../../../../../components/common/form"
+import { StackedFocusModal } from "../../../../../components/modals/stacked-focus-modal"
+import { useStackedModal } from "../../../../../components/modals/stacked-modal-provider"
 import { PriceListCustomerGroupRuleForm } from "../../../common/components/price-list-customer-group-rule-form"
 import type {
   PricingCreateSchemaType,
   PricingCustomerGroupsArrayType,
 } from "./schema"
-import { useDocumentDirection } from "../../../../../../../../POC PRojects/core-admin/src/hooks/use-document-direction"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 type PriceListDetailsFormProps = {
   form: UseFormReturn<PricingCreateSchemaType>

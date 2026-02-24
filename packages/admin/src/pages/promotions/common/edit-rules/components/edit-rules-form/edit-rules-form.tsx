@@ -7,8 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { RouteDrawer } from "../../../../../../../../../POC PRojects/core-admin/src/components/modals";
-import { KeyboundForm } from "../../../../../../../../../POC PRojects/core-admin/src/components/utilities/keybound-form";
+import { RouteDrawer } from "../../../../../../components/modals";
+import { KeyboundForm } from "../../../../../../components/utilities/keybound-form";
 import { RuleTypeValues } from "../../edit-rules";
 import { RulesFormField } from "../rules-form-field";
 import { EditRules, EditRulesType } from "./form-schema";

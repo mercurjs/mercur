@@ -2,8 +2,8 @@ import { PromotionRuleDTO } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { RouteDrawer } from "../../../../../../../POC PRojects/core-admin/src/components/modals"
-import { usePromotion } from "../../../../../../../POC PRojects/core-admin/src/hooks/api/promotions"
+import { RouteDrawer } from "../../../../components/modals"
+import { usePromotion } from "../../../../hooks/api/promotions"
 import { EditRulesWrapper } from "./components/edit-rules-wrapper"
 
 export enum RuleType {

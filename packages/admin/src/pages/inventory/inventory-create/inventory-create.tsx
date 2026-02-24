@@ -1,5 +1,5 @@
-import { RouteFocusModal } from "@components/modals"
-import { useStockLocations } from "@hooks/api"
+import { RouteFocusModal } from "../../../components/modals"
+import { useStockLocations } from "../../../hooks/api"
 import { InventoryCreateForm } from "./components/inventory-create-form"
 
 export function InventoryCreate() {

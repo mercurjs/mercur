@@ -12,11 +12,11 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
-import { Form } from "../../../../../../../../POC PRojects/core-admin/src/components/common/form"
-import { RouteDrawer, useRouteModal } from "../../../../../../../../POC PRojects/core-admin/src/components/modals"
-import { KeyboundForm } from "../../../../../../../../POC PRojects/core-admin/src/components/utilities/keybound-form"
-import { useUpdatePriceList } from "../../../../../../../../POC PRojects/core-admin/src/hooks/api/price-lists"
-import { useDocumentDirection } from "../../../../../../../../POC PRojects/core-admin/src/hooks/use-document-direction"
+import { Form } from "../../../../../components/common/form"
+import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
+import { useUpdatePriceList } from "../../../../../hooks/api/price-lists"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 import { PriceListStatus, PriceListType } from "../../../common/constants"
 
 type PriceListEditFormProps = {

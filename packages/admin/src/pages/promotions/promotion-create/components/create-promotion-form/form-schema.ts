@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { CreateCampaignSchema } from "@pages/campaigns/create/_components/create-campaign-form"
+import { CreateCampaignSchema } from "../../../../campaigns/campaign-create/components/create-campaign-form"
 
 const RuleSchema = z.array(
   z.object({

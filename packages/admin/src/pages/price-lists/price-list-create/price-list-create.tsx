@@ -1,4 +1,4 @@
-import { RouteFocusModal } from "../../../../../../POC PRojects/core-admin/src/components/modals"
+import { RouteFocusModal } from "../../../components/modals"
 import { usePriceListCurrencyData } from "../common/hooks/use-price-list-currency-data"
 import { PriceListCreateForm } from "./components/price-list-create-form"
 

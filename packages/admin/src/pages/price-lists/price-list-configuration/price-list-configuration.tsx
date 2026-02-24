@@ -1,9 +1,9 @@
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { RouteDrawer } from "../../../../../../POC PRojects/core-admin/src/components/modals"
-import { useCustomerGroups } from "../../../../../../POC PRojects/core-admin/src/hooks/api/customer-groups"
-import { usePriceList } from "../../../../../../POC PRojects/core-admin/src/hooks/api/price-lists"
+import { RouteDrawer } from "../../../components/modals"
+import { useCustomerGroups } from "../../../hooks/api/customer-groups"
+import { usePriceList } from "../../../hooks/api/price-lists"
 import { PriceListConfigurationForm } from "./components/price-list-configuration-form"
 
 export const PriceListConfiguration = () => {

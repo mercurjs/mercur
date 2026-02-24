@@ -5,13 +5,13 @@ import { z } from "zod"
 import {
   FileType,
   FileUpload,
-} from "@components/common/file-upload"
-import { Form } from "@components/common/form"
-import { MediaSchema } from "@pages/products/create/_components/constants"
+} from "../../../../../components/common/file-upload"
+import { Form } from "../../../../../components/common/form"
+import { MediaSchema } from "../../../product-create/constants"
 import {
   EditProductMediaSchemaType,
   ProductCreateSchemaType,
-} from "@pages/products/create/_components/types"
+} from "../../../product-create/types"
 
 type Media = z.infer<typeof MediaSchema>
 

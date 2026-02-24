@@ -6,12 +6,12 @@ import { Badge, Button, Heading, IconButton, Select, Text } from '@medusajs/ui';
 import { ControllerRenderProps, useFieldArray, UseFormReturn, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-import { Form } from '../../../../../../../../../POC PRojects/core-admin/src/components/common/form';
+import { Form } from '../../../../../../components/common/form';
 import {
   usePromotionRuleAttributes,
   usePromotionRules
-} from '../../../../../../../../../POC PRojects/core-admin/src/hooks/api/promotions';
-import { useDocumentDirection } from '../../../../../../../../../POC PRojects/core-admin/src/hooks/use-document-direction';
+} from '../../../../../../hooks/api/promotions';
+import { useDocumentDirection } from '../../../../../../hooks/use-document-direction';
 import { CreatePromotionSchemaType } from '../../../../promotion-create/components/create-promotion-form/form-schema';
 import { generateRuleAttributes } from '../edit-rules-form/utils';
 import { RuleValueFormField } from '../rule-value-form-field';

@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs } from "react-router-dom"
-import { promotionsQueryKeys } from "../../../../../../POC PRojects/core-admin/src/hooks/api/promotions"
-import { sdk } from "../../../../../../POC PRojects/core-admin/src/lib/client"
-import { queryClient } from "../../../../../../POC PRojects/core-admin/src/lib/query-client"
+import { promotionsQueryKeys } from "../../../hooks/api/promotions"
+import { sdk } from "../../../lib/client"
+import { queryClient } from "../../../lib/query-client"
 
 const promotionDetailQuery = (id: string) => ({
   queryKey: promotionsQueryKeys.detail(id),

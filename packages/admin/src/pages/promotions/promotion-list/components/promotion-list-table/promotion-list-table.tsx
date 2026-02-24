@@ -7,16 +7,16 @@ import { useTranslation } from "react-i18next"
 import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom"
 
 import { keepPreviousData } from "@tanstack/react-query"
-import { ActionMenu } from "../../../../../../../../POC PRojects/core-admin/src/components/common/action-menu"
-import { _DataTable } from "../../../../../../../../POC PRojects/core-admin/src/components/table/data-table"
+import { ActionMenu } from "../../../../../components/common/action-menu"
+import { _DataTable } from "../../../../../components/table/data-table"
 import {
   useDeletePromotion,
   usePromotions,
-} from "../../../../../../../../POC PRojects/core-admin/src/hooks/api/promotions"
-import { usePromotionTableColumns } from "../../../../../../../../POC PRojects/core-admin/src/hooks/table/columns/use-promotion-table-columns"
-import { usePromotionTableFilters } from "../../../../../../../../POC PRojects/core-admin/src/hooks/table/filters/use-promotion-table-filters"
-import { usePromotionTableQuery } from "../../../../../../../../POC PRojects/core-admin/src/hooks/table/query/use-promotion-table-query"
-import { useDataTable } from "../../../../../../../../POC PRojects/core-admin/src/hooks/use-data-table"
+} from "../../../../../hooks/api/promotions"
+import { usePromotionTableColumns } from "../../../../../hooks/table/columns/use-promotion-table-columns"
+import { usePromotionTableFilters } from "../../../../../hooks/table/filters/use-promotion-table-filters"
+import { usePromotionTableQuery } from "../../../../../hooks/table/query/use-promotion-table-query"
+import { useDataTable } from "../../../../../hooks/use-data-table"
 import { promotionsLoader } from "../../loader"
 
 const PAGE_SIZE = 20

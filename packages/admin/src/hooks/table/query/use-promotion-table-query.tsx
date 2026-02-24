@@ -11,17 +11,18 @@ export const usePromotionTableQuery = ({
   pageSize = 20,
 }: UsePromotionTableQueryProps) => {
   const queryObject = useQueryParams(
-    ["offset", "q", "created_at", "updated_at"],
+    ["offset", "q", "order", "created_at", "updated_at"],
     prefix
   )
 
-  const { offset, q, created_at, updated_at } = queryObject
+  const { offset, q, order, created_at, updated_at } = queryObject
 
   const searchParams: HttpTypes.AdminGetPromotionsParams = {
     limit: pageSize,
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     offset: offset ? Number(offset) : 0,
+    order,
     q,
   }
 

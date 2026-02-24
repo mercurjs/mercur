@@ -9,9 +9,9 @@ import { z } from "zod"
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../../../../POC PRojects/core-admin/src/components/modals"
-import { KeyboundForm } from "../../../../../../../../POC PRojects/core-admin/src/components/utilities/keybound-form"
-import { useBatchPriceListPrices } from "../../../../../../../../POC PRojects/core-admin/src/hooks/api/price-lists"
+} from "../../../../../components/modals"
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
+import { useBatchPriceListPrices } from "../../../../../hooks/api/price-lists"
 import { exctractPricesFromProducts } from "../../../common/utils"
 import { PriceListPricesAddPricesForm } from "./price-list-prices-add-prices-form"
 import { PriceListPricesAddProductIdsForm } from "./price-list-prices-add-product-ids-form"
@@ -21,7 +21,7 @@ import {
   PriceListPricesAddProductsIdsFields,
   PriceListPricesAddSchema,
 } from "./schema"
-import { useDocumentDirection } from "../../../../../../../../POC PRojects/core-admin/src/hooks/use-document-direction"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 type PriceListPricesAddFormProps = {
   priceList: HttpTypes.AdminPriceList

@@ -3,9 +3,9 @@ import { ApplicationMethodTargetTypeValues, HttpTypes, PromotionRuleTypes, } fro
 import { Badge, Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { ActionMenu } from "../../../../../../../../POC PRojects/core-admin/src/components/common/action-menu"
-import { BadgeListSummary } from "../../../../../../../../POC PRojects/core-admin/src/components/common/badge-list-summary"
-import { NoRecords } from "../../../../../../../../POC PRojects/core-admin/src/components/common/empty-table-content"
+import { ActionMenu } from "../../../../../components/common/action-menu"
+import { BadgeListSummary } from "../../../../../components/common/badge-list-summary"
+import { NoRecords } from "../../../../../components/common/empty-table-content"
 
 type RuleProps = {
   rule: HttpTypes.AdminPromotionRule

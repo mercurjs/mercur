@@ -2,7 +2,7 @@ import { HttpTypes } from "@medusajs/types"
 import { toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
-import { useDeleteProductCategory } from "../../../../../../../POC PRojects/core-admin/src/hooks/api/categories"
+import { useDeleteProductCategory } from "../../../../hooks/api/categories"
 
 export const useDeleteProductCategoryAction = (
   category: HttpTypes.AdminProductCategory

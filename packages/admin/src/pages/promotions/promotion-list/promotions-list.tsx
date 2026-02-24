@@ -1,5 +1,5 @@
-import { SingleColumnPage } from "../../../../../../POC PRojects/core-admin/src/components/layout/pages"
-import { useExtension } from "../../../../../../POC PRojects/core-admin/src/providers/extension-provider"
+import { SingleColumnPage } from "../../../components/layout/pages"
+import { useExtension } from "../../../providers/extension-provider"
 import { PromotionListTable } from "./components/promotion-list-table"
 
 export const PromotionsList = () => {

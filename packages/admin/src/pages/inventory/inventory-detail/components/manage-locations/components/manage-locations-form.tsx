@@ -5,15 +5,15 @@ import {
 } from "@medusajs/types"
 import { Button, Text, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
-import { RouteDrawer, useRouteModal } from "../../../../../../../../../POC PRojects/core-admin/src/components/modals"
-import { useBatchInventoryItemLocationLevels } from "../../../../../../../../../POC PRojects/core-admin/src/hooks/api/inventory"
-import { sdk } from "../../../../../../../../../POC PRojects/core-admin/src/lib/client"
+import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
+import { useBatchInventoryItemLocationLevels } from "../../../../../../hooks/api/inventory"
+import { sdk } from "../../../../../../lib/client"
 
 import { useMemo, useState } from "react"
 import { LocationItem } from "./location-item"
 import { LocationSearchInput } from "./location-search-input"
-import { InfiniteList } from "../../../../../../../../../POC PRojects/core-admin/src/components/common/infinite-list/infinite-list"
-import { useStockLocations } from "../../../../../../../../../POC PRojects/core-admin/src/hooks/api/stock-locations"
+import { InfiniteList } from "../../../../../../components/common/infinite-list/infinite-list"
+import { useStockLocations } from "../../../../../../hooks/api/stock-locations"
 
 type EditInventoryItemAttributeFormProps = {
   item: AdminInventoryItem

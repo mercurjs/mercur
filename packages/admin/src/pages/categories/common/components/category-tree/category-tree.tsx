@@ -1,7 +1,7 @@
 import { UniqueIdentifier } from "@dnd-kit/core"
 import { ReactNode } from "react"
 
-import { SortableTree } from "../../../../../../../../POC PRojects/core-admin/src/components/common/sortable-tree"
+import { SortableTree } from "../../../../../components/common/sortable-tree"
 import { CategoryTreeItem } from "../../types"
 
 type CategoryTreeProps = {

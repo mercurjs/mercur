@@ -9,9 +9,9 @@ import { z } from "zod"
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../../../../POC PRojects/core-admin/src/components/modals"
-import { KeyboundForm } from "../../../../../../../../POC PRojects/core-admin/src/components/utilities/keybound-form"
-import { useCreatePriceList } from "../../../../../../../../POC PRojects/core-admin/src/hooks/api/price-lists"
+} from "../../../../../components/modals"
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
+import { useCreatePriceList } from "../../../../../hooks/api/price-lists"
 import { exctractPricesFromProducts } from "../../../common/utils"
 import { PriceListDetailsForm } from "./price-list-details-form"
 import { PriceListPricesForm } from "./price-list-prices-form"
@@ -25,7 +25,7 @@ import {
   PricingProductsFields,
   PricingProductsSchema,
 } from "./schema"
-import { useDocumentDirection } from "../../../../../../../../POC PRojects/core-admin/src/hooks/use-document-direction"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 enum Tab {
   DETAIL = "detail",

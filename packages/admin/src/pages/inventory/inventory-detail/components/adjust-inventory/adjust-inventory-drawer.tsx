@@ -3,7 +3,7 @@ import { useInventoryItem, useStockLocation } from "@hooks/api"
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { AdjustInventoryForm } from "@pages/inventory/inventory-detail/components/adjust-inventory/components/adjust-inventory-form"
+import { AdjustInventoryForm } from "@routes/inventory/inventory-detail/components/adjust-inventory/components/adjust-inventory-form"
 
 export const AdjustInventoryDrawer = () => {
   const { id, location_id } = useParams()

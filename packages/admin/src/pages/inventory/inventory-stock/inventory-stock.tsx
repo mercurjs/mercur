@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next"
 import { useSearchParams } from "react-router-dom"
-import { RouteFocusModal } from "@components/modals"
-import { useInventoryItems, useStockLocations } from "@hooks/api"
-import { INVENTORY_ITEM_IDS_KEY } from "@pages/inventory/_common/constants"
+import { RouteFocusModal } from "../../../components/modals"
+import { useInventoryItems, useStockLocations } from "../../../hooks/api"
+import { INVENTORY_ITEM_IDS_KEY } from "../common/constants"
 import { InventoryStockForm } from "./components/inventory-stock-form"
 
 export const InventoryStock = () => {

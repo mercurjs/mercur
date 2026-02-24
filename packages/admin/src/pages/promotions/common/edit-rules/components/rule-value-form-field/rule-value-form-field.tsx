@@ -10,11 +10,11 @@ import { Input } from "@medusajs/ui";
 import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { Form } from "../../../../../../../../../POC PRojects/core-admin/src/components/common/form";
-import { Combobox } from "../../../../../../../../../POC PRojects/core-admin/src/components/inputs/combobox";
-import { useStore } from "../../../../../../../../../POC PRojects/core-admin/src/hooks/api";
-import { useComboboxData } from "../../../../../../../../../POC PRojects/core-admin/src/hooks/use-combobox-data";
-import { sdk } from "../../../../../../../../../POC PRojects/core-admin/src/lib/client";
+import { Form } from "../../../../../../components/common/form";
+import { Combobox } from "../../../../../../components/inputs/combobox";
+import { useStore } from "../../../../../../hooks/api";
+import { useComboboxData } from "../../../../../../hooks/use-combobox-data";
+import { sdk } from "../../../../../../lib/client";
 
 type RuleValueFormFieldType = {
   form: any;

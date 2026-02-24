@@ -6,14 +6,14 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
-import { DataGrid } from "../../../../../../../../POC PRojects/core-admin/src/components/data-grid"
+import { DataGrid } from "../../../../../components/data-grid"
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../../../../POC PRojects/core-admin/src/components/modals"
-import { KeyboundForm } from "../../../../../../../../POC PRojects/core-admin/src/components/utilities/keybound-form"
-import { useBatchPriceListPrices } from "../../../../../../../../POC PRojects/core-admin/src/hooks/api/price-lists"
-import { castNumber } from "../../../../../../../../POC PRojects/core-admin/src/lib/cast-number"
+} from "../../../../../components/modals"
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
+import { useBatchPriceListPrices } from "../../../../../hooks/api/price-lists"
+import { castNumber } from "../../../../../lib/cast-number"
 import { usePriceListGridColumns } from "../../../common/hooks/use-price-list-grid-columns"
 import {
   PriceListUpdateProductVariantsSchema,

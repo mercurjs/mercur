@@ -29,15 +29,15 @@ import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import type { z } from 'zod';
 
-import { Form } from '../../../../../../../../POC PRojects/core-admin/src/components/common/form';
-import { DeprecatedPercentageInput } from '../../../../../../../../POC PRojects/core-admin/src/components/inputs/percentage-input';
-import { RouteFocusModal, useRouteModal } from '../../../../../../../../POC PRojects/core-admin/src/components/modals';
-import { KeyboundForm } from '../../../../../../../../POC PRojects/core-admin/src/components/utilities/keybound-form';
-import { useCampaigns } from '../../../../../../../../POC PRojects/core-admin/src/hooks/api/campaigns';
-import { useCreatePromotion } from '../../../../../../../../POC PRojects/core-admin/src/hooks/api/promotions';
-import { useDocumentDirection } from '../../../../../../../../POC PRojects/core-admin/src/hooks/use-document-direction';
-import { currencies, getCurrencySymbol } from '../../../../../../../../POC PRojects/core-admin/src/lib/data/currencies';
-import { DEFAULT_CAMPAIGN_VALUES } from '@pages/campaigns/_common/constants';
+import { Form } from '../../../../../components/common/form';
+import { DeprecatedPercentageInput } from '../../../../../components/inputs/percentage-input';
+import { RouteFocusModal, useRouteModal } from '../../../../../components/modals';
+import { KeyboundForm } from '../../../../../components/utilities/keybound-form';
+import { useCampaigns } from '../../../../../hooks/api/campaigns';
+import { useCreatePromotion } from '../../../../../hooks/api/promotions';
+import { useDocumentDirection } from '../../../../../hooks/use-document-direction';
+import { currencies, getCurrencySymbol } from '../../../../../lib/data/currencies';
+import { DEFAULT_CAMPAIGN_VALUES } from '../../../../campaigns/common/constants';
 import { RulesFormField } from '../../../common/edit-rules/components/rules-form-field';
 import { AddCampaignPromotionFields } from '../../../promotion-add-campaign/components/add-campaign-promotion-form';
 import { Tab } from './constants';
@@ -968,14 +968,6 @@ export const CreatePromotionForm = () => {
                                   })}
                                   className={clx('basis-1/2')}
                                   data-testid="promotion-create-form-allocation-option-once"
-                                />
-
-                                <RadioGroup.ChoiceBox
-                                  value="across"
-                                  label={t('promotions.form.allocation.across.title')}
-                                  description={t('promotions.form.allocation.across.description')}
-                                  className={clx('basis-1/2')}
-                                  data-testid="promotion-create-form-allocation-option-across"
                                 />
                               </RadioGroup>
                             </Form.Control>

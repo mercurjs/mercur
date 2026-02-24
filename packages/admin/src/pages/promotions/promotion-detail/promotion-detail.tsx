@@ -1,9 +1,9 @@
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { TwoColumnPageSkeleton } from "../../../../../../POC PRojects/core-admin/src/components/common/skeleton"
-import { TwoColumnPage } from "../../../../../../POC PRojects/core-admin/src/components/layout/pages"
-import { usePromotion, usePromotionRules } from "../../../../../../POC PRojects/core-admin/src/hooks/api/promotions"
-import { useExtension } from "../../../../../../POC PRojects/core-admin/src/providers/extension-provider"
+import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
+import { TwoColumnPage } from "../../../components/layout/pages"
+import { usePromotion, usePromotionRules } from "../../../hooks/api/promotions"
+import { useExtension } from "../../../providers/extension-provider"
 import { CampaignSection } from "./components/campaign-section"
 import { PromotionConditionsSection } from "./components/promotion-conditions-section"
 import { PromotionGeneralSection } from "./components/promotion-general-section"

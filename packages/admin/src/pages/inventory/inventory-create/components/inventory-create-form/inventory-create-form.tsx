@@ -15,28 +15,28 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { HttpTypes } from "@medusajs/types"
-import { Form } from "@components/common/form"
-import { SwitchBox } from "@components/common/switch-box"
-import { CountrySelect } from "@components/inputs/country-select"
+import { Form } from "../../../../../components/common/form"
+import { SwitchBox } from "../../../../../components/common/switch-box"
+import { CountrySelect } from "../../../../../components/inputs/country-select"
 import {
   RouteFocusModal,
   useRouteModal,
-} from "@components/modals"
-import { KeyboundForm } from "@components/utilities/keybound-form"
+} from "../../../../../components/modals"
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import {
   inventoryItemsQueryKeys,
   useCreateInventoryItem,
-} from "@hooks/api/inventory"
-import { sdk } from "@lib/client"
+} from "../../../../../hooks/api/inventory"
+import { sdk } from "../../../../../lib/client"
 import {
   transformNullableFormData,
   transformNullableFormNumber,
   transformNullableFormNumbers,
-} from "@lib/form-helpers"
-import { queryClient } from "@lib/query-client"
+} from "../../../../../lib/form-helpers"
+import { queryClient } from "../../../../../lib/query-client"
 import { InventoryAvailabilityForm } from "./inventory-availability-form"
 import { CreateInventoryItemSchema } from "./schema"
-import { useDocumentDirection } from "@hooks/use-document-direction"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 enum Tab {
   DETAILS = "details",

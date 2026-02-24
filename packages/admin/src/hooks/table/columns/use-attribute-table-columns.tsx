@@ -16,9 +16,9 @@ import { useNavigate } from "react-router-dom";
 
 import type { AttributeDTO } from "@custom-types/attribute";
 
-import { attributeQueryKeys } from "@hooks/api/attributes";
-import { sdk } from "@lib/client";
-import { CategorySelectionModal } from "@pages/settings/attributes/_components/category-selection-modal";
+import { attributeQueryKeys } from "@/hooks/api/attributes";
+import { sdk } from "@/lib/client";
+import { CategorySelectionModal } from "@/pages/attributes/attribute-list/components/CategorySelectionModal";
 
 const columnHelper = createDataTableColumnHelper<AttributeDTO>();
 
@@ -272,11 +272,18 @@ export const useAttributeTableColumns = () => {
             <div className="flex items-center justify-end">
               <DropdownMenu>
                 <DropdownMenu.Trigger asChild>
-                  <IconButton variant="transparent" size="small" data-testid={`attribute-list-row-action-menu-trigger-${attribute.id}`}>
+                  <IconButton
+                    variant="transparent"
+                    size="small"
+                    data-testid={`attribute-list-row-action-menu-trigger-${attribute.id}`}
+                  >
                     <EllipsisHorizontal />
                   </IconButton>
                 </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="end" data-testid={`attribute-list-row-action-menu-${attribute.id}`}>
+                <DropdownMenu.Content
+                  align="end"
+                  data-testid={`attribute-list-row-action-menu-${attribute.id}`}
+                >
                   <DropdownMenu.Item
                     onClick={(e) => {
                       (e.stopPropagation(), handleEdit(attribute.id));
