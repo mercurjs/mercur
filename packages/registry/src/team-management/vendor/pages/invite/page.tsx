@@ -1,19 +1,16 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { decodeToken } from "react-jwt"
-import { Link, useSearchParams } from "react-router-dom"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { decodeToken } from "react-jwt";
+import { Link, useSearchParams } from "react-router-dom";
+import { z } from "zod";
 
-import {
-  useSignUpForInvite,
-  useAcceptInvite,
-} from "../../hooks/api/invites"
+import { useSignUpForInvite, useAcceptInvite } from "../../hooks/api/invites";
 
 export const config = {
   public: true,
-}
+};
 
 const CreateAccountSchema = z
   .object({
@@ -29,43 +26,40 @@ const CreateAccountSchema = z
         code: z.ZodIssueCode.custom,
         message: "Passwords do not match",
         path: ["repeat_password"],
-      })
+      });
     }
-  })
+  });
 
 type DecodedInvite = {
-  id: string
-  exp: number
-  iat: number
-}
+  id: string;
+  exp: number;
+  iat: number;
+};
 
 const InviteSchema = z.object({
   id: z.string(),
   exp: z.number(),
   iat: z.number(),
-})
+});
 
 const validateDecodedInvite = (decoded: unknown): decoded is DecodedInvite => {
-  return InviteSchema.safeParse(decoded).success
-}
+  return InviteSchema.safeParse(decoded).success;
+};
 
 const InviteAcceptPage = () => {
-  const [searchParams] = useSearchParams()
-  const [success, setSuccess] = useState(false)
+  const [searchParams] = useSearchParams();
+  const [success, setSuccess] = useState(false);
 
-  const token = searchParams.get("token") || null
-  const invite: DecodedInvite | null = token ? decodeToken(token) : null
-  const isValidInvite = invite && validateDecodedInvite(invite)
+  const token = searchParams.get("token") || null;
+  const invite: DecodedInvite | null = token ? decodeToken(token) : null;
+  const isValidInvite = invite && validateDecodedInvite(invite);
 
   return (
     <div className="bg-ui-bg-subtle relative flex min-h-dvh w-dvw items-center justify-center p-4">
       <div className="flex w-full max-w-[360px] flex-col items-center">
         {isValidInvite ? (
           !success ? (
-            <CreateView
-              onSuccess={() => setSuccess(true)}
-              token={token!}
-            />
+            <CreateView onSuccess={() => setSuccess(true)} token={token!} />
           ) : (
             <SuccessView />
           )
@@ -74,8 +68,8 @@ const InviteAcceptPage = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const LoginLink = () => (
   <div className="flex w-full flex-col items-center">
@@ -87,7 +81,7 @@ const LoginLink = () => (
       Back to login
     </Link>
   </div>
-)
+);
 
 const InvalidView = () => (
   <div className="flex flex-col items-center">
@@ -99,16 +93,16 @@ const InvalidView = () => (
     </div>
     <LoginLink />
   </div>
-)
+);
 
 const CreateView = ({
   onSuccess,
   token,
 }: {
-  onSuccess: () => void
-  token: string
+  onSuccess: () => void;
+  token: string;
 }) => {
-  const [invalid, setInvalid] = useState(false)
+  const [invalid, setInvalid] = useState(false);
 
   const form = useForm<z.infer<typeof CreateAccountSchema>>({
     resolver: zodResolver(CreateAccountSchema),
@@ -119,48 +113,48 @@ const CreateView = ({
       password: "",
       repeat_password: "",
     },
-  })
+  });
 
-  const { mutateAsync: signUp, isPending: isCreating } = useSignUpForInvite()
+  const { mutateAsync: signUp, isPending: isCreating } = useSignUpForInvite();
   const { mutateAsync: acceptInvite, isPending: isAccepting } =
-    useAcceptInvite(token)
+    useAcceptInvite(token);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
       const authToken = await signUp({
         email: data.email,
         password: data.password,
-      })
+      });
 
       await acceptInvite({
         name: `${data.first_name} ${data.last_name}`,
-        auth_token: authToken,
-      })
+        auth_token: authToken as string,
+      });
 
-      onSuccess()
+      onSuccess();
     } catch (error: any) {
       if (error?.status === 400) {
         form.setError("root", {
           type: "manual",
           message: "This invite is no longer valid.",
-        })
-        setInvalid(true)
-        return
+        });
+        setInvalid(true);
+        return;
       }
       form.setError("root", {
         type: "manual",
         message: error.message || "Something went wrong",
-      })
+      });
     }
-  })
+  });
 
-  const serverError = form.formState.errors.root?.message
+  const serverError = form.formState.errors.root?.message;
   const validationError =
     form.formState.errors.email?.message ||
     form.formState.errors.first_name?.message ||
     form.formState.errors.last_name?.message ||
     form.formState.errors.password?.message ||
-    form.formState.errors.repeat_password?.message
+    form.formState.errors.repeat_password?.message;
 
   return (
     <div className="flex w-full flex-col items-center">
@@ -230,8 +224,8 @@ const CreateView = ({
       </form>
       <LoginLink />
     </div>
-  )
-}
+  );
+};
 
 const SuccessView = () => (
   <div className="flex w-full flex-col items-center gap-y-6">
@@ -247,6 +241,6 @@ const SuccessView = () => (
       </Link>
     </Button>
   </div>
-)
+);
 
-export default InviteAcceptPage
+export default InviteAcceptPage;

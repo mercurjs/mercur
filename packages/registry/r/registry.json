@@ -91,10 +91,6 @@
           "type": "registry:workflow"
         },
         {
-          "path": "reviews/api/admin/middlewares.ts",
-          "type": "registry:api"
-        },
-        {
           "path": "reviews/api/admin/reviews/route.ts",
           "type": "registry:api"
         },
@@ -136,10 +132,6 @@
         },
         {
           "path": "reviews/api/store/reviews/[id]/route.ts",
-          "type": "registry:api"
-        },
-        {
-          "path": "reviews/api/vendor/middlewares.ts",
           "type": "registry:api"
         },
         {
@@ -230,7 +222,10 @@
     {
       "name": "product-import-export",
       "description": "CSV product import & export for vendors. Includes API routes, workflows, and vendor portal drawers.",
-      "dependencies": ["multer", "@types/multer"],
+      "dependencies": [
+        "multer",
+        "@types/multer"
+      ],
       "registryDependencies": [],
       "docs": "## Product Import/Export Block\n\n### Configuration\n\nNo additional modules needed — uses built-in Medusa product CSV steps.\n\n### Middleware Setup\n\nAdd the import middleware to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from '@medusajs/medusa'\nimport { productImportExportMiddlewares } from './vendor/products/middlewares'\n\nexport default defineMiddlewares({\n  routes: [...productImportExportMiddlewares],\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```\n\n### Vendor Navigation\n\nThe block includes a `products/page.tsx` that overrides the default product list page, adding Import and Export buttons in the header. The buttons open drawer routes at `/products/import` and `/products/export`.",
       "files": [
@@ -304,9 +299,13 @@
     {
       "name": "team-management",
       "description": "Team member management with invitations, roles, and vendor portal pages.",
-      "dependencies": ["jsonwebtoken", "@types/jsonwebtoken", "react-jwt"],
+      "dependencies": [
+        "jsonwebtoken",
+        "@types/jsonwebtoken",
+        "react-jwt"
+      ],
       "registryDependencies": [],
-      "docs": "## Configuration\n\nAdd the member module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/member',\n    definition: {\n      isQueryable: true,\n    },\n  },\n]\n```\n\n## Middlewares\n\nAdd the team management middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorMembersMiddlewares } from \"./vendor/members/middlewares\";\nimport { vendorInvitesMiddlewares } from \"./vendor/invites/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...vendorMembersMiddlewares, ...vendorInvitesMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block and adding the module configuration, generate and run the migrations to create the necessary tables in your database:\n\n```bash\nnpx medusa db:generate member\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
+      "docs": "## Configuration\n\nAdd the member module to your `medusa-config.ts`:\n\n```ts\nimport { ContainerRegistrationKeys } from \"@medusajs/framework/utils\"\n\nmodules: [\n  {\n    resolve: './modules/member',\n    dependencies: [ContainerRegistrationKeys.QUERY],\n  },\n]\n```\n\n## Middlewares\n\nAdd the team management middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { vendorMembersMiddlewares } from \"./vendor/members/middlewares\";\nimport { vendorInvitesMiddlewares } from \"./vendor/invites/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...vendorMembersMiddlewares, ...vendorInvitesMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block and adding the module configuration, generate and run the migrations to create the necessary tables in your database:\n\n```bash\nnpx medusa db:generate member\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
       "files": [
         {
           "path": "team-management/modules/member/index.ts",
@@ -381,6 +380,10 @@
           "type": "registry:workflow"
         },
         {
+          "path": "team-management/workflows/hooks/seller-created.ts",
+          "type": "registry:workflow"
+        },
+        {
           "path": "team-management/api/vendor/members/helpers.ts",
           "type": "registry:api"
         },
@@ -405,6 +408,10 @@
           "type": "registry:api"
         },
         {
+          "path": "team-management/api/vendor/members/me/route.ts",
+          "type": "registry:api"
+        },
+        {
           "path": "team-management/api/vendor/invites/query-config.ts",
           "type": "registry:api"
         },
@@ -425,10 +432,6 @@
           "type": "registry:api"
         },
         {
-          "path": "team-management/vendor/lib/client.ts",
-          "type": "registry:vendor"
-        },
-        {
           "path": "team-management/vendor/hooks/api/members.tsx",
           "type": "registry:vendor"
         },
@@ -445,23 +448,23 @@
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/[id]/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/[id]/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/[id]/breadcrumb.tsx",
+          "path": "team-management/vendor/pages/settings/users/[id]/breadcrumb.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/[id]/edit/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/[id]/edit/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/invite/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/invite/page.tsx",
           "type": "registry:vendor"
         },
         {
