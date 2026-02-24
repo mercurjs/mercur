@@ -128,7 +128,7 @@ const CreateView = ({
 
       await acceptInvite({
         name: `${data.first_name} ${data.last_name}`,
-        auth_token: authToken as string,
+        auth_token: (authToken as { token: string }).token,
       });
 
       onSuccess();
