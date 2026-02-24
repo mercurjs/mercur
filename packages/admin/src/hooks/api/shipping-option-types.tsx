@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -22,7 +22,7 @@ export const useShippingOptionType = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminShippingOptionTypeResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminShippingOptionTypeResponse,
       QueryKey
     >,
@@ -43,7 +43,7 @@ export const useShippingOptionTypes = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminShippingOptionTypeListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminShippingOptionTypeListResponse,
       QueryKey
     >,
@@ -62,7 +62,7 @@ export const useShippingOptionTypes = (
 export const useCreateShippingOptionType = (
   options?: UseMutationOptions<
     HttpTypes.AdminShippingOptionTypeResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateShippingOptionType
   >
 ) => {
@@ -83,7 +83,7 @@ export const useUpdateShippingOptionType = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminShippingOptionTypeResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateShippingOptionType
   >
 ) => {
@@ -107,7 +107,7 @@ export const useDeleteShippingOptionType = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminShippingOptionTypeDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

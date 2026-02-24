@@ -9,7 +9,7 @@ import {
 import { useTranslation } from "react-i18next"
 import { useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import type { FetchError } from "@medusajs/js-sdk"
+import type { ClientError } from "@mercurjs/client"
 import { sdk } from "@lib/client"
 import { queryClient } from "@lib/query-client"
 import { stockLocationsQueryKeys } from "@hooks/api"
@@ -55,7 +55,7 @@ export const useLocationListTableColumns = () => {
         })
       )
     } catch (e) {
-      toast.error((e as FetchError).message)
+      toast.error((e as ClientError).message)
     }
   }
 

@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes, LinkMethodRequest } from "@medusajs/types"
 import {
   QueryKey,
@@ -21,7 +21,7 @@ export const useCampaign = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminCampaignResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminCampaignResponse,
       QueryKey
     >,
@@ -42,7 +42,7 @@ export const useCampaigns = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminCampaignListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminCampaignListResponse,
       QueryKey
     >,
@@ -61,7 +61,7 @@ export const useCampaigns = (
 export const useCreateCampaign = (
   options?: UseMutationOptions<
     HttpTypes.AdminCampaignResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateCampaign
   >
 ) => {
@@ -79,7 +79,7 @@ export const useUpdateCampaign = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCampaignResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateCampaign
   >
 ) => {
@@ -101,7 +101,7 @@ export const useDeleteCampaign = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.DeleteResponse<"campaign">,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -121,7 +121,7 @@ export const useAddOrRemoveCampaignPromotions = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminCampaignResponse,
-    FetchError,
+    ClientError,
     LinkMethodRequest
   >
 ) => {

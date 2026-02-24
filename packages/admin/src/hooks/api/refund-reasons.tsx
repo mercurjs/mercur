@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk";
+import { ClientError } from "@mercurjs/client";
 import type {
   AdminRefundReasonDeleteResponse,
   HttpTypes,
@@ -33,7 +33,7 @@ export const useRefundReasons = (
   options?: Omit<
     UseQueryOptions<
       AdminRefundReasonListResponse,
-      FetchError,
+      ClientError,
       AdminRefundReasonListResponse
     >,
     "queryFn" | "queryKey"
@@ -57,7 +57,7 @@ export const useRefundReason = (
   options?: Omit<
     UseQueryOptions<
       AdminRefundReasonResponse,
-      FetchError,
+      ClientError,
       AdminRefundReasonResponse
     >,
     "queryFn" | "queryKey"
@@ -82,7 +82,7 @@ export const useCreateRefundReason = (
   query?: AdminRefundReasonParams,
   options?: UseMutationOptions<
     HttpTypes.RefundReasonResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateRefundReason
   >,
 ) => {
@@ -108,7 +108,7 @@ export const useUpdateRefundReason = (
   id: string,
   options?: UseMutationOptions<
     AdminRefundReasonResponse,
-    FetchError,
+    ClientError,
     AdminUpdateRefundReason
   >,
 ) => {
@@ -138,7 +138,7 @@ export const useUpdateRefundReason = (
 export const useDeleteRefundReasonLazy = (
   options?: UseMutationOptions<
     HttpTypes.AdminRefundReasonDeleteResponse,
-    FetchError,
+    ClientError,
     string
   >,
 ) => {

@@ -66,13 +66,9 @@ import { formatPercentage } from "../../../../../lib/percentage-helpers.ts";
 
 type OrderSummarySectionProps = {
   order: AdminOrder;
-  plugins: AdminPlugin[];
 };
 
-export const OrderSummarySection = ({
-  order,
-  plugins,
-}: OrderSummarySectionProps) => {
+export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
 
@@ -194,7 +190,7 @@ export const OrderSummarySection = ({
       <Header order={order} orderPreview={orderPreview} />
       <ItemBreakdown order={order} reservations={reservations!} />
       <CostBreakdown order={order} />
-      <DiscountAndTotalBreakdown order={order} plugins={plugins} />
+      <DiscountAndTotalBreakdown order={order} />
       <Total order={order} />
 
       {(showAllocateButton || showReturns || showPayment || showRefund) && (
@@ -779,17 +775,14 @@ const CostBreakdown = ({
 
 const DiscountAndTotalBreakdown = ({
   order,
-  plugins,
 }: {
   order: AdminOrder & { region?: AdminRegion | null };
-  plugins: AdminPlugin[];
 }) => {
   const { t } = useTranslation();
   const [isDiscountOpen, setIsDiscountOpen] = useState(false);
   const [isCreditLinesOpen, setIsCreditLinesOpen] = useState(false);
 
   const creditLines = order.credit_lines ?? [];
-  const loyaltyPlugin = getLoyaltyPlugin(plugins);
 
   const discounts = useMemo(() => {
     const discounts: {
@@ -887,11 +880,7 @@ const DiscountAndTotalBreakdown = ({
                 onClick={() => setIsCreditLinesOpen((o) => !o)}
                 className="flex cursor-pointer items-center gap-1"
               >
-                <span>
-                  {loyaltyPlugin
-                    ? t("orders.giftCardsStoreCreditLines")
-                    : t("orders.creditLines.title")}
-                </span>
+                <span>{t("orders.creditLines.title")}</span>
                 <TriangleDownMini
                   style={{
                     transform: `rotate(${isCreditLinesOpen ? 0 : -90}deg)`,

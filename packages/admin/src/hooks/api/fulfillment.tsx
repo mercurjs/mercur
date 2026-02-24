@@ -6,13 +6,13 @@ import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { ordersQueryKeys } from "./orders"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 
 const FULFILLMENTS_QUERY_KEY = "fulfillments" as const
 export const fulfillmentsQueryKeys = queryKeysFactory(FULFILLMENTS_QUERY_KEY)
 
 export const useCreateFulfillment = (
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
     mutationFn: (payload: any) => sdk.admin.fulfillment.create(payload),
@@ -29,7 +29,7 @@ export const useCreateFulfillment = (
 
 export const useCancelFulfillment = (
   id: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.fulfillment.cancel(id),
@@ -48,7 +48,7 @@ export const useCreateFulfillmentShipment = (
   fulfillmentId: string,
   options?: UseMutationOptions<
     { fulfillment: HttpTypes.AdminFulfillment },
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateFulfillmentShipment
   >
 ) => {

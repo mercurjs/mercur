@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -20,7 +20,7 @@ export const useTaxRegion = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminTaxRegionResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminTaxRegionResponse,
       QueryKey
     >,
@@ -41,7 +41,7 @@ export const useTaxRegions = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminTaxRegionListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminTaxRegionListResponse,
       QueryKey
     >,
@@ -60,7 +60,7 @@ export const useTaxRegions = (
 export const useCreateTaxRegion = (
   options?: UseMutationOptions<
     HttpTypes.AdminTaxRegionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateTaxRegion
   >
 ) => {
@@ -79,7 +79,7 @@ export const useUpdateTaxRegion = (
   query?: HttpTypes.AdminTaxRegionParams,
   options?: UseMutationOptions<
     HttpTypes.AdminTaxRegionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateTaxRegion,
     QueryKey
   >
@@ -102,7 +102,7 @@ export const useDeleteTaxRegion = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminTaxRegionDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

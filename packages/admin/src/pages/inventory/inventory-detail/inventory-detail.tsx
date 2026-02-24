@@ -2,7 +2,6 @@ import { useLoaderData, useParams } from "react-router-dom"
 import { INVENTORY_DETAIL_FIELDS } from "./constants"
 import type { inventoryItemLoader } from "./loader"
 import { useInventoryItem } from "@hooks/api"
-import { useExtension } from "@providers/extension-provider"
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
 import { InventoryItemGeneralSection } from "./components/inventory-item-general-section"
@@ -33,8 +32,6 @@ export const InventoryDetail = () => {
     }
   )
 
-  const { getWidgets } = useExtension()
-
   if (isLoading || !inventory_item) {
     return (
       <TwoColumnPageSkeleton
@@ -53,12 +50,6 @@ export const InventoryDetail = () => {
   return (
     <div data-testid="inventory-detail-page">
       <TwoColumnPage
-        widgets={{
-          after: getWidgets("inventory_item.details.after"),
-          before: getWidgets("inventory_item.details.before"),
-          sideAfter: getWidgets("inventory_item.details.side.after"),
-          sideBefore: getWidgets("inventory_item.details.side.before"),
-        }}
         data={inventory_item}
         showJSON
         showMetadata

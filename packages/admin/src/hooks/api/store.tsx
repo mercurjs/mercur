@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk";
+import { ClientError } from "@mercurjs/client";
 import type { HttpTypes } from "@medusajs/types";
 
 import type {
@@ -30,7 +30,7 @@ export async function retrieveActiveStore(
   const activeStore = response.stores?.[0];
 
   if (!activeStore) {
-    throw new FetchError("No active store found", "Not Found", 404);
+    throw new ClientError("No active store found", "Not Found", 404);
   }
 
   return { store: activeStore };
@@ -41,7 +41,7 @@ export const useStore = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminStoreResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminStoreResponse,
       QueryKey
     >,
@@ -64,7 +64,7 @@ export const useUpdateStore = (
   id: string,
   options?: MutationOptions<
     HttpTypes.AdminStoreResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateStore
   >,
 ) => {

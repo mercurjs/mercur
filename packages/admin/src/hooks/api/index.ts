@@ -25,6 +25,7 @@ export * from "./refund-reasons";
 export * from "./regions";
 export * from "./reservations";
 export * from "./sales-channels";
+export * from "./sellers";
 export * from "./shipping-options";
 export * from "./shipping-option-types";
 export * from "./shipping-profiles";

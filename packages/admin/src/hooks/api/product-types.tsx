@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -20,7 +20,7 @@ export const useProductType = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductTypeResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductTypeResponse,
       QueryKey
     >,
@@ -41,7 +41,7 @@ export const useProductTypes = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminProductTypeListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminProductTypeListResponse,
       QueryKey
     >,
@@ -60,7 +60,7 @@ export const useProductTypes = (
 export const useCreateProductType = (
   options?: UseMutationOptions<
     HttpTypes.AdminProductTypeResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateProductType
   >
 ) => {
@@ -79,7 +79,7 @@ export const useUpdateProductType = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductTypeResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateProductType
   >
 ) => {
@@ -101,7 +101,7 @@ export const useDeleteProductType = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductTypeDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

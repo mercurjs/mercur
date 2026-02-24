@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -22,7 +22,7 @@ export const usePriceList = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminPriceListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminPriceListResponse,
       QueryKey
     >,
@@ -43,7 +43,7 @@ export const usePriceLists = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminPriceListListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminPriceListListResponse,
       QueryKey
     >,
@@ -63,7 +63,7 @@ export const useCreatePriceList = (
   query?: HttpTypes.AdminPriceListParams,
   options?: UseMutationOptions<
     HttpTypes.AdminPriceListResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreatePriceList
   >
 ) => {
@@ -85,7 +85,7 @@ export const useUpdatePriceList = (
   query?: HttpTypes.AdminPriceListParams,
   options?: UseMutationOptions<
     HttpTypes.AdminPriceListResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdatePriceList
   >
 ) => {
@@ -109,7 +109,7 @@ export const useDeletePriceList = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminPriceListDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -129,7 +129,7 @@ export const useBatchPriceListPrices = (
   query?: HttpTypes.AdminPriceListParams,
   options?: UseMutationOptions<
     HttpTypes.AdminPriceListBatchResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchPriceListPrice
   >
 ) => {
@@ -152,7 +152,7 @@ export const usePriceListLinkProducts = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminPriceListResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminLinkPriceListProducts
   >
 ) => {

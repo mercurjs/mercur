@@ -4,7 +4,7 @@ import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { useInventoryItem } from "../../../hooks/api"
 import { useReservationItem } from "../../../hooks/api/reservations"
-import { useExtension } from "../../../providers/extension-provider"
+
 import { InventoryItemGeneralSection } from "../../inventory/inventory-detail/components/inventory-item-general-section"
 import { ReservationGeneralSection } from "./components/reservation-general-section"
 import { reservationItemLoader } from "./loader"
@@ -31,8 +31,6 @@ export const ReservationDetail = () => {
     { enabled: !!reservation?.inventory_item?.id! }
   )
 
-  const { getWidgets } = useExtension()
-
   if (isLoading || !reservation) {
     return (
       <TwoColumnPageSkeleton
@@ -50,12 +48,6 @@ export const ReservationDetail = () => {
 
   return (
     <TwoColumnPage
-      widgets={{
-        before: getWidgets("reservation.details.before"),
-        after: getWidgets("reservation.details.after"),
-        sideBefore: getWidgets("reservation.details.side.before"),
-        sideAfter: getWidgets("reservation.details.side.after"),
-      }}
       data={reservation}
       showJSON
       showMetadata

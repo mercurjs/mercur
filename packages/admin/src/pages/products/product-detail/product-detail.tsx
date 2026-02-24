@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useProduct } from "../../../hooks/api/products";
-import { useExtension } from "../../../providers/extension-provider";
+
 import { ProductAdditionalAttributeSection } from "./components/product-additional-attribute-section";
 import { ProductAttributeSection } from "./components/product-attribute-section";
 import { ProductGeneralSection } from "./components/product-general-section";
@@ -30,13 +30,6 @@ export const ProductDetail = () => {
     },
   );
 
-  const { getWidgets } = useExtension();
-
-  const after = getWidgets("product.details.after");
-  const before = getWidgets("product.details.before");
-  const sideAfter = getWidgets("product.details.side.after");
-  const sideBefore = getWidgets("product.details.side.before");
-
   if (isLoading || !product) {
     return (
       <TwoColumnPageSkeleton
@@ -55,12 +48,6 @@ export const ProductDetail = () => {
   return (
     <div data-testid="product-detail-page">
       <TwoColumnPage
-        widgets={{
-          after,
-          before,
-          sideAfter,
-          sideBefore,
-        }}
         showJSON
         showMetadata
         data={product}

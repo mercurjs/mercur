@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom"
 
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { MetadataForm } from "@components/forms/metadata-form"
 import { useCustomer, useUpdateCustomer } from "@hooks/api"
 
@@ -16,7 +16,7 @@ export const CustomerMetadata = () => {
 
   const handleSubmit = async (
     params: { metadata?: Record<string, unknown> | null },
-    callbacks: { onSuccess?: () => void; onError?: (error: FetchError | string) => void }
+    callbacks: { onSuccess?: () => void; onError?: (error: ClientError | string) => void }
   ) => {
     try {
       const result = await mutateAsync({
@@ -26,7 +26,7 @@ export const CustomerMetadata = () => {
 
       return result
     } catch (error) {
-      const message = error instanceof FetchError ? error.message : 'An error occurred'
+      const message = error instanceof ClientError ? error.message : 'An error occurred'
       callbacks.onError?.(message)
       throw error
     }

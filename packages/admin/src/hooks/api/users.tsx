@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -21,7 +21,7 @@ export const useMe = (
   query?: HttpTypes.AdminUserParams,
   options?: UseQueryOptions<
     HttpTypes.AdminUserResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUserResponse,
     QueryKey
   >
@@ -44,7 +44,7 @@ export const useUser = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminUserResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminUserResponse,
       QueryKey
     >,
@@ -65,7 +65,7 @@ export const useUsers = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminUserListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminUserListResponse,
       QueryKey
     >,
@@ -85,7 +85,7 @@ export const useCreateUser = (
   query?: HttpTypes.AdminUserParams,
   options?: UseMutationOptions<
     HttpTypes.AdminUserResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateUser,
     QueryKey
   >
@@ -106,7 +106,7 @@ export const useUpdateUser = (
   query?: HttpTypes.AdminUserParams,
   options?: UseMutationOptions<
     HttpTypes.AdminUserResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateUser,
     QueryKey
   >
@@ -130,7 +130,7 @@ export const useDeleteUser = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminUserDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

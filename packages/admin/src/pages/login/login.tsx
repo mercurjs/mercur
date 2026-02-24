@@ -7,7 +7,6 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import * as z from "zod";
 import AvatarBox from "@components/common/logo-box/avatar-box";
 import { Form } from "@components/common/form";
-import { useExtension } from "@providers/extension-provider";
 import { useSignInWithEmailPass } from "@hooks/api";
 import { isFetchError } from "@lib/is-fetch-error";
 
@@ -20,7 +19,6 @@ export const Login = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const { getWidgets } = useExtension();
   const [searchParams] = useSearchParams()
 
 
@@ -98,9 +96,6 @@ export const Login = () => {
           </Text>
         </div>
         <div className="flex w-full flex-col gap-y-3">
-          {getWidgets("login.before").map((Component, i) => {
-            return <Component key={i} />;
-          })}
           <Form {...form}>
             <form
               onSubmit={handleSubmit}
@@ -183,9 +178,6 @@ export const Login = () => {
               </Button>
             </form>
           </Form>
-          {getWidgets("login.after").map((Component, i) => {
-            return <Component key={i} />;
-          })}
         </div>
         <span
           className="txt-small my-6 text-ui-fg-muted"

@@ -5,7 +5,7 @@ import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { ordersQueryKeys } from "./orders"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { reservationItemsQueryKeys } from "./reservations"
 import { inventoryItemsQueryKeys } from "./inventory.tsx"
 
@@ -13,7 +13,7 @@ export const useCreateOrderEdit = (
   orderId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminInitiateOrderEditRequest
   >
 ) => {
@@ -38,7 +38,7 @@ export const useRequestOrderEdit = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -70,7 +70,7 @@ export const useConfirmOrderEdit = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -113,7 +113,7 @@ export const useConfirmOrderEdit = (
 
 export const useCancelOrderEdit = (
   orderId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.orderEdit.cancelRequest(orderId),
@@ -143,7 +143,7 @@ export const useAddOrderEditItems = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminAddOrderEditItems
   >
 ) => {
@@ -167,7 +167,7 @@ export const useUpdateOrderEditOriginalItem = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateOrderEditItem & { itemId: string }
   >
 ) => {
@@ -195,7 +195,7 @@ export const useUpdateOrderEditAddedItem = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateOrderEditItem & { actionId: string }
   >
 ) => {
@@ -224,7 +224,7 @@ export const useRemoveOrderEditItem = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
+    ClientError,
     string
   >
 ) => {

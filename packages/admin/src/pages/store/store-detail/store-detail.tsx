@@ -6,7 +6,6 @@ import { storeLoader } from "./loader"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
 import { StoreCurrencySection } from "./components/store-currency-section"
 
 export const StoreDetail = () => {
@@ -15,8 +14,6 @@ export const StoreDetail = () => {
   const { store, isPending, isError, error } = useStore(undefined, {
     initialData,
   })
-
-  const { getWidgets } = useExtension()
 
   if (isPending || !store) {
     return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />
@@ -28,10 +25,6 @@ export const StoreDetail = () => {
 
   return (
     <SingleColumnPage
-      widgets={{
-        before: getWidgets("store.details.before"),
-        after: getWidgets("store.details.after"),
-      }}
       data={store}
       hasOutlet
       showMetadata

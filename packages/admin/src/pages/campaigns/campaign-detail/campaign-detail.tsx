@@ -1,31 +1,28 @@
-import { useLoaderData, useParams } from "react-router-dom"
+import { useLoaderData, useParams } from "react-router-dom";
 
-import { useCampaign } from "../../../hooks/api/campaigns"
-import { CampaignBudget } from "./components/campaign-budget"
-import { CampaignGeneralSection } from "./components/campaign-general-section"
-import { CampaignPromotionSection } from "./components/campaign-promotion-section"
-import { CampaignSpend } from "./components/campaign-spend"
-import { campaignLoader } from "./loader"
+import { useCampaign } from "../../../hooks/api/campaigns";
+import { CampaignBudget } from "./components/campaign-budget";
+import { CampaignGeneralSection } from "./components/campaign-general-section";
+import { CampaignPromotionSection } from "./components/campaign-promotion-section";
+import { CampaignSpend } from "./components/campaign-spend";
+import { campaignLoader } from "./loader";
 
-import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
-import { TwoColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
-import { CampaignConfigurationSection } from "./components/campaign-configuration-section"
-import { CAMPAIGN_DETAIL_FIELDS } from "./constants"
+import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
+import { TwoColumnPage } from "../../../components/layout/pages";
+import { CampaignConfigurationSection } from "./components/campaign-configuration-section";
+import { CAMPAIGN_DETAIL_FIELDS } from "./constants";
 
 export const CampaignDetail = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof campaignLoader>
-  >
+  >;
 
-  const { id } = useParams()
+  const { id } = useParams();
   const { campaign, isLoading, isError, error } = useCampaign(
     id!,
     { fields: CAMPAIGN_DETAIL_FIELDS },
-    { initialData }
-  )
-
-  const { getWidgets } = useExtension()
+    { initialData },
+  );
 
   if (isLoading || !campaign) {
     return (
@@ -35,26 +32,15 @@ export const CampaignDetail = () => {
         showJSON
         showMetadata
       />
-    )
+    );
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
-    <TwoColumnPage
-      widgets={{
-        after: getWidgets("campaign.details.after"),
-        before: getWidgets("campaign.details.before"),
-        sideAfter: getWidgets("campaign.details.side.after"),
-        sideBefore: getWidgets("campaign.details.side.before"),
-      }}
-      hasOutlet
-      showJSON
-      showMetadata
-      data={campaign}
-    >
+    <TwoColumnPage hasOutlet showJSON showMetadata data={campaign}>
       <TwoColumnPage.Main>
         <CampaignGeneralSection campaign={campaign} />
         <CampaignPromotionSection campaign={campaign} />
@@ -65,5 +51,5 @@ export const CampaignDetail = () => {
         <CampaignBudget campaign={campaign} />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
-  )
-}
+  );
+};

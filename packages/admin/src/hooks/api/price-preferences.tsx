@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -22,7 +22,7 @@ export const usePricePreference = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminPricePreferenceResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminPricePreferenceResponse,
       QueryKey
     >,
@@ -43,7 +43,7 @@ export const usePricePreferences = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminPricePreferenceListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminPricePreferenceListResponse,
       QueryKey
     >,
@@ -64,7 +64,7 @@ export const useUpsertPricePreference = (
   query?: HttpTypes.AdminPricePreferenceParams,
   options?: UseMutationOptions<
     HttpTypes.AdminPricePreferenceResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdatePricePreference | HttpTypes.AdminCreatePricePreference
   >
 ) => {
@@ -98,7 +98,7 @@ export const useDeletePricePreference = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminPricePreferenceDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

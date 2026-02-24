@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -19,7 +19,7 @@ export const useInvite = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminInviteResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminInviteResponse,
       QueryKey
     >,
@@ -40,7 +40,7 @@ export const useInvites = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminInviteListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminInviteListResponse,
       QueryKey
     >,
@@ -59,7 +59,7 @@ export const useInvites = (
 export const useCreateInvite = (
   options?: UseMutationOptions<
     HttpTypes.AdminInviteResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateInvite
   >
 ) => {
@@ -75,7 +75,7 @@ export const useCreateInvite = (
 
 export const useResendInvite = (
   id: string,
-  options?: UseMutationOptions<HttpTypes.AdminInviteResponse, FetchError, void>
+  options?: UseMutationOptions<HttpTypes.AdminInviteResponse, ClientError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.invite.resend(id),
@@ -92,7 +92,7 @@ export const useDeleteInvite = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminInviteDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -111,7 +111,7 @@ export const useAcceptInvite = (
   inviteToken: string,
   options?: UseMutationOptions<
     HttpTypes.AdminAcceptInviteResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminAcceptInvite & { auth_token: string }
   >
 ) => {

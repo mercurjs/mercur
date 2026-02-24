@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query"
 
 import { UniqueIdentifier } from "@dnd-kit/core"
 import { Spinner } from "@medusajs/icons"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { toast } from "@medusajs/ui"
 import { useState } from "react"
@@ -72,7 +72,7 @@ export const OrganizeCategoryForm = () => {
         previousValue,
       }
     },
-    onError: (error: FetchError, _newValue, context) => {
+    onError: (error: ClientError, _newValue, context) => {
       // Roll back to the previous value
       queryClient.setQueryData(
         categoriesQueryKeys.list(QUERY),

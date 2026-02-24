@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useProductTag } from "../../../hooks/api"
-import { useExtension } from "../../../providers/extension-provider"
+
 import { ProductTagGeneralSection } from "./components/product-tag-general-section"
 import { ProductTagProductSection } from "./components/product-tag-product-section"
 import { productTagLoader } from "./loader"
@@ -14,8 +14,6 @@ export const ProductTagDetail = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof productTagLoader>
   >
-
-  const { getWidgets } = useExtension()
 
   const { product_tag, isPending, isError, error } = useProductTag(
     id!,
@@ -35,10 +33,6 @@ export const ProductTagDetail = () => {
 
   return (
     <SingleColumnPage
-      widgets={{
-        after: getWidgets("product_tag.details.after"),
-        before: getWidgets("product_tag.details.before"),
-      }}
       showJSON
       showMetadata
       data={product_tag}

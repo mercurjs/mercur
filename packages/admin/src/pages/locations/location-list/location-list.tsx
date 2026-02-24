@@ -1,28 +1,27 @@
-import { ShoppingBag, TruckFast } from "@medusajs/icons"
-import { Container, Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import { ShoppingBag, TruckFast } from "@medusajs/icons";
+import { Container, Heading } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 
-import { useStockLocations } from "../../../hooks/api/stock-locations"
-import { LOCATION_LIST_FIELDS } from "./constants"
-import { useLocationListTableColumns } from "./use-location-list-table-columns"
-import { useLocationListTableQuery } from "./use-location-list-table-query"
+import { useStockLocations } from "../../../hooks/api/stock-locations";
+import { LOCATION_LIST_FIELDS } from "./constants";
+import { useLocationListTableColumns } from "./use-location-list-table-columns";
+import { useLocationListTableQuery } from "./use-location-list-table-query";
 
-import { DataTable } from "../../../components/data-table"
-import { SidebarLink } from "../../../components/common/sidebar-link/sidebar-link"
-import { TwoColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
-import { keepPreviousData } from "@tanstack/react-query"
+import { DataTable } from "../../../components/data-table";
+import { SidebarLink } from "../../../components/common/sidebar-link/sidebar-link";
+import { TwoColumnPage } from "../../../components/layout/pages";
+import { keepPreviousData } from "@tanstack/react-query";
 
-const PAGE_SIZE = 20
-const PREFIX = "loc"
+const PAGE_SIZE = 20;
+const PREFIX = "loc";
 
 export function LocationList() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const searchParams = useLocationListTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
-  })
+  });
 
   const {
     stock_locations: stockLocations = [],
@@ -37,28 +36,22 @@ export function LocationList() {
     },
     {
       placeholderData: keepPreviousData,
-    }
-  )
+    },
+  );
 
-  const columns = useLocationListTableColumns()
-  const { getWidgets } = useExtension()
+  const columns = useLocationListTableColumns();
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
-    <TwoColumnPage
-      widgets={{
-        after: getWidgets("location.list.after"),
-        before: getWidgets("location.list.before"),
-        sideAfter: getWidgets("location.list.side.after"),
-        sideBefore: getWidgets("location.list.side.before"),
-      }}
-      showJSON
-    >
+    <TwoColumnPage showJSON>
       <TwoColumnPage.Main>
-        <Container className="flex flex-col divide-y p-0" data-testid="location-list-container">
+        <Container
+          className="flex flex-col divide-y p-0"
+          data-testid="location-list-container"
+        >
           <DataTable
             data={stockLocations}
             columns={columns}
@@ -96,23 +89,28 @@ export function LocationList() {
         <LinksSection />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
-  )
+  );
 }
 
 const LinksSection = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Container className="p-0" data-testid="location-list-sidebar">
-      <div className="flex items-center justify-between px-6 py-4" data-testid="location-list-sidebar-header">
-        <Heading level="h2" data-testid="location-list-sidebar-heading">{t("stockLocations.sidebar.header")}</Heading>
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="location-list-sidebar-header"
+      >
+        <Heading level="h2" data-testid="location-list-sidebar-heading">
+          {t("stockLocations.sidebar.header")}
+        </Heading>
       </div>
 
       <SidebarLink
         to="/settings/locations/shipping-profiles"
         labelKey={t("stockLocations.sidebar.shippingProfiles.label")}
         descriptionKey={t(
-          "stockLocations.sidebar.shippingProfiles.description"
+          "stockLocations.sidebar.shippingProfiles.description",
         )}
         icon={<ShoppingBag />}
         data-testid="location-list-sidebar-shipping-profiles-link"
@@ -121,11 +119,11 @@ const LinksSection = () => {
         to="/settings/locations/shipping-option-types"
         labelKey={t("stockLocations.sidebar.shippingOptionTypes.label")}
         descriptionKey={t(
-          "stockLocations.sidebar.shippingOptionTypes.description"
+          "stockLocations.sidebar.shippingOptionTypes.description",
         )}
         icon={<TruckFast />}
         data-testid="location-list-sidebar-shipping-option-types-link"
       />
     </Container>
-  )
-}
+  );
+};

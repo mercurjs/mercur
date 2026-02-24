@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { useMutation, UseMutationOptions } from "@tanstack/react-query"
 import { sdk } from "../../lib/client"
@@ -15,7 +15,7 @@ export const useCreatePaymentCollection = (
   orderId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminPaymentCollectionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreatePaymentCollection
   >
 ) => {
@@ -45,7 +45,7 @@ export const useMarkPaymentCollectionAsPaid = (
   paymentCollectionId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminPaymentCollectionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminMarkPaymentCollectionAsPaid
   >
 ) => {
@@ -76,7 +76,7 @@ export const useDeletePaymentCollection = (
   options?: Omit<
     UseMutationOptions<
       HttpTypes.AdminDeletePaymentCollectionResponse,
-      FetchError,
+      ClientError,
       string
     >,
     "mutationFn"

@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -23,7 +23,7 @@ export const useDeleteFulfillmentSet = (
   options?: Omit<
     UseMutationOptions<
       HttpTypes.AdminFulfillmentSetDeleteResponse,
-      FetchError,
+      ClientError,
       void
     >,
     "mutationFn"
@@ -60,7 +60,7 @@ export const useFulfillmentSetServiceZone = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminServiceZoneResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminServiceZoneResponse,
       QueryKey
     >,
@@ -86,7 +86,7 @@ export const useCreateFulfillmentSetServiceZone = (
   options?: Omit<
     UseMutationOptions<
       HttpTypes.AdminFulfillmentSetResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminCreateFulfillmentSetServiceZone,
       QueryKey
     >,
@@ -116,7 +116,7 @@ export const useUpdateFulfillmentSetServiceZone = (
   options?: Omit<
     UseMutationOptions<
       HttpTypes.AdminFulfillmentSetResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminUpdateFulfillmentSetServiceZone,
       QueryKey
     >,
@@ -150,7 +150,7 @@ export const useDeleteFulfillmentServiceZone = (
   options?: Omit<
     UseMutationOptions<
       HttpTypes.AdminServiceZoneDeleteResponse,
-      FetchError,
+      ClientError,
       void
     >,
     "mutationFn"

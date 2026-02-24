@@ -1,4 +1,4 @@
-import type { FetchError } from "@medusajs/js-sdk"
+import type { ClientError } from "@mercurjs/client"
 import type { HttpTypes } from "@medusajs/types"
 import type {
   QueryKey,
@@ -24,7 +24,7 @@ export const useTaxRate = (
   options?: Omit<
     UseQueryOptions<
       ExtendedAdminTaxRateResponse,
-      FetchError,
+      ClientError,
       ExtendedAdminTaxRateResponse,
       QueryKey
     >,
@@ -45,7 +45,7 @@ export const useTaxRates = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminTaxRateListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminTaxRateListResponse,
       QueryKey
     >,
@@ -65,7 +65,7 @@ export const useUpdateTaxRate = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminTaxRateResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateTaxRate
   >
 ) => {
@@ -88,7 +88,7 @@ export const useUpdateTaxRate = (
 export const useCreateTaxRate = (
   options?: UseMutationOptions<
     HttpTypes.AdminTaxRateResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateTaxRate
   >
 ) => {
@@ -109,7 +109,7 @@ export const useDeleteTaxRate = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminTaxRateDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

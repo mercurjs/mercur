@@ -1,4 +1,4 @@
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { CreateOrderCreditLineDTO, HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -43,7 +43,7 @@ export const useOrder = (
   id: string,
   query?: Record<string, any>,
   options?: Omit<
-    UseQueryOptions<any, FetchError, any, QueryKey>,
+    UseQueryOptions<any, ClientError, any, QueryKey>,
     "queryFn" | "queryKey"
   >
 ) => {
@@ -60,7 +60,7 @@ export const useUpdateOrder = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateOrder
   >
 ) => {
@@ -93,7 +93,7 @@ export const useOrderPreview = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminOrderPreviewResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminOrderPreviewResponse,
       QueryKey
     >,
@@ -114,7 +114,7 @@ export const useOrders = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminOrderListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminOrderListResponse,
       QueryKey
     >,
@@ -136,7 +136,7 @@ export const useOrderShippingOptions = (
   options?: Omit<
     UseQueryOptions<
       { shipping_options: HttpTypes.AdminShippingOption[] },
-      FetchError,
+      ClientError,
       { shipping_options: HttpTypes.AdminShippingOption[] },
       QueryKey
     >,
@@ -158,7 +158,7 @@ export const useOrderChanges = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminOrderChangesResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminOrderChangesResponse,
       QueryKey
     >,
@@ -180,7 +180,7 @@ export const useOrderLineItems = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminOrderLineItemsListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminOrderLineItemsListResponse,
       QueryKey
     >,
@@ -200,7 +200,7 @@ export const useCreateOrderFulfillment = (
   orderId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateOrderFulfillment
   >
 ) => {
@@ -233,7 +233,7 @@ export const useCreateOrderFulfillment = (
 export const useCancelOrderFulfillment = (
   orderId: string,
   fulfillmentId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
     mutationFn: (payload: { no_notification?: boolean }) =>
@@ -266,7 +266,7 @@ export const useCreateOrderShipment = (
   fulfillmentId: string,
   options?: UseMutationOptions<
     { order: HttpTypes.AdminOrder },
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateOrderShipment
   >
 ) => {
@@ -293,7 +293,7 @@ export const useMarkOrderFulfillmentAsDelivered = (
   fulfillmentId: string,
   options?: UseMutationOptions<
     { order: HttpTypes.AdminOrder },
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -316,7 +316,7 @@ export const useMarkOrderFulfillmentAsDelivered = (
 
 export const useCancelOrder = (
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminOrderResponse, FetchError, void>
+  options?: UseMutationOptions<HttpTypes.AdminOrderResponse, ClientError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.order.cancel(orderId),
@@ -339,7 +339,7 @@ export const useRequestTransferOrder = (
   orderId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminRequestOrderTransfer
   >
 ) => {
@@ -363,7 +363,7 @@ export const useRequestTransferOrder = (
 
 export const useCancelOrderTransfer = (
   orderId: string,
-  options?: UseMutationOptions<any, FetchError, void>
+  options?: UseMutationOptions<any, ClientError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.order.cancelTransfer(orderId),
@@ -386,7 +386,7 @@ export const useCreateOrderCreditLine = (
   orderId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminOrderResponse,
-    FetchError,
+    ClientError,
     Omit<CreateOrderCreditLineDTO, "order_id">
   >
 ) => {

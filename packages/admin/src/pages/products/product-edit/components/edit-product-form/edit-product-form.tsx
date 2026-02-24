@@ -8,12 +8,11 @@ import { Form } from "../../../../../components/common/form";
 import { SwitchBox } from "../../../../../components/common/switch-box";
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals";
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
-import { FormExtensionZone } from "../../../../../dashboard-app";
-import { useExtendableForm } from "../../../../../dashboard-app/forms/hooks";
 import { useUpdateProduct } from "../../../../../hooks/api/products";
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
 import { transformNullableFormData } from "../../../../../lib/form-helpers";
-import { useExtension } from "../../../../../providers/extension-provider";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type EditProductFormProps = {
   product: HttpTypes.AdminProduct;
@@ -33,11 +32,8 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const direction = useDocumentDirection();
-  const { getFormFields, getFormConfigs } = useExtension();
-  const fields = getFormFields("product", "edit");
-  const configs = getFormConfigs("product", "edit");
 
-  const form = useExtendableForm({
+  const form = useForm({
     defaultValues: {
       status: product.status,
       title: product.title,
@@ -47,9 +43,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
       description: product.description || "",
       discountable: product.discountable,
     },
-    schema: EditProductSchema,
-    configs: configs,
-    data: product,
+    resolver: zodResolver(EditProductSchema),
   });
 
   const { mutateAsync, isPending } = useUpdateProduct(product.id);
@@ -297,11 +291,6 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
               label={t("fields.discountable")}
               description={t("products.discountableHint")}
               data-testid="product-edit-form-discountable-switch"
-            />
-            <FormExtensionZone
-              fields={fields}
-              form={form}
-              data-testid="product-edit-form-extension-zone"
             />
           </div>
         </RouteDrawer.Body>

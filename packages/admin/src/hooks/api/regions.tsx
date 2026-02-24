@@ -10,7 +10,7 @@ import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { pricePreferencesQueryKeys } from "./price-preferences"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 
 const REGIONS_QUERY_KEY = "regions" as const
 export const regionsQueryKeys = queryKeysFactory(REGIONS_QUERY_KEY)
@@ -21,7 +21,7 @@ export const useRegion = (
   options?: Omit<
     UseQueryOptions<
       { region: HttpTypes.AdminRegion },
-      FetchError,
+      ClientError,
       { region: HttpTypes.AdminRegion },
       QueryKey
     >,
@@ -42,7 +42,7 @@ export const useRegions = (
   options?: Omit<
     UseQueryOptions<
       PaginatedResponse<{ regions: HttpTypes.AdminRegion[] }>,
-      FetchError,
+      ClientError,
       PaginatedResponse<{ regions: HttpTypes.AdminRegion[] }>,
       QueryKey
     >,
@@ -61,7 +61,7 @@ export const useRegions = (
 export const useCreateRegion = (
   options?: UseMutationOptions<
     { region: HttpTypes.AdminRegion },
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateRegion
   >
 ) => {
@@ -87,7 +87,7 @@ export const useUpdateRegion = (
   id: string,
   options?: UseMutationOptions<
     { region: HttpTypes.AdminRegion },
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateRegion
   >
 ) => {
@@ -114,7 +114,7 @@ export const useDeleteRegion = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminRegionDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

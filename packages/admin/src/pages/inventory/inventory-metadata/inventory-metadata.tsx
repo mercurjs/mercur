@@ -1,37 +1,41 @@
-import { useParams } from "react-router-dom"
+import { useParams } from "react-router-dom";
 
-import { useInventoryItem, useUpdateInventoryItem } from "@hooks/api"
-import { MetadataForm } from "@components/forms/metadata-form"
-import { RouteDrawer } from "@components/modals"
-import { FetchError } from "@medusajs/js-sdk"
+import { useInventoryItem, useUpdateInventoryItem } from "@hooks/api";
+import { MetadataForm } from "@components/forms/metadata-form";
+import { RouteDrawer } from "@components/modals";
+import { ClientError } from "@mercurjs/client";
 
 export const InventoryItemMetadata = () => {
-  const { id } = useParams()
+  const { id } = useParams();
 
-  const { inventory_item, isPending, isError, error } = useInventoryItem(id!)
-  const { mutateAsync, isPending: isMutating } = useUpdateInventoryItem(id!)
+  const { inventory_item, isPending, isError, error } = useInventoryItem(id!);
+  const { mutateAsync, isPending: isMutating } = useUpdateInventoryItem(id!);
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   const handleSubmit = async (
     params: { metadata?: Record<string, unknown> | null },
-    callbacks: { onSuccess?: () => void; onError?: (error: FetchError | string) => void }
+    callbacks: {
+      onSuccess?: () => void;
+      onError?: (error: ClientError | string) => void;
+    },
   ) => {
     try {
       const result = await mutateAsync({
         metadata: params.metadata === undefined ? undefined : params.metadata,
-      })
-      callbacks.onSuccess?.()
+      });
+      callbacks.onSuccess?.();
 
-      return result
+      return result;
     } catch (error) {
-      const message = error instanceof FetchError ? error.message : 'An error occurred'
-      callbacks.onError?.(message)
-      throw error
+      const message =
+        error instanceof ClientError ? error.message : "An error occurred";
+      callbacks.onError?.(message);
+      throw error;
     }
-  }
+  };
 
   return (
     <RouteDrawer data-testid="inventory-metadata-drawer">
@@ -42,5 +46,5 @@ export const InventoryItemMetadata = () => {
         metadata={inventory_item?.metadata}
       />
     </RouteDrawer>
-  )
-}
+  );
+};

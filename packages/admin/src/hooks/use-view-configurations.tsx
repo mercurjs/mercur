@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { toast } from "@medusajs/ui"
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { useFeatureFlag } from "../providers/feature-flag-provider"
 import {
   useViewConfigurations as useViewConfigurationsBase,
@@ -15,7 +15,7 @@ import {
 const handleError = (error: Error, message?: string) => {
   let errorMessage = message
   if (!errorMessage) {
-    if (error instanceof FetchError) {
+    if (error instanceof ClientError) {
       errorMessage = error.message
     } else if (error.message) {
       errorMessage = error.message

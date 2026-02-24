@@ -1,11 +1,11 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
 
-import { formatDate } from "../../../lib/date";
-import { VendorSeller } from "../../../types";
-import { SellerStatusBadge } from "../../../components/common/seller-status-badge";
+import { SellerStatusCell } from "../../../components/table/table-cells/seller/seller-status-cell/seller-status-cell";
+import { DateCell } from "@/components/table/table-cells/common/date-cell";
+import { SellerDTO } from "@mercurjs/types";
 
-const columnHelper = createColumnHelper<VendorSeller>();
+const columnHelper = createColumnHelper<SellerDTO>();
 
 export const useSellersTableColumns = () => {
   return useMemo(
@@ -21,18 +21,18 @@ export const useSellersTableColumns = () => {
         cell: ({ row }) => row.original.name,
       }),
       columnHelper.display({
-        id: "store_status",
-        header: "Account Status",
-        cell: ({ row }) => (
-          <SellerStatusBadge status={row.original.store_status || "-"} />
-        ),
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => <SellerStatusCell status={row.original.status} />,
       }),
       columnHelper.display({
         id: "created_at",
         header: "Created",
-        cell: ({ row }) => formatDate(row.original.created_at),
+        cell: ({ getValue }) => {
+          return <DateCell date={getValue()} />;
+        },
       }),
     ],
-    []
+    [],
   );
 };

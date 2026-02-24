@@ -7,7 +7,7 @@ import {
   useQuery,
 } from "@tanstack/react-query"
 
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
@@ -20,7 +20,7 @@ export const useReturnReasons = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminReturnReasonListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminReturnReasonListResponse,
       QueryKey
     >,
@@ -42,7 +42,7 @@ export const useReturnReason = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminReturnReasonResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminReturnReasonResponse,
       QueryKey
     >,
@@ -62,7 +62,7 @@ export const useCreateReturnReason = (
   query?: HttpTypes.AdminReturnReasonParams,
   options?: UseMutationOptions<
     HttpTypes.AdminReturnReasonResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateReturnReason
   >
 ) => {
@@ -83,7 +83,7 @@ export const useUpdateReturnReason = (
   query?: HttpTypes.AdminReturnReasonParams,
   options?: UseMutationOptions<
     HttpTypes.AdminReturnReasonResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateReturnReason
   >
 ) => {
@@ -107,7 +107,7 @@ export const useDeleteReturnReason = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminReturnReasonDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

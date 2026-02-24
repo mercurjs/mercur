@@ -3,7 +3,6 @@ import { useLoaderData, useParams } from "react-router-dom"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useShippingOptionType } from "../../../hooks/api"
-import { useExtension } from "../../../providers/extension-provider"
 import { ShippingOptionTypeGeneralSection } from "./components/shipping-option-type-general-section"
 import { shippingOptionTypeLoader } from "./loader"
 
@@ -18,8 +17,6 @@ export const ShippingOptionTypeDetail = () => {
       initialData,
     })
 
-  const { getWidgets } = useExtension()
-
   if (isPending || !shipping_option_type) {
     return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />
   }
@@ -30,10 +27,6 @@ export const ShippingOptionTypeDetail = () => {
 
   return (
     <SingleColumnPage
-      widgets={{
-        after: getWidgets("shipping_option_type.details.after"),
-        before: getWidgets("shipping_option_type.details.before"),
-      }}
       showJSON
       showMetadata
       data={shipping_option_type}

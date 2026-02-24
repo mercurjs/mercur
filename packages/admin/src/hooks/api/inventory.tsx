@@ -1,4 +1,4 @@
-import type { FetchError } from "@medusajs/js-sdk"
+import type { ClientError } from "@mercurjs/client"
 import type { HttpTypes } from "@medusajs/types"
 import {
   type QueryKey,
@@ -29,7 +29,7 @@ export const useInventoryItems = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminInventoryItemListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminInventoryItemListResponse,
       QueryKey
     >,
@@ -51,7 +51,7 @@ export const useInventoryItem = (
   options?: Omit<
     UseQueryOptions<
       ExtendedAdminInventoryItemResponse,
-      FetchError,
+      ClientError,
       ExtendedAdminInventoryItemResponse,
       QueryKey
     >,
@@ -70,7 +70,7 @@ export const useInventoryItem = (
 export const useCreateInventoryItem = (
   options?: UseMutationOptions<
     HttpTypes.AdminInventoryItemResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateInventoryItem
   >
 ) => {
@@ -91,7 +91,7 @@ export const useUpdateInventoryItem = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminInventoryItemResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateInventoryItem
   >
 ) => {
@@ -115,7 +115,7 @@ export const useDeleteInventoryItem = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminInventoryItemDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -139,7 +139,7 @@ export const useDeleteInventoryItemLevel = (
   locationId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminInventoryLevelDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
@@ -168,7 +168,7 @@ export const useInventoryItemLevels = (
   options?: Omit<
     UseQueryOptions<
       ExtendedInventoryItemLevelsResponse,
-      FetchError,
+      ClientError,
       ExtendedInventoryItemLevelsResponse,
       QueryKey
     >,
@@ -192,7 +192,7 @@ export const useUpdateInventoryLevel = (
   locationId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminInventoryItemResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateInventoryLevel
   >
 ) => {
@@ -225,7 +225,7 @@ export const useBatchInventoryItemLocationLevels = (
   inventoryItemId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminBatchInventoryItemLocationLevelsResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchInventoryItemLocationLevels
   >
 ) => {
@@ -262,7 +262,7 @@ export const useBatchInventoryItemLocationLevels = (
 export const useBatchInventoryItemsLocationLevels = (
   options?: UseMutationOptions<
     HttpTypes.AdminBatchInventoryItemsLocationLevelsResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminBatchInventoryItemsLocationLevels
   >
 ) => {

@@ -6,7 +6,7 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query"
 
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
@@ -42,7 +42,7 @@ export const useShippingOptions = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminShippingOptionListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminShippingOptionListResponse,
       QueryKey
     >,
@@ -61,7 +61,7 @@ export const useShippingOptions = (
 export const useCreateShippingOptions = (
   options?: UseMutationOptions<
     HttpTypes.AdminShippingOptionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateShippingOption
   >
 ) => {
@@ -84,7 +84,7 @@ export const useUpdateShippingOptions = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminShippingOptionResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateShippingOption
   >
 ) => {
@@ -107,7 +107,7 @@ export const useDeleteShippingOption = (
   optionId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminShippingOptionDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {

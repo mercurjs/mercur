@@ -3,8 +3,6 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useOrder, useOrderPreview } from "../../../hooks/api/orders";
-import { usePlugins } from "../../../hooks/api/plugins";
-import { useExtension } from "../../../providers/extension-provider";
 import { ActiveOrderClaimSection } from "./components/active-order-claim-section";
 import { ActiveOrderExchangeSection } from "./components/active-order-exchange-section";
 import { ActiveOrderReturnSection } from "./components/active-order-return-section";
@@ -25,8 +23,6 @@ export const OrderDetail = () => {
   >;
 
   const { id } = useParams();
-  const { getWidgets } = useExtension();
-  const { plugins = [] } = usePlugins();
 
   const { order, isLoading, isError, error } = useOrder(
     id!,
@@ -35,7 +31,7 @@ export const OrderDetail = () => {
     },
     {
       initialData,
-    }
+    },
   );
 
   // TODO: Retrieve endpoints don't have an order ability, so a JS sort until this is available
@@ -54,7 +50,7 @@ export const OrderDetail = () => {
   }
 
   const { order: orderPreview, isLoading: isPreviewLoading } = useOrderPreview(
-    id!
+    id!,
   );
 
   if (isLoading || !order || isPreviewLoading) {
@@ -69,12 +65,6 @@ export const OrderDetail = () => {
 
   return (
     <TwoColumnPage
-      widgets={{
-        after: getWidgets("order.details.after"),
-        before: getWidgets("order.details.before"),
-        sideAfter: getWidgets("order.details.side.after"),
-        sideBefore: getWidgets("order.details.side.before"),
-      }}
       data={order}
       showJSON
       showMetadata
@@ -87,8 +77,8 @@ export const OrderDetail = () => {
         <ActiveOrderExchangeSection orderPreview={orderPreview!} />
         <ActiveOrderReturnSection orderPreview={orderPreview!} />
         <OrderGeneralSection order={order} />
-        <OrderSummarySection order={order} plugins={plugins} />
-        <OrderPaymentSection order={order} plugins={plugins} />
+        <OrderSummarySection order={order} />
+        <OrderPaymentSection order={order} />
         <OrderFulfillmentSection order={order} />
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">

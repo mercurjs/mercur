@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
 
-import { MetadataForm } from "@components/forms/metadata-form"
-import { RouteDrawer } from "@components/modals"
-import { useUpdateUser, useUser } from "@hooks/api"
-import { FetchError } from "@medusajs/js-sdk"
+import { MetadataForm } from "@components/forms/metadata-form";
+import { RouteDrawer } from "@components/modals";
+import { useUpdateUser, useUser } from "@hooks/api";
+import { ClientError } from "@mercurjs/client";
 
 export const UserMetadata = () => {
   const { id } = useParams();
@@ -17,21 +17,25 @@ export const UserMetadata = () => {
 
   const handleSubmit = async (
     params: { metadata?: Record<string, unknown> | null },
-    callbacks: { onSuccess?: () => void; onError?: (error: FetchError | string) => void }
+    callbacks: {
+      onSuccess?: () => void;
+      onError?: (error: ClientError | string) => void;
+    },
   ) => {
     try {
       const result = await mutateAsync({
         metadata: params.metadata === undefined ? undefined : params.metadata,
-      })
-      callbacks.onSuccess?.()
+      });
+      callbacks.onSuccess?.();
 
-      return result
+      return result;
     } catch (error) {
-      const message = error instanceof FetchError ? error.message : 'An error occurred'
-      callbacks.onError?.(message)
-      throw error
+      const message =
+        error instanceof ClientError ? error.message : "An error occurred";
+      callbacks.onError?.(message);
+      throw error;
     }
-  }
+  };
 
   return (
     <RouteDrawer data-testid="user-metadata-drawer">

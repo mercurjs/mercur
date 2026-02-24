@@ -6,7 +6,7 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query"
 
-import { FetchError } from "@medusajs/js-sdk"
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
@@ -20,7 +20,7 @@ export const shippingProfileQueryKeys = queryKeysFactory(
 export const useCreateShippingProfile = (
   options?: UseMutationOptions<
     HttpTypes.AdminShippingProfileResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminCreateShippingProfile
   >
 ) => {
@@ -43,7 +43,7 @@ export const useShippingProfile = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminShippingProfileResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminShippingProfileResponse,
       QueryKey
     >,
@@ -64,7 +64,7 @@ export const useShippingProfiles = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminShippingProfileListResponse,
-      FetchError,
+      ClientError,
       HttpTypes.AdminShippingProfileListResponse,
       QueryKey
     >,
@@ -84,7 +84,7 @@ export const useUpdateShippingProfile = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminShippingProfileResponse,
-    FetchError,
+    ClientError,
     HttpTypes.AdminUpdateShippingProfile
   >
 ) => {
@@ -110,7 +110,7 @@ export const useDeleteShippingProfile = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminShippingProfileDeleteResponse,
-    FetchError,
+    ClientError,
     void
   >
 ) => {
