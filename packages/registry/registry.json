@@ -91,10 +91,6 @@
           "type": "registry:workflow"
         },
         {
-          "path": "reviews/api/admin/middlewares.ts",
-          "type": "registry:api"
-        },
-        {
           "path": "reviews/api/admin/reviews/route.ts",
           "type": "registry:api"
         },
@@ -136,10 +132,6 @@
         },
         {
           "path": "reviews/api/store/reviews/[id]/route.ts",
-          "type": "registry:api"
-        },
-        {
-          "path": "reviews/api/vendor/middlewares.ts",
           "type": "registry:api"
         },
         {
@@ -456,23 +448,23 @@
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/[id]/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/[id]/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/[id]/breadcrumb.tsx",
+          "path": "team-management/vendor/pages/settings/users/[id]/breadcrumb.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/[id]/edit/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/[id]/edit/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/users/invite/page.tsx",
+          "path": "team-management/vendor/pages/settings/users/invite/page.tsx",
           "type": "registry:vendor"
         },
         {
