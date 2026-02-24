@@ -4,15 +4,27 @@ import {
 } from "@medusajs/framework"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 
-import { applySellerMemberFilter } from "./helpers"
+import { applySellerMemberFilter, authenticateMember } from "./helpers"
 import { vendorMemberQueryConfig } from "./query-config"
 import { VendorGetMemberParams, VendorUpdateMember } from "./validators"
 
 export const vendorMembersMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
+    matcher: "/vendor/members/me",
+    middlewares: [
+      authenticateMember(),
+      validateAndTransformQuery(
+        VendorGetMemberParams,
+        vendorMemberQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
     matcher: "/vendor/members",
     middlewares: [
+      authenticateMember(),
       validateAndTransformQuery(
         VendorGetMemberParams,
         vendorMemberQueryConfig.list
@@ -24,6 +36,7 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/members/:id",
     middlewares: [
+      authenticateMember(),
       validateAndTransformQuery(
         VendorGetMemberParams,
         vendorMemberQueryConfig.retrieve
@@ -34,6 +47,7 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/members/:id",
     middlewares: [
+      authenticateMember(),
       validateAndTransformQuery(
         VendorGetMemberParams,
         vendorMemberQueryConfig.retrieve
@@ -44,6 +58,8 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
   {
     method: ["DELETE"],
     matcher: "/vendor/members/:id",
-    middlewares: [],
+    middlewares: [
+      authenticateMember(),
+    ],
   },
 ]
