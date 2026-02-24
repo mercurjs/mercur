@@ -6,19 +6,8 @@ import {
 import { MedusaContainer } from "@medusajs/framework/types"
 import {
   ContainerRegistrationKeys,
-  isDefined,
   MedusaError,
 } from "@medusajs/framework/utils"
-
-export const authenticateMember = () => (req: AuthenticatedMedusaRequest, _res: MedusaResponse, next: MedusaNextFunction) => {
-  const appMetadata = req.auth_context.app_metadata
-
-  if (!isDefined(appMetadata.member_id)) {
-    throw new MedusaError(MedusaError.Types.UNAUTHORIZED, "Unauthorized")
-  }
-
-  next()
-}
 
 export const applySellerMemberFilter = (
   req: AuthenticatedMedusaRequest,
