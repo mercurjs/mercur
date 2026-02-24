@@ -4,7 +4,6 @@ import {
 } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-import sellerMemberInvite from "../../../links/seller-member-invite"
 import { VendorMemberInviteListResponse, VendorMemberInviteResponse } from "../../../modules/member"
 import { inviteMemberWorkflow } from "../../../workflows/member/workflows/invite-member"
 import { VendorInviteMemberType } from "./validators"
@@ -45,15 +44,15 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: links, metadata } = await query.graph({
-    entity: sellerMemberInvite.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `member_invite.${field}`),
+  const { data: invites, metadata } = await query.graph({
+    entity: "member_invite",
+    fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
 
   res.json({
-    invites: links.map((relation: any) => relation.member_invite),
+    invites,
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,

@@ -4,7 +4,7 @@ import {
 } from "@medusajs/framework"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 
-import { applySellerMemberLinkFilter } from "./_helpers/helpers"
+import { applySellerMemberFilter } from "./helpers"
 import { vendorMemberQueryConfig } from "./query-config"
 import { VendorGetMemberParams, VendorUpdateMember } from "./validators"
 
@@ -17,7 +17,7 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
         VendorGetMemberParams,
         vendorMemberQueryConfig.list
       ),
-      applySellerMemberLinkFilter,
+      applySellerMemberFilter,
     ],
   },
   {
