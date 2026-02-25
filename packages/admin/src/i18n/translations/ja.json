@@ -384,6 +384,7 @@
   },
   "products": {
     "domain": "商品",
+    "additionalAttributes": "追加属性",
     "list": {
       "noRecordsMessage": "最初の商品を作成して販売を開始しましょう。"
     },
@@ -1025,15 +1026,23 @@
     "edit": {
       "email": {
         "title": "Eメールを編集",
-        "requestSuccess": "注文のEメールが「{{email}}」に更新されました。"
+        "requestSuccess": "メールアドレスが正常に更新されました。"
       },
       "shippingAddress": {
         "title": "配送先住所を編集",
-        "requestSuccess": "注文の配送先住所が更新されました。"
+        "requestSuccess": "注文の配送先住所が更新されました。",
+        "validation": {
+          "addressRequired": "住所を入力してください",
+          "countryRequired": "国を選択してください"
+        }
       },
       "billingAddress": {
         "title": "請求先住所を編集",
-        "requestSuccess": "注文の請求先住所が更新されました。"
+        "requestSuccess": "注文の請求先住所が更新されました。",
+        "validation": {
+          "addressRequired": "住所を入力してください",
+          "countryRequired": "国を選択してください"
+        }
       }
     },
     "returns": {
@@ -1923,6 +1932,10 @@
         "across": {
           "title": "全体",
           "description": "アイテム全体に値を適用します。"
+        },
+        "once": {
+          "title": "1回",
+          "description": "割引を最大数量までに制限"
         }
       },
       "code": {
@@ -2085,7 +2098,8 @@
       "header": "商品",
       "actions": {
         "addProducts": "商品を追加",
-        "editPrices": "価格を編集"
+        "editPrices": "価格を編集",
+        "editPricesDisabled": "価格を編集する前に商品を追加してください"
       },
       "delete": {
         "confirmation_one": "{{count}}個の商品に対する価格をこの価格リストから削除しようとしています。この操作は取り消せません。",
@@ -2474,7 +2488,10 @@
         "placeholder": "wrong_size",
         "tooltip": "値は返品理由の一意の識別子である必要があります。"
       },
-      "label": { "label": "ラベル", "placeholder": "サイズが合わない" },
+      "label": {
+        "label": "ラベル",
+        "placeholder": "サイズが合わない"
+      },
       "description": {
         "label": "説明",
         "placeholder": "顧客が間違ったサイズを受け取った"

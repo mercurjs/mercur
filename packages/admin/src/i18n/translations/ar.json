@@ -418,6 +418,7 @@
       "header": "تحرير عنوان الشحن"
     },
     "domain": "المنتجات",
+    "additionalAttributes": "سمات إضافية",
     "list": {
       "noRecordsMessage": "أنشئ منتجك الأول لبدء البيع."
     },
@@ -1093,15 +1094,23 @@
     "edit": {
       "email": {
         "title": "تحرير البريد الإلكتروني",
-        "requestSuccess": "تم تحديث البريد الإلكتروني للطلب إلى {{email}}."
+        "requestSuccess": "تم تحديث البريد الإلكتروني بنجاح."
       },
       "shippingAddress": {
         "title": "تحرير عنوان الشحن",
-        "requestSuccess": "تم تحديث عنوان الشحن للطلب."
+        "requestSuccess": "تم تحديث عنوان الشحن للطلب.",
+        "validation": {
+          "addressRequired": "الرجاء إدخال العنوان",
+          "countryRequired": "الرجاء تحديد البلد"
+        }
       },
       "billingAddress": {
         "title": "تحرير عنوان الفواتير",
-        "requestSuccess": "تم تحديث عنوان الفواتير للطلب."
+        "requestSuccess": "تم تحديث عنوان الفواتير للطلب.",
+        "validation": {
+          "addressRequired": "الرجاء إدخال العنوان",
+          "countryRequired": "الرجاء تحديد البلد"
+        }
       }
     },
     "returns": {
@@ -2043,6 +2052,10 @@
         "across": {
           "title": "عبر",
           "description": "تطبيق القيمة عبر العناصر"
+        },
+        "once": {
+          "title": "مرة واحدة",
+          "description": "حدِّد الخصم حتى الحد الأقصى للكمية"
         }
       },
       "code": {
@@ -2205,7 +2218,8 @@
       "header": "المنتجات",
       "actions": {
         "addProducts": "إضافة منتجات",
-        "editPrices": "تحرير الأسعار"
+        "editPrices": "تحرير الأسعار",
+        "editPricesDisabled": "أضف المنتجات قبل تحرير الأسعار"
       },
       "delete": {
         "confirmation_one": "أنت على وشك حذف الأسعار لـ {{count}} منتج في قائمة الأسعار. لا يمكن التراجع عن هذا الإجراء.",
@@ -2605,7 +2619,10 @@
         "placeholder": "خطأ في الحجم",
         "tooltip": "يجب أن تكون القيمة معرفًا فريدًا لسبب الإرجاع."
       },
-      "label": { "label": "التسمية", "placeholder": "خطأ في الحجم" },
+      "label": {
+        "label": "التسمية",
+        "placeholder": "خطأ في الحجم"
+      },
       "description": {
         "label": "الوصف",
         "placeholder": "تلقى العميل الحجم الخطأ"

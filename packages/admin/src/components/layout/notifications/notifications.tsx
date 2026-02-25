@@ -10,7 +10,7 @@ import { TFunction } from "i18next"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { notificationQueryKeys, useNotifications } from "../../../hooks/api"
-import { fetchQuery } from "../../../lib/client"
+import { sdk } from "../../../lib/client"
 import { FilePreview } from "../../common/file-preview"
 import { InfiniteList } from "../../common/infinite-list"
 
@@ -62,54 +62,52 @@ export const Notifications = () => {
   }
 
   return (
-    <Drawer open={open} onOpenChange={handleOnOpen}>
+    <Drawer open={open} onOpenChange={handleOnOpen} data-testid="notifications-drawer">
       <Drawer.Trigger asChild>
         <IconButton
           variant="transparent"
           size="small"
           className="text-ui-fg-muted hover:text-ui-fg-subtle"
+          data-testid="notifications-trigger-button"
         >
-          {hasUnread ? <BellAlertDone /> : <BellAlert />}
+          {hasUnread ? <BellAlertDone data-testid="notifications-icon-unread" /> : <BellAlert data-testid="notifications-icon" />}
         </IconButton>
       </Drawer.Trigger>
-      <Drawer.Content>
-        <Drawer.Header>
+      <Drawer.Content data-testid="notifications-content">
+        <Drawer.Header data-testid="notifications-header">
           <Drawer.Title asChild>
-            <Heading>{t("notifications.domain")}</Heading>
+            <Heading data-testid="notifications-title">{t("notifications.domain")}</Heading>
           </Drawer.Title>
-          <Drawer.Description className="sr-only">
+          <Drawer.Description className="sr-only" data-testid="notifications-description">
             {t("notifications.accessibility.description")}
           </Drawer.Description>
         </Drawer.Header>
-        <Drawer.Body className="overflow-y-auto px-0">
-          <InfiniteList<
-            HttpTypes.AdminNotificationListResponse,
-            HttpTypes.AdminNotification,
-            HttpTypes.AdminNotificationListParams
-          >
-            responseKey="notifications"
-            queryKey={notificationQueryKeys.all}
-            queryFn={(params: any) =>
-              fetchQuery(`/vendor/notifications`, {
-                method: "GET",
-                query: { ...params },
-              })
-            }
-            queryOptions={{ enabled: open }}
-            renderEmpty={() => <NotificationsEmptyState t={t} />}
-            renderItem={(notification) => {
-              return (
-                <Notification
-                  key={notification.id}
-                  notification={notification}
-                  unread={
-                    Date.parse(notification.created_at) >
-                    (lastReadAt ? Date.parse(lastReadAt) : 0)
-                  }
-                />
-              )
-            }}
-          />
+        <Drawer.Body className="overflow-y-auto px-0" data-testid="notifications-body">
+          <div data-testid="notifications-list">
+            <InfiniteList<
+              HttpTypes.AdminNotificationListResponse,
+              HttpTypes.AdminNotification,
+              HttpTypes.AdminNotificationListParams
+            >
+              responseKey="notifications"
+              queryKey={notificationQueryKeys.all}
+              queryFn={(params) => sdk.admin.notification.list(params)}
+              queryOptions={{ enabled: open }}
+              renderEmpty={() => <NotificationsEmptyState t={t} />}
+              renderItem={(notification) => {
+                return (
+                  <Notification
+                    key={notification.id}
+                    notification={notification}
+                    unread={
+                      Date.parse(notification.created_at) >
+                      (lastReadAt ? Date.parse(lastReadAt) : 0)
+                    }
+                  />
+                )
+              }}
+            />
+          </div>
         </Drawer.Body>
       </Drawer.Content>
     </Drawer>
@@ -132,17 +130,17 @@ const Notification = ({
 
   return (
     <>
-      <div className="relative flex items-start justify-center gap-3 border-b p-6">
-        <div className="text-ui-fg-muted flex size-5 items-center justify-center">
+      <div className="relative flex items-start justify-center gap-3 border-b p-6" data-testid={`notification-${notification.id}`}>
+        <div className="text-ui-fg-muted flex size-5 items-center justify-center" data-testid={`notification-${notification.id}-icon`}>
           <InformationCircleSolid />
         </div>
-        <div className="flex w-full flex-col gap-y-3">
-          <div className="flex flex-col">
+        <div className="flex w-full flex-col gap-y-3" data-testid={`notification-${notification.id}-content`}>
+          <div className="flex flex-col" data-testid={`notification-${notification.id}-header`}>
             <div className="flex items-center justify-between">
-              <Text size="small" leading="compact" weight="plus">
+              <Text size="small" leading="compact" weight="plus" data-testid={`notification-${notification.id}-title`}>
                 {data.title}
               </Text>
-              <div className="align-center flex items-center justify-center gap-2">
+              <div className="align-center flex items-center justify-center gap-2" data-testid={`notification-${notification.id}-meta`}>
                 <Text
                   as={"span"}
                   className={clx("text-ui-fg-subtle", {
@@ -151,6 +149,7 @@ const Notification = ({
                   size="small"
                   leading="compact"
                   weight="plus"
+                  data-testid={`notification-${notification.id}-time`}
                 >
                   {formatDistance(notification.created_at, new Date(), {
                     addSuffix: true,
@@ -160,6 +159,7 @@ const Notification = ({
                   <div
                     className="bg-ui-bg-interactive h-2 w-2 rounded"
                     role="status"
+                    data-testid={`notification-${notification.id}-unread-indicator`}
                   />
                 )}
               </div>
@@ -168,6 +168,7 @@ const Notification = ({
               <Text
                 className="text-ui-fg-subtle whitespace-pre-line"
                 size="small"
+                data-testid={`notification-${notification.id}-description`}
               >
                 {data.description}
               </Text>
@@ -178,6 +179,7 @@ const Notification = ({
               filename={data.file.filename ?? ""}
               url={data.file.url}
               hideThumbnail
+              data-testid={`notification-${notification.id}-file`}
             />
           )}
         </div>
@@ -188,14 +190,15 @@ const Notification = ({
 
 const NotificationsEmptyState = ({ t }: { t: TFunction }) => {
   return (
-    <div className="flex h-full flex-col items-center justify-center">
-      <BellAlertDone />
-      <Text size="small" leading="compact" weight="plus" className="mt-3">
+    <div className="flex h-full flex-col items-center justify-center" data-testid="notifications-empty-state">
+      <BellAlertDone data-testid="notifications-empty-icon" />
+      <Text size="small" leading="compact" weight="plus" className="mt-3" data-testid="notifications-empty-title">
         {t("notifications.emptyState.title")}
       </Text>
       <Text
         size="small"
         className="text-ui-fg-muted mt-1 max-w-[294px] text-center"
+        data-testid="notifications-empty-description"
       >
         {t("notifications.emptyState.description")}
       </Text>

@@ -1,16 +1,17 @@
-import { clx } from "@medusajs/ui"
-import { Children, ComponentPropsWithoutRef } from "react"
-import { Outlet } from "react-router-dom"
-import { JsonViewSection } from "../../../common/json-view-section"
-import { MetadataSection } from "../../../common/metadata-section"
-import { PageProps } from "../types"
+import { clx } from "@medusajs/ui";
+import { Children, ComponentPropsWithoutRef } from "react";
+import { Outlet } from "react-router-dom";
+import { JsonViewSection } from "../../../common/json-view-section";
+import { MetadataSection } from "../../../common/metadata-section";
+import { PageProps } from "../types";
 
-
-interface TwoColumnPageProps<TData> extends PageProps<TData> {
-}
+interface TwoColumnPageProps<TData> extends PageProps<TData> {}
 
 const Root = <TData,>({
   children,
+  /**
+   * Widgets to be rendered in the main content area and sidebar.
+   */
   /**
    * Data to be passed to widgets, JSON view, and Metadata view.
    */
@@ -28,35 +29,34 @@ const Root = <TData,>({
    */
   hasOutlet = true,
 }: TwoColumnPageProps<TData>) => {
-  const widgetProps = { data }
   if (showJSON && !data) {
     if (process.env.NODE_ENV === "development") {
       console.warn(
-        "`showJSON` is true but no data is provided. To display JSON, provide data prop."
-      )
+        "`showJSON` is true but no data is provided. To display JSON, provide data prop.",
+      );
     }
 
-    showJSON = false
+    showJSON = false;
   }
 
   if (showMetadata && !data) {
     if (process.env.NODE_ENV === "development") {
       console.warn(
-        "`showMetadata` is true but no data is provided. To display metadata, provide data prop."
-      )
+        "`showMetadata` is true but no data is provided. To display metadata, provide data prop.",
+      );
     }
 
-    showMetadata = false
+    showMetadata = false;
   }
 
-  const childrenArray = Children.toArray(children)
+  const childrenArray = Children.toArray(children);
 
   if (childrenArray.length !== 2) {
-    throw new Error("TwoColumnPage expects exactly two children")
+    throw new Error("TwoColumnPage expects exactly two children");
   }
 
-  const [main, sidebar] = childrenArray
-  const showExtraData = showJSON || showMetadata
+  const [main, sidebar] = childrenArray;
+  const showExtraData = showJSON || showMetadata;
 
   return (
     <div className="flex w-full flex-col gap-y-3">
@@ -64,7 +64,10 @@ const Root = <TData,>({
         <div className="flex w-full min-w-0 flex-col gap-y-3">
           {main}
           {showExtraData && (
-            <div className="hidden flex-col gap-y-3 xl:flex">
+            <div
+              className="hidden flex-col gap-y-3 xl:flex"
+              data-testid="product-extra-data-desktop"
+            >
               {showMetadata && <MetadataSection data={data!} />}
               {showJSON && <JsonViewSection data={data!} />}
             </div>
@@ -73,7 +76,10 @@ const Root = <TData,>({
         <div className="flex w-full flex-col gap-y-3 xl:mt-0">
           {sidebar}
           {showExtraData && (
-            <div className="flex flex-col gap-y-3 xl:hidden">
+            <div
+              className="flex flex-col gap-y-3 xl:hidden"
+              data-testid="product-extra-data-mobile"
+            >
               {showMetadata && <MetadataSection data={data!} />}
               {showJSON && <JsonViewSection data={data!} />}
             </div>
@@ -82,8 +88,8 @@ const Root = <TData,>({
       </div>
       {hasOutlet && <Outlet />}
     </div>
-  )
-}
+  );
+};
 
 const Main = ({
   children,
@@ -94,8 +100,8 @@ const Main = ({
     <div className={clx("flex w-full flex-col gap-y-3", className)} {...props}>
       {children}
     </div>
-  )
-}
+  );
+};
 
 const Sidebar = ({
   children,
@@ -106,13 +112,13 @@ const Sidebar = ({
     <div
       className={clx(
         "flex w-full max-w-[100%] flex-col gap-y-3 xl:mt-0 xl:max-w-[440px]",
-        className
+        className,
       )}
       {...props}
     >
       {children}
     </div>
-  )
-}
+  );
+};
 
-export const TwoColumnPage = Object.assign(Root, { Main, Sidebar })
+export const TwoColumnPage = Object.assign(Root, { Main, Sidebar });

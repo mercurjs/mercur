@@ -395,6 +395,7 @@
   },
   "products": {
     "domain": "Ürünler",
+    "additionalAttributes": "Ek özellikler",
     "list": {
       "noRecordsMessage": "Satışa başlamak için ilk ürününüzü oluşturun."
     },
@@ -1409,15 +1410,23 @@
     "edit": {
       "email": {
         "title": "E-postayı düzenle",
-        "requestSuccess": "Sipariş e-postası {{email}} olarak güncellendi."
+        "requestSuccess": "E-posta başarıyla güncellendi."
       },
       "shippingAddress": {
         "title": "Teslimat adresini düzenle",
-        "requestSuccess": "Sipariş teslimat adresi güncellendi."
+        "requestSuccess": "Sipariş teslimat adresi güncellendi.",
+        "validation": {
+          "addressRequired": "Lütfen bir adres girin",
+          "countryRequired": "Lütfen bir ülke seçin"
+        }
       },
       "billingAddress": {
         "title": "Fatura adresini düzenle",
-        "requestSuccess": "Sipariş fatura adresi güncellendi."
+        "requestSuccess": "Sipariş fatura adresi güncellendi.",
+        "validation": {
+          "addressRequired": "Lütfen bir adres girin",
+          "countryRequired": "Lütfen bir ülke seçin"
+        }
       }
     }
   },
@@ -2028,6 +2037,10 @@
         "across": {
           "title": "Genel",
           "description": "Değeri ürünler arasında uygular"
+        },
+        "once": {
+          "title": "Bir kez",
+          "description": "İndirimi azami miktarla sınırla"
         }
       },
       "code": {
@@ -2205,7 +2218,8 @@
       "header": "Ürünler",
       "actions": {
         "addProducts": "Ürünleri ekle",
-        "editPrices": "Fiyatları düzenle"
+        "editPrices": "Fiyatları düzenle",
+        "editPricesDisabled": "Fiyatları düzenlemeden önce ürün ekleyin"
       },
       "delete": {
         "confirmation_one": "Fiyat listesindeki {{count}} ürün için fiyatları silmek üzeresiniz. Bu işlem geri alınamaz.",

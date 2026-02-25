@@ -395,6 +395,7 @@
   },
   "products": {
     "domain": "محصولات",
+    "additionalAttributes": "ویژگی‌های اضافی",
     "list": {
       "noRecordsMessage": "اولین محصول خود را ایجاد کنید تا شروع به فروش کنید."
     },
@@ -1075,15 +1076,23 @@
     "edit": {
       "email": {
         "title": "ویرایش ایمیل",
-        "requestSuccess": "ایمیل سفارش به {{email}} به‌روزرسانی شد."
+        "requestSuccess": "ایمیل با موفقیت به‌روزرسانی شد."
       },
       "shippingAddress": {
         "title": "ویرایش آدرس ارسال",
-        "requestSuccess": "آدرس ارسال سفارش به‌روزرسانی شد."
+        "requestSuccess": "آدرس ارسال سفارش به‌روزرسانی شد.",
+        "validation": {
+          "addressRequired": "لطفا آدرس را وارد کنید",
+          "countryRequired": "لطفا کشور را انتخاب کنید"
+        }
       },
       "billingAddress": {
         "title": "ویرایش آدرس صورتحساب",
-        "requestSuccess": "آدرس صورتحساب سفارش به‌روزرسانی شد."
+        "requestSuccess": "آدرس صورتحساب سفارش به‌روزرسانی شد.",
+        "validation": {
+          "addressRequired": "لطفا آدرس را وارد کنید",
+          "countryRequired": "لطفا کشور را انتخاب کنید"
+        }
       }
     },
     "returns": {
@@ -2021,6 +2030,10 @@
         "across": {
           "title": "بر روی همه",
           "description": "مقدار را به صورت کلی بر روی همه آیتم‌ها اعمال می‌کند"
+        },
+        "once": {
+          "title": "یک‌بار",
+          "description": "تخفیف را به حداکثر تعداد محدود کن"
         }
       },
       "code": {
@@ -2183,7 +2196,8 @@
       "header": "محصولات",
       "actions": {
         "addProducts": "افزودن محصولات",
-        "editPrices": "ویرایش قیمت‌ها"
+        "editPrices": "ویرایش قیمت‌ها",
+        "editPricesDisabled": "قبل از ویرایش قیمت‌ها محصولات را اضافه کنید"
       },
       "delete": {
         "confirmation_one": "شما در حال حذف قیمت‌های {{count}} محصول در لیست قیمت هستید. این عمل قابل بازگشت نیست.",
@@ -2583,7 +2597,10 @@
         "placeholder": "wrong_size",
         "tooltip": "مقدار باید یک شناسه منحصر به فرد برای دلیل بازگشت باشد."
       },
-      "label": { "label": "برچسب", "placeholder": "سایز اشتباه" },
+      "label": {
+        "label": "برچسب",
+        "placeholder": "سایز اشتباه"
+      },
       "description": {
         "label": "توضیحات",
         "placeholder": "مشتری سایز اشتباه دریافت کرده است"

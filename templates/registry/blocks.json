@@ -1,13 +1,9 @@
 {
   "$schema": "https://registry.mercurjs.com/registry.json",
   "aliases": {
-    "workflows": "@/workflows",
-    "api": "@/api",
-    "links": "@/links",
-    "modules": "@/modules",
+    "api": "@",
     "vendor": "@/vendor",
-    "admin": "@/admin",
-    "lib": "@/lib"
+    "admin": "@/admin"
   },
   "registries": {}
 }

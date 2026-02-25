@@ -397,6 +397,7 @@
   },
   "products": {
     "domain": "Producten",
+    "additionalAttributes": "Aanvullende attributen",
     "list": {
       "noRecordsMessage": "Maak uw eerste product aan om te beginnen met verkopen."
     },
@@ -1114,15 +1115,23 @@
     "edit": {
       "email": {
         "title": "E-mail bewerken",
-        "requestSuccess": "Bestellingse-mail bijgewerkt naar {{email}}."
+        "requestSuccess": "E-mail is succesvol bijgewerkt."
       },
       "shippingAddress": {
         "title": "Verzendadres bewerken",
-        "requestSuccess": "Verzendadres van bestelling bijgewerkt."
+        "requestSuccess": "Verzendadres van bestelling bijgewerkt.",
+        "validation": {
+          "addressRequired": "Voer een adres in",
+          "countryRequired": "Selecteer een land"
+        }
       },
       "billingAddress": {
         "title": "Factuuradres bewerken",
-        "requestSuccess": "Factuuradres van bestelling bijgewerkt."
+        "requestSuccess": "Factuuradres van bestelling bijgewerkt.",
+        "validation": {
+          "addressRequired": "Voer een adres in",
+          "countryRequired": "Selecteer een land"
+        }
       }
     },
     "returns": {
@@ -2080,6 +2089,10 @@
         "across": {
           "title": "Over alles",
           "description": "Past waarde toe over alle items"
+        },
+        "once": {
+          "title": "Eenmalig",
+          "description": "Beperk korting tot maximale hoeveelheid"
         }
       },
       "code": {
@@ -2242,7 +2255,8 @@
       "header": "Producten",
       "actions": {
         "addProducts": "Producten toevoegen",
-        "editPrices": "Prijzen bewerken"
+        "editPrices": "Prijzen bewerken",
+        "editPricesDisabled": "Voeg producten toe voordat u prijzen bewerkt"
       },
       "delete": {
         "confirmation_one": "U staat op het punt de prijzen voor {{count}} product in de prijslijst te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
@@ -2654,7 +2668,10 @@
         "placeholder": "verkeerde_maat",
         "tooltip": "De waarde moet een unieke identificatie zijn voor de retourreden."
       },
-      "label": { "label": "Label", "placeholder": "Verkeerde maat" },
+      "label": {
+        "label": "Label",
+        "placeholder": "Verkeerde maat"
+      },
       "description": {
         "label": "Beschrijving",
         "placeholder": "Klant ontving de verkeerde maat"

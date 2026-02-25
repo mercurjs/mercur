@@ -383,6 +383,7 @@
   },
   "products": {
     "domain": "Produtos",
+    "additionalAttributes": "Atributos adicionais",
     "list": {
       "noRecordsMessage": "Crie seu primeiro produto para começar a vender."
     },
@@ -1016,6 +1017,20 @@
         "quantityLowerThanFulfillment": "Não é possível definir a quantidade como menor ou igual à quantidade cumprida"
       }
     },
+    "edit": {
+      "email": {
+        "title": "Editar e-mail",
+        "requestSuccess": "O e-mail foi atualizado com sucesso."
+      },
+      "shippingAddress": {
+        "title": "Editar endereço de entrega",
+        "requestSuccess": "O endereço de entrega do pedido foi atualizado."
+      },
+      "billingAddress": {
+        "title": "Editar endereço de cobrança",
+        "requestSuccess": "O endereço de cobrança do pedido foi atualizado."
+      }
+    },
     "returns": {
       "create": "Criar Devolução",
       "confirm": "Confirmar Devolução",
@@ -1321,6 +1336,24 @@
       "displayId": "ID de exibição",
       "refundableAmount": "Valor reembolsável",
       "returnableQuantity": "Quantidade retornável"
+    },
+    "edit": {
+      "email": {
+        "title": "Editar email",
+        "requestSuccess": "Email do pedido atualizado para {{email}}."
+      },
+      "shippingAddress": {
+        "title": "Editar endereço de entrega",
+        "requestSuccess": "Endereço de entrega do pedido atualizado.",
+        "validation": {
+          "addressRequired": "Por favor, insira um endereço",
+          "countryRequired": "Por favor, selecione um país"
+        }
+      },
+      "billingAddress": {
+        "title": "Editar endereço de cobrança",
+        "requestSuccess": "Endereço de cobrança do pedido atualizado."
+      }
     }
   },
   "draftOrders": {
@@ -1897,6 +1930,10 @@
         "across": {
           "title": "Dividido",
           "description": "Aplica o valor entre os itens"
+        },
+        "once": {
+          "title": "Uma vez",
+          "description": "Limitar o desconto à quantidade máxima"
         }
       },
       "code": {
@@ -2059,7 +2096,8 @@
       "header": "Produtos",
       "actions": {
         "addProducts": "Adicionar produtos",
-        "editPrices": "Editar preços"
+        "editPrices": "Editar preços",
+        "editPricesDisabled": "Adicione produtos antes de editar preços"
       },
       "delete": {
         "confirmation_one": "Você está prestes a excluir os preços de {{count}} produto na lista de preços. Esta ação não pode ser desfeita.",
@@ -2445,7 +2483,10 @@
         "placeholder": "tamanho_errado",
         "tooltip": "O valor deve ser um identificador único para a razão da devolução."
       },
-      "label": { "label": "Etiqueta", "placeholder": "Tamanho errado" },
+      "label": {
+        "label": "Etiqueta",
+        "placeholder": "Tamanho errado"
+      },
       "description": {
         "label": "Descrição",
         "placeholder": "O cliente recebeu o tamanho errado"

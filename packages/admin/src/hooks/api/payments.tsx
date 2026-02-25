@@ -2,27 +2,27 @@ import {
   ClientError,
   InferClientInput,
   InferClientOutput,
-} from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+} from "@mercurjs/client";
+import { AdminPaymentResponse, HttpTypes } from "@medusajs/types";
 import {
   QueryKey,
   useMutation,
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-import { ordersQueryKeys } from "./orders"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
+import { ordersQueryKeys } from "./orders";
 
-const PAYMENT_QUERY_KEY = "payment" as const
-export const paymentQueryKeys = queryKeysFactory(PAYMENT_QUERY_KEY)
+const PAYMENT_QUERY_KEY = "payment" as const;
+export const paymentQueryKeys = queryKeysFactory(PAYMENT_QUERY_KEY);
 
-const PAYMENT_PROVIDERS_QUERY_KEY = "payment_providers" as const
+const PAYMENT_PROVIDERS_QUERY_KEY = "payment_providers" as const;
 export const paymentProvidersQueryKeys = queryKeysFactory(
-  PAYMENT_PROVIDERS_QUERY_KEY
-)
+  PAYMENT_PROVIDERS_QUERY_KEY,
+);
 
 export const usePaymentProviders = (
   query?: HttpTypes.AdminGetPaymentProvidersParams,
@@ -34,42 +34,39 @@ export const usePaymentProviders = (
       QueryKey
     >,
     "queryKey" | "queryFn"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
       sdk.admin.payments.paymentProviders.query({ ...query }),
     queryKey: paymentProvidersQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const usePayment = (
   id: string,
-  query?: Omit<
-    InferClientInput<typeof sdk.admin.payments.$id.query>,
-    "$id"
-  >,
+  query?: Omit<InferClientInput<typeof sdk.admin.payments.$id.query>, "$id">,
   options?: Omit<
     UseQueryOptions<
-      InferClientOutput<typeof sdk.admin.payments.$id.query>,
+      AdminPaymentResponse,
       ClientError,
-      InferClientOutput<typeof sdk.admin.payments.$id.query>,
+      AdminPaymentResponse,
       QueryKey
     >,
     "queryKey" | "queryFn"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.payments.$id.query({ $id: id, ...query }),
     queryKey: paymentQueryKeys.detail(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCapturePayment = (
   orderId: string,
@@ -78,7 +75,7 @@ export const useCapturePayment = (
     HttpTypes.AdminPaymentResponse,
     ClientError,
     HttpTypes.AdminCapturePayment
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -86,17 +83,17 @@ export const useCapturePayment = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRefundPayment = (
   orderId: string,
@@ -105,7 +102,7 @@ export const useRefundPayment = (
     HttpTypes.AdminPaymentResponse,
     ClientError,
     HttpTypes.AdminRefundPayment
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -113,14 +110,14 @@ export const useRefundPayment = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

@@ -397,6 +397,7 @@
   },
   "products": {
     "domain": "מוצרים",
+    "additionalAttributes": "תכונות נוספות",
     "list": {
       "noRecordsMessage": "צור את המוצר הראשון שלך כדי להתחיל למכור."
     },
@@ -1118,15 +1119,23 @@
     "edit": {
       "email": {
         "title": "ערוך אימייל",
-        "requestSuccess": "אימייל ההזמנה עודכן ל{{email}}."
+        "requestSuccess": "האימייל עודכן בהצלחה."
       },
       "shippingAddress": {
         "title": "ערוך כתובת משלוח",
-        "requestSuccess": "כתובת המשלוח של ההזמנה עודכנה."
+        "requestSuccess": "כתובת המשלוח של ההזמנה עודכנה.",
+        "validation": {
+          "addressRequired": "נא להזין כתובת",
+          "countryRequired": "נא לבחור מדינה"
+        }
       },
       "billingAddress": {
         "title": "ערוך כתובת חיוב",
-        "requestSuccess": "כתובת החיוב של ההזמנה עודכנה."
+        "requestSuccess": "כתובת החיוב של ההזמנה עודכנה.",
+        "validation": {
+          "addressRequired": "נא להזין כתובת",
+          "countryRequired": "נא לבחור מדינה"
+        }
       }
     },
     "returns": {
@@ -2093,6 +2102,10 @@
         "across": {
           "title": "על פני",
           "description": "מיישם ערך על פני פריטים"
+        },
+        "once": {
+          "title": "פעם אחת",
+          "description": "הגבלת ההנחה לכמות המקסימלית"
         }
       },
       "code": {
@@ -2255,7 +2268,8 @@
       "header": "מוצרים",
       "actions": {
         "addProducts": "הוסף מוצרים",
-        "editPrices": "ערוך מחירים"
+        "editPrices": "ערוך מחירים",
+        "editPricesDisabled": "הוסף מוצרים לפני עריכת מחירים"
       },
       "delete": {
         "confirmation_one": "אתה עומד למחוק את המחירים עבור {{count}} מוצר ברשימת המחירים. פעולה זו אינה ניתנת לביטול.",
@@ -2666,7 +2680,10 @@
         "placeholder": "wrong_size",
         "tooltip": "הערך צריך להיות מזהה ייחודי לסיבת ההחזרה."
       },
-      "label": { "label": "תווית", "placeholder": "מידה שגויה" },
+      "label": {
+        "label": "תווית",
+        "placeholder": "מידה שגויה"
+      },
       "description": {
         "label": "תיאור",
         "placeholder": "הלקוח קיבל את המידה הלא נכונה"

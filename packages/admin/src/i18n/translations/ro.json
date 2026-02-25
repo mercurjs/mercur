@@ -395,6 +395,7 @@
   },
   "products": {
     "domain": "Produse",
+    "additionalAttributes": "Atribute suplimentare",
     "list": {
       "noRecordsMessage": "Creați primul dvs. produs pentru a începe să vindeți."
     },
@@ -1075,15 +1076,23 @@
     "edit": {
       "email": {
         "title": "Editați e-mailul",
-        "requestSuccess": "E-mail de comandă actualizat la {{email}}."
+        "requestSuccess": "E-mailul a fost actualizat cu succes."
       },
       "shippingAddress": {
         "title": "Editați adresa de livrare",
-        "requestSuccess": "Adresa de livrare a comenzii a fost actualizată."
+        "requestSuccess": "Adresa de livrare a comenzii a fost actualizată.",
+        "validation": {
+          "addressRequired": "Vă rugăm să introduceți o adresă",
+          "countryRequired": "Vă rugăm să selectați o țară"
+        }
       },
       "billingAddress": {
         "title": "Editați adresa de facturare",
-        "requestSuccess": "Adresa de facturare a comenzii a fost actualizată."
+        "requestSuccess": "Adresa de facturare a comenzii a fost actualizată.",
+        "validation": {
+          "addressRequired": "Vă rugăm să introduceți o adresă",
+          "countryRequired": "Vă rugăm să selectați o țară"
+        }
       }
     },
     "returns": {
@@ -2021,6 +2030,10 @@
         "across": {
           "title": "Peste tot",
           "description": "Aplică valoarea articolelor"
+        },
+        "once": {
+          "title": "O dată",
+          "description": "Limitează discountul la cantitatea maximă"
         }
       },
       "code": {
@@ -2183,7 +2196,8 @@
       "header": "Produse",
       "actions": {
         "addProducts": "Adăugați produse",
-        "editPrices": "Editați prețurile"
+        "editPrices": "Editați prețurile",
+        "editPricesDisabled": "Adăugați produse înainte de a edita prețurile"
       },
       "delete": {
         "confirmation_one": "Sunteți pe cale să ștergeți prețurile pentru {{count}} produs în lista de prețuri. ",

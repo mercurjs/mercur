@@ -395,6 +395,7 @@
   },
   "products": {
     "domain": "Prodotti",
+    "additionalAttributes": "Attributi aggiuntivi",
     "list": {
       "noRecordsMessage": "Crea il tuo primo prodotto per iniziare a vendere."
     },
@@ -1028,6 +1029,20 @@
         "quantityLowerThanFulfillment": "Non è possibile impostare la quantità a meno di quella già soddisfatta"
       }
     },
+    "edit": {
+      "email": {
+        "title": "Modifica email",
+        "requestSuccess": "L'email è stata aggiornata con successo."
+      },
+      "shippingAddress": {
+        "title": "Modifica indirizzo di spedizione",
+        "requestSuccess": "L'indirizzo di spedizione dell'ordine è stato aggiornato."
+      },
+      "billingAddress": {
+        "title": "Modifica indirizzo di fatturazione",
+        "requestSuccess": "L'indirizzo di fatturazione dell'ordine è stato aggiornato."
+      }
+    },
     "returns": {
       "create": "Crea Reso",
       "confirm": "Conferma Reso",
@@ -1334,6 +1349,24 @@
       "displayId": "ID di visualizzazione",
       "refundableAmount": "Importo rimborsabile",
       "returnableQuantity": "Quantità restituibile"
+    },
+    "edit": {
+      "email": {
+        "title": "Modifica email",
+        "requestSuccess": "Email ordine aggiornata a {{email}}."
+      },
+      "shippingAddress": {
+        "title": "Modifica indirizzo di spedizione",
+        "requestSuccess": "Indirizzo di spedizione ordine aggiornato.",
+        "validation": {
+          "addressRequired": "Inserisci un indirizzo",
+          "countryRequired": "Seleziona un paese"
+        }
+      },
+      "billingAddress": {
+        "title": "Modifica indirizzo di fatturazione",
+        "requestSuccess": "Indirizzo di fatturazione ordine aggiornato."
+      }
     }
   },
   "draftOrders": {
@@ -1910,6 +1943,10 @@
         "across": {
           "title": "Insieme",
           "description": "Applica valore su articoli"
+        },
+        "once": {
+          "title": "Una volta",
+          "description": "Limita lo sconto alla quantità massima"
         }
       },
       "code": {
@@ -2072,7 +2109,8 @@
       "header": "Prodotti",
       "actions": {
         "addProducts": "Aggiungi prodotti",
-        "editPrices": "Modifica prezzi"
+        "editPrices": "Modifica prezzi",
+        "editPricesDisabled": "Aggiungi prodotti prima di modificare i prezzi"
       },
       "delete": {
         "confirmation_one": "Stai per eliminare i prezzi per {{count}} prodotto nella lista prezzi. Questa azione non può essere annullata.",

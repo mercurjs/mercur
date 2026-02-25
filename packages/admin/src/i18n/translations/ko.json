@@ -397,6 +397,7 @@
   },
   "products": {
     "domain": "제품",
+    "additionalAttributes": "추가 속성",
     "list": {
       "noRecordsMessage": "판매를 시작하려면 첫 번째 제품을 생성하세요."
     },
@@ -1119,15 +1120,23 @@
     "edit": {
       "email": {
         "title": "이메일 편집",
-        "requestSuccess": "주문 이메일이 {{email}}(으)로 업데이트되었습니다."
+        "requestSuccess": "이메일이 성공적으로 업데이트되었습니다."
       },
       "shippingAddress": {
         "title": "배송 주소 편집",
-        "requestSuccess": "주문 배송 주소가 업데이트되었습니다."
+        "requestSuccess": "주문 배송 주소가 업데이트되었습니다.",
+        "validation": {
+          "addressRequired": "주소를 입력해주세요",
+          "countryRequired": "국가를 선택해주세요"
+        }
       },
       "billingAddress": {
         "title": "청구 주소 편집",
-        "requestSuccess": "주문 청구 주소가 업데이트되었습니다."
+        "requestSuccess": "주문 청구 주소가 업데이트되었습니다.",
+        "validation": {
+          "addressRequired": "주소를 입력해주세요",
+          "countryRequired": "국가를 선택해주세요"
+        }
       }
     },
     "returns": {
@@ -2095,6 +2104,10 @@
         "across": {
           "title": "전체",
           "description": "항목 전체에 값 적용"
+        },
+        "once": {
+          "title": "한 번",
+          "description": "할인을 최대 수량까지 제한"
         }
       },
       "code": {
@@ -2261,7 +2274,8 @@
       "header": "제품",
       "actions": {
         "addProducts": "제품 추가",
-        "editPrices": "가격 편집"
+        "editPrices": "가격 편집",
+        "editPricesDisabled": "가격을 편집하기 전에 제품을 추가하세요"
       },
       "delete": {
         "confirmation_one": "가격 목록에서 {{count}}개 제품의 가격을 삭제하려고 합니다. 이 작업은 취소할 수 없습니다.",

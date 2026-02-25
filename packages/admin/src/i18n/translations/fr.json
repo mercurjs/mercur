@@ -384,6 +384,7 @@
   },
   "products": {
     "domain": "Produits",
+    "additionalAttributes": "Attributs supplémentaires",
     "list": {
       "noRecordsMessage": "Créez votre premier produit pour commencer à vendre."
     },
@@ -1017,6 +1018,20 @@
         "quantityLowerThanFulfillment": "Ne peut pas définir la quantité à être inférieure ou égale à la quantité livrée"
       }
     },
+    "edit": {
+      "email": {
+        "title": "Modifier l'adresse e-mail",
+        "requestSuccess": "L'e-mail a été mis à jour avec succès."
+      },
+      "shippingAddress": {
+        "title": "Modifier l'adresse de livraison",
+        "requestSuccess": "L'adresse de livraison de la commande a été mise à jour."
+      },
+      "billingAddress": {
+        "title": "Modifier l'adresse de facturation",
+        "requestSuccess": "L'adresse de facturation de la commande a été mise à jour."
+      }
+    },
     "returns": {
       "create": "Créer un retour",
       "confirm": "Confirmer le retour",
@@ -1323,6 +1338,24 @@
       "displayId": "Display ID",
       "refundableAmount": "Montant remboursable",
       "returnableQuantity": "Quantité retournable"
+    },
+    "edit": {
+      "email": {
+        "title": "Modifier l'email",
+        "requestSuccess": "Email de la commande mis à jour vers {{email}}."
+      },
+      "shippingAddress": {
+        "title": "Modifier l'adresse de livraison",
+        "requestSuccess": "Adresse de livraison de la commande mise à jour.",
+        "validation": {
+          "addressRequired": "Veuillez entrer une adresse",
+          "countryRequired": "Veuillez sélectionner un pays"
+        }
+      },
+      "billingAddress": {
+        "title": "Modifier l'adresse de facturation",
+        "requestSuccess": "Adresse de facturation de la commande mise à jour."
+      }
     }
   },
   "draftOrders": {
@@ -1899,6 +1932,10 @@
         "across": {
           "title": "Sur tous les articles",
           "description": "Applique la valeur sur tous les articles"
+        },
+        "once": {
+          "title": "Une fois",
+          "description": "Limiter la remise à la quantité maximale"
         }
       },
       "code": {
@@ -2061,7 +2098,8 @@
       "header": "Produits",
       "actions": {
         "addProducts": "Ajouter des produits",
-        "editPrices": "Modifier les prix"
+        "editPrices": "Modifier les prix",
+        "editPricesDisabled": "Ajoutez des produits avant de modifier les prix"
       },
       "delete": {
         "confirmation_one": "Vous êtes sur le point de supprimer les prix pour {{count}} produit dans la liste de prix. Cette action ne peut être annulée.",
@@ -2447,7 +2485,10 @@
         "placeholder": "mauvaise_taille",
         "tooltip": "La valeur doit être un identifiant unique pour la raison de retour."
       },
-      "label": { "label": "Label", "placeholder": "Mauvaise taille" },
+      "label": {
+        "label": "Label",
+        "placeholder": "Mauvaise taille"
+      },
       "description": {
         "label": "Description",
         "placeholder": "Le client a reçu la mauvaise taille"

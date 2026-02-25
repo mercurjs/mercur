@@ -10,7 +10,6 @@ import it from "./it.json"
 import ja from "./ja.json"
 import pl from "./pl.json"
 import ptBR from "./ptBR.json"
-import ptPT from "./ptPT.json"
 import th from "./th.json"
 import tr from "./tr.json"
 import uk from "./uk.json"
@@ -28,9 +27,7 @@ import ko from "./ko.json"
 import nl from "./nl.json"
 import bs from "./bs.json"
 import id from "./id.json"
-import zhTW from "./zhTW.json"
-
-const translations: Record<string, { translation: Record<string, any> }> = {
+export default {
   bs: {
     translation: bs,
   },
@@ -69,9 +66,6 @@ const translations: Record<string, { translation: Record<string, any> }> = {
   },
   ptBR: {
     translation: ptBR,
-  },
-  ptPT: {
-    translation: ptPT,
   },
   th: {
     translation: th,
@@ -121,9 +115,4 @@ const translations: Record<string, { translation: Record<string, any> }> = {
   id: {
     translation: id,
   },
-  zhTW: {
-    translation: zhTW,
-  },
 }
-
-export default translations;

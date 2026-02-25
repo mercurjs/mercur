@@ -1,38 +1,23 @@
-import { ArrowUturnLeft, MinusMini } from "@medusajs/icons";
-import { clx, Divider, IconButton, Text } from "@medusajs/ui";
-import { Collapsible as RadixCollapsible } from "radix-ui";
 import { useEffect, useMemo, useState } from "react";
+
+import { ArrowUturnLeft, MinusMini } from "@medusajs/icons";
+import { Divider, IconButton, Text, clx } from "@medusajs/ui";
+
+import { Collapsible as RadixCollapsible } from "radix-ui";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
-import { INavItem, NavItem } from "../nav-item";
-import { Shell } from "../shell";
-import { Header as SellerDropdown } from "../main-layout/main-layout";
-import components from "virtual:mercur/components";
-import menuItemsModule from "virtual:mercur/menu-items";
-import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
+import { type INavItem, NavItem } from "@components/layout/nav-item";
+import { Shell } from "@components/layout/shell";
+import { UserMenu } from "@components/layout/user-menu";
 
 export const SettingsLayout = () => {
-  const Sidebar = components.SettingsSidebar
-    ? components.SettingsSidebar
-    : SettingsSidebar;
-
   return (
     <Shell>
-      <Sidebar />
+      <SettingsSidebar />
     </Shell>
   );
 };
-
-const allMenuItems = menuItemsModule.menuItems ?? [];
-const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
-const extensionNavItems: INavItem[] = customSettingsItems
-  .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-  .map((item) => ({
-    label: item.label,
-    to: item.path,
-    translationNs: item.translationNs,
-  }));
 
 const useSettingRoutes = (): INavItem[] => {
   const { t } = useTranslation();
@@ -40,13 +25,33 @@ const useSettingRoutes = (): INavItem[] => {
   return useMemo(
     () => [
       {
-        label: t("seller.domain", "Seller"),
-        to: "/settings/seller",
+        label: t("store.domain"),
+        to: "/settings/store",
       },
-      // {
-      //   label: t("users.domain"),
-      //   to: "/settings/users",
-      // },
+      {
+        label: t("users.domain"),
+        to: "/settings/users",
+      },
+      {
+        label: t("regions.domain"),
+        to: "/settings/regions",
+      },
+      {
+        label: t("taxRegions.domain"),
+        to: "/settings/tax-regions",
+      },
+      {
+        label: t("returnReasons.domain"),
+        to: "/settings/return-reasons",
+      },
+      {
+        label: t("refundReasons.domain"),
+        to: "/settings/refund-reasons",
+      },
+      {
+        label: t("salesChannels.domain"),
+        to: "/settings/sales-channels",
+      },
       {
         label: t("productTypes.domain"),
         to: "/settings/product-types",
@@ -56,10 +61,65 @@ const useSettingRoutes = (): INavItem[] => {
         to: "/settings/product-tags",
       },
       {
+        label: t("attributes.domain"),
+        to: "/settings/attributes",
+      },
+      {
+        label: t("configuration.domain"),
+        to: "/settings/configuration",
+      },
+      {
         label: t("stockLocations.domain"),
         to: "/settings/locations",
       },
-      ...extensionNavItems,
+      {
+        label: t("commissionLines.domain"),
+        to: "/settings/commission-lines",
+      },
+      {
+        label: t("commission.domain"),
+        to: "/settings/commission/",
+      },
+    ],
+    [t],
+  );
+};
+
+const useDeveloperRoutes = (): INavItem[] => {
+  const { t } = useTranslation();
+
+  return useMemo(
+    () => [
+      {
+        label: t("algolia.domain"),
+        to: "/settings/algolia",
+      },
+      {
+        label: t("apiKeyManagement.domain.publishable"),
+        to: "/settings/publishable-api-keys",
+      },
+      {
+        label: t("apiKeyManagement.domain.secret"),
+        to: "/settings/secret-api-keys",
+      },
+      {
+        label: t("workflowExecutions.domain"),
+        to: "/settings/workflows",
+      },
+    ],
+    [t],
+  );
+};
+
+const useMyAccountRoutes = (): INavItem[] => {
+  const { t } = useTranslation();
+
+  return useMemo(
+    () => [
+      {
+        label: t("profile.domain"),
+        to: "/settings/profile",
+      },
     ],
     [t],
   );
@@ -78,13 +138,15 @@ const getSafeFromValue = (from: string) => {
 };
 
 const SettingsSidebar = () => {
-  const generalRoutes = useSettingRoutes();
+  const routes = useSettingRoutes();
+  const developerRoutes = useDeveloperRoutes();
+  const myAccountRoutes = useMyAccountRoutes();
 
   const { t } = useTranslation();
 
   return (
     <aside className="relative flex flex-1 flex-col justify-between overflow-y-auto">
-      <div className="bg-ui-bg-subtle sticky top-0">
+      <div className="sticky top-0 bg-ui-bg-subtle">
         <Header />
         <div className="flex items-center justify-center px-3">
           <Divider variant="dashed" />
@@ -94,10 +156,24 @@ const SettingsSidebar = () => {
         <div className="flex flex-1 flex-col overflow-y-auto">
           <RadixCollapsibleSection
             label={t("app.nav.settings.general")}
-            items={generalRoutes}
+            items={routes}
+          />
+          <div className="flex items-center justify-center px-3">
+            <Divider variant="dashed" />
+          </div>
+          <RadixCollapsibleSection
+            label={t("app.nav.settings.developer")}
+            items={developerRoutes}
+          />
+          <div className="flex items-center justify-center px-3">
+            <Divider variant="dashed" />
+          </div>
+          <RadixCollapsibleSection
+            label={t("app.nav.settings.myAccount")}
+            items={myAccountRoutes}
           />
         </div>
-        <div className="bg-ui-bg-subtle sticky bottom-0">
+        <div className="sticky bottom-0 bg-ui-bg-subtle">
           <UserSection />
         </div>
       </div>
@@ -123,7 +199,7 @@ const Header = () => {
         to={from}
         replace
         className={clx(
-          "bg-ui-bg-subtle transition-fg flex items-center rounded-md outline-none",
+          "flex items-center rounded-md bg-ui-bg-subtle outline-none transition-fg",
           "hover:bg-ui-bg-subtle-hover",
           "focus-visible:shadow-borders-focus",
         )}
@@ -151,7 +227,7 @@ const RadixCollapsibleSection = ({
   return (
     <RadixCollapsible.Root defaultOpen className="py-3">
       <div className="px-3">
-        <div className="text-ui-fg-muted flex h-7 items-center justify-between px-2">
+        <div className="flex h-7 items-center justify-between px-2 text-ui-fg-muted">
           <Text size="small" leading="compact">
             {label}
           </Text>
@@ -181,7 +257,7 @@ const UserSection = () => {
       <div className="px-3">
         <Divider variant="dashed" />
       </div>
-      <SellerDropdown />
+      <UserMenu />
     </div>
   );
 };

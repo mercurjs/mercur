@@ -19,92 +19,92 @@
     {
       "path": "team-management/modules/member/index.ts",
       "content": "import { Module } from \"@medusajs/framework/utils\"\n\nimport MemberModuleService from \"./service\"\n\nexport const MEMBER_MODULE = \"member\"\n\nexport * from \"./types\"\nexport { MemberModuleService }\n\nexport default Module(MEMBER_MODULE, {\n  service: MemberModuleService,\n})\n",
-      "type": "registry:module"
+      "type": "registry:api"
     },
     {
       "path": "team-management/modules/member/service.ts",
       "content": "import jwt, { JwtPayload } from \"jsonwebtoken\"\n\nimport { ConfigModule } from \"@medusajs/framework\"\nimport { Context } from \"@medusajs/framework/types\"\nimport {\n  InjectTransactionManager,\n  MedusaContext,\n  MedusaError,\n  MedusaService,\n} from \"@medusajs/framework/utils\"\n\nimport { Member } from \"./models/member\"\nimport { MemberInvite } from \"./models/member-invite\"\nimport { CreateMemberInviteDTO, MemberInviteDTO } from \"./types\"\n\nconst MEMBER_MODULE = \"member\"\n\ntype InjectedDependencies = {\n  configModule: ConfigModule\n}\n\n// 7 days in ms\nconst DEFAULT_VALID_INVITE_DURATION = 1000 * 60 * 60 * 24 * 7\n\nclass MemberModuleService extends MedusaService({\n  Member,\n  MemberInvite,\n}) {\n  private readonly httpConfig_: ConfigModule[\"projectConfig\"][\"http\"]\n  private readonly validInviteDuration_: number\n\n  constructor({ configModule }: InjectedDependencies) {\n    super(...arguments)\n\n    this.httpConfig_ = configModule.projectConfig.http\n\n    const moduleDef = configModule.modules?.[MEMBER_MODULE]\n    const options =\n      typeof moduleDef !== \"boolean\"\n        ? (moduleDef?.options as { validInviteDuration?: number })\n        : null\n\n    this.validInviteDuration_ =\n      options?.validInviteDuration ?? DEFAULT_VALID_INVITE_DURATION\n  }\n\n  async validateInviteToken(token: string) {\n    const jwtSecret = this.httpConfig_.jwtSecret as string\n    const decoded: JwtPayload = jwt.verify(token, jwtSecret, {\n      complete: true,\n    })\n\n    const invite = await this.retrieveMemberInvite(decoded.payload.id, {})\n\n    if (invite.accepted) {\n      throw new MedusaError(\n        MedusaError.Types.INVALID_DATA,\n        \"The invite has already been accepted\"\n      )\n    }\n\n    if (invite.expires_at < new Date()) {\n      throw new MedusaError(\n        MedusaError.Types.INVALID_DATA,\n        \"The invite has expired\"\n      )\n    }\n\n    return invite\n  }\n\n  @InjectTransactionManager()\n  // @ts-expect-error: createMemberInvites method already exists in base\n  async createMemberInvites(\n    input: CreateMemberInviteDTO | CreateMemberInviteDTO[],\n    @MedusaContext() sharedContext: Context = {}\n  ): Promise<MemberInviteDTO[]> {\n    const data = Array.isArray(input) ? input : [input]\n\n    const expires_at = new Date()\n    expires_at.setMilliseconds(\n      new Date().getMilliseconds() + DEFAULT_VALID_INVITE_DURATION\n    )\n\n    const toCreate = data.map((invite) => {\n      return {\n        ...invite,\n        expires_at: new Date(),\n        token: \"placeholder\",\n      }\n    })\n\n    const created = await super.createMemberInvites(toCreate, sharedContext)\n    const toUpdate = Array.isArray(created) ? created : [created]\n\n    const updates = toUpdate.map((invite) => {\n      return {\n        ...invite,\n        id: invite.id,\n        expires_at,\n        token: this.generateToken({ id: invite.id }),\n      }\n    })\n\n    await this.updateMemberInvites(updates, sharedContext)\n\n    return updates\n  }\n\n  private generateToken(data: { id: string }): string {\n    const jwtSecret = this.httpConfig_.jwtSecret as string\n    return jwt.sign(data, jwtSecret, {\n      expiresIn: this.validInviteDuration_ / 1000,\n    })\n  }\n}\n\nexport default MemberModuleService\n",
-      "type": "registry:module"
+      "type": "registry:api"
     },
     {
       "path": "team-management/modules/member/types.ts",
       "content": "export type MemberRole = \"owner\" | \"admin\" | \"member\"\n\nexport const MemberRole = {\n  OWNER: \"owner\",\n  ADMIN: \"admin\",\n  MEMBER: \"member\",\n} as const\n\nexport type CreateMemberDTO = {\n  seller_id: string\n  name: string\n  email?: string\n  role?: MemberRole\n  bio?: string\n  phone?: string\n  photo?: string\n}\n\nexport type UpdateMemberDTO = {\n  id: string\n  name?: string\n  bio?: string\n  phone?: string\n  photo?: string\n}\n\nexport type CreateMemberInviteDTO = {\n  email: string\n  role?: MemberRole\n  seller_id: string\n}\n\nexport type UpdateMemberInviteDTO = {\n  id: string\n  accepted?: boolean\n}\n\nexport type AcceptMemberInviteDTO = {\n  token: string\n  name: string\n}\n\nexport type MemberDTO = {\n  id: string\n  role: MemberRole\n  name: string\n  email: string | null\n  bio: string | null\n  phone: string | null\n  photo: string | null\n  seller_id: string\n}\n\nexport type MemberInviteDTO = {\n  id: string\n  email: string\n  role: MemberRole\n  token: string\n  expires_at: Date | string\n  accepted: boolean\n  seller_id: string\n}\n\nexport type VendorMemberListResponse = {\n  members: MemberDTO[]\n  count: number\n  offset: number\n  limit: number\n}\n\nexport type VendorMemberResponse = {\n  member: MemberDTO\n}\n\nexport type VendorMemberInviteListResponse = {\n  invites: MemberInviteDTO[]\n  count: number\n  offset: number\n  limit: number\n}\n\nexport type VendorMemberInviteResponse = {\n  invite: MemberInviteDTO\n}\n",
-      "type": "registry:module"
+      "type": "registry:api"
     },
     {
       "path": "team-management/modules/member/models/member.ts",
       "content": "import { model } from \"@medusajs/framework/utils\"\n\nexport const Member = model.define(\"member\", {\n  id: model.id({ prefix: \"mem\" }).primaryKey(),\n  seller_id: model.text(),\n  role: model.enum([\"owner\", \"admin\", \"member\"]).default(\"owner\"),\n  name: model.text().searchable(),\n  email: model.text().nullable(),\n  bio: model.text().searchable().nullable(),\n  phone: model.text().searchable().nullable(),\n  photo: model.text().nullable(),\n})\n",
-      "type": "registry:module"
+      "type": "registry:api"
     },
     {
       "path": "team-management/modules/member/models/member-invite.ts",
       "content": "import { model } from \"@medusajs/framework/utils\"\n\nexport const MemberInvite = model.define(\"member_invite\", {\n  id: model.id({ prefix: \"meminv\" }).primaryKey(),\n  seller_id: model.text(),\n  email: model.text(),\n  role: model.enum([\"owner\", \"admin\", \"member\"]).default(\"owner\"),\n  token: model.text(),\n  expires_at: model.dateTime(),\n  accepted: model.boolean().default(false),\n})\n",
-      "type": "registry:module"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/steps/create-member.ts",
       "content": "import { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\"\n\nimport { CreateMemberDTO, MEMBER_MODULE, MemberModuleService } from \"../../../modules/member\"\n\nexport const createMemberStep = createStep(\n  \"create-member\",\n  async (input: CreateMemberDTO, { container }) => {\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    const member = await service.createMembers(input)\n\n    return new StepResponse(member, member.id)\n  },\n  async (memberId: string | undefined, { container }) => {\n    if (!memberId) return\n\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    await service.deleteMembers([memberId])\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/steps/update-member.ts",
       "content": "import { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\"\n\nimport { UpdateMemberDTO, MEMBER_MODULE, MemberModuleService } from \"../../../modules/member\"\n\nexport const updateMemberStep = createStep(\n  \"update-member\",\n  async (input: UpdateMemberDTO, { container }) => {\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    const previousData = await service.retrieveMember(input.id)\n\n    const updatedMember = await service.updateMembers(input)\n\n    return new StepResponse(updatedMember, previousData)\n  },\n  async (previousData, { container }) => {\n    if (!previousData) return\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    await service.updateMembers(previousData)\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/steps/delete-member.ts",
       "content": "import { MedusaError } from \"@medusajs/framework/utils\"\nimport { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\"\n\nimport { MemberRole, MEMBER_MODULE, MemberModuleService } from \"../../../modules/member\"\n\nexport const deleteMemberStep = createStep(\n  \"delete-member\",\n  async (id: string, { container }) => {\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    const member = await service.retrieveMember(id)\n\n    if (member.role === MemberRole.OWNER) {\n      throw new MedusaError(\n        MedusaError.Types.INVALID_DATA,\n        \"Owner member cannot be deleted\"\n      )\n    }\n\n    await service.softDeleteMembers(id)\n\n    return new StepResponse(id)\n  },\n  async (memberId: string | undefined, { container }) => {\n    if (!memberId) return\n\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    await service.restoreMembers(memberId)\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/steps/create-member-invite.ts",
       "content": "import { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\"\n\nimport { CreateMemberInviteDTO, MEMBER_MODULE, MemberModuleService } from \"../../../modules/member\"\n\nexport const createMemberInviteStep = createStep(\n  \"create-member-invite\",\n  async (input: CreateMemberInviteDTO, { container }) => {\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    const [memberInvite] = await service.createMemberInvites(input)\n\n    return new StepResponse(memberInvite, memberInvite?.id ?? \"\")\n  },\n  async (memberInviteId: string | undefined, { container }) => {\n    if (!memberInviteId) return\n\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    await service.deleteMemberInvites([memberInviteId as string])\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/steps/validate-member-invite.ts",
       "content": "import { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\"\n\nimport { AcceptMemberInviteDTO, MEMBER_MODULE, MemberModuleService } from \"../../../modules/member\"\n\nexport const validateMemberInviteStep = createStep(\n  \"validate-member-invite\",\n  async (input: AcceptMemberInviteDTO, { container }) => {\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    const invite = await service.validateInviteToken(input.token)\n\n    return new StepResponse(invite)\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/steps/update-member-invite.ts",
       "content": "import { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\"\n\nimport { UpdateMemberInviteDTO, MEMBER_MODULE, MemberModuleService } from \"../../../modules/member\"\n\nexport const updateMemberInviteStep = createStep(\n  \"update-member-invite\",\n  async (input: UpdateMemberInviteDTO, { container }) => {\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    const previousData = await service.retrieveMemberInvite(input.id)\n\n    const updatedInvites = await service.updateMemberInvites(input)\n\n    return new StepResponse(updatedInvites, previousData)\n  },\n  async (previousData: Record<string, unknown> | undefined, { container }) => {\n    if (!previousData) return\n\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n    await service.updateMemberInvites(previousData)\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/steps/delete-member-invite.ts",
       "content": "import { StepResponse, createStep } from \"@medusajs/framework/workflows-sdk\"\n\nimport { MEMBER_MODULE, MemberModuleService } from \"../../../modules/member\"\n\nexport const deleteMemberInvitesStep = createStep(\n  \"delete-member-invite\",\n  async (id: string, { container }) => {\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    await service.softDeleteMemberInvites(id)\n\n    return new StepResponse(id)\n  },\n  async (inviteId: string | undefined, { container }) => {\n    if (!inviteId) return\n\n    const service = container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    await service.restoreMemberInvites(inviteId)\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/workflows/invite-member.ts",
       "content": "import { WorkflowResponse, createWorkflow } from \"@medusajs/framework/workflows-sdk\"\n\nimport { CreateMemberInviteDTO } from \"../../../modules/member\"\nimport { createMemberInviteStep } from \"../steps/create-member-invite\"\n\nexport const inviteMemberWorkflow = createWorkflow(\n  \"invite-member\",\n  function (input: CreateMemberInviteDTO) {\n    const invite = createMemberInviteStep(input)\n\n    return new WorkflowResponse(invite)\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/workflows/accept-member-invite.ts",
       "content": "import { parallelize } from \"@medusajs/framework/workflows-sdk\"\nimport { setAuthAppMetadataStep } from \"@medusajs/medusa/core-flows\"\nimport { WorkflowResponse, createWorkflow } from \"@medusajs/framework/workflows-sdk\"\n\nimport { AcceptMemberInviteDTO } from \"../../../modules/member\"\nimport { createMemberStep } from \"../steps/create-member\"\nimport { updateMemberInviteStep } from \"../steps/update-member-invite\"\nimport { validateMemberInviteStep } from \"../steps/validate-member-invite\"\n\ntype AcceptMemberInviteWorkflowInput = {\n  invite: AcceptMemberInviteDTO\n  authIdentityId: string\n}\n\nexport const acceptMemberInviteWorkflow = createWorkflow(\n  \"accept-member-invite\",\n  function (input: AcceptMemberInviteWorkflowInput) {\n    const invite = validateMemberInviteStep(input.invite)\n\n    const [member] = parallelize(\n      createMemberStep({\n        seller_id: invite.seller_id,\n        name: input.invite.name,\n        role: invite.role,\n        email: invite.email,\n      }),\n      updateMemberInviteStep({\n        id: invite.id,\n        accepted: true,\n      })\n    )\n\n    // link seller to auth identity\n    setAuthAppMetadataStep({\n      authIdentityId: input.authIdentityId,\n      actorType: \"seller\",\n      value: member.seller_id,\n    }).config({\n      name: \"link-seller-to-auth-identity\",\n    })\n\n    // link member to auth identity\n    setAuthAppMetadataStep({\n      authIdentityId: input.authIdentityId,\n      actorType: \"member\",\n      value: member.id,\n    }).config({\n      name: \"link-member-to-auth-identity\",\n    })\n\n    return new WorkflowResponse(invite)\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/workflows/update-member.ts",
       "content": "import { WorkflowResponse, createWorkflow } from \"@medusajs/framework/workflows-sdk\"\n\nimport { UpdateMemberDTO } from \"../../../modules/member\"\nimport { updateMemberStep } from \"../steps/update-member\"\n\nexport const updateMemberWorkflow = createWorkflow(\n  \"update-member\",\n  function (input: UpdateMemberDTO) {\n    return new WorkflowResponse(updateMemberStep(input))\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/workflows/delete-member.ts",
       "content": "import { createWorkflow } from \"@medusajs/framework/workflows-sdk\"\n\nimport { deleteMemberStep } from \"../steps/delete-member\"\n\nexport const deleteMemberWorkflow = createWorkflow(\n  \"delete-member\",\n  function (id: string) {\n    deleteMemberStep(id)\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/member/workflows/delete-member-invite.ts",
       "content": "import { createWorkflow } from \"@medusajs/framework/workflows-sdk\"\n\nimport { deleteMemberInvitesStep } from \"../steps/delete-member-invite\"\n\nexport const deleteMemberInviteWorkflow = createWorkflow(\n  \"delete-member-invite\",\n  function (id: string) {\n    deleteMemberInvitesStep(id)\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/workflows/hooks/seller-created.ts",
       "content": "import { StepResponse } from \"@medusajs/framework/workflows-sdk\"\nimport { Modules } from \"@medusajs/framework/utils\"\nimport { IAuthModuleService } from \"@medusajs/framework/types\"\n\nimport { createSellerWorkflow } from \"@mercurjs/core-plugin/workflows\"\nimport { MEMBER_MODULE, MemberModuleService } from \"../../modules/member\"\n\ncreateSellerWorkflow.hooks.sellerCreated(\n  async ({ seller, auth_identity_id }, { container }) => {\n    const memberService =\n      container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    const member = await memberService.createMembers({\n      seller_id: seller.id,\n      name: seller.name,\n      role: \"owner\",\n    })\n\n    const authModule =\n      container.resolve<IAuthModuleService>(Modules.AUTH)\n\n    const authIdentity = await authModule.retrieveAuthIdentity(auth_identity_id)\n\n    await authModule.updateAuthIdentities({\n      id: auth_identity_id,\n      app_metadata: {\n        ...authIdentity.app_metadata,\n        member_id: member.id,\n      },\n    })\n\n    return new StepResponse(member, {\n      member_id: member.id,\n      auth_identity_id,\n      previous_app_metadata: authIdentity.app_metadata,\n    })\n  },\n  async (data, { container }) => {\n    if (!data) return\n\n    const memberService =\n      container.resolve<MemberModuleService>(MEMBER_MODULE)\n\n    await memberService.deleteMembers([data.member_id])\n\n    const authModule =\n      container.resolve<IAuthModuleService>(Modules.AUTH)\n\n    await authModule.updateAuthIdentities({\n      id: data.auth_identity_id,\n      app_metadata: data.previous_app_metadata,\n    })\n  }\n)\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "team-management/api/vendor/members/helpers.ts",

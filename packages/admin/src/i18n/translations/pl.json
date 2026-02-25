@@ -407,6 +407,7 @@
   },
   "products": {
     "domain": "Produkty",
+    "additionalAttributes": "Dodatkowe atrybuty",
     "list": {
       "noRecordsMessage": "Utwórz swój pierwszy produkt, aby rozpocząć sprzedaż."
     },
@@ -1047,41 +1048,6 @@
       }
     }
   },
-  "refundReasons": {
-    "domain": "Powody zwrotu pieniędzy",
-    "subtitle": "Zarządzaj powodami zwrotu pieniędzy.",
-    "calloutHint": "Zarządzaj powodami zwrotu pieniędzy.",
-    "editReason": "Edytuj powód zwrotu pieniędzy",
-    "create": {
-      "header": "Dodaj powód zwrotu pieniędzy",
-      "subtitle": "Określ najczęstsze powody zwrotu pieniędzy.",
-      "hint": "Utwórz powody zwrotu, aby kategoryzować zwroty",
-      "successToast": "Powód zwrotu pieniędzy {{label}} został pomyślnie utworzony."
-    },
-    "edit": {
-      "header": "Edytuj powód zwrotu pieniędzy",
-      "subtitle": "Edytuj wartość powodu zwrotu pieniędzy.",
-      "successToast": "Powód zwrotu pieniędzy {{label}} został pomyślnie zaktualizowany."
-    },
-    "delete": {
-      "confirmation": "Zamierzasz usunąć powód zwrotu pieniędzy {{label}}. Tej akcji nie można cofnąć.",
-      "successToast": "Powód zwrotu pieniędzy {{label}} został pomyślnie usunięty."
-    },
-    "fields": {
-      "label": {
-        "label": "Etykieta",
-        "placeholder": "Zły rozmiar"
-      },
-      "code": {
-        "label": "Kod",
-        "placeholder": "zly_rozmiar"
-      },
-      "description": {
-        "label": "Opis",
-        "placeholder": "Klient miał złe doświadczenie zakupowe"
-      }
-    }
-  },
   "orders": {
     "giftCardsStoreCreditLines": "Karty podarunkowe i linie kredytowe",
     "creditLines": {
@@ -1218,15 +1184,23 @@
     "edit": {
       "email": {
         "title": "Edytuj adres e-mail",
-        "requestSuccess": "Adres e-mail zamówienia został zmieniony na {{email}}."
+        "requestSuccess": "Adres e-mail został pomyślnie zaktualizowany."
       },
       "shippingAddress": {
         "title": "Edytuj adres dostawy",
-        "requestSuccess": "Adres dostawy zamówienia został zaktualizowany."
+        "requestSuccess": "Adres dostawy zamówienia został zaktualizowany.",
+        "validation": {
+          "addressRequired": "Proszę wprowadzić adres",
+          "countryRequired": "Proszę wybrać kraj"
+        }
       },
       "billingAddress": {
         "title": "Edytuj adres rozliczeniowy",
-        "requestSuccess": "Adres rozliczeniowy zamówienia został zaktualizowany."
+        "requestSuccess": "Adres rozliczeniowy zamówienia został zaktualizowany.",
+        "validation": {
+          "addressRequired": "Proszę wprowadzić adres",
+          "countryRequired": "Proszę wybrać kraj"
+        }
       }
     },
     "returns": {
@@ -2235,6 +2209,10 @@
         "across": {
           "title": "Przez",
           "description": "Stosuje wartość do wszystkich elementów"
+        },
+        "once": {
+          "title": "Raz",
+          "description": "Ogranicz rabat do maksymalnej ilości"
         }
       },
       "code": {
@@ -2398,7 +2376,8 @@
       "header": "Produkty",
       "actions": {
         "addProducts": "Dodaj produkty",
-        "editPrices": "Edytuj ceny"
+        "editPrices": "Edytuj ceny",
+        "editPricesDisabled": "Dodaj produkty przed edycją cen"
       },
       "delete": {
         "confirmation_one": "Zamierzasz usunąć ceny dla {{count}} produktu z cennika. Tej akcji nie można cofnąć.",
@@ -2839,11 +2818,11 @@
   },
   "login": {
     "forgotPassword": "Zapomniałeś hasła? - <0>Resetuj</0>",
-    "title": "Witamy w {{name}}",
+    "title": "Witamy w Meduzie",
     "hint": "Zaloguj się, aby uzyskać dostęp do obszaru konta"
   },
   "invite": {
-    "title": "Witamy w Mercur",
+    "title": "Witamy w Meduzie",
     "hint": "Utwórz swoje konto poniżej",
     "backToLogin": "Powrót do logowania",
     "createAccount": "Utwórz konto",

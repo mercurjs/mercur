@@ -13,27 +13,27 @@
     {
       "path": "block-2/modules/sample/index.ts",
       "content": "import { Module } from \"@medusajs/framework/utils\"\nimport SampleModuleService from \"./service\"\n\nexport const SAMPLE_MODULE = \"sample\"\n\nexport default Module(SAMPLE_MODULE, {\n  service: SampleModuleService,\n})\n",
-      "type": "registry:module"
+      "type": "registry:api"
     },
     {
       "path": "block-2/modules/sample/service.ts",
       "content": "import { MedusaService } from \"@medusajs/framework/utils\"\nimport Sample from \"./models/sample\"\n\nclass SampleModuleService extends MedusaService({\n  Sample,\n}) {}\n\nexport default SampleModuleService\n",
-      "type": "registry:module"
+      "type": "registry:api"
     },
     {
       "path": "block-2/modules/sample/models/sample.ts",
       "content": "import { model } from \"@medusajs/framework/utils\"\n\nconst Sample = model.define(\"sample\", {\n  id: model.id().primaryKey(),\n  name: model.text(),\n})\n\nexport default Sample\n",
-      "type": "registry:module"
+      "type": "registry:api"
     },
     {
       "path": "block-2/links/product-sample.ts",
       "content": "import { defineLink } from \"@medusajs/framework/utils\"\nimport ProductModule from \"@medusajs/medusa/product\"\nimport SampleModule from \"../modules/sample\"\n\nexport default defineLink(\n  ProductModule.linkable.product,\n  SampleModule.linkable.sample\n)\n",
-      "type": "registry:link"
+      "type": "registry:api"
     },
     {
       "path": "block-2/workflows/hello-world/hello-world.ts",
       "content": "import {\n  createStep,\n  createWorkflow,\n  WorkflowResponse,\n  StepResponse,\n} from \"@medusajs/framework/workflows-sdk\"\n\nconst step1 = createStep(\"step-1\", async () => {\n  return new StepResponse(`Hello from step one!`)\n})\n\ntype WorkflowInput = {\n  name: string\n}\n\nconst step2 = createStep(\n  \"step-2\",\n  async ({ name }: WorkflowInput) => {\n    return new StepResponse(`Hello ${name} from step two!`)\n  }\n)\n\ntype WorkflowOutput = {\n  message1: string\n  message2: string\n}\n\nconst helloWorldWorkflow = createWorkflow(\n  \"hello-world\",\n  (input: WorkflowInput) => {\n    const greeting1 = step1()\n    const greeting2 = step2(input)\n\n    return new WorkflowResponse({\n      message1: greeting1,\n      message2: greeting2,\n    })\n  }\n)\n\nexport default helloWorldWorkflow\n",
-      "type": "registry:workflow"
+      "type": "registry:api"
     },
     {
       "path": "block-2/api/hello/workflow/route.ts",

@@ -397,6 +397,7 @@
   },
   "products": {
     "domain": "Prekės",
+    "additionalAttributes": "Papildomi atributai",
     "list": {
       "noRecordsMessage": "Sukurkite pirmą savo prekę, kad pradėtumėte parduoti."
     },
@@ -1116,15 +1117,23 @@
     "edit": {
       "email": {
         "title": "Keisti el. paštą",
-        "requestSuccess": "Užsakymo el. paštas pakeitas į {{email}}."
+        "requestSuccess": "El. paštas sėkmingai atnaujintas."
       },
       "shippingAddress": {
         "title": "Keisti pristatymo adresą",
-        "requestSuccess": "Užsakymo pristatymo adresas pakeistas."
+        "requestSuccess": "Užsakymo pristatymo adresas pakeistas.",
+        "validation": {
+          "addressRequired": "Prašome įvesti adresą",
+          "countryRequired": "Prašome pasirinkti šalį"
+        }
       },
       "billingAddress": {
         "title": "Keisti adresą sąskaitai",
-        "requestSuccess": "Užsakymo adresas sąskaitai pakeistas."
+        "requestSuccess": "Užsakymo adresas sąskaitai pakeistas.",
+        "validation": {
+          "addressRequired": "Prašome įvesti adresą",
+          "countryRequired": "Prašome pasirinkti šalį"
+        }
       }
     },
     "returns": {
@@ -2082,6 +2091,10 @@
         "across": {
           "title": "Visoms",
           "description": "Taikoma visoms prekėms"
+        },
+        "once": {
+          "title": "Kartą",
+          "description": "Riboti nuolaidą iki maks. kiekio"
         }
       },
       "code": {
@@ -2244,7 +2257,8 @@
       "header": "Prekės",
       "actions": {
         "addProducts": "Pridėti prekes",
-        "editPrices": "Keisti prices"
+        "editPrices": "Keisti prices",
+        "editPricesDisabled": "Pridėkite prekes prieš keisdami kainas"
       },
       "delete": {
         "confirmation_one": "Ketinate pašalinti kainas {{count}} prekei kainoraštyje. Šis veiksmas neatstatomas.",
@@ -2656,7 +2670,10 @@
         "placeholder": "klaidingas_dydis",
         "tooltip": "Vertė turėtų būti unikalus grąžinimo priežasties identifikatorius."
       },
-      "label": { "label": "Antraštė", "placeholder": "Klaidingas dydis" },
+      "label": {
+        "label": "Antraštė",
+        "placeholder": "Klaidingas dydis"
+      },
       "description": {
         "label": "Aprašymas",
         "placeholder": "Klientas gavo netinkamą dydį"

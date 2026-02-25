@@ -12,11 +12,11 @@ import {
   useNavigation,
 } from "react-router-dom"
 
-import components from "virtual:mercur/components"
 import { KeybindProvider } from "../../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useSidebar } from "../../../providers/sidebar-provider"
 import { ProgressBar } from "../../common/progress-bar"
+import { Notifications } from "../notifications"
 
 export const Shell = ({ children }: PropsWithChildren) => {
   const globalShortcuts = useGlobalShortcuts()
@@ -192,8 +192,6 @@ const ToggleSidebar = () => {
 }
 
 const Topbar = () => {
-  const TopbarActions = components.TopbarActions
-
   return (
     <div className="grid w-full grid-cols-2 border-b p-3">
       <div className="flex items-center gap-x-1.5">
@@ -201,7 +199,7 @@ const Topbar = () => {
         <Breadcrumbs />
       </div>
       <div className="flex items-center justify-end gap-x-3">
-        {TopbarActions && <TopbarActions />}
+        <Notifications />
       </div>
     </div>
   )

@@ -1,60 +1,61 @@
-import { Kbd, Text, clx } from "@medusajs/ui"
-import { Collapsible as RadixCollapsible } from "radix-ui"
 import {
   PropsWithChildren,
   ReactNode,
   useCallback,
   useEffect,
   useState,
-} from "react"
-import { useTranslation } from "react-i18next"
-import { NavLink, useLocation } from "react-router-dom"
-import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
-import { ConditionalTooltip } from "../../common/conditional-tooltip"
+} from "react";
 
-type ItemType = "core" | "extension" | "setting"
+import { Kbd, Text, clx } from "@medusajs/ui";
+
+import { Collapsible as RadixCollapsible } from "radix-ui";
+import { useTranslation } from "react-i18next";
+import { NavLink, useLocation } from "react-router-dom";
+
+import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks";
+import { ConditionalTooltip } from "../../common/conditional-tooltip";
+
+type ItemType = "core" | "extension" | "setting";
 
 type NestedItemProps = {
-  label: string
-  to: string
-  translationNs?: string
-}
+  label: string;
+  to: string;
+};
 
 export type INavItem = {
-  icon?: ReactNode
-  label: string
-  to: string
-  items?: NestedItemProps[]
-  type?: ItemType
-  from?: string
-  nested?: string
-  translationNs?: string
-}
+  icon?: ReactNode;
+  label: string;
+  to: string;
+  items?: NestedItemProps[];
+  type?: ItemType;
+  from?: string;
+  nested?: string;
+};
 
 const BASE_NAV_LINK_CLASSES =
-  "text-ui-fg-subtle transition-fg hover:bg-ui-bg-subtle-hover flex items-center gap-x-2 rounded-md py-0.5 pl-0.5 pr-2 outline-none [&>svg]:text-ui-fg-subtle focus-visible:shadow-borders-focus"
+  "text-ui-fg-subtle transition-fg hover:bg-ui-bg-subtle-hover flex items-center gap-x-2 rounded-md py-0.5 pl-0.5 pr-2 outline-none [&>svg]:text-ui-fg-subtle focus-visible:shadow-borders-focus";
 const ACTIVE_NAV_LINK_CLASSES =
-  "bg-ui-bg-base shadow-elevation-card-rest text-ui-fg-base hover:bg-ui-bg-base"
-const NESTED_NAV_LINK_CLASSES = "pl-[34px] pr-2 py-1 w-full text-ui-fg-muted"
-const SETTING_NAV_LINK_CLASSES = "pl-2 py-1"
+  "bg-ui-bg-base shadow-elevation-card-rest text-ui-fg-base hover:bg-ui-bg-base";
+const NESTED_NAV_LINK_CLASSES = "pl-[34px] pr-2 py-1 w-full text-ui-fg-muted";
+const SETTING_NAV_LINK_CLASSES = "pl-2 py-1";
 
 const getIsOpen = (
   to: string,
   items: NestedItemProps[] | undefined,
-  pathname: string
+  pathname: string,
 ) => {
   return [to, ...(items?.map((i) => i.to) ?? [])].some((p) =>
-    pathname.startsWith(p)
-  )
-}
+    pathname.startsWith(p),
+  );
+};
 
 const NavItemTooltip = ({
   to,
   children,
 }: PropsWithChildren<{ to: string }>) => {
-  const { t } = useTranslation()
-  const globalShortcuts = useGlobalShortcuts()
-  const shortcut = globalShortcuts.find((s) => s.to === to)
+  const { t } = useTranslation();
+  const globalShortcuts = useGlobalShortcuts();
+  const shortcut = globalShortcuts.find((s) => s.to === to);
 
   return (
     <ConditionalTooltip
@@ -68,7 +69,7 @@ const NavItemTooltip = ({
               <div className="flex items-center gap-x-1" key={index}>
                 <Kbd key={key}>{key}</Kbd>
                 {index < (shortcut.keys.Mac?.length || 0) - 1 && (
-                  <span className="text-ui-fg-muted txt-compact-xsmall">
+                  <span className="txt-compact-xsmall text-ui-fg-muted">
                     {t("app.keyboardShortcuts.then")}
                   </span>
                 )}
@@ -82,8 +83,8 @@ const NavItemTooltip = ({
     >
       <div className="w-full">{children}</div>
     </ConditionalTooltip>
-  )
-}
+  );
+};
 
 export const NavItem = ({
   icon,
@@ -92,18 +93,13 @@ export const NavItem = ({
   items,
   type = "core",
   from,
-  translationNs,
 }: INavItem) => {
-  const { t } = useTranslation(translationNs as any)
-  const { pathname } = useLocation()
-  const [open, setOpen] = useState(getIsOpen(to, items, pathname))
-
-  // Use translation if translationNs is provided, otherwise use label as-is
-  const displayLabel: string = translationNs ? t(label) : label
+  const { pathname } = useLocation();
+  const [open, setOpen] = useState(getIsOpen(to, items, pathname));
 
   useEffect(() => {
-    setOpen(getIsOpen(to, items, pathname))
-  }, [pathname, to, items])
+    setOpen(getIsOpen(to, items, pathname));
+  }, [pathname, to, items]);
 
   const navLinkClassNames = useCallback(
     ({
@@ -112,28 +108,31 @@ export const NavItem = ({
       isNested = false,
       isSetting = false,
     }: {
-      to: string
-      isActive: boolean
-      isNested?: boolean
-      isSetting?: boolean
+      to: string;
+      isActive: boolean;
+      isNested?: boolean;
+      isSetting?: boolean;
     }) => {
       if (["core", "setting"].includes(type)) {
-        isActive = pathname.startsWith(to)
+        isActive = pathname.startsWith(to);
       }
 
       return clx(BASE_NAV_LINK_CLASSES, {
         [NESTED_NAV_LINK_CLASSES]: isNested,
         [ACTIVE_NAV_LINK_CLASSES]: isActive,
         [SETTING_NAV_LINK_CLASSES]: isSetting,
-      })
+      });
     },
-    [type, pathname]
-  )
+    [type, pathname],
+  );
 
-  const isSetting = type === "setting"
+  const isSetting = type === "setting";
 
   return (
-    <div className="px-3">
+    <div
+      className="px-3"
+      data-testid={`sidebar-nav-item-${to.replace(/\//g, "-").replace(/^-/, "")}`}
+    >
       <NavItemTooltip to={to}>
         <NavLink
           to={to}
@@ -148,8 +147,9 @@ export const NavItem = ({
           className={({ isActive }) => {
             return clx(navLinkClassNames({ isActive, isSetting, to }), {
               "max-lg:hidden": !!items?.length,
-            })
+            });
           }}
+          data-testid={`sidebar-nav-link-${to.replace(/\//g, "-").replace(/^-/, "")}`}
         >
           {type !== "setting" && (
             <div className="flex size-6 items-center justify-center">
@@ -157,7 +157,7 @@ export const NavItem = ({
             </div>
           )}
           <Text size="small" weight="plus" leading="compact">
-            {displayLabel}
+            {label}
           </Text>
         </NavLink>
       </NavItemTooltip>
@@ -165,19 +165,22 @@ export const NavItem = ({
         <RadixCollapsible.Root open={open} onOpenChange={setOpen}>
           <RadixCollapsible.Trigger
             className={clx(
-              "text-ui-fg-subtle hover:text-ui-fg-base transition-fg hover:bg-ui-bg-subtle-hover flex w-full items-center gap-x-2 rounded-md py-0.5 pl-0.5 pr-2 outline-none lg:hidden",
-              { "pl-2": isSetting }
+              "flex w-full items-center gap-x-2 rounded-md py-0.5 pl-0.5 pr-2 text-ui-fg-subtle outline-none transition-fg hover:bg-ui-bg-subtle-hover hover:text-ui-fg-base lg:hidden",
+              { "pl-2": isSetting },
             )}
           >
             <div className="flex size-6 items-center justify-center">
               <Icon icon={icon} type={type} />
             </div>
             <Text size="small" weight="plus" leading="compact">
-              {displayLabel}
+              {label}
             </Text>
           </RadixCollapsible.Trigger>
           <RadixCollapsible.Content>
-            <div className="flex flex-col gap-y-0.5 pb-2 pt-0.5">
+            <div
+              className="flex flex-col gap-y-0.5 pb-2 pt-0.5"
+              data-testid={`sidebar-nav-nested-items-${to.replace(/\//g, "-").replace(/^-/, "")}`}
+            >
               <ul className="flex flex-col gap-y-0.5">
                 <li className="flex w-full items-center gap-x-1 lg:hidden">
                   <NavItemTooltip to={to}>
@@ -191,20 +194,18 @@ export const NavItem = ({
                             isActive,
                             isSetting,
                             isNested: true,
-                          })
-                        )
+                          }),
+                        );
                       }}
+                      data-testid={`sidebar-nav-link-nested-${to.replace(/\//g, "-").replace(/^-/, "")}`}
                     >
                       <Text size="small" weight="plus" leading="compact">
-                        {displayLabel}
+                        {label}
                       </Text>
                     </NavLink>
                   </NavItemTooltip>
                 </li>
                 {items.map((item) => {
-                  const { t: itemT } = useTranslation(item.translationNs as any)
-                  const itemLabel: string = item.translationNs ? itemT(item.label) : item.label
-
                   return (
                     <li key={item.to} className="flex h-7 items-center">
                       <NavItemTooltip to={item.to}>
@@ -218,17 +219,18 @@ export const NavItem = ({
                                 isActive,
                                 isSetting,
                                 isNested: true,
-                              })
-                            )
+                              }),
+                            );
                           }}
+                          data-testid={`sidebar-nav-link-nested-${item.to.replace(/\//g, "-").replace(/^-/, "")}`}
                         >
                           <Text size="small" weight="plus" leading="compact">
-                            {itemLabel}
+                            {item.label}
                           </Text>
                         </NavLink>
                       </NavItemTooltip>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             </div>
@@ -236,19 +238,19 @@ export const NavItem = ({
         </RadixCollapsible.Root>
       )}
     </div>
-  )
-}
+  );
+};
 
 const Icon = ({ icon, type }: { icon?: ReactNode; type: ItemType }) => {
   if (!icon) {
-    return null
+    return null;
   }
 
   return type === "extension" ? (
-    <div className="shadow-borders-base bg-ui-bg-base flex h-5 w-5 items-center justify-center rounded-[4px]">
+    <div className="flex h-5 w-5 items-center justify-center rounded-[4px] bg-ui-bg-base shadow-borders-base">
       <div className="h-[15px] w-[15px] overflow-hidden rounded-sm">{icon}</div>
     </div>
   ) : (
     icon
-  )
-}
+  );
+};

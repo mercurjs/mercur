@@ -1,5 +1,7 @@
 import { InitOptions } from "i18next"
 
+import translations from "./translations"
+
 export const defaultI18nOptions: InitOptions = {
   debug: process.env.NODE_ENV === "development",
   detection: {
@@ -9,8 +11,9 @@ export const defaultI18nOptions: InitOptions = {
     order: ["cookie", "localStorage", "header"],
   },
   fallbackLng: "en",
-  fallbackNS: "translation",
   interpolation: {
     escapeValue: false,
-  }
+  },
+  resources: translations,
+  supportedLngs: Object.keys(translations),
 }

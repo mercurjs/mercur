@@ -1,7 +1,7 @@
-import { Outlet } from "react-router-dom"
-import { JsonViewSection } from "../../../common/json-view-section"
-import { MetadataSection } from "../../../common/metadata-section"
-import { PageProps } from "../types"
+import { Outlet } from "react-router-dom";
+import { JsonViewSection } from "../../../common/json-view-section";
+import { MetadataSection } from "../../../common/metadata-section";
+import { PageProps } from "../types";
 
 export const SingleColumnPage = <TData,>({
   children,
@@ -25,21 +25,21 @@ export const SingleColumnPage = <TData,>({
   if (showJSON && !data) {
     if (process.env.NODE_ENV === "development") {
       console.warn(
-        "`showJSON` is true but no data is provided. To display JSON, provide data prop."
-      )
+        "`showJSON` is true but no data is provided. To display JSON, provide data prop.",
+      );
     }
 
-    showJSON = false
+    showJSON = false;
   }
 
   if (showMetadata && !data) {
     if (process.env.NODE_ENV === "development") {
       console.warn(
-        "`showMetadata` is true but no data is provided. To display metadata, provide data prop."
-      )
+        "`showMetadata` is true but no data is provided. To display metadata, provide data prop.",
+      );
     }
 
-    showMetadata = false
+    showMetadata = false;
   }
 
   return (
@@ -49,5 +49,5 @@ export const SingleColumnPage = <TData,>({
       {showJSON && <JsonViewSection data={data!} />}
       {hasOutlet && <Outlet />}
     </div>
-  )
-}
+  );
+};

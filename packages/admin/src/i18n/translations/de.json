@@ -383,6 +383,7 @@
   },
   "products": {
     "domain": "Produkte",
+    "additionalAttributes": "Zusätzliche Attribute",
     "list": {
       "noRecordsMessage": "Erstellen Sie Ihr erstes Produkt, um mit dem Verkauf zu beginnen."
     },
@@ -1016,6 +1017,20 @@
         "quantityLowerThanFulfillment": "Die Menge kann nicht kleiner oder gleich der erfüllten Menge sein"
       }
     },
+    "edit": {
+      "email": {
+        "title": "E-Mail bearbeiten",
+        "requestSuccess": "E-Mail wurde erfolgreich aktualisiert."
+      },
+      "shippingAddress": {
+        "title": "Lieferadresse bearbeiten",
+        "requestSuccess": "Lieferadresse der Bestellung wurde aktualisiert."
+      },
+      "billingAddress": {
+        "title": "Rechnungsadresse bearbeiten",
+        "requestSuccess": "Rechnungsadresse der Bestellung wurde aktualisiert."
+      }
+    },
     "returns": {
       "create": "Retoure erstellen",
       "confirm": "Bestätigen Sie die Rückgabe",
@@ -1321,6 +1336,24 @@
       "displayId": "Anzeige-ID",
       "refundableAmount": "Rückerstattungsbetrag",
       "returnableQuantity": "Rückgabemenge"
+    },
+    "edit": {
+      "email": {
+        "title": "E-Mail bearbeiten",
+        "requestSuccess": "Bestellungs-E-Mail aktualisiert auf {{email}}."
+      },
+      "shippingAddress": {
+        "title": "Lieferadresse bearbeiten",
+        "requestSuccess": "Lieferadresse der Bestellung aktualisiert.",
+        "validation": {
+          "addressRequired": "Bitte geben Sie eine Adresse ein",
+          "countryRequired": "Bitte wählen Sie ein Land aus"
+        }
+      },
+      "billingAddress": {
+        "title": "Rechnungsadresse bearbeiten",
+        "requestSuccess": "Rechnungsadresse der Bestellung aktualisiert."
+      }
     }
   },
   "draftOrders": {
@@ -1897,6 +1930,10 @@
         "across": {
           "title": "Über",
           "description": "Wendet den Wert auf alle Elemente an"
+        },
+        "once": {
+          "title": "Einmal",
+          "description": "Rabatt auf maximale Menge begrenzen"
         }
       },
       "code": {
@@ -2059,7 +2096,8 @@
       "header": "Produkte",
       "actions": {
         "addProducts": "Produkte hinzufügen",
-        "editPrices": "Preise bearbeiten"
+        "editPrices": "Preise bearbeiten",
+        "editPricesDisabled": "Produkte hinzufügen, bevor Sie Preise bearbeiten"
       },
       "delete": {
         "confirmation_one": "Sie sind dabei, die Preise für {{count}} Produkt in der Preisliste zu löschen. Diese Aktion kann nicht rückgängig gemacht werden.",

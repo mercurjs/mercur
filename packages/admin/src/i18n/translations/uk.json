@@ -384,6 +384,7 @@
   },
   "products": {
     "domain": "Продукти",
+    "additionalAttributes": "Додаткові атрибути",
     "list": {
       "noRecordsMessage": "Створіть перший продукт, щоб почати продавати."
     },
@@ -1025,15 +1026,23 @@
     "edit": {
       "email": {
         "title": "Редагувати email",
-        "requestSuccess": "Email замовлення оновлено на {{email}}."
+        "requestSuccess": "Email було успішно оновлено."
       },
       "shippingAddress": {
         "title": "Редагувати адресу доставки",
-        "requestSuccess": "Адреса доставки замовлення оновлена."
+        "requestSuccess": "Адреса доставки замовлення оновлена.",
+        "validation": {
+          "addressRequired": "Будь ласка, введіть адресу",
+          "countryRequired": "Будь ласка, виберіть країну"
+        }
       },
       "billingAddress": {
         "title": "Редагувати адресу для рахунку",
-        "requestSuccess": "Адреса для рахунку замовлення оновлена."
+        "requestSuccess": "Адреса для рахунку замовлення оновлена.",
+        "validation": {
+          "addressRequired": "Будь ласка, введіть адресу",
+          "countryRequired": "Будь ласка, виберіть країну"
+        }
       }
     },
     "returns": {
@@ -1958,6 +1967,10 @@
         "across": {
           "title": "По всьому",
           "description": "Застосовує значення до всіх товарів"
+        },
+        "once": {
+          "title": "Одноразово",
+          "description": "Обмежити знижку до макс. кількості"
         }
       },
       "code": {
@@ -2120,7 +2133,8 @@
       "header": "Продукти",
       "actions": {
         "addProducts": "Додати продукти",
-        "editPrices": "Редагувати ціни"
+        "editPrices": "Редагувати ціни",
+        "editPricesDisabled": "Додайте продукти перед редагуванням цін"
       },
       "delete": {
         "confirmation_one": "Ви збираєтесь видалити ціни для {{count}} продукту в ціновому списку. Цю дію неможливо скасувати.",
@@ -2509,7 +2523,10 @@
         "placeholder": "неправильний_розмір",
         "tooltip": "Значення має бути унікальним ідентифікатором для причини повернення."
       },
-      "label": { "label": "Мітка", "placeholder": "Неправильний розмір" },
+      "label": {
+        "label": "Мітка",
+        "placeholder": "Неправильний розмір"
+      },
       "description": {
         "label": "Опис",
         "placeholder": "Клієнт отримав неправильний розмір"

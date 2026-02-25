@@ -397,6 +397,7 @@
   },
   "products": {
     "domain": "产品",
+    "additionalAttributes": "附加属性",
     "list": {
       "noRecordsMessage": "创建您的第一个产品以开始销售。"
     },
@@ -965,7 +966,7 @@
   "customerGroups": {
     "domain": "客户群组",
     "subtitle": "将客户组织成群组。群组可以有不同的促销和价格。",
-   "list": {
+    "list": {
       "empty": {
         "heading": "暂无客户组",
         "description": "当前没有可显示的客户组。"
@@ -1118,15 +1119,23 @@
     "edit": {
       "email": {
         "title": "编辑邮箱",
-        "requestSuccess": "订单邮箱已更新为 {{email}}。"
+        "requestSuccess": "邮箱已成功更新。"
       },
       "shippingAddress": {
         "title": "编辑配送地址",
-        "requestSuccess": "订单配送地址已更新。"
+        "requestSuccess": "订单配送地址已更新。",
+        "validation": {
+          "addressRequired": "请输入地址",
+          "countryRequired": "请选择国家"
+        }
       },
       "billingAddress": {
         "title": "编辑账单地址",
-        "requestSuccess": "订单账单地址已更新。"
+        "requestSuccess": "订单账单地址已更新。",
+        "validation": {
+          "addressRequired": "请输入地址",
+          "countryRequired": "请选择国家"
+        }
       }
     },
     "returns": {
@@ -1997,7 +2006,7 @@
     "toasts": {
       "promotionCreateSuccess": "促销活动 ({{code}}) 创建成功。"
     },
-    "create": { },
+    "create": {},
     "edit": {
       "title": "编辑促销详情",
       "rules": {
@@ -2093,6 +2102,10 @@
         "across": {
           "title": "跨商品",
           "description": "跨商品应用价值"
+        },
+        "once": {
+          "title": "一次",
+          "description": "将折扣限制在最大数量内"
         }
       },
       "code": {
@@ -2255,7 +2268,8 @@
       "header": "产品",
       "actions": {
         "addProducts": "添加产品",
-        "editPrices": "编辑价格"
+        "editPrices": "编辑价格",
+        "editPricesDisabled": "编辑价格前请先添加产品"
       },
       "delete": {
         "confirmation_one": "您即将删除价格列表中 {{count}} 个产品的价格。此操作无法撤销。",
@@ -2666,7 +2680,10 @@
         "placeholder": "wrong_size",
         "tooltip": "值应该是退货原因的唯一标识符。"
       },
-      "label": { "label": "标签", "placeholder": "错误尺寸" },
+      "label": {
+        "label": "标签",
+        "placeholder": "错误尺寸"
+      },
       "description": {
         "label": "描述",
         "placeholder": "客户收到错误尺寸"

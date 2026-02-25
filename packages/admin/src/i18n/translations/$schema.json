@@ -8,9 +8,6 @@
     "general": {
       "type": "object",
       "properties": {
-        "fullList": {
-          "type": "string"
-        },
         "ascending": {
           "type": "string"
         },
@@ -39,9 +36,6 @@
           "type": "string"
         },
         "search": {
-          "type": "string"
-        },
-        "original": {
           "type": "string"
         },
         "of": {
@@ -80,12 +74,6 @@
         "select": {
           "type": "string"
         },
-        "unselectAll": {
-          "type": "string"
-        },
-        "selectAll": {
-          "type": "string"
-        },
         "selected": {
           "type": "string"
         },
@@ -114,9 +102,6 @@
           "type": "string"
         },
         "removed": {
-          "type": "string"
-        },
-        "remaining": {
           "type": "string"
         },
         "admin": {
@@ -199,7 +184,6 @@
         "ascending",
         "descending",
         "add",
-        "fullList",
         "start",
         "end",
         "open",
@@ -207,7 +191,6 @@
         "apply",
         "range",
         "search",
-        "original",
         "of",
         "results",
         "pages",
@@ -220,8 +203,6 @@
         "tip",
         "error",
         "select",
-        "selectAll",
-        "unselectAll",
         "selected",
         "enabled",
         "disabled",
@@ -232,7 +213,6 @@
         "modified",
         "added",
         "removed",
-        "remaining",
         "admin",
         "store",
         "details",
@@ -401,12 +381,6 @@
         "save": {
           "type": "string"
         },
-        "saveChanges": {
-          "type": "string"
-        },
-        "saveAndClose": {
-          "type": "string"
-        },
         "saveAsDraft": {
           "type": "string"
         },
@@ -476,12 +450,6 @@
         "idCopiedToClipboard": {
           "type": "string"
         },
-        "editVariantImages": {
-          "type": "string"
-        },
-        "editImages": {
-          "type": "string"
-        },
         "addReason": {
           "type": "string"
         },
@@ -539,9 +507,7 @@
       },
       "required": [
         "save",
-        "saveChanges",
         "saveAsDraft",
-        "saveAndClose",
         "copy",
         "copied",
         "duplicate",
@@ -564,8 +530,6 @@
         "continue",
         "continueWithEmail",
         "idCopiedToClipboard",
-        "editVariantImages",
-        "editImages",
         "addReason",
         "addNote",
         "reset",
@@ -1196,16 +1160,6 @@
         "searchLabel": {
           "type": "string"
         },
-        "collapse": {
-          "type": "object",
-          "properties": {
-            "all": {
-              "type": "string"
-            }
-          },
-          "required": ["all"],
-          "additionalProperties": false
-        },
         "date": {
           "type": "object",
           "properties": {
@@ -1341,7 +1295,6 @@
         "sortLabel",
         "filterLabel",
         "searchLabel",
-        "collapse",
         "date",
         "compare",
         "sorting",
@@ -1569,6 +1522,9 @@
       "type": "object",
       "properties": {
         "domain": {
+          "type": "string"
+        },
+        "additionalAttributes": {
           "type": "string"
         },
         "list": {
@@ -1959,9 +1915,6 @@
             "editHint": {
               "type": "string"
             },
-            "manageImageVariants": {
-              "type": "string"
-            },
             "makeThumbnail": {
               "type": "string"
             },
@@ -1972,9 +1925,6 @@
               "type": "string"
             },
             "invalidFileType": {
-              "type": "string"
-            },
-            "fileTooLarge": {
               "type": "string"
             },
             "failedToUpload": {
@@ -2022,32 +1972,15 @@
             },
             "successToast": {
               "type": "string"
-            },
-            "variantImages": {
-              "type": "string"
-            },
-            "showAvailableImages": {
-              "type": "string"
-            },
-            "availableImages": {
-              "type": "string"
-            },
-            "selectToAdd": {
-              "type": "string"
-            },
-            "removeSelected": {
-              "type": "string"
             }
           },
           "required": [
             "label",
             "editHint",
-            "manageImageVariants",
             "makeThumbnail",
             "uploadImagesLabel",
             "uploadImagesHint",
             "invalidFileType",
-            "fileTooLarge",
             "failedToUpload",
             "deleteWarning_one",
             "deleteWarning_other",
@@ -2058,57 +1991,7 @@
             "downloadImageLabel",
             "deleteImageLabel",
             "emptyState",
-            "successToast",
-            "variantImages",
-            "showAvailableImages",
-            "availableImages",
-            "selectToAdd",
-            "removeSelected"
-          ],
-          "additionalProperties": false
-        },
-        "variantMedia": {
-          "type": "object",
-          "properties": {
-            "label": {
-              "type": "string"
-            },
-            "manageVariants": {
-              "type": "string"
-            },
-            "addToMultipleVariants": {
-              "type": "string"
-            },
-            "manageVariantsDescription": {
-              "type": "string"
-            },
-            "successToast": {
-              "type": "string"
-            },
-            "emptyState": {
-              "type": "object",
-              "properties": {
-                "header": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "action": {
-                  "type": "string"
-                }
-              },
-              "required": ["header", "description", "action"],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "label",
-            "manageVariants",
-            "addToMultipleVariants",
-            "manageVariantsDescription",
-            "successToast",
-            "emptyState"
+            "successToast"
           ],
           "additionalProperties": false
         },
@@ -2844,6 +2727,7 @@
       },
       "required": [
         "domain",
+        "additionalAttributes",
         "list",
         "edit",
         "create",
@@ -2856,7 +2740,6 @@
         "editOptions",
         "editPrices",
         "media",
-        "variantMedia",
         "discountableHint",
         "noSalesChannels",
         "variantCount_one",
@@ -3337,9 +3220,16 @@
                 },
                 "quantityOutOfRange": {
                   "type": "string"
+                },
+                "idRequired": {
+                  "type": "string"
                 }
               },
-              "required": ["noAvaliableQuantity", "quantityOutOfRange"],
+              "required": [
+                "noAvaliableQuantity",
+                "quantityOutOfRange",
+                "idRequired"
+              ],
               "additionalProperties": false
             }
           },
@@ -4088,45 +3978,6 @@
           "required": ["noRecordsMessage"],
           "additionalProperties": false
         },
-        "export": {
-          "type": "object",
-          "properties": {
-            "header": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "success": {
-              "type": "object",
-              "properties": {
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                }
-              },
-              "required": ["title", "description"],
-              "additionalProperties": false
-            },
-            "filters": {
-              "type": "object",
-              "properties": {
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                }
-              },
-              "required": ["title", "description"],
-              "additionalProperties": false
-            }
-          },
-          "required": ["header", "description", "success", "filters"],
-          "additionalProperties": false
-        },
         "status": {
           "type": "object",
           "properties": {
@@ -4447,6 +4298,9 @@
             "createSuccessToast": {
               "type": "string"
             },
+            "duplicateItemErrorToast": {
+              "type": "string"
+            },
             "activeChangeError": {
               "type": "string"
             },
@@ -4504,6 +4358,7 @@
             "noteHint",
             "cancelSuccessToast",
             "createSuccessToast",
+            "duplicateItemErrorToast",
             "activeChangeError",
             "panel",
             "toast",
@@ -4535,9 +4390,22 @@
                 },
                 "requestSuccess": {
                   "type": "string"
+                },
+                "validation": {
+                  "type": "object",
+                  "properties": {
+                    "addressRequired": {
+                      "type": "string"
+                    },
+                    "countryRequired": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["addressRequired", "countryRequired"],
+                  "additionalProperties": false
                 }
               },
-              "required": ["title", "requestSuccess"],
+              "required": ["title", "requestSuccess", "validation"],
               "additionalProperties": false
             },
             "billingAddress": {
@@ -4548,9 +4416,22 @@
                 },
                 "requestSuccess": {
                   "type": "string"
+                },
+                "validation": {
+                  "type": "object",
+                  "properties": {
+                    "addressRequired": {
+                      "type": "string"
+                    },
+                    "countryRequired": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["addressRequired", "countryRequired"],
+                  "additionalProperties": false
                 }
               },
-              "required": ["title", "requestSuccess"],
+              "required": ["title", "requestSuccess", "validation"],
               "additionalProperties": false
             }
           },
@@ -4986,15 +4867,6 @@
             "refundAmount": {
               "type": "string"
             },
-            "carryOverPromotion": {
-              "type": "string"
-            },
-            "carryOverPromotionHint": {
-              "type": "string"
-            },
-            "carryOverPromotionTooltip": {
-              "type": "string"
-            },
             "activeChangeError": {
               "type": "string"
             },
@@ -5076,9 +4948,6 @@
             "outboundShipping",
             "outboundShippingHint",
             "refundAmount",
-            "carryOverPromotion",
-            "carryOverPromotionHint",
-            "carryOverPromotionTooltip",
             "activeChangeError",
             "actions",
             "cancel",
@@ -5175,12 +5044,6 @@
             "trackingNumber": {
               "type": "string"
             },
-            "trackingUrl": {
-              "type": "string"
-            },
-            "labelUrl": {
-              "type": "string"
-            },
             "addTracking": {
               "type": "string"
             },
@@ -5197,8 +5060,6 @@
           "required": [
             "title",
             "trackingNumber",
-            "trackingUrl",
-            "labelUrl",
             "addTracking",
             "sendNotification",
             "sendNotificationHint",
@@ -5818,7 +5679,6 @@
         "orderCanceled",
         "onDateFromSalesChannel",
         "list",
-        "export",
         "status",
         "summary",
         "transfer",
@@ -5881,32 +5741,6 @@
             }
           },
           "required": ["open", "completed"],
-          "additionalProperties": false
-        },
-        "list": {
-          "type": "object",
-          "properties": {
-            "description": {
-              "type": "string"
-            },
-            "noRecordsMessage": {
-              "type": "string"
-            },
-            "filtered": {
-              "type": "object",
-              "properties": {
-                "heading": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                }
-              },
-              "required": ["heading", "description"],
-              "additionalProperties": false
-            }
-          },
-          "required": ["description", "noRecordsMessage", "filtered"],
           "additionalProperties": false
         },
         "create": {
@@ -7776,9 +7610,6 @@
             "allocation": {
               "type": "string"
             },
-            "allocationTooltip": {
-              "type": "string"
-            },
             "addCondition": {
               "type": "string"
             },
@@ -7786,12 +7617,6 @@
               "type": "string"
             },
             "taxInclusive": {
-              "type": "string"
-            },
-            "usageLimit": {
-              "type": "string"
-            },
-            "usage": {
               "type": "string"
             },
             "amount": {
@@ -7891,12 +7716,9 @@
             "campaign",
             "method",
             "allocation",
-            "allocationTooltip",
             "addCondition",
             "clearAll",
             "taxInclusive",
-            "usageLimit",
-            "usage",
             "amount",
             "conditions"
           ],
@@ -8343,19 +8165,6 @@
               },
               "required": ["fixed", "percentage"],
               "additionalProperties": false
-            },
-            "limit": {
-              "type": "object",
-              "properties": {
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                }
-              },
-              "required": ["title", "description"],
-              "additionalProperties": false
             }
           },
           "required": [
@@ -8371,8 +8180,7 @@
             "allocation",
             "code",
             "value",
-            "value_type",
-            "limit"
+            "value_type"
           ],
           "additionalProperties": false
         },
@@ -8591,19 +8399,6 @@
         "budget": {
           "type": "object",
           "properties": {
-            "attribute": {
-              "type": "object",
-              "properties": {
-                "customer_id": {
-                  "type": "string"
-                },
-                "customer_email": {
-                  "type": "string"
-                }
-              },
-              "required": ["customer_id", "customer_email"],
-              "additionalProperties": false
-            },
             "create": {
               "type": "object",
               "properties": {
@@ -8643,12 +8438,6 @@
                 },
                 "totalUsedByAttribute": {
                   "type": "string"
-                },
-                "totalUsedByAttributeCustomerId": {
-                  "type": "string"
-                },
-                "totalUsedByAttributeEmail": {
-                  "type": "string"
                 }
               },
               "required": [
@@ -8658,9 +8447,7 @@
                 "used",
                 "budgetAttribute",
                 "budgetAttributeTooltip",
-                "totalUsedByAttribute",
-                "totalUsedByAttributeCustomerId",
-                "totalUsedByAttributeEmail"
+                "totalUsedByAttribute"
               ],
               "additionalProperties": false
             },
@@ -8699,22 +8486,11 @@
                     "title": {
                       "type": "string"
                     },
-                    "titleCustomerId": {
-                      "type": "string"
-                    },
-                    "titleEmail": {
-                      "type": "string"
-                    },
                     "description": {
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "title",
-                    "titleCustomerId",
-                    "titleEmail",
-                    "description"
-                  ],
+                  "required": ["title", "description"],
                   "additionalProperties": false
                 }
               },
@@ -8732,14 +8508,7 @@
               "additionalProperties": false
             }
           },
-          "required": [
-            "attribute",
-            "create",
-            "details",
-            "fields",
-            "type",
-            "edit"
-          ],
+          "required": ["create", "details", "fields", "type", "edit"],
           "additionalProperties": false
         },
         "promotions": {
@@ -8969,9 +8738,12 @@
                 },
                 "editPrices": {
                   "type": "string"
+                },
+                "editPricesDisabled": {
+                  "type": "string"
                 }
               },
-              "required": ["addProducts", "editPrices"],
+              "required": ["addProducts", "editPrices", "editPricesDisabled"],
               "additionalProperties": false
             },
             "delete": {
@@ -9393,136 +9165,6 @@
       ],
       "additionalProperties": false
     },
-    "translations": {
-      "type": "object",
-      "properties": {
-        "domain": {
-          "type": "string"
-        },
-        "subtitle": {
-          "type": "string"
-        },
-        "list": {
-          "type": "object",
-          "properties": {
-            "metrics": {
-              "type": "string"
-            }
-          },
-          "required": ["metrics"]
-        },
-        "settings": {
-            "type": "object",
-            "properties": {
-                "header": {
-                    "type": "string"
-                },
-                "successToast": {
-                    "type": "string"
-                }
-            },
-            "required": ["header", "successToast"],
-            "additionalProperties": false
-        },
-        "actions": {
-          "type": "object",
-          "properties": {
-            "manageLocales": {
-              "type": "string"
-            },
-            "manageEntities": {
-              "type": "string"
-            },
-            "manage": {
-              "type": "string"
-            }
-          },
-          "required": ["manageLocales", "manageEntities", "manage"]
-        },
-        "edit": {
-          "type": "object",
-          "properties": {
-            "successToast": {
-              "type": "string"
-            },
-            "unsavedChanges": {
-              "type": "object",
-              "properties": {
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                }
-              },
-              "required": ["title", "description"]
-            }
-          },
-          "required": ["successToast", "unsavedChanges"]
-        },
-        "bulk": {
-          "type": "object",
-          "properties": {
-            "header": {
-              "type": "string"
-            },
-            "mainColumn": {
-              "type": "string"
-            }
-          },
-          "required": ["header"]
-        },
-        "activeLocales": {
-          "type": "object",
-          "properties": {
-            "heading": {
-              "type": "string"
-            },
-            "subtitle": {
-              "type": "string"
-            },
-            "noLocalesTip": {
-              "type": "string"
-            },
-            "noLocalesTipConfigureAction": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "heading",
-            "subtitle",
-            "noLocalesTip",
-            "noLocalesTipConfigureAction"
-          ]
-        },
-        "completion": {
-          "type": "object",
-          "properties": {
-            "heading": {
-              "type": "string"
-            },
-            "translated": {
-              "type": "string"
-            },
-            "toTranslate": {
-              "type": "string"
-            },
-            "footer": {
-              "type": "string"
-            }
-          },
-          "required": ["heading", "translated", "toTranslate", "footer"]
-        }
-      },
-      "required": [
-        "domain",
-        "actions",
-        "subtitle",
-        "bulk",
-        "completion",
-        "edit"
-      ]
-    },
     "store": {
       "type": "object",
       "properties": {
@@ -9536,9 +9178,6 @@
           "type": "string"
         },
         "defaultCurrency": {
-          "type": "string"
-        },
-        "defaultLocale": {
           "type": "string"
         },
         "defaultRegion": {
@@ -9559,9 +9198,6 @@
         "inviteLinkTemplate": {
           "type": "string"
         },
-        "locales": {
-          "type": "string"
-        },
         "currencies": {
           "type": "string"
         },
@@ -9578,15 +9214,6 @@
           "type": "string"
         },
         "removeCurrencyWarning_other": {
-          "type": "string"
-        },
-        "removeLocaleWarning_one": {
-          "type": "string"
-        },
-        "removeLocaleWarning_other": {
-          "type": "string"
-        },
-        "localeAlreadyAdded": {
           "type": "string"
         },
         "currencyAlreadyAdded": {
@@ -9608,16 +9235,10 @@
             "update": {
               "type": "string"
             },
-            "localesUpdated": {
-              "type": "string"
-            },
             "currenciesUpdated": {
               "type": "string"
             },
             "currenciesRemoved": {
-              "type": "string"
-            },
-            "localesRemoved": {
               "type": "string"
             },
             "updatedTaxInclusivitySuccessfully": {
@@ -9626,10 +9247,8 @@
           },
           "required": [
             "update",
-            "localesUpdated",
             "currenciesUpdated",
             "currenciesRemoved",
-            "localesRemoved",
             "updatedTaxInclusivitySuccessfully"
           ],
           "additionalProperties": false
@@ -9640,24 +9259,19 @@
         "manageYourStoresDetails",
         "editStore",
         "defaultCurrency",
-        "defaultLocale",
         "defaultRegion",
         "defaultSalesChannel",
         "defaultLocation",
         "swapLinkTemplate",
         "paymentLinkTemplate",
         "inviteLinkTemplate",
-        "locales",
         "currencies",
         "addCurrencies",
         "enableTaxInclusivePricing",
         "disableTaxInclusivePricing",
         "removeCurrencyWarning_one",
         "removeCurrencyWarning_other",
-        "removeLocaleWarning_one",
-        "removeLocaleWarning_other",
         "currencyAlreadyAdded",
-        "localeAlreadyAdded",
         "edit",
         "toast"
       ],
@@ -12316,24 +11930,196 @@
       ],
       "additionalProperties": false
     },
-    "auth": {
+    "attributes": {
       "type": "object",
       "properties": {
-        "login": {
+        "domain": {
+          "type": "string"
+        },
+        "create": {
           "type": "object",
           "properties": {
-            "authenticationFailed": {
+            "fillNameWarning": {
               "type": "string"
             },
-            "cloud": {
+            "possibleValuesRequired": {
               "type": "string"
             }
           },
-          "required": ["authenticationFailed", "cloud"],
+          "required": ["fillNameWarning", "possibleValuesRequired"],
           "additionalProperties": false
         }
       },
-      "required": ["login"],
+      "required": ["domain", "create"],
+      "additionalProperties": false
+    },
+    "requests": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "seller": {
+          "type": "string"
+        },
+        "product": {
+          "type": "string"
+        },
+        "review-remove": {
+          "type": "string"
+        },
+        "return": {
+          "type": "string"
+        },
+        "product-collection": {
+          "type": "string"
+        },
+        "product-category": {
+          "type": "string"
+        },
+        "product-tag": {
+          "type": "string"
+        },
+        "product-type": {
+          "type": "string"
+        },
+        "product-update": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "domain",
+        "seller",
+        "product",
+        "review-remove",
+        "return",
+        "product-collection",
+        "product-category",
+        "product-tag",
+        "product-type",
+        "product-update"
+      ],
+      "additionalProperties": false
+    },
+    "sellers": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "address": {
+              "type": "string"
+            },
+            "address_line": {
+              "type": "string"
+            },
+            "postal_code": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "country_code": {
+              "type": "string"
+            },
+            "tax_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "email",
+            "phone",
+            "description",
+            "address",
+            "address_line",
+            "postal_code",
+            "city",
+            "country_code",
+            "tax_id"
+          ],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": ["header", "successToast"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["domain", "fields", "edit"],
+      "additionalProperties": false
+    },
+    "messages": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        }
+      },
+      "required": ["domain"],
+      "additionalProperties": false
+    },
+    "configuration": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        }
+      },
+      "required": ["domain"],
+      "additionalProperties": false
+    },
+    "algolia": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        }
+      },
+      "required": ["domain"],
+      "additionalProperties": false
+    },
+    "commission": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        }
+      },
+      "required": ["domain"],
+      "additionalProperties": false
+    },
+    "commissionLines": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        }
+      },
+      "required": ["domain"],
       "additionalProperties": false
     }
   },
@@ -12393,7 +12179,14 @@
     "fields",
     "dateTime",
     "views",
-    "auth"
+    "attributes",
+    "requests",
+    "sellers",
+    "messages",
+    "configuration",
+    "algolia",
+    "commission",
+    "commissionLines"
   ],
   "additionalProperties": false
 }

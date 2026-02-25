@@ -397,6 +397,7 @@
   },
   "products": {
     "domain": "Termékek",
+    "additionalAttributes": "További attribútumok",
     "list": {
       "noRecordsMessage": "Hozza létre az első terméket"
     },
@@ -1114,15 +1115,23 @@
     "edit": {
       "email": {
         "title": "Email szerkesztése",
-        "requestSuccess": "Email frissítve: {{email}}."
+        "requestSuccess": "Az e-mail sikeresen frissítve lett."
       },
       "shippingAddress": {
         "title": "Szállítási cím szerkesztése",
-        "requestSuccess": "Szállítási cím frissítve."
+        "requestSuccess": "Szállítási cím frissítve.",
+        "validation": {
+          "addressRequired": "Kérjük, adjon meg egy címet",
+          "countryRequired": "Kérjük, válasszon országot"
+        }
       },
       "billingAddress": {
         "title": "Számlázási cím szerkesztése",
-        "requestSuccess": "Számlázási cím frissítve."
+        "requestSuccess": "Számlázási cím frissítve.",
+        "validation": {
+          "addressRequired": "Kérjük, adjon meg egy címet",
+          "countryRequired": "Kérjük, válasszon országot"
+        }
       }
     },
     "returns": {
@@ -2080,6 +2089,10 @@
         "across": {
           "title": "Keresztül",
           "description": "Értéket alkalmaz a tételeken keresztül"
+        },
+        "once": {
+          "title": "Egyszer",
+          "description": "Korlátozza a kedvezményt a max mennyiségre"
         }
       },
       "code": {
@@ -2242,7 +2255,8 @@
       "header": "Termékek",
       "actions": {
         "addProducts": "Termékek hozzáadása",
-        "editPrices": "Árak szerkesztése"
+        "editPrices": "Árak szerkesztése",
+        "editPricesDisabled": "Adja hozzá a termékeket az árak szerkesztése előtt"
       },
       "delete": {
         "confirmation_one": "{{count}} termék árainak törlésére készül az árlistában. Ez a művelet nem vonható vissza.",
@@ -2654,7 +2668,10 @@
         "placeholder": "wrong_size",
         "tooltip": "Az értéknek egyedi azonosítónak kell lennie a visszaküldési okhoz."
       },
-      "label": { "label": "Címke", "placeholder": "Rossz méret" },
+      "label": {
+        "label": "Címke",
+        "placeholder": "Rossz méret"
+      },
       "description": {
         "label": "Leírás",
         "placeholder": "A vásárló rossz méretet kapott"
