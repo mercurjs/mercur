@@ -597,6 +597,107 @@
         "api",
         "vendor"
       ]
+    },
+    {
+      "name": "algolia",
+      "description": "Algolia search integration with product indexing, event-driven sync, and store search API.",
+      "dependencies": [
+        "algoliasearch"
+      ],
+      "registryDependencies": [],
+      "docs": "## Configuration\n\nAdd the algolia module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/algolia',\n    options: {\n      appId: process.env.ALGOLIA_APP_ID,\n      apiKey: process.env.ALGOLIA_API_KEY,\n    },\n  },\n]\n```\n\n## Environment Variables\n\n```\nALGOLIA_APP_ID=your_algolia_app_id\nALGOLIA_API_KEY=your_algolia_admin_api_key\n```\n\n## Middlewares\n\nAdd algolia middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { algoliaMiddlewares } from \"./store/products/search/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...algoliaMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the algolia middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter installing the block, run migrations for the new links:\n\n```bash\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli codegen\n```",
+      "files": [
+        {
+          "path": "algolia/modules/algolia/index.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/modules/algolia/service.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/modules/algolia/types.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/links/seller-fulfillment-set.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/links/seller-service-zone.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/workflows/algolia/steps/sync-algolia-products.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/workflows/algolia/workflows/sync-algolia.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/subscribers/algolia-product-events-bridge.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/subscribers/algolia-products-changed.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/subscribers/algolia-products-deleted.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/subscribers/utils/algolia-product.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/subscribers/algolia-fulfillment-set-changed.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/subscribers/algolia-inventory-item-changed.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/subscribers/algolia-service-zone-changed.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/subscribers/algolia-shipping-option-changed.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/subscribers/algolia-stock-location-changed.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/api/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/api/admin/algolia/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/api/store/products/search/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/api/store/products/search/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "algolia/api/store/products/search/validators.ts",
+          "type": "registry:api"
+        }
+      ],
+      "categories": [
+        "module",
+        "workflow",
+        "api",
+        "link"
+      ]
     }
   ]
 }

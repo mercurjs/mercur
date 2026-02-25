@@ -26,7 +26,8 @@
 		"react-hook-form": "7.49.1",
 		"@hookform/resolvers": "3.4.2",
 		"jsonwebtoken": "9.0.2",
-		"react-jwt": "2.0.0"
+		"react-jwt": "2.0.0",
+		"algoliasearch": "^5.40.0"
 	},
 	"devDependencies": {
 		"@mercurjs/types": "workspace:*",
