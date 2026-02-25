@@ -431,6 +431,7 @@ export type Routes = {
         reviews: typeof import("../../src/reviews/api/admin/reviews/route") & {
             $id: typeof import("../../src/reviews/api/admin/reviews/[id]/route");
         };
+        algolia: typeof import("../../src/algolia/api/admin/algolia/route");
     };
     auth: {
         $actorType: {
@@ -503,6 +504,7 @@ export type Routes = {
         };
         products: typeof import("@medusajs/medusa/api/store/products/route") & {
             $id: typeof import("@medusajs/medusa/api/store/products/[id]/route");
+            search: typeof import("../../src/algolia/api/store/products/search/route");
         };
         regions: typeof import("@medusajs/medusa/api/store/regions/route") & {
             $id: typeof import("@medusajs/medusa/api/store/regions/[id]/route");
@@ -710,6 +712,7 @@ export type Routes = {
         };
         members: typeof import("../../src/team-management/api/vendor/members/route") & {
             $id: typeof import("../../src/team-management/api/vendor/members/[id]/route");
+            me: typeof import("../../src/team-management/api/vendor/members/me/route");
         };
         invites: typeof import("../../src/team-management/api/vendor/invites/route") & {
             accept: typeof import("../../src/team-management/api/vendor/invites/accept/route");
