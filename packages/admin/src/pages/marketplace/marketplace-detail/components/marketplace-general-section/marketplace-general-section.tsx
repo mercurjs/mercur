@@ -8,11 +8,11 @@ import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useSalesChannel, useStockLocation } from "../../../../../hooks/api"
 import { useRegion } from "../../../../../hooks/api/regions"
 
-type StoreGeneralSectionProps = {
+type MarketplaceGeneralSectionProps = {
   store: AdminStore
 }
 
-export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
+export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionProps) => {
   const { t } = useTranslation()
 
   const { region } = useRegion(store.default_region_id!, undefined, {
@@ -39,9 +39,9 @@ export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
     <Container className="divide-y p-0" data-testid="store-general-section-container">
       <div className="flex items-center justify-between px-6 py-4" data-testid="store-general-section-header">
         <div>
-          <Heading data-testid="store-general-section-heading">{t("store.domain")}</Heading>
+          <Heading data-testid="store-general-section-heading">{t("marketplace.domain")}</Heading>
           <Text className="text-ui-fg-subtle" size="small" data-testid="store-general-section-subtitle">
-            {t("store.manageYourStoresDetails")}
+            {t("marketplace.manageMarketplaceDetails")}
           </Text>
         </div>
         <ActionMenu

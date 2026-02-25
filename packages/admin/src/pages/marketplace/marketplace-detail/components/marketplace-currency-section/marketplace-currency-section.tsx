@@ -23,13 +23,13 @@ import { useDataTable } from "../../../../../hooks/use-data-table"
 import { useCurrenciesTableColumns } from "../../../common/hooks/use-currencies-table-columns"
 import { useCurrenciesTableQuery } from "../../../common/hooks/use-currencies-table-query"
 
-type StoreCurrencySectionProps = {
+type MarketplaceCurrencySectionProps = {
   store: HttpTypes.AdminStore
 }
 
 const PAGE_SIZE = 10
 
-export const StoreCurrencySection = ({ store }: StoreCurrencySectionProps) => {
+export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySectionProps) => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
   const { searchParams, raw } = useCurrenciesTableQuery({ pageSize: PAGE_SIZE })

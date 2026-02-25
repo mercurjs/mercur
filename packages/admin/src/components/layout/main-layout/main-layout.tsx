@@ -1,8 +1,6 @@
 import {
-  BottomToTop,
   BuildingStorefront,
   Buildings,
-  ChatBubble,
   CogSixTooth,
   CurrencyDollar,
   EllipsisHorizontal,
@@ -200,9 +198,9 @@ const Header = () => {
               asChild
               data-testid="sidebar-header-dropdown-store-settings"
             >
-              <Link to="/settings/store">
+              <Link to="/settings/marketplace">
                 <BuildingStorefront className="text-ui-fg-subtle" />
-                {t("app.nav.main.storeSettings")}
+                {t("app.nav.main.marketplaceSettings")}
               </Link>
             </DropdownMenu.Item>
             <DropdownMenu.Separator data-testid="sidebar-header-dropdown-separator-2" />

@@ -14,7 +14,7 @@ import { useComboboxData } from "../../../../../hooks/use-combobox-data"
 import { sdk } from "../../../../../lib/client"
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
-type EditStoreFormProps = {
+type EditMarketplaceFormProps = {
   store: HttpTypes.AdminStore
 }
 
@@ -26,7 +26,7 @@ const EditStoreSchema = z.object({
   default_location_id: z.string().optional(),
 })
 
-export const EditStoreForm = ({ store }: EditStoreFormProps) => {
+export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
   const direction = useDocumentDirection()  

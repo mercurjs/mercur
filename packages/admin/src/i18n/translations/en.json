@@ -253,7 +253,8 @@
       },
       "main": {
         "store": "Store",
-        "storeSettings": "Store settings"
+        "storeSettings": "Store settings",
+        "marketplaceSettings": "Marketplace settings"
       },
       "settings": {
         "header": "Settings",
@@ -2462,6 +2463,10 @@
     "deleteUserWarning": "You are about to delete the user {{name}}. This action cannot be undone.",
     "deleteUserSuccess": "User {{name}} deleted successfully",
     "invite": "Invite"
+  },
+  "marketplace": {
+    "domain": "Marketplace",
+    "manageMarketplaceDetails": "Manage your marketplace's details"
   },
   "store": {
     "domain": "Store",

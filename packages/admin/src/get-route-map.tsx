@@ -898,24 +898,24 @@ export function getRouteMap({
                 ],
               },
               {
-                path: "store",
+                path: "marketplace",
                 errorElement: <ErrorBoundary />,
-                lazy: () => import("./pages/store/store-detail"),
+                lazy: () => import("./pages/marketplace/marketplace-detail"),
                 handle: {
-                  breadcrumb: () => t("store.domain"),
+                  breadcrumb: () => t("marketplace.domain"),
                 },
                 children: [
                   {
                     path: "edit",
-                    lazy: () => import("./pages/store/store-edit"),
+                    lazy: () => import("./pages/marketplace/marketplace-edit"),
                   },
                   {
                     path: "currencies",
-                    lazy: () => import("./pages/store/store-add-currencies"),
+                    lazy: () => import("./pages/marketplace/marketplace-add-currencies"),
                   },
                   {
                     path: "metadata/edit",
-                    lazy: () => import("./pages/store/store-metadata"),
+                    lazy: () => import("./pages/marketplace/marketplace-metadata"),
                   },
                 ],
               },

@@ -2,9 +2,9 @@ import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { RouteDrawer } from "../../../components/modals"
 import { useStore } from "../../../hooks/api/store"
-import { EditStoreForm } from "./components/edit-store-form/edit-store-form"
+import { EditMarketplaceForm } from "./components/edit-marketplace-form/edit-marketplace-form"
 
-export const StoreEdit = () => {
+export const MarketplaceEdit = () => {
   const { t } = useTranslation()
   const { store, isPending: isLoading, isError, error } = useStore()
 
@@ -19,7 +19,7 @@ export const StoreEdit = () => {
       <RouteDrawer.Header data-testid="store-edit-header">
         <Heading data-testid="store-edit-heading">{t("store.edit.header")}</Heading>
       </RouteDrawer.Header>
-      {ready && <EditStoreForm store={store} />}
+      {ready && <EditMarketplaceForm store={store} />}
     </RouteDrawer>
   )
 }

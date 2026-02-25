@@ -25,8 +25,8 @@ const useSettingRoutes = (): INavItem[] => {
   return useMemo(
     () => [
       {
-        label: t("store.domain"),
-        to: "/settings/store",
+        label: t("marketplace.domain"),
+        to: "/settings/marketplace",
       },
       {
         label: t("users.domain"),
@@ -61,24 +61,8 @@ const useSettingRoutes = (): INavItem[] => {
         to: "/settings/product-tags",
       },
       {
-        label: t("attributes.domain"),
-        to: "/settings/attributes",
-      },
-      {
-        label: t("configuration.domain"),
-        to: "/settings/configuration",
-      },
-      {
         label: t("stockLocations.domain"),
         to: "/settings/locations",
-      },
-      {
-        label: t("commissionLines.domain"),
-        to: "/settings/commission-lines",
-      },
-      {
-        label: t("commission.domain"),
-        to: "/settings/commission/",
       },
     ],
     [t],
@@ -91,20 +75,12 @@ const useDeveloperRoutes = (): INavItem[] => {
   return useMemo(
     () => [
       {
-        label: t("algolia.domain"),
-        to: "/settings/algolia",
-      },
-      {
         label: t("apiKeyManagement.domain.publishable"),
         to: "/settings/publishable-api-keys",
       },
       {
         label: t("apiKeyManagement.domain.secret"),
         to: "/settings/secret-api-keys",
-      },
-      {
-        label: t("workflowExecutions.domain"),
-        to: "/settings/workflows",
       },
     ],
     [t],

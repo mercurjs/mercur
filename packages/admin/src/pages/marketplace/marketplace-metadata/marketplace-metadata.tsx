@@ -3,7 +3,7 @@ import { RouteDrawer } from "@components/modals"
 import { useStore, useUpdateStore } from "@hooks/api"
 import { ClientError } from "@mercurjs/client"
 
-export const StoreMetadata = () => {
+export const MarketplaceMetadata = () => {
   const { store, isPending, isError, error } = useStore()
 
   const { mutateAsync, isPending: isMutating } = useUpdateStore(store?.id ?? '')

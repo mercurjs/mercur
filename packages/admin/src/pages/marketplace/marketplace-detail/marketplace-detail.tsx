@@ -1,14 +1,14 @@
 import { useLoaderData } from "react-router-dom"
 
 import { useStore } from "../../../hooks/api/store"
-import { StoreGeneralSection } from "./components/store-general-section"
+import { MarketplaceGeneralSection } from "./components/marketplace-general-section"
 import { storeLoader } from "./loader"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { StoreCurrencySection } from "./components/store-currency-section"
+import { MarketplaceCurrencySection } from "./components/marketplace-currency-section"
 
-export const StoreDetail = () => {
+export const MarketplaceDetail = () => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof storeLoader>>
 
   const { store, isPending, isError, error } = useStore(undefined, {
@@ -30,8 +30,8 @@ export const StoreDetail = () => {
       showMetadata
       showJSON
     >
-      <StoreGeneralSection store={store} />
-      <StoreCurrencySection store={store} />
+      <MarketplaceGeneralSection store={store} />
+      <MarketplaceCurrencySection store={store} />
     </SingleColumnPage>
   )
 }
