@@ -1,5 +1,4 @@
-import type { ClientError } from "@mercurjs/client"
-import type { HttpTypes } from "@medusajs/types"
+import type { ClientError, InferClientInput, InferClientOutput } from "@mercurjs/client"
 import { type  QueryKey, useQuery, type UseQueryOptions } from "@tanstack/react-query"
 import type { ExtendedAdminFulfillmentProviderOptionsListResponse } from "@custom-types/fulfillment-providers/common"
 import { queryKeysFactory } from "@lib/query-key-factory"
@@ -17,19 +16,19 @@ export const fulfillmentProviderOptionsQueryKeys = queryKeysFactory(
 )
 
 export const useFulfillmentProviders = (
-  query?: HttpTypes.AdminFulfillmentProviderListParams,
+  query?: InferClientInput<typeof sdk.admin.fulfillmentProviders.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminFulfillmentProviderListResponse,
+      InferClientOutput<typeof sdk.admin.fulfillmentProviders.query>,
       ClientError,
-      HttpTypes.AdminFulfillmentProviderListResponse,
+      InferClientOutput<typeof sdk.admin.fulfillmentProviders.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.fulfillmentProvider.list(query),
+    queryFn: () => sdk.admin.fulfillmentProviders.query({ ...query }),
     queryKey: fulfillmentProvidersQueryKeys.list(query),
     ...options,
   })
@@ -51,7 +50,7 @@ export const useFulfillmentProviderOptions = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>
-      sdk.admin.fulfillmentProvider.listFulfillmentOptions(providerId) as Promise<ExtendedAdminFulfillmentProviderOptionsListResponse>,
+      sdk.admin.fulfillmentProviders.$id.options.query({ $id: providerId }) as Promise<ExtendedAdminFulfillmentProviderOptionsListResponse>,
     queryKey: fulfillmentProviderOptionsQueryKeys.list(providerId),
     ...options,
   })

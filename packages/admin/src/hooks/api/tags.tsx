@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -16,12 +19,15 @@ export const productTagsQueryKeys = queryKeysFactory(TAGS_QUERY_KEY)
 
 export const useProductTag = (
   id: string,
-  query?: HttpTypes.AdminProductTagParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.productTags.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminProductTagResponse,
+      InferClientOutput<typeof sdk.admin.productTags.$id.query>,
       ClientError,
-      HttpTypes.AdminProductTagResponse,
+      InferClientOutput<typeof sdk.admin.productTags.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -29,7 +35,7 @@ export const useProductTag = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: productTagsQueryKeys.detail(id, query),
-    queryFn: async () => sdk.admin.productTag.retrieve(id),
+    queryFn: () => sdk.admin.productTags.$id.query({ $id: id, ...query }),
     ...options,
   })
 
@@ -37,12 +43,12 @@ export const useProductTag = (
 }
 
 export const useProductTags = (
-  query?: HttpTypes.AdminProductTagListParams,
+  query?: InferClientInput<typeof sdk.admin.productTags.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminProductTagListResponse,
+      InferClientOutput<typeof sdk.admin.productTags.query>,
       ClientError,
-      HttpTypes.AdminProductTagListResponse,
+      InferClientOutput<typeof sdk.admin.productTags.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -50,7 +56,7 @@ export const useProductTags = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: productTagsQueryKeys.list(query),
-    queryFn: async () => sdk.admin.productTag.list(query),
+    queryFn: () => sdk.admin.productTags.query({ ...query }),
     ...options,
   })
 
@@ -58,15 +64,14 @@ export const useProductTags = (
 }
 
 export const useCreateProductTag = (
-  query?: HttpTypes.AdminProductTagParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductTagResponse,
+    InferClientOutput<typeof sdk.admin.productTags.mutate>,
     ClientError,
-    HttpTypes.AdminCreateProductTag
+    InferClientInput<typeof sdk.admin.productTags.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: async (data) => sdk.admin.productTag.create(data, query),
+    mutationFn: (payload) => sdk.admin.productTags.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTagsQueryKeys.lists(),
@@ -80,21 +85,24 @@ export const useCreateProductTag = (
 
 export const useUpdateProductTag = (
   id: string,
-  query?: HttpTypes.AdminProductTagParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductTagResponse,
+    InferClientOutput<typeof sdk.admin.productTags.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateProductTag
+    Omit<
+      InferClientInput<typeof sdk.admin.productTags.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: async (data) => sdk.admin.productTag.update(id, data, query),
+    mutationFn: (payload) =>
+      sdk.admin.productTags.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTagsQueryKeys.lists(),
       })
       queryClient.invalidateQueries({
-        queryKey: productTagsQueryKeys.detail(data.product_tag.id, query),
+        queryKey: productTagsQueryKeys.detail(id),
       })
 
       options?.onSuccess?.(data, variables, context)
@@ -106,13 +114,13 @@ export const useUpdateProductTag = (
 export const useDeleteProductTag = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductTagDeleteResponse,
+    InferClientOutput<typeof sdk.admin.productTags.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: async () => sdk.admin.productTag.delete(id),
+    mutationFn: () => sdk.admin.productTags.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTagsQueryKeys.lists(),

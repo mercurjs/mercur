@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -18,9 +21,9 @@ export const useInvite = (
   id: string,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminInviteResponse,
+      InferClientOutput<typeof sdk.admin.invites.$id.query>,
       ClientError,
-      HttpTypes.AdminInviteResponse,
+      InferClientOutput<typeof sdk.admin.invites.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -28,7 +31,7 @@ export const useInvite = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: invitesQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.invite.retrieve(id),
+    queryFn: () => sdk.admin.invites.$id.query({ $id: id }),
     ...options,
   })
 
@@ -36,19 +39,19 @@ export const useInvite = (
 }
 
 export const useInvites = (
-  query?: Record<string, any>,
+  query?: InferClientInput<typeof sdk.admin.invites.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminInviteListResponse,
+      InferClientOutput<typeof sdk.admin.invites.query>,
       ClientError,
-      HttpTypes.AdminInviteListResponse,
+      InferClientOutput<typeof sdk.admin.invites.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.invite.list(query),
+    queryFn: () => sdk.admin.invites.query({ ...query }),
     queryKey: invitesQueryKeys.list(query),
     ...options,
   })
@@ -58,13 +61,13 @@ export const useInvites = (
 
 export const useCreateInvite = (
   options?: UseMutationOptions<
-    HttpTypes.AdminInviteResponse,
+    InferClientOutput<typeof sdk.admin.invites.mutate>,
     ClientError,
-    HttpTypes.AdminCreateInvite
+    InferClientInput<typeof sdk.admin.invites.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.invite.create(payload),
+    mutationFn: (payload) => sdk.admin.invites.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() })
       options?.onSuccess?.(data, variables, context)
@@ -75,10 +78,14 @@ export const useCreateInvite = (
 
 export const useResendInvite = (
   id: string,
-  options?: UseMutationOptions<HttpTypes.AdminInviteResponse, ClientError, void>
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.invites.$id.resend.mutate>,
+    ClientError,
+    void
+  >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.invite.resend(id),
+    mutationFn: () => sdk.admin.invites.$id.resend.mutate({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) })
@@ -91,13 +98,13 @@ export const useResendInvite = (
 export const useDeleteInvite = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminInviteDeleteResponse,
+    InferClientOutput<typeof sdk.admin.invites.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.invite.delete(id),
+    mutationFn: () => sdk.admin.invites.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: invitesQueryKeys.detail(id) })
@@ -110,18 +117,20 @@ export const useDeleteInvite = (
 export const useAcceptInvite = (
   inviteToken: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminAcceptInviteResponse,
+    InferClientOutput<typeof sdk.admin.invites.accept.mutate>,
     ClientError,
-    HttpTypes.AdminAcceptInvite & { auth_token: string }
+    Omit<
+      InferClientInput<typeof sdk.admin.invites.accept.mutate>,
+      "invite_token"
+    > & { auth_token: string }
   >
 ) => {
   return useMutation({
     mutationFn: (payload) => {
       const { auth_token, ...rest } = payload
 
-      return sdk.admin.invite.accept(
+      return sdk.admin.invites.accept.mutate(
         { invite_token: inviteToken, ...rest },
-        {},
         {
           Authorization: `Bearer ${auth_token}`,
         }

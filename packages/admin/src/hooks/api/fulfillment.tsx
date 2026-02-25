@@ -1,12 +1,10 @@
-import { useMutation, UseMutationOptions } from "@tanstack/react-query"
-
-import { queryKeysFactory } from "../../lib/query-key-factory"
-
+import { ClientError } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
+import { useMutation, UseMutationOptions } from "@tanstack/react-query"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
+import { queryKeysFactory } from "../../lib/query-key-factory"
 import { ordersQueryKeys } from "./orders"
-import { ClientError } from "@mercurjs/client"
 
 const FULFILLMENTS_QUERY_KEY = "fulfillments" as const
 export const fulfillmentsQueryKeys = queryKeysFactory(FULFILLMENTS_QUERY_KEY)
@@ -15,7 +13,7 @@ export const useCreateFulfillment = (
   options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
-    mutationFn: (payload: any) => sdk.admin.fulfillment.create(payload),
+    mutationFn: (payload: any) => sdk.admin.fulfillments.mutate(payload),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: fulfillmentsQueryKeys.lists() })
       queryClient.invalidateQueries({
@@ -32,7 +30,8 @@ export const useCancelFulfillment = (
   options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.fulfillment.cancel(id),
+    mutationFn: () =>
+      sdk.admin.fulfillments.$id.cancel.mutate({ $id: id }),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: fulfillmentsQueryKeys.lists() })
       queryClient.invalidateQueries({
@@ -54,7 +53,10 @@ export const useCreateFulfillmentShipment = (
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateFulfillmentShipment) =>
-      sdk.admin.fulfillment.createShipment(fulfillmentId, payload),
+      sdk.admin.fulfillments.$id.shipment.mutate({
+        $id: fulfillmentId,
+        ...payload,
+      }),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.all,

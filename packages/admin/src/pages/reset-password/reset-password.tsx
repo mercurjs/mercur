@@ -10,7 +10,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import * as z from "zod";
 
 import { Form } from "../../components/common/form";
-import { LogoBox } from "../../components/common/logo-box";
+import AvatarBox from "../../components/common/logo-box/avatar-box";
 import { i18n } from "../../components/utilities/i18n";
 import {
   useResetPasswordForEmailPass,
@@ -69,7 +69,7 @@ const InvalidResetToken = () => {
         className="m-4 flex w-full max-w-[300px] flex-col items-center"
         data-testid="reset-password-invalid-token-container"
       >
-        <LogoBox className="mb-4" />
+        <AvatarBox />
         <div
           className="mb-6 flex flex-col items-center"
           data-testid="reset-password-invalid-token-header"
@@ -173,7 +173,7 @@ const ChooseNewPassword = ({ token }: { token: string }) => {
         className="m-4 flex w-full max-w-[280px] flex-col items-center"
         data-testid="reset-password-choose-new-password-container"
       >
-        <LogoBox className="mb-4" />
+        <AvatarBox />
         <div
           className="mb-6 flex flex-col items-center"
           data-testid="reset-password-choose-new-password-header"
@@ -338,7 +338,7 @@ export const ResetPassword = () => {
         className="m-4 flex w-full max-w-[300px] flex-col items-center"
         data-testid="reset-password-container"
       >
-        <LogoBox className="mb-4" />
+        <AvatarBox />
         <div
           className="mb-4 flex flex-col items-center"
           data-testid="reset-password-header"

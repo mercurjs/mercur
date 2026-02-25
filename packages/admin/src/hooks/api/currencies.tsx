@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import { QueryKey, UseQueryOptions, useQuery } from "@tanstack/react-query"
 
 import { sdk } from "../../lib/client"
@@ -9,19 +12,19 @@ const CURRENCIES_QUERY_KEY = "currencies" as const
 const currenciesQueryKeys = queryKeysFactory(CURRENCIES_QUERY_KEY)
 
 export const useCurrencies = (
-  query?: HttpTypes.AdminCurrencyListParams,
+  query?: InferClientInput<typeof sdk.admin.currencies.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminCurrencyListResponse,
+      InferClientOutput<typeof sdk.admin.currencies.query>,
       ClientError,
-      HttpTypes.AdminCurrencyListResponse,
+      InferClientOutput<typeof sdk.admin.currencies.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.currency.list(query),
+    queryFn: () => sdk.admin.currencies.query({ ...query }),
     queryKey: currenciesQueryKeys.list(query),
     ...options,
   })
@@ -31,12 +34,15 @@ export const useCurrencies = (
 
 export const useCurrency = (
   id: string,
-  query?: HttpTypes.AdminCurrencyParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.currencies.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminCurrencyResponse,
+      InferClientOutput<typeof sdk.admin.currencies.$id.query>,
       ClientError,
-      HttpTypes.AdminCurrencyResponse,
+      InferClientOutput<typeof sdk.admin.currencies.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -44,7 +50,7 @@ export const useCurrency = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: currenciesQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.currency.retrieve(id, query),
+    queryFn: () => sdk.admin.currencies.$id.query({ $id: id, ...query }),
     ...options,
   })
 

@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes, LinkMethodRequest } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -17,12 +20,15 @@ export const campaignsQueryKeys = queryKeysFactory(REGIONS_QUERY_KEY)
 
 export const useCampaign = (
   id: string,
-  query?: HttpTypes.AdminGetCampaignParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.campaigns.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminCampaignResponse,
+      InferClientOutput<typeof sdk.admin.campaigns.$id.query>,
       ClientError,
-      HttpTypes.AdminCampaignResponse,
+      InferClientOutput<typeof sdk.admin.campaigns.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -30,7 +36,7 @@ export const useCampaign = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: campaignsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.campaign.retrieve(id, query),
+    queryFn: () => sdk.admin.campaigns.$id.query({ $id: id, ...query }),
     ...options,
   })
 
@@ -38,19 +44,19 @@ export const useCampaign = (
 }
 
 export const useCampaigns = (
-  query?: HttpTypes.AdminGetCampaignsParams,
+  query?: InferClientInput<typeof sdk.admin.campaigns.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminCampaignListResponse,
+      InferClientOutput<typeof sdk.admin.campaigns.query>,
       ClientError,
-      HttpTypes.AdminCampaignListResponse,
+      InferClientOutput<typeof sdk.admin.campaigns.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.campaign.list(query),
+    queryFn: () => sdk.admin.campaigns.query({ ...query }),
     queryKey: campaignsQueryKeys.list(query),
     ...options,
   })
@@ -60,13 +66,13 @@ export const useCampaigns = (
 
 export const useCreateCampaign = (
   options?: UseMutationOptions<
-    HttpTypes.AdminCampaignResponse,
+    InferClientOutput<typeof sdk.admin.campaigns.mutate>,
     ClientError,
-    HttpTypes.AdminCreateCampaign
+    InferClientInput<typeof sdk.admin.campaigns.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.campaign.create(payload),
+    mutationFn: (payload) => sdk.admin.campaigns.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() })
       options?.onSuccess?.(data, variables, context)
@@ -78,13 +84,17 @@ export const useCreateCampaign = (
 export const useUpdateCampaign = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminCampaignResponse,
+    InferClientOutput<typeof sdk.admin.campaigns.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateCampaign
+    Omit<
+      InferClientInput<typeof sdk.admin.campaigns.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.campaign.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.campaigns.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.details() })
@@ -100,13 +110,13 @@ export const useUpdateCampaign = (
 export const useDeleteCampaign = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.DeleteResponse<"campaign">,
+    InferClientOutput<typeof sdk.admin.campaigns.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.campaign.delete(id),
+    mutationFn: () => sdk.admin.campaigns.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.details() })
@@ -120,13 +130,17 @@ export const useDeleteCampaign = (
 export const useAddOrRemoveCampaignPromotions = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminCampaignResponse,
+    InferClientOutput<typeof sdk.admin.campaigns.$id.promotions.mutate>,
     ClientError,
-    LinkMethodRequest
+    Omit<
+      InferClientInput<typeof sdk.admin.campaigns.$id.promotions.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.campaign.batchPromotions(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.campaigns.$id.promotions.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.details() })
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() })

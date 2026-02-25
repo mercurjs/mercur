@@ -9,13 +9,9 @@ export function getTargetDir(file: {
   type: string;
   path: string;
 }, config: Config) {
-  if (file.type === "registry:workflow") return config.resolvedPaths.workflows;
   if (file.type === "registry:api") return config.resolvedPaths.api;
-  if (file.type === "registry:link") return config.resolvedPaths.links;
-  if (file.type === "registry:module") return config.resolvedPaths.modules;
   if (file.type === "registry:vendor") return config.resolvedPaths.vendor;
   if (file.type === "registry:admin") return config.resolvedPaths.admin;
-  if (file.type === "registry:lib") return config.resolvedPaths.lib;
   throw new Error(`Unknown file type: ${file.type}`);
 }
 
@@ -26,6 +22,14 @@ export function resolveFilePath(file: z.infer<typeof registryItemFileSchema>, co
 }) {
   // todo: add target support if path handling is not enough
   const targetDir = getTargetDir(file, config);
+
+  if (file.type === "registry:api") {
+    // For api files, the path follows <block-name>/<rest> convention.
+    // Strip the block name prefix and use the rest as the relative path.
+    const segments = file.path.replace(/^\/|\/$/g, "").split("/");
+    const relativePath = segments.slice(1).join("/");
+    return path.join(targetDir, relativePath);
+  }
 
   const relativePath = resolveNestedFilePath(file.path, targetDir);
 

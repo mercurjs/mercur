@@ -58,38 +58,48 @@ export async function transformImports(opts: TransformOpts): Promise<string> {
 }
 
 function updateImportAliases(moduleSpecifier: string, config: Config) {
+  // Backend aliases all resolve under config.aliases.api
   if (moduleSpecifier.startsWith("@/workflows/")) {
     const rest = moduleSpecifier.replace(/^@\/workflows\//, "");
-    return `${config.aliases.workflows}/${rest}`;
+    return `${config.aliases.api}/workflows/${rest}`;
   }
   if (moduleSpecifier === "@/workflows") {
-    return config.aliases.workflows;
+    return `${config.aliases.api}/workflows`;
   }
 
   if (moduleSpecifier.startsWith("@/api/")) {
     const rest = moduleSpecifier.replace(/^@\/api\//, "");
-    return `${config.aliases.api}/${rest}`;
+    return `${config.aliases.api}/api/${rest}`;
   }
   if (moduleSpecifier === "@/api") {
-    return config.aliases.api;
+    return `${config.aliases.api}/api`;
   }
 
   if (moduleSpecifier.startsWith("@/links/")) {
     const rest = moduleSpecifier.replace(/^@\/links\//, "");
-    return `${config.aliases.links}/${rest}`;
+    return `${config.aliases.api}/links/${rest}`;
   }
   if (moduleSpecifier === "@/links") {
-    return config.aliases.links;
+    return `${config.aliases.api}/links`;
   }
 
   if (moduleSpecifier.startsWith("@/modules/")) {
     const rest = moduleSpecifier.replace(/^@\/modules\//, "");
-    return `${config.aliases.modules}/${rest}`;
+    return `${config.aliases.api}/modules/${rest}`;
   }
   if (moduleSpecifier === "@/modules") {
-    return config.aliases.modules;
+    return `${config.aliases.api}/modules`;
   }
 
+  if (moduleSpecifier.startsWith("@/lib/")) {
+    const rest = moduleSpecifier.replace(/^@\/lib\//, "");
+    return `${config.aliases.api}/lib/${rest}`;
+  }
+  if (moduleSpecifier === "@/lib") {
+    return `${config.aliases.api}/lib`;
+  }
+
+  // Frontend aliases use their own config entry
   if (moduleSpecifier.startsWith("@/vendor/")) {
     const rest = moduleSpecifier.replace(/^@\/vendor\//, "");
     return `${config.aliases.vendor}/${rest}`;
@@ -104,14 +114,6 @@ function updateImportAliases(moduleSpecifier: string, config: Config) {
   }
   if (moduleSpecifier === "@/admin") {
     return config.aliases.admin;
-  }
-
-  if (moduleSpecifier.startsWith("@/lib/")) {
-    const rest = moduleSpecifier.replace(/^@\/lib\//, "");
-    return `${config.aliases.lib}/${rest}`;
-  }
-  if (moduleSpecifier === "@/lib") {
-    return config.aliases.lib;
   }
 
   return moduleSpecifier;

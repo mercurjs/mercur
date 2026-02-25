@@ -227,22 +227,6 @@ async function createTempSourceFile(filename: string) {
 function determineFileType(
   moduleSpecifier: string
 ): z.infer<typeof registryItemTypeSchema> {
-  if (moduleSpecifier.includes("/workflows/")) {
-    return "registry:workflow";
-  }
-
-  if (moduleSpecifier.includes("/api/")) {
-    return "registry:api";
-  }
-
-  if (moduleSpecifier.includes("/links/")) {
-    return "registry:link";
-  }
-
-  if (moduleSpecifier.includes("/modules/")) {
-    return "registry:module";
-  }
-
   if (moduleSpecifier.includes("/vendor")) {
     return "registry:vendor";
   }
@@ -251,12 +235,8 @@ function determineFileType(
     return "registry:admin";
   }
 
-  if (moduleSpecifier.includes("/lib/")) {
-    return "registry:lib";
-  }
-
-  // Default to lib for unknown types
-  return "registry:lib";
+  // All backend files (workflows, modules, links, api routes, lib) are registry:api
+  return "registry:api";
 }
 
 // Additional utility functions for local file support
@@ -330,9 +310,6 @@ export async function deduplicateFilesByTarget(
 export function canDeduplicateFiles(config: Config) {
   return !!(
     config?.resolvedPaths?.cwd &&
-    (config?.resolvedPaths?.lib ||
-      config?.resolvedPaths?.workflows ||
-      config?.resolvedPaths?.api ||
-      config?.resolvedPaths?.modules)
+    config?.resolvedPaths?.api
   );
 }

@@ -1,34 +1,36 @@
-import { Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
+import { Heading } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 
-import { RouteDrawer } from "../../../components/modals"
-import { useProduct } from "../../../hooks/api/products"
-import { PRODUCT_DETAIL_FIELDS } from "../product-detail/constants"
-import { ProductShippingProfileForm } from "./components/product-organization-form"
+import { RouteDrawer } from "../../../components/modals";
+import { useProduct } from "../../../hooks/api/products";
+import { ProductShippingProfileForm } from "./components/product-organization-form";
 
 export const ProductShippingProfile = () => {
-  const { id } = useParams()
-  const { t } = useTranslation()
+  const { id } = useParams();
+  const { t } = useTranslation();
 
-  const { product, isLoading, isError, error } = useProduct(id!, {
-    fields: PRODUCT_DETAIL_FIELDS,
-  })
+  const { product, isLoading, isError, error } = useProduct(id!);
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
     <RouteDrawer data-testid="product-shipping-profile-drawer">
       <RouteDrawer.Header data-testid="product-shipping-profile-drawer-header">
-        <RouteDrawer.Title asChild data-testid="product-shipping-profile-drawer-title">
-          <Heading data-testid="product-shipping-profile-drawer-title-text">{t("products.shippingProfile.edit.header")}</Heading>
+        <RouteDrawer.Title
+          asChild
+          data-testid="product-shipping-profile-drawer-title"
+        >
+          <Heading data-testid="product-shipping-profile-drawer-title-text">
+            {t("products.shippingProfile.edit.header")}
+          </Heading>
         </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isLoading && product && (
         <ProductShippingProfileForm product={product} />
       )}
     </RouteDrawer>
-  )
-}
+  );
+};

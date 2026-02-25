@@ -1,22 +1,9 @@
 import { z } from "zod";
 
-export type RegistryItemCategory =
-  | "workflows"
-  | "api"
-  | "links"
-  | "modules"
-  | "vendor"
-  | "admin"
-  | "lib";
-
 export const registryItemTypeSchema = z.enum([
-  "registry:workflow",
   "registry:api",
-  "registry:link",
-  "registry:module",
   "registry:vendor",
   "registry:admin",
-  "registry:lib",
 ]);
 
 // File with required content (for fetched items)

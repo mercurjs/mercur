@@ -37,7 +37,7 @@ export const useInventoryItems = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.inventoryItem.list(query),
+    queryFn: () => sdk.admin.inventoryItems.query({ ...query }),
     queryKey: inventoryItemsQueryKeys.list(query),
     ...options,
   })
@@ -59,7 +59,8 @@ export const useInventoryItem = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.inventoryItem.retrieve(id, query) as Promise<ExtendedAdminInventoryItemResponse>,
+    queryFn: () =>
+      sdk.admin.inventoryItems.$id.query({ $id: id, ...query }) as Promise<ExtendedAdminInventoryItemResponse>,
     queryKey: inventoryItemsQueryKeys.detail(id),
     ...options,
   })
@@ -76,7 +77,7 @@ export const useCreateInventoryItem = (
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateInventoryItem) =>
-      sdk.admin.inventoryItem.create(payload),
+      sdk.admin.inventoryItems.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
@@ -97,7 +98,7 @@ export const useUpdateInventoryItem = (
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminUpdateInventoryItem) =>
-      sdk.admin.inventoryItem.update(id, payload),
+      sdk.admin.inventoryItems.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
@@ -120,7 +121,7 @@ export const useDeleteInventoryItem = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.inventoryItem.delete(id),
+    mutationFn: () => sdk.admin.inventoryItems.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
@@ -145,7 +146,10 @@ export const useDeleteInventoryItemLevel = (
 ) => {
   return useMutation({
     mutationFn: () =>
-      sdk.admin.inventoryItem.deleteLevel(inventoryItemId, locationId),
+      sdk.admin.inventoryItems.$id.locationLevels.$locationId.delete({
+        $id: inventoryItemId,
+        $locationId: locationId,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
@@ -176,7 +180,11 @@ export const useInventoryItemLevels = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.inventoryItem.listLevels(inventoryItemId, query) as Promise<ExtendedInventoryItemLevelsResponse>,
+    queryFn: () =>
+      sdk.admin.inventoryItems.$id.locationLevels.query({
+        $id: inventoryItemId,
+        ...query,
+      }) as Promise<ExtendedInventoryItemLevelsResponse>,
     queryKey: inventoryItemLevelsQueryKeys.list({
       ...(query || {}),
       inventoryItemId,
@@ -198,7 +206,11 @@ export const useUpdateInventoryLevel = (
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminUpdateInventoryLevel) =>
-      sdk.admin.inventoryItem.updateLevel(inventoryItemId, locationId, payload),
+      sdk.admin.inventoryItems.$id.locationLevels.$locationId.mutate({
+        $id: inventoryItemId,
+        $locationId: locationId,
+        ...payload,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
@@ -231,14 +243,12 @@ export const useBatchInventoryItemLocationLevels = (
 ) => {
   return useMutation({
     mutationFn: (payload) => {
-      return sdk.admin.inventoryItem.batchInventoryItemLocationLevels(
-        inventoryItemId,
-        {
-          ...payload,
-          // force: true is required for admin batch endpoint to delete levels with stocked items
-          force: !!payload?.delete?.length || payload.force,
-        }
-      )
+      return sdk.admin.inventoryItems.$id.locationLevels.batch.mutate({
+        $id: inventoryItemId,
+        ...payload,
+        // force: true is required for admin batch endpoint to delete levels with stocked items
+        force: !!payload?.delete?.length || payload.force,
+      })
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
@@ -268,7 +278,7 @@ export const useBatchInventoryItemsLocationLevels = (
 ) => {
   return useMutation({
     mutationFn: (payload) => {
-      return sdk.admin.inventoryItem.batchInventoryItemsLocationLevels({
+      return sdk.admin.inventoryItems.locationLevels.batch.mutate({
         ...payload,
       // force: true is required for admin batch endpoint to delete levels with stocked items
         force: !!payload?.delete?.length || payload.force,

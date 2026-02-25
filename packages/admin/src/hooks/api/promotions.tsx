@@ -52,7 +52,7 @@ export const usePromotion = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.promotion.retrieve(id),
+    queryFn: async () => sdk.admin.promotions.$id.query({ $id: id }),
     ...options,
   })
 
@@ -75,7 +75,12 @@ export const usePromotionRules = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.listRules(id, ruleType, query),
-    queryFn: async () => sdk.admin.promotion.listRules(id, ruleType, query),
+    queryFn: async () =>
+      sdk.admin.promotions.$id.$ruleType.query({
+        $id: id!,
+        $ruleType: ruleType,
+        ...query,
+      }),
     ...options,
   })
 
@@ -96,7 +101,7 @@ export const usePromotions = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: promotionsQueryKeys.list(query),
-    queryFn: async () => sdk.admin.promotion.list(query),
+    queryFn: async () => sdk.admin.promotions.query({ ...query }),
     ...options,
   })
 
@@ -124,11 +129,11 @@ export const usePromotionRuleAttributes = (
       applicationMethodTargetType
     ),
     queryFn: async () =>
-      sdk.admin.promotion.listRuleAttributes(
-        ruleType,
-        promotionType,
-        applicationMethodTargetType
-      ),
+      sdk.admin.promotions.ruleAttributeOptions.$ruleType.query({
+        $ruleType: ruleType,
+        promotion_type: promotionType,
+        application_method_target_type: applicationMethodTargetType,
+      }),
     ...options,
   })
 
@@ -156,7 +161,11 @@ export const usePromotionRuleValues = (
       query || {}
     ),
     queryFn: async () =>
-      sdk.admin.promotion.listRuleValues(ruleType, ruleValue, query),
+      sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
+        $ruleType: ruleType,
+        $ruleAttributeId: ruleValue,
+        ...query,
+      }),
     ...options,
   })
 
@@ -172,7 +181,7 @@ export const useDeletePromotion = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.promotion.delete(id),
+    mutationFn: () => sdk.admin.promotions.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() })
       queryClient.invalidateQueries({
@@ -193,7 +202,7 @@ export const useCreatePromotion = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.promotion.create(payload),
+    mutationFn: (payload) => sdk.admin.promotions.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: campaignsQueryKeys.lists() })
@@ -212,7 +221,8 @@ export const useUpdatePromotion = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.promotion.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.promotions.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
 

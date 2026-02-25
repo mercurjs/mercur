@@ -1,7 +1,11 @@
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import { QueryKey, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import { sdk } from "../../lib/client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
-import { ClientError } from "@mercurjs/client"
 
 const PRODUCT_VARIANT_QUERY_KEY = "product_variant" as const
 export const productVariantQueryKeys = queryKeysFactory(
@@ -9,14 +13,19 @@ export const productVariantQueryKeys = queryKeysFactory(
 )
 
 export const useVariants = (
-  query?: Record<string, any>,
+  query?: InferClientInput<typeof sdk.admin.productVariants.query>,
   options?: Omit<
-    UseQueryOptions<any, ClientError, any, QueryKey>,
+    UseQueryOptions<
+      InferClientOutput<typeof sdk.admin.productVariants.query>,
+      ClientError,
+      InferClientOutput<typeof sdk.admin.productVariants.query>,
+      QueryKey
+    >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.productVariant.list(query),
+    queryFn: () => sdk.admin.productVariants.query({ ...query }),
     queryKey: productVariantQueryKeys.list(query),
     ...options,
   })

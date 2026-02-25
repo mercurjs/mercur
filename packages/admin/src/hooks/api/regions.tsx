@@ -1,4 +1,8 @@
-import { HttpTypes, PaginatedResponse } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -10,19 +14,21 @@ import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { pricePreferencesQueryKeys } from "./price-preferences"
-import { ClientError } from "@mercurjs/client"
 
 const REGIONS_QUERY_KEY = "regions" as const
 export const regionsQueryKeys = queryKeysFactory(REGIONS_QUERY_KEY)
 
 export const useRegion = (
   id: string,
-  query?: Record<string, any>,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.regions.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      { region: HttpTypes.AdminRegion },
+      InferClientOutput<typeof sdk.admin.regions.$id.query>,
       ClientError,
-      { region: HttpTypes.AdminRegion },
+      InferClientOutput<typeof sdk.admin.regions.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -30,7 +36,7 @@ export const useRegion = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: regionsQueryKeys.detail(id, query),
-    queryFn: async () => sdk.admin.region.retrieve(id, query),
+    queryFn: () => sdk.admin.regions.$id.query({ $id: id, ...query }),
     ...options,
   })
 
@@ -38,19 +44,19 @@ export const useRegion = (
 }
 
 export const useRegions = (
-  query?: Record<string, any>,
+  query?: InferClientInput<typeof sdk.admin.regions.query>,
   options?: Omit<
     UseQueryOptions<
-      PaginatedResponse<{ regions: HttpTypes.AdminRegion[] }>,
+      InferClientOutput<typeof sdk.admin.regions.query>,
       ClientError,
-      PaginatedResponse<{ regions: HttpTypes.AdminRegion[] }>,
+      InferClientOutput<typeof sdk.admin.regions.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.region.list(query),
+    queryFn: () => sdk.admin.regions.query({ ...query }),
     queryKey: regionsQueryKeys.list(query),
     ...options,
   })
@@ -60,13 +66,13 @@ export const useRegions = (
 
 export const useCreateRegion = (
   options?: UseMutationOptions<
-    { region: HttpTypes.AdminRegion },
+    InferClientOutput<typeof sdk.admin.regions.mutate>,
     ClientError,
-    HttpTypes.AdminCreateRegion
+    InferClientInput<typeof sdk.admin.regions.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.region.create(payload),
+    mutationFn: (payload) => sdk.admin.regions.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() })
 
@@ -86,13 +92,17 @@ export const useCreateRegion = (
 export const useUpdateRegion = (
   id: string,
   options?: UseMutationOptions<
-    { region: HttpTypes.AdminRegion },
+    InferClientOutput<typeof sdk.admin.regions.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateRegion
+    Omit<
+      InferClientInput<typeof sdk.admin.regions.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.region.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.regions.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.details() })
@@ -113,13 +123,13 @@ export const useUpdateRegion = (
 export const useDeleteRegion = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminRegionDeleteResponse,
+    InferClientOutput<typeof sdk.admin.regions.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.region.delete(id),
+    mutationFn: () => sdk.admin.regions.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.detail(id) })

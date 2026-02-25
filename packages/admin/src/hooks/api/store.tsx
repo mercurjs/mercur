@@ -1,12 +1,11 @@
-import { ClientError } from "@mercurjs/client";
+import { ClientError, InferClientInput, InferClientOutput } from "@mercurjs/client";
 import type { HttpTypes } from "@medusajs/types";
 
 import type {
-  MutationOptions,
   QueryKey,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, UseMutationOptions } from "@tanstack/react-query";
 
 import type { AdminStoreListResponse } from "@custom-types/store";
 
@@ -25,9 +24,9 @@ export const storeQueryKeys = queryKeysFactory(STORE_QUERY_KEY);
 export async function retrieveActiveStore(
   query?: HttpTypes.AdminStoreParams,
 ): Promise<HttpTypes.AdminStoreResponse> {
-  const response = await sdk.admin.store.list(query);
+  const response = await sdk.admin.stores.query(query);
 
-  const activeStore = response.stores?.[0];
+  const activeStore = (response as any).stores?.[0];
 
   if (!activeStore) {
     throw new ClientError("No active store found", "Not Found", 404);
@@ -62,14 +61,18 @@ export const useStore = (
 
 export const useUpdateStore = (
   id: string,
-  options?: MutationOptions<
-    HttpTypes.AdminStoreResponse,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.stores.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateStore
+    Omit<
+      InferClientInput<typeof sdk.admin.stores.$id.mutate>,
+      "$id"
+    >
   >,
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.store.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.stores.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.list(),

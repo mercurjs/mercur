@@ -113,13 +113,9 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
     return rawConfigSchema.parse({
       $schema: REGISTRY_SCHEMA_URL,
       aliases: {
-        workflows: "packages/api/src/workflows",
-        api: "packages/api/src/api",
-        links: "packages/api/src/links",
-        modules: "packages/api/src/modules",
+        api: "packages/api/src",
         vendor: "apps/vendor/src",
         admin: "apps/admin/src",
-        lib: "packages/api/src/lib",
       },
       registries: BUILTIN_REGISTRIES,
     });
@@ -130,27 +126,9 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
     [
       {
         type: "text",
-        name: "workflows",
-        message: `Configure the import alias for ${highlighter.info("workflows")}:`,
-        initial: "packages/api/src/workflows",
-      },
-      {
-        type: "text",
         name: "api",
         message: `Configure the import alias for ${highlighter.info("api")}:`,
-        initial: "packages/api/src/api",
-      },
-      {
-        type: "text",
-        name: "links",
-        message: `Configure the import alias for ${highlighter.info("links")}:`,
-        initial: "packages/api/src/links",
-      },
-      {
-        type: "text",
-        name: "modules",
-        message: `Configure the import alias for ${highlighter.info("modules")}:`,
-        initial: "packages/api/src/modules",
+        initial: "packages/api/src",
       },
       {
         type: "text",
@@ -162,13 +140,7 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
         type: "text",
         name: "admin",
         message: `Configure the import alias for ${highlighter.info("admin")}:`,
-        initial: "packages/api/src/admin",
-      },
-      {
-        type: "text",
-        name: "lib",
-        message: `Configure the import alias for ${highlighter.info("lib")}:`,
-        initial: "packages/api/src/lib",
+        initial: "apps/admin/src",
       },
     ],
     {
@@ -181,13 +153,9 @@ async function promptForConfig(opts: z.infer<typeof initOptionsSchema>) {
   return rawConfigSchema.parse({
     $schema: REGISTRY_SCHEMA_URL,
     aliases: {
-      workflows: options.workflows ?? "packages/api/src/workflows",
-      api: options.api ?? "packages/api/src/api",
-      links: options.links ?? "packages/api/src/links",
-      modules: options.modules ?? "packages/api/src/modules",
+      api: options.api ?? "packages/api/src",
       vendor: options.vendor ?? "apps/vendor/src",
-      admin: options.admin ?? "packages/api/src/admin",
-      lib: options.lib ?? "packages/api/src/lib",
+      admin: options.admin ?? "apps/admin/src",
     },
     registries: BUILTIN_REGISTRIES,
   });
@@ -202,13 +170,9 @@ async function promptForMinimalConfig(
     return rawConfigSchema.parse({
       $schema: REGISTRY_SCHEMA_URL,
       aliases: {
-        workflows: "packages/api/src/workflows",
-        api: "packages/api/src/api",
-        links: "packages/api/src/links",
-        modules: "packages/api/src/modules",
+        api: "packages/api/src",
         vendor: "apps/vendor/src",
         admin: "apps/admin/src",
-        lib: "packages/api/src/lib",
       },
       registries: BUILTIN_REGISTRIES,
     });
@@ -218,27 +182,9 @@ async function promptForMinimalConfig(
     [
       {
         type: "text",
-        name: "workflows",
-        message: `Configure the import alias for ${highlighter.info("workflows")}:`,
-        initial: existingConfig.aliases.workflows,
-      },
-      {
-        type: "text",
         name: "api",
         message: `Configure the import alias for ${highlighter.info("api")}:`,
         initial: existingConfig.aliases.api,
-      },
-      {
-        type: "text",
-        name: "links",
-        message: `Configure the import alias for ${highlighter.info("links")}:`,
-        initial: existingConfig.aliases.links,
-      },
-      {
-        type: "text",
-        name: "modules",
-        message: `Configure the import alias for ${highlighter.info("modules")}:`,
-        initial: existingConfig.aliases.modules,
       },
       {
         type: "text",
@@ -252,12 +198,6 @@ async function promptForMinimalConfig(
         message: `Configure the import alias for ${highlighter.info("admin")}:`,
         initial: existingConfig.aliases.admin,
       },
-      {
-        type: "text",
-        name: "lib",
-        message: `Configure the import alias for ${highlighter.info("lib")}:`,
-        initial: existingConfig.aliases.lib,
-      },
     ],
     {
       onCancel: () => {
@@ -269,13 +209,9 @@ async function promptForMinimalConfig(
   return rawConfigSchema.parse({
     $schema: existingConfig.$schema,
     aliases: {
-      workflows: options.workflows ?? existingConfig.aliases.workflows,
       api: options.api ?? existingConfig.aliases.api,
-      links: options.links ?? existingConfig.aliases.links,
-      modules: options.modules ?? existingConfig.aliases.modules,
       vendor: options.vendor ?? existingConfig.aliases.vendor,
       admin: options.admin ?? existingConfig.aliases.admin,
-      lib: options.lib ?? existingConfig.aliases.lib,
     },
   });
 }

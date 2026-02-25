@@ -29,6 +29,7 @@
         "@tanstack/react-query": "5.64.2",
         "@tanstack/react-table": "8.20.5",
         "jsonwebtoken": "9.0.2",
+        "lodash.debounce": "^4.0.8",
         "react": "^18.0.0",
         "react-dom": "^18.0.0",
         "react-hook-form": "7.49.1",

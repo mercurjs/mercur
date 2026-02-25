@@ -1,1 +1,1 @@
-export { SellerDetails as Component } from "./seller-details";
+export { SellerDetails as Component } from "./components/seller-details"

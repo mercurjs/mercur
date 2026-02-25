@@ -13,7 +13,6 @@ import { ProductOrganizationSection } from "./components/product-organization-se
 import { ProductSalesChannelSection } from "./components/product-sales-channel-section";
 import { ProductShippingProfileSection } from "./components/product-shipping-profile-section";
 import { ProductVariantSection } from "./components/product-variant-section";
-import { PRODUCT_DETAIL_FIELDS } from "./constants";
 import { productLoader } from "./loader";
 
 export const ProductDetail = () => {
@@ -24,7 +23,7 @@ export const ProductDetail = () => {
   const { id } = useParams();
   const { product, isLoading, isError, error } = useProduct(
     id!,
-    { fields: PRODUCT_DETAIL_FIELDS },
+    {},
     {
       initialData: initialData,
     },
@@ -47,11 +46,7 @@ export const ProductDetail = () => {
 
   return (
     <div data-testid="product-detail-page">
-      <TwoColumnPage
-        showJSON
-        showMetadata
-        data={product}
-      >
+      <TwoColumnPage showJSON showMetadata data={product}>
         <TwoColumnPage.Main data-testid="product-detail-main">
           <ProductGeneralSection product={product} />
           <ProductMediaSection product={product} />

@@ -1,17 +1,14 @@
 import { useMemo } from "react";
 
 import type { AdminOrder } from "@medusajs/types";
-import { Container, Divider, Heading } from "@medusajs/ui";
+import { Badge, Container, Heading } from "@medusajs/ui";
 
-import { formatDate } from "@lib/date";
 import { getStylizedAmount } from "@lib/money-amount-helpers";
 import { createColumnHelper } from "@tanstack/react-table";
 
 import type { AdminOrderListResponse } from "@custom-types/order";
 
-import { FulfillmentStatusBadge } from "@components/common/fulfillment-status-badge";
-import { OrderStatusBadge } from "@components/common/order-status-badge";
-import { PaymentStatusBadge } from "@components/common/payments-status-badge";
+import { DateCell } from "@components/table/table-cells/common/date-cell";
 import { _DataTable } from "@components/table/data-table";
 
 import { useOrderTableFilters } from "@hooks/table/filters";
@@ -20,6 +17,59 @@ import { useDataTable } from "@hooks/use-data-table";
 
 const PAGE_SIZE = 10;
 const PREFIX = "so";
+
+const getOrderStatusBadgeColor = (status: string) => {
+  const colors: Record<string, "orange" | "green" | "red" | "grey"> = {
+    pending: "orange",
+    completed: "green",
+    canceled: "red",
+    archived: "grey",
+    requires_action: "orange",
+    draft: "grey",
+  };
+  return colors[status] || "grey";
+};
+
+const getPaymentStatusBadgeColor = (status: string) => {
+  const colors: Record<string, "orange" | "green" | "red" | "blue" | "grey"> =
+    {
+      captured: "green",
+      paid: "green",
+      partially_captured: "orange",
+      awaiting: "orange",
+      authorized: "blue",
+      partially_authorized: "blue",
+      pending: "orange",
+      refunded: "red",
+      partially_refunded: "orange",
+      canceled: "red",
+      not_paid: "grey",
+      requires_action: "orange",
+    };
+  return colors[status] || "grey";
+};
+
+const getFulfillmentStatusBadgeColor = (status: string) => {
+  const colors: Record<string, "orange" | "green" | "red" | "grey"> = {
+    fulfilled: "green",
+    shipped: "green",
+    delivered: "green",
+    partially_fulfilled: "orange",
+    partially_shipped: "orange",
+    partially_delivered: "orange",
+    not_fulfilled: "grey",
+    canceled: "red",
+    returned: "red",
+    partially_returned: "orange",
+    requires_action: "orange",
+  };
+  return colors[status] || "grey";
+};
+
+const formatStatus = (status: string) =>
+  status
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 
 export const SellerOrdersSection = ({
   seller_orders,
@@ -48,11 +98,13 @@ export const SellerOrdersSection = ({
   });
 
   return (
-    <Container className="mt-2 px-0" data-testid="seller-orders-section">
-      <div className="px-8 pb-4" data-testid="seller-orders-section-header">
+    <Container className="divide-y p-0" data-testid="seller-orders-section">
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="seller-orders-section-header"
+      >
         <Heading data-testid="seller-orders-section-heading">Orders</Heading>
       </div>
-      <Divider />
       <_DataTable
         table={table}
         columns={columns}
@@ -88,7 +140,7 @@ const useColumns = () => {
       columnHelper.display({
         id: "created_at",
         header: "Date",
-        cell: ({ row }) => formatDate(row.original.created_at, "MMM d, yyyy"),
+        cell: ({ row }) => <DateCell date={row.original.created_at} />,
       }),
       columnHelper.display({
         id: "customer",
@@ -103,23 +155,46 @@ const useColumns = () => {
       columnHelper.display({
         id: "status",
         header: "Order Status",
-        cell: ({ row }) => <OrderStatusBadge status={row.original.status} />,
+        cell: ({ row }) => (
+          <Badge
+            size="2xsmall"
+            color={getOrderStatusBadgeColor(row.original.status)}
+          >
+            {formatStatus(row.original.status)}
+          </Badge>
+        ),
       }),
       columnHelper.display({
         id: "payment_status",
         header: "Payment Status",
-        cell: ({ row }) => (
-          <PaymentStatusBadge status={row.original?.payment_status || "-"} />
-        ),
+        cell: ({ row }) => {
+          const status = row.original?.payment_status;
+          if (!status) return "-";
+          return (
+            <Badge
+              size="2xsmall"
+              color={getPaymentStatusBadgeColor(status)}
+            >
+              {formatStatus(status)}
+            </Badge>
+          );
+        },
       }),
       columnHelper.display({
         id: "fulfillment_status",
         header: "Fulfillment Status",
-        cell: ({ row }) => (
-          <FulfillmentStatusBadge
-            status={row.original.fulfillment_status || "-"}
-          />
-        ),
+        cell: ({ row }) => {
+          const status = row.original.fulfillment_status;
+          if (!status) return "-";
+          return (
+            <Badge
+              size="2xsmall"
+              color={getFulfillmentStatusBadgeColor(status)}
+            >
+              {formatStatus(status)}
+            </Badge>
+          );
+        },
       }),
       columnHelper.display({
         id: "total",

@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -18,16 +21,19 @@ const usersQueryKeys = {
 }
 
 export const useMe = (
-  query?: HttpTypes.AdminUserParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.users.me.query>,
+    "$id"
+  >,
   options?: UseQueryOptions<
-    HttpTypes.AdminUserResponse,
+    InferClientOutput<typeof sdk.admin.users.me.query>,
     ClientError,
-    HttpTypes.AdminUserResponse,
+    InferClientOutput<typeof sdk.admin.users.me.query>,
     QueryKey
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.user.me(query),
+    queryFn: () => sdk.admin.users.me.query({ ...query }),
     queryKey: usersQueryKeys.me(),
     ...options,
   })
@@ -40,19 +46,22 @@ export const useMe = (
 
 export const useUser = (
   id: string,
-  query?: HttpTypes.AdminUserParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.users.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminUserResponse,
+      InferClientOutput<typeof sdk.admin.users.$id.query>,
       ClientError,
-      HttpTypes.AdminUserResponse,
+      InferClientOutput<typeof sdk.admin.users.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.user.retrieve(id, query),
+    queryFn: () => sdk.admin.users.$id.query({ $id: id, ...query }),
     queryKey: usersQueryKeys.detail(id),
     ...options,
   })
@@ -61,19 +70,19 @@ export const useUser = (
 }
 
 export const useUsers = (
-  query?: HttpTypes.AdminUserListParams,
+  query?: InferClientInput<typeof sdk.admin.users.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminUserListResponse,
+      InferClientOutput<typeof sdk.admin.users.query>,
       ClientError,
-      HttpTypes.AdminUserListResponse,
+      InferClientOutput<typeof sdk.admin.users.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.user.list(query),
+    queryFn: () => sdk.admin.users.query({ ...query }),
     queryKey: usersQueryKeys.list(query),
     ...options,
   })
@@ -82,16 +91,14 @@ export const useUsers = (
 }
 
 export const useCreateUser = (
-  query?: HttpTypes.AdminUserParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminUserResponse,
+    InferClientOutput<typeof sdk.admin.users.mutate>,
     ClientError,
-    HttpTypes.AdminCreateUser,
-    QueryKey
+    InferClientInput<typeof sdk.admin.users.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.user.create(payload, query),
+    mutationFn: (payload) => sdk.admin.users.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() })
 
@@ -103,16 +110,18 @@ export const useCreateUser = (
 
 export const useUpdateUser = (
   id: string,
-  query?: HttpTypes.AdminUserParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminUserResponse,
+    InferClientOutput<typeof sdk.admin.users.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateUser,
-    QueryKey
+    Omit<
+      InferClientInput<typeof sdk.admin.users.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.user.update(id, payload, query),
+    mutationFn: (payload) =>
+      sdk.admin.users.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) })
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() })
@@ -129,13 +138,13 @@ export const useUpdateUser = (
 export const useDeleteUser = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminUserDeleteResponse,
+    InferClientOutput<typeof sdk.admin.users.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.user.delete(id),
+    mutationFn: () => sdk.admin.users.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) })
       queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() })

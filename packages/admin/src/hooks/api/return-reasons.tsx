@@ -1,4 +1,8 @@
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -7,7 +11,6 @@ import {
   useQuery,
 } from "@tanstack/react-query"
 
-import { ClientError } from "@mercurjs/client"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
@@ -16,19 +19,19 @@ const RETURN_REASONS_QUERY_KEY = "return_reasons" as const
 export const returnReasonsQueryKeys = queryKeysFactory(RETURN_REASONS_QUERY_KEY)
 
 export const useReturnReasons = (
-  query?: HttpTypes.AdminReturnReasonListParams,
+  query?: InferClientInput<typeof sdk.admin.returnReasons.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminReturnReasonListResponse,
+      InferClientOutput<typeof sdk.admin.returnReasons.query>,
       ClientError,
-      HttpTypes.AdminReturnReasonListResponse,
+      InferClientOutput<typeof sdk.admin.returnReasons.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.returnReason.list(query),
+    queryFn: () => sdk.admin.returnReasons.query({ ...query }),
     queryKey: returnReasonsQueryKeys.list(query),
     ...options,
   })
@@ -38,19 +41,22 @@ export const useReturnReasons = (
 
 export const useReturnReason = (
   id: string,
-  query?: HttpTypes.AdminReturnReasonParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.returnReasons.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminReturnReasonResponse,
+      InferClientOutput<typeof sdk.admin.returnReasons.$id.query>,
       ClientError,
-      HttpTypes.AdminReturnReasonResponse,
+      InferClientOutput<typeof sdk.admin.returnReasons.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.returnReason.retrieve(id, query),
+    queryFn: () => sdk.admin.returnReasons.$id.query({ $id: id, ...query }),
     queryKey: returnReasonsQueryKeys.detail(id),
     ...options,
   })
@@ -59,15 +65,14 @@ export const useReturnReason = (
 }
 
 export const useCreateReturnReason = (
-  query?: HttpTypes.AdminReturnReasonParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminReturnReasonResponse,
+    InferClientOutput<typeof sdk.admin.returnReasons.mutate>,
     ClientError,
-    HttpTypes.AdminCreateReturnReason
+    InferClientInput<typeof sdk.admin.returnReasons.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: async (data) => sdk.admin.returnReason.create(data, query),
+    mutationFn: (payload) => sdk.admin.returnReasons.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: returnReasonsQueryKeys.lists(),
@@ -78,23 +83,27 @@ export const useCreateReturnReason = (
     ...options,
   })
 }
+
 export const useUpdateReturnReason = (
   id: string,
-  query?: HttpTypes.AdminReturnReasonParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminReturnReasonResponse,
+    InferClientOutput<typeof sdk.admin.returnReasons.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateReturnReason
+    Omit<
+      InferClientInput<typeof sdk.admin.returnReasons.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: async (data) => sdk.admin.returnReason.update(id, data, query),
+    mutationFn: (payload) =>
+      sdk.admin.returnReasons.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: returnReasonsQueryKeys.lists(),
       })
       queryClient.invalidateQueries({
-        queryKey: returnReasonsQueryKeys.detail(data.return_reason.id, query),
+        queryKey: returnReasonsQueryKeys.detail(id),
       })
 
       options?.onSuccess?.(data, variables, context)
@@ -106,13 +115,13 @@ export const useUpdateReturnReason = (
 export const useDeleteReturnReason = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminReturnReasonDeleteResponse,
+    InferClientOutput<typeof sdk.admin.returnReasons.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.returnReason.delete(id),
+    mutationFn: () => sdk.admin.returnReasons.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: returnReasonsQueryKeys.lists(),

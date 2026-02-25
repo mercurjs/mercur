@@ -5,13 +5,9 @@ export const rawConfigSchema = z
   .object({
     $schema: z.string().optional(),
     aliases: z.object({
-      workflows: z.string(),
       api: z.string(),
-      links: z.string(),
-      modules: z.string(),
       vendor: z.string(),
       admin: z.string(),
-      lib: z.string(),
     }),
     registries: registryConfigSchema.optional(),
   })
@@ -20,13 +16,9 @@ export const rawConfigSchema = z
 export const configSchema = rawConfigSchema.extend({
   resolvedPaths: z.object({
     cwd: z.string(),
-    workflows: z.string(),
     api: z.string(),
-    links: z.string(),
-    modules: z.string(),
     vendor: z.string(),
     admin: z.string(),
-    lib: z.string(),
   }),
 });
 

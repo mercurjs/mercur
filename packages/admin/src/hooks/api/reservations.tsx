@@ -1,11 +1,15 @@
 import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
+import {
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
 } from "@tanstack/react-query"
-import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
@@ -13,7 +17,6 @@ import {
   inventoryItemLevelsQueryKeys,
   inventoryItemsQueryKeys,
 } from "./inventory.tsx"
-import { ClientError } from "@mercurjs/client"
 
 const RESERVATION_ITEMS_QUERY_KEY = "reservation_items" as const
 export const reservationItemsQueryKeys = queryKeysFactory(
@@ -22,12 +25,15 @@ export const reservationItemsQueryKeys = queryKeysFactory(
 
 export const useReservationItem = (
   id: string,
-  query?: HttpTypes.AdminReservationParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.reservations.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminReservationResponse,
+      InferClientOutput<typeof sdk.admin.reservations.$id.query>,
       ClientError,
-      HttpTypes.AdminReservationResponse,
+      InferClientOutput<typeof sdk.admin.reservations.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -35,7 +41,7 @@ export const useReservationItem = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: reservationItemsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.reservation.retrieve(id, query),
+    queryFn: () => sdk.admin.reservations.$id.query({ $id: id, ...query }),
     ...options,
   })
 
@@ -43,19 +49,19 @@ export const useReservationItem = (
 }
 
 export const useReservationItems = (
-  query?: HttpTypes.AdminGetReservationsParams,
+  query?: InferClientInput<typeof sdk.admin.reservations.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminGetReservationsParams,
+      InferClientOutput<typeof sdk.admin.reservations.query>,
       ClientError,
-      HttpTypes.AdminReservationListResponse,
+      InferClientOutput<typeof sdk.admin.reservations.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.reservation.list(query),
+    queryFn: () => sdk.admin.reservations.query({ ...query }),
     queryKey: reservationItemsQueryKeys.list(query),
     ...options,
   })
@@ -66,14 +72,17 @@ export const useReservationItems = (
 export const useUpdateReservationItem = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminReservationResponse,
+    InferClientOutput<typeof sdk.admin.reservations.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateReservation
+    Omit<
+      InferClientInput<typeof sdk.admin.reservations.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminUpdateReservation) =>
-      sdk.admin.reservation.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.reservations.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: reservationItemsQueryKeys.detail(id),
@@ -95,14 +104,13 @@ export const useUpdateReservationItem = (
 
 export const useCreateReservationItem = (
   options?: UseMutationOptions<
-    HttpTypes.AdminReservationResponse,
+    InferClientOutput<typeof sdk.admin.reservations.mutate>,
     ClientError,
-    HttpTypes.AdminCreateReservation
+    InferClientInput<typeof sdk.admin.reservations.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload: HttpTypes.AdminCreateReservation) =>
-      sdk.admin.reservation.create(payload),
+    mutationFn: (payload) => sdk.admin.reservations.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: reservationItemsQueryKeys.lists(),
@@ -122,13 +130,13 @@ export const useCreateReservationItem = (
 export const useDeleteReservationItem = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminReservationDeleteResponse,
+    InferClientOutput<typeof sdk.admin.reservations.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.reservation.delete(id),
+    mutationFn: () => sdk.admin.reservations.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: reservationItemsQueryKeys.lists(),

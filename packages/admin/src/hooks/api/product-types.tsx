@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -16,19 +19,22 @@ export const productTypesQueryKeys = queryKeysFactory(PRODUCT_TYPES_QUERY_KEY)
 
 export const useProductType = (
   id: string,
-  query?: HttpTypes.AdminProductTypeParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.productTypes.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminProductTypeResponse,
+      InferClientOutput<typeof sdk.admin.productTypes.$id.query>,
       ClientError,
-      HttpTypes.AdminProductTypeResponse,
+      InferClientOutput<typeof sdk.admin.productTypes.$id.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.productType.retrieve(id, query),
+    queryFn: () => sdk.admin.productTypes.$id.query({ $id: id, ...query }),
     queryKey: productTypesQueryKeys.detail(id),
     ...options,
   })
@@ -37,19 +43,19 @@ export const useProductType = (
 }
 
 export const useProductTypes = (
-  query?: HttpTypes.AdminProductTypeListParams,
+  query?: InferClientInput<typeof sdk.admin.productTypes.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminProductTypeListResponse,
+      InferClientOutput<typeof sdk.admin.productTypes.query>,
       ClientError,
-      HttpTypes.AdminProductTypeListResponse,
+      InferClientOutput<typeof sdk.admin.productTypes.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.productType.list(query),
+    queryFn: () => sdk.admin.productTypes.query({ ...query }),
     queryKey: productTypesQueryKeys.list(query),
     ...options,
   })
@@ -59,13 +65,13 @@ export const useProductTypes = (
 
 export const useCreateProductType = (
   options?: UseMutationOptions<
-    HttpTypes.AdminProductTypeResponse,
+    InferClientOutput<typeof sdk.admin.productTypes.mutate>,
     ClientError,
-    HttpTypes.AdminCreateProductType
+    InferClientInput<typeof sdk.admin.productTypes.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.productType.create(payload),
+    mutationFn: (payload) => sdk.admin.productTypes.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: productTypesQueryKeys.lists() })
 
@@ -78,13 +84,17 @@ export const useCreateProductType = (
 export const useUpdateProductType = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductTypeResponse,
+    InferClientOutput<typeof sdk.admin.productTypes.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateProductType
+    Omit<
+      InferClientInput<typeof sdk.admin.productTypes.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.productType.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.productTypes.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTypesQueryKeys.detail(id),
@@ -100,13 +110,13 @@ export const useUpdateProductType = (
 export const useDeleteProductType = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductTypeDeleteResponse,
+    InferClientOutput<typeof sdk.admin.productTypes.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.productType.delete(id),
+    mutationFn: () => sdk.admin.productTypes.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productTypesQueryKeys.detail(id),

@@ -1,4 +1,8 @@
-import { ClientError } from "@mercurjs/client"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -18,19 +22,22 @@ export const priceListsQueryKeys = queryKeysFactory(PRICE_LISTS_QUERY_KEY)
 
 export const usePriceList = (
   id: string,
-  query?: HttpTypes.AdminPriceListListParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.priceLists.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminPriceListResponse,
+      InferClientOutput<typeof sdk.admin.priceLists.$id.query>,
       ClientError,
-      HttpTypes.AdminPriceListResponse,
+      InferClientOutput<typeof sdk.admin.priceLists.$id.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.priceList.retrieve(id, query),
+    queryFn: () => sdk.admin.priceLists.$id.query({ $id: id, ...query }),
     queryKey: priceListsQueryKeys.detail(id),
     ...options,
   })
@@ -39,19 +46,19 @@ export const usePriceList = (
 }
 
 export const usePriceLists = (
-  query?: HttpTypes.AdminPriceListListParams,
+  query?: InferClientInput<typeof sdk.admin.priceLists.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminPriceListListResponse,
+      InferClientOutput<typeof sdk.admin.priceLists.query>,
       ClientError,
-      HttpTypes.AdminPriceListListResponse,
+      InferClientOutput<typeof sdk.admin.priceLists.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.priceList.list(query),
+    queryFn: () => sdk.admin.priceLists.query({ ...query }),
     queryKey: priceListsQueryKeys.list(query),
     ...options,
   })
@@ -60,15 +67,14 @@ export const usePriceLists = (
 }
 
 export const useCreatePriceList = (
-  query?: HttpTypes.AdminPriceListParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.mutate>,
     ClientError,
-    HttpTypes.AdminCreatePriceList
+    InferClientInput<typeof sdk.admin.priceLists.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.priceList.create(payload, query),
+    mutationFn: (payload) => sdk.admin.priceLists.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() })
 
@@ -82,15 +88,18 @@ export const useCreatePriceList = (
 
 export const useUpdatePriceList = (
   id: string,
-  query?: HttpTypes.AdminPriceListParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdatePriceList
+    Omit<
+      InferClientInput<typeof sdk.admin.priceLists.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.priceList.update(id, payload, query),
+    mutationFn: (payload) =>
+      sdk.admin.priceLists.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() })
       queryClient.invalidateQueries({
@@ -108,13 +117,13 @@ export const useUpdatePriceList = (
 export const useDeletePriceList = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListDeleteResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.priceList.delete(id),
+    mutationFn: () => sdk.admin.priceLists.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: priceListsQueryKeys.lists() })
 
@@ -126,16 +135,19 @@ export const useDeletePriceList = (
 
 export const useBatchPriceListPrices = (
   id: string,
-  query?: HttpTypes.AdminPriceListParams,
+  query?: Record<string, any>,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListBatchResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.$id.prices.batch.mutate>,
     ClientError,
-    HttpTypes.AdminBatchPriceListPrice
+    Omit<
+      InferClientInput<typeof sdk.admin.priceLists.$id.prices.batch.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.priceList.batchPrices(id, payload, query),
+      sdk.admin.priceLists.$id.prices.batch.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: priceListsQueryKeys.detail(id),
@@ -151,13 +163,17 @@ export const useBatchPriceListPrices = (
 export const usePriceListLinkProducts = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminPriceListResponse,
+    InferClientOutput<typeof sdk.admin.priceLists.$id.products.mutate>,
     ClientError,
-    HttpTypes.AdminLinkPriceListProducts
+    Omit<
+      InferClientInput<typeof sdk.admin.priceLists.$id.products.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.priceList.linkProducts(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.priceLists.$id.products.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: priceListsQueryKeys.detail(id),

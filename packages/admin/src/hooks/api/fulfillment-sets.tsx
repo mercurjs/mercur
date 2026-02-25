@@ -30,7 +30,7 @@ export const useDeleteFulfillmentSet = (
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.fulfillmentSet.delete(id),
+    mutationFn: () => sdk.admin.fulfillmentSets.$id.delete({ $id: id }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: fulfillmentSetsQueryKeys.detail(id),
@@ -69,11 +69,10 @@ export const useFulfillmentSetServiceZone = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>
-      sdk.admin.fulfillmentSet.retrieveServiceZone(
-        fulfillmentSetId,
-        serviceZoneId,
-        query
-      ),
+      sdk.admin.fulfillmentSets.$id.serviceZones.$id.query({
+        $id: serviceZoneId,
+        ...query,
+      }),
     queryKey: fulfillmentSetsQueryKeys.detail(fulfillmentSetId, query),
     ...options,
   })
@@ -95,7 +94,10 @@ export const useCreateFulfillmentSetServiceZone = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.fulfillmentSet.createServiceZone(fulfillmentSetId, payload),
+      sdk.admin.fulfillmentSets.$id.serviceZones.mutate({
+        $id: fulfillmentSetId,
+        ...payload,
+      }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: fulfillmentSetsQueryKeys.lists(),
@@ -125,11 +127,10 @@ export const useUpdateFulfillmentSetServiceZone = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.fulfillmentSet.updateServiceZone(
-        fulfillmentSetId,
-        serviceZoneId,
-        payload
-      ),
+      sdk.admin.fulfillmentSets.$id.serviceZones.$id.mutate({
+        $id: serviceZoneId,
+        ...payload,
+      }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: fulfillmentSetsQueryKeys.lists(),
@@ -158,10 +159,9 @@ export const useDeleteFulfillmentServiceZone = (
 ) => {
   return useMutation({
     mutationFn: () =>
-      sdk.admin.fulfillmentSet.deleteServiceZone(
-        fulfillmentSetId,
-        serviceZoneId
-      ),
+      sdk.admin.fulfillmentSets.$id.serviceZones.$id.delete({
+        $id: serviceZoneId,
+      }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: fulfillmentSetsQueryKeys.lists(),

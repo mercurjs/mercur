@@ -9,13 +9,9 @@ import {
 } from "../schema";
 import { resolveImport } from "./resolve-import";
 
-export const DEFAULT_WORKFLOWS = "packages/api/src/workflows";
-export const DEFAULT_API = "packages/api/src/api";
-export const DEFAULT_LINKS = "packages/api/src/links";
-export const DEFAULT_MODULES = "packages/api/src/modules";
+export const DEFAULT_API = "packages/api/src";
 export const DEFAULT_VENDOR = "apps/vendor/src";
 export const DEFAULT_ADMIN = "apps/admin/src";
-export const DEFAULT_LIB = "packages/api/src/lib";
 
 export const explorer = cosmiconfig("blocks", {
   searchPlaces: ["blocks.json"],
@@ -53,13 +49,9 @@ export async function resolveConfigPaths(
     ...config,
     resolvedPaths: {
       cwd,
-      workflows: await resolveImport(config.aliases.workflows, tsConfig),
       api: await resolveImport(config.aliases.api, tsConfig),
-      links: await resolveImport(config.aliases.links, tsConfig),
-      modules: await resolveImport(config.aliases.modules, tsConfig),
       vendor: await resolveImport(config.aliases.vendor, tsConfig),
       admin: await resolveImport(config.aliases.admin, tsConfig),
-      lib: await resolveImport(config.aliases.lib, tsConfig),
     },
   });
 }
@@ -101,22 +93,14 @@ export function createConfig(partial?: DeepPartial<Config>): Config {
   const defaultConfig: Config = {
     resolvedPaths: {
       cwd: process.cwd(),
-      admin: "",
-      lib: "",
-      links: "",
-      modules: "",
-      vendor: "",
-      workflows: "",
       api: "",
+      vendor: "",
+      admin: "",
     },
     aliases: {
-      workflows: DEFAULT_WORKFLOWS,
       api: DEFAULT_API,
-      links: DEFAULT_LINKS,
-      modules: DEFAULT_MODULES,
       vendor: DEFAULT_VENDOR,
       admin: DEFAULT_ADMIN,
-      lib: DEFAULT_LIB,
     },
     registries: {
       ...BUILTIN_REGISTRIES,

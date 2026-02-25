@@ -6,14 +6,13 @@ import { Container, Divider, Heading, toast, usePrompt } from "@medusajs/ui";
 import { sdk } from "@lib/client";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 
 import type { AdminProductListResponse } from "@custom-types/product";
 import type { AdminProduct } from "@custom-types/product/common";
 
-import { ActionsButton } from "@components/common/actions-button";
-import { ProductStatusBadge } from "@components/common/product-status-badge";
+import { ActionMenu } from "../../../../components/common/action-menu";
 import { Thumbnail } from "@components/common/thumbnail";
+import { ProductStatusCell } from "@components/table/table-cells/product/product-status-cell";
 import { _DataTable } from "@components/table/data-table";
 
 import { useProductTableFilters } from "@hooks/table/filters";
@@ -83,7 +82,6 @@ const columnHelper = createColumnHelper<AdminProduct>();
 
 const useColumns = (refetch: () => void) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const prompt = usePrompt();
 
   const handleDelete = async (product: AdminProduct) => {
@@ -155,24 +153,32 @@ const useColumns = (refetch: () => void) => {
       columnHelper.display({
         id: "status",
         header: "Status",
-        cell: ({ row }) => <ProductStatusBadge status={row.original.status} />,
+        cell: ({ row }) => <ProductStatusCell status={row.original.status} />,
       }),
       columnHelper.display({
         id: "actions",
         header: "",
         cell: ({ row }) => (
-          <ActionsButton
+          <ActionMenu
             data-testid={`seller-products-section-row-actions-${row.original.id}`}
-            actions={[
+            groups={[
               {
-                label: "Edit",
-                onClick: () => navigate(`/products/${row.original.id}/edit`),
-                icon: <PencilSquare />,
+                actions: [
+                  {
+                    label: "Edit",
+                    to: `/products/${row.original.id}/edit`,
+                    icon: <PencilSquare />,
+                  },
+                ],
               },
               {
-                label: "Delete",
-                onClick: () => handleDelete(row.original),
-                icon: <Trash />,
+                actions: [
+                  {
+                    label: "Delete",
+                    onClick: () => handleDelete(row.original),
+                    icon: <Trash />,
+                  },
+                ],
               },
             ]}
           />

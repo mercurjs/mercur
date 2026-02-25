@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -18,19 +21,23 @@ export const pricePreferencesQueryKeys = queryKeysFactory(
 
 export const usePricePreference = (
   id: string,
-  query?: HttpTypes.AdminPricePreferenceParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.pricePreferences.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminPricePreferenceResponse,
+      InferClientOutput<typeof sdk.admin.pricePreferences.$id.query>,
       ClientError,
-      HttpTypes.AdminPricePreferenceResponse,
+      InferClientOutput<typeof sdk.admin.pricePreferences.$id.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.pricePreference.retrieve(id, query),
+    queryFn: () =>
+      sdk.admin.pricePreferences.$id.query({ $id: id, ...query }),
     queryKey: pricePreferencesQueryKeys.detail(id),
     ...options,
   })
@@ -39,19 +46,19 @@ export const usePricePreference = (
 }
 
 export const usePricePreferences = (
-  query?: HttpTypes.AdminPricePreferenceListParams,
+  query?: InferClientInput<typeof sdk.admin.pricePreferences.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminPricePreferenceListResponse,
+      InferClientOutput<typeof sdk.admin.pricePreferences.query>,
       ClientError,
-      HttpTypes.AdminPricePreferenceListResponse,
+      InferClientOutput<typeof sdk.admin.pricePreferences.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.pricePreference.list(query),
+    queryFn: () => sdk.admin.pricePreferences.query({ ...query }),
     queryKey: pricePreferencesQueryKeys.list(query),
     ...options,
   })
@@ -61,22 +68,22 @@ export const usePricePreferences = (
 
 export const useUpsertPricePreference = (
   id?: string | undefined,
-  query?: HttpTypes.AdminPricePreferenceParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminPricePreferenceResponse,
+    InferClientOutput<typeof sdk.admin.pricePreferences.mutate>,
     ClientError,
-    HttpTypes.AdminUpdatePricePreference | HttpTypes.AdminCreatePricePreference
+    InferClientInput<typeof sdk.admin.pricePreferences.mutate>
   >
 ) => {
   return useMutation({
     mutationFn: (payload) => {
       if (id) {
-        return sdk.admin.pricePreference.update(id, {
+        return sdk.admin.pricePreferences.$id.mutate({
+          $id: id,
           ...payload,
-          attribute: payload.attribute ?? undefined,
-        }, query)
+          attribute: (payload as any).attribute ?? undefined,
+        })
       }
-      return sdk.admin.pricePreference.create(payload, query)
+      return sdk.admin.pricePreferences.mutate(payload)
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
@@ -97,13 +104,13 @@ export const useUpsertPricePreference = (
 export const useDeletePricePreference = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminPricePreferenceDeleteResponse,
+    InferClientOutput<typeof sdk.admin.pricePreferences.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.pricePreference.delete(id),
+    mutationFn: () => sdk.admin.pricePreferences.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: pricePreferencesQueryKeys.list(),

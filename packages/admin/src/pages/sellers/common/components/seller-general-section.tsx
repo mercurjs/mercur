@@ -1,19 +1,33 @@
 import { PencilSquare, User } from "@medusajs/icons";
-import { Container, Divider, Heading, Text, usePrompt } from "@medusajs/ui";
-
-import { useNavigate } from "react-router-dom";
+import { Badge, Container, Heading, Text, usePrompt } from "@medusajs/ui";
 
 import type { VendorSeller } from "@custom-types/seller";
 
-import { ActionsButton } from "@components/common/actions-button";
-import { SellerStatusBadge } from "@components/common/seller-status-badge";
+import { ActionMenu } from "../../../../components/common/action-menu";
 
-import { useUpdateSeller } from "@hooks/api/sellers";
+import { SellerStatus } from "@mercurjs/types";
+import { useUpdateSeller } from "@/hooks/api";
+
+const getStatusBadgeColor = (status: string) => {
+  const colors: Record<string, "orange" | "green" | "red"> = {
+    [SellerStatus.PENDING]: "orange",
+    [SellerStatus.ACTIVE]: "green",
+    [SellerStatus.SUSPENDED]: "red",
+  };
+  return colors[status] || "orange";
+};
+
+const getStatusLabel = (status: string) => {
+  const labels: Record<string, string> = {
+    [SellerStatus.PENDING]: "Pending",
+    [SellerStatus.ACTIVE]: "Active",
+    [SellerStatus.SUSPENDED]: "Suspended",
+  };
+  return labels[status] || "Pending";
+};
 
 export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
-  const navigate = useNavigate();
-
-  const { mutateAsync: suspendSeller } = useUpdateSeller();
+  const { mutateAsync: suspendSeller } = useUpdateSeller(seller.id);
 
   const dialog = usePrompt();
 
@@ -46,18 +60,32 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
 
   return (
     <>
-      <div>
-        <Container className="mb-2" data-testid="seller-general-section-header">
-          <div className="flex items-center justify-between">
-            <Heading data-testid="seller-general-section-name">{seller.email || seller.name}</Heading>
-            <div className="flex items-center gap-2">
-              <SellerStatusBadge status={seller.store_status || "pending"} data-testid="seller-general-section-status-badge" />
-              <ActionsButton
-                data-testid="seller-general-section-action-menu"
-                actions={[
+      <Container
+        className="mb-2 divide-y p-0"
+        data-testid="seller-general-section-header"
+      >
+        <div className="flex items-center justify-between px-6 py-4">
+          <div>
+            <Heading data-testid="seller-general-section-name">
+              {seller.email || seller.name}
+            </Heading>
+            <div className="flex items-center gap-x-2 mt-1">
+              <Badge
+                size="2xsmall"
+                color={getStatusBadgeColor(seller.store_status || "pending")}
+                data-testid="seller-general-section-status-badge"
+              >
+                {getStatusLabel(seller.store_status || "pending")}
+              </Badge>
+            </div>
+          </div>
+          <ActionMenu
+            groups={[
+              {
+                actions: [
                   {
                     label: "Edit",
-                    onClick: () => navigate(`/sellers/${seller.id}/edit`),
+                    to: `/sellers/${seller.id}/edit`,
                     icon: <PencilSquare />,
                   },
                   {
@@ -68,82 +96,218 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
                     onClick: () => handleSuspend(),
                     icon: <User />,
                   },
-                ]}
-              />
-            </div>
-          </div>
-        </Container>
-      </div>
+                ],
+              },
+            ]}
+            data-testid="seller-general-section-action-menu"
+          />
+        </div>
+      </Container>
       <div className="flex gap-4">
-        <Container className="px-0" data-testid="seller-general-section-store">
-          <div className="flex items-center justify-between px-8 py-4">
-            <div>
-              <Heading data-testid="seller-general-section-store-heading">Store</Heading>
-            </div>
+        <Container
+          className="divide-y p-0"
+          data-testid="seller-general-section-store"
+        >
+          <div className="flex items-center justify-between px-6 py-4">
+            <Heading
+              level="h2"
+              data-testid="seller-general-section-store-heading"
+            >
+              Store
+            </Heading>
           </div>
-          <div>
-            <Divider />
-            <div className="flex px-8 py-4" data-testid="seller-general-section-store-name-row">
-              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-store-name-label">Name</Text>
-              <Text className="w-1/2" data-testid="seller-general-section-store-name-value">{seller.name}</Text>
-            </div>
-            <Divider />
-            <div className="flex px-8 py-4" data-testid="seller-general-section-store-email-row">
-              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-store-email-label">Email</Text>
-              <Text className="w-1/2" data-testid="seller-general-section-store-email-value">{seller.email}</Text>
-            </div>
-            <Divider />
-            <div className="flex px-8 py-4" data-testid="seller-general-section-store-phone-row">
-              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-store-phone-label">Phone</Text>
-              <Text className="w-1/2" data-testid="seller-general-section-store-phone-value">{seller.phone}</Text>
-            </div>
-            <Divider />
-            <div className="flex px-8 py-4" data-testid="seller-general-section-store-description-row">
-              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-store-description-label">
-                Description
-              </Text>
-              <Text className="w-1/2" data-testid="seller-general-section-store-description-value">{seller.description}</Text>
-            </div>
+          <div
+            className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4"
+            data-testid="seller-general-section-store-name-row"
+          >
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              data-testid="seller-general-section-store-name-label"
+            >
+              Name
+            </Text>
+            <Text
+              size="small"
+              leading="compact"
+              data-testid="seller-general-section-store-name-value"
+            >
+              {seller.name}
+            </Text>
+          </div>
+          <div
+            className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4"
+            data-testid="seller-general-section-store-email-row"
+          >
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              data-testid="seller-general-section-store-email-label"
+            >
+              Email
+            </Text>
+            <Text
+              size="small"
+              leading="compact"
+              data-testid="seller-general-section-store-email-value"
+            >
+              {seller.email}
+            </Text>
+          </div>
+          <div
+            className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4"
+            data-testid="seller-general-section-store-phone-row"
+          >
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              data-testid="seller-general-section-store-phone-label"
+            >
+              Phone
+            </Text>
+            <Text
+              size="small"
+              leading="compact"
+              data-testid="seller-general-section-store-phone-value"
+            >
+              {seller.phone || "-"}
+            </Text>
+          </div>
+          <div
+            className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4"
+            data-testid="seller-general-section-store-description-row"
+          >
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              data-testid="seller-general-section-store-description-label"
+            >
+              Description
+            </Text>
+            <Text
+              size="small"
+              leading="compact"
+              data-testid="seller-general-section-store-description-value"
+            >
+              {seller.description || "-"}
+            </Text>
           </div>
         </Container>
-        <Container className="px-0" data-testid="seller-general-section-address">
-          <div className="flex items-center justify-between px-8 py-4">
-            <div>
-              <Heading data-testid="seller-general-section-address-heading">Address</Heading>
-            </div>
+        <Container
+          className="divide-y p-0"
+          data-testid="seller-general-section-address"
+        >
+          <div className="flex items-center justify-between px-6 py-4">
+            <Heading
+              level="h2"
+              data-testid="seller-general-section-address-heading"
+            >
+              Address
+            </Heading>
           </div>
-          <div>
-            <Divider />
-            <div className="flex px-8 py-4" data-testid="seller-general-section-address-line-row">
-              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-address-line-label">
-                Address
-              </Text>
-              <Text className="w-1/2" data-testid="seller-general-section-address-line-value">{seller.address_line}</Text>
-            </div>
-            <Divider />
-            <div className="flex px-8 py-4" data-testid="seller-general-section-postal-code-row">
-              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-postal-code-label">
-                Postal Code
-              </Text>
-              <Text className="w-1/2" data-testid="seller-general-section-postal-code-value">{seller.postal_code}</Text>
-            </div>
-            <Divider />
-            <div className="flex px-8 py-4" data-testid="seller-general-section-city-row">
-              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-city-label">City</Text>
-              <Text className="w-1/2" data-testid="seller-general-section-city-value">{seller.city}</Text>
-            </div>
-            <Divider />
-            <div className="flex px-8 py-4" data-testid="seller-general-section-country-row">
-              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-country-label">
-                Country
-              </Text>
-              <Text className="w-1/2" data-testid="seller-general-section-country-value">{seller.country_code}</Text>
-            </div>
-            <Divider />
-            <div className="flex px-8 py-4" data-testid="seller-general-section-tax-id-row">
-              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-tax-id-label">TaxID</Text>
-              <Text className="w-1/2" data-testid="seller-general-section-tax-id-value">{seller.tax_id}</Text>
-            </div>
+          <div
+            className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4"
+            data-testid="seller-general-section-address-line-row"
+          >
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              data-testid="seller-general-section-address-line-label"
+            >
+              Address
+            </Text>
+            <Text
+              size="small"
+              leading="compact"
+              data-testid="seller-general-section-address-line-value"
+            >
+              {seller.address_line || "-"}
+            </Text>
+          </div>
+          <div
+            className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4"
+            data-testid="seller-general-section-postal-code-row"
+          >
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              data-testid="seller-general-section-postal-code-label"
+            >
+              Postal Code
+            </Text>
+            <Text
+              size="small"
+              leading="compact"
+              data-testid="seller-general-section-postal-code-value"
+            >
+              {seller.postal_code || "-"}
+            </Text>
+          </div>
+          <div
+            className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4"
+            data-testid="seller-general-section-city-row"
+          >
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              data-testid="seller-general-section-city-label"
+            >
+              City
+            </Text>
+            <Text
+              size="small"
+              leading="compact"
+              data-testid="seller-general-section-city-value"
+            >
+              {seller.city || "-"}
+            </Text>
+          </div>
+          <div
+            className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4"
+            data-testid="seller-general-section-country-row"
+          >
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              data-testid="seller-general-section-country-label"
+            >
+              Country
+            </Text>
+            <Text
+              size="small"
+              leading="compact"
+              data-testid="seller-general-section-country-value"
+            >
+              {seller.country_code || "-"}
+            </Text>
+          </div>
+          <div
+            className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4"
+            data-testid="seller-general-section-tax-id-row"
+          >
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              data-testid="seller-general-section-tax-id-label"
+            >
+              TaxID
+            </Text>
+            <Text
+              size="small"
+              leading="compact"
+              data-testid="seller-general-section-tax-id-value"
+            >
+              {seller.tax_id || "-"}
+            </Text>
           </div>
         </Container>
       </div>

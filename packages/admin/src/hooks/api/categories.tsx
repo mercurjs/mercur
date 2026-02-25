@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -17,12 +20,15 @@ export const categoriesQueryKeys = queryKeysFactory(CATEGORIES_QUERY_KEY)
 
 export const useProductCategory = (
   id: string,
-  query?: HttpTypes.AdminProductCategoryParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.productCategories.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminProductCategoryResponse,
+      InferClientOutput<typeof sdk.admin.productCategories.$id.query>,
       ClientError,
-      HttpTypes.AdminProductCategoryResponse,
+      InferClientOutput<typeof sdk.admin.productCategories.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -30,7 +36,8 @@ export const useProductCategory = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: categoriesQueryKeys.detail(id, query),
-    queryFn: () => sdk.admin.productCategory.retrieve(id, query),
+    queryFn: () =>
+      sdk.admin.productCategories.$id.query({ $id: id, ...query }),
     ...options,
   })
 
@@ -38,12 +45,12 @@ export const useProductCategory = (
 }
 
 export const useProductCategories = (
-  query?: HttpTypes.AdminProductCategoryListParams,
+  query?: InferClientInput<typeof sdk.admin.productCategories.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminProductCategoryListResponse,
+      InferClientOutput<typeof sdk.admin.productCategories.query>,
       ClientError,
-      HttpTypes.AdminProductCategoryListResponse,
+      InferClientOutput<typeof sdk.admin.productCategories.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -51,7 +58,7 @@ export const useProductCategories = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: categoriesQueryKeys.list(query),
-    queryFn: () => sdk.admin.productCategory.list(query),
+    queryFn: () => sdk.admin.productCategories.query({ ...query }),
     ...options,
   })
 
@@ -60,13 +67,13 @@ export const useProductCategories = (
 
 export const useCreateProductCategory = (
   options?: UseMutationOptions<
-    HttpTypes.AdminProductCategoryResponse,
+    InferClientOutput<typeof sdk.admin.productCategories.mutate>,
     ClientError,
-    HttpTypes.AdminCreateProductCategory
+    InferClientInput<typeof sdk.admin.productCategories.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.productCategory.create(payload),
+    mutationFn: (payload) => sdk.admin.productCategories.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: categoriesQueryKeys.lists() })
 
@@ -79,13 +86,17 @@ export const useCreateProductCategory = (
 export const useUpdateProductCategory = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductCategoryResponse,
+    InferClientOutput<typeof sdk.admin.productCategories.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateProductCategory
+    Omit<
+      InferClientInput<typeof sdk.admin.productCategories.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.productCategory.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.productCategories.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: categoriesQueryKeys.lists() })
       queryClient.invalidateQueries({
@@ -101,13 +112,13 @@ export const useUpdateProductCategory = (
 export const useDeleteProductCategory = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductCategoryDeleteResponse,
+    InferClientOutput<typeof sdk.admin.productCategories.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.productCategory.delete(id),
+    mutationFn: () => sdk.admin.productCategories.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: categoriesQueryKeys.detail(id),
@@ -123,14 +134,20 @@ export const useDeleteProductCategory = (
 export const useUpdateProductCategoryProducts = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminProductCategoryResponse,
+    InferClientOutput<typeof sdk.admin.productCategories.$id.products.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateProductCategoryProducts
+    Omit<
+      InferClientInput<typeof sdk.admin.productCategories.$id.products.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.productCategory.updateProducts(id, payload),
+      sdk.admin.productCategories.$id.products.mutate({
+        $id: id,
+        ...payload,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: categoriesQueryKeys.lists() })
       queryClient.invalidateQueries({

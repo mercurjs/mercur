@@ -1,4 +1,9 @@
 import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
+import {
   QueryKey,
   useMutation,
   UseMutationOptions,
@@ -6,8 +11,6 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query"
 
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
@@ -20,16 +23,22 @@ export const shippingOptionsQueryKeys = queryKeysFactory(
 
 export const useShippingOption = (
   id: string,
-  query?: Record<string, unknown>,
-  options?: UseQueryOptions<
-    HttpTypes.AdminShippingOptionResponse,
-    Error,
-    HttpTypes.AdminShippingOptionResponse,
-    QueryKey
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.shippingOptions.$id.query>,
+    "$id"
+  >,
+  options?: Omit<
+    UseQueryOptions<
+      InferClientOutput<typeof sdk.admin.shippingOptions.$id.query>,
+      ClientError,
+      InferClientOutput<typeof sdk.admin.shippingOptions.$id.query>,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingOption.retrieve(id, query),
+    queryFn: () => sdk.admin.shippingOptions.$id.query({ $id: id, ...query }),
     queryKey: shippingOptionsQueryKeys.detail(id),
     ...options,
   })
@@ -38,19 +47,19 @@ export const useShippingOption = (
 }
 
 export const useShippingOptions = (
-  query?: HttpTypes.AdminShippingOptionListParams,
+  query?: InferClientInput<typeof sdk.admin.shippingOptions.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminShippingOptionListResponse,
+      InferClientOutput<typeof sdk.admin.shippingOptions.query>,
       ClientError,
-      HttpTypes.AdminShippingOptionListResponse,
+      InferClientOutput<typeof sdk.admin.shippingOptions.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingOption.list(query),
+    queryFn: () => sdk.admin.shippingOptions.query({ ...query }),
     queryKey: shippingOptionsQueryKeys.list(query),
     ...options,
   })
@@ -60,13 +69,13 @@ export const useShippingOptions = (
 
 export const useCreateShippingOptions = (
   options?: UseMutationOptions<
-    HttpTypes.AdminShippingOptionResponse,
+    InferClientOutput<typeof sdk.admin.shippingOptions.mutate>,
     ClientError,
-    HttpTypes.AdminCreateShippingOption
+    InferClientInput<typeof sdk.admin.shippingOptions.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.shippingOption.create(payload),
+    mutationFn: (payload) => sdk.admin.shippingOptions.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,
@@ -83,13 +92,17 @@ export const useCreateShippingOptions = (
 export const useUpdateShippingOptions = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminShippingOptionResponse,
+    InferClientOutput<typeof sdk.admin.shippingOptions.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateShippingOption
+    Omit<
+      InferClientInput<typeof sdk.admin.shippingOptions.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.shippingOption.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.shippingOptions.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,
@@ -106,13 +119,13 @@ export const useUpdateShippingOptions = (
 export const useDeleteShippingOption = (
   optionId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminShippingOptionDeleteResponse,
+    InferClientOutput<typeof sdk.admin.shippingOptions.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.shippingOption.delete(optionId),
+    mutationFn: () => sdk.admin.shippingOptions.$id.delete({ $id: optionId }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,

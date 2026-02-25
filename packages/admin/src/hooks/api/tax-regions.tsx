@@ -1,5 +1,8 @@
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import {
   QueryKey,
   UseMutationOptions,
@@ -16,12 +19,15 @@ export const taxRegionsQueryKeys = queryKeysFactory(TAX_REGIONS_QUERY_KEY)
 
 export const useTaxRegion = (
   id: string,
-  query?: HttpTypes.AdminTaxRegionParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.taxRegions.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminTaxRegionResponse,
+      InferClientOutput<typeof sdk.admin.taxRegions.$id.query>,
       ClientError,
-      HttpTypes.AdminTaxRegionResponse,
+      InferClientOutput<typeof sdk.admin.taxRegions.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -29,7 +35,7 @@ export const useTaxRegion = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: taxRegionsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.taxRegion.retrieve(id, query),
+    queryFn: () => sdk.admin.taxRegions.$id.query({ $id: id, ...query }),
     ...options,
   })
 
@@ -37,19 +43,19 @@ export const useTaxRegion = (
 }
 
 export const useTaxRegions = (
-  query?: HttpTypes.AdminTaxRegionListParams,
+  query?: InferClientInput<typeof sdk.admin.taxRegions.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminTaxRegionListResponse,
+      InferClientOutput<typeof sdk.admin.taxRegions.query>,
       ClientError,
-      HttpTypes.AdminTaxRegionListResponse,
+      InferClientOutput<typeof sdk.admin.taxRegions.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.taxRegion.list(query),
+    queryFn: () => sdk.admin.taxRegions.query({ ...query }),
     queryKey: taxRegionsQueryKeys.list(query),
     ...options,
   })
@@ -59,13 +65,13 @@ export const useTaxRegions = (
 
 export const useCreateTaxRegion = (
   options?: UseMutationOptions<
-    HttpTypes.AdminTaxRegionResponse,
+    InferClientOutput<typeof sdk.admin.taxRegions.mutate>,
     ClientError,
-    HttpTypes.AdminCreateTaxRegion
+    InferClientInput<typeof sdk.admin.taxRegions.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.taxRegion.create(payload),
+    mutationFn: (payload) => sdk.admin.taxRegions.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.all })
       options?.onSuccess?.(data, variables, context)
@@ -76,16 +82,18 @@ export const useCreateTaxRegion = (
 
 export const useUpdateTaxRegion = (
   id: string,
-  query?: HttpTypes.AdminTaxRegionParams,
   options?: UseMutationOptions<
-    HttpTypes.AdminTaxRegionResponse,
+    InferClientOutput<typeof sdk.admin.taxRegions.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateTaxRegion,
-    QueryKey
+    Omit<
+      InferClientInput<typeof sdk.admin.taxRegions.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.taxRegion.update(id, payload, query),
+    mutationFn: (payload) =>
+      sdk.admin.taxRegions.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: taxRegionsQueryKeys.detail(id),
@@ -101,13 +109,13 @@ export const useUpdateTaxRegion = (
 export const useDeleteTaxRegion = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminTaxRegionDeleteResponse,
+    InferClientOutput<typeof sdk.admin.taxRegions.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.taxRegion.delete(id),
+    mutationFn: () => sdk.admin.taxRegions.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.lists() })
       queryClient.invalidateQueries({

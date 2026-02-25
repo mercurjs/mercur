@@ -1,21 +1,27 @@
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import { QueryKey, UseQueryOptions, useQuery } from "@tanstack/react-query"
 
-import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
-import { ClientError } from "@mercurjs/client"
 
 const NOTIFICATION_QUERY_KEY = "notification" as const
 export const notificationQueryKeys = queryKeysFactory(NOTIFICATION_QUERY_KEY)
 
 export const useNotification = (
   id: string,
-  query?: Record<string, any>,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.notifications.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminNotificationResponse,
+      InferClientOutput<typeof sdk.admin.notifications.$id.query>,
       ClientError,
-      HttpTypes.AdminNotificationResponse,
+      InferClientOutput<typeof sdk.admin.notifications.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -23,7 +29,7 @@ export const useNotification = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: notificationQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.notification.retrieve(id, query),
+    queryFn: () => sdk.admin.notifications.$id.query({ $id: id, ...query }),
     ...options,
   })
 
@@ -31,19 +37,19 @@ export const useNotification = (
 }
 
 export const useNotifications = (
-  query?: HttpTypes.AdminNotificationListParams,
+  query?: InferClientInput<typeof sdk.admin.notifications.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminNotificationListResponse,
+      InferClientOutput<typeof sdk.admin.notifications.query>,
       ClientError,
-      HttpTypes.AdminNotificationListResponse,
+      InferClientOutput<typeof sdk.admin.notifications.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.notification.list(query),
+    queryFn: () => sdk.admin.notifications.query({ ...query }),
     queryKey: notificationQueryKeys.list(query),
     ...options,
   })

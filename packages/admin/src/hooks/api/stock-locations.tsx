@@ -1,13 +1,15 @@
 import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
+import {
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
 } from "@tanstack/react-query"
-
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
@@ -20,19 +22,22 @@ export const stockLocationsQueryKeys = queryKeysFactory(
 
 export const useStockLocation = (
   id: string,
-  query?: HttpTypes.SelectParams,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.stockLocations.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminStockLocationResponse,
+      InferClientOutput<typeof sdk.admin.stockLocations.$id.query>,
       ClientError,
-      HttpTypes.AdminStockLocationResponse,
+      InferClientOutput<typeof sdk.admin.stockLocations.$id.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.stockLocation.retrieve(id, query),
+    queryFn: () => sdk.admin.stockLocations.$id.query({ $id: id, ...query }),
     queryKey: stockLocationsQueryKeys.detail(id, query),
     ...options,
   })
@@ -41,19 +46,19 @@ export const useStockLocation = (
 }
 
 export const useStockLocations = (
-  query?: HttpTypes.AdminStockLocationListParams,
+  query?: InferClientInput<typeof sdk.admin.stockLocations.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminStockLocationListResponse,
+      InferClientOutput<typeof sdk.admin.stockLocations.query>,
       ClientError,
-      HttpTypes.AdminStockLocationListResponse,
+      InferClientOutput<typeof sdk.admin.stockLocations.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.stockLocation.list(query),
+    queryFn: () => sdk.admin.stockLocations.query({ ...query }),
     queryKey: stockLocationsQueryKeys.list(query),
     ...options,
   })
@@ -63,13 +68,13 @@ export const useStockLocations = (
 
 export const useCreateStockLocation = (
   options?: UseMutationOptions<
-    HttpTypes.AdminStockLocationResponse,
+    InferClientOutput<typeof sdk.admin.stockLocations.mutate>,
     ClientError,
-    HttpTypes.AdminCreateStockLocation
+    InferClientInput<typeof sdk.admin.stockLocations.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.stockLocation.create(payload),
+    mutationFn: (payload) => sdk.admin.stockLocations.mutate(payload),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.lists(),
@@ -84,13 +89,17 @@ export const useCreateStockLocation = (
 export const useUpdateStockLocation = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminStockLocationResponse,
+    InferClientOutput<typeof sdk.admin.stockLocations.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateStockLocation
+    Omit<
+      InferClientInput<typeof sdk.admin.stockLocations.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.stockLocation.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.stockLocations.$id.mutate({ $id: id, ...payload }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.details(),
@@ -108,14 +117,20 @@ export const useUpdateStockLocation = (
 export const useUpdateStockLocationSalesChannels = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminStockLocationResponse,
+    InferClientOutput<typeof sdk.admin.stockLocations.$id.salesChannels.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateStockLocationSalesChannels
+    Omit<
+      InferClientInput<typeof sdk.admin.stockLocations.$id.salesChannels.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.stockLocation.updateSalesChannels(id, payload),
+      sdk.admin.stockLocations.$id.salesChannels.mutate({
+        $id: id,
+        ...payload,
+      }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.details(),
@@ -133,13 +148,13 @@ export const useUpdateStockLocationSalesChannels = (
 export const useDeleteStockLocation = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminStockLocationDeleteResponse,
+    InferClientOutput<typeof sdk.admin.stockLocations.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.stockLocation.delete(id),
+    mutationFn: () => sdk.admin.stockLocations.$id.delete({ $id: id }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.lists(),
@@ -157,14 +172,24 @@ export const useDeleteStockLocation = (
 export const useCreateStockLocationFulfillmentSet = (
   locationId: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminStockLocationResponse,
+    InferClientOutput<
+      typeof sdk.admin.stockLocations.$id.fulfillmentSets.mutate
+    >,
     ClientError,
-    HttpTypes.AdminCreateStockLocationFulfillmentSet
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.stockLocations.$id.fulfillmentSets.mutate
+      >,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.stockLocation.createFulfillmentSet(locationId, payload),
+      sdk.admin.stockLocations.$id.fulfillmentSets.mutate({
+        $id: locationId,
+        ...payload,
+      }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.all,
@@ -179,14 +204,24 @@ export const useCreateStockLocationFulfillmentSet = (
 export const useUpdateStockLocationFulfillmentProviders = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminStockLocationResponse,
+    InferClientOutput<
+      typeof sdk.admin.stockLocations.$id.fulfillmentProviders.mutate
+    >,
     ClientError,
-    HttpTypes.AdminBatchLink
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.stockLocations.$id.fulfillmentProviders.mutate
+      >,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
     mutationFn: async (payload) =>
-      await sdk.admin.stockLocation.updateFulfillmentProviders(id, payload),
+      await sdk.admin.stockLocations.$id.fulfillmentProviders.mutate({
+        $id: id,
+        ...payload,
+      }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.details(),

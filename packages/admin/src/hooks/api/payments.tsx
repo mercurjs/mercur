@@ -1,3 +1,8 @@
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
@@ -10,7 +15,6 @@ import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { ordersQueryKeys } from "./orders"
-import { ClientError } from "@mercurjs/client"
 
 const PAYMENT_QUERY_KEY = "payment" as const
 export const paymentQueryKeys = queryKeysFactory(PAYMENT_QUERY_KEY)
@@ -33,7 +37,8 @@ export const usePaymentProviders = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: async () => sdk.admin.payment.listPaymentProviders(query),
+    queryFn: async () =>
+      sdk.admin.payments.paymentProviders.query({ ...query }),
     queryKey: paymentProvidersQueryKeys.list(query),
     ...options,
   })
@@ -43,19 +48,22 @@ export const usePaymentProviders = (
 
 export const usePayment = (
   id: string,
-  query?: HttpTypes.AdminPaymentFilters,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.payments.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminPaymentResponse,
+      InferClientOutput<typeof sdk.admin.payments.$id.query>,
       ClientError,
-      HttpTypes.AdminPaymentResponse,
+      InferClientOutput<typeof sdk.admin.payments.$id.query>,
       QueryKey
     >,
     "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.payment.retrieve(id, query),
+    queryFn: () => sdk.admin.payments.$id.query({ $id: id, ...query }),
     queryKey: paymentQueryKeys.detail(id),
     ...options,
   })
@@ -73,7 +81,8 @@ export const useCapturePayment = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.payment.capture(paymentId, payload),
+    mutationFn: (payload) =>
+      sdk.admin.payments.$id.capture.mutate({ $id: paymentId, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
@@ -99,7 +108,8 @@ export const useRefundPayment = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.payment.refund(paymentId, payload),
+    mutationFn: (payload) =>
+      sdk.admin.payments.$id.refund.mutate({ $id: paymentId, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),

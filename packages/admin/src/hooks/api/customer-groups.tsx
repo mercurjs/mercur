@@ -10,9 +10,11 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query"
+import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
+import { customersQueryKeys } from "./customers"
 
 const CUSTOMER_GROUPS_QUERY_KEY = "customer_groups" as const
 export const customerGroupsQueryKeys = queryKeysFactory(
@@ -129,6 +131,37 @@ export const useDeleteCustomerGroup = (
       })
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
+      })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
+export const useRemoveCustomersFromGroup = (
+  id: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.customerGroups.$id.customers.mutate>,
+    ClientError,
+    HttpTypes.AdminBatchLink["remove"]
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.customerGroups.$id.customers.mutate({
+        $id: id,
+        remove: payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: customerGroupsQueryKeys.lists(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: customerGroupsQueryKeys.detail(id),
+      })
+      queryClient.invalidateQueries({
+        queryKey: customersQueryKeys.lists(),
       })
 
       options?.onSuccess?.(data, variables, context)

@@ -12,83 +12,83 @@
       "files": [
         {
           "path": "reviews/modules/reviews/index.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "reviews/modules/reviews/service.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "reviews/modules/reviews/models/review.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "reviews/modules/reviews/types/index.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "reviews/modules/reviews/types/common.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "reviews/modules/reviews/types/mutations.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "reviews/links/customer-review.ts",
-          "type": "registry:link"
+          "type": "registry:api"
         },
         {
           "path": "reviews/links/order-review.ts",
-          "type": "registry:link"
+          "type": "registry:api"
         },
         {
           "path": "reviews/links/product-review.ts",
-          "type": "registry:link"
+          "type": "registry:api"
         },
         {
           "path": "reviews/links/seller-review.ts",
-          "type": "registry:link"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/index.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/steps/index.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/steps/create-review.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/steps/update-review.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/steps/delete-review.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/steps/validate-review.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/workflows/index.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/workflows/create-review.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/workflows/update-review.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/workflows/review/workflows/delete-review.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "reviews/api/admin/reviews/route.ts",
@@ -231,19 +231,19 @@
       "files": [
         {
           "path": "product-import-export/workflows/steps/get-seller-products.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "product-import-export/workflows/steps/validate-products-to-import.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "product-import-export/workflows/import-seller-products.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "product-import-export/workflows/export-seller-products.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "product-import-export/api/vendor/products/import/route.ts",
@@ -309,75 +309,75 @@
       "files": [
         {
           "path": "team-management/modules/member/index.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "team-management/modules/member/service.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "team-management/modules/member/types.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "team-management/modules/member/models/member.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "team-management/modules/member/models/member-invite.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/steps/create-member.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/steps/update-member.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/steps/delete-member.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/steps/create-member-invite.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/steps/validate-member-invite.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/steps/update-member-invite.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/steps/delete-member-invite.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/workflows/invite-member.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/workflows/accept-member-invite.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/workflows/update-member.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/workflows/delete-member.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/member/workflows/delete-member-invite.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/workflows/hooks/seller-created.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "team-management/api/vendor/members/helpers.ts",
@@ -484,47 +484,47 @@
       "files": [
         {
           "path": "wishlist/modules/wishlist/index.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/modules/wishlist/service.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/modules/wishlist/models/wishlist.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/modules/wishlist/types.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/modules/wishlist/utils.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/links/customer-wishlist.ts",
-          "type": "registry:link"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/links/wishlist-product.ts",
-          "type": "registry:link"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/workflows/wishlist/steps/create-wishlist.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/workflows/wishlist/steps/delete-wishlist.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/workflows/wishlist/workflows/create-wishlist.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/workflows/wishlist/workflows/delete-wishlist.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "wishlist/api/middlewares.ts",

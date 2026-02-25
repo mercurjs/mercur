@@ -1,9 +1,9 @@
-import { ClientError } from "@mercurjs/client"
 import {
-  AdminSalesChannelListResponse,
-  AdminSalesChannelResponse,
-  HttpTypes,
-} from "@medusajs/types"
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
+import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
   UseMutationOptions,
@@ -23,9 +23,9 @@ export const useSalesChannel = (
   id: string,
   options?: Omit<
     UseQueryOptions<
-      AdminSalesChannelResponse,
+      InferClientOutput<typeof sdk.admin.salesChannels.$id.query>,
       ClientError,
-      AdminSalesChannelResponse,
+      InferClientOutput<typeof sdk.admin.salesChannels.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -33,7 +33,7 @@ export const useSalesChannel = (
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: salesChannelsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.salesChannel.retrieve(id),
+    queryFn: () => sdk.admin.salesChannels.$id.query({ $id: id }),
     ...options,
   })
 
@@ -41,19 +41,19 @@ export const useSalesChannel = (
 }
 
 export const useSalesChannels = (
-  query?: HttpTypes.AdminSalesChannelListParams,
+  query?: InferClientInput<typeof sdk.admin.salesChannels.query>,
   options?: Omit<
     UseQueryOptions<
-      AdminSalesChannelListResponse,
+      InferClientOutput<typeof sdk.admin.salesChannels.query>,
       ClientError,
-      AdminSalesChannelListResponse,
+      InferClientOutput<typeof sdk.admin.salesChannels.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.salesChannel.list(query),
+    queryFn: () => sdk.admin.salesChannels.query({ ...query }),
     queryKey: salesChannelsQueryKeys.list(query),
     ...options,
   })
@@ -63,13 +63,13 @@ export const useSalesChannels = (
 
 export const useCreateSalesChannel = (
   options?: UseMutationOptions<
-    AdminSalesChannelResponse,
+    InferClientOutput<typeof sdk.admin.salesChannels.mutate>,
     ClientError,
-    HttpTypes.AdminCreateSalesChannel
+    InferClientInput<typeof sdk.admin.salesChannels.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.salesChannel.create(payload),
+    mutationFn: (payload) => sdk.admin.salesChannels.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -83,13 +83,17 @@ export const useCreateSalesChannel = (
 export const useUpdateSalesChannel = (
   id: string,
   options?: UseMutationOptions<
-    AdminSalesChannelResponse,
+    InferClientOutput<typeof sdk.admin.salesChannels.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateSalesChannel
+    Omit<
+      InferClientInput<typeof sdk.admin.salesChannels.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.salesChannel.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.salesChannels.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -107,13 +111,13 @@ export const useUpdateSalesChannel = (
 export const useDeleteSalesChannel = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminSalesChannelDeleteResponse,
+    InferClientOutput<typeof sdk.admin.salesChannels.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.salesChannel.delete(id),
+    mutationFn: () => sdk.admin.salesChannels.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -135,13 +139,13 @@ export const useDeleteSalesChannel = (
 
 export const useDeleteSalesChannelLazy = (
   options?: UseMutationOptions<
-    HttpTypes.AdminSalesChannelDeleteResponse,
+    InferClientOutput<typeof sdk.admin.salesChannels.$id.delete>,
     ClientError,
     string
   >
 ) => {
   return useMutation({
-    mutationFn: (id: string) => sdk.admin.salesChannel.delete(id),
+    mutationFn: (id: string) => sdk.admin.salesChannels.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -164,14 +168,17 @@ export const useDeleteSalesChannelLazy = (
 export const useSalesChannelRemoveProducts = (
   id: string,
   options?: UseMutationOptions<
-    AdminSalesChannelResponse,
+    InferClientOutput<typeof sdk.admin.salesChannels.$id.products.mutate>,
     ClientError,
     HttpTypes.AdminBatchLink["remove"]
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.salesChannel.batchProducts(id, { remove: payload }),
+      sdk.admin.salesChannels.$id.products.mutate({
+        $id: id,
+        remove: payload,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),
@@ -201,14 +208,17 @@ export const useSalesChannelRemoveProducts = (
 export const useSalesChannelAddProducts = (
   id: string,
   options?: UseMutationOptions<
-    AdminSalesChannelResponse,
+    InferClientOutput<typeof sdk.admin.salesChannels.$id.products.mutate>,
     ClientError,
     HttpTypes.AdminBatchLink["add"]
   >
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.salesChannel.batchProducts(id, { add: payload }),
+      sdk.admin.salesChannels.$id.products.mutate({
+        $id: id,
+        add: payload,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: salesChannelsQueryKeys.lists(),

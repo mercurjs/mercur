@@ -1,4 +1,9 @@
 import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client"
+import {
   QueryKey,
   useMutation,
   UseMutationOptions,
@@ -6,8 +11,6 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query"
 
-import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
@@ -19,13 +22,13 @@ export const shippingProfileQueryKeys = queryKeysFactory(
 
 export const useCreateShippingProfile = (
   options?: UseMutationOptions<
-    HttpTypes.AdminShippingProfileResponse,
+    InferClientOutput<typeof sdk.admin.shippingProfiles.mutate>,
     ClientError,
-    HttpTypes.AdminCreateShippingProfile
+    InferClientInput<typeof sdk.admin.shippingProfiles.mutate>
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.shippingProfile.create(payload),
+    mutationFn: (payload) => sdk.admin.shippingProfiles.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingProfileQueryKeys.lists(),
@@ -39,19 +42,23 @@ export const useCreateShippingProfile = (
 
 export const useShippingProfile = (
   id: string,
-  query?: Record<string, any>,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.shippingProfiles.$id.query>,
+    "$id"
+  >,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminShippingProfileResponse,
+      InferClientOutput<typeof sdk.admin.shippingProfiles.$id.query>,
       ClientError,
-      HttpTypes.AdminShippingProfileResponse,
+      InferClientOutput<typeof sdk.admin.shippingProfiles.$id.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingProfile.retrieve(id, query),
+    queryFn: () =>
+      sdk.admin.shippingProfiles.$id.query({ $id: id, ...query }),
     queryKey: shippingProfileQueryKeys.detail(id, query),
     ...options,
   })
@@ -60,19 +67,19 @@ export const useShippingProfile = (
 }
 
 export const useShippingProfiles = (
-  query?: HttpTypes.AdminShippingProfileListParams,
+  query?: InferClientInput<typeof sdk.admin.shippingProfiles.query>,
   options?: Omit<
     UseQueryOptions<
-      HttpTypes.AdminShippingProfileListResponse,
+      InferClientOutput<typeof sdk.admin.shippingProfiles.query>,
       ClientError,
-      HttpTypes.AdminShippingProfileListResponse,
+      InferClientOutput<typeof sdk.admin.shippingProfiles.query>,
       QueryKey
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.shippingProfile.list(query),
+    queryFn: () => sdk.admin.shippingProfiles.query({ ...query }),
     queryKey: shippingProfileQueryKeys.list(query),
     ...options,
   })
@@ -83,13 +90,17 @@ export const useShippingProfiles = (
 export const useUpdateShippingProfile = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminShippingProfileResponse,
+    InferClientOutput<typeof sdk.admin.shippingProfiles.$id.mutate>,
     ClientError,
-    HttpTypes.AdminUpdateShippingProfile
+    Omit<
+      InferClientInput<typeof sdk.admin.shippingProfiles.$id.mutate>,
+      "$id"
+    >
   >
 ) => {
   const { data, ...rest } = useMutation({
-    mutationFn: (payload) => sdk.admin.shippingProfile.update(id, payload),
+    mutationFn: (payload) =>
+      sdk.admin.shippingProfiles.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingProfileQueryKeys.detail(id),
@@ -109,13 +120,13 @@ export const useUpdateShippingProfile = (
 export const useDeleteShippingProfile = (
   id: string,
   options?: UseMutationOptions<
-    HttpTypes.AdminShippingProfileDeleteResponse,
+    InferClientOutput<typeof sdk.admin.shippingProfiles.$id.delete>,
     ClientError,
     void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.shippingProfile.delete(id),
+    mutationFn: () => sdk.admin.shippingProfiles.$id.delete({ $id: id }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingProfileQueryKeys.detail(id),
