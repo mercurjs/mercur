@@ -27,10 +27,6 @@ export const defaultProductSettings: IndexSettings = {
   ]
 }
 
-export const defaultReviewSettings: IndexSettings = {
-  attributesForFaceting: ['filterOnly(reference_id)', 'filterOnly(reference)']
-}
-
 class AlgoliaModuleService {
   private options_: ModuleOptions
   private algolia_: Algoliasearch

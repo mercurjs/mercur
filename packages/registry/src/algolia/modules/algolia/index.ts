@@ -4,7 +4,7 @@ import AlgoliaModuleService from './service'
 
 export const ALGOLIA_MODULE = 'algolia'
 export { AlgoliaModuleService }
-export { defaultProductSettings, defaultReviewSettings } from './service'
+export { defaultProductSettings } from './service'
 
 export default Module(ALGOLIA_MODULE, {
   service: AlgoliaModuleService,

@@ -636,6 +636,10 @@
           "type": "registry:workflow"
         },
         {
+          "path": "algolia/subscribers/algolia-product-events-bridge.ts",
+          "type": "registry:api"
+        },
+        {
           "path": "algolia/subscribers/algolia-products-changed.ts",
           "type": "registry:api"
         },
@@ -645,10 +649,6 @@
         },
         {
           "path": "algolia/subscribers/utils/algolia-product.ts",
-          "type": "registry:api"
-        },
-        {
-          "path": "algolia/subscribers/utils/algolia-reviews.ts",
           "type": "registry:api"
         },
         {

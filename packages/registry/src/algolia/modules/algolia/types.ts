@@ -1,14 +1,12 @@
 import { z } from 'zod'
 
 export enum IndexType {
-  PRODUCT = 'products',
-  REVIEW = 'reviews'
+  PRODUCT = 'products'
 }
 
 export enum AlgoliaEvents {
   PRODUCTS_CHANGED = 'algolia.products.changed',
-  PRODUCTS_DELETED = 'algolia.products.deleted',
-  REVIEW_CHANGED = 'algolia.reviews.changed'
+  PRODUCTS_DELETED = 'algolia.products.deleted'
 }
 
 export enum IntermediateEvents {
@@ -140,17 +138,7 @@ export const AlgoliaProductValidator = z.object({
     .nullable(),
 })
 
-export type AlgoliaReview = z.infer<typeof AlgoliaReviewValidator>
-export const AlgoliaReviewValidator = z.object({
-  id: z.string(),
-  reference: z.string(),
-  reference_id: z.string(),
-  rating: z.coerce.number(),
-  customer_note: z.string().nullable(),
-  seller_note: z.string().nullable()
-})
-
-export type AlgoliaEntity = AlgoliaProduct | AlgoliaReview
+export type AlgoliaEntity = AlgoliaProduct
 
 export type AlgoliaSearchResult<T> = {
   hits: T[]

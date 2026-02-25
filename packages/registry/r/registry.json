@@ -636,32 +636,8 @@
           "type": "registry:workflow"
         },
         {
-          "path": "algolia/workflows/hooks/product-created.ts",
-          "type": "registry:workflow"
-        },
-        {
-          "path": "algolia/workflows/hooks/product-updated.ts",
-          "type": "registry:workflow"
-        },
-        {
-          "path": "algolia/workflows/hooks/product-deleted.ts",
-          "type": "registry:workflow"
-        },
-        {
-          "path": "algolia/workflows/hooks/product-variants-updated.ts",
-          "type": "registry:workflow"
-        },
-        {
-          "path": "algolia/workflows/hooks/product-options-updated.ts",
-          "type": "registry:workflow"
-        },
-        {
-          "path": "algolia/workflows/hooks/product-tags-updated.ts",
-          "type": "registry:workflow"
-        },
-        {
-          "path": "algolia/workflows/hooks/product-collections-updated.ts",
-          "type": "registry:workflow"
+          "path": "algolia/subscribers/algolia-product-events-bridge.ts",
+          "type": "registry:api"
         },
         {
           "path": "algolia/subscribers/algolia-products-changed.ts",
@@ -673,10 +649,6 @@
         },
         {
           "path": "algolia/subscribers/utils/algolia-product.ts",
-          "type": "registry:api"
-        },
-        {
-          "path": "algolia/subscribers/utils/algolia-reviews.ts",
           "type": "registry:api"
         },
         {
