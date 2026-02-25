@@ -135,11 +135,7 @@ export async function findAndTransformAlgoliaProducts(
       'variants.prices.*',
       'options.*',
       'options.values.*',
-      'images.*',
-      'attribute_values.value',
-      'attribute_values.attribute.name',
-      'attribute_values.attribute.is_filterable',
-      'attribute_values.attribute.ui_component'
+      'images.*'
     ],
     filters: ids.length
       ? {
@@ -182,19 +178,6 @@ export async function findAndTransformAlgoliaProducts(
       })
       .flat()
 
-    product.attribute_values = (product.attribute_values ?? [])
-      .filter(
-        (attrValue: any) =>
-          attrValue && attrValue.attribute && attrValue.attribute.name
-      )
-      .map((attrValue: any) => {
-        return {
-          name: attrValue.attribute.name,
-          value: attrValue.value,
-          is_filterable: attrValue.attribute.is_filterable,
-          ui_component: attrValue.attribute.ui_component
-        }
-      })
   }
 
   return z.array(AlgoliaProductValidator).parse(products)

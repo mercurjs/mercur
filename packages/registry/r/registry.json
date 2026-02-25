@@ -600,7 +600,7 @@
     },
     {
       "name": "algolia",
-      "description": "Algolia search integration with product and review indexing, event-driven sync, and store search API.",
+      "description": "Algolia search integration with product indexing, event-driven sync, and store search API.",
       "dependencies": [
         "algoliasearch"
       ],
@@ -609,31 +609,31 @@
       "files": [
         {
           "path": "algolia/modules/algolia/index.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "algolia/modules/algolia/service.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "algolia/modules/algolia/types.ts",
-          "type": "registry:module"
+          "type": "registry:api"
         },
         {
           "path": "algolia/links/seller-fulfillment-set.ts",
-          "type": "registry:link"
+          "type": "registry:api"
         },
         {
           "path": "algolia/links/seller-service-zone.ts",
-          "type": "registry:link"
+          "type": "registry:api"
         },
         {
           "path": "algolia/workflows/algolia/steps/sync-algolia-products.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "algolia/workflows/algolia/workflows/sync-algolia.ts",
-          "type": "registry:workflow"
+          "type": "registry:api"
         },
         {
           "path": "algolia/subscribers/algolia-product-events-bridge.ts",
