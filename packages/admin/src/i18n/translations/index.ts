@@ -27,7 +27,7 @@ import ko from "./ko.json"
 import nl from "./nl.json"
 import bs from "./bs.json"
 import id from "./id.json"
-export default {
+const translations: Record<string, { translation: Record<string, unknown> }> = {
   bs: {
     translation: bs,
   },
@@ -116,3 +116,5 @@ export default {
     translation: id,
   },
 }
+
+export default translations
