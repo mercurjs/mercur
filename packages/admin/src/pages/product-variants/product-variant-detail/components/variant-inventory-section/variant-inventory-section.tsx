@@ -9,12 +9,34 @@ import { _DataTable } from "../../../../../components/table/data-table"
 
 import { LinkButton } from "../../../../../components/common/link-button"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import { useProductVariantDetailContext } from "../../context"
 import { useInventoryTableColumns } from "./use-inventory-table-columns"
 
 const PAGE_SIZE = 20
 
 type VariantInventorySectionProps = {
   inventoryItems: HttpTypes.AdminInventoryItem[]
+}
+
+/**
+ * Context-aware wrapper. Reads variant from context, handles
+ * manage_inventory gating and inventory_items mapping internally.
+ */
+export function VariantInventorySectionConnected() {
+  const { variant } = useProductVariantDetailContext()
+
+  if (!variant.manage_inventory) {
+    return <InventorySectionPlaceholder />
+  }
+
+  const inventoryItems =
+    variant.inventory_items?.map((i) => ({
+      ...i.inventory,
+      required_quantity: i.required_quantity,
+      variant,
+    })) ?? []
+
+  return <VariantInventorySection inventoryItems={inventoryItems as HttpTypes.AdminInventoryItem[]} />
 }
 
 export function VariantInventorySection({

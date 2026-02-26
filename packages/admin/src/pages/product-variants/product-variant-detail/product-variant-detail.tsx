@@ -1,3 +1,4 @@
+import { Children, ComponentProps, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { useProduct, useProductVariant } from "../../../hooks/api/products"
@@ -6,16 +7,17 @@ import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 
 import { VariantGeneralSection } from "./components/variant-general-section"
-import {
-  InventorySectionPlaceholder,
-  VariantInventorySection,
-} from "./components/variant-inventory-section"
+import { VariantInventorySectionConnected } from "./components/variant-inventory-section"
 import { VariantPricesSection } from "./components/variant-prices-section"
 import { ProductSellerSection } from "../../products/product-detail/components/product-seller-section/product-seller-section"
 import { VARIANT_DETAIL_FIELDS } from "./constants"
+import {
+  ProductVariantDetailProvider,
+  useProductVariantDetailContext,
+} from "./context"
 import { variantLoader } from "./loader"
 
-export const ProductVariantDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof variantLoader>
   >
@@ -49,32 +51,45 @@ export const ProductVariantDetail = () => {
   }
 
   return (
-    <TwoColumnPage
-      data={variant}
-      hasOutlet
-      showJSON
-      showMetadata
-    >
-      <TwoColumnPage.Main>
-        <VariantGeneralSection variant={variant} />
-        {!variant.manage_inventory ? (
-          <InventorySectionPlaceholder />
-        ) : (
-          <VariantInventorySection
-            inventoryItems={variant.inventory_items?.map((i) => {
-              return {
-                ...i.inventory,
-                required_quantity: i.required_quantity,
-                variant,
-              }
-            }) ?? []}
-          />
-        )}
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <ProductSellerSection seller={(product as any)?.seller} />
-        <VariantPricesSection variant={variant} />
-      </TwoColumnPage.Sidebar>
+    <ProductVariantDetailProvider variant={variant}>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <Layout>
+          <TwoColumnPage.Main>
+            <VariantGeneralSection />
+            <VariantInventorySectionConnected />
+          </TwoColumnPage.Main>
+          <TwoColumnPage.Sidebar>
+            <ProductSellerSection seller={(product as any)?.seller} />
+        <VariantPricesSection />
+          </TwoColumnPage.Sidebar>
+        </Layout>
+      )}
+    </ProductVariantDetailProvider>
+  )
+}
+
+const Layout = ({
+  children,
+  ...props
+}: Omit<ComponentProps<typeof TwoColumnPage>, "data"> & {
+  children: ReactNode
+}) => {
+  const { variant } = useProductVariantDetailContext()
+  return (
+    <TwoColumnPage showJSON showMetadata hasOutlet data={variant} {...props}>
+      {children}
     </TwoColumnPage>
   )
 }
+
+export const ProductVariantDetail = Object.assign(Root, {
+  Layout,
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  GeneralSection: VariantGeneralSection,
+  InventorySection: VariantInventorySectionConnected,
+  PricesSection: VariantPricesSection,
+  useContext: useProductVariantDetailContext,
+})
