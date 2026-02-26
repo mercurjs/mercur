@@ -291,6 +291,11 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       label: t("priceLists.domain"),
       to: "/price-lists",
     },
+    {
+      icon: <CurrencyDollar />,
+      label: "Payouts",
+      to: "/payouts",
+    },
   ];
 };
 

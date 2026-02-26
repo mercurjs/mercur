@@ -3,6 +3,7 @@ export * from "./auth";
 export * from "./campaigns";
 export * from "./categories";
 export * from "./collections";
+export * from "./commission-rates";
 export * from "./currencies";
 export * from "./customer-groups";
 export * from "./customers";
@@ -15,6 +16,7 @@ export * from "./notification";
 export * from "./order-groups"
 export * from "./orders";
 export * from "./payment-collections";
+export * from "./payouts";
 export * from "./payments";
 export * from "./price-lists";
 export * from "./product-types";

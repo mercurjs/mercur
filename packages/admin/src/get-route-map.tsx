@@ -671,6 +671,73 @@ export function getRouteMap({
                 ],
               },
               {
+                path: "/customer-groups",
+                errorElement: <ErrorBoundary />,
+                handle: {
+                  breadcrumb: () => t("customerGroups.domain"),
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () =>
+                      import(
+                        "./pages/customer-groups/customer-group-list"
+                      ),
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () =>
+                          import(
+                            "./pages/customer-groups/customer-group-create"
+                          ),
+                      },
+                    ],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Component, Breadcrumb, loader } =
+                        await import(
+                          "./pages/customer-groups/customer-group-detail"
+                        );
+
+                      return {
+                        Component,
+                        loader,
+                        handle: {
+                          breadcrumb: (
+                            match: UIMatch<HttpTypes.AdminCustomerGroupResponse>,
+                          ) => <Breadcrumb {...match} />,
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "edit",
+                        lazy: () =>
+                          import(
+                            "./pages/customer-groups/customer-group-edit"
+                          ),
+                      },
+                      {
+                        path: "add-customers",
+                        lazy: () =>
+                          import(
+                            "./pages/customer-groups/customer-group-add-customers"
+                          ),
+                      },
+                      {
+                        path: "metadata/edit",
+                        lazy: () =>
+                          import(
+                            "./pages/customer-groups/customer-group-metadata"
+                          ),
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
                 path: "/sellers",
                 errorElement: <ErrorBoundary />,
                 handle: {
@@ -688,6 +755,36 @@ export function getRouteMap({
                   {
                     path: ":id/edit",
                     lazy: () => import("./pages/sellers/seller-edit"),
+                  },
+                ],
+              },
+              {
+                path: "/payouts",
+                errorElement: <ErrorBoundary />,
+                handle: {
+                  breadcrumb: () => "Payouts",
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("./pages/payouts/payout-list"),
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Component, Breadcrumb, loader } =
+                        await import("./pages/payouts/payout-detail");
+
+                      return {
+                        Component,
+                        loader,
+                        handle: {
+                          breadcrumb: (match: UIMatch) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
                   },
                 ],
               },
