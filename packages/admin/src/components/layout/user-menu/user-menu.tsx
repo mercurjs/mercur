@@ -59,13 +59,13 @@ export const UserMenu = () => {
           </DropdownMenu.Item>
           <DropdownMenu.Separator data-testid="sidebar-user-menu-separator-2" />
           <DropdownMenu.Item asChild data-testid="sidebar-user-menu-documentation">
-            <Link to="https://docs.medusajs.com" target="_blank">
+            <Link to="https://docs.mercurjs.com/v2/welcome" target="_blank">
               <BookOpen className="text-ui-fg-subtle me-2" />
               {t("app.menus.user.documentation")}
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Item asChild data-testid="sidebar-user-menu-changelog">
-            <Link to="https://medusajs.com/changelog/" target="_blank">
+            <Link to="https://www.mercurjs.com/updates" target="_blank">
               <TimelineVertical className="text-ui-fg-subtle me-2" />
               {t("app.menus.user.changelog")}
             </Link>

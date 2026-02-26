@@ -188,7 +188,7 @@ const Header = () => {
                   className="text-ui-fg-subtle"
                   data-testid="sidebar-header-dropdown-store-label"
                 >
-                  {t("app.nav.main.store")}
+                  {t("app.nav.main.marketplace")}
                 </Text>
               </div>
             </div>

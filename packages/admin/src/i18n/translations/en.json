@@ -253,6 +253,7 @@
       },
       "main": {
         "store": "Store",
+        "marketplace": "Marketplace",
         "storeSettings": "Store settings",
         "marketplaceSettings": "Marketplace settings"
       },
