@@ -6,7 +6,7 @@ import { queryClient } from "../../../lib/query-client"
 
 const shippingOptionTypeDetailQuery = (id: string) => ({
   queryKey: shippingOptionTypesQueryKeys.detail(id),
-  queryFn: async () => sdk.admin.shippingOptionType.retrieve(id),
+  queryFn: async () => sdk.admin.shippingOptionTypes.$id.query({ $id: id }),
 })
 
 export const shippingOptionTypeLoader = async ({

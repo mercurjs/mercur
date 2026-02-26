@@ -170,6 +170,60 @@ export const useRemoveCustomersFromGroup = (
   })
 }
 
+export const useDeleteCustomerGroupLazy = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.customerGroups.$id.delete>,
+    ClientError,
+    { id: string }
+  >
+) => {
+  return useMutation({
+    mutationFn: ({ id }) => sdk.admin.customerGroups.$id.delete({ $id: id }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: customerGroupsQueryKeys.lists(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: customerGroupsQueryKeys.detail(variables.id),
+      })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
+export const useAddCustomersToGroup = (
+  id: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.customerGroups.$id.customers.mutate>,
+    ClientError,
+    HttpTypes.AdminBatchLink["add"]
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.customerGroups.$id.customers.mutate({
+        $id: id,
+        add: payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: customerGroupsQueryKeys.lists(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: customerGroupsQueryKeys.detail(id),
+      })
+      queryClient.invalidateQueries({
+        queryKey: customersQueryKeys.lists(),
+      })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
 export const useCustomerGroupCustomers = (
   id: string,
   query?: Omit<

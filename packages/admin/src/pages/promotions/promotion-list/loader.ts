@@ -1,4 +1,3 @@
-import { HttpTypes } from "@medusajs/types"
 import { QueryClient } from "@tanstack/react-query"
 import { promotionsQueryKeys } from "../../../hooks/api/promotions"
 import { sdk } from "../../../lib/client"
@@ -11,7 +10,7 @@ const params = {
 
 const promotionsListQuery = () => ({
   queryKey: promotionsQueryKeys.list(params),
-  queryFn: async () => sdk.admin.promotion.list(params),
+  queryFn: async () => sdk.admin.promotions.query(params),
 })
 
 export const promotionsLoader = (client: QueryClient) => {
@@ -19,9 +18,8 @@ export const promotionsLoader = (client: QueryClient) => {
     const query = promotionsListQuery()
 
     return (
-      queryClient.getQueryData<HttpTypes.AdminPromotionListResponse>(
-        query.queryKey
-      ) ?? (await client.fetchQuery(query))
+      queryClient.getQueryData(query.queryKey) ??
+      (await client.fetchQuery(query))
     )
   }
 }

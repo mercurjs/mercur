@@ -5,7 +5,7 @@ import { queryClient } from "../../../lib/query-client"
 
 const reservationDetailQuery = (id: string) => ({
   queryKey: reservationItemsQueryKeys.detail(id),
-  queryFn: async () => sdk.admin.reservation.retrieve(id),
+  queryFn: async () => sdk.admin.reservations.$id.query({ $id: id }),
 })
 
 export const reservationItemLoader = async ({ params }: LoaderFunctionArgs) => {

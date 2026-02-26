@@ -8,7 +8,8 @@ import type { ExtendedAdminInventoryItemResponse } from "@custom-types/inventory
 const inventoryDetailQuery = (id: string) => ({
   queryKey: inventoryItemsQueryKeys.detail(id),
   queryFn: async () =>
-    sdk.admin.inventoryItem.retrieve(id, {
+    sdk.admin.inventoryItems.$id.query({
+      $id: id,
       fields: INVENTORY_DETAIL_FIELDS,
     }) as Promise<ExtendedAdminInventoryItemResponse>,
 })

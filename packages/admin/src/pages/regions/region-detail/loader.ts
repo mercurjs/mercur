@@ -1,4 +1,3 @@
-import { HttpTypes } from "@medusajs/types"
 import { LoaderFunctionArgs } from "react-router-dom"
 import { regionsQueryKeys } from "../../../hooks/api/regions"
 import { sdk } from "../../../lib/client"
@@ -8,9 +7,7 @@ import { REGION_DETAIL_FIELDS } from "./constants"
 const regionQuery = (id: string) => ({
   queryKey: regionsQueryKeys.detail(id),
   queryFn: async () =>
-    sdk.admin.region.retrieve(id, {
-      fields: REGION_DETAIL_FIELDS,
-    }),
+    sdk.admin.regions.$id.query({ $id: id, fields: REGION_DETAIL_FIELDS }),
 })
 
 export const regionLoader = async ({ params }: LoaderFunctionArgs) => {
@@ -18,8 +15,7 @@ export const regionLoader = async ({ params }: LoaderFunctionArgs) => {
   const query = regionQuery(id!)
 
   return (
-    queryClient.getQueryData<{ region: HttpTypes.AdminRegion }>(
-      query.queryKey
-    ) ?? (await queryClient.fetchQuery(query))
+    queryClient.getQueryData(query.queryKey) ??
+    (await queryClient.fetchQuery(query))
   )
 }

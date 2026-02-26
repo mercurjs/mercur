@@ -5,7 +5,7 @@ import { queryClient } from "../../../lib/query-client"
 
 const promotionDetailQuery = (id: string) => ({
   queryKey: promotionsQueryKeys.detail(id),
-  queryFn: async () => sdk.admin.promotion.retrieve(id),
+  queryFn: async () => sdk.admin.promotions.$id.query({ $id: id }),
 })
 
 export const promotionLoader = async ({ params }: LoaderFunctionArgs) => {

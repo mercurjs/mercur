@@ -10,7 +10,8 @@ const locationQuery = (id: string) => ({
     fields: LOCATION_DETAILS_FIELD,
   }),
   queryFn: async () =>
-    sdk.admin.stockLocation.retrieve(id, {
+    sdk.admin.stockLocations.$id.query({
+      $id: id,
       fields: LOCATION_DETAILS_FIELD,
     }),
 })

@@ -5,7 +5,10 @@ import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 
 const queryFn = async (id: string, variantId: string) => {
-  return await sdk.admin.product.retrieveVariant(id, variantId)
+  return await sdk.admin.products.$id.variants.$variantId.query({
+    $id: id,
+    $variantId: variantId,
+  })
 }
 
 const editProductVariantQuery = (id: string, variantId: string) => ({

@@ -8,9 +8,7 @@ import { CAMPAIGN_DETAIL_FIELDS } from "./constants"
 const campaignDetailQuery = (id: string) => ({
   queryKey: campaignsQueryKeys.detail(id),
   queryFn: async () =>
-    sdk.admin.campaign.retrieve(id, {
-      fields: CAMPAIGN_DETAIL_FIELDS,
-    }),
+    sdk.admin.campaigns.$id.query({ $id: id, fields: CAMPAIGN_DETAIL_FIELDS }),
 })
 
 export const campaignLoader = async ({ params }: LoaderFunctionArgs) => {

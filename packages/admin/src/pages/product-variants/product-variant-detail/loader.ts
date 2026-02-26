@@ -10,7 +10,9 @@ const variantDetailQuery = (productId: string, variantId: string) => ({
     fields: VARIANT_DETAIL_FIELDS,
   }),
   queryFn: async () =>
-    sdk.admin.product.retrieveVariant(productId, variantId, {
+    sdk.admin.products.$id.variants.$variantId.query({
+      $id: productId,
+      $variantId: variantId,
       fields: VARIANT_DETAIL_FIELDS,
     }),
 })

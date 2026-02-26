@@ -5,7 +5,7 @@ import { queryClient } from "../../../lib/query-client"
 
 const pricingDetailQuery = (id: string) => ({
   queryKey: priceListsQueryKeys.detail(id),
-  queryFn: async () => sdk.admin.priceList.retrieve(id),
+  queryFn: async () => sdk.admin.priceLists.$id.query({ $id: id }),
 })
 
 export const pricingLoader = async ({ params }: LoaderFunctionArgs) => {

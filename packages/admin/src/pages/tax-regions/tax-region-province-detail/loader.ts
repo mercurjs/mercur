@@ -5,7 +5,7 @@ import { queryClient } from "../../../lib/query-client"
 
 const taxRegionDetailQuery = (id: string) => ({
   queryKey: taxRegionsQueryKeys.detail(id),
-  queryFn: async () => sdk.admin.taxRegion.retrieve(id),
+  queryFn: async () => sdk.admin.taxRegions.$id.query({ $id: id }),
 })
 
 export const taxRegionLoader = async ({ params }: LoaderFunctionArgs) => {

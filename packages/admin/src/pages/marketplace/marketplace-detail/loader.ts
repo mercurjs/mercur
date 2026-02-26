@@ -1,5 +1,3 @@
-import { HttpTypes } from "@medusajs/types"
-
 import { retrieveActiveStore, storeQueryKeys } from "../../../hooks/api/store"
 import { queryClient } from "../../../lib/query-client"
 
@@ -12,7 +10,7 @@ export const storeLoader = async () => {
   const query = storeDetailQuery()
 
   return (
-    queryClient.getQueryData<HttpTypes.AdminStoreResponse>(query.queryKey) ??
+    queryClient.getQueryData(query.queryKey) ??
     (await queryClient.fetchQuery(query))
   )
 }
