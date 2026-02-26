@@ -77,5 +77,6 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   const appId = algoliaService.getAppId();
   const productIndex = await algoliaService.checkIndex(IndexType.PRODUCT);
-  res.status(200).json({ appId, productIndex });
+  const sellerIndex = await algoliaService.checkIndex(IndexType.SELLER);
+  res.status(200).json({ appId, productIndex, sellerIndex });
 };
