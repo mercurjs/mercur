@@ -2467,7 +2467,10 @@
   },
   "marketplace": {
     "domain": "Marketplace",
-    "manageMarketplaceDetails": "Manage your marketplace's details"
+    "manageMarketplaceDetails": "Manage your marketplace's details",
+    "edit": {
+      "header": "Edit Marketplace"
+    }
   },
   "store": {
     "domain": "Store",

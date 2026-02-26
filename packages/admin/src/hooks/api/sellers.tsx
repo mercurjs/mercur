@@ -2,27 +2,24 @@ import {
   ClientError,
   InferClientInput,
   InferClientOutput,
-} from "@mercurjs/client"
+} from "@mercurjs/client";
 import {
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
+} from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
 
-const SELLERS_QUERY_KEY = "sellers" as const
-export const sellersQueryKeys = queryKeysFactory(SELLERS_QUERY_KEY)
+const SELLERS_QUERY_KEY = "sellers" as const;
+export const sellersQueryKeys = queryKeysFactory(SELLERS_QUERY_KEY);
 
 export const useSeller = (
   id: string,
-  query?: Omit<
-    InferClientInput<typeof sdk.admin.sellers.$id.query>,
-    "$id"
-  >,
+  query?: Omit<InferClientInput<typeof sdk.admin.sellers.$id.query>, "$id">,
   options?: Omit<
     UseQueryOptions<
       InferClientOutput<typeof sdk.admin.sellers.$id.query>,
@@ -31,16 +28,16 @@ export const useSeller = (
       QueryKey
     >,
     "queryKey" | "queryFn"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.sellers.$id.query({ $id: id, ...query }),
     queryKey: sellersQueryKeys.detail(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useSellers = (
   query?: InferClientInput<typeof sdk.admin.sellers.query>,
@@ -52,27 +49,27 @@ export const useSellers = (
       QueryKey
     >,
     "queryKey" | "queryFn"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.sellers.query({ ...query }),
+    queryFn: () =>
+      sdk.admin.sellers.query({
+        ...query,
+      }),
     queryKey: sellersQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useUpdateSeller = (
   id: string,
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.sellers.$id.mutate>,
     ClientError,
-    Omit<
-      InferClientInput<typeof sdk.admin.sellers.$id.mutate>,
-      "$id"
-    >
-  >
+    Omit<InferClientInput<typeof sdk.admin.sellers.$id.mutate>, "$id">
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -80,13 +77,13 @@ export const useUpdateSeller = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: sellersQueryKeys.detail(id),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: sellersQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

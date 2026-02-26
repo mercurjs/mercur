@@ -4,7 +4,7 @@ import config from 'virtual:mercur/config'
 
 export const backendUrl = config.backendUrl ?? 'http://localhost:9000'
 
-export const sdk: InferClient<Routes> = createClient<Routes>({
+export const sdk: InferClient<Routes> = createClient({
   baseUrl: backendUrl,
   fetchOptions: {
     credentials: 'include',

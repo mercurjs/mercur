@@ -1,5 +1,4 @@
-import debounce from "lodash/debounce"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 /**
  * Hook for debouncing search input
@@ -8,17 +7,17 @@ import { useCallback, useEffect, useState } from "react"
 export const useDebouncedSearch = () => {
   const [searchValue, onSearchValueChange] = useState("")
   const [debouncedQuery, setDebouncedQuery] = useState("")
+  const timerRef = useRef<ReturnType<typeof setTimeout>>()
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedUpdate = useCallback(
-    debounce((query: string) => setDebouncedQuery(query), 300),
-    []
-  )
+  const debouncedUpdate = useCallback((query: string) => {
+    clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => setDebouncedQuery(query), 300)
+  }, [])
 
   useEffect(() => {
     debouncedUpdate(searchValue)
 
-    return () => debouncedUpdate.cancel()
+    return () => clearTimeout(timerRef.current)
   }, [searchValue, debouncedUpdate])
 
   return {
