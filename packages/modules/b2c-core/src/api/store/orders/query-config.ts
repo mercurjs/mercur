@@ -1,0 +1,62 @@
+export const defaultOrderFields = [
+  'id',
+  'display_id',
+  'custom_display_id',
+  'status',
+  'version',
+  'summary',
+  'total',
+  'metadata',
+  'locale',
+  'created_at',
+  'updated_at'
+];
+
+export const defaultRetrieveOrderFields = [
+  ...defaultOrderFields,
+  'region_id',
+  'total',
+  'subtotal',
+  'tax_total',
+  'discount_total',
+  'discount_tax_total',
+  'original_total',
+  'original_subtotal',
+  'original_tax_total',
+  'item_total',
+  'item_subtotal',
+  'item_tax_total',
+  'original_item_total',
+  'original_item_subtotal',
+  'original_item_tax_total',
+  'shipping_total',
+  'shipping_subtotal',
+  'shipping_tax_total',
+  'original_shipping_tax_total',
+  'original_shipping_subtotal',
+  'original_shipping_total',
+  'credit_line_total',
+  'credit_line_subtotal',
+  'credit_line_tax_total',
+  '*items',
+  '*credit_lines',
+  '*items.tax_lines',
+  '*items.adjustments',
+  '*items.variant',
+  '*items.variant.product',
+  '*items.detail',
+  '*shipping_address',
+  '*billing_address',
+  '*shipping_methods',
+  '*shipping_methods.tax_lines',
+  '*shipping_methods.adjustments',
+  '*payment_collections',
+  '*payment_collections.payments',
+  '*payment_collections.payments.refunds',
+  '*payment_collections.payments.captures'
+];
+
+export const retrieveTransformQueryConfig = {
+  defaults: defaultRetrieveOrderFields,
+  isList: false
+};
