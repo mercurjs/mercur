@@ -1,32 +1,29 @@
-import { useParams } from "react-router-dom";
+import { Heading } from "@medusajs/ui"
+import { useTranslation } from "react-i18next"
+import { useParams } from "react-router-dom"
 
-import { RouteDrawer } from "@components/modals";
-
-import { useSeller } from "@hooks/api/sellers";
-
-import { useTranslation } from "react-i18next";
-import { SellerEditForm } from "./components/seller-edit-form";
-import { SellerDetails } from "../seller-details/components/seller-details";
+import { RouteDrawer } from "../../../components/modals"
+import { useSeller } from "../../../hooks/api/sellers"
+import { SellerEditForm } from "./components/seller-edit-form"
 
 export const SellerEdit = () => {
-  const { t } = useTranslation();
-  const params = useParams();
+  const { id } = useParams()
+  const { t } = useTranslation()
 
-  const { seller, isLoading } = useSeller(params.id!);
+  const { seller, isLoading, isError, error } = useSeller(id!)
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (isError) {
+    throw error
   }
 
   return (
-    <>
-      <SellerDetails />
-      <RouteDrawer>
-        <RouteDrawer.Header>
-          <RouteDrawer.Title>{t("sellers.edit.header")}</RouteDrawer.Title>
-        </RouteDrawer.Header>
-        {seller && <SellerEditForm seller={seller} />}
-      </RouteDrawer>
-    </>
-  );
-};
+    <RouteDrawer>
+      <RouteDrawer.Header>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("sellers.edit.header")}</Heading>
+        </RouteDrawer.Title>
+      </RouteDrawer.Header>
+      {!isLoading && seller && <SellerEditForm seller={seller} />}
+    </RouteDrawer>
+  )
+}

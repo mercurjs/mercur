@@ -1,22 +1,24 @@
-import { useMemo } from "react";
+import { useMemo } from "react"
 
-import type { AdminOrder } from "@medusajs/types";
-import { Badge, Container, Heading } from "@medusajs/ui";
+import type { AdminOrder } from "@medusajs/types"
+import { Badge, Container, Heading } from "@medusajs/ui"
+import { keepPreviousData } from "@tanstack/react-query"
+import { createColumnHelper } from "@tanstack/react-table"
+import { useTranslation } from "react-i18next"
 
-import { getStylizedAmount } from "@lib/money-amount-helpers";
-import { createColumnHelper } from "@tanstack/react-table";
+import { DateCell } from "@components/table/table-cells/common/date-cell"
+import { _DataTable } from "@components/table/data-table"
 
-import type { AdminOrderListResponse } from "@custom-types/order";
+import { useOrders } from "../../../../hooks/api/orders"
+import { useOrderTableFilters } from "@hooks/table/filters"
+import { useOrderTableQuery } from "@hooks/table/query"
+import { useDataTable } from "@hooks/use-data-table"
+import { getStylizedAmount } from "@lib/money-amount-helpers"
 
-import { DateCell } from "@components/table/table-cells/common/date-cell";
-import { _DataTable } from "@components/table/data-table";
-
-import { useOrderTableFilters } from "@hooks/table/filters";
-import { useSellerOrdersTableQuery } from "@hooks/table/query";
-import { useDataTable } from "@hooks/use-data-table";
-
-const PAGE_SIZE = 10;
-const PREFIX = "so";
+const PAGE_SIZE = 10
+const PREFIX = "selord"
+const DEFAULT_FIELDS =
+  "id,status,display_id,created_at,email,fulfillment_status,payment_status,total,currency_code,*customer"
 
 const getOrderStatusBadgeColor = (status: string) => {
   const colors: Record<string, "orange" | "green" | "red" | "grey"> = {
@@ -26,9 +28,9 @@ const getOrderStatusBadgeColor = (status: string) => {
     archived: "grey",
     requires_action: "orange",
     draft: "grey",
-  };
-  return colors[status] || "grey";
-};
+  }
+  return colors[status] || "grey"
+}
 
 const getPaymentStatusBadgeColor = (status: string) => {
   const colors: Record<string, "orange" | "green" | "red" | "blue" | "grey"> =
@@ -45,9 +47,9 @@ const getPaymentStatusBadgeColor = (status: string) => {
       canceled: "red",
       not_paid: "grey",
       requires_action: "orange",
-    };
-  return colors[status] || "grey";
-};
+    }
+  return colors[status] || "grey"
+}
 
 const getFulfillmentStatusBadgeColor = (status: string) => {
   const colors: Record<string, "orange" | "green" | "red" | "grey"> = {
@@ -62,75 +64,80 @@ const getFulfillmentStatusBadgeColor = (status: string) => {
     returned: "red",
     partially_returned: "orange",
     requires_action: "orange",
-  };
-  return colors[status] || "grey";
-};
+  }
+  return colors[status] || "grey"
+}
 
 const formatStatus = (status: string) =>
   status
     .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+    .replace(/\b\w/g, (c) => c.toUpperCase())
 
-export const SellerOrdersSection = ({
-  seller_orders,
-}: {
-  seller_orders: AdminOrderListResponse;
-}) => {
-  const { orders, count } = seller_orders;
+export const SellerOrderSection = () => {
+  const { t } = useTranslation()
 
-  const { raw } = useSellerOrdersTableQuery({
+  const { searchParams, raw } = useOrderTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
-    offset: 0,
-  });
+  })
 
-  const columns = useColumns();
-  const filters = useOrderTableFilters();
+  const { orders, count, isLoading, isError, error } = useOrders(
+    {
+      fields: DEFAULT_FIELDS,
+      ...searchParams,
+    },
+    {
+      placeholderData: keepPreviousData,
+    }
+  )
+
+  const columns = useColumns()
+  const filters = useOrderTableFilters()
 
   const { table } = useDataTable({
-    data: orders,
+    data: orders ?? [],
     columns,
-    count,
     enablePagination: true,
+    count,
     pageSize: PAGE_SIZE,
-    getRowId: (row) => row?.id || "",
     prefix: PREFIX,
-  });
+  })
+
+  if (isError) {
+    throw error
+  }
 
   return (
-    <Container className="divide-y p-0" data-testid="seller-orders-section">
-      <div
-        className="flex items-center justify-between px-6 py-4"
-        data-testid="seller-orders-section-header"
-      >
-        <Heading data-testid="seller-orders-section-heading">Orders</Heading>
+    <Container className="divide-y p-0">
+      <div className="flex items-center justify-between px-6 py-4">
+        <Heading level="h2">{t("orders.domain")}</Heading>
       </div>
       <_DataTable
-        table={table}
         columns={columns}
-        count={count}
-        filters={filters}
-        pageSize={PAGE_SIZE}
-        isLoading={false}
-        queryObject={raw}
-        search
+        table={table}
         pagination
-        navigateTo={(row) => `/orders/${row.id}`}
+        navigateTo={(row) => `/orders/${row.original.id}`}
+        filters={filters}
+        count={count}
+        isLoading={isLoading}
+        pageSize={PAGE_SIZE}
         orderBy={[
-          { key: "display_id", label: "Order" },
-          { key: "created_at", label: "Created" },
-          { key: "updated_at", label: "Updated" },
+          { key: "display_id", label: t("orders.fields.displayId") },
+          { key: "created_at", label: t("fields.createdAt") },
+          { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        search
+        queryObject={raw}
         prefix={PREFIX}
       />
     </Container>
-  );
-};
+  )
+}
 
-const columnHelper = createColumnHelper<AdminOrder>();
+const columnHelper = createColumnHelper<AdminOrder>()
 
 const useColumns = () => {
-  const columns = useMemo(
+  return useMemo(
     () => [
       columnHelper.display({
         id: "display_id",
@@ -149,7 +156,7 @@ const useColumns = () => {
           return row.original.customer?.first_name &&
             row.original.customer?.last_name
             ? `${row.original.customer?.first_name} ${row.original.customer?.last_name}`
-            : row.original.customer?.email;
+            : row.original.customer?.email
         },
       }),
       columnHelper.display({
@@ -168,8 +175,8 @@ const useColumns = () => {
         id: "payment_status",
         header: "Payment Status",
         cell: ({ row }) => {
-          const status = row.original?.payment_status;
-          if (!status) return "-";
+          const status = row.original?.payment_status
+          if (!status) return "-"
           return (
             <Badge
               size="2xsmall"
@@ -177,15 +184,15 @@ const useColumns = () => {
             >
               {formatStatus(status)}
             </Badge>
-          );
+          )
         },
       }),
       columnHelper.display({
         id: "fulfillment_status",
         header: "Fulfillment Status",
         cell: ({ row }) => {
-          const status = row.original.fulfillment_status;
-          if (!status) return "-";
+          const status = row.original.fulfillment_status
+          if (!status) return "-"
           return (
             <Badge
               size="2xsmall"
@@ -193,7 +200,7 @@ const useColumns = () => {
             >
               {formatStatus(status)}
             </Badge>
-          );
+          )
         },
       }),
       columnHelper.display({
@@ -204,24 +211,22 @@ const useColumns = () => {
             typeof row.original.total === "undefined" ||
             row.original.total === null
           ) {
-            return "-";
+            return "-"
           }
 
           const formatted = getStylizedAmount(
             row.original.total,
-            row.original.currency_code,
-          );
+            row.original.currency_code
+          )
 
           return (
             <div className="flex h-full w-full items-center justify-start overflow-hidden text-left">
               <span className="truncate">{formatted}</span>
             </div>
-          );
+          )
         },
       }),
     ],
-    [],
-  );
-
-  return columns;
-};
+    []
+  )
+}

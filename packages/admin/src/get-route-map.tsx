@@ -751,10 +751,12 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: () => import("./pages/sellers/seller-details"),
-                  },
-                  {
-                    path: ":id/edit",
-                    lazy: () => import("./pages/sellers/seller-edit"),
+                    children: [
+                      {
+                        path: "edit",
+                        lazy: () => import("./pages/sellers/seller-edit"),
+                      },
+                    ],
                   },
                 ],
               },

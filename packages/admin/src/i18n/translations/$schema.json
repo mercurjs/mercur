@@ -12055,6 +12055,22 @@
           ],
           "additionalProperties": false
         },
+        "status": {
+          "type": "object",
+          "properties": {
+            "pending": {
+              "type": "string"
+            },
+            "active": {
+              "type": "string"
+            },
+            "suspended": {
+              "type": "string"
+            }
+          },
+          "required": ["pending", "active", "suspended"],
+          "additionalProperties": false
+        },
         "edit": {
           "type": "object",
           "properties": {
@@ -12069,7 +12085,7 @@
           "additionalProperties": false
         }
       },
-      "required": ["domain", "fields", "edit"],
+      "required": ["domain", "fields", "status", "edit"],
       "additionalProperties": false
     },
     "messages": {

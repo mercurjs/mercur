@@ -3239,6 +3239,11 @@
       "country_code": "Country Code",
       "tax_id": "Tax ID"
     },
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "suspended": "Suspended"
+    },
     "edit": {
       "header": "Edit Seller",
       "successToast": "Seller {{name}} was successfully updated."

@@ -23,13 +23,15 @@ export const useSellersTableColumns = () => {
       columnHelper.display({
         id: "status",
         header: "Status",
-        cell: ({ row }) => <SellerStatusCell status={row.original.status} />,
+        cell: ({ row }) => {
+          return <SellerStatusCell status={row.original.status} />;
+        },
       }),
       columnHelper.display({
         id: "created_at",
         header: "Created",
-        cell: ({ getValue }) => {
-          return <DateCell date={getValue()} />;
+        cell: ({ row }) => {
+          return <DateCell date={row.original.created_at} />;
         },
       }),
     ],
