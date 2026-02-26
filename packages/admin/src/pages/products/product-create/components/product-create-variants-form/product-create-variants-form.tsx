@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { useMemo } from "react"
-import { UseFormReturn, useWatch } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -9,26 +9,30 @@ import {
   DataGrid,
 } from "../../../../../components/data-grid"
 import { useRouteModal } from "../../../../../components/modals"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
+import { useRegions } from "../../../../../hooks/api"
+import { usePricePreferences } from "../../../../../hooks/api/price-preferences"
+import { useStore } from "../../../../../hooks/api/store"
 import {
   ProductCreateOptionSchema,
   ProductCreateVariantSchema,
 } from "../../constants"
 import { ProductCreateSchemaType } from "../../types"
 
-type ProductCreateVariantsFormProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-  regions: HttpTypes.AdminRegion[]
-  store: HttpTypes.AdminStore
-  pricePreferences: HttpTypes.AdminPricePreference[]
-}
-
-export const ProductCreateVariantsForm = ({
-  form,
-  regions,
-  store,
-  pricePreferences,
-}: ProductCreateVariantsFormProps) => {
+const Root = () => {
+  const form = useTabbedForm<ProductCreateSchemaType>()
   const { setCloseOnEscape } = useRouteModal()
+
+  const { store } = useStore({
+    fields: "+default_sales_channel",
+  })
+
+  const { regions } = useRegions({ limit: 9999 })
+
+  const { price_preferences: pricePreferences } = usePricePreferences({
+    limit: 9999,
+  })
 
   const currencyCodes = useMemo(
     () => store?.supported_currencies?.map((c) => c.currency_code) || [],
@@ -53,12 +57,12 @@ export const ProductCreateVariantsForm = ({
   const columns = useColumns({
     options,
     currencies: currencyCodes,
-    regions,
-    pricePreferences,
+    regions: regions ?? [],
+    pricePreferences: pricePreferences ?? [],
   })
 
   const variantData = useMemo(() => {
-    const ret = []
+    const ret: (ProductCreateVariantSchema & { originalIndex: number })[] = []
 
     variants.forEach((v, i) => {
       if (v.should_create) {
@@ -83,8 +87,18 @@ export const ProductCreateVariantsForm = ({
   )
 }
 
+Root._tabMeta = defineTabMeta<ProductCreateSchemaType>({
+  id: "variants",
+  labelKey: "products.create.tabs.variants",
+  validationFields: ["variants"],
+})
+
+export const ProductCreateVariantsForm = Root
+
+type VariantRow = ProductCreateVariantSchema & { originalIndex: number }
+
 const columnHelper = createDataGridHelper<
-  ProductCreateVariantSchema,
+  VariantRow,
   ProductCreateSchemaType
 >()
 
@@ -186,7 +200,7 @@ const useColumns = ({
       }),
 
       ...createDataGridPriceColumns<
-        ProductCreateVariantSchema,
+        VariantRow,
         ProductCreateSchemaType
       >({
         currencies,

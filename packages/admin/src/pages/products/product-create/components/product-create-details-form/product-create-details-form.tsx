@@ -1,17 +1,13 @@
 import { Divider, Heading } from "@medusajs/ui";
-import { UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
+import { defineTabMeta } from "../../../../../components/tabbed-form/types";
 import { ProductCreateSchemaType } from "../../types";
 import { ProductCreateGeneralSection } from "./components/product-create-details-general-section";
 import { ProductCreateMediaSection } from "./components/product-create-details-media-section";
 import { ProductCreateVariantsSection } from "./components/product-create-details-variant-section";
 
-type ProductAttributesProps = {
-  form: UseFormReturn<ProductCreateSchemaType>;
-};
-
-export const ProductCreateDetailsForm = ({ form }: ProductAttributesProps) => {
+const Root = () => {
   return (
     <div
       className="flex flex-col items-center p-16"
@@ -26,15 +22,23 @@ export const ProductCreateDetailsForm = ({ form }: ProductAttributesProps) => {
           className="flex flex-col gap-y-6"
           data-testid="product-create-details-form-sections"
         >
-          <ProductCreateGeneralSection form={form} />
-          <ProductCreateMediaSection form={form} />
+          <ProductCreateGeneralSection />
+          <ProductCreateMediaSection />
         </div>
         <Divider data-testid="product-create-details-form-divider" />
-        <ProductCreateVariantsSection form={form} />
+        <ProductCreateVariantsSection />
       </div>
     </div>
   );
 };
+
+Root._tabMeta = defineTabMeta<ProductCreateSchemaType>({
+  id: "details",
+  labelKey: "products.create.tabs.details",
+  validationFields: ["title", "handle", "description", "media", "options", "variants"],
+});
+
+export const ProductCreateDetailsForm = Root;
 
 const Header = () => {
   const { t } = useTranslation();

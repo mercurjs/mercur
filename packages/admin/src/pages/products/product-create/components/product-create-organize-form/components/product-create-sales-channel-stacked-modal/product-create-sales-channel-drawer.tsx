@@ -5,7 +5,6 @@ import {
   DataTableRowSelectionState,
 } from "@medusajs/ui"
 import { useEffect, useMemo, useState } from "react"
-import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { keepPreviousData } from "@tanstack/react-query"
@@ -15,19 +14,15 @@ import {
   StackedFocusModal,
   useStackedModal,
 } from "../../../../../../../components/modals"
+import { useTabbedForm } from "../../../../../../../components/tabbed-form/tabbed-form"
 import { useSalesChannels } from "../../../../../../../hooks/api/sales-channels"
 import { ProductCreateSchemaType } from "../../../../types"
 import { SC_STACKED_MODAL_ID } from "../../constants"
 
-type ProductCreateSalesChannelStackedModalProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
-
 const PAGE_SIZE = 20
 
-export const ProductCreateSalesChannelStackedModal = ({
-  form,
-}: ProductCreateSalesChannelStackedModalProps) => {
+export const ProductCreateSalesChannelStackedModal = () => {
+  const form = useTabbedForm<ProductCreateSchemaType>()
   const { t } = useTranslation()
   const { getValues, setValue } = form
   const { setIsOpen, getIsOpen } = useStackedModal()

@@ -1,18 +1,13 @@
 import { Heading, Input } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "../../../../../../../components/common/form"
 import { CountrySelect } from "../../../../../../../components/inputs/country-select"
+import { useTabbedForm } from "../../../../../../../components/tabbed-form/tabbed-form"
 import { ProductCreateSchemaType } from "../../../../types"
 
-type ProductCreateAttributeSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
-
-export const ProductCreateAttributeSection = ({
-  form,
-}: ProductCreateAttributeSectionProps) => {
+export const ProductCreateAttributeSection = () => {
+  const form = useTabbedForm<ProductCreateSchemaType>()
   const { t } = useTranslation()
 
   return (

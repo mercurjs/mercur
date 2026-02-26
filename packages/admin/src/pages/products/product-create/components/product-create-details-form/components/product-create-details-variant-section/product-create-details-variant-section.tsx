@@ -16,7 +16,6 @@ import {
   Controller,
   FieldArrayWithId,
   useFieldArray,
-  UseFormReturn,
   useWatch,
 } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -25,12 +24,9 @@ import { Form } from "../../../../../../../components/common/form"
 import { SortableList } from "../../../../../../../components/common/sortable-list"
 import { SwitchBox } from "../../../../../../../components/common/switch-box"
 import { ChipInput } from "../../../../../../../components/inputs/chip-input"
+import { useTabbedForm } from "../../../../../../../components/tabbed-form/tabbed-form"
 import { ProductCreateSchemaType } from "../../../../types"
 import { decorateVariantsWithDefaultValues } from "../../../../utils"
-
-type ProductCreateVariantsSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
 
 const getPermutations = (
   data: { title: string; values: string[] }[]
@@ -60,9 +56,8 @@ const getVariantName = (options: Record<string, string>) => {
   return Object.values(options).join(" / ")
 }
 
-export const ProductCreateVariantsSection = ({
-  form,
-}: ProductCreateVariantsSectionProps) => {
+export const ProductCreateVariantsSection = () => {
+  const form = useTabbedForm<ProductCreateSchemaType>()
   const { t } = useTranslation()
 
   const options = useFieldArray({

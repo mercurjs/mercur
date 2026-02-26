@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { UseFormReturn, useWatch } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { HttpTypes } from "@medusajs/types"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -13,12 +13,11 @@ import {
   createDataGridPriceColumns,
   DataGrid,
 } from "../../../../../components/data-grid"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 
-type PricingTabProps = {
-  form: UseFormReturn<z.infer<typeof CreateProductVariantSchema>>
-}
-
-function PricingTab({ form }: PricingTabProps) {
+function PricingTab() {
+  const form = useTabbedForm<z.infer<typeof CreateProductVariantSchema>>()
   const { store } = useStore()
   const { regions } = useRegions({ limit: 9999 })
   const { price_preferences: pricePreferences } = usePricePreferences({})
@@ -98,5 +97,11 @@ const useVariantPriceGridColumns = ({
     ]
   }, [t, currencies, regions, pricePreferences])
 }
+
+PricingTab._tabMeta = defineTabMeta<z.infer<typeof CreateProductVariantSchema>>({
+  id: "price",
+  labelKey: "priceLists.create.tabs.prices",
+  validationFields: ["prices"],
+})
 
 export default PricingTab

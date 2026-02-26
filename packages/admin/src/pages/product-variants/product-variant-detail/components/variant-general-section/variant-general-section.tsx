@@ -1,5 +1,4 @@
 import { Component, PencilSquare, Trash } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
 import { Badge, Container, Heading, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
@@ -7,12 +6,10 @@ import { useNavigate } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section"
 import { useDeleteVariant } from "../../../../../hooks/api/products"
+import { useProductVariantDetailContext } from "../../context"
 
-type VariantGeneralSectionProps = {
-  variant: HttpTypes.AdminProductVariant
-}
-
-export function VariantGeneralSection({ variant }: VariantGeneralSectionProps) {
+export function VariantGeneralSection() {
+  const { variant } = useProductVariantDetailContext()
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()

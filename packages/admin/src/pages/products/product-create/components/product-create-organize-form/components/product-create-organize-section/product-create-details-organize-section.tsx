@@ -1,5 +1,5 @@
 import { Button, Heading } from "@medusajs/ui"
-import { UseFormReturn, useFieldArray } from "react-hook-form"
+import { useFieldArray } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
 import { ChipGroup } from "../../../../../../../components/common/chip-group"
@@ -7,18 +7,14 @@ import { Form } from "../../../../../../../components/common/form"
 import { SwitchBox } from "../../../../../../../components/common/switch-box"
 import { Combobox } from "../../../../../../../components/inputs/combobox"
 import { StackedFocusModal } from "../../../../../../../components/modals"
+import { useTabbedForm } from "../../../../../../../components/tabbed-form/tabbed-form"
 import { useComboboxData } from "../../../../../../../hooks/use-combobox-data"
 import { sdk } from "../../../../../../../lib/client"
 import { CategoryCombobox } from "../../../../../common/components/category-combobox"
 import { ProductCreateSchemaType } from "../../../../types"
 
-type ProductCreateOrganizationSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
-
-export const ProductCreateOrganizationSection = ({
-  form,
-}: ProductCreateOrganizationSectionProps) => {
+export const ProductCreateOrganizationSection = () => {
+  const form = useTabbedForm<ProductCreateSchemaType>()
   const { t } = useTranslation()
 
   const collections = useComboboxData({

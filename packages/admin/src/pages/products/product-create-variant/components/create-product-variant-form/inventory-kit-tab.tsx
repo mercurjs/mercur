@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { useFieldArray, UseFormReturn } from "react-hook-form"
+import { useFieldArray } from "react-hook-form"
 import { Button, Heading, IconButton, Input, Label } from "@medusajs/ui"
 
 import { CreateProductVariantSchema } from "./constants"
@@ -10,12 +10,11 @@ import { useComboboxData } from "../../../../../hooks/use-combobox-data"
 import { sdk } from "../../../../../lib/client"
 import { Form } from "../../../../../components/common/form"
 import { Combobox } from "../../../../../components/inputs/combobox"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 
-type InventoryKitTabProps = {
-  form: UseFormReturn<z.infer<typeof CreateProductVariantSchema>>
-}
-
-function InventoryKitTab({ form }: InventoryKitTabProps) {
+function InventoryKitTab() {
+  const form = useTabbedForm<z.infer<typeof CreateProductVariantSchema>>()
   const { t } = useTranslation()
 
   const inventory = useFieldArray({
@@ -191,5 +190,11 @@ function InventoryKitTab({ form }: InventoryKitTabProps) {
     </div>
   )
 }
+
+InventoryKitTab._tabMeta = defineTabMeta<z.infer<typeof CreateProductVariantSchema>>({
+  id: "inventory",
+  labelKey: "products.create.tabs.inventory",
+  validationFields: ["inventory"],
+})
 
 export default InventoryKitTab
