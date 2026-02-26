@@ -15,13 +15,10 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useUpdateProduct } from "../../../../../hooks/api/products"
-import { HttpTypes } from "@medusajs/types"
+import { useProductDetailContext } from "../../context"
 
-type ProductMedisaSectionProps = {
-  product: HttpTypes.AdminProduct 
-}
-
-export const ProductMediaSection = ({ product }: ProductMedisaSectionProps) => {
+export const ProductMediaSection = () => {
+  const { product } = useProductDetailContext()
   const { t } = useTranslation()
   const prompt = usePrompt()
   const [selection, setSelection] = useState<Record<string, boolean>>({})

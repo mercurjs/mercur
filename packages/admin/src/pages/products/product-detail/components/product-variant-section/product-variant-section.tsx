@@ -24,15 +24,13 @@ import { useDataTableDateFilters } from '../../../../../components/data-table/he
 import { useDeleteVariantLazy, useProductVariants } from '../../../../../hooks/api/products';
 import { useQueryParams } from '../../../../../hooks/use-query-params';
 import { PRODUCT_VARIANT_IDS_KEY } from '../../../common/constants';
-
-type ProductVariantSectionProps = {
-  product: HttpTypes.AdminProduct;
-};
+import { useProductDetailContext } from '../../context';
 
 const PAGE_SIZE = 10;
 const PREFIX = 'pv';
 
-export const ProductVariantSection = ({ product }: ProductVariantSectionProps) => {
+export const ProductVariantSection = () => {
+  const { product } = useProductDetailContext();
   const { t } = useTranslation();
 
   const { q, order, offset, allow_backorder, manage_inventory, created_at, updated_at } =
