@@ -1,72 +1,64 @@
 import { HttpTypes } from "@medusajs/types";
-import { Button, ProgressStatus, ProgressTabs, toast } from "@medusajs/ui";
-import { useEffect, useMemo, useState } from "react";
+import { Button, toast } from "@medusajs/ui";
+import { Children, ReactNode, useCallback, useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   RouteFocusModal,
   useRouteModal,
 } from "../../../../../components/modals";
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
+import { TabbedForm } from "../../../../../components/tabbed-form/tabbed-form";
+import { TabDefinition } from "../../../../../components/tabbed-form/types";
 import { useCreateProduct } from "../../../../../hooks/api/products";
+import { useRegions } from "../../../../../hooks/api";
 import { sdk } from "../../../../../lib/client";
 import {
   PRODUCT_CREATE_FORM_DEFAULTS,
   ProductCreateSchema,
 } from "../../constants";
+import { ProductCreateSchemaType } from "../../types";
 import { normalizeProductFormValues } from "../../utils";
 import { ProductCreateDetailsForm } from "../product-create-details-form";
 import { ProductCreateInventoryKitForm } from "../product-create-inventory-kit-form";
 import { ProductCreateOrganizeForm } from "../product-create-organize-form";
 import { ProductCreateVariantsForm } from "../product-create-variants-form";
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
 import { zodResolver } from "@hookform/resolvers/zod";
-enum Tab {
-  DETAILS = "details",
-  ORGANIZE = "organize",
-  VARIANTS = "variants",
-  INVENTORY = "inventory",
-}
-
-type TabState = Record<Tab, ProgressStatus>;
 
 const SAVE_DRAFT_BUTTON = "save-draft-button";
 
 type ProductCreateFormProps = {
   defaultChannel?: HttpTypes.AdminSalesChannel;
-  regions: HttpTypes.AdminRegion[];
-  store: HttpTypes.AdminStore;
-  pricePreferences: HttpTypes.AdminPricePreference[];
+  children?: ReactNode;
 };
 
 export const ProductCreateForm = ({
   defaultChannel,
-  regions,
-  store,
-  pricePreferences,
+  children,
 }: ProductCreateFormProps) => {
-  const [tab, setTab] = useState<Tab>(Tab.DETAILS);
-  const [tabState, setTabState] = useState<TabState>({
-    [Tab.DETAILS]: "in-progress",
-    [Tab.ORGANIZE]: "not-started",
-    [Tab.VARIANTS]: "not-started",
-    [Tab.INVENTORY]: "not-started",
-  });
-
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
-  const direction = useDocumentDirection();
-  const form = useForm({
+  const form = useForm<ProductCreateSchemaType>({
     defaultValues: {
       ...PRODUCT_CREATE_FORM_DEFAULTS,
       sales_channels: defaultChannel
         ? [{ id: defaultChannel.id, name: defaultChannel.name }]
         : [],
-    },
+    } as ProductCreateSchemaType,
     resolver: zodResolver(ProductCreateSchema),
   });
 
   const { mutateAsync, isPending } = useCreateProduct();
+
+  const {
+    regions,
+    isPending: isRegionsPending,
+    isError: isRegionsError,
+    error: regionsError,
+  } = useRegions({ limit: 9999 });
+
+  if (isRegionsError) {
+    throw regionsError;
+  }
 
   const regionsCurrencyMap = useMemo(() => {
     if (!regions?.length) {
@@ -92,12 +84,11 @@ export const ProductCreateForm = ({
     name: "variants",
   });
 
-  const showInventoryTab = useMemo(
-    () => watchedVariants.some((v) => v.manage_inventory && v.inventory_kit),
-    [watchedVariants],
-  );
-
   const handleSubmit = form.handleSubmit(async (values, e) => {
+    if (isRegionsPending) {
+      return;
+    }
+
     let isDraftSubmission = false;
     if (e?.nativeEvent instanceof SubmitEvent) {
       const submitter = e?.nativeEvent?.submitter as HTMLButtonElement;
@@ -163,266 +154,92 @@ export const ProductCreateForm = ({
     );
   });
 
-  const onNext = async (currentTab: Tab) => {
-    const valid = await form.trigger();
+  const transformTabs = useCallback(
+    (tabs: TabDefinition<ProductCreateSchemaType>[]) => {
+      const showInventoryTab = watchedVariants?.some(
+        (v) => v.manage_inventory && v.inventory_kit
+      ) ?? false;
 
-    if (!valid) {
-      return;
-    }
-
-    if (currentTab === Tab.DETAILS) {
-      setTab(Tab.ORGANIZE);
-    }
-
-    if (currentTab === Tab.ORGANIZE) {
-      setTab(Tab.VARIANTS);
-    }
-
-    if (currentTab === Tab.VARIANTS) {
-      setTab(Tab.INVENTORY);
-    }
-  };
-
-  useEffect(() => {
-    const currentState = { ...tabState };
-    if (tab === Tab.DETAILS) {
-      currentState[Tab.DETAILS] = "in-progress";
-    }
-    if (tab === Tab.ORGANIZE) {
-      currentState[Tab.DETAILS] = "completed";
-      currentState[Tab.ORGANIZE] = "in-progress";
-    }
-    if (tab === Tab.VARIANTS) {
-      currentState[Tab.DETAILS] = "completed";
-      currentState[Tab.ORGANIZE] = "completed";
-      currentState[Tab.VARIANTS] = "in-progress";
-    }
-    if (tab === Tab.INVENTORY) {
-      currentState[Tab.DETAILS] = "completed";
-      currentState[Tab.ORGANIZE] = "completed";
-      currentState[Tab.VARIANTS] = "completed";
-      currentState[Tab.INVENTORY] = "in-progress";
-    }
-
-    setTabState({ ...currentState });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- we only want this effect to run when the tab changes
-  }, [tab]);
-
-  return (
-    <RouteFocusModal.Form form={form}>
-      <KeyboundForm
-        data-testid="product-create-form"
-        onKeyDown={(e) => {
-          // We want to continue to the next tab on enter instead of saving as draft immediately
-          if (e.key === "Enter") {
-            if (
-              e.target instanceof HTMLTextAreaElement &&
-              !(e.metaKey || e.ctrlKey)
-            ) {
-              return;
-            }
-
-            e.preventDefault();
-
-            if (e.metaKey || e.ctrlKey) {
-              if (tab !== Tab.VARIANTS) {
-                e.preventDefault();
-                e.stopPropagation();
-                onNext(tab);
-
-                return;
-              }
-
-              handleSubmit();
-            }
-          }
-        }}
-        onSubmit={handleSubmit}
-        className="flex h-full flex-col"
-      >
-        <ProgressTabs
-          dir={direction}
-          value={tab}
-          onValueChange={async (tab) => {
-            const valid = await form.trigger();
-
-            if (!valid) {
-              return;
-            }
-
-            setTab(tab as Tab);
-          }}
-          className="flex h-full flex-col overflow-hidden"
-          data-testid="product-create-form-tabs"
-        >
-          <RouteFocusModal.Header>
-            <div
-              className="-my-2 w-full border-l"
-              data-testid="product-create-form-tabs-header"
-            >
-              <ProgressTabs.List
-                className="justify-start-start flex w-full items-center"
-                data-testid="product-create-form-tabs-list"
-              >
-                <ProgressTabs.Trigger
-                  status={tabState[Tab.DETAILS]}
-                  value={Tab.DETAILS}
-                  className="max-w-[200px] truncate"
-                  data-testid="product-create-form-tab-details"
-                >
-                  {t("products.create.tabs.details")}
-                </ProgressTabs.Trigger>
-                <ProgressTabs.Trigger
-                  status={tabState[Tab.ORGANIZE]}
-                  value={Tab.ORGANIZE}
-                  className="max-w-[200px] truncate"
-                  data-testid="product-create-form-tab-organize"
-                >
-                  {t("products.create.tabs.organize")}
-                </ProgressTabs.Trigger>
-                <ProgressTabs.Trigger
-                  status={tabState[Tab.VARIANTS]}
-                  value={Tab.VARIANTS}
-                  className="max-w-[200px] truncate"
-                  data-testid="product-create-form-tab-variants"
-                >
-                  {t("products.create.tabs.variants")}
-                </ProgressTabs.Trigger>
-                {showInventoryTab && (
-                  <ProgressTabs.Trigger
-                    status={tabState[Tab.INVENTORY]}
-                    value={Tab.INVENTORY}
-                    className="max-w-[200px] truncate"
-                    data-testid="product-create-form-tab-inventory"
-                  >
-                    {t("products.create.tabs.inventory")}
-                  </ProgressTabs.Trigger>
-                )}
-              </ProgressTabs.List>
-            </div>
-          </RouteFocusModal.Header>
-          <RouteFocusModal.Body
-            className="size-full overflow-hidden"
-            data-testid="product-create-form-body"
-          >
-            <ProgressTabs.Content
-              className="size-full overflow-y-auto"
-              value={Tab.DETAILS}
-              data-testid="product-create-form-tab-content-details"
-            >
-              <ProductCreateDetailsForm form={form} />
-            </ProgressTabs.Content>
-            <ProgressTabs.Content
-              className="size-full overflow-y-auto"
-              value={Tab.ORGANIZE}
-              data-testid="product-create-form-tab-content-organize"
-            >
-              <ProductCreateOrganizeForm form={form} />
-            </ProgressTabs.Content>
-            <ProgressTabs.Content
-              className="size-full overflow-y-auto"
-              value={Tab.VARIANTS}
-              data-testid="product-create-form-tab-content-variants"
-            >
-              <ProductCreateVariantsForm
-                form={form}
-                store={store}
-                regions={regions}
-                pricePreferences={pricePreferences}
-              />
-            </ProgressTabs.Content>
-            {showInventoryTab && (
-              <ProgressTabs.Content
-                className="size-full overflow-y-auto"
-                value={Tab.INVENTORY}
-                data-testid="product-create-form-tab-content-inventory"
-              >
-                <ProductCreateInventoryKitForm form={form} />
-              </ProgressTabs.Content>
-            )}
-          </RouteFocusModal.Body>
-        </ProgressTabs>
-        <RouteFocusModal.Footer data-testid="product-create-form-footer">
-          <div
-            className="flex items-center justify-end gap-x-2"
-            data-testid="product-create-form-footer-actions"
-          >
-            <RouteFocusModal.Close asChild>
-              <Button
-                variant="secondary"
-                size="small"
-                data-testid="product-create-form-cancel-button"
-              >
-                {t("actions.cancel")}
-              </Button>
-            </RouteFocusModal.Close>
-            <Button
-              data-name={SAVE_DRAFT_BUTTON}
-              size="small"
-              type="submit"
-              isLoading={isPending}
-              className="whitespace-nowrap"
-              data-testid="product-create-form-save-draft-button"
-            >
-              {t("actions.saveAsDraft")}
-            </Button>
-            <PrimaryButton
-              tab={tab}
-              next={onNext}
-              isLoading={isPending}
-              showInventoryTab={showInventoryTab}
-            />
-          </div>
-        </RouteFocusModal.Footer>
-      </KeyboundForm>
-    </RouteFocusModal.Form>
+      return tabs.map((tab) => {
+        if (tab.id === "inventory") {
+          return {
+            ...tab,
+            isVisible: () => showInventoryTab,
+          };
+        }
+        return tab;
+      });
+    },
+    [watchedVariants],
   );
-};
 
-type PrimaryButtonProps = {
-  tab: Tab;
-  next: (tab: Tab) => void;
-  isLoading?: boolean;
-  showInventoryTab: boolean;
-};
-
-const PrimaryButton = ({
-  tab,
-  next,
-  isLoading,
-  showInventoryTab,
-}: PrimaryButtonProps) => {
-  const { t } = useTranslation();
-
-  if (
-    (tab === Tab.VARIANTS && !showInventoryTab) ||
-    (tab === Tab.INVENTORY && showInventoryTab)
-  ) {
-    return (
-      <Button
-        data-name="publish-button"
-        key="submit-button"
-        type="submit"
-        variant="primary"
-        size="small"
-        isLoading={isLoading}
-        data-testid="product-create-form-publish-button"
-      >
-        {t("actions.publish")}
-      </Button>
-    );
-  }
+  const defaultTabs = (
+    <>
+      <ProductCreateDetailsForm key="details" />
+      <ProductCreateOrganizeForm key="organize" />
+      <ProductCreateVariantsForm key="variants" />
+      <ProductCreateInventoryKitForm key="inventory" />
+    </>
+  );
 
   return (
-    <Button
-      key="next-button"
-      type="button"
-      variant="primary"
-      size="small"
-      onClick={() => next(tab)}
-      data-testid="product-create-form-continue-button"
+    <TabbedForm
+      form={form}
+      onSubmit={handleSubmit}
+      isLoading={isPending || isRegionsPending}
+      transformTabs={transformTabs}
+      footer={({ isLastTab, onNext, isLoading }) => (
+        <div
+          className="flex items-center justify-end gap-x-2"
+          data-testid="product-create-form-footer-actions"
+        >
+          <RouteFocusModal.Close asChild>
+            <Button
+              variant="secondary"
+              size="small"
+              data-testid="product-create-form-cancel-button"
+            >
+              {t("actions.cancel")}
+            </Button>
+          </RouteFocusModal.Close>
+          <Button
+            data-name={SAVE_DRAFT_BUTTON}
+            size="small"
+            type="submit"
+            isLoading={isLoading}
+            className="whitespace-nowrap"
+            data-testid="product-create-form-save-draft-button"
+          >
+            {t("actions.saveAsDraft")}
+          </Button>
+          {isLastTab ? (
+            <Button
+              data-name="publish-button"
+              key="submit-button"
+              type="submit"
+              variant="primary"
+              size="small"
+              isLoading={isLoading}
+              data-testid="product-create-form-publish-button"
+            >
+              {t("actions.publish")}
+            </Button>
+          ) : (
+            <Button
+              key="next-button"
+              type="button"
+              variant="primary"
+              size="small"
+              onClick={() => onNext()}
+              data-testid="product-create-form-continue-button"
+            >
+              {t("actions.continue")}
+            </Button>
+          )}
+        </div>
+      )}
     >
-      {t("actions.continue")}
-    </Button>
+      {Children.count(children) > 0 ? children : defaultTabs}
+    </TabbedForm>
   );
 };

@@ -3,16 +3,11 @@ import { Container, Heading, Text, Tooltip } from "@medusajs/ui"
 import { Trans, useTranslation } from "react-i18next"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useSalesChannels } from "../../../../../hooks/api/sales-channels"
-import { HttpTypes } from "@medusajs/types"
-
-type ProductSalesChannelSectionProps = {
-  product: HttpTypes.AdminProduct
-}
+import { useProductDetailContext } from "../../context"
 
 // TODO: The fetched sales channel doesn't contain all necessary info
-export const ProductSalesChannelSection = ({
-  product,
-}: ProductSalesChannelSectionProps) => {
+export const ProductSalesChannelSection = () => {
+  const { product } = useProductDetailContext()
   const { count } = useSalesChannels()
   const { t } = useTranslation()
 

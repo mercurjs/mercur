@@ -27,15 +27,12 @@ import {
 } from "@medusajs/icons"
 import { IconButton, Text } from "@medusajs/ui"
 import { useState } from "react"
-import { useFieldArray, UseFormReturn } from "react-hook-form"
+import { useFieldArray } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { ActionMenu } from "../../../../../../../components/common/action-menu"
+import { useTabbedForm } from "../../../../../../../components/tabbed-form/tabbed-form"
 import { UploadMediaFormItem } from "../../../../../common/components/upload-media-form-item"
 import { ProductCreateSchemaType } from "../../../../types"
-
-type ProductCreateMediaSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
 
 const dropAnimationConfig: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
@@ -47,9 +44,9 @@ const dropAnimationConfig: DropAnimation = {
   }),
 }
 
-export const ProductCreateMediaSection = ({
-  form,
-}: ProductCreateMediaSectionProps) => {
+export const ProductCreateMediaSection = () => {
+  const form = useTabbedForm<ProductCreateSchemaType>()
+
   const { fields, append, remove } = useFieldArray({
     name: "media",
     control: form.control,

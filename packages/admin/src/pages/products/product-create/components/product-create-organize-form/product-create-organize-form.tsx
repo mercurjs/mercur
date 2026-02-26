@@ -1,16 +1,11 @@
-import { UseFormReturn } from "react-hook-form";
-
 import { StackedFocusModal } from "../../../../../components/modals";
+import { defineTabMeta } from "../../../../../components/tabbed-form/types";
 import { ProductCreateSchemaType } from "../../types";
 import { ProductCreateOrganizationSection } from "./components/product-create-organize-section";
 import { ProductCreateSalesChannelStackedModal } from "./components/product-create-sales-channel-stacked-modal";
 import { SC_STACKED_MODAL_ID } from "./constants";
 
-type ProductAttributesProps = {
-  form: UseFormReturn<ProductCreateSchemaType>;
-};
-
-export const ProductCreateOrganizeForm = ({ form }: ProductAttributesProps) => {
+const Root = () => {
   return (
     <StackedFocusModal id={SC_STACKED_MODAL_ID}>
       <div
@@ -21,10 +16,22 @@ export const ProductCreateOrganizeForm = ({ form }: ProductAttributesProps) => {
           className="flex w-full max-w-[720px] flex-col gap-y-8"
           data-testid="product-create-organize-form-content"
         >
-          <ProductCreateOrganizationSection form={form} />
+          <ProductCreateOrganizationSection />
         </div>
       </div>
-      <ProductCreateSalesChannelStackedModal form={form} />
+      <ProductCreateSalesChannelStackedModal />
     </StackedFocusModal>
   );
 };
+
+Root._tabMeta = defineTabMeta<ProductCreateSchemaType>({
+  id: "organize",
+  labelKey: "products.create.tabs.organize",
+  validationFields: [
+    "type_id", "collection_id", "categories", "tags", "sales_channels",
+    "shipping_profile_id", "origin_country", "material",
+    "width", "length", "height", "weight", "mid_code", "hs_code",
+  ],
+});
+
+export const ProductCreateOrganizeForm = Root;

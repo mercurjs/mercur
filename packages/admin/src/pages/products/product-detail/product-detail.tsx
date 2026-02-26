@@ -1,3 +1,4 @@
+import { Children, ComponentProps, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
@@ -13,9 +14,10 @@ import { ProductOrganizationSection } from "./components/product-organization-se
 import { ProductSalesChannelSection } from "./components/product-sales-channel-section";
 import { ProductShippingProfileSection } from "./components/product-shipping-profile-section";
 import { ProductVariantSection } from "./components/product-variant-section";
+import { ProductDetailProvider, useProductDetailContext } from "./context";
 import { productLoader } from "./loader";
 
-export const ProductDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof productLoader>
   >;
@@ -45,22 +47,58 @@ export const ProductDetail = () => {
   }
 
   return (
-    <div data-testid="product-detail-page">
-      <TwoColumnPage showJSON showMetadata data={product}>
-        <TwoColumnPage.Main data-testid="product-detail-main">
-          <ProductGeneralSection product={product} />
-          <ProductMediaSection product={product} />
-          <ProductOptionSection product={product} />
-          <ProductVariantSection product={product} />
-        </TwoColumnPage.Main>
-        <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
-          <ProductSalesChannelSection product={product} />
-          <ProductShippingProfileSection product={product} />
-          <ProductOrganizationSection product={product} />
-          <ProductAttributeSection product={product} />
-          <ProductAdditionalAttributeSection />
-        </TwoColumnPage.Sidebar>
-      </TwoColumnPage>
-    </div>
+    <ProductDetailProvider product={product}>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <div data-testid="product-detail-page">
+          <Layout>
+            <TwoColumnPage.Main data-testid="product-detail-main">
+              <ProductGeneralSection />
+              <ProductMediaSection />
+              <ProductOptionSection />
+              <ProductVariantSection />
+            </TwoColumnPage.Main>
+            <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
+              <ProductSalesChannelSection />
+              <ProductShippingProfileSection />
+              <ProductOrganizationSection />
+              <ProductAttributeSection />
+              <ProductAdditionalAttributeSection />
+            </TwoColumnPage.Sidebar>
+          </Layout>
+        </div>
+      )}
+    </ProductDetailProvider>
   );
 };
+
+const Layout = ({
+  children,
+  ...props
+}: Omit<ComponentProps<typeof TwoColumnPage>, "data"> & {
+  children: ReactNode;
+}) => {
+  const { product } = useProductDetailContext();
+  return (
+    <TwoColumnPage showJSON showMetadata data={product} {...props}>
+      {children}
+    </TwoColumnPage>
+  );
+};
+
+export const ProductDetail = Object.assign(Root, {
+  Layout,
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  GeneralSection: ProductGeneralSection,
+  MediaSection: ProductMediaSection,
+  OptionSection: ProductOptionSection,
+  VariantSection: ProductVariantSection,
+  SalesChannelSection: ProductSalesChannelSection,
+  ShippingProfileSection: ProductShippingProfileSection,
+  OrganizationSection: ProductOrganizationSection,
+  AttributeSection: ProductAttributeSection,
+  AdditionalAttributeSection: ProductAdditionalAttributeSection,
+  useContext: useProductDetailContext,
+});
