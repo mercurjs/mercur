@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 7000",
+    "dev": "vite --port 7002",
     "lint": "eslint .",
-    "preview": "vite preview --port 7000"
+    "preview": "vite preview --port 7002"
   },
   "dependencies": {
     "@medusajs/icons": "^2.13.0",
