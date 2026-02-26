@@ -62,7 +62,8 @@
     "typescript": "5.9.3",
     "yalc": "^1.0.0-pre.53",
     "@medusajs/types": "2.13.0",
-    "zod": "3.25.76"
+    "zod": "3.25.76",
+    "multer": "^2.0.2"
   },
   "peerDependencies": {
     "@medusajs/admin-sdk": "^2.13.0",
