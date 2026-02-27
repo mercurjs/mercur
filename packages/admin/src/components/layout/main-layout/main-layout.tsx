@@ -2,6 +2,7 @@ import {
   BuildingStorefront,
   Buildings,
   CogSixTooth,
+  CreditCardRefresh,
   CurrencyDollar,
   EllipsisHorizontal,
   MagnifyingGlass,
@@ -292,7 +293,7 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       to: "/price-lists",
     },
     {
-      icon: <CurrencyDollar />,
+      icon: <CreditCardRefresh />,
       label: "Payouts",
       to: "/payouts",
     },
