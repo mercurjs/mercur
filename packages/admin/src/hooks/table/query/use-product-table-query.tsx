@@ -1,18 +1,13 @@
-import type { HttpTypes } from "@medusajs/types"
-import type { ExtendedAdminProductListParams } from "@custom-types/product"
-import { useQueryParams } from "@hooks/use-query-params"
+import type { HttpTypes } from "@medusajs/types";
+import { useQueryParams } from "@hooks/use-query-params";
 
 type UseProductTableQueryProps = {
-  prefix?: string
-  pageSize?: number
-}
-
-type ExtendedAdminProductListParams = HttpTypes.AdminProductListParams & {
-  tag_id?: string[]
-}
+  prefix?: string;
+  pageSize?: number;
+};
 
 const DEFAULT_FIELDS =
-  "id,title,handle,status,*collection,*sales_channels,variants.id,thumbnail"
+  "id,title,handle,status,*collection,*sales_channels,variants.id,thumbnail,seller.*";
 
 export const useProductTableQuery = ({
   prefix,
@@ -33,9 +28,10 @@ export const useProductTableQuery = ({
       "type_id",
       "status",
       "id",
+      "seller_id",
     ],
-    prefix
-  )
+    prefix,
+  );
 
   const {
     offset,
@@ -48,11 +44,12 @@ export const useProductTableQuery = ({
     type_id,
     is_giftcard,
     status,
+    seller_id,
     order,
     q,
-  } = queryObject
+  } = queryObject;
 
-  const searchParams: ExtendedAdminProductListParams = {
+  const searchParams = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
     sales_channel_id: sales_channel_id?.split(","),
@@ -65,12 +62,13 @@ export const useProductTableQuery = ({
     tag_id: tag_id ? tag_id.split(",") : undefined,
     type_id: type_id?.split(","),
     status: status?.split(",") as HttpTypes.AdminProductStatus[],
+    seller_id: seller_id ? seller_id.split(",") : undefined,
     q,
     fields: DEFAULT_FIELDS,
-  }
+  };
 
   return {
     searchParams,
     raw: queryObject,
-  }
-}
+  };
+};

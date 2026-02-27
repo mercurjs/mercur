@@ -206,6 +206,14 @@ const useColumns = () => {
     () => [
       ...base,
       columnHelper.display({
+        id: "seller",
+        header: "Seller",
+        cell: ({ row }) => {
+          const seller = (row.original as any).seller;
+          return seller?.name || "-";
+        },
+      }),
+      columnHelper.display({
         id: "actions",
         header: () => (
           <div

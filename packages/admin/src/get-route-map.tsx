@@ -1031,6 +1031,60 @@ export function getRouteMap({
                 ],
               },
               {
+                path: "commission-rates",
+                errorElement: <ErrorBoundary />,
+                element: <Outlet />,
+                handle: {
+                  breadcrumb: () => "Commission Rates",
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () =>
+                      import(
+                        "./pages/commission-rates/commission-rate-list"
+                      ),
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () =>
+                          import(
+                            "./pages/commission-rates/commission-rate-create"
+                          ),
+                      },
+                    ],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Component, Breadcrumb, loader } =
+                        await import(
+                          "./pages/commission-rates/commission-rate-detail"
+                        );
+
+                      return {
+                        Component,
+                        loader,
+                        handle: {
+                          breadcrumb: (match: UIMatch) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "edit",
+                        lazy: () =>
+                          import(
+                            "./pages/commission-rates/commission-rate-edit"
+                          ),
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
                 path: "users",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
