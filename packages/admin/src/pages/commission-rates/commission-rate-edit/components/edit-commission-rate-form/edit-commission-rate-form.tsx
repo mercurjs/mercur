@@ -168,6 +168,33 @@ export const EditCommissionRateForm = ({
             />
             <Form.Field
               control={form.control}
+              name="currency_code"
+              render={({ field: { onChange, ref, ...field } }) => (
+                <Form.Item>
+                  <Form.Label>Currency Code</Form.Label>
+                  <Form.Control>
+                    <Select {...field} onValueChange={onChange}>
+                      <Select.Trigger ref={ref}>
+                        <Select.Value placeholder="Select currency" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {storeCurrencies.map((currency) => (
+                          <Select.Item
+                            value={currency.code.toLowerCase()}
+                            key={currency.code}
+                          >
+                            {currency.name}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
               name="value"
               render={({ field: { value, onChange, ...field } }) => (
                 <Form.Item>
@@ -198,50 +225,31 @@ export const EditCommissionRateForm = ({
             />
             <Form.Field
               control={form.control}
+              name="min_amount"
+              render={({ field: { value, onChange, ...field } }) => (
+                <Form.Item>
+                  <Form.Label>Minimum Amount</Form.Label>
+                  <Form.Control>
+                    <CurrencyInput
+                      {...field}
+                      min={0}
+                      code={watchCurrency || defaultCurrencyCode}
+                      value={value}
+                      onValueChange={(_value, _name, values) =>
+                        onChange(values?.float ?? 0)
+                      }
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
               name="priority"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Priority</Form.Label>
-                  <Form.Control>
-                    <Input type="number" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="currency_code"
-              render={({ field: { onChange, ref, ...field } }) => (
-                <Form.Item>
-                  <Form.Label>Currency Code</Form.Label>
-                  <Form.Control>
-                    <Select {...field} onValueChange={onChange}>
-                      <Select.Trigger ref={ref}>
-                        <Select.Value placeholder="Select currency" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {storeCurrencies.map((currency) => (
-                          <Select.Item
-                            value={currency.code.toLowerCase()}
-                            key={currency.code}
-                          >
-                            {currency.name}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="min_amount"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Minimum Amount</Form.Label>
                   <Form.Control>
                     <Input type="number" {...field} />
                   </Form.Control>
