@@ -9,7 +9,7 @@ const categoryDetailQuery = (id: string) => ({
   queryFn: async () => sdk.admin.productCategories.$id.query({ $id: id }),
 })
 
-export const categoryLoader = async ({ params }: LoaderFunctionArgs) => {
+export const categoryLoader = async ({ params }: LoaderFunctionArgs): Promise<any> => {
   const id = params.id
   const query = categoryDetailQuery(id!)
 

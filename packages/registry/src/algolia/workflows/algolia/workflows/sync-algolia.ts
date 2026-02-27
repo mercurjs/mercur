@@ -1,5 +1,5 @@
-import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'
 
+import { createWorkflow, WorkflowResponse } from '@medusajs/framework/workflows-sdk'
 import { syncAlgoliaProductsStep } from '../steps/sync-algolia-products'
 
 export const syncAlgoliaWorkflow = createWorkflow(

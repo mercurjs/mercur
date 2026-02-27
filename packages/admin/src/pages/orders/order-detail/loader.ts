@@ -11,7 +11,7 @@ const orderDetailQuery = (id: string) => ({
     sdk.admin.orders.$id.query({ $id: id, fields: DEFAULT_FIELDS }),
 })
 
-export const orderLoader = async ({ params }: LoaderFunctionArgs) => {
+export const orderLoader = async ({ params }: LoaderFunctionArgs): Promise<any> => {
   const id = params.id
   const query = orderDetailQuery(id!)
 

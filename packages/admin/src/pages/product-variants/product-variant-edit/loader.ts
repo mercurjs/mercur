@@ -19,7 +19,7 @@ const editProductVariantQuery = (id: string, variantId: string) => ({
 export const editProductVariantLoader = async ({
   params,
   request,
-}: LoaderFunctionArgs) => {
+}: LoaderFunctionArgs): Promise<any> => {
   const id = params.id
 
   const searchParams = new URL(request.url).searchParams

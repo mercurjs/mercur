@@ -17,7 +17,7 @@ const variantDetailQuery = (productId: string, variantId: string) => ({
     }),
 })
 
-export const variantLoader = async ({ params }: LoaderFunctionArgs) => {
+export const variantLoader = async ({ params }: LoaderFunctionArgs): Promise<any> => {
   const productId = params.id
   const variantId = params.variant_id
 

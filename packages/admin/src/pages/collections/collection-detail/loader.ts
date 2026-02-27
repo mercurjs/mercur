@@ -9,7 +9,7 @@ const collectionDetailQuery = (id: string) => ({
   queryFn: async () => sdk.admin.collections.$id.query({ $id: id }),
 })
 
-export const collectionLoader = async ({ params }: LoaderFunctionArgs) => {
+export const collectionLoader = async ({ params }: LoaderFunctionArgs): Promise<any> => {
   const id = params.id
   const query = collectionDetailQuery(id!)
 
