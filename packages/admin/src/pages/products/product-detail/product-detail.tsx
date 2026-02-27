@@ -10,6 +10,7 @@ import { ProductMediaSection } from "./components/product-media-section";
 import { ProductOptionSection } from "./components/product-option-section";
 import { ProductOrganizationSection } from "./components/product-organization-section";
 import { ProductSalesChannelSection } from "./components/product-sales-channel-section";
+import { ProductSellerSection } from "./components/product-seller-section/product-seller-section";
 import { ProductShippingProfileSection } from "./components/product-shipping-profile-section";
 import { ProductVariantSection } from "./components/product-variant-section";
 import { productLoader } from "./loader";
@@ -53,6 +54,7 @@ export const ProductDetail = () => {
           <ProductVariantSection product={product} />
         </TwoColumnPage.Main>
         <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
+          <ProductSellerSection seller={(product as any).seller} />
           <ProductSalesChannelSection product={product} />
           <ProductShippingProfileSection product={product} />
           <ProductOrganizationSection product={product} />

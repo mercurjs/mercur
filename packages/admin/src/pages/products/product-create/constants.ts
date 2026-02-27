@@ -67,6 +67,7 @@ export const ProductCreateSchema = z
     shipping_profile_id: z.string().optional(),
     categories: z.array(z.string()),
     tags: z.array(z.string()).optional(),
+    seller_id: z.string().optional(),
     sales_channels: z
       .array(
         z.object({
@@ -145,6 +146,7 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
   enable_variants: false,
   media: [],
   categories: [],
+  seller_id: "",
   collection_id: "",
   shipping_profile_id: "",
   description: "",

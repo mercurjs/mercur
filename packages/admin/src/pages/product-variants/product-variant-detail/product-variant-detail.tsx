@@ -1,6 +1,6 @@
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { useProductVariant } from "../../../hooks/api/products"
+import { useProduct, useProductVariant } from "../../../hooks/api/products"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
@@ -11,6 +11,7 @@ import {
   VariantInventorySection,
 } from "./components/variant-inventory-section"
 import { VariantPricesSection } from "./components/variant-prices-section"
+import { ProductSellerSection } from "../../products/product-detail/components/product-seller-section/product-seller-section"
 import { VARIANT_DETAIL_FIELDS } from "./constants"
 import { variantLoader } from "./loader"
 
@@ -20,6 +21,9 @@ export const ProductVariantDetail = () => {
   >
 
   const { id, variant_id } = useParams()
+  const { product } = useProduct(id!, {
+    fields: "*seller",
+  })
   const { variant, isLoading, isError, error } = useProductVariant(
     id!,
     variant_id!,
@@ -68,6 +72,7 @@ export const ProductVariantDetail = () => {
         )}
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
+        <ProductSellerSection seller={(product as any)?.seller} />
         <VariantPricesSection variant={variant} />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>

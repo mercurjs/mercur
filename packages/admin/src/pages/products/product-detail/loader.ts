@@ -8,7 +8,7 @@ import { AdminProductResponse } from "@mercurjs/types"
 const productDetailQuery = (id: string) => ({
   queryKey: productsQueryKeys.detail(id),
   queryFn: async () =>
-    sdk.admin.products.$id.query({ $id: id }),
+    sdk.admin.products.$id.query({ $id: id, fields: "*seller" }),
 })
 
 export const productLoader = async ({ params }: LoaderFunctionArgs): Promise<AdminProductResponse> => {

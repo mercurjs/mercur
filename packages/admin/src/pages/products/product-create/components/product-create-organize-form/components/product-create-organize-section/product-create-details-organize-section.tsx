@@ -21,6 +21,16 @@ export const ProductCreateOrganizationSection = ({
 }: ProductCreateOrganizationSectionProps) => {
   const { t } = useTranslation()
 
+  const sellers = useComboboxData({
+    queryKey: ["sellers"],
+    queryFn: (params) => sdk.admin.sellers.query(params),
+    getOptions: (data) =>
+      data.sellers.map((seller) => ({
+        label: seller.name,
+        value: seller.id,
+      })),
+  })
+
   const collections = useComboboxData({
     queryKey: ["product_collections"],
     queryFn: (params) => sdk.admin.productCollection.list(params),
@@ -82,6 +92,29 @@ export const ProductCreateOrganizationSection = ({
         optional
         data-testid="product-create-organize-section-discountable-switch"
       />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Form.Field
+          control={form.control}
+          name="seller_id"
+          render={({ field }) => {
+            return (
+              <Form.Item>
+                <Form.Label optional>Seller</Form.Label>
+                <Form.Control>
+                  <Combobox
+                    {...field}
+                    options={sellers.options}
+                    searchValue={sellers.searchValue}
+                    onSearchValueChange={sellers.onSearchValueChange}
+                    fetchNextPage={sellers.fetchNextPage}
+                  />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )
+          }}
+        />
+      </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2" data-testid="product-create-organize-section-type-collection">
         <Form.Field
           control={form.control}
