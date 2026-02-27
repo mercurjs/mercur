@@ -162,6 +162,7 @@
       "groups": {
         "all": "All areas",
         "customer": "Customers",
+        "seller": "Sellers",
         "customerGroup": "Customer Groups",
         "product": "Products",
         "productVariant": "Product Variants",
@@ -204,7 +205,9 @@
         "goToReservations": "Reservations",
         "goToPriceLists": "Price Lists",
         "goToPromotions": "Promotions",
-        "goToCampaigns": "Campaigns"
+        "goToCampaigns": "Campaigns",
+        "goToSellers": "Sellers",
+        "goToPayouts": "Payouts"
       },
       "settings": {
         "goToSettings": "Settings",

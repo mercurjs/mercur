@@ -183,6 +183,22 @@ export const useGlobalShortcuts = () => {
       type: "pageShortcut",
       to: "/campaigns",
     },
+    {
+      keys: {
+        Mac: ["G", "S"],
+      },
+      label: t("app.keyboardShortcuts.navigation.goToSellers"),
+      type: "pageShortcut",
+      to: "/sellers",
+    },
+    {
+      keys: {
+        Mac: ["G", "Y"],
+      },
+      label: t("app.keyboardShortcuts.navigation.goToPayouts"),
+      type: "pageShortcut",
+      to: "/payouts",
+    },
     // Settings
     {
       keys: {
@@ -191,14 +207,6 @@ export const useGlobalShortcuts = () => {
       label: t("app.keyboardShortcuts.settings.goToSettings"),
       type: "settingShortcut",
       to: "/settings",
-    },
-    {
-      keys: {
-        Mac: ["G", ",", "S"],
-      },
-      label: t("app.keyboardShortcuts.settings.goToSeller"),
-      type: "settingShortcut",
-      to: "/settings/seller",
     },
     {
       keys: {

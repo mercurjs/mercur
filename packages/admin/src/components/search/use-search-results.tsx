@@ -15,6 +15,7 @@ import {
   useProductTags,
   useProductTypes,
   usePromotions,
+  useSellers,
   useStockLocations,
 } from "../../hooks/api"
 import { Shortcut, ShortcutType } from "../../providers/keybind-provider"
@@ -155,6 +156,18 @@ const useDynamicSearchResults = (
     }
   )
 
+  const sellerResponse = useSellers(
+    {
+      q: debouncedSearch,
+      limit,
+      fields: "id,name",
+    },
+    {
+      enabled: isAreaEnabled(currentArea, "seller"),
+      placeholderData: keepPreviousData,
+    }
+  )
+
   const inventoryResponse = useInventoryItems(
     {
       q: debouncedSearch,
@@ -247,6 +260,7 @@ const useDynamicSearchResults = (
       category: categoryResponse,
       inventory: inventoryResponse,
       customer: customerResponse,
+      seller: sellerResponse,
       promotion: promotionResponse,
       campaign: campaignResponse,
       priceList: priceListResponse,
@@ -261,6 +275,7 @@ const useDynamicSearchResults = (
       categoryResponse,
       collectionResponse,
       customerResponse,
+      sellerResponse,
       promotionResponse,
       campaignResponse,
       priceListResponse,
@@ -410,6 +425,15 @@ const transformMap: TransformMap = {
         value: `customer:${customer.id}`,
       }
     },
+  },
+  seller: {
+    dataKey: "sellers",
+    transform: (seller: { id: string; name: string }) => ({
+      id: seller.id,
+      title: seller.name,
+      to: `/sellers/${seller.id}`,
+      value: `seller:${seller.id}`,
+    }),
   },
   collection: {
     dataKey: "collections",

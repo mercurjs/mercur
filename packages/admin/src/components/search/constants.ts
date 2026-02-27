@@ -6,6 +6,7 @@ export const SEARCH_AREAS = [
   "category",
   "inventory",
   "customer",
+  "seller",
   "promotion",
   "campaign",
   "priceList",
