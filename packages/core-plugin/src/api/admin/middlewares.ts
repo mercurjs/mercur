@@ -13,8 +13,10 @@ import { adminSellersMiddlewares } from "./sellers/middlewares"
 import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { AdminGetProductsParams } from "./products/validators"
 import { listProductQueryConfig } from "@medusajs/medusa/api/admin/products/query-config"
+import { AdminGetOrdersParams } from "./orders/validators"
+import { listTransformQueryConfig as listOrderQueryConfig } from "@medusajs/medusa/api/admin/orders/query-config"
 
-const maybeApplySellerFilter = (
+const maybeApplySellerProductFilter = (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse,
   next: MedusaNextFunction
@@ -26,6 +28,22 @@ const maybeApplySellerFilter = (
   return maybeApplyLinkFilter({
     entryPoint: "product_seller",
     resourceId: "product_id",
+    filterableField: "seller_id",
+  })(req, res, next)
+}
+
+const maybeApplySellerOrderFilter = (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  if (!req.filterableFields.seller_id) {
+    return next()
+  }
+
+  return maybeApplyLinkFilter({
+    entryPoint: "order_seller",
+    resourceId: "order_id",
     filterableField: "seller_id",
   })(req, res, next)
 }
@@ -43,7 +61,18 @@ export const adminMiddlewares: MiddlewareRoute[] = [
         AdminGetProductsParams,
         listProductQueryConfig
       ),
-      maybeApplySellerFilter,
+      maybeApplySellerProductFilter,
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/admin/orders",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetOrdersParams,
+        listOrderQueryConfig
+      ),
+      maybeApplySellerOrderFilter,
     ],
   },
 ]
