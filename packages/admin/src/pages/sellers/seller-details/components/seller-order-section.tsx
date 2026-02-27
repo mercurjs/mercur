@@ -80,9 +80,8 @@ export const SellerOrderSection = ({ sellerId }: { sellerId: string }) => {
 
   const { orders, count, isLoading, isError, error } = useOrders(
     {
-      fields: DEFAULT_FIELDS,
-      seller_id: sellerId,
       ...searchParams,
+      seller_id: sellerId,
     },
     {
       placeholderData: keepPreviousData,
