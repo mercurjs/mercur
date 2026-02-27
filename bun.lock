@@ -78,7 +78,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.0.0-canary.25",
+      "version": "2.0.0-canary.28",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -91,8 +91,8 @@
         "@medusajs/dashboard": "^2.13.0",
         "@medusajs/icons": "2.13.0",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/client": "2.0.0-canary.24",
-        "@mercurjs/dashboard-shared": "2.0.0-canary.24",
+        "@mercurjs/client": "2.0.0-canary.27",
+        "@mercurjs/dashboard-shared": "2.0.0-canary.27",
         "@radix-ui/react-dialog": "1.1.4",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -138,7 +138,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.0.0-canary.25",
+      "version": "2.0.0-canary.28",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -178,7 +178,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.0.0-canary.25",
+      "version": "2.0.0-canary.28",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -195,7 +195,7 @@
     },
     "packages/core-plugin": {
       "name": "@mercurjs/core-plugin",
-      "version": "2.0.0-canary.25",
+      "version": "2.0.0-canary.28",
       "devDependencies": {
         "@medusajs/cli": "^2.13.0",
         "@medusajs/core-flows": "^2.13.0",
@@ -234,7 +234,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.0.0-canary.25",
+      "version": "2.0.0-canary.28",
       "dependencies": {
         "esbuild-register": "^3.6.0",
       },
@@ -248,7 +248,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.0.0-canary.25",
+      "version": "2.0.0-canary.28",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -261,7 +261,7 @@
         "@medusajs/dashboard": "^2.13.0",
         "@medusajs/icons": "2.13.0",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/client": "2.0.0-canary.24",
+        "@mercurjs/client": "2.0.0-canary.27",
         "@radix-ui/react-dialog": "1.1.4",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -338,7 +338,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.0.0-canary.25",
+      "version": "2.0.0-canary.28",
       "dependencies": {
         "@medusajs/types": "2.13.0",
       },
@@ -348,7 +348,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.0.0-canary.25",
+      "version": "2.0.0-canary.28",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -361,8 +361,8 @@
         "@medusajs/dashboard": "^2.13.0",
         "@medusajs/icons": "2.13.0",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/client": "2.0.0-canary.24",
-        "@mercurjs/dashboard-shared": "2.0.0-canary.24",
+        "@mercurjs/client": "2.0.0-canary.27",
+        "@mercurjs/dashboard-shared": "2.0.0-canary.27",
         "@radix-ui/react-dialog": "1.1.4",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -3526,6 +3526,10 @@
 
     "@mercurjs/admin/@medusajs/icons": ["@medusajs/icons@2.13.0", "", { "peerDependencies": { "react": "^18.3.1" } }, "sha512-krc2HxIoeZY4XQ7z5qhhYGoooDwBJdO9MdP5zVrnVCzA2qbuPNWIjrNWN4EEky933X3oBVPIZU5JmQCRxA8YzA=="],
 
+    "@mercurjs/admin/@mercurjs/client": ["@mercurjs/client@2.0.0-canary.27", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-So7m1wUNNlNs4n2nkH9xf9uoqgjB8YoDkNa62kzP4xGSWg360MTKtnsSPqnrnJcV+KBxDiF3M4vm5VX5hO81Pw=="],
+
+    "@mercurjs/admin/@mercurjs/dashboard-shared": ["@mercurjs/dashboard-shared@2.0.0-canary.27", "", { "dependencies": { "@ariakit/react": "^0.4.15", "@babel/runtime": "^7.26.10", "@dnd-kit/core": "^6.1.0", "@dnd-kit/sortable": "^8.0.0", "@dnd-kit/utilities": "^3.2.2", "@hookform/error-message": "^2.0.1", "@hookform/resolvers": "3.4.2", "@medusajs/admin-shared": "^2.13.0", "@medusajs/dashboard": "^2.13.0", "@medusajs/icons": "2.13.0", "@medusajs/ui": "4.1.1", "@mercurjs/client": "2.0.0-canary.27", "@radix-ui/react-dialog": "1.1.4", "@radix-ui/react-dismissable-layer": "1.1.4", "@tanstack/react-query": "5.64.2", "@tanstack/react-table": "8.20.5", "@tanstack/react-virtual": "^3.8.3", "@uiw/react-json-view": "^2.0.0-alpha.17", "cmdk": "^0.2.0", "copy-to-clipboard": "^3.3.3", "date-fns": "^3.6.0", "i18next": "23.7.11", "i18next-browser-languagedetector": "7.2.0", "i18next-http-backend": "2.4.2", "lodash.debounce": "^4.0.8", "lodash.isequal": "^4.5.0", "match-sorter": "^6.3.4", "motion": "^11.15.0", "qs": "^6.12.1", "radix-ui": "1.1.2", "react-country-flag": "^3.1.0", "react-currency-input-field": "^3.6.11", "react-helmet-async": "^2.0.5", "react-hook-form": "7.49.1", "react-i18next": "13.5.0", "react-jwt": "^1.2.0", "react-router-dom": "6.30.3", "zod": "3.25.76" } }, "sha512-0dpx4qbxP069Xdpl6KyJmnCjOEIWpmyXswYj4qIYZH6xms0VDCL10VBi0VND4N5K2uYM6ibO4lL9aSFaSqi1Cg=="],
+
     "@mercurjs/admin/react-jwt": ["react-jwt@1.3.0", "", { "optionalDependencies": { "fsevents": "^2.3.2" }, "peerDependencies": { "react": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-aC+X6q8pi63zoO7A060/4mfF5jM6Ay+4YyY4QgdD8dDOqp89sPcg0IhWEHyPACnVETMjBWzmxMPgIPosQNeYyw=="],
 
     "@mercurjs/client/@tanstack/react-query": ["@tanstack/react-query@5.90.21", "", { "dependencies": { "@tanstack/query-core": "5.90.20" }, "peerDependencies": { "react": "^18 || ^19" } }, "sha512-0Lu6y5t+tvlTJMTO7oh5NSpJfpg/5D41LlThfepTixPYkJ0sE2Jj0m0f6yYqujBwIXlId87e234+MxG3D3g7kg=="],
@@ -3535,6 +3539,8 @@
     "@mercurjs/dashboard-sdk/@types/node": ["@types/node@22.19.11", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-BH7YwL6rA93ReqeQS1c4bsPpcfOmJasG+Fkr6Y59q83f9M1WcBRHR2vM+P9eOisYRcN3ujQoiZY8uk5W+1WL8w=="],
 
     "@mercurjs/dashboard-shared/@medusajs/icons": ["@medusajs/icons@2.13.0", "", { "peerDependencies": { "react": "^18.3.1" } }, "sha512-krc2HxIoeZY4XQ7z5qhhYGoooDwBJdO9MdP5zVrnVCzA2qbuPNWIjrNWN4EEky933X3oBVPIZU5JmQCRxA8YzA=="],
+
+    "@mercurjs/dashboard-shared/@mercurjs/client": ["@mercurjs/client@2.0.0-canary.27", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-So7m1wUNNlNs4n2nkH9xf9uoqgjB8YoDkNa62kzP4xGSWg360MTKtnsSPqnrnJcV+KBxDiF3M4vm5VX5hO81Pw=="],
 
     "@mercurjs/dashboard-shared/react-jwt": ["react-jwt@1.3.0", "", { "optionalDependencies": { "fsevents": "^2.3.2" }, "peerDependencies": { "react": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-aC+X6q8pi63zoO7A060/4mfF5jM6Ay+4YyY4QgdD8dDOqp89sPcg0IhWEHyPACnVETMjBWzmxMPgIPosQNeYyw=="],
 
@@ -3547,6 +3553,10 @@
     "@mercurjs/registry/@types/node": ["@types/node@22.19.11", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-BH7YwL6rA93ReqeQS1c4bsPpcfOmJasG+Fkr6Y59q83f9M1WcBRHR2vM+P9eOisYRcN3ujQoiZY8uk5W+1WL8w=="],
 
     "@mercurjs/vendor/@medusajs/icons": ["@medusajs/icons@2.13.0", "", { "peerDependencies": { "react": "^18.3.1" } }, "sha512-krc2HxIoeZY4XQ7z5qhhYGoooDwBJdO9MdP5zVrnVCzA2qbuPNWIjrNWN4EEky933X3oBVPIZU5JmQCRxA8YzA=="],
+
+    "@mercurjs/vendor/@mercurjs/client": ["@mercurjs/client@2.0.0-canary.27", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-So7m1wUNNlNs4n2nkH9xf9uoqgjB8YoDkNa62kzP4xGSWg360MTKtnsSPqnrnJcV+KBxDiF3M4vm5VX5hO81Pw=="],
+
+    "@mercurjs/vendor/@mercurjs/dashboard-shared": ["@mercurjs/dashboard-shared@2.0.0-canary.27", "", { "dependencies": { "@ariakit/react": "^0.4.15", "@babel/runtime": "^7.26.10", "@dnd-kit/core": "^6.1.0", "@dnd-kit/sortable": "^8.0.0", "@dnd-kit/utilities": "^3.2.2", "@hookform/error-message": "^2.0.1", "@hookform/resolvers": "3.4.2", "@medusajs/admin-shared": "^2.13.0", "@medusajs/dashboard": "^2.13.0", "@medusajs/icons": "2.13.0", "@medusajs/ui": "4.1.1", "@mercurjs/client": "2.0.0-canary.27", "@radix-ui/react-dialog": "1.1.4", "@radix-ui/react-dismissable-layer": "1.1.4", "@tanstack/react-query": "5.64.2", "@tanstack/react-table": "8.20.5", "@tanstack/react-virtual": "^3.8.3", "@uiw/react-json-view": "^2.0.0-alpha.17", "cmdk": "^0.2.0", "copy-to-clipboard": "^3.3.3", "date-fns": "^3.6.0", "i18next": "23.7.11", "i18next-browser-languagedetector": "7.2.0", "i18next-http-backend": "2.4.2", "lodash.debounce": "^4.0.8", "lodash.isequal": "^4.5.0", "match-sorter": "^6.3.4", "motion": "^11.15.0", "qs": "^6.12.1", "radix-ui": "1.1.2", "react-country-flag": "^3.1.0", "react-currency-input-field": "^3.6.11", "react-helmet-async": "^2.0.5", "react-hook-form": "7.49.1", "react-i18next": "13.5.0", "react-jwt": "^1.2.0", "react-router-dom": "6.30.3", "zod": "3.25.76" } }, "sha512-0dpx4qbxP069Xdpl6KyJmnCjOEIWpmyXswYj4qIYZH6xms0VDCL10VBi0VND4N5K2uYM6ibO4lL9aSFaSqi1Cg=="],
 
     "@mercurjs/vendor/react-jwt": ["react-jwt@1.3.0", "", { "optionalDependencies": { "fsevents": "^2.3.2" }, "peerDependencies": { "react": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-aC+X6q8pi63zoO7A060/4mfF5jM6Ay+4YyY4QgdD8dDOqp89sPcg0IhWEHyPACnVETMjBWzmxMPgIPosQNeYyw=="],
 
@@ -4146,17 +4156,23 @@
 
     "@medusajs/utils/jsonwebtoken/jws": ["jws@4.0.1", "", { "dependencies": { "jwa": "^2.0.1", "safe-buffer": "^5.0.1" } }, "sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA=="],
 
+    "@mercurjs/admin/@mercurjs/client/@tanstack/react-query": ["@tanstack/react-query@5.90.21", "", { "dependencies": { "@tanstack/query-core": "5.90.20" }, "peerDependencies": { "react": "^18 || ^19" } }, "sha512-0Lu6y5t+tvlTJMTO7oh5NSpJfpg/5D41LlThfepTixPYkJ0sE2Jj0m0f6yYqujBwIXlId87e234+MxG3D3g7kg=="],
+
     "@mercurjs/client/@tanstack/react-query/@tanstack/query-core": ["@tanstack/query-core@5.90.20", "", {}, "sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg=="],
 
     "@mercurjs/core-plugin/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 
     "@mercurjs/dashboard-sdk/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 
+    "@mercurjs/dashboard-shared/@mercurjs/client/@tanstack/react-query": ["@tanstack/react-query@5.90.21", "", { "dependencies": { "@tanstack/query-core": "5.90.20" }, "peerDependencies": { "react": "^18 || ^19" } }, "sha512-0Lu6y5t+tvlTJMTO7oh5NSpJfpg/5D41LlThfepTixPYkJ0sE2Jj0m0f6yYqujBwIXlId87e234+MxG3D3g7kg=="],
+
     "@mercurjs/integration-tests/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 
     "@mercurjs/integration-tests/jsonwebtoken/jws": ["jws@4.0.1", "", { "dependencies": { "jwa": "^2.0.1", "safe-buffer": "^5.0.1" } }, "sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA=="],
 
     "@mercurjs/registry/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
+
+    "@mercurjs/vendor/@mercurjs/client/@tanstack/react-query": ["@tanstack/react-query@5.90.21", "", { "dependencies": { "@tanstack/query-core": "5.90.20" }, "peerDependencies": { "react": "^18 || ^19" } }, "sha512-0Lu6y5t+tvlTJMTO7oh5NSpJfpg/5D41LlThfepTixPYkJ0sE2Jj0m0f6yYqujBwIXlId87e234+MxG3D3g7kg=="],
 
     "@oclif/config/is-wsl/is-docker": ["is-docker@2.2.1", "", { "bin": { "is-docker": "cli.js" } }, "sha512-F+i2BKsFrH66iaUFc0woD8sLy8getkwTwtOBjvs56Cx4CgJDeKQeqfz8wAYiSb8JOprWhHH5p77PbmYCvvUuXQ=="],
 
@@ -4638,7 +4654,13 @@
 
     "@medusajs/utils/jsonwebtoken/jws/jwa": ["jwa@2.0.1", "", { "dependencies": { "buffer-equal-constant-time": "^1.0.1", "ecdsa-sig-formatter": "1.0.11", "safe-buffer": "^5.0.1" } }, "sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg=="],
 
+    "@mercurjs/admin/@mercurjs/client/@tanstack/react-query/@tanstack/query-core": ["@tanstack/query-core@5.90.20", "", {}, "sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg=="],
+
+    "@mercurjs/dashboard-shared/@mercurjs/client/@tanstack/react-query/@tanstack/query-core": ["@tanstack/query-core@5.90.20", "", {}, "sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg=="],
+
     "@mercurjs/integration-tests/jsonwebtoken/jws/jwa": ["jwa@2.0.1", "", { "dependencies": { "buffer-equal-constant-time": "^1.0.1", "ecdsa-sig-formatter": "1.0.11", "safe-buffer": "^5.0.1" } }, "sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg=="],
+
+    "@mercurjs/vendor/@mercurjs/client/@tanstack/react-query/@tanstack/query-core": ["@tanstack/query-core@5.90.20", "", {}, "sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg=="],
 
     "@oclif/help/@oclif/config/is-wsl/is-docker": ["is-docker@2.2.1", "", { "bin": { "is-docker": "cli.js" } }, "sha512-F+i2BKsFrH66iaUFc0woD8sLy8getkwTwtOBjvs56Cx4CgJDeKQeqfz8wAYiSb8JOprWhHH5p77PbmYCvvUuXQ=="],
 
