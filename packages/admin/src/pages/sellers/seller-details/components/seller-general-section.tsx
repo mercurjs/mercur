@@ -86,7 +86,20 @@ export const SellerGeneralSection = ({
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>{seller.name || seller.email}</Heading>
+        <div className="flex items-center gap-x-3">
+          {seller.logo ? (
+            <img
+              src={seller.logo}
+              alt={seller.name}
+              className="h-10 w-10 rounded-lg object-cover"
+            />
+          ) : (
+            <div className="bg-ui-bg-component flex h-10 w-10 items-center justify-center rounded-lg border">
+              <User className="text-ui-fg-subtle" />
+            </div>
+          )}
+          <Heading>{seller.name || seller.email}</Heading>
+        </div>
         <div className="flex items-center gap-x-2">
           <StatusBadge color={statusColor}>{statusText}</StatusBadge>
           <ActionMenu

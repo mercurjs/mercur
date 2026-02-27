@@ -58,17 +58,28 @@ export function createClient(options: ClientOptions) {
         const fullPath = `${base.pathname.replace(/\/$/, "")}/${urlPath.replace(/^\//, "")}`;
         const url = new URL(fullPath, base.origin);
 
-        let body: string | undefined;
+        const isFormData = inputFetchOptions?.body instanceof FormData;
 
-        if (method === "GET" && Object.keys(rest).length > 0) {
+        let body: string | FormData | undefined;
+
+        if (isFormData) {
+            body = inputFetchOptions!.body as FormData;
+        } else if (method === "GET" && Object.keys(rest).length > 0) {
             url.search = qs.stringify(rest, { skipNulls: true });
         } else if (method !== "GET" && Object.keys(rest).length > 0) {
             body = JSON.stringify(rest);
         }
 
-        const headers = new Headers({
-            "Content-Type": "application/json",
+        const defaultHeaders: Record<string, string> = {
             Accept: "application/json",
+        };
+
+        if (!isFormData) {
+            defaultHeaders["Content-Type"] = "application/json";
+        }
+
+        const headers = new Headers({
+            ...defaultHeaders,
             ...defaultFetchOptions?.headers,
             ...inputFetchOptions?.headers,
         });

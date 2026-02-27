@@ -5,11 +5,13 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
+import { FileType, FileUpload } from "@components/common/file-upload";
 import { Form } from "@components/common/form";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 
 import { useUpdateSeller } from "@hooks/api/sellers";
+import { sdk } from "@lib/client";
 import { HttpTypes } from "@mercurjs/types";
 
 type SellerEditFormProps = {
@@ -55,22 +57,41 @@ export const SellerEditForm = ({ seller }: SellerEditFormProps) => {
 
   const { mutateAsync, isPending } = useUpdateSeller(seller.id);
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    await mutateAsync(
-      data,
-      {
-        onSuccess: () => {
-          toast.success(
-            t("sellers.edit.successToast", { name: data.name ?? data.email }),
-          );
+  const handleImageUpload = async (
+    files: FileType[],
+    field: "logo" | "cover_image",
+  ) => {
+    try {
+      const formData = new FormData();
+      files.forEach((f) => formData.append("files", f.file));
 
-          handleSuccess(`/sellers/${seller.id}`);
+      const { files: uploaded } = await sdk.admin.uploads.mutate({
+        fetchOptions: {
+          body: formData,
         },
-        onError: (error) => {
-          toast.error(error.message);
-        },
+      });
+
+      if (uploaded?.[0]) {
+        form.setValue(field, uploaded[0].url);
+      }
+    } catch {
+      toast.error(t("general.error"));
+    }
+  };
+
+  const handleSubmit = form.handleSubmit(async (data) => {
+    await mutateAsync(data, {
+      onSuccess: () => {
+        toast.success(
+          t("sellers.edit.successToast", { name: data.name ?? data.email }),
+        );
+
+        handleSuccess(`/sellers/${seller.id}`);
       },
-    );
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   });
 
   return (
@@ -193,7 +214,7 @@ export const SellerEditForm = ({ seller }: SellerEditFormProps) => {
             <Form.Field
               control={form.control}
               name="logo"
-              render={({ field }) => {
+              render={() => {
                 return (
                   <Form.Item data-testid="seller-edit-form-logo-item">
                     <Form.Label
@@ -204,10 +225,17 @@ export const SellerEditForm = ({ seller }: SellerEditFormProps) => {
                     </Form.Label>
 
                     <Form.Control data-testid="seller-edit-form-logo-control">
-                      <Input
-                        placeholder={t("sellers.fields.logo")}
-                        {...field}
-                        data-testid="seller-edit-form-logo-input"
+                      <FileUpload
+                        label={t("sellers.fields.logo")}
+                        formats={[
+                          "image/jpeg",
+                          "image/png",
+                          "image/webp",
+                          "image/svg+xml",
+                        ]}
+                        onUploaded={(files) => handleImageUpload(files, "logo")}
+                        multiple={false}
+                        uploadedImage={form.watch("logo")}
                       />
                     </Form.Control>
 
@@ -220,7 +248,7 @@ export const SellerEditForm = ({ seller }: SellerEditFormProps) => {
             <Form.Field
               control={form.control}
               name="cover_image"
-              render={({ field }) => {
+              render={() => {
                 return (
                   <Form.Item data-testid="seller-edit-form-cover-image-item">
                     <Form.Label
@@ -231,10 +259,19 @@ export const SellerEditForm = ({ seller }: SellerEditFormProps) => {
                     </Form.Label>
 
                     <Form.Control data-testid="seller-edit-form-cover-image-control">
-                      <Input
-                        placeholder={t("sellers.fields.cover_image")}
-                        {...field}
-                        data-testid="seller-edit-form-cover-image-input"
+                      <FileUpload
+                        label={t("sellers.fields.cover_image")}
+                        formats={[
+                          "image/jpeg",
+                          "image/png",
+                          "image/webp",
+                          "image/svg+xml",
+                        ]}
+                        onUploaded={(files) =>
+                          handleImageUpload(files, "cover_image")
+                        }
+                        multiple={false}
+                        uploadedImage={form.watch("cover_image")}
                       />
                     </Form.Control>
 
