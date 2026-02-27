@@ -4,6 +4,7 @@ import { SingleColumnPageSkeleton } from "../../../components/common/skeleton";
 import { SingleColumnPage } from "../../../components/layout/pages";
 import { useCommissionRate } from "../../../hooks/api/commission-rates";
 import { CommissionRateGeneralSection } from "./components/commission-rate-general-section";
+import { CommissionRateRulesSection } from "./components/commission-rate-rules-section";
 import { commissionRateLoader } from "./loader";
 
 export const CommissionRateDetail = () => {
@@ -30,6 +31,7 @@ export const CommissionRateDetail = () => {
   return (
     <SingleColumnPage data={commission_rate} showJSON showMetadata>
       <CommissionRateGeneralSection commissionRate={commission_rate} />
+      <CommissionRateRulesSection commissionRate={commission_rate} />
     </SingleColumnPage>
   );
 };
