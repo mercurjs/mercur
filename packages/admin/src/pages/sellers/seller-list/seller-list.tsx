@@ -11,6 +11,7 @@ import { _DataTable } from "../../../components/table/data-table";
 
 import { useSellers } from "../../../hooks/api/sellers";
 import { useSellersTableColumns } from "../../../hooks/table/columns/use-seller-table-columns";
+import { useSellerTableFilters } from "../../../hooks/table/filters";
 import { useSellersTableQuery } from "../../../hooks/table/query";
 import { useDataTable } from "../../../hooks/use-data-table";
 import { SellerDTO } from "@mercurjs/types";
@@ -32,6 +33,7 @@ export const SellersList = () => {
   );
 
   const columns = useColumns();
+  const filters = useSellerTableFilters();
 
   const { table } = useDataTable({
     data: sellers ?? [],
@@ -52,6 +54,7 @@ export const SellersList = () => {
         columns={columns}
         count={count ?? 0}
         pageSize={PAGE_SIZE}
+        filters={filters}
         isLoading={isLoading}
         queryObject={raw}
         search

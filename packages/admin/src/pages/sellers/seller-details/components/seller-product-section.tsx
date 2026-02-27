@@ -22,7 +22,7 @@ const PREFIX = "selprod"
 const DEFAULT_FIELDS =
   "*collection,+type_id,+tag_id,+sales_channel_id,+status,+created_at,+updated_at"
 
-export const SellerProductSection = () => {
+export const SellerProductSection = ({ sellerId }: { sellerId: string }) => {
   const { t } = useTranslation()
 
   const { searchParams, raw } = useProductTableQuery({
@@ -33,6 +33,7 @@ export const SellerProductSection = () => {
   const { products, count, isLoading, isError, error } = useProducts(
     {
       fields: DEFAULT_FIELDS,
+      seller_id: sellerId,
       ...searchParams,
     },
     {

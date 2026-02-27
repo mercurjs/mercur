@@ -168,7 +168,7 @@ export type Routes = {
                 };
             };
         };
-        orders: typeof import("@medusajs/medusa/api/admin/orders/route") & {
+        orders: typeof import("../../src/api/admin/orders/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/orders/[id]/route") & {
                 archive: typeof import("@medusajs/medusa/api/admin/orders/[id]/archive/route");
                 cancel: typeof import("@medusajs/medusa/api/admin/orders/[id]/cancel/route");
@@ -227,7 +227,7 @@ export type Routes = {
             $id: typeof import("@medusajs/medusa/api/admin/product-types/[id]/route");
         };
         productVariants: typeof import("@medusajs/medusa/api/admin/product-variants/route");
-        products: typeof import("@medusajs/medusa/api/admin/products/route") & {
+        products: typeof import("../../src/api/admin/products/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/products/[id]/route") & {
                 images: {
                     $imageId: {

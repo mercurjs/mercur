@@ -1,4 +1,4 @@
-import { PencilSquare, User } from "@medusajs/icons"
+import { CheckCircleSolid, PencilSquare, User, XCircleSolid } from "@medusajs/icons"
 import {
   Container,
   Heading,
@@ -45,16 +45,30 @@ export const SellerGeneralSection = ({
   }
   const statusText = statusTextMap[seller.status] ?? t("sellers.status.pending")
 
-  const handleSuspend = async () => {
-    const isSuspended = seller.status === SellerStatus.SUSPENDED
+  const handleStatusChange = async (newStatus: SellerStatus) => {
+    const labels: Record<SellerStatus, { title: string; description: string; success: string }> = {
+      [SellerStatus.ACTIVE]: {
+        title: "Activate account",
+        description: "Are you sure you want to activate this seller account?",
+        success: "Seller account activated",
+      },
+      [SellerStatus.SUSPENDED]: {
+        title: "Suspend account",
+        description: "Are you sure you want to suspend this seller account?",
+        success: "Seller account suspended",
+      },
+      [SellerStatus.PENDING]: {
+        title: "Set as pending",
+        description: "Are you sure you want to set this seller account as pending?",
+        success: "Seller account set to pending",
+      },
+    }
+
+    const label = labels[newStatus]
 
     const res = await prompt({
-      title: isSuspended
-        ? t("sellers.status.active")
-        : t("sellers.status.suspended"),
-      description: isSuspended
-        ? "Are you sure you want to activate this account?"
-        : "Are you sure you want to suspend this account?",
+      title: label.title,
+      description: label.description,
       verificationText: seller.email || seller.name || "",
       confirmText: t("actions.confirm"),
       cancelText: t("actions.cancel"),
@@ -65,16 +79,10 @@ export const SellerGeneralSection = ({
     }
 
     await updateSeller(
-      {
-        status: isSuspended ? SellerStatus.ACTIVE : SellerStatus.SUSPENDED,
-      },
+      { status: newStatus },
       {
         onSuccess: () => {
-          toast.success(
-            isSuspended
-              ? "Seller account activated"
-              : "Seller account suspended"
-          )
+          toast.success(label.success)
         },
         onError: (error) => {
           toast.error(error.message)
@@ -82,6 +90,28 @@ export const SellerGeneralSection = ({
       }
     )
   }
+
+  const statusActions = (() => {
+    const actions = []
+
+    if (seller.status !== SellerStatus.ACTIVE) {
+      actions.push({
+        label: "Activate account",
+        onClick: () => handleStatusChange(SellerStatus.ACTIVE),
+        icon: <CheckCircleSolid />,
+      })
+    }
+
+    if (seller.status !== SellerStatus.SUSPENDED) {
+      actions.push({
+        label: "Suspend account",
+        onClick: () => handleStatusChange(SellerStatus.SUSPENDED),
+        icon: <XCircleSolid />,
+      })
+    }
+
+    return actions
+  })()
 
   return (
     <Container className="divide-y p-0">
@@ -114,16 +144,7 @@ export const SellerGeneralSection = ({
                 ],
               },
               {
-                actions: [
-                  {
-                    label:
-                      seller.status === SellerStatus.SUSPENDED
-                        ? "Activate account"
-                        : "Suspend account",
-                    onClick: handleSuspend,
-                    icon: <User />,
-                  },
-                ],
+                actions: statusActions,
               },
             ]}
           />

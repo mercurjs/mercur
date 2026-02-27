@@ -28,8 +28,8 @@ export const SellerDetails = () => {
       showMetadata
     >
       <SellerGeneralSection seller={seller} />
-      <SellerOrderSection />
-      <SellerProductSection />
+      <SellerOrderSection sellerId={seller.id} />
+      <SellerProductSection sellerId={seller.id} />
     </SingleColumnPage>
   )
 }

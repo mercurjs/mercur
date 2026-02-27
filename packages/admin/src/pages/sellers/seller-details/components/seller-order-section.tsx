@@ -1,24 +1,24 @@
-import { useMemo } from "react"
+import { useMemo } from "react";
 
-import type { AdminOrder } from "@medusajs/types"
-import { Badge, Container, Heading } from "@medusajs/ui"
-import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
-import { useTranslation } from "react-i18next"
+import type { AdminOrder } from "@medusajs/types";
+import { Badge, Container, Heading } from "@medusajs/ui";
+import { keepPreviousData } from "@tanstack/react-query";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
 
-import { DateCell } from "@components/table/table-cells/common/date-cell"
-import { _DataTable } from "@components/table/data-table"
+import { DateCell } from "@components/table/table-cells/common/date-cell";
+import { _DataTable } from "@components/table/data-table";
 
-import { useOrders } from "../../../../hooks/api/orders"
-import { useOrderTableFilters } from "@hooks/table/filters"
-import { useOrderTableQuery } from "@hooks/table/query"
-import { useDataTable } from "@hooks/use-data-table"
-import { getStylizedAmount } from "@lib/money-amount-helpers"
+import { useOrders } from "../../../../hooks/api/orders";
+import { useOrderTableFilters } from "@hooks/table/filters";
+import { useOrderTableQuery } from "@hooks/table/query";
+import { useDataTable } from "@hooks/use-data-table";
+import { getStylizedAmount } from "@lib/money-amount-helpers";
 
-const PAGE_SIZE = 10
-const PREFIX = "selord"
+const PAGE_SIZE = 10;
+const PREFIX = "selord";
 const DEFAULT_FIELDS =
-  "id,status,display_id,created_at,email,fulfillment_status,payment_status,total,currency_code,*customer"
+  "id,status,display_id,created_at,email,fulfillment_status,payment_status,total,currency_code,*customer";
 
 const getOrderStatusBadgeColor = (status: string) => {
   const colors: Record<string, "orange" | "green" | "red" | "grey"> = {
@@ -28,28 +28,27 @@ const getOrderStatusBadgeColor = (status: string) => {
     archived: "grey",
     requires_action: "orange",
     draft: "grey",
-  }
-  return colors[status] || "grey"
-}
+  };
+  return colors[status] || "grey";
+};
 
 const getPaymentStatusBadgeColor = (status: string) => {
-  const colors: Record<string, "orange" | "green" | "red" | "blue" | "grey"> =
-    {
-      captured: "green",
-      paid: "green",
-      partially_captured: "orange",
-      awaiting: "orange",
-      authorized: "blue",
-      partially_authorized: "blue",
-      pending: "orange",
-      refunded: "red",
-      partially_refunded: "orange",
-      canceled: "red",
-      not_paid: "grey",
-      requires_action: "orange",
-    }
-  return colors[status] || "grey"
-}
+  const colors: Record<string, "orange" | "green" | "red" | "blue" | "grey"> = {
+    captured: "green",
+    paid: "green",
+    partially_captured: "orange",
+    awaiting: "orange",
+    authorized: "blue",
+    partially_authorized: "blue",
+    pending: "orange",
+    refunded: "red",
+    partially_refunded: "orange",
+    canceled: "red",
+    not_paid: "grey",
+    requires_action: "orange",
+  };
+  return colors[status] || "grey";
+};
 
 const getFulfillmentStatusBadgeColor = (status: string) => {
   const colors: Record<string, "orange" | "green" | "red" | "grey"> = {
@@ -64,35 +63,34 @@ const getFulfillmentStatusBadgeColor = (status: string) => {
     returned: "red",
     partially_returned: "orange",
     requires_action: "orange",
-  }
-  return colors[status] || "grey"
-}
+  };
+  return colors[status] || "grey";
+};
 
 const formatStatus = (status: string) =>
-  status
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase())
+  status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-export const SellerOrderSection = () => {
-  const { t } = useTranslation()
+export const SellerOrderSection = ({ sellerId }: { sellerId: string }) => {
+  const { t } = useTranslation();
 
   const { searchParams, raw } = useOrderTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
-  })
+  });
 
   const { orders, count, isLoading, isError, error } = useOrders(
     {
       fields: DEFAULT_FIELDS,
+      seller_id: sellerId,
       ...searchParams,
     },
     {
       placeholderData: keepPreviousData,
-    }
-  )
+    },
+  );
 
-  const columns = useColumns()
-  const filters = useOrderTableFilters()
+  const columns = useColumns();
+  const filters = useOrderTableFilters();
 
   const { table } = useDataTable({
     data: orders ?? [],
@@ -101,10 +99,10 @@ export const SellerOrderSection = () => {
     count,
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -131,10 +129,10 @@ export const SellerOrderSection = () => {
         prefix={PREFIX}
       />
     </Container>
-  )
-}
+  );
+};
 
-const columnHelper = createColumnHelper<AdminOrder>()
+const columnHelper = createColumnHelper<AdminOrder>();
 
 const useColumns = () => {
   return useMemo(
@@ -156,7 +154,7 @@ const useColumns = () => {
           return row.original.customer?.first_name &&
             row.original.customer?.last_name
             ? `${row.original.customer?.first_name} ${row.original.customer?.last_name}`
-            : row.original.customer?.email
+            : row.original.customer?.email;
         },
       }),
       columnHelper.display({
@@ -175,24 +173,21 @@ const useColumns = () => {
         id: "payment_status",
         header: "Payment Status",
         cell: ({ row }) => {
-          const status = row.original?.payment_status
-          if (!status) return "-"
+          const status = row.original?.payment_status;
+          if (!status) return "-";
           return (
-            <Badge
-              size="2xsmall"
-              color={getPaymentStatusBadgeColor(status)}
-            >
+            <Badge size="2xsmall" color={getPaymentStatusBadgeColor(status)}>
               {formatStatus(status)}
             </Badge>
-          )
+          );
         },
       }),
       columnHelper.display({
         id: "fulfillment_status",
         header: "Fulfillment Status",
         cell: ({ row }) => {
-          const status = row.original.fulfillment_status
-          if (!status) return "-"
+          const status = row.original.fulfillment_status;
+          if (!status) return "-";
           return (
             <Badge
               size="2xsmall"
@@ -200,7 +195,7 @@ const useColumns = () => {
             >
               {formatStatus(status)}
             </Badge>
-          )
+          );
         },
       }),
       columnHelper.display({
@@ -211,22 +206,22 @@ const useColumns = () => {
             typeof row.original.total === "undefined" ||
             row.original.total === null
           ) {
-            return "-"
+            return "-";
           }
 
           const formatted = getStylizedAmount(
             row.original.total,
-            row.original.currency_code
-          )
+            row.original.currency_code,
+          );
 
           return (
             <div className="flex h-full w-full items-center justify-start overflow-hidden text-left">
               <span className="truncate">{formatted}</span>
             </div>
-          )
+          );
         },
       }),
     ],
-    []
-  )
-}
+    [],
+  );
+};
