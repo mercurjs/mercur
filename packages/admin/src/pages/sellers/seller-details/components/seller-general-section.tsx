@@ -126,6 +126,14 @@ export const SellerGeneralSection = ({
       </div>
       <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
         <Text size="small" leading="compact" weight="plus">
+          {t("sellers.fields.handle")}
+        </Text>
+        <Text size="small" leading="compact">
+          {seller.handle || "-"}
+        </Text>
+      </div>
+      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+        <Text size="small" leading="compact" weight="plus">
           {t("sellers.fields.email")}
         </Text>
         <Text size="small" leading="compact">
@@ -142,10 +150,18 @@ export const SellerGeneralSection = ({
       </div>
       <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
         <Text size="small" leading="compact" weight="plus">
-          {t("sellers.fields.address_line")}
+          {t("sellers.fields.address_1")}
         </Text>
         <Text size="small" leading="compact">
           {seller.address_1 || "-"}
+        </Text>
+      </div>
+      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+        <Text size="small" leading="compact" weight="plus">
+          {t("sellers.fields.address_2")}
+        </Text>
+        <Text size="small" leading="compact">
+          {seller.address_2 || "-"}
         </Text>
       </div>
       <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
@@ -154,6 +170,14 @@ export const SellerGeneralSection = ({
         </Text>
         <Text size="small" leading="compact">
           {seller.city || "-"}
+        </Text>
+      </div>
+      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+        <Text size="small" leading="compact" weight="plus">
+          {t("sellers.fields.province")}
+        </Text>
+        <Text size="small" leading="compact">
+          {seller.province || "-"}
         </Text>
       </div>
       <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">

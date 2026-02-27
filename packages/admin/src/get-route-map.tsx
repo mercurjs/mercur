@@ -750,7 +750,19 @@ export function getRouteMap({
                   },
                   {
                     path: ":id",
-                    lazy: () => import("./pages/sellers/seller-details"),
+                    lazy: async () => {
+                      const { Component, Breadcrumb } =
+                        await import("./pages/sellers/seller-details");
+
+                      return {
+                        Component,
+                        handle: {
+                          breadcrumb: (match: UIMatch) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
                     children: [
                       {
                         path: "edit",

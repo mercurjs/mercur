@@ -3229,15 +3229,18 @@
     "domain": "Sellers",
     "fields": {
       "name": "Name",
+      "handle": "Handle",
       "email": "Email",
       "phone": "Phone",
-      "description": "Description",
+      "logo": "Logo",
+      "cover_image": "Cover Image",
       "address": "Address",
-      "address_line": "Address Line",
+      "address_1": "Address Line 1",
+      "address_2": "Address Line 2",
       "postal_code": "Postal Code",
       "city": "City",
-      "country_code": "Country Code",
-      "tax_id": "Tax ID"
+      "province": "Province",
+      "country_code": "Country Code"
     },
     "status": {
       "pending": "Pending",
