@@ -4,9 +4,9 @@ import {
 } from '@medusajs/framework';
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils';
 
-import { filterSellerProductsByCollection } from '../../utils'
-import { batchLinkProductsToCollectionWorkflow } from "@medusajs/core-flows"
-import { LinkMethodRequest } from "@medusajs/framework/types"
+import { filterSellerProductsByCollection } from '../../utils';
+import { batchLinkProductsToCollectionWorkflow } from '@medusajs/core-flows';
+import { LinkMethodRequest } from '@medusajs/framework/types';
 
 /**
  * @oas [get] /vendor/product-collections/{id}/products
@@ -92,8 +92,8 @@ export const GET = async (
     count,
     offset: req.queryConfig.pagination?.skip || 0,
     limit: req.queryConfig.pagination?.take || 10
-  })
-}
+  });
+};
 
 /**
  * @oas [post] /vendor/product-collections/{id}/products
@@ -182,26 +182,26 @@ export const GET = async (
  *     $ref: "#/components/responses/500_error"
  * x-workflow: batchLinkProductsToCollectionWorkflow
  * x-events: []
- * 
-*/
+ *
+ */
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<LinkMethodRequest>,
   res: MedusaResponse
 ) => {
-  const id = req.params.id
-  const { add = [], remove = [] } = req.validatedBody
-  
-  const workflow = batchLinkProductsToCollectionWorkflow(req.scope)
+  const id = req.params.id;
+  const { add = [], remove = [] } = req.validatedBody;
+
+  const workflow = batchLinkProductsToCollectionWorkflow(req.scope);
   await workflow.run({
     input: {
       id,
       add,
-      remove,
-    },
-  })
+      remove
+    }
+  });
 
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
   const { productIds, count } = await filterSellerProductsByCollection(
     req.scope,
@@ -209,7 +209,7 @@ export const POST = async (
     req.filterableFields.seller_id as string,
     req.queryConfig.pagination?.skip || 0,
     req.queryConfig.pagination?.take || 10
-  )
+  );
 
   const { data: products } = await query.graph({
     entity: 'product',
@@ -217,12 +217,12 @@ export const POST = async (
     filters: {
       id: productIds
     }
-  })
+  });
 
   res.status(200).json({
     products,
     count,
     offset: req.queryConfig.pagination?.skip || 0,
     limit: req.queryConfig.pagination?.take || 10
-  })
-}
+  });
+};
