@@ -26,7 +26,7 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
         data: PrepareSellerAdjustmentsFromPromotionActionsStepInput,
         { container }
     ) => {
-        const query: Query = container.resolve(ContainerRegistrationKeys.QUERY)
+        const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY)
 
         const { actions = [] } = data
 

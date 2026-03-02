@@ -15,7 +15,7 @@ createProductsWorkflow.hooks.productsCreated(
     }
 
     const link: Link = container.resolve(ContainerRegistrationKeys.LINK)
-    const query: Query = container.resolve(ContainerRegistrationKeys.QUERY)
+    const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY)
 
     const links: LinkDefinition[] = []
     const inventoryLinks: LinkDefinition[] = []
