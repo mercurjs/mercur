@@ -8,14 +8,10 @@ import { ActionMenu } from "../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { Listicle } from "../../../../../components/common/listicle"
 import { useDeleteCustomerAddress } from "../../../../../hooks/api/customers"
+import { useCustomerDetailContext } from "../../context"
 
-type CustomerAddressSectionProps = {
-  customer: HttpTypes.AdminCustomer
-}
-
-export const CustomerAddressSection = ({
-  customer,
-}: CustomerAddressSectionProps) => {
+export const CustomerAddressSection = () => {
+  const { customer } = useCustomerDetailContext()
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()

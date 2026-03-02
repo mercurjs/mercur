@@ -1,1 +1,1 @@
-export { CustomersList as Component } from "./customer-list"
+export { CustomerListPage as Component } from "./customer-list"

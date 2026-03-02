@@ -27,17 +27,13 @@ import { useCustomerGroupTableColumns } from "../../../../../hooks/table/columns
 import { useCustomerGroupTableFilters } from "../../../../../hooks/table/filters/use-customer-group-table-filters"
 import { useCustomerGroupTableQuery } from "../../../../../hooks/table/query/use-customer-group-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-
-type CustomerGroupSectionProps = {
-  customer: HttpTypes.AdminCustomer
-}
+import { useCustomerDetailContext } from "../../context"
 
 const PAGE_SIZE = 10
 const PREFIX = "cusgr"
 
-export const CustomerGroupSection = ({
-  customer,
-}: CustomerGroupSectionProps) => {
+export const CustomerGroupSection = () => {
+  const { customer } = useCustomerDetailContext()
   const prompt = usePrompt()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})

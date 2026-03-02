@@ -1,5 +1,4 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
 import {
   Container,
   Heading,
@@ -13,14 +12,10 @@ import { useNavigate } from "react-router-dom"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useDeleteCustomer } from "../../../../../hooks/api/customers"
+import { useCustomerDetailContext } from "../../context"
 
-type CustomerGeneralSectionProps = {
-  customer: HttpTypes.AdminCustomer
-}
-
-export const CustomerGeneralSection = ({
-  customer,
-}: CustomerGeneralSectionProps) => {
+export const CustomerGeneralSection = () => {
+  const { customer } = useCustomerDetailContext()
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()

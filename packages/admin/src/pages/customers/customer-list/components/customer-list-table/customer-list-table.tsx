@@ -2,7 +2,7 @@ import { PencilSquare } from "@medusajs/icons"
 import { Button, Container, Heading } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
+import { Children, ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
@@ -17,7 +17,57 @@ import { useDataTable } from "../../../../../hooks/use-data-table"
 
 const PAGE_SIZE = 20
 
-export const CustomerListTable = () => {
+export const CustomerListTitle = () => {
+  const { t } = useTranslation()
+
+  return (
+    <Heading data-testid="customer-list-heading">{t("customers.domain")}</Heading>
+  )
+}
+
+export const CustomerListCreateButton = () => {
+  const { t } = useTranslation()
+
+  return (
+    <Link to="/customers/create" data-testid="customer-list-create-link">
+      <Button size="small" variant="secondary" data-testid="customer-list-create-button">
+        {t("actions.create")}
+      </Button>
+    </Link>
+  )
+}
+
+export const CustomerListActions = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div className="flex items-center gap-x-2">
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <CustomerListCreateButton />
+      )}
+    </div>
+  )
+}
+
+export const CustomerListHeader = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div
+      className="flex items-center justify-between px-6 py-4"
+      data-testid="customer-list-header"
+    >
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <CustomerListTitle />
+          <CustomerListActions />
+        </>
+      )}
+    </div>
+  )
+}
+
+export const CustomerListDataTable = () => {
   const { t } = useTranslation()
 
   const { searchParams, raw } = useCustomerTableQuery({ pageSize: PAGE_SIZE })
@@ -47,37 +97,42 @@ export const CustomerListTable = () => {
   }
 
   return (
+    <_DataTable
+      table={table}
+      columns={columns}
+      pageSize={PAGE_SIZE}
+      count={count}
+      filters={filters}
+      orderBy={[
+        { key: "email", label: t("fields.email") },
+        { key: "first_name", label: t("fields.firstName") },
+        { key: "last_name", label: t("fields.lastName") },
+        { key: "has_account", label: t("customers.hasAccount") },
+        { key: "created_at", label: t("fields.createdAt") },
+        { key: "updated_at", label: t("fields.updatedAt") },
+      ]}
+      isLoading={isLoading}
+      navigateTo={(row) => row.original.id}
+      search
+      queryObject={raw}
+      noRecords={{
+        message: t("customers.list.noRecordsMessage"),
+      }}
+    />
+  )
+}
+
+export const CustomerListTable = ({ children }: { children?: ReactNode }) => {
+  return (
     <Container className="divide-y p-0" data-testid="customer-list-container">
-      <div className="flex items-center justify-between px-6 py-4" data-testid="customer-list-header">
-        <Heading data-testid="customer-list-heading">{t("customers.domain")}</Heading>
-        <Link to="/customers/create" data-testid="customer-list-create-link">
-          <Button size="small" variant="secondary" data-testid="customer-list-create-button">
-            {t("actions.create")}
-          </Button>
-        </Link>
-      </div>
-      <_DataTable
-        table={table}
-        columns={columns}
-        pageSize={PAGE_SIZE}
-        count={count}
-        filters={filters}
-        orderBy={[
-          { key: "email", label: t("fields.email") },
-          { key: "first_name", label: t("fields.firstName") },
-          { key: "last_name", label: t("fields.lastName") },
-          { key: "has_account", label: t("customers.hasAccount") },
-          { key: "created_at", label: t("fields.createdAt") },
-          { key: "updated_at", label: t("fields.updatedAt") },
-        ]}
-        isLoading={isLoading}
-        navigateTo={(row) => row.original.id}
-        search
-        queryObject={raw}
-        noRecords={{
-          message: t("customers.list.noRecordsMessage"),
-        }}
-      />
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <CustomerListHeader />
+          <CustomerListDataTable />
+        </>
+      )}
     </Container>
   )
 }

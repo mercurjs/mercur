@@ -12,10 +12,7 @@ import { useOrderTableColumns } from "../../../../../hooks/table/columns/use-ord
 import { useOrderTableFilters } from "../../../../../hooks/table/filters/use-order-table-filters"
 import { useOrderTableQuery } from "../../../../../hooks/table/query/use-order-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-
-type CustomerGeneralSectionProps = {
-  customer: HttpTypes.AdminCustomer
-}
+import { useCustomerDetailContext } from "../../context"
 
 const PREFIX = "cusord"
 const PAGE_SIZE = 10
@@ -23,9 +20,8 @@ const DEFAULT_RELATIONS = "*customer,*items,*sales_channel"
 const DEFAULT_FIELDS =
   "id,status,display_id,created_at,email,fulfillment_status,payment_status,total,currency_code"
 
-export const CustomerOrderSection = ({
-  customer,
-}: CustomerGeneralSectionProps) => {
+export const CustomerOrderSection = () => {
+  const { customer } = useCustomerDetailContext()
   const { t } = useTranslation()
 
   const { searchParams, raw } = useOrderTableQuery({

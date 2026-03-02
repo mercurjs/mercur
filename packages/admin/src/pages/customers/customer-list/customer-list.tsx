@@ -1,10 +1,27 @@
+import { Children, ReactNode } from "react"
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { CustomerListTable } from "./components/customer-list-table"
+import {
+  CustomerListTable,
+  CustomerListHeader,
+  CustomerListTitle,
+  CustomerListActions,
+  CustomerListCreateButton,
+  CustomerListDataTable,
+} from "./components/customer-list-table"
 
-export const CustomersList = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      <CustomerListTable />
+      {Children.count(children) > 0 ? children : <CustomerListTable />}
     </SingleColumnPage>
   )
 }
+
+export const CustomerListPage = Object.assign(Root, {
+  Table: CustomerListTable,
+  Header: CustomerListHeader,
+  HeaderTitle: CustomerListTitle,
+  HeaderActions: CustomerListActions,
+  HeaderCreateButton: CustomerListCreateButton,
+  DataTable: CustomerListDataTable,
+})
