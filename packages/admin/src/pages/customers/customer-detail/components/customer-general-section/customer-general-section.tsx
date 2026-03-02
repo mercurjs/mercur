@@ -14,13 +14,11 @@ import { useNavigate } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useDeleteCustomer } from "../../../../../hooks/api/customers"
 
-type CustomerGeneralSectionProps = {
-  customer: HttpTypes.AdminCustomer
-}
-
 export const CustomerGeneralSection = ({
   customer,
-}: CustomerGeneralSectionProps) => {
+}: {
+  customer: HttpTypes.AdminCustomer
+}) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()

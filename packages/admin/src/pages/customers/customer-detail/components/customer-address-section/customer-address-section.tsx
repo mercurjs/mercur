@@ -9,13 +9,11 @@ import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { Listicle } from "../../../../../components/common/listicle"
 import { useDeleteCustomerAddress } from "../../../../../hooks/api/customers"
 
-type CustomerAddressSectionProps = {
-  customer: HttpTypes.AdminCustomer
-}
-
 export const CustomerAddressSection = ({
   customer,
-}: CustomerAddressSectionProps) => {
+}: {
+  customer: HttpTypes.AdminCustomer
+}) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()

@@ -628,11 +628,11 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Component, Breadcrumb, loader } =
+                      const { Breadcrumb, loader } =
                         await import("./pages/customers/customer-detail");
 
                       return {
-                        Component,
+                        Component: Outlet,
                         loader,
                         handle: {
                           breadcrumb: (
@@ -643,28 +643,34 @@ export function getRouteMap({
                     },
                     children: [
                       {
-                        path: "edit",
-                        lazy: () => import("./pages/customers/customer-edit"),
-                      },
-                      {
-                        path: "create-address",
-                        lazy: () =>
-                          import("./pages/customers/customer-create-address"),
-                      },
-                      {
-                        path: "add-customer-groups",
-                        lazy: () =>
-                          import("./pages/customers/customers-add-customer-group"),
-                      },
-                      {
-                        path: ":order_id/transfer",
-                        lazy: () =>
-                          import("./pages/orders/order-request-transfer"),
-                      },
-                      {
-                        path: "metadata/edit",
-                        lazy: () =>
-                          import("./pages/customers/customer-metadata"),
+                        path: "",
+                        lazy: () => import("./pages/customers/customer-detail"),
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () => import("./pages/customers/customer-edit"),
+                          },
+                          {
+                            path: "create-address",
+                            lazy: () =>
+                              import("./pages/customers/customer-create-address"),
+                          },
+                          {
+                            path: "add-customer-groups",
+                            lazy: () =>
+                              import("./pages/customers/customers-add-customer-group"),
+                          },
+                          {
+                            path: ":order_id/transfer",
+                            lazy: () =>
+                              import("./pages/orders/order-request-transfer"),
+                          },
+                          {
+                            path: "metadata/edit",
+                            lazy: () =>
+                              import("./pages/customers/customer-metadata"),
+                          },
+                        ],
                       },
                     ],
                   },

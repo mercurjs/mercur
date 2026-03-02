@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -9,7 +10,7 @@ import { CustomerGroupSection } from "./components/customer-group-section"
 import { CustomerOrderSection } from "./components/customer-order-section"
 import { customerLoader } from "./loader"
 
-export const CustomerDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
 
   const initialData = useLoaderData() as Awaited<
@@ -29,13 +30,10 @@ export const CustomerDetail = () => {
     throw error
   }
 
-  return (
-    <TwoColumnPage
-      data={customer}
-      hasOutlet
-      showJSON
-      showMetadata
-    >
+  return Children.count(children) > 0 ? (
+    <>{children}</>
+  ) : (
+    <TwoColumnPage data={customer} hasOutlet showJSON showMetadata>
       <TwoColumnPage.Main>
         <CustomerGeneralSection customer={customer} />
         <CustomerOrderSection customer={customer} />
@@ -47,3 +45,12 @@ export const CustomerDetail = () => {
     </TwoColumnPage>
   )
 }
+
+export const CustomerDetailPage = Object.assign(Root, {
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  MainGeneralSection: CustomerGeneralSection,
+  MainOrderSection: CustomerOrderSection,
+  MainGroupSection: CustomerGroupSection,
+  SidebarAddressSection: CustomerAddressSection,
+})

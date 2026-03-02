@@ -1,3 +1,5 @@
+export { CustomerDetailPage } from "./customers/customer-detail/customer-detail"
+export { CustomerListPage } from "./customers/customer-list/customer-list"
 export { ProductDetailPage } from "./products/product-detail/product-detail"
 export { ProductListPage } from "./products/product-list/product-list"
 export { ProductVariantDetailPage } from "./product-variants/product-variant-detail/product-variant-detail"
