@@ -5,6 +5,74 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.4] - 2026-03-02
+
+### Release 1.5.4
+
+#### Admin Panel
+
+https://github.com/mercurjs/admin-panel
+
+**New Features**
+
+- **Collection/Category Media Management** (#643)
+  - Added support for media attachments in collections and categories
+  - Added category/collection details endpoints and UI
+- Added Mercur Connect (#303) (#131)
+
+**Bug Fixes**
+
+- Fixed return of category details (#751)
+- Fixed collection/category media routes (#736)
+- Fixed collection details ID check (#738)
+- Fixed not user-friendly message during refund action (#142)
+- Fixed OAS in GET /admin/requests (#709)
+
+#### Vendor Panel
+
+https://github.com/mercurjs/vendor-panel
+
+**New Features**
+
+- **Collection/Category Media Management** (#643)
+  - Added support for media attachments in vendor collections and categories
+- Added Mercur Connect (#303)
+
+**Bug Fixes**
+
+- Fixed shipping option throwing error on edit (#310)
+- Fixed product collections endpoint to return only vendor products (#715)
+- Fixed vendor stock location authorization (#717)
+- Fixed missing attributes check in productsUpdatedHandler (#743)
+
+#### Storefront
+
+https://github.com/mercurjs/b2c-marketplace-storefront
+
+**New Features**
+
+- **Order Transfer Notifications** (#705)
+  - Implemented email notification for customers when order transfer request is created
+
+**Bug Fixes**
+
+- Fixed TalkJS Session Initialization issue - Inbox component staying in "Loading" state (#313)
+- Fixed the look of set new password modals (#308)
+- Fixed login returning 200 status code when credentials are incorrect (#305)
+- Fixed wrong validation section when creating an account (#306)
+- Fixed error when getting non-existent wishlist (#708)
+
+#### Other / Technical
+
+**New Features**
+
+- **Password Reset Expiration** (#722)
+  - Added expiration date to reset password links
+
+**Bug Fixes & Improvements**
+
+- Updated README with correct Postgres and Git CLI URLs (#657)
+
 ## [1.5.3] - 2026-02-17
 
 ### Release 1.5.3
