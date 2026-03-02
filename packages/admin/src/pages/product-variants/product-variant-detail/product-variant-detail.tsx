@@ -11,10 +11,6 @@ import { VariantInventorySectionConnected } from "./components/variant-inventory
 import { VariantPricesSection } from "./components/variant-prices-section"
 import { ProductSellerSection } from "../../products/product-detail/components/product-seller-section/product-seller-section"
 import { VARIANT_DETAIL_FIELDS } from "./constants"
-import {
-  ProductVariantDetailProvider,
-  useProductVariantDetailContext,
-} from "./context"
 import { variantLoader } from "./loader"
 
 const Root = ({ children }: { children?: ReactNode }) => {
@@ -50,23 +46,21 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
-    <ProductVariantDetailProvider variant={variant}>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={variant} showJSON showMetadata hasOutlet>
-          <TwoColumnPage.Main>
-            <VariantGeneralSection />
-            <VariantInventorySectionConnected />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <ProductSellerSection seller={(product as any)?.seller} />
-            <VariantPricesSection />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </ProductVariantDetailProvider>
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage>
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage data={variant} showJSON showMetadata hasOutlet>
+      <TwoColumnPage.Main>
+        <VariantGeneralSection variant={variant} />
+        <VariantInventorySectionConnected variant={variant} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <ProductSellerSection seller={(product as any)?.seller} />
+        <VariantPricesSection variant={variant} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }
 
@@ -77,5 +71,4 @@ export const ProductVariantDetailPage = Object.assign(Root, {
   MainInventorySection: VariantInventorySectionConnected,
   SidebarSellerSection: ProductSellerSection,
   SidebarPricesSection: VariantPricesSection,
-  useContext: useProductVariantDetailContext,
 })

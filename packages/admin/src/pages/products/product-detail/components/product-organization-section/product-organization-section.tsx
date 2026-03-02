@@ -2,12 +2,15 @@ import { PencilSquare } from "@medusajs/icons";
 import { Badge, Container, Heading, Tooltip } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { HttpTypes } from "@medusajs/types";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { SectionRow } from "../../../../../components/common/section";
-import { useProductDetailContext } from "../../context";
 
-export const ProductOrganizationSection = () => {
-  const { product } = useProductDetailContext();
+export const ProductOrganizationSection = ({
+  product,
+}: {
+  product: HttpTypes.AdminProduct;
+}) => {
   const { t } = useTranslation();
 
   return (

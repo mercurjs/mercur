@@ -14,7 +14,6 @@ import { ProductSalesChannelSection } from "./components/product-sales-channel-s
 import { ProductSellerSection } from "./components/product-seller-section/product-seller-section";
 import { ProductShippingProfileSection } from "./components/product-shipping-profile-section";
 import { ProductVariantSection } from "./components/product-variant-section";
-import { ProductDetailProvider, useProductDetailContext } from "./context";
 import { productLoader } from "./loader";
 
 const Root = ({ children }: { children?: ReactNode }) => {
@@ -46,33 +45,31 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return (
-    <ProductDetailProvider product={product}>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage
-          data={product}
-          showJSON
-          showMetadata
-          data-testid="product-detail-page"
-        >
-          <TwoColumnPage.Main data-testid="product-detail-main">
-            <ProductGeneralSection />
-            <ProductMediaSection />
-            <ProductOptionSection />
-            <ProductVariantSection />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
-            <ProductSellerSection seller={(product as any).seller} />
-            <ProductSalesChannelSection />
-            <ProductShippingProfileSection />
-            <ProductOrganizationSection />
-            <ProductAttributeSection />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </ProductDetailProvider>
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage data-testid="product-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage
+      data={product}
+      showJSON
+      showMetadata
+      data-testid="product-detail-page"
+    >
+      <TwoColumnPage.Main data-testid="product-detail-main">
+        <ProductGeneralSection product={product} />
+        <ProductMediaSection product={product} />
+        <ProductOptionSection product={product} />
+        <ProductVariantSection product={product} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
+        <ProductSellerSection seller={(product as any).seller} />
+        <ProductSalesChannelSection product={product} />
+        <ProductShippingProfileSection product={product} />
+        <ProductOrganizationSection product={product} />
+        <ProductAttributeSection product={product} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   );
 };
 
@@ -88,5 +85,4 @@ export const ProductDetailPage = Object.assign(Root, {
   SidebarShippingProfileSection: ProductShippingProfileSection,
   SidebarOrganizationSection: ProductOrganizationSection,
   SidebarAttributeSection: ProductAttributeSection,
-  useContext: useProductDetailContext,
 });

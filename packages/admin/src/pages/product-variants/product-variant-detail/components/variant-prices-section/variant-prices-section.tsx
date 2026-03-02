@@ -4,13 +4,16 @@ import { useTranslation } from "react-i18next"
 import { CurrencyDollar } from "@medusajs/icons"
 import { Button, Container, Heading } from "@medusajs/ui"
 
+import { HttpTypes } from "@medusajs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { getLocaleAmount } from "../../../../../lib/money-amount-helpers"
-import { useProductVariantDetailContext } from "../../context"
 
-export function VariantPricesSection() {
-  const { variant } = useProductVariantDetailContext()
+export function VariantPricesSection({
+  variant,
+}: {
+  variant: HttpTypes.AdminProductVariant;
+}) {
   const { t } = useTranslation()
   const prices = variant.prices
     ?.filter((p) => !Object.keys(((p as unknown) as { rules?: Record<string, unknown> }).rules || {}).length)

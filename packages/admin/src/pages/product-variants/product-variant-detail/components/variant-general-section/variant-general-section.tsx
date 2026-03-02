@@ -3,13 +3,16 @@ import { Badge, Container, Heading, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { HttpTypes } from "@medusajs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section"
 import { useDeleteVariant } from "../../../../../hooks/api/products"
-import { useProductVariantDetailContext } from "../../context"
 
-export function VariantGeneralSection() {
-  const { variant } = useProductVariantDetailContext()
+export function VariantGeneralSection({
+  variant,
+}: {
+  variant: HttpTypes.AdminProductVariant;
+}) {
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()

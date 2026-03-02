@@ -2,12 +2,15 @@ import { PencilSquare, ShoppingBag } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
+import { HttpTypes } from "@medusajs/types"
 import { SidebarLink } from "../../../../../components/common/sidebar-link/sidebar-link"
 import { ActionMenu } from "../../../../../components/common/action-menu"
-import { useProductDetailContext } from "../../context"
 
-export const ProductShippingProfileSection = () => {
-  const { product } = useProductDetailContext()
+export const ProductShippingProfileSection = ({
+  product,
+}: {
+  product: HttpTypes.AdminProduct;
+}) => {
   const { t } = useTranslation()
 
   const shippingProfile = product.shipping_profile

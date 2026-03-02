@@ -4,10 +4,10 @@ import { Container, Heading, StatusBadge, usePrompt } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { HttpTypes } from "@medusajs/types";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { SectionRow } from "../../../../../components/common/section";
 import { useDeleteProduct } from "../../../../../hooks/api/products";
-import { useProductDetailContext } from "../../context";
 
 const productStatusColor = (status: string) => {
   switch (status) {
@@ -24,8 +24,11 @@ const productStatusColor = (status: string) => {
   }
 };
 
-export const ProductGeneralSection = () => {
-  const { product } = useProductDetailContext();
+export const ProductGeneralSection = ({
+  product,
+}: {
+  product: HttpTypes.AdminProduct;
+}) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
   const navigate = useNavigate();

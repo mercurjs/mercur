@@ -5,7 +5,6 @@ import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section"
 import { useDeleteProductOption } from "../../../../../hooks/api/products"
 import { HttpTypes } from "@medusajs/types"
-import { useProductDetailContext } from "../../context"
 
 const OptionActions = ({
   productId,
@@ -62,8 +61,11 @@ const OptionActions = ({
   )
 }
 
-export const ProductOptionSection = () => {
-  const { product } = useProductDetailContext()
+export const ProductOptionSection = ({
+  product,
+}: {
+  product: HttpTypes.AdminProduct;
+}) => {
   const { t } = useTranslation()
 
   return (
