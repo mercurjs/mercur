@@ -1,4 +1,4 @@
-import { Children, ComponentProps, ReactNode } from "react"
+import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { useProduct, useProductVariant } from "../../../hooks/api/products"
@@ -55,37 +55,22 @@ const Root = ({ children }: { children?: ReactNode }) => {
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <Layout>
+        <TwoColumnPage data={variant} showJSON showMetadata hasOutlet>
           <TwoColumnPage.Main>
             <VariantGeneralSection />
             <VariantInventorySectionConnected />
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
             <ProductSellerSection seller={(product as any)?.seller} />
-        <VariantPricesSection />
+            <VariantPricesSection />
           </TwoColumnPage.Sidebar>
-        </Layout>
+        </TwoColumnPage>
       )}
     </ProductVariantDetailProvider>
   )
 }
 
-const Layout = ({
-  children,
-  ...props
-}: Omit<ComponentProps<typeof TwoColumnPage>, "data"> & {
-  children: ReactNode
-}) => {
-  const { variant } = useProductVariantDetailContext()
-  return (
-    <TwoColumnPage showJSON showMetadata hasOutlet data={variant} {...props}>
-      {children}
-    </TwoColumnPage>
-  )
-}
-
 export const ProductVariantDetailPage = Object.assign(Root, {
-  Layout,
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: VariantGeneralSection,
