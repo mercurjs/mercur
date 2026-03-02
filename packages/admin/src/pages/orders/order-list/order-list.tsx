@@ -1,14 +1,29 @@
-import { OrderListTable } from "./components/order-list-table"
+import { Children, ReactNode } from "react";
 
-import { SingleColumnPage } from "../../../components/layout/pages"
+import { SingleColumnPage } from "../../../components/layout/pages";
 
-export const OrderList = () => {
+import {
+  OrderListTable,
+  OrderListDataTable,
+  OrderListHeader,
+  OrderListActions,
+  OrderListTitle,
+} from "./components/order-list-table";
+
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
-    <SingleColumnPage
-      hasOutlet={false}
-      data-testid="orders-list-page"
-    >
-      <OrderListTable />
+    <SingleColumnPage hasOutlet={false} data-testid="orders-list-page">
+      {Children.count(children) > 0 ? children : <OrderListTable />}
     </SingleColumnPage>
-  )
-}
+  );
+};
+
+export const OrderList = Root;
+
+export const OrderListPage = Object.assign(Root, {
+  Table: OrderListTable,
+  Header: OrderListHeader,
+  HeaderTitle: OrderListTitle,
+  HeaderActions: OrderListActions,
+  DataTable: OrderListDataTable,
+});

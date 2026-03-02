@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
@@ -17,7 +18,7 @@ import { DEFAULT_FIELDS } from "./constants";
 import { orderLoader } from "./loader";
 import { OrderRemainingOrdersGroupSection } from "./components/order-remaining-orders-group-section";
 
-export const OrderDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof orderLoader>
   >;
@@ -64,28 +65,52 @@ export const OrderDetail = () => {
   }
 
   return (
-    <TwoColumnPage
-      data={order}
-      showJSON
-      showMetadata
-      hasOutlet
-      data-testid="order-detail-page"
-    >
-      <TwoColumnPage.Main data-testid="order-detail-main">
-        <OrderActiveEditSection order={order} />
-        <ActiveOrderClaimSection orderPreview={orderPreview!} />
-        <ActiveOrderExchangeSection orderPreview={orderPreview!} />
-        <ActiveOrderReturnSection orderPreview={orderPreview!} />
-        <OrderGeneralSection order={order} />
-        <OrderSummarySection order={order} />
-        <OrderPaymentSection order={order} />
-        <OrderFulfillmentSection order={order} />
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
-        <OrderCustomerSection order={order} />
-        <OrderActivitySection order={order} />
-        <OrderRemainingOrdersGroupSection />
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+    <>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <TwoColumnPage
+          data={order}
+          showJSON
+          showMetadata
+          hasOutlet
+          data-testid="order-detail-page"
+        >
+          <TwoColumnPage.Main data-testid="order-detail-main">
+            <OrderActiveEditSection order={order} />
+            <ActiveOrderClaimSection orderPreview={orderPreview!} />
+            <ActiveOrderExchangeSection orderPreview={orderPreview!} />
+            <ActiveOrderReturnSection orderPreview={orderPreview!} />
+            <OrderGeneralSection order={order} />
+            <OrderSummarySection order={order} />
+            <OrderPaymentSection order={order} />
+            <OrderFulfillmentSection order={order} />
+          </TwoColumnPage.Main>
+          <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
+            <OrderCustomerSection order={order} />
+            <OrderActivitySection order={order} />
+            <OrderRemainingOrdersGroupSection />
+          </TwoColumnPage.Sidebar>
+        </TwoColumnPage>
+      )}
+    </>
   );
 };
+
+export const OrderDetail = Root;
+
+export const OrderDetailPage = Object.assign(Root, {
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  MainActiveEditSection: OrderActiveEditSection,
+  MainActiveClaimSection: ActiveOrderClaimSection,
+  MainActiveExchangeSection: ActiveOrderExchangeSection,
+  MainActiveReturnSection: ActiveOrderReturnSection,
+  MainGeneralSection: OrderGeneralSection,
+  MainSummarySection: OrderSummarySection,
+  MainPaymentSection: OrderPaymentSection,
+  MainFulfillmentSection: OrderFulfillmentSection,
+  SidebarCustomerSection: OrderCustomerSection,
+  SidebarActivitySection: OrderActivitySection,
+  SidebarOrderGroupSection: OrderRemainingOrdersGroupSection,
+});
