@@ -1,16 +1,16 @@
 import { Button, Heading, IconButton, Input, Label } from "@medusajs/ui"
-import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form"
+import { useFieldArray, useWatch } from "react-hook-form"
 import { XMarkMini } from "@medusajs/icons"
 import { useTranslation } from "react-i18next"
 
 import { ProductCreateSchemaType } from "../../../../types"
 import { Form } from "../../../../../../../components/common/form"
 import { Combobox } from "../../../../../../../components/inputs/combobox"
+import { useTabbedForm } from "../../../../../../../components/tabbed-form/tabbed-form"
 import { useComboboxData } from "../../../../../../../hooks/use-combobox-data"
 import { sdk } from "../../../../../../../lib/client"
 
 type InventoryItemRowProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
   variantIndex: number
   inventoryIndex: number
   inventoryItem: any
@@ -22,13 +22,13 @@ type InventoryItemRowProps = {
 }
 
 function InventoryItemRow({
-  form,
   variantIndex,
   inventoryIndex,
   inventoryItem,
   isItemOptionDisabled,
   onRemove,
 }: InventoryItemRowProps) {
+  const form = useTabbedForm<ProductCreateSchemaType>()
   const { t } = useTranslation()
 
   const selectedInventoryItemId = useWatch({
@@ -148,12 +148,12 @@ function InventoryItemRow({
 }
 
 type VariantSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
   variant: ProductCreateSchemaType["variants"][0]
   index: number
 }
 
-function VariantSection({ form, variant, index }: VariantSectionProps) {
+function VariantSection({ variant, index }: VariantSectionProps) {
+  const form = useTabbedForm<ProductCreateSchemaType>()
   const { t } = useTranslation()
 
   const inventory = useFieldArray({
@@ -203,7 +203,6 @@ function VariantSection({ form, variant, index }: VariantSectionProps) {
       {inventory.fields.map((inventoryItem, inventoryIndex) => (
         <InventoryItemRow
           key={inventoryItem.id}
-          form={form}
           variantIndex={index}
           inventoryIndex={inventoryIndex}
           inventoryItem={inventoryItem}
@@ -215,13 +214,8 @@ function VariantSection({ form, variant, index }: VariantSectionProps) {
   )
 }
 
-type ProductCreateInventoryKitSectionProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
-
-export const ProductCreateInventoryKitSection = ({
-  form,
-}: ProductCreateInventoryKitSectionProps) => {
+export const ProductCreateInventoryKitSection = () => {
+  const form = useTabbedForm<ProductCreateSchemaType>()
   const { t } = useTranslation()
 
   const variants = useFieldArray({
@@ -238,7 +232,6 @@ export const ProductCreateInventoryKitSection = ({
         .map((variant, variantIndex) => (
           <VariantSection
             key={variant.id}
-            form={form}
             variant={variant}
             index={variantIndex}
           />

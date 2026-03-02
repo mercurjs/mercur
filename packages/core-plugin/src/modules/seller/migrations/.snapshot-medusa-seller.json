@@ -15,6 +15,15 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "display_id": {
+          "name": "display_id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
         "customer_id": {
           "name": "customer_id",
           "type": "text",

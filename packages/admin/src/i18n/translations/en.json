@@ -2819,7 +2819,7 @@
   },
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to Mercur Admin Panel",
+    "title": "Welcome to {{name}}",
     "hint": "Sign in to access the admin hub"
   },
   "invite": {

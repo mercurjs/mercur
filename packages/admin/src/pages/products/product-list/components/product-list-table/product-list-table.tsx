@@ -2,7 +2,7 @@ import { PencilSquare, Trash } from "@medusajs/icons";
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { Children, ReactNode, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useLoaderData, useLocation } from "react-router-dom";
 
@@ -21,9 +21,114 @@ import { productsLoader } from "../../loader";
 
 const PAGE_SIZE = 20;
 
-export const ProductListTable = () => {
+export const ProductListTitle = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Heading level="h2" data-testid="products-list-title">
+      {t("products.domain")}
+    </Heading>
+  );
+};
+
+export const ProductListCreateButton = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Button
+      size="small"
+      variant="secondary"
+      asChild
+      data-testid="products-create-button"
+    >
+      <Link to="create" data-testid="products-create-link">
+        {t("actions.create")}
+      </Link>
+    </Button>
+  );
+};
+
+export const ProductListExportButton = () => {
   const { t } = useTranslation();
   const location = useLocation();
+
+  return (
+    <Button
+      size="small"
+      variant="secondary"
+      asChild
+      data-testid="products-export-button"
+    >
+      <Link
+        to={`export${location.search}`}
+        data-testid="products-export-link"
+      >
+        {t("actions.export")}
+      </Link>
+    </Button>
+  );
+};
+
+export const ProductListImportButton = () => {
+  const { t } = useTranslation();
+  const location = useLocation();
+
+  return (
+    <Button
+      size="small"
+      variant="secondary"
+      asChild
+      data-testid="products-import-button"
+    >
+      <Link
+        to={`import${location.search}`}
+        data-testid="products-import-link"
+      >
+        {t("actions.import")}
+      </Link>
+    </Button>
+  );
+};
+
+export const ProductListActions = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div
+      className="flex items-center justify-center gap-x-2"
+      data-testid="products-list-actions"
+    >
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <ProductListExportButton />
+          <ProductListImportButton />
+          <ProductListCreateButton />
+        </>
+      )}
+    </div>
+  );
+};
+
+export const ProductListHeader = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div
+      className="flex items-center justify-between px-6 py-4"
+      data-testid="products-list-header"
+    >
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <ProductListTitle />
+          <ProductListActions />
+        </>
+      )}
+    </div>
+  );
+};
+
+export const ProductListDataTable = () => {
+  const { t } = useTranslation();
 
   const initialData = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof productsLoader>>
@@ -58,78 +163,42 @@ export const ProductListTable = () => {
   }
 
   return (
+    <div data-testid="products-data-table">
+      <_DataTable
+        table={table}
+        columns={columns}
+        count={count}
+        pageSize={PAGE_SIZE}
+        filters={filters}
+        search
+        pagination
+        isLoading={isLoading}
+        queryObject={raw}
+        navigateTo={(row) => `${row.original.id}`}
+        orderBy={[
+          { key: "title", label: t("fields.title") },
+          { key: "created_at", label: t("fields.createdAt") },
+          { key: "updated_at", label: t("fields.updatedAt") },
+        ]}
+        noRecords={{
+          message: t("products.list.noRecordsMessage"),
+        }}
+      />
+    </div>
+  );
+};
+
+export const ProductListTable = ({ children }: { children?: ReactNode }) => {
+  return (
     <Container className="divide-y p-0" data-testid="products-list-table">
-      <div
-        className="flex items-center justify-between px-6 py-4"
-        data-testid="products-list-header"
-      >
-        <Heading level="h2" data-testid="products-list-title">
-          {t("products.domain")}
-        </Heading>
-        <div
-          className="flex items-center justify-center gap-x-2"
-          data-testid="products-list-actions"
-        >
-          <Button
-            size="small"
-            variant="secondary"
-            asChild
-            data-testid="products-export-button"
-          >
-            <Link
-              to={`export${location.search}`}
-              data-testid="products-export-link"
-            >
-              {t("actions.export")}
-            </Link>
-          </Button>
-          <Button
-            size="small"
-            variant="secondary"
-            asChild
-            data-testid="products-import-button"
-          >
-            <Link
-              to={`import${location.search}`}
-              data-testid="products-import-link"
-            >
-              {t("actions.import")}
-            </Link>
-          </Button>
-          <Button
-            size="small"
-            variant="secondary"
-            asChild
-            data-testid="products-create-button"
-          >
-            <Link to="create" data-testid="products-create-link">
-              {t("actions.create")}
-            </Link>
-          </Button>
-        </div>
-      </div>
-      <div data-testid="products-data-table">
-        <_DataTable
-          table={table}
-          columns={columns}
-          count={count}
-          pageSize={PAGE_SIZE}
-          filters={filters}
-          search
-          pagination
-          isLoading={isLoading}
-          queryObject={raw}
-          navigateTo={(row) => `${row.original.id}`}
-          orderBy={[
-            { key: "title", label: t("fields.title") },
-            { key: "created_at", label: t("fields.createdAt") },
-            { key: "updated_at", label: t("fields.updatedAt") },
-          ]}
-          noRecords={{
-            message: t("products.list.noRecordsMessage"),
-          }}
-        />
-      </div>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <ProductListHeader />
+          <ProductListDataTable />
+        </>
+      )}
       <Outlet />
     </Container>
   );

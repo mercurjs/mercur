@@ -188,6 +188,7 @@ export type Routes = {
                 transfer: typeof import("@medusajs/medusa/api/admin/orders/[id]/transfer/route") & {
                     cancel: typeof import("@medusajs/medusa/api/admin/orders/[id]/transfer/cancel/route");
                 };
+                orderGroup: typeof import("../../src/api/admin/orders/[id]/order-group/route");
             };
             export: typeof import("@medusajs/medusa/api/admin/orders/export/route");
         };

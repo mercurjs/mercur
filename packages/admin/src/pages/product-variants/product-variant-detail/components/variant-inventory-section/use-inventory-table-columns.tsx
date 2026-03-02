@@ -1,4 +1,4 @@
-import { InventoryNext, ProductVariantDTO } from "@medusajs/types"
+import { HttpTypes } from "@medusajs/types"
 
 import { InventoryActions } from "./inventory-actions"
 import { PlaceholderCell } from "../../../../../components/table/table-cells/common/placeholder-cell"
@@ -6,8 +6,8 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-interface ExtendedInventoryItem extends InventoryNext.InventoryItemDTO {
-  variants: ProductVariantDTO[]
+interface ExtendedInventoryItem extends HttpTypes.AdminInventoryItem {
+  required_quantity?: number
 }
 
 const columnHelper = createColumnHelper<ExtendedInventoryItem>()

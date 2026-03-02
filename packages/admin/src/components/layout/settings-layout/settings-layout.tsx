@@ -10,14 +10,31 @@ import { Link, useLocation } from "react-router-dom";
 import { type INavItem, NavItem } from "@components/layout/nav-item";
 import { Shell } from "@components/layout/shell";
 import { UserMenu } from "@components/layout/user-menu";
+import components from "virtual:mercur/components";
+import menuItemsModule from "virtual:mercur/menu-items";
+import { getMenuItemsByType } from "../../../utils/routes";
 
 export const SettingsLayout = () => {
+  const Sidebar = components.SettingsSidebar
+    ? components.SettingsSidebar
+    : SettingsSidebar;
+
   return (
     <Shell>
-      <SettingsSidebar />
+      <Sidebar />
     </Shell>
   );
 };
+
+const allMenuItems = menuItemsModule.menuItems ?? [];
+const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
+const extensionNavItems: INavItem[] = customSettingsItems
+  .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+  .map((item) => ({
+    label: item.label,
+    to: item.path,
+    translationNs: item.translationNs,
+  }));
 
 const useSettingRoutes = (): INavItem[] => {
   const { t } = useTranslation();
@@ -68,6 +85,7 @@ const useSettingRoutes = (): INavItem[] => {
         label: "Commission Rates",
         to: "/settings/commission-rates",
       },
+      ...extensionNavItems,
     ],
     [t],
   );

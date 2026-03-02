@@ -1,5 +1,5 @@
 import { Heading, Input, Switch } from "@medusajs/ui"
-import { UseFormReturn, useWatch } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -7,15 +7,17 @@ import { HttpTypes } from "@medusajs/types"
 
 import { Form } from "../../../../../components/common/form"
 import { Combobox } from "../../../../../components/inputs/combobox"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { CreateProductVariantSchema } from "./constants"
 
 type DetailsTabProps = {
   product: HttpTypes.AdminProduct
-  form: UseFormReturn<z.infer<typeof CreateProductVariantSchema>>
 }
 
-function DetailsTab({ form, product }: DetailsTabProps) {
+function DetailsTab({ product }: DetailsTabProps) {
   const { t } = useTranslation()
+  const form = useTabbedForm<z.infer<typeof CreateProductVariantSchema>>()
 
   const manageInventoryEnabled = useWatch({
     control: form.control,
@@ -193,5 +195,11 @@ function DetailsTab({ form, product }: DetailsTabProps) {
     </div>
   )
 }
+
+DetailsTab._tabMeta = defineTabMeta<z.infer<typeof CreateProductVariantSchema>>({
+  id: "detail",
+  labelKey: "priceLists.create.tabs.details",
+  validationFields: ["title", "sku", "manage_inventory", "allow_backorder", "inventory_kit", "options"],
+})
 
 export default DetailsTab

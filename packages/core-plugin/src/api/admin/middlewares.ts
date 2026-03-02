@@ -8,6 +8,8 @@ import {
 import { validateAndTransformQuery } from "@medusajs/framework"
 
 import { adminOrderGroupsMiddlewares } from "./order-groups/middlewares"
+import { adminOrderGroupQueryConfig } from "./order-groups/query-config"
+import { AdminGetOrderGroupParams } from "./order-groups/validators"
 import { adminPayoutsMiddlewares } from "./payouts/middlewares"
 import { adminSellersMiddlewares } from "./sellers/middlewares"
 import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
@@ -50,6 +52,16 @@ const maybeApplySellerOrderFilter = (
 
 export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminOrderGroupsMiddlewares,
+  {
+    method: ["GET"],
+    matcher: "/admin/orders/:id/order-group",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetOrderGroupParams,
+        adminOrderGroupQueryConfig.retrieve
+      ),
+    ],
+  },
   ...adminPayoutsMiddlewares,
   ...adminSellersMiddlewares,
   ...adminCommissionRatesMiddlewares,

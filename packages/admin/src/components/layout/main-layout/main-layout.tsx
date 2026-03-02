@@ -27,16 +27,58 @@ import { Skeleton } from "../../common/skeleton";
 import { INavItem, NavItem } from "../../layout/nav-item";
 import { Shell } from "../../layout/shell";
 import { UserMenu } from "../user-menu";
+import components from "virtual:mercur/components";
+import menuItemsModule from "virtual:mercur/menu-items";
+import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
 
 export const MainLayout = () => {
+  const Sidebar = components.MainSidebar ? components.MainSidebar : MainSidebar;
   return (
     <Shell>
-      <MainSidebar />
+      <Sidebar />
     </Shell>
   );
 };
 
+const allMenuItems = menuItemsModule.menuItems ?? [];
+
+const addNestedItems = (
+  to: string,
+  items?: { label: string; to: string; translationNs?: string }[],
+) => {
+  const nestedItems = getNestedMenuItems(allMenuItems, to);
+  if (nestedItems.length === 0) {
+    return items;
+  }
+
+  const nestedNavItems = nestedItems.map((item) => ({
+    label: item.label,
+    to: item.path,
+    translationNs: item.translationNs,
+  }));
+
+  return [...(items ?? []), ...nestedNavItems];
+};
+
 const MainSidebar = () => {
+  const coreRoutes = useCoreRoutes();
+  const customMenuItems = getMenuItemsByType(allMenuItems, "main");
+
+  const routesWithNested = coreRoutes.map((route) => ({
+    ...route,
+    items: addNestedItems(route.to, route.items),
+  }));
+
+  const customRoutesWithNested = customMenuItems
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    .map((item) => ({
+      label: item.label,
+      to: item.path,
+      icon: item.icon ? undefined : undefined,
+      translationNs: item.translationNs,
+      items: addNestedItems(item.path),
+    }));
+
   return (
     <aside
       className="flex flex-1 flex-col justify-between overflow-y-auto"
@@ -54,7 +96,18 @@ const MainSidebar = () => {
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="flex flex-1 flex-col">
-            <CoreRouteSection />
+            <nav
+              className="flex flex-col gap-y-1 py-3"
+              data-testid="sidebar-core-routes"
+            >
+              <Searchbar />
+              {routesWithNested.map((route) => {
+                return <NavItem key={route.to} {...route} />;
+              })}
+              {customRoutesWithNested.map((route) => (
+                <NavItem key={route.to} {...route} />
+              ))}
+            </nav>
           </div>
           <UtilitySection />
         </div>
@@ -326,22 +379,6 @@ const Searchbar = () => {
         </Text>
       </button>
     </div>
-  );
-};
-
-const CoreRouteSection = () => {
-  const coreRoutes = useCoreRoutes();
-
-  return (
-    <nav
-      className="flex flex-col gap-y-1 py-3"
-      data-testid="sidebar-core-routes"
-    >
-      <Searchbar />
-      {coreRoutes.map((route) => {
-        return <NavItem key={route.to} {...route} />;
-      })}
-    </nav>
   );
 };
 

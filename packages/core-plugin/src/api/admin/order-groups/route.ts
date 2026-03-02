@@ -2,24 +2,30 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
+
+import { getOrderGroupsListWorkflow } from "../../../workflows/order-group"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminOrderGroupListResponse>
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const { data: order_groups, metadata } = await query.graph({
-    entity: "order_group",
-    filters: req.filterableFields,
-    fields: req.queryConfig.fields,
-    pagination: req.queryConfig.pagination,
+  const { result } = await getOrderGroupsListWorkflow(req.scope).run({
+    input: {
+      fields: req.queryConfig.fields ?? [],
+      variables: {
+        ...req.filterableFields,
+        skip: req.queryConfig.pagination?.skip,
+        take: req.queryConfig.pagination?.take,
+        order: req.queryConfig.pagination?.order as Record<string, string>,
+      },
+    },
   })
 
+  const { rows, metadata } = result
+
   res.json({
-    order_groups,
+    order_groups: rows,
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,
