@@ -1,5 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { MagnifyingGlass } from "@medusajs/icons"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { MagnifyingGlass } from "@medusajs/icons";
 import {
   Button,
   clx,
@@ -13,39 +13,42 @@ import {
   Switch,
   Text,
   toast,
-} from "@medusajs/ui"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+} from "@medusajs/ui";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
 
-import { Form } from "../../../../../components/common/form"
-import { PercentageInput } from "../../../../../components/inputs/percentage-input"
+import { Form } from "../../../../../components/common/form";
+import { PercentageInput } from "../../../../../components/inputs/percentage-input";
 import {
   RouteDrawer,
   StackedDrawer,
   useRouteModal,
   useStackedModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
+} from "../../../../../components/modals";
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
 import {
   useBatchCommissionRules,
   useUpdateCommissionRate,
-} from "../../../../../hooks/api/commission-rates"
-import { useStore } from "../../../../../hooks/api/store"
-import { currencies as currencyData } from "../../../../../lib/data/currencies"
-import { CommissionRateDTO } from "@mercurjs/types"
-import { TargetForm } from "../../../../tax-regions/common/components/target-form/target-form"
-import { TargetItem } from "../../../../tax-regions/common/components/target-item/target-item"
-import { TaxRateRuleReferenceType } from "../../../../tax-regions/common/constants"
+} from "../../../../../hooks/api/commission-rates";
+import { useStore } from "../../../../../hooks/api/store";
+import {
+  currencies as currencyData,
+  getCurrencySymbol,
+} from "../../../../../lib/data/currencies";
+import { CommissionRateDTO } from "@mercurjs/types";
+import { TargetForm } from "../../../../tax-regions/common/components/target-form/target-form";
+import { TargetItem } from "../../../../tax-regions/common/components/target-item/target-item";
+import { TaxRateRuleReferenceType } from "../../../../tax-regions/common/constants";
 import {
   TaxRateRuleReference,
   TaxRateRuleReferenceSchema,
-} from "../../../../tax-regions/common/schemas"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+} from "../../../../tax-regions/common/schemas";
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
 
-const STACKED_MODAL_ID = "cr"
+const STACKED_MODAL_ID = "cr";
 const getStackedModalId = (type: TaxRateRuleReferenceType) =>
-  `${STACKED_MODAL_ID}-${type}`
+  `${STACKED_MODAL_ID}-${type}`;
 
 const EditCommissionRateSchema = zod.object({
   name: zod.string().min(1),
@@ -65,41 +68,41 @@ const EditCommissionRateSchema = zod.object({
   product: zod.array(TaxRateRuleReferenceSchema).optional(),
   product_type: zod.array(TaxRateRuleReferenceSchema).optional(),
   shipping_option: zod.array(TaxRateRuleReferenceSchema).optional(),
-})
+});
 
 type EditCommissionRateFormProps = {
-  commissionRate: CommissionRateDTO
-}
+  commissionRate: CommissionRateDTO;
+};
 
 const getRulesByType = (
   rules: CommissionRateDTO["rules"],
-  type: TaxRateRuleReferenceType
+  type: TaxRateRuleReferenceType,
 ): TaxRateRuleReference[] => {
   return (rules || [])
     .filter((r) => r.reference === type)
-    .map((r) => ({ value: r.reference_id, label: "" }))
-}
+    .map((r) => ({ value: r.reference_id, label: "" }));
+};
 
 export const EditCommissionRateForm = ({
   commissionRate,
 }: EditCommissionRateFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const { setIsOpen } = useStackedModal()
-  const direction = useDocumentDirection()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
+  const { setIsOpen } = useStackedModal();
+  const direction = useDocumentDirection();
 
   const initialProducts = getRulesByType(
     commissionRate.rules,
-    TaxRateRuleReferenceType.PRODUCT
-  )
+    TaxRateRuleReferenceType.PRODUCT,
+  );
   const initialProductTypes = getRulesByType(
     commissionRate.rules,
-    TaxRateRuleReferenceType.PRODUCT_TYPE
-  )
+    TaxRateRuleReferenceType.PRODUCT_TYPE,
+  );
   const initialShippingOptions = getRulesByType(
     commissionRate.rules,
-    TaxRateRuleReferenceType.SHIPPING_OPTION
-  )
+    TaxRateRuleReferenceType.SHIPPING_OPTION,
+  );
 
   const form = useForm<zod.infer<typeof EditCommissionRateSchema>>({
     defaultValues: {
@@ -122,22 +125,18 @@ export const EditCommissionRateForm = ({
       shipping_option: initialShippingOptions,
     },
     resolver: zodResolver(EditCommissionRateSchema),
-  })
+  });
 
-  const { store } = useStore()
+  const { store } = useStore();
 
   const storeCurrencies = (store?.supported_currencies ?? []).map(
-    (c) => currencyData[c.currency_code.toUpperCase()]
-  )
-
-  const defaultCurrencyCode =
-    store?.supported_currencies?.[0]?.currency_code ?? ""
-
+    (c) => currencyData[c.currency_code.toUpperCase()],
+  );
   const { mutateAsync: updateCommissionRate, isPending: isUpdating } =
-    useUpdateCommissionRate(commissionRate.id)
+    useUpdateCommissionRate(commissionRate.id);
 
   const { mutateAsync: batchRules, isPending: isBatching } =
-    useBatchCommissionRules(commissionRate.id)
+    useBatchCommissionRules(commissionRate.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const newRules = [
@@ -153,18 +152,18 @@ export const EditCommissionRateForm = ({
         reference: TaxRateRuleReferenceType.SHIPPING_OPTION,
         reference_id: ref.value,
       })),
-    ]
+    ];
 
-    const existingRules = commissionRate.rules || []
+    const existingRules = commissionRate.rules || [];
 
     const toCreate = newRules.filter(
       (nr) =>
         !existingRules.some(
           (er) =>
             er.reference === nr.reference &&
-            er.reference_id === nr.reference_id
-        )
-    )
+            er.reference_id === nr.reference_id,
+        ),
+    );
 
     const toDelete = existingRules
       .filter(
@@ -172,10 +171,10 @@ export const EditCommissionRateForm = ({
           !newRules.some(
             (nr) =>
               nr.reference === er.reference &&
-              nr.reference_id === er.reference_id
-          )
+              nr.reference_id === er.reference_id,
+          ),
       )
-      .map((er) => er.id)
+      .map((er) => er.id);
 
     try {
       await updateCommissionRate({
@@ -188,50 +187,50 @@ export const EditCommissionRateForm = ({
         min_amount: values.min_amount ?? null,
         include_tax: values.include_tax,
         priority: values.priority,
-      })
+      });
 
       if (toCreate.length > 0 || toDelete.length > 0) {
         await batchRules({
           ...(toCreate.length > 0 ? { create: toCreate } : {}),
           ...(toDelete.length > 0 ? { delete: toDelete } : {}),
-        })
+        });
       }
 
-      toast.success("Commission rate updated successfully")
-      handleSuccess()
+      toast.success("Commission rate updated successfully");
+      handleSuccess();
     } catch (e: any) {
-      toast.error(e.message)
+      toast.error(e.message);
     }
-  })
+  });
 
-  const watchType = form.watch("type")
-  const watchCurrency = form.watch("currency_code")
+  const watchType = form.watch("type");
+  const watchCurrency = form.watch("currency_code");
 
   const products = useFieldArray({
     control: form.control,
     name: TaxRateRuleReferenceType.PRODUCT,
-  })
+  });
 
   const productTypes = useFieldArray({
     control: form.control,
     name: TaxRateRuleReferenceType.PRODUCT_TYPE,
-  })
+  });
 
   const shippingOptions = useFieldArray({
     control: form.control,
     name: TaxRateRuleReferenceType.SHIPPING_OPTION,
-  })
+  });
 
   const getControls = (type: TaxRateRuleReferenceType) => {
     switch (type) {
       case TaxRateRuleReferenceType.PRODUCT:
-        return products
+        return products;
       case TaxRateRuleReferenceType.PRODUCT_TYPE:
-        return productTypes
+        return productTypes;
       case TaxRateRuleReferenceType.SHIPPING_OPTION:
-        return shippingOptions
+        return shippingOptions;
     }
-  }
+  };
 
   const referenceTypeOptions = [
     {
@@ -246,47 +245,47 @@ export const EditCommissionRateForm = ({
       value: TaxRateRuleReferenceType.SHIPPING_OPTION,
       label: t("taxRegions.fields.targets.options.shippingOption"),
     },
-  ]
+  ];
 
   const searchPlaceholders = {
     [TaxRateRuleReferenceType.PRODUCT]: t(
-      "taxRegions.fields.targets.placeholders.product"
+      "taxRegions.fields.targets.placeholders.product",
     ),
     [TaxRateRuleReferenceType.PRODUCT_TYPE]: t(
-      "taxRegions.fields.targets.placeholders.productType"
+      "taxRegions.fields.targets.placeholders.productType",
     ),
     [TaxRateRuleReferenceType.SHIPPING_OPTION]: t(
-      "taxRegions.fields.targets.placeholders.shippingOption"
+      "taxRegions.fields.targets.placeholders.shippingOption",
     ),
-  }
+  };
 
   const getFieldHandler = (type: TaxRateRuleReferenceType) => {
-    const { fields, remove, prepend } = getControls(type)
-    const modalId = getStackedModalId(type)
+    const { fields, remove, prepend } = getControls(type);
+    const modalId = getStackedModalId(type);
 
     return (references: TaxRateRuleReference[]) => {
       if (!references.length) {
-        form.setValue(type, [], { shouldDirty: true })
-        setIsOpen(modalId, false)
-        return
+        form.setValue(type, [], { shouldDirty: true });
+        setIsOpen(modalId, false);
+        return;
       }
 
-      const newIds = references.map((reference) => reference.value)
+      const newIds = references.map((reference) => reference.value);
 
       const fieldsToAdd = references.filter(
-        (reference) => !fields.some((field) => field.value === reference.value)
-      )
+        (reference) => !fields.some((field) => field.value === reference.value),
+      );
 
       for (const field of fields) {
         if (!newIds.includes(field.value)) {
-          remove(fields.indexOf(field))
+          remove(fields.indexOf(field));
         }
       }
 
-      prepend(fieldsToAdd)
-      setIsOpen(modalId, false)
-    }
-  }
+      prepend(fieldsToAdd);
+      setIsOpen(modalId, false);
+    };
+  };
 
   const displayOrder = new Set<TaxRateRuleReferenceType>(
     [
@@ -297,58 +296,58 @@ export const EditCommissionRateForm = ({
       initialShippingOptions.length > 0
         ? TaxRateRuleReferenceType.SHIPPING_OPTION
         : null,
-    ].filter(Boolean) as TaxRateRuleReferenceType[]
-  )
+    ].filter(Boolean) as TaxRateRuleReferenceType[],
+  );
 
   const disableRule = (type: TaxRateRuleReferenceType) => {
-    form.setValue(type, [], { shouldDirty: true })
-    form.setValue(`enabled_rules.${type}`, false, { shouldDirty: true })
-    displayOrder.delete(type)
-  }
+    form.setValue(type, [], { shouldDirty: true });
+    form.setValue(`enabled_rules.${type}`, false, { shouldDirty: true });
+    displayOrder.delete(type);
+  };
 
   const enableRule = (type: TaxRateRuleReferenceType) => {
-    form.setValue(`enabled_rules.${type}`, true, { shouldDirty: true })
-    form.setValue(type, [], { shouldDirty: true })
-    displayOrder.add(type)
-  }
+    form.setValue(`enabled_rules.${type}`, true, { shouldDirty: true });
+    form.setValue(type, [], { shouldDirty: true });
+    displayOrder.add(type);
+  };
 
   const watchedEnabledRules = useWatch({
     control: form.control,
     name: "enabled_rules",
-  })
+  });
 
   const addRule = () => {
     const firstDisabledRule = Object.keys(watchedEnabledRules).find(
-      (key) => !watchedEnabledRules[key as TaxRateRuleReferenceType]
-    )
+      (key) => !watchedEnabledRules[key as TaxRateRuleReferenceType],
+    );
 
     if (firstDisabledRule) {
-      enableRule(firstDisabledRule as TaxRateRuleReferenceType)
+      enableRule(firstDisabledRule as TaxRateRuleReferenceType);
     }
-  }
+  };
 
   const visibleRuleTypes = referenceTypeOptions
     .filter((option) => watchedEnabledRules[option.value])
     .sort((a, b) => {
-      const orderArray = Array.from(displayOrder)
-      return orderArray.indexOf(a.value) - orderArray.indexOf(b.value)
-    })
+      const orderArray = Array.from(displayOrder);
+      return orderArray.indexOf(a.value) - orderArray.indexOf(b.value);
+    });
 
   const getAvailableRuleTypes = (type: TaxRateRuleReferenceType) => {
     return referenceTypeOptions.filter((option) => {
       return (
         !visibleRuleTypes.some(
-          (visibleOption) => visibleOption.value === option.value
+          (visibleOption) => visibleOption.value === option.value,
         ) || option.value === type
-      )
-    })
-  }
+      );
+    });
+  };
 
   const showAddButton = Object.values(watchedEnabledRules).some(
-    (value) => !value
-  )
+    (value) => !value,
+  );
 
-  const isPending = isUpdating || isBatching
+  const isPending = isUpdating || isBatching;
 
   return (
     <RouteDrawer.Form form={form}>
@@ -464,18 +463,23 @@ export const EditCommissionRateForm = ({
                       <PercentageInput
                         {...field}
                         value={value}
+                        decimalsLimit={4}
                         onValueChange={(_value, _name, values) =>
                           onChange(values?.float ?? 0)
                         }
                       />
                     ) : (
                       <CurrencyInput
-                        {...field}
                         min={0}
-                        code={watchCurrency || defaultCurrencyCode}
-                        onValueChange={(_value, _name, values) =>
-                          onChange(values?.float ?? 0)
+                        onValueChange={(value) =>
+                          onChange(value ? parseInt(value) : "")
                         }
+                        code={watchCurrency ?? ""}
+                        symbol={
+                          watchCurrency ? getCurrencySymbol(watchCurrency) : ""
+                        }
+                        {...field}
+                        value={value}
                       />
                     )}
                   </Form.Control>
@@ -491,13 +495,16 @@ export const EditCommissionRateForm = ({
                   <Form.Label>Minimum Amount</Form.Label>
                   <Form.Control>
                     <CurrencyInput
-                      {...field}
                       min={0}
-                      code={watchCurrency || defaultCurrencyCode}
-                      value={value}
-                      onValueChange={(_value, _name, values) =>
-                        onChange(values?.float ?? 0)
+                      onValueChange={(value) =>
+                        onChange(value ? parseInt(value) : "")
                       }
+                      code={watchCurrency ?? ""}
+                      symbol={
+                        watchCurrency ? getCurrencySymbol(watchCurrency) : ""
+                      }
+                      {...field}
+                      value={value}
                     />
                   </Form.Control>
                   <Form.ErrorMessage />
@@ -541,10 +548,7 @@ export const EditCommissionRateForm = ({
             <div className="flex items-center justify-between gap-x-4">
               <div className="flex flex-col">
                 <div className="flex items-center gap-x-1">
-                  <Label
-                    id="commission_rules_label"
-                    htmlFor="commission_rules"
-                  >
+                  <Label id="commission_rules_label" htmlFor="commission_rules">
                     {t("taxRegions.fields.targets.label")}
                   </Label>
                   <Text
@@ -555,10 +559,7 @@ export const EditCommissionRateForm = ({
                     ({t("fields.optional")})
                   </Text>
                 </div>
-                <Hint
-                  id="commission_rules_description"
-                  className="text-pretty"
-                >
+                <Hint id="commission_rules_description" className="text-pretty">
                   {t("taxRegions.fields.targets.hint")}
                 </Hint>
               </div>
@@ -582,23 +583,21 @@ export const EditCommissionRateForm = ({
               className="flex flex-col gap-y-3"
             >
               {visibleRuleTypes.map((ruleType, index) => {
-                const type = ruleType.value
-                const label = ruleType.label
-                const isLast = index === visibleRuleTypes.length - 1
-                const searchPlaceholder = searchPlaceholders[type]
+                const type = ruleType.value;
+                const label = ruleType.label;
+                const isLast = index === visibleRuleTypes.length - 1;
+                const searchPlaceholder = searchPlaceholders[type];
 
-                const options = getAvailableRuleTypes(type)
-                const modalId = getStackedModalId(type)
+                const options = getAvailableRuleTypes(type);
+                const modalId = getStackedModalId(type);
 
-                const { fields, remove } = getControls(type)
-                const handler = getFieldHandler(type)
+                const { fields, remove } = getControls(type);
+                const handler = getFieldHandler(type);
 
-                const handleChangeType = (
-                  value: TaxRateRuleReferenceType
-                ) => {
-                  disableRule(type)
-                  enableRule(value)
-                }
+                const handleChangeType = (value: TaxRateRuleReferenceType) => {
+                  disableRule(type);
+                  enableRule(value);
+                };
 
                 return (
                   <div key={type}>
@@ -610,13 +609,11 @@ export const EditCommissionRateForm = ({
                       }) => {
                         return (
                           <Form.Item className="space-y-0">
-                            <Form.Label className="sr-only">
-                              {label}
-                            </Form.Label>
+                            <Form.Label className="sr-only">{label}</Form.Label>
                             <div
                               className={clx(
                                 "bg-ui-bg-component shadow-elevation-card-rest transition-fg grid gap-1.5 rounded-xl py-1.5",
-                                "aria-[invalid='true']:shadow-borders-error"
+                                "aria-[invalid='true']:shadow-borders-error",
                               )}
                               role="application"
                               {...field}
@@ -640,7 +637,7 @@ export const EditCommissionRateForm = ({
                                           >
                                             {option.label}
                                           </Select.Item>
-                                        )
+                                        );
                                       })}
                                     </Select.Content>
                                   </Select>
@@ -650,9 +647,7 @@ export const EditCommissionRateForm = ({
                                   </div>
                                 )}
                                 <div className="bg-ui-bg-field shadow-borders-base txt-compact-small rounded-md px-2 py-1.5">
-                                  {t(
-                                    "taxRegions.fields.targets.operators.in"
-                                  )}
+                                  {t("taxRegions.fields.targets.operators.in")}
                                 </div>
                               </div>
                               <div className="flex items-center gap-1.5 px-1.5">
@@ -676,7 +671,7 @@ export const EditCommissionRateForm = ({
                                       <StackedDrawer.Title asChild>
                                         <Heading>
                                           {t(
-                                            "taxRegions.fields.targets.modal.header"
+                                            "taxRegions.fields.targets.modal.header",
                                           )}
                                         </Heading>
                                       </StackedDrawer.Title>
@@ -713,7 +708,7 @@ export const EditCommissionRateForm = ({
                                           value={field.value}
                                           onRemove={remove}
                                         />
-                                      )
+                                      );
                                     })}
                                   </div>
                                 </div>
@@ -721,11 +716,11 @@ export const EditCommissionRateForm = ({
                             </div>
                             <Form.ErrorMessage className="mt-2" />
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -742,5 +737,5 @@ export const EditCommissionRateForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};

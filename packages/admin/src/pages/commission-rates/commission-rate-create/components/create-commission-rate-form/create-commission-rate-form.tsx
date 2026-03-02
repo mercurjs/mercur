@@ -29,7 +29,10 @@ import {
 } from "../../../../../components/modals";
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
 import { useCreateCommissionRate } from "../../../../../hooks/api/commission-rates";
-import { currencies as currencyData } from "../../../../../lib/data/currencies";
+import {
+  currencies as currencyData,
+  getCurrencySymbol,
+} from "../../../../../lib/data/currencies";
 import { HttpTypes } from "@mercurjs/types";
 import { TargetForm } from "../../../../tax-regions/common/components/target-form/target-form";
 import { TargetItem } from "../../../../tax-regions/common/components/target-item/target-item";
@@ -427,18 +430,25 @@ export const CreateCommissionRateForm = ({
                             <PercentageInput
                               {...field}
                               value={value}
+                              decimalsLimit={4}
                               onValueChange={(_value, _name, values) =>
                                 onChange(values?.float ?? 0)
                               }
                             />
                           ) : (
                             <CurrencyInput
-                              {...field}
                               min={0}
-                              code={watchCurrency || defaultCurrencyCode}
-                              onValueChange={(_value, _name, values) =>
-                                onChange(values?.float ?? 0)
+                              onValueChange={(value) =>
+                                onChange(value ? parseInt(value) : "")
                               }
+                              code={watchCurrency}
+                              symbol={
+                                watchCurrency
+                                  ? getCurrencySymbol(watchCurrency)
+                                  : ""
+                              }
+                              {...field}
+                              value={value}
                             />
                           )}
                         </Form.Control>
@@ -456,13 +466,18 @@ export const CreateCommissionRateForm = ({
                         <Form.Label>Minimum Amount</Form.Label>
                         <Form.Control>
                           <CurrencyInput
-                            {...field}
                             min={0}
-                            code={watchCurrency || defaultCurrencyCode}
-                            value={value}
-                            onValueChange={(_value, _name, values) =>
-                              onChange(values?.float ?? 0)
+                            onValueChange={(value) =>
+                              onChange(value ? parseInt(value) : "")
                             }
+                            code={watchCurrency}
+                            symbol={
+                              watchCurrency
+                                ? getCurrencySymbol(watchCurrency)
+                                : ""
+                            }
+                            {...field}
+                            value={value}
                           />
                         </Form.Control>
                         <Form.ErrorMessage />
