@@ -1,5 +1,6 @@
 export const DEFAULT_PROPERTIES = [
   "id",
+  'display_id',
   "customer_id",
   "seller_count",
   "total",
@@ -17,7 +18,7 @@ export const DEFAULT_PROPERTIES = [
 ]
 
 export const DEFAULT_RELATIONS = [
-  "*orders",
+  "*orders.payment_collections",
   "*orders.customer",
   "*orders.sales_channel",
   "*orders.seller",

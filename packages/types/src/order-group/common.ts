@@ -1,5 +1,6 @@
 export type OrderGroupDTO = {
   id: string
+  display_id: number
   customer_id: string | null
   cart_id: string
   seller_count: number

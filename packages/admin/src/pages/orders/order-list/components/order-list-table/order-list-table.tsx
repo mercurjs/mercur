@@ -50,9 +50,7 @@ function transformOrderGroups(orderGroups: any[]): OrderGroupRow[] {
   return orderGroups.map((group) => {
     const orders = group.orders ?? [];
 
-    const orderIds = orders
-      .map((o: any) => `#${o.display_id}`)
-      .join(", ");
+    const orderIds = orders.map((o: any) => `#${o.display_id}`).join(", ");
 
     const firstOrder = orders[0];
     const customerName = firstOrder?.customer
@@ -85,9 +83,9 @@ function transformOrderGroups(orderGroups: any[]): OrderGroupRow[] {
     return {
       _type: "group" as const,
       id: group.id,
-      display_id: `#G${group.id.slice(-4)}`,
+      display_id: `#G${group.display_id}`,
       order_ids: orderIds,
-      vendor: `${group.seller_count ?? orders.length} vendors`,
+      vendor: `${group.seller_count} vendors`,
       created_at: new Date(group.created_at),
       customer_name: customerName,
       payment_status: null,
@@ -152,17 +150,13 @@ export const OrderListTable = () => {
           table={table}
           pagination
           navigateTo={(row) =>
-            row.original._type === "order"
-              ? `/orders/${row.original.id}`
-              : ""
+            row.original._type === "order" ? `/orders/${row.original.id}` : ""
           }
           count={count}
           search
           isLoading={isLoading}
           pageSize={PAGE_SIZE}
-          orderBy={[
-            { key: "created_at", label: t("fields.createdAt") },
-          ]}
+          orderBy={[{ key: "created_at", label: t("fields.createdAt") }]}
           queryObject={raw}
           noRecords={{
             message: t("orders.list.noRecordsMessage"),

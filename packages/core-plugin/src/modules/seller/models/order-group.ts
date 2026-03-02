@@ -2,6 +2,7 @@ import { model } from "@medusajs/framework/utils"
 
 const OrderGroup = model.define("order_group", {
   id: model.id({ prefix: 'og' }).primaryKey(),
+  display_id: model.autoincrement(),
   seller_count: model.number().computed(),
   customer_id: model.text().nullable(),
   total: model.bigNumber().computed(),
