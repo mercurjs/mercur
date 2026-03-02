@@ -16,6 +16,10 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
+import {
+  TextCell,
+  TextHeader,
+} from "../../../../../components/table/table-cells/common/text-cell"
 import { _DataTable } from "../../../../../components/table/data-table"
 import {
   useCommissionRates,
@@ -152,10 +156,6 @@ const columnHelper = createColumnHelper<CommissionRateDTO>()
 const useColumns = () => {
   return useMemo(
     () => [
-      columnHelper.accessor("name", {
-        header: "Name",
-        cell: ({ getValue }) => getValue(),
-      }),
       columnHelper.accessor("code", {
         header: "Code",
         cell: ({ getValue }) => (
@@ -165,33 +165,10 @@ const useColumns = () => {
         ),
       }),
       columnHelper.accessor("type", {
-        header: "Type",
+        header: () => <TextHeader text="Type" />,
         cell: ({ getValue }) => {
           const type = getValue()
-          return (
-            <Badge size="2xsmall" color={type === "percentage" ? "blue" : "grey"}>
-              {type === "percentage" ? "Percentage" : "Fixed"}
-            </Badge>
-          )
-        },
-      }),
-      columnHelper.accessor("value", {
-        header: "Value",
-        cell: ({ row }) => {
-          const { value, type, currency_code } = row.original
-          if (type === "percentage") {
-            return `${value}%`
-          }
-          return currency_code
-            ? `${value} ${currency_code.toUpperCase()}`
-            : `${value}`
-        },
-      }),
-      columnHelper.accessor("target", {
-        header: "Target",
-        cell: ({ getValue }) => {
-          const target = getValue()
-          return target === "item" ? "Item" : "Shipping"
+          return <TextCell text={type === "percentage" ? "Percentage" : "Fixed"} />
         },
       }),
       columnHelper.accessor("is_enabled", {
@@ -203,13 +180,6 @@ const useColumns = () => {
               {enabled ? "Enabled" : "Disabled"}
             </StatusBadge>
           )
-        },
-      }),
-      columnHelper.accessor("rules", {
-        header: "Rules",
-        cell: ({ getValue }) => {
-          const rules = getValue()
-          return rules?.length ?? 0
         },
       }),
       columnHelper.display({

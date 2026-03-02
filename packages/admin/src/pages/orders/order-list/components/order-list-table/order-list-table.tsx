@@ -8,6 +8,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 import { useOrderLegacyTableFilters } from "./use-order-legacy-table-filters";
+import { DEFAULT_FIELDS } from "../../const";
 
 const PAGE_SIZE = 20;
 
@@ -21,6 +22,7 @@ export const OrderListTable = () => {
   const { orders, count, isError, error, isLoading } = useOrders(
     {
       ...searchParams,
+      fields: DEFAULT_FIELDS,
     },
     {
       placeholderData: keepPreviousData,
