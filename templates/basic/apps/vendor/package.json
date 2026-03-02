@@ -10,7 +10,7 @@
     "preview": "vite preview --port 7001"
   },
   "dependencies": {
-    "@medusajs/icons": "^2.13.0",
+    "@medusajs/icons": "^2.13.3",
     "@mercurjs/dashboard-sdk": "2.0.0-canary.24",
     "@mercurjs/dashboard-shared": "2.0.0-canary.24",
     "@mercurjs/vendor": "2.0.0-canary.24",

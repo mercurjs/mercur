@@ -8,24 +8,30 @@ Add blocks (admin UI pages, vendor UI pages, workflows, modules, and more) from 
 
 ## Installation
 
-Install globally (recommended):
+Using npx (recommended):
 
 ```bash
-npm install -g @mercurjs/cli
+npx @mercurjs/cli@canary <command>
+```
+
+Or install globally:
+
+```bash
+npm install -g @mercurjs/cli@canary
 ```
 
 Any package manager works:
 
 ```bash
-pnpm add -g @mercurjs/cli
-yarn global add @mercurjs/cli
-bun add -g @mercurjs/cli
+pnpm add -g @mercurjs/cli@canary
+yarn global add @mercurjs/cli@canary
+bun add -g @mercurjs/cli@canary
 ```
 
 Or install locally as a dev dependency:
 
 ```bash
-npm install -D @mercurjs/cli
+npm install -D @mercurjs/cli@canary
 ```
 
 ## Quick Start
@@ -34,23 +40,23 @@ npm install -D @mercurjs/cli
 
 ```bash
 # Create a new Mercur project
-mercurjs create
+npx @mercurjs/cli@canary create
 
 # Create with a specific template
-mercurjs create my-mercur --template basic
+npx @mercurjs/cli@canary create my-mercur --template basic
 ```
 
 **Or add blocks to an existing project:**
 
 ```bash
 # Initialize your project
-mercurjs init
+npx @mercurjs/cli@canary init
 
 # Add a block from the registry
-mercurjs add product-review
+npx @mercurjs/cli@canary add product-review
 
 # Search for available blocks
-mercurjs search --query product
+npx @mercurjs/cli@canary search --query product
 ```
 
 ---
@@ -62,7 +68,7 @@ mercurjs search --query product
 Create a new Mercur project with the selected template.
 
 ```bash
-mercurjs create [name] [options]
+npx @mercurjs/cli@canary create [name] [options]
 ```
 
 **Arguments:**
@@ -86,16 +92,16 @@ mercurjs create [name] [options]
 
 ```bash
 # Interactive project creation
-mercurjs create
+npx @mercurjs/cli@canary create
 
 # Create with a specific name and template
-mercurjs create my-marketplace --template basic
+npx @mercurjs/cli@canary create my-marketplace --template basic
 
 # Create without database setup
-mercurjs create my-mercur --skip-db
+npx @mercurjs/cli@canary create my-mercur --skip-db
 
 # Create with a specific database connection
-mercurjs create my-mercur --db-connection-string "postgresql://user:pass@localhost:5432/mydb"
+npx @mercurjs/cli@canary create my-mercur --db-connection-string "postgresql://user:pass@localhost:5432/mydb"
 ```
 
 ---
@@ -105,7 +111,7 @@ mercurjs create my-mercur --db-connection-string "postgresql://user:pass@localho
 Initialize your project and create a `blocks.json` configuration file.
 
 ```bash
-mercurjs init [options]
+npx @mercurjs/cli@canary init [options]
 ```
 
 **Options:**
@@ -121,13 +127,13 @@ mercurjs init [options]
 
 ```bash
 # Interactive initialization
-mercurjs init
+npx @mercurjs/cli@canary init
 
 # Non-interactive with defaults
-mercurjs init --defaults
+npx @mercurjs/cli@canary init --defaults
 
 # Initialize in a specific directory
-mercurjs init --cwd ./my-project
+npx @mercurjs/cli@canary init --cwd ./my-project
 ```
 
 ---
@@ -137,7 +143,7 @@ mercurjs init --cwd ./my-project
 Add blocks to your project from the registry.
 
 ```bash
-mercurjs add <blocks...> [options]
+npx @mercurjs/cli@canary add <blocks...> [options]
 ```
 
 **Arguments:**
@@ -159,16 +165,16 @@ mercurjs add <blocks...> [options]
 
 ```bash
 # Add a single block
-mercurjs add product-review
+npx @mercurjs/cli@canary add product-review
 
 # Add multiple blocks
-mercurjs add product-review order-tracking wishlist
+npx @mercurjs/cli@canary add product-review order-tracking wishlist
 
 # Add with overwrite
-mercurjs add product-review --overwrite
+npx @mercurjs/cli@canary add product-review --overwrite
 
 # Add to a specific directory
-mercurjs add product-review --cwd ./my-project
+npx @mercurjs/cli@canary add product-review --cwd ./my-project
 ```
 
 ---
@@ -178,7 +184,7 @@ mercurjs add product-review --cwd ./my-project
 Search blocks from registries by name or description.
 
 ```bash
-mercurjs search [options]
+npx @mercurjs/cli@canary search [options]
 ```
 
 **Options:**
@@ -193,10 +199,10 @@ mercurjs search [options]
 
 ```bash
 # Search for blocks with "product" in name or description
-mercurjs search --query product
+npx @mercurjs/cli@canary search --query product
 
 # Search a custom registry
-mercurjs search --query review --registry @my-registry
+npx @mercurjs/cli@canary search --query review --registry @my-registry
 ```
 
 ---
@@ -206,7 +212,7 @@ mercurjs search --query review --registry @my-registry
 View detailed information about specific blocks from the registry.
 
 ```bash
-mercurjs view <blocks...> [options]
+npx @mercurjs/cli@canary view <blocks...> [options]
 ```
 
 **Arguments:**
@@ -225,10 +231,10 @@ mercurjs view <blocks...> [options]
 
 ```bash
 # View a block's details
-mercurjs view product-review
+npx @mercurjs/cli@canary view product-review
 
 # View multiple blocks
-mercurjs view product-review order-tracking
+npx @mercurjs/cli@canary view product-review order-tracking
 ```
 
 ---
@@ -238,7 +244,7 @@ mercurjs view product-review order-tracking
 Check for updates by comparing local files against the registry.
 
 ```bash
-mercurjs diff <blocks...> [options]
+npx @mercurjs/cli@canary diff <blocks...> [options]
 ```
 
 **Arguments:**
@@ -257,10 +263,10 @@ mercurjs diff <blocks...> [options]
 
 ```bash
 # Check if a block has updates
-mercurjs diff product-review
+npx @mercurjs/cli@canary diff product-review
 
 # Check multiple blocks for updates
-mercurjs diff product-review order-tracking
+npx @mercurjs/cli@canary diff product-review order-tracking
 ```
 
 ---
@@ -270,7 +276,7 @@ mercurjs diff product-review order-tracking
 Build the registry from a `registry.json` file.
 
 ```bash
-mercurjs build [registry] [options]
+npx @mercurjs/cli@canary build [registry] [options]
 ```
 
 **Arguments:**
@@ -291,13 +297,13 @@ mercurjs build [registry] [options]
 
 ```bash
 # Build with defaults
-mercurjs build
+npx @mercurjs/cli@canary build
 
 # Build with custom paths
-mercurjs build ./my-registry.json --output ./dist/registry
+npx @mercurjs/cli@canary build ./my-registry.json --output ./dist/registry
 
 # Build with verbose output
-mercurjs build --verbose
+npx @mercurjs/cli@canary build --verbose
 ```
 
 ---
@@ -307,7 +313,7 @@ mercurjs build --verbose
 Get information about your project and configuration.
 
 ```bash
-mercurjs info [options]
+npx @mercurjs/cli@canary info [options]
 ```
 
 **Options:**
@@ -320,10 +326,10 @@ mercurjs info [options]
 
 ```bash
 # Get project info
-mercurjs info
+npx @mercurjs/cli@canary info
 
 # Get info for a specific directory
-mercurjs info --cwd ./my-project
+npx @mercurjs/cli@canary info --cwd ./my-project
 ```
 
 ---
@@ -412,7 +418,7 @@ You can add custom registries to your `blocks.json`:
 
 ```bash
 # Create a new project
-mercurjs create my-marketplace
+npx @mercurjs/cli@canary create my-marketplace
 
 # Follow the prompts to:
 # 1. Select a template (basic or registry)
@@ -424,23 +430,23 @@ mercurjs create my-marketplace
 
 ```bash
 # Initialize the CLI in your project
-mercurjs init
+npx @mercurjs/cli@canary init
 
 # Search for available blocks
-mercurjs search --query product
+npx @mercurjs/cli@canary search --query product
 
 # Add blocks
-mercurjs add product-review order-tracking
+npx @mercurjs/cli@canary add product-review order-tracking
 ```
 
 ### Checking for Updates
 
 ```bash
 # See what changed in a block
-mercurjs diff product-review
+npx @mercurjs/cli@canary diff product-review
 
 # Update by overwriting
-mercurjs add product-review --overwrite
+npx @mercurjs/cli@canary add product-review --overwrite
 ```
 
 ### Building a Custom Registry
@@ -448,7 +454,7 @@ mercurjs add product-review --overwrite
 ```bash
 # Create a registry.json file with your blocks
 # Then build the registry
-mercurjs build --verbose
+npx @mercurjs/cli@canary build --verbose
 
 # Output will be in ./registry directory
 ```

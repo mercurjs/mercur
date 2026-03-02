@@ -9,11 +9,11 @@
 		"build:registry": "mercurjs build"
 	},
 	"dependencies": {
-		"@medusajs/framework": "^2.13.0",
-		"@medusajs/medusa": "^2.13.0",
+		"@medusajs/framework": "^2.13.3",
+		"@medusajs/medusa": "^2.13.3",
 		"@mercurjs/dashboard-shared": "workspace:*",
 		"@medusajs/ui": "4.1.1",
-		"@medusajs/icons": "2.13.0",
+		"@medusajs/icons": "2.13.3",
 		"@tanstack/react-query": "5.64.2",
 		"react-i18next": "13.5.0",
 		"react-router-dom": "6.30.3",
@@ -22,7 +22,7 @@
 		"zod": "3.25.76",
 		"@mercurjs/core-plugin": "workspace:*",
 		"@mercurjs/vendor": "workspace:*",
-		"@medusajs/core-flows": "^2.13.0",
+		"@medusajs/core-flows": "^2.13.3",
 		"react-hook-form": "7.49.1",
 		"@hookform/resolvers": "3.4.2",
 		"jsonwebtoken": "9.0.2",
@@ -36,7 +36,7 @@
 		"@types/react-dom": "^18.2.22",
 		"@types/node": "^22",
 		"@types/unzipper": "^0.10.10",
-		"@medusajs/cli": "^2.13.0",
+		"@medusajs/cli": "^2.13.3",
 		"@types/multer": "^2.0.0",
 		"@types/jsonwebtoken": "^9.0.9"
 	}

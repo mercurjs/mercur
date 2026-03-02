@@ -9,7 +9,7 @@
     "preview": "vite preview --port 7002"
   },
   "dependencies": {
-    "@medusajs/icons": "^2.13.0",
+    "@medusajs/icons": "^2.13.3",
     "@mercurjs/dashboard-sdk": "*",
     "@mercurjs/dashboard-shared": "*",
     "@mercurjs/admin": "*",
