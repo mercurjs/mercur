@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -7,7 +8,7 @@ import { CollectionGeneralSection } from "./components/collection-general-sectio
 import { CollectionProductSection } from "./components/collection-product-section"
 import { collectionLoader } from "./loader"
 
-export const CollectionDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof collectionLoader>
   >
@@ -26,13 +27,20 @@ export const CollectionDetail = () => {
   }
 
   return (
-    <SingleColumnPage
-      showJSON
-      showMetadata
-      data={collection}
-    >
-      <CollectionGeneralSection collection={collection} />
-      <CollectionProductSection collection={collection} />
-    </SingleColumnPage>
+    <>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <SingleColumnPage showJSON showMetadata data={collection}>
+          <CollectionGeneralSection collection={collection} />
+          <CollectionProductSection collection={collection} />
+        </SingleColumnPage>
+      )}
+    </>
   )
 }
+
+export const CollectionDetail = Object.assign(Root, {
+  GeneralSection: CollectionGeneralSection,
+  ProductSection: CollectionProductSection,
+})
