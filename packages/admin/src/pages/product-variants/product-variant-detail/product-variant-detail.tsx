@@ -84,12 +84,13 @@ const Layout = ({
   )
 }
 
-export const ProductVariantDetail = Object.assign(Root, {
+export const ProductVariantDetailPage = Object.assign(Root, {
   Layout,
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
-  GeneralSection: VariantGeneralSection,
-  InventorySection: VariantInventorySectionConnected,
-  PricesSection: VariantPricesSection,
+  MainGeneralSection: VariantGeneralSection,
+  MainInventorySection: VariantInventorySectionConnected,
+  SidebarSellerSection: ProductSellerSection,
+  SidebarPricesSection: VariantPricesSection,
   useContext: useProductVariantDetailContext,
 })

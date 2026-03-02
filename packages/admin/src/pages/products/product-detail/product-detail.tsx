@@ -87,18 +87,18 @@ const Layout = ({
   );
 };
 
-export const ProductDetail = Object.assign(Root, {
+export const ProductDetailPage = Object.assign(Root, {
   Layout,
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
-  GeneralSection: ProductGeneralSection,
-  MediaSection: ProductMediaSection,
-  OptionSection: ProductOptionSection,
-  VariantSection: ProductVariantSection,
-  SalesChannelSection: ProductSalesChannelSection,
-  ShippingProfileSection: ProductShippingProfileSection,
-  OrganizationSection: ProductOrganizationSection,
-  AttributeSection: ProductAttributeSection,
-  AdditionalAttributeSection: ProductAdditionalAttributeSection,
+  MainGeneralSection: ProductGeneralSection,
+  MainMediaSection: ProductMediaSection,
+  MainOptionSection: ProductOptionSection,
+  MainVariantSection: ProductVariantSection,
+  SidebarSellerSection: ProductSellerSection,
+  SidebarSalesChannelSection: ProductSalesChannelSection,
+  SidebarShippingProfileSection: ProductShippingProfileSection,
+  SidebarOrganizationSection: ProductOrganizationSection,
+  SidebarAttributeSection: ProductAttributeSection,
   useContext: useProductDetailContext,
 });

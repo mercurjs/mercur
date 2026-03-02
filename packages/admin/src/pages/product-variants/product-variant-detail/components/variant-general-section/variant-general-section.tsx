@@ -14,7 +14,7 @@ export function VariantGeneralSection() {
   const prompt = usePrompt()
   const navigate = useNavigate()
 
-  const hasInventoryKit = variant.inventory?.length > 1
+  const hasInventoryKit = (variant.inventory_items?.length ?? 0) > 1
 
   const { mutateAsync } = useDeleteVariant(variant.product_id!, variant.id)
 
