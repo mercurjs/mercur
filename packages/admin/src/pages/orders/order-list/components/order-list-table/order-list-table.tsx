@@ -5,8 +5,12 @@ import { useDataTable } from "@hooks/use-data-table";
 import { Container, Heading, IconButton, clx } from "@medusajs/ui";
 import { TriangleRightMini } from "@medusajs/icons";
 import { keepPreviousData } from "@tanstack/react-query";
+<<<<<<< Updated upstream
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
+=======
+import { Children, ReactNode } from "react";
+>>>>>>> Stashed changes
 import { useTranslation } from "react-i18next";
 
 import {
@@ -31,6 +35,7 @@ import { DEFAULT_FIELDS } from "../../const";
 
 const PAGE_SIZE = 20;
 
+<<<<<<< Updated upstream
 type OrderGroupRow = {
   _type: "group" | "order";
   id: string;
@@ -100,6 +105,32 @@ function transformOrderGroups(orderGroups: any[]): OrderGroupRow[] {
 }
 
 export const OrderListTable = () => {
+=======
+export const OrderListTitle = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Heading data-testid="orders-heading">{t("orders.domain")}</Heading>
+  );
+};
+
+export const OrderListHeader = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div
+      className="flex items-center justify-between px-6 py-4"
+      data-testid="orders-header"
+    >
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <OrderListTitle />
+      )}
+    </div>
+  );
+};
+
+export const OrderListDataTable = () => {
+>>>>>>> Stashed changes
   const { t } = useTranslation();
 
   const { searchParams, raw } = useOrderTableQuery({
@@ -139,7 +170,35 @@ export const OrderListTable = () => {
   }
 
   return (
+    <div data-testid="orders-table-wrapper">
+      <_DataTable
+        columns={columns}
+        table={table}
+        pagination
+        navigateTo={(row) => `/orders/${row.original.id}`}
+        filters={filters}
+        count={count}
+        search
+        isLoading={isLoading}
+        pageSize={PAGE_SIZE}
+        orderBy={[
+          { key: "display_id", label: t("orders.fields.displayId") },
+          { key: "created_at", label: t("fields.createdAt") },
+          { key: "updated_at", label: t("fields.updatedAt") },
+        ]}
+        queryObject={raw}
+        noRecords={{
+          message: t("orders.list.noRecordsMessage"),
+        }}
+      />
+    </div>
+  );
+};
+
+export const OrderListTable = ({ children }: { children?: ReactNode }) => {
+  return (
     <Container className="divide-y p-0" data-testid="orders-container">
+<<<<<<< Updated upstream
       <div
         className="flex items-center justify-between px-6 py-4"
         data-testid="orders-header"
@@ -169,6 +228,16 @@ export const OrderListTable = () => {
           }}
         />
       </div>
+=======
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <OrderListHeader />
+          <OrderListDataTable />
+        </>
+      )}
+>>>>>>> Stashed changes
     </Container>
   );
 };

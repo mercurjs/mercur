@@ -2,29 +2,37 @@ import { ArrowPath } from "@medusajs/icons"
 import { Button, Container, Heading, Text, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { HttpTypes } from "@medusajs/types"
 import { useNavigate } from "react-router-dom"
 import { useCancelExchangeRequest } from "../../../../../hooks/api/exchanges"
+import { useOrderDetailContext } from "../../context"
 
-type ActiveOrderExchangeSectionProps = {
-  orderPreview: HttpTypes.AdminOrderPreview
-}
-
-export const ActiveOrderExchangeSection = ({
-  orderPreview,
-}: ActiveOrderExchangeSectionProps) => {
-  const { t } = useTranslation()
+export const ActiveOrderExchangeSection = () => {
+  const { orderPreview } = useOrderDetailContext()
   const exchangeId = orderPreview?.order_change?.exchange_id
 
+  if (!exchangeId) {
+    return null
+  }
+
+  return <ExchangeActions exchangeId={exchangeId} orderId={orderPreview.id} />
+}
+
+const ExchangeActions = ({
+  exchangeId,
+  orderId,
+}: {
+  exchangeId: string
+  orderId: string
+}) => {
+  const { t } = useTranslation()
   const { mutateAsync: cancelExchange } = useCancelExchangeRequest(
     exchangeId,
-    orderPreview.id
+    orderId
   )
-
   const navigate = useNavigate()
 
   const onContinueExchange = async () => {
-    navigate(`/orders/${orderPreview.id}/exchanges`)
+    navigate(`/orders/${orderId}/exchanges`)
   }
 
   const onCancelExchange = async () => {
@@ -36,10 +44,6 @@ export const ActiveOrderExchangeSection = ({
         toast.error(error.message)
       },
     })
-  }
-
-  if (!exchangeId) {
-    return
   }
 
   return (

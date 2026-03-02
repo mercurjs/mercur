@@ -41,7 +41,7 @@ export const ordersQueryKeys = _orderKeys;
 
 export const useOrder = (
   id: string,
-  query?: InferClientInput<typeof sdk.admin.orders.$id.query>,
+  query?: Omit<InferClientInput<typeof sdk.admin.orders.$id.query>, "$id">,
   options?: Omit<
     UseQueryOptions<any, ClientError, any, QueryKey>,
     "queryFn" | "queryKey"

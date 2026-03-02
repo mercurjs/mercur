@@ -2,32 +2,37 @@ import { ArrowUturnLeft } from "@medusajs/icons"
 import { Button, Container, Heading, Text, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { HttpTypes } from "@medusajs/types"
 import { useNavigate } from "react-router-dom"
 import { useCancelReturnRequest } from "../../../../../hooks/api/returns"
+import { useOrderDetailContext } from "../../context"
 
-type ActiveOrderReturnSectionProps = {
-  orderPreview: HttpTypes.AdminOrderPreview
-}
-
-export const ActiveOrderReturnSection = ({
-  orderPreview,
-}: ActiveOrderReturnSectionProps) => {
-  const { t } = useTranslation()
+export const ActiveOrderReturnSection = () => {
+  const { orderPreview } = useOrderDetailContext()
   const orderChange = orderPreview?.order_change
   const returnId = orderChange?.return_id
   const isReturnRequest =
     orderChange?.change_type === "return_request" && !!orderChange.return_id
 
-  const { mutateAsync: cancelReturn } = useCancelReturnRequest(
-    returnId,
-    orderPreview.id
-  )
+  if (!returnId || !isReturnRequest) {
+    return null
+  }
 
+  return <ReturnActions returnId={returnId} orderId={orderPreview.id} />
+}
+
+const ReturnActions = ({
+  returnId,
+  orderId,
+}: {
+  returnId: string
+  orderId: string
+}) => {
+  const { t } = useTranslation()
+  const { mutateAsync: cancelReturn } = useCancelReturnRequest(returnId, orderId)
   const navigate = useNavigate()
 
   const onContinueReturn = async () => {
-    navigate(`/orders/${orderPreview.id}/returns`)
+    navigate(`/orders/${orderId}/returns`)
   }
 
   const onCancelReturn = async () => {
@@ -39,10 +44,6 @@ export const ActiveOrderReturnSection = ({
         toast.error(error.message)
       },
     })
-  }
-
-  if (!returnId || !isReturnRequest) {
-    return
   }
 
   return (

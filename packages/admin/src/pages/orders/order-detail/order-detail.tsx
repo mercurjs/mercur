@@ -1,3 +1,4 @@
+import { Children, ComponentProps, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
@@ -13,11 +14,12 @@ import { OrderFulfillmentSection } from "./components/order-fulfillment-section"
 import { OrderGeneralSection } from "./components/order-general-section";
 import { OrderPaymentSection } from "./components/order-payment-section";
 import { OrderSummarySection } from "./components/order-summary-section";
-import { DEFAULT_FIELDS } from "./constants";
-import { orderLoader } from "./loader";
 import { OrderRemainingOrdersGroupSection } from "./components/order-remaining-orders-group-section";
+import { DEFAULT_FIELDS } from "./constants";
+import { OrderDetailProvider, useOrderDetailContext } from "./context";
+import { orderLoader } from "./loader";
 
-export const OrderDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof orderLoader>
   >;
@@ -36,7 +38,7 @@ export const OrderDetail = () => {
 
   // TODO: Retrieve endpoints don't have an order ability, so a JS sort until this is available
   if (order) {
-    order.items = order.items.sort((itemA, itemB) => {
+    order.items = order.items.sort((itemA: { created_at: string }, itemB: { created_at: string }) => {
       if (itemA.created_at > itemB.created_at) {
         return 1;
       }
@@ -49,9 +51,12 @@ export const OrderDetail = () => {
     });
   }
 
-  const { order: orderPreview, isLoading: isPreviewLoading } = useOrderPreview(
-    id!,
-  );
+  const {
+    order: orderPreview,
+    isLoading: isPreviewLoading,
+    isError: isPreviewError,
+    error: previewError,
+  } = useOrderPreview(id!);
 
   if (isLoading || !order || isPreviewLoading) {
     return (
@@ -63,29 +68,79 @@ export const OrderDetail = () => {
     throw error;
   }
 
+  if (isPreviewError) {
+    throw previewError ?? new Error("Failed to load order preview");
+  }
+
+  if (!orderPreview) {
+    throw new Error("Order preview is not available");
+  }
+
+  return (
+    <OrderDetailProvider order={order} orderPreview={orderPreview}>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <Layout>
+          <TwoColumnPage.Main data-testid="order-detail-main">
+            <OrderActiveEditSection />
+            <ActiveOrderClaimSection />
+            <ActiveOrderExchangeSection />
+            <ActiveOrderReturnSection />
+            <OrderGeneralSection />
+            <OrderSummarySection />
+            <OrderPaymentSection />
+            <OrderFulfillmentSection />
+          </TwoColumnPage.Main>
+          <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
+            <OrderCustomerSection />
+            <OrderActivitySection />
+            <OrderRemainingOrdersGroupSection />
+          </TwoColumnPage.Sidebar>
+        </Layout>
+      )}
+    </OrderDetailProvider>
+  );
+};
+
+const Layout = ({
+  children,
+  ...props
+}: Omit<ComponentProps<typeof TwoColumnPage>, "data"> & {
+  children: ReactNode;
+}) => {
+  const { order } = useOrderDetailContext();
   return (
     <TwoColumnPage
-      data={order}
       showJSON
       showMetadata
       hasOutlet
+      data={order}
       data-testid="order-detail-page"
+      {...props}
     >
-      <TwoColumnPage.Main data-testid="order-detail-main">
-        <OrderActiveEditSection order={order} />
-        <ActiveOrderClaimSection orderPreview={orderPreview!} />
-        <ActiveOrderExchangeSection orderPreview={orderPreview!} />
-        <ActiveOrderReturnSection orderPreview={orderPreview!} />
-        <OrderGeneralSection order={order} />
-        <OrderSummarySection order={order} />
-        <OrderPaymentSection order={order} />
-        <OrderFulfillmentSection order={order} />
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
-        <OrderCustomerSection order={order} />
-        <OrderActivitySection order={order} />
-        <OrderRemainingOrdersGroupSection />
-      </TwoColumnPage.Sidebar>
+      {children}
     </TwoColumnPage>
   );
 };
+
+export const OrderDetailPage = Object.assign(Root, {
+  Layout,
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+
+  MainActiveEditSection: OrderActiveEditSection,
+  MainActiveClaimSection: ActiveOrderClaimSection,
+  MainActiveExchangeSection: ActiveOrderExchangeSection,
+  MainActiveReturnSection: ActiveOrderReturnSection,
+  MainGeneralSection: OrderGeneralSection,
+  MainSummarySection: OrderSummarySection,
+  MainPaymentSection: OrderPaymentSection,
+  MainFulfillmentSection: OrderFulfillmentSection,
+
+  SidebarCustomerSection: OrderCustomerSection,
+  SidebarActivitySection: OrderActivitySection,
+  SidebarRemainingOrdersGroupSection: OrderRemainingOrdersGroupSection,
+
+  useContext: useOrderDetailContext,
+});

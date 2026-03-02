@@ -1,1 +1,1 @@
-export { OrderList as Component } from "./order-list"
+export { OrderListPage as Component } from "./order-list"

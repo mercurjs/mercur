@@ -28,11 +28,10 @@ import {
 import { format } from "date-fns";
 import { Trans, useTranslation } from "react-i18next";
 
-type OrderPaymentSectionProps = {
-  order: HttpTypes.AdminOrder;
-};
+import { useOrderDetailContext } from "../../context";
 
-export const OrderPaymentSection = ({ order }: OrderPaymentSectionProps) => {
+export const OrderPaymentSection = () => {
+  const { order } = useOrderDetailContext()
   const payments = getPaymentsFromOrder(order);
 
   const refunds = payments

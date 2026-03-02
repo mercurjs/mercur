@@ -5,12 +5,10 @@ import { useTranslation } from 'react-i18next';
 
 import { ActionMenu } from '../../../../../components/common/action-menu';
 import { CustomerInfo } from '../../../../../components/common/customer-info';
+import { useOrderDetailContext } from '../../context';
 
-type OrderCustomerSectionProps = {
-  order: HttpTypes.AdminOrder;
-};
-
-export const OrderCustomerSection = ({ order }: OrderCustomerSectionProps) => {
+export const OrderCustomerSection = () => {
+  const { order } = useOrderDetailContext()
   return (
     <Container
       className="divide-y p-0"

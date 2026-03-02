@@ -32,13 +32,10 @@ import { formatProvider } from "../../../../../lib/format-provider"
 import { getLocaleAmount } from "../../../../../lib/money-amount-helpers"
 import { FulfillmentSetType } from "../../../../locations/common/constants"
 
-type OrderFulfillmentSectionProps = {
-  order: AdminOrder
-}
+import { useOrderDetailContext } from "../../context"
 
-export const OrderFulfillmentSection = ({
-  order,
-}: OrderFulfillmentSectionProps) => {
+export const OrderFulfillmentSection = () => {
+  const { order } = useOrderDetailContext()
   const fulfillments = order.fulfillments || []
 
   return (

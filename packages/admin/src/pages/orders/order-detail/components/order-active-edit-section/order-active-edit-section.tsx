@@ -11,11 +11,7 @@ import { useMemo } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { Thumbnail } from "../../../../../components/common/thumbnail"
 import { useNavigate } from "react-router-dom"
-
-type OrderActiveEditSectionProps = {
-  order: HttpTypes.AdminOrder
-  quantity: number
-}
+import { useOrderDetailContext } from "../../context"
 
 function EditItem({
   item,
@@ -50,9 +46,8 @@ function EditItem({
   )
 }
 
-export const OrderActiveEditSection = ({
-  order,
-}: OrderActiveEditSectionProps) => {
+export const OrderActiveEditSection = () => {
+  const { order } = useOrderDetailContext()
   const { t } = useTranslation()
   const navigate = useNavigate()
 

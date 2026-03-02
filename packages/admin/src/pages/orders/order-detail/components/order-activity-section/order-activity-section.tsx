@@ -1,13 +1,10 @@
-import { AdminOrder } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { useOrderDetailContext } from "../../context"
 import { OrderTimeline } from "./order-timeline"
 
-type OrderActivityProps = {
-  order: AdminOrder
-}
-
-export const OrderActivitySection = ({ order }: OrderActivityProps) => {
+export const OrderActivitySection = () => {
+  const { order } = useOrderDetailContext()
   const { t } = useTranslation()
 
   return (

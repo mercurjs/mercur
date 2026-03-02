@@ -1,3 +1,4 @@
 export { OrderDetailBreadcrumb as Breadcrumb } from "./breadcrumb"
 export { orderLoader as loader } from "./loader"
-export { OrderDetail as Component } from "./order-detail"
+export { OrderDetailPage as Component } from "./order-detail"
+export type { OrderDetailContextValue } from "./context"

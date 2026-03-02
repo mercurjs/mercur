@@ -1,1 +1,6 @@
-export * from "./order-list-table"
+export {
+  OrderListTable,
+  OrderListHeader,
+  OrderListTitle,
+  OrderListDataTable,
+} from "./order-list-table"

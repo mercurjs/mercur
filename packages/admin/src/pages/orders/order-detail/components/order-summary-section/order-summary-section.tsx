@@ -64,11 +64,10 @@ import ReturnInfoPopover from "./return-info-popover.tsx";
 import ShippingInfoPopover from "./shipping-info-popover.tsx";
 import { formatPercentage } from "../../../../../lib/percentage-helpers.ts";
 
-type OrderSummarySectionProps = {
-  order: AdminOrder;
-};
+import { useOrderDetailContext } from "../../context";
 
-export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
+export const OrderSummarySection = () => {
+  const { order } = useOrderDetailContext()
   const { t } = useTranslation();
   const prompt = usePrompt();
 

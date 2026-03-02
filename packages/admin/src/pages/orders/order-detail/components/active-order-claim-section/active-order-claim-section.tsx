@@ -2,29 +2,28 @@ import { ExclamationCircle } from "@medusajs/icons"
 import { Button, Container, Heading, Text, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { HttpTypes } from "@medusajs/types"
 import { useNavigate } from "react-router-dom"
 import { useCancelClaimRequest } from "../../../../../hooks/api/claims"
+import { useOrderDetailContext } from "../../context"
 
-type ActiveOrderClaimSectionProps = {
-  orderPreview: HttpTypes.AdminOrderPreview
-}
-
-export const ActiveOrderClaimSection = ({
-  orderPreview,
-}: ActiveOrderClaimSectionProps) => {
-  const { t } = useTranslation()
+export const ActiveOrderClaimSection = () => {
+  const { orderPreview } = useOrderDetailContext()
   const claimId = orderPreview?.order_change?.claim_id
 
-  const { mutateAsync: cancelClaim } = useCancelClaimRequest(
-    claimId,
-    orderPreview.id
-  )
+  if (!claimId) {
+    return null
+  }
 
+  return <ClaimActions claimId={claimId} orderId={orderPreview.id} />
+}
+
+const ClaimActions = ({ claimId, orderId }: { claimId: string; orderId: string }) => {
+  const { t } = useTranslation()
+  const { mutateAsync: cancelClaim } = useCancelClaimRequest(claimId, orderId)
   const navigate = useNavigate()
 
   const onContinueClaim = async () => {
-    navigate(`/orders/${orderPreview.id}/claims`)
+    navigate(`/orders/${orderId}/claims`)
   }
 
   const onCancelClaim = async () => {
@@ -36,10 +35,6 @@ export const ActiveOrderClaimSection = ({
         toast.error(error.message)
       },
     })
-  }
-
-  if (!claimId) {
-    return
   }
 
   return (

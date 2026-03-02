@@ -18,12 +18,10 @@ import {
   getOrderFulfillmentStatus,
   getOrderPaymentStatus,
 } from "../../../../../lib/order-helpers"
+import { useOrderDetailContext } from "../../context"
 
-type OrderGeneralSectionProps = {
-  order: HttpTypes.AdminOrder
-}
-
-export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
+export const OrderGeneralSection = () => {
+  const { order } = useOrderDetailContext()
   const { t } = useTranslation()
   const prompt = usePrompt()
   const { getFullDate } = useDate()
