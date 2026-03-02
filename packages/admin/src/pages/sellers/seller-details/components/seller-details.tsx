@@ -1,9 +1,10 @@
 import { useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../../components/layout/pages"
+import { TwoColumnPage } from "../../../../components/layout/pages"
 import { useSeller } from "@/hooks/api"
 import { SellerGeneralSection } from "./seller-general-section"
+import { SellerAddressSection } from "./seller-address-section"
 import { SellerOrderSection } from "./seller-order-section"
 import { SellerProductSection } from "./seller-product-section"
 
@@ -21,15 +22,20 @@ export const SellerDetails = () => {
   }
 
   return (
-    <SingleColumnPage
+    <TwoColumnPage
       data={seller}
       hasOutlet
       showJSON
       showMetadata
     >
-      <SellerGeneralSection seller={seller} />
-      <SellerOrderSection sellerId={seller.id} />
-      <SellerProductSection sellerId={seller.id} />
-    </SingleColumnPage>
+      <TwoColumnPage.Main>
+        <SellerGeneralSection seller={seller} />
+        <SellerOrderSection sellerId={seller.id} />
+        <SellerProductSection sellerId={seller.id} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <SellerAddressSection seller={seller} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }

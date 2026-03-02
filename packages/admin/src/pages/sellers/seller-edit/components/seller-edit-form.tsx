@@ -1,4 +1,4 @@
-import { Button, Heading, Input, toast } from "@medusajs/ui";
+import { Button, Input, toast } from "@medusajs/ui";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -25,12 +25,6 @@ const SellerEditSchema = z.object({
   phone: z.string().optional(),
   logo: z.string().optional(),
   cover_image: z.string().optional(),
-  address_1: z.string().optional(),
-  address_2: z.string().optional(),
-  city: z.string().optional(),
-  province: z.string().optional(),
-  country_code: z.string().optional(),
-  postal_code: z.string().optional(),
 });
 
 export const SellerEditForm = ({ seller }: SellerEditFormProps) => {
@@ -45,12 +39,6 @@ export const SellerEditForm = ({ seller }: SellerEditFormProps) => {
       phone: seller?.phone || undefined,
       logo: seller?.logo || undefined,
       cover_image: seller?.cover_image || undefined,
-      address_1: seller?.address_1 || undefined,
-      address_2: seller?.address_2 || undefined,
-      city: seller?.city || undefined,
-      province: seller?.province || undefined,
-      country_code: seller?.country_code || undefined,
-      postal_code: seller?.postal_code || undefined,
     },
     resolver: zodResolver(SellerEditSchema),
   });
@@ -281,185 +269,6 @@ export const SellerEditForm = ({ seller }: SellerEditFormProps) => {
               }}
             />
 
-            <div
-              className="mt-4"
-              data-testid="seller-edit-form-address-section"
-            >
-              <Heading
-                level="h3"
-                className="mb-4"
-                data-testid="seller-edit-form-address-heading"
-              >
-                {t("sellers.fields.address")}
-              </Heading>
-
-              <div
-                className="flex flex-col gap-y-4"
-                data-testid="seller-edit-form-address-fields"
-              >
-                <Form.Field
-                  control={form.control}
-                  name="address_1"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item data-testid="seller-edit-form-address-1-item">
-                        <Form.Label
-                          optional
-                          data-testid="seller-edit-form-address-1-label"
-                        >
-                          {t("sellers.fields.address_1")}
-                        </Form.Label>
-
-                        <Form.Control data-testid="seller-edit-form-address-1-control">
-                          <Input
-                            placeholder={t("sellers.fields.address_1")}
-                            {...field}
-                            data-testid="seller-edit-form-address-1-input"
-                          />
-                        </Form.Control>
-
-                        <Form.ErrorMessage data-testid="seller-edit-form-address-1-error" />
-                      </Form.Item>
-                    );
-                  }}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="address_2"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item data-testid="seller-edit-form-address-2-item">
-                        <Form.Label
-                          optional
-                          data-testid="seller-edit-form-address-2-label"
-                        >
-                          {t("sellers.fields.address_2")}
-                        </Form.Label>
-
-                        <Form.Control data-testid="seller-edit-form-address-2-control">
-                          <Input
-                            placeholder={t("sellers.fields.address_2")}
-                            {...field}
-                            data-testid="seller-edit-form-address-2-input"
-                          />
-                        </Form.Control>
-
-                        <Form.ErrorMessage data-testid="seller-edit-form-address-2-error" />
-                      </Form.Item>
-                    );
-                  }}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="postal_code"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item data-testid="seller-edit-form-postal-code-item">
-                        <Form.Label
-                          optional
-                          data-testid="seller-edit-form-postal-code-label"
-                        >
-                          {t("sellers.fields.postal_code")}
-                        </Form.Label>
-
-                        <Form.Control data-testid="seller-edit-form-postal-code-control">
-                          <Input
-                            placeholder={t("sellers.fields.postal_code")}
-                            {...field}
-                            data-testid="seller-edit-form-postal-code-input"
-                          />
-                        </Form.Control>
-
-                        <Form.ErrorMessage data-testid="seller-edit-form-postal-code-error" />
-                      </Form.Item>
-                    );
-                  }}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item data-testid="seller-edit-form-city-item">
-                        <Form.Label
-                          optional
-                          data-testid="seller-edit-form-city-label"
-                        >
-                          {t("sellers.fields.city")}
-                        </Form.Label>
-
-                        <Form.Control data-testid="seller-edit-form-city-control">
-                          <Input
-                            placeholder={t("sellers.fields.city")}
-                            {...field}
-                            data-testid="seller-edit-form-city-input"
-                          />
-                        </Form.Control>
-
-                        <Form.ErrorMessage data-testid="seller-edit-form-city-error" />
-                      </Form.Item>
-                    );
-                  }}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="province"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item data-testid="seller-edit-form-province-item">
-                        <Form.Label
-                          optional
-                          data-testid="seller-edit-form-province-label"
-                        >
-                          {t("sellers.fields.province")}
-                        </Form.Label>
-
-                        <Form.Control data-testid="seller-edit-form-province-control">
-                          <Input
-                            placeholder={t("sellers.fields.province")}
-                            {...field}
-                            data-testid="seller-edit-form-province-input"
-                          />
-                        </Form.Control>
-
-                        <Form.ErrorMessage data-testid="seller-edit-form-province-error" />
-                      </Form.Item>
-                    );
-                  }}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="country_code"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item data-testid="seller-edit-form-country-code-item">
-                        <Form.Label
-                          optional
-                          data-testid="seller-edit-form-country-code-label"
-                        >
-                          {t("sellers.fields.country_code")}
-                        </Form.Label>
-
-                        <Form.Control data-testid="seller-edit-form-country-code-control">
-                          <Input
-                            placeholder={t("sellers.fields.country_code")}
-                            {...field}
-                            data-testid="seller-edit-form-country-code-input"
-                          />
-                        </Form.Control>
-
-                        <Form.ErrorMessage data-testid="seller-edit-form-country-code-error" />
-                      </Form.Item>
-                    );
-                  }}
-                />
-              </div>
-            </div>
           </div>
         </RouteDrawer.Body>
 

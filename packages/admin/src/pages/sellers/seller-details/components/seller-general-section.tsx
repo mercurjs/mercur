@@ -182,54 +182,6 @@ export const SellerGeneralSection = ({
           {seller.phone || "-"}
         </Text>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("sellers.fields.address_1")}
-        </Text>
-        <Text size="small" leading="compact">
-          {seller.address_1 || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("sellers.fields.address_2")}
-        </Text>
-        <Text size="small" leading="compact">
-          {seller.address_2 || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("sellers.fields.city")}
-        </Text>
-        <Text size="small" leading="compact">
-          {seller.city || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("sellers.fields.province")}
-        </Text>
-        <Text size="small" leading="compact">
-          {seller.province || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("sellers.fields.postal_code")}
-        </Text>
-        <Text size="small" leading="compact">
-          {seller.postal_code || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("sellers.fields.country_code")}
-        </Text>
-        <Text size="small" leading="compact">
-          {seller.country_code || "-"}
-        </Text>
-      </div>
     </Container>
   )
 }

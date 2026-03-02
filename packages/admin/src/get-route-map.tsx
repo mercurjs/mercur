@@ -768,6 +768,11 @@ export function getRouteMap({
                         path: "edit",
                         lazy: () => import("./pages/sellers/seller-edit"),
                       },
+                      {
+                        path: "edit-address",
+                        lazy: () =>
+                          import("./pages/sellers/seller-address-edit"),
+                      },
                     ],
                   },
                 ],
