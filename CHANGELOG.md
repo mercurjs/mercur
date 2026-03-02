@@ -9,69 +9,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Release 1.5.4
 
+#### Storefront
+
+https://github.com/mercurjs/b2c-marketplace-storefront
+
+- Fixed password reset functionality not working correctly
+- Corrected UI issues in the "Set new password" modal
+- Fixed incorrect validation section displayed during account creation
+- Corrected wrong shop name and redirection link in welcome email
+- Added expiration date for password reset links to improve security
+
 #### Admin Panel
 
 https://github.com/mercurjs/admin-panel
 
-**New Features**
-
-- **Collection/Category Media Management** (#643)
-  - Added support for media attachments in collections and categories
-  - Added category/collection details endpoints and UI
-- Added Mercur Connect (#303) (#131)
-
-**Bug Fixes**
-
-- Fixed return of category details (#751)
-- Fixed collection/category media routes (#736)
-- Fixed collection details ID check (#738)
-- Fixed not user-friendly message during refund action (#142)
-- Fixed OAS in GET /admin/requests (#709)
+- Fixed missing method names in Financial Breakdown on Order Details view
+- Fixed missing Company ID and Company name in Customer section
+- Improved user-facing error message during the "Refund" action to make it clearer and more user-friendly
 
 #### Vendor Panel
 
 https://github.com/mercurjs/vendor-panel
 
-**New Features**
+- Fixed error during creation of Pickup/Shipping options
+- Fixed issue where Shipping option could throw an error
+- Prevented required product attributes from being saved as empty
+- Fixed incorrect number of products displayed in collections
+- Added support for profile picture upload/editing (new endpoint + logic)
 
-- **Collection/Category Media Management** (#643)
-  - Added support for media attachments in vendor collections and categories
-- Added Mercur Connect (#303)
+#### Other / Backend / Platform
 
-**Bug Fixes**
+**Security & Auth**
 
-- Fixed shipping option throwing error on edit (#310)
-- Fixed product collections endpoint to return only vendor products (#715)
-- Fixed vendor stock location authorization (#717)
-- Fixed missing attributes check in productsUpdatedHandler (#743)
+- Fixed login endpoint returning 200 status code on incorrect credentials
+- Added custom authentication provider (extended email/password support)
+- Added new endpoint for account deletion
 
-#### Storefront
+**Infrastructure & Dev**
 
-https://github.com/mercurjs/b2c-marketplace-storefront
-
-**New Features**
-
-- **Order Transfer Notifications** (#705)
-  - Implemented email notification for customers when order transfer request is created
-
-**Bug Fixes**
-
-- Fixed TalkJS Session Initialization issue - Inbox component staying in "Loading" state (#313)
-- Fixed the look of set new password modals (#308)
-- Fixed login returning 200 status code when credentials are incorrect (#305)
-- Fixed wrong validation section when creating an account (#306)
-- Fixed error when getting non-existent wishlist (#708)
-
-#### Other / Technical
-
-**New Features**
-
-- **Password Reset Expiration** (#722)
-  - Added expiration date to reset password links
-
-**Bug Fixes & Improvements**
-
-- Updated README with correct Postgres and Git CLI URLs (#657)
+- Development environment improvements
+- Fixes related to GitHub issues:
+  - issue #592 - fixed
+  - issue #612 - fixed
+  - issue #615 - fixed
+  - issue #672 - fixed
 
 ## [1.5.3] - 2026-02-17
 
