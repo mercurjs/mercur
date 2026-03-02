@@ -1,10 +1,26 @@
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { PriceListListTable } from "./components/price-list-list-table"
+import { Children, ReactNode } from "react"
 
-export const PriceListList = () => {
+import { SingleColumnPage } from "../../../components/layout/pages"
+import {
+  PriceListListTable,
+  PriceListListDataTable,
+  PriceListListHeader,
+  PriceListListActions,
+  PriceListListTitle,
+} from "./components/price-list-list-table"
+
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      <PriceListListTable />
+      {Children.count(children) > 0 ? children : <PriceListListTable />}
     </SingleColumnPage>
   )
 }
+
+export const PriceListList = Object.assign(Root, {
+  Table: PriceListListTable,
+  Header: PriceListListHeader,
+  HeaderTitle: PriceListListTitle,
+  HeaderActions: PriceListListActions,
+  DataTable: PriceListListDataTable,
+})
