@@ -35,6 +35,29 @@ export const useOrderGroup = (
   return { ...data, ...rest }
 }
 
+export const useOrderGroupByOrderId = (
+  orderId: string,
+  query?: Record<string, any>,
+  options?: Omit<
+    UseQueryOptions<
+      InferClientOutput<typeof sdk.admin.orders.$id.orderGroup.query>,
+      ClientError,
+      InferClientOutput<typeof sdk.admin.orders.$id.orderGroup.query>,
+      QueryKey
+    >,
+    "queryKey" | "queryFn"
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      sdk.admin.orders.$id.orderGroup.query({ $id: orderId, ...query }),
+    queryKey: orderGroupsQueryKeys.detail(`order-${orderId}`),
+    ...options,
+  })
+
+  return { ...data, ...rest }
+}
+
 export const useOrderGroups = (
   query?: InferClientInput<typeof sdk.admin.orderGroups.query>,
   options?: Omit<

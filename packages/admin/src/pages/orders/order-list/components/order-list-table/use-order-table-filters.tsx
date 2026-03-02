@@ -1,21 +1,19 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { createDataTableFilterHelper } from "@medusajs/ui"
-import { HttpTypes } from "@medusajs/types"
-import { useDataTableDateFilters } from "../../../../../components/data-table/helpers/general/use-data-table-date-filters"
-import { useRegions } from "../../../../../hooks/api/regions"
-import { useSalesChannels } from "../../../../../hooks/api/sales-channels"
+import { Filter } from "@components/table/data-table/data-table-filter"
+import { useSalesChannels } from "@hooks/api/sales-channels"
+import { useCustomers } from "@hooks/api/customers"
+import { useSellers } from "@hooks/api/sellers"
 
-const filterHelper = createDataTableFilterHelper<HttpTypes.AdminOrder>()
-
-/**
- * Hook to create filters in the format expected by @medusajs/ui DataTable
- */
-export const useOrderTableFilters = () => {
+export const useOrderGroupTableFilters = () => {
   const { t } = useTranslation()
-  const dateFilters = useDataTableDateFilters()
 
-  const { regions } = useRegions({
+  const { customers } = useCustomers({
+    limit: 1000,
+    fields: "id,first_name,last_name,email",
+  })
+
+  const { sellers } = useSellers({
     limit: 1000,
     fields: "id,name",
   })
@@ -26,37 +24,77 @@ export const useOrderTableFilters = () => {
   })
 
   return useMemo(() => {
-    const filters = [...dateFilters]
+    const filters: Filter[] = []
 
-    if (regions?.length) {
-      filters.push(
-        filterHelper.accessor("region_id", {
-          label: t("fields.region"),
-          type: "multiselect",
-          options: regions.map((r) => ({
-            label: r.name,
-            value: r.id,
-          })),
-        })
-      )
+    if (customers?.length) {
+      filters.push({
+        key: "customer_id",
+        label: t("fields.customer"),
+        type: "select",
+        multiple: true,
+        searchable: true,
+        options: customers.map((c) => ({
+          label:
+            [c.first_name, c.last_name].filter(Boolean).join(" ") || c.email,
+          value: c.id,
+        })),
+      })
+    }
+
+    if (sellers?.length) {
+      filters.push({
+        key: "seller_id",
+        label: "Seller",
+        type: "select",
+        multiple: true,
+        searchable: true,
+        options: sellers.map((s: any) => ({
+          label: s.name,
+          value: s.id,
+        })),
+      })
     }
 
     if (sales_channels?.length) {
-      filters.push(
-        filterHelper.accessor("sales_channel_id", {
-          label: t("fields.salesChannel"),
-          type: "multiselect",
-          options: sales_channels.map((s) => ({
-            label: s.name,
-            value: s.id,
-          })),
-        })
-      )
+      filters.push({
+        key: "sales_channel_id",
+        label: t("fields.salesChannel"),
+        type: "select",
+        multiple: true,
+        searchable: true,
+        options: sales_channels.map((s) => ({
+          label: s.name,
+          value: s.id,
+        })),
+      })
     }
 
-    // TODO: Add payment and fulfillment status filters when they are properly linked to orders
-    // Note: These filters are commented out in the legacy implementation as well
+    filters.push({
+      key: "status",
+      label: t("fields.status"),
+      type: "select",
+      multiple: true,
+      options: [
+        { label: "Pending", value: "pending" },
+        { label: "Completed", value: "completed" },
+        { label: "Canceled", value: "canceled" },
+        { label: "Requires action", value: "requires_action" },
+      ],
+    })
+
+    filters.push(
+      {
+        key: "created_at",
+        label: t("fields.createdAt"),
+        type: "date",
+      },
+      {
+        key: "updated_at",
+        label: t("fields.updatedAt"),
+        type: "date",
+      }
+    )
 
     return filters
-  }, [regions, sales_channels, dateFilters, t])
+  }, [customers, sellers, sales_channels, t])
 }

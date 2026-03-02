@@ -1,118 +1,141 @@
+import { HttpTypes } from "@medusajs/types"
+import { Container, Heading } from "@medusajs/ui"
+import { createColumnHelper } from "@tanstack/react-table"
+import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+import { useParams } from "react-router-dom"
+
+import { _DataTable } from "@components/table/data-table"
 import {
-  Badge,
-  Button,
-  Container,
-  Heading,
-  StatusBadge,
-  Text,
-} from "@medusajs/ui";
-import { useNavigate, useParams } from "react-router-dom";
-import { HttpTypes } from "@mercurjs/types";
+  DateCell,
+  DateHeader,
+} from "@components/table/table-cells/common/date-cell"
 import {
-  getCanceledOrderStatus,
-  getOrderPaymentStatus,
-} from "@/lib/order-helpers";
-import { useTranslation } from "react-i18next";
-import { useOrderGroup } from "@/hooks/api";
+  TextCell,
+  TextHeader,
+} from "@components/table/table-cells/common/text-cell"
+import {
+  DisplayIdCell,
+  DisplayIdHeader,
+} from "@components/table/table-cells/order/display-id-cell"
+import {
+  FulfillmentStatusCell,
+  FulfillmentStatusHeader,
+} from "@components/table/table-cells/order/fulfillment-status-cell"
+import {
+  PaymentStatusCell,
+  PaymentStatusHeader,
+} from "@components/table/table-cells/order/payment-status-cell"
+import {
+  TotalCell,
+  TotalHeader,
+} from "@components/table/table-cells/order/total-cell"
+import { useOrderGroupByOrderId } from "@hooks/api/order-groups"
+import { useDataTable } from "@hooks/use-data-table"
 
-const OrderBadge = ({ order }: { order: HttpTypes.AdminOrder }) => {
-  const { t } = useTranslation();
-  const orderStatus = getCanceledOrderStatus(t, order.status);
-
-  if (!orderStatus) {
-    return null;
-  }
-
-  return (
-    <StatusBadge color={orderStatus.color} className="text-nowrap">
-      {orderStatus.label}
-    </StatusBadge>
-  );
-};
-
-const PaymentBadge = ({ order }: { order: HttpTypes.AdminOrder }) => {
-  const { t } = useTranslation();
-
-  const { label, color } = getOrderPaymentStatus(t, order.payment_status);
-
-  return (
-    <StatusBadge color={color} className="text-nowrap">
-      {label}
-    </StatusBadge>
-  );
-};
+const DEFAULT_FIELDS =
+  "id,*orders,*orders.customer,*orders.seller,*orders.sales_channel"
 
 export const OrderRemainingOrdersGroupSection = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id } = useParams()
+  const { t } = useTranslation()
 
-  const { order_group, isLoading } = useOrderGroup(id!);
+  const { order_group, isLoading, isError, error } = useOrderGroupByOrderId(
+    id!,
+    { fields: DEFAULT_FIELDS }
+  )
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  const orders = useMemo(() => {
+    const group = order_group as any
+    if (!group?.orders) return []
+    return group.orders.filter((o: any) => o.id !== id)
+  }, [order_group, id])
+
+  const columns = useColumns()
+
+  const { table } = useDataTable({
+    data: orders as HttpTypes.AdminOrder[],
+    columns,
+    count: orders.length,
+    enablePagination: false,
+    getRowId: (row) => row.id,
+  })
+
+  if (isError) {
+    throw error
   }
 
-  const { orders } = order_group || {};
+  if (!isLoading && orders.length === 0) {
+    return null
+  }
 
   return (
-    <Container data-testid="order-remaining-orders-group-section">
-      <Heading
-        level="h2"
-        className="text-lg font-medium"
-        data-testid="order-remaining-orders-group-heading"
+    <Container
+      className="divide-y p-0"
+      data-testid="order-remaining-orders-group-section"
+    >
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="order-remaining-orders-group-header"
       >
-        Remaining orders group
-      </Heading>
-      <div data-testid="order-remaining-orders-group-list">
-        {orders?.map((order: any) => {
-          const items =
-            order.items.length > 1
-              ? `${order.items[0].subtitle} + ${order.items.length - 1} more`
-              : order.items[0].subtitle;
-          return (
-            <Button
-              variant="secondary"
-              key={order.id}
-              className="cursor-pointer w-full flex text-left mt-4"
-              onClick={() => {
-                navigate(`/orders/${order.id}`);
-              }}
-              data-testid={`order-remaining-orders-group-item-${order.id}`}
-            >
-              <div className="w-full relative">
-                <div className="flex items-center justify-between gap-2">
-                  <Heading
-                    level="h3"
-                    className="text-md font-medium w-1/3 truncate"
-                    data-testid={`order-remaining-orders-group-item-${order.id}-heading`}
-                  >
-                    #{order.display_id}
-                  </Heading>
-                  <div
-                    className="flex w-2/3"
-                    data-testid={`order-remaining-orders-group-item-${order.id}-badges`}
-                  >
-                    <Badge className="scale-75 -mr-8">
-                      <span className="text-xs mr-2">Payment</span>
-                      <PaymentBadge order={order} />
-                    </Badge>
-                    <Badge className="scale-75 -mr-4">
-                      <span className="text-xs mr-2">Order</span>
-                      <OrderBadge order={order} />
-                    </Badge>
-                  </div>
-                </div>
-                <Text
-                  className="truncate"
-                  data-testid={`order-remaining-orders-group-item-${order.id}-items`}
-                >
-                  {items}
-                </Text>
-              </div>
-            </Button>
-          );
-        })}
+        <Heading level="h2" data-testid="order-remaining-orders-group-heading">
+          {t("orders.domain")} in group
+        </Heading>
       </div>
+      <_DataTable
+        columns={columns}
+        table={table}
+        navigateTo={(row) => `/orders/${row.original.id}`}
+        count={orders.length}
+        isLoading={isLoading}
+        pageSize={orders.length}
+        noRecords={{
+          message: "No other orders in this group",
+        }}
+      />
     </Container>
-  );
-};
+  )
+}
+
+const columnHelper = createColumnHelper<HttpTypes.AdminOrder>()
+
+const useColumns = () => {
+  return useMemo(
+    () => [
+      columnHelper.accessor("display_id", {
+        header: () => <DisplayIdHeader />,
+        cell: ({ getValue }) => <DisplayIdCell displayId={getValue()!} />,
+      }),
+      columnHelper.display({
+        id: "seller",
+        header: () => <TextHeader text="Seller" />,
+        cell: ({ row }) => {
+          const seller = (row.original as any).seller
+          return <TextCell text={seller?.name ?? "-"} />
+        },
+      }),
+      columnHelper.accessor("created_at", {
+        header: () => <DateHeader />,
+        cell: ({ getValue }) => <DateCell date={new Date(getValue())} />,
+      }),
+      columnHelper.accessor("payment_status", {
+        header: () => <PaymentStatusHeader />,
+        cell: ({ getValue }) => <PaymentStatusCell status={getValue()} />,
+      }),
+      columnHelper.accessor("fulfillment_status", {
+        header: () => <FulfillmentStatusHeader />,
+        cell: ({ getValue }) => <FulfillmentStatusCell status={getValue()} />,
+      }),
+      columnHelper.accessor("total", {
+        header: () => <TotalHeader />,
+        cell: ({ getValue, row }) => (
+          <TotalCell
+            currencyCode={row.original.currency_code}
+            total={getValue()}
+          />
+        ),
+      }),
+    ],
+    []
+  )
+}

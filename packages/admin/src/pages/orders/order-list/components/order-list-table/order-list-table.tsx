@@ -28,16 +28,18 @@ import {
 import { getStylizedAmount } from "@lib/money-amount-helpers";
 
 import { DEFAULT_FIELDS } from "../../const";
+import { useOrderGroupTableFilters } from "./use-order-table-filters";
 
 const PAGE_SIZE = 20;
 
-type OrderGroupRow = {
+export type OrderGroupRow = {
   _type: "group" | "order";
   id: string;
   display_id: string;
   order_ids: string;
   vendor: string;
   created_at: Date;
+  updated_at: Date;
   customer_name: string;
   payment_status: string | null;
   fulfillment_status: string | null;
@@ -71,6 +73,7 @@ function transformOrderGroups(orderGroups: any[]): OrderGroupRow[] {
         order_ids: "",
         vendor: order.seller?.name ?? "-",
         created_at: new Date(order.created_at),
+        updated_at: new Date(order.updated_at),
         customer_name: name,
         payment_status: order.payment_status ?? null,
         fulfillment_status: order.fulfillment_status ?? null,
@@ -87,6 +90,7 @@ function transformOrderGroups(orderGroups: any[]): OrderGroupRow[] {
       order_ids: orderIds,
       vendor: `${group.seller_count} vendors`,
       created_at: new Date(group.created_at),
+      updated_at: new Date(group.updated_at),
       customer_name: customerName,
       payment_status: null,
       fulfillment_status: null,
@@ -119,6 +123,7 @@ export const OrderListTable = () => {
     [order_groups],
   );
 
+  const filters = useOrderGroupTableFilters();
   const columns = useColumns();
 
   const { table } = useDataTable({
@@ -154,9 +159,14 @@ export const OrderListTable = () => {
           }
           count={count}
           search
+          filters={filters}
           isLoading={isLoading}
           pageSize={PAGE_SIZE}
-          orderBy={[{ key: "created_at", label: t("fields.createdAt") }]}
+          orderBy={[
+            { key: "display_id", label: "Display ID" },
+            { key: "created_at", label: t("fields.createdAt") },
+            { key: "updated_at", label: t("fields.updatedAt") },
+          ]}
           queryObject={raw}
           noRecords={{
             message: t("orders.list.noRecordsMessage"),

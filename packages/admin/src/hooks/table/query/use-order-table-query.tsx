@@ -9,6 +9,9 @@ type UseOrderTableQueryProps = {
 type ExtendedAdminOrderFilters = HttpTypes.AdminOrderFilters & {
   fulfillment_status?: string[]
   payment_status?: string[]
+  customer_id?: string[]
+  seller_id?: string[]
+  status?: string[]
 }
 
 export const useOrderTableQuery = ({
@@ -23,6 +26,9 @@ export const useOrderTableQuery = ({
       "updated_at",
       "region_id",
       "sales_channel_id",
+      "customer_id",
+      "seller_id",
+      "status",
       "payment_status",
       "fulfillment_status",
       "order",
@@ -33,6 +39,9 @@ export const useOrderTableQuery = ({
   const {
     offset,
     sales_channel_id,
+    customer_id,
+    seller_id,
+    status,
     created_at,
     updated_at,
     fulfillment_status,
@@ -42,10 +51,13 @@ export const useOrderTableQuery = ({
     order,
   } = queryObject
 
-  const searchParams: ExtendedAdminOrderFilters ={
+  const searchParams: ExtendedAdminOrderFilters = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
     sales_channel_id: sales_channel_id?.split(","),
+    customer_id: customer_id?.split(","),
+    seller_id: seller_id?.split(","),
+    status: status?.split(","),
     fulfillment_status: fulfillment_status?.split(","),
     payment_status: payment_status?.split(","),
     created_at: created_at ? JSON.parse(created_at) : undefined,
