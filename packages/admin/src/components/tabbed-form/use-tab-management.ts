@@ -1,10 +1,43 @@
 import { ProgressStatus } from "@medusajs/ui"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { FieldValues, UseFormReturn } from "react-hook-form"
+import { FieldPath, FieldValues, UseFormReturn } from "react-hook-form"
 
 import { TabDefinition } from "./types"
 
 type TabState = Record<string, ProgressStatus>
+
+/**
+ * Validates fields for a specific tab. If the tab declares `validationFields`,
+ * only those fields are validated. Otherwise falls back to full form validation.
+ */
+const validateTab = async <T extends FieldValues>(
+  form: UseFormReturn<T>,
+  tab: TabDefinition<T>
+): Promise<boolean> => {
+  if (tab.validationFields?.length) {
+    return form.trigger(tab.validationFields as FieldPath<T>[])
+  }
+  return form.trigger()
+}
+
+/**
+ * Validates all tabs from `fromIndex` to `toIndex` (inclusive) sequentially.
+ * Returns false on the first tab that fails validation.
+ */
+const validateTabRange = async <T extends FieldValues>(
+  form: UseFormReturn<T>,
+  tabs: TabDefinition<T>[],
+  fromIndex: number,
+  toIndex: number
+): Promise<boolean> => {
+
+  for (let i = fromIndex; i <= toIndex; i++) {
+    if (!(await validateTab(form, tabs[i]))) {
+      return false
+    }
+  }
+  return true
+}
 
 export const useTabManagement = <T extends FieldValues>({
   tabs,
@@ -31,13 +64,23 @@ export const useTabManagement = <T extends FieldValues>({
   })
 
   useEffect(() => {
+    let resolvedActiveId = activeTabId
+    const activeExists = visibleTabs.some((t) => t.id === activeTabId)
+
+    if (!activeExists && visibleTabs.length > 0) {
+      resolvedActiveId = visibleTabs[0].id
+      setActiveTabId(resolvedActiveId)
+    }
+
     const newState: TabState = {}
-    const activeIndex = visibleTabs.findIndex((t) => t.id === activeTabId)
+    const resolvedIndex = visibleTabs.findIndex(
+      (t) => t.id === resolvedActiveId
+    )
 
     visibleTabs.forEach((t, i) => {
-      if (i < activeIndex) {
+      if (i < resolvedIndex) {
         newState[t.id] = "completed"
-      } else if (i === activeIndex) {
+      } else if (i === resolvedIndex) {
         newState[t.id] = "in-progress"
       } else {
         newState[t.id] = tabState[t.id] ?? "not-started"
@@ -52,11 +95,11 @@ export const useTabManagement = <T extends FieldValues>({
   const isLastTab = activeIndex === visibleTabs.length - 1
 
   const onNext = useCallback(async () => {
-    const valid = await form.trigger()
+    const currentTab = visibleTabs[activeIndex]
+    if (!currentTab) return
 
-    if (!valid) {
-      return
-    }
+    const valid = await validateTab(form, currentTab)
+    if (!valid) return
 
     if (activeIndex < visibleTabs.length - 1) {
       setActiveTabId(visibleTabs[activeIndex + 1].id)
@@ -65,15 +108,34 @@ export const useTabManagement = <T extends FieldValues>({
 
   const onTabChange = useCallback(
     async (tabId: string) => {
-      const valid = await form.trigger()
+      const targetIndex = visibleTabs.findIndex((t) => t.id === tabId)
+      if (targetIndex === -1) return
 
-      if (!valid) {
+      const currentIndex = visibleTabs.findIndex(
+        (t) => t.id === activeTabId
+      )
+
+      if (currentIndex === -1) {
+        setActiveTabId(tabId)
         return
       }
 
+      if (targetIndex <= currentIndex) {
+        setActiveTabId(tabId)
+        return
+      }
+
+      const valid = await validateTabRange(
+        form,
+        visibleTabs,
+        currentIndex,
+        targetIndex - 1
+      )
+      if (!valid) return
+
       setActiveTabId(tabId)
     },
-    [form]
+    [form, visibleTabs, activeTabId]
   )
 
   return {

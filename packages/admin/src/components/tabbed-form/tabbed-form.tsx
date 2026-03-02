@@ -36,10 +36,28 @@ function resolveTabMeta<T extends FieldValues>(
     return null
   }
 
+  const id = child.props?.id ?? meta?.id ?? ""
+  const labelKey = meta?.labelKey ?? ""
+  const label = child.props?.label
+
+  if (process.env.NODE_ENV !== "production") {
+    if (!id) {
+      console.warn(
+        "[TabbedForm] A child component is missing a tab id. " +
+          "Either set _tabMeta.id or pass an id prop."
+      )
+    }
+    if (!labelKey && !label) {
+      console.warn(
+        `[TabbedForm] Tab "${id}" has no label or labelKey — header will be empty.`
+      )
+    }
+  }
+
   return {
-    id: child.props?.id ?? meta?.id ?? "",
-    labelKey: meta?.labelKey ?? "",
-    label: child.props?.label,
+    id,
+    labelKey,
+    label,
     validationFields: child.props?.validationFields ?? meta?.validationFields,
     isVisible: child.props?.isVisible ?? meta?.isVisible,
   }
@@ -135,6 +153,10 @@ function Root<T extends FieldValues>({
               e.preventDefault()
 
               if (e.metaKey || e.ctrlKey) {
+                if (isLoading) {
+                  return
+                }
+
                 if (!isLastTab) {
                   e.preventDefault()
                   e.stopPropagation()

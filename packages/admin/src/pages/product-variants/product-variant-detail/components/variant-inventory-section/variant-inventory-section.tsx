@@ -17,6 +17,29 @@ type VariantInventorySectionProps = {
   inventoryItems: HttpTypes.AdminInventoryItem[]
 }
 
+/**
+ * Wrapper that handles manage_inventory gating and inventory_items mapping.
+ */
+export function VariantInventorySectionConnected({
+  variant,
+}: {
+  variant: HttpTypes.AdminProductVariant;
+}) {
+
+  if (!variant.manage_inventory) {
+    return <InventorySectionPlaceholder />
+  }
+
+  const inventoryItems =
+    variant.inventory_items?.map((i) => ({
+      ...i.inventory,
+      required_quantity: i.required_quantity,
+      variant,
+    })) ?? []
+
+  return <VariantInventorySection inventoryItems={inventoryItems as HttpTypes.AdminInventoryItem[]} />
+}
+
 export function VariantInventorySection({
   inventoryItems,
 }: VariantInventorySectionProps) {

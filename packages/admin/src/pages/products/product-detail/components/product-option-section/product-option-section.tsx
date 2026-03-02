@@ -7,14 +7,14 @@ import { useDeleteProductOption } from "../../../../../hooks/api/products"
 import { HttpTypes } from "@medusajs/types"
 
 const OptionActions = ({
-  product,
+  productId,
   option,
 }: {
-  product: HttpTypes.AdminProduct
+  productId: string
   option: HttpTypes.AdminProductOption
 }) => {
   const { t } = useTranslation()
-  const { mutateAsync } = useDeleteProductOption(product.id, option.id)
+  const { mutateAsync } = useDeleteProductOption(productId, option.id)
   const prompt = usePrompt()
 
   const handleDelete = async () => {
@@ -61,13 +61,11 @@ const OptionActions = ({
   )
 }
 
-type ProductOptionSectionProps = {
-  product: HttpTypes.AdminProduct
-}
-
 export const ProductOptionSection = ({
   product,
-}: ProductOptionSectionProps) => {
+}: {
+  product: HttpTypes.AdminProduct;
+}) => {
   const { t } = useTranslation()
 
   return (
@@ -107,7 +105,7 @@ export const ProductOptionSection = ({
                 </Badge>
               )
             })}
-            actions={<OptionActions product={product} option={option} />}
+            actions={<OptionActions productId={product.id} option={option} />}
             data-testid={`product-option-row-${option.id}`}
           />
         )

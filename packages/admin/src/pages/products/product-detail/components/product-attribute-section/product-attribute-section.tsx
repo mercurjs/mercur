@@ -1,18 +1,16 @@
 import { PencilSquare } from "@medusajs/icons";
-import { HttpTypes } from "@medusajs/types";
 import { Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
+import { HttpTypes } from "@medusajs/types";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { SectionRow } from "../../../../../components/common/section";
 import { getFormattedCountry } from "../../../../../lib/addresses";
 
-type ProductAttributeSectionProps = {
-  product: HttpTypes.AdminProduct;
-};
-
 export const ProductAttributeSection = ({
   product,
-}: ProductAttributeSectionProps) => {
+}: {
+  product: HttpTypes.AdminProduct;
+}) => {
   const { t } = useTranslation();
 
   return (

@@ -1,10 +1,10 @@
 import { PencilSquare, Trash } from "@medusajs/icons";
-import { HttpTypes } from "@medusajs/types";
 import { Container, Heading, StatusBadge, usePrompt } from "@medusajs/ui";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { HttpTypes } from "@medusajs/types";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { SectionRow } from "../../../../../components/common/section";
 import { useDeleteProduct } from "../../../../../hooks/api/products";
@@ -24,13 +24,11 @@ const productStatusColor = (status: string) => {
   }
 };
 
-type ProductGeneralSectionProps = {
-  product: HttpTypes.AdminProduct;
-};
-
 export const ProductGeneralSection = ({
   product,
-}: ProductGeneralSectionProps) => {
+}: {
+  product: HttpTypes.AdminProduct;
+}) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
   const navigate = useNavigate();

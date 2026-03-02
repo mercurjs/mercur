@@ -1,23 +1,23 @@
 import { Component, PencilSquare, Trash } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
 import { Badge, Container, Heading, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { HttpTypes } from "@medusajs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section"
 import { useDeleteVariant } from "../../../../../hooks/api/products"
 
-type VariantGeneralSectionProps = {
-  variant: HttpTypes.AdminProductVariant
-}
-
-export function VariantGeneralSection({ variant }: VariantGeneralSectionProps) {
+export function VariantGeneralSection({
+  variant,
+}: {
+  variant: HttpTypes.AdminProductVariant;
+}) {
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()
 
-  const hasInventoryKit = variant.inventory?.length > 1
+  const hasInventoryKit = (variant.inventory_items?.length ?? 0) > 1
 
   const { mutateAsync } = useDeleteVariant(variant.product_id!, variant.id)
 
