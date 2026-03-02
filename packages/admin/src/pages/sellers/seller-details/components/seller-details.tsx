@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react"
 import { useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../../components/common/skeleton"
@@ -8,7 +9,7 @@ import { SellerAddressSection } from "./seller-address-section"
 import { SellerOrderSection } from "./seller-order-section"
 import { SellerProductSection } from "./seller-product-section"
 
-export const SellerDetails = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
 
   const { seller, isLoading, isError, error } = useSeller(id!)
@@ -22,20 +23,30 @@ export const SellerDetails = () => {
   }
 
   return (
-    <TwoColumnPage
-      data={seller}
-      hasOutlet
-      showJSON
-      showMetadata
-    >
-      <TwoColumnPage.Main>
-        <SellerGeneralSection seller={seller} />
-        <SellerOrderSection sellerId={seller.id} />
-        <SellerProductSection sellerId={seller.id} />
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <SellerAddressSection seller={seller} />
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+    <>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <TwoColumnPage data={seller} hasOutlet showJSON showMetadata>
+          <TwoColumnPage.Main>
+            <SellerGeneralSection seller={seller} />
+            <SellerOrderSection sellerId={seller.id} />
+            <SellerProductSection sellerId={seller.id} />
+          </TwoColumnPage.Main>
+          <TwoColumnPage.Sidebar>
+            <SellerAddressSection seller={seller} />
+          </TwoColumnPage.Sidebar>
+        </TwoColumnPage>
+      )}
+    </>
   )
 }
+
+export const SellerDetails = Object.assign(Root, {
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  MainGeneralSection: SellerGeneralSection,
+  MainOrderSection: SellerOrderSection,
+  MainProductSection: SellerProductSection,
+  SidebarAddressSection: SellerAddressSection,
+})
