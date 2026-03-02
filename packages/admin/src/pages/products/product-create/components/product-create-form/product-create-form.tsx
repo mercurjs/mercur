@@ -173,14 +173,17 @@ export const ProductCreateForm = ({
     [watchedVariants],
   );
 
-  const defaultTabs = (
-    <>
-      <ProductCreateDetailsForm key="details" />
-      <ProductCreateOrganizeForm key="organize" />
-      <ProductCreateVariantsForm key="variants" />
-      <ProductCreateInventoryKitForm key="inventory" />
-    </>
+  const defaultTabs = useMemo(
+    () => [
+      <ProductCreateDetailsForm key="details" />,
+      <ProductCreateOrganizeForm key="organize" />,
+      <ProductCreateVariantsForm key="variants" />,
+      <ProductCreateInventoryKitForm key="inventory" />,
+    ],
+    [],
   );
+
+  const hasCustomChildren = Children.count(children) > 0;
 
   return (
     <TabbedForm
@@ -239,7 +242,7 @@ export const ProductCreateForm = ({
         </div>
       )}
     >
-      {Children.count(children) > 0 ? children : defaultTabs}
+      {hasCustomChildren ? children : defaultTabs}
     </TabbedForm>
   );
 };
