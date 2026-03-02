@@ -3,12 +3,18 @@ import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import * as z from "zod";
 import AvatarBox from "@components/common/logo-box/avatar-box";
 import { Form } from "@components/common/form";
 import { useSignInWithEmailPass } from "@hooks/api";
 import { isFetchError } from "@lib/is-fetch-error";
+import config from "virtual:mercur/config";
 
 const LoginSchema = z.object({
   email: z.string().email(),
@@ -19,11 +25,13 @@ export const Login = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams();
 
-
-  const reason = searchParams.get("reason") || ""
-  const reasonMessage = reason && reason.toLowerCase() === "unauthorized" ? "Session expired" : reason
+  const reason = searchParams.get("reason") || "";
+  const reasonMessage =
+    reason && reason.toLowerCase() === "unauthorized"
+      ? "Session expired"
+      : reason;
   const from = location.state?.from?.pathname || "/orders";
 
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -67,7 +75,8 @@ export const Login = () => {
     );
   });
 
-  const serverError = form.formState.errors?.root?.serverError?.message || reasonMessage;
+  const serverError =
+    form.formState.errors?.root?.serverError?.message || reasonMessage;
   const validationError =
     form.formState.errors.email?.message ||
     form.formState.errors.password?.message;
@@ -86,7 +95,9 @@ export const Login = () => {
           className="mb-4 flex flex-col items-center"
           data-testid="login-header"
         >
-          <Heading data-testid="login-title">{t("login.title")}</Heading>
+          <Heading data-testid="login-title">
+            {t("login.title", { name: config.name ?? "Mercur" })}
+          </Heading>
           <Text
             size="small"
             className="text-center text-ui-fg-subtle"

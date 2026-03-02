@@ -10,7 +10,7 @@ import { Shell } from "../shell";
 import { Header as SellerDropdown } from "../main-layout/main-layout";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
-import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
+import { getMenuItemsByType } from "../../../utils/routes";
 
 export const SettingsLayout = () => {
   const Sidebar = components.SettingsSidebar
