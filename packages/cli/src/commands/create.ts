@@ -226,8 +226,8 @@ export const create = new Command()
         spinner("Starting development server...").info();
 
         const inviteUrl = dbResult.inviteToken
-          ? `http://localhost:9000/app/invite?token=${dbResult.inviteToken}&first_run=true`
-          : "http://localhost:9000/app";
+          ? `http://localhost:7000/app/invite?token=${dbResult.inviteToken}&first_run=true`
+          : "http://localhost:7000/app";
 
         const serverProcess = exec(`${packageManager === "npm" ? "npm run" : packageManager} dev`, {
           cwd: projectDir,
@@ -238,7 +238,7 @@ export const create = new Command()
         serverProcess.stderr?.pipe(process.stderr);
 
         waitOn({
-          resources: ["http://localhost:9000/health"],
+          resources: ["http://localhost:7000/health"],
           timeout: 60000,
         }).then(async () => {
           try {
