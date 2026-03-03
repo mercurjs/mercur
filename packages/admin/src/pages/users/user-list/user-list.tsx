@@ -1,10 +1,26 @@
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { UserListTable } from "./components/user-list-table"
+import { Children, ReactNode } from "react"
 
-export const UserList = () => {
+import { SingleColumnPage } from "../../../components/layout/pages"
+import {
+  UserListTable,
+  UserListDataTable,
+  UserListHeader,
+  UserListActions,
+  UserListTitle,
+} from "./components/user-list-table"
+
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      <UserListTable />
+      {Children.count(children) > 0 ? children : <UserListTable />}
     </SingleColumnPage>
   )
 }
+
+export const UserList = Object.assign(Root, {
+  Table: UserListTable,
+  Header: UserListHeader,
+  HeaderTitle: UserListTitle,
+  HeaderActions: UserListActions,
+  DataTable: UserListDataTable,
+})

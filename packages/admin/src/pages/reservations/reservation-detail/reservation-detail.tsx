@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -9,7 +10,7 @@ import { InventoryItemGeneralSection } from "../../inventory/inventory-detail/co
 import { ReservationGeneralSection } from "./components/reservation-general-section"
 import { reservationItemLoader } from "./loader"
 
-export const ReservationDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
 
   const initialData = useLoaderData() as Awaited<
@@ -47,19 +48,28 @@ export const ReservationDetail = () => {
   }
 
   return (
-    <TwoColumnPage
-      data={reservation}
-      showJSON
-      showMetadata
-    >
-      <TwoColumnPage.Main>
-        <ReservationGeneralSection reservation={reservation} />
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        {inventory_item && (
-          <InventoryItemGeneralSection inventoryItem={inventory_item} />
-        )}
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+    <>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <TwoColumnPage data={reservation} showJSON showMetadata>
+          <TwoColumnPage.Main>
+            <ReservationGeneralSection reservation={reservation} />
+          </TwoColumnPage.Main>
+          <TwoColumnPage.Sidebar>
+            {inventory_item && (
+              <InventoryItemGeneralSection inventoryItem={inventory_item} />
+            )}
+          </TwoColumnPage.Sidebar>
+        </TwoColumnPage>
+      )}
+    </>
   )
 }
+
+export const ReservationDetail = Object.assign(Root, {
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  MainGeneralSection: ReservationGeneralSection,
+  SidebarInventorySection: InventoryItemGeneralSection,
+})

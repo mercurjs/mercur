@@ -1,13 +1,13 @@
+import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
+import { SingleColumnPage } from "../../../components/layout/pages"
 import { useUser } from "../../../hooks/api/users"
 import { UserGeneralSection } from "./components/user-general-section"
 import { userLoader } from "./loader"
 
-import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
-
-export const UserDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof userLoader>>
 
   const { id } = useParams()
@@ -29,12 +29,18 @@ export const UserDetail = () => {
   }
 
   return (
-    <SingleColumnPage
-      data={user}
-      showJSON
-      showMetadata
-    >
-      <UserGeneralSection user={user} />
-    </SingleColumnPage>
+    <>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <SingleColumnPage data={user} showJSON showMetadata>
+          <UserGeneralSection user={user} />
+        </SingleColumnPage>
+      )}
+    </>
   )
 }
+
+export const UserDetail = Object.assign(Root, {
+  GeneralSection: UserGeneralSection,
+})

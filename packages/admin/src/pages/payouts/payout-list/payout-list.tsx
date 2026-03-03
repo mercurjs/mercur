@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react"
 import { Container, Heading } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
@@ -10,7 +11,7 @@ import { useDataTable } from "../../../hooks/use-data-table"
 
 const PAGE_SIZE = 10
 
-export const PayoutList = () => {
+const PayoutListTable = () => {
   const { t } = useTranslation()
 
   const { searchParams, raw } = usePayoutTableQuery({
@@ -64,3 +65,15 @@ export const PayoutList = () => {
     </Container>
   )
 }
+
+const Root = ({ children }: { children?: ReactNode }) => {
+  return (
+    <>
+      {Children.count(children) > 0 ? children : <PayoutListTable />}
+    </>
+  )
+}
+
+export const PayoutList = Object.assign(Root, {
+  Table: PayoutListTable,
+})

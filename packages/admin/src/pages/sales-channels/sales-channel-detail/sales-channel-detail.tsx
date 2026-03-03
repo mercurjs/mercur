@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -7,7 +8,7 @@ import { SalesChannelGeneralSection } from "./components/sales-channel-general-s
 import { SalesChannelProductSection } from "./components/sales-channel-product-section"
 import { salesChannelLoader } from "./loader"
 
-export const SalesChannelDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof salesChannelLoader>
   >
@@ -22,13 +23,20 @@ export const SalesChannelDetail = () => {
   }
 
   return (
-    <SingleColumnPage
-      showJSON
-      showMetadata
-      data={sales_channel}
-    >
-      <SalesChannelGeneralSection salesChannel={sales_channel} />
-      <SalesChannelProductSection salesChannel={sales_channel} />
+    <SingleColumnPage showJSON showMetadata data={sales_channel}>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <SalesChannelGeneralSection salesChannel={sales_channel} />
+          <SalesChannelProductSection salesChannel={sales_channel} />
+        </>
+      )}
     </SingleColumnPage>
   )
 }
+
+export const SalesChannelDetail = Object.assign(Root, {
+  GeneralSection: SalesChannelGeneralSection,
+  ProductSection: SalesChannelProductSection,
+})

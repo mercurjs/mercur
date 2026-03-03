@@ -1,10 +1,16 @@
+import { Children, ReactNode } from "react"
+
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { ReservationListTable } from "./components/reservation-list-table"
 
-export const ReservationList = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      <ReservationListTable />
+      {Children.count(children) > 0 ? children : <ReservationListTable />}
     </SingleColumnPage>
   )
 }
+
+export const ReservationList = Object.assign(Root, {
+  Table: ReservationListTable,
+})

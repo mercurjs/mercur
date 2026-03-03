@@ -1,12 +1,16 @@
+import { Children, ReactNode } from "react"
+
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { CampaignListTable } from "./components/campaign-list-table"
 
-export const CampaignList = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
-    <SingleColumnPage
-      hasOutlet
-    >
-      <CampaignListTable />
+    <SingleColumnPage hasOutlet>
+      {Children.count(children) > 0 ? children : <CampaignListTable />}
     </SingleColumnPage>
   )
 }
+
+export const CampaignList = Object.assign(Root, {
+  Table: CampaignListTable,
+})

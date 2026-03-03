@@ -1,12 +1,18 @@
+import { Children, ReactNode } from "react"
+
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { InventoryListTable } from "./components/inventory-list-table"
 
-export const InventoryItemListTable = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <div data-testid="inventory-page">
       <SingleColumnPage>
-        <InventoryListTable />
+        {Children.count(children) > 0 ? children : <InventoryListTable />}
       </SingleColumnPage>
     </div>
   )
 }
+
+export const InventoryItemListTable = Object.assign(Root, {
+  Table: InventoryListTable,
+})
