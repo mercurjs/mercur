@@ -1,12 +1,18 @@
-import { Children, ReactNode } from "react";
-import { useLoaderData, useParams } from "react-router-dom";
+import { ReactNode } from "react"
+import { useLoaderData, useParams } from "react-router-dom"
 
-import { SingleColumnPageSkeleton } from "../../../components/common/skeleton";
-import { SingleColumnPage } from "../../../components/layout/pages";
-import { useCollection } from "../../../hooks/api/collections";
-import { CollectionGeneralSection } from "./components/collection-general-section";
-import { CollectionProductSection } from "./components/collection-product-section";
-import { collectionLoader } from "./loader";
+import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
+import { SingleColumnPage } from "../../../components/layout/pages"
+import { useCollection } from "../../../hooks/api/collections"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
+import { CollectionGeneralSection } from "./components/collection-general-section"
+import { CollectionProductSection } from "./components/collection-product-section"
+import { collectionLoader } from "./loader"
+
+const ALLOWED_TYPES = [
+  CollectionGeneralSection,
+  CollectionProductSection,
+] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -30,17 +36,15 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <SingleColumnPage showJSON showMetadata data={collection}>
-          <CollectionGeneralSection collection={collection} />
-          <CollectionProductSection collection={collection} />
-        </SingleColumnPage>
-      )}
-    </>
+  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+    <SingleColumnPage showJSON showMetadata data={collection}>
+      {children}
+    </SingleColumnPage>
+  ) : (
+    <SingleColumnPage showJSON showMetadata data={collection}>
+      <CollectionGeneralSection collection={collection} />
+      <CollectionProductSection collection={collection} />
+    </SingleColumnPage>
   );
 };
 

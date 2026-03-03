@@ -1,20 +1,29 @@
-import { Children, ReactNode } from "react"
+import { ReactNode } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { ShippingOptionTypeListTable } from "./components/shipping-option-type-list-table"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
+import {
+  ShippingOptionTypeListView,
+  ShippingOptionTypeListDataTable,
+  ShippingOptionTypeListHeader,
+  ShippingOptionTypeListActions,
+  ShippingOptionTypeListTitle,
+} from "./components/shipping-option-type-list-view"
+
+const ALLOWED_TYPES = [ShippingOptionTypeListView] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <ShippingOptionTypeListTable />
-      )}
+      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <ShippingOptionTypeListView />}
     </SingleColumnPage>
   )
 }
 
-export const ShippingOptionTypeList = Object.assign(Root, {
-  Table: ShippingOptionTypeListTable,
+export const ShippingOptionTypeListPage = Object.assign(Root, {
+  Table: ShippingOptionTypeListView,
+  Header: ShippingOptionTypeListHeader,
+  HeaderTitle: ShippingOptionTypeListTitle,
+  HeaderActions: ShippingOptionTypeListActions,
+  DataTable: ShippingOptionTypeListDataTable,
 })

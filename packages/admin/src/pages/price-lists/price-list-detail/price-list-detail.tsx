@@ -1,12 +1,21 @@
-import { Children, ReactNode } from "react"
+import { ReactNode } from "react"
 import { useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { usePriceList } from "../../../hooks/api/price-lists"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import { PriceListConfigurationSection } from "./components/price-list-configuration-section"
 import { PriceListGeneralSection } from "./components/price-list-general-section"
 import { PriceListProductSection } from "./components/price-list-product-section"
+
+const ALLOWED_TYPES = [
+  TwoColumnPage.Main,
+  TwoColumnPage.Sidebar,
+  PriceListGeneralSection,
+  PriceListProductSection,
+  PriceListConfigurationSection,
+] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
@@ -23,22 +32,20 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={price_list} showJSON>
-          <TwoColumnPage.Main>
-            <PriceListGeneralSection priceList={price_list} />
-            <PriceListProductSection priceList={price_list} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <PriceListConfigurationSection priceList={price_list} />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+    <TwoColumnPage data={price_list} showJSON data-testid="price-list-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage data={price_list} showJSON data-testid="price-list-detail-page">
+      <TwoColumnPage.Main>
+        <PriceListGeneralSection priceList={price_list} />
+        <PriceListProductSection priceList={price_list} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <PriceListConfigurationSection priceList={price_list} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }
 

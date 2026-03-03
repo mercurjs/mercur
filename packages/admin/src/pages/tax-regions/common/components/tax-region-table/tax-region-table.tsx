@@ -22,9 +22,10 @@ type TaxRegionTableProps = {
   queryObject: Record<string, any>;
   count?: number;
   table: Table<HttpTypes.AdminTaxRegion>;
-  action: { label: string; to: string };
+  action?: { label: string; to: string };
   prefix?: string;
   children?: ReactNode;
+  renderHeader?: boolean;
   "data-testid"?: string;
 };
 
@@ -37,9 +38,11 @@ export const TaxRegionTable = ({
   queryObject,
   prefix,
   children,
+  renderHeader,
   "data-testid": dataTestId,
 }: TaxRegionTableProps) => {
   const { t } = useTranslation();
+  const showHeader = renderHeader !== false;
   if (isPending) {
     return (
       <div className="flex flex-col divide-y">
@@ -65,32 +68,36 @@ export const TaxRegionTable = ({
 
   return (
     <div className="flex flex-col divide-y" data-testid={dataTestId}>
-      <div className="flex flex-col justify-between gap-x-4 gap-y-3 px-6 py-4 md:flex-row md:items-center" data-testid={dataTestId ? `${dataTestId}-header` : undefined}>
-        <div>{children}</div>
-        <div className="flex items-center gap-x-2">
-          {!noRecords && (
-            <div className="flex w-full items-center gap-x-2 md:w-fit">
-              {/* Re-enable when we allow searching tax regions by country name rather than country_code */}
-              {/* <div className="w-full md:w-fit">
-                <DataTableSearch prefix={prefix} />
-              </div> */}
-              <DataTableOrderBy
-                keys={[
-                  { key: "country_code", label: t("fields.name") },
-                  { key: "updated_at", label: t("fields.updatedAt") },
-                  { key: "created_at", label: t("fields.createdAt") },
-                ]}
-                prefix={prefix}
-              />
-            </div>
-          )}
-          <Link to={action.to}>
-            <Button size="small" variant="secondary" data-testid={dataTestId ? `${dataTestId}-create-button` : undefined}>
-              {action.label}
-            </Button>
-          </Link>
+      {showHeader && (
+        <div className="flex flex-col justify-between gap-x-4 gap-y-3 px-6 py-4 md:flex-row md:items-center" data-testid={dataTestId ? `${dataTestId}-header` : undefined}>
+          <div>{children}</div>
+          <div className="flex items-center gap-x-2">
+            {!noRecords && (
+              <div className="flex w-full items-center gap-x-2 md:w-fit">
+                {/* Re-enable when we allow searching tax regions by country name rather than country_code */}
+                {/* <div className="w-full md:w-fit">
+                  <DataTableSearch prefix={prefix} />
+                </div> */}
+                <DataTableOrderBy
+                  keys={[
+                    { key: "country_code", label: t("fields.name") },
+                    { key: "updated_at", label: t("fields.updatedAt") },
+                    { key: "created_at", label: t("fields.createdAt") },
+                  ]}
+                  prefix={prefix}
+                />
+              </div>
+            )}
+            {action && (
+              <Link to={action.to}>
+                <Button size="small" variant="secondary" data-testid={dataTestId ? `${dataTestId}-create-button` : undefined}>
+                  {action.label}
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       {noResults && <NoResults />}
       {noRecords && <NoRecords />}
       {!noRecords && !noResults

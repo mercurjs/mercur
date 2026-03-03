@@ -1,1 +1,1 @@
-export { SalesChannelList as Component } from "./sales-channel-list";
+export { SalesChannelListPage as Component } from "./sales-channel-list";

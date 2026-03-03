@@ -1,13 +1,16 @@
-import { Children, ReactNode } from "react";
+import { ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
 import { usePromotion, usePromotionRules } from "../../../hooks/api/promotions";
 import { CampaignSection } from "./components/campaign-section";
 import { PromotionConditionsSection } from "./components/promotion-conditions-section";
 import { PromotionGeneralSection } from "./components/promotion-general-section";
 import { promotionLoader } from "./loader";
+
+const ALLOWED_TYPES = [TwoColumnPage.Main, TwoColumnPage.Sidebar, PromotionGeneralSection, PromotionConditionsSection, CampaignSection] as const;
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -32,43 +35,41 @@ const Root = ({ children }: { children?: ReactNode }) => {
     );
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={promotion} hasOutlet showJSON>
-          <TwoColumnPage.Main>
-            <PromotionGeneralSection promotion={promotion} />
-            <PromotionConditionsSection
-              rules={rules || []}
-              ruleType={"rules"}
-            />
-            <PromotionConditionsSection
-              rules={targetRules || []}
-              ruleType={"target-rules"}
-              applicationMethodTargetType={
-                promotion.application_method?.target_type || "items"
-              }
-            />
-            {promotion.type === "buyget" && (
-              <PromotionConditionsSection
-                rules={buyRules || []}
-                ruleType={"buy-rules"}
-                applicationMethodTargetType={"items"}
-              />
-            )}
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <CampaignSection campaign={promotion.campaign!} />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+    <TwoColumnPage data={promotion} hasOutlet showJSON data-testid="promotion-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage data={promotion} hasOutlet showJSON data-testid="promotion-detail-page">
+      <TwoColumnPage.Main>
+        <PromotionGeneralSection promotion={promotion} />
+        <PromotionConditionsSection
+          rules={rules || []}
+          ruleType={"rules"}
+        />
+        <PromotionConditionsSection
+          rules={targetRules || []}
+          ruleType={"target-rules"}
+          applicationMethodTargetType={
+            promotion.application_method?.target_type || "items"
+          }
+        />
+        {promotion.type === "buyget" && (
+          <PromotionConditionsSection
+            rules={buyRules || []}
+            ruleType={"buy-rules"}
+            applicationMethodTargetType={"items"}
+          />
+        )}
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <CampaignSection campaign={promotion.campaign!} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   );
 };
 
-export const PromotionDetail = Object.assign(Root, {
+export const PromotionDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: PromotionGeneralSection,

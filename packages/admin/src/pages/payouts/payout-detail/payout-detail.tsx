@@ -1,10 +1,13 @@
-import { Children, ReactNode } from "react"
+import { ReactNode } from "react"
 import { useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import { usePayout } from "../../../hooks/api/payouts"
 import { PayoutGeneralSection } from "./components/payout-general-section"
+
+const ALLOWED_TYPES = [PayoutGeneralSection] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
@@ -19,17 +22,17 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
+  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
     <SingleColumnPage data={payout} showJSON showMetadata>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <PayoutGeneralSection payout={payout} />
-      )}
+      {children}
+    </SingleColumnPage>
+  ) : (
+    <SingleColumnPage data={payout} showJSON showMetadata>
+      <PayoutGeneralSection payout={payout} />
     </SingleColumnPage>
   )
 }
 
-export const PayoutDetail = Object.assign(Root, {
+export const PayoutDetailPage = Object.assign(Root, {
   GeneralSection: PayoutGeneralSection,
 })

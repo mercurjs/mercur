@@ -1,10 +1,11 @@
-import { Children, ReactNode } from "react"
+import { ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { useProduct, useProductVariant } from "../../../hooks/api/products"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 
 import { VariantGeneralSection } from "./components/variant-general-section"
 import { VariantInventorySectionConnected } from "./components/variant-inventory-section"
@@ -12,6 +13,15 @@ import { VariantPricesSection } from "./components/variant-prices-section"
 import { ProductSellerSection } from "../../products/product-detail/components/product-seller-section/product-seller-section"
 import { VARIANT_DETAIL_FIELDS } from "./constants"
 import { variantLoader } from "./loader"
+
+const ALLOWED_TYPES = [
+  TwoColumnPage.Main,
+  TwoColumnPage.Sidebar,
+  VariantGeneralSection,
+  VariantInventorySectionConnected,
+  ProductSellerSection,
+  VariantPricesSection,
+] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -46,8 +56,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage>
+  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+    <TwoColumnPage data={variant} showJSON showMetadata hasOutlet>
       {children}
     </TwoColumnPage>
   ) : (

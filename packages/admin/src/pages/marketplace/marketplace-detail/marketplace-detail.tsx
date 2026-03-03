@@ -1,12 +1,15 @@
-import { Children, ReactNode } from "react"
+import { ReactNode } from "react"
 import { useLoaderData } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import { useStore } from "../../../hooks/api/store"
 import { MarketplaceCurrencySection } from "./components/marketplace-currency-section"
 import { MarketplaceGeneralSection } from "./components/marketplace-general-section"
 import { storeLoader } from "./loader"
+
+const ALLOWED_TYPES = [MarketplaceGeneralSection, MarketplaceCurrencySection] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof storeLoader>>
@@ -23,21 +26,19 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
+  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
     <SingleColumnPage data={store} hasOutlet showMetadata showJSON>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <>
-          <MarketplaceGeneralSection store={store} />
-          <MarketplaceCurrencySection store={store} />
-        </>
-      )}
+      {children}
+    </SingleColumnPage>
+  ) : (
+    <SingleColumnPage data={store} hasOutlet showMetadata showJSON>
+      <MarketplaceGeneralSection store={store} />
+      <MarketplaceCurrencySection store={store} />
     </SingleColumnPage>
   )
 }
 
-export const MarketplaceDetail = Object.assign(Root, {
+export const MarketplaceDetailPage = Object.assign(Root, {
   GeneralSection: MarketplaceGeneralSection,
   CurrencySection: MarketplaceCurrencySection,
 })

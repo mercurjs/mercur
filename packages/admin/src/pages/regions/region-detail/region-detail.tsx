@@ -1,14 +1,18 @@
-import { Children, ReactNode } from "react"
-import { useLoaderData, useParams } from "react-router-dom"
+import { ReactNode } from "react";
+import { useLoaderData, useParams } from "react-router-dom";
 
-import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { usePricePreferences } from "../../../hooks/api/price-preferences"
-import { useRegion } from "../../../hooks/api/regions"
-import { RegionCountrySection } from "./components/region-country-section"
-import { RegionGeneralSection } from "./components/region-general-section"
-import { regionLoader } from "./loader"
-import { REGION_DETAIL_FIELDS } from "./constants"
+import { useRegion } from "../../../hooks/api/regions";
+import { RegionCountrySection } from "./components/region-country-section";
+import { RegionGeneralSection } from "./components/region-general-section";
+import { regionLoader } from "./loader";
+
+import { SingleColumnPageSkeleton } from "../../../components/common/skeleton";
+import { SingleColumnPage } from "../../../components/layout/pages";
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
+import { usePricePreferences } from "../../../hooks/api/price-preferences";
+import { REGION_DETAIL_FIELDS } from "./constants";
+
+const ALLOWED_TYPES = [RegionGeneralSection, RegionCountrySection] as const;
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -54,24 +58,22 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw preferencesError
   }
 
-  return (
+  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
     <SingleColumnPage data={region} showMetadata showJSON>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <>
-          <RegionGeneralSection
-            region={region}
-            pricePreferences={pricePreferences ?? []}
-          />
-          <RegionCountrySection region={region} />
-        </>
-      )}
+      {children}
     </SingleColumnPage>
-  )
-}
+  ) : (
+    <SingleColumnPage data={region} showMetadata showJSON>
+      <RegionGeneralSection
+        region={region}
+        pricePreferences={pricePreferences ?? []}
+      />
+      <RegionCountrySection region={region} />
+    </SingleColumnPage>
+  );
+};
 
-export const RegionDetail = Object.assign(Root, {
+export const RegionDetailPage = Object.assign(Root, {
   GeneralSection: RegionGeneralSection,
   CountrySection: RegionCountrySection,
-})
+});

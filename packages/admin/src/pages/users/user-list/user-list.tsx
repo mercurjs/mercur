@@ -1,6 +1,7 @@
-import { Children, ReactNode } from "react"
+import { ReactNode } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import {
   UserListTable,
   UserListDataTable,
@@ -9,18 +10,21 @@ import {
   UserListTitle,
 } from "./components/user-list-table"
 
+const ALLOWED_TYPES = [UserListTable] as const
+
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      {Children.count(children) > 0 ? children : <UserListTable />}
+      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <UserListTable />}
     </SingleColumnPage>
   )
 }
 
-export const UserList = Object.assign(Root, {
+export const UserListPage = Object.assign(Root, {
   Table: UserListTable,
   Header: UserListHeader,
   HeaderTitle: UserListTitle,
   HeaderActions: UserListActions,
   DataTable: UserListDataTable,
 })
+

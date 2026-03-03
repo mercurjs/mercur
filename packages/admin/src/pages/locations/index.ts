@@ -1,2 +1,2 @@
-export { LocationList } from "./location-list/location-list"
-export { LocationDetail } from "./location-detail/location-detail"
+export { LocationListPage } from "./location-list/location-list"
+export { LocationDetailPage } from "./location-detail/location-detail"

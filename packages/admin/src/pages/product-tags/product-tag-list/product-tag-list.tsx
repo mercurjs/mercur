@@ -1,16 +1,29 @@
-import { Children, ReactNode } from "react"
+import { ReactNode } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { ProductTagListTable } from "./components/product-tag-list-table"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
+import {
+  ProductTagListView,
+  ProductTagListDataTable,
+  ProductTagListHeader,
+  ProductTagListActions,
+  ProductTagListTitle,
+} from "./components/product-tag-list-view"
+
+const ALLOWED_TYPES = [ProductTagListView] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage showMetadata={false} showJSON={false} hasOutlet>
-      {Children.count(children) > 0 ? children : <ProductTagListTable />}
+      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <ProductTagListView />}
     </SingleColumnPage>
   )
 }
 
-export const ProductTagList = Object.assign(Root, {
-  Table: ProductTagListTable,
+export const ProductTagListPage = Object.assign(Root, {
+  Table: ProductTagListView,
+  Header: ProductTagListHeader,
+  HeaderTitle: ProductTagListTitle,
+  HeaderActions: ProductTagListActions,
+  DataTable: ProductTagListDataTable,
 })

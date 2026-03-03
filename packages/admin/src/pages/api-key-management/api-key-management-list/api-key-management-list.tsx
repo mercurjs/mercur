@@ -1,25 +1,32 @@
-import { Children, ReactNode } from "react"
-import { useLocation } from "react-router-dom"
+import { ReactNode } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { getApiKeyTypeFromPathname } from "../common/utils"
-import { ApiKeyManagementListTable } from "./components/api-key-management-list-table"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
+import {
+  ApiKeyManagementListView,
+  ApiKeyManagementListDataTable,
+  ApiKeyManagementListHeader,
+  ApiKeyManagementListActions,
+  ApiKeyManagementListTitle,
+} from "./components/api-key-management-list-view"
+
+const ALLOWED_TYPES = [ApiKeyManagementListView] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
-  const { pathname } = useLocation()
-  const keyType = getApiKeyTypeFromPathname(pathname)
-
   return (
-    <SingleColumnPage hasOutlet data-testid="publishable-api-keys-list-page">
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <ApiKeyManagementListTable keyType={keyType} />
-      )}
+    <SingleColumnPage
+      hasOutlet
+      data-testid="publishable-api-keys-list-page"
+    >
+      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <ApiKeyManagementListView />}
     </SingleColumnPage>
   )
 }
 
-export const ApiKeyManagementList = Object.assign(Root, {
-  Table: ApiKeyManagementListTable,
+export const ApiKeyManagementListPage = Object.assign(Root, {
+  Table: ApiKeyManagementListView,
+  Header: ApiKeyManagementListHeader,
+  HeaderTitle: ApiKeyManagementListTitle,
+  HeaderActions: ApiKeyManagementListActions,
+  DataTable: ApiKeyManagementListDataTable,
 })

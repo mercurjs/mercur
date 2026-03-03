@@ -1,16 +1,29 @@
-import { Children, ReactNode } from "react"
+import { ReactNode } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { RegionListTable } from "./components/region-list-table"
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
+import {
+  RegionListView,
+  RegionListDataTable,
+  RegionListHeader,
+  RegionListActions,
+  RegionListTitle,
+} from "./components/region-list-view"
+
+const ALLOWED_TYPES = [RegionListView] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      {Children.count(children) > 0 ? children : <RegionListTable />}
+      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <RegionListView />}
     </SingleColumnPage>
   )
 }
 
-export const RegionList = Object.assign(Root, {
-  Table: RegionListTable,
+export const RegionListPage = Object.assign(Root, {
+  Table: RegionListView,
+  Header: RegionListHeader,
+  HeaderTitle: RegionListTitle,
+  HeaderActions: RegionListActions,
+  DataTable: RegionListDataTable,
 })

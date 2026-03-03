@@ -2,7 +2,7 @@ import { PencilSquare } from "@medusajs/icons"
 import { Button, Container, Heading } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper } from "@tanstack/react-table"
-import { Children, ReactNode, useMemo } from "react"
+import { ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
@@ -14,6 +14,7 @@ import { useCustomerTableColumns } from "../../../../../hooks/table/columns/use-
 import { useCustomerTableFilters } from "../../../../../hooks/table/filters/use-customer-table-filters"
 import { useCustomerTableQuery } from "../../../../../hooks/table/query/use-customer-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import { hasExplicitCompoundComposition } from "../../../../../lib/compound-composition"
 
 const PAGE_SIZE = 20
 
@@ -37,10 +38,12 @@ export const CustomerListCreateButton = () => {
   )
 }
 
+const ACTIONS_ALLOWED_TYPES = [CustomerListCreateButton] as const
+
 export const CustomerListActions = ({ children }: { children?: ReactNode }) => {
   return (
     <div className="flex items-center gap-x-2">
-      {Children.count(children) > 0 ? (
+      {hasExplicitCompoundComposition(children, ACTIONS_ALLOWED_TYPES) ? (
         children
       ) : (
         <CustomerListCreateButton />
@@ -49,13 +52,15 @@ export const CustomerListActions = ({ children }: { children?: ReactNode }) => {
   )
 }
 
+const HEADER_ALLOWED_TYPES = [CustomerListTitle, CustomerListActions] as const
+
 export const CustomerListHeader = ({ children }: { children?: ReactNode }) => {
   return (
     <div
       className="flex items-center justify-between px-6 py-4"
       data-testid="customer-list-header"
     >
-      {Children.count(children) > 0 ? (
+      {hasExplicitCompoundComposition(children, HEADER_ALLOWED_TYPES) ? (
         children
       ) : (
         <>
@@ -122,10 +127,12 @@ export const CustomerListDataTable = () => {
   )
 }
 
+const TABLE_ALLOWED_TYPES = [CustomerListHeader, CustomerListDataTable] as const
+
 export const CustomerListTable = ({ children }: { children?: ReactNode }) => {
   return (
     <Container className="divide-y p-0" data-testid="customer-list-container">
-      {Children.count(children) > 0 ? (
+      {hasExplicitCompoundComposition(children, TABLE_ALLOWED_TYPES) ? (
         children
       ) : (
         <>

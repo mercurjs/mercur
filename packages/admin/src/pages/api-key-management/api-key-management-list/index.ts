@@ -1,1 +1,1 @@
-export { ApiKeyManagementList as Component } from "./api-key-management-list"
+export { ApiKeyManagementListPage as Component } from "./api-key-management-list"

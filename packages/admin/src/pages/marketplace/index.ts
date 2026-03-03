@@ -1,1 +1,1 @@
-export { MarketplaceDetail } from "./marketplace-detail/marketplace-detail"
+export { MarketplaceDetailPage } from "./marketplace-detail/marketplace-detail"

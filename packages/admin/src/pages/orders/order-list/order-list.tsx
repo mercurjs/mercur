@@ -1,6 +1,7 @@
-import { Children, ReactNode } from "react";
+import { ReactNode } from "react";
 
 import { SingleColumnPage } from "../../../components/layout/pages";
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
 
 import {
   OrderListTable,
@@ -10,10 +11,12 @@ import {
   OrderListTitle,
 } from "./components/order-list-table";
 
+const ALLOWED_TYPES = [OrderListTable] as const;
+
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage hasOutlet={false} data-testid="orders-list-page">
-      {Children.count(children) > 0 ? children : <OrderListTable />}
+      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <OrderListTable />}
     </SingleColumnPage>
   );
 };

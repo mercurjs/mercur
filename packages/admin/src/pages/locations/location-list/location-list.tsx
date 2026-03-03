@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react";
+import { ReactNode } from "react";
 import { ShoppingBag, TruckFast } from "@medusajs/icons";
 import { Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
@@ -11,12 +11,13 @@ import { useLocationListTableQuery } from "./use-location-list-table-query";
 import { DataTable } from "../../../components/data-table";
 import { SidebarLink } from "../../../components/common/sidebar-link/sidebar-link";
 import { TwoColumnPage } from "../../../components/layout/pages";
+import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
 import { keepPreviousData } from "@tanstack/react-query";
 
 const PAGE_SIZE = 20;
 const PREFIX = "loc";
 
-const LocationListMain = () => {
+const LocationListContent = () => {
   const { t } = useTranslation();
 
   const searchParams = useLocationListTableQuery({
@@ -33,7 +34,7 @@ const LocationListMain = () => {
   } = useStockLocations(
     {
       fields: LOCATION_LIST_FIELDS,
-      ...searchParams,
+      ...(searchParams as Record<string, unknown>),
     },
     {
       placeholderData: keepPreviousData,
@@ -122,15 +123,17 @@ const LinksSection = () => {
   );
 };
 
+const ALLOWED_TYPES = [TwoColumnPage.Main, TwoColumnPage.Sidebar, LocationListContent, LinksSection] as const
+
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <TwoColumnPage showJSON>
-      {Children.count(children) > 0 ? (
+      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
         children
       ) : (
         <>
           <TwoColumnPage.Main>
-            <LocationListMain />
+            <LocationListContent />
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
             <LinksSection />
@@ -141,9 +144,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-export const LocationList = Object.assign(Root, {
+export const LocationListPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
-  MainContent: LocationListMain,
-  SidebarLinks: LinksSection,
+  Content: LocationListContent,
+  LinksSection,
 });
