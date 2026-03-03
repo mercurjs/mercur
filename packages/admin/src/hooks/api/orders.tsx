@@ -1,5 +1,9 @@
 import { ClientError, InferClientInput } from "@mercurjs/client";
-import { CreateOrderCreditLineDTO, HttpTypes } from "@medusajs/types";
+import {
+  AdminOrderResponse,
+  CreateOrderCreditLineDTO,
+  HttpTypes,
+} from "@medusajs/types";
 import {
   QueryKey,
   useMutation,
@@ -41,9 +45,14 @@ export const ordersQueryKeys = _orderKeys;
 
 export const useOrder = (
   id: string,
-  query?: InferClientInput<typeof sdk.admin.orders.$id.query>,
+  query?: Omit<InferClientInput<typeof sdk.admin.orders.$id.query>, "$id">,
   options?: Omit<
-    UseQueryOptions<any, ClientError, any, QueryKey>,
+    UseQueryOptions<
+      AdminOrderResponse,
+      ClientError,
+      AdminOrderResponse,
+      QueryKey
+    >,
     "queryFn" | "queryKey"
   >,
 ) => {

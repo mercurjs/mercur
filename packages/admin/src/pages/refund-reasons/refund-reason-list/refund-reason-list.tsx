@@ -1,21 +1,21 @@
-import { Children, ReactNode } from "react"
+import { Children, ReactNode } from "react";
 
-import { SingleColumnPage } from "../../../components/layout/pages"
+import { SingleColumnPage } from "../../../components/layout/pages";
+import { RefundReasonListTable } from "./components/refund-reason-list-table";
 import {
-  RefundReasonListTable,
-  RefundReasonListDataTable,
-  RefundReasonListHeader,
   RefundReasonListActions,
+  RefundReasonListHeader,
   RefundReasonListTitle,
-} from "./components/refund-reason-list-table"
+} from "./components/refund-reason-list-table/refund-reason-list-header";
+import { RefundReasonListDataTable } from "./components/refund-reason-list-table/refund-reason-list-data-table";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage showMetadata={false} showJSON={false} hasOutlet>
       {Children.count(children) > 0 ? children : <RefundReasonListTable />}
     </SingleColumnPage>
-  )
-}
+  );
+};
 
 export const RefundReasonList = Object.assign(Root, {
   Table: RefundReasonListTable,
@@ -23,4 +23,4 @@ export const RefundReasonList = Object.assign(Root, {
   HeaderTitle: RefundReasonListTitle,
   HeaderActions: RefundReasonListActions,
   DataTable: RefundReasonListDataTable,
-})
+});

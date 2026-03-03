@@ -1,42 +1,43 @@
-import { Children, ReactNode } from "react"
-import { Container, Heading } from "@medusajs/ui"
-import { keepPreviousData } from "@tanstack/react-query"
-import { useTranslation } from "react-i18next"
+import { Children, ReactNode } from "react";
+import { Container, Heading } from "@medusajs/ui";
+import { keepPreviousData } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
-import { _DataTable } from "../../../components/table/data-table"
-import { usePayouts } from "../../../hooks/api/payouts"
-import { usePayoutTableColumns } from "../../../hooks/table/columns/use-payout-table-columns"
-import { usePayoutTableQuery } from "../../../hooks/table/query/use-payout-table-query"
-import { useDataTable } from "../../../hooks/use-data-table"
+import { _DataTable } from "../../../components/table/data-table";
+import { usePayouts } from "../../../hooks/api/payouts";
+import { usePayoutTableColumns } from "../../../hooks/table/columns/use-payout-table-columns";
+import { usePayoutTableQuery } from "../../../hooks/table/query/use-payout-table-query";
+import { useDataTable } from "../../../hooks/use-data-table";
+import { PayoutDTO } from "@mercurjs/types";
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 
 const PayoutListTable = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const { searchParams, raw } = usePayoutTableQuery({
     pageSize: PAGE_SIZE,
-  })
+  });
 
   const { payouts, count, isError, error, isLoading } = usePayouts(
     searchParams,
     {
       placeholderData: keepPreviousData,
     },
-  )
+  );
 
-  const columns = usePayoutTableColumns()
+  const columns = usePayoutTableColumns();
 
   const { table } = useDataTable({
-    data: payouts ?? [],
+    data: (payouts as PayoutDTO[]) ?? [],
     columns,
     enablePagination: true,
     count: count ?? 0,
     pageSize: PAGE_SIZE,
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -63,17 +64,13 @@ const PayoutListTable = () => {
         }}
       />
     </Container>
-  )
-}
+  );
+};
 
 const Root = ({ children }: { children?: ReactNode }) => {
-  return (
-    <>
-      {Children.count(children) > 0 ? children : <PayoutListTable />}
-    </>
-  )
-}
+  return <>{Children.count(children) > 0 ? children : <PayoutListTable />}</>;
+};
 
 export const PayoutList = Object.assign(Root, {
   Table: PayoutListTable,
-})
+});

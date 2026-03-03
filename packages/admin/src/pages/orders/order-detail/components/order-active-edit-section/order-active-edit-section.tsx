@@ -1,28 +1,27 @@
-import { Button, Container, Copy, Heading, toast } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { ExclamationCircleSolid } from "@medusajs/icons"
+import { Button, Container, Copy, Heading, toast } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import { ExclamationCircleSolid } from "@medusajs/icons";
 
-import { useOrderPreview } from "../../../../../hooks/api"
+import { useOrderPreview } from "../../../../../hooks/api";
 import {
   useCancelOrderEdit,
   useConfirmOrderEdit,
-} from "../../../../../hooks/api/order-edits"
-import { useMemo } from "react"
-import { HttpTypes } from "@medusajs/types"
-import { Thumbnail } from "../../../../../components/common/thumbnail"
-import { useNavigate } from "react-router-dom"
+} from "../../../../../hooks/api/order-edits";
+import { useMemo } from "react";
+import { HttpTypes } from "@medusajs/types";
+import { Thumbnail } from "../../../../../components/common/thumbnail";
+import { useNavigate } from "react-router-dom";
 
 type OrderActiveEditSectionProps = {
-  order: HttpTypes.AdminOrder
-  quantity: number
-}
+  order: HttpTypes.AdminOrder;
+};
 
 function EditItem({
   item,
   quantity,
 }: {
-  item: HttpTypes.AdminOrderLineItem
-  quantity: number
+  item: HttpTypes.AdminOrderLineItem;
+  quantity: number;
 }) {
   return (
     <div key={item.id} className="text-ui-fg-subtle items-center gap-x-2">
@@ -47,76 +46,76 @@ function EditItem({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export const OrderActiveEditSection = ({
   order,
 }: OrderActiveEditSectionProps) => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const { order: orderPreview } = useOrderPreview(order.id)
+  const { order: orderPreview } = useOrderPreview(order.id);
 
-  const { mutateAsync: cancelOrderEdit } = useCancelOrderEdit(order.id)
-  const { mutateAsync: confirmOrderEdit } = useConfirmOrderEdit(order.id)
+  const { mutateAsync: cancelOrderEdit } = useCancelOrderEdit(order.id);
+  const { mutateAsync: confirmOrderEdit } = useConfirmOrderEdit(order.id);
 
-  const isPending = orderPreview.order_change?.status === "pending"
+  const isPending = orderPreview.order_change?.status === "pending";
 
   const [addedItems, removedItems] = useMemo(() => {
-    const added = []
-    const removed = []
+    const added = [];
+    const removed = [];
 
-    const orderLookupMap = new Map(order.items!.map((i) => [i.id, i]))
+    const orderLookupMap = new Map(order.items!.map((i) => [i.id, i]));
 
-    ;(orderPreview?.items || []).forEach((currentItem) => {
-      const originalItem = orderLookupMap.get(currentItem.id)
+    (orderPreview?.items || []).forEach((currentItem) => {
+      const originalItem = orderLookupMap.get(currentItem.id);
 
       if (!originalItem) {
-        added.push({ item: currentItem, quantity: currentItem.quantity })
-        return
+        added.push({ item: currentItem, quantity: currentItem.quantity });
+        return;
       }
 
       if (originalItem.quantity > currentItem.quantity) {
         removed.push({
           item: currentItem,
           quantity: originalItem.quantity - currentItem.quantity,
-        })
+        });
       }
 
       if (originalItem.quantity < currentItem.quantity) {
         added.push({
           item: currentItem,
           quantity: currentItem.quantity - originalItem.quantity,
-        })
+        });
       }
-    })
+    });
 
-    return [added, removed]
-  }, [orderPreview])
+    return [added, removed];
+  }, [orderPreview]);
 
   const onConfirmOrderEdit = async () => {
     try {
-      await confirmOrderEdit()
+      await confirmOrderEdit();
 
-      toast.success(t("orders.edits.toast.confirmedSuccessfully"))
+      toast.success(t("orders.edits.toast.confirmedSuccessfully"));
     } catch (e) {
-      toast.error(e.message)
+      toast.error(e.message);
     }
-  }
+  };
 
   const onCancelOrderEdit = async () => {
     try {
-      await cancelOrderEdit()
+      await cancelOrderEdit();
 
-      toast.success(t("orders.edits.toast.canceledSuccessfully"))
+      toast.success(t("orders.edits.toast.canceledSuccessfully"));
     } catch (e) {
-      toast.error(e.message)
+      toast.error(e.message);
     }
-  }
+  };
 
   if (!orderPreview || orderPreview.order_change?.change_type !== "edit") {
-    return null
+    return null;
   }
 
   return (
@@ -130,13 +129,16 @@ export const OrderActiveEditSection = ({
     >
       <Container className="flex items-center justify-between p-0">
         <div className="flex w-full flex-col divide-y divide-dashed">
-          <div className="flex items-center gap-2 px-6 py-4" data-testid="order-active-edit-header">
+          <div
+            className="flex items-center gap-2 px-6 py-4"
+            data-testid="order-active-edit-header"
+          >
             <ExclamationCircleSolid className="text-blue-500" />
             <Heading level="h2" data-testid="order-active-edit-heading">
               {t(
                 isPending
                   ? "orders.edits.panel.titlePending"
-                  : "orders.edits.panel.title"
+                  : "orders.edits.panel.title",
               )}
             </Heading>
           </div>
@@ -167,7 +169,10 @@ export const OrderActiveEditSection = ({
             </div>
           )}
 
-          <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4" data-testid="order-active-edit-actions">
+          <div
+            className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4"
+            data-testid="order-active-edit-actions"
+          >
             {isPending ? (
               <Button
                 size="small"
@@ -199,5 +204,5 @@ export const OrderActiveEditSection = ({
         </div>
       </Container>
     </div>
-  )
-}
+  );
+};

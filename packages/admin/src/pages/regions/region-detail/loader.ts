@@ -3,6 +3,7 @@ import { regionsQueryKeys } from "../../../hooks/api/regions"
 import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 import { REGION_DETAIL_FIELDS } from "./constants"
+import { HttpTypes } from "@mercurjs/types"
 
 const regionQuery = (id: string) => ({
   queryKey: regionsQueryKeys.detail(id),
@@ -17,5 +18,5 @@ export const regionLoader = async ({ params }: LoaderFunctionArgs) => {
   return (
     queryClient.getQueryData(query.queryKey) ??
     (await queryClient.fetchQuery(query))
-  )
+  ) as HttpTypes.AdminRegionResponse
 }

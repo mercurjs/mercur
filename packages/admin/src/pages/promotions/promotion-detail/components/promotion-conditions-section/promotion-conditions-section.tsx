@@ -1,15 +1,19 @@
-import { PencilSquare } from "@medusajs/icons"
-import { ApplicationMethodTargetTypeValues, HttpTypes, PromotionRuleTypes, } from "@medusajs/types"
-import { Badge, Container, Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import { PencilSquare } from "@medusajs/icons";
+import {
+  ApplicationMethodTargetTypeValues,
+  HttpTypes,
+  PromotionRuleTypes,
+} from "@medusajs/types";
+import { Badge, Container, Heading } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { BadgeListSummary } from "../../../../../components/common/badge-list-summary"
-import { NoRecords } from "../../../../../components/common/empty-table-content"
+import { ActionMenu } from "../../../../../components/common/action-menu";
+import { BadgeListSummary } from "../../../../../components/common/badge-list-summary";
+import { NoRecords } from "../../../../../components/common/empty-table-content";
 
 type RuleProps = {
-  rule: HttpTypes.AdminPromotionRule
-}
+  rule: HttpTypes.AdminPromotionRule;
+};
 
 function RuleBlock({ rule }: RuleProps) {
   return (
@@ -38,31 +42,39 @@ function RuleBlock({ rule }: RuleProps) {
         />
       </div>
     </div>
-  )
+  );
 }
 
 type PromotionConditionsSectionProps = {
-  rules: HttpTypes.AdminPromotionRule[]
-  ruleType: PromotionRuleTypes
-  applicationMethodTargetType: ApplicationMethodTargetTypeValues
-}
+  rules: HttpTypes.AdminPromotionRule[];
+  ruleType: string;
+  applicationMethodTargetType?: ApplicationMethodTargetTypeValues;
+};
 
 export const PromotionConditionsSection = ({
   rules,
   ruleType,
   applicationMethodTargetType,
 }: PromotionConditionsSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
-    <Container className="p-0" data-testid={`promotion-conditions-section-container-${ruleType}`}>
-      <div className="flex items-center justify-between px-6 py-4" data-testid={`promotion-conditions-section-header-${ruleType}`}>
+    <Container
+      className="p-0"
+      data-testid={`promotion-conditions-section-container-${ruleType}`}
+    >
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid={`promotion-conditions-section-header-${ruleType}`}
+      >
         <div className="flex flex-col">
-          <Heading data-testid={`promotion-conditions-section-heading-${ruleType}`}>
+          <Heading
+            data-testid={`promotion-conditions-section-heading-${ruleType}`}
+          >
             {t(
               ruleType === "target-rules"
                 ? `promotions.fields.conditions.${ruleType}.${applicationMethodTargetType}.title`
-                : `promotions.fields.conditions.${ruleType}.title`
+                : `promotions.fields.conditions.${ruleType}.title`,
             )}
           </Heading>
         </div>
@@ -83,9 +95,14 @@ export const PromotionConditionsSection = ({
         />
       </div>
 
-      <div className="text-ui-fg-subtle flex flex-col gap-2 px-6 pb-4 pt-2" data-testid={`promotion-conditions-section-content-${ruleType}`}>
+      <div
+        className="text-ui-fg-subtle flex flex-col gap-2 px-6 pb-4 pt-2"
+        data-testid={`promotion-conditions-section-content-${ruleType}`}
+      >
         {!rules.length && (
-          <div data-testid={`promotion-conditions-section-no-records-${ruleType}`}>
+          <div
+            data-testid={`promotion-conditions-section-no-records-${ruleType}`}
+          >
             <NoRecords
               className="h-[180px]"
               title={t("general.noRecordsTitle")}
@@ -101,11 +118,14 @@ export const PromotionConditionsSection = ({
         )}
 
         {rules.map((rule) => (
-          <div key={`${rule.id}-${rule.attribute}`} data-testid={`promotion-conditions-section-rule-${rule.id}`}>
+          <div
+            key={`${rule.id}-${rule.attribute}`}
+            data-testid={`promotion-conditions-section-rule-${rule.id}`}
+          >
             <RuleBlock rule={rule} />
           </div>
         ))}
       </div>
     </Container>
-  )
-}
+  );
+};
