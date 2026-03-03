@@ -238,7 +238,7 @@ export const create = new Command()
         serverProcess.stderr?.pipe(process.stderr);
 
         waitOn({
-          resources: ["http://localhost:7000/health"],
+          resources: ["http://localhost:9000/health"],
           timeout: 60000,
         }).then(async () => {
           try {
