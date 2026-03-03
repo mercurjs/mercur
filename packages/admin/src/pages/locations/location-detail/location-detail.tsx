@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { useStockLocation } from "../../../hooks/api/stock-locations";
@@ -10,7 +11,7 @@ import { TwoColumnPage } from "../../../components/layout/pages";
 import LocationsFulfillmentProvidersSection from "./components/location-fulfillment-providers-section/location-fulfillment-providers-section";
 import { LOCATION_DETAILS_FIELD } from "./constants";
 
-export const LocationDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof locationLoader>
   >;
@@ -44,13 +45,27 @@ export const LocationDetail = () => {
       hasOutlet
       data-testid="location-detail-page"
     >
-      <TwoColumnPage.Main data-testid="location-detail-main">
-        <LocationGeneralSection location={location} />
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar data-testid="location-detail-sidebar">
-        <LocationsSalesChannelsSection location={location} />
-        <LocationsFulfillmentProvidersSection location={location} />
-      </TwoColumnPage.Sidebar>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <TwoColumnPage.Main data-testid="location-detail-main">
+            <LocationGeneralSection location={location} />
+          </TwoColumnPage.Main>
+          <TwoColumnPage.Sidebar data-testid="location-detail-sidebar">
+            <LocationsSalesChannelsSection location={location} />
+            <LocationsFulfillmentProvidersSection location={location} />
+          </TwoColumnPage.Sidebar>
+        </>
+      )}
     </TwoColumnPage>
   );
 };
+
+export const LocationDetail = Object.assign(Root, {
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  MainGeneralSection: LocationGeneralSection,
+  SidebarSalesChannelsSection: LocationsSalesChannelsSection,
+  SidebarFulfillmentProvidersSection: LocationsFulfillmentProvidersSection,
+});

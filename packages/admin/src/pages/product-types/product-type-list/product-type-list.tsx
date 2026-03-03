@@ -1,10 +1,16 @@
+import { Children, ReactNode } from "react"
+
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { ProductTypeListTable } from "./components/product-type-list-table"
 
-export const ProductTypeList = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      <ProductTypeListTable />
+      {Children.count(children) > 0 ? children : <ProductTypeListTable />}
     </SingleColumnPage>
   )
 }
+
+export const ProductTypeList = Object.assign(Root, {
+  Table: ProductTypeListTable,
+})

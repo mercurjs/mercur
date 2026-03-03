@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react";
 import { ShoppingBag, TruckFast } from "@medusajs/icons";
 import { Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
@@ -15,7 +16,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 const PAGE_SIZE = 20;
 const PREFIX = "loc";
 
-export function LocationList() {
+const LocationListMain = () => {
   const { t } = useTranslation();
 
   const searchParams = useLocationListTableQuery({
@@ -46,51 +47,44 @@ export function LocationList() {
   }
 
   return (
-    <TwoColumnPage showJSON>
-      <TwoColumnPage.Main>
-        <Container
-          className="flex flex-col divide-y p-0"
-          data-testid="location-list-container"
-        >
-          <DataTable
-            data={stockLocations}
-            columns={columns}
-            rowCount={count}
-            pageSize={PAGE_SIZE}
-            getRowId={(row) => row.id}
-            heading={t("stockLocations.domain")}
-            subHeading={t("stockLocations.list.description")}
-            emptyState={{
-              empty: {
-                heading: t("stockLocations.list.noRecordsMessage"),
-                description: t("stockLocations.list.noRecordsMessageEmpty"),
-              },
-              filtered: {
-                heading: t("stockLocations.list.noRecordsMessage"),
-                description: t("stockLocations.list.noRecordsMessageFiltered"),
-              },
-            }}
-            actions={[
-              {
-                label: t("actions.create"),
-                to: "create",
-              },
-            ]}
-            isLoading={isLoading}
-            rowHref={(row) => `/settings/locations/${row.id}`}
-            enableSearch={true}
-            prefix={PREFIX}
-            layout="fill"
-            data-testid="location-list-table"
-          />
-        </Container>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <LinksSection />
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+    <Container
+      className="flex flex-col divide-y p-0"
+      data-testid="location-list-container"
+    >
+      <DataTable
+        data={stockLocations}
+        columns={columns}
+        rowCount={count}
+        pageSize={PAGE_SIZE}
+        getRowId={(row) => row.id}
+        heading={t("stockLocations.domain")}
+        subHeading={t("stockLocations.list.description")}
+        emptyState={{
+          empty: {
+            heading: t("stockLocations.list.noRecordsMessage"),
+            description: t("stockLocations.list.noRecordsMessageEmpty"),
+          },
+          filtered: {
+            heading: t("stockLocations.list.noRecordsMessage"),
+            description: t("stockLocations.list.noRecordsMessageFiltered"),
+          },
+        }}
+        actions={[
+          {
+            label: t("actions.create"),
+            to: "create",
+          },
+        ]}
+        isLoading={isLoading}
+        rowHref={(row) => `/settings/locations/${row.id}`}
+        enableSearch={true}
+        prefix={PREFIX}
+        layout="fill"
+        data-testid="location-list-table"
+      />
+    </Container>
   );
-}
+};
 
 const LinksSection = () => {
   const { t } = useTranslation();
@@ -127,3 +121,29 @@ const LinksSection = () => {
     </Container>
   );
 };
+
+const Root = ({ children }: { children?: ReactNode }) => {
+  return (
+    <TwoColumnPage showJSON>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <TwoColumnPage.Main>
+            <LocationListMain />
+          </TwoColumnPage.Main>
+          <TwoColumnPage.Sidebar>
+            <LinksSection />
+          </TwoColumnPage.Sidebar>
+        </>
+      )}
+    </TwoColumnPage>
+  );
+};
+
+export const LocationList = Object.assign(Root, {
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  MainContent: LocationListMain,
+  SidebarLinks: LinksSection,
+});

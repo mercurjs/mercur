@@ -1,10 +1,20 @@
+import { Children, ReactNode } from "react"
+
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { ShippingOptionTypeListTable } from "./components/shipping-option-type-list-table"
 
-export const ShippingOptionTypeList = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      <ShippingOptionTypeListTable />
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <ShippingOptionTypeListTable />
+      )}
     </SingleColumnPage>
   )
 }
+
+export const ShippingOptionTypeList = Object.assign(Root, {
+  Table: ShippingOptionTypeListTable,
+})

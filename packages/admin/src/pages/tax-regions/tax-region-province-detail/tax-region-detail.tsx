@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
@@ -8,7 +9,7 @@ import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TaxRegionProvinceOverrideSection } from "./components/tax-region-province-override-section"
 import { taxRegionLoader } from "./loader"
 
-export const TaxRegionDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const { province_id } = useParams()
 
   const initialData = useLoaderData() as Awaited<
@@ -31,12 +32,20 @@ export const TaxRegionDetail = () => {
   }
 
   return (
-    <SingleColumnPage
-      data={taxRegion}
-      showJSON
-    >
-      <TaxRegionProvinceDetailSection taxRegion={taxRegion} />
-      <TaxRegionProvinceOverrideSection taxRegion={taxRegion} />
+    <SingleColumnPage data={taxRegion} showJSON>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <TaxRegionProvinceDetailSection taxRegion={taxRegion} />
+          <TaxRegionProvinceOverrideSection taxRegion={taxRegion} />
+        </>
+      )}
     </SingleColumnPage>
   )
 }
+
+export const TaxRegionDetail = Object.assign(Root, {
+  DetailSection: TaxRegionProvinceDetailSection,
+  OverrideSection: TaxRegionProvinceOverrideSection,
+})

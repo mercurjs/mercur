@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -8,7 +9,7 @@ import { ProductTagGeneralSection } from "./components/product-tag-general-secti
 import { ProductTagProductSection } from "./components/product-tag-product-section"
 import { productTagLoader } from "./loader"
 
-export const ProductTagDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
 
   const initialData = useLoaderData() as Awaited<
@@ -32,13 +33,20 @@ export const ProductTagDetail = () => {
   }
 
   return (
-    <SingleColumnPage
-      showJSON
-      showMetadata
-      data={product_tag}
-    >
-      <ProductTagGeneralSection productTag={product_tag} />
-      <ProductTagProductSection productTag={product_tag} />
+    <SingleColumnPage showJSON showMetadata data={product_tag}>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <ProductTagGeneralSection productTag={product_tag} />
+          <ProductTagProductSection productTag={product_tag} />
+        </>
+      )}
     </SingleColumnPage>
   )
 }
+
+export const ProductTagDetail = Object.assign(Root, {
+  GeneralSection: ProductTagGeneralSection,
+  ProductSection: ProductTagProductSection,
+})

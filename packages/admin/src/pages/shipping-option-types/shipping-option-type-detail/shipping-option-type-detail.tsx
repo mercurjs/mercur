@@ -1,3 +1,4 @@
+import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -6,7 +7,7 @@ import { useShippingOptionType } from "../../../hooks/api"
 import { ShippingOptionTypeGeneralSection } from "./components/shipping-option-type-general-section"
 import { shippingOptionTypeLoader } from "./loader"
 
-export const ShippingOptionTypeDetail = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof shippingOptionTypeLoader>
@@ -26,14 +27,18 @@ export const ShippingOptionTypeDetail = () => {
   }
 
   return (
-    <SingleColumnPage
-      showJSON
-      showMetadata
-      data={shipping_option_type}
-    >
-      <ShippingOptionTypeGeneralSection
-        shippingOptionType={shipping_option_type}
-      />
+    <SingleColumnPage showJSON showMetadata data={shipping_option_type}>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <ShippingOptionTypeGeneralSection
+          shippingOptionType={shipping_option_type}
+        />
+      )}
     </SingleColumnPage>
   )
 }
+
+export const ShippingOptionTypeDetail = Object.assign(Root, {
+  GeneralSection: ShippingOptionTypeGeneralSection,
+})
