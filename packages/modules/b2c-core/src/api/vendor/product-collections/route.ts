@@ -1,6 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
 import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 
+import { filterSellerProductIds } from './utils'
+
 /**
  * @oas [get] /vendor/product-collections
  * operationId: "VendorListProductCollections"
@@ -75,12 +77,41 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { seller_id, ...filterableFields } = req.filterableFields as Record<string, unknown>
+
   const { data: product_collections, metadata } = await query.graph({
     entity: 'product_collection',
     fields: req.queryConfig.fields,
-    filters: req.filterableFields,
+    filters: filterableFields,
     pagination: req.queryConfig.pagination
   })
+
+  const hasProducts = product_collections.some(
+    (c) => Array.isArray((c as Record<string, unknown>).products)
+  )
+
+  if (hasProducts && seller_id) {
+    const allProductIds = product_collections.flatMap((c) => {
+      const products = (c as Record<string, unknown>).products as { id: string }[] | undefined
+      return products?.map((p) => p.id) ?? []
+    })
+
+    const sellerProductIds = await filterSellerProductIds(
+      req.scope,
+      seller_id as string,
+      allProductIds
+    )
+
+    for (const collection of product_collections) {
+      const col = collection as Record<string, unknown>
+      if (Array.isArray(col.products)) {
+        col.products = (col.products as { id: string }[]).filter(
+          (p) => sellerProductIds.has(p.id)
+        )
+      }
+    }
+  }
 
   res.json({
     product_collections,

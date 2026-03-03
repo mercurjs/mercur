@@ -140,8 +140,8 @@ mercur-cli dev
 
 - [Node.js v20+](https://nodejs.org/en/download)
 - [Yarn](https://yarnpkg.com/getting-started/install)
-- [PostgreSQL](https://git-scm.com/downloads)
-- [Git CLI](https://www.postgresql.org/download/)
+- [PostgreSQL](https://www.postgresql.org/download/)
+- [Git CLI](https://git-scm.com/downloads)
 
 # Resources
 

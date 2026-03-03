@@ -5,6 +5,55 @@ All notable changes to Mercur will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.4] - 2026-03-02
+
+### Release 1.5.4
+
+#### Storefront
+
+https://github.com/mercurjs/b2c-marketplace-storefront
+
+- Fixed password reset functionality not working correctly
+- Corrected UI issues in the "Set new password" modal
+- Fixed incorrect validation section displayed during account creation
+- Corrected wrong shop name and redirection link in welcome email
+- Added expiration date for password reset links to improve security
+
+#### Admin Panel
+
+https://github.com/mercurjs/admin-panel
+
+- Fixed missing method names in Financial Breakdown on Order Details view
+- Fixed missing Company ID and Company name in Customer section
+- Improved user-facing error message during the "Refund" action to make it clearer and more user-friendly
+
+#### Vendor Panel
+
+https://github.com/mercurjs/vendor-panel
+
+- Fixed error during creation of Pickup/Shipping options
+- Fixed issue where Shipping option could throw an error
+- Prevented required product attributes from being saved as empty
+- Fixed incorrect number of products displayed in collections
+- Added support for profile picture upload/editing (new endpoint + logic)
+
+#### Other / Backend / Platform
+
+**Security & Auth**
+
+- Fixed login endpoint returning 200 status code on incorrect credentials
+- Added custom authentication provider (extended email/password support)
+- Added new endpoint for account deletion
+
+**Infrastructure & Dev**
+
+- Development environment improvements
+- Fixes related to GitHub issues:
+  - issue #592 - fixed
+  - issue #612 - fixed
+  - issue #615 - fixed
+  - issue #672 - fixed
+
 ## [1.5.3] - 2026-02-17
 
 ### Release 1.5.3
