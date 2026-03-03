@@ -62,7 +62,6 @@ This monorepo includes the following packages and apps:
 ├── packages/
 │   └── api/            # Medusa backend
 │       ├── src/
-│       │   ├── admin/       # Admin UI extensions
 │       │   ├── api/         # Custom API routes
 │       │   ├── jobs/        # Background jobs
 │       │   ├── links/       # Module links
