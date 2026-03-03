@@ -1,9 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
 import { useOrder, useOrderPreview } from "../../../hooks/api/orders";
 import { ActiveOrderClaimSection } from "./components/active-order-claim-section";
 import { ActiveOrderExchangeSection } from "./components/active-order-exchange-section";
@@ -18,22 +17,6 @@ import { OrderSummarySection } from "./components/order-summary-section";
 import { DEFAULT_FIELDS } from "./constants";
 import { orderLoader } from "./loader";
 import { OrderRemainingOrdersGroupSection } from "./components/order-remaining-orders-group-section";
-
-const ALLOWED_TYPES = [
-  TwoColumnPage.Main,
-  TwoColumnPage.Sidebar,
-  OrderActiveEditSection,
-  ActiveOrderClaimSection,
-  ActiveOrderExchangeSection,
-  ActiveOrderReturnSection,
-  OrderGeneralSection,
-  OrderSummarySection,
-  OrderPaymentSection,
-  OrderFulfillmentSection,
-  OrderCustomerSection,
-  OrderActivitySection,
-  OrderRemainingOrdersGroupSection,
-] as const;
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -82,7 +65,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <TwoColumnPage
       data={order}
       showJSON

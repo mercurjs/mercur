@@ -2,7 +2,7 @@ import { PencilSquare, Trash } from "@medusajs/icons";
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useMemo, Children } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useLoaderData, useLocation } from "react-router-dom";
 
@@ -17,7 +17,6 @@ import { useProductTableColumns } from "../../../../../hooks/table/columns/use-p
 import { useProductTableFilters } from "../../../../../hooks/table/filters/use-product-table-filters";
 import { useProductTableQuery } from "../../../../../hooks/table/query/use-product-table-query";
 import { useDataTable } from "../../../../../hooks/use-data-table";
-import { hasExplicitCompoundComposition } from "../../../../../lib/compound-composition";
 import { productsLoader } from "../../loader";
 
 const PAGE_SIZE = 20;
@@ -91,19 +90,13 @@ export const ProductListImportButton = () => {
   );
 };
 
-const ACTIONS_ALLOWED_TYPES = [
-  ProductListExportButton,
-  ProductListImportButton,
-  ProductListCreateButton,
-] as const;
-
 export const ProductListActions = ({ children }: { children?: ReactNode }) => {
   return (
     <div
       className="flex items-center justify-center gap-x-2"
       data-testid="products-list-actions"
     >
-      {hasExplicitCompoundComposition(children, ACTIONS_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <>
@@ -116,15 +109,13 @@ export const ProductListActions = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-const HEADER_ALLOWED_TYPES = [ProductListTitle, ProductListActions] as const;
-
 export const ProductListHeader = ({ children }: { children?: ReactNode }) => {
   return (
     <div
       className="flex items-center justify-between px-6 py-4"
       data-testid="products-list-header"
     >
-      {hasExplicitCompoundComposition(children, HEADER_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <>
@@ -197,12 +188,10 @@ export const ProductListDataTable = () => {
   );
 };
 
-const TABLE_ALLOWED_TYPES = [ProductListHeader, ProductListDataTable] as const;
-
 export const ProductListTable = ({ children }: { children?: ReactNode }) => {
   return (
     <Container className="divide-y p-0" data-testid="products-list-table">
-      {hasExplicitCompoundComposition(children, TABLE_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <>

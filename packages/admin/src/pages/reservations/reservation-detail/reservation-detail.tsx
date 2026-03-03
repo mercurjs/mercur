@@ -1,17 +1,14 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import { useInventoryItem } from "../../../hooks/api"
 import { useReservationItem } from "../../../hooks/api/reservations"
 
 import { InventoryItemGeneralSection } from "../../inventory/inventory-detail/components/inventory-item-general-section"
 import { ReservationGeneralSection } from "./components/reservation-general-section"
 import { reservationItemLoader } from "./loader"
-
-const ALLOWED_TYPES = [TwoColumnPage.Main, TwoColumnPage.Sidebar, ReservationGeneralSection, InventoryItemGeneralSection] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
@@ -50,7 +47,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <TwoColumnPage data={reservation} showJSON showMetadata data-testid="reservation-detail-page">
       {children}
     </TwoColumnPage>

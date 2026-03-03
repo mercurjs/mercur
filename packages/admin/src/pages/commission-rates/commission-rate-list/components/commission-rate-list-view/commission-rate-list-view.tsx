@@ -1,7 +1,6 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { Container } from "@medusajs/ui"
 
-import { hasExplicitCompoundComposition } from "../../../../../lib/compound-composition"
 import { CommissionRateListDataTable } from "./commission-rate-list-data-table"
 import { CommissionRateListHeader } from "./commission-rate-list-header"
 
@@ -12,11 +11,6 @@ export {
   CommissionRateListActions,
 } from "./commission-rate-list-header"
 
-const TABLE_ALLOWED_TYPES = [
-  CommissionRateListHeader,
-  CommissionRateListDataTable,
-] as const
-
 export const CommissionRateListView = ({
   children,
 }: {
@@ -24,7 +18,7 @@ export const CommissionRateListView = ({
 }) => {
   return (
     <Container className="divide-y p-0">
-      {hasExplicitCompoundComposition(children, TABLE_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <>

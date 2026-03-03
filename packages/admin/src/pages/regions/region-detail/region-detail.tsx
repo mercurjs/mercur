@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { useRegion } from "../../../hooks/api/regions";
@@ -8,11 +8,8 @@ import { regionLoader } from "./loader";
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton";
 import { SingleColumnPage } from "../../../components/layout/pages";
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
 import { usePricePreferences } from "../../../hooks/api/price-preferences";
 import { REGION_DETAIL_FIELDS } from "./constants";
-
-const ALLOWED_TYPES = [RegionGeneralSection, RegionCountrySection] as const;
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -58,7 +55,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw preferencesError
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage data={region} showMetadata showJSON>
       {children}
     </SingleColumnPage>

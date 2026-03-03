@@ -1,7 +1,6 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import {
   TaxRegionListView,
   TaxRegionListDataTable,
@@ -10,12 +9,10 @@ import {
   TaxRegionListTitle,
 } from "./components/tax-region-list-view"
 
-const ALLOWED_TYPES = [TaxRegionListView] as const
-
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage hasOutlet>
-      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <TaxRegionListView />}
+      {Children.count(children) > 0 ? children : <TaxRegionListView />}
     </SingleColumnPage>
   )
 }

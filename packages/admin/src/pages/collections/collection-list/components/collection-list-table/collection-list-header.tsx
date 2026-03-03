@@ -1,9 +1,7 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
-
-import { hasExplicitCompoundComposition } from "../../../../../lib/compound-composition"
 
 export const CollectionListTitle = () => {
   const { t } = useTranslation()
@@ -17,8 +15,6 @@ export const CollectionListTitle = () => {
   )
 }
 
-const ACTIONS_ALLOWED_TYPES = [] as const
-
 export const CollectionListActions = ({
   children,
 }: {
@@ -27,7 +23,7 @@ export const CollectionListActions = ({
   const { t } = useTranslation()
   return (
     <div className="flex items-center justify-center gap-x-2">
-      {hasExplicitCompoundComposition(children, ACTIONS_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <Link to="/collections/create">
@@ -40,8 +36,6 @@ export const CollectionListActions = ({
   )
 }
 
-const HEADER_ALLOWED_TYPES = [CollectionListTitle, CollectionListActions] as const
-
 export const CollectionListHeader = ({
   children,
 }: {
@@ -49,7 +43,7 @@ export const CollectionListHeader = ({
 }) => {
   return (
     <div className="flex items-center justify-between px-6 py-4">
-      {hasExplicitCompoundComposition(children, HEADER_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <>

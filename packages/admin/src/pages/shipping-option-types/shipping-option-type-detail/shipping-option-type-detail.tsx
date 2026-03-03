@@ -1,14 +1,11 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import { useShippingOptionType } from "../../../hooks/api"
 import { ShippingOptionTypeGeneralSection } from "./components/shipping-option-type-general-section"
 import { shippingOptionTypeLoader } from "./loader"
-
-const ALLOWED_TYPES = [ShippingOptionTypeGeneralSection] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
@@ -29,7 +26,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage showJSON showMetadata data={shipping_option_type}>
       {children}
     </SingleColumnPage>

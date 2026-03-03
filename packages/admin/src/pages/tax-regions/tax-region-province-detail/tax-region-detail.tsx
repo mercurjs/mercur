@@ -1,16 +1,13 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import { useTaxRegion } from "../../../hooks/api/tax-regions"
 import { TaxRegionProvinceDetailSection } from "./components/tax-region-province-detail-section"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TaxRegionProvinceOverrideSection } from "./components/tax-region-province-override-section"
 import { taxRegionLoader } from "./loader"
-
-const ALLOWED_TYPES = [TaxRegionProvinceDetailSection, TaxRegionProvinceOverrideSection] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { province_id } = useParams()
@@ -34,7 +31,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage data={taxRegion} showJSON>
       {children}
     </SingleColumnPage>

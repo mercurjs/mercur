@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -6,10 +6,7 @@ import { useShippingProfile } from "../../../hooks/api/shipping-profiles"
 import { ShippingProfileGeneralSection } from "./components/shipping-profile-general-section"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import { shippingProfileLoader } from "./loader"
-
-const ALLOWED_TYPES = [ShippingProfileGeneralSection] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { shipping_profile_id } = useParams()
@@ -32,7 +29,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage showMetadata showJSON data={shipping_profile}>
       {children}
     </SingleColumnPage>

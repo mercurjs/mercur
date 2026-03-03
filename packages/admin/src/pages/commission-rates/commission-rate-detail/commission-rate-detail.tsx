@@ -1,15 +1,12 @@
-import { ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton";
 import { SingleColumnPage } from "../../../components/layout/pages";
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
 import { useCommissionRate } from "../../../hooks/api/commission-rates";
 import { CommissionRateGeneralSection } from "./components/commission-rate-general-section";
 import { CommissionRateRulesSection } from "./components/commission-rate-rules-section";
 import { commissionRateLoader } from "./loader";
-
-const ALLOWED_TYPES = [CommissionRateGeneralSection, CommissionRateRulesSection] as const;
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -32,7 +29,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage data={commission_rate} showJSON showMetadata>
       {children}
     </SingleColumnPage>

@@ -1,7 +1,6 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { Container } from "@medusajs/ui"
 
-import { hasExplicitCompoundComposition } from "../../../../../lib/compound-composition"
 import { ShippingOptionTypeListDataTable } from "./shipping-option-type-list-data-table"
 import { ShippingOptionTypeListHeader } from "./shipping-option-type-list-header"
 
@@ -12,11 +11,6 @@ export {
   ShippingOptionTypeListActions,
 } from "./shipping-option-type-list-header"
 
-const TABLE_ALLOWED_TYPES = [
-  ShippingOptionTypeListHeader,
-  ShippingOptionTypeListDataTable,
-] as const
-
 export const ShippingOptionTypeListView = ({
   children,
 }: {
@@ -24,7 +18,7 @@ export const ShippingOptionTypeListView = ({
 }) => {
   return (
     <Container className="divide-y p-0">
-      {hasExplicitCompoundComposition(children, TABLE_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <>

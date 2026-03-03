@@ -1,16 +1,13 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import { useProductType } from "../../../hooks/api/product-types"
 
 import { ProductTypeGeneralSection } from "./components/product-type-general-section"
 import { ProductTypeProductSection } from "./components/product-type-product-section"
 import { productTypeLoader } from "./loader"
-
-const ALLOWED_TYPES = [ProductTypeGeneralSection, ProductTypeProductSection] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
@@ -34,7 +31,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage showJSON showMetadata data={product_type}>
       {children}
     </SingleColumnPage>

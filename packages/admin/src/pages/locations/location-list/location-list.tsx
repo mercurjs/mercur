@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { ShoppingBag, TruckFast } from "@medusajs/icons";
 import { Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
@@ -11,7 +11,6 @@ import { useLocationListTableQuery } from "./use-location-list-table-query";
 import { DataTable } from "../../../components/data-table";
 import { SidebarLink } from "../../../components/common/sidebar-link/sidebar-link";
 import { TwoColumnPage } from "../../../components/layout/pages";
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
 import { keepPreviousData } from "@tanstack/react-query";
 
 const PAGE_SIZE = 20;
@@ -123,12 +122,10 @@ const LinksSection = () => {
   );
 };
 
-const ALLOWED_TYPES = [TwoColumnPage.Main, TwoColumnPage.Sidebar, LocationListContent, LinksSection] as const
-
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <TwoColumnPage showJSON>
-      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <>

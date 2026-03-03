@@ -1,16 +1,13 @@
-import { ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
 import { usePromotion, usePromotionRules } from "../../../hooks/api/promotions";
 import { CampaignSection } from "./components/campaign-section";
 import { PromotionConditionsSection } from "./components/promotion-conditions-section";
 import { PromotionGeneralSection } from "./components/promotion-general-section";
 import { promotionLoader } from "./loader";
-
-const ALLOWED_TYPES = [TwoColumnPage.Main, TwoColumnPage.Sidebar, PromotionGeneralSection, PromotionConditionsSection, CampaignSection] as const;
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -35,7 +32,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     );
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <TwoColumnPage data={promotion} hasOutlet showJSON data-testid="promotion-detail-page">
       {children}
     </TwoColumnPage>

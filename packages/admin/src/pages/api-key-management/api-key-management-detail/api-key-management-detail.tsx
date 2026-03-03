@@ -1,16 +1,13 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import { useApiKey } from "../../../hooks/api/api-keys"
 import { ApiKeyType } from "../common/constants"
 import { ApiKeyGeneralSection } from "./components/api-key-general-section"
 import { ApiKeySalesChannelSection } from "./components/api-key-sales-channel-section"
 import { apiKeyLoader } from "./loader"
-
-const ALLOWED_TYPES = [ApiKeyGeneralSection, ApiKeySalesChannelSection] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -33,7 +30,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const isPublishable = api_key.type === ApiKeyType.PUBLISHABLE
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage
       hasOutlet
       showJSON

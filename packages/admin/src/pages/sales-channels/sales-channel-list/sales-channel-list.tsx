@@ -1,7 +1,6 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import {
   SalesChannelListView,
   SalesChannelListDataTable,
@@ -10,12 +9,10 @@ import {
   SalesChannelListTitle,
 } from "./components/sales-channel-list-view"
 
-const ALLOWED_TYPES = [SalesChannelListView] as const
-
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage hasOutlet>
-      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <SalesChannelListView />}
+      {Children.count(children) > 0 ? children : <SalesChannelListView />}
     </SingleColumnPage>
   )
 }

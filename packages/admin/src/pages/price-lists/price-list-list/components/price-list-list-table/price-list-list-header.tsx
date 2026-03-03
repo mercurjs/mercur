@@ -1,9 +1,7 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
-
-import { hasExplicitCompoundComposition } from "../../../../../lib/compound-composition"
 
 export const PriceListListTitle = () => {
   const { t } = useTranslation()
@@ -17,8 +15,6 @@ export const PriceListListTitle = () => {
   )
 }
 
-const ACTIONS_ALLOWED_TYPES = [] as const
-
 export const PriceListListActions = ({
   children,
 }: {
@@ -27,7 +23,7 @@ export const PriceListListActions = ({
   const { t } = useTranslation()
   return (
     <div className="flex items-center justify-center gap-x-2">
-      {hasExplicitCompoundComposition(children, ACTIONS_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <Button size="small" variant="secondary" asChild>
@@ -38,8 +34,6 @@ export const PriceListListActions = ({
   )
 }
 
-const HEADER_ALLOWED_TYPES = [PriceListListTitle, PriceListListActions] as const
-
 export const PriceListListHeader = ({
   children,
 }: {
@@ -47,7 +41,7 @@ export const PriceListListHeader = ({
 }) => {
   return (
     <div className="flex items-center justify-between px-6 py-4">
-      {hasExplicitCompoundComposition(children, HEADER_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <>

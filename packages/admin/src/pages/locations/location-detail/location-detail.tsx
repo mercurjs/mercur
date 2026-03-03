@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { useStockLocation } from "../../../hooks/api/stock-locations";
@@ -8,11 +8,8 @@ import { locationLoader } from "./loader";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
 import LocationsFulfillmentProvidersSection from "./components/location-fulfillment-providers-section/location-fulfillment-providers-section";
 import { LOCATION_DETAILS_FIELD } from "./constants";
-
-const ALLOWED_TYPES = [TwoColumnPage.Main, TwoColumnPage.Sidebar, LocationGeneralSection, LocationsSalesChannelsSection, LocationsFulfillmentProvidersSection] as const;
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -41,7 +38,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <TwoColumnPage
       data={location}
       showJSON

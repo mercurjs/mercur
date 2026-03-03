@@ -1,7 +1,6 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { Container } from "@medusajs/ui"
 
-import { hasExplicitCompoundComposition } from "../../../../../lib/compound-composition"
 import { ApiKeyManagementListDataTable } from "./api-key-management-list-data-table"
 import { ApiKeyManagementListHeader } from "./api-key-management-list-header"
 
@@ -12,11 +11,6 @@ export {
   ApiKeyManagementListActions,
 } from "./api-key-management-list-header"
 
-const TABLE_ALLOWED_TYPES = [
-  ApiKeyManagementListHeader,
-  ApiKeyManagementListDataTable,
-] as const
-
 export const ApiKeyManagementListView = ({
   children,
 }: {
@@ -24,7 +18,7 @@ export const ApiKeyManagementListView = ({
 }) => {
   return (
     <Container className="divide-y p-0">
-      {hasExplicitCompoundComposition(children, TABLE_ALLOWED_TYPES) ? (
+      {Children.count(children) > 0 ? (
         children
       ) : (
         <>

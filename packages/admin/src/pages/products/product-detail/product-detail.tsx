@@ -1,11 +1,9 @@
-import { ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useProduct } from "../../../hooks/api/products";
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition";
-
 import { ProductAttributeSection } from "./components/product-attribute-section";
 import { ProductGeneralSection } from "./components/product-general-section";
 import { ProductMediaSection } from "./components/product-media-section";
@@ -16,20 +14,6 @@ import { ProductSellerSection } from "./components/product-seller-section/produc
 import { ProductShippingProfileSection } from "./components/product-shipping-profile-section";
 import { ProductVariantSection } from "./components/product-variant-section";
 import { productLoader } from "./loader";
-
-const ALLOWED_TYPES = [
-  TwoColumnPage.Main,
-  TwoColumnPage.Sidebar,
-  ProductGeneralSection,
-  ProductMediaSection,
-  ProductOptionSection,
-  ProductVariantSection,
-  ProductSellerSection,
-  ProductSalesChannelSection,
-  ProductShippingProfileSection,
-  ProductOrganizationSection,
-  ProductAttributeSection,
-] as const
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -60,7 +44,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <TwoColumnPage
       data={product}
       showJSON

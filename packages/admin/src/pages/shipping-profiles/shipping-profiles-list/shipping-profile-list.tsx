@@ -1,7 +1,6 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import {
   ShippingProfileListView,
   ShippingProfileListDataTable,
@@ -10,12 +9,10 @@ import {
   ShippingProfileListTitle,
 } from "./components/shipping-profile-list-view"
 
-const ALLOWED_TYPES = [ShippingProfileListView] as const
-
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <ShippingProfileListView />}
+      {Children.count(children) > 0 ? children : <ShippingProfileListView />}
     </SingleColumnPage>
   )
 }

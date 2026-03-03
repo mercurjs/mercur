@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types";
 import { Button, toast } from "@medusajs/ui";
-import { ReactNode, useCallback, useMemo } from "react";
+import { ReactNode, useCallback, useMemo, Children } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
@@ -12,7 +12,6 @@ import { TabDefinition } from "../../../../../components/tabbed-form/types";
 import { useCreateProduct } from "../../../../../hooks/api/products";
 import { useRegions } from "../../../../../hooks/api";
 import { sdk } from "../../../../../lib/client";
-import { hasExplicitCompoundComposition } from "../../../../../lib/compound-composition";
 import {
   PRODUCT_CREATE_FORM_DEFAULTS,
   ProductCreateSchema,
@@ -26,13 +25,6 @@ import { ProductCreateVariantsForm } from "../product-create-variants-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const SAVE_DRAFT_BUTTON = "save-draft-button";
-
-const ALLOWED_TYPES = [
-  ProductCreateDetailsForm,
-  ProductCreateOrganizeForm,
-  ProductCreateVariantsForm,
-  ProductCreateInventoryKitForm,
-] as const;
 
 type ProductCreateFormProps = {
   defaultChannel?: HttpTypes.AdminSalesChannel;
@@ -191,7 +183,7 @@ export const ProductCreateForm = ({
     [],
   );
 
-  const hasCustomChildren = hasExplicitCompoundComposition(children, ALLOWED_TYPES);
+  const hasCustomChildren = Children.count(children) > 0;
 
   return (
     <TabbedForm

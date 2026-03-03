@@ -1,14 +1,10 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 
 import { useMe } from "../../../hooks/api/users"
 import { ProfileGeneralSection } from "./components/profile-general-section"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
-
-const ALLOWED_TYPES = [ProfileGeneralSection] as const
-
 const Root = ({ children }: { children?: ReactNode }) => {
   const { user, isPending: isLoading, isError, error } = useMe()
 
@@ -20,7 +16,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage data-testid="profile-detail-page">
       {children}
     </SingleColumnPage>

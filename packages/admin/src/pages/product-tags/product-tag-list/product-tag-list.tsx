@@ -1,7 +1,6 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import {
   ProductTagListView,
   ProductTagListDataTable,
@@ -10,12 +9,10 @@ import {
   ProductTagListTitle,
 } from "./components/product-tag-list-view"
 
-const ALLOWED_TYPES = [ProductTagListView] as const
-
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage showMetadata={false} showJSON={false} hasOutlet>
-      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <ProductTagListView />}
+      {Children.count(children) > 0 ? children : <ProductTagListView />}
     </SingleColumnPage>
   )
 }

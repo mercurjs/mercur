@@ -1,7 +1,6 @@
-import { ReactNode } from "react"
+import { ReactNode, Children } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { hasExplicitCompoundComposition } from "../../../lib/compound-composition"
 import {
   ApiKeyManagementListView,
   ApiKeyManagementListDataTable,
@@ -10,15 +9,13 @@ import {
   ApiKeyManagementListTitle,
 } from "./components/api-key-management-list-view"
 
-const ALLOWED_TYPES = [ApiKeyManagementListView] as const
-
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage
       hasOutlet
       data-testid="publishable-api-keys-list-page"
     >
-      {hasExplicitCompoundComposition(children, ALLOWED_TYPES) ? children : <ApiKeyManagementListView />}
+      {Children.count(children) > 0 ? children : <ApiKeyManagementListView />}
     </SingleColumnPage>
   )
 }
