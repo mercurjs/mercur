@@ -56,7 +56,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-export const CategoryDetail = Object.assign(Root, {
+export const CategoryDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: CategoryGeneralSection,

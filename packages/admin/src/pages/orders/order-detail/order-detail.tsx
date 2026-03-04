@@ -102,8 +102,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-export const OrderDetail = Root;
-
 export const OrderDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,

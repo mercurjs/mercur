@@ -1,1 +1,1 @@
-export { CategoryList as Component } from "./category-list"
+export { CategoryListPage as Component } from "./category-list"

@@ -1,12 +1,13 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
-import { PromotionDTO } from "@medusajs/types"
+import { HttpTypes } from "@medusajs/types"
 import { Button, Container, Heading, usePrompt } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
+import { Children, ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom"
 
 import { keepPreviousData } from "@tanstack/react-query"
+
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
 import {
@@ -17,15 +18,57 @@ import { usePromotionTableColumns } from "../../../../../hooks/table/columns/use
 import { usePromotionTableFilters } from "../../../../../hooks/table/filters/use-promotion-table-filters"
 import { usePromotionTableQuery } from "../../../../../hooks/table/query/use-promotion-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-import { promotionsLoader } from "../../loader"
 
 const PAGE_SIZE = 20
 
-export const PromotionListTable = () => {
+export const PromotionListTitle = () => {
   const { t } = useTranslation()
-  const initialData = useLoaderData() as Awaited<
-    ReturnType<ReturnType<typeof promotionsLoader>>
-  >
+  return (
+    <Heading level="h2" data-testid="promotion-list-table-heading">
+      {t("promotions.domain")}
+    </Heading>
+  )
+}
+
+export const PromotionListCreateButton = () => {
+  const { t } = useTranslation()
+  return (
+    <Button size="small" variant="secondary" asChild data-testid="promotion-list-table-create-button">
+      <Link to="create">{t("actions.create")}</Link>
+    </Button>
+  )
+}
+
+export const PromotionListActions = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div className="flex items-center gap-x-2">
+      {Children.count(children) > 0 ? children : <PromotionListCreateButton />}
+    </div>
+  )
+}
+
+export const PromotionListHeader = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div
+      className="flex items-center justify-between px-6 py-4"
+      data-testid="promotion-list-table-header"
+    >
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <PromotionListTitle />
+          <PromotionListActions />
+        </>
+      )}
+    </div>
+  )
+}
+
+export const PromotionListDataTable = () => {
+  const { t } = useTranslation()
+  const initialData =
+    useLoaderData() as HttpTypes.AdminPromotionListResponse | undefined
 
   const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE })
   const { promotions, count, isLoading, isError, error } = usePromotions(
@@ -40,7 +83,7 @@ export const PromotionListTable = () => {
   const columns = useColumns()
 
   const { table } = useDataTable({
-    data: (promotions ?? []) as PromotionDTO[],
+    data: promotions ?? [],
     columns,
     count,
     enablePagination: true,
@@ -53,38 +96,43 @@ export const PromotionListTable = () => {
   }
 
   return (
+    <_DataTable
+      table={table}
+      columns={columns}
+      count={count}
+      pageSize={PAGE_SIZE}
+      filters={filters}
+      search
+      pagination
+      isLoading={isLoading}
+      queryObject={raw}
+      navigateTo={(row) => `${row.original.id}`}
+      orderBy={[
+        { key: "created_at", label: t("fields.createdAt") },
+        { key: "updated_at", label: t("fields.updatedAt") },
+      ]}
+      data-testid="promotion-list-table"
+    />
+  )
+}
+
+export const PromotionListTable = ({ children }: { children?: ReactNode }) => {
+  return (
     <Container className="divide-y p-0" data-testid="promotion-list-table-container">
-      <div className="flex items-center justify-between px-6 py-4" data-testid="promotion-list-table-header">
-        <Heading level="h2" data-testid="promotion-list-table-heading">{t("promotions.domain")}</Heading>
-
-        <Button size="small" variant="secondary" asChild data-testid="promotion-list-table-create-button">
-          <Link to="create">{t("actions.create")}</Link>
-        </Button>
-      </div>
-
-      <_DataTable
-        table={table}
-        columns={columns}
-        count={count}
-        pageSize={PAGE_SIZE}
-        filters={filters}
-        search
-        pagination
-        isLoading={isLoading}
-        queryObject={raw}
-        navigateTo={(row) => `${row.original.id}`}
-        orderBy={[
-          { key: "created_at", label: t("fields.createdAt") },
-          { key: "updated_at", label: t("fields.updatedAt") },
-        ]}
-        data-testid="promotion-list-table"
-      />
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <PromotionListHeader />
+          <PromotionListDataTable />
+        </>
+      )}
       <Outlet />
     </Container>
   )
 }
 
-const PromotionActions = ({ promotion }: { promotion: PromotionDTO }) => {
+const PromotionActions = ({ promotion }: { promotion: HttpTypes.AdminPromotion }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()
@@ -140,7 +188,7 @@ const PromotionActions = ({ promotion }: { promotion: PromotionDTO }) => {
   )
 }
 
-const columnHelper = createColumnHelper<PromotionDTO>()
+const columnHelper = createColumnHelper<HttpTypes.AdminPromotion>()
 
 const useColumns = () => {
   const base = usePromotionTableColumns()

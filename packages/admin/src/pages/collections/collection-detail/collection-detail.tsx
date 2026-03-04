@@ -42,7 +42,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-export const CollectionDetail = Object.assign(Root, {
+export const CollectionDetailPage = Object.assign(Root, {
   GeneralSection: CollectionGeneralSection,
   ProductSection: CollectionProductSection,
 });

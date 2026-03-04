@@ -1,10 +1,28 @@
-import { SingleColumnPage } from "../../../components/layout/pages";
-import { CustomerGroupListTable } from "./components/customer-group-list-table";
+import { Children, ReactNode } from "react"
 
-export const CustomerGroupsList = () => {
+import { SingleColumnPage } from "../../../components/layout/pages"
+import {
+  CustomerGroupListTable,
+  CustomerGroupListHeader,
+  CustomerGroupListTitle,
+  CustomerGroupListActions,
+  CustomerGroupListCreateButton,
+  CustomerGroupListDataTable,
+} from "./components/customer-group-list-table"
+
+const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      <CustomerGroupListTable />
+      {Children.count(children) > 0 ? children : <CustomerGroupListTable />}
     </SingleColumnPage>
-  );
-};
+  )
+}
+
+export const CustomerGroupListPage = Object.assign(Root, {
+  Table: CustomerGroupListTable,
+  Header: CustomerGroupListHeader,
+  HeaderTitle: CustomerGroupListTitle,
+  HeaderActions: CustomerGroupListActions,
+  HeaderCreateButton: CustomerGroupListCreateButton,
+  DataTable: CustomerGroupListDataTable,
+})

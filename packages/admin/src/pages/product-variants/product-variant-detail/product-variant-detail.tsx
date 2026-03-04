@@ -1,6 +1,8 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { HttpTypes } from "@medusajs/types"
+import { SellerDTO } from "@mercurjs/types"
 import { useProduct, useProductVariant } from "../../../hooks/api/products"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -12,15 +14,20 @@ import { ProductSellerSection } from "../../products/product-detail/components/p
 import { VARIANT_DETAIL_FIELDS } from "./constants"
 import { variantLoader } from "./loader"
 
+type AdminProductWithSeller = HttpTypes.AdminProduct & {
+  seller?: SellerDTO;
+};
+
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof variantLoader>
   >
 
   const { id, variant_id } = useParams()
-  const { product } = useProduct(id!, {
+  const { product: rawProduct } = useProduct(id!, {
     fields: "*seller",
   })
+  const product = rawProduct as AdminProductWithSeller | undefined
   const { variant, isLoading, isError, error } = useProductVariant(
     id!,
     variant_id!,
@@ -56,7 +63,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <VariantInventorySectionConnected variant={variant} />
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <ProductSellerSection seller={(product as any)?.seller} />
+        <ProductSellerSection seller={product?.seller} />
         <VariantPricesSection variant={variant} />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>

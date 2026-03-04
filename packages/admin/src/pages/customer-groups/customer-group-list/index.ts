@@ -1,1 +1,1 @@
-export { CustomerGroupsList as Component } from "./customer-group-list"
+export { CustomerGroupListPage as Component } from "./customer-group-list"

@@ -17,7 +17,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-export const SellersList = Object.assign(Root, {
+export const SellerListPage = Object.assign(Root, {
   Table: SellerListTable,
   Header: SellerListHeader,
   HeaderTitle: SellerListTitle,
