@@ -22,6 +22,7 @@ import { ProductCreateDetailsForm } from "../product-create-details-form";
 import { ProductCreateInventoryKitForm } from "../product-create-inventory-kit-form";
 import { ProductCreateOrganizeForm } from "../product-create-organize-form";
 import { ProductCreateVariantsForm } from "../product-create-variants-form";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const SAVE_DRAFT_BUTTON = "save-draft-button";
@@ -29,22 +30,27 @@ const SAVE_DRAFT_BUTTON = "save-draft-button";
 type ProductCreateFormProps = {
   defaultChannel?: HttpTypes.AdminSalesChannel;
   children?: ReactNode;
+  schema?: z.ZodType<any>;
+  defaultValues?: Record<string, any>;
 };
 
 export const ProductCreateForm = ({
   defaultChannel,
   children,
+  schema,
+  defaultValues: extraDefaults,
 }: ProductCreateFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const form = useForm<ProductCreateSchemaType>({
     defaultValues: {
       ...PRODUCT_CREATE_FORM_DEFAULTS,
+      ...extraDefaults,
       sales_channels: defaultChannel
         ? [{ id: defaultChannel.id, name: defaultChannel.name }]
         : [],
     } as ProductCreateSchemaType,
-    resolver: zodResolver(ProductCreateSchema),
+    resolver: zodResolver(schema ?? ProductCreateSchema),
   });
 
   const { mutateAsync, isPending } = useCreateProduct();
@@ -131,12 +137,15 @@ export const ProductCreateForm = ({
     }
 
     await mutateAsync(
-      normalizeProductFormValues({
+      {
         ...payload,
-        media: uploadedMedia,
-        status: (isDraftSubmission ? "draft" : "published") as any,
-        regionsCurrencyMap,
-      }),
+        ...normalizeProductFormValues({
+          ...payload,
+          media: uploadedMedia,
+          status: (isDraftSubmission ? "draft" : "published") as any,
+          regionsCurrencyMap,
+        }),
+      } as any,
       {
         onSuccess: (data) => {
           toast.success(

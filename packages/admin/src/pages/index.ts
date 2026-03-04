@@ -28,6 +28,10 @@ export * from "./shipping-profiles"
 export * from "./tax-regions"
 export * from "./users"
 
+// Non-Settings — Create pages
+export { ProductCreatePage } from "./products/product-create/product-create"
+export { ProductCreateSchema } from "./products/product-create/constants"
+
 // Non-Settings — Detail pages
 export { ProductDetailPage } from "./products/product-detail/product-detail"
 export { ProductVariantDetailPage } from "./product-variants/product-variant-detail/product-variant-detail"
