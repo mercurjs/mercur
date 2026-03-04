@@ -2,7 +2,7 @@ import { PencilSquare, Trash } from "@medusajs/icons";
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Children, ReactNode, useMemo } from "react";
+import { ReactNode, useMemo, Children } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useLoaderData, useLocation } from "react-router-dom";
 

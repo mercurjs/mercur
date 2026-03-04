@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -23,22 +23,20 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={price_list} showJSON>
-          <TwoColumnPage.Main>
-            <PriceListGeneralSection priceList={price_list} />
-            <PriceListProductSection priceList={price_list} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <PriceListConfigurationSection priceList={price_list} />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage data={price_list} showJSON data-testid="price-list-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage data={price_list} showJSON data-testid="price-list-detail-page">
+      <TwoColumnPage.Main>
+        <PriceListGeneralSection priceList={price_list} />
+        <PriceListProductSection priceList={price_list} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <PriceListConfigurationSection priceList={price_list} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }
 

@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
 import {
@@ -17,7 +17,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-export const TaxRegionsList = Object.assign(Root, {
+export const TaxRegionListPage = Object.assign(Root, {
   Table: TaxRegionListView,
   Header: TaxRegionListHeader,
   HeaderTitle: TaxRegionListTitle,

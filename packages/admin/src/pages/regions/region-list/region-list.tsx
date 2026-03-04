@@ -1,16 +1,26 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { RegionListTable } from "./components/region-list-table"
+import {
+  RegionListView,
+  RegionListDataTable,
+  RegionListHeader,
+  RegionListActions,
+  RegionListTitle,
+} from "./components/region-list-view"
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      {Children.count(children) > 0 ? children : <RegionListTable />}
+      {Children.count(children) > 0 ? children : <RegionListView />}
     </SingleColumnPage>
   )
 }
 
-export const RegionList = Object.assign(Root, {
-  Table: RegionListTable,
+export const RegionListPage = Object.assign(Root, {
+  Table: RegionListView,
+  Header: RegionListHeader,
+  HeaderTitle: RegionListTitle,
+  HeaderActions: RegionListActions,
+  DataTable: RegionListDataTable,
 })

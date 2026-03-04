@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -23,21 +23,19 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage data={store} hasOutlet showMetadata showJSON>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <>
-          <MarketplaceGeneralSection store={store} />
-          <MarketplaceCurrencySection store={store} />
-        </>
-      )}
+      {children}
+    </SingleColumnPage>
+  ) : (
+    <SingleColumnPage data={store} hasOutlet showMetadata showJSON>
+      <MarketplaceGeneralSection store={store} />
+      <MarketplaceCurrencySection store={store} />
     </SingleColumnPage>
   )
 }
 
-export const MarketplaceDetail = Object.assign(Root, {
+export const MarketplaceDetailPage = Object.assign(Root, {
   GeneralSection: MarketplaceGeneralSection,
   CurrencySection: MarketplaceCurrencySection,
 })

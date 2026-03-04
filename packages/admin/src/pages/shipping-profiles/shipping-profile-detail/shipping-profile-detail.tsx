@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -29,17 +29,17 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage showMetadata showJSON data={shipping_profile}>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <ShippingProfileGeneralSection profile={shipping_profile} />
-      )}
+      {children}
+    </SingleColumnPage>
+  ) : (
+    <SingleColumnPage showMetadata showJSON data={shipping_profile}>
+      <ShippingProfileGeneralSection profile={shipping_profile} />
     </SingleColumnPage>
   )
 }
 
-export const ShippingProfileDetail = Object.assign(Root, {
+export const ShippingProfileDetailPage = Object.assign(Root, {
   GeneralSection: ShippingProfileGeneralSection,
 })

@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -47,27 +47,25 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={reservation} showJSON showMetadata>
-          <TwoColumnPage.Main>
-            <ReservationGeneralSection reservation={reservation} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            {inventory_item && (
-              <InventoryItemGeneralSection inventoryItem={inventory_item} />
-            )}
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage data={reservation} showJSON showMetadata data-testid="reservation-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage data={reservation} showJSON showMetadata data-testid="reservation-detail-page">
+      <TwoColumnPage.Main>
+        <ReservationGeneralSection reservation={reservation} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        {inventory_item && (
+          <InventoryItemGeneralSection inventoryItem={inventory_item} />
+        )}
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }
 
-export const ReservationDetail = Object.assign(Root, {
+export const ReservationDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: ReservationGeneralSection,

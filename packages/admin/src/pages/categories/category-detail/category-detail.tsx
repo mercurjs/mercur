@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -39,22 +39,20 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage showJSON showMetadata data={product_category}>
-          <TwoColumnPage.Main>
-            <CategoryGeneralSection category={product_category} />
-            <CategoryProductSection category={product_category} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <CategoryOrganizeSection category={product_category} />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage showJSON showMetadata data={product_category} data-testid="category-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage showJSON showMetadata data={product_category} data-testid="category-detail-page">
+      <TwoColumnPage.Main>
+        <CategoryGeneralSection category={product_category} />
+        <CategoryProductSection category={product_category} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <CategoryOrganizeSection category={product_category} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }
 

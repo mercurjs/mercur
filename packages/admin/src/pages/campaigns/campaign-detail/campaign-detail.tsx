@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -39,28 +39,26 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage hasOutlet showJSON showMetadata data={campaign}>
-          <TwoColumnPage.Main>
-            <CampaignGeneralSection campaign={campaign} />
-            <CampaignPromotionSection campaign={campaign} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <CampaignConfigurationSection campaign={campaign} />
-            <CampaignSpend campaign={campaign} />
-            <CampaignBudget campaign={campaign} />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage hasOutlet showJSON showMetadata data={campaign} data-testid="campaign-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage hasOutlet showJSON showMetadata data={campaign} data-testid="campaign-detail-page">
+      <TwoColumnPage.Main>
+        <CampaignGeneralSection campaign={campaign} />
+        <CampaignPromotionSection campaign={campaign} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <CampaignConfigurationSection campaign={campaign} />
+        <CampaignSpend campaign={campaign} />
+        <CampaignBudget campaign={campaign} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }
 
-export const CampaignDetail = Object.assign(Root, {
+export const CampaignDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: CampaignGeneralSection,

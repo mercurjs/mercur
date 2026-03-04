@@ -1,1 +1,1 @@
-export { LocationList as Component } from "./location-list"
+export { LocationListPage as Component } from "./location-list"

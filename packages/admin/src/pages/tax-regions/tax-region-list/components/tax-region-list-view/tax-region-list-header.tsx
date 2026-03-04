@@ -1,6 +1,7 @@
 import { Children, ReactNode } from "react"
-import { Heading, Text } from "@medusajs/ui"
+import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 
 export const TaxRegionListTitle = () => {
   const { t } = useTranslation()
@@ -19,8 +20,19 @@ export const TaxRegionListActions = ({
 }: {
   children?: ReactNode
 }) => {
+  const { t } = useTranslation()
   return (
-    <div className="flex items-center justify-center gap-x-2">{children}</div>
+    <div className="flex items-center justify-center gap-x-2">
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <Link to="create">
+          <Button size="small" variant="secondary">
+            {t("actions.create")}
+          </Button>
+        </Link>
+      )}
+    </div>
   )
 }
 

@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -31,7 +31,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return Children.count(children) > 0 ? (
-    <>{children}</>
+    <TwoColumnPage data={customer} hasOutlet showJSON showMetadata>{children}</TwoColumnPage>
   ) : (
     <TwoColumnPage data={customer} hasOutlet showJSON showMetadata>
       <TwoColumnPage.Main>

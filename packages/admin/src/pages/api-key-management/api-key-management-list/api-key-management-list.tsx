@@ -1,25 +1,29 @@
-import { Children, ReactNode } from "react"
-import { useLocation } from "react-router-dom"
+import { ReactNode, Children } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { getApiKeyTypeFromPathname } from "../common/utils"
-import { ApiKeyManagementListTable } from "./components/api-key-management-list-table"
+import {
+  ApiKeyManagementListView,
+  ApiKeyManagementListDataTable,
+  ApiKeyManagementListHeader,
+  ApiKeyManagementListActions,
+  ApiKeyManagementListTitle,
+} from "./components/api-key-management-list-view"
 
 const Root = ({ children }: { children?: ReactNode }) => {
-  const { pathname } = useLocation()
-  const keyType = getApiKeyTypeFromPathname(pathname)
-
   return (
-    <SingleColumnPage hasOutlet data-testid="publishable-api-keys-list-page">
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <ApiKeyManagementListTable keyType={keyType} />
-      )}
+    <SingleColumnPage
+      hasOutlet
+      data-testid="publishable-api-keys-list-page"
+    >
+      {Children.count(children) > 0 ? children : <ApiKeyManagementListView />}
     </SingleColumnPage>
   )
 }
 
-export const ApiKeyManagementList = Object.assign(Root, {
-  Table: ApiKeyManagementListTable,
+export const ApiKeyManagementListPage = Object.assign(Root, {
+  Table: ApiKeyManagementListView,
+  Header: ApiKeyManagementListHeader,
+  HeaderTitle: ApiKeyManagementListTitle,
+  HeaderActions: ApiKeyManagementListActions,
+  DataTable: ApiKeyManagementListDataTable,
 })

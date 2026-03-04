@@ -1,10 +1,9 @@
-import { Children, ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useProduct } from "../../../hooks/api/products";
-
 import { ProductAttributeSection } from "./components/product-attribute-section";
 import { ProductGeneralSection } from "./components/product-general-section";
 import { ProductMediaSection } from "./components/product-media-section";
@@ -46,7 +45,12 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return Children.count(children) > 0 ? (
-    <TwoColumnPage data-testid="product-detail-page">
+    <TwoColumnPage
+      data={product}
+      showJSON
+      showMetadata
+      data-testid="product-detail-page"
+    >
       {children}
     </TwoColumnPage>
   ) : (

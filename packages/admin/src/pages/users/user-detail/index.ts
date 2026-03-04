@@ -1,3 +1,3 @@
 export { UserDetailBreadcrumb as Breadcrumb } from "./breadcrumb"
 export { userLoader as loader } from "./loader"
-export { UserDetail as Component } from "./user-detail"
+export { UserDetailPage as Component } from "./user-detail"

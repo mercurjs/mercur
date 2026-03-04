@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
 import {
@@ -17,10 +17,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-export const UserList = Object.assign(Root, {
+export const UserListPage = Object.assign(Root, {
   Table: UserListTable,
   Header: UserListHeader,
   HeaderTitle: UserListTitle,
   HeaderActions: UserListActions,
   DataTable: UserListDataTable,
 })
+

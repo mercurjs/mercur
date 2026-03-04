@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
@@ -32,43 +32,41 @@ const Root = ({ children }: { children?: ReactNode }) => {
     );
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={promotion} hasOutlet showJSON>
-          <TwoColumnPage.Main>
-            <PromotionGeneralSection promotion={promotion} />
-            <PromotionConditionsSection
-              rules={rules || []}
-              ruleType={"rules"}
-            />
-            <PromotionConditionsSection
-              rules={targetRules || []}
-              ruleType={"target-rules"}
-              applicationMethodTargetType={
-                promotion.application_method?.target_type || "items"
-              }
-            />
-            {promotion.type === "buyget" && (
-              <PromotionConditionsSection
-                rules={buyRules || []}
-                ruleType={"buy-rules"}
-                applicationMethodTargetType={"items"}
-              />
-            )}
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <CampaignSection campaign={promotion.campaign!} />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage data={promotion} hasOutlet showJSON data-testid="promotion-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage data={promotion} hasOutlet showJSON data-testid="promotion-detail-page">
+      <TwoColumnPage.Main>
+        <PromotionGeneralSection promotion={promotion} />
+        <PromotionConditionsSection
+          rules={rules || []}
+          ruleType={"rules"}
+        />
+        <PromotionConditionsSection
+          rules={targetRules || []}
+          ruleType={"target-rules"}
+          applicationMethodTargetType={
+            promotion.application_method?.target_type || "items"
+          }
+        />
+        {promotion.type === "buyget" && (
+          <PromotionConditionsSection
+            rules={buyRules || []}
+            ruleType={"buy-rules"}
+            applicationMethodTargetType={"items"}
+          />
+        )}
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <CampaignSection campaign={promotion.campaign!} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   );
 };
 
-export const PromotionDetail = Object.assign(Root, {
+export const PromotionDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: PromotionGeneralSection,

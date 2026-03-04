@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
@@ -25,7 +25,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const { id } = useParams();
 
-  const { order, isLoading, isError, error } = useOrder(
+  const { order: rawOrder, isLoading, isError, error } = useOrder(
     id!,
     {
       fields: DEFAULT_FIELDS,
@@ -36,19 +36,20 @@ const Root = ({ children }: { children?: ReactNode }) => {
   );
 
   // TODO: Retrieve endpoints don't have an order ability, so a JS sort until this is available
-  if (order) {
-    order.items = order.items.sort((itemA, itemB) => {
-      if (itemA.created_at > itemB.created_at) {
-        return 1;
+  const order = rawOrder
+    ? {
+        ...rawOrder,
+        items: [...rawOrder.items].sort((itemA, itemB) => {
+          if (itemA.created_at > itemB.created_at) {
+            return 1;
+          }
+          if (itemA.created_at < itemB.created_at) {
+            return -1;
+          }
+          return 0;
+        }),
       }
-
-      if (itemA.created_at < itemB.created_at) {
-        return -1;
-      }
-
-      return 0;
-    });
-  }
+    : rawOrder;
 
   const { order: orderPreview, isLoading: isPreviewLoading } = useOrderPreview(
     id!,
@@ -64,36 +65,40 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage
-          data={order}
-          showJSON
-          showMetadata
-          hasOutlet
-          data-testid="order-detail-page"
-        >
-          <TwoColumnPage.Main data-testid="order-detail-main">
-            <OrderActiveEditSection order={order} />
-            <ActiveOrderClaimSection orderPreview={orderPreview!} />
-            <ActiveOrderExchangeSection orderPreview={orderPreview!} />
-            <ActiveOrderReturnSection orderPreview={orderPreview!} />
-            <OrderGeneralSection order={order} />
-            <OrderSummarySection order={order} />
-            <OrderPaymentSection order={order} />
-            <OrderFulfillmentSection order={order} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
-            <OrderCustomerSection order={order} />
-            <OrderActivitySection order={order} />
-            <OrderRemainingOrdersGroupSection />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage
+      data={order}
+      showJSON
+      showMetadata
+      hasOutlet
+      data-testid="order-detail-page"
+    >
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage
+      data={order}
+      showJSON
+      showMetadata
+      hasOutlet
+      data-testid="order-detail-page"
+    >
+      <TwoColumnPage.Main data-testid="order-detail-main">
+        <OrderActiveEditSection order={order} />
+        <ActiveOrderClaimSection orderPreview={orderPreview!} />
+        <ActiveOrderExchangeSection orderPreview={orderPreview!} />
+        <ActiveOrderReturnSection orderPreview={orderPreview!} />
+        <OrderGeneralSection order={order} />
+        <OrderSummarySection order={order} />
+        <OrderPaymentSection order={order} />
+        <OrderFulfillmentSection order={order} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
+        <OrderCustomerSection order={order} />
+        <OrderActivitySection order={order} />
+        <OrderRemainingOrdersGroupSection />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   );
 };
 

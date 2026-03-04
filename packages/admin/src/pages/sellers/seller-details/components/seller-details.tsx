@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../../components/common/skeleton"
@@ -22,23 +22,21 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={seller} hasOutlet showJSON showMetadata>
-          <TwoColumnPage.Main>
-            <SellerGeneralSection seller={seller} />
-            <SellerOrderSection sellerId={seller.id} />
-            <SellerProductSection sellerId={seller.id} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <SellerAddressSection seller={seller} />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage data={seller} hasOutlet showJSON showMetadata data-testid="seller-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage data={seller} hasOutlet showJSON showMetadata data-testid="seller-detail-page">
+      <TwoColumnPage.Main>
+        <SellerGeneralSection seller={seller} />
+        <SellerOrderSection sellerId={seller.id} />
+        <SellerProductSection sellerId={seller.id} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <SellerAddressSection seller={seller} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }
 

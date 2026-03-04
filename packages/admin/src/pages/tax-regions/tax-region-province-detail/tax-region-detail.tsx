@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
@@ -31,21 +31,19 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage data={taxRegion} showJSON>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <>
-          <TaxRegionProvinceDetailSection taxRegion={taxRegion} />
-          <TaxRegionProvinceOverrideSection taxRegion={taxRegion} />
-        </>
-      )}
+      {children}
+    </SingleColumnPage>
+  ) : (
+    <SingleColumnPage data={taxRegion} showJSON>
+      <TaxRegionProvinceDetailSection taxRegion={taxRegion} />
+      <TaxRegionProvinceOverrideSection taxRegion={taxRegion} />
     </SingleColumnPage>
   )
 }
 
-export const TaxRegionDetail = Object.assign(Root, {
+export const TaxRegionProvinceDetailPage = Object.assign(Root, {
   DetailSection: TaxRegionProvinceDetailSection,
   OverrideSection: TaxRegionProvinceOverrideSection,
 })

@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -16,13 +16,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const { id } = useParams()
 
-  const { api_key, isLoading, isError, error } = useApiKey(
-    id!,
-    undefined,
-    {
-      initialData: initialData,
-    }
-  )
+  const { api_key, isLoading, isError, error } = useApiKey(id!, undefined, {
+    initialData,
+  })
 
   if (isLoading || !api_key) {
     return <SingleColumnPageSkeleton showJSON sections={1} />
@@ -32,28 +28,31 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  const isPublishable = api_key?.type === ApiKeyType.PUBLISHABLE
+  const isPublishable = api_key.type === ApiKeyType.PUBLISHABLE
 
-  return (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage
       hasOutlet
       showJSON
       data={api_key}
       data-testid={`${api_key.type}-api-key-detail-page`}
     >
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <>
-          <ApiKeyGeneralSection apiKey={api_key} />
-          {isPublishable && <ApiKeySalesChannelSection apiKey={api_key} />}
-        </>
-      )}
+      {children}
+    </SingleColumnPage>
+  ) : (
+    <SingleColumnPage
+      hasOutlet
+      showJSON
+      data={api_key}
+      data-testid={`${api_key.type}-api-key-detail-page`}
+    >
+      <ApiKeyGeneralSection apiKey={api_key} />
+      {isPublishable && <ApiKeySalesChannelSection apiKey={api_key} />}
     </SingleColumnPage>
   )
 }
 
-export const ApiKeyManagementDetail = Object.assign(Root, {
+export const ApiKeyManagementDetailPage = Object.assign(Root, {
   GeneralSection: ApiKeyGeneralSection,
   SalesChannelSection: ApiKeySalesChannelSection,
 })

@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useTranslation } from "react-i18next";
 import { Heading } from "@medusajs/ui";
 

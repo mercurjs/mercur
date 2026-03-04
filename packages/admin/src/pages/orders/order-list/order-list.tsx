@@ -1,7 +1,6 @@
-import { Children, ReactNode } from "react";
+import { ReactNode, Children } from "react";
 
 import { SingleColumnPage } from "../../../components/layout/pages";
-
 import {
   OrderListTable,
   OrderListDataTable,

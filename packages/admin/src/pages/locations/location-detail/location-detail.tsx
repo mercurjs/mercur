@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { useStockLocation } from "../../../hooks/api/stock-locations";
@@ -38,31 +38,34 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return (
+  return Children.count(children) > 0 ? (
     <TwoColumnPage
       data={location}
       showJSON
       hasOutlet
       data-testid="location-detail-page"
     >
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <>
-          <TwoColumnPage.Main data-testid="location-detail-main">
-            <LocationGeneralSection location={location} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar data-testid="location-detail-sidebar">
-            <LocationsSalesChannelsSection location={location} />
-            <LocationsFulfillmentProvidersSection location={location} />
-          </TwoColumnPage.Sidebar>
-        </>
-      )}
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage
+      data={location}
+      showJSON
+      hasOutlet
+      data-testid="location-detail-page"
+    >
+      <TwoColumnPage.Main data-testid="location-detail-main">
+        <LocationGeneralSection location={location} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar data-testid="location-detail-sidebar">
+        <LocationsSalesChannelsSection location={location} />
+        <LocationsFulfillmentProvidersSection location={location} />
+      </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );
 };
 
-export const LocationDetail = Object.assign(Root, {
+export const LocationDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: LocationGeneralSection,

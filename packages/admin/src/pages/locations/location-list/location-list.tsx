@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react";
+import { ReactNode, Children } from "react";
 import { ShoppingBag, TruckFast } from "@medusajs/icons";
 import { Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 const PAGE_SIZE = 20;
 const PREFIX = "loc";
 
-const LocationListMain = () => {
+const LocationListContent = () => {
   const { t } = useTranslation();
 
   const searchParams = useLocationListTableQuery({
@@ -33,7 +33,7 @@ const LocationListMain = () => {
   } = useStockLocations(
     {
       fields: LOCATION_LIST_FIELDS,
-      ...searchParams,
+      ...(searchParams as Record<string, unknown>),
     },
     {
       placeholderData: keepPreviousData,
@@ -130,7 +130,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <>
           <TwoColumnPage.Main>
-            <LocationListMain />
+            <LocationListContent />
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
             <LinksSection />
@@ -141,9 +141,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-export const LocationList = Object.assign(Root, {
+export const LocationListPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
-  MainContent: LocationListMain,
-  SidebarLinks: LinksSection,
+  Content: LocationListContent,
+  LinksSection,
 });

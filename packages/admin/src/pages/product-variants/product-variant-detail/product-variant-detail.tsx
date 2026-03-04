@@ -1,11 +1,10 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { useProduct, useProductVariant } from "../../../hooks/api/products"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
-
 import { VariantGeneralSection } from "./components/variant-general-section"
 import { VariantInventorySectionConnected } from "./components/variant-inventory-section"
 import { VariantPricesSection } from "./components/variant-prices-section"
@@ -47,7 +46,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return Children.count(children) > 0 ? (
-    <TwoColumnPage>
+    <TwoColumnPage data={variant} showJSON showMetadata hasOutlet>
       {children}
     </TwoColumnPage>
   ) : (

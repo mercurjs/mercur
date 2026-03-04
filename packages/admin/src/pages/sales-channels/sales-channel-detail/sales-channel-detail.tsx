@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
@@ -22,21 +22,19 @@ const Root = ({ children }: { children?: ReactNode }) => {
     return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />
   }
 
-  return (
+  return Children.count(children) > 0 ? (
     <SingleColumnPage showJSON showMetadata data={sales_channel}>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <>
-          <SalesChannelGeneralSection salesChannel={sales_channel} />
-          <SalesChannelProductSection salesChannel={sales_channel} />
-        </>
-      )}
+      {children}
+    </SingleColumnPage>
+  ) : (
+    <SingleColumnPage showJSON showMetadata data={sales_channel}>
+      <SalesChannelGeneralSection salesChannel={sales_channel} />
+      <SalesChannelProductSection salesChannel={sales_channel} />
     </SingleColumnPage>
   )
 }
 
-export const SalesChannelDetail = Object.assign(Root, {
+export const SalesChannelDetailPage = Object.assign(Root, {
   GeneralSection: SalesChannelGeneralSection,
   ProductSection: SalesChannelProductSection,
 })

@@ -1,1 +1,1 @@
-export { ShippingProfileList as Component } from "./shipping-profile-list"
+export { ShippingProfileListPage as Component } from "./shipping-profile-list"

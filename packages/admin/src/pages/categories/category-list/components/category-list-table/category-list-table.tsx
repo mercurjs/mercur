@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { Container } from "@medusajs/ui"
 
 import { CategoryListHeader } from "./category-list-header"

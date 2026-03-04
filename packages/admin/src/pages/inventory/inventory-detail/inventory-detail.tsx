@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
@@ -50,35 +50,33 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return (
-    <div data-testid="inventory-detail-page">
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={inventory_item} showJSON showMetadata>
-          <TwoColumnPage.Main data-testid="inventory-detail-main">
-            <InventoryItemGeneralSection inventoryItem={inventory_item} />
-            <InventoryItemLocationLevelsSection
-              inventoryItem={inventory_item}
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage data={inventory_item} showJSON showMetadata data-testid="inventory-detail-page">
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage data={inventory_item} showJSON showMetadata data-testid="inventory-detail-page">
+      <TwoColumnPage.Main data-testid="inventory-detail-main">
+        <InventoryItemGeneralSection inventoryItem={inventory_item} />
+        <InventoryItemLocationLevelsSection
+          inventoryItem={inventory_item}
+        />
+        <InventoryItemReservationsSection inventoryItem={inventory_item} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar data-testid="inventory-detail-sidebar">
+        {inventory_item.variants &&
+          inventory_item.variants?.length > 0 && (
+            <InventoryItemVariantsSection
+              variants={inventory_item.variants}
             />
-            <InventoryItemReservationsSection inventoryItem={inventory_item} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar data-testid="inventory-detail-sidebar">
-            {inventory_item.variants &&
-              inventory_item.variants?.length > 0 && (
-                <InventoryItemVariantsSection
-                  variants={inventory_item.variants}
-                />
-              )}
-            <InventoryItemAttributeSection inventoryItem={inventory_item} />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </div>
+          )}
+        <InventoryItemAttributeSection inventoryItem={inventory_item} />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }
 
-export const InventoryDetail = Object.assign(Root, {
+export const InventoryDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: InventoryItemGeneralSection,
