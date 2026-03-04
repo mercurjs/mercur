@@ -1,2 +1,2 @@
-export { PriceListList } from "./price-list-list/price-list-list"
-export { PriceListDetails } from "./price-list-detail/price-list-detail"
+export { PriceListListPage } from "./price-list-list/price-list-list"
+export { PriceListDetailPage } from "./price-list-detail/price-list-detail"

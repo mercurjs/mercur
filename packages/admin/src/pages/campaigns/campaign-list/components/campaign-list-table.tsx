@@ -3,7 +3,7 @@ import { AdminCampaign } from "@medusajs/types"
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
+import { Children, ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 import { ActionMenu } from "../../../../components/common/action-menu"
@@ -18,7 +18,53 @@ import { useDataTable } from "../../../../hooks/use-data-table"
 
 const PAGE_SIZE = 20
 
-export const CampaignListTable = () => {
+export const CampaignListTitle = () => {
+  const { t } = useTranslation()
+  return (
+    <Heading level="h2" data-testid="campaign-list-table-heading">
+      {t("campaigns.domain")}
+    </Heading>
+  )
+}
+
+export const CampaignListCreateButton = () => {
+  const { t } = useTranslation()
+  return (
+    <Link to="/campaigns/create">
+      <Button size="small" variant="secondary" data-testid="campaign-list-table-create-button">
+        {t("actions.create")}
+      </Button>
+    </Link>
+  )
+}
+
+export const CampaignListActions = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div className="flex items-center gap-x-2">
+      {Children.count(children) > 0 ? children : <CampaignListCreateButton />}
+    </div>
+  )
+}
+
+export const CampaignListHeader = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div
+      className="flex items-center justify-between px-6 py-4"
+      data-testid="campaign-list-table-header"
+    >
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <CampaignListTitle />
+          <CampaignListActions />
+        </>
+      )}
+    </div>
+  )
+}
+
+export const CampaignListDataTable = () => {
   const { t } = useTranslation()
   const { raw, searchParams } = useCampaignTableQuery({ pageSize: PAGE_SIZE })
 
@@ -48,37 +94,42 @@ export const CampaignListTable = () => {
   }
 
   return (
-    <Container className="divide-y p-0" data-testid="campaign-list-table-container">
-      <div className="flex items-center justify-between px-6 py-4" data-testid="campaign-list-table-header">
-        <Heading level="h2" data-testid="campaign-list-table-heading">{t("campaigns.domain")}</Heading>
-        <Link to="/campaigns/create">
-          <Button size="small" variant="secondary" data-testid="campaign-list-table-create-button">
-            {t("actions.create")}
-          </Button>
-        </Link>
-      </div>
+    <_DataTable
+      table={table}
+      columns={columns}
+      count={count}
+      pageSize={PAGE_SIZE}
+      pagination
+      search
+      navigateTo={(row) => row.id}
+      isLoading={isLoading}
+      queryObject={raw}
+      orderBy={[
+        { key: "name", label: t("fields.name") },
+        { key: "created_at", label: t("fields.createdAt") },
+        { key: "updated_at", label: t("fields.updatedAt") },
+      ]}
+      data-testid="campaign-list-table"
+    />
+  )
+}
 
-      <_DataTable
-        table={table}
-        columns={columns}
-        count={count}
-        pageSize={PAGE_SIZE}
-        pagination
-        search
-        navigateTo={(row) => row.id}
-        isLoading={isLoading}
-        queryObject={raw}
-        orderBy={[
-          { key: "name", label: t("fields.name") },
-          { key: "created_at", label: t("fields.createdAt") },
-          { key: "updated_at", label: t("fields.updatedAt") },
-        ]}
-        data-testid="campaign-list-table"
-      />
+export const CampaignListTable = ({ children }: { children?: ReactNode }) => {
+  return (
+    <Container className="divide-y p-0" data-testid="campaign-list-table-container">
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <CampaignListHeader />
+          <CampaignListDataTable />
+        </>
+      )}
     </Container>
   )
 }
 
+// Keep these private (not exported from compound)
 const CampaignActions = ({ campaign }: { campaign: AdminCampaign }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()

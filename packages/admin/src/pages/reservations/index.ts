@@ -1,2 +1,2 @@
-export { ReservationList } from "./reservation-list/reservation-list"
+export { ReservationListPage } from "./reservation-list/reservation-list"
 export { ReservationDetailPage } from "./reservation-detail/reservation-detail"

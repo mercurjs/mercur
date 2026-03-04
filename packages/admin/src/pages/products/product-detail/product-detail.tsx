@@ -1,6 +1,8 @@
 import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
+import { HttpTypes } from "@medusajs/types";
+import { SellerDTO } from "@mercurjs/types";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useProduct } from "../../../hooks/api/products";
@@ -15,19 +17,24 @@ import { ProductShippingProfileSection } from "./components/product-shipping-pro
 import { ProductVariantSection } from "./components/product-variant-section";
 import { productLoader } from "./loader";
 
+type AdminProductWithSeller = HttpTypes.AdminProduct & {
+  seller?: SellerDTO;
+};
+
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof productLoader>
   >;
 
   const { id } = useParams();
-  const { product, isLoading, isError, error } = useProduct(
+  const { product: rawProduct, isLoading, isError, error } = useProduct(
     id!,
     {},
     {
       initialData: initialData,
     },
   );
+  const product = rawProduct as AdminProductWithSeller | undefined;
 
   if (isLoading || !product) {
     return (
@@ -67,7 +74,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <ProductVariantSection product={product} />
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
-        <ProductSellerSection seller={(product as any).seller} />
+        <ProductSellerSection seller={product.seller} />
         <ProductSalesChannelSection product={product} />
         <ProductShippingProfileSection product={product} />
         <ProductOrganizationSection product={product} />

@@ -40,7 +40,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-export const PriceListDetails = Object.assign(Root, {
+export const PriceListDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: PriceListGeneralSection,

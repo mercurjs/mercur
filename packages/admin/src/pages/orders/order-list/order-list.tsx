@@ -17,8 +17,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-export const OrderList = Root;
-
 export const OrderListPage = Object.assign(Root, {
   Table: OrderListTable,
   Header: OrderListHeader,

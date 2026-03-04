@@ -1,1 +1,1 @@
-export { PriceListList as Component } from "./price-list-list"
+export { PriceListListPage as Component } from "./price-list-list"

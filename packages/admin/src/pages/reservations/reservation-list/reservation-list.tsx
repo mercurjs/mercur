@@ -1,7 +1,14 @@
 import { Children, ReactNode } from "react"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { ReservationListTable } from "./components/reservation-list-table"
+import {
+  ReservationListTable,
+  ReservationListHeader,
+  ReservationListTitle,
+  ReservationListActions,
+  ReservationListCreateButton,
+  ReservationListDataTable,
+} from "./components/reservation-list-table"
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
@@ -11,6 +18,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-export const ReservationList = Object.assign(Root, {
+export const ReservationListPage = Object.assign(Root, {
   Table: ReservationListTable,
+  Header: ReservationListHeader,
+  HeaderTitle: ReservationListTitle,
+  HeaderActions: ReservationListActions,
+  HeaderCreateButton: ReservationListCreateButton,
+  DataTable: ReservationListDataTable,
 })
