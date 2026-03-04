@@ -24,14 +24,15 @@ import { ProductCreateOrganizeForm } from "../product-create-organize-form";
 import { ProductCreateVariantsForm } from "../product-create-variants-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DeepPartial } from "react-hook-form";
 
 const SAVE_DRAFT_BUTTON = "save-draft-button";
 
 type ProductCreateFormProps = {
   defaultChannel?: HttpTypes.AdminSalesChannel;
   children?: ReactNode;
-  schema?: z.ZodType<any>;
-  defaultValues?: Record<string, any>;
+  schema?: z.ZodType<ProductCreateSchemaType>;
+  defaultValues?: DeepPartial<ProductCreateSchemaType>;
 };
 
 export const ProductCreateForm = ({
