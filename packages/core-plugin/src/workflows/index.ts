@@ -11,3 +11,4 @@ export * from "./shipping-profile"
 export * from "./stock-location"
 export * from './cart'
 export * from './events'
+export * from './custom-fields'
