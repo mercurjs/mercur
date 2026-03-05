@@ -22,7 +22,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <RouteFocusModal>
+    <RouteFocusModal prev="../..">
       {!isLoading && product && (
         Children.count(children) > 0 ? (
           children
