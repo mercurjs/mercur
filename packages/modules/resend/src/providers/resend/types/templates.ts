@@ -19,4 +19,5 @@ export enum ResendNotificationTemplates {
   ADMIN_REQUEST_CREATED = "adminRequestCreatedEmailTemplate",
   ADMIN_SELLER_REQUEST_CREATED = "adminSellerRequestCreatedEmailTemplate",
   SELLER_PAYOUT_SUMMARY = "sellerPayoutSummaryEmailTemplate",
+  BUYER_ORDER_TRANSFER_REQUEST = "buyerOrderTransferRequestEmailTemplate",
 }

@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "mercur",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "devDependencies": {
     "@eslint/js": "^9.15.0",
     "eslint": "^9.15.0",

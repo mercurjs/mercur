@@ -13,13 +13,16 @@ export const acceptProductCollectionRequestWorkflow = createWorkflow(
       input: {
         collections: [
           {
-            ...input.data,
+            title: input.data.title,
             handle:
               input.data.handle === ''
                 ? kebabCase(input.data.title)
                 : input.data.handle
           }
-        ]
+        ],
+        additional_data: input.data.details ? {
+          details: input.data.details
+        } : undefined
       }
     })
 

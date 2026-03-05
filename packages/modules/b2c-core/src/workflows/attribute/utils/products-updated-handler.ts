@@ -1,19 +1,24 @@
-import { MedusaContainer } from "@medusajs/framework";
-import { ProductDTO } from "@medusajs/framework/types";
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { MedusaContainer } from '@medusajs/framework';
+import { ProductDTO } from '@medusajs/framework/types';
+import {
+  arrayDifference,
+  ContainerRegistrationKeys,
+  MedusaError
+} from '@medusajs/framework/utils';
 
-import { ProductAttributeValueDTO } from "@mercurjs/framework";
+import { ProductAttributeValueDTO } from '@mercurjs/framework';
 
-import productAttributeValue from "../../../links/product-attribute-value";
+import productAttributeValue from '../../../links/product-attribute-value';
 import {
   createAttributeValueWorkflow,
-  deleteAttributeValueWorkflow,
-} from "../../../workflows/attribute/workflows";
+  deleteAttributeValueWorkflow
+} from '../../../workflows/attribute/workflows';
+import { getApplicableAttributes } from '../../../shared/infra/http/utils/products';
 
 export const productsUpdatedHookHandler = async ({
   products,
   additional_data,
-  container,
+  container
 }: {
   products: ProductDTO[];
   additional_data: Record<string, unknown> | undefined;
@@ -29,19 +34,54 @@ export const productsUpdatedHookHandler = async ({
     return [];
   }
 
+  const attributeErrors: string[] = [];
+  for (const product of products) {
+    const requiredAttributes = (
+      await getApplicableAttributes(container, product.id, [
+        'id',
+        'name',
+        'is_required'
+      ])
+    ).filter((attr) => attr.is_required);
+
+    const missingAttributesIds = arrayDifference(
+      requiredAttributes.map((attr) => attr.id),
+      attributeValues
+        .filter((attr) => !!attr.value)
+        .map((attr) => attr.attribute_id)
+    );
+
+    const missingAttributes = requiredAttributes
+      .filter((attr) => missingAttributesIds.includes(attr.id))
+      .map((attr) => attr.name);
+
+    if (missingAttributesIds.length) {
+      attributeErrors.push(
+        `Missing required attributes for product ${product.title}: ${missingAttributes.join(', ')}`
+      );
+    }
+  }
+
+  if (attributeErrors.length) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      attributeErrors.join(';\n')
+    );
+  }
+
   const updatedValueIds = (
     await Promise.all(
       productIds.map(async (prodId) => {
         const { data: productValues } = await query.graph({
           entity: productAttributeValue.entryPoint,
           fields: [
-            "attribute_value.id",
-            "attribute_value.value",
-            "attribute_value.attribute_id",
+            'attribute_value.id',
+            'attribute_value.value',
+            'attribute_value.attribute_id'
           ],
           filters: {
-            product_id: prodId,
-          },
+            product_id: prodId
+          }
         });
 
         return Promise.all(
@@ -63,8 +103,8 @@ export const productsUpdatedHookHandler = async ({
               input: {
                 attribute_id: attrVal.attribute_id,
                 value: attrVal.value,
-                product_id: prodId,
-              },
+                product_id: prodId
+              }
             });
             return result.id;
           })
@@ -75,13 +115,13 @@ export const productsUpdatedHookHandler = async ({
 
   const { data: attributeValuesToDelete } = await query.graph({
     entity: productAttributeValue.entryPoint,
-    fields: ["attribute_value_id"],
+    fields: ['attribute_value_id'],
     filters: {
       attribute_value_id: {
-        $nin: updatedValueIds,
+        $nin: updatedValueIds
       },
-      product_id: productIds,
-    },
+      product_id: productIds
+    }
   });
 
   if (!attributeValuesToDelete.length) {
@@ -89,6 +129,6 @@ export const productsUpdatedHookHandler = async ({
   }
 
   await deleteAttributeValueWorkflow(container).run({
-    input: attributeValuesToDelete.map((val) => val.attribute_value_id),
+    input: attributeValuesToDelete.map((val) => val.attribute_value_id)
   });
 };
