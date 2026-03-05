@@ -171,7 +171,7 @@ export default class CustomFieldsModuleService {
 
         await knex.transaction(async (trx) => {
             await trx(tableName)
-                .whereIn("id", items)
+                .whereIn(`${snakeEntity}_id`, items)
                 .update({ deleted_at: new Date() });
         });
     }
