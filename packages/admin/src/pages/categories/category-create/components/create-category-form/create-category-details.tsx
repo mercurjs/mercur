@@ -1,19 +1,18 @@
 import { Heading, Input, Select, Text, Textarea } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "../../../../../components/common/form"
 import { HandleInput } from "../../../../../components/inputs/handle-input"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 import { CreateCategorySchema } from "./schema"
 
-type CreateCategoryDetailsProps = {
-  form: UseFormReturn<CreateCategorySchema>
-}
-
-export const CreateCategoryDetails = ({ form }: CreateCategoryDetailsProps) => {
+const Root = () => {
   const { t } = useTranslation()
+  const form = useTabbedForm<CreateCategorySchema>()
   const direction = useDocumentDirection()
+
   return (
     <div className="flex flex-col items-center p-16">
       <div className="flex w-full max-w-[720px] flex-col gap-y-8" data-testid="category-create-form-content">
@@ -144,3 +143,11 @@ export const CreateCategoryDetails = ({ form }: CreateCategoryDetailsProps) => {
     </div>
   )
 }
+
+Root._tabMeta = defineTabMeta<CreateCategorySchema>({
+  id: "details",
+  labelKey: "categories.create.tabs.details",
+  validationFields: ["name", "handle", "description", "status", "visibility"],
+})
+
+export const CreateCategoryDetails = Root

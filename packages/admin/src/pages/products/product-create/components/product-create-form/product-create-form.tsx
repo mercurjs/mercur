@@ -138,15 +138,12 @@ export const ProductCreateForm = ({
     }
 
     await mutateAsync(
-      {
+      normalizeProductFormValues({
         ...payload,
-        ...normalizeProductFormValues({
-          ...payload,
-          media: uploadedMedia,
-          status: (isDraftSubmission ? "draft" : "published") as any,
-          regionsCurrencyMap,
-        }),
-      } as any,
+        media: uploadedMedia,
+        status: (isDraftSubmission ? "draft" : "published") as any,
+        regionsCurrencyMap,
+      }) as any,
       {
         onSuccess: (data) => {
           toast.success(

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
-import { Container, Heading, toast, usePrompt } from "@medusajs/ui";
+import { Container, Heading, Text, toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
@@ -19,8 +19,6 @@ import { useDataTable } from "@hooks/use-data-table";
 
 const PAGE_SIZE = 10;
 const PREFIX = "selprod";
-const DEFAULT_FIELDS =
-  "*collection,+type_id,+tag_id,+sales_channel_id,+status,+created_at,+updated_at";
 
 export const SellerProductSection = ({ sellerId }: { sellerId: string }) => {
   const { t } = useTranslation();
@@ -30,7 +28,7 @@ export const SellerProductSection = ({ sellerId }: { sellerId: string }) => {
     prefix: PREFIX,
   });
 
-  const { products, count, isLoading, isError, error } = useProducts(
+  const { products, count, isLoading, isError } = useProducts(
     {
       ...searchParams,
       seller_id: sellerId,
@@ -53,7 +51,18 @@ export const SellerProductSection = ({ sellerId }: { sellerId: string }) => {
   });
 
   if (isError) {
-    throw error;
+    return (
+      <Container className="divide-y p-0">
+        <div className="flex items-center justify-between px-6 py-4">
+          <Heading level="h2">{t("products.domain")}</Heading>
+        </div>
+        <div className="flex items-center justify-center px-6 py-12">
+          <Text size="small" className="text-ui-fg-muted">
+            {t("general.error")}
+          </Text>
+        </div>
+      </Container>
+    );
   }
 
   return (

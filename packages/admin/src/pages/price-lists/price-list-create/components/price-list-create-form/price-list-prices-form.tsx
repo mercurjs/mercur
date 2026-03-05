@@ -1,8 +1,10 @@
 import { HttpTypes } from "@medusajs/types"
 import { useEffect } from "react"
-import { UseFormReturn, useWatch } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { DataGrid } from "../../../../../components/data-grid"
 import { useRouteModal } from "../../../../../components/modals"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { useProducts } from "../../../../../hooks/api/products"
 import { usePriceListGridColumns } from "../../../common/hooks/use-price-list-grid-columns"
 import { PriceListCreateProductVariantsSchema } from "../../../common/schemas"
@@ -10,18 +12,18 @@ import { isProductRow } from "../../../common/utils"
 import { PricingCreateSchemaType } from "./schema"
 
 type PriceListPricesFormProps = {
-  form: UseFormReturn<PricingCreateSchemaType>
   currencies: HttpTypes.AdminStoreCurrency[]
   regions: HttpTypes.AdminRegion[]
   pricePreferences: HttpTypes.AdminPricePreference[]
 }
 
-export const PriceListPricesForm = ({
-  form,
+const Root = ({
   currencies,
   regions,
   pricePreferences,
 }: PriceListPricesFormProps) => {
+  const form = useTabbedForm<PricingCreateSchemaType>()
+
   const ids = useWatch({
     control: form.control,
     name: "product_ids",
@@ -45,9 +47,6 @@ export const PriceListPricesForm = ({
   useEffect(() => {
     if (!isLoading && products) {
       products.forEach((product) => {
-        /**
-         * If the product already exists in the form, we don't want to overwrite it.
-         */
         if (existingProducts[product.id] || !product.variants) {
           return
         }
@@ -92,3 +91,11 @@ export const PriceListPricesForm = ({
     </div>
   )
 }
+
+Root._tabMeta = defineTabMeta<PricingCreateSchemaType>({
+  id: "price",
+  labelKey: "priceLists.create.tabs.prices",
+  validationFields: ["products"],
+})
+
+export const PriceListPricesForm = Root

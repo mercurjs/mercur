@@ -7,9 +7,11 @@ import {
   createColumnHelper,
 } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
-import { UseFormReturn, useWatch } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { _DataTable } from "../../../../../components/table/data-table"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { useProducts } from "../../../../../hooks/api/products"
 import { useProductTableColumns } from "../../../../../hooks/table/columns/use-product-table-columns"
 import { useProductTableFilters } from "../../../../../hooks/table/filters/use-product-table-filters"
@@ -19,7 +21,6 @@ import { PriceListCreateProductsSchema } from "../../../common/schemas"
 import { PriceListPricesAddSchema } from "./schema"
 
 type PriceListPricesAddProductIdsFormProps = {
-  form: UseFormReturn<PriceListPricesAddSchema>
   priceList: HttpTypes.AdminPriceList
 }
 
@@ -29,16 +30,16 @@ const PREFIX = "p"
 function getInitialSelection(products: { id: string }[]) {
   return products.reduce((acc, curr) => {
     acc[curr.id] = true
-    
+
     return acc
   }, {} as RowSelectionState)
 }
 
-export const PriceListPricesAddProductIdsForm = ({
+const Root = ({
   priceList,
-  form,
 }: PriceListPricesAddProductIdsFormProps) => {
   const { t } = useTranslation()
+  const form = useTabbedForm<PriceListPricesAddSchema>()
   const { control, setValue } = form
 
   const variantIdMap = useMemo(() => {
@@ -95,10 +96,6 @@ export const PriceListPricesAddProductIdsForm = ({
 
     setValue("product_ids", update, { shouldDirty: true, shouldTouch: true })
 
-    /**
-     * Update the product records to ensure that all unselected products
-     * are removed from the form state.
-     */
     setValue("products", updatedRecords, {
       shouldDirty: true,
       shouldTouch: true,
@@ -231,3 +228,11 @@ const useColumns = () => {
     [base]
   )
 }
+
+Root._tabMeta = defineTabMeta<PriceListPricesAddSchema>({
+  id: "product",
+  labelKey: "priceLists.create.tabs.products",
+  validationFields: ["product_ids"],
+})
+
+export const PriceListPricesAddProductIdsForm = Root

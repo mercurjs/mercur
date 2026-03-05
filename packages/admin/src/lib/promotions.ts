@@ -10,8 +10,8 @@ export enum PromotionStatus {
 }
 
 export type StatusColors = "grey" | "orange" | "green" | "red" | "grey"
-export type StatusMap = Record<string, [StatusColors, string]>
-export const promotionStatusMap: StatusMap = {
+
+const getPromotionStatusMap = (): Record<string, [StatusColors, string]> => ({
   [PromotionStatus.ACTIVE]: ["green", i18n.t("statuses.active")],
   [PromotionStatus.INACTIVE]: ["red", i18n.t("statuses.inactive")],
   [PromotionStatus.DRAFT]: ["grey", i18n.t("statuses.draft")],
@@ -23,18 +23,19 @@ export const promotionStatusMap: StatusMap = {
     "red",
     `${i18n.t("promotions.fields.campaign")} ${i18n.t("statuses.expired")?.toLowerCase()}`,
   ],
-}
+})
 
 export const getPromotionStatus = (promotion: HttpTypes.AdminPromotion) => {
   const date = new Date()
   const campaign = promotion.campaign
+  const statusMap = getPromotionStatusMap()
 
   if (!campaign) {
-    return promotionStatusMap[promotion.status!.toUpperCase()]
+    return statusMap[promotion.status!.toUpperCase()]
   }
 
   if (campaign.starts_at && new Date(campaign.starts_at!) > date) {
-    return promotionStatusMap[PromotionStatus.SCHEDULED]
+    return statusMap[PromotionStatus.SCHEDULED]
   }
 
   const campaignBudget = campaign.budget
@@ -44,8 +45,8 @@ export const getPromotionStatus = (promotion: HttpTypes.AdminPromotion) => {
     campaignBudget.used! > campaignBudget.limit!
 
   if ((campaign.ends_at && new Date(campaign.ends_at) < date) || overBudget) {
-    return promotionStatusMap[PromotionStatus.EXPIRED]
+    return statusMap[PromotionStatus.EXPIRED]
   }
 
-  return promotionStatusMap[promotion.status!.toUpperCase()]
+  return statusMap[promotion.status!.toUpperCase()]
 }

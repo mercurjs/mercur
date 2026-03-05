@@ -1,4 +1,4 @@
-import { Container, Heading } from "@medusajs/ui"
+import { Container, Heading, Text } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -24,7 +24,7 @@ export const SellerOrderSection = ({ sellerId }: { sellerId: string }) => {
     prefix: PREFIX,
   })
 
-  const { orders, count, isLoading, isError, error } = useOrders(
+  const { orders, count, isLoading, isError } = useOrders(
     {
       ...searchParams,
       seller_id: sellerId,
@@ -48,7 +48,18 @@ export const SellerOrderSection = ({ sellerId }: { sellerId: string }) => {
   })
 
   if (isError) {
-    throw error
+    return (
+      <Container className="divide-y p-0">
+        <div className="flex items-center justify-between px-6 py-4">
+          <Heading level="h2">{t("orders.domain")}</Heading>
+        </div>
+        <div className="flex items-center justify-center px-6 py-12">
+          <Text size="small" className="text-ui-fg-muted">
+            {t("general.error")}
+          </Text>
+        </div>
+      </Container>
+    )
   }
 
   return (

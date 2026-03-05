@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "@medusajs/ui"
-import { useCallback, useEffect, useMemo } from "react"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import { Children, ReactNode, useCallback, useEffect, useMemo } from "react"
+import { DeepPartial, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 
 import { AdminCreateProductVariantPrice, HttpTypes } from "@medusajs/types"
@@ -16,25 +16,38 @@ import DetailsTab from "./details-tab"
 import InventoryKitTab from "./inventory-kit-tab"
 import PricingTab from "./pricing-tab"
 
+export type CreateProductVariantSchemaType = z.infer<typeof CreateProductVariantSchema>
+
 type CreateProductVariantFormProps = {
   product: HttpTypes.AdminProduct
+  children?: ReactNode
+  schema?: z.ZodType<CreateProductVariantSchemaType>
+  defaultValues?: DeepPartial<CreateProductVariantSchemaType>
+}
+
+const CREATE_VARIANT_DEFAULTS: DeepPartial<CreateProductVariantSchemaType> = {
+  sku: "",
+  title: "",
+  manage_inventory: false,
+  allow_backorder: false,
+  inventory_kit: false,
+  options: {},
 }
 
 export const CreateProductVariantForm = ({
   product,
+  children,
+  schema,
+  defaultValues: extraDefaults,
 }: CreateProductVariantFormProps) => {
   const { handleSuccess } = useRouteModal()
 
-  const form = useForm<z.infer<typeof CreateProductVariantSchema>>({
+  const form = useForm<CreateProductVariantSchemaType>({
     defaultValues: {
-      sku: "",
-      title: "",
-      manage_inventory: false,
-      allow_backorder: false,
-      inventory_kit: false,
-      options: {},
-    },
-    resolver: zodResolver(CreateProductVariantSchema),
+      ...CREATE_VARIANT_DEFAULTS,
+      ...extraDefaults,
+    } as CreateProductVariantSchemaType,
+    resolver: zodResolver(schema ?? CreateProductVariantSchema),
   })
 
   const { mutateAsync, isPending } = useCreateProductVariant(product.id)
@@ -148,6 +161,17 @@ export const CreateProductVariantForm = ({
     )
   })
 
+  const defaultTabs = useMemo(
+    () => [
+      <DetailsTab key="details" product={product} />,
+      <PricingTab key="pricing" />,
+      <InventoryKitTab key="inventory" />,
+    ],
+    [product]
+  )
+
+  const hasCustomChildren = Children.count(children) > 0
+
   return (
     <TabbedForm
       form={form}
@@ -155,9 +179,7 @@ export const CreateProductVariantForm = ({
       isLoading={isPending}
       transformTabs={transformTabs}
     >
-      <DetailsTab product={product} />
-      <PricingTab />
-      <InventoryKitTab />
+      {hasCustomChildren ? children : defaultTabs}
     </TabbedForm>
   )
 }

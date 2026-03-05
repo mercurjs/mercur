@@ -12,14 +12,16 @@ import {
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { useParams } from "react-router-dom"
+
 import { ActionMenu } from "../../../../../components/common/action-menu"
-import { useDeletePromotion } from "../../../../../hooks/api/promotions"
+import { useDeletePromotion, usePromotion } from "../../../../../hooks/api/promotions"
 import { formatCurrency } from "../../../../../lib/format-currency"
 import { formatPercentage } from "../../../../../lib/percentage-helpers"
 import { getPromotionStatus } from "../../../../../lib/promotions"
 
 type PromotionGeneralSectionProps = {
-  promotion: HttpTypes.AdminPromotion
+  promotion?: HttpTypes.AdminPromotion
 }
 
 function getDisplayValue(promotion: HttpTypes.AdminPromotion) {
@@ -45,12 +47,22 @@ function getDisplayValue(promotion: HttpTypes.AdminPromotion) {
 }
 
 export const PromotionGeneralSection = ({
-  promotion,
+  promotion: promotionProp,
 }: PromotionGeneralSectionProps) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()
-  const { mutateAsync } = useDeletePromotion(promotion.id)
+  const { id } = useParams()
+  const { promotion: fetched } = usePromotion(id!, {
+    enabled: !promotionProp,
+  })
+  const promotion = promotionProp ?? fetched
+
+  const { mutateAsync } = useDeletePromotion(promotion?.id!)
+
+  if (!promotion) {
+    return null
+  }
 
   const handleDelete = async () => {
     const confirm = await prompt({

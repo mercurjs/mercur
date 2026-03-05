@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { DateRangeDisplay } from "../../../../../components/common/date-range-display"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
+import { usePromotion } from "../../../../../hooks/api/promotions"
 
 const CampaignDetailSection = ({
   campaign,
@@ -36,12 +37,16 @@ const CampaignDetailSection = ({
 }
 
 export const CampaignSection = ({
-  campaign,
+  campaign: campaignProp,
 }: {
-  campaign: HttpTypes.AdminCampaign | null
+  campaign?: HttpTypes.AdminCampaign | null
 }) => {
   const { t } = useTranslation()
   const { id } = useParams()
+  const { promotion } = usePromotion(id!, {
+    enabled: campaignProp === undefined,
+  })
+  const campaign = campaignProp !== undefined ? campaignProp : (promotion?.campaign ?? null)
 
   const actions = [
     {

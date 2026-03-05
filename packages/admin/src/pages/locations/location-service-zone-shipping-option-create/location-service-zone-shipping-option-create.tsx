@@ -1,12 +1,20 @@
+import { Children, ReactNode } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 
 import { RouteFocusModal } from "../../../components/modals"
+import { TabbedForm } from "../../../components/tabbed-form/tabbed-form"
 import { useStockLocation } from "../../../hooks/api/stock-locations"
-import { CreateShippingOptionsForm } from "./components/create-shipping-options-form"
-import { LOC_CREATE_SHIPPING_OPTION_FIELDS } from "./constants"
 import { FulfillmentSetType } from "../common/constants"
+import {
+  CreateShippingOptionsForm,
+  CreateShippingOptionSchemaType,
+} from "./components/create-shipping-options-form"
+import { CreateShippingOptionDetailsForm } from "./components/create-shipping-options-form/create-shipping-option-details-form"
+import { CreateShippingOptionsPricesForm } from "./components/create-shipping-options-form/create-shipping-options-prices-form"
+import { CreateShippingOptionSchema } from "./components/create-shipping-options-form/schema"
+import { LOC_CREATE_SHIPPING_OPTION_FIELDS } from "./constants"
 
-export function LocationServiceZoneShippingOptionCreate() {
+const Root = ({ children }: { children?: ReactNode }) => {
   const { location_id, fset_id, zone_id } = useParams()
   const [searchParams] = useSearchParams()
   const isReturn = searchParams.has("is_return")
@@ -43,13 +51,30 @@ export function LocationServiceZoneShippingOptionCreate() {
   return (
     <RouteFocusModal prev={`/settings/locations/${location_id}`} data-testid="location-shipping-option-create-modal">
       {zone && (
-        <CreateShippingOptionsForm
-          zone={zone}
-          isReturn={isReturn}
-          locationId={location_id!}
-          type={fulfillmentSet!.type as FulfillmentSetType}
-        />
+        Children.count(children) > 0 ? (
+          children
+        ) : (
+          <CreateShippingOptionsForm
+            zone={zone}
+            isReturn={isReturn}
+            locationId={location_id!}
+            type={fulfillmentSet!.type as FulfillmentSetType}
+          />
+        )
       )}
     </RouteFocusModal>
   )
 }
+
+export const ShippingOptionCreatePage = Object.assign(Root, {
+  Form: CreateShippingOptionsForm,
+  DetailsTab: CreateShippingOptionDetailsForm,
+  PricingTab: CreateShippingOptionsPricesForm,
+  Tab: TabbedForm.Tab,
+})
+
+export type { CreateShippingOptionSchemaType }
+export { CreateShippingOptionSchema }
+
+// Keep backward-compatible named export for route `Component`
+export const LocationServiceZoneShippingOptionCreate = Root

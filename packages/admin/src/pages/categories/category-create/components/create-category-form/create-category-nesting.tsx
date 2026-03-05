@@ -1,28 +1,25 @@
 import { UniqueIdentifier } from "@dnd-kit/core"
 import { Badge } from "@medusajs/ui"
 import { useMemo, useState } from "react"
-import { UseFormReturn, useWatch } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 
 import { useTranslation } from "react-i18next"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { useProductCategories } from "../../../../../hooks/api/categories"
 import { CategoryTree } from "../../../common/components/category-tree"
 import { CategoryTreeItem } from "../../../common/types"
 import { insertCategoryTreeItem } from "../../../common/utils"
 import { CreateCategorySchema } from "./schema"
 
-type CreateCategoryNestingProps = {
-  form: UseFormReturn<CreateCategorySchema>
-  shouldFreeze?: boolean
-}
-
 const ID = "new-item"
 
-export const CreateCategoryNesting = ({
-  form,
-  shouldFreeze,
-}: CreateCategoryNestingProps) => {
+const Root = () => {
   const { t } = useTranslation()
+  const form = useTabbedForm<CreateCategorySchema>()
   const [snapshot, setSnapshot] = useState<CategoryTreeItem[]>([])
+
+  const shouldFreeze = form.formState.isSubmitting
 
   const { product_categories, isPending, isError, error } =
     useProductCategories({
@@ -90,7 +87,7 @@ export const CreateCategoryNesting = ({
   const ready = !isPending && !!product_categories
 
   return (
-    <div data-testid="category-create-form-nesting">
+    <div className="bg-ui-bg-subtle flex-1" data-testid="category-create-form-nesting">
       <CategoryTree
         value={shouldFreeze ? snapshot : value}
         enableDrag={(item) => item.id === ID}
@@ -114,3 +111,11 @@ export const CreateCategoryNesting = ({
     </div>
   )
 }
+
+Root._tabMeta = defineTabMeta<CreateCategorySchema>({
+  id: "organize",
+  labelKey: "categories.create.tabs.organize",
+  validationFields: ["parent_category_id", "rank"],
+})
+
+export const CreateCategoryNesting = Root

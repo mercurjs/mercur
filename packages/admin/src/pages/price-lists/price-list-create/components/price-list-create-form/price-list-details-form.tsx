@@ -12,25 +12,24 @@ import {
   Textarea,
   clx,
 } from "@medusajs/ui"
-import { useFieldArray, type UseFormReturn } from "react-hook-form"
+import { useFieldArray } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "../../../../../components/common/form"
 import { StackedFocusModal } from "../../../../../components/modals/stacked-focus-modal"
 import { useStackedModal } from "../../../../../components/modals/stacked-modal-provider"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 import { PriceListCustomerGroupRuleForm } from "../../../common/components/price-list-customer-group-rule-form"
 import type {
   PricingCreateSchemaType,
   PricingCustomerGroupsArrayType,
 } from "./schema"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
-type PriceListDetailsFormProps = {
-  form: UseFormReturn<PricingCreateSchemaType>
-}
-
-export const PriceListDetailsForm = ({ form }: PriceListDetailsFormProps) => {
+const Root = () => {
   const { t } = useTranslation()
+  const form = useTabbedForm<PricingCreateSchemaType>()
   const direction = useDocumentDirection()
   const { fields, remove, append } = useFieldArray({
     control: form.control,
@@ -88,19 +87,13 @@ export const PriceListDetailsForm = ({ form }: PriceListDetailsFormProps) => {
                       <RadioGroup.ChoiceBox
                         value={"sale"}
                         label={t("priceLists.fields.type.options.sale.label")}
-                        description={t(
-                          "priceLists.fields.type.options.sale.description"
-                        )}
+                        description={t("priceLists.fields.type.options.sale.description")}
                         data-testid="price-list-details-form-type-option-sale"
                       />
                       <RadioGroup.ChoiceBox
                         value={"override"}
-                        label={t(
-                          "priceLists.fields.type.options.override.label"
-                        )}
-                        description={t(
-                          "priceLists.fields.type.options.override.description"
-                        )}
+                        label={t("priceLists.fields.type.options.override.label")}
+                        description={t("priceLists.fields.type.options.override.description")}
                         data-testid="price-list-details-form-type-option-override"
                       />
                     </RadioGroup>
@@ -116,126 +109,116 @@ export const PriceListDetailsForm = ({ form }: PriceListDetailsFormProps) => {
             <Form.Field
               control={form.control}
               name="title"
-              render={({ field }) => {
-                return (
-                  <Form.Item data-testid="price-list-details-form-title-item">
-                    <Form.Label data-testid="price-list-details-form-title-label">{t("fields.title")}</Form.Label>
-                    <Form.Control data-testid="price-list-details-form-title-control">
-                      <Input {...field} data-testid="price-list-details-form-title-input" />
-                    </Form.Control>
-                    <Form.ErrorMessage data-testid="price-list-details-form-title-error" />
-                  </Form.Item>
-                )
-              }}
+              render={({ field }) => (
+                <Form.Item data-testid="price-list-details-form-title-item">
+                  <Form.Label data-testid="price-list-details-form-title-label">{t("fields.title")}</Form.Label>
+                  <Form.Control data-testid="price-list-details-form-title-control">
+                    <Input {...field} data-testid="price-list-details-form-title-input" />
+                  </Form.Control>
+                  <Form.ErrorMessage data-testid="price-list-details-form-title-error" />
+                </Form.Item>
+              )}
             />
             <Form.Field
               control={form.control}
               name="status"
-              render={({ field: { onChange, ref, ...field } }) => {
-                return (
-                  <Form.Item data-testid="price-list-details-form-status-item">
-                    <Form.Label data-testid="price-list-details-form-status-label">
-                      {t("priceLists.fields.status.label")}
-                    </Form.Label>
-                    <Form.Control data-testid="price-list-details-form-status-control">
-                      <Select
-                        dir={direction}
-                        {...field}
-                        onValueChange={onChange}
-                        data-testid="price-list-details-form-status-select"
-                      >
-                        <Select.Trigger ref={ref} data-testid="price-list-details-form-status-trigger">
-                          <Select.Value data-testid="price-list-details-form-status-value" />
-                        </Select.Trigger>
-                        <Select.Content data-testid="price-list-details-form-status-content">
-                          <Select.Item value="active" data-testid="price-list-details-form-status-option-active">
-                            {t("priceLists.fields.status.options.active")}
-                          </Select.Item>
-                          <Select.Item value="draft" data-testid="price-list-details-form-status-option-draft">
-                            {t("priceLists.fields.status.options.draft")}
-                          </Select.Item>
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
-                    <Form.ErrorMessage data-testid="price-list-details-form-status-error" />
-                  </Form.Item>
-                )
-              }}
+              render={({ field: { onChange, ref, ...field } }) => (
+                <Form.Item data-testid="price-list-details-form-status-item">
+                  <Form.Label data-testid="price-list-details-form-status-label">
+                    {t("priceLists.fields.status.label")}
+                  </Form.Label>
+                  <Form.Control data-testid="price-list-details-form-status-control">
+                    <Select
+                      dir={direction}
+                      {...field}
+                      onValueChange={onChange}
+                      data-testid="price-list-details-form-status-select"
+                    >
+                      <Select.Trigger ref={ref} data-testid="price-list-details-form-status-trigger">
+                        <Select.Value data-testid="price-list-details-form-status-value" />
+                      </Select.Trigger>
+                      <Select.Content data-testid="price-list-details-form-status-content">
+                        <Select.Item value="active" data-testid="price-list-details-form-status-option-active">
+                          {t("priceLists.fields.status.options.active")}
+                        </Select.Item>
+                        <Select.Item value="draft" data-testid="price-list-details-form-status-option-draft">
+                          {t("priceLists.fields.status.options.draft")}
+                        </Select.Item>
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.ErrorMessage data-testid="price-list-details-form-status-error" />
+                </Form.Item>
+              )}
             />
           </div>
           <Form.Field
             control={form.control}
             name="description"
-            render={({ field }) => {
-              return (
-                <Form.Item data-testid="price-list-details-form-description-item">
-                  <Form.Label data-testid="price-list-details-form-description-label">{t("fields.description")}</Form.Label>
-                  <Form.Control data-testid="price-list-details-form-description-control">
-                    <Textarea {...field} data-testid="price-list-details-form-description-input" />
-                  </Form.Control>
-                  <Form.ErrorMessage data-testid="price-list-details-form-description-error" />
-                </Form.Item>
-              )
-            }}
+            render={({ field }) => (
+              <Form.Item data-testid="price-list-details-form-description-item">
+                <Form.Label data-testid="price-list-details-form-description-label">{t("fields.description")}</Form.Label>
+                <Form.Control data-testid="price-list-details-form-description-control">
+                  <Textarea {...field} data-testid="price-list-details-form-description-input" />
+                </Form.Control>
+                <Form.ErrorMessage data-testid="price-list-details-form-description-error" />
+              </Form.Item>
+            )}
           />
         </div>
         <Divider />
         <Form.Field
           control={form.control}
           name="starts_at"
-          render={({ field }) => {
-            return (
-              <Form.Item data-testid="price-list-details-form-starts-at-item">
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  <div className="flex flex-col">
-                    <Form.Label optional data-testid="price-list-details-form-starts-at-label">
-                      {t("priceLists.fields.startsAt.label")}
-                    </Form.Label>
-                    <Form.Hint data-testid="price-list-details-form-starts-at-hint">
-                      {t("priceLists.fields.startsAt.hint")}
-                    </Form.Hint>
-                  </div>
-                  <Form.Control data-testid="price-list-details-form-starts-at-control">
-                    <DatePicker
-                      granularity="minute"
-                      shouldCloseOnSelect={false}
-                      {...field}
-                      data-testid="price-list-details-form-starts-at-input"
-                    />
-                  </Form.Control>
+          render={({ field }) => (
+            <Form.Item data-testid="price-list-details-form-starts-at-item">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="flex flex-col">
+                  <Form.Label optional data-testid="price-list-details-form-starts-at-label">
+                    {t("priceLists.fields.startsAt.label")}
+                  </Form.Label>
+                  <Form.Hint data-testid="price-list-details-form-starts-at-hint">
+                    {t("priceLists.fields.startsAt.hint")}
+                  </Form.Hint>
                 </div>
-                <Form.ErrorMessage data-testid="price-list-details-form-starts-at-error" />
-              </Form.Item>
-            )
-          }}
+                <Form.Control data-testid="price-list-details-form-starts-at-control">
+                  <DatePicker
+                    granularity="minute"
+                    shouldCloseOnSelect={false}
+                    {...field}
+                    data-testid="price-list-details-form-starts-at-input"
+                  />
+                </Form.Control>
+              </div>
+              <Form.ErrorMessage data-testid="price-list-details-form-starts-at-error" />
+            </Form.Item>
+          )}
         />
         <Divider />
         <Form.Field
           control={form.control}
           name="ends_at"
-          render={({ field }) => {
-            return (
-              <Form.Item data-testid="price-list-details-form-ends-at-item">
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  <div className="flex flex-col">
-                    <Form.Label optional data-testid="price-list-details-form-ends-at-label">
-                      {t("priceLists.fields.endsAt.label")}
-                    </Form.Label>
-                    <Form.Hint data-testid="price-list-details-form-ends-at-hint">{t("priceLists.fields.endsAt.hint")}</Form.Hint>
-                  </div>
-                  <Form.Control data-testid="price-list-details-form-ends-at-control">
-                    <DatePicker
-                      granularity="minute"
-                      shouldCloseOnSelect={false}
-                      {...field}
-                      data-testid="price-list-details-form-ends-at-input"
-                    />
-                  </Form.Control>
+          render={({ field }) => (
+            <Form.Item data-testid="price-list-details-form-ends-at-item">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="flex flex-col">
+                  <Form.Label optional data-testid="price-list-details-form-ends-at-label">
+                    {t("priceLists.fields.endsAt.label")}
+                  </Form.Label>
+                  <Form.Hint data-testid="price-list-details-form-ends-at-hint">{t("priceLists.fields.endsAt.hint")}</Form.Hint>
                 </div>
-                <Form.ErrorMessage data-testid="price-list-details-form-ends-at-error" />
-              </Form.Item>
-            )
-          }}
+                <Form.Control data-testid="price-list-details-form-ends-at-control">
+                  <DatePicker
+                    granularity="minute"
+                    shouldCloseOnSelect={false}
+                    {...field}
+                    data-testid="price-list-details-form-ends-at-input"
+                  />
+                </Form.Control>
+              </div>
+              <Form.ErrorMessage data-testid="price-list-details-form-ends-at-error" />
+            </Form.Item>
+          )}
         />
         <Divider />
         <Form.Field
@@ -279,9 +262,7 @@ export const PriceListDetailsForm = ({ form }: PriceListDetailsFormProps) => {
                             data-testid="price-list-details-form-customer-group-search-button"
                           >
                             <MagnifyingGlass />
-                            {t(
-                              "priceLists.fields.customerAvailability.placeholder"
-                            )}
+                            {t("priceLists.fields.customerAvailability.placeholder")}
                           </button>
                         </StackedFocusModal.Trigger>
                         <StackedFocusModal.Trigger asChild>
@@ -339,3 +320,11 @@ export const PriceListDetailsForm = ({ form }: PriceListDetailsFormProps) => {
     </div>
   )
 }
+
+Root._tabMeta = defineTabMeta<PricingCreateSchemaType>({
+  id: "detail",
+  labelKey: "priceLists.create.tabs.details",
+  validationFields: ["type", "title", "description", "starts_at", "ends_at"],
+})
+
+export const PriceListDetailsForm = Root
