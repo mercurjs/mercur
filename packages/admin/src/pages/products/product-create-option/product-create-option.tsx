@@ -16,7 +16,7 @@ export const ProductCreateOption = () => {
   }
 
   return (
-    <RouteDrawer>
+    <RouteDrawer prev="../..">
       <RouteDrawer.Header>
         <Heading>{t("products.options.create.header")}</Heading>
       </RouteDrawer.Header>

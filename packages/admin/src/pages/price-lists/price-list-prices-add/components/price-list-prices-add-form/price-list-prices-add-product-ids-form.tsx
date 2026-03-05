@@ -43,7 +43,7 @@ const Root = ({
   const { control, setValue } = form
 
   const variantIdMap = useMemo(() => {
-    return priceList.prices.reduce(
+    return (priceList.prices ?? []).reduce(
       (acc, curr) => {
         acc[curr.variant_id] = true
 

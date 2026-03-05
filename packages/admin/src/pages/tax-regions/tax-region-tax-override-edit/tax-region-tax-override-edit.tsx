@@ -29,7 +29,7 @@ export const TaxRegionTaxOverrideEdit = () => {
   }
 
   return (
-    <RouteDrawer>
+    <RouteDrawer prev="../..">
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>{t("taxRegions.taxOverrides.edit.header")}</Heading>

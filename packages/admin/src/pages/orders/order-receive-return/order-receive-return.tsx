@@ -76,7 +76,7 @@ export function OrderReceiveReturn() {
   const ready = order && orderReturn && preview
 
   return (
-    <RouteDrawer data-testid="order-receive-return-drawer">
+    <RouteDrawer prev="../../.." data-testid="order-receive-return-drawer">
       <RouteDrawer.Header data-testid="order-receive-return-header">
         <Heading data-testid="order-receive-return-heading">
           {t("orders.returns.receive.title", {

@@ -22,7 +22,7 @@ export const ProductEditOption = () => {
   }
 
   return (
-    <RouteDrawer data-testid="product-edit-option-drawer">
+    <RouteDrawer prev="../../.." data-testid="product-edit-option-drawer">
       <RouteDrawer.Header data-testid="product-edit-option-drawer-header">
         <RouteDrawer.Title asChild data-testid="product-edit-option-drawer-title">
           <Heading data-testid="product-edit-option-drawer-title-text">{t("products.options.edit.header")}</Heading>

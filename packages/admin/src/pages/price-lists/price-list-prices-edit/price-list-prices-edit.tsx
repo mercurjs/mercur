@@ -9,7 +9,9 @@ export const PriceListPricesEdit = () => {
   const [searchParams] = useSearchParams()
   const ids = searchParams.get("ids[]")
 
-  const { price_list, isLoading, isError, error } = usePriceList(id!)
+  const { price_list, isLoading, isError, error } = usePriceList(id!, {
+    fields: "*prices",
+  })
   const productIds = ids?.split(",")
 
   const {
@@ -38,7 +40,7 @@ export const PriceListPricesEdit = () => {
   }
 
   return (
-    <RouteFocusModal>
+    <RouteFocusModal prev="../..">
       <RouteFocusModal.Title asChild>
         <span className="sr-only">Edit Prices for {price_list?.title}</span>
       </RouteFocusModal.Title>

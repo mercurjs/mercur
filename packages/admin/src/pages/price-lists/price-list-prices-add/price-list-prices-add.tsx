@@ -16,7 +16,9 @@ import { PriceListPricesAddSchema } from "./components/price-list-prices-add-for
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams<{ id: string }>()
 
-  const { price_list, isPending, isError, error } = usePriceList(id!)
+  const { price_list, isPending, isError, error } = usePriceList(id!, {
+    fields: "*prices",
+  })
   const currencyData = usePriceListCurrencyData()
 
   const ready = currencyData.isReady && !isPending && !!price_list
@@ -26,7 +28,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <RouteFocusModal>
+    <RouteFocusModal prev="../..">
       {ready && (
         Children.count(children) > 0 ? (
           children

@@ -18,7 +18,7 @@ export const TaxRegionEdit = () => {
   }
 
   return (
-    <RouteDrawer>
+    <RouteDrawer prev="../..">
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>{t("taxRegions.taxRates.edit.header")}</Heading>
