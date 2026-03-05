@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { UseFormReturn, useWatch } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 
 import { DataGrid } from "../../../../../components/data-grid"
 import {
@@ -7,6 +7,8 @@ import {
   useRouteModal,
   useStackedModal,
 } from "../../../../../components/modals"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { usePricePreferences } from "../../../../../hooks/api/price-preferences"
 import { useRegions } from "../../../../../hooks/api/regions"
 import { useStore } from "../../../../../hooks/api/store"
@@ -21,15 +23,12 @@ import { ConditionalPriceInfo } from "../../../common/types"
 import { CreateShippingOptionSchema } from "./schema"
 
 type PricingPricesFormProps = {
-  form: UseFormReturn<CreateShippingOptionSchema>
   type: FulfillmentSetType
 }
 
-export const CreateShippingOptionsPricesForm = ({
-  form,
-  type,
-}: PricingPricesFormProps) => {
+const Root = ({ type }: PricingPricesFormProps) => {
   const isPickup = type === FulfillmentSetType.Pickup
+  const form = useTabbedForm<CreateShippingOptionSchema>()
   const { getIsOpen, setIsOpen } = useStackedModal()
   const [selectedPrice, setSelectedPrice] =
     useState<ConditionalPriceInfo | null>(null)
@@ -86,9 +85,6 @@ export const CreateShippingOptionsPricesForm = ({
     [currencies, regions]
   )
 
-  /**
-   * Prefill prices with 0 if createing a pickup (shipping) option
-   */
   useEffect(() => {
     if (!isLoading && isPickup) {
       if (currencies.length > 0) {
@@ -145,3 +141,11 @@ export const CreateShippingOptionsPricesForm = ({
     </StackedFocusModal>
   )
 }
+
+Root._tabMeta = defineTabMeta<CreateShippingOptionSchema>({
+  id: "pricing",
+  labelKey: "stockLocations.shippingOptions.create.tabs.prices",
+  validationFields: ["region_prices", "currency_prices", "conditional_region_prices", "conditional_currency_prices"],
+})
+
+export const CreateShippingOptionsPricesForm = Root

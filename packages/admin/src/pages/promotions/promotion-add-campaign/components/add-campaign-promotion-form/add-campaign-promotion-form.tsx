@@ -150,6 +150,11 @@ export const AddCampaignPromotionFields = ({
                   ></Combobox>
                 </Form.Control>
 
+                {!promotionCurrencyCode && (
+                  <Form.Hint data-testid="promotion-add-campaign-form-campaign-id-hint">
+                    {t("promotions.form.campaign.existing.currencyHint")}
+                  </Form.Hint>
+                )}
                 <Form.ErrorMessage data-testid="promotion-add-campaign-form-campaign-id-error" />
               </Form.Item>
             )

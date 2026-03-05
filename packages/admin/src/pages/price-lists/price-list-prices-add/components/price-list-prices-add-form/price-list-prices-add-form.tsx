@@ -1,47 +1,29 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
-import { Button, ProgressStatus, ProgressTabs, toast } from "@medusajs/ui"
-import { useState } from "react"
-import { FieldPath, useForm } from "react-hook-form"
+import { toast } from "@medusajs/ui"
+import { Children, ReactNode, useMemo } from "react"
+import { DeepPartial, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
+import { useRouteModal } from "../../../../../components/modals"
+import { TabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
 import { useBatchPriceListPrices } from "../../../../../hooks/api/price-lists"
 import { exctractPricesFromProducts } from "../../../common/utils"
 import { PriceListPricesAddPricesForm } from "./price-list-prices-add-prices-form"
 import { PriceListPricesAddProductIdsForm } from "./price-list-prices-add-product-ids-form"
-import {
-  PriceListPricesAddProductIdsSchema,
-  PriceListPricesAddProductsFields,
-  PriceListPricesAddProductsIdsFields,
-  PriceListPricesAddSchema,
-} from "./schema"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+import { PriceListPricesAddSchema } from "./schema"
+
+export type PriceListPricesAddSchemaType = z.infer<typeof PriceListPricesAddSchema>
 
 type PriceListPricesAddFormProps = {
   priceList: HttpTypes.AdminPriceList
   currencies: HttpTypes.AdminStoreCurrency[]
   regions: HttpTypes.AdminRegion[]
   pricePreferences: HttpTypes.AdminPricePreference[]
-}
-
-enum Tab {
-  PRODUCT = "product",
-  PRICE = "price",
-}
-
-const tabOrder = [Tab.PRODUCT, Tab.PRICE] as const
-
-type TabState = Record<Tab, ProgressStatus>
-
-const initialTabState: TabState = {
-  [Tab.PRODUCT]: "in-progress",
-  [Tab.PRICE]: "not-started",
+  children?: ReactNode
+  schema?: z.ZodType<PriceListPricesAddSchemaType>
+  defaultValues?: DeepPartial<PriceListPricesAddSchemaType>
 }
 
 export const PriceListPricesAddForm = ({
@@ -49,19 +31,20 @@ export const PriceListPricesAddForm = ({
   regions,
   currencies,
   pricePreferences,
+  children,
+  schema,
+  defaultValues: extraDefaults,
 }: PriceListPricesAddFormProps) => {
-  const [tab, setTab] = useState<Tab>(Tab.PRODUCT)
-  const [tabState, setTabState] = useState<TabState>(initialTabState)
-
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
-  const direction = useDocumentDirection()
-  const form = useForm<PriceListPricesAddSchema>({
+
+  const form = useForm<PriceListPricesAddSchemaType>({
     defaultValues: {
       products: {},
       product_ids: [],
-    },
-    resolver: zodResolver(PriceListPricesAddSchema),
+      ...extraDefaults,
+    } as PriceListPricesAddSchemaType,
+    resolver: zodResolver(schema ?? PriceListPricesAddSchema),
   })
 
   const { mutateAsync, isPending } = useBatchPriceListPrices(priceList.id)
@@ -85,230 +68,28 @@ export const PriceListPricesAddForm = ({
     )
   })
 
-  const partialFormValidation = (
-    fields: FieldPath<PriceListPricesAddSchema>[],
-    schema: z.ZodSchema<unknown>
-  ) => {
-    form.clearErrors(fields)
-
-    const values = fields.reduce(
-      (acc, key) => {
-        acc[key] = form.getValues(key)
-
-        return acc
-      },
-      {} as Record<string, unknown>
-    )
-
-    const validationResult = schema.safeParse(values)
-
-    if (!validationResult.success) {
-      validationResult.error.errors.forEach(({ path, message, code }) => {
-        form.setError(path.join(".") as keyof PriceListPricesAddSchema, {
-          type: code,
-          message,
-        })
-      })
-
-      return false
-    }
-
-    return true
-  }
-
-  const isTabDirty = (tab: Tab) => {
-    switch (tab) {
-      case Tab.PRODUCT: {
-        const fields = PriceListPricesAddProductsIdsFields
-
-        return fields.some((field) => {
-          return form.getFieldState(field).isDirty
-        })
-      }
-      case Tab.PRICE: {
-        const fields = PriceListPricesAddProductsFields
-
-        return fields.some((field) => {
-          return form.getFieldState(field).isDirty
-        })
-      }
-    }
-  }
-
-  const handleChangeTab = (update: Tab) => {
-    if (tab === update) {
-      return
-    }
-
-    if (tabOrder.indexOf(update) < tabOrder.indexOf(tab)) {
-      const isCurrentTabDirty = isTabDirty(tab)
-
-      setTabState((prev) => ({
-        ...prev,
-        [tab]: isCurrentTabDirty ? prev[tab] : "not-started",
-        [update]: "in-progress",
-      }))
-
-      setTab(update)
-
-      return
-    }
-
-    // get the tabs from the current tab to the update tab including the current tab
-    const tabs = tabOrder.slice(0, tabOrder.indexOf(update))
-
-    // validate all the tabs from the current tab to the update tab if it fails on any of tabs then set that tab as current tab
-    for (const tab of tabs) {
-      if (tab === Tab.PRODUCT) {
-        if (
-          !partialFormValidation(
-            PriceListPricesAddProductsIdsFields,
-            PriceListPricesAddProductIdsSchema
-          )
-        ) {
-          setTabState((prev) => ({
-            ...prev,
-            [tab]: "in-progress",
-          }))
-          setTab(tab)
-
-          return
-        }
-
-        setTabState((prev) => ({
-          ...prev,
-          [tab]: "completed",
-        }))
-      }
-    }
-
-    setTabState((prev) => ({
-      ...prev,
-      [tab]: "completed",
-      [update]: "in-progress",
-    }))
-    setTab(update)
-  }
-
-  const handleNextTab = (tab: Tab) => {
-    if (tabOrder.indexOf(tab) + 1 >= tabOrder.length) {
-      return
-    }
-
-    const nextTab = tabOrder[tabOrder.indexOf(tab) + 1]
-    handleChangeTab(nextTab)
-  }
-
-  return (
-    <RouteFocusModal.Form form={form} data-testid="price-list-prices-add-form">
-      <ProgressTabs
-        dir={direction}
-        value={tab}
-        onValueChange={(tab) => handleChangeTab(tab as Tab)}
-        className="flex h-full flex-col overflow-hidden"
-        data-testid="price-list-prices-add-form-tabs"
-      >
-        <KeyboundForm onSubmit={handleSubmit} className="flex h-full flex-col">
-          <RouteFocusModal.Header data-testid="price-list-prices-add-form-header">
-            <div className="flex w-full items-center justify-between gap-x-4">
-              <div className="-my-2 w-full max-w-[600px] border-l">
-                <ProgressTabs.List className="grid w-full grid-cols-3" data-testid="price-list-prices-add-form-tabs-list">
-                  <ProgressTabs.Trigger
-                    status={tabState.product}
-                    value={Tab.PRODUCT}
-                    data-testid="price-list-prices-add-form-tab-products"
-                  >
-                    {t("priceLists.create.tabs.products")}
-                  </ProgressTabs.Trigger>
-                  <ProgressTabs.Trigger
-                    status={tabState.price}
-                    value={Tab.PRICE}
-                    data-testid="price-list-prices-add-form-tab-prices"
-                  >
-                    {t("priceLists.create.tabs.prices")}
-                  </ProgressTabs.Trigger>
-                </ProgressTabs.List>
-              </div>
-            </div>
-          </RouteFocusModal.Header>
-          <RouteFocusModal.Body className="size-full overflow-hidden" data-testid="price-list-prices-add-form-body">
-            <ProgressTabs.Content
-              className="size-full overflow-y-auto"
-              value={Tab.PRODUCT}
-              data-testid="price-list-prices-add-form-content-products"
-            >
-              <PriceListPricesAddProductIdsForm
-                form={form}
-                priceList={priceList}
-              />
-            </ProgressTabs.Content>
-            <ProgressTabs.Content
-              className="size-full overflow-hidden"
-              value={Tab.PRICE}
-              data-testid="price-list-prices-add-form-content-prices"
-            >
-              <PriceListPricesAddPricesForm
-                form={form}
-                regions={regions}
-                currencies={currencies}
-                pricePreferences={pricePreferences}
-              />
-            </ProgressTabs.Content>
-          </RouteFocusModal.Body>
-          <RouteFocusModal.Footer data-testid="price-list-prices-add-form-footer">
-            <div className="flex items-center justify-end gap-x-2">
-              <RouteFocusModal.Close asChild>
-                <Button variant="secondary" size="small" data-testid="price-list-prices-add-form-cancel-button">
-                  {t("actions.cancel")}
-                </Button>
-              </RouteFocusModal.Close>
-              <PrimaryButton
-                tab={tab}
-                next={handleNextTab}
-                isLoading={isPending}
-              />
-            </div>
-          </RouteFocusModal.Footer>
-        </KeyboundForm>
-      </ProgressTabs>
-    </RouteFocusModal.Form>
+  const defaultTabs = useMemo(
+    () => [
+      <PriceListPricesAddProductIdsForm key="product" priceList={priceList} />,
+      <PriceListPricesAddPricesForm
+        key="price"
+        currencies={currencies}
+        regions={regions}
+        pricePreferences={pricePreferences}
+      />,
+    ],
+    [priceList, currencies, regions, pricePreferences]
   )
-}
 
-type PrimaryButtonProps = {
-  tab: Tab
-  next: (tab: Tab) => void
-  isLoading?: boolean
-}
-
-const PrimaryButton = ({ tab, next, isLoading }: PrimaryButtonProps) => {
-  const { t } = useTranslation()
-
-  if (tab === Tab.PRICE) {
-    return (
-      <Button
-        key="submit-button"
-        type="submit"
-        variant="primary"
-        size="small"
-        isLoading={isLoading}
-        data-testid="price-list-prices-add-form-save-button"
-      >
-        {t("actions.save")}
-      </Button>
-    )
-  }
+  const hasCustomChildren = Children.count(children) > 0
 
   return (
-    <Button
-      key="next-button"
-      type="button"
-      variant="primary"
-      size="small"
-      onClick={() => next(tab)}
-      data-testid="price-list-prices-add-form-continue-button"
+    <TabbedForm
+      form={form}
+      onSubmit={handleSubmit}
+      isLoading={isPending}
     >
-      {t("actions.continue")}
-    </Button>
+      {hasCustomChildren ? children : defaultTabs}
+    </TabbedForm>
   )
 }

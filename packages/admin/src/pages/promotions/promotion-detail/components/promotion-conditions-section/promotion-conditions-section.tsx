@@ -6,10 +6,12 @@ import {
 } from "@medusajs/types";
 import { Badge, Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { BadgeListSummary } from "../../../../../components/common/badge-list-summary";
 import { NoRecords } from "../../../../../components/common/empty-table-content";
+import { usePromotion, usePromotionRules } from "../../../../../hooks/api/promotions";
 
 type RuleProps = {
   rule: HttpTypes.AdminPromotionRule;
@@ -46,17 +48,29 @@ function RuleBlock({ rule }: RuleProps) {
 }
 
 type PromotionConditionsSectionProps = {
-  rules: HttpTypes.AdminPromotionRule[];
+  rules?: HttpTypes.AdminPromotionRule[];
   ruleType: string;
   applicationMethodTargetType?: ApplicationMethodTargetTypeValues;
 };
 
 export const PromotionConditionsSection = ({
-  rules,
+  rules: rulesProp,
   ruleType,
   applicationMethodTargetType,
 }: PromotionConditionsSectionProps) => {
   const { t } = useTranslation();
+  const { id } = useParams();
+  const { promotion } = usePromotion(id!, {
+    enabled: rulesProp === undefined,
+  });
+  const query: Record<string, string> = {};
+  if (promotion?.type === "buyget") {
+    query.promotion_type = promotion.type;
+  }
+  const { rules: fetchedRules } = usePromotionRules(id!, ruleType, query, {
+    enabled: rulesProp === undefined,
+  });
+  const rules = rulesProp ?? fetchedRules ?? [];
 
   return (
     <Container

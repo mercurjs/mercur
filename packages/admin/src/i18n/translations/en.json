@@ -2112,6 +2112,7 @@
         "existing": {
           "title": "Existing Campaign",
           "description": "Add promotion to an existing campaign.",
+          "currencyHint": "Campaigns with a budget currency are disabled because this promotion has no currency set. Set a currency on the promotion first.",
           "placeholder": {
             "title": "No existing campaigns",
             "desc": "You can create one to track multiple promotions and set budget limits."

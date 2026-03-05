@@ -1,6 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
 import { useMemo } from "react"
-import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -8,17 +7,16 @@ import {
   createDataGridHelper,
 } from "../../../../../components/data-grid"
 import { useRouteModal } from "../../../../../components/modals"
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { CreateInventoryItemSchema } from "./schema"
 
 type InventoryAvailabilityFormProps = {
-  form: UseFormReturn<CreateInventoryItemSchema>
   locations: HttpTypes.AdminStockLocation[]
 }
 
-export const InventoryAvailabilityForm = ({
-  form,
-  locations,
-}: InventoryAvailabilityFormProps) => {
+const Root = ({ locations }: InventoryAvailabilityFormProps) => {
+  const form = useTabbedForm<CreateInventoryItemSchema>()
   const { setCloseOnEscape } = useRouteModal()
 
   const columns = useColumns()
@@ -76,3 +74,11 @@ const useColumns = () => {
     [t]
   )
 }
+
+Root._tabMeta = defineTabMeta<CreateInventoryItemSchema>({
+  id: "availability",
+  labelKey: "inventory.create.availability",
+  validationFields: ["locations"],
+})
+
+export const InventoryAvailabilityForm = Root

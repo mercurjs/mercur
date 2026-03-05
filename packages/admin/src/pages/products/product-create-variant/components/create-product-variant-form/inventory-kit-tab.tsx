@@ -26,12 +26,15 @@ function InventoryKitTab() {
 
   const items = useComboboxData({
     queryKey: ["inventory_items"],
+    // @ts-expect-error — Mercur SDK extension
     queryFn: (params) => sdk.admin.inventoryItem.list(params),
-    getOptions: (data) =>
-      data.inventory_items.map((item) => ({
+    getOptions: (data) => {
+      const items = (data as unknown as { inventory_items: Array<{ title: string; id: string }> }).inventory_items
+      return items.map((item) => ({
         label: item.title,
         value: item.id,
-      })),
+      }))
+    },
   })
 
   /**
