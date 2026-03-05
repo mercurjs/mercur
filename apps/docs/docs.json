@@ -371,7 +371,8 @@
                   "v2/developer-guide/registry",
                   "v2/developer-guide/api-client",
                   "v2/developer-guide/cli",
-                  "v2/developer-guide/extending-panels"
+                  "v2/developer-guide/extending-panels",
+                  "v2/developer-guide/custom-fields"
                 ]
               }
             ]

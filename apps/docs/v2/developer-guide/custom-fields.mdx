@@ -1,0 +1,123 @@
+---
+title: "Custom Fields"
+description: "Extend any Medusa entity with additional fields without modifying core code."
+---
+
+<Snippet file="canary-warning.mdx" />
+
+Custom Fields let you attach extra data to any existing Medusa entity — products, customers, orders, and more — through configuration alone. No migrations to write, no models to define. The module handles table creation and schema updates automatically when you run `db:migrate`.
+
+## How it works
+
+The Custom Fields module creates a separate table for each entity you extend (e.g. `product_custom_fields`). Each table is linked back to the original entity via a foreign key with a unique constraint, ensuring a one-to-one relationship. The module automatically registers these links so you can query custom fields through Medusa's standard remote query.
+
+## Configuration
+
+Register the Custom Fields module in your `medusa-config.ts` and define your fields in the `customFields` option:
+
+```ts medusa-config.ts
+import { Modules } from "@medusajs/framework/utils"
+import customFieldsModule from "@mercurjs/core-plugin/modules/custom-fields"
+
+module.exports = defineConfig({
+  // ...
+  modules: [
+    {
+      resolve: customFieldsModule,
+      options: {
+        customFields: {
+          Product: {
+            brand: { type: "string", nullable: true },
+            is_featured: { type: "boolean", defaultValue: false },
+            weight: { type: "float", nullable: true },
+          },
+          Customer: {
+            company_name: { type: "string", nullable: true },
+            tier: { type: "enum", enum: ["bronze", "silver", "gold"], defaultValue: "bronze" },
+          },
+        },
+      },
+    },
+  ],
+})
+```
+
+The key in `customFields` (e.g. `Product`, `Customer`) must match the entity name as registered in Medusa's joiner configuration.
+
+After updating your configuration, run migrations to apply the schema changes:
+
+```bash
+npx medusa db:migrate
+```
+
+## Supported field types
+
+| Type | Description |
+|------|-------------|
+| `string` | Short text |
+| `text` | Long text |
+| `integer` | Whole number |
+| `float` | Decimal number |
+| `boolean` | True/false |
+| `date` | Date only |
+| `time` | Time only |
+| `datetime` | Date and time |
+| `json` | JSON object |
+| `array` | Array of values |
+| `enum` | One of a predefined set of values (requires `enum` array) |
+
+### Field options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `nullable` | `boolean` | `true` | Whether the field can be null |
+| `defaultValue` | `any` | `null` | Default value for the field |
+| `enum` | `string[]` | — | Required for `enum` type. List of allowed values |
+
+## Querying custom fields
+
+Custom fields are automatically linked to their parent entity. You can retrieve them using Medusa's remote query:
+
+```ts
+const products = await query.graph({
+  entity: "product",
+  fields: ["id", "title", "custom_fields.*"],
+})
+```
+
+## Using the service directly
+
+The Custom Fields module exposes a service with `upsert`, `delete`, and `list` methods. You can use these in your own workflows and API routes:
+
+```ts
+import { MercurModules } from "@mercurjs/types"
+
+// In a step or API route
+const customFieldsService = container.resolve(MercurModules.CUSTOM_FIELDS)
+
+// Create or update custom fields for a product
+await customFieldsService.upsert("product", {
+  id: "prod_123",
+  brand: "Acme",
+  is_featured: true,
+})
+
+// Delete custom fields by record ID
+await customFieldsService.delete("product", ["cf_456"])
+```
+
+The `upsert` method accepts either a single object or an array. If a record already exists for the given entity ID, it updates it; otherwise, it creates a new one.
+
+## Workflow steps
+
+The module ships with two workflow steps you can compose into your own workflows:
+
+```ts
+import {
+  upsertCustomFieldsStep,
+  deleteCustomFieldsStep,
+} from "@mercurjs/core-plugin/workflows"
+```
+
+- **`upsertCustomFieldsStep`** — Takes `{ alias, data }` where `alias` is the entity name (e.g. `"product"`) and `data` contains the entity ID and field values.
+- **`deleteCustomFieldsStep`** — Takes `{ alias, ids }` to soft-delete custom field records by their IDs.
