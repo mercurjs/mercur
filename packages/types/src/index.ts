@@ -18,3 +18,5 @@ export * from "./payout"
 // Modules
 export * from "./modules"
 
+// Custom fields types
+export * from "./custom-fields"
