@@ -5,7 +5,7 @@ import {
     SoftDeletableFilterKey,
 } from "@medusajs/framework/utils"
 
-import { EntityKey, EntitySchema } from "@medusajs/framework/mikro-orm/core"
+import { EntitySchema } from "@medusajs/framework/mikro-orm/core"
 import { Field } from "@mercurjs/types"
 
 function getClass(className: string, ...properties) {
@@ -122,12 +122,6 @@ export function generateEntity(
             {
                 properties: ["deleted_at"],
                 name: "IDX_deleted_at_" + hashTableName,
-            },
-            {
-                properties: [foreignKeyName as EntityKey<{ id: any; } & { deleted_at: any; }, false>],
-                name: "IDX_unique_" + hashTableName,
-                options: { unique: true },
-                expression: `CREATE UNIQUE INDEX IF NOT EXISTS "IDX_unique_${hashTableName}" ON "${compressed}" ("${foreignKeyName}") WHERE "deleted_at" IS NULL`,
             },
         ],
     })
