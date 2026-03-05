@@ -103,14 +103,14 @@ export default class CustomFieldsModuleService {
 
     async create(
         alias: string,
-        data: { id: string;[key: string]: unknown }[]
+        data: { id: string;[key: string]: unknown } | { id: string;[key: string]: unknown }[]
     ) {
+        const items = Array.isArray(data) ? data : [data];
         const snakeEntity = this.resolveAlias_(alias);
         const tableName = compressName(`${snakeEntity}_custom_fields`);
         const knex = this.pgConnection_;
 
-
-        const rows = data.map((entry) => {
+        const rows = items.map((entry) => {
             const { id, ...fields } = entry
             return {
                 ...fields,
@@ -128,34 +128,36 @@ export default class CustomFieldsModuleService {
 
     async update(
         alias: string,
-        data: { id: string;[key: string]: unknown }[],
+        data: { id: string;[key: string]: unknown } | { id: string;[key: string]: unknown }[],
     ) {
+        const items = Array.isArray(data) ? data : [data];
         const snakeEntity = this.resolveAlias_(alias);
         const tableName = compressName(`${snakeEntity}_custom_fields`);
         const knex = this.pgConnection_;
 
         await knex.transaction(async (trx) => {
-            for (const { id, ...fields } of data) {
+            for (const { id, ...fields } of items) {
                 await trx(tableName)
                     .where(`${snakeEntity + '_id'}`, id)
                     .update({ ...fields, updated_at: new Date() });
             }
         });
 
-        return data;
+        return items;
     }
 
     async delete(
         alias: string,
-        ids: string[],
+        ids: string | string[],
     ) {
+        const items = Array.isArray(ids) ? ids : [ids];
         const snakeEntity = this.resolveAlias_(alias);
         const tableName = compressName(`${snakeEntity}_custom_fields`);
         const knex = this.pgConnection_;
 
         await knex.transaction(async (trx) => {
             await trx(tableName)
-                .whereIn('id', ids)
+                .whereIn('id', items)
                 .update({ deleted_at: new Date() });
         });
     }
