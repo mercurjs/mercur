@@ -106,7 +106,7 @@ export default async function customFieldsLoader({
 }: LoaderOptions) {
   const { customFields = {} } = (options ?? {}) as CustomFieldsModuleOptions;
 
-  const isMigration = process.argv.some((arg) => arg === "db:migrate");
+  const isMigration = process.argv.some((arg) => arg.includes("db:migrate"));
 
   if (isMigration) {
     await syncCustomFields(logger, customFields);
