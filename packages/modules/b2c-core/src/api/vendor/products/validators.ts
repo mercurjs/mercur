@@ -1,23 +1,23 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-import { AdditionalData } from "@medusajs/framework/types";
-import { WithAdditionalData } from "@medusajs/medusa/api/utils/validators";
+import { AdditionalData } from '@medusajs/framework/types';
+import { WithAdditionalData } from '@medusajs/medusa/api/utils/validators';
 
-import { IdAssociation } from "../../../shared/infra/http/utils";
+import { IdAssociation } from '../../../shared/infra/http/utils';
 import {
   AdminGetProductsParams,
-  AdminGetProductVariantsParams,
-} from "@medusajs/medusa/api/admin/products/validators";
+  AdminGetProductVariantsParams
+} from '@medusajs/medusa/api/admin/products/validators';
 
 /* Attribute Inputs for Product Creation */
 
 const AttributeUIComponentEnum = z.enum([
-  "select",
-  "multivalue",
-  "unit",
-  "toggle",
-  "text_area",
-  "color_picker",
+  'select',
+  'multivalue',
+  'unit',
+  'toggle',
+  'text_area',
+  'color_picker'
 ]);
 
 /**
@@ -44,7 +44,7 @@ export type AdminAttributeInputType = z.infer<typeof AdminAttributeInput>;
 export const AdminAttributeInput = z.object({
   attribute_id: z.string(),
   values: z.array(z.string()).min(1),
-  use_for_variations: z.boolean(),
+  use_for_variations: z.boolean()
 });
 
 /**
@@ -80,7 +80,7 @@ export const VendorAttributeInput = z.object({
   values: z.array(z.string()).min(1),
   use_for_variations: z.boolean(),
   ui_component: AttributeUIComponentEnum.optional(),
-  extends_attribute_id: z.string().optional(),
+  extends_attribute_id: z.string().optional()
 });
 
 /**
@@ -103,7 +103,7 @@ export type ProductAttributesAdditionalDataType = z.infer<
 >;
 export const ProductAttributesAdditionalData = z.object({
   admin_attributes: z.array(AdminAttributeInput).optional(),
-  vendor_attributes: z.array(VendorAttributeInput).optional(),
+  vendor_attributes: z.array(VendorAttributeInput).optional()
 });
 
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>;
@@ -143,17 +143,17 @@ export const CreateProductOption = z.object({
     .record(z.unknown())
     .optional()
     .superRefine((data, ctx) => {
-      if (data && "author" in data) {
+      if (data && 'author' in data) {
         const author = data.author;
-        if (author !== "admin" && author !== "vendor") {
+        if (author !== 'admin' && author !== 'vendor') {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: 'author must be either "admin" or "vendor"',
-            path: ["author"],
+            path: ['author']
           });
         }
       }
-    }),
+    })
 });
 
 /**
@@ -189,17 +189,17 @@ export const UpdateProductOption = z.object({
     .record(z.unknown())
     .nullish()
     .superRefine((data, ctx) => {
-      if (data && "author" in data) {
+      if (data && 'author' in data) {
         const author = data.author;
-        if (author !== "admin" && author !== "vendor") {
+        if (author !== 'admin' && author !== 'vendor') {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: 'author must be either "admin" or "vendor"',
-            path: ["author"],
+            path: ['author']
           });
         }
       }
-    }),
+    })
 });
 
 /* Variant Prices */
@@ -236,7 +236,7 @@ const CreateVariantPrice = z.object({
   amount: z.number(),
   min_quantity: z.number().nullish(),
   max_quantity: z.number().nullish(),
-  rules: z.record(z.string(), z.string()).optional(),
+  rules: z.record(z.string(), z.string()).optional()
 });
 
 /**
@@ -272,7 +272,7 @@ const UpdateVariantPrice = z.object({
   amount: z.number().optional(),
   min_quantity: z.number().nullish(),
   max_quantity: z.number().nullish(),
-  rules: z.record(z.string(), z.string()).optional(),
+  rules: z.record(z.string(), z.string()).optional()
 });
 
 /* Variant Images */
@@ -299,7 +299,7 @@ export type VariantImagesType = z.infer<typeof VariantImages>;
 export const VariantImages = z.object({
   variant_image_key: z.string(),
   image_urls: z.array(z.string()).optional(),
-  thumbnail_url: z.string().optional(),
+  thumbnail_url: z.string().optional()
 });
 
 /* Variants */
@@ -390,8 +390,8 @@ export const CreateProductVariant = z
     barcode: z.string().optional(),
     hs_code: z.string().optional(),
     mid_code: z.string().optional(),
-    allow_backorder: z.literal(false).optional().default(false),
-    manage_inventory: z.literal(true).optional().default(true),
+    allow_backorder: z.boolean().optional(),
+    manage_inventory: z.boolean().optional(),
     variant_rank: z.number().optional(),
     weight: z.number().optional(),
     length: z.number().optional(),
@@ -406,10 +406,10 @@ export const CreateProductVariant = z
       .array(
         z.object({
           inventory_item_id: z.string(),
-          required_quantity: z.number(),
+          required_quantity: z.number()
         })
       )
-      .optional(),
+      .optional()
   })
   .strict();
 
@@ -517,7 +517,7 @@ export const UpdateProductVariant = z
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
-    options: z.record(z.string()).optional(),
+    options: z.record(z.string()).optional()
   })
   .strict();
 
@@ -661,7 +661,7 @@ export const CreateProduct = z
     images: z.array(z.object({ url: z.string() })).optional(),
     thumbnail: z.string().optional(),
     handle: z.string().optional(),
-    status: z.enum(["draft", "proposed"]).optional().default("draft"),
+    status: z.enum(['draft', 'proposed']).optional().default('draft'),
     external_id: z.string().optional(),
     type_id: z.string().optional(),
     collection_id: z.string().optional(),
@@ -679,7 +679,7 @@ export const CreateProduct = z
     material: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
     sales_channels: z.array(z.object({ id: z.string() })).optional(),
-    variants_images: z.array(VariantImages).optional(),
+    variants_images: z.array(VariantImages).optional()
   })
   .strict();
 /**
@@ -851,7 +851,7 @@ export const UpdateProduct = z
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
-    sales_channels: z.array(z.object({ id: z.string() })).optional(),
+    sales_channels: z.array(z.object({ id: z.string() })).optional()
   })
   .strict();
 
@@ -885,7 +885,7 @@ export type VendorUpdateProductStatusType = z.infer<
   typeof VendorUpdateProductStatus
 >;
 export const VendorUpdateProductStatus = z.object({
-  status: z.enum(["draft", "proposed", "published"]),
+  status: z.enum(['draft', 'proposed', 'published'])
 });
 
 /* Vendor Product Attributes */
@@ -924,7 +924,7 @@ export const VendorAddProductAttribute = z.object({
   name: z.string().min(1).optional(),
   values: z.array(z.string()).min(1),
   use_for_variations: z.boolean(),
-  ui_component: AttributeUIComponentEnum.optional(),
+  ui_component: AttributeUIComponentEnum.optional()
 });
 
 /**
@@ -954,7 +954,7 @@ export const VendorUpdateProductAttribute = z.object({
   name: z.string().min(1).optional(),
   ui_component: AttributeUIComponentEnum.optional(),
   values: z.array(z.string()).min(1).optional(),
-  use_for_variations: z.boolean().optional(),
+  use_for_variations: z.boolean().optional()
 });
 
 /**
@@ -974,10 +974,12 @@ export const VendorUpdateProductAttribute = z.object({
  */
 export const VendorBatchVariantImages = z.object({
   add: z.array(z.string()).optional(),
-  remove: z.array(z.string()).optional(),
+  remove: z.array(z.string()).optional()
 });
 
-export type VendorBatchVariantImagesType = z.infer<typeof VendorBatchVariantImages>;
+export type VendorBatchVariantImagesType = z.infer<
+  typeof VendorBatchVariantImages
+>;
 
 /* Batch Update Products */
 
@@ -1004,8 +1006,8 @@ export type VendorBatchVariantImagesType = z.infer<typeof VendorBatchVariantImag
 export const VendorBatchUpdateProductItem = z.object({
   id: z.string().min(1),
   title: z.string().optional(),
-  status: z.enum(["draft", "published"]).optional(),
-  discountable: z.boolean().optional(),
+  status: z.enum(['draft', 'published']).optional(),
+  discountable: z.boolean().optional()
 });
 
 /**
@@ -1031,5 +1033,5 @@ export type VendorBatchUpdateProductsType = z.infer<
 >;
 export const VendorBatchUpdateProducts = z.object({
   update: z.array(VendorBatchUpdateProductItem),
-  delete: z.array(z.string()),
+  delete: z.array(z.string())
 });
