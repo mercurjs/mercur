@@ -243,7 +243,11 @@ export const usePromotionAddRules = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.promotion.addRules(id, ruleType, payload),
+      sdk.admin.promotions.$id.$ruleType.batch.mutate({
+        $id: id,
+        $ruleType: ruleType,
+        create: payload.rules,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
 
@@ -264,7 +268,11 @@ export const usePromotionRemoveRules = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.promotion.removeRules(id, ruleType, payload),
+      sdk.admin.promotions.$id.$ruleType.batch.mutate({
+        $id: id,
+        $ruleType: ruleType,
+        delete: payload.rule_ids,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
 
@@ -285,7 +293,11 @@ export const usePromotionUpdateRules = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.promotion.updateRules(id, ruleType, payload),
+      sdk.admin.promotions.$id.$ruleType.batch.mutate({
+        $id: id,
+        $ruleType: ruleType,
+        update: payload.rules,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.all })
 

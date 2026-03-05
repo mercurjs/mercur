@@ -71,15 +71,13 @@ export const RuleValueFormField = ({
 
   const comboboxData = useComboboxData({
     queryFn: async (params) => {
-      return await sdk.admin.promotion.listRuleValues(
-        ruleType,
-        attribute?.id!,
-        {
-          ...params,
-          ...buildFilters(attribute?.id, store!),
-          application_method_target_type: applicationMethodTargetType,
-        },
-      );
+      return await sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
+        $ruleType: ruleType,
+        $ruleAttributeId: attribute?.id!,
+        ...params,
+        ...buildFilters(attribute?.id, store!),
+        application_method_target_type: applicationMethodTargetType,
+      });
     },
     enabled:
       !!attribute?.id &&
