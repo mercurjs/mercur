@@ -39,7 +39,7 @@ export default class CustomFieldsModuleService {
 
             for (const entityName of entityNames) {
                 const entityAlias = joinerConfigAliases.find(
-                    (alias) => alias?.entity === entityName
+                    (alias) => alias?.entity === entityName,
                 );
 
                 if (!entityAlias) {
@@ -64,16 +64,19 @@ export default class CustomFieldsModuleService {
         config: FindConfig<any>,
     ) {
         if (Object.keys(filter).length !== 1) {
-            throw new MedusaError(MedusaError.Types.INVALID_ARGUMENT, 'Only single filter is allowed');
+            throw new MedusaError(
+                MedusaError.Types.INVALID_ARGUMENT,
+                "Only single filter is allowed",
+            );
         }
 
         const filterKey = Object.keys(filter)[0];
         const filterValue = filter[filterKey];
-        const alias = filterKey.split('_').slice(0, -1).join('_');
+        const alias = filterKey.split("_").slice(0, -1).join("_");
         const tableName = compressName(`${alias}_custom_fields`);
         const knex = this.pgConnection_;
 
-        const query = knex(tableName).whereNull('deleted_at');
+        const query = knex(tableName).whereNull("deleted_at");
 
         if (Array.isArray(filterValue)) {
             query.whereIn(filterKey, filterValue);
@@ -94,51 +97,65 @@ export default class CustomFieldsModuleService {
         if (!snakeEntity) {
             throw new MedusaError(
                 MedusaError.Types.INVALID_ARGUMENT,
-                `Unknown custom fields alias: ${alias}`
+                `Unknown custom fields alias: ${alias}`,
             );
         }
 
         return snakeEntity;
     }
 
-    async create(
+    async upsert(
         alias: string,
-        data: { id: string;[key: string]: unknown } | { id: string;[key: string]: unknown }[]
+        data:
+            | { id: string;[key: string]: unknown }
+            | { id: string;[key: string]: unknown }[],
     ) {
         const items = Array.isArray(data) ? data : [data];
         const snakeEntity = this.resolveAlias_(alias);
+        const foreignKey = snakeEntity + "_id";
         const tableName = compressName(`${snakeEntity}_custom_fields`);
         const knex = this.pgConnection_;
 
-        const rows = items.map((entry) => {
-            const { id, ...fields } = entry
-            return {
-                ...fields,
-                [snakeEntity + '_id']: id,
-                id: generateEntityId(undefined as any, "cf"),
+        const foreignKeyValues = items.map((entry) => entry.id);
+
+        const existing = await knex(tableName)
+            .whereIn(foreignKey, foreignKeyValues)
+            .whereNull("deleted_at");
+
+        const existingMap = new Map<
+            string,
+            { id: string; fields: Record<string, unknown> }
+        >(
+            existing.map((row) => [
+                row[foreignKey],
+                row,
+            ]),
+        );
+
+        const toInsert: Record<string, unknown>[] = [];
+        const toUpdate: { id: string; fields: Record<string, unknown> }[] = [];
+
+        for (const item of items) {
+            const { id, ...fields } = item;
+            const existingRow = existingMap.get(id);
+            if (existingRow) {
+                toUpdate.push({ id: existingRow.id as string, fields });
+            } else {
+                toInsert.push({
+                    ...fields,
+                    [foreignKey]: id,
+                    id: generateEntityId(undefined as any, "cf"),
+                });
             }
-        });
+        }
 
         await knex.transaction(async (trx) => {
-            await trx(tableName).insert(rows);
-        });
-
-        return rows;
-    }
-
-    async update(
-        alias: string,
-        data: { id: string;[key: string]: unknown } | { id: string;[key: string]: unknown }[],
-    ) {
-        const items = Array.isArray(data) ? data : [data];
-        const snakeEntity = this.resolveAlias_(alias);
-        const tableName = compressName(`${snakeEntity}_custom_fields`);
-        const knex = this.pgConnection_;
-
-        await knex.transaction(async (trx) => {
-            for (const { id, ...fields } of items) {
+            if (toInsert.length) {
+                await trx(tableName).insert(toInsert);
+            }
+            for (const { id, fields } of toUpdate) {
                 await trx(tableName)
-                    .where(`${snakeEntity + '_id'}`, id)
+                    .where("id", id)
                     .update({ ...fields, updated_at: new Date() });
             }
         });
@@ -146,10 +163,7 @@ export default class CustomFieldsModuleService {
         return items;
     }
 
-    async delete(
-        alias: string,
-        ids: string | string[],
-    ) {
+    async delete(alias: string, ids: string | string[]) {
         const items = Array.isArray(ids) ? ids : [ids];
         const snakeEntity = this.resolveAlias_(alias);
         const tableName = compressName(`${snakeEntity}_custom_fields`);
@@ -157,7 +171,7 @@ export default class CustomFieldsModuleService {
 
         await knex.transaction(async (trx) => {
             await trx(tableName)
-                .whereIn('id', items)
+                .whereIn("id", items)
                 .update({ deleted_at: new Date() });
         });
     }
