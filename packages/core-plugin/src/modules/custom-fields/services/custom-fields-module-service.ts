@@ -96,7 +96,8 @@ export default class CustomFieldsModuleService {
             config = filtersOrConfig as FindConfig<any>;
         }
 
-        const tableName = compressName(`${alias}_custom_fields`);
+        const snakeEntity = this.resolveAlias_(alias);
+        const tableName = compressName(`${snakeEntity}_custom_fields`);
         const knex = this.pgConnection_;
 
         const query = knex(tableName).whereNull("deleted_at");
