@@ -16,6 +16,7 @@ import { ProductSellerSection } from "./components/product-seller-section/produc
 import { ProductShippingProfileSection } from "./components/product-shipping-profile-section";
 import { ProductVariantSection } from "./components/product-variant-section";
 import { productLoader } from "./loader";
+import { PRODUCT_DETAIL_QUERY } from "../constants";
 
 type AdminProductWithSeller = HttpTypes.AdminProduct & {
   seller?: SellerDTO;
@@ -29,7 +30,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams();
   const { product: rawProduct, isLoading, isError, error } = useProduct(
     id!,
-    {},
+    PRODUCT_DETAIL_QUERY,
     {
       initialData: initialData,
     },

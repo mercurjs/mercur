@@ -4,11 +4,12 @@ import { productsQueryKeys } from "../../../hooks/api/products"
 import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 import { AdminProductResponse } from "@mercurjs/types"
+import { PRODUCT_DETAIL_QUERY } from "../constants"
 
 const productDetailQuery = (id: string) => ({
-  queryKey: productsQueryKeys.detail(id),
+  queryKey: productsQueryKeys.detail(id, PRODUCT_DETAIL_QUERY),
   queryFn: async () =>
-    sdk.admin.products.$id.query({ $id: id, fields: "*seller" }),
+    sdk.admin.products.$id.query({ $id: id, ...PRODUCT_DETAIL_QUERY }),
 })
 
 export const productLoader = async ({ params }: LoaderFunctionArgs): Promise<AdminProductResponse> => {
