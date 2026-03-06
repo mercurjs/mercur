@@ -516,6 +516,7 @@ export const UpdateProductVariant = z
     width: z.number().nullish(),
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
+    thumbnail: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
     options: z.record(z.string()).optional()
   })
