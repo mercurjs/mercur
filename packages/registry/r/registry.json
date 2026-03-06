@@ -883,6 +883,10 @@
           "type": "registry:admin"
         },
         {
+          "path": "requests/admin/pages/requests/page.tsx",
+          "type": "registry:admin"
+        },
+        {
           "path": "requests/admin/pages/requests/categories/page.tsx",
           "type": "registry:admin"
         },
@@ -920,6 +924,10 @@
         },
         {
           "path": "requests/vendor/hooks/table/query/use-request-table-query.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/page.tsx",
           "type": "registry:vendor"
         },
         {

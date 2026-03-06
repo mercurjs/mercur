@@ -859,10 +859,6 @@
           "type": "registry:api"
         },
         {
-          "path": "requests/workflows/hooks/product-created.ts",
-          "type": "registry:api"
-        },
-        {
           "path": "requests/workflows/hooks/seller-created.ts",
           "type": "registry:api"
         },
@@ -883,6 +879,10 @@
           "type": "registry:admin"
         },
         {
+          "path": "requests/admin/pages/requests/page.tsx",
+          "type": "registry:admin"
+        },
+        {
           "path": "requests/admin/pages/requests/categories/page.tsx",
           "type": "registry:admin"
         },
@@ -899,14 +899,6 @@
           "type": "registry:admin"
         },
         {
-          "path": "requests/admin/pages/requests/[type]/[id]/page.tsx",
-          "type": "registry:admin"
-        },
-        {
-          "path": "requests/admin/pages/requests/[type]/[id]/breadcrumb.tsx",
-          "type": "registry:admin"
-        },
-        {
           "path": "requests/vendor/hooks/api/requests.tsx",
           "type": "registry:vendor"
         },
@@ -920,6 +912,10 @@
         },
         {
           "path": "requests/vendor/hooks/table/query/use-request-table-query.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/page.tsx",
           "type": "registry:vendor"
         },
         {
