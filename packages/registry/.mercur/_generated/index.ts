@@ -168,7 +168,7 @@ export type Routes = {
                 };
             };
         };
-        orders: typeof import("@medusajs/medusa/api/admin/orders/route") & {
+        orders: typeof import("@mercurjs/core-plugin/api/admin/orders/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/orders/[id]/route") & {
                 archive: typeof import("@medusajs/medusa/api/admin/orders/[id]/archive/route");
                 cancel: typeof import("@medusajs/medusa/api/admin/orders/[id]/cancel/route");
@@ -227,7 +227,7 @@ export type Routes = {
             $id: typeof import("@medusajs/medusa/api/admin/product-types/[id]/route");
         };
         productVariants: typeof import("@medusajs/medusa/api/admin/product-variants/route");
-        products: typeof import("@medusajs/medusa/api/admin/products/route") & {
+        products: typeof import("@mercurjs/core-plugin/api/admin/products/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/products/[id]/route") & {
                 images: {
                     $imageId: {
@@ -432,6 +432,14 @@ export type Routes = {
             $id: typeof import("../../src/reviews/api/admin/reviews/[id]/route");
         };
         algolia: typeof import("../../src/algolia/api/admin/algolia/route");
+        requests: {
+            $type: typeof import("../../src/requests/api/admin/requests/[type]/route") & {
+                $id: typeof import("../../src/requests/api/admin/requests/[type]/[id]/route") & {
+                    accept: typeof import("../../src/requests/api/admin/requests/[type]/[id]/accept/route");
+                    reject: typeof import("../../src/requests/api/admin/requests/[type]/[id]/reject/route");
+                };
+            };
+        };
     };
     auth: {
         $actorType: {
@@ -603,15 +611,15 @@ export type Routes = {
         pricePreferences: typeof import("@mercurjs/core-plugin/api/vendor/price-preferences/route") & {
             $id: typeof import("@mercurjs/core-plugin/api/vendor/price-preferences/[id]/route");
         };
-        productCategories: typeof import("@mercurjs/core-plugin/api/vendor/product-categories/route") & {
+        productCategories: typeof import("../../src/requests/api/vendor/product-categories/route") & {
             $id: typeof import("@mercurjs/core-plugin/api/vendor/product-categories/[id]/route") & {
                 products: typeof import("@mercurjs/core-plugin/api/vendor/product-categories/[id]/products/route");
             };
         };
-        productTags: typeof import("@mercurjs/core-plugin/api/vendor/product-tags/route") & {
+        productTags: typeof import("../../src/requests/api/vendor/product-tags/route") & {
             $id: typeof import("@mercurjs/core-plugin/api/vendor/product-tags/[id]/route");
         };
-        productTypes: typeof import("@mercurjs/core-plugin/api/vendor/product-types/route") & {
+        productTypes: typeof import("../../src/requests/api/vendor/product-types/route") & {
             $id: typeof import("@mercurjs/core-plugin/api/vendor/product-types/[id]/route");
         };
         products: typeof import("@mercurjs/core-plugin/api/vendor/products/route") & {
@@ -718,5 +726,6 @@ export type Routes = {
             accept: typeof import("../../src/team-management/api/vendor/invites/accept/route");
         };
         notifications: typeof import("../../src/vendor-notifications/api/vendor/notifications/route");
+        productCollections: typeof import("../../src/requests/api/vendor/product-collections/route");
     };
 };
