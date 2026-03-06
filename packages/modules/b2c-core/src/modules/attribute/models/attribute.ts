@@ -10,15 +10,22 @@ const Attribute = model
     name: model.text().searchable(),
     description: model.text().nullable(),
     is_required: model.boolean().default(false),
-    is_filterable: model.boolean().default(true),
+    is_filterable: model.boolean().default(false),
     handle: model.text().unique(),
     metadata: model.json().nullable(),
     ui_component: model
       .enum(Object.values(AttributeUIComponent))
       .default(AttributeUIComponent.SELECT),
+    source: model.text().default("admin"),
     values: model.hasMany(() => AttributeValue),
     possible_values: model.hasMany(() => AttributePossibleValue),
   })
+  .indexes([
+    {
+      on: ["source", "name"],
+      name: "IDX_attribute_source_name",
+    },
+  ])
   .cascades({
     delete: ["values", "possible_values"],
   });
