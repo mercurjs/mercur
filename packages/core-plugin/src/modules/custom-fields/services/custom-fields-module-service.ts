@@ -62,26 +62,51 @@ export default class CustomFieldsModuleService {
     async list(
         filter: Record<string, string | string[]>,
         config: FindConfig<any>,
+    ): Promise<any[]>;
+    async list(
+        alias: string,
+        filters: Record<string, string | string[]>,
+        config: FindConfig<any>,
+    ): Promise<any[]>;
+
+    async list(
+        filterOrAlias: Record<string, string | string[]> | string,
+        filtersOrConfig: Record<string, string | string[]> | FindConfig<any>,
+        maybeConfig?: FindConfig<any>,
     ) {
-        if (Object.keys(filter).length !== 1) {
-            throw new MedusaError(
-                MedusaError.Types.INVALID_ARGUMENT,
-                "Only single filter is allowed",
-            );
+        let alias: string;
+        let filters: Record<string, string | string[]>;
+        let config: FindConfig<any>;
+
+        if (typeof filterOrAlias === "string") {
+            alias = filterOrAlias;
+            filters = filtersOrConfig as Record<string, string | string[]>;
+            config = maybeConfig!;
+        } else {
+            const filter = filterOrAlias;
+            if (Object.keys(filter).length !== 1) {
+                throw new MedusaError(
+                    MedusaError.Types.INVALID_ARGUMENT,
+                    "Only single filter is allowed",
+                );
+            }
+            const filterKey = Object.keys(filter)[0];
+            alias = filterKey.split("_").slice(0, -1).join("_");
+            filters = filter;
+            config = filtersOrConfig as FindConfig<any>;
         }
 
-        const filterKey = Object.keys(filter)[0];
-        const filterValue = filter[filterKey];
-        const alias = filterKey.split("_").slice(0, -1).join("_");
         const tableName = compressName(`${alias}_custom_fields`);
         const knex = this.pgConnection_;
 
         const query = knex(tableName).whereNull("deleted_at");
 
-        if (Array.isArray(filterValue)) {
-            query.whereIn(filterKey, filterValue);
-        } else {
-            query.where(filterKey, filterValue);
+        for (const [filterKey, filterValue] of Object.entries(filters)) {
+            if (Array.isArray(filterValue)) {
+                query.whereIn(filterKey, filterValue);
+            } else {
+                query.where(filterKey, filterValue);
+            }
         }
 
         if (config.select) {
