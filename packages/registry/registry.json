@@ -865,6 +865,78 @@
         {
           "path": "requests/workflows/hooks/seller-created.ts",
           "type": "registry:api"
+        },
+        {
+          "path": "requests/admin/hooks/api/requests.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/hooks/table/columns/use-request-table-columns.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/hooks/table/filters/use-request-table-filters.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/hooks/table/query/use-request-table-query.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/categories/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/collections/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/tags/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/types/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/[type]/[id]/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/[type]/[id]/breadcrumb.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/vendor/hooks/api/requests.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/hooks/table/columns/use-request-table-columns.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/hooks/table/filters/use-request-table-filters.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/hooks/table/query/use-request-table-query.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/categories/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/collections/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/tags/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/types/page.tsx",
+          "type": "registry:vendor"
         }
       ],
       "categories": [

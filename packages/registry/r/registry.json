@@ -698,6 +698,251 @@
         "api",
         "link"
       ]
+    },
+    {
+      "name": "requests",
+      "description": "Admin approval system powered by the Custom Fields module. Admins can list, review, accept or reject entity requests.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "docs": "## Prerequisites\n\nThis block requires the **Custom Fields module** (`@mercurjs/core-plugin/modules/custom-fields`). Make sure it is registered in your `medusa-config.ts`.\n\n## Configuration\n\nAdd request-related custom fields to the entities you want to support approval workflows for. Add these fields to your Custom Fields module options in `medusa-config.ts`:\n\n```ts\n{\n  resolve: \"@mercurjs/core-plugin/modules/custom-fields\",\n  options: {\n    customFields: {\n      Product: {\n        request_status: {\n          type: \"enum\",\n          enum: [\"draft\", \"pending\", \"accepted\", \"rejected\"],\n          defaultValue: \"draft\",\n        },\n        submitter_id: { type: \"string\", nullable: true },\n        reviewer_id: { type: \"string\", nullable: true },\n        reviewer_note: { type: \"text\", nullable: true },\n      },\n      // Add the same fields to other entities as needed:\n      // ProductCollection, ProductCategory, ProductType, ProductTag, Seller\n    },\n  },\n}\n```\n\n## Middlewares\n\nAdd the request middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { adminRequestsMiddlewares } from \"./admin/requests/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...adminRequestsMiddlewares],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter updating the custom fields configuration, run migrations:\n\n```bash\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```\n\n## API Endpoints\n\n- `GET /admin/requests/:type` — List entities with request custom fields (filterable by `request_status`, `submitter_id`)\n- `GET /admin/requests/:type/:id` — Retrieve entity with request custom fields\n- `POST /admin/requests/:type/:id/accept` — Accept a request\n- `POST /admin/requests/:type/:id/reject` — Reject a request\n\nSupported `:type` values: `product`, `product_collection`, `product_category`, `product_type`, `product_tag`, `seller`",
+      "files": [
+        {
+          "path": "requests/types/index.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/requests/steps/index.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/requests/steps/validate-request-status.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/requests/workflows/index.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/requests/workflows/accept-request.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/requests/workflows/reject-request.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/requests/workflows/create-product-collection-request.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/admin/requests/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/admin/requests/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/admin/requests/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/admin/requests/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/admin/requests/[type]/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/admin/requests/[type]/[id]/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/admin/requests/[type]/[id]/accept/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/admin/requests/[type]/[id]/reject/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-collections/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-collections/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-collections/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-collections/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-collections/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/requests/workflows/create-product-category-request.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-categories/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-categories/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-categories/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-categories/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-categories/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/requests/workflows/create-product-type-request.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-types/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-types/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-types/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-types/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-types/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/requests/workflows/create-product-tag-request.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-tags/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-tags/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-tags/query-config.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-tags/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/product-tags/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/hooks/product-created.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/workflows/hooks/seller-created.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/admin/hooks/api/requests.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/hooks/table/columns/use-request-table-columns.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/hooks/table/filters/use-request-table-filters.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/hooks/table/query/use-request-table-query.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/categories/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/collections/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/tags/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/types/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/[type]/[id]/page.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/admin/pages/requests/[type]/[id]/breadcrumb.tsx",
+          "type": "registry:admin"
+        },
+        {
+          "path": "requests/vendor/hooks/api/requests.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/hooks/table/columns/use-request-table-columns.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/hooks/table/filters/use-request-table-filters.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/hooks/table/query/use-request-table-query.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/categories/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/collections/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/tags/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/types/page.tsx",
+          "type": "registry:vendor"
+        }
+      ],
+      "categories": [
+        "api",
+        "workflow"
+      ]
     }
   ]
 }
