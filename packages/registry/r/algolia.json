@@ -46,7 +46,7 @@
     },
     {
       "path": "algolia/workflows/algolia/workflows/sync-algolia.ts",
-      "content": "import { WorkflowResponse, createWorkflow } from '@medusajs/workflows-sdk'\n\nimport { syncAlgoliaProductsStep } from '../steps/sync-algolia-products'\n\nexport const syncAlgoliaWorkflow = createWorkflow(\n  'sync-algolia-workflow',\n  function () {\n    return new WorkflowResponse(syncAlgoliaProductsStep())\n  }\n)\n",
+      "content": "\nimport { createWorkflow, WorkflowResponse } from '@medusajs/framework/workflows-sdk'\nimport { syncAlgoliaProductsStep } from '../steps/sync-algolia-products'\n\nexport const syncAlgoliaWorkflow = createWorkflow(\n  'sync-algolia-workflow',\n  function () {\n    return new WorkflowResponse(syncAlgoliaProductsStep())\n  }\n)\n",
       "type": "registry:api"
     },
     {
