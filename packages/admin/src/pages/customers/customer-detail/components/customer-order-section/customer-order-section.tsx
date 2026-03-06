@@ -32,9 +32,9 @@ export const CustomerOrderSection = ({
   })
   const { orders, count, isLoading, isError, error } = useOrders(
     {
+      ...searchParams,
       customer_id: customer.id,
       fields: DEFAULT_FIELDS + "," + DEFAULT_RELATIONS,
-      ...searchParams,
     },
     {
       placeholderData: keepPreviousData,

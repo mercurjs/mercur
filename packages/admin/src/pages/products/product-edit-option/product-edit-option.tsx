@@ -3,13 +3,14 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { RouteDrawer } from "../../../components/modals"
 import { useProduct } from "../../../hooks/api/products"
+import { PRODUCT_DETAIL_QUERY } from "../constants"
 import { CreateProductOptionForm } from "./components/edit-product-option-form"
 
 export const ProductEditOption = () => {
   const { id, option_id } = useParams()
   const { t } = useTranslation()
 
-  const { product, isPending, isFetching, isError, error } = useProduct(id!)
+  const { product, isPending, isFetching, isError, error } = useProduct(id!, PRODUCT_DETAIL_QUERY)
 
   const option = product?.options?.find((o) => o.id === option_id)
 

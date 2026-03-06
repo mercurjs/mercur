@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"
 import { RouteFocusModal } from "../../../components/modals"
 import { TabbedForm } from "../../../components/tabbed-form/tabbed-form"
 import { useProduct } from "../../../hooks/api/products"
+import { PRODUCT_DETAIL_QUERY } from "../constants"
 import {
   CreateProductVariantForm,
   CreateProductVariantSchemaType,
@@ -15,7 +16,7 @@ import InventoryKitTab from "./components/create-product-variant-form/inventory-
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
 
-  const { product, isLoading, isError, error } = useProduct(id!)
+  const { product, isLoading, isError, error } = useProduct(id!, PRODUCT_DETAIL_QUERY)
 
   if (isError) {
     throw error

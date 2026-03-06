@@ -5,6 +5,6 @@
  * Missing from Medusa defaults: *categories
  * Mercur custom links: *seller
  */
-export const PRODUCT_DETAIL_FIELDS = "*seller,*categories"
+export const PRODUCT_DETAIL_FIELDS = "*seller,*categories,*shipping_profile,-variants"
 
 export const PRODUCT_DETAIL_QUERY = { fields: PRODUCT_DETAIL_FIELDS } as const

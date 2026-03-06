@@ -2,11 +2,12 @@ import { useParams } from "react-router-dom"
 import { MetadataForm } from "@components/forms/metadata-form/metadata-form"
 import { useProduct, useUpdateProduct } from "@hooks/api"
 import { ClientError } from "@mercurjs/client"
+import { PRODUCT_DETAIL_QUERY } from "../constants"
 
 export const ProductMetadata = () => {
   const { id } = useParams()
 
-  const { product, isPending, isError, error } = useProduct(id!)
+  const { product, isPending, isError, error } = useProduct(id!, PRODUCT_DETAIL_QUERY)
   const { mutateAsync, isPending: isMutating } = useUpdateProduct(id!)
 
   if (isError) {
