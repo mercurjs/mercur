@@ -859,10 +859,6 @@
           "type": "registry:api"
         },
         {
-          "path": "requests/workflows/hooks/product-created.ts",
-          "type": "registry:api"
-        },
-        {
           "path": "requests/workflows/hooks/seller-created.ts",
           "type": "registry:api"
         },
@@ -900,14 +896,6 @@
         },
         {
           "path": "requests/admin/pages/requests/types/page.tsx",
-          "type": "registry:admin"
-        },
-        {
-          "path": "requests/admin/pages/requests/[type]/[id]/page.tsx",
-          "type": "registry:admin"
-        },
-        {
-          "path": "requests/admin/pages/requests/[type]/[id]/breadcrumb.tsx",
           "type": "registry:admin"
         },
         {
