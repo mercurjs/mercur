@@ -15,9 +15,18 @@ type CreateSellerWorkflowInput = {
   auth_identity_id: string
 }
 
-export const createSellerWorkflow: ReturnWorkflow<CreateSellerWorkflowInput, SellerDTO, [Hook<"sellerCreated", { seller: SellerDTO, auth_identity_id: string }, unknown>]> = createWorkflow(
+export const createSellerWorkflow: ReturnWorkflow<
+  CreateSellerWorkflowInput,
+  SellerDTO,
+  [
+    Hook<"validateSellerInput", { input: CreateSellerWorkflowInput }, unknown>,
+    Hook<"sellerCreated", { seller: SellerDTO; auth_identity_id: string }, unknown>
+  ]
+> = createWorkflow(
   "create-seller",
   function (input: CreateSellerWorkflowInput) {
+    const validateSellerInput = createHook("validateSellerInput", { input })
+
     const seller = createSellerStep(input.seller)
 
     setAuthAppMetadataStep({
@@ -32,7 +41,7 @@ export const createSellerWorkflow: ReturnWorkflow<CreateSellerWorkflowInput, Sel
     })
 
     return new WorkflowResponse(seller, {
-      hooks: [sellerCreated],
+      hooks: [validateSellerInput, sellerCreated],
     })
   }
 )
