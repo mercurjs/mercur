@@ -16,14 +16,13 @@ The Custom Fields module creates a separate table for each entity you extend (e.
 Register the Custom Fields module in your `medusa-config.ts` and define your fields in the `customFields` option:
 
 ```ts medusa-config.ts
-import { Modules } from "@medusajs/framework/utils"
-import customFieldsModule from "@mercurjs/core-plugin/modules/custom-fields"
+import { Modules } from "@medusajs/framework/utils";
 
 module.exports = defineConfig({
   // ...
   modules: [
     {
-      resolve: customFieldsModule,
+      resolve: "@mercurjs/core-plugin/modules/custom-fields",
       options: {
         customFields: {
           Product: {
@@ -33,13 +32,17 @@ module.exports = defineConfig({
           },
           Customer: {
             company_name: { type: "string", nullable: true },
-            tier: { type: "enum", enum: ["bronze", "silver", "gold"], defaultValue: "bronze" },
+            tier: {
+              type: "enum",
+              enum: ["bronze", "silver", "gold"],
+              defaultValue: "bronze",
+            },
           },
         },
       },
     },
   ],
-})
+});
 ```
 
 The key in `customFields` (e.g. `Product`, `Customer`) must match the entity name as registered in Medusa's joiner configuration.
@@ -52,27 +55,27 @@ npx medusa db:migrate
 
 ## Supported field types
 
-| Type | Description |
-|------|-------------|
-| `string` | Short text |
-| `text` | Long text |
-| `integer` | Whole number |
-| `float` | Decimal number |
-| `boolean` | True/false |
-| `date` | Date only |
-| `time` | Time only |
-| `datetime` | Date and time |
-| `json` | JSON object |
-| `array` | Array of values |
-| `enum` | One of a predefined set of values (requires `enum` array) |
+| Type       | Description                                               |
+| ---------- | --------------------------------------------------------- |
+| `string`   | Short text                                                |
+| `text`     | Long text                                                 |
+| `integer`  | Whole number                                              |
+| `float`    | Decimal number                                            |
+| `boolean`  | True/false                                                |
+| `date`     | Date only                                                 |
+| `time`     | Time only                                                 |
+| `datetime` | Date and time                                             |
+| `json`     | JSON object                                               |
+| `array`    | Array of values                                           |
+| `enum`     | One of a predefined set of values (requires `enum` array) |
 
 ### Field options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `nullable` | `boolean` | `true` | Whether the field can be null |
-| `defaultValue` | `any` | `null` | Default value for the field |
-| `enum` | `string[]` | — | Required for `enum` type. List of allowed values |
+| Option         | Type       | Default | Description                                      |
+| -------------- | ---------- | ------- | ------------------------------------------------ |
+| `nullable`     | `boolean`  | `true`  | Whether the field can be null                    |
+| `defaultValue` | `any`      | `null`  | Default value for the field                      |
+| `enum`         | `string[]` | —       | Required for `enum` type. List of allowed values |
 
 ## Querying custom fields
 
@@ -82,7 +85,7 @@ Custom fields are automatically linked to their parent entity. You can retrieve 
 const products = await query.graph({
   entity: "product",
   fields: ["id", "title", "custom_fields.*"],
-})
+});
 ```
 
 ## Using the service directly
@@ -90,20 +93,20 @@ const products = await query.graph({
 The Custom Fields module exposes a service with `upsert`, `delete`, and `list` methods. You can use these in your own workflows and API routes:
 
 ```ts
-import { MercurModules } from "@mercurjs/types"
+import { MercurModules } from "@mercurjs/types";
 
 // In a step or API route
-const customFieldsService = container.resolve(MercurModules.CUSTOM_FIELDS)
+const customFieldsService = container.resolve(MercurModules.CUSTOM_FIELDS);
 
 // Create or update custom fields for a product
 await customFieldsService.upsert("product", {
   id: "prod_123",
   brand: "Acme",
   is_featured: true,
-})
+});
 
 // Delete custom fields by record ID
-await customFieldsService.delete("product", ["cf_456"])
+await customFieldsService.delete("product", ["cf_456"]);
 ```
 
 The `upsert` method accepts either a single object or an array. If a record already exists for the given entity ID, it updates it; otherwise, it creates a new one.
@@ -116,7 +119,7 @@ The module ships with two workflow steps you can compose into your own workflows
 import {
   upsertCustomFieldsStep,
   deleteCustomFieldsStep,
-} from "@mercurjs/core-plugin/workflows"
+} from "@mercurjs/core-plugin/workflows";
 ```
 
 - **`upsertCustomFieldsStep`** — Takes `{ alias, data }` where `alias` is the entity name (e.g. `"product"`) and `data` contains the entity ID and field values.
