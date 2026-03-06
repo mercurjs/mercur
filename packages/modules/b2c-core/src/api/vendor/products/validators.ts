@@ -3,11 +3,11 @@ import { z } from 'zod';
 import { AdditionalData } from '@medusajs/framework/types';
 import { WithAdditionalData } from '@medusajs/medusa/api/utils/validators';
 
-import { IdAssociation } from '../../../shared/infra/http/utils';
 import {
   AdminGetProductsParams,
   AdminGetProductVariantsParams
 } from '@medusajs/medusa/api/admin/products/validators';
+import { IdAssociation } from '../../../shared/infra/http/utils';
 
 /* Attribute Inputs for Product Creation */
 
