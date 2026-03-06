@@ -44,7 +44,7 @@ export default async function orderCreatedHandler({
 
       const orderUrl = buildHostAddress(
         Hosts.STOREFRONT,
-        `/user/orders/${order.order_set.id ?? order.id}`
+        `/user/orders/${order.order_set?.id ?? order.id}`
       ).toString();
 
       await notificationService.createNotifications({
