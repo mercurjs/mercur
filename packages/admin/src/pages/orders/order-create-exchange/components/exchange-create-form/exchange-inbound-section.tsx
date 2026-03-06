@@ -317,7 +317,7 @@ export const ExchangeInboundSection = ({
         .filter(Boolean)
 
       const variants = (
-        await sdk.admin.productVariant.list({
+        await sdk.admin.productVariants.query({
           id: variantIds,
           fields: "*inventory.location_levels",
         })

@@ -47,7 +47,7 @@ export const EditShippingOptionForm = ({
   const isPickup = type === FulfillmentSetType.Pickup
 
   const shippingProfiles = useComboboxData({
-    queryFn: (params) => sdk.admin.shippingProfile.list(params),
+    queryFn: (params) => sdk.admin.shippingProfiles.query(params),
     queryKey: ["shipping_profiles"],
     getOptions: (data) =>
       data.shipping_profiles.map((profile) => ({
@@ -58,7 +58,7 @@ export const EditShippingOptionForm = ({
   })
 
   const shippingOptionTypes = useComboboxData({
-    queryFn: (params) => sdk.admin.shippingOptionType.list(params),
+    queryFn: (params) => sdk.admin.shippingOptionTypes.query(params),
     queryKey: ["shipping_option_types"],
     getOptions: (data) =>
       data.shipping_option_types.map((type) => ({

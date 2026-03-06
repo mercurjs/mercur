@@ -32,7 +32,7 @@ export const ProductShippingProfileForm = ({
 
   const shippingProfiles = useComboboxData({
     queryKey: ["shipping_profiles"],
-    queryFn: (params) => sdk.admin.shippingProfile.list(params),
+    queryFn: (params) => sdk.admin.shippingProfiles.query(params),
     getOptions: (data) =>
       data.shipping_profiles.map((shippingProfile) => ({
         label: shippingProfile.name,

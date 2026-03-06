@@ -40,7 +40,7 @@ function InventoryItemRow({
     queryKey: ["inventory_items"],
     defaultValueKey: "id",
     selectedValue: selectedInventoryItemId,
-    queryFn: (params) => sdk.admin.inventoryItem.list(params),
+    queryFn: (params) => sdk.admin.inventoryItems.query(params),
     getOptions: (data) =>
       data.inventory_items.map((item) => ({
         label: `${item.title} ${item.sku ? `(${item.sku})` : ""}`,

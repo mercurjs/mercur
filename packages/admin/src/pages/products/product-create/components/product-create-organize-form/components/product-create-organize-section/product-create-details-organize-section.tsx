@@ -12,6 +12,7 @@ import { useComboboxData } from "../../../../../../../hooks/use-combobox-data"
 import { sdk } from "../../../../../../../lib/client"
 import { CategoryCombobox } from "../../../../../common/components/category-combobox"
 import { ProductCreateSchemaType } from "../../../../types"
+import { HttpTypes } from "@medusajs/types"
 
 export const ProductCreateOrganizationSection = () => {
   const form = useTabbedForm<ProductCreateSchemaType>()
@@ -19,7 +20,7 @@ export const ProductCreateOrganizationSection = () => {
 
   const sellers = useComboboxData({
     queryKey: ["sellers"],
-    queryFn: (params) => sdk.admin.sellers.query(params),
+    queryFn: (params) => sdk.admin.sellers.query({ fetchOptions: { method: "GET" }, ...params }),
     getOptions: (data) =>
       data.sellers.map((seller) => ({
         label: seller.name,
@@ -29,7 +30,7 @@ export const ProductCreateOrganizationSection = () => {
 
   const collections = useComboboxData({
     queryKey: ["product_collections"],
-    queryFn: (params) => sdk.admin.productCollection.list(params),
+    queryFn: (params) => sdk.admin.collections.query(params),
     getOptions: (data) =>
       data.collections.map((collection) => ({
         label: collection.title!,
@@ -39,7 +40,7 @@ export const ProductCreateOrganizationSection = () => {
 
   const types = useComboboxData({
     queryKey: ["product_types"],
-    queryFn: (params) => sdk.admin.productType.list(params),
+    queryFn: (params) => sdk.admin.productTypes.query(params),
     getOptions: (data) =>
       data.product_types.map((type) => ({
         label: type.value,
@@ -49,7 +50,7 @@ export const ProductCreateOrganizationSection = () => {
 
   const tags = useComboboxData({
     queryKey: ["product_tags"],
-    queryFn: (params) => sdk.admin.productTag.list(params),
+    queryFn: (params) => sdk.admin.productTags.query(params),
     getOptions: (data) =>
       data.product_tags.map((tag) => ({
         label: tag.value,
@@ -59,9 +60,9 @@ export const ProductCreateOrganizationSection = () => {
 
   const shippingProfiles = useComboboxData({
     queryKey: ["shipping_profiles"],
-    queryFn: (params) => sdk.admin.shippingProfile.list(params),
+    queryFn: (params) => sdk.admin.shippingProfiles.query(params),
     getOptions: (data) =>
-      data.shipping_profiles.map((shippingProfile) => ({
+      data.shipping_profiles.map((shippingProfile: HttpTypes.AdminShippingProfile) => ({
         label: shippingProfile.name,
         value: shippingProfile.id,
       })),

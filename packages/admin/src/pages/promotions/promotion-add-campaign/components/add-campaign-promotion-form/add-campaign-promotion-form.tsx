@@ -50,7 +50,7 @@ export const AddCampaignPromotionFields = ({
 
   const campaignsCombobox = useComboboxData({
     queryFn: (params) =>
-      sdk.admin.campaign.list({
+      sdk.admin.campaigns.query({
         ...params,
       }),
     queryKey: ["campaigns"],

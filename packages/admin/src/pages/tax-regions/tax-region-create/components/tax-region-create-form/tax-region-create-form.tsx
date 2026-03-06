@@ -59,7 +59,7 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
 
   const taxProviders = useComboboxData({
     queryKey: ["tax_providers"],
-    queryFn: (params) => sdk.admin.taxProvider.list(params),
+    queryFn: (params) => sdk.admin.taxProviders.query(params),
     getOptions: (data) =>
       data.tax_providers.map((provider) => ({
         label: formatProvider(provider.id),

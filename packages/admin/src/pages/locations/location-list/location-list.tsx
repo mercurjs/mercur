@@ -123,20 +123,16 @@ const LinksSection = () => {
 };
 
 const Root = ({ children }: { children?: ReactNode }) => {
-  return (
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage showJSON>{children}</TwoColumnPage>
+  ) : (
     <TwoColumnPage showJSON>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <>
-          <TwoColumnPage.Main>
-            <LocationListContent />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <LinksSection />
-          </TwoColumnPage.Sidebar>
-        </>
-      )}
+      <TwoColumnPage.Main>
+        <LocationListContent />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <LinksSection />
+      </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );
 };

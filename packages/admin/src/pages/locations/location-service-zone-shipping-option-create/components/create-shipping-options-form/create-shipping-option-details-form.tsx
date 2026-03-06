@@ -39,7 +39,7 @@ const Root = ({
   const isPickup = type === FulfillmentSetType.Pickup
 
   const shippingProfiles = useComboboxData({
-    queryFn: (params) => sdk.admin.shippingProfile.list(params),
+    queryFn: (params) => sdk.admin.shippingProfiles.query(params),
     queryKey: ["shipping_profiles"],
     getOptions: (data) =>
       data.shipping_profiles.map((profile) => ({
@@ -49,7 +49,7 @@ const Root = ({
   })
 
   const shippingOptionTypes = useComboboxData({
-    queryFn: (params) => sdk.admin.shippingOptionType.list(params),
+    queryFn: (params) => sdk.admin.shippingOptionTypes.query(params),
     queryKey: ["shipping_option_types"],
     getOptions: (data) =>
       data.shipping_option_types.map((type) => ({
@@ -60,7 +60,7 @@ const Root = ({
 
   const fulfillmentProviders = useComboboxData({
     queryFn: (params) =>
-      sdk.admin.fulfillmentProvider.list({
+      sdk.admin.fulfillmentProviders.query({
         ...params,
         stock_location_id: locationId,
       }),
