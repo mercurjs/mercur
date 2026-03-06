@@ -63,16 +63,48 @@ export const filterSellerShippingOptionsStep = createStep(
       (so) => so.shipping_option_id
     )
 
+    // Get all seller IDs that have shipping options linked
+    const allSellerIdsWithShippingOptions = new Set(
+      sellerShippingOptions.map((so) => so.seller_id)
+    )
+
+    // Check if cart has products without sellers (admin products)
+    const allProductSellerIds = new Set(sellersInCart.map((s) => s.seller_id))
+    const hasAdminProducts = cart.items.some(
+      (item) => !sellersInCart.some((sp) => sp.product_id === item.product_id)
+    )
+
+    // Get global shipping options (not linked to any seller) if cart has admin products
+    let globalShippingOptions: string[] = []
+    if (hasAdminProducts) {
+      // Get all shipping option IDs that are linked to sellers
+      const sellerLinkedOptionIds = new Set(
+        sellerShippingOptions.map((so) => so.shipping_option_id)
+      )
+
+      // Global options are those not linked to any seller
+      globalShippingOptions = input.shipping_options
+        .filter((option) => !sellerLinkedOptionIds.has(option.id))
+        .map((option) => option.id)
+    }
+
+    // Combine seller-specific and global shipping options
+    const allApplicableOptionIds = [
+      ...applicableShippingOptions,
+      ...globalShippingOptions
+    ]
+
     const optionsAvailable = input.shipping_options
-      .filter((option) => applicableShippingOptions.includes(option.id))
+      .filter((option) => allApplicableOptionIds.includes(option.id))
       .map((option) => {
         const relation = sellerShippingOptions.find(
           (o) => o.shipping_option_id === option.id
         )
         return {
           ...option,
-          seller_name: relation.seller.name,
-          seller_id: relation.seller.id
+          seller_name: relation?.seller?.name ?? null,
+          seller_id: relation?.seller?.id ?? null,
+          is_global: !relation
         }
       })
     return new StepResponse(optionsAvailable)

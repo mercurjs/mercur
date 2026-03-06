@@ -53,12 +53,40 @@ export const validateCartShippingOptionsStep = createStep(
 
     const sellers = new Set(sellerProducts.map((sp) => sp.seller_id))
 
-    for (const sellerShippingOption of sellerShippingOptions) {
-      if (!sellers.has(sellerShippingOption.seller_id)) {
-        throw new MedusaError(
-          MedusaError.Types.INVALID_DATA,
-          `Shipping option with id: ${sellerShippingOption.shipping_option_id} is not available for any of the cart items`
+    // Check if cart has products without sellers (admin products)
+    const hasAdminProducts = cart.items.some(
+      (item) => !sellerProducts.some((sp) => sp.product_id === item.product_id)
+    )
+
+    // Get all shipping option IDs that are linked to sellers
+    const sellerLinkedOptionIds = new Set(
+      sellerShippingOptions.map((so) => so.shipping_option_id)
+    )
+
+    // Validate each shipping option
+    for (const optionId of input.option_ids) {
+      const isLinkedToSeller = sellerLinkedOptionIds.has(optionId)
+
+      if (isLinkedToSeller) {
+        // This is a seller-specific shipping option
+        const sellerShippingOption = sellerShippingOptions.find(
+          (so) => so.shipping_option_id === optionId
         )
+        if (sellerShippingOption && !sellers.has(sellerShippingOption.seller_id)) {
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `Shipping option with id: ${optionId} is not available for any of the cart items`
+          )
+        }
+      } else {
+        // This is a global/admin shipping option (not linked to any seller)
+        // Only allow if cart has admin products
+        if (!hasAdminProducts) {
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `Global shipping option with id: ${optionId} cannot be used when all products belong to sellers`
+          )
+        }
       }
     }
 

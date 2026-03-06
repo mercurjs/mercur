@@ -127,8 +127,11 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           >();
           const variantsMap = new Map<string, any>();
 
+          // Special key for admin products (products without seller)
+          const ADMIN_SELLER_KEY = '__admin__';
+
           cart.items.forEach((item) => {
-            const sellerId = productSellerMap.get(item.variant.product_id)!;
+            const sellerId = productSellerMap.get(item.variant.product_id) ?? ADMIN_SELLER_KEY;
             const lineItems = sellerLineItemsMap.get(sellerId) || [];
             lineItems.push(item);
             sellerLineItemsMap.set(sellerId, lineItems);
@@ -139,7 +142,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           cart.shipping_methods.forEach((method) => {
             const sellerId = shippingOptionSellerMap.get(
               method.shipping_option_id
-            )!;
+            ) ?? ADMIN_SELLER_KEY;
             sellerShippingMethodsMap.set(sellerId, method);
           });
 
@@ -313,14 +316,19 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           cart,
         },
         ({ createdOrders, sellers, orderSet, cart }) => {
-          const sellerOrderLinks = createdOrders.map((order, index) => ({
-            [SELLER_MODULE]: {
-              seller_id: sellers[index],
-            },
-            [Modules.ORDER]: {
-              order_id: order.id,
-            },
-          }));
+          const ADMIN_SELLER_KEY = '__admin__';
+          
+          // Only create seller links for orders that have a real seller (not admin orders)
+          const sellerOrderLinks = createdOrders
+            .filter((_, index) => sellers[index] !== ADMIN_SELLER_KEY)
+            .map((order, index) => ({
+              [SELLER_MODULE]: {
+                seller_id: sellers[index],
+              },
+              [Modules.ORDER]: {
+                order_id: order.id,
+              },
+            }));
 
           const orderSetOrderLinks = createdOrders.map((order) => ({
             [MARKETPLACE_MODULE]: {
