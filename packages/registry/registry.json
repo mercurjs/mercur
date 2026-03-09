@@ -747,10 +747,6 @@
           "type": "registry:api"
         },
         {
-          "path": "requests/api/admin/requests/helpers.ts",
-          "type": "registry:api"
-        },
-        {
           "path": "requests/api/admin/requests/[type]/route.ts",
           "type": "registry:api"
         },
