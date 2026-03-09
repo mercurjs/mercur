@@ -216,12 +216,12 @@ const RequestDetailPage = () => {
         <div className="px-6 py-4">
           <Heading level="h2">Details</Heading>
         </div>
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+        <div className="flex flex-col gap-y-3 px-6 py-4">
           {entityFields.map(({ key, label }) => {
             const value = (request as Record<string, any>)[key];
             if (value === undefined) return null;
             return (
-              <div key={key} className="grid grid-cols-subgrid col-span-2 items-center py-2">
+              <div key={key} className="grid grid-cols-2">
                 <Text size="small" leading="compact" weight="plus">
                   {label}
                 </Text>
@@ -231,7 +231,7 @@ const RequestDetailPage = () => {
               </div>
             );
           })}
-          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
+          <div className="grid grid-cols-2">
             <Text size="small" leading="compact" weight="plus">
               Created
             </Text>
@@ -239,7 +239,7 @@ const RequestDetailPage = () => {
               {new Date(request.created_at as string).toLocaleString()}
             </Text>
           </div>
-          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
+          <div className="grid grid-cols-2">
             <Text size="small" leading="compact" weight="plus">
               Updated
             </Text>
