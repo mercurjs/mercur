@@ -63,6 +63,23 @@ export const useSellers = (
   return { ...data, ...rest };
 };
 
+export const useInviteSeller = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.sellers.invite.mutate>,
+    ClientError,
+    InferClientInput<typeof sdk.admin.sellers.invite.mutate>
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.admin.sellers.invite.mutate(payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: sellersQueryKeys.lists() })
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
 export const useUpdateSeller = (
   id: string,
   options?: UseMutationOptions<

@@ -66,7 +66,7 @@ type ContentProps = ComponentPropsWithoutRef<typeof Drawer.Content>;
 const Content: ForwardRefExoticComponent<ContentProps> = forwardRef<
   HTMLDivElement,
   ComponentPropsWithoutRef<typeof Drawer.Content>
->(({ className, ...props }, ref) => {
+>(({ className, children, ...props }, ref) => {
   return (
     <Drawer.Content
       ref={ref}
@@ -75,7 +75,10 @@ const Content: ForwardRefExoticComponent<ContentProps> = forwardRef<
         className: "bg-transparent",
       }}
       {...props}
-    />
+    >
+      <Drawer.Title className="sr-only" />
+      {children}
+    </Drawer.Content>
   );
 });
 Content.displayName = "StackedDrawer.Content";

@@ -304,6 +304,7 @@ export const defaultMercurRoutes = {
     "/admin/orders": "typeof import(\"@mercurjs/core-plugin/api/admin/orders/route\")",
     "/admin/products": "typeof import(\"@mercurjs/core-plugin/api/admin/products/route\")",
     "/admin/sellers": "typeof import(\"@mercurjs/core-plugin/api/admin/sellers/route\")",
+    "/admin/sellers/invite": "typeof import(\"@mercurjs/core-plugin/api/admin/sellers/invite/route\")",
     "/admin/sellers/:id": "typeof import(\"@mercurjs/core-plugin/api/admin/sellers/[id]/route\")",
 
     // Store routes
