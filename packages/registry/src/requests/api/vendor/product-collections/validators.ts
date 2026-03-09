@@ -14,6 +14,7 @@ export const VendorGetProductCollectionRequestsParams = createFindParams({
   offset: 0,
   limit: 50,
 }).extend({
+  q: z.string().optional(),
   request_status: z
     .union([z.nativeEnum(RequestStatus), z.array(z.nativeEnum(RequestStatus))])
     .optional(),
