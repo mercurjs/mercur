@@ -4,24 +4,43 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+  id-token: write
+
 env:
   NODE_VERSION: "20"
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
           cache: "yarn"
+
+      - name: Validate release version
+        run: |
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          
+          echo "🏷️ Release tag: $RELEASE_TAG"
+          echo "📌 Expected version: $RELEASE_VERSION"
+          
+          # Check framework version
+          FRAMEWORK_VERSION=$(node -p "require('./packages/framework/package.json').version")
+          if [ "$FRAMEWORK_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "❌ Version mismatch! Framework: $FRAMEWORK_VERSION, Release: $RELEASE_VERSION"
+            exit 1
+          fi
+          echo "✅ Version validation passed"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -29,131 +48,84 @@ jobs:
       - name: Build all packages
         run: yarn build
 
-      # Publish framework
-      - name: Publish framework
-        working-directory: ./packages/framework
+      - name: Publish packages to npm
         run: |
+          PUBLISHED_COUNT=0
+          SKIPPED_COUNT=0
+          PUBLISHED_PACKAGES=""
+          SKIPPED_PACKAGES=""
+          
+          # Publish framework first
+          echo "📦 Processing framework..."
+          cd packages/framework
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-
+          
           if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
-            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
+            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists"
+            SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
+            SKIPPED_PACKAGES="$SKIPPED_PACKAGES\n- $PACKAGE_NAME@$PACKAGE_VERSION"
           else
-            echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-            npm publish --access public
+            echo "✅ Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+            npm publish --access public --no-git-checks
+            PUBLISHED_COUNT=$((PUBLISHED_COUNT + 1))
+            PUBLISHED_PACKAGES="$PUBLISHED_PACKAGES\n- $PACKAGE_NAME@$PACKAGE_VERSION"
+            echo "⏳ Waiting 30s for npm registry propagation..."
+            sleep 30
           fi
+          cd ../..
+          
+          # Then publish modules
+          echo "📦 Processing modules..."
+          for dir in packages/modules/*/; do
+            if [ -f "$dir/package.json" ] && ! grep -q '"private": true' "$dir/package.json"; then
+              cd "$dir"
+              PACKAGE_NAME=$(node -p "require('./package.json').name")
+              PACKAGE_VERSION=$(node -p "require('./package.json').version")
+              
+              if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
+                echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists"
+                SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
+                SKIPPED_PACKAGES="$SKIPPED_PACKAGES\n- $PACKAGE_NAME@$PACKAGE_VERSION"
+              else
+                echo "✅ Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
+                npm publish --access public --no-git-checks
+                PUBLISHED_COUNT=$((PUBLISHED_COUNT + 1))
+                PUBLISHED_PACKAGES="$PUBLISHED_PACKAGES\n- $PACKAGE_NAME@$PACKAGE_VERSION"
+              fi
+              cd ../../..
+            fi
+          done
+          
+          # Summary output
+          echo "PUBLISHED_COUNT=$PUBLISHED_COUNT" >> $GITHUB_ENV
+          echo "SKIPPED_COUNT=$SKIPPED_COUNT" >> $GITHUB_ENV
+          echo "PUBLISHED_PACKAGES<<EOF" >> $GITHUB_ENV
+          echo -e "$PUBLISHED_PACKAGES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "SKIPPED_PACKAGES<<EOF" >> $GITHUB_ENV
+          echo -e "$SKIPPED_PACKAGES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
 
-      # Publish modules
-      - name: Publish algolia
-        working-directory: ./packages/modules/algolia
+      - name: Create summary
         run: |
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-
-          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
-            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
-          else
-            echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-            npm publish --access public
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish b2c-core
-        working-directory: ./packages/modules/b2c-core
-        run: |
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-
-          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
-            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
-          else
-            echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-            npm publish --access public
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish commission
-        working-directory: ./packages/modules/commission
-        run: |
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-
-          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
-            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
-          else
-            echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-            npm publish --access public
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish payment-stripe-connect
-        working-directory: ./packages/modules/payment-stripe-connect
-        run: |
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-
-          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
-            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
-          else
-            echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-            npm publish --access public
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish requests
-        working-directory: ./packages/modules/requests
-        run: |
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-
-          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
-            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
-          else
-            echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-            npm publish --access public
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish resend
-        working-directory: ./packages/modules/resend
-        run: |
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-
-          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
-            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
-          else
-            echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-            npm publish --access public
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish reviews
-        working-directory: ./packages/modules/reviews
-        run: |
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-
-          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version 2>/dev/null; then
-            echo "⏭️ Skipping $PACKAGE_NAME@$PACKAGE_VERSION - already exists on npm"
-          else
-            echo "📦 Publishing $PACKAGE_NAME@$PACKAGE_VERSION"
-            npm publish --access public
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Summary
-        run: |
-          echo "## 🚀 Release Publish" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Release Published" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Release:** ${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Packages:** All packages published" >> $GITHUB_STEP_SUMMARY
+          echo "**Published:** ${{ env.PUBLISHED_COUNT }} packages" >> $GITHUB_STEP_SUMMARY
+          echo "**Skipped:** ${{ env.SKIPPED_COUNT }} packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ env.PUBLISHED_COUNT }}" -gt 0 ]; then
+            echo "### ✅ Published packages" >> $GITHUB_STEP_SUMMARY
+            echo "${{ env.PUBLISHED_PACKAGES }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ env.SKIPPED_COUNT }}" -gt 0 ]; then
+            echo "### ⏭️ Skipped packages (already exist)" >> $GITHUB_STEP_SUMMARY
+            echo "${{ env.SKIPPED_PACKAGES }}" >> $GITHUB_STEP_SUMMARY
+          fi
