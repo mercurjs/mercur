@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { createFindParams } from "@medusajs/medusa/api/utils/validators"
+import { createFindParams, createOperatorMap } from "@medusajs/medusa/api/utils/validators"
 import { RequestStatus } from "../../../../types"
 
 export type VendorCreateProductCategoryRequestType = z.infer<typeof VendorCreateProductCategoryRequest>
@@ -22,4 +22,6 @@ export const VendorGetProductCategoryRequestsParams = createFindParams({
   request_status: z
     .union([z.nativeEnum(RequestStatus), z.array(z.nativeEnum(RequestStatus))])
     .optional(),
+  created_at: createOperatorMap().optional(),
+  updated_at: createOperatorMap().optional(),
 })

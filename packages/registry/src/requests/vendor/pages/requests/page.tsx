@@ -7,6 +7,10 @@ export const config: RouteConfig = {
   icon: InboxSolid,
 };
 
+export const handle = {
+  breadcrumb: () => "Requests",
+};
+
 const RequestsPage = () => {
   return <Navigate to="/requests/categories" replace />;
 };

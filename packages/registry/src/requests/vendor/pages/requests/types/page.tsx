@@ -9,6 +9,10 @@ export const config: RouteConfig = {
   nested: "/requests",
 };
 
+export const handle = {
+  breadcrumb: () => "Types",
+};
+
 import { useVendorRequests } from "../../../hooks/api/requests";
 import { useRequestTableColumns } from "../../../hooks/table/columns/use-request-table-columns";
 import { useRequestTableQuery } from "../../../hooks/table/query/use-request-table-query";

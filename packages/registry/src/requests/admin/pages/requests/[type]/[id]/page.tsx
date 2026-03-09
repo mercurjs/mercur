@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, UIMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -21,6 +21,24 @@ import {
   useRejectRequest,
 } from "../../../../hooks/api/requests";
 import { client } from "../../../../lib/client";
+
+const DetailBreadcrumb = (props: UIMatch) => {
+  const { type, id } = props.params || {};
+  const { request } = useRequest(type!, id!, {
+    enabled: Boolean(type && id),
+  });
+
+  if (!request) return null;
+
+  const nameKey = ENTITY_NAME_KEY[type!] ?? "name";
+  const name = (request as Record<string, any>)[nameKey];
+
+  return <span>{name ?? id}</span>;
+};
+
+export const handle = {
+  breadcrumb: (match: UIMatch) => <DetailBreadcrumb {...match} />,
+};
 
 const statusColor = (status: string) => {
   switch (status) {
@@ -294,45 +312,40 @@ const RequestDetailPage = () => {
       </Container>
 
       {/* Reviewer (User) */}
-      {(customFields?.reviewer_id || customFields?.reviewer_note) && (
+      {customFields?.reviewer_id && (
         <Container className="divide-y p-0">
           <div className="px-6 py-4">
             <Heading level="h2">Reviewer</Heading>
           </div>
-          {(user || customFields?.reviewer_id) && (
-            <div className="px-6 py-4">
-              {user ? (
-                <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar
-                      fallback={(user.first_name ?? user.email ?? "U")
-                        .charAt(0)
-                        .toUpperCase()}
-                    />
-                    <div className="flex flex-1 flex-col">
-                      <span className="text-ui-fg-base txt-small font-medium">
-                        {[user.first_name, user.last_name]
-                          .filter(Boolean)
-                          .join(" ") || user.email}
+          <div className="px-6 py-4">
+            {user ? (
+              <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <Avatar
+                    fallback={(user.first_name ?? user.email ?? "U")
+                      .charAt(0)
+                      .toUpperCase()}
+                  />
+                  <div className="flex flex-1 flex-col">
+                    <span className="text-ui-fg-base txt-small font-medium">
+                      {[user.first_name, user.last_name]
+                        .filter(Boolean)
+                        .join(" ") || user.email}
+                    </span>
+                    {user.first_name && user.email && (
+                      <span className="text-ui-fg-muted text-xs">
+                        {user.email}
                       </span>
-                      {user.first_name && user.email && (
-                        <span className="text-ui-fg-muted text-xs">
-                          {user.email}
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
-              ) : (
-                <Text size="small" className="text-ui-fg-muted">
-                  {customFields.reviewer_id}
-                </Text>
-              )}
-            </div>
-          )}
-          {customFields?.reviewer_note && (
-            <SectionRow title="Note" value={customFields.reviewer_note} />
-          )}
+              </div>
+            ) : (
+              <Text size="small" className="text-ui-fg-muted">
+                {customFields.reviewer_id}
+              </Text>
+            )}
+          </div>
         </Container>
       )}
     </SingleColumnPage>

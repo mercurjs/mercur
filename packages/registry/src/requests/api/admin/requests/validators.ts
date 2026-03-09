@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { createFindParams } from "@medusajs/medusa/api/utils/validators"
+import { createFindParams, createOperatorMap } from "@medusajs/medusa/api/utils/validators"
 import { RequestStatus } from "../../../types"
 
 export type AdminGetRequestsParamsType = z.infer<typeof AdminGetRequestsParams>
@@ -11,6 +11,8 @@ export const AdminGetRequestsParams = createFindParams({
     .union([z.nativeEnum(RequestStatus), z.array(z.nativeEnum(RequestStatus))])
     .optional(),
   submitter_id: z.union([z.string(), z.array(z.string())]).optional(),
+  created_at: createOperatorMap().optional(),
+  updated_at: createOperatorMap().optional(),
 })
 
 export type AdminReviewNoteType = z.infer<typeof AdminReviewNote>
