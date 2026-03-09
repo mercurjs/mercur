@@ -66,10 +66,27 @@ const ENTITY_NAME_KEY: Record<string, string> = {
 };
 
 const formatFieldValue = (key: string, value: unknown): string => {
-  if (value === null || value === undefined) return "—";
+  if (value === null || value === undefined) return "-";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   return String(value);
 };
+
+const SectionRow = ({
+  title,
+  value,
+}: {
+  title: string;
+  value?: string | null;
+}) => (
+  <div className="text-ui-fg-subtle grid grid-cols-2 items-center gap-4 px-6 py-4">
+    <Text size="small" weight="plus" leading="compact">
+      {title}
+    </Text>
+    <Text size="small" leading="compact" className="whitespace-pre-line text-pretty">
+      {value ?? "-"}
+    </Text>
+  </div>
+);
 
 const useSeller = (id?: string | null) => {
   const { data, ...rest } = useQuery({
@@ -143,9 +160,7 @@ const RequestDetailPage = () => {
     await acceptRequest(
       {},
       {
-        onSuccess: () => {
-          toast.success("Request accepted");
-        },
+        onSuccess: () => toast.success("Request accepted"),
         onError: (err) => toast.error(err.message),
       },
     );
@@ -166,9 +181,7 @@ const RequestDetailPage = () => {
     await rejectRequest(
       {},
       {
-        onSuccess: () => {
-          toast.success("Request rejected");
-        },
+        onSuccess: () => toast.success("Request rejected"),
         onError: (err) => toast.error(err.message),
       },
     );
@@ -176,79 +189,63 @@ const RequestDetailPage = () => {
 
   return (
     <SingleColumnPage hasOutlet={false}>
-      {/* Header */}
-      <Container className="divide-y p-0">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-x-4">
+      {/* General */}
+      <div
+        style={
+          isPending
+            ? {
+                background:
+                  "repeating-linear-gradient(-45deg, rgb(212, 212, 216, 0.15), rgb(212, 212, 216,.15) 10px, transparent 10px, transparent 20px)",
+              }
+            : undefined
+        }
+        className={isPending ? "-m-4 mb-1 border-b border-l p-4" : undefined}
+      >
+        <Container className="divide-y p-0">
+          <div className="flex items-center justify-between px-6 py-4">
             <Heading>{entityName}</Heading>
-            <StatusBadge color={statusColor(status)}>
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </StatusBadge>
-            <Badge size="2xsmall" color="grey">
-              {typeLabel}
-            </Badge>
-          </div>
-          {isPending && (
-            <div className="flex items-center gap-x-2">
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={handleReject}
-                disabled={isAccepting || isRejecting}
-              >
-                Reject
-              </Button>
-              <Button
-                variant="primary"
-                size="small"
-                onClick={handleAccept}
-                disabled={isAccepting || isRejecting}
-              >
-                Accept
-              </Button>
+            <div className="flex items-center gap-x-4">
+              <StatusBadge color={statusColor(status)}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </StatusBadge>
+              <Badge size="2xsmall" color="grey">
+                {typeLabel}
+              </Badge>
+              {isPending && (
+                <div className="flex items-center gap-x-2">
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={handleReject}
+                    disabled={isAccepting || isRejecting}
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="small"
+                    onClick={handleAccept}
+                    disabled={isAccepting || isRejecting}
+                  >
+                    Accept
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </Container>
-
-      {/* Details */}
-      <Container className="divide-y p-0">
-        <div className="px-6 py-4">
-          <Heading level="h2">Details</Heading>
-        </div>
-        <div className="flex flex-col gap-y-3 px-6 py-4">
+          </div>
           {entityFields.map(({ key, label }) => {
             const value = (request as Record<string, any>)[key];
             if (value === undefined) return null;
             return (
-              <div key={key} className="grid grid-cols-2">
-                <Text size="small" leading="compact" weight="plus">
-                  {label}
-                </Text>
-                <Text size="small" className="text-ui-fg-subtle">
-                  {formatFieldValue(key, value)}
-                </Text>
-              </div>
+              <SectionRow
+                key={key}
+                title={label}
+                value={formatFieldValue(key, value)}
+              />
             );
           })}
-          <div className="grid grid-cols-2">
-            <Text size="small" leading="compact" weight="plus">
-              Created
-            </Text>
-            <Text size="small" className="text-ui-fg-subtle">
-              {new Date(request.created_at as string).toLocaleString()}
-            </Text>
-          </div>
-          <div className="grid grid-cols-2">
-            <Text size="small" leading="compact" weight="plus">
-              Updated
-            </Text>
-            <Text size="small" className="text-ui-fg-subtle">
-              {new Date(request.updated_at as string).toLocaleString()}
-            </Text>
-          </div>
-        </div>
-      </Container>
+        </Container>
+      </div>
 
       {/* Submitter (Seller) */}
       <Container className="divide-y p-0">
@@ -280,7 +277,7 @@ const RequestDetailPage = () => {
             </Link>
           ) : (
             <Text size="small" className="text-ui-fg-muted">
-              {customFields?.submitter_id ?? "—"}
+              {customFields?.submitter_id ?? "-"}
             </Text>
           )}
         </div>
@@ -292,46 +289,41 @@ const RequestDetailPage = () => {
           <div className="px-6 py-4">
             <Heading level="h2">Reviewer</Heading>
           </div>
-          <div className="px-6 py-4">
-            {user ? (
-              <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <Avatar
-                    fallback={
-                      (user.first_name ?? user.email ?? "U")
-                        .charAt(0)
-                        .toUpperCase()
-                    }
-                  />
-                  <div className="flex flex-1 flex-col">
-                    <span className="text-ui-fg-base txt-small font-medium">
-                      {[user.first_name, user.last_name]
-                        .filter(Boolean)
-                        .join(" ") || user.email}
-                    </span>
-                    {user.first_name && user.email && (
-                      <span className="text-ui-fg-muted text-xs">
-                        {user.email}
+          {(user || customFields?.reviewer_id) && (
+            <div className="px-6 py-4">
+              {user ? (
+                <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      fallback={
+                        (user.first_name ?? user.email ?? "U")
+                          .charAt(0)
+                          .toUpperCase()
+                      }
+                    />
+                    <div className="flex flex-1 flex-col">
+                      <span className="text-ui-fg-base txt-small font-medium">
+                        {[user.first_name, user.last_name]
+                          .filter(Boolean)
+                          .join(" ") || user.email}
                       </span>
-                    )}
+                      {user.first_name && user.email && (
+                        <span className="text-ui-fg-muted text-xs">
+                          {user.email}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : customFields?.reviewer_id ? (
-              <Text size="small" className="text-ui-fg-muted">
-                {customFields.reviewer_id}
-              </Text>
-            ) : null}
-          </div>
-          {customFields?.reviewer_note && (
-            <div className="px-6 py-4">
-              <Text size="small" leading="compact" weight="plus" className="mb-1">
-                Note
-              </Text>
-              <Text size="small" className="text-ui-fg-subtle">
-                {customFields.reviewer_note}
-              </Text>
+              ) : (
+                <Text size="small" className="text-ui-fg-muted">
+                  {customFields.reviewer_id}
+                </Text>
+              )}
             </div>
+          )}
+          {customFields?.reviewer_note && (
+            <SectionRow title="Note" value={customFields.reviewer_note} />
           )}
         </Container>
       )}
