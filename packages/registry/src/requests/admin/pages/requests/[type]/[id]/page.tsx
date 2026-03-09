@@ -233,14 +233,6 @@ const RequestDetailPage = () => {
           })}
           <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
             <Text size="small" leading="compact" weight="plus">
-              ID
-            </Text>
-            <Text size="small" className="text-ui-fg-subtle">
-              {request.id}
-            </Text>
-          </div>
-          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
-            <Text size="small" leading="compact" weight="plus">
               Created
             </Text>
             <Text size="small" className="text-ui-fg-subtle">
