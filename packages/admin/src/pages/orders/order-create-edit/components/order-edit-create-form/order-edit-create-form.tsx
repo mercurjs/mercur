@@ -37,11 +37,9 @@ export const OrderEditCreateForm = ({ order, preview }: ReturnCreateFormProps) =
    * FORM
    */
   const form = useForm<CreateOrderEditSchemaType>({
-    defaultValues: () => {
-      return Promise.resolve({
-        note: '', // TODO: add note when update edit route is added
-        send_notification: false // TODO: not supported in the API ATM
-      });
+    defaultValues: {
+      note: '',
+      send_notification: false,
     },
     resolver: zodResolver(OrderEditCreateSchema)
   });

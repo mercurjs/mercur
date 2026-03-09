@@ -70,11 +70,7 @@ const CustomerGroupDisplay = ({
     }
   )
 
-  if (isError) {
-    throw error
-  }
-
-  if (!customerGroupIds?.length) {
+  if (isError || !customerGroupIds?.length) {
     return null
   }
 

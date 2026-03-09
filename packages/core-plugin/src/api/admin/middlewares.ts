@@ -13,41 +13,43 @@ import { AdminGetOrderGroupParams } from "./order-groups/validators"
 import { adminPayoutsMiddlewares } from "./payouts/middlewares"
 import { adminSellersMiddlewares } from "./sellers/middlewares"
 import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
-import { AdminGetProductsParams } from "./products/validators"
-import { listProductQueryConfig } from "@medusajs/medusa/api/admin/products/query-config"
-import { AdminGetOrdersParams } from "./orders/validators"
-import { listTransformQueryConfig as listOrderQueryConfig } from "@medusajs/medusa/api/admin/orders/query-config"
 
-const maybeApplySellerProductFilter = (
+const extractSellerIdFromQuery = (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
+  _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  if (!req.filterableFields.seller_id) {
-    return next()
+  const sellerId = req.query.seller_id
+  if (sellerId) {
+    delete req.query.seller_id
+    ;(req as any).__seller_id = sellerId
   }
-
-  return maybeApplyLinkFilter({
-    entryPoint: "product_seller",
-    resourceId: "product_id",
-    filterableField: "seller_id",
-  })(req, res, next)
+  next()
 }
 
-const maybeApplySellerOrderFilter = (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
+const injectSellerIdFilter = (
+  entryPoint: string,
+  resourceId: string
 ) => {
-  if (!req.filterableFields.seller_id) {
-    return next()
-  }
+  return (
+    req: AuthenticatedMedusaRequest,
+    res: MedusaResponse,
+    next: MedusaNextFunction
+  ) => {
+    const sellerId = (req as any).__seller_id
+    if (!sellerId) {
+      return next()
+    }
 
-  return maybeApplyLinkFilter({
-    entryPoint: "order_seller",
-    resourceId: "order_id",
-    filterableField: "seller_id",
-  })(req, res, next)
+    delete (req as any).__seller_id
+    req.filterableFields.seller_id = sellerId
+
+    return maybeApplyLinkFilter({
+      entryPoint,
+      resourceId,
+      filterableField: "seller_id",
+    })(req, res, next)
+  }
 }
 
 export const adminMiddlewares: MiddlewareRoute[] = [
@@ -66,25 +68,21 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminSellersMiddlewares,
   ...adminCommissionRatesMiddlewares,
   {
+    matcher: "/admin/products",
+    middlewares: [extractSellerIdFromQuery],
+  },
+  {
+    matcher: "/admin/orders",
+    middlewares: [extractSellerIdFromQuery],
+  },
+  {
     method: ["GET"],
     matcher: "/admin/products",
-    middlewares: [
-      validateAndTransformQuery(
-        AdminGetProductsParams,
-        listProductQueryConfig
-      ),
-      maybeApplySellerProductFilter,
-    ],
+    middlewares: [injectSellerIdFilter("product_seller", "product_id")],
   },
   {
     method: ["GET"],
     matcher: "/admin/orders",
-    middlewares: [
-      validateAndTransformQuery(
-        AdminGetOrdersParams,
-        listOrderQueryConfig
-      ),
-      maybeApplySellerOrderFilter,
-    ],
+    middlewares: [injectSellerIdFilter("order_seller", "order_id")],
   },
 ]

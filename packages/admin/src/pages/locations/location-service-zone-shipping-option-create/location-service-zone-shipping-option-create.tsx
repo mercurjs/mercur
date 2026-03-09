@@ -25,7 +25,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     })
 
   const fulfillmentSet = stock_location?.fulfillment_sets?.find(
-    (f) => f.id === fset_id
+    (f: { id: string }) => f.id === fset_id
   )
 
   if (!isPending && !isFetching && !fulfillmentSet) {
@@ -35,7 +35,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     )
   }
 
-  const zone = fulfillmentSet?.service_zones?.find((z) => z.id === zone_id)
+  const zone = fulfillmentSet?.service_zones?.find((z: { id: string }) => z.id === zone_id)
 
   if (!isPending && !isFetching && !zone) {
     throw new Response(

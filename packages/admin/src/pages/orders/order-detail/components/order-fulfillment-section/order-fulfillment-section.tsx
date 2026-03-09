@@ -18,6 +18,7 @@ import {
   usePrompt,
 } from "@medusajs/ui"
 import { format } from "date-fns"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -30,6 +31,7 @@ import {
 import { useStockLocation } from "../../../../../hooks/api/stock-locations"
 import { formatProvider } from "../../../../../lib/format-provider"
 import { getLocaleAmount } from "../../../../../lib/money-amount-helpers"
+import { getDisplayFulfillmentItems } from "../../../../../lib/order-item"
 import { FulfillmentSetType } from "../../../../locations/common/constants"
 
 type OrderFulfillmentSectionProps = {
@@ -214,6 +216,14 @@ const Fulfillment = ({
   const navigate = useNavigate()
 
   const showLocation = !!fulfillment.location_id
+  const orderItemsMap = useMemo(
+    () => new Map((order.items || []).map((item) => [item.id, item])),
+    [order.items]
+  )
+  const displayFulfillmentItems = useMemo(
+    () => getDisplayFulfillmentItems(fulfillment.items || [], orderItemsMap),
+    [fulfillment.items, orderItemsMap]
+  )
 
   const isPickUpFulfillment =
     fulfillment.shipping_option?.service_zone.fulfillment_set.type ===
@@ -367,7 +377,7 @@ const Fulfillment = ({
           {t("orders.fulfillment.itemsLabel")}
         </Text>
         <ul>
-          {fulfillment.items.map((f_item) => (
+          {displayFulfillmentItems.map((f_item) => (
             <li key={f_item.line_item_id}>
               <Text size="small" leading="compact">
                 {f_item.quantity}x {f_item.title}

@@ -1,10 +1,11 @@
-import { PlusMini } from "@medusajs/icons";
+import { ExclamationCircle, PlusMini } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import {
   Checkbox,
   CommandBar,
   Container,
   Heading,
+  Text,
   toast,
   usePrompt,
 } from "@medusajs/ui";
@@ -103,10 +104,6 @@ export const CategoryProductSection = ({
     );
   };
 
-  if (isError) {
-    throw error;
-  }
-
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
@@ -125,6 +122,14 @@ export const CategoryProductSection = ({
           ]}
         />
       </div>
+      {isError ? (
+        <div className="flex items-center gap-x-2 px-6 py-4">
+          <ExclamationCircle className="text-ui-fg-subtle" />
+          <Text size="small" className="text-ui-fg-subtle">
+            {error?.message || t("general.error")}
+          </Text>
+        </div>
+      ) : (
       <_DataTable
         table={table}
         filters={filters}
@@ -143,6 +148,7 @@ export const CategoryProductSection = ({
           message: t("categories.products.list.noRecordsMessage"),
         }}
       />
+      )}
       <CommandBar open={!!Object.keys(selection).length}>
         <CommandBar.Bar>
           <CommandBar.Value>

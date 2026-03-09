@@ -1,5 +1,6 @@
+import { ExclamationCircle } from "@medusajs/icons"
 import type { HttpTypes } from "@medusajs/types"
-import { Container, Heading } from "@medusajs/ui"
+import { Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { _DataTable } from "../../../../../components/table/data-table"
 import { useProducts } from "../../../../../hooks/api"
@@ -42,15 +43,19 @@ export const ProductTagProductSection = ({
     prefix: PREFIX,
   })
 
-  if (isError) {
-    throw error
-  }
-
   return (
     <Container className="divide-y px-0 py-0" data-testid="product-tag-product-section-container">
       <div className="px-6 py-4" data-testid="product-tag-product-section-header">
         <Heading level="h2" data-testid="product-tag-product-section-heading">{t("products.domain")}</Heading>
       </div>
+      {isError ? (
+        <div className="flex items-center gap-x-2 px-6 py-4" data-testid="product-tag-product-section-error">
+          <ExclamationCircle className="text-ui-fg-subtle" />
+          <Text size="small" className="text-ui-fg-subtle">
+            {error?.message || t("general.error")}
+          </Text>
+        </div>
+      ) : (
       <_DataTable
         table={table}
         filters={filters}
@@ -70,6 +75,7 @@ export const ProductTagProductSection = ({
         ]}
         data-testid="product-tag-product-section-table"
       />
+      )}
     </Container>
   )
 }

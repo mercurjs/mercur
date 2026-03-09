@@ -30,6 +30,7 @@ import { useCancelReturn, useReturns } from "../../../../../hooks/api/returns"
 import { useDate } from "../../../../../hooks/use-date"
 import { getFormattedAddress } from "../../../../../lib/addresses"
 import { getStylizedAmount } from "../../../../../lib/money-amount-helpers"
+import { getDisplayFulfillmentItems } from "../../../../../lib/order-item"
 import { getPaymentsFromOrder } from "../../../../../lib/orders"
 import ActivityItems from "./activity-items"
 import ChangeDetailsTooltip from "./change-details-tooltip"
@@ -258,14 +259,18 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
       items.push({
         title: t("orders.activity.events.fulfillment.created"),
         timestamp: fulfillment.created_at,
-        children: <FulfillmentCreatedBody fulfillment={fulfillment} />,
+        children: (
+          <FulfillmentCreatedBody fulfillment={fulfillment} itemsMap={itemsMap} />
+        ),
       })
 
       if (fulfillment.delivered_at) {
         items.push({
           title: t("orders.activity.events.fulfillment.delivered"),
           timestamp: fulfillment.delivered_at,
-          children: <FulfillmentCreatedBody fulfillment={fulfillment} />,
+          children: (
+            <FulfillmentCreatedBody fulfillment={fulfillment} itemsMap={itemsMap} />
+          ),
         })
       }
 
@@ -274,7 +279,11 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
           title: t("orders.activity.events.fulfillment.shipped"),
           timestamp: fulfillment.shipped_at,
           children: (
-            <FulfillmentCreatedBody fulfillment={fulfillment} isShipment />
+            <FulfillmentCreatedBody
+              fulfillment={fulfillment}
+              isShipment
+              itemsMap={itemsMap}
+            />
           ),
         })
       }
@@ -733,14 +742,17 @@ const OrderActivityCollapsible = ({
 
 const FulfillmentCreatedBody = ({
   fulfillment,
+  itemsMap,
 }: {
   fulfillment: AdminFulfillment
+  itemsMap: Map<string, AdminOrderLineItem>
 }) => {
   const { t } = useTranslation()
 
-  const numberOfItems = fulfillment.items.reduce((acc, item) => {
-    return acc + item.quantity
-  }, 0)
+  const numberOfItems = getDisplayFulfillmentItems(
+    fulfillment.items || [],
+    itemsMap
+  ).reduce((acc, item) => acc + item.quantity, 0)
 
   return (
     <div>

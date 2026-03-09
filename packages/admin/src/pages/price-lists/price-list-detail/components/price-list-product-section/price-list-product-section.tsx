@@ -1,6 +1,6 @@
-import { PencilSquare, Plus, Trash } from "@medusajs/icons"
+import { ExclamationCircle, PencilSquare, Plus, Trash } from "@medusajs/icons"
 import type { HttpTypes } from "@medusajs/types"
-import { Checkbox, Container, Heading, toast, usePrompt } from "@medusajs/ui"
+import { Checkbox, Container, Heading, Text, toast, usePrompt } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import type { RowSelectionState } from "@tanstack/react-table"
 import { createColumnHelper } from "@tanstack/react-table"
@@ -107,10 +107,6 @@ export const PriceListProductSection = ({
     navigate(`products/edit?ids[]=${ids}`)
   }
 
-  if (isError) {
-    throw error
-  }
-
   return (
     <Container className="divide-y p-0" data-testid="price-list-product-section-container">
       <div className="flex items-center justify-between px-6 py-4" data-testid="price-list-product-section-header">
@@ -137,6 +133,14 @@ export const PriceListProductSection = ({
           data-testid="price-list-product-section-action-menu"
         />
       </div>
+      {isError ? (
+        <div className="flex items-center gap-x-2 px-6 py-4" data-testid="price-list-product-section-error">
+          <ExclamationCircle className="text-ui-fg-subtle" />
+          <Text size="small" className="text-ui-fg-subtle">
+            {error?.message || t("general.error")}
+          </Text>
+        </div>
+      ) : (
       <_DataTable
         table={table}
         filters={filters}
@@ -168,6 +172,7 @@ export const PriceListProductSection = ({
         queryObject={raw}
         data-testid="price-list-product-section-table"
       />
+      )}
     </Container>
   )
 }

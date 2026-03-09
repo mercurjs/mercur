@@ -60,7 +60,7 @@ export const CreateProductVariantForm = ({
     }
 
     return regions.reduce(
-      (acc, reg) => {
+      (acc: Record<string, string>, reg: { id: string; currency_code: string }) => {
         acc[reg.id] = reg.currency_code
         return acc
       },
@@ -136,11 +136,11 @@ export const CreateProductVariantForm = ({
 
             return ret
           })
-          .filter(Boolean),
+          .filter((x): x is AdminCreateProductVariantPrice => Boolean(x)),
         inventory_items: (data.inventory || [])
           .map((i) => {
             if (!i.required_quantity || !i.inventory_item_id) {
-              return false
+              return false as const
             }
 
             return {
@@ -148,7 +148,7 @@ export const CreateProductVariantForm = ({
               required_quantity: castNumber(i.required_quantity),
             }
           })
-          .filter(Boolean),
+          .filter((x): x is Exclude<typeof x, false> => Boolean(x)),
       },
       {
         onSuccess: () => {

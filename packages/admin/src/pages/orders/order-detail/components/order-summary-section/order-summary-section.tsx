@@ -658,7 +658,7 @@ const CostBreakdown = ({
       />
       <Cost
         label={
-          <div
+          <span
             onClick={() => setIsShippingOpen((o) => !o)}
             className="flex cursor-pointer items-center gap-1"
           >
@@ -668,7 +668,7 @@ const CostBreakdown = ({
                 transform: `rotate(${isShippingOpen ? 0 : -90}deg)`,
               }}
             />
-          </div>
+          </span>
         }
         value={getLocaleAmount(order.shipping_subtotal, order.currency_code)}
       />
@@ -829,7 +829,7 @@ const DiscountAndTotalBreakdown = ({
     >
       <Cost
         label={
-          <div
+          <span
             onClick={() => hasDiscount && setIsDiscountOpen((o) => !o)}
             className={clx("flex items-center gap-1", {
               "cursor-pointer": hasDiscount,
@@ -844,7 +844,7 @@ const DiscountAndTotalBreakdown = ({
                 }}
               />
             )}
-          </div>
+          </span>
         }
         value={getLocaleAmount(order.discount_total, order.currency_code)}
       />
@@ -876,7 +876,7 @@ const DiscountAndTotalBreakdown = ({
         <>
           <Cost
             label={
-              <div
+              <span
                 onClick={() => setIsCreditLinesOpen((o) => !o)}
                 className="flex cursor-pointer items-center gap-1"
               >
@@ -886,7 +886,7 @@ const DiscountAndTotalBreakdown = ({
                     transform: `rotate(${isCreditLinesOpen ? 0 : -90}deg)`,
                   }}
                 />
-              </div>
+              </span>
             }
             value={getLocaleAmount(
               order.credit_line_total,

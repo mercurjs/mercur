@@ -50,7 +50,7 @@ function LocationsFulfillmentProvidersSection({
       {fulfillment_providers?.length ? (
         <div className="flex flex-col gap-y-4 pt-4" data-testid="location-fulfillment-providers-section-content">
           <div className="grid grid-cols-[28px_1fr] items-center gap-x-3 gap-y-3" data-testid="location-fulfillment-providers-section-list">
-            {fulfillment_providers?.map((fulfillmentProvider) => {
+            {fulfillment_providers?.map((fulfillmentProvider: { id: string }) => {
               return (
                 <Fragment key={fulfillmentProvider.id}>
                   <IconAvatar data-testid={`location-fulfillment-providers-section-provider-icon-${fulfillmentProvider.id}`}>
