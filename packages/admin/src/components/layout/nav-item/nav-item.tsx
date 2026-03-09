@@ -115,6 +115,16 @@ export const NavItem = ({
     }) => {
       if (["core", "setting"].includes(type)) {
         isActive = pathname.startsWith(to);
+
+        // If a nested item's path matches, the parent should not be active
+        if (isActive && !isNested && items?.length) {
+          const nestedMatch = items.some((item) =>
+            pathname.startsWith(item.to),
+          );
+          if (nestedMatch) {
+            isActive = false;
+          }
+        }
       }
 
       return clx(BASE_NAV_LINK_CLASSES, {
@@ -123,7 +133,7 @@ export const NavItem = ({
         [SETTING_NAV_LINK_CLASSES]: isSetting,
       });
     },
-    [type, pathname],
+    [type, pathname, items],
   );
 
   const isSetting = type === "setting";
