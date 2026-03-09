@@ -54,6 +54,46 @@
         "vite": "^5.4.21",
       },
     },
+    "apps/vendor-test": {
+      "name": "@acme/vendpr",
+      "version": "0.0.0",
+      "dependencies": {
+        "@hookform/resolvers": "3.4.2",
+        "@medusajs/icons": "^2.13.3",
+        "@medusajs/ui": "4.1.1",
+        "@mercurjs/client": "*",
+        "@mercurjs/core-plugin": "*",
+        "@mercurjs/dashboard-sdk": "*",
+        "@mercurjs/dashboard-shared": "*",
+        "@mercurjs/vendor": "*",
+        "@tanstack/react-query": "5.64.2",
+        "@tanstack/react-table": "8.20.5",
+        "jsonwebtoken": "9.0.2",
+        "lodash.debounce": "^4.0.8",
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0",
+        "react-hook-form": "7.49.1",
+        "react-i18next": "13.5.0",
+        "react-jwt": "^2.0.0",
+        "react-router-dom": "6.30.3",
+        "zod": "3.25.76",
+      },
+      "devDependencies": {
+        "@eslint/js": "^9.39.1",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/node": "^24.10.1",
+        "@types/react": "^18.2.66",
+        "@types/react-dom": "^18.2.22",
+        "@vitejs/plugin-react": "^4.2.1",
+        "eslint": "^9.39.1",
+        "eslint-plugin-react-hooks": "^7.0.1",
+        "eslint-plugin-react-refresh": "^0.4.24",
+        "globals": "^16.5.0",
+        "typescript": "5.9.3",
+        "typescript-eslint": "^8.46.4",
+        "vite": "^5.4.21",
+      },
+    },
     "integration-tests": {
       "name": "@mercurjs/integration-tests",
       "version": "0.0.1",
@@ -78,7 +118,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.0.0-canary.49",
+      "version": "2.0.0-canary.52",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -138,7 +178,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.0.0-canary.49",
+      "version": "2.0.0-canary.52",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -178,7 +218,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.0.0-canary.49",
+      "version": "2.0.0-canary.52",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -195,7 +235,7 @@
     },
     "packages/core-plugin": {
       "name": "@mercurjs/core-plugin",
-      "version": "2.0.0-canary.49",
+      "version": "2.0.0-canary.52",
       "devDependencies": {
         "@medusajs/cli": "^2.13.3",
         "@medusajs/core-flows": "^2.13.3",
@@ -234,7 +274,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.0.0-canary.49",
+      "version": "2.0.0-canary.52",
       "dependencies": {
         "esbuild-register": "^3.6.0",
       },
@@ -248,7 +288,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.0.0-canary.49",
+      "version": "2.0.0-canary.52",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -339,7 +379,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.0.0-canary.49",
+      "version": "2.0.0-canary.52",
       "dependencies": {
         "@medusajs/types": "2.13.3",
       },
@@ -349,7 +389,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.0.0-canary.49",
+      "version": "2.0.0-canary.52",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -410,6 +450,8 @@
   },
   "packages": {
     "@acme/admin": ["@acme/admin@workspace:apps/admin-test"],
+
+    "@acme/vendpr": ["@acme/vendpr@workspace:apps/vendor-test"],
 
     "@algolia/abtesting": ["@algolia/abtesting@1.15.1", "", { "dependencies": { "@algolia/client-common": "5.49.1", "@algolia/requester-browser-xhr": "5.49.1", "@algolia/requester-fetch": "5.49.1", "@algolia/requester-node-http": "5.49.1" } }, "sha512-2yuIC48rUuHGhU1U5qJ9kJHaxYpJ0jpDHJVI5ekOxSMYXlH4+HP+pA31G820lsAznfmu2nzDV7n5RO44zIY1zw=="],
 
@@ -3386,6 +3428,8 @@
     "zod-validation-error": ["zod-validation-error@3.5.1", "", { "peerDependencies": { "zod": "^3.25.0" } }, "sha512-ozT8jy2nHaeKjaRIEThwgRXBwm16hAy0BaTRx1I2IY1xrezPegmlFmYKb5tcvYqZDQm0sfZtDr2IR7CdCJzTGw=="],
 
     "@acme/admin/globals": ["globals@16.5.0", "", {}, "sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ=="],
+
+    "@acme/vendpr/globals": ["globals@16.5.0", "", {}, "sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ=="],
 
     "@antfu/ni/tinyexec": ["tinyexec@1.0.2", "", {}, "sha512-W/KYk+NFhkmsYpuHq5JykngiOCnxeVL8v8dFnqxSD8qEEdRfXk1SDM6JzNqcERbcGYj9tMrDQBYV9cjgnunFIg=="],
 

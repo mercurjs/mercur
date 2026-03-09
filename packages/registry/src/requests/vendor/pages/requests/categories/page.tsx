@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { keepPreviousData } from "@tanstack/react-query";
-import { Container, Heading } from "@medusajs/ui";
+import { Button, Container, Heading } from "@medusajs/ui";
 import type { RouteConfig } from "@mercurjs/dashboard-sdk";
 
 export const config: RouteConfig = {
@@ -48,6 +49,9 @@ const VendorCategoryRequestsPage = () => {
       <Container className="divide-y p-0">
         <div className="flex items-center justify-between px-6 py-4">
           <Heading>Category Requests</Heading>
+          <Button size="small" variant="secondary" asChild>
+            <Link to="create">{t("actions.create")}</Link>
+          </Button>
         </div>
         <_DataTable
           columns={columns}

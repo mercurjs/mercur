@@ -74,7 +74,7 @@ const MainSidebar = () => {
     .map((item) => ({
       label: item.label,
       to: item.path,
-      icon: item.icon ? undefined : undefined,
+      icon: item.icon ? <item.icon /> : undefined,
       translationNs: item.translationNs,
       items: addNestedItems(item.path),
     }));
