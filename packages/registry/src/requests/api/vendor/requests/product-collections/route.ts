@@ -1,8 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-import { VendorRequestListResponse, VendorRequestResponse } from "../../../types"
-import { createProductCollectionRequestWorkflow } from "../../../workflows/requests/workflows"
+import { VendorRequestListResponse, VendorRequestResponse } from "../../../../types"
+import { createProductCollectionRequestWorkflow } from "../../../../workflows/requests/workflows"
 import { VendorCreateProductCollectionRequestType, VendorGetProductCollectionRequestsParamsType } from "./validators"
 
 export async function GET(

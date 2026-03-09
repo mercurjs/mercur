@@ -6,18 +6,18 @@ import {
 
 import { listTransformQueryConfig, retrieveTransformQueryConfig } from "./query-config"
 import {
-  VendorCreateProductTypeRequest,
-  VendorGetProductTypeRequestsParams,
+  VendorCreateProductCategoryRequest,
+  VendorGetProductCategoryRequestsParams,
 } from "./validators"
 import { applyRequestCustomFieldsFilter } from "./helpers"
 
-export const vendorProductTypeRequestsMiddlewares: MiddlewareRoute[] = [
+export const vendorProductCategoryRequestsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
-    matcher: "/vendor/product-types",
+    matcher: "/vendor/requests/product-categories",
     middlewares: [
       validateAndTransformQuery(
-        VendorGetProductTypeRequestsParams,
+        VendorGetProductCategoryRequestsParams,
         listTransformQueryConfig
       ),
       applyRequestCustomFieldsFilter(),
@@ -25,11 +25,11 @@ export const vendorProductTypeRequestsMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ["POST"],
-    matcher: "/vendor/product-types",
+    matcher: "/vendor/requests/product-categories",
     middlewares: [
-      validateAndTransformBody(VendorCreateProductTypeRequest),
+      validateAndTransformBody(VendorCreateProductCategoryRequest),
       validateAndTransformQuery(
-        VendorGetProductTypeRequestsParams,
+        VendorGetProductCategoryRequestsParams,
         retrieveTransformQueryConfig
       ),
     ],

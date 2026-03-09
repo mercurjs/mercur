@@ -6,18 +6,18 @@ import {
 
 import { listTransformQueryConfig, retrieveTransformQueryConfig } from "./query-config"
 import {
-  VendorCreateProductTagRequest,
-  VendorGetProductTagRequestsParams,
+  VendorCreateProductCollectionRequest,
+  VendorGetProductCollectionRequestsParams,
 } from "./validators"
 import { applyRequestCustomFieldsFilter } from "./helpers"
 
-export const vendorProductTagRequestsMiddlewares: MiddlewareRoute[] = [
+export const vendorProductCollectionRequestsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
-    matcher: "/vendor/product-tags",
+    matcher: "/vendor/requests/product-collections",
     middlewares: [
       validateAndTransformQuery(
-        VendorGetProductTagRequestsParams,
+        VendorGetProductCollectionRequestsParams,
         listTransformQueryConfig
       ),
       applyRequestCustomFieldsFilter(),
@@ -25,11 +25,11 @@ export const vendorProductTagRequestsMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ["POST"],
-    matcher: "/vendor/product-tags",
+    matcher: "/vendor/requests/product-collections",
     middlewares: [
-      validateAndTransformBody(VendorCreateProductTagRequest),
+      validateAndTransformBody(VendorCreateProductCollectionRequest),
       validateAndTransformQuery(
-        VendorGetProductTagRequestsParams,
+        VendorGetProductCollectionRequestsParams,
         retrieveTransformQueryConfig
       ),
     ],

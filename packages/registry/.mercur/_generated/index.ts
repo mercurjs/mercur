@@ -611,15 +611,15 @@ export type Routes = {
         pricePreferences: typeof import("@mercurjs/core-plugin/api/vendor/price-preferences/route") & {
             $id: typeof import("@mercurjs/core-plugin/api/vendor/price-preferences/[id]/route");
         };
-        productCategories: typeof import("../../src/requests/api/vendor/product-categories/route") & {
+        productCategories: typeof import("@mercurjs/core-plugin/api/vendor/product-categories/route") & {
             $id: typeof import("@mercurjs/core-plugin/api/vendor/product-categories/[id]/route") & {
                 products: typeof import("@mercurjs/core-plugin/api/vendor/product-categories/[id]/products/route");
             };
         };
-        productTags: typeof import("../../src/requests/api/vendor/product-tags/route") & {
+        productTags: typeof import("@mercurjs/core-plugin/api/vendor/product-tags/route") & {
             $id: typeof import("@mercurjs/core-plugin/api/vendor/product-tags/[id]/route");
         };
-        productTypes: typeof import("../../src/requests/api/vendor/product-types/route") & {
+        productTypes: typeof import("@mercurjs/core-plugin/api/vendor/product-types/route") & {
             $id: typeof import("@mercurjs/core-plugin/api/vendor/product-types/[id]/route");
         };
         products: typeof import("@mercurjs/core-plugin/api/vendor/products/route") & {
@@ -726,6 +726,11 @@ export type Routes = {
             accept: typeof import("../../src/team-management/api/vendor/invites/accept/route");
         };
         notifications: typeof import("../../src/vendor-notifications/api/vendor/notifications/route");
-        productCollections: typeof import("../../src/requests/api/vendor/product-collections/route");
+        requests: {
+            productCollections: typeof import("../../src/requests/api/vendor/requests/product-collections/route");
+            productCategories: typeof import("../../src/requests/api/vendor/requests/product-categories/route");
+            productTypes: typeof import("../../src/requests/api/vendor/requests/product-types/route");
+            productTags: typeof import("../../src/requests/api/vendor/requests/product-tags/route");
+        };
     };
 };

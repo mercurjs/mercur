@@ -1,18 +1,18 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-import { VendorRequestListResponse, VendorRequestResponse } from "../../../types"
-import { createProductTypeRequestWorkflow } from "../../../workflows/requests/workflows"
-import { VendorCreateProductTypeRequestType, VendorGetProductTypeRequestsParamsType } from "./validators"
+import { VendorRequestListResponse, VendorRequestResponse } from "../../../../types"
+import { createProductCategoryRequestWorkflow } from "../../../../workflows/requests/workflows"
+import { VendorCreateProductCategoryRequestType, VendorGetProductCategoryRequestsParamsType } from "./validators"
 
 export async function GET(
-  req: AuthenticatedMedusaRequest<VendorGetProductTypeRequestsParamsType>,
+  req: AuthenticatedMedusaRequest<VendorGetProductCategoryRequestsParamsType>,
   res: MedusaResponse<VendorRequestListResponse>
 ): Promise<void> {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: entities, metadata } = await query.graph({
-    entity: "product_type",
+    entity: "product_category",
     fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
@@ -27,14 +27,14 @@ export async function GET(
 }
 
 export async function POST(
-  req: AuthenticatedMedusaRequest<VendorCreateProductTypeRequestType>,
+  req: AuthenticatedMedusaRequest<VendorCreateProductCategoryRequestType>,
   res: MedusaResponse<VendorRequestResponse>
 ): Promise<void> {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { result: productType } = await createProductTypeRequestWorkflow(req.scope).run({
+  const { result: category } = await createProductCategoryRequestWorkflow(req.scope).run({
     input: {
-      product_type: req.validatedBody,
+      product_category: req.validatedBody,
       submitter_id: req.auth_context.actor_id,
     },
   })
@@ -42,9 +42,9 @@ export async function POST(
   const {
     data: [entity],
   } = await query.graph({
-    entity: "product_type",
+    entity: "product_category",
     fields: req.queryConfig.fields,
-    filters: { id: productType.id },
+    filters: { id: category.id },
   })
 
   res.status(201).json({ request: entity })

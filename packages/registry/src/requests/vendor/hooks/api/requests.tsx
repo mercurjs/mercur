@@ -21,10 +21,10 @@ type RequestType =
   | "product_type";
 
 const clientMap = {
-  product_category: client.vendor.productCategories,
-  product_collection: client.vendor.productCollections,
-  product_tag: client.vendor.productTags,
-  product_type: client.vendor.productTypes,
+  product_category: client.vendor.requests.productCategories,
+  product_collection: client.vendor.requests.productCollections,
+  product_tag: client.vendor.requests.productTags,
+  product_type: client.vendor.requests.productTypes,
 } as Record<string, any>;
 
 export const useVendorRequests = (

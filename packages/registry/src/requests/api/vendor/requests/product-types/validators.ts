@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { createFindParams } from "@medusajs/medusa/api/utils/validators"
-import { RequestStatus } from "../../../types"
+import { RequestStatus } from "../../../../types"
 
 export type VendorCreateProductTypeRequestType = z.infer<typeof VendorCreateProductTypeRequest>
 export const VendorCreateProductTypeRequest = z.object({
