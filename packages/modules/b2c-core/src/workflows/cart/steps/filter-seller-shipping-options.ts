@@ -1,12 +1,13 @@
-import { ShippingOptionDTO } from '@medusajs/framework/types'
+import { ShippingOptionDTO } from '@medusajs/framework/types';
 import {
   ContainerRegistrationKeys,
   arrayDifference
-} from '@medusajs/framework/utils'
-import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
+} from '@medusajs/framework/utils';
+import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk';
 
-import sellerProduct from '../../../links/seller-product'
-import sellerShippingOption from '../../../links/seller-shipping-option'
+import sellerProduct from '../../../links/seller-product';
+import sellerShippingOption from '../../../links/seller-shipping-option';
+import { getVariantIdToManagedByMap } from '../../../utils/stock-locations';
 
 export const filterSellerShippingOptionsStep = createStep(
   'filter-seller-shipping-options',
@@ -14,7 +15,7 @@ export const filterSellerShippingOptionsStep = createStep(
     input: { shipping_options: ShippingOptionDTO[]; cart_id: string },
     { container }
   ) => {
-    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    const query = container.resolve(ContainerRegistrationKeys.QUERY);
 
     const {
       data: [cart]
@@ -22,13 +23,14 @@ export const filterSellerShippingOptionsStep = createStep(
       entity: 'cart',
       fields: [
         'items.product_id',
+        'items.variant_id',
         'shipping_methods.shipping_option_id',
         'metadata'
       ],
       filters: {
         id: input.cart_id
       }
-    })
+    });
 
     const { data: sellersInCart } = await query.graph({
       entity: sellerProduct.entryPoint,
@@ -36,11 +38,11 @@ export const filterSellerShippingOptionsStep = createStep(
       filters: {
         product_id: cart.items.map((i) => i.product_id)
       }
-    })
+    });
 
     const existingShippingOptions = cart.shipping_methods.map(
       (sm) => sm.shipping_option_id
-    )
+    );
 
     const { data: sellersAlreadyCovered } = await query.graph({
       entity: sellerShippingOption.entryPoint,
@@ -48,16 +50,17 @@ export const filterSellerShippingOptionsStep = createStep(
       filters: {
         shipping_option_id: existingShippingOptions
       }
-    })
+    });
 
     // Also check admin shipping options covering sellers via cart metadata
     const adminShippingSellerMap =
-      (cart.metadata?.admin_shipping_seller_map as Record<string, string>) ?? {}
+      (cart.metadata?.admin_shipping_seller_map as Record<string, string>) ??
+      {};
 
     const sellersFromAdminShipping = Object.keys(adminShippingSellerMap).filter(
       (sellerId) =>
         existingShippingOptions.includes(adminShippingSellerMap[sellerId])
-    )
+    );
 
     const sellersToFindShippingOptions = arrayDifference(
       [...new Set(sellersInCart.map((s) => s.seller_id))],
@@ -67,7 +70,7 @@ export const filterSellerShippingOptionsStep = createStep(
           ...sellersFromAdminShipping
         ])
       ]
-    )
+    );
 
     const { data: sellerShippingOptions } = await query.graph({
       entity: sellerShippingOption.entryPoint,
@@ -75,11 +78,11 @@ export const filterSellerShippingOptionsStep = createStep(
       filters: {
         seller_id: sellersToFindShippingOptions
       }
-    })
+    });
 
     const applicableSellerOptionIds = new Set(
       sellerShippingOptions.map((so) => so.shipping_option_id)
-    )
+    );
 
     // Seller-linked options
     const sellerOptions = input.shipping_options
@@ -87,36 +90,49 @@ export const filterSellerShippingOptionsStep = createStep(
       .map((option) => {
         const relation = sellerShippingOptions.find(
           (o) => o.shipping_option_id === option.id
-        )
+        );
         return {
           ...option,
           seller_name: relation.seller.name,
           seller_id: relation.seller.id,
           is_admin_option: false
-        }
-      })
+        };
+      });
 
     // Admin options: options returned by Medusa core that are NOT linked to any seller
     const allLinkedOptionIds = new Set(
       sellerShippingOptions.map((so) => so.shipping_option_id)
-    )
+    );
 
     // Query all seller-shipping-option links for all returned options to find which are admin
-    const allReturnedOptionIds = input.shipping_options.map((o) => o.id)
+    const allReturnedOptionIds = input.shipping_options.map((o) => o.id);
     const { data: allLinkedOptions } = await query.graph({
       entity: sellerShippingOption.entryPoint,
       fields: ['shipping_option_id'],
       filters: {
         shipping_option_id: allReturnedOptionIds
       }
-    })
+    });
     const allLinkedOptionIdsSet = new Set(
       allLinkedOptions.map((lo) => lo.shipping_option_id)
-    )
+    );
 
-    const hasUncoveredSellers = sellersToFindShippingOptions.length > 0
+    const hasUncoveredSellers = sellersToFindShippingOptions.length > 0;
 
-    const adminOptions = hasUncoveredSellers
+    const variantIds = cart.items.map((item) => item.variant_id);
+    const variantManagedByMap = await getVariantIdToManagedByMap(
+      container,
+      variantIds
+    );
+
+    const hasAdminManagedProducts = Array.from(
+      variantManagedByMap.values()
+    ).some((managedBy) => managedBy === 'admin' || managedBy === 'both');
+
+    const shouldReturnAdminOptions =
+      hasUncoveredSellers || hasAdminManagedProducts;
+
+    const adminOptions = shouldReturnAdminOptions
       ? input.shipping_options
           .filter((option) => !allLinkedOptionIdsSet.has(option.id))
           .map((option) => ({
@@ -125,8 +141,8 @@ export const filterSellerShippingOptionsStep = createStep(
             seller_id: null,
             is_admin_option: true
           }))
-      : []
+      : [];
 
-    return new StepResponse([...sellerOptions, ...adminOptions])
+    return new StepResponse([...sellerOptions, ...adminOptions]);
   }
-)
+);
