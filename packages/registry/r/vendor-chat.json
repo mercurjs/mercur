@@ -1,0 +1,24 @@
+{
+  "$schema": "https://registry.mercurjs.com/registry-item.json",
+  "name": "vendor-chat",
+  "description": "TalkJS chat integration for vendors. Provides a vendor API endpoint to retrieve seller conversations from TalkJS.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "docs": "## Vendor Chat (TalkJS)\n\nThis block adds a TalkJS chat integration for vendors, exposing a `GET /vendor/talkjs` endpoint that retrieves conversations for the authenticated seller and a Messages page in the vendor portal.\n\n### Environment Variables\n\nAdd the following to your `.env`:\n\n```\nVITE_TALK_JS_APP_ID=your_talkjs_app_id\nTALKJS_SECRET_API_KEY=your_talkjs_secret_api_key\n```\n\n### Vite Configuration\n\nAdd the `__TALK_JS_APP_ID__` define to your vendor portal's `vite.config.ts`:\n\n```ts\nconst TALK_JS_APP_ID = env.VITE_TALK_JS_APP_ID || \"\"\n\nexport default defineConfig({\n  // ...\n  define: {\n    __TALK_JS_APP_ID__: JSON.stringify(TALK_JS_APP_ID),\n  },\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
+  "categories": [
+    "api",
+    "vendor"
+  ],
+  "files": [
+    {
+      "path": "vendor-chat/api/vendor/talkjs/route.ts",
+      "content": "import { AuthenticatedMedusaRequest, MedusaResponse } from \"@medusajs/framework\"\nimport { ContainerRegistrationKeys } from \"@medusajs/framework/utils\"\n\nexport const GET = async (\n  req: AuthenticatedMedusaRequest,\n  res: MedusaResponse\n) => {\n  const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER)\n  const { TALKJS_APP_ID, TALKJS_SECRET_API_KEY } = process.env\n\n  try {\n    const response = await fetch(\n      `https://api.talkjs.com/v1/${TALKJS_APP_ID}/users/${req.auth_context.actor_id}/conversations`,\n      {\n        headers: {\n          Authorization: `Bearer ${TALKJS_SECRET_API_KEY}`,\n        },\n      }\n    )\n\n    if (![200, 404].includes(response.status)) {\n      throw new Error(`Response ${response.status}`)\n    }\n\n    const { data } = await response.json()\n    res.json({ conversations: response.status === 200 ? data : [] })\n  } catch (e: any) {\n    logger.error(`TalkJS error: ${e.message}`)\n    res.status(500).json({ message: \"TalkJS error!\" })\n  }\n}\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "vendor-chat/vendor/pages/messages/page.tsx",
+      "content": "import { Container, Heading, Text } from \"@medusajs/ui\";\nimport { ChatBubbleLeftRight } from \"@medusajs/icons\";\nimport { Inbox } from \"@talkjs/react\";\nimport type { RouteConfig } from \"@mercurjs/dashboard-sdk\";\n\ndeclare const __TALK_JS_APP_ID__: string | undefined;\n\nexport const config: RouteConfig = {\n  label: \"Messages\",\n  icon: ChatBubbleLeftRight,\n};\n\nconst MessagesPage = () => {\n  return (\n    <Container className=\"divide-y p-0 min-h-[700px]\">\n      <div className=\"flex items-center justify-between px-6 py-4\">\n        <div>\n          <Heading>Messages</Heading>\n        </div>\n      </div>\n\n      <div className=\"px-6 py-4 h-[655px]\">\n        {__TALK_JS_APP_ID__ ? (\n          <Inbox className=\"h-full\" />\n        ) : (\n          <div className=\"flex flex-col items-center w-full h-full justify-center\">\n            <Heading>No TalkJS App ID</Heading>\n            <Text className=\"text-ui-fg-subtle mt-4\" size=\"small\">\n              Connect TalkJS to manage your messages\n            </Text>\n          </div>\n        )}\n      </div>\n    </Container>\n  );\n};\n\nexport default MessagesPage;\n",
+      "type": "registry:vendor"
+    }
+  ]
+}
