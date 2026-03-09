@@ -255,20 +255,20 @@ const RequestDetailPage = () => {
         <div className="px-6 py-4">
           <Heading level="h2">Submitter</Heading>
         </div>
-        <div className="txt-small flex flex-col gap-2 px-2 pb-2">
+        <div className="px-6 py-4">
           {seller ? (
             <Link
               to={`/sellers/${seller.id}`}
               className="outline-none focus-within:shadow-borders-interactive-with-focus rounded-md [&:hover>div]:bg-ui-bg-component-hover"
             >
-              <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-2 transition-colors">
+              <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-3 transition-colors">
                 <div className="flex items-center gap-3">
                   <Avatar
                     src={seller.logo ?? undefined}
                     fallback={seller.name?.charAt(0).toUpperCase() ?? "S"}
                   />
                   <div className="flex flex-1 flex-col">
-                    <span className="text-ui-fg-base font-medium">
+                    <span className="text-ui-fg-base txt-small font-medium">
                       {seller.name}
                     </span>
                   </div>
@@ -279,11 +279,9 @@ const RequestDetailPage = () => {
               </div>
             </Link>
           ) : (
-            <div className="px-4 py-2">
-              <Text size="small" className="text-ui-fg-muted">
-                {customFields?.submitter_id ?? "—"}
-              </Text>
-            </div>
+            <Text size="small" className="text-ui-fg-muted">
+              {customFields?.submitter_id ?? "—"}
+            </Text>
           )}
         </div>
       </Container>
@@ -294,9 +292,9 @@ const RequestDetailPage = () => {
           <div className="px-6 py-4">
             <Heading level="h2">Reviewer</Heading>
           </div>
-          <div className="txt-small flex flex-col gap-2 px-2 pb-2">
+          <div className="px-6 py-4">
             {user ? (
-              <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-2">
+              <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-3">
                 <div className="flex items-center gap-3">
                   <Avatar
                     fallback={
@@ -306,7 +304,7 @@ const RequestDetailPage = () => {
                     }
                   />
                   <div className="flex flex-1 flex-col">
-                    <span className="text-ui-fg-base font-medium">
+                    <span className="text-ui-fg-base txt-small font-medium">
                       {[user.first_name, user.last_name]
                         .filter(Boolean)
                         .join(" ") || user.email}
@@ -320,11 +318,9 @@ const RequestDetailPage = () => {
                 </div>
               </div>
             ) : customFields?.reviewer_id ? (
-              <div className="px-4 py-2">
-                <Text size="small" className="text-ui-fg-muted">
-                  {customFields.reviewer_id}
-                </Text>
-              </div>
+              <Text size="small" className="text-ui-fg-muted">
+                {customFields.reviewer_id}
+              </Text>
             ) : null}
           </div>
           {customFields?.reviewer_note && (
