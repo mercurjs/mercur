@@ -1,16 +1,15 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+  Badge,
   Button,
   Container,
   Heading,
   StatusBadge,
   Text,
-  Textarea,
   toast,
+  usePrompt,
 } from "@medusajs/ui";
-import { ArrowUturnLeft } from "@medusajs/icons";
-import { useState } from "react";
 
 import { SingleColumnPage } from "@mercurjs/dashboard-shared";
 import {
@@ -55,6 +54,13 @@ const ENTITY_FIELDS: Record<string, { key: string; label: string }[]> = {
   product_type: [{ key: "value", label: "Value" }],
 };
 
+const ENTITY_NAME_KEY: Record<string, string> = {
+  product_category: "name",
+  product_collection: "title",
+  product_tag: "value",
+  product_type: "value",
+};
+
 const formatFieldValue = (key: string, value: unknown): string => {
   if (value === null || value === undefined) return "—";
   if (typeof value === "boolean") return value ? "Yes" : "No";
@@ -64,9 +70,7 @@ const formatFieldValue = (key: string, value: unknown): string => {
 const RequestDetailPage = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const { t } = useTranslation();
-  const navigate = useNavigate();
-
-  const [reviewerNote, setReviewerNote] = useState("");
+  const prompt = usePrompt();
 
   const { request, isLoading, isError, error } = useRequest(type!, id!);
 
@@ -75,32 +79,6 @@ const RequestDetailPage = () => {
 
   const { mutateAsync: rejectRequest, isPending: isRejecting } =
     useRejectRequest(type!, id!);
-
-  const handleAccept = async () => {
-    await acceptRequest(
-      { reviewer_note: reviewerNote || undefined },
-      {
-        onSuccess: () => {
-          toast.success("Request accepted");
-          setReviewerNote("");
-        },
-        onError: (err) => toast.error(err.message),
-      },
-    );
-  };
-
-  const handleReject = async () => {
-    await rejectRequest(
-      { reviewer_note: reviewerNote || undefined },
-      {
-        onSuccess: () => {
-          toast.success("Request rejected");
-          setReviewerNote("");
-        },
-        onError: (err) => toast.error(err.message),
-      },
-    );
-  };
 
   if (isLoading || !request) {
     return (
@@ -119,41 +97,103 @@ const RequestDetailPage = () => {
   const isPending = status === "pending";
   const entityFields = ENTITY_FIELDS[type!] ?? [];
   const typeLabel = TYPE_LABELS[type!] ?? type;
+  const nameKey = ENTITY_NAME_KEY[type!] ?? "name";
+  const entityName = (request as Record<string, any>)[nameKey] ?? request.id;
+
+  const handleAccept = async () => {
+    const res = await prompt({
+      title: "Accept request",
+      description:
+        "Are you sure you want to accept this request? This action will create the entity.",
+      verificationText: entityName,
+      confirmText: t("actions.confirm"),
+      cancelText: t("actions.cancel"),
+    });
+
+    if (!res) return;
+
+    await acceptRequest(
+      {},
+      {
+        onSuccess: () => {
+          toast.success("Request accepted");
+        },
+        onError: (err) => toast.error(err.message),
+      },
+    );
+  };
+
+  const handleReject = async () => {
+    const res = await prompt({
+      title: "Reject request",
+      description:
+        "Are you sure you want to reject this request? This action cannot be undone.",
+      verificationText: entityName,
+      confirmText: t("actions.confirm"),
+      cancelText: t("actions.cancel"),
+    });
+
+    if (!res) return;
+
+    await rejectRequest(
+      {},
+      {
+        onSuccess: () => {
+          toast.success("Request rejected");
+        },
+        onError: (err) => toast.error(err.message),
+      },
+    );
+  };
 
   return (
     <SingleColumnPage hasOutlet={false}>
-      {/* General Info */}
+      {/* Header */}
       <Container className="divide-y p-0">
         <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-x-3">
-            <Heading>{typeLabel} Request</Heading>
+          <div className="flex items-center gap-x-4">
+            <Heading>{entityName}</Heading>
             <StatusBadge color={statusColor(status)}>
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </StatusBadge>
+            <Badge size="2xsmall" color="grey">
+              {typeLabel}
+            </Badge>
           </div>
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowUturnLeft />
-            {t("actions.back")}
-          </Button>
+          {isPending && (
+            <div className="flex items-center gap-x-2">
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={handleReject}
+                disabled={isAccepting || isRejecting}
+              >
+                Reject
+              </Button>
+              <Button
+                variant="primary"
+                size="small"
+                onClick={handleAccept}
+                disabled={isAccepting || isRejecting}
+              >
+                Accept
+              </Button>
+            </div>
+          )}
         </div>
+      </Container>
 
-        <div className="grid grid-cols-2 gap-y-3 px-6 py-4">
-          <Text size="small" leading="compact" weight="plus">
-            ID
-          </Text>
-          <Text size="small" className="text-ui-fg-subtle">
-            {request.id}
-          </Text>
-
+      {/* Details */}
+      <Container className="divide-y p-0">
+        <div className="px-6 py-4">
+          <Heading level="h2">Details</Heading>
+        </div>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
           {entityFields.map(({ key, label }) => {
             const value = (request as Record<string, any>)[key];
             if (value === undefined) return null;
             return (
-              <div key={key} className="col-span-2 grid grid-cols-2">
+              <div key={key} className="grid grid-cols-subgrid col-span-2 items-center py-2">
                 <Text size="small" leading="compact" weight="plus">
                   {label}
                 </Text>
@@ -163,92 +203,67 @@ const RequestDetailPage = () => {
               </div>
             );
           })}
-
-          <Text size="small" leading="compact" weight="plus">
-            Created At
-          </Text>
-          <Text size="small" className="text-ui-fg-subtle">
-            {new Date(request.created_at as string).toLocaleString()}
-          </Text>
-
-          <Text size="small" leading="compact" weight="plus">
-            Updated At
-          </Text>
-          <Text size="small" className="text-ui-fg-subtle">
-            {new Date(request.updated_at as string).toLocaleString()}
-          </Text>
+          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
+            <Text size="small" leading="compact" weight="plus">
+              ID
+            </Text>
+            <Text size="small" className="text-ui-fg-subtle">
+              {request.id}
+            </Text>
+          </div>
+          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
+            <Text size="small" leading="compact" weight="plus">
+              Created
+            </Text>
+            <Text size="small" className="text-ui-fg-subtle">
+              {new Date(request.created_at as string).toLocaleString()}
+            </Text>
+          </div>
+          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
+            <Text size="small" leading="compact" weight="plus">
+              Updated
+            </Text>
+            <Text size="small" className="text-ui-fg-subtle">
+              {new Date(request.updated_at as string).toLocaleString()}
+            </Text>
+          </div>
         </div>
       </Container>
 
-      {/* Submitter & Reviewer Info */}
+      {/* Review Info */}
       <Container className="divide-y p-0">
         <div className="px-6 py-4">
-          <Heading level="h2">Review Details</Heading>
+          <Heading level="h2">Review</Heading>
         </div>
-        <div className="grid grid-cols-2 gap-y-3 px-6 py-4">
-          <Text size="small" leading="compact" weight="plus">
-            Submitter ID
-          </Text>
-          <Text size="small" className="text-ui-fg-subtle">
-            {customFields?.submitter_id ?? "—"}
-          </Text>
-
-          <Text size="small" leading="compact" weight="plus">
-            Reviewer ID
-          </Text>
-          <Text size="small" className="text-ui-fg-subtle">
-            {customFields?.reviewer_id ?? "—"}
-          </Text>
-
-          <Text size="small" leading="compact" weight="plus">
-            Reviewer Note
-          </Text>
-          <Text size="small" className="text-ui-fg-subtle">
-            {customFields?.reviewer_note ?? "—"}
-          </Text>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
+            <Text size="small" leading="compact" weight="plus">
+              Submitter
+            </Text>
+            <Text size="small" className="text-ui-fg-subtle">
+              {customFields?.submitter_id ?? "—"}
+            </Text>
+          </div>
+          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
+            <Text size="small" leading="compact" weight="plus">
+              Reviewer
+            </Text>
+            <Text size="small" className="text-ui-fg-subtle">
+              {customFields?.reviewer_id ?? "—"}
+            </Text>
+          </div>
+          {customFields?.reviewer_note && (
+            <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
+              <Text size="small" leading="compact" weight="plus">
+                Note
+              </Text>
+              <Text size="small" className="text-ui-fg-subtle">
+                {customFields.reviewer_note}
+              </Text>
+            </div>
+          )}
         </div>
       </Container>
-
-      {/* Review Actions */}
-      {isPending && (
-        <Container className="divide-y p-0">
-          <div className="px-6 py-4">
-            <Heading level="h2">Review Actions</Heading>
-          </div>
-          <div className="flex flex-col gap-y-4 px-6 py-4">
-            <div>
-              <Text size="small" weight="plus" className="mb-2">
-                Reviewer Note (optional)
-              </Text>
-              <Textarea
-                value={reviewerNote}
-                onChange={(e) => setReviewerNote(e.target.value)}
-                placeholder="Add a note for the submitter..."
-              />
-            </div>
-            <div className="flex items-center gap-x-2">
-              <Button
-                variant="primary"
-                size="small"
-                onClick={handleAccept}
-                isLoading={isAccepting}
-                disabled={isRejecting}
-              >
-                Accept
-              </Button>
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={handleReject}
-                isLoading={isRejecting}
-                disabled={isAccepting}
-              >
-                Reject
-              </Button>
-            </div>
-          </div>
-        </Container>
-      )}
     </SingleColumnPage>
   );
 };
