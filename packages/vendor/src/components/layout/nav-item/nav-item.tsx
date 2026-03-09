@@ -105,6 +105,13 @@ export const NavItem = ({
     setOpen(getIsOpen(to, items, pathname))
   }, [pathname, to, items])
 
+  const isNestedActive = useCallback(
+    (nestedTo: string) => {
+      return pathname === nestedTo || pathname.startsWith(nestedTo + "/")
+    },
+    [pathname]
+  )
+
   const navLinkClassNames = useCallback(
     ({
       to,
@@ -118,16 +125,15 @@ export const NavItem = ({
       isSetting?: boolean
     }) => {
       if (["core", "setting"].includes(type)) {
-        isActive = pathname.startsWith(to)
-
-        // If a nested item's path matches, the parent should not be active
-        if (isActive && !isNested && items?.length) {
-          const nestedMatch = items.some((item) =>
-            pathname.startsWith(item.to)
-          )
-          if (nestedMatch) {
-            isActive = false
-          }
+        if (isNested) {
+          isActive = isNestedActive(to)
+        } else if (items?.length) {
+          // Parent is active only if pathname matches it directly
+          // and no nested item's path matches
+          const nestedMatch = items.some((item) => isNestedActive(item.to))
+          isActive = pathname.startsWith(to) && !nestedMatch
+        } else {
+          isActive = pathname.startsWith(to)
         }
       }
 
@@ -137,7 +143,7 @@ export const NavItem = ({
         [SETTING_NAV_LINK_CLASSES]: isSetting,
       })
     },
-    [type, pathname, items]
+    [type, pathname, items, isNestedActive]
   )
 
   const isSetting = type === "setting"
