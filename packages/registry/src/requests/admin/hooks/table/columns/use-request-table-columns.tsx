@@ -34,7 +34,7 @@ export const useRequestTableColumns = (nameKey: string = "name") => {
         ),
         cell: ({ row }) => (
           <Text size="small" leading="compact">
-            {row.original[nameKey] ?? row.original.id}
+            {row.original[nameKey] as string ?? row.original.id}
           </Text>
         ),
       }),
