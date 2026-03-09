@@ -55,7 +55,7 @@
       },
     },
     "apps/vendor-test": {
-      "name": "@acme/vendpr",
+      "name": "@acme/vendor",
       "version": "0.0.0",
       "dependencies": {
         "@hookform/resolvers": "3.4.2",
@@ -118,7 +118,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.0.0-canary.52",
+      "version": "2.0.0-canary.53",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -178,7 +178,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.0.0-canary.52",
+      "version": "2.0.0-canary.53",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -218,7 +218,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.0.0-canary.52",
+      "version": "2.0.0-canary.53",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -235,7 +235,7 @@
     },
     "packages/core-plugin": {
       "name": "@mercurjs/core-plugin",
-      "version": "2.0.0-canary.52",
+      "version": "2.0.0-canary.53",
       "devDependencies": {
         "@medusajs/cli": "^2.13.3",
         "@medusajs/core-flows": "^2.13.3",
@@ -274,7 +274,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.0.0-canary.52",
+      "version": "2.0.0-canary.53",
       "dependencies": {
         "esbuild-register": "^3.6.0",
       },
@@ -288,7 +288,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.0.0-canary.52",
+      "version": "2.0.0-canary.53",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -379,7 +379,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.0.0-canary.52",
+      "version": "2.0.0-canary.53",
       "dependencies": {
         "@medusajs/types": "2.13.3",
       },
@@ -389,7 +389,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.0.0-canary.52",
+      "version": "2.0.0-canary.53",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -451,7 +451,7 @@
   "packages": {
     "@acme/admin": ["@acme/admin@workspace:apps/admin-test"],
 
-    "@acme/vendpr": ["@acme/vendpr@workspace:apps/vendor-test"],
+    "@acme/vendor": ["@acme/vendor@workspace:apps/vendor-test"],
 
     "@algolia/abtesting": ["@algolia/abtesting@1.15.1", "", { "dependencies": { "@algolia/client-common": "5.49.1", "@algolia/requester-browser-xhr": "5.49.1", "@algolia/requester-fetch": "5.49.1", "@algolia/requester-node-http": "5.49.1" } }, "sha512-2yuIC48rUuHGhU1U5qJ9kJHaxYpJ0jpDHJVI5ekOxSMYXlH4+HP+pA31G820lsAznfmu2nzDV7n5RO44zIY1zw=="],
 
@@ -3429,7 +3429,7 @@
 
     "@acme/admin/globals": ["globals@16.5.0", "", {}, "sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ=="],
 
-    "@acme/vendpr/globals": ["globals@16.5.0", "", {}, "sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ=="],
+    "@acme/vendor/globals": ["globals@16.5.0", "", {}, "sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ=="],
 
     "@antfu/ni/tinyexec": ["tinyexec@1.0.2", "", {}, "sha512-W/KYk+NFhkmsYpuHq5JykngiOCnxeVL8v8dFnqxSD8qEEdRfXk1SDM6JzNqcERbcGYj9tMrDQBYV9cjgnunFIg=="],
 
