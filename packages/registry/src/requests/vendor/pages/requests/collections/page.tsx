@@ -31,7 +31,7 @@ const VendorCollectionRequestsPage = () => {
     { placeholderData: keepPreviousData },
   );
 
-  const columns = useRequestTableColumns();
+  const columns = useRequestTableColumns("title");
   const filters = useRequestTableFilters();
 
   const { table } = useDataTable({

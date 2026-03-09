@@ -20,20 +20,21 @@ const statusColor = (status: string) => {
   }
 };
 
-export const useRequestTableColumns = () => {
+export const useRequestTableColumns = (nameKey: string = "name") => {
   const { t } = useTranslation();
 
   return useMemo(
     () => [
-      columnHelper.accessor("id", {
+      columnHelper.display({
+        id: "display_name",
         header: () => (
           <div className="flex h-full w-full items-center">
-            <span className="truncate">ID</span>
+            <span className="truncate">Name</span>
           </div>
         ),
-        cell: ({ getValue }) => (
-          <Text size="small" leading="compact" className="text-ui-fg-subtle">
-            {getValue()}
+        cell: ({ row }) => (
+          <Text size="small" leading="compact">
+            {row.original[nameKey] ?? row.original.id}
           </Text>
         ),
       }),
@@ -61,6 +62,6 @@ export const useRequestTableColumns = () => {
         },
       }),
     ],
-    [t],
+    [t, nameKey],
   );
 };

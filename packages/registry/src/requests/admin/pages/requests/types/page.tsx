@@ -30,7 +30,7 @@ const TypeRequestsPage = () => {
     { placeholderData: keepPreviousData },
   );
 
-  const columns = useRequestTableColumns();
+  const columns = useRequestTableColumns("value");
   const filters = useRequestTableFilters();
 
   const { table } = useDataTable({
