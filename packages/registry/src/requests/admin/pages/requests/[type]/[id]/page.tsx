@@ -1,6 +1,8 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import {
+  Avatar,
   Badge,
   Button,
   Container,
@@ -10,6 +12,7 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui";
+import { TriangleRightMini } from "@medusajs/icons";
 
 import { SingleColumnPage } from "@mercurjs/dashboard-shared";
 import {
@@ -17,6 +20,7 @@ import {
   useAcceptRequest,
   useRejectRequest,
 } from "../../../../hooks/api/requests";
+import { client } from "../../../../lib/client";
 
 const statusColor = (status: string) => {
   switch (status) {
@@ -67,6 +71,26 @@ const formatFieldValue = (key: string, value: unknown): string => {
   return String(value);
 };
 
+const useSeller = (id?: string | null) => {
+  const { data, ...rest } = useQuery({
+    queryKey: ["seller", id],
+    queryFn: () => client.admin.sellers.$id.query({ $id: id! }),
+    enabled: !!id,
+  });
+
+  return { seller: (data as any)?.seller, ...rest };
+};
+
+const useUser = (id?: string | null) => {
+  const { data, ...rest } = useQuery({
+    queryKey: ["user", id],
+    queryFn: () => client.admin.users.$id.query({ $id: id! }),
+    enabled: !!id,
+  });
+
+  return { user: (data as any)?.user, ...rest };
+};
+
 const RequestDetailPage = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const { t } = useTranslation();
@@ -80,6 +104,11 @@ const RequestDetailPage = () => {
   const { mutateAsync: rejectRequest, isPending: isRejecting } =
     useRejectRequest(type!, id!);
 
+  const customFields = (request?.custom_fields ?? {}) as Record<string, any>;
+
+  const { seller } = useSeller(customFields?.submitter_id);
+  const { user } = useUser(customFields?.reviewer_id);
+
   if (isLoading || !request) {
     return (
       <SingleColumnPage>
@@ -92,7 +121,6 @@ const RequestDetailPage = () => {
 
   if (isError) throw error;
 
-  const customFields = request.custom_fields as Record<string, any>;
   const status = customFields?.request_status ?? "draft";
   const isPending = status === "pending";
   const entityFields = ENTITY_FIELDS[type!] ?? [];
@@ -230,31 +258,86 @@ const RequestDetailPage = () => {
         </div>
       </Container>
 
-      {/* Review Info */}
+      {/* Submitter (Seller) */}
       <Container className="divide-y p-0">
         <div className="px-6 py-4">
-          <Heading level="h2">Review</Heading>
+          <Heading level="h2">Submitter</Heading>
         </div>
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
-            <Text size="small" leading="compact" weight="plus">
-              Submitter
-            </Text>
-            <Text size="small" className="text-ui-fg-subtle">
-              {customFields?.submitter_id ?? "—"}
-            </Text>
+        <div className="txt-small flex flex-col gap-2 px-2 pb-2">
+          {seller ? (
+            <Link
+              to={`/sellers/${seller.id}`}
+              className="outline-none focus-within:shadow-borders-interactive-with-focus rounded-md [&:hover>div]:bg-ui-bg-component-hover"
+            >
+              <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-2 transition-colors">
+                <div className="flex items-center gap-3">
+                  <Avatar
+                    src={seller.logo ?? undefined}
+                    fallback={seller.name?.charAt(0).toUpperCase() ?? "S"}
+                  />
+                  <div className="flex flex-1 flex-col">
+                    <span className="text-ui-fg-base font-medium">
+                      {seller.name}
+                    </span>
+                  </div>
+                  <div className="size-7 flex items-center justify-center">
+                    <TriangleRightMini className="text-ui-fg-muted" />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ) : (
+            <div className="px-4 py-2">
+              <Text size="small" className="text-ui-fg-muted">
+                {customFields?.submitter_id ?? "—"}
+              </Text>
+            </div>
+          )}
+        </div>
+      </Container>
+
+      {/* Reviewer (User) */}
+      {(customFields?.reviewer_id || customFields?.reviewer_note) && (
+        <Container className="divide-y p-0">
+          <div className="px-6 py-4">
+            <Heading level="h2">Reviewer</Heading>
           </div>
-          <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
-            <Text size="small" leading="compact" weight="plus">
-              Reviewer
-            </Text>
-            <Text size="small" className="text-ui-fg-subtle">
-              {customFields?.reviewer_id ?? "—"}
-            </Text>
+          <div className="txt-small flex flex-col gap-2 px-2 pb-2">
+            {user ? (
+              <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-2">
+                <div className="flex items-center gap-3">
+                  <Avatar
+                    fallback={
+                      (user.first_name ?? user.email ?? "U")
+                        .charAt(0)
+                        .toUpperCase()
+                    }
+                  />
+                  <div className="flex flex-1 flex-col">
+                    <span className="text-ui-fg-base font-medium">
+                      {[user.first_name, user.last_name]
+                        .filter(Boolean)
+                        .join(" ") || user.email}
+                    </span>
+                    {user.first_name && user.email && (
+                      <span className="text-ui-fg-muted text-xs">
+                        {user.email}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : customFields?.reviewer_id ? (
+              <div className="px-4 py-2">
+                <Text size="small" className="text-ui-fg-muted">
+                  {customFields.reviewer_id}
+                </Text>
+              </div>
+            ) : null}
           </div>
           {customFields?.reviewer_note && (
-            <div className="grid grid-cols-subgrid col-span-2 items-center py-2">
-              <Text size="small" leading="compact" weight="plus">
+            <div className="px-6 py-4">
+              <Text size="small" leading="compact" weight="plus" className="mb-1">
                 Note
               </Text>
               <Text size="small" className="text-ui-fg-subtle">
@@ -262,8 +345,8 @@ const RequestDetailPage = () => {
               </Text>
             </div>
           )}
-        </div>
-      </Container>
+        </Container>
+      )}
     </SingleColumnPage>
   );
 };
