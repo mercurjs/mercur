@@ -859,6 +859,22 @@
           "type": "registry:api"
         },
         {
+          "path": "requests/api/vendor/requests/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/vendor/requests/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/store/requests/helpers.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "requests/api/store/requests/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
           "path": "requests/workflows/hooks/seller-created.ts",
           "type": "registry:api"
         },
