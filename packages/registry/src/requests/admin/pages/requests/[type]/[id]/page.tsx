@@ -12,7 +12,7 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui";
-import { TriangleRightMini } from "@medusajs/icons";
+import { ExclamationCircleSolid, TriangleRightMini } from "@medusajs/icons";
 
 import { SingleColumnPage } from "@mercurjs/dashboard-shared";
 import {
@@ -189,63 +189,71 @@ const RequestDetailPage = () => {
 
   return (
     <SingleColumnPage hasOutlet={false}>
-      {/* General */}
-      <div
-        style={
-          isPending
-            ? {
-                background:
-                  "repeating-linear-gradient(-45deg, rgb(212, 212, 216, 0.15), rgb(212, 212, 216,.15) 10px, transparent 10px, transparent 20px)",
-              }
-            : undefined
-        }
-        className={isPending ? "-m-4 mb-1 border-b border-l p-4" : undefined}
-      >
-        <Container className="divide-y p-0">
-          <div className="flex items-center justify-between px-6 py-4">
-            <Heading>{entityName}</Heading>
-            <div className="flex items-center gap-x-4">
-              <StatusBadge color={statusColor(status)}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </StatusBadge>
-              <Badge size="2xsmall" color="grey">
-                {typeLabel}
-              </Badge>
-              {isPending && (
-                <div className="flex items-center gap-x-2">
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    onClick={handleReject}
-                    disabled={isAccepting || isRejecting}
-                  >
-                    Reject
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="small"
-                    onClick={handleAccept}
-                    disabled={isAccepting || isRejecting}
-                  >
-                    Accept
-                  </Button>
-                </div>
-              )}
+      {/* Pending Action Banner */}
+      {isPending && (
+        <div
+          style={{
+            background:
+              "repeating-linear-gradient(-45deg, rgb(212, 212, 216, 0.15), rgb(212, 212, 216,.15) 10px, transparent 10px, transparent 20px)",
+          }}
+          className="-m-4 mb-1 border-b border-l p-4"
+        >
+          <Container className="flex items-center justify-between p-0">
+            <div className="flex w-full flex-col divide-y divide-dashed">
+              <div className="flex items-center gap-2 px-6 py-4">
+                <ExclamationCircleSolid className="text-orange-500" />
+                <Heading level="h2">
+                  Pending review
+                </Heading>
+              </div>
+              <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={handleReject}
+                  disabled={isAccepting || isRejecting}
+                >
+                  Reject
+                </Button>
+                <Button
+                  variant="primary"
+                  size="small"
+                  onClick={handleAccept}
+                  disabled={isAccepting || isRejecting}
+                >
+                  Accept
+                </Button>
+              </div>
             </div>
+          </Container>
+        </div>
+      )}
+
+      {/* General */}
+      <Container className="divide-y p-0">
+        <div className="flex items-center justify-between px-6 py-4">
+          <Heading>{entityName}</Heading>
+          <div className="flex items-center gap-x-4">
+            <StatusBadge color={statusColor(status)}>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </StatusBadge>
+            <Badge size="2xsmall" color="grey">
+              {typeLabel}
+            </Badge>
           </div>
-          {entityFields.map(({ key, label }) => {
-            const value = (request as Record<string, any>)[key];
-            if (value === undefined) return null;
-            return (
-              <SectionRow
-                key={key}
-                title={label}
-                value={formatFieldValue(key, value)}
-              />
-            );
-          })}
-        </Container>
-      </div>
+        </div>
+        {entityFields.map(({ key, label }) => {
+          const value = (request as Record<string, any>)[key];
+          if (value === undefined) return null;
+          return (
+            <SectionRow
+              key={key}
+              title={label}
+              value={formatFieldValue(key, value)}
+            />
+          );
+        })}
+      </Container>
 
       {/* Submitter (Seller) */}
       <Container className="divide-y p-0">
