@@ -42,12 +42,11 @@ const CategoryRequestCreateForm = () => {
     resolver: zodResolver(CreateCategoryRequestSchema),
   });
 
-  const { mutateAsync, isPending } = useCreateVendorRequest(
-    "product_category",
-  );
+  const { mutateAsync, isPending } = useCreateVendorRequest("product_category");
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    await mutateAsync(data, {
+  const handleSubmit = form.handleSubmit(async ({ handle, ...data }) => {
+    const payload = handle ? { ...data, handle } : data;
+    await mutateAsync(payload, {
       onSuccess: () => {
         toast.success("Category request created successfully");
         handleSuccess(`/requests/categories`);
@@ -105,9 +104,7 @@ const CategoryRequestCreateForm = () => {
                 name="description"
                 render={({ field }) => (
                   <Form.Item className="col-span-full">
-                    <Form.Label optional>
-                      {t("fields.description")}
-                    </Form.Label>
+                    <Form.Label optional>{t("fields.description")}</Form.Label>
                     <Form.Control>
                       <Textarea {...field} />
                     </Form.Control>
@@ -124,9 +121,7 @@ const CategoryRequestCreateForm = () => {
                     <Form.Control>
                       <Select
                         value={field.value ? "active" : "inactive"}
-                        onValueChange={(v) =>
-                          field.onChange(v === "active")
-                        }
+                        onValueChange={(v) => field.onChange(v === "active")}
                       >
                         <Select.Trigger>
                           <Select.Value />
@@ -149,13 +144,11 @@ const CategoryRequestCreateForm = () => {
                 name="is_internal"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t("fields.visibility")}</Form.Label>
+                    <Form.Label>Visibility</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value ? "internal" : "public"}
-                        onValueChange={(v) =>
-                          field.onChange(v === "internal")
-                        }
+                        onValueChange={(v) => field.onChange(v === "internal")}
                       >
                         <Select.Trigger>
                           <Select.Value />
