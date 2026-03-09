@@ -858,15 +858,7 @@
           "path": "requests/api/vendor/requests/product-tags/helpers.ts",
           "type": "registry:api"
         },
-        {
-          "path": "requests/api/vendor/requests/helpers.ts",
-          "type": "registry:api"
-        },
-        {
-          "path": "requests/api/vendor/requests/middlewares.ts",
-          "type": "registry:api"
-        },
-        {
+{
           "path": "requests/api/store/requests/helpers.ts",
           "type": "registry:api"
         },
