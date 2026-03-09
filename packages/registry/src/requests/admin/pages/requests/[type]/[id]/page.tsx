@@ -82,7 +82,11 @@ const SectionRow = ({
     <Text size="small" weight="plus" leading="compact">
       {title}
     </Text>
-    <Text size="small" leading="compact" className="whitespace-pre-line text-pretty">
+    <Text
+      size="small"
+      leading="compact"
+      className="whitespace-pre-line text-pretty"
+    >
       {value ?? "-"}
     </Text>
   </div>
@@ -202,9 +206,7 @@ const RequestDetailPage = () => {
             <div className="flex w-full flex-col divide-y divide-dashed">
               <div className="flex items-center gap-2 px-6 py-4">
                 <ExclamationCircleSolid className="text-orange-500" />
-                <Heading level="h2">
-                  Pending review
-                </Heading>
+                <Heading level="h2">Pending review</Heading>
               </div>
               <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
                 <Button
@@ -303,11 +305,9 @@ const RequestDetailPage = () => {
                 <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-3">
                   <div className="flex items-center gap-3">
                     <Avatar
-                      fallback={
-                        (user.first_name ?? user.email ?? "U")
-                          .charAt(0)
-                          .toUpperCase()
-                      }
+                      fallback={(user.first_name ?? user.email ?? "U")
+                        .charAt(0)
+                        .toUpperCase()}
                     />
                     <div className="flex flex-1 flex-col">
                       <span className="text-ui-fg-base txt-small font-medium">
