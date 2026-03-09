@@ -899,6 +899,10 @@
           "type": "registry:admin"
         },
         {
+          "path": "requests/admin/pages/requests/[type]/[id]/page.tsx",
+          "type": "registry:admin"
+        },
+        {
           "path": "requests/vendor/hooks/api/requests.tsx",
           "type": "registry:vendor"
         },
@@ -923,7 +927,15 @@
           "type": "registry:vendor"
         },
         {
+          "path": "requests/vendor/pages/requests/categories/create/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
           "path": "requests/vendor/pages/requests/collections/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/collections/create/page.tsx",
           "type": "registry:vendor"
         },
         {
@@ -931,7 +943,15 @@
           "type": "registry:vendor"
         },
         {
+          "path": "requests/vendor/pages/requests/tags/create/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
           "path": "requests/vendor/pages/requests/types/page.tsx",
+          "type": "registry:vendor"
+        },
+        {
+          "path": "requests/vendor/pages/requests/types/create/page.tsx",
           "type": "registry:vendor"
         }
       ],
