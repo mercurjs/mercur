@@ -31,7 +31,6 @@ import {
 import { useStockLocation } from "../../../../../hooks/api/stock-locations"
 import { formatProvider } from "../../../../../lib/format-provider"
 import { getLocaleAmount } from "../../../../../lib/money-amount-helpers"
-import { getDisplayFulfillmentItems } from "../../../../../lib/order-item"
 import { FulfillmentSetType } from "../../../../locations/common/constants"
 
 type OrderFulfillmentSectionProps = {
@@ -216,15 +215,6 @@ const Fulfillment = ({
   const navigate = useNavigate()
 
   const showLocation = !!fulfillment.location_id
-  const orderItemsMap = useMemo(
-    () => new Map((order.items || []).map((item) => [item.id, item])),
-    [order.items]
-  )
-  const displayFulfillmentItems = useMemo(
-    () => getDisplayFulfillmentItems(fulfillment.items || [], orderItemsMap),
-    [fulfillment.items, orderItemsMap]
-  )
-
   const isPickUpFulfillment =
     fulfillment.shipping_option?.service_zone.fulfillment_set.type ===
     FulfillmentSetType.Pickup
@@ -377,7 +367,7 @@ const Fulfillment = ({
           {t("orders.fulfillment.itemsLabel")}
         </Text>
         <ul>
-          {displayFulfillmentItems.map((f_item) => (
+          {fulfillment.items.map((f_item) => (
             <li key={f_item.line_item_id}>
               <Text size="small" leading="compact">
                 {f_item.quantity}x {f_item.title}
