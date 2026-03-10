@@ -19,9 +19,8 @@ export default defineMiddlewares({
       middlewares: [(req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
         const service = req.scope.resolve<VendorUIModuleService>(MercurModules.VENDOR_UI)
         const options = service.getOptions()
-        const path = options.path ?? 'vendor'
-        console.log('hello')
-        if (options.disable || !req.baseUrl.startsWith(`/${path}`)) {
+        const path = options.path!
+        if (options.disable || !req.baseUrl.startsWith(path)) {
           return next()
         }
         return serveDashboardMiddleware({ path: path, mode: service.getServingMode(), appDir: options.appDir, viteUrl: service.getViteDevServerUrl() })(req, res)

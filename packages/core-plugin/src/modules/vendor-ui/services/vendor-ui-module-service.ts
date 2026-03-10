@@ -7,6 +7,7 @@ export default class VendorUIModuleService extends DashboardBase {
     constructor(container, options: DashboardModuleOptions) {
         super(container, {
             ...options,
+            path: options.path ?? '/hub',
             viteDevServerPort: options.viteDevServerPort ?? 7001
         })
     }

@@ -31,7 +31,9 @@ export abstract class DashboardBase {
 
     async onApplicationStart(): Promise<void> {
         await this.detectServingMode()
-        this.logger.info(`${this.appName} URL → http://localhost:${this.options_.viteDevServerPort}${this.options_.path}`)
+        if (!this.options_.disable) {
+            this.logger.info(`${this.appName} URL → http://localhost:${this.options_.viteDevServerPort}${this.options_.path}`)
+        }
     }
 
     onApplicationShutdown(): void {
