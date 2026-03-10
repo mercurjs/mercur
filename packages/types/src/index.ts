@@ -20,3 +20,6 @@ export * from "./modules"
 
 // Custom fields types
 export * from "./custom-fields"
+
+// UI types
+export * from "./dashboard"
