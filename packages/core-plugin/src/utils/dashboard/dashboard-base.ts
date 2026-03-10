@@ -1,6 +1,8 @@
 import http from "node:http"
 import fs from "node:fs"
 import path from "node:path"
+import express from "express"
+import { createProxyMiddleware } from "http-proxy-middleware"
 import { DashboardModuleOptions } from "@mercurjs/types"
 import { Logger } from "@medusajs/medusa"
 
@@ -11,6 +13,7 @@ export abstract class DashboardBase {
     protected readonly logger: Logger
     protected servingMode_: ServingMode = "default-page"
     protected lastDetectionTime_: number = 0
+    protected app_: express.Express
 
     protected abstract readonly appName: string
     private static readonly REDETECT_THROTTLE_MS = 5000
@@ -32,7 +35,8 @@ export abstract class DashboardBase {
     async onApplicationStart(): Promise<void> {
         await this.detectServingMode()
         if (!this.options_.disable) {
-            this.logger.info(`${this.appName} URL → http://localhost:${this.options_.viteDevServerPort}${this.options_.path}`)
+            this.app_ = this.createApp()
+            this.logger.info(`${this.appName} URL → http://localhost:9000${this.options_.path}`)
         }
     }
 
@@ -79,13 +83,68 @@ export abstract class DashboardBase {
 
     getViteDevServerUrl(): string {
         const host = this.options_.viteDevServerHost ?? "localhost"
-        const port = this.options_.viteDevServerPort ?? 5174
+        const port = this.options_.viteDevServerPort
         return `http://${host}:${port}`
+    }
+
+    getApp(): express.Express {
+        return this.app_
+    }
+
+    private createApp(): express.Express {
+        const app = express()
+        const route = this.options_.path!
+
+        const proxyMiddleware = createProxyMiddleware({
+            target: this.getViteDevServerUrl(),
+            pathRewrite: {
+                [`^${route}`]: "/",
+            },
+        })
+
+        const staticServer = express.Router()
+        staticServer.use(express.static(this.options_.appDir))
+        staticServer.use((_req, res) => {
+            const indexPath = path.join(this.options_.appDir, "index.html")
+            if (fs.existsSync(indexPath)) {
+                res.sendFile(path.resolve(indexPath))
+            } else {
+                this.sendDefaultPage(res)
+            }
+        })
+
+        app.use(route, async (req, res, next) => {
+            await this.maybeRedetect()
+
+            switch (this.servingMode_) {
+                case "vite-proxy": {
+                    proxyMiddleware(req, res, next)
+                    return
+                }
+
+                case "static": {
+                    staticServer(req, res, next)
+                    return
+                }
+
+                case "default-page":
+                default: {
+                    this.sendDefaultPage(res)
+                    return
+                }
+            }
+        })
+
+        return app
+    }
+
+    private sendDefaultPage(res: express.Response): void {
+        res.status(200).type("html").send("Dashboard not built")
     }
 
     private checkViteDevServer(): Promise<boolean> {
         const host = this.options_.viteDevServerHost ?? "localhost"
-        const port = this.options_.viteDevServerPort ?? 5174
+        const port = this.options_.viteDevServerPort
 
         return new Promise((resolve) => {
             const req = http.request(
