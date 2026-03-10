@@ -79,6 +79,7 @@ const Content: ComponentType<ContentProps> = ({ stackedModalOpen, children }: Co
         "!bg-ui-bg-disabled !inset-x-5 !inset-y-3": stackedModalOpen,
       })}
     >
+      <FocusModal.Title className="sr-only" />
       {children}
     </FocusModal.Content>
   )

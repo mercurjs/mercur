@@ -40,9 +40,16 @@ const InviteUserSchema = zod.object({
 
 const PAGE_SIZE = 10;
 const PREFIX = "usr_invite";
-const INVITE_URL = `${window.location.origin}${
-  __BASE__ === "/" ? "" : __BASE__
-}/invite?token=`;
+const getBaseUrl = () => {
+  try {
+    const base = typeof __BASE__ !== "undefined" ? __BASE__ : "/"
+    return base === "/" ? "" : base
+  } catch {
+    return ""
+  }
+}
+
+const INVITE_URL = `${window.location.origin}${getBaseUrl()}/invite?token=`;
 
 export const InviteUserForm = () => {
   const { t } = useTranslation();

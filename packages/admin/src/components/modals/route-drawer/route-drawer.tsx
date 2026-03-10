@@ -50,6 +50,7 @@ const Root: ComponentType<RouteDrawerProps> = ({ prev = "..", children }: RouteD
               "!bg-ui-bg-disabled !inset-y-5 !right-5": stackedModalOpen,
             })}
           >
+            <Drawer.Title className="sr-only" />
             {children}
           </Drawer.Content>
         </StackedModalProvider>

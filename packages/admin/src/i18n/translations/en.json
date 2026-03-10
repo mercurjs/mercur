@@ -136,6 +136,7 @@
     "select": "Select",
     "browse": "Browse",
     "logout": "Logout",
+    "send": "Send",
     "hide": "Hide",
     "export": "Export",
     "import": "Import",
@@ -3250,6 +3251,13 @@
       "pending": "Pending",
       "active": "Active",
       "suspended": "Suspended"
+    },
+    "invite": {
+      "button": "Invite",
+      "header": "Invite Seller",
+      "hint": "Invite a new seller to your store",
+      "successToast": "Invitation sent to {{email}}",
+      "errorToast": "Failed to send invitation"
     },
     "edit": {
       "header": "Edit Seller",

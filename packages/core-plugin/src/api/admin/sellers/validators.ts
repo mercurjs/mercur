@@ -26,6 +26,12 @@ export const AdminUpdateSeller = z.object({
 }).strict()
 export type AdminUpdateSellerType = z.infer<typeof AdminUpdateSeller>
 
+export const AdminInviteSeller = z.object({
+  email: z.string().email(),
+  registration_url: z.string().optional(),
+})
+export type AdminInviteSellerType = z.infer<typeof AdminInviteSeller>
+
 export type AdminGetSellersParamsType = z.infer<typeof AdminGetSellersParams>
 export const AdminGetSellersParams = createFindParams({
   offset: 0,
