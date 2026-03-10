@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat AGENTS.md"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'MANDATORY: Before any non-trivial task, you MUST read and follow the Task Router in AGENTS.md. Read the matching package-level AGENTS.md files. Check if a spec is required. Do NOT skip this step.'"
+          }
+        ]
+      }
+    ]
+  }
+}
