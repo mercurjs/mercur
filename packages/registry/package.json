@@ -29,7 +29,8 @@
 		"@hookform/resolvers": "3.4.2",
 		"jsonwebtoken": "9.0.2",
 		"react-jwt": "2.0.0",
-		"algoliasearch": "^5.40.0"
+		"algoliasearch": "^5.40.0",
+		"@talkjs/react": "^0.1.11"
 	},
 	"devDependencies": {
 		"@mercurjs/types": "workspace:*",
