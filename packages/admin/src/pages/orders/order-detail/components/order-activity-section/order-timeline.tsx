@@ -30,7 +30,6 @@ import { useCancelReturn, useReturns } from "../../../../../hooks/api/returns";
 import { useDate } from "../../../../../hooks/use-date";
 import { getFormattedAddress } from "../../../../../lib/addresses";
 import { getStylizedAmount } from "../../../../../lib/money-amount-helpers";
-import { getDisplayFulfillmentItems } from "../../../../../lib/order-item";
 import { getPaymentsFromOrder } from "../../../../../lib/orders";
 import ActivityItems from "./activity-items";
 import ChangeDetailsTooltip from "./change-details-tooltip";
@@ -765,10 +764,10 @@ const FulfillmentCreatedBody = ({
 }) => {
   const { t } = useTranslation();
 
-  const numberOfItems = getDisplayFulfillmentItems(
-    fulfillment.items || [],
-    itemsMap,
-  ).reduce((acc, item) => acc + item.quantity, 0);
+  const numberOfItems = (fulfillment.items || []).reduce(
+    (acc, item) => acc + item.quantity,
+    0,
+  );
 
   return (
     <div>
