@@ -10,6 +10,7 @@ export async function POST(
   req: AuthenticatedMedusaRequest<AdminInviteSellerType>,
   res: MedusaResponse
 ) {
+  // TODO: Use it with config module
   const vendorUrl = process.env.VENDOR_URL
 
   const registration_url = vendorUrl
