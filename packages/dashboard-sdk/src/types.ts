@@ -12,6 +12,7 @@ export interface MercurConfig {
         defaultLanguage: string
     }
     backendUrl?: string;
+    enableSellerRegistration?: boolean;
 }
 
 export interface BuiltMercurConfig extends MercurConfig {

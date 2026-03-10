@@ -1315,6 +1315,14 @@ export function getRouteMap({
               path: "/reset-password",
               lazy: () => import("./pages/reset-password"),
             },
+            {
+              path: "/register",
+              lazy: async () => {
+                const { RegisterPage } =
+                  await import("./pages/register");
+                return { Component: RegisterPage };
+              },
+            },
             ...customPublicRoutes,
             {
               path: "*",

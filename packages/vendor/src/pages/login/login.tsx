@@ -168,18 +168,34 @@ const LoginForm = () => {
 
 const LoginFooter = () => {
   return (
-    <span className="text-ui-fg-muted txt-small my-6">
-      <Trans
-        i18nKey="login.forgotPassword"
-        components={[
-          <Link
-            key="reset-password-link"
-            to="/reset-password"
-            className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
-          />,
-        ]}
-      />
-    </span>
+    <div className="flex flex-col items-center">
+      <span className="text-ui-fg-muted txt-small my-6">
+        <Trans
+          i18nKey="login.forgotPassword"
+          components={[
+            <Link
+              key="reset-password-link"
+              to="/reset-password"
+              className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
+            />,
+          ]}
+        />
+      </span>
+      {config.enableSellerRegistration && (
+        <span className="text-ui-fg-muted txt-small">
+          <Trans
+            i18nKey="login.notSellerYet"
+            components={[
+              <Link
+                key="register-link"
+                to="/register"
+                className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
+              />,
+            ]}
+          />
+        </span>
+      )}
+    </div>
   )
 }
 
