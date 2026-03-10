@@ -2941,7 +2941,21 @@
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
     "title": "Welcome to {{name}}",
-    "hint": "Sign in to access the vendor hub"
+    "hint": "Sign in to access the vendor hub",
+    "notSellerYet": "Not a seller yet? - <0>Create an account</0>"
+  },
+  "register": {
+    "title": "Join Mercur Seller Panel",
+    "hint": "Sign up to start selling",
+    "companyName": "Company name",
+    "confirmPassword": "Confirm password",
+    "signUp": "Sign up",
+    "alreadySeller": "Already have an account? - <0>Sign In</0>",
+    "passwordMismatch": "Passwords don't match",
+    "emailTaken": "Provided email is already taken",
+    "successTitle": "Thank you for registering!",
+    "successHint": "You may need to wait for admin authorization before logging in. A confirmation email will be sent to you shortly.",
+    "backToLogin": "Back to login"
   },
   "validation": {
     "rules": {
