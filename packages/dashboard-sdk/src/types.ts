@@ -1,6 +1,7 @@
 import { ComponentType } from "react";
 
 export interface MercurConfig {
+    medusaConfigPath: string
     name?: string
     logo?: string
     components?: {
@@ -11,16 +12,14 @@ export interface MercurConfig {
     i18n?: {
         defaultLanguage: string
     }
-    backendUrl?: string;
-    base?: string;
     enableSellerRegistration?: boolean;
 }
 
 export interface BuiltMercurConfig extends MercurConfig {
     backendUrl: string;
+    base?: string;
     root: string
     srcDir: string
-    configPath: string
 }
 
 export type RouteConfig = {

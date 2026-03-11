@@ -1,3 +1,2 @@
-export { dashboardPlugin } from "./plugin"
-export { defineConfig } from "./define-config"
+export { mercurDashboardPlugin } from "./plugin"
 export * from "./types"

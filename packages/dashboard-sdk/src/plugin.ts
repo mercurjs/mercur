@@ -1,42 +1,48 @@
 import type * as Vite from "vite"
 import path from "path"
 import { getFileExports } from "./utils"
-import { CONFIG_NAME, RESOLVED_ROUTES_MODULE } from "./constants"
+import { RESOLVED_ROUTES_MODULE } from "./constants"
 import { isVirtualModule, resolveVirtualModule, loadVirtualModule } from "./virtual-modules"
 import type { MercurConfig, BuiltMercurConfig } from "./types"
-
-function buildConfig(config: MercurConfig, root: string): BuiltMercurConfig {
-    const srcDir = path.join(root, "src")
-
-    return {
-        ...config,
-        backendUrl: config.backendUrl ?? "http://localhost:9000",
-        root,
-        srcDir,
-        configPath: path.resolve(root, CONFIG_NAME),
-    }
-}
-
-async function loadMercurConfig(root: string): Promise<BuiltMercurConfig> {
-    const configPath = path.resolve(root, CONFIG_NAME)
-    try {
-        const mod = await getFileExports(configPath)
-        const content = mod.default ?? mod
-        return buildConfig(content, root)
-    } catch (error) {
-        console.error(error)
-        throw new Error(
-            `[@mercurjs/dashboard-sdk] Could not find or load ${CONFIG_NAME} in ${root}`
-        )
-    }
-}
 
 function isPageFile(file: string): boolean {
     const basename = path.basename(file, path.extname(file))
     return basename === "page"
 }
 
-export function dashboardPlugin(): Vite.Plugin {
+const UI_MODULE_KEYS = [
+    "@mercurjs/core-plugin/modules/admin-ui",
+    "@mercurjs/core-plugin/modules/vendor-ui",
+]
+
+async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise<{ backendUrl: string; base?: string }> {
+    try {
+        const mod = await getFileExports(medusaConfigPath)
+        const medusaConfig = mod.default ?? mod
+
+        const modules = medusaConfig?.modules ?? {}
+
+        for (const key of UI_MODULE_KEYS) {
+            const value = modules[key]
+            if (!value || typeof value !== "object" || !value.options?.appDir) continue
+
+            const appDir = path.resolve(path.dirname(medusaConfigPath), value.options.appDir)
+
+            if (appDir === root) {
+                return {
+                    backendUrl: value.options.backendUrl ?? "http://localhost:9000",
+                    base: value.options.path,
+                }
+            }
+        }
+
+        return { backendUrl: "http://localhost:9000" }
+    } catch {
+        return { backendUrl: "http://localhost:9000" }
+    }
+}
+
+export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
     let root: string
     let config: BuiltMercurConfig
 
@@ -44,7 +50,20 @@ export function dashboardPlugin(): Vite.Plugin {
         name: "@mercurjs/dashboard-sdk",
         async config(viteConfig) {
             root = viteConfig.root || process.cwd()
-            config = await loadMercurConfig(root)
+
+            const medusaConfigPath = path.resolve(root, pluginConfig.medusaConfigPath)
+            const { backendUrl, base } = await loadMedusaConfig(medusaConfigPath, root)
+
+            const srcDir = path.join(root, "src")
+
+            config = {
+                ...pluginConfig,
+                backendUrl,
+                base,
+                root,
+                srcDir,
+            }
+
             return {
                 base: config.base,
                 define: {
@@ -83,13 +102,6 @@ export function dashboardPlugin(): Vite.Plugin {
             server.watcher.on("unlink", handlePageChange)
         },
         handleHotUpdate({ file, server }) {
-            const configPath = path.resolve(root, CONFIG_NAME)
-
-            if (file === configPath) {
-                server.restart()
-                return
-            }
-
             if (isPageFile(file)) {
                 const mod = server.moduleGraph.getModuleById(RESOLVED_ROUTES_MODULE)
                 if (mod) {
