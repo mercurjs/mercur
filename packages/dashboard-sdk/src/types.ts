@@ -21,6 +21,7 @@ export interface BuiltMercurConfig extends MercurConfig {
     base?: string;
     root: string
     srcDir: string
+    pluginDirs: string[]
 }
 
 export type RouteConfig = {

@@ -237,22 +237,28 @@ function buildRouteTree(results: RouteResult[]): RouteResult[] {
     return Array.from(routeMap.values())
 }
 
-export function generateRoutes({ srcDir }: BuiltMercurConfig): string {
+export function generateRoutes({ srcDir, pluginDirs }: BuiltMercurConfig): string {
     const pagesDir = path.join(srcDir, "pages")
-    const files = crawlPages(pagesDir)
-
-    if (files.length === 0) {
-        return `export const customRoutes = []`
-    }
 
     let index = 0
     const results: RouteResult[] = []
 
-    for (const file of files) {
+    // App's own pages
+    for (const file of crawlPages(pagesDir)) {
         const result = parseFile(file, pagesDir, index)
         if (result) {
             results.push(result)
             index++
+        }
+    }
+
+    for (const pluginDir of pluginDirs) {
+        for (const file of crawlPages(pluginDir)) {
+            const result = parseFile(file, pluginDir, index)
+            if (result) {
+                results.push(result)
+                index++
+            }
         }
     }
 

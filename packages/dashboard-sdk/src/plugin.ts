@@ -1,5 +1,6 @@
 import type * as Vite from "vite"
 import path from "path"
+import fs from "fs"
 import { getFileExports } from "./utils"
 import { RESOLVED_ROUTES_MODULE } from "./constants"
 import { isVirtualModule, resolveVirtualModule, loadVirtualModule } from "./virtual-modules"
@@ -15,29 +16,79 @@ const UI_MODULE_KEYS = [
     "vendor_ui",
 ]
 
-async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise<{ base?: string }> {
+function resolvePluginRoot(resolve: string, configDir: string): string | null {
+    try {
+        if (resolve.startsWith(".")) {
+            return path.resolve(configDir, resolve)
+        }
+
+        const pkgJsonPath = require.resolve(path.join(resolve, "package.json"), {
+            paths: [configDir],
+        })
+        return path.dirname(pkgJsonPath)
+    } catch {
+        return null
+    }
+}
+
+function resolvePluginDirs(
+    plugins: any[],
+    configDir: string,
+    appType: "admin" | "vendor"
+): string[] {
+    const dirs: string[] = []
+
+    for (const plugin of plugins) {
+        const resolve = typeof plugin === "string"
+            ? plugin
+            : plugin?.resolve
+
+        if (!resolve || typeof resolve !== "string") continue
+
+        const pluginRoot = resolvePluginRoot(resolve, configDir)
+        if (!pluginRoot) continue
+
+        const extDir = path.join(pluginRoot, appType)
+        if (fs.existsSync(extDir) && fs.statSync(extDir).isDirectory()) {
+            dirs.push(extDir)
+        }
+    }
+
+    return dirs
+}
+
+async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise<{ base?: string; pluginDirs: string[] }> {
     try {
         const mod = await getFileExports(medusaConfigPath)
         const medusaConfig = mod.default ?? mod
 
         const modules = medusaConfig?.modules ?? {}
+        const configDir = path.dirname(medusaConfigPath)
+
+        let base: string | undefined
+        let appType: "admin" | "vendor" | undefined
 
         for (const key of UI_MODULE_KEYS) {
             const value = modules[key]
             if (!value || typeof value !== "object" || !value.options?.appDir) continue
 
-            const appDir = path.resolve(path.dirname(medusaConfigPath), value.options.appDir)
+            const appDir = path.resolve(configDir, value.options.appDir)
 
             if (appDir === root) {
-                return {
-                    base: value.options.path,
-                }
+                base = value.options.path
+                appType = key === "admin_ui" ? "admin" : "vendor"
+                break
             }
         }
 
-        return {}
+        const plugins = medusaConfig?.plugins ?? []
+        const pluginDirs = appType
+            ? resolvePluginDirs(plugins, configDir, appType)
+            : []
+
+        return { base, pluginDirs }
     } catch {
-        return {}
+        return { pluginDirs: [] }
     }
 }
 
@@ -51,7 +102,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
             root = viteConfig.root || process.cwd()
 
             const medusaConfigPath = path.resolve(root, pluginConfig.medusaConfigPath)
-            const { base } = await loadMedusaConfig(medusaConfigPath, root)
+            const { base, pluginDirs } = await loadMedusaConfig(medusaConfigPath, root)
 
             const srcDir = path.join(root, "src")
             const backendUrl = pluginConfig.backendUrl ?? "http://localhost:9000"
@@ -62,6 +113,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                 base,
                 root,
                 srcDir,
+                pluginDirs,
             }
 
             return {
