@@ -982,6 +982,32 @@ export type VendorBatchVariantImagesType = z.infer<
   typeof VendorBatchVariantImages
 >;
 
+/* Export Products */
+
+export type VendorExportProductsBodyType = z.infer<
+  typeof VendorExportProductsBody
+>;
+export const VendorExportProductsBody = z.object({
+  q: z.string().optional(),
+  id: z.union([z.string(), z.array(z.string())]).optional(),
+  status: z.union([z.string(), z.array(z.string())]).optional(),
+  type_id: z.union([z.string(), z.array(z.string())]).optional(),
+  collection_id: z.union([z.string(), z.array(z.string())]).optional(),
+  categories: z
+    .object({
+      id: z.union([z.string(), z.array(z.string())]).optional()
+    })
+    .optional(),
+  tags: z
+    .object({
+      id: z.union([z.string(), z.array(z.string())]).optional()
+    })
+    .optional(),
+  created_at: z.record(z.string()).optional(),
+  updated_at: z.record(z.string()).optional(),
+  sales_channel_id: z.string().optional()
+});
+
 /* Batch Update Products */
 
 /**
