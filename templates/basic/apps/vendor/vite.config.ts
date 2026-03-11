@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     mercurDashboardPlugin({
-      medusaConfigPath: '../../medusa-config.ts',
+      medusaConfigPath: '../../packages/api/medusa-config.ts',
     }),
   ],
 })
