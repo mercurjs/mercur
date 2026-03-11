@@ -11,11 +11,11 @@ function isPageFile(file: string): boolean {
 }
 
 const UI_MODULE_KEYS = [
-    "@mercurjs/core-plugin/modules/admin-ui",
-    "@mercurjs/core-plugin/modules/vendor-ui",
+    "admin_ui",
+    "vendor_ui",
 ]
 
-async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise<{ backendUrl: string; base?: string }> {
+async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise<{ base?: string }> {
     try {
         const mod = await getFileExports(medusaConfigPath)
         const medusaConfig = mod.default ?? mod
@@ -30,15 +30,14 @@ async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise
 
             if (appDir === root) {
                 return {
-                    backendUrl: value.options.backendUrl ?? "http://localhost:9000",
                     base: value.options.path,
                 }
             }
         }
 
-        return { backendUrl: "http://localhost:9000" }
+        return {}
     } catch {
-        return { backendUrl: "http://localhost:9000" }
+        return {}
     }
 }
 
@@ -52,9 +51,10 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
             root = viteConfig.root || process.cwd()
 
             const medusaConfigPath = path.resolve(root, pluginConfig.medusaConfigPath)
-            const { backendUrl, base } = await loadMedusaConfig(medusaConfigPath, root)
+            const { base } = await loadMedusaConfig(medusaConfigPath, root)
 
             const srcDir = path.join(root, "src")
+            const backendUrl = pluginConfig.backendUrl ?? "http://localhost:9000"
 
             config = {
                 ...pluginConfig,

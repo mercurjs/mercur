@@ -2,6 +2,7 @@ import { ComponentType } from "react";
 
 export interface MercurConfig {
     medusaConfigPath: string
+    backendUrl?: string
     name?: string
     logo?: string
     components?: {

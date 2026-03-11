@@ -22,7 +22,10 @@ module.exports = defineConfig({
   modules: [
     {
       resolve: '@mercurjs/core-plugin/modules/vendor-ui',
-      options: { appDir: path.join(__dirname, 'apps/vendor'), } as DashboardModuleOptions
+      options: {
+        appDir: path.join(__dirname, '../../apps/vendor'),
+        path: '/hub'
+      } as DashboardModuleOptions
     }
   ],
   plugins: [{
