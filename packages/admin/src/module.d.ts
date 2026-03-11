@@ -1,3 +1,5 @@
+declare const __BASE__: string
+
 declare module "virtual:mercur/routes" {
     import { Route } from './utils/routes'
     export const customRoutes: Route[]

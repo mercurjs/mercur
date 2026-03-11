@@ -27,7 +27,9 @@ export default function App() {
             <I18n />
             <I18nProvider>
               <RouterProvider
-                router={createBrowserRouter(getRouteMap(routes))}
+                router={createBrowserRouter(getRouteMap(routes), {
+                  basename: __BASE__,
+                })}
               />
             </I18nProvider>
             <Toaster />
