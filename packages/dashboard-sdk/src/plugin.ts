@@ -55,10 +55,10 @@ function resolvePluginRoot(resolve: string, configDir: string, nodeModulesRoot: 
 function resolvePluginDirs(
     plugins: any[],
     configDir: string,
-    appType: "admin" | "vendor"
 ): string[] {
     const nodeModulesRoot = findNodeModulesRoot(configDir)
     const dirs: string[] = []
+    const appTypes = ["admin", "vendor"] as const
 
     for (const plugin of plugins) {
         const resolve = typeof plugin === "string"
@@ -70,9 +70,11 @@ function resolvePluginDirs(
         const pluginRoot = resolvePluginRoot(resolve, configDir, nodeModulesRoot)
         if (!pluginRoot) continue
 
-        const extDir = path.join(pluginRoot, appType)
-        if (fs.existsSync(extDir) && fs.statSync(extDir).isDirectory()) {
-            dirs.push(extDir)
+        for (const appType of appTypes) {
+            const extDir = path.join(pluginRoot, '.medusa/server/src', appType)
+            if (fs.existsSync(extDir) && fs.statSync(extDir).isDirectory()) {
+                dirs.push(extDir)
+            }
         }
     }
 
@@ -88,7 +90,6 @@ async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise
         const configDir = path.dirname(medusaConfigPath)
 
         let base: string | undefined
-        let appType: "admin" | "vendor" | undefined
 
         for (const key of UI_MODULE_KEYS) {
             const value = modules[key]
@@ -98,15 +99,12 @@ async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise
 
             if (appDir === root) {
                 base = value.options.path
-                appType = key === "admin_ui" ? "admin" : "vendor"
                 break
             }
         }
 
         const plugins = medusaConfig?.plugins ?? []
-        const pluginDirs = appType
-            ? resolvePluginDirs(plugins, configDir, appType)
-            : []
+        const pluginDirs = resolvePluginDirs(plugins, configDir)
 
         return { base, pluginDirs }
     } catch {
