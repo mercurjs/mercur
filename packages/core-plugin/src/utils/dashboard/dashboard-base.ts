@@ -3,10 +3,8 @@ import fs from "node:fs"
 import path from "node:path"
 import express from "express"
 import { createProxyMiddleware } from "http-proxy-middleware"
-import { DashboardModuleOptions } from "@mercurjs/types"
+import { DashboardModuleOptions, ServingMode } from "@mercurjs/types"
 import { Logger } from "@medusajs/medusa"
-
-export type ServingMode = "vite-proxy" | "static" | "default-page"
 
 export abstract class DashboardBase {
     protected readonly options_: DashboardModuleOptions
@@ -35,7 +33,8 @@ export abstract class DashboardBase {
     async onApplicationStart(): Promise<void> {
         await this.detectServingMode()
         if (!this.options_.disable) {
-            this.app_ = this.createApp()
+            this.app_ = this.createApp_()
+            // todo: do not hardcode port
             this.logger.info(`${this.appName} URL → http://localhost:9000${this.options_.path}`)
         }
     }
@@ -47,12 +46,12 @@ export abstract class DashboardBase {
     async detectServingMode(): Promise<void> {
         this.lastDetectionTime_ = Date.now()
 
-        if (await this.checkViteDevServer()) {
+        if (await this.checkViteDevServer_()) {
             this.servingMode_ = "vite-proxy"
             return
         }
 
-        if (this.checkBuiltFiles()) {
+        if (this.checkBuiltFiles_()) {
             this.servingMode_ = "static"
             return
         }
@@ -91,7 +90,7 @@ export abstract class DashboardBase {
         return this.app_
     }
 
-    private createApp(): express.Express {
+    private createApp_(): express.Express {
         const app = express()
         const route = this.options_.path!
 
@@ -109,7 +108,7 @@ export abstract class DashboardBase {
             if (fs.existsSync(indexPath)) {
                 res.sendFile(path.resolve(indexPath))
             } else {
-                this.sendDefaultPage(res)
+                this.sendDefaultPage_(res)
             }
         })
 
@@ -129,7 +128,7 @@ export abstract class DashboardBase {
 
                 case "default-page":
                 default: {
-                    this.sendDefaultPage(res)
+                    this.sendDefaultPage_(res)
                     return
                 }
             }
@@ -138,11 +137,11 @@ export abstract class DashboardBase {
         return app
     }
 
-    private sendDefaultPage(res: express.Response): void {
+    private sendDefaultPage_(res: express.Response): void {
         res.status(200).type("html").send("Dashboard not built")
     }
 
-    private checkViteDevServer(): Promise<boolean> {
+    private checkViteDevServer_(): Promise<boolean> {
         const host = this.options_.viteDevServerHost ?? "localhost"
         const port = this.options_.viteDevServerPort
 
@@ -163,7 +162,7 @@ export abstract class DashboardBase {
         })
     }
 
-    private checkBuiltFiles(): boolean {
+    private checkBuiltFiles_(): boolean {
         return fs.existsSync(path.join(this.options_.appDir, "index.html"))
     }
 }

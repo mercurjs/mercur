@@ -46,6 +46,7 @@ export function dashboardPlugin(): Vite.Plugin {
             root = viteConfig.root || process.cwd()
             config = await loadMercurConfig(root)
             return {
+                base: config.base,
                 define: {
                     "__BACKEND_URL__": JSON.stringify(config.backendUrl),
                 },
