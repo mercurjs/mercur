@@ -109,7 +109,11 @@ export abstract class DashboardBase {
             }
         })
 
-        app.use(route, async (req, res, next) => {
+        app.use(async (req, res, next) => {
+            if (!req.url.startsWith(route)) {
+                return next()
+            }
+
             await this.maybeRedetect()
 
             switch (this.servingMode_) {
