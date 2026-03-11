@@ -52,12 +52,12 @@ function resolvePluginRoot(resolve: string, configDir: string, nodeModulesRoot: 
     }
 }
 
-function resolvePluginDirs(
+function resolvePluginExtensions(
     plugins: any[],
     configDir: string,
 ): string[] {
     const nodeModulesRoot = findNodeModulesRoot(configDir)
-    const dirs: string[] = []
+    const extensions: string[] = []
     const appTypes = ["admin", "vendor"] as const
 
     for (const plugin of plugins) {
@@ -71,17 +71,17 @@ function resolvePluginDirs(
         if (!pluginRoot) continue
 
         for (const appType of appTypes) {
-            const extDir = path.join(pluginRoot, '.medusa/server/src', appType)
-            if (fs.existsSync(extDir) && fs.statSync(extDir).isDirectory()) {
-                dirs.push(extDir)
+            const extFile = path.join(pluginRoot, '.medusa/server/src', appType, 'index.js')
+            if (fs.existsSync(extFile)) {
+                extensions.push(extFile)
             }
         }
     }
 
-    return dirs
+    return extensions
 }
 
-async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise<{ base?: string; pluginDirs: string[] }> {
+async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise<{ base?: string; pluginExtensions: string[] }> {
     try {
         const mod = await getFileExports(medusaConfigPath)
         const medusaConfig = mod.default ?? mod
@@ -104,11 +104,11 @@ async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise
         }
 
         const plugins = medusaConfig?.plugins ?? []
-        const pluginDirs = resolvePluginDirs(plugins, configDir)
+        const pluginExtensions = resolvePluginExtensions(plugins, configDir)
 
-        return { base, pluginDirs }
+        return { base, pluginExtensions }
     } catch {
-        return { pluginDirs: [] }
+        return { pluginExtensions: [] }
     }
 }
 
@@ -122,7 +122,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
             root = viteConfig.root || process.cwd()
 
             const medusaConfigPath = path.resolve(root, pluginConfig.medusaConfigPath)
-            const { base, pluginDirs } = await loadMedusaConfig(medusaConfigPath, root)
+            const { base, pluginExtensions } = await loadMedusaConfig(medusaConfigPath, root)
 
             const srcDir = path.join(root, "src")
             const backendUrl = pluginConfig.backendUrl ?? "http://localhost:9000"
@@ -133,7 +133,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                 base,
                 root,
                 srcDir,
-                pluginDirs,
+                pluginExtensions,
             }
 
             return {

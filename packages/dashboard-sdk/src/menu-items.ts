@@ -172,7 +172,7 @@ function parseFile(
     }
 }
 
-export function generateMenuItems({ srcDir, pluginDirs }: BuiltMercurConfig): string {
+export function generateMenuItems({ srcDir, pluginExtensions }: BuiltMercurConfig): string {
     const pagesDir = path.join(srcDir, "pages")
 
     let index = 0
@@ -187,29 +187,29 @@ export function generateMenuItems({ srcDir, pluginDirs }: BuiltMercurConfig): st
         }
     }
 
-    // Plugin pages
-    for (const pluginDir of pluginDirs) {
-        for (const file of crawlPages(pluginDir)) {
-            const result = parseFile(file, pluginDir, index)
-            if (result) {
-                results.push(result)
-                index++
-            }
-        }
-    }
+    // Plugin extension imports
+    const pluginImports = pluginExtensions.map((ext, i) =>
+        `import __plugin${i} from "${normalizePath(ext)}"`
+    )
+    const pluginSpreads = pluginExtensions.map((_, i) =>
+        `        ...(__plugin${i}.menuItemModule?.menuItems ?? [])`
+    )
 
-    if (results.length === 0) {
+    const appImports = results.map((r) => r.import)
+    const appMenuItems = results.map((r) => formatMenuItem(r.menuItem))
+
+    const allImports = [...appImports, ...pluginImports]
+    const allMenuItems = [...appMenuItems, ...pluginSpreads]
+
+    if (allImports.length === 0 && allMenuItems.length === 0) {
         return `export default { menuItems: [] }`
     }
 
-    const imports = results.map((r) => r.import)
-    const menuItems = results.map((r) => formatMenuItem(r.menuItem))
-
-    return `${imports.join("\n")}
+    return `${allImports.join("\n")}
 
 export default {
     menuItems: [
-${menuItems.join(",\n")}
+${allMenuItems.join(",\n")}
     ]
 }`
 }

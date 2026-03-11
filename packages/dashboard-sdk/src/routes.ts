@@ -237,7 +237,7 @@ function buildRouteTree(results: RouteResult[]): RouteResult[] {
     return Array.from(routeMap.values())
 }
 
-export function generateRoutes({ srcDir, pluginDirs }: BuiltMercurConfig): string {
+export function generateRoutes({ srcDir, pluginExtensions }: BuiltMercurConfig): string {
     const pagesDir = path.join(srcDir, "pages")
 
     let index = 0
@@ -252,27 +252,28 @@ export function generateRoutes({ srcDir, pluginDirs }: BuiltMercurConfig): strin
         }
     }
 
-    for (const pluginDir of pluginDirs) {
-        for (const file of crawlPages(pluginDir)) {
-            const result = parseFile(file, pluginDir, index)
-            if (result) {
-                results.push(result)
-                index++
-            }
-        }
-    }
+    // Plugin extension imports
+    const pluginImports = pluginExtensions.map((ext, i) =>
+        `import __plugin${i} from "${normalizePath(ext)}"`
+    )
+    const pluginSpreads = pluginExtensions.map((_, i) =>
+        `    ...(__plugin${i}.routeModule?.routes ?? [])`
+    )
 
-    if (results.length === 0) {
+    const routeTree = buildRouteTree(results)
+    const appImports = routeTree.flatMap((r) => r.imports)
+    const appRoutes = routeTree.map((r) => formatRoute(r.route))
+
+    const allImports = [...appImports, ...pluginImports]
+    const allRoutes = [...appRoutes, ...pluginSpreads]
+
+    if (allImports.length === 0 && allRoutes.length === 0) {
         return `export const customRoutes = []`
     }
 
-    const routeTree = buildRouteTree(results)
-    const imports = routeTree.flatMap((result) => result.imports)
-    const routes = routeTree.map((result) => formatRoute(result.route))
-
-    return `${imports.join("\n")}
+    return `${allImports.join("\n")}
 
 export const customRoutes = [
-${routes.join(",\n")}
+${allRoutes.join(",\n")}
 ]`
 }
