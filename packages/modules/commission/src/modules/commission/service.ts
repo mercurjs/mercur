@@ -1,21 +1,21 @@
-import { MedusaService } from "@medusajs/framework/utils";
+import { MedusaService } from '@medusajs/framework/utils';
 
-import { CommissionRate, CommissionRule } from "./models";
-import { CommissionLine } from "./models/commission_line";
+import { CommissionRate, CommissionRule } from './models';
+import { CommissionLine } from './models/commission_line';
 import {
   CommissionCalculationContext,
-  CommissionRuleDTO,
-} from "@mercurjs/framework";
+  CommissionRuleDTO
+} from '@mercurjs/framework';
 
 class CommissionModuleService extends MedusaService({
   CommissionRate,
   CommissionRule,
-  CommissionLine,
+  CommissionLine
 }) {
   private async selectCommissionRule(reference: string, reference_id: string) {
     const [rule] = await this.listCommissionRules(
       { reference, reference_id, is_active: true, deleted_at: null },
-      { relations: ["rate"] }
+      { relations: ['rate'] }
     );
 
     return rule;
@@ -31,17 +31,17 @@ class CommissionModuleService extends MedusaService({
   ): Promise<CommissionRuleDTO | null> {
     const ruleQueries = [
       {
-        reference: "seller+product_type",
-        reference_id: `${ctx.seller_id}+${ctx.product_type_id}`,
+        reference: 'seller+product_type',
+        reference_id: `${ctx.seller_id}+${ctx.product_type_id}`
       },
       {
-        reference: "seller+product_category",
-        reference_id: `${ctx.seller_id}+${ctx.product_category_id}`,
+        reference: 'seller+product_category',
+        reference_id: `${ctx.seller_id}+${ctx.product_category_id}`
       },
-      { reference: "seller", reference_id: ctx.seller_id },
-      { reference: "product_type", reference_id: ctx.product_type_id },
-      { reference: "product_category", reference_id: ctx.product_category_id },
-      { reference: "site", reference_id: "" },
+      { reference: 'seller', reference_id: ctx.seller_id },
+      { reference: 'product_type', reference_id: ctx.product_type_id },
+      { reference: 'product_category', reference_id: ctx.product_category_id },
+      { reference: 'site', reference_id: '' }
     ];
 
     for (const { reference, reference_id } of ruleQueries) {
@@ -52,6 +52,24 @@ class CommissionModuleService extends MedusaService({
     }
 
     return null;
+  }
+
+  async softDeleteLines(ids: string[]) {
+    return await this.updateCommissionLines(
+      ids.map((id) => ({
+        id,
+        deleted_at: new Date()
+      }))
+    );
+  }
+
+  async restoreLines(ids: string[]) {
+    return await this.updateCommissionLines(
+      ids.map((id) => ({
+        id,
+        deleted_at: null
+      }))
+    );
   }
 }
 
