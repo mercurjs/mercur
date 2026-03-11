@@ -1,13 +1,14 @@
 import { MiddlewareRoute, authenticate } from '@medusajs/framework';
 
 import { storeCartsMiddlewares } from './carts/middlewares';
+import { storeOrderEditsMiddlewares } from './order-edits/middlewares';
 import { storeOrderSetMiddlewares } from './order-set/middlewares';
+import { storeOrderMiddlewares } from './orders/middlewares';
 import { storeProductsMiddlewares } from './products/middlewares';
 import { storeReturnsMiddlewares } from './returns/middlewares';
 import { storeSellerMiddlewares } from './seller/middlewares';
 import { storeShippingOptionRoutesMiddlewares } from './shipping-options/middlewares';
 import { storeWishlistMiddlewares } from './wishlist/middlewares';
-import { storeOrderMiddlewares } from './orders/middlewares';
 
 export const storeMiddlewares: MiddlewareRoute[] = [
   {
@@ -20,10 +21,12 @@ export const storeMiddlewares: MiddlewareRoute[] = [
   },
   ...storeCartsMiddlewares,
   ...storeOrderSetMiddlewares,
+  ...storeOrderMiddlewares,
   ...storeProductsMiddlewares,
   ...storeSellerMiddlewares,
   ...storeShippingOptionRoutesMiddlewares,
   ...storeReturnsMiddlewares,
   ...storeWishlistMiddlewares,
-  ...storeOrderMiddlewares
+  ...storeOrderMiddlewares,
+  ...storeOrderEditsMiddlewares
 ];

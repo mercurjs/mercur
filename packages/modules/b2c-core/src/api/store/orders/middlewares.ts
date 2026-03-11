@@ -1,10 +1,15 @@
 import {
+  authenticate,
   MiddlewareRoute,
+  validateAndTransformBody,
   validateAndTransformQuery
 } from '@medusajs/framework';
 import { checkCustomerResourceOwnershipByResourceId } from '@mercurjs/framework';
 import { retrieveTransformQueryConfig } from './query-config';
-import { StoreGetOrdersOrderParams } from './validators';
+import {
+  StoreCancelOrderItemsSchema,
+  StoreGetOrdersOrderParams
+} from './validators';
 
 export const storeOrderMiddlewares: MiddlewareRoute[] = [
   {
@@ -18,6 +23,17 @@ export const storeOrderMiddlewares: MiddlewareRoute[] = [
         StoreGetOrdersOrderParams,
         retrieveTransformQueryConfig
       )
+    ]
+  },
+  {
+    method: ['POST'],
+    matcher: '/store/orders/:id/items/cancel',
+    middlewares: [
+      authenticate('customer', ['bearer', 'session']),
+      checkCustomerResourceOwnershipByResourceId({
+        entryPoint: 'order'
+      }),
+      validateAndTransformBody(StoreCancelOrderItemsSchema)
     ]
   }
 ];
