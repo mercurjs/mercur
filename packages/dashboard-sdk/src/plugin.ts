@@ -16,16 +16,37 @@ const UI_MODULE_KEYS = [
     "vendor_ui",
 ]
 
-function resolvePluginRoot(resolve: string, configDir: string): string | null {
+function findNodeModulesRoot(configDir: string): string {
+    // Walk up from configDir to find the nearest node_modules
+    let dir = configDir
+    while (dir !== path.dirname(dir)) {
+        const candidate = path.join(dir, "node_modules")
+        if (fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) {
+            return candidate
+        }
+        dir = path.dirname(dir)
+    }
+    return path.join(configDir, "node_modules")
+}
+
+function resolvePluginRoot(resolve: string, configDir: string, nodeModulesRoot: string): string | null {
     try {
         if (resolve.startsWith(".")) {
-            return path.resolve(configDir, resolve)
+            const resolved = path.resolve(configDir, resolve)
+            if (fs.existsSync(resolved)) {
+                return fs.realpathSync(resolved)
+            }
+            return null
         }
 
-        const pkgJsonPath = require.resolve(path.join(resolve, "package.json"), {
-            paths: [configDir],
-        })
-        return path.dirname(pkgJsonPath)
+        // Check in node_modules, following symlinks for workspace packages
+        const packagePath = path.join(nodeModulesRoot, resolve)
+        if (!fs.existsSync(packagePath)) {
+            return null
+        }
+
+        // Follow symlinks (handles workspace/linked packages)
+        return fs.realpathSync(packagePath)
     } catch {
         return null
     }
@@ -36,6 +57,7 @@ function resolvePluginDirs(
     configDir: string,
     appType: "admin" | "vendor"
 ): string[] {
+    const nodeModulesRoot = findNodeModulesRoot(configDir)
     const dirs: string[] = []
 
     for (const plugin of plugins) {
@@ -45,7 +67,7 @@ function resolvePluginDirs(
 
         if (!resolve || typeof resolve !== "string") continue
 
-        const pluginRoot = resolvePluginRoot(resolve, configDir)
+        const pluginRoot = resolvePluginRoot(resolve, configDir, nodeModulesRoot)
         if (!pluginRoot) continue
 
         const extDir = path.join(pluginRoot, appType)
