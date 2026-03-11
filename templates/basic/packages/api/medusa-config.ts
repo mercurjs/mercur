@@ -33,6 +33,9 @@ module.exports = defineConfig({
         appDir: path.join(__dirname, '../../apps/vendor'),
         path: '/seller'
       } as DashboardModuleOptions
+    },
+    {
+      resolve: '@mercurjs/core-plugin/modules/codegen',
     }
   ],
   plugins: [{

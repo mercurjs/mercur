@@ -18,12 +18,10 @@
     "medusa"
   ],
   "scripts": {
-    "build": "npx @mercurjs/cli@canary codegen && medusa build",
+    "build": "medusa build",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start",
-    "dev:medusa": "medusa develop",
-    "dev": "concurrently --kill-others npm:dev:*",
-    "dev:codegen": "npx @mercurjs/cli@canary codegen --watch",
+    "dev": "medusa develop",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
@@ -36,8 +34,8 @@
     "@medusajs/admin-shared": "^2.13.3",
     "@medusajs/medusa": "^2.13.3",
     "@medusajs/draft-order": "2.13.3",
-    "@mercurjs/core-plugin": "2.0.0-canary.70",
-    "@mercurjs/types": "2.0.0-canary.70",
+    "@mercurjs/core-plugin": "2.0.0-canary.71",
+    "@mercurjs/types": "2.0.0-canary.71",
     "zod": "3.25.76",
     "http-proxy-middleware": "^3.0.3"
   },
@@ -54,8 +52,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "ts-node": "^10.9.2",
-    "concurrently": "^9.2.1",
-    "typescript": "5.9.3",
+"typescript": "5.9.3",
     "vite": "^5.4.21",
     "yalc": "^1.0.0-pre.53"
   },
