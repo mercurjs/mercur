@@ -187,9 +187,12 @@ export function generateMenuItems({ srcDir, pluginExtensions }: BuiltMercurConfi
         }
     }
 
-    // Plugin extension imports
+    // Plugin extension imports (CJS modules — use namespace import)
     const pluginImports = pluginExtensions.map((ext, i) =>
-        `import __plugin${i} from "${normalizePath(ext)}"`
+        `import * as __pluginRaw${i} from "${normalizePath(ext)}"`
+    )
+    const pluginUnwraps = pluginExtensions.map((_, i) =>
+        `const __plugin${i} = __pluginRaw${i}.default ?? __pluginRaw${i}`
     )
     const pluginSpreads = pluginExtensions.map((_, i) =>
         `        ...(__plugin${i}.menuItemModule?.menuItems ?? [])`
@@ -198,7 +201,7 @@ export function generateMenuItems({ srcDir, pluginExtensions }: BuiltMercurConfi
     const appImports = results.map((r) => r.import)
     const appMenuItems = results.map((r) => formatMenuItem(r.menuItem))
 
-    const allImports = [...appImports, ...pluginImports]
+    const allImports = [...appImports, ...pluginImports, ...pluginUnwraps]
     const allMenuItems = [...appMenuItems, ...pluginSpreads]
 
     if (allImports.length === 0 && allMenuItems.length === 0) {

@@ -252,9 +252,12 @@ export function generateRoutes({ srcDir, pluginExtensions }: BuiltMercurConfig):
         }
     }
 
-    // Plugin extension imports
+    // Plugin extension imports (CJS modules — use namespace import)
     const pluginImports = pluginExtensions.map((ext, i) =>
-        `import __plugin${i} from "${normalizePath(ext)}"`
+        `import * as __pluginRaw${i} from "${normalizePath(ext)}"`
+    )
+    const pluginUnwraps = pluginExtensions.map((_, i) =>
+        `const __plugin${i} = __pluginRaw${i}.default ?? __pluginRaw${i}`
     )
     const pluginSpreads = pluginExtensions.map((_, i) =>
         `    ...(__plugin${i}.routeModule?.routes ?? [])`
@@ -264,7 +267,7 @@ export function generateRoutes({ srcDir, pluginExtensions }: BuiltMercurConfig):
     const appImports = routeTree.flatMap((r) => r.imports)
     const appRoutes = routeTree.map((r) => formatRoute(r.route))
 
-    const allImports = [...appImports, ...pluginImports]
+    const allImports = [...appImports, ...pluginImports, ...pluginUnwraps]
     const allRoutes = [...appRoutes, ...pluginSpreads]
 
     if (allImports.length === 0 && allRoutes.length === 0) {
