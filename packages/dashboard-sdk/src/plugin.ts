@@ -103,7 +103,7 @@ async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise
             }
         }
 
-        const plugins = medusaConfig?.plugins ?? []
+        const plugins = medusaConfig?.plugins?.filter((plugin: { resolve: string }) => plugin.resolve !== '@medusajs/draft-order') ?? [];
         const pluginExtensions = resolvePluginExtensions(plugins, configDir)
 
         return { base, pluginExtensions }
