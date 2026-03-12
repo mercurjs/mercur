@@ -1192,7 +1192,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Linking shipping options to seller...");
   const shippingOptions = await fulfillmentModuleService.listShippingOptions({
-    service_zone_id: fulfillmentSetWithZones.service_zones.map((z) => z.id),
+    service_zone: { id: fulfillmentSetWithZones.service_zones.map((z) => z.id) },
   });
   for (const option of shippingOptions) {
     try {
