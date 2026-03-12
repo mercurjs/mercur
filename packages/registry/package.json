@@ -13,7 +13,7 @@
 		"@medusajs/framework": "^2.13.3",
 		"@medusajs/medusa": "^2.13.3",
 		"@mercurjs/dashboard-shared": "workspace:*",
-		"@mercurjs/dashboard-sdk": "workspace:*",
+		"@mercurjs/dashboard-sdk": "*",
 		"@medusajs/ui": "4.1.1",
 		"@medusajs/icons": "2.13.3",
 		"@tanstack/react-query": "5.64.2",
