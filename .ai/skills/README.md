@@ -17,6 +17,9 @@ Rules:
 
 ## Available shared skills
 
+- `mercur-cli` — use Mercur CLI commands correctly for create/init/add/search/view/diff flows
+- `mercur-blocks` — discover, evaluate, add, and verify blocks safely using `blocks.json`
+- `medusa-ui-conformance` — keep custom dashboard UI aligned with local wrappers, `@medusajs/ui`, and Radix primitives
 - `compound-components-migration-review` — review admin Compound Component migrations
 - `cc-alignment` — align CC pages to vendor standard naming/structure, fix DTS build blockers
 - `admin-ui-review` — review admin UI code for pattern consistency, anti-patterns, i18n

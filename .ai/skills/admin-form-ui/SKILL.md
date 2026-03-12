@@ -14,6 +14,8 @@ Use this skill when:
 
 **Not for**: creating tabbed wizard forms (use `admin-tab-ui`), creating pages/sections (use `admin-page-ui`).
 
+Before introducing new custom field wrappers, overlays, selectors, or interactive form primitives, first apply `medusa-ui-conformance`.
+
 Read next (as needed):
 - `references/form-field-patterns.md` — exact code examples for every field type
 - `references/drawer-modal-patterns.md` — RouteDrawer and RouteFocusModal form structure

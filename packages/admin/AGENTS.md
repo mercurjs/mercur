@@ -29,6 +29,7 @@ Treat these as public:
 ## Preferred Patterns
 
 - **All API hooks in `src/hooks/api/` MUST use the typed `sdk` client.** Using `fetchQuery` for internal Mercur API calls is forbidden. `fetchQuery` is only allowed for external/third-party API calls.
+- When adding or modifying custom UI, load `medusa-ui-conformance` first. Prefer existing local wrappers, then `@medusajs/ui`, then Radix primitives only for real gaps.
 - Keep page anatomy explicit and predictable.
 - Prefer existing schema-driven validation patterns over ad hoc runtime checks.
 - Reuse shared client utilities and typed backend contracts where possible.

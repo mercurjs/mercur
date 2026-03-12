@@ -145,6 +145,9 @@ Runtime-specific mirrors exist in `.claude/skills/` (Claude Code) and `.codex/sk
 
 | Skill | Path | Use when |
 |-------|------|----------|
+| `mercur-cli` | `.ai/skills/mercur-cli/SKILL.md` | Choosing and using Mercur CLI commands for create/init/add/search/view/diff workflows |
+| `mercur-blocks` | `.ai/skills/mercur-blocks/SKILL.md` | Discovering, evaluating, adding, and diffing Mercur blocks safely |
+| `medusa-ui-conformance` | `.ai/skills/medusa-ui-conformance/SKILL.md` | Adding or modifying reusable admin/vendor UI, especially custom interactive components or Medusa/Radix composition |
 | `compound-components-migration-review` | `.ai/skills/compound-components-migration-review/SKILL.md` | Reviewing admin Compound Component migrations |
 | `cc-alignment` | `.ai/skills/cc-alignment/SKILL.md` | Aligning CC pages to vendor standard naming/structure, fixing DTS build blockers |
 | `admin-ui-review` | `.ai/skills/admin-ui-review/SKILL.md` | Reviewing admin UI code for pattern consistency, anti-patterns, i18n |

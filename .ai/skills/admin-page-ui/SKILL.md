@@ -16,6 +16,8 @@ Use this skill when:
 
 **Not for**: form fields inside pages (use `admin-form-ui`), tabbed wizard forms (use `admin-tab-ui`).
 
+Before building new custom UI, first apply `medusa-ui-conformance`.
+
 Read next (as needed):
 - `references/list-page-patterns.md` — list page compound component structure
 - `references/detail-page-patterns.md` — detail page sections, Container cards, SectionRow

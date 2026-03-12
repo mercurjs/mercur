@@ -30,6 +30,7 @@ Treat these as public:
 ## Preferred Patterns
 
 - **All API hooks in `src/hooks/api/` MUST use the typed `sdk` client.** Using `fetchQuery` for internal Mercur API calls is forbidden. `fetchQuery` is only allowed for external/third-party API calls. See `src/hooks/api/products.tsx` for reference.
+- When adding or modifying custom UI, load `medusa-ui-conformance` first. Prefer existing local wrappers, then `@medusajs/ui`, then Radix primitives only for real interaction gaps.
 - Prefer typed client usage through shared vendor utilities over scattered one-off request code.
 - Keep route and page composition aligned with existing file-based routing expectations.
 - Use schema-driven forms for user-input-heavy flows.

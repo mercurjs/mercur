@@ -12,6 +12,8 @@ Use this skill when:
 
 **Not for**: form fields inside tabs (use `admin-form-ui` for field patterns), page structure (use `admin-page-ui`).
 
+Before introducing custom interactive UI inside a tab, first apply `medusa-ui-conformance`.
+
 Read next (as needed):
 - `references/tab-anatomy.md` — exact code structure for tabs with sections
 
