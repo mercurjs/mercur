@@ -24,6 +24,16 @@ export const defaultProductSettings: IndexSettings = {
     'categories.name',
     'collection.title',
     'variants.title'
+  ],
+  attributesForFaceting: [
+    'filterOnly(categories.id)',
+    'filterOnly(seller.handle)',
+    'filterOnly(seller.store_status)',
+    'filterOnly(seller.id)',
+    'filterOnly(supported_countries)',
+    'filterOnly(variants.prices.currency_code)',
+    'searchable(attribute_values.name)',
+    'searchable(attribute_values.value)'
   ]
 }
 

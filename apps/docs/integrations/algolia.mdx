@@ -10,11 +10,115 @@ Mercur uses <a href="https://www.algolia.com/">Algolia</a> as a search engine to
 
 In order to use Algolia, an account is needed. After registration, enter `ALGOLIA_APP_ID` and `ALGOLIA_API_KEY` obtained from the Algolia dashboard into the `.env` file.
 
+```bash
+ALGOLIA_APP_ID=your_app_id
+ALGOLIA_API_KEY=your_admin_api_key
+```
+
+For the storefront, you also need to configure the public search key:
+
+```bash
+NEXT_PUBLIC_ALGOLIA_ID=your_app_id
+NEXT_PUBLIC_ALGOLIA_SEARCH_KEY=your_search_only_api_key
+```
+
 ### Configuration
 
 <a href="https://www.algolia.com/doc/rest-api/search/#tag/Indices/operation/setSettings">
   See the full settings reference here!
 </a>
+
+#### Required Index Settings
+
+To ensure proper product filtering and display on the storefront, you **must** configure the following settings in your Algolia product index:
+
+##### Attributes for Faceting
+
+The following attributes must be configured in your Algolia index settings to enable proper filtering:
+
+**Required for core functionality:**
+- `categories.id` - Filter products by category
+- `seller.handle` - Filter products by vendor/seller
+- `seller.store_status` - Filter out suspended sellers
+- `seller.id` - Filter by specific seller
+- `supported_countries` - Filter products available in specific countries
+- `variants.prices.currency_code` - Filter products with prices in specific currency
+
+**Recommended for product attributes:**
+- `attribute_values.name` - Searchable product attribute names
+- `attribute_values.value` - Searchable product attribute values
+
+##### Default Product Facets
+
+The storefront uses the following default facets for product filtering:
+- `variants.condition` - Product condition (e.g., new, used, refurbished)
+- `variants.color` - Product color options
+- `variants.size` - Product size options
+
+##### Example Configuration
+
+You can configure these settings manually in the Algolia Dashboard or use the following configuration:
+
+```json
+{
+  "settings": {
+    "minWordSizefor1Typo": 4,
+    "minWordSizefor2Typos": 8,
+    "hitsPerPage": 20,
+    "maxValuesPerFacet": 100,
+    "attributesForFaceting": [
+      "categories.id",
+      "seller.handle",
+      "seller.store_status",
+      "seller.id",
+      "supported_countries",
+      "variants.prices.currency_code",
+      "searchable(attribute_values.name)",
+      "searchable(attribute_values.value)"
+    ],
+    "searchableAttributes": [
+      "title",
+      "subtitle",
+      "tags.value",
+      "type.value",
+      "categories.name",
+      "collection.title",
+      "variants.title"
+    ],
+    "paginationLimitedTo": 1000,
+    "exactOnSingleWordQuery": "attribute",
+    "ranking": [
+      "typo",
+      "geo",
+      "words",
+      "filters",
+      "proximity",
+      "attribute",
+      "exact",
+      "custom"
+    ],
+    "queryType": "prefixLast",
+    "highlightPreTag": "<em>",
+    "highlightPostTag": "</em>",
+    "alternativesAsExact": [
+      "ignorePlurals",
+      "singleWordSynonym"
+    ]
+  }
+}
+```
+
+**Important:** After updating the index settings in Algolia, you should re-sync your products to ensure the new configuration is applied correctly.
+
+#### Product Visibility Requirements
+
+For a product to be visible on the storefront via Algolia search, it must meet **all** of the following conditions:
+
+1. **Product Status:** Must be `published`
+2. **Seller Assignment:** Product must have an assigned seller with status `ACTIVE` (not `SUSPENDED`)
+3. **Geographic Availability:** Product's `supported_countries` must include the target country code
+4. **Pricing:** All variants must have prices in the appropriate currency with `amount > 0`
+5. **Inventory:** Variants must have properly configured inventory locations with fulfillment sets for the target country
 
 ### Events
 
@@ -32,3 +136,17 @@ We use also intermediate events, that also should trigger synchronization with A
 - `algolia.intermediate.inventory_item.changed`
 
 Each event is connected to the subscriber, which is responsible for refetching the entity and updating it in Algolia.
+
+### Troubleshooting
+
+#### Products not showing on storefront
+
+If your products are indexed in Algolia but not appearing on the storefront, verify:
+
+1. Check Algolia index settings include all required `attributesForFaceting`
+2. Verify product has `supported_countries` containing the target country
+3. Ensure all variants have prices in the correct currency
+4. Confirm seller status is `ACTIVE` and not `SUSPENDED`
+5. Check that product status is `published`
+
+You can inspect your Algolia index in the Algolia Dashboard to see the actual data and applied filters.
