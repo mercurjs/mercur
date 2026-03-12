@@ -71,7 +71,7 @@ function resolvePluginExtensions(
         if (!pluginRoot) continue
 
         for (const appType of appTypes) {
-            const extFile = path.join(pluginRoot, '.medusa/server/src', appType, 'index.js')
+            const extFile = path.join(pluginRoot, '.medusa/server/src', appType, 'index.mjs')
             if (fs.existsSync(extFile)) {
                 extensions.push(extFile)
             }
