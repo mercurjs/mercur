@@ -1,4 +1,5 @@
 import type { ParserOptions } from "@babel/parser"
+import { createRequire } from "node:module"
 import { traverse } from "./babel"
 
 export function normalizePath(filePath: string): string {
@@ -29,9 +30,13 @@ export function resolveExports(moduleExports: any) {
     return moduleExports
 }
 
-export async function getFileExports(path: string): Promise<any> {
+const esmRequire = typeof require !== "undefined"
+    ? require
+    : createRequire(import.meta.url)
+
+export async function getFileExports(filePath: string): Promise<any> {
     const { unregister } = await safeRegister()
-    const module = require(path)
+    const module = esmRequire(filePath)
     unregister()
 
     return resolveExports(module)
