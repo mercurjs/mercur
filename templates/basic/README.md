@@ -133,6 +133,28 @@ To build all apps and packages:
 npm run build
 ```
 
+## Working with AI agents
+
+Projects created from this starter include an AI knowledge pack.
+
+Start here:
+- `AGENTS.md` — root task router and starter contract surfaces
+- `.ai/skills/` — canonical shared skills for Mercur CLI, blocks, and admin UI patterns
+- `packages/api/AGENTS.md` — backend extension guide
+- `apps/admin/AGENTS.md` — admin extension guide
+- `apps/vendor/AGENTS.md` — vendor extension guide
+
+The starter ships focused operational knowledge for:
+- Mercur CLI workflows
+- discovering and installing blocks
+- extending backend code in `packages/api`
+- extending admin and vendor apps
+- using stable admin page, form, and tab UI patterns
+
+Runtime-specific skill mirrors are also included for:
+- `.claude/skills/`
+- `.codex/skills/`
+
 ## Questions
 
 If you have any issues or questions start a [GitHub discussion](https://github.com/mercurjs/mercur/discussions).
