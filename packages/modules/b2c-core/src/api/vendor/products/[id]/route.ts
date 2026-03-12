@@ -1,23 +1,21 @@
 import {
   AuthenticatedMedusaRequest,
   MedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import {
-  deleteProductsWorkflow,
-  updateProductsWorkflow,
-} from "@medusajs/medusa/core-flows";
+  MedusaResponse
+} from '@medusajs/framework';
+import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils';
+import { deleteProductsWorkflow } from '@medusajs/medusa/core-flows';
 
-import { fetchSellerByAuthActorId } from "../../../../shared/infra/http/utils";
-import { fetchProductDetails } from "../../../../shared/infra/http/utils/products";
-import { transformProductWithInformationalAttributes } from "../utils/transform-product-attributes";
+import { fetchSellerByAuthActorId } from '../../../../shared/infra/http/utils';
+import { fetchProductDetails } from '../../../../shared/infra/http/utils/products';
+import { transformProductWithInformationalAttributes } from '../utils/transform-product-attributes';
 import {
   VendorGetProductParamsType,
-  VendorUpdateProductType,
-} from "../validators";
-import { ProductUpdateRequestUpdatedEvent } from "@mercurjs/framework";
-import { fetchProductSecondaryCategoryDetails } from "../utils";
+  VendorUpdateProductType
+} from '../validators';
+import { ProductUpdateRequestUpdatedEvent } from '@mercurjs/framework';
+import { fetchProductSecondaryCategoryDetails } from '../utils';
+import { updateProductWithVariantImagesWorkflow } from '../../../../workflows/product';
 
 /**
  * @oas [get] /vendor/products/{id}
@@ -61,23 +59,31 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
   const {
-    data: [product],
+    data: [product]
   } = await query.graph(
     {
-      entity: "product",
+      entity: 'product',
       fields: req.queryConfig.fields,
-      filters: { id: req.params.id },
+      filters: { id: req.params.id }
     },
     { throwIfKeyNotFound: true }
   );
 
-  const secondaryCategoryDetails = await fetchProductSecondaryCategoryDetails(req.scope, product.secondary_categories);
+  const secondaryCategoryDetails = await fetchProductSecondaryCategoryDetails(
+    req.scope,
+    product.secondary_categories
+  );
 
   const transformedProduct = transformProductWithInformationalAttributes(
     product as any
   );
 
-  res.json({ product: { ...transformedProduct, secondary_categories: secondaryCategoryDetails } });
+  res.json({
+    product: {
+      ...transformedProduct,
+      secondary_categories: secondaryCategoryDetails
+    }
+  });
 };
 
 /**
@@ -128,17 +134,19 @@ export const POST = async (
 
   const { additional_data, ...update } = req.validatedBody;
 
-  const { result } = await updateProductsWorkflow(req.scope).run({
+  const { result } = await updateProductWithVariantImagesWorkflow(
+    req.scope
+  ).run({
     input: {
       // @ts-expect-error: updateProductsWorkflow does not support null values
       update,
       selector: { id: req.params.id },
-      additional_data,
-    },
+      additional_data
+    }
   });
 
   const productDetails = await fetchProductDetails(req.params.id, req.scope);
-  if (!["draft", "proposed"].includes(productDetails.status)) {
+  if (!['draft', 'proposed'].includes(productDetails.status)) {
     const seller = await fetchSellerByAuthActorId(
       req.auth_context.actor_id,
       req.scope
@@ -150,27 +158,32 @@ export const POST = async (
         data: {
           data: { product_id: req.params.id, title: productDetails.title },
           submitter_id: req.auth_context.actor_id,
-          type: "product_update",
+          type: 'product_update'
         },
-        seller_id: seller.id,
-      },
+        seller_id: seller.id
+      }
     });
   }
 
   const {
-    data: [product],
+    data: [product]
   } = await query.graph(
     {
-      entity: "product",
+      entity: 'product',
       fields: req.queryConfig.fields,
-      filters: { id: result[0].id },
+      filters: { id: result[0].id }
     },
     { throwIfKeyNotFound: true }
   );
 
-  const secondaryCategoryDetails = await fetchProductSecondaryCategoryDetails(req.scope, product.secondary_categories);
+  const secondaryCategoryDetails = await fetchProductSecondaryCategoryDetails(
+    req.scope,
+    product.secondary_categories
+  );
 
-  res.json({ product: { ...product, secondary_categories: secondaryCategoryDetails } });
+  res.json({
+    product: { ...product, secondary_categories: secondaryCategoryDetails }
+  });
 };
 
 /**
@@ -216,9 +229,9 @@ export const DELETE = async (
   const { id } = req.params;
   await deleteProductsWorkflow(req.scope).run({
     input: {
-      ids: [id],
-    },
+      ids: [id]
+    }
   });
 
-  res.json({ id, object: "product", deleted: true });
+  res.json({ id, object: 'product', deleted: true });
 };
