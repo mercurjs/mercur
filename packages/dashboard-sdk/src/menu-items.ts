@@ -274,12 +274,9 @@ export function generateMenuItems({ srcDir, pluginExtensions }: BuiltMercurConfi
         }
     }
 
-    // Plugin extension imports (CJS modules — use namespace import)
-    const pluginImports = pluginExtensions.map((ext, i) =>
-        `import * as __pluginRaw${i} from "${normalizePath(ext)}"`
-    )
-    const pluginUnwraps = pluginExtensions.map((_, i) =>
-        `const __plugin${i} = __pluginRaw${i}.default ?? __pluginRaw${i}`
+    // Plugin extensions — dynamic import to resolve .default
+    const pluginDeclarations = pluginExtensions.map((ext, i) =>
+        `const __plugin${i} = (await import("${normalizePath(ext)}")).default`
     )
     const pluginSpreads = pluginExtensions.map((_, i) =>
         `        ...(__plugin${i}.menuItemModule?.menuItems ?? [])`
@@ -288,14 +285,16 @@ export function generateMenuItems({ srcDir, pluginExtensions }: BuiltMercurConfi
     const appImports = results.map((r) => r.import)
     const appMenuItems = results.map((r) => formatMenuItem(r.menuItem))
 
-    const allImports = [...appImports, ...pluginImports, ...pluginUnwraps]
+    const allImports = [...appImports]
     const allMenuItems = [...appMenuItems, ...pluginSpreads]
 
-    if (allImports.length === 0 && allMenuItems.length === 0) {
+    if (allImports.length === 0 && pluginDeclarations.length === 0 && allMenuItems.length === 0) {
         return `export default { menuItems: [] }`
     }
 
     return `${allImports.join("\n")}
+
+${pluginDeclarations.join("\n")}
 
 export default {
     menuItems: [
