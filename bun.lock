@@ -38,7 +38,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.0.0-canary.71",
+      "version": "2.0.0-canary.73",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -98,7 +98,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.0.0-canary.71",
+      "version": "2.0.0-canary.73",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -137,7 +137,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.0.0-canary.71",
+      "version": "2.0.0-canary.73",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -154,7 +154,7 @@
     },
     "packages/core-plugin": {
       "name": "@mercurjs/core-plugin",
-      "version": "2.0.0-canary.71",
+      "version": "2.0.0-canary.73",
       "devDependencies": {
         "@medusajs/cli": "^2.13.3",
         "@medusajs/core-flows": "^2.13.3",
@@ -195,9 +195,11 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.0.0-canary.71",
+      "version": "2.0.0-canary.73",
       "dependencies": {
-        "esbuild-register": "^3.6.0",
+        "@babel/parser": "7.25.6",
+        "@babel/traverse": "7.25.6",
+        "@babel/types": "7.25.6",
       },
       "devDependencies": {
         "@types/node": "^22.0.0",
@@ -209,7 +211,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.0.0-canary.71",
+      "version": "2.0.0-canary.73",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -301,7 +303,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.0.0-canary.71",
+      "version": "2.0.0-canary.73",
       "dependencies": {
         "@medusajs/types": "2.13.3",
       },
@@ -311,7 +313,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.0.0-canary.71",
+      "version": "2.0.0-canary.73",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",

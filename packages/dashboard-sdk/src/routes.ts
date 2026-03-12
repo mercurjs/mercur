@@ -1,7 +1,16 @@
 import fs from "fs"
 import path from "path"
 import { VALID_FILE_EXTENSIONS } from "./constants"
-import { normalizePath } from "./utils"
+import { normalizePath, getParserOptions, hasDefaultExport } from "./utils"
+import {
+    parse,
+    traverse,
+    isBooleanLiteral,
+    isIdentifier,
+    isObjectProperty,
+    isVariableDeclaration,
+    isVariableDeclarator,
+} from "./babel"
 import type { BuiltMercurConfig } from "./types"
 
 type Route = {
@@ -65,43 +74,67 @@ function crawlPages(dir: string, pattern = "page"): string[] {
     return files
 }
 
-function hasDefaultExport(filePath: string): boolean {
-    try {
-        const content = fs.readFileSync(filePath, "utf-8")
-        return (
-            /export\s+default\s+/.test(content) ||
-            /export\s*\{\s*[^}]*\s+as\s+default\s*[,}]/.test(content)
-        )
-    } catch {
-        return false
-    }
+function hasConfigPublic(ast: any): boolean {
+    let found = false
+
+    traverse(ast, {
+        ExportNamedDeclaration(path: any) {
+            const declaration = path.node.declaration
+            if (!isVariableDeclaration(declaration)) return
+
+            for (const decl of declaration.declarations) {
+                if (
+                    isVariableDeclarator(decl) &&
+                    isIdentifier(decl.id, { name: "config" }) &&
+                    decl.init?.type === "ObjectExpression"
+                ) {
+                    const publicProp = decl.init.properties.find(
+                        (prop) =>
+                            isObjectProperty(prop) &&
+                            isIdentifier(prop.key, { name: "public" }) &&
+                            isBooleanLiteral(prop.value, { value: true })
+                    )
+                    if (publicProp) {
+                        found = true
+                    }
+                }
+            }
+        },
+    })
+
+    return found
 }
 
-function hasConfigPublic(filePath: string): boolean {
-    try {
-        const content = fs.readFileSync(filePath, "utf-8")
-        return /export\s+const\s+config\s*=\s*\{[^}]*public\s*:\s*true/.test(content)
-    } catch {
-        return false
-    }
-}
+function getNamedExports(ast: any): { hasHandle: boolean; hasLoader: boolean } {
+    let hasHandle = false
+    let hasLoader = false
 
-function getNamedExports(filePath: string): { hasHandle: boolean; hasLoader: boolean } {
-    try {
-        const content = fs.readFileSync(filePath, "utf-8")
+    traverse(ast, {
+        ExportNamedDeclaration(path: any) {
+            const declaration = path.node.declaration
 
-        const hasHandle =
-            /export\s+(const|function|async\s+function)\s+handle\b/.test(content) ||
-            /export\s*\{[^}]*\bhandle\b[^}]*\}/.test(content)
+            if (declaration?.type === "VariableDeclaration") {
+                declaration.declarations.forEach((decl: any) => {
+                    if (decl.id.type === "Identifier" && decl.id.name === "handle") {
+                        hasHandle = true
+                    }
+                    if (decl.id.type === "Identifier" && decl.id.name === "loader") {
+                        hasLoader = true
+                    }
+                })
+            }
 
-        const hasLoader =
-            /export\s+(const|function|async\s+function)\s+loader\b/.test(content) ||
-            /export\s*\{[^}]*\bloader\b[^}]*\}/.test(content)
+            if (declaration?.type === "FunctionDeclaration" && declaration.id?.name === "loader") {
+                hasLoader = true
+            }
 
-        return { hasHandle, hasLoader }
-    } catch {
-        return { hasHandle: false, hasLoader: false }
-    }
+            if (declaration?.type === "FunctionDeclaration" && declaration.id?.name === "handle") {
+                hasHandle = true
+            }
+        },
+    })
+
+    return { hasHandle, hasLoader }
 }
 
 function generateRouteComponentName(index: number): string {
@@ -187,20 +220,27 @@ function formatRoute(route: Route, indent: string = "    "): string {
 }
 
 function parseFile(file: string, pagesDir: string, index: number): RouteResult | null {
-    if (!hasDefaultExport(file)) {
+    try {
+        const code = fs.readFileSync(file, "utf-8")
+        const ast = parse(code, getParserOptions(file))
+
+        if (!hasDefaultExport(ast)) {
+            return null
+        }
+
+        const { hasHandle, hasLoader } = getNamedExports(ast)
+        const isPublic = hasConfigPublic(ast)
+        const routePath = getRoute(file, pagesDir)
+
+        const imports = generateImports(file, index, hasHandle, hasLoader)
+        const route = generateRouteObject(routePath, index, hasHandle, hasLoader, isPublic)
+
+        return {
+            imports,
+            route,
+        }
+    } catch {
         return null
-    }
-
-    const { hasHandle, hasLoader } = getNamedExports(file)
-    const isPublic = hasConfigPublic(file)
-    const routePath = getRoute(file, pagesDir)
-
-    const imports = generateImports(file, index, hasHandle, hasLoader)
-    const route = generateRouteObject(routePath, index, hasHandle, hasLoader, isPublic)
-
-    return {
-        imports,
-        route,
     }
 }
 
@@ -220,7 +260,7 @@ function buildRouteTree(results: RouteResult[]): RouteResult[] {
             const parent = routeMap.get(parentPath)
 
             if (parent) {
-                parent.route.children = parent.route.children || []
+                parent.route.children = parent.route.children ?? []
                 parent.route.children.push({
                     ...result.route,
                     path: result.route.path.replace("/@", "/"),

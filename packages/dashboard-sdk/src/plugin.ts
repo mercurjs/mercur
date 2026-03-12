@@ -1,7 +1,18 @@
 import type * as Vite from "vite"
 import path from "path"
 import fs from "fs"
-import { getFileExports } from "./utils"
+import { getParserOptions } from "./utils"
+import {
+    parse,
+    traverse,
+    isIdentifier,
+    isCallExpression,
+    isObjectExpression,
+    isObjectProperty,
+    isStringLiteral,
+    isArrayExpression,
+    isMemberExpression,
+} from "./babel"
 import { RESOLVED_ROUTES_MODULE } from "./constants"
 import { isVirtualModule, resolveVirtualModule, loadVirtualModule } from "./virtual-modules"
 import type { MercurConfig, BuiltMercurConfig } from "./types"
@@ -81,29 +92,150 @@ function resolvePluginExtensions(
     return extensions
 }
 
+function extractStringFromNode(node: any, configDir: string): string | null {
+    if (isStringLiteral(node)) {
+        return node.value
+    }
+
+    // Handle path.join(__dirname, 'relative') or path.resolve(__dirname, 'relative')
+    if (
+        isCallExpression(node) &&
+        isMemberExpression(node.callee) &&
+        isIdentifier(node.callee.object, { name: "path" }) &&
+        isIdentifier(node.callee.property) &&
+        (node.callee.property.name === "join" || node.callee.property.name === "resolve")
+    ) {
+        const args = node.arguments
+        if (args.length >= 2 && isIdentifier(args[0], { name: "__dirname" })) {
+            const parts = args.slice(1)
+                .filter((a: any) => isStringLiteral(a))
+                .map((a: any) => a.value)
+            if (parts.length > 0) {
+                return path.resolve(configDir, ...parts)
+            }
+        }
+    }
+
+    return null
+}
+
+function extractObjectProperties(node: any): any[] | null {
+    if (isObjectExpression(node)) {
+        return node.properties
+    }
+    return null
+}
+
 async function loadMedusaConfig(medusaConfigPath: string, root: string): Promise<{ base?: string; pluginExtensions: string[] }> {
     try {
-        const mod = await getFileExports(medusaConfigPath)
-        const medusaConfig = mod.default ?? mod
-
-        const modules = medusaConfig?.modules ?? {}
+        const code = fs.readFileSync(medusaConfigPath, "utf-8")
+        const ast = parse(code, getParserOptions(medusaConfigPath))
         const configDir = path.dirname(medusaConfigPath)
+
+        const result: { properties: any[] | null } = { properties: null }
+
+        traverse(ast, {
+            // Handle: export default defineConfig({ ... })
+            ExportDefaultDeclaration(nodePath: any) {
+                const decl = nodePath.node.declaration
+                if (isCallExpression(decl) && decl.arguments.length > 0) {
+                    result.properties = extractObjectProperties(decl.arguments[0])
+                }
+            },
+            // Handle: module.exports = defineConfig({ ... }) or module.exports = { ... }
+            AssignmentExpression(nodePath: any) {
+                const left = nodePath.node.left
+                if (
+                    isMemberExpression(left) &&
+                    isIdentifier(left.object, { name: "module" }) &&
+                    isIdentifier(left.property, { name: "exports" })
+                ) {
+                    const right = nodePath.node.right
+                    if (isCallExpression(right) && right.arguments.length > 0) {
+                        result.properties = extractObjectProperties(right.arguments[0])
+                    } else if (isObjectExpression(right)) {
+                        result.properties = right.properties as any[]
+                    }
+                }
+            },
+        })
+
+        const configObjectProperties = result.properties
+
+        if (!configObjectProperties) {
+            return { pluginExtensions: [] }
+        }
 
         let base: string | undefined
 
-        for (const key of UI_MODULE_KEYS) {
-            const value = modules[key]
-            if (!value || typeof value !== "object" || !value.options?.appDir) continue
+        // Extract modules
+        const modulesProp = configObjectProperties.find(
+            (p: any) => isObjectProperty(p) && isIdentifier(p.key, { name: "modules" })
+        )
 
-            const appDir = path.resolve(configDir, value.options.appDir)
+        if (modulesProp && isObjectProperty(modulesProp) && isObjectExpression(modulesProp.value)) {
+            for (const key of UI_MODULE_KEYS) {
+                const uiProp = modulesProp.value.properties.find(
+                    (p: any) => isObjectProperty(p) && isIdentifier(p.key, { name: key })
+                )
 
-            if (appDir === root) {
-                base = value.options.path
-                break
+                if (!uiProp || !isObjectProperty(uiProp) || !isObjectExpression(uiProp.value)) continue
+
+                const optionsProp = uiProp.value.properties.find(
+                    (p: any) => isObjectProperty(p) && isIdentifier(p.key, { name: "options" })
+                )
+
+                if (!optionsProp || !isObjectProperty(optionsProp) || !isObjectExpression(optionsProp.value)) continue
+
+                const appDirProp = optionsProp.value.properties.find(
+                    (p: any) => isObjectProperty(p) && isIdentifier(p.key, { name: "appDir" })
+                )
+
+                if (!appDirProp || !isObjectProperty(appDirProp)) continue
+
+                const appDir = extractStringFromNode(appDirProp.value, configDir)
+                if (!appDir) continue
+
+                const resolvedAppDir = path.isAbsolute(appDir)
+                    ? appDir
+                    : path.resolve(configDir, appDir)
+
+                if (resolvedAppDir === root) {
+                    const pathProp = optionsProp.value.properties.find(
+                        (p: any) => isObjectProperty(p) && isIdentifier(p.key, { name: "path" })
+                    )
+
+                    if (pathProp && isObjectProperty(pathProp) && isStringLiteral(pathProp.value)) {
+                        base = pathProp.value.value
+                    }
+                    break
+                }
             }
         }
 
-        const plugins = medusaConfig?.plugins ?? []
+        // Extract plugins
+        const plugins: any[] = []
+        const pluginsProp = configObjectProperties.find(
+            (p: any) => isObjectProperty(p) && isIdentifier(p.key, { name: "plugins" })
+        )
+
+        if (pluginsProp && isObjectProperty(pluginsProp) && isArrayExpression(pluginsProp.value)) {
+            for (const element of pluginsProp.value.elements) {
+                if (!element) continue
+
+                if (isObjectExpression(element)) {
+                    const resolveProp = element.properties.find(
+                        (p: any) => isObjectProperty(p) && isIdentifier(p.key, { name: "resolve" })
+                    )
+                    if (resolveProp && isObjectProperty(resolveProp) && isStringLiteral(resolveProp.value)) {
+                        plugins.push({ resolve: resolveProp.value.value })
+                    }
+                } else if (isStringLiteral(element)) {
+                    plugins.push({ resolve: element.value })
+                }
+            }
+        }
+
         const pluginExtensions = resolvePluginExtensions(plugins, configDir)
 
         return { base, pluginExtensions }

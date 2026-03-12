@@ -1,7 +1,19 @@
 import fs from "fs"
 import path from "path"
 import { VALID_FILE_EXTENSIONS } from "./constants"
-import { normalizePath } from "./utils"
+import { normalizePath, getParserOptions } from "./utils"
+import {
+    parse,
+    traverse,
+    isIdentifier,
+    isNumericLiteral,
+    isObjectProperty,
+    isStringLiteral,
+    isVariableDeclaration,
+    isVariableDeclarator,
+    isCallExpression,
+    isObjectExpression,
+} from "./babel"
 import type { BuiltMercurConfig } from "./types"
 
 type MenuItemConfig = {
@@ -72,41 +84,120 @@ function getRoute(file: string, pagesDir: string): string {
         ) || "/"
 }
 
-function hasConfigExport(filePath: string): boolean {
-    try {
-        const content = fs.readFileSync(filePath, "utf-8")
-        return (
-            /export\s+(const|let|var)\s+config\b/.test(content) ||
-            /export\s*\{[^}]*\bconfig\b[^}]*\}/.test(content)
-        )
-    } catch {
-        return false
+function getConfigObjectProperties(
+    path: any
+): any[] | null {
+    if (isVariableDeclarator(path.node)) {
+        const decl = isIdentifier(path.node.id, { name: "config" }) ? path.node : null
+        if (!decl) return null
+
+        if (
+            isCallExpression(decl.init) &&
+            decl.init.arguments.length > 0 &&
+            isObjectExpression(decl.init.arguments[0])
+        ) {
+            return decl.init.arguments[0].properties
+        }
+        if (isObjectExpression(decl.init)) {
+            return decl.init.properties
+        }
+        return null
     }
-}
 
-function getConfigProperties(filePath: string): MenuItemConfig | null {
-    try {
-        const content = fs.readFileSync(filePath, "utf-8")
-
-        const hasLabel =
-            /\blabel\s*[:=]/.test(content)
-
-        if (!hasLabel) {
-            return null
+    const declaration = path.node.declaration
+    if (isVariableDeclaration(declaration)) {
+        const configDecl = declaration.declarations.find(
+            (d: any) => isVariableDeclarator(d) && isIdentifier(d.id, { name: "config" })
+        )
+        if (
+            configDecl &&
+            isCallExpression(configDecl.init) &&
+            configDecl.init.arguments.length > 0 &&
+            isObjectExpression(configDecl.init.arguments[0])
+        ) {
+            return configDecl.init.arguments[0].properties
         }
 
-        const hasIcon = /\bicon\s*[:=]/.test(content)
+        // Also handle direct object expression (no wrapper call)
+        const directDecl = declaration.declarations.find(
+            (d: any) => isVariableDeclarator(d) && isIdentifier(d.id, { name: "config" })
+        )
+        if (directDecl && isObjectExpression(directDecl.init)) {
+            return directDecl.init.properties
+        }
+    }
 
-        const rankMatch = content.match(/\brank\s*:\s*(\d+)/)
-        const rank = rankMatch ? parseInt(rankMatch[1], 10) : undefined
+    return null
+}
 
-        const nestedMatch = content.match(/\bnested\s*:\s*["']([^"']+)["']/)
-        const nested = nestedMatch ? nestedMatch[1] : undefined
+function processConfigProperties(
+    properties: any[]
+): MenuItemConfig | null {
+    const hasProperty = (name: string) =>
+        properties.some(
+            (prop) => isObjectProperty(prop) && isIdentifier(prop.key, { name })
+        )
 
-        const translationNsMatch = content.match(/\btranslationNs\s*:\s*["']([^"']+)["']/)
-        const translationNs = translationNsMatch ? translationNsMatch[1] : undefined
+    const hasLabel = hasProperty("label")
+    if (!hasLabel) {
+        return null
+    }
 
-        return { label: hasLabel, icon: hasIcon, rank, nested, translationNs }
+    const hasIcon = hasProperty("icon")
+
+    const nested = properties.find(
+        (prop) => isObjectProperty(prop) && isIdentifier(prop.key, { name: "nested" })
+    )
+    let nestedValue: string | undefined
+    if (nested && isObjectProperty(nested) && isStringLiteral(nested.value)) {
+        nestedValue = nested.value.value
+    }
+
+    const translationNs = properties.find(
+        (prop) => isObjectProperty(prop) && isIdentifier(prop.key, { name: "translationNs" })
+    )
+    let translationNsValue: string | undefined
+    if (translationNs && isObjectProperty(translationNs) && isStringLiteral(translationNs.value)) {
+        translationNsValue = translationNs.value.value
+    }
+
+    const rank = properties.find(
+        (prop) => isObjectProperty(prop) && isIdentifier(prop.key, { name: "rank" })
+    )
+    let rankValue: number | undefined
+    if (rank && isObjectProperty(rank) && isNumericLiteral(rank.value)) {
+        rankValue = rank.value.value
+    }
+
+    return { label: hasLabel, icon: hasIcon, rank: rankValue, nested: nestedValue, translationNs: translationNsValue }
+}
+
+function getRouteConfig(file: string): MenuItemConfig | null {
+    try {
+        const code = fs.readFileSync(file, "utf-8")
+        const ast = parse(code, getParserOptions(file))
+
+        let config: MenuItemConfig | null = null
+        let configFound = false
+
+        traverse(ast, {
+            VariableDeclarator(path: any) {
+                if (configFound) return
+                const properties = getConfigObjectProperties(path)
+                if (!properties) return
+                config = processConfigProperties(properties)
+                if (config) configFound = true
+            },
+            ExportNamedDeclaration(path: any) {
+                if (configFound) return
+                const properties = getConfigObjectProperties(path)
+                if (!properties) return
+                config = processConfigProperties(properties)
+                if (config) configFound = true
+            },
+        })
+
+        return config
     } catch {
         return null
     }
@@ -157,11 +248,7 @@ function parseFile(
     pagesDir: string,
     index: number
 ): MenuItemResult | null {
-    if (!hasConfigExport(file)) {
-        return null
-    }
-
-    const config = getConfigProperties(file)
+    const config = getRouteConfig(file)
     if (!config) {
         return null
     }
