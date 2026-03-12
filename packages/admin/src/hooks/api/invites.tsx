@@ -129,12 +129,15 @@ export const useAcceptInvite = (
     mutationFn: (payload) => {
       const { auth_token, ...rest } = payload
 
-      return sdk.admin.invites.accept.mutate(
-        { invite_token: inviteToken, ...rest },
-        {
-          Authorization: `Bearer ${auth_token}`,
-        }
-      )
+      return sdk.admin.invites.accept.mutate({
+        invite_token: inviteToken,
+        ...rest,
+        fetchOptions: {
+          headers: {
+            Authorization: `Bearer ${auth_token}`,
+          },
+        },
+      })
     },
     onSuccess: (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)
