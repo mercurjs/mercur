@@ -1,6 +1,7 @@
 ---
 name: mercur-cli
 description: Use Mercur CLI commands correctly for project setup, block discovery, block installation, and starter maintenance. Use when working with `create`, `init`, `add`, `search`, `view`, or `diff`.
+argument-hint: "[command]"
 ---
 
 # Mercur CLI

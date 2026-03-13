@@ -76,25 +76,28 @@ If a spec starts with routes, DTOs, or file paths before it explains the user or
 
 Use specs to describe why the change matters, what behavior should exist afterwards, and how the implementation will be verified. Let source code, generated route types, docs, and integration tests prove the final contract.
 
-## Recommended section order
+## Section order and requirements
 
-Use the template in this order:
-
+**Required sections** (always fill these):
 1. Summary
 2. Problem
-3. Desired Outcome
 4. Scope
+8. Acceptance Criteria
+11. Technical Impact
+13. Verification
+
+**Optional sections** (add when relevant):
+3. Desired Outcome
 5. Users / Actors
 6. Main Flows
 7. Business Rules
-8. Acceptance Criteria
 9. Risks
 10. Rollout / Migration Notes
-11. Technical Impact
 12. Implementation Approach
-13. Verification
 14. Open Questions
 15. Changelog
+
+A minimum viable spec covers the 6 required sections. Add optional sections as the complexity of the change demands.
 
 ## Required template
 

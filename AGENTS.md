@@ -61,6 +61,24 @@ A spec is usually not required for:
 Specifications live under `.ai/specs/` and should use `.ai/specs/TEMPLATE.md`.
 In Mercur, specs are business-first: explain the problem, outcome, scope, business rules, and acceptance criteria before listing files, routes, DTOs, or implementation phases.
 
+## Quick Reference
+
+| Task type | Read these guides | Skills to load |
+|-----------|-------------------|----------------|
+| Admin bugfix (no UI pattern change) | this file + `packages/admin/AGENTS.md` | — |
+| Admin list or detail page | this file + `packages/admin/AGENTS.md` | `admin-page-ui` |
+| Admin form (drawer / modal) | this file + `packages/admin/AGENTS.md` | `admin-form-ui` |
+| Admin tabbed wizard | this file + `packages/admin/AGENTS.md` | `admin-tab-ui` + `admin-form-ui` |
+| Admin custom UI component | this file + `packages/admin/AGENTS.md` | `medusa-ui-conformance` |
+| Admin CC migration | this file + `packages/admin/AGENTS.md` | `compound-components-migration-review` + `cc-alignment` |
+| Vendor UI page or form | this file + `packages/vendor/AGENTS.md` | same admin-* skills apply |
+| Backend route / workflow | this file + `packages/core-plugin/AGENTS.md` | — |
+| Registry block | this file + `packages/registry/AGENTS.md` | `mercur-blocks` |
+| CLI usage | this file | `mercur-cli` |
+| Cross-package feature | this file + all touched package guides | write spec first |
+| Integration test | this file + `integration-tests/AGENTS.md` | — |
+| Shared types change | this file + `packages/types/AGENTS.md` | — |
+
 ## Task Router
 
 Read every guide that matches the work you are doing:
@@ -155,19 +173,18 @@ Runtime-specific mirrors exist in `.claude/skills/` (Claude Code) and `.codex/sk
 | `admin-form-ui` | `.ai/skills/admin-form-ui/SKILL.md` | Creating or modifying forms (Form.Field, drawers, modals, submit guards) |
 | `admin-tab-ui` | `.ai/skills/admin-tab-ui/SKILL.md` | Creating custom tabs for TabbedForm wizards (defineTabMeta, layout, sections) |
 
-### Claude Code skills (`.claude/skills/`)
+### Runtime-specific skills
 
-| Skill | Path | Use when |
-|-------|------|----------|
-| `compound-components-migration` | `.claude/skills/compound-components-migration/SKILL.md` | Planning and implementing admin CC/TabbedForm migrations with regression prevention |
+| Skill | Path | Runtime | Use when |
+|-------|------|---------|----------|
+| `compound-components-migration` | `.claude/skills/compound-components-migration/SKILL.md` | Claude Code | Planning and implementing admin CC/TabbedForm migrations with regression prevention |
 
-### Compatibility note
+### Source of truth
 
-- `.ai/skills/` is the canonical source for shared skill content
-- `.codex/skills/` keeps runtime-specific mirrors for Codex discovery while needed
-- `.claude/skills/` holds Claude Code specific skills with `compound-components-migration` as the active implementation skill
-
-Do not duplicate skill guidance in new governance docs.
+- `.ai/skills/` is the **single source of truth** for all shared skill content.
+- `.claude/skills/` holds Claude Code specific skills that are not shared across runtimes.
+- `.codex/skills/` contains pointer files for Codex discovery — no duplicated content.
+- When creating or updating a shared skill, always edit `.ai/skills/` first.
 
 ## Simplicity Rule
 

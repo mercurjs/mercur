@@ -1,6 +1,7 @@
 ---
 name: mercur-blocks
 description: Discover, evaluate, install, and verify Mercur blocks safely using `blocks.json` aliases and Mercur CLI workflows. Use when adding or updating blocks in a Mercur project.
+argument-hint: "[block-name]"
 ---
 
 # Mercur Blocks Workflow

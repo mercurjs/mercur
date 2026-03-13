@@ -4,6 +4,8 @@
 **Status**: Draft | In Progress | Done
 **Related**: issue / task / PR / n/a
 
+<!-- Minimum viable spec: fill sections 1, 2, 4, 8, 11, 13. Add optional sections as needed. -->
+
 ## 1. Summary
 
 2-5 sentences:
@@ -20,7 +22,7 @@ Describe the current problem in product, operational, or developer terms:
 - what the observable symptoms are
 - why now is the right time to address it
 
-## 3. Desired Outcome
+## 3. Desired Outcome (optional)
 
 After this change:
 - users can ...
@@ -36,7 +38,7 @@ In scope:
 Out of scope:
 - ...
 
-## 5. Users / Actors
+## 5. Users / Actors (optional)
 
 - Admin:
 - Vendor:
@@ -46,7 +48,7 @@ Out of scope:
 
 Use `n/a` where appropriate.
 
-## 6. Main Flows
+## 6. Main Flows (optional)
 
 Describe the 1-3 most important flows in plain language.
 
@@ -54,7 +56,7 @@ Describe the 1-3 most important flows in plain language.
 2. ...
 3. ...
 
-## 7. Business Rules
+## 7. Business Rules (optional)
 
 List the rules that must remain true:
 - ...
@@ -71,7 +73,7 @@ Include permissions, ownership, validation expectations, edge cases, and compati
 
 Write these as observable outcomes, not implementation tasks.
 
-## 9. Risks
+## 9. Risks (optional)
 
 - Risk:
   Impact:
@@ -79,7 +81,7 @@ Write these as observable outcomes, not implementation tasks.
 
 Add more rows as needed.
 
-## 10. Rollout / Migration Notes
+## 10. Rollout / Migration Notes (optional)
 
 - Breaking change?
 - Migration or compatibility bridge needed?
@@ -89,7 +91,7 @@ Add more rows as needed.
 
 ## 11. Technical Impact
 
-Affected areas:
+Affected areas (remove anything not touched):
 - packages/core-plugin
 - packages/admin
 - packages/vendor
@@ -99,8 +101,6 @@ Affected areas:
 - packages/types
 - apps/docs
 - integration-tests
-
-Remove anything that is not touched.
 
 Contracts touched:
 - API routes:
@@ -115,7 +115,7 @@ Contracts touched:
 
 Use `n/a` where appropriate.
 
-## 12. Implementation Approach
+## 12. Implementation Approach (optional)
 
 Describe the intended implementation at a high level.
 
@@ -137,12 +137,12 @@ Add or remove phases as needed.
 - docs review:
 - manual verification:
 
-## 14. Open Questions
+## 14. Open Questions (optional)
 
 - ...
 - ...
 
-## 15. Changelog
+## 15. Changelog (optional)
 
 ### YYYY-MM-DD
 - Initial draft

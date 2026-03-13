@@ -1,6 +1,7 @@
 ---
 name: admin-ui-review
 description: Review admin UI code for consistency with established patterns. Use after writing any UI code in packages/admin to catch anti-patterns — wrong form components, hardcoded strings, missing i18n, incorrect heading levels, manual error rendering, missing data-testid, raw Controller usage.
+allowed-tools: Read, Grep, Glob
 ---
 
 # Admin UI Review

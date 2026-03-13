@@ -1,6 +1,7 @@
 ---
 name: compound-components-migration
 description: Plan, implement, and review admin page migrations to Compound Components and TabbedForm with strict regression prevention (loading/error gating, keyboard submit paths, dynamic tab visibility, context typing, and dead abstraction APIs). Use when writing or reviewing migration code in packages/admin.
+allowed-tools: Read, Grep, Glob
 ---
 
 # Compound Components Migration (Implementation + Review)
