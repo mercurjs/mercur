@@ -179,6 +179,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                         "@medusajs/dashboard",
                         "@medusajs/js-sdk",
                         "@tanstack/react-query",
+                        "qs",
                     ],
                 },
             };
