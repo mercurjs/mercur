@@ -28,12 +28,12 @@ type RouteResult = {
     route: Route
 }
 
-function getRoute(file: string, pagesDir: string): string {
+function getRoute(file: string, routesDir: string): string {
     const importPath = normalizePath(file)
-    const normalizedPagesDir = normalizePath(pagesDir)
+    const normalizedRoutesDir = normalizePath(routesDir)
 
     return importPath
-        .replace(normalizedPagesDir, "")
+        .replace(normalizedRoutesDir, "")
         .replace(/\[\[\*\]\]/g, "*?")           // optional splat [[*]]
         .replace(/\[\*\]/g, "*")                // splat [*]
         .replace(/\(([^\[\]\)]+)\)/g, "$1?")    // optional static (foo)
@@ -47,7 +47,7 @@ function getRoute(file: string, pagesDir: string): string {
         ) || "/"
 }
 
-function crawlPages(dir: string, pattern = "page"): string[] {
+export function crawlRoutes(dir: string, pattern = "page"): string[] {
     const files: string[] = []
 
     if (!fs.existsSync(dir)) {
@@ -60,7 +60,7 @@ function crawlPages(dir: string, pattern = "page"): string[] {
         const fullPath = path.join(dir, entry.name)
 
         if (entry.isDirectory()) {
-            files.push(...crawlPages(fullPath, pattern))
+            files.push(...crawlRoutes(fullPath, pattern))
         } else if (entry.isFile()) {
             const ext = path.extname(entry.name)
             const baseName = path.basename(entry.name, ext)
@@ -190,7 +190,7 @@ function generateRouteObject(
     }
 }
 
-function formatRoute(route: Route, indent: string = "    "): string {
+export function formatRoute(route: Route, indent: string = "    "): string {
     let result = `${indent}{\n`
     result += `${indent}    Component: ${route.Component},\n`
     result += `${indent}    path: "${route.path}"`
@@ -219,7 +219,7 @@ function formatRoute(route: Route, indent: string = "    "): string {
     return result
 }
 
-function parseFile(file: string, pagesDir: string, index: number): RouteResult | null {
+export function parseFile(file: string, routesDir: string, index: number): RouteResult | null {
     try {
         const code = fs.readFileSync(file, "utf-8")
         const ast = parse(code, getParserOptions(file))
@@ -230,7 +230,7 @@ function parseFile(file: string, pagesDir: string, index: number): RouteResult |
 
         const { hasHandle, hasLoader } = getNamedExports(ast)
         const isPublic = hasConfigPublic(ast)
-        const routePath = getRoute(file, pagesDir)
+        const routePath = getRoute(file, routesDir)
 
         const imports = generateImports(file, index, hasHandle, hasLoader)
         const route = generateRouteObject(routePath, index, hasHandle, hasLoader, isPublic)
@@ -244,7 +244,7 @@ function parseFile(file: string, pagesDir: string, index: number): RouteResult |
     }
 }
 
-function buildRouteTree(results: RouteResult[]): RouteResult[] {
+export function buildRouteTree(results: RouteResult[]): RouteResult[] {
     const routeMap = new Map<string, RouteResult>()
 
     const sortedResults = [...results].sort(
@@ -278,14 +278,14 @@ function buildRouteTree(results: RouteResult[]): RouteResult[] {
 }
 
 export function generateRoutes({ srcDir, pluginExtensions }: BuiltMercurConfig): string {
-    const pagesDir = path.join(srcDir, "pages")
+    const routesDir = path.join(srcDir, "routes")
 
     let index = 0
     const results: RouteResult[] = []
 
-    // App's own pages
-    for (const file of crawlPages(pagesDir)) {
-        const result = parseFile(file, pagesDir, index)
+    // App's own routes
+    for (const file of crawlRoutes(routesDir)) {
+        const result = parseFile(file, routesDir, index)
         if (result) {
             results.push(result)
             index++

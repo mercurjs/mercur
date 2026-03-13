@@ -38,7 +38,7 @@ type MenuItemResult = {
     menuItem: MenuItem
 }
 
-function crawlPages(dir: string, pattern = "page"): string[] {
+function crawlRoutes(dir: string, pattern = "page"): string[] {
     const files: string[] = []
 
     if (!fs.existsSync(dir)) {
@@ -51,7 +51,7 @@ function crawlPages(dir: string, pattern = "page"): string[] {
         const fullPath = path.join(dir, entry.name)
 
         if (entry.isDirectory()) {
-            files.push(...crawlPages(fullPath, pattern))
+            files.push(...crawlRoutes(fullPath, pattern))
         } else if (entry.isFile()) {
             const ext = path.extname(entry.name)
             const baseName = path.basename(entry.name, ext)
@@ -65,12 +65,12 @@ function crawlPages(dir: string, pattern = "page"): string[] {
     return files
 }
 
-function getRoute(file: string, pagesDir: string): string {
+function getRoute(file: string, routesDir: string): string {
     const importPath = normalizePath(file)
-    const normalizedPagesDir = normalizePath(pagesDir)
+    const normalizedRoutesDir = normalizePath(routesDir)
 
     return importPath
-        .replace(normalizedPagesDir, "")
+        .replace(normalizedRoutesDir, "")
         .replace(/\[\[\*\]\]/g, "*?")
         .replace(/\[\*\]/g, "*")
         .replace(/\(([^\[\]\)]+)\)/g, "$1?")
@@ -215,14 +215,14 @@ function generateImport(file: string, index: number): string {
 function generateMenuItem(
     config: MenuItemConfig,
     file: string,
-    pagesDir: string,
+    routesDir: string,
     index: number
 ): MenuItem {
     const configName = generateRouteConfigName(index)
     return {
         label: `${configName}.label`,
         icon: config.icon ? `${configName}.icon` : undefined,
-        path: getRoute(file, pagesDir),
+        path: getRoute(file, routesDir),
         rank: config.rank,
         nested: config.nested,
         translationNs: config.translationNs
@@ -231,7 +231,7 @@ function generateMenuItem(
     }
 }
 
-function formatMenuItem(menuItem: MenuItem): string {
+export function formatMenuItem(menuItem: MenuItem): string {
     const parts = [
         `        label: ${menuItem.label}`,
         `        icon: ${menuItem.icon || "undefined"}`,
@@ -243,9 +243,9 @@ function formatMenuItem(menuItem: MenuItem): string {
     return `    {\n${parts.join(",\n")}\n    }`
 }
 
-function parseFile(
+export function parseMenuItemFile(
     file: string,
-    pagesDir: string,
+    routesDir: string,
     index: number
 ): MenuItemResult | null {
     const config = getRouteConfig(file)
@@ -255,19 +255,19 @@ function parseFile(
 
     return {
         import: generateImport(file, index),
-        menuItem: generateMenuItem(config, file, pagesDir, index),
+        menuItem: generateMenuItem(config, file, routesDir, index),
     }
 }
 
 export function generateMenuItems({ srcDir, pluginExtensions }: BuiltMercurConfig): string {
-    const pagesDir = path.join(srcDir, "pages")
+    const routesDir = path.join(srcDir, "routes")
 
     let index = 0
     const results: MenuItemResult[] = []
 
-    // App's own pages
-    for (const file of crawlPages(pagesDir)) {
-        const result = parseFile(file, pagesDir, index)
+    // App's own routes
+    for (const file of crawlRoutes(routesDir)) {
+        const result = parseMenuItemFile(file, routesDir, index)
         if (result) {
             results.push(result)
             index++
