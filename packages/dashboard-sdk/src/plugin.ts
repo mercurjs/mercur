@@ -112,7 +112,10 @@ async function loadMedusaConfig(
         }
 
         const plugins =
-            medusaConfig?.plugins ?? [];
+            medusaConfig?.plugins?.filter(
+                (plugin: { resolve: string }) =>
+                    plugin.resolve !== "@medusajs/draft-order",
+            ) ?? [];
         const pluginExtensions = resolvePluginExtensions(plugins, configDir, appType);
 
         return { base, pluginExtensions };
@@ -158,10 +161,6 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                     __BASE__: JSON.stringify(config.base || "/"),
                 },
                 optimizeDeps: {
-                    entries: [
-                        "index.html",
-                        ...pluginExtensions,
-                    ],
                     exclude: [
                         "virtual:mercur/config",
                         "virtual:mercur/routes",
