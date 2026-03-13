@@ -13,10 +13,27 @@ Use these skills for repeated workflows in a project created from this starter.
 - `admin-form-ui`
 - `admin-tab-ui`
 
-## Canonical vs runtime copies
+## Linking to your agent runtime
 
-- `.ai/skills/` is the canonical source of truth
-- `.claude/skills/` is the Claude Code mirror
-- `.codex/skills/` is the Codex mirror
+`.ai/skills/` is the single source of truth. Link it to your runtime:
 
-Do not edit the runtime mirrors first.
+### Claude Code
+
+```bash
+mkdir -p .claude
+ln -s ../.ai/skills .claude/skills
+```
+
+### Codex
+
+```bash
+mkdir -p .codex
+ln -s ../.ai/skills .codex/skills
+```
+
+### Verify
+
+```bash
+# Claude Code — type /skills to see available skills
+# Codex — type /skills to see available skills
+```
