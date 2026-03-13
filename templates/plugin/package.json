@@ -1,0 +1,75 @@
+{
+  "name": "@acme/plugin",
+  "version": "0.0.7",
+  "description": "A starter for Mercur plugins.",
+  "author": "Mercur (https://mercurjs.com)",
+  "license": "MIT",
+  "files": [
+    ".medusa/server"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./workflows": "./.medusa/server/src/workflows/index.js",
+    "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./providers/*": "./.medusa/server/src/providers/*/index.js",
+    "./*": "./.medusa/server/src/*.js",
+    "./admin": {
+      "import": "./.medusa/server/src/admin/index.mjs",
+      "require": "./.medusa/server/src/admin/index.js",
+      "default": "./.medusa/server/src/admin/index.js"
+    },
+    "./vendor": {
+      "import": "./.medusa/server/src/admin/index.mjs",
+      "require": "./.medusa/server/src/admin/index.js",
+      "default": "./.medusa/server/src/admin/index.js"
+    }
+  },
+  "keywords": [
+    "medusa",
+    "plugin",
+    "medusa-plugin-other",
+    "medusa-plugin",
+    "medusa-v2",
+    "mercur",
+    "mercur-plugin"
+  ],
+  "scripts": {
+    "build": "npx @mercurjs/cli@canary plugin:build",
+    "prepublishOnly": "npx @mercurjs/cli@canary plugin:build"
+  },
+  "devDependencies": {
+    "@medusajs/admin-sdk": "2.13.3",
+    "@medusajs/cli": "2.13.3",
+    "@medusajs/framework": "2.13.3",
+    "@medusajs/medusa": "2.13.3",
+    "@medusajs/test-utils": "2.13.3",
+    "@medusajs/ui": "4.0.25",
+    "@medusajs/icons": "2.13.3",
+    "@swc/core": "^1.7.28",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.2.25",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2",
+    "vite": "^5.2.11",
+    "yalc": "^1.0.0-pre.53"
+  },
+  "peerDependencies": {
+    "@medusajs/admin-sdk": "2.13.3",
+    "@medusajs/admin-shared": "2.13.3",
+    "@medusajs/cli": "2.13.3",
+    "@medusajs/framework": "2.13.3",
+    "@medusajs/test-utils": "2.13.3",
+    "@medusajs/medusa": "2.13.3",
+    "@medusajs/ui": "4.0.25",
+    "@medusajs/icons": "2.13.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@11.6.0"
+}

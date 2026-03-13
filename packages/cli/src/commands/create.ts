@@ -29,8 +29,9 @@ const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
   basic: "basic",
-  // todo: add registry template back in after new release
+  // todo: uncomment registry template
   // registry: "registry",
+  plugin: "plugin",
 } as const;
 
 export const create = new Command()
@@ -39,7 +40,7 @@ export const create = new Command()
   .argument("[name]", "the name of your project")
   .option(
     "-t, --template <template>",
-    "the template to use. e.g. basic or registry"
+    "the template to use. e.g. basic, registry, or plugin"
   )
   .option(
     "-c, --cwd <cwd>",
@@ -80,28 +81,26 @@ export const create = new Command()
         projectName = enteredName;
       }
 
-      // todo: uncomment when more templates are available
-      // let template = opts.template;
-      // if (!template) {
-      //   const { selectedTemplate } = await prompts({
-      //     type: "select",
-      //     name: "selectedTemplate",
-      //     message: `Which ${highlighter.info(
-      //       "template"
-      //     )} would you like to use?`,
-      //     choices: Object.entries(CREATE_TEMPLATES).map(([key, value]) => ({
-      //       title: value,
-      //       value: key,
-      //     })),
-      //   });
+      let template = opts.template;
+      if (!template) {
+        const { selectedTemplate } = await prompts({
+          type: "select",
+          name: "selectedTemplate",
+          message: `Which ${highlighter.info(
+            "template"
+          )} would you like to use?`,
+          choices: Object.entries(CREATE_TEMPLATES).map(([key, value]) => ({
+            title: value,
+            value: key,
+          })),
+        });
 
-      //   if (!selectedTemplate) {
-      //     process.exit(0);
-      //   }
+        if (!selectedTemplate) {
+          process.exit(0);
+        }
 
-      //   template = selectedTemplate;
-      // }
-      const template = opts.template || "basic";
+        template = selectedTemplate;
+      }
 
       if (!opts.skipEmail) {
         const { wantsEmail } = await prompts({
