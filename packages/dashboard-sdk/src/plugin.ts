@@ -57,10 +57,9 @@ function resolvePluginRoot(
     }
 }
 
-function resolvePluginExtensions(plugins: any[], configDir: string): string[] {
+function resolvePluginExtensions(plugins: any[], configDir: string, appType: "admin" | "vendor"): string[] {
     const nodeModulesRoot = findNodeModulesRoot(configDir);
     const extensions: string[] = [];
-    const appTypes = ["admin", "vendor"] as const;
 
     for (const plugin of plugins) {
         const resolve = typeof plugin === "string" ? plugin : plugin?.resolve;
@@ -70,16 +69,14 @@ function resolvePluginExtensions(plugins: any[], configDir: string): string[] {
         const pluginRoot = resolvePluginRoot(resolve, configDir, nodeModulesRoot);
         if (!pluginRoot) continue;
 
-        for (const appType of appTypes) {
-            const extFile = path.join(
-                pluginRoot,
-                ".medusa/server/src",
-                appType,
-                "index.mjs",
-            );
-            if (fs.existsSync(extFile)) {
-                extensions.push(extFile);
-            }
+        const extFile = path.join(
+            pluginRoot,
+            ".medusa/server/src",
+            appType,
+            "index.mjs",
+        );
+        if (fs.existsSync(extFile)) {
+            extensions.push(extFile);
         }
     }
 
@@ -98,6 +95,7 @@ async function loadMedusaConfig(
         const configDir = path.dirname(medusaConfigPath);
 
         let base: string | undefined;
+        let appType: "admin" | "vendor" = "admin";
 
         for (const key of UI_MODULE_KEYS) {
             const value = modules[key];
@@ -108,16 +106,14 @@ async function loadMedusaConfig(
 
             if (appDir === root) {
                 base = value.options.path;
+                appType = key === "vendor_ui" ? "vendor" : "admin";
                 break;
             }
         }
 
         const plugins =
-            medusaConfig?.plugins?.filter(
-                (plugin: { resolve: string }) =>
-                    plugin.resolve !== "@medusajs/draft-order",
-            ) ?? [];
-        const pluginExtensions = resolvePluginExtensions(plugins, configDir);
+            medusaConfig?.plugins ?? [];
+        const pluginExtensions = resolvePluginExtensions(plugins, configDir, appType);
 
         return { base, pluginExtensions };
     } catch {
