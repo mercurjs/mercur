@@ -158,6 +158,10 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                     __BASE__: JSON.stringify(config.base || "/"),
                 },
                 optimizeDeps: {
+                    entries: [
+                        "index.html",
+                        ...pluginExtensions,
+                    ],
                     exclude: [
                         "virtual:mercur/config",
                         "virtual:mercur/routes",
