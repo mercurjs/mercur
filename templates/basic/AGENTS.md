@@ -37,8 +37,8 @@ Treat these as public starter contracts. Do not change them silently:
 - `@acme/api/_generated` route types and codegen-dependent behavior
 - `apps/admin/src/*` route and page structure
 - `apps/vendor/src/*` route and page structure
-- `apps/admin/mercur.config.ts`
-- `apps/vendor/mercur.config.ts`
+- `apps/admin/vite.config.ts` — panel bootstrap via `mercurDashboardPlugin`
+- `apps/vendor/vite.config.ts` — panel bootstrap via `mercurDashboardPlugin`
 
 ## Shared Skills
 

@@ -124,14 +124,15 @@ Treat the following as public contracts. Do not change them silently:
 - CLI command names, options, and behavior
 - registry block file layout, metadata, and install resolution behavior
 - public docs examples and setup instructions
-- dashboard configuration surfaces such as `mercur.config.ts`
+- dashboard mounting configuration in `medusa-config.ts` (`admin-ui` / `vendor-ui` modules)
+- `vite.config.ts` plugin configuration in `apps/admin` and `apps/vendor`
 
 If any of these change, the spec must include migration or compatibility notes.
 
 ### Stability Classification
 
 - **Frozen** (breaking change requires spec + migration notes): API route paths, response envelope shapes, generated Routes types, CLI command names, registry block file layout
-- **Stable** (can tighten, not loosen; document changes): request validation, public package exports, dashboard configuration surfaces
+- **Stable** (can tighten, not loosen; document changes): request validation, public package exports, dashboard mounting config (`admin-ui`/`vendor-ui` module options)
 - **Internal** (free to change): implementation details, private utilities, test helpers
 
 ## Source Of Truth Layers

@@ -12,8 +12,10 @@ Read this guide when a task touches:
 
 `apps/vendor` owns:
 - custom vendor routes under `src/pages`
-- vendor-side extension wiring in `mercur.config.ts`
 - vendor page composition and request flow
+- Vite bootstrap configuration in `vite.config.ts`
+
+Dashboard mounting (which app, which path) is configured in `packages/api/medusa-config.ts` via the `vendor-ui` module — not in this app.
 
 If `src/pages` does not exist yet, create it when adding the first custom page.
 
@@ -34,12 +36,13 @@ Vendor pages are file-based:
 - Preserve loading, empty, error, and success states when extending flows.
 - Think through backend and block dependencies together when adding vendor pages.
 
-## `mercur.config.ts`
+## Dashboard wiring
 
-Review `mercur.config.ts` when a change:
-- registers or overrides vendor components
-- depends on vendor app extension points
-- changes app-level integration behavior
+Dashboard mounting (path, appDir) lives in `packages/api/medusa-config.ts` under the `vendor-ui` module entry.
+
+Review `vite.config.ts` when a change:
+- updates the `medusaConfigPath` reference
+- adds or changes Vite plugins for the vendor app
 
 ## Blocks and backend coupling
 

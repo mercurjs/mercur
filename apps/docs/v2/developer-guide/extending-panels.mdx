@@ -1,48 +1,55 @@
 ---
 title: "Extending Panels"
-description: "Add pages, customize navigation, branding, and replace components in the admin and vendor panels."
+description: "Add pages, customize navigation, and replace components in the admin and vendor panels."
 ---
 
 <Snippet file="canary-warning.mdx" />
 
-Both the admin panel and vendor portal use the same SDK (`@mercurjs/dashboard-sdk`). Customization is file-based and convention-driven — you add pages by creating files, configure navigation through exports, and override components through config.
+Both the admin panel and vendor portal use the same SDK (`@mercurjs/dashboard-sdk`). Customization is file-based — you add pages by creating files and control navigation through exports.
 
-## Setup
+## How dashboard mounting works
 
-Every panel project needs two files at its root:
+Dashboard registration is backend-first. The backend (`packages/api/medusa-config.ts`) controls which app is mounted and where:
 
-### Vite config
+```typescript packages/api/medusa-config.ts
+import path from 'path'
 
-```typescript vite.config.ts
+modules: [
+  {
+    resolve: '@mercurjs/core-plugin/modules/admin-ui',
+    options: {
+      appDir: path.join(__dirname, '../../apps/admin'),
+      path: '/dashboard',
+    },
+  },
+  {
+    resolve: '@mercurjs/core-plugin/modules/vendor-ui',
+    options: {
+      appDir: path.join(__dirname, '../../apps/vendor'),
+      path: '/seller',
+    },
+  },
+]
+```
+
+Each panel app bootstraps by pointing the dashboard SDK at the backend config:
+
+```typescript apps/admin/vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { dashboardPlugin } from '@mercurjs/dashboard-sdk'
+import { mercurDashboardPlugin } from '@mercurjs/dashboard-sdk'
 
 export default defineConfig({
-  plugins: [react(), dashboardPlugin()],
+  plugins: [
+    react(),
+    mercurDashboardPlugin({
+      medusaConfigPath: '../../packages/api/medusa-config.ts',
+    }),
+  ],
 })
 ```
 
-### Mercur config
-
-```typescript mercur.config.ts
-import { defineConfig } from '@mercurjs/dashboard-sdk'
-
-export default defineConfig({
-  name: 'My Marketplace',
-  logo: 'https://example.com/logo.svg',
-})
-```
-
-Available options:
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `name` | `string` | Application name shown in the sidebar |
-| `logo` | `string` | URL to a logo image |
-| `components` | `object` | Component overrides (see [Replacing components](#replacing-components)) |
-| `i18n` | `object` | Internationalization settings |
-| `backendUrl` | `string` | Medusa backend URL (default: `http://localhost:9000`) |
+The SDK reads `medusa-config.ts` at build time to derive `virtual:mercur/config` — there is no hand-authored config file in the panel app.
 
 ## Adding pages
 
@@ -133,26 +140,25 @@ This places "Shipping" as a child item under `/settings` in the sidebar.
 
 ## Branding
 
-Set `name` and `logo` in `mercur.config.ts` to customize the sidebar header:
+Customize the panel's name and logo by passing options to `mercurDashboardPlugin` in `vite.config.ts`:
 
-```typescript mercur.config.ts
-import { defineConfig } from '@mercurjs/dashboard-sdk'
-
-export default defineConfig({
-  name: 'WeTest',
-  logo: 'https://ui-avatars.com/api/?name=WeTest&background=18181B&color=fff&size=200&bold=true&format=svg',
+```typescript apps/vendor/vite.config.ts
+mercurDashboardPlugin({
+  medusaConfigPath: '../../packages/api/medusa-config.ts',
+  name: 'My Marketplace',
+  logo: 'https://example.com/logo.svg',
 })
 ```
 
+Both `name` and `logo` are optional. `logo` accepts a URL — the value is passed directly to an `<img src>` attribute without asset processing.
+
 ## Replacing components
 
-Override built-in layout components in `mercur.config.ts`:
+You can replace specific layout components — the main sidebar, settings sidebar, or topbar actions — by providing component paths under the `components` option:
 
-```typescript mercur.config.ts
-import { defineConfig } from '@mercurjs/dashboard-sdk'
-
-export default defineConfig({
-  name: 'My Marketplace',
+```typescript apps/vendor/vite.config.ts
+mercurDashboardPlugin({
+  medusaConfigPath: '../../packages/api/medusa-config.ts',
   components: {
     MainSidebar: 'components/custom-sidebar',
     SettingsSidebar: 'components/custom-settings-sidebar',
@@ -161,24 +167,21 @@ export default defineConfig({
 })
 ```
 
-Paths are relative to `src/`. Each file must have a default export:
+Each path is resolved relative to `src/` in the panel app. Each file must have a default export:
 
 ```tsx src/components/custom-topbar-actions.tsx
 export default function CustomTopbarActions() {
-  return (
-    <div>
-      <button>Help</button>
-      <button>Notifications</button>
-    </div>
-  )
+  return <div>{/* your custom actions */}</div>
 }
 ```
 
-| Component | Description |
-|-----------|-------------|
-| `MainSidebar` | Primary navigation sidebar |
-| `SettingsSidebar` | Settings section sidebar |
-| `TopbarActions` | Action buttons in the top bar |
+Available slots:
+
+| Key | Description |
+|-----|-------------|
+| `MainSidebar` | Replaces the primary navigation sidebar |
+| `SettingsSidebar` | Replaces the sidebar inside the settings area |
+| `TopbarActions` | Replaces the action area in the top navigation bar |
 
 ## Internationalization
 
@@ -213,13 +216,11 @@ export const config: RouteConfig = {
 
 **3. Set the default language**
 
-```typescript mercur.config.ts
-import { defineConfig } from '@mercurjs/dashboard-sdk'
+Pass `i18n.defaultLanguage` to `mercurDashboardPlugin` in `vite.config.ts`:
 
-export default defineConfig({
-  name: 'My Marketplace',
-  i18n: {
-    defaultLanguage: 'en',
-  },
+```typescript apps/vendor/vite.config.ts
+mercurDashboardPlugin({
+  medusaConfigPath: '../../packages/api/medusa-config.ts',
+  i18n: { defaultLanguage: 'pl' },
 })
 ```

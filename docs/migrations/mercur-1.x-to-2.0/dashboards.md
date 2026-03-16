@@ -10,6 +10,33 @@ Core-vendor (`@mercurjs/vendor`) ships a complete vendor panel.
 
 **You only need this guide if** you have custom pages, custom hooks with business logic, or domain-specific UI that doesn't exist in core-admin/vendor.
 
+## Dashboard Bootstrap (New Model)
+
+In 2.0, dashboard registration is **backend-first**. There is no `mercur.config.ts` — the backend controls which app is mounted and where.
+
+`packages/api/medusa-config.ts` registers the panels:
+
+```typescript
+modules: [
+  {
+    resolve: '@mercurjs/core-plugin/modules/admin-ui',
+    options: { appDir: path.join(__dirname, '../../apps/admin'), path: '/dashboard' }
+  },
+  {
+    resolve: '@mercurjs/core-plugin/modules/vendor-ui',
+    options: { appDir: path.join(__dirname, '../../apps/vendor'), path: '/seller' }
+  },
+]
+```
+
+Each panel app bootstraps via `mercurDashboardPlugin` in its `vite.config.ts`:
+
+```typescript
+mercurDashboardPlugin({ medusaConfigPath: '../../packages/api/medusa-config.ts' })
+```
+
+`virtual:mercur/config` is derived from this at build time — it is not a hand-authored file.
+
 ## What's Different
 
 ### Import paths

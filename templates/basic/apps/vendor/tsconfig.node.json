@@ -26,7 +26,6 @@
     "noUncheckedSideEffectImports": true
   },
   "include": [
-    "vite.config.ts",
-    "mercur.config.ts"
+    "vite.config.ts"
   ]
 }

@@ -52,10 +52,10 @@ Area-specific checks for mercur code review. Use alongside the main `SKILL.md`.
 
 ## Configuration
 
-- [ ] `medusa-config.ts` changes documented
+- [ ] `medusa-config.ts` changes documented (including `admin-ui`/`vendor-ui` module options if dashboard mounting changed)
 - [ ] `blocks.json` alias impact considered
 - [ ] Environment variable additions documented
-- [ ] Dashboard config (`mercur.config.ts`) changes documented
+- [ ] `vite.config.ts` changes in `apps/admin` or `apps/vendor` reviewed (plugin config, `medusaConfigPath`)
 
 ## Documentation
 

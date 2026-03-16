@@ -14,7 +14,9 @@ Read this guide when a task touches:
 `apps/admin` owns:
 - custom file-based routes under `src/pages`
 - admin-specific route exports and navigation metadata
-- app-level Mercur admin configuration in `mercur.config.ts`
+- Vite bootstrap configuration in `vite.config.ts`
+
+Dashboard mounting (which app, which path) is configured in `packages/api/medusa-config.ts` via the `admin-ui` module — not in this app.
 
 If `src/pages` does not exist yet, create it when adding the first custom page.
 
@@ -45,12 +47,13 @@ Load the matching skill before editing page, form, or tab-heavy UI.
 - Preserve loading, error, empty, and success states when extending screens.
 - Keep page composition intentional: header, actions, sections, and data states should be easy to scan.
 
-## `mercur.config.ts`
+## Dashboard wiring
 
-Review `mercur.config.ts` when a change:
-- registers or overrides admin components
-- adds app-level integration points
-- changes extension wiring expected by the dashboard SDK
+Dashboard mounting (path, appDir) lives in `packages/api/medusa-config.ts` under the `admin-ui` module entry.
+
+Review `vite.config.ts` when a change:
+- updates the `medusaConfigPath` reference
+- adds or changes Vite plugins for the admin app
 
 ## Verification
 
