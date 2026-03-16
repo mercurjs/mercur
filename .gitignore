@@ -39,3 +39,22 @@ yarn-error.log*
 
 apps/backend/.medusa
 packages/modules/*
+.wip
+.migration
+.claude
+.codex
+templates
+
+# Local work dirs
+.ai/plans/
+.ai/specs/
+.vscode/
+docs/superpowers/
+docs/template-basic-sync.md
+.github/workflows/template-basic-sync.yml
+packages/registry/src/block-2/
+packages/registry/src/wishlist/.wishlist-test-env
+packages/registry/src/wishlist/test-wishlist.sh
+packages/types/src/http/review.ts
+packages/types/src/review/
+tools/template-sync/
