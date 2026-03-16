@@ -200,7 +200,7 @@ const CreateView = ({
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
-      const authToken = await signUpEmailPass({
+      const { token: authToken } = await signUpEmailPass({
         email: data.email,
         password: data.password,
       })

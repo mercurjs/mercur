@@ -43,7 +43,7 @@ export const useSignInWithEmailPass = (
 
 export const useSignUpWithEmailPass = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.$actorType.$authProvider.register.mutate>,
+    { token: string },
     ClientError,
     Omit<
       InferClientInput<
@@ -59,7 +59,7 @@ export const useSignUpWithEmailPass = (
         $actorType: "user",
         $authProvider: "emailpass",
         ...payload,
-      }),
+      }) as Promise<{ token: string }>,
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)
     },
