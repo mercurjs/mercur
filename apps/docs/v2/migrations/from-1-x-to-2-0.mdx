@@ -59,7 +59,7 @@ export const GET = async (
 ) => { ... }
 ```
 
-Run `bunx @mercurjs/cli@latest codegen` after adding routes.
+Run `bunx @mercurjs/cli@canary codegen` after adding routes.
 
 ### Links and Subscribers
 
@@ -85,6 +85,6 @@ Only if you have custom pages not covered by core-admin/vendor.
 |-----------|------------|
 | `@medusajs/js-sdk` | `@mercurjs/client` |
 | `@custom-types/*` | `@mercurjs/types` |
-| `@hooks/*`, `@components/*`, `@lib/*` | `@mercurjs/dashboard-shared` |
+| `@hooks/*`, `@components/*`, `@lib/*` | Keep local, or `@mercurjs/dashboard-shared` if the symbol exists there |
 
 Move pages from `src/routes/` to `src/pages/` with `export default`.

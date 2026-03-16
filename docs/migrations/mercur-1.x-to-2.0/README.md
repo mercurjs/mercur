@@ -52,9 +52,9 @@ Znajdź wersję w `package.json` (`@mercurjs/b2c-core` version) lub git tags.
 |-----|-----|
 | `from "@medusajs/js-sdk"` | `from "@mercurjs/client"` |
 | `from "@custom-types/*"` | `from "@mercurjs/types"` |
-| `from "@hooks/*"` | `from "@mercurjs/dashboard-shared"` or local |
-| `from "@components/*"` | `from "@mercurjs/dashboard-shared"` |
-| `from "@lib/*"` | `from "@mercurjs/dashboard-shared"` |
+| `from "@hooks/*"` | Keep local, or `from "@mercurjs/dashboard-shared"` if the symbol exists there |
+| `from "@components/*"` | Keep local, or `from "@mercurjs/dashboard-shared"` if the symbol exists there |
+| `from "@lib/*"` | Keep local (e.g. `src/lib/client.ts`), or `from "@mercurjs/dashboard-shared"` if the symbol exists there |
 
 ## Porting Custom Backend Code
 
@@ -90,7 +90,7 @@ export const GET = async (
 ) => { ... }
 ```
 
-Run `bunx @mercurjs/cli@latest codegen` after adding routes.
+Run `bunx @mercurjs/cli@canary codegen` after adding routes.
 
 ### Custom links and subscribers
 
@@ -121,4 +121,4 @@ You only need to port if you have custom pages. See [dashboards.md](./dashboards
 Key changes:
 - `src/routes/` → `src/pages/` (file-based routing, `export default`)
 - Most custom hooks become unnecessary — `@mercurjs/client` generates a typed client
-- `@mercurjs/dashboard-shared` replaces `@components/`, `@hooks/`, `@lib/`
+- App-local code (`@components/`, `@hooks/`, `@lib/`) stays local by default — use `@mercurjs/dashboard-shared` only when the symbol is already exported from there

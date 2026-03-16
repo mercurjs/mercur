@@ -95,7 +95,7 @@ In Mercur, specs are business-first: explain the problem, outcome, scope, busine
 | Writing a spec | this file | `spec-writing` |
 | Integration test | this file + `integration-tests/AGENTS.md` | — |
 | Shared types change | this file + `packages/types/AGENTS.md` | — |
-| Migration (1.5.x → canary) | this file + `docs/migrations/README.md` | `migration-guide` |
+| Migration (1.x → 2.0) | this file + `docs/migrations/README.md` | `migration-guide` |
 
 ## Task Router
 
@@ -208,7 +208,7 @@ Runtime-specific mirrors exist in `.claude/skills/` (Claude Code) and `.codex/sk
 | `admin-tab-ui` | `.ai/skills/admin-tab-ui/SKILL.md` | Creating custom tabs for TabbedForm wizards (defineTabMeta, layout, sections) |
 | `code-review` | `.ai/skills/code-review/SKILL.md` | Reviewing code changes for contract compliance, type safety, and regression risk |
 | `spec-writing` | `.ai/skills/spec-writing/SKILL.md` | Writing or reviewing specifications following the skeleton-first approach |
-| `migration-guide` | `.ai/skills/migration-guide/SKILL.md` | Planning or executing migration from older Mercur version to canary |
+| `migration-guide` | `.ai/skills/migration-guide/SKILL.md` | Planning or executing migration from Mercur 1.x to 2.0 |
 
 ### Runtime-specific skills
 

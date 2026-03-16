@@ -127,7 +127,7 @@ Port in this order:
 
 After each group: run `bun medusa develop` and verify server starts.
 
-After API routes: run `bunx @mercurjs/cli@latest codegen`.
+After API routes: run `bunx @mercurjs/cli@canary codegen`.
 
 After dashboard: run `bun vite build` in `apps/admin` and `apps/vendor`.
 

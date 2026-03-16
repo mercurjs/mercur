@@ -18,9 +18,9 @@ Core-vendor (`@mercurjs/vendor`) ships a complete vendor panel.
 |-------|--------|
 | `from "@medusajs/js-sdk"` | `from "@mercurjs/client"` |
 | `from "@custom-types/*"` | `from "@mercurjs/types"` |
-| `from "@hooks/*"` | `from "@mercurjs/dashboard-shared"` or local |
-| `from "@components/*"` | `from "@mercurjs/dashboard-shared"` |
-| `from "@lib/*"` | `from "@mercurjs/dashboard-shared"` |
+| `from "@hooks/*"` | Keep local, or `from "@mercurjs/dashboard-shared"` if the symbol exists there |
+| `from "@components/*"` | Keep local, or `from "@mercurjs/dashboard-shared"` if the symbol exists there |
+| `from "@lib/*"` | Keep local (e.g. `src/lib/client.ts`), or `from "@mercurjs/dashboard-shared"` if the symbol exists there |
 
 ### Routing
 
