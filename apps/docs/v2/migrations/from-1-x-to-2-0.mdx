@@ -38,8 +38,6 @@ Everything in `@mercurjs/b2c-core` is now in core-plugin: seller, marketplace, p
 
 Registry blocks (reviews, requests, wishlist, team-management, algolia, vendor-notifications) replace their 1.x equivalents. Install blocks, don't port that code.
 
-Core-admin/vendor panels ship 34+ standard pages. If you only used standard Mercur pages, you don't need to port any dashboard code.
-
 ## Porting Custom Backend Code
 
 ### Modules
@@ -90,5 +88,3 @@ Only if you have custom pages not covered by core-admin/vendor.
 | `@hooks/*`, `@components/*`, `@lib/*` | `@mercurjs/dashboard-shared` |
 
 Move pages from `src/routes/` to `src/pages/` with `export default`.
-
-Most 1.x custom hooks become unnecessary — `@mercurjs/client` generates a typed client from route codegen.
