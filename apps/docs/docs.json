@@ -374,6 +374,13 @@
                   "v2/developer-guide/extending-panels",
                   "v2/developer-guide/custom-fields"
                 ]
+              },
+              {
+                "group": "Migration",
+                "pages": [
+                  "v2/migrations/overview",
+                  "v2/migrations/from-1-x-to-2-0"
+                ]
               }
             ]
           },

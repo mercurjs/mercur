@@ -10,6 +10,21 @@ Use this file to answer four questions before making a non-trivial change:
 
 `CLAUDE.md` remains in the repo as a high-level architecture and context companion. Operational workflow, routing, and verification rules live here.
 
+## Core Principles
+
+- **Spec-first**: qualifying changes start with a spec, not code
+- **Behavior preservation**: refactors must not change observable behavior
+- **Minimal impact**: smallest change that achieves the goal
+- **Verify before closing**: state what was verified, not verified, and residual risk
+- **Self-improvement**: update `.ai/lessons.md` after corrections or non-obvious discoveries
+
+## Self-Improvement
+
+When you discover a non-obvious lesson, regression, or correction:
+1. Check if `.ai/lessons.md` already covers it
+2. If not, add a lesson with: rule, rationale, scope
+3. If the lesson affects a skill's hard rules, update that skill too
+
 ## Purpose
 
 This guide defines:
@@ -76,13 +91,17 @@ In Mercur, specs are business-first: explain the problem, outcome, scope, busine
 | Registry block | this file + `packages/registry/AGENTS.md` | `mercur-blocks` |
 | CLI usage | this file | `mercur-cli` |
 | Cross-package feature | this file + all touched package guides | write spec first |
+| Code review (any package) | this file + touched package guides | `code-review` |
+| Writing a spec | this file | `spec-writing` |
 | Integration test | this file + `integration-tests/AGENTS.md` | — |
 | Shared types change | this file + `packages/types/AGENTS.md` | — |
+| Migration (1.5.x → canary) | this file + `docs/migrations/README.md` | `migration-guide` |
 
 ## Task Router
 
 Read every guide that matches the work you are doing:
 
+- Migration documentation and guides: `docs/migrations/README.md`
 - Backend API, Medusa plugin behavior, workflows, links, codegen impact: `packages/core-plugin/AGENTS.md`
 - Admin UI pages, forms, and admin UX regressions: `packages/admin/AGENTS.md`
 - Vendor UI pages, hooks, auth/public flows, and vendor UX regressions: `packages/vendor/AGENTS.md`
@@ -108,6 +127,12 @@ Treat the following as public contracts. Do not change them silently:
 - dashboard configuration surfaces such as `mercur.config.ts`
 
 If any of these change, the spec must include migration or compatibility notes.
+
+### Stability Classification
+
+- **Frozen** (breaking change requires spec + migration notes): API route paths, response envelope shapes, generated Routes types, CLI command names, registry block file layout
+- **Stable** (can tighten, not loosen; document changes): request validation, public package exports, dashboard configuration surfaces
+- **Internal** (free to change): implementation details, private utilities, test helpers
 
 ## Source Of Truth Layers
 
@@ -136,6 +161,15 @@ Do not maintain duplicate manual contracts unless there is a clear reason.
 - `integration-tests`: HTTP contract and behavior verification
 
 When a change crosses one of these boundaries, call it out explicitly in the spec or task summary.
+
+## Critical Rules
+
+- Never import from `@components/`, `@hooks/`, `@lib/` in registry blocks — use `@mercurjs/dashboard-shared`
+- Never create barrel `index.ts` in `workflows/` or `steps/` — it overwrites other blocks during install
+- Always guard keyboard submit paths in handler, not just button UI
+- Route type codegen reads `AuthenticatedMedusaRequest<Body>` + `MedusaResponse<Resp>` generics — these are the contract
+- SDK does not support multipart/form-data — file uploads require raw fetch
+- 491+ pre-existing TS errors in admin — do not treat as regressions from current work
 
 ## Verification Expectations
 
@@ -172,6 +206,9 @@ Runtime-specific mirrors exist in `.claude/skills/` (Claude Code) and `.codex/sk
 | `admin-page-ui` | `.ai/skills/admin-page-ui/SKILL.md` | Creating or modifying admin pages (list, detail, sections, action menus) |
 | `admin-form-ui` | `.ai/skills/admin-form-ui/SKILL.md` | Creating or modifying forms (Form.Field, drawers, modals, submit guards) |
 | `admin-tab-ui` | `.ai/skills/admin-tab-ui/SKILL.md` | Creating custom tabs for TabbedForm wizards (defineTabMeta, layout, sections) |
+| `code-review` | `.ai/skills/code-review/SKILL.md` | Reviewing code changes for contract compliance, type safety, and regression risk |
+| `spec-writing` | `.ai/skills/spec-writing/SKILL.md` | Writing or reviewing specifications following the skeleton-first approach |
+| `migration-guide` | `.ai/skills/migration-guide/SKILL.md` | Planning or executing migration from older Mercur version to canary |
 
 ### Runtime-specific skills
 

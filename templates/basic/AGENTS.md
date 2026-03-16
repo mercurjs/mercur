@@ -51,6 +51,7 @@ Focused core skills in this starter:
 - `admin-page-ui`
 - `admin-form-ui`
 - `admin-tab-ui`
+- `migration-guide`
 
 Runtime mirrors exist in:
 - `.claude/skills/`
