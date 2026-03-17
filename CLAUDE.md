@@ -16,6 +16,8 @@ mercur/
 │   ├── registry/         # Official block registry
 │   ├── types/            # @mercurjs/types - Type definitions
 │   └── vendor/           # @mercurjs/vendor - Vendor portal UI components
+├── packages/providers/
+│   └── payout-stripe-connect/ # @mercurjs/payout-stripe-connect - Stripe Connect payout provider
 ├── templates/
 │   ├── basic/            # Basic marketplace template
 │   └── registry/         # Template for custom registries

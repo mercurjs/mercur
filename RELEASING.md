@@ -11,6 +11,7 @@ All packages are published under the `@mercurjs` scope with the `canary` npm tag
 - `@mercurjs/dashboard-shared`
 - `@mercurjs/core-plugin`
 - `@mercurjs/vendor`
+- `@mercurjs/payout-stripe-connect`
 
 `@mercurjs/registry` is private and not published.
 
