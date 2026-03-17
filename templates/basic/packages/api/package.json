@@ -34,11 +34,11 @@
     "@medusajs/admin-shared": "^2.13.3",
     "@medusajs/medusa": "^2.13.3",
     "@medusajs/draft-order": "2.13.3",
-    "@mercurjs/core-plugin": "2.0.0-canary.91",
-    "@mercurjs/types": "2.0.0-canary.91",
+    "@mercurjs/core-plugin": "2.0.0-canary.92",
+    "@mercurjs/types": "2.0.0-canary.92",
     "zod": "3.25.76",
     "http-proxy-middleware": "^3.0.3",
-    "@mercurjs/cli": "2.0.0-canary.91"
+    "@mercurjs/cli": "2.0.0-canary.92"
   },
   "devDependencies": {
     "@medusajs/test-utils": "^2.13.3",
