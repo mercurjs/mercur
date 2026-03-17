@@ -26,10 +26,10 @@ const DEFAULT_ACCOUNT_VALIDATION = {
 
 class StripeConnectProviderService implements IPayoutProvider {
     static identifier = "stripe-connect"
-    protected stripe_: Stripe
-    protected config_: StripeConnectOptions
+    protected readonly stripe_: Stripe
+    protected readonly config_: StripeConnectOptions
 
-    protected constructor(
+    constructor(
         options: StripeConnectOptions
     ) {
         this.config_ = options

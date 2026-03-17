@@ -34,9 +34,6 @@ module.exports = defineConfig({
         path: '/seller'
       } as DashboardModuleOptions
     },
-    {
-      resolve: '@mercurjs/core-plugin/modules/codegen',
-    }
   ],
   plugins: [{
     resolve: "@mercurjs/core-plugin",

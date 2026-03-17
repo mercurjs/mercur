@@ -288,7 +288,8 @@
       },
       "devDependencies": {
         "@medusajs/framework": "2.13.4",
-        "@mercurjs/types": "2.0.0-canary.93",
+        "@mercurjs/types": "2.0.0-canary.94",
+        "tsup": "^8.5.0",
       },
       "peerDependencies": {
         "@medusajs/framework": "2.13.4",
