@@ -38,7 +38,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.0.0-canary.94",
+      "version": "2.0.0-canary.98",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -51,8 +51,8 @@
         "@medusajs/dashboard": "^2.13.3",
         "@medusajs/icons": "2.13.3",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/client": "2.0.0-canary.85",
-        "@mercurjs/dashboard-shared": "2.0.0-canary.85",
+        "@mercurjs/client": "2.0.0-canary.97",
+        "@mercurjs/dashboard-shared": "2.0.0-canary.97",
         "@radix-ui/react-dialog": "1.1.4",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -98,7 +98,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.0.0-canary.94",
+      "version": "2.0.0-canary.98",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -109,7 +109,7 @@
         "@medusajs/admin-vite-plugin": "2.13.3",
         "@medusajs/dashboard": "2.13.3",
         "@medusajs/framework": "2.13.3",
-        "@mercurjs/dashboard-sdk": "2.0.0-canary.94",
+        "@mercurjs/dashboard-sdk": "2.0.0-canary.97",
         "@vitejs/plugin-react": "^4.2.1",
         "autoprefixer": "^10.4.19",
         "commander": "^14.0.2",
@@ -153,7 +153,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.0.0-canary.94",
+      "version": "2.0.0-canary.98",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -170,7 +170,7 @@
     },
     "packages/core-plugin": {
       "name": "@mercurjs/core-plugin",
-      "version": "2.0.0-canary.94",
+      "version": "2.0.0-canary.98",
       "devDependencies": {
         "@medusajs/cli": "^2.13.3",
         "@medusajs/core-flows": "^2.13.3",
@@ -211,7 +211,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.0.0-canary.94",
+      "version": "2.0.0-canary.98",
       "dependencies": {
         "@babel/parser": "7.25.6",
         "@babel/traverse": "7.25.6",
@@ -228,7 +228,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.0.0-canary.94",
+      "version": "2.0.0-canary.98",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -241,7 +241,7 @@
         "@medusajs/dashboard": "^2.13.3",
         "@medusajs/icons": "2.13.3",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/client": "2.0.0-canary.94",
+        "@mercurjs/client": "2.0.0-canary.97",
         "@radix-ui/react-dialog": "1.1.4",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -282,13 +282,13 @@
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.0.0-canary.94",
+      "version": "2.0.0-canary.97",
       "dependencies": {
         "stripe": "^15.5.0",
       },
       "devDependencies": {
         "@medusajs/framework": "2.13.4",
-        "@mercurjs/types": "2.0.0-canary.94",
+        "@mercurjs/types": "2.0.0-canary.97",
         "tsup": "^8.5.0",
       },
       "peerDependencies": {
@@ -335,7 +335,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.0.0-canary.94",
+      "version": "2.0.0-canary.98",
       "dependencies": {
         "@medusajs/types": "2.13.3",
       },
@@ -345,7 +345,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.0.0-canary.94",
+      "version": "2.0.0-canary.98",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -358,8 +358,8 @@
         "@medusajs/dashboard": "^2.13.3",
         "@medusajs/icons": "2.13.3",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/client": "2.0.0-canary.94",
-        "@mercurjs/dashboard-shared": "2.0.0-canary.94",
+        "@mercurjs/client": "2.0.0-canary.97",
+        "@mercurjs/dashboard-shared": "2.0.0-canary.97",
         "@radix-ui/react-dialog": "1.1.4",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -3527,15 +3527,25 @@
 
     "@medusajs/ui/@medusajs/icons": ["@medusajs/icons@2.13.1", "", { "peerDependencies": { "react": "^18.3.1" } }, "sha512-A0j+C4jURXSWARbxjEOXh3get9N7dY7n3TNTdmpOeY0XPZeDfKaL1yVBD2EC90jVTWY045whrMBCJUuV7kjYPg=="],
 
+    "@mercurjs/admin/@mercurjs/client": ["@mercurjs/client@2.0.0-canary.97", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-K/cFfsuJas2JC7d4aM5MJuYR9O3fgDP1HaNfj25FmAjWvuHpRpDIQTpOBCYuoURftrKOTPzopNvP7zxwue/IXg=="],
+
+    "@mercurjs/admin/@mercurjs/dashboard-shared": ["@mercurjs/dashboard-shared@2.0.0-canary.97", "", { "dependencies": { "@ariakit/react": "^0.4.15", "@babel/runtime": "^7.26.10", "@dnd-kit/core": "^6.1.0", "@dnd-kit/sortable": "^8.0.0", "@dnd-kit/utilities": "^3.2.2", "@hookform/error-message": "^2.0.1", "@hookform/resolvers": "3.4.2", "@medusajs/admin-shared": "^2.13.3", "@medusajs/dashboard": "^2.13.3", "@medusajs/icons": "2.13.3", "@medusajs/ui": "4.1.1", "@mercurjs/client": "2.0.0-canary.97", "@radix-ui/react-dialog": "1.1.4", "@radix-ui/react-dismissable-layer": "1.1.4", "@tanstack/react-query": "5.64.2", "@tanstack/react-table": "8.20.5", "@tanstack/react-virtual": "^3.8.3", "@uiw/react-json-view": "^2.0.0-alpha.17", "cmdk": "^0.2.0", "copy-to-clipboard": "^3.3.3", "date-fns": "^3.6.0", "i18next": "23.7.11", "i18next-browser-languagedetector": "7.2.0", "i18next-http-backend": "2.4.2", "lodash.debounce": "^4.0.8", "lodash.isequal": "^4.5.0", "match-sorter": "^6.3.4", "motion": "^11.15.0", "qs": "^6.12.1", "radix-ui": "1.1.2", "react-country-flag": "^3.1.0", "react-currency-input-field": "^3.6.11", "react-helmet-async": "^2.0.5", "react-hook-form": "7.49.1", "react-i18next": "13.5.0", "react-jwt": "^1.2.0", "react-router-dom": "6.30.3", "zod": "3.25.76" } }, "sha512-LueWIqtFE/5jcOsApZxuDO8iJs3FAcwo5135Y0xA17QJHzjYSDoZbx+QBiJWQxIu/eobnGxRJxTtC0fPM69uJg=="],
+
+    "@mercurjs/cli/@mercurjs/dashboard-sdk": ["@mercurjs/dashboard-sdk@2.0.0-canary.97", "", { "dependencies": { "@babel/parser": "7.25.6", "@babel/traverse": "7.25.6", "@babel/types": "7.25.6", "esbuild-register": "^3.6.0" } }, "sha512-Q0W+bOjALdwrwte503rIrEoE0MrMwNe//MtdiGNJAP20jO9VWxTUS0R1bABCT3HHjXP4SDMv3/7C0OcfSVUU2w=="],
+
     "@mercurjs/client/@medusajs/framework": ["@medusajs/framework@2.13.4", "", { "dependencies": { "@aws-sdk/client-dynamodb": "^3.218.0", "@jercle/yargonaut": "^1.1.5", "@medusajs/deps": "2.13.4", "@medusajs/modules-sdk": "2.13.4", "@medusajs/orchestration": "2.13.4", "@medusajs/telemetry": "2.13.4", "@medusajs/types": "2.13.4", "@medusajs/utils": "2.13.4", "@medusajs/workflows-sdk": "2.13.4", "@types/express": "^4.17.21", "chokidar": "^4.0.3", "compression": "^1.8.1", "connect-dynamodb": "^3.0.5", "connect-redis": "5.2.0", "cookie-parser": "^1.4.6", "cors": "^2.8.5", "express": "^4.21.0", "express-session": "^1.17.3", "glob": "11.1.0", "jsonwebtoken": "^9.0.2", "lodash.memoize": "^4.1.2", "morgan": "^1.9.1", "path-to-regexp": "^8.2.0", "tsconfig-paths": "^4.2.0", "zod-validation-error": "3.5.1" }, "peerDependencies": { "@medusajs/cli": "2.13.4", "ioredis": "^5.4.1" }, "optionalPeers": ["ioredis"], "bin": { "medusa-mikro-orm": "dist/mikro-orm-cli/bin.js" } }, "sha512-OoamovYj/hkDyDSfj7zyaO48o4uyn+Us0+t789z5G90b5KYuUjx2Y2QX7OXy3pRLv6RbsgnyMfUfY5oi1iNFtQ=="],
 
     "@mercurjs/core-plugin/@medusajs/framework": ["@medusajs/framework@2.13.4", "", { "dependencies": { "@aws-sdk/client-dynamodb": "^3.218.0", "@jercle/yargonaut": "^1.1.5", "@medusajs/deps": "2.13.4", "@medusajs/modules-sdk": "2.13.4", "@medusajs/orchestration": "2.13.4", "@medusajs/telemetry": "2.13.4", "@medusajs/types": "2.13.4", "@medusajs/utils": "2.13.4", "@medusajs/workflows-sdk": "2.13.4", "@types/express": "^4.17.21", "chokidar": "^4.0.3", "compression": "^1.8.1", "connect-dynamodb": "^3.0.5", "connect-redis": "5.2.0", "cookie-parser": "^1.4.6", "cors": "^2.8.5", "express": "^4.21.0", "express-session": "^1.17.3", "glob": "11.1.0", "jsonwebtoken": "^9.0.2", "lodash.memoize": "^4.1.2", "morgan": "^1.9.1", "path-to-regexp": "^8.2.0", "tsconfig-paths": "^4.2.0", "zod-validation-error": "3.5.1" }, "peerDependencies": { "@medusajs/cli": "2.13.4", "ioredis": "^5.4.1" }, "optionalPeers": ["ioredis"], "bin": { "medusa-mikro-orm": "dist/mikro-orm-cli/bin.js" } }, "sha512-OoamovYj/hkDyDSfj7zyaO48o4uyn+Us0+t789z5G90b5KYuUjx2Y2QX7OXy3pRLv6RbsgnyMfUfY5oi1iNFtQ=="],
 
     "@mercurjs/dashboard-sdk/@types/node": ["@types/node@22.19.15", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg=="],
 
+    "@mercurjs/dashboard-shared/@mercurjs/client": ["@mercurjs/client@2.0.0-canary.97", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-K/cFfsuJas2JC7d4aM5MJuYR9O3fgDP1HaNfj25FmAjWvuHpRpDIQTpOBCYuoURftrKOTPzopNvP7zxwue/IXg=="],
+
     "@mercurjs/integration-tests/@medusajs/framework": ["@medusajs/framework@2.13.4", "", { "dependencies": { "@aws-sdk/client-dynamodb": "^3.218.0", "@jercle/yargonaut": "^1.1.5", "@medusajs/deps": "2.13.4", "@medusajs/modules-sdk": "2.13.4", "@medusajs/orchestration": "2.13.4", "@medusajs/telemetry": "2.13.4", "@medusajs/types": "2.13.4", "@medusajs/utils": "2.13.4", "@medusajs/workflows-sdk": "2.13.4", "@types/express": "^4.17.21", "chokidar": "^4.0.3", "compression": "^1.8.1", "connect-dynamodb": "^3.0.5", "connect-redis": "5.2.0", "cookie-parser": "^1.4.6", "cors": "^2.8.5", "express": "^4.21.0", "express-session": "^1.17.3", "glob": "11.1.0", "jsonwebtoken": "^9.0.2", "lodash.memoize": "^4.1.2", "morgan": "^1.9.1", "path-to-regexp": "^8.2.0", "tsconfig-paths": "^4.2.0", "zod-validation-error": "3.5.1" }, "peerDependencies": { "@medusajs/cli": "2.13.4", "ioredis": "^5.4.1" }, "optionalPeers": ["ioredis"], "bin": { "medusa-mikro-orm": "dist/mikro-orm-cli/bin.js" } }, "sha512-OoamovYj/hkDyDSfj7zyaO48o4uyn+Us0+t789z5G90b5KYuUjx2Y2QX7OXy3pRLv6RbsgnyMfUfY5oi1iNFtQ=="],
 
     "@mercurjs/payout-stripe-connect/@medusajs/framework": ["@medusajs/framework@2.13.4", "", { "dependencies": { "@aws-sdk/client-dynamodb": "^3.218.0", "@jercle/yargonaut": "^1.1.5", "@medusajs/deps": "2.13.4", "@medusajs/modules-sdk": "2.13.4", "@medusajs/orchestration": "2.13.4", "@medusajs/telemetry": "2.13.4", "@medusajs/types": "2.13.4", "@medusajs/utils": "2.13.4", "@medusajs/workflows-sdk": "2.13.4", "@types/express": "^4.17.21", "chokidar": "^4.0.3", "compression": "^1.8.1", "connect-dynamodb": "^3.0.5", "connect-redis": "5.2.0", "cookie-parser": "^1.4.6", "cors": "^2.8.5", "express": "^4.21.0", "express-session": "^1.17.3", "glob": "11.1.0", "jsonwebtoken": "^9.0.2", "lodash.memoize": "^4.1.2", "morgan": "^1.9.1", "path-to-regexp": "^8.2.0", "tsconfig-paths": "^4.2.0", "zod-validation-error": "3.5.1" }, "peerDependencies": { "@medusajs/cli": "2.13.4", "ioredis": "^5.4.1" }, "optionalPeers": ["ioredis"], "bin": { "medusa-mikro-orm": "dist/mikro-orm-cli/bin.js" } }, "sha512-OoamovYj/hkDyDSfj7zyaO48o4uyn+Us0+t789z5G90b5KYuUjx2Y2QX7OXy3pRLv6RbsgnyMfUfY5oi1iNFtQ=="],
+
+    "@mercurjs/payout-stripe-connect/@mercurjs/types": ["@mercurjs/types@2.0.0-canary.97", "", { "dependencies": { "@medusajs/types": "2.13.3" } }, "sha512-lnxnuohkm/donxoDIgruRw0s5NfnFRQ9h7G8PwIm7G2C7+2YrHZ2HIU+pDR9c0lX4BcdJLi3dt275wCyRFy7KA=="],
 
     "@mercurjs/registry/@medusajs/framework": ["@medusajs/framework@2.13.4", "", { "dependencies": { "@aws-sdk/client-dynamodb": "^3.218.0", "@jercle/yargonaut": "^1.1.5", "@medusajs/deps": "2.13.4", "@medusajs/modules-sdk": "2.13.4", "@medusajs/orchestration": "2.13.4", "@medusajs/telemetry": "2.13.4", "@medusajs/types": "2.13.4", "@medusajs/utils": "2.13.4", "@medusajs/workflows-sdk": "2.13.4", "@types/express": "^4.17.21", "chokidar": "^4.0.3", "compression": "^1.8.1", "connect-dynamodb": "^3.0.5", "connect-redis": "5.2.0", "cookie-parser": "^1.4.6", "cors": "^2.8.5", "express": "^4.21.0", "express-session": "^1.17.3", "glob": "11.1.0", "jsonwebtoken": "^9.0.2", "lodash.memoize": "^4.1.2", "morgan": "^1.9.1", "path-to-regexp": "^8.2.0", "tsconfig-paths": "^4.2.0", "zod-validation-error": "3.5.1" }, "peerDependencies": { "@medusajs/cli": "2.13.4", "ioredis": "^5.4.1" }, "optionalPeers": ["ioredis"], "bin": { "medusa-mikro-orm": "dist/mikro-orm-cli/bin.js" } }, "sha512-OoamovYj/hkDyDSfj7zyaO48o4uyn+Us0+t789z5G90b5KYuUjx2Y2QX7OXy3pRLv6RbsgnyMfUfY5oi1iNFtQ=="],
 
@@ -3544,6 +3554,10 @@
     "@mercurjs/registry/jsonwebtoken": ["jsonwebtoken@9.0.2", "", { "dependencies": { "jws": "^3.2.2", "lodash.includes": "^4.3.0", "lodash.isboolean": "^3.0.3", "lodash.isinteger": "^4.0.4", "lodash.isnumber": "^3.0.3", "lodash.isplainobject": "^4.0.6", "lodash.isstring": "^4.0.1", "lodash.once": "^4.0.0", "ms": "^2.1.1", "semver": "^7.5.4" } }, "sha512-PRp66vJ865SSqOlgqS8hujT5U4AOgMfhrwYIuIhfKaoSCZcirrmASQr8CX7cUg+RMih+hgznrjp99o+W4pJLHQ=="],
 
     "@mercurjs/registry/react-jwt": ["react-jwt@2.0.0", "", { "optionalDependencies": { "fsevents": "^2.3.3" }, "peerDependencies": { "react": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-3TL+KTT51VLHNzXzM89UpKALtgnJrS5+jfo1p48CU1IpPwf62F/P1U+VKZTuQs+kCirPduT9TacrV5lvXqIH5Q=="],
+
+    "@mercurjs/vendor/@mercurjs/client": ["@mercurjs/client@2.0.0-canary.97", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-K/cFfsuJas2JC7d4aM5MJuYR9O3fgDP1HaNfj25FmAjWvuHpRpDIQTpOBCYuoURftrKOTPzopNvP7zxwue/IXg=="],
+
+    "@mercurjs/vendor/@mercurjs/dashboard-shared": ["@mercurjs/dashboard-shared@2.0.0-canary.97", "", { "dependencies": { "@ariakit/react": "^0.4.15", "@babel/runtime": "^7.26.10", "@dnd-kit/core": "^6.1.0", "@dnd-kit/sortable": "^8.0.0", "@dnd-kit/utilities": "^3.2.2", "@hookform/error-message": "^2.0.1", "@hookform/resolvers": "3.4.2", "@medusajs/admin-shared": "^2.13.3", "@medusajs/dashboard": "^2.13.3", "@medusajs/icons": "2.13.3", "@medusajs/ui": "4.1.1", "@mercurjs/client": "2.0.0-canary.97", "@radix-ui/react-dialog": "1.1.4", "@radix-ui/react-dismissable-layer": "1.1.4", "@tanstack/react-query": "5.64.2", "@tanstack/react-table": "8.20.5", "@tanstack/react-virtual": "^3.8.3", "@uiw/react-json-view": "^2.0.0-alpha.17", "cmdk": "^0.2.0", "copy-to-clipboard": "^3.3.3", "date-fns": "^3.6.0", "i18next": "23.7.11", "i18next-browser-languagedetector": "7.2.0", "i18next-http-backend": "2.4.2", "lodash.debounce": "^4.0.8", "lodash.isequal": "^4.5.0", "match-sorter": "^6.3.4", "motion": "^11.15.0", "qs": "^6.12.1", "radix-ui": "1.1.2", "react-country-flag": "^3.1.0", "react-currency-input-field": "^3.6.11", "react-helmet-async": "^2.0.5", "react-hook-form": "7.49.1", "react-i18next": "13.5.0", "react-jwt": "^1.2.0", "react-router-dom": "6.30.3", "zod": "3.25.76" } }, "sha512-LueWIqtFE/5jcOsApZxuDO8iJs3FAcwo5135Y0xA17QJHzjYSDoZbx+QBiJWQxIu/eobnGxRJxTtC0fPM69uJg=="],
 
     "@mikro-orm/cli/fs-extra": ["fs-extra@11.3.0", "", { "dependencies": { "graceful-fs": "^4.2.0", "jsonfile": "^6.0.1", "universalify": "^2.0.0" } }, "sha512-Z4XaCL6dUDHfP/jT25jJKMmtxvuwbkrD1vNSMFlo9lNLY2c5FHYSQgHPRZUjAB26TpDEoW9HCOgplrdbaPV/ew=="],
 
