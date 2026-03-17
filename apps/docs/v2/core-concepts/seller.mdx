@@ -19,6 +19,22 @@ PENDING → ACTIVE → (optionally) SUSPENDED
 2. **ACTIVE** — An admin approves the seller. Only active sellers' products appear in the storefront and can be purchased.
 3. **SUSPENDED** — An admin can suspend a seller at any time, removing their products from sale.
 
+### Auto-approve sellers
+
+By default, new sellers start as `PENDING` and require manual admin approval. You can configure the seller module to automatically approve sellers on creation by passing the `autoApprove` option:
+
+```ts
+// medusa-config.ts
+{
+  resolve: "./modules/seller",
+  options: {
+    autoApprove: true,
+  },
+}
+```
+
+When `autoApprove` is `true`, new sellers are created with `ACTIVE` status immediately, skipping the manual approval step. If an explicit status is provided during creation, it takes precedence over this option.
+
 ### Seller profile
 
 Each seller has a profile with:

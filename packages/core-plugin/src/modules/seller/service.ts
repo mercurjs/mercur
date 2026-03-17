@@ -6,11 +6,12 @@ import {
   MedusaError,
   MedusaService,
   toHandle,
-  InjectTransactionManager
+  InjectTransactionManager,
+  isDefined
 } from "@medusajs/framework/utils"
 import { OrderGroup, Seller } from "./models"
 import { OrderGroupRepository } from "./repositories"
-import { OrderGroupDTO } from "@mercurjs/types"
+import { OrderGroupDTO, SellerModuleOptions, SellerStatus } from "@mercurjs/types"
 
 type InjectedDependencies = {
   orderGroupRepository: OrderGroupRepository
@@ -23,13 +24,18 @@ class SellerModuleService extends MedusaService({
 }) {
   protected readonly orderGroupRepository_: OrderGroupRepository
   protected readonly baseRepository_: DAL.RepositoryService
+  protected readonly options_: Required<SellerModuleOptions>
 
-  constructor({ orderGroupRepository, baseRepository }: InjectedDependencies) {
+  constructor({ orderGroupRepository, baseRepository }: InjectedDependencies, options?: SellerModuleOptions) {
     // @ts-ignore
     // eslint-disable-next-line prefer-rest-params
     super(...arguments)
     this.orderGroupRepository_ = orderGroupRepository
     this.baseRepository_ = baseRepository
+    this.options_ = {
+      autoApprove: false,
+      ...(options ?? {}),
+    }
   }
 
   @InjectTransactionManager()
@@ -49,6 +55,10 @@ class SellerModuleService extends MedusaService({
 
       if (!sellerData.handle && sellerData.name) {
         sellerData.handle = toHandle(sellerData.name)
+      }
+
+      if (this.options_.autoApprove && !isDefined(sellerData.status)) {
+        sellerData.status = SellerStatus.ACTIVE
       }
     }
 

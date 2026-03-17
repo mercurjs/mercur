@@ -35,7 +35,7 @@ jobs:
 
       - name: Publish to npm
         run: |
-          for dir in packages/*/; do
+          for dir in packages/*/ packages/providers/*/; do
             if [ -f "$dir/package.json" ] && ! grep -q '"private": true' "$dir/package.json"; then
               echo "Publishing $dir..."
               cd "$dir"

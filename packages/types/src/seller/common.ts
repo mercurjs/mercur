@@ -4,6 +4,10 @@ export enum SellerStatus {
   SUSPENDED = "suspended",
 }
 
+export interface SellerModuleOptions {
+  autoApprove?: boolean
+}
+
 export type SellerDTO = {
   id: string
   name: string
