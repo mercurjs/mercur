@@ -124,7 +124,7 @@ export default class PayoutModuleService extends MedusaService({
 
         const upsertOnboardingData = {
             ...(payoutAccount.onboarding ? { id: payoutAccount.onboarding.id } : {}),
-            payout_account_id: input.account_id,
+            account: input.account_id,
             data: providerData.data,
             context: input.context as Record<string, unknown>
         }
