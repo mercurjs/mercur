@@ -230,8 +230,6 @@ class StripeConnectProviderService implements IPayoutProvider {
             refresh_url: input.data?.refresh_url as string,
             return_url: input.data?.return_url as string,
             type: "account_onboarding",
-        }, {
-            idempotencyKey: input.context?.idempotency_key
         });
 
         return {
