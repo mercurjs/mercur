@@ -10,11 +10,195 @@ Mercur uses <a href="https://www.algolia.com/">Algolia</a> as a search engine to
 
 In order to use Algolia, an account is needed. After registration, enter `ALGOLIA_APP_ID` and `ALGOLIA_API_KEY` obtained from the Algolia dashboard into the `.env` file.
 
+```bash
+ALGOLIA_APP_ID=your_app_id
+ALGOLIA_API_KEY=your_admin_api_key
+```
+
+For the storefront, you also need to configure the public search key:
+
+```bash
+NEXT_PUBLIC_ALGOLIA_ID=your_app_id
+NEXT_PUBLIC_ALGOLIA_SEARCH_KEY=your_search_only_api_key
+```
+
 ### Configuration
 
 <a href="https://www.algolia.com/doc/rest-api/search/#tag/Indices/operation/setSettings">
   See the full settings reference here!
 </a>
+
+> **Important:** The settings below are configured for the **default Mercur storefront**. If you're using a custom storefront with different filtering requirements, you'll need to adjust `attributesForFaceting` based on your specific filters. See the [Custom Storefront Configuration](#custom-storefront-configuration) section below.
+
+#### Understanding attributesForFaceting
+
+The Algolia `attributesForFaceting` setting is **directly tied to the filters used in your storefront code**. 
+
+**The Rule:**
+- Every attribute you filter by in your storefront → Must be declared in `attributesForFaceting`
+- Without this declaration, Algolia will ignore the filter or return 0 results
+
+**Example:**
+```javascript
+// If your storefront uses this filter:
+filters: "seller.handle:vendor-name AND supported_countries:pl"
+
+// Algolia MUST have:
+attributesForFaceting: [
+  "filterOnly(seller.handle)",
+  "filterOnly(supported_countries)"
+]
+```
+
+#### Default Storefront Configuration
+
+The default Mercur storefront uses the following filters in product listing pages:
+
+**Repository:** [mercurjs/b2c-marketplace-storefront](https://github.com/mercurjs/b2c-marketplace-storefront)
+
+**Location:** `src/components/sections/ProductListing/AlgoliaProductsListing.tsx`
+
+```javascript
+// Default storefront filters:
+NOT seller:null AND 
+NOT seller.store_status:SUSPENDED AND 
+supported_countries:${locale} AND 
+variants.prices.currency_code:${currency_code} AND 
+variants.prices.amount > 0
+```
+
+Additionally, the default storefront supports faceted filtering by:
+- `variants.condition` - Product condition (e.g., new, used, refurbished)
+- `variants.color` - Product color options
+- `variants.size` - Product size options
+
+##### Recommended Algolia Settings for Default Storefront
+
+**Important:** Use the official configuration file from the storefront repository to ensure compatibility:
+
+👉 **[View and download algolia-config.json](https://github.com/mercurjs/b2c-marketplace-storefront/blob/main/algolia-config.json)**
+
+This configuration includes all necessary settings for:
+- `attributesForFaceting` - Required for filtering by category, seller, country, currency, etc.
+- `searchableAttributes` - Product fields that are searchable
+- Ranking and relevance settings
+- Facet ordering (color, size, condition)
+
+**How to apply:**
+
+1. **Via Algolia Dashboard (recommended):**
+   - Download the [algolia-config.json](https://github.com/mercurjs/b2c-marketplace-storefront/blob/main/algolia-config.json) file
+   - In Algolia Dashboard, go to your product index
+   - Select "Import configuration" from the "Manage index" dropdown
+   - Upload the downloaded file
+
+2. **Via API:**
+   - Use the Algolia API to update index settings programmatically
+   - See [Algolia setSettings documentation](https://www.algolia.com/doc/rest-api/search/#tag/Indices/operation/setSettings)
+
+**Key Configuration Elements:**
+
+The official configuration includes these critical settings:
+
+- **attributesForFaceting** - Enables filtering by:
+  - `categories.id` - Filter products by category
+  - `seller.handle` - Filter products by vendor/seller
+  - `seller.store_status` - Filter out suspended sellers
+  - `seller.id` - Filter by specific seller ID
+  - `supported_countries` - Geographic filtering
+  - `variants.prices.currency_code` - Currency-specific filtering
+  - `variants.color`, `variants.size`, `variants.condition` - Product attributes
+  - `attribute_values.name` and `attribute_values.value` - Custom attributes
+
+- **searchableAttributes** - Defines which fields are searchable in text queries
+
+- **facetOrdering** - Controls the order and display of facets in the storefront
+
+**Prefix Explanation:**
+- `filterOnly(attr)` - Attribute can only be used for filtering (more memory efficient)
+- `searchable(attr)` - Attribute can be used for both filtering and text search
+
+**Important:** After updating index settings in Algolia, re-sync your products to ensure the new configuration is applied correctly.
+
+#### Custom Storefront Configuration
+
+If you're building a custom storefront or modifying the default one, follow these steps:
+
+##### 1. Identify Your Filters
+
+Search your storefront code for Algolia filter usage. Common locations:
+- Product listing components
+- Search components
+- Category/collection pages
+
+```javascript
+// Example: Finding filters in your code
+const filters = `brand:${brand} AND color:${color} AND price_range:${range}`
+```
+
+##### 2. Map Filters to attributesForFaceting
+
+For each attribute used in filters, add it to `attributesForFaceting`:
+
+```json
+{
+  "attributesForFaceting": [
+    "filterOnly(brand)",      // For: brand:Nike
+    "filterOnly(color)",       // For: color:red
+    "filterOnly(price_range)"  // For: price_range:100-500
+  ]
+}
+```
+
+##### 3. Choose the Right Prefix
+
+- Use `filterOnly()` for attributes that only need filtering (most common, more efficient)
+- Use `searchable()` for attributes that should also be searchable via text query
+
+##### 4. Update and Test
+
+1. Update your Algolia index settings via dashboard or API
+2. Re-sync your products if needed
+3. Test filtering in your storefront to ensure it works
+
+**Example Custom Configuration:**
+
+If your custom storefront filters by brand, color, and collection:
+
+```javascript
+// Your custom storefront code:
+const filters = `
+  brand:${selectedBrand} AND 
+  color:${selectedColor} AND 
+  collection.id:${collectionId}
+`
+```
+
+Required Algolia settings:
+
+```json
+{
+  "attributesForFaceting": [
+    "filterOnly(brand)",
+    "filterOnly(color)",
+    "filterOnly(collection.id)"
+  ]
+}
+```
+
+**Important:** After updating index settings in Algolia, re-sync your products to ensure the new configuration is applied correctly.
+
+#### Product Visibility Requirements
+
+For a product to be visible on the **default Mercur storefront** via Algolia search, it must meet **all** of the following conditions:
+
+1. **Product Status:** Must be `published`
+2. **Seller Assignment:** Product must have an assigned seller with status `ACTIVE` (not `SUSPENDED`)
+3. **Geographic Availability:** Product's `supported_countries` must include the target country code
+4. **Pricing:** All variants must have prices in the appropriate currency with `amount > 0`
+5. **Inventory:** Variants must have properly configured inventory locations with fulfillment sets for the target country
+
+> **Note:** If you're using a custom storefront, your visibility requirements may differ based on your filtering logic.
 
 ### Events
 
@@ -32,3 +216,44 @@ We use also intermediate events, that also should trigger synchronization with A
 - `algolia.intermediate.inventory_item.changed`
 
 Each event is connected to the subscriber, which is responsible for refetching the entity and updating it in Algolia.
+
+### Troubleshooting
+
+#### Products not showing on storefront
+
+If your products are indexed in Algolia but not appearing on the storefront, verify:
+
+1. **Check attributesForFaceting** - Ensure all attributes used in your storefront filters are declared in `attributesForFaceting`
+2. **Verify filter values** - Check that products have the values you're filtering by (e.g., `supported_countries` contains the target country)
+3. **Review pricing** - Ensure all variants have prices in the correct currency (if you filter by currency)
+4. **Confirm seller status** - If filtering by seller status, verify it's `ACTIVE` and not `SUSPENDED`
+5. **Check product status** - Ensure product status is `published`
+6. **Inspect Algolia Dashboard** - View your index in Algolia Dashboard to see actual data and test filters
+
+#### Common Issues
+
+**Issue: "No results" on product listing page**
+
+Most common cause: Missing `attributesForFaceting` configuration.
+
+Solution:
+1. Check your storefront code to see what filters are applied
+2. Compare with your Algolia `attributesForFaceting` settings
+3. Add any missing attributes to the Algolia configuration
+4. Re-sync products if needed
+
+**Issue: Filters not working**
+
+Solution:
+- Verify the attribute exists in your product data in Algolia
+- Check that the attribute is declared in `attributesForFaceting`
+- Use `filterOnly()` prefix for filtering-only attributes
+- Use `searchable()` prefix if you also need to search by this attribute
+
+**Issue: Products missing after adding new filter**
+
+Solution:
+- New filters require corresponding `attributesForFaceting` entries
+- Update Algolia index settings first
+- Then add the filter to your storefront code
+- Products without the filtered attribute value will be excluded (this is expected)
