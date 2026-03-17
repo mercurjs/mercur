@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/vendor",
-  "version": "2.0.0-canary.100",
+  "version": "2.0.0-canary.101",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
