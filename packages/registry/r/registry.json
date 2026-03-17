@@ -620,14 +620,6 @@
           "type": "registry:api"
         },
         {
-          "path": "algolia/links/seller-fulfillment-set.ts",
-          "type": "registry:api"
-        },
-        {
-          "path": "algolia/links/seller-service-zone.ts",
-          "type": "registry:api"
-        },
-        {
           "path": "algolia/workflows/algolia/steps/sync-algolia-products.ts",
           "type": "registry:api"
         },
