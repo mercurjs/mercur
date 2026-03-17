@@ -1,4 +1,4 @@
-import { BigNumberInput, BigNumberRawValue, BigNumberValue } from "@medusajs/types"
+import { BigNumberInput, FulfillmentStatus } from "@medusajs/types"
 
 export enum PayoutAccountStatus {
   /**
@@ -28,6 +28,61 @@ export enum PayoutStatus {
   PAID = "paid",
   FAILED = "failed",
   CANCELED = "canceled",
+}
+
+export enum PayoutEvents {
+  // TODO: Move to order-related domain events
+  OrderCaptureRequested = 'order.capture_requested',
+  OrderAuthorizationExpired = 'order.authorization_expired',
+  PayoutRequested = 'payout.requested',
+}
+
+
+export interface PayoutModuleOptions {
+  /**
+   * Disable automatic capture checks and daily payout jobs.
+   * When true, both the capture-check and daily-payouts scheduled jobs
+   * will exit immediately without processing any orders.
+   * Default: false.
+   */
+  disabled?: boolean
+
+  /**
+   * How long a payment authorization remains valid before capture is no longer possible.
+   * Default: 7 days.
+   */
+  authorizationWindowMs?: number
+
+  /**
+   * How long a seller has to complete required acceptance or fulfillment actions
+   * before the order should be rejected or canceled.
+   * Example: 72 hours.
+   */
+  sellerActionWindowMs?: number
+
+  /**
+   * Safety margin before authorization expiry. Capture should happen before:
+   * authorization expiry - capture safety buffer.
+   * Default: 24 hours.
+   */
+  captureSafetyBufferMs?: number
+
+  /**
+   * Minimum fulfillment status an order must have before it becomes eligible
+   * for capture and payout. The check uses an ordered scale:
+   *   not_fulfilled < partially_fulfilled < fulfilled < partially_shipped < shipped < partially_delivered < delivered
+   * An order qualifies when its status is >= the configured requirement.
+   * Default: "fulfilled".
+   */
+  requiredFulfillmentStatus?: FulfillmentStatus
+}
+
+export const PAYOUT_MODULE_OPTION_DEFAULTS: Required<PayoutModuleOptions> = {
+  disabled: false,
+  authorizationWindowMs: 7 * 24 * 60 * 60 * 1000,
+  sellerActionWindowMs: 72 * 60 * 60 * 1000,
+  captureSafetyBufferMs: 24 * 60 * 60 * 1000,
+  requiredFulfillmentStatus: "fulfilled",
 }
 
 
@@ -72,30 +127,3 @@ export interface PayoutDTO {
   updated_at: Date
 }
 
-/**
- * The payout balance totals stored in JSON
- */
-export type PayoutBalanceTotals = {
-  balance: BigNumberValue
-  raw_balance: BigNumberRawValue
-}
-
-export interface PayoutBalanceDTO {
-  id: string
-  account_id: string
-  currency_code: string
-  totals: PayoutBalanceTotals
-  created_at: Date
-  updated_at: Date
-}
-
-export interface PayoutTransactionDTO {
-  id: string
-  account_id: string
-  amount: BigNumberInput
-  currency_code: string
-  reference: string | null
-  reference_id: string | null
-  created_at: Date
-  updated_at: Date
-}

@@ -1,37 +1,29 @@
 import {
-    BigNumber,
-    createRawPropertiesFromBigNumber,
     EmitEvents,
     InjectManager,
     InjectTransactionManager,
-    MathBN,
     MedusaContext,
     MedusaError,
     MedusaService,
-    promiseAll,
 } from "@medusajs/framework/utils"
 import {
     CreatePayoutAccountDTO,
     CreatePayoutAccountResponse,
     CreatePayoutDTO,
     CreateOnboardingDTO,
-    CreatePayoutTransactionDTO,
     OnboardingDTO,
     PayoutAccountDTO,
     PayoutAccountStatus,
     PayoutDTO,
-    PayoutTransactionDTO,
     PayoutWebhookActionInput,
     PayoutWebhookResult,
-    PayoutBalanceDTO,
-    PayoutBalanceTotals,
+    PayoutModuleOptions,
+    PAYOUT_MODULE_OPTION_DEFAULTS,
 } from "@mercurjs/types"
 import PayoutProviderService from "./provider-service"
-import { Onboarding, Payout, PayoutAccount, PayoutBalance, PayoutTransaction } from "../models"
-import { BigNumberInput, Context, DAL, InferEntityType, ModulesSdkTypes } from "@medusajs/framework/types"
+import { Onboarding, Payout, PayoutAccount } from "../models"
+import { Context, DAL, InferEntityType, ModulesSdkTypes } from "@medusajs/framework/types"
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex"
-import { IsolationLevel } from "@medusajs/framework/mikro-orm/core"
-import { calculatePayoutTransactions } from "../utils/calculate-payout-transactions"
 
 type InjectedDependencies = {
     payoutProviderService: PayoutProviderService
@@ -42,59 +34,26 @@ export default class PayoutModuleService extends MedusaService({
     Onboarding,
     Payout,
     PayoutAccount,
-    PayoutBalance,
-    PayoutTransaction,
 }) {
     protected readonly payoutProviderService_: PayoutProviderService
     protected readonly baseRepository_: DAL.RepositoryService
+    protected readonly options_: PayoutModuleOptions
 
-    constructor({ payoutProviderService, baseRepository }: InjectedDependencies) {
+    constructor({ payoutProviderService, baseRepository }: InjectedDependencies, options: PayoutModuleOptions) {
         // @ts-ignore
         super(...arguments)
         this.payoutProviderService_ = payoutProviderService
         this.baseRepository_ = baseRepository
+        this.options_ = {
+            ...PAYOUT_MODULE_OPTION_DEFAULTS,
+            ...(options ?? {}),
+        }
     }
 
-    @InjectManager()
-    private async validatePayoutAvailability_(
-        account_id: string,
-        amount: BigNumberInput,
-        currency_code: string,
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<void> {
-        const account = await this.retrievePayoutAccount(
-            account_id,
-            { select: ['id', 'status'] },
-            sharedContext
-        )
-
-        if (account.status !== PayoutAccountStatus.ACTIVE) {
-            throw new MedusaError(
-                MedusaError.Types.NOT_ALLOWED,
-                `Account '${account_id}' is not active`
-            )
-        }
-
-        const [balance] = await this.listPayoutBalances(
-            { account_id, currency_code },
-            { take: 1 },
-            sharedContext
-        )
-
-        if (!balance) {
-            throw new MedusaError(
-                MedusaError.Types.NOT_ALLOWED,
-                'Insufficient funds'
-            )
-        }
-
-        const currentBalance = (balance.totals as unknown as PayoutBalanceTotals)?.raw_balance?.value ?? "0"
-
-        if (MathBN.lt(currentBalance, amount)) {
-            throw new MedusaError(
-                MedusaError.Types.NOT_ALLOWED,
-                'Insufficient funds'
-            )
+    getOptions() {
+        return {
+            ...PAYOUT_MODULE_OPTION_DEFAULTS,
+            ...(this.options_ ?? {}),
         }
     }
 
@@ -193,16 +152,16 @@ export default class PayoutModuleService extends MedusaService({
         input: CreatePayoutDTO,
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<PayoutDTO> {
-        await this.validatePayoutAvailability_(
-            input.account_id,
-            input.amount,
-            input.currency_code,
-            sharedContext
-        )
-
         const payoutAccount = await this.retrievePayoutAccount(input.account_id, {
-            select: ['id', 'data']
+            select: ['id', 'status', 'data']
         }, sharedContext)
+
+        if (payoutAccount.status !== PayoutAccountStatus.ACTIVE) {
+            throw new MedusaError(
+                MedusaError.Types.NOT_ALLOWED,
+                `Account '${input.account_id}' is not active`
+            )
+        }
 
         const providerResponse = await this.payoutProviderService_.createPayout({
             account_id: input.account_id,
@@ -233,163 +192,5 @@ export default class PayoutModuleService extends MedusaService({
         input: PayoutWebhookActionInput
     ): Promise<PayoutWebhookResult> {
         return await this.payoutProviderService_.getWebhookActionAndData(input)
-    }
-
-    @InjectTransactionManager()
-    private async addPayoutTransactions_(
-        account_id: string,
-        transactions: Omit<CreatePayoutTransactionDTO, 'account_id'>[],
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<PayoutTransactionDTO[]> {
-        return await this.baseRepository_.transaction<EntityManager>(
-            async (transactionManager) => {
-                // Group transactions by currency_code
-                const groupedByCurrency = transactions.reduce((acc, txn) => {
-                    if (!acc[txn.currency_code]) {
-                        acc[txn.currency_code] = []
-                    }
-                    acc[txn.currency_code].push(txn)
-                    return acc
-                }, {} as Record<string, Omit<CreatePayoutTransactionDTO, 'account_id'>[]>)
-
-                // Update balances for each currency
-                await promiseAll(
-                    Object.entries(groupedByCurrency).map(async ([currency_code, currencyTransactions]) => {
-                        const [existingBalance] = await this.listPayoutBalances(
-                            { account_id, currency_code },
-                            { take: 1 },
-                            { transactionManager }
-                        )
-
-                        const newTotals = calculatePayoutTransactions({
-                            currentBalance: existingBalance as unknown as PayoutBalanceDTO,
-                            transactions: currencyTransactions
-                        })
-
-                        if (!existingBalance) {
-                            await this.createPayoutBalances(
-                                { account_id, currency_code, totals: newTotals },
-                                { transactionManager }
-                            )
-                        } else {
-                            await this.updatePayoutBalances(
-                                { id: existingBalance.id, totals: newTotals },
-                                { transactionManager }
-                            )
-                        }
-                    })
-                )
-
-                const createdTransactions = await this.createPayoutTransactions(
-                    transactions.map((txn) => ({
-                        ...txn,
-                        account_id,
-                        amount: MathBN.convert(txn.amount).toNumber(),
-                    })),
-                    { transactionManager }
-                )
-
-                return await this.baseRepository_.serialize<PayoutTransactionDTO[]>(createdTransactions)
-            },
-            {
-                transaction: sharedContext?.transactionManager,
-                isolationLevel: IsolationLevel.SERIALIZABLE,
-            }
-        )
-    }
-
-    @InjectManager()
-    @EmitEvents()
-    async addPayoutTransactions(
-        account_id: string,
-        transactions: Omit<CreatePayoutTransactionDTO, 'account_id'>[],
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<PayoutTransactionDTO[]> {
-        return await this.addPayoutTransactions_(
-            account_id,
-            transactions,
-            sharedContext
-        )
-    }
-
-    @InjectTransactionManager()
-    @EmitEvents()
-    // @ts-ignore
-    async deletePayoutTransactions(
-        transactionIds: string | string[],
-        @MedusaContext() sharedContext: Context<EntityManager> = {}
-    ): Promise<void> {
-        const ids = Array.isArray(transactionIds) ? transactionIds : [transactionIds]
-
-        if (!ids.length) {
-            return
-        }
-
-        const transactions = await super.listPayoutTransactions(
-            { id: ids },
-            undefined,
-            sharedContext
-        )
-
-        if (!transactions.length) {
-            return
-        }
-
-        await super.deletePayoutTransactions(ids, sharedContext)
-
-        await this.updatePayoutBalanceAfterUpdate_(transactions, sharedContext)
-    }
-
-    @InjectTransactionManager()
-    private async updatePayoutBalanceAfterUpdate_(
-        transactions: PayoutTransactionDTO[],
-        @MedusaContext() sharedContext: Context<EntityManager> = {}
-    ): Promise<void> {
-        // Group transactions by account_id and currency_code
-        const grouped = transactions.reduce((acc, txn) => {
-            const key = `${txn.account_id}-${txn.currency_code}`
-            if (!acc[key]) {
-                acc[key] = {
-                    account_id: txn.account_id,
-                    currency_code: txn.currency_code,
-                    totalAmount: MathBN.convert(0)
-                }
-            }
-            acc[key].totalAmount = MathBN.add(acc[key].totalAmount, txn.amount)
-            return acc
-        }, {} as Record<string, { account_id: string; currency_code: string; totalAmount: BigNumberInput }>)
-
-        await promiseAll(
-            Object.values(grouped).map(async (group) => {
-                const [balance] = await this.listPayoutBalances(
-                    { account_id: group.account_id, currency_code: group.currency_code },
-                    { take: 1 },
-                    sharedContext
-                )
-
-                if (!balance) {
-                    return
-                }
-
-                const currentRawBalance = (balance.totals as unknown as PayoutBalanceTotals)?.raw_balance?.value ?? "0"
-
-                // Subtract the deleted transaction amounts from the balance
-                const newBalance = MathBN.sub(
-                    MathBN.convert(currentRawBalance),
-                    group.totalAmount
-                )
-
-                const totals = {
-                    balance: new BigNumber(newBalance),
-                }
-
-                createRawPropertiesFromBigNumber(totals)
-
-                await this.updatePayoutBalances(
-                    { id: balance.id, totals },
-                    sharedContext
-                )
-            })
-        )
     }
 }

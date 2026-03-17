@@ -1,5 +1,3 @@
 export { Onboarding } from './onboarding'
 export { Payout } from './payout'
 export { PayoutAccount } from './payout-account'
-export { PayoutBalance } from './balance'
-export { PayoutTransaction } from './transaction'

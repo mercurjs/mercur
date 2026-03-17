@@ -14,6 +14,9 @@
     "check-types": {
       "dependsOn": ["^check-types"]
     },
+    "test:integration:http": {
+      "cache": false
+    },
     "dev": {
       "cache": false,
       "persistent": true
