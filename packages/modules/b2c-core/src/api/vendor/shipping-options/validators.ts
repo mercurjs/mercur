@@ -21,24 +21,35 @@ export const VendorGetShippingFindParams = createFindParams({
  *   - currency_code
  *   - amount
  * properties:
+ *   id:
+ *     type: string
+ *     description: Optional ID for updating existing price.
  *   currency_code:
  *     type: string
  *     description: The currency code for the price.
  *   amount:
  *     type: number
  *     description: The amount of the price.
+ *   rules:
+ *     type: array
+ *     description: Optional price rules for conditional pricing.
+ *     items:
+ *       type: object
  */
 const CreateShippingOptionPriceWithCurrency = z
   .object({
+    id: z.string().optional(),
     currency_code: z.string(),
     amount: z.number(),
-    rules: z.array(
-      z.object({
-        attribute: z.literal('item_total'),
-        operator: z.nativeEnum(PricingRuleOperator),
-        value: z.number()
-      })
-    )
+    rules: z
+      .array(
+        z.object({
+          attribute: z.literal('item_total'),
+          operator: z.nativeEnum(PricingRuleOperator),
+          value: z.number()
+        })
+      )
+      .optional()
   })
   .strict()
 
@@ -49,24 +60,35 @@ const CreateShippingOptionPriceWithCurrency = z
  *   - region_id
  *   - amount
  * properties:
+ *   id:
+ *     type: string
+ *     description: Optional ID for updating existing price.
  *   region_id:
  *     type: string
  *     description: The region ID for the price.
  *   amount:
  *     type: number
  *     description: The amount of the price.
+ *   rules:
+ *     type: array
+ *     description: Optional price rules for conditional pricing.
+ *     items:
+ *       type: object
  */
 export const CreateShippingOptionPriceWithRegion = z
   .object({
+    id: z.string().optional(),
     region_id: z.string(),
     amount: z.number(),
-    rules: z.array(
-      z.object({
-        attribute: z.literal('item_total'),
-        operator: z.nativeEnum(PricingRuleOperator),
-        value: z.number()
-      })
-    )
+    rules: z
+      .array(
+        z.object({
+          attribute: z.literal('item_total'),
+          operator: z.nativeEnum(PricingRuleOperator),
+          value: z.number()
+        })
+      )
+      .optional()
   })
   .strict()
 
