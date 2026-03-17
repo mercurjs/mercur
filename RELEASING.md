@@ -59,3 +59,13 @@ v2.0.0             # stable (when ready)
 - `NPM_TOKEN` secret in GitHub repo settings (npm automation token)
 - Use conventional commits (`feat:`, `fix:`, `chore:`) for changelog generation
 - All GitHub Actions must be pinned to full-length commit SHAs (org policy)
+
+## Release Notes Guidance
+
+For Mercur 2.0 release notes and changelog copy, use consistent wording for current migration exceptions:
+
+- `TaxCode` is not yet carried into 2.0 and requires manual migration.
+- `SecondaryCategory` does not yet have full 1.x parity in the current release and may require manual migration. Fuller support is planned for a future 2.x release.
+- The 1.x product attribute system does not yet have full parity in the current release and may require manual migration. Fuller support is planned for a future 2.x release.
+
+Do not promise a specific date in public release notes. Use "planned for a future 2.x release" instead of week-based commitments.

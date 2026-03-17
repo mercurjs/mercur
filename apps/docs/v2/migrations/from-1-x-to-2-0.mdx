@@ -34,9 +34,33 @@ Start with a working 2.0 project (see [Installation](/v2/getting-started/install
 
 ## What You DON'T Need to Port
 
-Everything in `@mercurjs/b2c-core` is now in core-plugin: seller, marketplace, payout, commission, configuration, attributes, secondary categories, taxcode, split-order-payment. Don't re-implement these.
+Built into core-plugin today:
 
-Registry blocks (reviews, requests, wishlist, team-management, algolia, vendor-notifications) replace their 1.x equivalents. Install blocks, don't port that code.
+- `seller`
+- `payout`
+- `commission`
+- `split-order-payment`
+
+Moved to registry blocks:
+
+- `reviews`
+- `requests`
+- `wishlist`
+- `team-management`
+- `algolia`
+- `vendor-notifications`
+- `vendor-chat`
+- `product-import-export`
+
+Install these blocks instead of porting their 1.x package code.
+
+## Current Migration Exceptions
+
+These areas do not currently have full 1.x parity and should be treated as manual migration work:
+
+- **`TaxCode`** — no 2.0 equivalent today. Port the old logic manually if your project depends on it.
+- **`SecondaryCategory`** — no full 1.x parity today. Port manually for now if your project depends on it. Fuller support is planned for a future 2.x release.
+- **Product attributes** — the 1.x attribute module is not carried over 1:1. Port manually for now if your project depends on it. Fuller support is planned for a future 2.x release.
 
 ## Porting Custom Backend Code
 
