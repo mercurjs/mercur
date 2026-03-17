@@ -112,7 +112,7 @@ export default class PayoutModuleService extends MedusaService({
         const providerData = await this.payoutProviderService_.createOnboarding(
             {
                 context: {
-                    idempotency_key: input.account_id,
+                    idempotency_key: `${input.account_id}_onboarding`,
                     ...input.context
                 },
                 data: {

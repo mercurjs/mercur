@@ -4,6 +4,7 @@ import { CreatePayoutAccountDTO, MercurModules } from "@mercurjs/types"
 
 import {
   createPayoutAccountStep,
+  validateSellerPayoutAccountStep,
 } from "../steps"
 
 interface CreatePayoutAccountInput extends CreatePayoutAccountDTO {
@@ -13,6 +14,10 @@ interface CreatePayoutAccountInput extends CreatePayoutAccountDTO {
 export const createPayoutAccountWorkflow = createWorkflow(
   "create-payout-account-for-seller",
   function (input: CreatePayoutAccountInput) {
+    validateSellerPayoutAccountStep({
+      seller_id: input.seller_id,
+    })
+
     const payoutAccount = createPayoutAccountStep({
       context: input.context,
       data: input.data,
