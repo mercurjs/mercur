@@ -15,6 +15,7 @@ List the tests or commands you ran to validate the change.
 - [ ] This pull request targets `new`.
 - [ ] I updated documentation, locales if the change requires it.
 - [ ] I added or adjusted tests that cover the change.
+- [ ] I reviewed whether this change should update `templates/basic` AI knowledge.
 
 ## Linked issues
 

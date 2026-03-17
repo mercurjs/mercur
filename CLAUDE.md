@@ -1,196 +1,124 @@
-# Mercur
+# Mercur Architecture Notes
 
-Open source marketplace platform built on MedusaJS. Follows a shadcn-like CLI approach where code is copied directly into projects for full ownership.
+**IMPORTANT: Before any non-trivial task, read [`AGENTS.md`](AGENTS.md) first.** It contains the workflow, task routing, spec requirements, and verification rules you must follow.
 
-## Project Structure
+This file provides high-level repository context only:
+- what Mercur is
+- how the repo is organized
+- the main packages and concepts
+- notable public-facing tooling and configuration
 
-```
+## Mercur
+
+Mercur is an open source marketplace platform built on MedusaJS. The canary branch follows a block-based model where reusable modules, workflows, API routes, and dashboard extensions can be installed into projects with full code ownership.
+
+## Repository Structure
+
+```text
 mercur/
 ├── apps/
-│   └── docs/             # Documentation site (Mintlify)
+│   ├── admin-test/         # Example admin app consuming workspace packages
+│   ├── docs/               # Public documentation and API reference
+│   ├── vendor-test/        # Example vendor app consuming workspace packages
+│   └── api/                # App workspace reserved for API-oriented flows
+├── integration-tests/      # HTTP integration test suite
 ├── packages/
-│   ├── cli/              # @mercurjs/cli - CLI tool
-│   ├── client/           # @mercurjs/client - API client
-│   ├── core/             # @mercurjs/core - Core Medusa plugin (modules, workflows, providers)
-│   ├── dashboard-sdk/    # @mercurjs/dashboard-sdk - Vite plugin for dashboards
-│   ├── registry/         # Official block registry
-│   ├── types/            # @mercurjs/types - Type definitions
-│   └── vendor/           # @mercurjs/vendor - Vendor portal UI components
-├── templates/
-│   ├── basic/            # Basic marketplace template
-│   └── registry/         # Template for custom registries
+│   ├── admin/              # @mercurjs/admin
+│   ├── cli/                # @mercurjs/cli
+│   ├── client/             # @mercurjs/client
+│   ├── core-plugin/        # @mercurjs/core-plugin
+│   ├── dashboard-sdk/      # @mercurjs/dashboard-sdk
+│   ├── dashboard-shared/   # shared dashboard primitives
+│   ├── registry/           # official registry source
+│   ├── types/              # @mercurjs/types
+│   └── vendor/             # @mercurjs/vendor
+└── templates/              # starter templates
 ```
 
 ## Key Concepts
 
 ### Blocks
 
-Reusable code pieces that can be installed via CLI:
+Mercur's installable building blocks include:
+- modules
+- links
+- workflows
+- API routes
+- admin extensions
+- vendor extensions
 
-- **Modules** - Data models and business logic
-- **Links** - Relationships between modules
-- **Workflows** - Multi-step business processes
-- **API Routes** - HTTP endpoints
-- **Admin Extensions** - Admin dashboard customizations
-- **Vendor Extensions** - Vendor portal customizations
+### Generated route contract
 
-## CLI Commands (`packages/cli`)
+The CLI scans API route files and generates `Routes` types used by Mercur clients and dashboard packages. This is a key contract surface for backend and frontend compatibility.
 
-### `mercurjs create [name]`
+### Full code ownership
 
-Create a new Mercur project from template.
+Registry blocks are copied into user projects rather than hidden behind runtime-only abstractions. Path layout, imports, and generated metadata matter because downstream installs depend on them.
 
-**Options:**
+## Main Packages
 
-- `-t, --template <template>` - Template: `basic` or `registry`
-- `--no-deps` - Skip dependency installation
-- `--skip-db` - Skip database configuration
-- `--skip-email` - Skip email collection
-- `--db-connection-string <string>` - PostgreSQL connection string
+- `@mercurjs/core-plugin`: Medusa plugin with routes, workflows, modules, and links
+- `@mercurjs/client`: typed client inferred from generated `Routes`
+- `@mercurjs/cli`: project scaffolding, registry tooling, and route codegen
+- `@mercurjs/admin`: admin dashboard package
+- `@mercurjs/vendor`: vendor dashboard package
+- `@mercurjs/dashboard-sdk`: dashboard Vite integration and virtual modules
+- `@mercurjs/registry`: official registry source tree and build output
+- `@mercurjs/types`: shared public type surfaces
 
-### `mercurjs init`
+## Dashboard SDK Notes
 
-Initialize project configuration (`blocks.json`).
+The dashboard SDK provides:
+- `virtual:mercur/routes`
+- `virtual:mercur/config`
+- `virtual:mercur/components`
 
-**Options:**
+It uses file-based routing in dashboard apps and is part of the public developer experience for custom admin and vendor applications.
 
-- `-y, --yes` - Skip confirmation
-- `-d, --defaults` - Use default paths
-- `-s, --silent` - Mute output
+## Documentation
 
-### `mercurjs add <blocks...>`
+`apps/docs` contains the public documentation site.
 
-Add blocks from registry to project.
+Important docs facts:
+- content is MDX-based
+- API reference is presented from OpenAPI artifacts
+- docs are part of the public contract whenever setup, usage, or HTTP examples change
 
-**Options:**
+## Tooling
 
-- `-y, --yes` - Skip confirmation
-- `-o, --overwrite` - Overwrite existing files
-- `-s, --silent` - Mute output
+- foundation: MedusaJS v2
+- language: TypeScript
+- monorepo: Turborepo
+- package manager: bun
 
-### `mercurjs search`
+## Important Configuration Files
 
-Search available blocks in registries.
+- `blocks.json`: project block path aliases in downstream apps
+- `registry.json`: registry metadata
+- `medusa-config.ts`: Medusa and dashboard configuration in consuming apps — registers `admin-ui` and `vendor-ui` modules with `appDir` and `path`
+- `apps/admin/vite.config.ts`, `apps/vendor/vite.config.ts`: panel bootstrap via `mercurDashboardPlugin({ medusaConfigPath })`
 
-**Options:**
+## Dashboard Configuration Model
 
-- `-q, --query <query>` - Search query
-- `-r, --registry <registry>` - Registry to search (default: `@mercurjs`)
-
-### `mercurjs view <blocks...>`
-
-Display detailed block information.
-
-### `mercurjs build [registry]`
-
-Build registry into JSON files for distribution.
-
-**Options:**
-
-- `-o, --output <path>` - Output directory (default: `./r`)
-- `-v, --verbose` - Show detailed output
-
-### `mercurjs diff <blocks...>`
-
-Compare local blocks against registry versions.
-
-### `mercurjs codegen`
-
-Generate TypeScript types from API routes.
-
-**Options:**
-
-- `-w, --watch` - Watch mode for auto-regeneration
-
-### `mercurjs info`
-
-Display project configuration and diagnostics.
-
-### `mercurjs telemetry`
-
-Control anonymous usage data collection.
-
-**Options:**
-
-- `--enable` - Enable telemetry
-- `--disable` - Disable telemetry
-
-## Dashboard SDK (`packages/dashboard-sdk`)
-
-Vite plugin providing build-time integration for dashboard applications.
-
-### Features
-
-- **Configuration Management** - Loads `mercur.config.ts`
-- **Route Generation** - Auto-generates routes from file-based structure
-- **Component Registration** - Lazy-loads custom components via virtual modules
-- **Hot Module Reloading** - Detects changes and restarts dev server
-
-### Virtual Modules
+Dashboard registration is backend-first. The source of truth for which app is mounted and where is `packages/api/medusa-config.ts`:
 
 ```typescript
-import routes from "virtual:mercur/routes"; // Generated route array
-import config from "virtual:mercur/config"; // Configuration object
-import components from "virtual:mercur/components"; // Component registry
+modules: [
+  {
+    resolve: '@mercurjs/core-plugin/modules/admin-ui',
+    options: { appDir: path.join(__dirname, '../../apps/admin'), path: '/dashboard' }
+  },
+  {
+    resolve: '@mercurjs/core-plugin/modules/vendor-ui',
+    options: { appDir: path.join(__dirname, '../../apps/vendor'), path: '/seller' }
+  },
+]
 ```
 
-### File-Based Routing
-
-- `src/pages/page.tsx` → `/`
-- `src/pages/users/[id]/page.tsx` → `/users/:id`
-- `src/pages/users/[[id]]/page.tsx` → `/users/:id?` (optional)
-- `src/pages/search/[*].tsx` → `/search/*` (splat)
-- `src/pages/(group)/foo/page.tsx` → `/foo` (route grouping)
-- `src/pages/dashboard/@sidebar/page.tsx` → Parallel route
-
-### Usage
+Panel apps (`apps/admin`, `apps/vendor`) bootstrap via `mercurDashboardPlugin` in their `vite.config.ts`:
 
 ```typescript
-// vite.config.ts
-import { dashboardPlugin } from "@mercurjs/dashboard-sdk";
-
-export default {
-  plugins: [react(), dashboardPlugin()],
-};
+mercurDashboardPlugin({ medusaConfigPath: '../../packages/api/medusa-config.ts' })
 ```
 
-## Vendor Package (`packages/vendor`)
-
-React-based vendor portal UI framework.
-
-## Core Package (`packages/core`)
-
-MedusaJS v2 plugin providing marketplace functionality.
-
-## Documentation (`apps/docs`)
-
-Documentation site built with [Mintlify](https://mintlify.com). Configuration lives in `docs.json`.
-
-- **Content format**: MDX files
-- **API Reference**: Auto-generated from OpenAPI spec (`api-reference/combined.oas.json`)
-- **Sections**: Quick start, Core Concepts, Product (modules, workflows, events, subscribers), Integrations, Deployment, API Reference, Changelog
-- **Dev server**: `mintlify dev` from `apps/docs/`
-
-## Architecture
-
-- **Foundation**: MedusaJS v2 (headless commerce)
-- **Language**: TypeScript
-- **Monorepo**: Turborepo
-- **Package Manager**: bun
-
-## Configuration Files
-
-- `blocks.json` - Project configuration with path aliases
-- `registry.json` - Registry definition with block metadata
-- `mercur.config.ts` - Dashboard/vendor app configuration
-- `medusa-config.ts` - MedusaJS configuration
-
-## Supported Deployment Vendors
-
-- Medusa Cloud
-- Railway
-- Render
-- Fly.io
-- Heroku
-- DigitalOcean
-- Koyeb
+`virtual:mercur/config` is runtime-generated by the SDK from `medusa-config.ts` — it is not a hand-authored file. There is no `mercur.config.ts` in the current template.

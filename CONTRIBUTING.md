@@ -12,12 +12,15 @@ We’re excited to collaborate with folks building on top of Mercur. This guide 
 
 - Branch from `new`, keeping it up to date via `git pull --rebase origin new`.
 - Keep commits scoped and descriptive. Squash locally if it clarifies the story.
-- Follow module conventions from [`CLAUDE.md`](CLAUDE.md) and prefer the `packages/` workspace for new code.
+- Follow workflow and package routing from [`AGENTS.md`](AGENTS.md). Use [`CLAUDE.md`](CLAUDE.md) as the high-level architecture companion.
+- Prefer the `packages/` workspace for new code.
+- For non-trivial changes that cross package boundaries or touch public contracts, create or update a business-first spec from [`.ai/specs/TEMPLATE.md`](.ai/specs/TEMPLATE.md).
 
 ## Pull Requests
 
 - Open PRs against `new` unless you are coordinating a release hotfix.
 - Describe the user impact, architectural notes, and testing performed (lint, unit, integration, CLI).
+- Link the relevant spec for qualifying non-trivial changes, or state why no spec was needed.
 - Ensure the branch merges cleanly and CI is green before requesting review.
 - Reference related issues or discussions; add screenshots or recordings for UI tweaks.
 - Tag maintainers early if you need design or architectural guidance.
@@ -25,7 +28,8 @@ We’re excited to collaborate with folks building on top of Mercur. This guide 
 ## Helpful Resources
 
 - 📚 Documentation: [docs.mercurjs.com](https://docs.mercurjs.com)
-- 🧠 Agents & architecture guide: [`CLAUDE.md`](CLAUDE.md)
+- 🧠 Workflow guide: [`AGENTS.md`](AGENTS.md)
+- 🏗️ Architecture context: [`CLAUDE.md`](CLAUDE.md)
 - 💬 Community discussions and issues: [GitHub issues](https://github.com/mercurjs/mercur/issues)
 
 Thanks for helping us build a more extensible, AI-ready marketplace platform!

@@ -1,0 +1,57 @@
+---
+title: Migration Overview
+description: Understand what changes between Mercur 1.x and 2.0 and how to migrate your project.
+---
+
+# Migration Overview
+
+Mercur 2.0 replaces the monolithic plugin architecture (`@mercurjs/b2c-core`) with a block-based model (`@mercurjs/core-plugin` + registry blocks).
+
+This guide is about **porting your existing 1.x code to a 2.0 project**. For setting up a fresh 2.0 project, see [Installation](/v2/getting-started/installation).
+
+<Tip>
+If you're using an AI Agent/IDE (Claude Code, Cursor, or similar), your project includes a `migration-guide` skill that can analyze your 1.x Mercur project and walk you through the migration step by step.
+</Tip>
+
+## What Replaced What
+
+| 1.x | 2.0 |
+|-------|--------|
+| `@mercurjs/b2c-core` (monolithic) | `@mercurjs/core-plugin` — all core modules built in |
+| `@mercurjs/commission` (separate) | Built into core-plugin |
+| `@mercurjs/algolia`, reviews, requests | Registry blocks (`mercurjs add ...`) |
+| `@medusajs/admin-vite-plugin` | `@mercurjs/dashboard-sdk` (virtual modules) |
+| `@medusajs/js-sdk` (manual hooks) | `@mercurjs/client` (generated typed client) |
+| Custom admin/vendor pages | `@mercurjs/admin` / `@mercurjs/vendor` — complete panels out of the box |
+| `apps/backend/` | `packages/api/` |
+| `src/routes/` (admin) | `src/pages/` (file-based routing) |
+| Yarn + Turbo | bun (recommended) |
+
+## What Didn't Change
+
+- MedusaJS v2 foundation (modules, workflows, links, subscribers, API routes)
+- Data model patterns (MikroORM, service layer)
+- Environment variables (`DATABASE_URL`, CORS, secrets — all the same)
+
+## What You Need to Migrate
+
+**Most users don't need to migrate much.** Core-plugin and the official registry blocks cover most standard marketplace functionality. Core-admin/vendor panels provide 34+ pages out of the box.
+
+You only need to port:
+- **Custom modules** — business-specific modules not covered by core-plugin or blocks
+- **Custom workflows and routes** — your own endpoints and business logic
+- **Custom dashboard pages** — only if you have domain-specific pages not in core-admin/vendor
+
+<Warning>
+Current migration exceptions:
+
+- `TaxCode` does not have a 2.0 equivalent today and requires manual migration.
+- `SecondaryCategory` does not yet have full 1.x parity and may require manual migration for now.
+- The 1.x product attribute system is not carried over 1:1, so product attributes may require manual migration for now.
+
+See [From 1.x to 2.0](/v2/migrations/from-1-x-to-2-0) for the full migration guidance and current status.
+</Warning>
+
+## Next Steps
+
+- [Migration guide](/v2/migrations/from-1-x-to-2-0) — what changed and how to port your code

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(xargs -I {} sh -c 'echo \"\"=== {} ===\"\" && head -50 {}')",
+      "mcp__ide__getDiagnostics"
+    ]
+  }
+}
