@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/cli",
-  "version": "2.0.0-canary.89",
+  "version": "2.0.0-canary.90",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -63,7 +63,7 @@
     "vite": "^5.4.21",
     "@medusajs/admin-bundler": "2.13.3",
     "@medusajs/framework": "2.13.3",
-    "@mercurjs/dashboard-sdk": "2.0.0-canary.89"
+    "@mercurjs/dashboard-sdk": "2.0.0-canary.90"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
