@@ -10,7 +10,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
+import { sdk, fetchQuery } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 
@@ -114,31 +114,25 @@ export const useDeleteInvite = (
   })
 }
 
+type AcceptInvitePayload = {
+  email?: string | null
+  first_name?: string | null
+  last_name?: string | null
+  auth_token: string
+}
+
 export const useAcceptInvite = (
   inviteToken: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.invites.accept.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.admin.invites.accept.mutate>,
-      "invite_token"
-    > & { auth_token: string }
-  >
+  options?: UseMutationOptions<{ user: unknown }, ClientError, AcceptInvitePayload>
 ) => {
   return useMutation({
-    mutationFn: (payload) => {
-      const { auth_token, ...rest } = payload
-
-      return sdk.admin.invites.accept.mutate({
-        invite_token: inviteToken,
-        ...rest,
-        fetchOptions: {
-          headers: {
-            Authorization: `Bearer ${auth_token}`,
-          },
-        },
-      })
-    },
+    mutationFn: ({ auth_token, ...body }) =>
+      fetchQuery('/admin/invites/accept', {
+        method: 'POST',
+        query: { token: inviteToken },
+        body,
+        headers: { Authorization: `Bearer ${auth_token}` },
+      }),
     onSuccess: (data, variables, context) => {
       options?.onSuccess?.(data, variables, context)
     },
