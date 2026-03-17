@@ -56,6 +56,7 @@ class StripeConnectProviderService implements IPayoutProvider {
     private getWebhookResultFromAccount_(
         account: Stripe.Account
     ): PayoutWebhookResult {
+        const accountId = account.metadata?.account_id!
         const validation = {
             ...DEFAULT_ACCOUNT_VALIDATION,
             ...this.config_.accountValidation,
@@ -76,7 +77,7 @@ class StripeConnectProviderService implements IPayoutProvider {
             return {
                 action: "account.rejected",
                 data: {
-                    id: account.id,
+                    id: accountId,
                 },
             }
         }
@@ -91,7 +92,7 @@ class StripeConnectProviderService implements IPayoutProvider {
             return {
                 action: "account.activated",
                 data: {
-                    id: account.id,
+                    id: accountId,
                 },
             }
         }
@@ -100,7 +101,7 @@ class StripeConnectProviderService implements IPayoutProvider {
             return {
                 action: "account.restricted",
                 data: {
-                    id: account.id,
+                    id: accountId,
                 },
             }
         }
@@ -108,7 +109,7 @@ class StripeConnectProviderService implements IPayoutProvider {
         return {
             action: "account.restricted",
             data: {
-                id: account.id,
+                id: accountId,
             },
         }
     }
@@ -171,6 +172,9 @@ class StripeConnectProviderService implements IPayoutProvider {
         const response = await this.stripe_.accounts.create({
             type: 'express',
             country,
+            metadata: {
+                account_id: data?.account_id as string,
+            },
         }, {
             idempotencyKey: input.context?.idempotency_key
         })

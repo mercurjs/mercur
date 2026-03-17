@@ -77,7 +77,10 @@ export default class PayoutModuleService extends MedusaService({
                     idempotency_key: payoutAccount.id,
                     ...input.context
                 },
-                data: input.data
+                data: {
+                    ...input.data,
+                    account_id: payoutAccount.id,
+                }
             })
 
             payoutAccount = await this.updatePayoutAccounts(
