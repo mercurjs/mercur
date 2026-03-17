@@ -5,89 +5,79 @@ import {
   IndexSettings,
   SearchParams,
   SearchResponse,
-  algoliasearch
-} from 'algoliasearch'
+  algoliasearch,
+} from "algoliasearch";
 
-import { AlgoliaEntity, IndexType } from './types'
+import { AlgoliaEntity, IndexType } from "./types";
 
 type ModuleOptions = {
-  appId: string
-  apiKey: string
-}
+  appId: string;
+  apiKey: string;
+};
 
 export const defaultProductSettings: IndexSettings = {
   searchableAttributes: [
-    'title',
-    'subtitle',
-    'tags.value',
-    'type.value',
-    'categories.name',
-    'collection.title',
-    'variants.title'
+    "title",
+    "subtitle",
+    "tags.value",
+    "type.value",
+    "categories.name",
+    "collection.title",
+    "variants.title",
   ],
-  attributesForFaceting: [
-    'filterOnly(categories.id)',
-    'filterOnly(seller.handle)',
-    'filterOnly(seller.store_status)',
-    'filterOnly(seller.id)',
-    'filterOnly(supported_countries)',
-    'filterOnly(variants.prices.currency_code)',
-    'searchable(attribute_values.name)',
-    'searchable(attribute_values.value)'
-  ]
-}
+};
 
 class AlgoliaModuleService {
-  private options_: ModuleOptions
-  private algolia_: Algoliasearch
+  private options_: ModuleOptions;
+  private algolia_: Algoliasearch;
 
   constructor(_: unknown, options: ModuleOptions) {
-    this.options_ = options
-    this.algolia_ = algoliasearch(this.options_.appId, this.options_.apiKey)
+    this.options_ = options;
+    this.algolia_ = algoliasearch(this.options_.appId, this.options_.apiKey);
   }
 
   getAppId() {
-    return this.options_.appId
+    return this.options_.appId;
   }
 
   checkIndex(index: IndexType) {
     return this.algolia_.indexExists({
-      indexName: index
-    })
+      indexName: index,
+    });
   }
 
   updateSettings(index: IndexType, settings: IndexSettings) {
     return this.algolia_.setSettings({
       indexName: index,
-      indexSettings: settings
-    })
+      indexSettings: settings,
+    });
   }
 
   batch(type: IndexType, toAdd: AlgoliaEntity[], toDelete: string[]) {
     const addRequests: BatchRequest[] = toAdd.map((entity) => {
       return {
-        action: 'addObject' as Action,
+        action: "addObject" as Action,
         objectID: entity.id,
-        body: entity
-      }
-    })
+        body: entity,
+      };
+    });
 
     const deleteRequests: BatchRequest[] = toDelete.map((id) => {
       return {
-        action: 'deleteObject' as Action,
+        action: "deleteObject" as Action,
         objectID: id,
-        body: {}
-      }
-    })
+        body: {},
+      };
+    });
 
-    const requests = [...addRequests, ...deleteRequests]
+    const requests = [...addRequests, ...deleteRequests];
 
     return this.algolia_.batch({
       indexName: type,
       batchWriteParams: {
-        requests
-      }
-    })
+        requests,
+      },
+    });
   }
 
   batchUpsert(type: IndexType, entities: AlgoliaEntity[]) {
@@ -96,13 +86,13 @@ class AlgoliaModuleService {
       batchWriteParams: {
         requests: entities.map((entity) => {
           return {
-            action: 'addObject',
+            action: "addObject",
             objectID: entity.id,
-            body: entity
-          }
-        })
-      }
-    })
+            body: entity,
+          };
+        }),
+      },
+    });
   }
 
   batchDelete(type: IndexType, ids: string[]) {
@@ -111,50 +101,50 @@ class AlgoliaModuleService {
       batchWriteParams: {
         requests: ids.map((id) => {
           return {
-            action: 'deleteObject',
+            action: "deleteObject",
             objectID: id,
-            body: {}
-          }
-        })
-      }
-    })
+            body: {},
+          };
+        }),
+      },
+    });
   }
 
   upsert(type: IndexType, entity: AlgoliaEntity) {
     return this.algolia_.addOrUpdateObject({
       indexName: type,
       objectID: entity.id,
-      body: entity
-    })
+      body: entity,
+    });
   }
 
   delete(type: IndexType, id: string) {
     return this.algolia_.deleteObject({
       indexName: type,
-      objectID: id
-    })
+      objectID: id,
+    });
   }
 
   partialUpdate(
     type: IndexType,
-    entity: Partial<AlgoliaEntity> & { id: string }
+    entity: Partial<AlgoliaEntity> & { id: string },
   ) {
     return this.algolia_.partialUpdateObject({
       indexName: type,
       objectID: entity.id,
-      attributesToUpdate: { ...entity }
-    })
+      attributesToUpdate: { ...entity },
+    });
   }
 
   search<T = Record<string, unknown>>(
     indexName: IndexType,
-    params: SearchParams
+    params: SearchParams,
   ): Promise<SearchResponse<T>> {
     return this.algolia_.searchSingleIndex<T>({
       indexName,
-      searchParams: params
-    })
+      searchParams: params,
+    });
   }
 }
 
-export default AlgoliaModuleService
+export default AlgoliaModuleService;
