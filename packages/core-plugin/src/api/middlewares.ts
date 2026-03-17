@@ -3,6 +3,7 @@ import { defineMiddlewares } from "@medusajs/medusa"
 import { adminMiddlewares } from "./admin/middlewares"
 import { storeMiddlewares } from "./store/middlewares"
 import { vendorMiddlewares } from "./vendor/middlewares"
+import { hooksRoutesMiddlewares } from "./hooks/middlewares"
 import { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { MercurModules } from "@mercurjs/types"
 import VendorUIModuleService from "../modules/vendor-ui/services/vendor-ui-module-service"
@@ -25,6 +26,7 @@ export default defineMiddlewares({
     ...adminMiddlewares,
     ...storeMiddlewares,
     ...vendorMiddlewares,
+    ...hooksRoutesMiddlewares,
     {
       matcher: "*",
       method: ["GET"],
