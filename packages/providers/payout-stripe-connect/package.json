@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/payout-stripe-connect",
-  "version": "2.0.0-canary.93",
+  "version": "2.0.0-canary.94",
   "description": "Stripe Connect payment provider for Mercur",
   "private": false,
   "repository": {
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@medusajs/framework": "2.13.4",
-    "@mercurjs/types": "2.0.0-canary.93"
+    "@mercurjs/types": "2.0.0-canary.94"
   },
   "dependencies": {
     "stripe": "^15.5.0"
