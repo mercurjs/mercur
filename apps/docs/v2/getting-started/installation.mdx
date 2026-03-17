@@ -9,17 +9,58 @@ description: "Install Mercur and set up your marketplace project."
 
 - [Node.js v20+](https://nodejs.org/en/download) (LTS version)
 - [Git](https://git-scm.com/downloads)
-- [PostgreSQL](https://www.postgresql.org/download/) installed and running
+- PostgreSQL v14+
+
+<Tip>
+  The quickest way to get PostgreSQL running locally is with Docker:
+
+  ```bash
+  docker run -d --name mercur-postgres \
+    -e POSTGRES_PASSWORD=postgres \
+    -p 5432:5432 postgres:16
+  ```
+
+  Or on macOS with Homebrew:
+
+  ```bash
+  brew install postgresql@16 && brew services start postgresql@16
+  ```
+</Tip>
 
 ## Create a new project
 
-Use the Mercur CLI to scaffold a new project:
-
 ```bash
-npx @mercurjs/cli@canary create my-marketplace
+npx @mercurjs/cli@canary create
 ```
 
-The CLI will guide you through template selection and database configuration.
+The CLI will prompt for a project name and template, then handle everything automatically:
+- downloads the template
+- installs dependencies
+- creates and migrates the database
+- seeds initial data
+- starts the development server and opens the admin setup page in your browser
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--template <template>` | Template to use (`basic` or `plugin`) | prompted |
+| `--db-connection-string <string>` | Full PostgreSQL connection string | — |
+| `--db-host <host>` | PostgreSQL host | `localhost` |
+| `--db-port <port>` | PostgreSQL port | `5432` |
+| `--no-deps` | Skip dependency installation | — |
+| `--skip-db` | Skip database setup | — |
+
+**Examples:**
+
+## Start the development server
+
+After stopping the server, start it again from your project directory:
+
+```bash
+cd <your-project-name>
+bun dev
+```
 
 ## Initialize an existing project
 
@@ -52,21 +93,4 @@ After adding blocks that include modules:
 ```bash
 npx medusa db:generate <module1> <module2> ...
 npx medusa db:migrate
-```
-
-## Start the development server
-
-```bash
-npx medusa develop
-```
-
-## Default credentials
-
-If you used the CLI to create a new project with seed data:
-
-**Vendor:**
-
-```
-email: seller@medusa-test.com
-password: supersecret
 ```

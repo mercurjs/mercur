@@ -1,4 +1,4 @@
-import { exec } from "node:child_process";
+import { spawn } from "node:child_process";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import path from "path";
@@ -51,6 +51,8 @@ export const create = new Command()
   .option("--skip-db", "skip database configuration.", false)
   .option("--skip-email", "skip email prompt.", false)
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
+  .option("--db-host <host>", "PostgreSQL host.", "localhost")
+  .option("--db-port <port>", "PostgreSQL port.", "5432")
   .action(async (name, opts) => {
     try {
       validateNodeVersion();
@@ -174,6 +176,8 @@ export const create = new Command()
           projectDir,
           projectName,
           dbConnectionString,
+          dbHost: opts.dbHost,
+          dbPort: parseInt(opts.dbPort, 10),
           spinner: dbSpinner,
         });
 
@@ -228,13 +232,31 @@ export const create = new Command()
           ? `http://localhost:9000/dashboard/invite?token=${dbResult.inviteToken}&first_run=true`
           : "http://localhost:9000/dashboard";
 
-        const serverProcess = exec(`${packageManager === "npm" ? "npm run" : packageManager} dev`, {
+        const devCmd = packageManager === "npm" ? "npm" : packageManager;
+        const devArgs = packageManager === "npm" ? ["run", "dev"] : ["dev"];
+
+        const serverProcess = spawn(devCmd, devArgs, {
           cwd: projectDir,
+          stdio: "inherit",
           env: process.env,
         });
 
-        serverProcess.stdout?.pipe(process.stdout);
-        serverProcess.stderr?.pipe(process.stderr);
+        const printRestartHint = () => {
+          logger.break();
+          logger.log(kleur.bgGreen(kleur.black(" Project stopped. To start again: ")));
+          logger.log(successMessage(projectDir, packageManager));
+          logger.log(feedbackOutro());
+          logger.break();
+        };
+
+        // Ctrl+C sends SIGINT to the whole process group (parent + child).
+        // Suppress Node's default exit so we can wait for the child to close first.
+        process.on("SIGINT", () => {});
+
+        serverProcess.on("close", () => {
+          printRestartHint();
+          process.exit(0);
+        });
 
         waitOn({
           resources: ["http://localhost:9000/health"],
@@ -356,8 +378,7 @@ ${header("Launch Application:")}
 
 ${header("Documentation:")}
 
-  - ${createTerminalLink("Getting Started", "https://mercurjs.com/docs/getting-started")}
-  - ${createTerminalLink("Configuration", "https://mercurjs.com/docs/configuration")}
+  - ${createTerminalLink("Getting Started", "https://docs.mercurjs.com/v2/welcome")}
 `;
 }
 

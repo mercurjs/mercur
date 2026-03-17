@@ -8,8 +8,8 @@ import path from "path";
 import pg from "pg";
 import prompts from "prompts";
 
-const DEFAULT_DB_HOST = "localhost";
-const DEFAULT_DB_PORT = 5432;
+const dbHost = "localhost";
+const dbPort = 5432;
 const API_DIR = "packages/api";
 const ADMIN_EMAIL = "admin@mercur-test.com";
 
@@ -30,12 +30,16 @@ export async function setupDatabase(args: {
   projectDir: string;
   projectName: string;
   dbConnectionString?: string;
+  dbHost?: string;
+  dbPort?: number;
   spinner?: Ora;
 }): Promise<SetupDatabaseResult> {
   const dbName = args.projectName.replace(/[^a-zA-Z0-9]/g, "-");
 
   const { client, dbConnectionString } = await getDbClient({
     dbConnectionString: args.dbConnectionString,
+    dbHost: args.dbHost ?? dbHost,
+    dbPort: args.dbPort ?? dbPort,
     dbName,
     spinner: args.spinner,
   });
@@ -122,10 +126,14 @@ interface DbClientResult {
 
 async function getDbClient({
   dbConnectionString,
+  dbHost,
+  dbPort,
   dbName,
   spinner: spinnerRef,
 }: {
   dbConnectionString?: string;
+  dbHost: string;
+  dbPort: number;
   dbName: string;
   spinner?: Ora;
 }): Promise<DbClientResult> {
@@ -142,80 +150,107 @@ async function getDbClient({
     }
   }
 
-  let postgresUsername = "postgres";
-  let postgresPassword = "";
+  // Step 1: silent default attempt (postgres / no password)
+  if (spinnerRef) {
+    spinnerRef.text = `Trying default connection (postgres@${dbHost}:${dbPort})...`;
+  }
 
   try {
     const client = new pg.Client({
-      user: postgresUsername,
-      password: postgresPassword,
-      host: DEFAULT_DB_HOST,
-      port: DEFAULT_DB_PORT,
+      user: "postgres",
+      password: "",
+      host: dbHost,
+      port: dbPort,
       database: "postgres",
     });
     await client.connect();
     return {
       client,
       dbConnectionString: formatConnectionString({
-        user: postgresUsername,
-        password: postgresPassword,
-        host: DEFAULT_DB_HOST,
-        port: DEFAULT_DB_PORT,
+        user: "postgres",
+        password: "",
+        host: dbHost,
+        port: dbPort,
         db: dbName,
       }),
     };
   } catch {
-    spinnerRef?.stop();
+    // Default connection failed — ask the user for credentials
+  }
+
+  spinnerRef?.stop();
+
+  logger.break();
+  logger.log(`PostgreSQL is required. Make sure it is installed and running on ${dbHost}:${dbPort}.`);
+  logger.break();
+
+  // Step 2: prompt with up to 3 retry attempts
+  const MAX_ATTEMPTS = 3;
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    const attemptSuffix = attempt > 1 ? ` (attempt ${attempt}/${MAX_ATTEMPTS})` : "";
 
     const answers = await prompts([
       {
         type: "text",
         name: "postgresUsername",
-        message: "Enter your Postgres username",
+        message: `Enter your Postgres username${attemptSuffix}`,
         initial: "postgres",
       },
       {
         type: "password",
         name: "postgresPassword",
-        message: "Enter your Postgres password",
+        message: 'Enter your Postgres password (press Enter for "postgres")',
       },
     ]);
 
+    // User cancelled (Ctrl+C)
     if (!answers.postgresUsername) {
       return { client: null, dbConnectionString: null };
     }
 
-    postgresUsername = answers.postgresUsername;
-    postgresPassword = answers.postgresPassword || "";
+    const username = answers.postgresUsername as string;
+    const password = (answers.postgresPassword as string) || "postgres";
 
     spinnerRef?.start("Connecting to database...");
 
     try {
       const client = new pg.Client({
-        user: postgresUsername,
-        password: postgresPassword,
-        host: DEFAULT_DB_HOST,
-        port: DEFAULT_DB_PORT,
-        database: postgresUsername,
+        user: username,
+        password,
+        host: dbHost,
+        port: dbPort,
+        database: "postgres",
       });
       await client.connect();
+      spinnerRef?.stop();
       return {
         client,
         dbConnectionString: formatConnectionString({
-          user: postgresUsername,
-          password: postgresPassword,
-          host: DEFAULT_DB_HOST,
-          port: DEFAULT_DB_PORT,
+          user: username,
+          password,
+          host: dbHost,
+          port: dbPort,
           db: dbName,
         }),
       };
     } catch (err) {
-      logger.error(
-        `Couldn't connect to PostgreSQL${err instanceof Error ? `: ${err.message}` : ""}.`
-      );
-      return { client: null, dbConnectionString: null };
+      spinnerRef?.stop();
+      const message = err instanceof Error ? err.message : String(err);
+
+      if (attempt < MAX_ATTEMPTS) {
+        logger.warn(`Attempt ${attempt}/${MAX_ATTEMPTS} failed: ${message}`);
+      } else {
+        logger.error(
+          `Couldn't connect to PostgreSQL: ${message}\n` +
+          `  → Is PostgreSQL running? Try: pg_isready -h ${dbHost} -p ${dbPort}\n` +
+          `  → Check your username, password, and that the server is accessible.`
+        );
+      }
     }
   }
+
+  return { client: null, dbConnectionString: null };
 }
 
 async function doesDbExist(
@@ -232,7 +267,7 @@ function formatConnectionString({
   user,
   password,
   host,
-  port = DEFAULT_DB_PORT,
+  port = dbPort,
   db,
 }: {
   user: string;
