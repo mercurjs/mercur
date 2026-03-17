@@ -2,6 +2,7 @@ import { createStep } from "@medusajs/framework/workflows-sdk"
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 
 import { RequestStatus } from "../../../types"
+import { Query } from "@mercurjs/types"
 
 type ValidateRequestStatusStepInput = {
   alias: string
@@ -12,7 +13,7 @@ type ValidateRequestStatusStepInput = {
 export const validateRequestStatusStep = createStep(
   "validate-request-status",
   async (input: ValidateRequestStatusStepInput, { container }) => {
-    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY)
 
     const {
       data: [entity],

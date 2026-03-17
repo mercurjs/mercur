@@ -4,7 +4,7 @@ import { Modules } from "@medusajs/framework/utils"
 import PayoutModuleService from "../modules/payout/services/payout-module-service"
 import { ProviderWebhookPayload } from "@medusajs/framework/types"
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
-import { processPayoutWorkflowId } from "../workflows/payout"
+import { processPayoutForWebhookWorkflowId } from "../workflows/payout"
 
 type SerializedBuffer = {
   data: ArrayBuffer
@@ -36,7 +36,7 @@ export default async function payoutWebhookHandler({
   }
 
   const wfEngine = container.resolve(Modules.WORKFLOW_ENGINE)
-  await wfEngine.run(processPayoutWorkflowId, { input: processedEvent })
+  await wfEngine.run(processPayoutForWebhookWorkflowId, { input: processedEvent })
 }
 
 export const config: SubscriberConfig = {

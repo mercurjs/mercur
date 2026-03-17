@@ -8,13 +8,13 @@ import {
 import { updatePayoutAccountStep } from "../steps/update-payout-account"
 import { updatePayoutStep } from "../steps/update-payout"
 
-export interface ProcessPayoutWorkflowInput extends PayoutWebhookResult {}
+export interface ProcessPayoutForWebhookWorkflowInput extends PayoutWebhookResult { }
 
-export const processPayoutWorkflowId = "process-payout-workflow"
+export const processPayoutForWebhookWorkflowId = "process-payout-for-webhook"
 
-export const processPayoutWorkflow = createWorkflow(
-  processPayoutWorkflowId,
-  (input: ProcessPayoutWorkflowInput) => {
+export const processPayoutForWebhookWorkflow = createWorkflow(
+  processPayoutForWebhookWorkflowId,
+  (input: ProcessPayoutForWebhookWorkflowInput) => {
     when({ input }, ({ input }) => {
       return input.action === "account.activated" && !!input.data?.id
     }).then(() => {

@@ -1,0 +1,31 @@
+{
+  "name": "@mercurjs/payout-stripe-connect",
+  "version": "2.0.0-canary.89",
+  "description": "Stripe Connect payment provider for Mercur",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mercurjs/mercur",
+    "directory": "packages/providers/payment-stripe-connect"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "author": "Medusa",
+  "license": "MIT",
+  "peerDependencies": {
+    "@medusajs/framework": "2.13.4"
+  },
+  "devDependencies": {
+    "@medusajs/framework": "2.13.4",
+    "@mercurjs/types": "2.0.0-canary.89"
+  },
+  "dependencies": {
+    "stripe": "^15.5.0"
+  },
+  "keywords": [
+    "medusa-plugin",
+    "medusa-plugin-payment",
+    "stripe-connect"
+  ]
+}
