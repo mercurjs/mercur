@@ -4,7 +4,7 @@ import {
   ContainerRegistrationKeys,
   Modules,
 } from "@medusajs/framework/utils"
-import { MercurModules, PayoutEvents } from "@mercurjs/types"
+import { MercurModules, PayoutAccountStatus, PayoutEvents } from "@mercurjs/types"
 
 import PayoutModuleService from "../modules/payout/services/payout-module-service"
 
@@ -49,9 +49,11 @@ export default async function dailyPayoutsJob(container: MedusaContainer) {
           filters: {
             is_draft_order: false,
             canceled_at: null,
-            metadata: {
-              captured: true,
-            },
+            $and: [
+              { metadata: { captured: true } },
+              { metadata: { $ne: { payout_transferred: true } } },
+              { metadata: { $ne: { payout_failed: true } } },
+            ],
           },
           take: BATCH_SIZE,
           skip: offset,
@@ -70,32 +72,32 @@ export default async function dailyPayoutsJob(container: MedusaContainer) {
 
     logger.debug(`Daily payouts - fetched ${orders.length} orders at offset ${offset}`)
 
+    const events: { name: string; data: Record<string, unknown> }[] = []
+
     for (const order of orders) {
       if (order.payouts?.length) {
         logger.debug(`Order ${order.id} - skipped, already has payouts`)
         continue
       }
 
-      if (order.metadata?.payout_transferred) {
-        logger.debug(`Order ${order.id} - skipped, already transferred`)
+      if (order.seller?.payout_account?.status !== PayoutAccountStatus.ACTIVE) {
+        logger.debug(`Order ${order.id} - skipped, payout account not active (status: ${order.seller?.payout_account?.status})`)
         continue
       }
 
       logger.info(`Emitting payout transfer requested - order ${order.id}`)
 
-      await eventBus.emit(
-        {
-          name: PayoutEvents.PayoutRequested,
-          data: {
-            order_id: order.id,
-          },
+      events.push({
+        name: PayoutEvents.PayoutRequested,
+        data: {
+          order_id: order.id,
         },
-        {
-          attempts: 3,
-        }
-      )
+      })
+    }
 
-      emitted++
+    if (events.length) {
+      await eventBus.emit(events, { attempts: 3 })
+      emitted += events.length
     }
 
     if (orders.length < BATCH_SIZE) break

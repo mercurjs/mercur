@@ -115,6 +115,9 @@ export default async function captureCheckJob(container: MedusaContainer) {
 
     logger.debug(`Capture check - fetched ${orders.length} orders at offset ${offset}`)
 
+    const events: { name: string; data: Record<string, unknown> }[] = []
+    const orderIdsToUpdate: string[] = []
+
     for (const order of orders) {
       if (order.payouts?.length) {
         logger.debug(`Order ${order.id} - skipped, has payouts`)
@@ -149,34 +152,54 @@ export default async function captureCheckJob(container: MedusaContainer) {
       const expiresAt = authorizedAt + authWindowMs
       const captureDeadline = expiresAt - safetyBufferMs
 
-      if (Date.now() < captureDeadline) {
+      const now = Date.now()
+
+      if (now >= expiresAt) {
+        logger.warn(`Order ${order.id} - authorization expired at ${new Date(expiresAt).toISOString()}`)
+
+        events.push({
+          name: PayoutEvents.OrderAuthorizationExpired,
+          data: {
+            order_id: order.id,
+            authorized_at: new Date(authorizedAt),
+            expires_at: new Date(expiresAt),
+          },
+        })
+
+        orderIdsToUpdate.push(order.id)
+        continue
+      }
+
+      if (now < captureDeadline) {
         logger.debug(`Order ${order.id} - skipped, capture deadline not reached`)
         continue
       }
 
       logger.info(`Emitting capture requested - order ${order.id}`)
 
-      await eventBus.emit(
-        {
-          name: PayoutEvents.OrderCaptureRequested,
-          data: {
-            order_id: order.id,
-            authorized_at: new Date(authorizedAt),
-            expires_at: new Date(expiresAt),
-          },
-        },
-        {
-          attempts: 3,
-        }
-      )
-
-      await orderModule.updateOrders(order.id, {
-        metadata: {
-          capture_requested: true,
+      events.push({
+        name: PayoutEvents.OrderCaptureRequested,
+        data: {
+          order_id: order.id,
+          authorized_at: new Date(authorizedAt),
+          expires_at: new Date(expiresAt),
         },
       })
 
-      emittedCount++
+      orderIdsToUpdate.push(order.id)
+    }
+
+    if (events.length) {
+      await eventBus.emit(events, { attempts: 3 })
+
+      await orderModule.updateOrders(
+        orderIdsToUpdate.map((id) => ({
+          id,
+          metadata: { capture_requested: true },
+        }))
+      )
+
+      emittedCount += events.length
     }
 
     if (orders.length < batchSize) break

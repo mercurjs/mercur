@@ -33,6 +33,7 @@ export enum PayoutStatus {
 export enum PayoutEvents {
   // TODO: Move to order-related domain events
   OrderCaptureRequested = 'order.capture_requested',
+  OrderAuthorizationExpired = 'order.authorization_expired',
   PayoutRequested = 'payout.requested',
 }
 
