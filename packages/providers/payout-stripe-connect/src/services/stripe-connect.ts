@@ -30,6 +30,7 @@ class StripeConnectProviderService implements IPayoutProvider {
     protected readonly config_: StripeConnectOptions
 
     constructor(
+        _cradle: Record<string, unknown>,
         options: StripeConnectOptions
     ) {
         this.config_ = options

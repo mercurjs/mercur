@@ -1,4 +1,4 @@
-import { BigNumberInput, FulfillmentStatus } from "@medusajs/types"
+import { BigNumberInput, FulfillmentStatus, ModuleProviderExports } from "@medusajs/types"
 
 export enum PayoutAccountStatus {
   /**
@@ -40,6 +40,24 @@ export enum PayoutEvents {
 
 export interface PayoutModuleOptions {
   /**
+   * Providers to be registered
+   */
+  providers?: {
+    /**
+     * The module provider to be registered
+     */
+    resolve: string | ModuleProviderExports
+    /**
+     * The id of the provider
+     */
+    id: string
+    /**
+     * Key value pair of the configuration to be passed to the provider constructor
+     */
+    options?: Record<string, unknown>
+  }[]
+
+  /**
    * Disable automatic capture checks and daily payout jobs.
    * When true, both the capture-check and daily-payouts scheduled jobs
    * will exit immediately without processing any orders.
@@ -77,7 +95,7 @@ export interface PayoutModuleOptions {
   requiredFulfillmentStatus?: FulfillmentStatus
 }
 
-export const PAYOUT_MODULE_OPTION_DEFAULTS: Required<PayoutModuleOptions> = {
+export const PAYOUT_MODULE_OPTION_DEFAULTS: Required<Omit<PayoutModuleOptions, 'providers'>> = {
   disabled: false,
   authorizationWindowMs: 7 * 24 * 60 * 60 * 1000,
   sellerActionWindowMs: 72 * 60 * 60 * 1000,
