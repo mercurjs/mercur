@@ -74,7 +74,7 @@ export const SellerProductSection = ({ sellerId }: { sellerId: string }) => {
         columns={columns}
         table={table}
         pagination
-        navigateTo={(row) => `/products/${row.id}`}
+        navigateTo={(row) => `/products/${row.original.id}`}
         filters={filters}
         count={count}
         isLoading={isLoading}
