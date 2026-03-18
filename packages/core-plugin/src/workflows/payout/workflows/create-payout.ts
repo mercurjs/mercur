@@ -58,6 +58,7 @@ export const createPayoutWorkflow = createWorkflow(
         currency_code: order.currency_code,
         data: {
           order_id: order.id,
+          seller_id: sellerId
         },
         context: {
           idempotency_key: order.id,

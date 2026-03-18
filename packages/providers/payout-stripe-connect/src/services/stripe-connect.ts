@@ -47,7 +47,7 @@ class StripeConnectProviderService implements IPayoutProvider {
         res.source_transaction = extra?.source_transaction as string | undefined
         res.transfer_group = extra?.order_id as string | undefined
         res.description = extra?.description as string | undefined
-        res.metadata = extra?.metadata as Stripe.MetadataParam | undefined
+        res.metadata = { seller_id: extra.seller_id, ...(extra?.metadata ? extra.metadata : {}) } as Stripe.MetadataParam
 
 
         return res as Partial<Stripe.TransferCreateParams> & { destination: string }
@@ -114,48 +114,6 @@ class StripeConnectProviderService implements IPayoutProvider {
         }
     }
 
-    private getWebhookResultFromPayout_(
-        payout: Stripe.Payout
-    ): PayoutWebhookResult {
-        const payoutId = payout.metadata?.payout_id || payout.id
-
-        switch (payout.status) {
-            case "pending":
-            case "in_transit":
-                return {
-                    action: "payout.processing",
-                    data: {
-                        id: payoutId,
-                    },
-                }
-            case "paid":
-                return {
-                    action: "payout.paid",
-                    data: {
-                        id: payoutId,
-                    },
-                }
-            case "failed":
-                return {
-                    action: "payout.failed",
-                    data: {
-                        id: payoutId,
-                    },
-                }
-            case "canceled":
-                return {
-                    action: "payout.canceled",
-                    data: {
-                        id: payoutId,
-                    },
-                }
-            default:
-                return {
-                    action: "not_supported",
-                }
-        }
-    }
-
     async createPayoutAccount(
         input: CreatePayoutAccountInput
     ): Promise<CreatePayoutAccountResponse> {
@@ -200,7 +158,7 @@ class StripeConnectProviderService implements IPayoutProvider {
 
         return {
             data: transfer as unknown as Record<string, unknown>,
-            status: PayoutStatus.PENDING
+            status: PayoutStatus.PAID
         }
     }
 
@@ -255,12 +213,6 @@ class StripeConnectProviderService implements IPayoutProvider {
         switch (event.type) {
             case "account.updated":
                 return this.getWebhookResultFromAccount_(event.data.object as Stripe.Account)
-            case "payout.created":
-            case "payout.updated":
-            case "payout.paid":
-            case "payout.failed":
-            case "payout.canceled":
-                return this.getWebhookResultFromPayout_(event.data.object as Stripe.Payout)
             default:
                 return { action: "not_supported" }
         }
