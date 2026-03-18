@@ -21,7 +21,7 @@ export default async function orderPayoutHandler({
 
   const { data: orders } = await query.graph({
     entity: "order",
-    fields: ["id", "payouts.id"],
+    fields: ["id", "metadata", "payouts.id"],
     filters: { id: data.order_id },
   })
 
@@ -34,6 +34,21 @@ export default async function orderPayoutHandler({
 
   if ((order as any).payouts?.length) {
     logger.warn(`Order ${data.order_id} - skipped, payout already exists`)
+    return
+  }
+
+  if (!order.metadata?.captured) {
+    logger.warn(`Order ${data.order_id} - skipped, not captured`)
+    return
+  }
+
+  if (order.metadata?.payout_transferred) {
+    logger.warn(`Order ${data.order_id} - skipped, payout already transferred`)
+    return
+  }
+
+  if (order.metadata?.payout_failed) {
+    logger.warn(`Order ${data.order_id} - skipped, payout previously failed`)
     return
   }
 
@@ -53,7 +68,7 @@ export default async function orderPayoutHandler({
     logger.info(`Payout successfully - order ${data.order_id}`)
   } catch (error) {
     logger.error(
-      `Failed to create payout - order ${data.order_id} - ${error}`
+      `Failed to create payout - order ${data.order_id}`, error
     )
 
     await orderModule.updateOrders(data.order_id, {

@@ -39,6 +39,8 @@ export default async function dailyPayoutsJob(container: MedusaContainer) {
   let offset = 0
   let emitted = 0
 
+  const createdAfter = new Date(Date.now() - options.authorizationWindowMs)
+
   const listWorkflow = getOrdersListWorkflow(container)
 
   while (true) {
@@ -49,11 +51,7 @@ export default async function dailyPayoutsJob(container: MedusaContainer) {
           filters: {
             is_draft_order: false,
             canceled_at: null,
-            $and: [
-              { metadata: { captured: true } },
-              { metadata: { $ne: { payout_transferred: true } } },
-              { metadata: { $ne: { payout_failed: true } } },
-            ],
+            created_at: { $gte: createdAfter },
           },
           take: BATCH_SIZE,
           skip: offset,
@@ -75,6 +73,21 @@ export default async function dailyPayoutsJob(container: MedusaContainer) {
     const events: { name: string; data: Record<string, unknown> }[] = []
 
     for (const order of orders) {
+      if (!order.metadata?.captured) {
+        logger.debug(`Order ${order.id} - skipped, not captured`)
+        continue
+      }
+
+      if (order.metadata?.payout_transferred) {
+        logger.debug(`Order ${order.id} - skipped, payout already transferred`)
+        continue
+      }
+
+      if (order.metadata?.payout_failed) {
+        logger.debug(`Order ${order.id} - skipped, payout previously failed`)
+        continue
+      }
+
       if (order.payouts?.length) {
         logger.debug(`Order ${order.id} - skipped, already has payouts`)
         continue

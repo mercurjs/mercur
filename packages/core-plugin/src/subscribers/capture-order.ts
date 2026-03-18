@@ -24,6 +24,7 @@ export default async function captureOrderHandler({
     entity: "order",
     fields: [
       "id",
+      "metadata",
       "payment_collections.payments.id",
       "payment_collections.payments.captured_at",
     ],
@@ -36,6 +37,16 @@ export default async function captureOrderHandler({
 
   if (!order) {
     logger.error(`Order not found - ${data.order_id}`)
+    return
+  }
+
+  if (order.metadata?.captured) {
+    logger.warn(`Order ${data.order_id} - skipped, already captured`)
+    return
+  }
+
+  if (order.metadata?.capture_failed) {
+    logger.warn(`Order ${data.order_id} - skipped, capture previously failed`)
     return
   }
 

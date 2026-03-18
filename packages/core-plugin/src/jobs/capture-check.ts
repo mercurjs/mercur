@@ -84,6 +84,8 @@ export default async function captureCheckJob(container: MedusaContainer) {
   let offset = 0
   let emittedCount = 0
 
+  const createdAfter = new Date(Date.now() - authWindowMs)
+
   const workflow = getOrdersListWorkflow(container)
 
   while (true) {
@@ -94,9 +96,7 @@ export default async function captureCheckJob(container: MedusaContainer) {
           filters: {
             is_draft_order: false,
             canceled_at: null,
-            metadata: {
-              $ne: { capture_requested: true },
-            }
+            created_at: { $gte: createdAfter },
           },
           take: batchSize,
           skip: offset,
@@ -119,6 +119,11 @@ export default async function captureCheckJob(container: MedusaContainer) {
     const orderIdsToUpdate: string[] = []
 
     for (const order of orders) {
+      if (order.metadata?.capture_requested) {
+        logger.debug(`Order ${order.id} - skipped, capture already requested`)
+        continue
+      }
+
       if (order.payouts?.length) {
         logger.debug(`Order ${order.id} - skipped, has payouts`)
         continue
