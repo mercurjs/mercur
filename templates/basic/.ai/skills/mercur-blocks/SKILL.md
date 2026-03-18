@@ -37,6 +37,17 @@ Think about block impact by alias destination, not just by name.
 - Did the block add UI routes that require admin or vendor build verification?
 - Did the block docs require env vars, middleware, or config changes?
 
+## Verification before handoff
+
+After completing post-install config, always start the project and confirm it comes up clean before reporting the work as done:
+
+1. Start the backend: `npx medusa develop` (from `packages/api`)
+2. Watch the output for startup errors — module resolution failures, migration errors, missing env vars.
+3. If the block added admin or vendor UI, start the relevant panel and confirm the build succeeds.
+4. Fix any issues found before handing off. Do not report the work as complete if the project does not start.
+
+Only mark the task complete when the project starts without errors.
+
 ## Useful commands
 
 ```bash
@@ -51,3 +62,4 @@ npx @mercurjs/cli@canary diff <block>
 - adding blocks without reviewing their docs first
 - ignoring config or env follow-up after install
 - skipping `diff` when reviewing block updates
+- reporting work as complete before verifying the project starts
