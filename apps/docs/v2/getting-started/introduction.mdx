@@ -30,3 +30,34 @@ Unlike traditional plugins, Mercur uses a **block-based** approach. Blocks are c
 ### Full extensibility and ownership
 
 Mercur is fully open-core and MIT-licensed. There are no transaction fees, no commercial lock-in, and no constraints on how your marketplace must behave. You own the entire codebase and can host it anywhere.
+
+## Building with AI
+
+Mercur is designed so AI agents can build and extend your marketplace safely — not by generating code from scratch, but by working within structured guardrails.
+
+### How AI works with Mercur
+
+Most AI coding tools generate loose snippets that you have to wire together yourself. Mercur gives AI something better to work with: a system with clear boundaries, typed contracts, and composable units.
+
+Here's what that looks like in practice:
+
+- **Adding features via CLI** — An AI agent can run `mercurjs add reviews` to install a complete review system — data models, API routes, workflows, and UI — in one command. No guessing at file structure or imports. The CLI handles wiring, just like Astro's `astro add` command.
+- **Extending workflows without rebuilding them** — Need custom logic when an order is placed? AI can hook into the existing `complete-cart-with-split-orders` workflow and inject a step — without rewriting the entire cart flow. Medusa's workflow hooks make this safe and predictable.
+- **Generating typed integrations** — AI reads the generated route types from `mercurjs codegen` and produces API calls that are correct by construction. No hallucinated endpoints, no wrong payloads — the types are the source of truth.
+- **Building UI pages** — AI can scaffold an admin or vendor page by creating a file in `src/pages/`. The dashboard SDK picks it up automatically through file-based routing. No manual route registration, no config files to update.
+- **Modifying blocks it can diff** — AI can compare local code against the registry with `mercurjs diff`, understand what changed, and make targeted modifications instead of blind overwrites.
+
+### Why this matters
+
+Traditional commerce platforms give AI no structure to reason about. The result is generated code that looks plausible but breaks in production — wrong API shapes, missing relationships, incompatible data models.
+
+Mercur solves this with:
+
+- **Typed API Client** — API specifications shared between server and client. AI reads real types, not documentation that may be outdated.
+- **Block Registry** — Features are discrete, well-defined units. AI can inspect what a block contains before installing it and verify the result after.
+- **Monorepo** — Backend, admin, vendor, and shared packages live in one workspace. AI has full context without jumping between repositories.
+- **Core Workflows** — Cart, orders, pricing, and vendor logic are exposed as structured steps. AI extends them through hooks rather than patching source code.
+- **Dashboard SDK** — File-based routing and virtual modules mean AI adds pages and components by creating files in the right place. The SDK handles registration.
+- **Marketplace Payments** — Payout providers follow a pluggable interface. AI can implement a new provider by conforming to the contract, not by reverse-engineering Stripe integration code.
+
+The result: AI agents can compose real marketplace systems — not just write code, but add capabilities, extend business logic, and evolve your architecture with guardrails that prevent mistakes.
