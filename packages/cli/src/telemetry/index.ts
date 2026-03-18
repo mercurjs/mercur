@@ -87,11 +87,6 @@ const getProjectId = (
         return { projectId: hashToBase64(gitID), }
     }
 
-    const packageJSONID = packageJson.name
-    if (packageJSONID) {
-        return { projectId: hashToBase64(packageJSONID), }
-    }
-
     const cwd = process.cwd()
     return { projectId: hashToBase64(cwd), }
 }

@@ -30,7 +30,7 @@ description: "Install Mercur and set up your marketplace project."
 ## Create a new project
 
 ```bash
-npx @mercurjs/cli@canary create
+bunx @mercurjs/cli@canary create
 ```
 
 The CLI will prompt for a project name and template, then handle everything automatically:
@@ -65,7 +65,7 @@ bun dev
 If you have an existing Medusa project, initialize Mercur in it:
 
 ```bash
-npx @mercurjs/cli@canary init
+bunx @mercurjs/cli@canary init
 ```
 
 This creates a `blocks.json` configuration file in your project.
@@ -75,13 +75,13 @@ This creates a `blocks.json` configuration file in your project.
 Install blocks from the registry:
 
 ```bash
-npx @mercurjs/cli@canary add <block-name>
+bunx @mercurjs/cli@canary add <block-name>
 ```
 
 Browse available blocks:
 
 ```bash
-npx @mercurjs/cli@canary search
+bunx @mercurjs/cli@canary search
 ```
 
 ## Run database migrations
@@ -89,6 +89,6 @@ npx @mercurjs/cli@canary search
 After adding blocks that include modules:
 
 ```bash
-npx medusa db:generate <module1> <module2> ...
-npx medusa db:migrate
+bunx medusa db:generate <module1> <module2> ...
+bunx medusa db:migrate
 ```
