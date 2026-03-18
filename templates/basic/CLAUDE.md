@@ -10,16 +10,29 @@ Use this file to answer four questions before making a non-trivial change:
 
 This starter does not require a spec-first workflow. Teams can add planning artifacts later if they want, but this template focuses on operational knowledge for shipping changes safely.
 
+## Adding Features — Check the Registry First
+
+Before implementing any new marketplace feature from scratch, always search the official Mercur registry:
+
+```bash
+npx @mercurjs/cli@canary search --query <keyword>
+```
+
+Many common features (reviews, team management, wishlists, notifications, chat, CSV import/export, approval flows, Algolia search) are already available as registry blocks. Installing a block is always faster and safer than building from scratch. Use the `mercur-blocks` skill when a block looks like a match.
+
+Only build custom code when the registry has no suitable block.
+
 ## Workflow
 
 For any non-trivial task:
 1. understand the request
 2. read this file
-3. read every matching area guide from the Task Router
-4. load a matching skill from `.ai/skills/` when the task is a repeated workflow
-5. implement in small steps
-6. run the smallest relevant verification set
-7. report what was verified and what was not
+3. if the request is a feature addition — search the registry before touching any code
+4. read every matching area guide from the Task Router
+5. load a matching skill from `.ai/skills/` when the task is a repeated workflow
+6. implement in small steps
+7. run the smallest relevant verification set
+8. report what was verified and what was not
 
 ## Task Router
 
