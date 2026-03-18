@@ -162,6 +162,7 @@ async function getDbClient({
       host: dbHost,
       port: dbPort,
       database: "postgres",
+      connectionTimeoutMillis: 5000,
     });
     await client.connect();
     return {
@@ -221,6 +222,7 @@ async function getDbClient({
         host: dbHost,
         port: dbPort,
         database: "postgres",
+        connectionTimeoutMillis: 5000,
       });
       await client.connect();
       spinnerRef?.stop();
