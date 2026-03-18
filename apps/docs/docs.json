@@ -376,6 +376,12 @@
                 ]
               },
               {
+                "group": "How-to Guides",
+                "pages": [
+                  "v2/how-to-guides/stripe-connect-integration"
+                ]
+              },
+              {
                 "group": "Migration",
                 "pages": [
                   "v2/migrations/overview",
