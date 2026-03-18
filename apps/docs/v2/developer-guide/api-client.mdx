@@ -3,8 +3,6 @@ title: "API Client"
 description: "Type-safe client for consuming Mercur APIs."
 ---
 
-<Snippet file="canary-warning.mdx" />
-
 `@mercurjs/client` provides a type-safe way to interact with your Mercur backend. Every endpoint, request input, and response is fully typed — inferred directly from your backend routes.
 
 ## Installation
@@ -25,7 +23,7 @@ export const client = createClient<Routes>({
 ```
 
 <Info>
-  The `Routes` type is generated from your backend using `@mercurjs/cli@canary
+  The `Routes` type is generated from your backend using `@mercurjs/cli@latest
   codegen`. This gives the client full type safety with zero manual type
   definitions.
 </Info>

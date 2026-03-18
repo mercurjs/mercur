@@ -3,15 +3,13 @@ title: "Blocks"
 description: "Self-contained pieces of marketplace functionality that get copied into your project as source code."
 ---
 
-<Snippet file="canary-warning.mdx" />
-
 Blocks are the unit of distribution in Mercur. Each block is a self-contained feature — a reviews system, a wishlist, product import/export — that you install directly into your project. Unlike packages, blocks are copied as source code. You own every file and can modify anything.
 
 ## Installing blocks
 
 ```bash
-bunx @mercurjs/cli@canary add reviews
-bunx @mercurjs/cli@canary add wishlist product-import-export
+bunx @mercurjs/cli@latest add reviews
+bunx @mercurjs/cli@latest add wishlist product-import-export
 ```
 
 The CLI fetches the block from the [registry](/v2/developer-guide/registry), resolves dependencies, transforms imports to match your project's path aliases, and copies the files into the right directories.
@@ -67,20 +65,20 @@ After adding a block, the CLI shows setup instructions. Typically you need to:
 1. **Register the module** in `medusa-config.ts`
 2. **Add middlewares** to your `api/middlewares.ts`
 3. **Run migrations** with `bunx medusa db:generate` and `bunx medusa db:migrate`
-4. **Regenerate types** with `bunx @mercurjs/cli@canary codegen`
+4. **Regenerate types** with `bunx @mercurjs/cli@latest codegen`
 
 ## Updating blocks
 
 Check for changes against the registry:
 
 ```bash
-bunx @mercurjs/cli@canary diff reviews
+bunx @mercurjs/cli@latest diff reviews
 ```
 
 If there are updates you want, re-install with the overwrite flag:
 
 ```bash
-bunx @mercurjs/cli@canary add reviews --overwrite
+bunx @mercurjs/cli@latest add reviews --overwrite
 ```
 
 Since blocks are source code in your project, you control when and how updates are applied.
@@ -90,12 +88,12 @@ Since blocks are source code in your project, you control when and how updates a
 Search the registry to see what's available:
 
 ```bash
-bunx @mercurjs/cli@canary search
-bunx @mercurjs/cli@canary search --query wishlist
+bunx @mercurjs/cli@latest search
+bunx @mercurjs/cli@latest search --query wishlist
 ```
 
 View details about a specific block:
 
 ```bash
-bunx @mercurjs/cli@canary view reviews
+bunx @mercurjs/cli@latest view reviews
 ```

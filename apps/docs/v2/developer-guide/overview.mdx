@@ -3,8 +3,6 @@ title: "Overview"
 description: "How Mercur is built — architecture, technology stack, and how the pieces fit together."
 ---
 
-<Snippet file="canary-warning.mdx" />
-
 Mercur is a marketplace platform built on top of [MedusaJS](https://medusajs.com), an open-source headless commerce framework. Rather than being a standalone application, Mercur extends Medusa with marketplace-specific logic — sellers, commissions, order splitting, payouts — while Medusa handles the foundational commerce layer.
 
 This page explains how the system is structured and how its components interact.
@@ -160,7 +158,7 @@ This means:
 - There are no hidden abstractions or version conflicts
 - Updates are explicit — you diff and apply changes from the registry
 
-The CLI (`@mercurjs/cli@canary`) manages this process: scaffolding projects, installing blocks, searching the registry, and comparing local changes against upstream versions.
+The CLI (`@mercurjs/cli@latest`) manages this process: scaffolding projects, installing blocks, searching the registry, and comparing local changes against upstream versions.
 
 ## Design principles
 

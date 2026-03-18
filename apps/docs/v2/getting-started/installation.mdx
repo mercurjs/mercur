@@ -3,8 +3,6 @@ title: "Installation"
 description: "Install Mercur and set up your marketplace project."
 ---
 
-<Snippet file="canary-warning.mdx" />
-
 ## Requirements
 
 - [Node.js v20+](https://nodejs.org/en/download) (LTS version)
@@ -30,7 +28,7 @@ description: "Install Mercur and set up your marketplace project."
 ## Create a new project
 
 ```bash
-bunx @mercurjs/cli@canary create
+bunx @mercurjs/cli@latest create
 ```
 
 The CLI will prompt for a project name and template, then handle everything automatically:
@@ -65,7 +63,7 @@ bun dev
 If you have an existing Medusa project, initialize Mercur in it:
 
 ```bash
-bunx @mercurjs/cli@canary init
+bunx @mercurjs/cli@latest init
 ```
 
 This creates a `blocks.json` configuration file in your project.
@@ -75,13 +73,13 @@ This creates a `blocks.json` configuration file in your project.
 Install blocks from the registry:
 
 ```bash
-bunx @mercurjs/cli@canary add <block-name>
+bunx @mercurjs/cli@latest add <block-name>
 ```
 
 Browse available blocks:
 
 ```bash
-bunx @mercurjs/cli@canary search
+bunx @mercurjs/cli@latest search
 ```
 
 ## Run database migrations

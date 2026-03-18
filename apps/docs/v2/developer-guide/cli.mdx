@@ -3,14 +3,12 @@ title: "CLI"
 description: "Install blocks, scaffold projects, and generate types from the command line."
 ---
 
-<Snippet file="canary-warning.mdx" />
-
-The Mercur CLI (`@mercurjs/cli@canary`) manages your marketplace project — creating projects, installing blocks, generating types, and checking for updates.
+The Mercur CLI (`@mercurjs/cli@latest`) manages your marketplace project — creating projects, installing blocks, generating types, and checking for updates.
 
 ## Installation
 
 ```bash
-bun add -g @mercurjs/cli@canary
+bun add -g @mercurjs/cli@latest
 ```
 
 ## Commands
@@ -20,7 +18,7 @@ bun add -g @mercurjs/cli@canary
 Scaffold a new Mercur project from a template.
 
 ```bash
-bunx @mercurjs/cli@canary create my-marketplace
+bunx @mercurjs/cli@latest create my-marketplace
 ```
 
 The CLI will prompt you for database credentials and install dependencies automatically.
@@ -37,7 +35,7 @@ The CLI will prompt you for database credentials and install dependencies automa
 Initialize an existing project by creating a `blocks.json` configuration file.
 
 ```bash
-bunx @mercurjs/cli@canary init
+bunx @mercurjs/cli@latest init
 ```
 
 This sets up path aliases so the CLI knows where to place blocks in your project:
@@ -62,8 +60,8 @@ This sets up path aliases so the CLI knows where to place blocks in your project
 Install blocks from the registry into your project.
 
 ```bash
-bunx @mercurjs/cli@canary add wishlist
-bunx @mercurjs/cli@canary add product-review order-tracking
+bunx @mercurjs/cli@latest add wishlist
+bunx @mercurjs/cli@latest add product-review order-tracking
 ```
 
 Blocks are copied directly into your project as source code. The CLI resolves dependencies, transforms imports to match your path aliases, and installs required packages.
@@ -79,7 +77,7 @@ Blocks are copied directly into your project as source code. The CLI resolves de
 Find available blocks in the registry.
 
 ```bash
-bunx @mercurjs/cli@canary search --query wishlist
+bunx @mercurjs/cli@latest search --query wishlist
 ```
 
 | Option | Description |
@@ -92,7 +90,7 @@ bunx @mercurjs/cli@canary search --query wishlist
 Display detailed information about a block.
 
 ```bash
-bunx @mercurjs/cli@canary view wishlist
+bunx @mercurjs/cli@latest view wishlist
 ```
 
 ### diff
@@ -100,13 +98,13 @@ bunx @mercurjs/cli@canary view wishlist
 Compare local blocks against registry versions to check for updates.
 
 ```bash
-bunx @mercurjs/cli@canary diff wishlist
+bunx @mercurjs/cli@latest diff wishlist
 ```
 
 If there are changes you want, update with:
 
 ```bash
-bunx @mercurjs/cli@canary add wishlist --overwrite
+bunx @mercurjs/cli@latest add wishlist --overwrite
 ```
 
 ### codegen
@@ -114,7 +112,7 @@ bunx @mercurjs/cli@canary add wishlist --overwrite
 Generate TypeScript types from your API routes. Used by the [API Client](/v2/developer-guide/api-client) for type-safe requests.
 
 ```bash
-bunx @mercurjs/cli@canary codegen
+bunx @mercurjs/cli@latest codegen
 ```
 
 | Option | Description |
@@ -126,7 +124,7 @@ bunx @mercurjs/cli@canary codegen
 Build a custom registry from a `registry.json` file.
 
 ```bash
-bunx @mercurjs/cli@canary build
+bunx @mercurjs/cli@latest build
 ```
 
 | Option | Description |
@@ -139,7 +137,7 @@ bunx @mercurjs/cli@canary build
 Display project configuration and diagnostics.
 
 ```bash
-bunx @mercurjs/cli@canary info
+bunx @mercurjs/cli@latest info
 ```
 
 ### telemetry
@@ -147,8 +145,8 @@ bunx @mercurjs/cli@canary info
 Control anonymous usage data collection.
 
 ```bash
-bunx @mercurjs/cli@canary telemetry --disable
-bunx @mercurjs/cli@canary telemetry --enable
+bunx @mercurjs/cli@latest telemetry --disable
+bunx @mercurjs/cli@latest telemetry --enable
 ```
 
 ## Custom registries
@@ -167,5 +165,5 @@ Add custom block registries to your `blocks.json`:
 Use `{name}` as a placeholder for block names. Reference custom registries with the `-r` flag:
 
 ```bash
-bunx @mercurjs/cli@canary search --query review --registry @my-registry
+bunx @mercurjs/cli@latest search --query review --registry @my-registry
 ```
