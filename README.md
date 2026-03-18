@@ -103,14 +103,14 @@ integrations coming soon.
 **Step 1**: Create a new Mercur project and start the development server:
 
 ```bash
-npx @mercurjs/cli@latest create my-marketplace
+bunx @mercurjs/cli@latest create my-marketplace
 ```
 
 **Step 2**: Start the development server:
 
 ```bash
 cd my-marketplace
-npm run dev
+bun run dev
 ```
 
 **Step 3**: Access your marketplace:
