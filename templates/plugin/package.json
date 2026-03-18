@@ -35,8 +35,8 @@
     "mercur-plugin"
   ],
   "scripts": {
-    "build": "npx @mercurjs/cli@canary plugin:build",
-    "prepublishOnly": "npx @mercurjs/cli@canary plugin:build"
+    "build": "npx @mercurjs/cli@latest plugin:build",
+    "prepublishOnly": "npx @mercurjs/cli@latest plugin:build"
   },
   "devDependencies": {
     "@medusajs/admin-sdk": "2.13.3",
