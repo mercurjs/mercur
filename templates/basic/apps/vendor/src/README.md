@@ -8,9 +8,9 @@ To create a custom page:
 
 ## 1. Create a Page File
 
-Create a `page.tsx` file inside the `src/pages/` directory. The file path determines the URL route.
+Create a `page.tsx` file inside the `src/routes/` directory. The file path determines the URL route.
 
-For example, create the file `src/pages/blog/page.tsx` with the following content:
+For example, create the file `src/routes/blog/page.tsx` with the following content:
 
 ```tsx
 const BlogPage = () => {
@@ -29,17 +29,17 @@ This page will be accessible at `/blog` in the vendor portal.
 
 ## 2. File-Based Routing
 
-The route is derived from the file path relative to `src/pages/`. Each route must be defined in a file named `page.tsx` (or `.ts`, `.jsx`, `.js`).
+The route is derived from the file path relative to `src/routes/`. Each route must be defined in a file named `page.tsx` (or `.ts`, `.jsx`, `.js`).
 
 | File Path | Route |
 |---|---|
-| `src/pages/page.tsx` | `/` |
-| `src/pages/blog/page.tsx` | `/blog` |
-| `src/pages/blog/[id]/page.tsx` | `/blog/:id` (dynamic) |
-| `src/pages/blog/[[id]]/page.tsx` | `/blog/:id?` (optional dynamic) |
-| `src/pages/blog/[*]/page.tsx` | `/blog/*` (splat/catch-all) |
-| `src/pages/(group)/foo/page.tsx` | `/foo` (route grouping) |
-| `src/pages/dashboard/@sidebar/page.tsx` | Parallel route (nested child) |
+| `src/routes/page.tsx` | `/` |
+| `src/routes/blog/page.tsx` | `/blog` |
+| `src/routes/blog/[id]/page.tsx` | `/blog/:id` (dynamic) |
+| `src/routes/blog/[[id]]/page.tsx` | `/blog/:id?` (optional dynamic) |
+| `src/routes/blog/[*]/page.tsx` | `/blog/*` (splat/catch-all) |
+| `src/routes/(group)/foo/page.tsx` | `/foo` (route grouping) |
+| `src/routes/dashboard/@sidebar/page.tsx` | Parallel route (nested child) |
 
 ## 3. Add a Sidebar Menu Item
 

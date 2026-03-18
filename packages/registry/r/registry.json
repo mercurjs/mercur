@@ -175,15 +175,15 @@
           "type": "registry:vendor"
         },
         {
-          "path": "reviews/vendor/pages/reviews/page.tsx",
+          "path": "reviews/vendor/routes/reviews/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "reviews/vendor/pages/reviews/[id]/page.tsx",
+          "path": "reviews/vendor/routes/reviews/[id]/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "reviews/vendor/pages/reviews/[id]/breadcrumb.tsx",
+          "path": "reviews/vendor/routes/reviews/[id]/breadcrumb.tsx",
           "type": "registry:vendor"
         },
         {
@@ -203,15 +203,15 @@
           "type": "registry:admin"
         },
         {
-          "path": "reviews/admin/pages/reviews/page.tsx",
+          "path": "reviews/admin/routes/reviews/page.tsx",
           "type": "registry:admin"
         },
         {
-          "path": "reviews/admin/pages/reviews/[id]/page.tsx",
+          "path": "reviews/admin/routes/reviews/[id]/page.tsx",
           "type": "registry:admin"
         },
         {
-          "path": "reviews/admin/pages/reviews/[id]/breadcrumb.tsx",
+          "path": "reviews/admin/routes/reviews/[id]/breadcrumb.tsx",
           "type": "registry:admin"
         }
       ],
@@ -267,27 +267,27 @@
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/pages/products/page.tsx",
+          "path": "product-import-export/vendor/routes/products/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/pages/products/import/page.tsx",
+          "path": "product-import-export/vendor/routes/products/import/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/pages/products/import/components/upload-import.tsx",
+          "path": "product-import-export/vendor/routes/products/import/components/upload-import.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/pages/products/import/components/import-summary.tsx",
+          "path": "product-import-export/vendor/routes/products/import/components/import-summary.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/pages/products/import/helpers/import-template.ts",
+          "path": "product-import-export/vendor/routes/products/import/helpers/import-template.ts",
           "type": "registry:vendor"
         },
         {
-          "path": "product-import-export/vendor/pages/products/export/page.tsx",
+          "path": "product-import-export/vendor/routes/products/export/page.tsx",
           "type": "registry:vendor"
         }
       ],
@@ -445,27 +445,27 @@
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/settings/users/page.tsx",
+          "path": "team-management/vendor/routes/settings/users/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/settings/users/[id]/page.tsx",
+          "path": "team-management/vendor/routes/settings/users/[id]/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/settings/users/[id]/breadcrumb.tsx",
+          "path": "team-management/vendor/routes/settings/users/[id]/breadcrumb.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/settings/users/[id]/edit/page.tsx",
+          "path": "team-management/vendor/routes/settings/users/[id]/edit/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/settings/users/invite/page.tsx",
+          "path": "team-management/vendor/routes/settings/users/invite/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "team-management/vendor/pages/invite/page.tsx",
+          "path": "team-management/vendor/routes/invite/page.tsx",
           "type": "registry:vendor"
         }
       ],
@@ -876,27 +876,27 @@
           "type": "registry:admin"
         },
         {
-          "path": "requests/admin/pages/requests/page.tsx",
+          "path": "requests/admin/routes/requests/page.tsx",
           "type": "registry:admin"
         },
         {
-          "path": "requests/admin/pages/requests/categories/page.tsx",
+          "path": "requests/admin/routes/requests/categories/page.tsx",
           "type": "registry:admin"
         },
         {
-          "path": "requests/admin/pages/requests/collections/page.tsx",
+          "path": "requests/admin/routes/requests/collections/page.tsx",
           "type": "registry:admin"
         },
         {
-          "path": "requests/admin/pages/requests/tags/page.tsx",
+          "path": "requests/admin/routes/requests/tags/page.tsx",
           "type": "registry:admin"
         },
         {
-          "path": "requests/admin/pages/requests/types/page.tsx",
+          "path": "requests/admin/routes/requests/types/page.tsx",
           "type": "registry:admin"
         },
         {
-          "path": "requests/admin/pages/requests/[type]/[id]/page.tsx",
+          "path": "requests/admin/routes/requests/[type]/[id]/page.tsx",
           "type": "registry:admin"
         },
         {
@@ -916,39 +916,39 @@
           "type": "registry:vendor"
         },
         {
-          "path": "requests/vendor/pages/requests/page.tsx",
+          "path": "requests/vendor/routes/requests/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "requests/vendor/pages/requests/categories/page.tsx",
+          "path": "requests/vendor/routes/requests/categories/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "requests/vendor/pages/requests/categories/create/page.tsx",
+          "path": "requests/vendor/routes/requests/categories/create/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "requests/vendor/pages/requests/collections/page.tsx",
+          "path": "requests/vendor/routes/requests/collections/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "requests/vendor/pages/requests/collections/create/page.tsx",
+          "path": "requests/vendor/routes/requests/collections/create/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "requests/vendor/pages/requests/tags/page.tsx",
+          "path": "requests/vendor/routes/requests/tags/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "requests/vendor/pages/requests/tags/create/page.tsx",
+          "path": "requests/vendor/routes/requests/tags/create/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "requests/vendor/pages/requests/types/page.tsx",
+          "path": "requests/vendor/routes/requests/types/page.tsx",
           "type": "registry:vendor"
         },
         {
-          "path": "requests/vendor/pages/requests/types/create/page.tsx",
+          "path": "requests/vendor/routes/requests/types/create/page.tsx",
           "type": "registry:vendor"
         }
       ],
@@ -960,7 +960,9 @@
     {
       "name": "vendor-chat",
       "description": "TalkJS chat integration for vendors. Provides a vendor API endpoint to retrieve seller conversations from TalkJS.",
-      "dependencies": [],
+      "dependencies": [
+        "@talkjs/react"
+      ],
       "registryDependencies": [],
       "docs": "## Vendor Chat (TalkJS)\n\nThis block adds a TalkJS chat integration for vendors, exposing a `GET /vendor/talkjs` endpoint that retrieves conversations for the authenticated seller and a Messages page in the vendor portal.\n\n### Environment Variables\n\nAdd the following to your `.env`:\n\n```\nVITE_TALK_JS_APP_ID=your_talkjs_app_id\nTALKJS_SECRET_API_KEY=your_talkjs_secret_api_key\n```\n\n### Vite Configuration\n\nAdd the `__TALK_JS_APP_ID__` define to your vendor portal's `vite.config.ts`:\n\n```ts\nconst TALK_JS_APP_ID = env.VITE_TALK_JS_APP_ID || \"\"\n\nexport default defineConfig({\n  // ...\n  define: {\n    __TALK_JS_APP_ID__: JSON.stringify(TALK_JS_APP_ID),\n  },\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
       "files": [
@@ -969,7 +971,7 @@
           "type": "registry:api"
         },
         {
-          "path": "vendor-chat/vendor/pages/messages/page.tsx",
+          "path": "vendor-chat/vendor/routes/messages/page.tsx",
           "type": "registry:vendor"
         }
       ],

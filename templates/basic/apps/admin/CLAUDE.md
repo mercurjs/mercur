@@ -12,18 +12,18 @@ Read this guide when a task touches:
 ## Scope
 
 `apps/admin` owns:
-- custom file-based routes under `src/pages`
+- custom file-based routes under `src/routes`
 - admin-specific route exports and navigation metadata
 - Vite bootstrap configuration in `vite.config.ts`
 
 Dashboard mounting (which app, which path) is configured in `packages/api/medusa-config.ts` via the `admin-ui` module — not in this app.
 
-If `src/pages` does not exist yet, create it when adding the first custom page.
+If `src/routes` does not exist yet, create it when adding the first custom page.
 
 ## Routing
 
 Admin pages are file-based:
-- create `page.tsx` files under `src/pages`
+- create `page.tsx` files under `src/routes`
 - use file path shape to control route path
 - export route config when the page should appear in navigation
 

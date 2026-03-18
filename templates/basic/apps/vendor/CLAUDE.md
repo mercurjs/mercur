@@ -11,18 +11,18 @@ Read this guide when a task touches:
 ## Scope
 
 `apps/vendor` owns:
-- custom vendor routes under `src/pages`
+- custom vendor routes under `src/routes`
 - vendor page composition and request flow
 - Vite bootstrap configuration in `vite.config.ts`
 
 Dashboard mounting (which app, which path) is configured in `packages/api/medusa-config.ts` via the `vendor-ui` module — not in this app.
 
-If `src/pages` does not exist yet, create it when adding the first custom page.
+If `src/routes` does not exist yet, create it when adding the first custom page.
 
 ## Routing
 
 Vendor pages are file-based:
-- create `page.tsx` files under `src/pages`
+- create `page.tsx` files under `src/routes`
 - use the file path to control the route
 - export route metadata when needed for navigation or nested behavior
 
