@@ -23,9 +23,9 @@ For any non-trivial task:
 
 ## Task Router
 
-- Backend API, modules, workflows, links, subscribers, jobs: `packages/api/AGENTS.md`
-- Admin extensions, custom pages, forms, tabs: `apps/admin/AGENTS.md`
-- Vendor extensions, custom pages, vendor flows: `apps/vendor/AGENTS.md`
+- Backend API, modules, workflows, links, subscribers, jobs: `packages/api/CLAUDE.md`
+- Admin extensions, custom pages, forms, tabs: `apps/admin/CLAUDE.md`
+- Vendor extensions, custom pages, vendor flows: `apps/vendor/CLAUDE.md`
 
 ## Starter Contract Surfaces
 
