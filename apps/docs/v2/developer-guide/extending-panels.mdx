@@ -44,9 +44,9 @@ Available options:
 
 ## Adding pages
 
-Create a `page.tsx` file inside `src/pages/` and export a default React component. The route is determined by the file path.
+Create a `page.tsx` file inside `src/routes/` and export a default React component. The route is determined by the file path.
 
-```tsx src/pages/reviews/page.tsx
+```tsx src/routes/reviews/page.tsx
 import { Star } from "@medusajs/icons"
 import type { RouteConfig } from "@mercurjs/dashboard-sdk"
 
@@ -84,13 +84,13 @@ File paths map to URL routes automatically:
 
 | File path | Route | Description |
 |-----------|-------|-------------|
-| `src/pages/page.tsx` | `/` | Root page |
-| `src/pages/reviews/page.tsx` | `/reviews` | Static segment |
-| `src/pages/reviews/[id]/page.tsx` | `/reviews/:id` | Dynamic segment |
-| `src/pages/reviews/[[id]]/page.tsx` | `/reviews/:id?` | Optional dynamic segment |
-| `src/pages/search/[*].tsx` | `/search/*` | Catch-all |
-| `src/pages/(settings)/page.tsx` | Route grouping | Groups routes without adding a URL segment |
-| `src/pages/dashboard/@sidebar/page.tsx` | Parallel route | Renders alongside parent |
+| `src/routes/page.tsx` | `/` | Root page |
+| `src/routes/reviews/page.tsx` | `/reviews` | Static segment |
+| `src/routes/reviews/[id]/page.tsx` | `/reviews/:id` | Dynamic segment |
+| `src/routes/reviews/[[id]]/page.tsx` | `/reviews/:id?` | Optional dynamic segment |
+| `src/routes/search/[*].tsx` | `/search/*` | Catch-all |
+| `src/routes/(settings)/page.tsx` | Route grouping | Groups routes without adding a URL segment |
+| `src/routes/dashboard/@sidebar/page.tsx` | Parallel route | Renders alongside parent |
 
 ## Navigation
 
@@ -101,14 +101,14 @@ Sidebar items are generated from pages that export a `config` with a `label`.
 Use `rank` to control the order. Lower values appear higher:
 
 ```tsx
-// src/pages/orders/page.tsx
+// src/routes/orders/page.tsx
 export const config: RouteConfig = {
   label: "Orders",
   icon: ShoppingCart,
   rank: 1,
 }
 
-// src/pages/products/page.tsx
+// src/routes/products/page.tsx
 export const config: RouteConfig = {
   label: "Products",
   icon: Tag,
@@ -120,7 +120,7 @@ export const config: RouteConfig = {
 
 Use `nested` to group pages under a parent:
 
-```tsx src/pages/settings/shipping/page.tsx
+```tsx src/routes/settings/shipping/page.tsx
 export const config: RouteConfig = {
   label: "Shipping",
   nested: "/settings",
@@ -201,7 +201,7 @@ export default {
 
 **2. Reference the namespace in your page config**
 
-```tsx src/pages/reviews/page.tsx
+```tsx src/routes/reviews/page.tsx
 export const config: RouteConfig = {
   label: "reviews.title",
   icon: Star,
