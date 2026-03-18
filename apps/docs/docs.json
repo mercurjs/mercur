@@ -25,6 +25,78 @@
   "navigation": {
     "versions": [
       {
+        "version": "2.0",
+        "default": true,
+        "tabs": [
+          {
+            "tab": "Welcome",
+            "groups": [
+              {
+                "group": "Welcome",
+                "pages": [
+                  "v2/welcome"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Docs",
+            "groups": [
+              {
+                "group": "Getting started",
+                "pages": [
+                  "v2/getting-started/introduction",
+                  "v2/getting-started/concepts",
+                  "v2/getting-started/installation"
+                ]
+              },
+              {
+                "group": "Core Concepts",
+                "pages": [
+                  "v2/core-concepts/seller",
+                  "v2/core-concepts/payout",
+                  "v2/core-concepts/commission"
+                ]
+              },
+              {
+                "group": "Developer Guide",
+                "pages": [
+                  "v2/developer-guide/overview",
+                  "v2/developer-guide/blocks",
+                  "v2/developer-guide/registry",
+                  "v2/developer-guide/api-client",
+                  "v2/developer-guide/cli",
+                  "v2/developer-guide/extending-panels",
+                  "v2/developer-guide/custom-fields"
+                ]
+              },
+              {
+                "group": "How-to Guides",
+                "pages": [
+                  "v2/how-to-guides/stripe-connect-integration"
+                ]
+              },
+              {
+                "group": "Migration",
+                "pages": [
+                  "v2/migrations/overview",
+                  "v2/migrations/from-1-x-to-2-0"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Changelog",
+            "groups": [
+              {
+                "group": "Changelog",
+                "pages": []
+              }
+            ]
+          }
+        ]
+      },
+      {
         "version": "1.x",
         "tabs": [
           {
@@ -315,78 +387,6 @@
               {
                 "group": "API Documentation",
                 "openapi": "api-reference/combined.oas.json"
-              }
-            ]
-          },
-          {
-            "tab": "Changelog",
-            "groups": [
-              {
-                "group": "Changelog",
-                "pages": []
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "version": "2.0",
-        "default": true,
-        "tabs": [
-          {
-            "tab": "Welcome",
-            "groups": [
-              {
-                "group": "Welcome",
-                "pages": [
-                  "v2/welcome"
-                ]
-              }
-            ]
-          },
-          {
-            "tab": "Docs",
-            "groups": [
-              {
-                "group": "Getting started",
-                "pages": [
-                  "v2/getting-started/introduction",
-                  "v2/getting-started/concepts",
-                  "v2/getting-started/installation"
-                ]
-              },
-              {
-                "group": "Core Concepts",
-                "pages": [
-                  "v2/core-concepts/seller",
-                  "v2/core-concepts/payout",
-                  "v2/core-concepts/commission"
-                ]
-              },
-              {
-                "group": "Developer Guide",
-                "pages": [
-                  "v2/developer-guide/overview",
-                  "v2/developer-guide/blocks",
-                  "v2/developer-guide/registry",
-                  "v2/developer-guide/api-client",
-                  "v2/developer-guide/cli",
-                  "v2/developer-guide/extending-panels",
-                  "v2/developer-guide/custom-fields"
-                ]
-              },
-              {
-                "group": "How-to Guides",
-                "pages": [
-                  "v2/how-to-guides/stripe-connect-integration"
-                ]
-              },
-              {
-                "group": "Migration",
-                "pages": [
-                  "v2/migrations/overview",
-                  "v2/migrations/from-1-x-to-2-0"
-                ]
               }
             ]
           },
