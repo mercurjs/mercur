@@ -35,30 +35,15 @@ Mercur is a platform to start, customize, manage, and scale
 your marketplace for every business model with a modern
 technology stack.
 
-> [!CAUTION]
-> This is the canary branch of Mercur. It is **not production-ready** and is **not yet meant to be used in production**.
-> Canary releases may contain breaking changes, incomplete features, and unstable APIs.
-> For the stable version, please use the [main branch](https://github.com/mercurjs/mercur/tree/main).
+## What's new in Mercur 2.0
 
-## Mercur 2.0 Canary
-
-We are actively working on **Mercur 2.0** — a major rearchitecture of the platform. [@vholik](https://github.com/vholik), [@Si3r4dz](https://github.com/Si3r4dz), and [@gtomaka](https://github.com/gtomaka) are building the next generation of Mercur with a new modular, block-based architecture.
-
-**What's new in 2.0:**
+**Mercur 2.0** is a major rearchitecture of the platform built by [@vholik](https://github.com/vholik), [@Si3r4dz](https://github.com/Si3r4dz), and [@gtomaka](https://github.com/gtomaka).
 
 - **Block-based architecture** — reusable modules, workflows, API routes, and UI extensions installable via CLI
 - **Vendor portal** — a standalone React-based vendor dashboard
 - **Dashboard SDK** — Vite plugin with file-based routing and hot module reloading
-- **New CLI** — `@mercurjs/cli` for scaffolding projects, adding blocks, and managing registries
+- **CLI** — `@mercurjs/cli` for scaffolding projects, adding blocks, and managing registries
 - **Full code ownership** — code is copied into your project, no black-box dependencies
-
-**Try the canary:**
-
-```bash
-npm install @mercurjs/cli@canary
-```
-
-Canary versions are published on every release and are intended for early testing and feedback only. APIs and behavior may change without notice between canary releases.
 
 ## Why Choose Mercur?
 
@@ -118,7 +103,7 @@ integrations coming soon.
 **Step 1**: Create a new Mercur project and start the development server:
 
 ```bash
-npx @mercurjs/cli create my-marketplace
+npx @mercurjs/cli@latest create my-marketplace
 ```
 
 **Step 2**: Start the development server:
