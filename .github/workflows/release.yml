@@ -1,4 +1,4 @@
-name: Canary Release
+name: Release
 
 on:
   push:
@@ -33,13 +33,22 @@ jobs:
       - name: Build
         run: bun run build
 
+      - name: Determine npm tag
+        id: npm-tag
+        run: |
+          if [[ "${{ github.ref_name }}" == *canary* ]]; then
+            echo "tag=canary" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish to npm
         run: |
           for dir in packages/*/ packages/providers/*/; do
             if [ -f "$dir/package.json" ] && ! grep -q '"private": true' "$dir/package.json"; then
-              echo "Publishing $dir..."
+              echo "Publishing $dir with --tag ${{ steps.npm-tag.outputs.tag }}..."
               cd "$dir"
-              npm publish --access public --no-git-checks --tag canary
+              npm publish --access public --no-git-checks --tag ${{ steps.npm-tag.outputs.tag }}
               cd -
             fi
           done
