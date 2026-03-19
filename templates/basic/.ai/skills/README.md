@@ -9,9 +9,9 @@ Use these skills for repeated workflows in a project created from this starter.
 - `mercur-cli`
 - `mercur-blocks`
 - `medusa-ui-conformance`
-- `admin-page-ui`
-- `admin-form-ui`
-- `admin-tab-ui`
+- `dashboard-page-ui`
+- `dashboard-form-ui`
+- `dashboard-tab-ui`
 
 ## Linking to your agent runtime
 
