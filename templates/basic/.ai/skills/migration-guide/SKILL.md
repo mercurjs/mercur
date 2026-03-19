@@ -34,8 +34,8 @@ Use this skill when:
 | `apps/backend/src/api/` | `packages/api/src/api/` |
 | `apps/backend/src/subscribers/` | `packages/api/src/subscribers/` |
 | `apps/backend/src/links/` | `packages/api/src/links/` |
-| `apps/admin/src/routes/` | `apps/admin/src/pages/` |
-| `apps/vendor/src/routes/` | `apps/vendor/src/pages/` |
+| `apps/admin/src/routes/` | `apps/admin/src/routes/` |
+| `apps/vendor/src/routes/` | `apps/vendor/src/routes/` |
 
 ## Import Changes
 
@@ -123,7 +123,7 @@ Port in this order:
 6. **Subscribers** — copy to `packages/api/src/subscribers/`
 7. **API routes** — copy to `packages/api/src/api/`, type both generics
 8. **Middleware** — merge into `packages/api/src/api/middlewares.ts`
-9. **Dashboard pages** — move to `src/pages/`, update imports
+9. **Dashboard pages** — move to `src/routes/` (NOT `src/pages/` — dashboard SDK scans `src/routes/`), update imports
 
 After each group: run `bun medusa develop` and verify server starts.
 

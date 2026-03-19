@@ -91,3 +91,15 @@ Typical checks:
 - If a task is about blocks, always use `mercur-blocks`.
 - If a task is about CLI choice, initialization, or registry commands, use `mercur-cli`.
 - If a task adds custom admin or vendor UI, load `medusa-ui-conformance` before inventing new components.
+
+## Lessons Learned
+
+When you encounter a repeatable bug, a non-obvious gotcha, or learn something that would save time in future sessions, write it to `.ai/lessons.md`.
+
+This file acts as a shared knowledge base across agents and sessions. Before starting non-trivial work, check `.ai/lessons.md` for known issues that might apply.
+
+Format each entry as:
+```
+### <short title>
+<what happened, why, and what to do instead>
+```
