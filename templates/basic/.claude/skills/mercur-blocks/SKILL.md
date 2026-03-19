@@ -29,7 +29,7 @@ Think about block impact by alias destination, not just by name.
 5. When CLI asks to overwrite `middlewares.ts` — **always decline** and merge manually.
 6. Inspect the installed files and the block docs output.
 7. Apply all configuration from the block docs (middleware, medusa-config, env vars, migrations).
-8. Run the smallest relevant verification set.
+8. Run `bun run dev` from `packages/api` and check for startup errors before moving on.
 
 ## Post-install checklist
 
