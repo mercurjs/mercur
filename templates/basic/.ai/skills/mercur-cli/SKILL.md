@@ -31,14 +31,14 @@ Use this skill when:
 ### Discover and inspect a block
 
 ```bash
-npx @mercurjs/cli@canary search --query <keyword>
-npx @mercurjs/cli@canary view <block-name>
+npx @mercurjs/cli@latest search --query <keyword>
+npx @mercurjs/cli@latest view <block-name>
 ```
 
 ### Add a block
 
 ```bash
-npx @mercurjs/cli@canary add <block-name>
+npx @mercurjs/cli@latest add <block-name>
 ```
 
 **Important:** When CLI asks to overwrite `middlewares.ts`, always decline (`n`) and merge manually.
@@ -46,7 +46,7 @@ npx @mercurjs/cli@canary add <block-name>
 ### Check local drift
 
 ```bash
-npx @mercurjs/cli@canary diff <block-name>
+npx @mercurjs/cli@latest diff <block-name>
 ```
 
 ## After `add`
