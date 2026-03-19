@@ -9,18 +9,23 @@ import { useQueryGraphStep } from "@medusajs/medusa/core-flows";
 
 import {
   filterOrderSetsWithKnexStep,
+  extractCanceledItemsFromOrderChangesStep,
 } from "../steps";
 import { formatOrderSets } from "../utils";
+
+interface OrderSetData {
+  orders?: Array<{ id: string }>;
+}
 
 export const filterAndListOrderSetsWorkflow = createWorkflow(
   "filter-and-list-order-sets",
   function (input: {
-    filters: Record<string, any>;
+    filters: Record<string, unknown>;
     fields?: string[];
     pagination: {
       skip: number;
       take?: number;
-      order?: Record<string, any>;
+      order?: Record<string, unknown>;
     };
   }) {
     const { orderSetIds, isEmpty } = filterOrderSetsWithKnexStep({
@@ -105,6 +110,11 @@ export const filterAndListOrderSetsWorkflow = createWorkflow(
             "orders.shipping_tax_total",
             "orders.items.*",
             "orders.items.detail.*",
+            "orders.items.variant.*",
+            "orders.items.variant.product.*",
+            "orders.items.variant.options.*",
+            "orders.items.variant.options.option.*",
+            "orders.items.product.*",
             "orders.customer.*",
             "orders.fulfillments.*",
             "orders.shipping_methods.*",
@@ -119,7 +129,18 @@ export const filterAndListOrderSetsWorkflow = createWorkflow(
           pagination: input.pagination,
         });
 
-        const formattedOrderSets = transform(data, formatOrderSets);
+        const orderIds = transform(data, (orderSets: OrderSetData[]) => 
+          orderSets.flatMap((os) => os.orders?.map((o) => o.id) || [])
+        );
+
+        const canceledItemsMap = extractCanceledItemsFromOrderChangesStep({
+          order_ids: orderIds
+        });
+
+        const formattedOrderSets = transform(
+          { data, canceledItemsMap },
+          ({ data, canceledItemsMap }) => formatOrderSets(data, canceledItemsMap)
+        );
 
         return transform(
           { data: formattedOrderSets, metadata },
