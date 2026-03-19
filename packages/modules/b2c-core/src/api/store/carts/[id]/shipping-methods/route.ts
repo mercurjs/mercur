@@ -1,20 +1,20 @@
-import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import { MedusaRequest, MedusaResponse } from '@medusajs/framework/http';
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils';
+import { StoreAddCartShippingMethods } from '@medusajs/medusa/api/store/carts/validators';
 
 import {
   addSellerShippingMethodToCartWorkflow,
   removeCartShippingMethodsWorkflow
-} from '../../../../../workflows/cart/workflows'
-import {
-  StoreAddCartShippingMethodsWithSellerType,
-  StoreDeleteCartShippingMethodsType
-} from '../../validators'
+} from '../../../../../workflows/cart/workflows';
+import { StoreDeleteCartShippingMethodsType } from '../../validators';
 
 export const POST = async (
-  req: MedusaRequest<StoreAddCartShippingMethodsWithSellerType>,
+  req: MedusaRequest<typeof StoreAddCartShippingMethods._type>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+
+  const seller_id = req.validatedBody.data?.seller_id as string | undefined;
 
   await addSellerShippingMethodToCartWorkflow(req.scope).run({
     input: {
@@ -23,9 +23,9 @@ export const POST = async (
         id: req.validatedBody.option_id,
         data: req.validatedBody.data
       },
-      seller_id: req.validatedBody.seller_id
+      seller_id
     }
-  })
+  });
 
   const {
     data: [cart]
@@ -35,21 +35,21 @@ export const POST = async (
       id: req.params.id
     },
     fields: req.queryConfig.fields
-  })
+  });
 
-  res.json({ cart })
-}
+  res.json({ cart });
+};
 
 export const DELETE = async (
   req: MedusaRequest<StoreDeleteCartShippingMethodsType>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
   await removeCartShippingMethodsWorkflow.run({
     container: req.scope,
     input: req.validatedBody
-  })
+  });
 
   const {
     data: [cart]
@@ -59,7 +59,7 @@ export const DELETE = async (
       id: req.params.id
     },
     fields: req.queryConfig.fields
-  })
+  });
 
-  res.json({ cart })
-}
+  res.json({ cart });
+};
