@@ -89,9 +89,9 @@ Detail pages use `TwoColumnPage` with `.Main` and `.Sidebar` from `@mercurjs/das
 - Main column: primary content, descriptions, key details.
 - Sidebar: secondary info, organization, metadata.
 
-## Create / edit page pattern
+## Create page pattern
 
-Create pages live at `src/routes/<entity>/create/page.tsx` and open as a `RouteFocusModal` drawer overlay:
+Create pages live at `src/routes/<entity>/create/page.tsx` and open as a `RouteFocusModal` full-screen overlay:
 
 ```tsx
 const CreatePage = () => (
@@ -104,12 +104,71 @@ export default CreatePage;
 
 The form component inside uses `useRouteModal()` for `handleSuccess`. See `dashboard-form-ui` or `dashboard-tab-ui` for form details.
 
+## Edit drawer pattern
+
+Edit pages use `RouteDrawer` — a side panel that slides in from the right over the detail page.
+
+**Critical:** The edit directory must use the `@` prefix to create a parallel route:
+- Correct: `src/routes/<entity>/[id]/@edit/page.tsx`
+- Wrong: `src/routes/<entity>/[id]/edit/page.tsx`
+
+Without `@`, the SDK creates a flat route that **replaces** the detail page — the background disappears. With `@`, it creates a child route that renders inside the parent's `Outlet`.
+
+The detail page must set `hasOutlet` to render the child route:
+```tsx
+<TwoColumnPage data={entity} showJSON showMetadata hasOutlet>
+```
+
+Edit drawer structure:
+```tsx
+const EditForm = () => {
+  const { handleSuccess } = useRouteModal();
+  const form = useForm({ ... });
+  const handleSubmit = form.handleSubmit(async (data) => {
+    handleSuccess(`/<entity>/${id}`);
+  });
+
+  return (
+    <RouteDrawer.Form form={form}>
+      <form onSubmit={handleSubmit} className="flex h-full flex-col overflow-hidden">
+        <RouteDrawer.Header>
+          <RouteDrawer.Title>Edit Entity</RouteDrawer.Title>
+          <RouteDrawer.Description>Update details.</RouteDrawer.Description>
+        </RouteDrawer.Header>
+        <RouteDrawer.Body className="flex flex-col gap-y-4 overflow-y-auto p-6">
+          {/* Form.Field components */}
+        </RouteDrawer.Body>
+        <RouteDrawer.Footer>
+          <RouteDrawer.Close asChild>
+            <Button size="small" variant="secondary">{t("actions.cancel")}</Button>
+          </RouteDrawer.Close>
+          <Button size="small" variant="primary" type="submit">{t("actions.save")}</Button>
+        </RouteDrawer.Footer>
+      </form>
+    </RouteDrawer.Form>
+  );
+};
+
+const EditPage = () => (
+  <RouteDrawer>
+    <EditForm />
+  </RouteDrawer>
+);
+export default EditPage;
+```
+
+Link to edit from the detail page ActionMenu:
+```tsx
+{ label: "Edit", icon: <PencilSquare />, onClick: () => navigate(`/<entity>/${id}/edit`) }
+```
+
 ## Routing expectations
 
 - `page.tsx` controls the route.
 - Export `config: RouteConfig` when the page should appear in navigation.
 - Detail pages: `src/routes/<entity>/[id]/page.tsx`
 - Create pages: `src/routes/<entity>/create/page.tsx`
+- Edit drawers: `src/routes/<entity>/[id]/@edit/page.tsx` (note `@` prefix)
 - Keep nested routes and dynamic segments easy to infer from the folder path.
 
 ## Verification
