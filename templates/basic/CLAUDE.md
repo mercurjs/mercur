@@ -29,7 +29,7 @@ For any non-trivial task:
 2. read this file
 3. if the request is a feature addition — search the registry before touching any code
 4. read every matching area guide from the Task Router
-5. load a matching skill from `.ai/skills/` when the task is a repeated workflow
+5. load a matching skill from `.claude/skills/` when the task is a repeated workflow
 6. implement in small steps
 7. run the smallest relevant verification set
 8. report what was verified and what was not
@@ -55,7 +55,7 @@ Treat these as public starter contracts. Do not change them silently:
 
 ## Shared Skills
 
-Canonical shared skills live in `.ai/skills/`.
+Canonical shared skills live in `.claude/skills/`.
 
 Focused core skills in this starter:
 - `mercur-cli`
@@ -70,7 +70,7 @@ Runtime mirrors exist in:
 - `.claude/skills/`
 - `.codex/skills/`
 
-Use `.ai/skills/` as the source of truth. The runtime folders are compatibility mirrors.
+Use `.claude/skills/` as the source of truth. The runtime folders are compatibility mirrors.
 
 ## Typical Verification
 
@@ -94,9 +94,9 @@ Typical checks:
 
 ## Lessons Learned
 
-When you encounter a repeatable bug, a non-obvious gotcha, or learn something that would save time in future sessions, write it to `.ai/lessons.md`.
+When you encounter a repeatable bug, a non-obvious gotcha, or learn something that would save time in future sessions, write it to `.claude/lessons.md`.
 
-This file acts as a shared knowledge base across agents and sessions. Before starting non-trivial work, check `.ai/lessons.md` for known issues that might apply.
+This file acts as a shared knowledge base across agents and sessions. Before starting non-trivial work, check `.claude/lessons.md` for known issues that might apply.
 
 Format each entry as:
 ```
