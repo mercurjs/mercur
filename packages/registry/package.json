@@ -6,8 +6,8 @@
 	"scripts": {
 		"build": "tsc",
 		"dev": "tsc --watch",
-		"build:registry": "bunx @mercurjs/cli@canary registry:build",
-		"codegen": "bunx @mercurjs/cli@canary registry:codegen"
+		"build:registry": "bunx @mercurjs/cli@latest registry:build",
+		"codegen": "bunx @mercurjs/cli@latest registry:codegen"
 	},
 	"dependencies": {
 		"@medusajs/framework": "^2.13.3",

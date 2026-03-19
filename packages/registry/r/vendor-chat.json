@@ -6,7 +6,7 @@
     "@talkjs/react"
   ],
   "registryDependencies": [],
-  "docs": "## Vendor Chat (TalkJS)\n\nThis block adds a TalkJS chat integration for vendors, exposing a `GET /vendor/talkjs` endpoint that retrieves conversations for the authenticated seller and a Messages page in the vendor portal.\n\n### Environment Variables\n\nAdd the following to your `.env`:\n\n```\nVITE_TALK_JS_APP_ID=your_talkjs_app_id\nTALKJS_SECRET_API_KEY=your_talkjs_secret_api_key\n```\n\n### Vite Configuration\n\nAdd the `__TALK_JS_APP_ID__` define to your vendor portal's `vite.config.ts`:\n\n```ts\nconst TALK_JS_APP_ID = env.VITE_TALK_JS_APP_ID || \"\"\n\nexport default defineConfig({\n  // ...\n  define: {\n    __TALK_JS_APP_ID__: JSON.stringify(TALK_JS_APP_ID),\n  },\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@canary codegen\n```",
+  "docs": "## Vendor Chat (TalkJS)\n\nThis block adds a TalkJS chat integration for vendors, exposing a `GET /vendor/talkjs` endpoint that retrieves conversations for the authenticated seller and a Messages page in the vendor portal.\n\n### Environment Variables\n\nAdd the following to your `.env`:\n\n```\nVITE_TALK_JS_APP_ID=your_talkjs_app_id\nTALKJS_SECRET_API_KEY=your_talkjs_secret_api_key\n```\n\n### Vite Configuration\n\nAdd the `__TALK_JS_APP_ID__` define to your vendor portal's `vite.config.ts`:\n\n```ts\nconst TALK_JS_APP_ID = env.VITE_TALK_JS_APP_ID || \"\"\n\nexport default defineConfig({\n  // ...\n  define: {\n    __TALK_JS_APP_ID__: JSON.stringify(TALK_JS_APP_ID),\n  },\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@latest codegen\n```",
   "categories": [
     "api",
     "vendor"

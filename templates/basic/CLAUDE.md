@@ -15,7 +15,7 @@ This starter does not require a spec-first workflow. Teams can add planning arti
 Before implementing any new marketplace feature from scratch, always search the official Mercur registry:
 
 ```bash
-npx @mercurjs/cli@canary search --query <keyword>
+npx @mercurjs/cli@latest search --query <keyword>
 ```
 
 Many common features (reviews, team management, wishlists, notifications, chat, CSV import/export, approval flows, Algolia search) are already available as registry blocks. Installing a block is always faster and safer than building from scratch. Use the `mercur-blocks` skill when a block looks like a match.
