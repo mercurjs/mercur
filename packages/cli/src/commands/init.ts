@@ -12,7 +12,7 @@ import { handleError } from "../utils/handle-error";
 import { highlighter } from "../utils/highlighter";
 import { logger } from "../utils/logger";
 import { spinner } from "../utils/spinner";
-import { sendTelemetryEvent } from "../telemetry";
+import { sendTelemetryEvent, showTelemetryNoticeIfNeeded } from "../telemetry";
 
 export const initOptionsSchema = z.object({
   cwd: z.string(),
@@ -34,6 +34,7 @@ export const init = new Command()
   .option("-s, --silent", "mute output.", false)
   .action(async (opts) => {
     try {
+      showTelemetryNoticeIfNeeded();
       const options = initOptionsSchema.parse({
         cwd: path.resolve(opts.cwd),
         ...opts,

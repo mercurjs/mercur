@@ -5,6 +5,7 @@ import { detectSystemInfo } from "./detect-system-info";
 import { getPackageManager } from "../utils/get-package-manager";
 import { hashToBase64 } from "./hash";
 import { getProjectInfo, type PackageJson } from "../utils/get-project-info";
+import { highlighter } from "../utils/highlighter";
 
 const TELEMETRY_URL = process.env.MERCUR_TELEMETRY_PROXY_URL || 'https://telemetry.mercurjs.com/api/v1/events'
 
@@ -20,6 +21,31 @@ export const setTelemetryEmail = (email: string) => {
 
 export const toggleTelemetry = (enabled: boolean) => {
     configStore.set("telemetry_enabled", enabled)
+}
+
+export const TELEMETRY_DOCS_URL = 'https://docs.mercurjs.com/v2/telemetry'
+
+export const showTelemetryNoticeIfNeeded = () => {
+    if (configStore.get("notice_shown")) {
+        return;
+    }
+
+    configStore.set("notice_shown", true);
+
+    if (process.env.MERCUR_DISABLE_TELEMETRY === 'true') {
+        return;
+    }
+
+    console.error(
+        [
+            "",
+            "Mercur collects anonymous usage data to improve the CLI experience.",
+            `You can disable this at any time by running: ${highlighter.info("mercurjs telemetry --disable")}`,
+            `Or by setting ${highlighter.info("MERCUR_DISABLE_TELEMETRY=true")}`,
+            `Learn more: ${highlighter.info(TELEMETRY_DOCS_URL)}`,
+            "",
+        ].join("\n")
+    );
 }
 
 const isTelemetryEnabled = () => {

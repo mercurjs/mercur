@@ -1,55 +1,57 @@
-import os from "os";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { homedir } from "os";
 import { join } from "path";
 
-
 interface TelemetryConfig {
-  "telemetry_enabled": boolean;
-  "telemetry_email": string | null;
+  telemetry_enabled: boolean;
+  telemetry_email: string | null;
+  notice_shown: boolean;
 }
 
+const CONFIG_DIR = join(homedir(), ".mercur");
+const CONFIG_PATH = join(CONFIG_DIR, "config.json");
+
+const DEFAULTS: TelemetryConfig = {
+  telemetry_enabled: true,
+  telemetry_email: null,
+  notice_shown: false,
+};
+
 class ConfigStore {
-  private config: TelemetryConfig;
-  public path: string = join(os.tmpdir(), "mercur");
-
-  constructor() {
-    this.config = this.createBaseConfig();
-  }
-
-  private createBaseConfig(): TelemetryConfig {
-    return {
-      "telemetry_enabled": true,
-      "telemetry_email": null,
-    };
-  }
-
   get<K extends keyof TelemetryConfig>(key: K): TelemetryConfig[K] {
-    return this.config[key];
+    const config = this.read();
+    return config[key];
   }
 
   set<K extends keyof TelemetryConfig>(key: K, value: TelemetryConfig[K]): void {
-    this.config[key] = value;
+    const config = this.read();
+    config[key] = value;
+    this.write(config);
   }
 
-  all(): TelemetryConfig {
-    return this.config;
+  private read(): TelemetryConfig {
+    try {
+      if (!existsSync(CONFIG_PATH)) {
+        return { ...DEFAULTS };
+      }
+      const raw = readFileSync(CONFIG_PATH, "utf-8");
+      const parsed = JSON.parse(raw);
+      return { ...DEFAULTS, ...parsed };
+    } catch {
+      return { ...DEFAULTS };
+    }
   }
 
-  size(): number {
-    return Object.keys(this.config).length;
-  }
-
-  has(key: keyof TelemetryConfig): boolean {
-    return key in this.config && this.config[key] !== undefined;
-  }
-
-  del(key: keyof TelemetryConfig): void {
-    delete this.config[key];
-  }
-
-  clear(): void {
-    this.config = this.createBaseConfig();
+  private write(config: TelemetryConfig): void {
+    try {
+      mkdirSync(CONFIG_DIR, { recursive: true });
+      writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2) + "\n", {
+        mode: 0o600,
+      });
+    } catch {
+      // Silently fail — telemetry config is non-critical
+    }
   }
 }
 
 export const configStore = new ConfigStore();
-

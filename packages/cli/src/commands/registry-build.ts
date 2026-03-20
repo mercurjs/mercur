@@ -13,7 +13,7 @@ import { spinner } from "@/src/utils/spinner";
 import { Command } from "commander";
 import { z } from "zod";
 import { REGISTRY_ITEM_SCHEMA_URL } from "../registry";
-import { sendTelemetryEvent } from "../telemetry";
+import { sendTelemetryEvent, showTelemetryNoticeIfNeeded } from "../telemetry";
 
 export const buildOptionsSchema = z.object({
   cwd: z.string(),
@@ -48,6 +48,7 @@ export const registryBuild = new Command()
 
 async function buildRegistry(opts: z.infer<typeof buildOptionsSchema>) {
   try {
+    showTelemetryNoticeIfNeeded();
     const options = buildOptionsSchema.parse(opts);
 
     const [{ errors, resolvePaths, config }, projectInfo] = await Promise.all([

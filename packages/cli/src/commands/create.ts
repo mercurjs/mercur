@@ -4,7 +4,7 @@ import { pipeline } from "node:stream/promises";
 import path from "path";
 
 import { clearRegistryContext } from "@/src/registry/context";
-import { sendTelemetryEvent, setTelemetryEmail } from "@/src/telemetry";
+import { sendTelemetryEvent, setTelemetryEmail, showTelemetryNoticeIfNeeded } from "@/src/telemetry";
 import { setupDatabase, type SetupDatabaseResult } from "@/src/utils/create-db";
 import { getPackageManager } from "@/src/utils/get-package-manager";
 import { handleError } from "@/src/utils/handle-error";
@@ -56,6 +56,7 @@ export const create = new Command()
   .action(async (name, opts) => {
     try {
       validateNodeVersion();
+      showTelemetryNoticeIfNeeded();
 
       let projectName = name;
       if (!projectName) {
@@ -383,7 +384,7 @@ ${header("Documentation:")}
 }
 
 function feedbackOutro(): string {
-  return `${kleur.bgCyan(kleur.black(" Have feedback? "))} Visit us on ${createTerminalLink("GitHub", "https://github.com/mercurjs/mercur")}.`;
+  return `${kleur.bgCyan(kleur.black(" Have feedback? "))} Visit us on ${createTerminalLink("GitHub", "https://github.com/mercurjs/mercur")}.\n${kleur.bgMagenta(kleur.black(" Join the community! "))} Chat with us on ${createTerminalLink("Discord", "https://discord.gg/hnZBzc4NJU")}.`;
 }
 
 function createTerminalLink(text: string, url: string) {
