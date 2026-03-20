@@ -27,6 +27,10 @@ const GetProductVariantsParamsFields = z.object({
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
   deleted_at: createOperatorMap().optional(),
+  region_id: z.string().optional(),
+  currency_code: z.string().optional(),
+  customer_id: z.string().optional(),
+  customer_group_id: z.string().optional(),
 });
 
 export type AdminGetProductVariantsParamsType = z.infer<
