@@ -11,7 +11,7 @@ import { highlighter } from "../utils/highlighter";
 import { logger } from "../utils/logger";
 import { runInit } from "./init";
 import { handleError } from "../utils/handle-error";
-import { sendTelemetryEvent } from "../telemetry";
+import { sendTelemetryEvent, showTelemetryNoticeIfNeeded } from "../telemetry";
 
 export const addOptionsSchema = z.object({
   blocks: z.array(z.string()).optional(),
@@ -35,6 +35,7 @@ export const add = new Command()
   .option("-s, --silent", "mute output.", false)
   .action(async (items, opts) => {
     try {
+      showTelemetryNoticeIfNeeded();
       const options = addOptionsSchema.parse({
         blocks: items,
         cwd: path.resolve(opts.cwd),
