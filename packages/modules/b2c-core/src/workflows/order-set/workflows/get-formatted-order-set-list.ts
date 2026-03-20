@@ -7,16 +7,21 @@ import {
 import { useQueryGraphStep } from '@medusajs/medusa/core-flows';
 
 import { formatOrderSets } from '../utils';
+import { extractCanceledItemsFromOrderChangesStep } from '../steps/extract-canceled-items';
+
+interface OrderSetData {
+  orders?: Array<{ id: string }>;
+}
 
 export const getFormattedOrderSetListWorkflow = createWorkflow(
   'get-formatted-order-set-list',
   function (input: {
     fields?: string[];
-    filters?: Record<string, any>;
+    filters?: Record<string, unknown>;
     pagination?: {
       skip: number;
       take?: number;
-      order?: Record<string, any>;
+      order?: Record<string, unknown>;
     };
   }) {
     const fields = transform(input, ({ fields }) => {
@@ -60,6 +65,11 @@ export const getFormattedOrderSetListWorkflow = createWorkflow(
         'orders.shipping_tax_total',
         'orders.items.*',
         'orders.items.detail.*',
+        'orders.items.variant.*',
+        'orders.items.variant.product.*',
+        'orders.items.variant.options.*',
+        'orders.items.variant.options.option.*',
+        'orders.items.product.*',
         'orders.customer.*',
         'orders.fulfillments.*',
         'orders.shipping_methods.*',
@@ -78,7 +88,18 @@ export const getFormattedOrderSetListWorkflow = createWorkflow(
       pagination: input.pagination
     });
 
-    const formattedOrderSets = transform(data, formatOrderSets);
+    const orderIds = transform(data, (orderSets: OrderSetData[]) => 
+      orderSets.flatMap((os) => os.orders?.map((o) => o.id) || [])
+    );
+
+    const canceledItemsMap = extractCanceledItemsFromOrderChangesStep({
+      order_ids: orderIds
+    });
+
+    const formattedOrderSets = transform(
+      { data, canceledItemsMap },
+      ({ data, canceledItemsMap }) => formatOrderSets(data, canceledItemsMap)
+    );
 
     return new WorkflowResponse({ data: formattedOrderSets, metadata });
   }

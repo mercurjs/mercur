@@ -84,11 +84,18 @@ export async function GET(
 ): Promise<void> {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const customerId = req.auth_context?.actor_id;
+  
+  if (!customerId) {
+    res.status(401).json({ message: 'Unauthorized - customer ID required' });
+    return;
+  }
+
   const { data: order_set_ids, metadata } = await query.graph({
     entity: 'order_set',
     fields: ['id'],
     filters: {
-      customer_id: req.auth_context.actor_id
+      customer_id: customerId
     },
     pagination: req.queryConfig.pagination
   })

@@ -1,4 +1,51 @@
 /**
+ * @schema StoreCanceledOrderItem
+ * title: "CanceledOrderItem"
+ * description: "Canceled order item details"
+ * properties:
+ *   id:
+ *     type: string
+ *     description: The ID of the item (same as in active items if partial cancel).
+ *   variant_id:
+ *     type: string
+ *     description: The ID of the product variant.
+ *   thumbnail:
+ *     type: string
+ *     nullable: true
+ *     description: The thumbnail URL of the product.
+ *   title:
+ *     type: string
+ *     description: The title of the product.
+ *   variant_title:
+ *     type: string
+ *     description: The title of the variant.
+ *   product_handle:
+ *     type: string
+ *     description: The handle (slug) of the product.
+ *   total:
+ *     type: number
+ *     description: The total amount of the canceled quantity.
+ *   original_total:
+ *     type: number
+ *     description: The original total amount of the canceled quantity.
+ *   canceled_quantity:
+ *     type: number
+ *     description: The quantity that was canceled.
+ *   is_partial_cancel:
+ *     type: boolean
+ *     description: True if only part of the item was canceled (item still exists in active items). False if entire item was canceled.
+ *   variant:
+ *     type: object
+ *     description: The variant details.
+ *     properties:
+ *       options:
+ *         type: array
+ *         description: The variant options.
+ *         items:
+ *           type: object
+ */
+
+/**
  * @schema StoreOrderSet
  * title: "OrderSet"
  * description: "Order set object"
@@ -50,10 +97,19 @@
  *     description: The shipping tax total of the order set.
  *   orders:
  *     type: array
- *     description: The orders associated with this order set.
+ *     description: The orders associated with this order set. Each order now includes a canceled_items array containing items that were canceled.
  *     items:
  *       type: object
  *       description: Order object with details.
+ *       properties:
+ *         items:
+ *           type: array
+ *           description: Active items in the order (quantity > 0).
+ *         canceled_items:
+ *           type: array
+ *           description: Items that were canceled from the order (quantity = 0).
+ *           items:
+ *             $ref: "#/components/schemas/StoreCanceledOrderItem"
  *   customer:
  *     type: object
  *     description: The customer associated with the order set.

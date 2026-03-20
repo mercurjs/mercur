@@ -8,8 +8,29 @@ import {
   OrderStatus,
   PaymentCollectionDTO,
   PaymentCollectionStatus,
+  ProductOptionValueDTO,
   SalesChannelDTO
 } from '@medusajs/framework/types'
+
+export type CanceledOrderItem = {
+  id: string
+  variant_id?: string
+  thumbnail?: string | null
+  title: string
+  variant_title?: string
+  product_handle?: string
+  total: BigNumberInput
+  original_total: BigNumberInput
+  canceled_quantity: number
+  is_partial_cancel: boolean
+  variant?: {
+    options?: ProductOptionValueDTO[]
+  }
+}
+
+export type OrderWithCanceledItems = OrderDTO & OrderDetailDTO & {
+  canceled_items?: CanceledOrderItem[]
+}
 
 export type OrderSetDTO = {
   id: string
@@ -42,4 +63,6 @@ export type FormattedOrderSetDTO = OrderSetDTO & {
   subtotal: BigNumberInput
   shipping_total: BigNumberInput
   shipping_tax_total: BigNumberInput
+  
+  orders: OrderWithCanceledItems[]
 }
