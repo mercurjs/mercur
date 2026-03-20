@@ -1,8 +1,11 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework'
-import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
+import {
+  AuthenticatedMedusaRequest,
+  MedusaResponse
+} from '@medusajs/framework';
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils';
 
-import { getFormattedOrderSetListWorkflow } from '../../../workflows/order-set/workflows'
-import { defaultStoreRetrieveOrderSetFields } from './query-config'
+import { getFormattedOrderSetListWorkflow } from '../../../workflows/order-set/workflows';
+import { defaultStoreRetrieveOrderSetFields } from './query-config';
 
 /**
  * @oas [get] /store/order-set
@@ -25,6 +28,12 @@ import { defaultStoreRetrieveOrderSetFields } from './query-config'
  *       default: 50
  *     required: false
  *     description: The number of items to return.
+ *   - name: order
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Sort order. Use "-" prefix for descending order (e.g., "-created_at" for newest first, "display_id" for ascending).
  *   - name: fields
  *     in: query
  *     schema:
@@ -82,7 +91,7 @@ export async function GET(
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ): Promise<void> {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
   const { data: order_set_ids, metadata } = await query.graph({
     entity: 'order_set',
@@ -91,21 +100,22 @@ export async function GET(
       customer_id: req.auth_context.actor_id
     },
     pagination: req.queryConfig.pagination
-  })
+  });
 
   const {
     result: { data: order_sets }
   } = await getFormattedOrderSetListWorkflow(req.scope).run({
     input: {
       filters: { id: order_set_ids.map((set) => set.id) },
-      fields: defaultStoreRetrieveOrderSetFields
+      fields: defaultStoreRetrieveOrderSetFields,
+      pagination: req.queryConfig.pagination
     }
-  })
+  });
 
   res.json({
     order_sets,
     count: metadata?.count,
     offset: metadata?.skip,
     limit: metadata?.take
-  })
+  });
 }
