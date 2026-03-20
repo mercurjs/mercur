@@ -2,7 +2,6 @@ import {
   WorkflowResponse,
   createWorkflow,
 } from "@medusajs/framework/workflows-sdk";
-import { emitEventStep } from "@medusajs/medusa/core-flows";
 
 import { UpdateReviewDTO } from "../../../modules/reviews";
 import { updateReviewStep } from "../steps";

@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { keepPreviousData } from "@tanstack/react-query";
 import { Container, Heading } from "@medusajs/ui";
+import { Star } from "@medusajs/icons";
+import type { RouteConfig } from "@mercurjs/dashboard-sdk";
 
 import { useReviews } from "../../hooks/api/reviews";
 import { useReviewTableColumns } from "../../hooks/table/columns/use-review-table-columns";
@@ -78,3 +80,8 @@ const ReviewListPage = () => {
 };
 
 export default ReviewListPage;
+
+export const config: RouteConfig = {
+  label: "Reviews",
+  icon: Star,
+};

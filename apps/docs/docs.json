@@ -82,6 +82,12 @@
                   "v2/migrations/overview",
                   "v2/migrations/from-1-x-to-2-0"
                 ]
+              },
+              {
+                "group": "Legal",
+                "pages": [
+                  "v2/telemetry"
+                ]
               }
             ]
           },

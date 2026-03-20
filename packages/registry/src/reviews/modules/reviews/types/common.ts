@@ -8,9 +8,9 @@ export interface ReviewDTO {
   rating: number
   customer_note: string | null
   seller_note: string | null
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
+  created_at: Date | string
+  updated_at: Date | string
+  deleted_at: Date | string | null
 }
 
 export interface AdminReviewResponse {

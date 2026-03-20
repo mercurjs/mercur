@@ -1,9 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { keepPreviousData } from "@tanstack/react-query";
 import { Container, Heading } from "@medusajs/ui";
+import { Star } from "@medusajs/icons";
+import type { RouteConfig } from "@mercurjs/dashboard-sdk";
 
-import { _DataTable, SingleColumnPage } from "@mercurjs/dashboard-shared";
-import { useDataTable } from "@mercurjs/dashboard-shared";
+import { _DataTable, SingleColumnPage, useDataTable } from "@mercurjs/dashboard-shared";
 import { useReviews } from "../../hooks/api/reviews";
 import { useReviewTableColumns } from "../../hooks/table/columns/use-review-table-columns";
 import { useReviewTableQuery } from "../../hooks/table/query/use-review-table-query";
@@ -75,3 +76,8 @@ const ReviewListPage = () => {
 };
 
 export default ReviewListPage;
+
+export const config: RouteConfig = {
+  label: "Reviews",
+  icon: Star,
+};
