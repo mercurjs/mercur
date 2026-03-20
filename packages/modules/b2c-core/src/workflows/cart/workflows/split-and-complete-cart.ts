@@ -3,13 +3,13 @@ import {
   MedusaError,
   Modules,
   OrderStatus,
-  OrderWorkflowEvents,
-} from "@medusajs/framework/utils";
+  OrderWorkflowEvents
+} from '@medusajs/framework/utils';
 import {
   parallelize,
   transform,
-  when,
-} from "@medusajs/framework/workflows-sdk";
+  when
+} from '@medusajs/framework/workflows-sdk';
 import {
   authorizePaymentSessionStep,
   createOrdersStep,
@@ -18,36 +18,36 @@ import {
   reserveInventoryStep,
   updateCartsStep,
   useRemoteQueryStep,
-  validateCartPaymentsStep,
-} from "@medusajs/medusa/core-flows";
-import { UsageComputedActions } from "@medusajs/types";
+  validateCartPaymentsStep
+} from '@medusajs/medusa/core-flows';
+import { UsageComputedActions } from '@medusajs/types';
 import {
   CartShippingMethodDTO,
-  CartWorkflowDTO,
-} from "@medusajs/types/dist/cart";
+  CartWorkflowDTO
+} from '@medusajs/types/dist/cart';
 import {
   WorkflowResponse,
   createHook,
-  createWorkflow,
-} from "@medusajs/workflows-sdk";
+  createWorkflow
+} from '@medusajs/workflows-sdk';
 
-import { OrderSetWorkflowEvents } from "@mercurjs/framework";
-import { MARKETPLACE_MODULE } from "../../../modules/marketplace";
-import { SELLER_MODULE } from "../../../modules/seller";
+import { OrderSetWorkflowEvents } from '@mercurjs/framework';
+import { MARKETPLACE_MODULE } from '../../../modules/marketplace';
+import { SELLER_MODULE } from '../../../modules/seller';
 
-import { registerUsageStep } from "../../promotions/steps";
-import { createSplitOrderPaymentsStep } from "../../split-order-payment/steps";
+import { registerUsageStep } from '../../promotions/steps';
+import { createSplitOrderPaymentsStep } from '../../split-order-payment/steps';
 import {
   createOrderSetStep,
   validateCartSellersStep,
-  validateCartShippingOptionsStep,
-} from "../steps";
+  validateCartShippingOptionsStep
+} from '../steps';
 import {
   completeCartFields,
   prepareConfirmInventoryInput,
   prepareLineItemData,
-  prepareTaxLinesData,
-} from "../utils";
+  prepareTaxLinesData
+} from '../utils';
 
 type SplitAndCompleteCartWorkflowInput = {
   id: string;
@@ -55,36 +55,36 @@ type SplitAndCompleteCartWorkflowInput = {
 
 export const splitAndCompleteCartWorkflow = createWorkflow(
   {
-    name: "split-and-complete-cart",
-    idempotent: true,
+    name: 'split-and-complete-cart',
+    idempotent: true
   },
   function (input: SplitAndCompleteCartWorkflowInput) {
     const existingOrderSet = useRemoteQueryStep({
-      entry_point: "order_set",
-      fields: ["id", "cart_id"],
+      entry_point: 'order_set',
+      fields: ['id', 'cart_id'],
       variables: {
         filters: {
-          cart_id: input.id,
-        },
+          cart_id: input.id
+        }
       },
-      list: false,
-    }).config({ name: "order-set-query" });
+      list: false
+    }).config({ name: 'order-set-query' });
 
     const orderSet = when({ existingOrderSet }, ({ existingOrderSet }) => {
       return !existingOrderSet;
     }).then(() => {
       const cart = useRemoteQueryStep({
-        entry_point: "cart",
+        entry_point: 'cart',
         fields: completeCartFields,
         variables: {
-          id: input.id,
+          id: input.id
         },
-        list: false,
-      }).config({ name: "cart-query" });
+        list: false
+      }).config({ name: 'cart-query' });
 
       validateCartSellersStep(
         transform({ cart }, ({ cart }) => ({
-          line_items: cart.items,
+          line_items: cart.items
         }))
       );
 
@@ -95,6 +95,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           option_ids: cart.shipping_methods.map(
             (method) => method.shipping_option_id
           ),
+          strict: true
         })
       );
 
@@ -105,19 +106,24 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
 
       const payment = authorizePaymentSessionStep({
         id: paymentSessions[0].id,
-        context: { cart_id: cart.id },
+        context: { cart_id: cart.id }
       });
 
       const { ordersToCreate, sellers, variants } = transform(
         { cart, sellerProducts, sellerShippingOptions, adminShippingOptions },
-        ({ cart, sellerProducts, sellerShippingOptions, adminShippingOptions }) => {
+        ({
+          cart,
+          sellerProducts,
+          sellerShippingOptions,
+          adminShippingOptions
+        }) => {
           const productSellerMap = new Map<string, string>(
             sellerProducts.map((sp) => [sp.product_id, sp.seller_id])
           );
           const shippingOptionSellerMap = new Map<string, string>(
             sellerShippingOptions.map((sp) => [
               sp.shipping_option_id,
-              sp.seller_id,
+              sp.seller_id
             ])
           );
 
@@ -161,7 +167,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
             if (!sm) {
               throw new MedusaError(
                 MedusaError.Types.INVALID_DATA,
-                "Seller shipping method not found!"
+                'Seller shipping method not found!'
               );
             }
 
@@ -175,7 +181,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
                 quantity: item.quantity,
                 metadata: item?.metadata,
                 taxLines: item.tax_lines ?? [],
-                adjustments: item.adjustments ?? [],
+                adjustments: item.adjustments ?? []
               })
             );
 
@@ -208,16 +214,16 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
                   shipping_option_id: sm.shipping_option_id,
                   data: sm.data,
                   metadata: sm.metadata,
-                  tax_lines: prepareTaxLinesData(sm.tax_lines ?? []),
-                },
-              ],
+                  tax_lines: prepareTaxLinesData(sm.tax_lines ?? [])
+                }
+              ]
             };
           });
 
           return {
             ordersToCreate,
             sellers,
-            variants: Array.from(variantsMap.values()),
+            variants: Array.from(variantsMap.values())
           };
         }
       );
@@ -238,18 +244,24 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           for (const adjustment of itemAdjustments) {
             promotionUsage.push({
               amount: adjustment.amount,
-              code: adjustment.code!,
+              code: adjustment.code!
             });
           }
 
           for (const adjustment of shippingAdjustments) {
             promotionUsage.push({
               amount: adjustment.amount,
-              code: adjustment.code!,
+              code: adjustment.code!
             });
           }
 
-          return { computedActions: promotionUsage, registrationContext: { customer_id: cart.customer?.id ?? null, customer_email: cart.email ?? null } };
+          return {
+            computedActions: promotionUsage,
+            registrationContext: {
+              customer_id: cart.customer?.id ?? null,
+              customer_email: cart.email ?? null
+            }
+          };
         }
       );
 
@@ -259,7 +271,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         cart_id: cart.id,
         customer_id: cart.customer_id,
         sales_channel_id: cart.sales_channel_id,
-        payment_collection_id: payment.payment_collection_id,
+        payment_collection_id: payment.payment_collection_id
       });
 
       const createdOrders = createOrdersStep(ordersToCreate);
@@ -269,12 +281,12 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         ({ createdOrders, payment }) => {
           return createdOrders.map((order) => ({
             order_id: order.id,
-            status: "pending",
+            status: 'pending',
             currency_code: order.currency_code,
             authorized_amount: MathBN.convert(
               order.summary?.accounting_total || 0
             ).toNumber(),
-            payment_collection_id: payment!.payment_collection_id,
+            payment_collection_id: payment!.payment_collection_id
           }));
         }
       );
@@ -292,7 +304,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
               ...order.items!.map((i) => ({
                 variant_id: i.variant_id!,
                 quantity: i.quantity,
-                id: i.id,
+                id: i.id
               }))
             );
             return acc;
@@ -301,7 +313,7 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
 
       const updateCartInput = transform({ cart }, ({ cart }) => ({
         id: cart.id,
-        completed_at: new Date(),
+        completed_at: new Date()
       }));
 
       const formatedInventoryItems = transform(
@@ -309,8 +321,8 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           input: {
             sales_channel_id: cart.sales_channel_id,
             variants,
-            items: reservationItemsData,
-          },
+            items: reservationItemsData
+          }
         },
         prepareConfirmInventoryInput
       );
@@ -320,40 +332,40 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
           createdOrders,
           sellers,
           orderSet,
-          cart,
+          cart
         },
         ({ createdOrders, sellers, orderSet, cart }) => {
           const sellerOrderLinks = createdOrders.map((order, index) => ({
             [SELLER_MODULE]: {
-              seller_id: sellers[index],
+              seller_id: sellers[index]
             },
             [Modules.ORDER]: {
-              order_id: order.id,
-            },
+              order_id: order.id
+            }
           }));
 
           const orderSetOrderLinks = createdOrders.map((order) => ({
             [MARKETPLACE_MODULE]: {
-              order_set_id: orderSet.id,
+              order_set_id: orderSet.id
             },
             [Modules.ORDER]: {
-              order_id: order.id,
-            },
+              order_id: order.id
+            }
           }));
 
           const orderPaymentLinks = createdOrders.map((order) => ({
             [Modules.ORDER]: {
-              order_id: order.id,
+              order_id: order.id
             },
             [Modules.PAYMENT]: {
-              payment_collection_id: cart.payment_collection.id,
-            },
+              payment_collection_id: cart.payment_collection.id
+            }
           }));
 
           return [
             ...sellerOrderLinks,
             ...orderSetOrderLinks,
-            ...orderPaymentLinks,
+            ...orderPaymentLinks
           ];
         }
       );
@@ -361,8 +373,8 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
       const orderEvents = transform({ createdOrders }, ({ createdOrders }) => ({
         eventName: OrderWorkflowEvents.PLACED,
         data: {
-          order_ids: createdOrders.map((order) => order.id),
-        },
+          order_ids: createdOrders.map((order) => order.id)
+        }
       }));
 
       parallelize(
@@ -374,9 +386,9 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         emitEventStep({
           eventName: OrderSetWorkflowEvents.PLACED,
           data: {
-            id: orderSet.id,
-          },
-        }).config({ name: "order-set-event" })
+            id: orderSet.id
+          }
+        }).config({ name: 'order-set-event' })
       );
 
       return orderSet;
@@ -388,13 +400,13 @@ export const splitAndCompleteCartWorkflow = createWorkflow(
         orderSet ? orderSet.id : existingOrderSet.id
     );
 
-    const orderSetCreatedHook = createHook("orderSetCreated", {
-      orderSetId,
+    const orderSetCreatedHook = createHook('orderSetCreated', {
+      orderSetId
     });
     return new WorkflowResponse(
       { id: orderSetId },
       {
-        hooks: [orderSetCreatedHook],
+        hooks: [orderSetCreatedHook]
       }
     );
   }
