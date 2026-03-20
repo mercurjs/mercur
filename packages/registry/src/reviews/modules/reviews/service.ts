@@ -1,6 +1,5 @@
 import {
   InjectManager,
-  MedusaContext,
   MedusaService,
 } from '@medusajs/framework/utils'
 import { Context } from '@medusajs/framework/types'
@@ -15,7 +14,7 @@ class ReviewModuleService extends MedusaService({
   async getAvgRating(
     type: 'seller' | 'product',
     id: string,
-    @MedusaContext() sharedContext?: Context<EntityManager>
+    sharedContext?: Context<EntityManager>
   ): Promise<string | null> {
     const knex = sharedContext!.manager!.getKnex()
 
@@ -36,7 +35,7 @@ class ReviewModuleService extends MedusaService({
   @InjectManager()
   async getSellersWithRating(
     fields: string[],
-    @MedusaContext() sharedContext?: Context<EntityManager>
+    sharedContext?: Context<EntityManager>
   ) {
     const knex = sharedContext!.manager!.getKnex()
 
@@ -58,7 +57,7 @@ class ReviewModuleService extends MedusaService({
   @InjectManager()
   async getProductsWithRating(
     fields: string[],
-    @MedusaContext() sharedContext?: Context<EntityManager>
+    sharedContext?: Context<EntityManager>
   ) {
     const knex = sharedContext!.manager!.getKnex()
 
