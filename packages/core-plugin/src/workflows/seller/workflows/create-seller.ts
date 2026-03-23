@@ -10,6 +10,7 @@ import { AdditionalData } from "@medusajs/framework/types"
 
 import { createSellersStep, upsertMembersStep, createSellerMembersStep } from "../steps"
 import { SellerWorkflowEvents } from "../../events"
+import { createMemberInvitesWorkflow } from "./create-member-invites"
 
 export const createSellersWorkflowId = "create-sellers"
 
@@ -27,7 +28,7 @@ export const createSellersWorkflow = createWorkflow(
     )
 
     const { data: sellerAdminRole } = useQueryGraphStep({
-      entity: "rbac_role",
+      entity: "role",
       fields: ["id"],
       filters: { handle: "seller-administration" },
       options: { throwIfKeyNotFound: true },
@@ -51,6 +52,18 @@ export const createSellersWorkflow = createWorkflow(
           }))
       )
     )
+
+    createMemberInvitesWorkflow.runAsStep({
+      input: transform(
+        { sellers, input },
+        ({ sellers, input }) =>
+          sellers.map((seller, i) => ({
+            seller_id: seller.id,
+            email: input.sellers[i].member.email,
+            role_handle: "seller-administration",
+          }))
+      )
+    })
 
     const sellersCreated = createHook("sellersCreated", {
       sellers,

@@ -3,16 +3,20 @@ export const adminSellerFields = [
   "name",
   "handle",
   "email",
-  "phone",
+  "description",
   "logo",
-  "cover_image",
-  "address_1",
-  "address_2",
-  "city",
-  "country_code",
-  "province",
-  "postal_code",
+  "banner",
+  "website_url",
+  "external_id",
+  "currency_code",
   "status",
+  "is_premium",
+  "closed_from",
+  "closed_to",
+  "*address",
+  "*payment_details",
+  "*professional_details",
+  "metadata",
   "created_at",
   "updated_at",
   "payout_account.id",
@@ -23,13 +27,31 @@ export const adminSellerFields = [
   "payout_account.onboarding.data",
 ]
 
+export const adminSellerRetrieveFields = [
+  ...adminSellerFields,
+  "*members",
+]
+
 export const adminSellerQueryConfig = {
   list: {
     defaults: adminSellerFields,
+    defaultLimit: 50,
     isList: true,
   },
   retrieve: {
-    defaults: adminSellerFields,
+    defaults: adminSellerRetrieveFields,
     isList: false,
+  },
+}
+
+export const adminMembersQueryConfig = {
+  list: {
+    defaults: [
+      "id",
+      "member.*",
+      "role.*",
+    ],
+    defaultLimit: 50,
+    isList: true,
   },
 }

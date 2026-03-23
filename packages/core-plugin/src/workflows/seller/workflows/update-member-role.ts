@@ -24,7 +24,7 @@ export const updateMemberRoleWorkflow = createWorkflow(
     validateNotOwnerStep(input.seller_member_id)
 
     const { data: role } = useQueryGraphStep({
-      entity: "rbac_role",
+      entity: "role",
       fields: ["id"],
       filters: { handle: input.role_handle },
       options: { throwIfKeyNotFound: true },
