@@ -9,25 +9,21 @@ type CreateMemberInviteStepInput = {
   role_handle: string
 }
 
-export const createMemberInviteStep = createStep(
-  "create-member-invite",
-  async (input: CreateMemberInviteStepInput, { container }) => {
+export const createMemberInvitesStep = createStep(
+  "create-member-invites",
+  async (input: CreateMemberInviteStepInput[], { container }) => {
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
 
-    const invite: MemberInviteDTO = await service.createMemberInvites({
-      email: input.email,
-      seller_id: input.seller_id,
-      role_handle: input.role_handle,
-    })
+    const invites: MemberInviteDTO[] = await service.createMemberInvites(input)
 
-    return new StepResponse(invite, invite.id)
+    return new StepResponse(invites, invites.map((inv) => inv.id))
   },
-  async (id: string, { container }) => {
-    if (!id) {
+  async (ids: string[], { container }) => {
+    if (!ids?.length) {
       return
     }
 
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
-    await service.deleteMemberInvites([id])
+    await service.deleteMemberInvites(ids)
   }
 )

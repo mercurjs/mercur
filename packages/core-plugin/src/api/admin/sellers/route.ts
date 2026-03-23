@@ -5,6 +5,9 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
+import { AdminCreateSellerType } from "./validators"
+import { createSellersWorkflow } from "../../../workflows/seller"
+
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminSellerListResponse>
@@ -24,4 +27,27 @@ export const GET = async (
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,
   })
+}
+
+export const POST = async (
+  req: AuthenticatedMedusaRequest<AdminCreateSellerType>,
+  res: MedusaResponse<HttpTypes.AdminSellerResponse>
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { result } = await createSellersWorkflow(req.scope).run({
+    input: {
+      sellers: [req.validatedBody],
+    },
+  })
+
+  const {
+    data: [seller],
+  } = await query.graph({
+    entity: "seller",
+    fields: req.queryConfig.fields,
+    filters: { id: result[0].id },
+  })
+
+  res.status(201).json({ seller })
 }

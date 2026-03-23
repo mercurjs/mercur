@@ -23,7 +23,7 @@ export const addSellerMemberWorkflow = createWorkflow(
   addSellerMemberWorkflowId,
   function (input: AddSellerMemberWorkflowInput) {
     const { data: role } = useQueryGraphStep({
-      entity: "rbac_role",
+      entity: "role",
       fields: ["id"],
       filters: { handle: input.role_handle },
       options: { throwIfKeyNotFound: true },
