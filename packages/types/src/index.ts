@@ -12,6 +12,9 @@ export * from "./commission"
 // HTTP types
 export * as HttpTypes from "./http"
 
+// Subscription types
+export * from "./subscription"
+
 // Payout types
 export * from "./payout"
 

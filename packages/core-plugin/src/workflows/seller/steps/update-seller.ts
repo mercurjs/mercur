@@ -3,26 +3,29 @@ import { MercurModules, SellerDTO, UpdateSellerDTO } from "@mercurjs/types"
 
 import SellerModuleService from "../../../modules/seller/service"
 
-export const updateSellerStep = createStep(
-  "update-seller",
-  async (input: UpdateSellerDTO, { container }) => {
+type UpdateSellersStepInput = {
+  selector: Record<string, unknown>
+  update: UpdateSellerDTO
+}
+
+export const updateSellersStep = createStep(
+  "update-sellers",
+  async ({ selector, update }: UpdateSellersStepInput, { container }) => {
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
+    const prevSellers = await service.listSellers(selector)
 
-    const [previousData] = await service.listSellers({
-      id: input.id,
-    })
+    const sellers = await service.updateSellers(
+      prevSellers.map((s) => ({ id: s.id, ...update }))
+    )
 
-    const updatedSeller: SellerDTO = await service.updateSellers(input)
-
-    return new StepResponse(updatedSeller, previousData as UpdateSellerDTO)
+    return new StepResponse(sellers, prevSellers)
   },
-  async (previousData: UpdateSellerDTO, { container }) => {
-    if (!previousData) {
+  async (prevSellers: SellerDTO[], { container }) => {
+    if (!prevSellers) {
       return
     }
 
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
-
-    await service.updateSellers(previousData)
+    await service.updateSellers(prevSellers)
   }
 )
