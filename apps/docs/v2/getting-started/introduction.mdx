@@ -47,6 +47,14 @@ Here's what that looks like in practice:
 - **Building UI pages** — AI can scaffold an admin or vendor page by creating a file in `src/routes/`. The dashboard SDK picks it up automatically through file-based routing. No manual route registration, no config files to update.
 - **Modifying blocks it can diff** — AI can compare local code against the registry with `npx @mercurjs/cli@latest diff`, understand what changed, and make targeted modifications instead of blind overwrites.
 
+### Connect your AI tools
+
+To start building with AI, connect your environment to Mercur's knowledge base:
+
+- **[LLMs](/v2/ai-development/llms)** — Feed the full Mercur documentation to any LLM via `llms.txt`
+- **[MCP Server](/v2/ai-development/mcp)** — Let your AI tool search Mercur docs in real time (Cursor, VS Code, Claude, Claude Code)
+- **[Skills](/v2/ai-development/skills)** — Pre-built AI workflows that ship with every Mercur project for guided development
+
 ### Why this matters
 
 Traditional commerce platforms give AI no structure to reason about. The result is generated code that looks plausible but breaks in production — wrong API shapes, missing relationships, incompatible data models.
