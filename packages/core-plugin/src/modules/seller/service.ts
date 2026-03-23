@@ -1,4 +1,4 @@
-import { Context, DAL, FindConfig } from "@medusajs/framework/types"
+import { Context, DAL, FindConfig, InternalModuleDeclaration } from "@medusajs/framework/types"
 import {
   InjectManager,
   isValidHandle,
@@ -8,6 +8,7 @@ import {
   toHandle,
   InjectTransactionManager,
 } from "@medusajs/framework/utils"
+import crypto from "node:crypto"
 import {
   Seller,
   ProfessionalDetails,
@@ -19,7 +20,9 @@ import {
   OrderGroup,
 } from "./models"
 import { OrderGroupRepository } from "./repositories"
-import { MemberDTO, OrderGroupDTO } from "@mercurjs/types"
+import { MemberDTO, MemberInviteDTO, OrderGroupDTO, SellerDTO, SellerModuleOptions } from "@mercurjs/types"
+
+const DEFAULT_INVITE_VALID_DURATION_SECONDS = 60 * 60 * 24 * 7 // 7 days
 
 type InjectedDependencies = {
   orderGroupRepository: OrderGroupRepository
@@ -38,21 +41,26 @@ class SellerModuleService extends MedusaService({
 }) {
   protected readonly orderGroupRepository_: OrderGroupRepository
   protected readonly baseRepository_: DAL.RepositoryService
+  protected readonly options_: SellerModuleOptions
 
-  constructor({ orderGroupRepository, baseRepository }: InjectedDependencies) {
+  constructor(
+    { orderGroupRepository, baseRepository }: InjectedDependencies,
+    protected readonly moduleDeclaration?: InternalModuleDeclaration,
+  ) {
     // @ts-ignore
     // eslint-disable-next-line prefer-rest-params
     super(...arguments)
     this.orderGroupRepository_ = orderGroupRepository
     this.baseRepository_ = baseRepository
+    this.options_ = (moduleDeclaration?.options as SellerModuleOptions) ?? {}
   }
 
   @InjectTransactionManager()
   // @ts-ignore
-  async createSellers(
-    data: any | any[],
+  async createSellers<T extends any | any[]>(
+    data: T,
     sharedContext?: Context,
-  ) {
+  ): Promise<T extends any[] ? SellerDTO[] : SellerDTO> {
     const input = (Array.isArray(data) ? data : [data]).map((seller) => {
       this.validateSellerData_(seller)
 
@@ -64,15 +72,15 @@ class SellerModuleService extends MedusaService({
     })
 
     const result = await super.createSellers(input, sharedContext)
-    return Array.isArray(data) ? result : result[0]
+    return (Array.isArray(data) ? result : result[0]) as any
   }
 
   @InjectTransactionManager()
   // @ts-ignore
-  async updateSellers(
-    data: any | any[],
+  async updateSellers<T extends any | any[]>(
+    data: T,
     sharedContext?: Context,
-  ) {
+  ): Promise<T extends any[] ? SellerDTO[] : SellerDTO> {
     const input = (Array.isArray(data) ? data : [data]).map((seller) => {
       this.validateSellerData_(seller)
 
@@ -84,7 +92,7 @@ class SellerModuleService extends MedusaService({
     })
 
     // @ts-ignore
-    return super.updateSellers(input, sharedContext)
+    return super.updateSellers(input, sharedContext) as any
   }
 
   @InjectTransactionManager()
@@ -114,6 +122,55 @@ class SellerModuleService extends MedusaService({
     return data.map(
       (d) => existingMap.get(d.email) ?? createdMap.get(d.email)!
     )
+  }
+
+  @InjectTransactionManager()
+  // @ts-ignore
+  async createMemberInvites<T extends any | any[]>(
+    data: T,
+    sharedContext?: Context,
+  ): Promise<T extends any[] ? MemberInviteDTO[] : MemberInviteDTO> {
+    const validDuration = this.options_.invite_valid_duration ?? DEFAULT_INVITE_VALID_DURATION_SECONDS
+
+    const input = (Array.isArray(data) ? data : [data]).map((invite) => ({
+      ...invite,
+      token: invite.token ?? crypto.randomUUID(),
+      accepted: invite.accepted ?? false,
+      expires_at: invite.expires_at ?? new Date(Date.now() + validDuration * 1000),
+    }))
+
+    const result = await super.createMemberInvites(input, sharedContext)
+    return (Array.isArray(data) ? result : result[0]) as any
+  }
+
+  @InjectManager()
+  async validateMemberInviteToken(
+    token: string,
+    @MedusaContext() sharedContext: Context = {},
+  ): Promise<MemberInviteDTO> {
+    const [invites] = await this.listAndCountMemberInvites(
+      { token, accepted: false },
+      {},
+      sharedContext,
+    )
+
+    if (!invites.length) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        "Invalid or already used invite token"
+      )
+    }
+
+    const invite = invites[0] as MemberInviteDTO
+
+    if (new Date() > new Date(invite.expires_at)) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_ALLOWED,
+        "Invite token has expired"
+      )
+    }
+
+    return invite
   }
 
   private validateSellerData_(data: any) {
