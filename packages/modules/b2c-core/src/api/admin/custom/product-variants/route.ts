@@ -115,6 +115,12 @@ import {
  *       type: string
  *     required: false
  *     description: Customer group ID used as pricing context. Enables group-specific price list matching.
+ *   - name: country_code
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Country code used as pricing context (e.g. "pl"). Required to calculate tax-inclusive prices (calculated_amount_with_tax).
  * responses:
  *   "200":
  *     description: OK
@@ -158,16 +164,17 @@ export const GET = async (
     );
   }
 
-  const { region_id, currency_code, customer_id, customer_group_id, ...filterableFields } =
+  const { region_id, currency_code, customer_id, customer_group_id, country_code, ...filterableFields } =
     req.filterableFields as AdminGetProductVariantsParamsType;
 
   const pricingContext =
-    region_id || currency_code || customer_id || customer_group_id
+    region_id || currency_code || customer_id || customer_group_id || country_code
       ? {
           ...(region_id && { region_id }),
           ...(currency_code && { currency_code }),
           ...(customer_id && { customer_id }),
           ...(customer_group_id && { customer_group_id }),
+          ...(country_code && { country_code }),
         }
       : undefined;
 
@@ -219,6 +226,7 @@ export const GET = async (
         calculated_price: QueryContext(pricingContext),
       },
     });
+
     const pricingMap = new Map(
       (priced as unknown as PricedVariant[]).map((v) => [v.id, v.calculated_price ?? null])
     );

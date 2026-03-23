@@ -31,6 +31,7 @@ const GetProductVariantsParamsFields = z.object({
   currency_code: z.string().optional(),
   customer_id: z.string().optional(),
   customer_group_id: z.string().optional(),
+  country_code: z.string().optional(),
 });
 
 export type AdminGetProductVariantsParamsType = z.infer<
