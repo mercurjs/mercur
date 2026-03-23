@@ -2,11 +2,14 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { VendorCreateSellerType } from "./validators"
-import { createSellersWorkflow } from "../../../workflows/seller"
+import { VendorCreateSellerAccountType } from "./validators"
+import {
+  createSellerAccountWorkflow,
+  updateSellerAddressWorkflow,
+} from "../../../workflows/seller"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -34,24 +37,34 @@ export const GET = async (
 }
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorCreateSellerType>,
+  req: AuthenticatedMedusaRequest<VendorCreateSellerAccountType>,
   res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  if (req.auth_context?.actor_id) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Already registered as a member. Use the vendor API to manage sellers."
+    )
+  }
 
-  const { result: sellers } = await createSellersWorkflow(req.scope).run({
+  const { address, ...sellerData } = req.validatedBody
+
+  const { result: seller } = await createSellerAccountWorkflow(req.scope).run({
     input: {
-      sellers: [req.validatedBody],
+      auth_identity_id: req.auth_context.auth_identity_id,
+      seller: sellerData,
+      member: { email: sellerData.email },
     },
   })
 
-  const {
-    data: [result],
-  } = await query.graph({
-    entity: "seller",
-    fields: req.queryConfig.fields,
-    filters: { id: sellers[0].id },
-  })
+  if (address) {
+    await updateSellerAddressWorkflow(req.scope).run({
+      input: {
+        seller_id: seller.id,
+        data: address,
+      },
+    })
+  }
 
-  res.status(201).json({ seller: result })
+  res.status(201).json({ seller })
 }

@@ -13,25 +13,28 @@ export const VendorGetSellersParams = createFindParams({
 export type VendorGetSellerParamsType = z.infer<typeof VendorGetSellerParams>
 export const VendorGetSellerParams = createSelectParams()
 
-export type VendorCreateSellerType = z.infer<typeof VendorCreateSeller>
-export const VendorCreateSeller = z
-  .object({
-    name: z.preprocess((val: string) => val?.trim(), z.string().min(1)),
-    handle: z
-      .preprocess((val: string) => val?.trim(), z.string().min(1))
-      .optional(),
-    email: z.string().email(),
-    currency_code: z.string(),
-    description: z.string().nullable().optional(),
-    logo: z.string().nullable().optional(),
-    banner: z.string().nullable().optional(),
-    website_url: z.string().nullable().optional(),
-    metadata: z.record(z.unknown()).nullable().optional(),
-    member: z.object({
-      email: z.string().email(),
-    }),
-  })
-  .strict()
+export type VendorCreateSellerAccountType = z.infer<typeof VendorCreateSellerAccount>
+export const VendorCreateSellerAccount = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  description: z.string().nullable().optional(),
+  currency_code: z.string(),
+  address: z
+    .object({
+      company: z.string().nullable().optional(),
+      first_name: z.string().optional(),
+      last_name: z.string().optional(),
+      address_1: z.string().optional(),
+      address_2: z.string().nullable().optional(),
+      city: z.string().optional(),
+      country_code: z.string().optional(),
+      province: z.string().nullable().optional(),
+      postal_code: z.string().optional(),
+      phone: z.string().nullable().optional(),
+    })
+    .optional(),
+  metadata: z.record(z.unknown()).nullable().optional(),
+})
 
 export type VendorUpdateSellerType = z.infer<typeof VendorUpdateSeller>
 export const VendorUpdateSeller = z.object({

@@ -6,7 +6,7 @@ import { MiddlewareRoute } from "@medusajs/medusa"
 
 import * as QueryConfig from "./query-config"
 import {
-  VendorCreateSeller,
+  VendorCreateSellerAccount,
   VendorGetSellerParams,
   VendorGetSellersParams,
   VendorInviteMember,
@@ -23,11 +23,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/sellers",
     middlewares: [
-      validateAndTransformBody(VendorCreateSeller),
-      validateAndTransformQuery(
-        VendorGetSellerParams,
-        QueryConfig.retrieveVendorSellerQueryConfig
-      ),
+      validateAndTransformBody(VendorCreateSellerAccount),
     ],
   },
   // GET /vendor/sellers — list member's sellers (store switcher)
