@@ -5,24 +5,24 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { AdminCreateSellerType } from "./validators"
-import { createSellersWorkflow } from "../../../workflows/seller"
+import { AdminCreateSubscriptionPlanType } from "./validators"
+import { createSubscriptionPlansWorkflow } from "../../../workflows/subscription"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse<HttpTypes.AdminSellerListResponse>
+  res: MedusaResponse<HttpTypes.AdminSubscriptionPlanListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: sellers, metadata } = await query.graph({
-    entity: "seller",
+  const { data: subscription_plans, metadata } = await query.graph({
+    entity: "subscription_plan",
     fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
 
   res.json({
-    sellers,
+    subscription_plans,
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,
@@ -30,24 +30,22 @@ export const GET = async (
 }
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest<AdminCreateSellerType>,
-  res: MedusaResponse<HttpTypes.AdminSellerResponse>
+  req: AuthenticatedMedusaRequest<AdminCreateSubscriptionPlanType>,
+  res: MedusaResponse<HttpTypes.AdminSubscriptionPlanResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { result } = await createSellersWorkflow(req.scope).run({
-    input: {
-      sellers: [req.validatedBody],
-    },
+  const { result } = await createSubscriptionPlansWorkflow(req.scope).run({
+    input: [req.validatedBody],
   })
 
   const {
-    data: [seller],
+    data: [subscription_plan],
   } = await query.graph({
-    entity: "seller",
+    entity: "subscription_plan",
     fields: req.queryConfig.fields,
     filters: { id: result[0].id },
   })
 
-  res.status(201).json({ seller })
+  res.status(201).json({ subscription_plan })
 }

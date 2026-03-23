@@ -31,7 +31,7 @@ export const acceptMemberInviteWorkflow = createWorkflow(
     const invite = validateMemberInviteTokenStep(input.invite_token)
 
     const { data: role } = useQueryGraphStep({
-      entity: "rbac_role",
+      entity: "role",
       fields: ["id"],
       filters: { handle: invite.role_handle },
       options: { throwIfKeyNotFound: true },

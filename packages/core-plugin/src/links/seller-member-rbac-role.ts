@@ -6,6 +6,7 @@ export default defineLink(
   {
     linkable: SellerModule.linkable.sellerMember,
     field: "role_id",
+    alias: 'role'
   },
   RbacModule.linkable.rbacRole,
   { readOnly: true }

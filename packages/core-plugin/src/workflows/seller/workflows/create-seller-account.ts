@@ -38,7 +38,7 @@ export const createSellerAccountWorkflow = createWorkflow(
     const seller = transform({ sellers }, ({ sellers }) => sellers[0])
 
     const { data: sellerAdminRole } = useQueryGraphStep({
-      entity: "rbac_role",
+      entity: "role",
       fields: ["id"],
       filters: { handle: "seller-administration" },
       options: { throwIfKeyNotFound: true },

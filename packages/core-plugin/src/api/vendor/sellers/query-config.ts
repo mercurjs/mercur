@@ -2,7 +2,7 @@ export const listVendorSellersQueryConfig = {
   defaults: [
     "id",
     "seller.*",
-    "rbac_role.*",
+    "role.*",
   ],
   defaultLimit: 50,
   isList: true,
@@ -35,7 +35,7 @@ export const listVendorMembersQueryConfig = {
   defaults: [
     "id",
     "member.*",
-    "rbac_role.*",
+    "role.*",
   ],
   defaultLimit: 50,
   isList: true,
