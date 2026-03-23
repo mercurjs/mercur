@@ -10,6 +10,7 @@ const SellerMember = model.define("SellerMember", {
   member: model.belongsTo(() => Member, {
     mappedBy: "sellers",
   }),
+  role_id: model.text().nullable(),
   is_owner: model.boolean().default(false),
   metadata: model.json().nullable(),
 })

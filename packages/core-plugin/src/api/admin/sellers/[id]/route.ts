@@ -9,7 +9,7 @@ import {
 import { HttpTypes } from "@mercurjs/types"
 
 import { AdminUpdateSellerType } from "../validators"
-import { updateSellerWorkflow } from "../../../../workflows/seller"
+import { updateSellersWorkflow } from "../../../../workflows/seller"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -41,10 +41,10 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  await updateSellerWorkflow(req.scope).run({
+  await updateSellersWorkflow(req.scope).run({
     input: {
-      id: req.params.id,
-      ...req.validatedBody,
+      selector: { id: req.params.id },
+      update: req.validatedBody,
     },
   })
 

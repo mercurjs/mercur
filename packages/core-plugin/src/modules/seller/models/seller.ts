@@ -14,6 +14,8 @@ const Seller = model
     handle: model.text(),
     email: model.text().searchable(),
     description: model.text().nullable(),
+    logo: model.text().nullable(),
+    banner: model.text().nullable(),
     website_url: model.text().nullable(),
     external_id: model.text().nullable(),
     currency_code: model.text(),

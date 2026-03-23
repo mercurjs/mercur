@@ -1,12 +1,12 @@
+export type SellerModuleOptions = {
+  invite_valid_duration?: number
+}
+
 export enum SellerStatus {
   OPEN = "open",
   PENDING_APPROVAL = "pending_approval",
   SUSPENDED = "suspended",
   TERMINATED = "terminated",
-}
-
-export interface SellerModuleOptions {
-  autoApprove?: boolean
 }
 
 export interface ProfessionalDetailsDTO {
@@ -20,8 +20,8 @@ export interface ProfessionalDetailsDTO {
 
 export interface CreateProfessionalDetailsDTO {
   corporate_name: string
-  registration_number?: string
-  tax_id?: string
+  registration_number?: string | null
+  tax_id?: string | null
 }
 
 export interface UpdateProfessionalDetailsDTO {
@@ -44,11 +44,11 @@ export interface PaymentDetailsDTO {
 
 export interface CreatePaymentDetailsDTO {
   holder_name: string
-  bank_name?: string
-  iban?: string
-  bic?: string
-  routing_number?: string
-  account_number?: string
+  bank_name?: string | null
+  iban?: string | null
+  bic?: string | null
+  routing_number?: string | null
+  account_number?: string | null
 }
 
 export interface UpdatePaymentDetailsDTO {
@@ -78,17 +78,17 @@ export interface SellerAddressDTO {
 }
 
 export interface CreateSellerAddressDTO {
-  company?: string
-  first_name?: string
-  last_name?: string
-  address_1?: string
-  address_2?: string
-  city?: string
-  country_code?: string
-  province?: string
-  postal_code?: string
-  phone?: string
-  metadata?: Record<string, unknown>
+  company?: string | null
+  first_name?: string | null
+  last_name?: string | null
+  address_1?: string | null
+  address_2?: string | null
+  city?: string | null
+  country_code?: string | null
+  province?: string | null
+  postal_code?: string | null
+  phone?: string | null
+  metadata?: Record<string, unknown> | null
 }
 
 export interface UpdateSellerAddressDTO {
@@ -118,9 +118,9 @@ export interface MemberDTO {
 
 export interface CreateMemberDTO {
   email: string
-  locale?: string
+  locale?: string | null
   is_active?: boolean
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown> | null
 }
 
 export interface UpdateMemberDTO {
@@ -157,7 +157,7 @@ export interface CreateMemberInviteDTO {
   email: string
   role_handle: string
   seller_id: string
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown> | null
 }
 
 export interface SellerDTO {
@@ -166,6 +166,8 @@ export interface SellerDTO {
   handle: string
   email: string
   description: string | null
+  logo: string | null
+  banner: string | null
   website_url: string | null
   external_id: string | null
   currency_code: string

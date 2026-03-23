@@ -1,24 +1,24 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { CreateSellerDTO, MercurModules, SellerDTO } from "@mercurjs/types"
+import { CreateSellerDTO, MercurModules } from "@mercurjs/types"
 
 import SellerModuleService from "../../../modules/seller/service"
 
-export const createSellerStep = createStep(
-  "create-seller",
-  async (input: CreateSellerDTO, { container }) => {
+export const createSellersStep = createStep(
+  "create-sellers",
+  async (data: CreateSellerDTO[], { container }) => {
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
-
-    const seller: SellerDTO = await service.createSellers(input)
-
-    return new StepResponse(seller, seller.id)
+    const sellers = await service.createSellers(data)
+    return new StepResponse(
+      sellers,
+      sellers.map((s) => s.id)
+    )
   },
-  async (id: string, { container }) => {
-    if (!id) {
+  async (ids: string[], { container }) => {
+    if (!ids) {
       return
     }
 
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
-
-    await service.deleteSellers([id])
+    await service.deleteSellers(ids)
   }
 )
