@@ -6,7 +6,32 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { VendorCreateSellerType } from "./validators"
-import { createSellerWorkflow } from "../../../workflows/seller"
+import { createSellersWorkflow } from "../../../workflows/seller"
+
+export const GET = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const memberId = req.auth_context.actor_id
+
+  const { data: sellerMembers, metadata } = await query.graph({
+    entity: "seller_member",
+    fields: req.queryConfig.fields,
+    filters: {
+      member_id: memberId,
+    },
+    pagination: req.queryConfig.pagination,
+  })
+
+  res.json({
+    seller_members: sellerMembers,
+    count: metadata!.count,
+    offset: metadata!.skip,
+    limit: metadata!.take,
+  })
+}
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateSellerType>,
@@ -14,10 +39,11 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { result: seller } = await createSellerWorkflow(req.scope).run({
+  const { email, ...sellerData } = req.validatedBody
+
+  const { result: sellers } = await createSellersWorkflow(req.scope).run({
     input: {
-      seller: req.validatedBody,
-      auth_identity_id: req.auth_context.auth_identity_id,
+      sellers: [{ ...sellerData, email, member: { email } }],
     },
   })
 
@@ -26,7 +52,7 @@ export const POST = async (
   } = await query.graph({
     entity: "seller",
     fields: req.queryConfig.fields,
-    filters: { id: seller.id },
+    filters: { id: sellers[0].id },
   })
 
   res.status(201).json({ seller: result })
