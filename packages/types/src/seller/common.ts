@@ -1,3 +1,7 @@
+export type SellerModuleOptions = {
+  invite_valid_duration?: number
+}
+
 export enum SellerStatus {
   OPEN = "open",
   PENDING_APPROVAL = "pending_approval",

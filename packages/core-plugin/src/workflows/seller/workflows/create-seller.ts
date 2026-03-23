@@ -1,47 +1,71 @@
 import {
   createHook,
-  Hook,
-  ReturnWorkflow,
-  WorkflowResponse,
   createWorkflow,
+  transform,
+  WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { setAuthAppMetadataStep } from "@medusajs/medusa/core-flows"
-import { CreateSellerDTO, SellerDTO } from "@mercurjs/types"
+import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
+import { CreateSellerDTO } from "@mercurjs/types"
+import { AdditionalData } from "@medusajs/framework/types"
 
-import { createSellerStep } from "../steps"
+import { createSellersStep, upsertMembersStep, createSellerMembersStep } from "../steps"
+import { SellerWorkflowEvents } from "../../events"
 
-type CreateSellerWorkflowInput = {
-  seller: CreateSellerDTO
-  auth_identity_id: string
-}
+export const createSellersWorkflowId = "create-sellers"
 
-export const createSellerWorkflow: ReturnWorkflow<
-  CreateSellerWorkflowInput,
-  SellerDTO,
-  [
-    Hook<"validateSellerInput", { input: CreateSellerWorkflowInput }, unknown>,
-    Hook<"sellerCreated", { seller: SellerDTO; auth_identity_id: string }, unknown>
-  ]
-> = createWorkflow(
-  "create-seller",
-  function (input: CreateSellerWorkflowInput) {
-    const validateSellerInput = createHook("validateSellerInput", { input })
+type CreateSellersWorkflowInput = {
+  sellers: (CreateSellerDTO & { member: { email: string } })[]
+} & AdditionalData
 
-    const seller = createSellerStep(input.seller)
+export const createSellersWorkflow = createWorkflow(
+  createSellersWorkflowId,
+  function (input: CreateSellersWorkflowInput) {
+    const sellers = createSellersStep(
+      transform(input, ({ sellers }) =>
+        sellers.map(({ member, ...seller }) => seller)
+      )
+    )
 
-    setAuthAppMetadataStep({
-      authIdentityId: input.auth_identity_id,
-      actorType: "seller",
-      value: seller.id,
+    const { data: sellerAdminRole } = useQueryGraphStep({
+      entity: "rbac_role",
+      fields: ["id"],
+      filters: { handle: "seller-administration" },
+      options: { throwIfKeyNotFound: true },
+    }).config({ name: "get-seller-admin-role" })
+
+    const members = upsertMembersStep(
+      transform(input, ({ sellers }) =>
+        sellers.map(({ member }) => ({ email: member.email }))
+      )
+    )
+
+    createSellerMembersStep(
+      transform(
+        { sellers, members, sellerAdminRole },
+        ({ sellers, members, sellerAdminRole }) =>
+          sellers.map((seller, i) => ({
+            seller_id: seller.id,
+            member_id: members[i].id,
+            role_id: sellerAdminRole[0].id,
+            is_owner: true,
+          }))
+      )
+    )
+
+    const sellersCreated = createHook("sellersCreated", {
+      sellers,
+      additional_data: input.additional_data,
     })
 
-    const sellerCreated = createHook("sellerCreated", {
-      seller,
-      auth_identity_id: input.auth_identity_id,
+    const eventData = transform({ sellers }, ({ sellers }) =>
+      sellers.map((s) => ({ id: s.id }))
+    )
+
+    emitEventStep({
+      eventName: SellerWorkflowEvents.CREATED,
+      data: eventData,
     })
 
-    return new WorkflowResponse(seller, {
-      hooks: [validateSellerInput, sellerCreated],
-    })
+    return new WorkflowResponse(sellers, { hooks: [sellersCreated] })
   }
 )
