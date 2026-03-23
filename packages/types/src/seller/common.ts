@@ -5,10 +5,6 @@ export enum SellerStatus {
   TERMINATED = "terminated",
 }
 
-export interface SellerModuleOptions {
-  autoApprove?: boolean
-}
-
 export interface ProfessionalDetailsDTO {
   id: string
   corporate_name: string

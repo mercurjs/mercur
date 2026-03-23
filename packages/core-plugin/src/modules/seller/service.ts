@@ -7,7 +7,6 @@ import {
   MedusaService,
   toHandle,
   InjectTransactionManager,
-  isDefined
 } from "@medusajs/framework/utils"
 import {
   Seller,
@@ -20,7 +19,7 @@ import {
   OrderGroup,
 } from "./models"
 import { OrderGroupRepository } from "./repositories"
-import { MemberDTO, OrderGroupDTO, SellerModuleOptions, SellerStatus } from "@mercurjs/types"
+import { MemberDTO, OrderGroupDTO } from "@mercurjs/types"
 
 type InjectedDependencies = {
   orderGroupRepository: OrderGroupRepository
@@ -39,18 +38,13 @@ class SellerModuleService extends MedusaService({
 }) {
   protected readonly orderGroupRepository_: OrderGroupRepository
   protected readonly baseRepository_: DAL.RepositoryService
-  protected readonly options_: Required<SellerModuleOptions>
 
-  constructor({ orderGroupRepository, baseRepository }: InjectedDependencies, options?: SellerModuleOptions) {
+  constructor({ orderGroupRepository, baseRepository }: InjectedDependencies) {
     // @ts-ignore
     // eslint-disable-next-line prefer-rest-params
     super(...arguments)
     this.orderGroupRepository_ = orderGroupRepository
     this.baseRepository_ = baseRepository
-    this.options_ = {
-      autoApprove: false,
-      ...(options ?? {}),
-    }
   }
 
   @InjectTransactionManager()
@@ -64,10 +58,6 @@ class SellerModuleService extends MedusaService({
 
       if (!seller.handle && seller.name) {
         seller.handle = toHandle(seller.name)
-      }
-
-      if (this.options_.autoApprove && !isDefined(seller.status)) {
-        seller.status = SellerStatus.ACTIVE
       }
 
       return seller
@@ -84,13 +74,6 @@ class SellerModuleService extends MedusaService({
     sharedContext?: Context,
   ) {
     const input = (Array.isArray(data) ? data : [data]).map((seller) => {
-      if (isDefined(seller.currency_code)) {
-        throw new MedusaError(
-          MedusaError.Types.INVALID_DATA,
-          "Currency code is immutable after creation and cannot be updated",
-        )
-      }
-
       this.validateSellerData_(seller)
 
       if (!seller.handle && seller.name) {
