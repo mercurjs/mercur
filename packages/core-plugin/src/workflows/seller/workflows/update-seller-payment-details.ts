@@ -24,14 +24,16 @@ const updatePaymentDetailsStep = createStep(
     )
 
     if (seller.payment_details) {
-      const updated = await service.updatePaymentDetailss(
-        seller.payment_details.id,
-        data
+      const updated = await service.updatePaymentDetails(
+        {
+          id: seller.payment_details.id,
+          ...data
+        }
       )
       return new StepResponse(updated)
     }
 
-    const created = await service.createPaymentDetailss({
+    const created = await service.createPaymentDetails({
       ...data,
       seller_id,
     })
