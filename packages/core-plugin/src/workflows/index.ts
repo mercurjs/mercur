@@ -12,3 +12,4 @@ export * from "./stock-location"
 export * from './cart'
 export * from './events'
 export * from './custom-fields'
+export * from './subscription'
