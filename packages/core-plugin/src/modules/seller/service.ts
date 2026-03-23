@@ -20,7 +20,15 @@ import {
   OrderGroup,
 } from "./models"
 import { OrderGroupRepository } from "./repositories"
-import { MemberDTO, OrderGroupDTO, SellerModuleOptions, SellerStatus } from "@mercurjs/types"
+import {
+  CreateMemberDTO,
+  CreateSellerDTO,
+  MemberDTO,
+  OrderGroupDTO,
+  SellerModuleOptions,
+  SellerStatus,
+  UpdateSellerDTO,
+} from "@mercurjs/types"
 
 type InjectedDependencies = {
   orderGroupRepository: OrderGroupRepository
@@ -56,7 +64,7 @@ class SellerModuleService extends MedusaService({
   @InjectTransactionManager()
   // @ts-ignore
   async createSellers(
-    data: any | any[],
+    data: CreateSellerDTO | CreateSellerDTO[],
     sharedContext?: Context,
   ) {
     const input = (Array.isArray(data) ? data : [data]).map((seller) => {
@@ -80,11 +88,11 @@ class SellerModuleService extends MedusaService({
   @InjectTransactionManager()
   // @ts-ignore
   async updateSellers(
-    data: any | any[],
+    data: UpdateSellerDTO | UpdateSellerDTO[],
     sharedContext?: Context,
   ) {
     const input = (Array.isArray(data) ? data : [data]).map((seller) => {
-      if (isDefined(seller.currency_code)) {
+      if (isDefined((seller as Record<string, unknown>).currency_code)) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
           "Currency code is immutable after creation and cannot be updated",
@@ -106,7 +114,7 @@ class SellerModuleService extends MedusaService({
 
   @InjectTransactionManager()
   async upsertMembers(
-    data: { email: string }[],
+    data: CreateMemberDTO[],
     sharedContext?: Context,
   ): Promise<MemberDTO[]> {
     const emails = data.map((d) => d.email)
@@ -133,7 +141,7 @@ class SellerModuleService extends MedusaService({
     )
   }
 
-  private validateSellerData_(data: any) {
+  private validateSellerData_(data: CreateSellerDTO | UpdateSellerDTO) {
     if (data.handle && !isValidHandle(data.handle)) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
