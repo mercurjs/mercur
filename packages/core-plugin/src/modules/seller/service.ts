@@ -9,9 +9,18 @@ import {
   InjectTransactionManager,
   isDefined
 } from "@medusajs/framework/utils"
-import { OrderGroup, Seller } from "./models"
+import {
+  Seller,
+  ProfessionalDetails,
+  SellerAddress,
+  PaymentDetails,
+  Member,
+  SellerMember,
+  MemberInvite,
+  OrderGroup,
+} from "./models"
 import { OrderGroupRepository } from "./repositories"
-import { OrderGroupDTO, SellerModuleOptions, SellerStatus } from "@mercurjs/types"
+import { MemberDTO, OrderGroupDTO, SellerModuleOptions, SellerStatus } from "@mercurjs/types"
 
 type InjectedDependencies = {
   orderGroupRepository: OrderGroupRepository
@@ -19,8 +28,14 @@ type InjectedDependencies = {
 }
 
 class SellerModuleService extends MedusaService({
-  OrderGroup,
   Seller,
+  ProfessionalDetails,
+  SellerAddress,
+  PaymentDetails,
+  Member,
+  SellerMember,
+  MemberInvite,
+  OrderGroup,
 }) {
   protected readonly orderGroupRepository_: OrderGroupRepository
   protected readonly baseRepository_: DAL.RepositoryService
@@ -40,43 +55,82 @@ class SellerModuleService extends MedusaService({
 
   @InjectTransactionManager()
   // @ts-ignore
-  async createSellers(data: any | any[], sharedContext?: Context) {
-    const sellersData = Array.isArray(data) ? data : [data]
+  async createSellers(
+    data: any | any[],
+    sharedContext?: Context,
+  ) {
+    const input = (Array.isArray(data) ? data : [data]).map((seller) => {
+      this.validateSellerData_(seller)
 
-    for (const sellerData of sellersData) {
-      if (!data.name) {
-        throw new MedusaError(
-          MedusaError.Types.INVALID_DATA,
-          `Seller name is required`
-        )
+      if (!seller.handle && seller.name) {
+        seller.handle = toHandle(seller.name)
       }
 
-      this.validateSellerData_(sellerData)
-
-      if (!sellerData.handle && sellerData.name) {
-        sellerData.handle = toHandle(sellerData.name)
+      if (this.options_.autoApprove && !isDefined(seller.status)) {
+        seller.status = SellerStatus.ACTIVE
       }
 
-      if (this.options_.autoApprove && !isDefined(sellerData.status)) {
-        sellerData.status = SellerStatus.ACTIVE
-      }
-    }
+      return seller
+    })
 
-    // @ts-ignore
-    return super.createSellers(data, sharedContext)
+    const result = await super.createSellers(input, sharedContext)
+    return Array.isArray(data) ? result : result[0]
   }
 
   @InjectTransactionManager()
   // @ts-ignore
-  async updateSellers(data: any | any[], sharedContext?: Context) {
-    const sellersData = Array.isArray(data) ? data : [data]
+  async updateSellers(
+    data: any | any[],
+    sharedContext?: Context,
+  ) {
+    const input = (Array.isArray(data) ? data : [data]).map((seller) => {
+      if (isDefined(seller.currency_code)) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          "Currency code is immutable after creation and cannot be updated",
+        )
+      }
 
-    for (const sellerData of sellersData) {
-      this.validateSellerData_(sellerData)
-    }
+      this.validateSellerData_(seller)
+
+      if (!seller.handle && seller.name) {
+        seller.handle = toHandle(seller.name)
+      }
+
+      return seller
+    })
 
     // @ts-ignore
-    return super.updateSellers(data, sharedContext)
+    return super.updateSellers(input, sharedContext)
+  }
+
+  @InjectTransactionManager()
+  async upsertMembers(
+    data: { email: string }[],
+    sharedContext?: Context,
+  ): Promise<MemberDTO[]> {
+    const emails = data.map((d) => d.email)
+    const existing = await this.listMembers(
+      { email: emails },
+      {},
+      sharedContext,
+    )
+
+    const existingMap = new Map(existing.map((m) => [m.email, m]))
+
+    const toCreate = data.filter((d) => !existingMap.has(d.email))
+
+    const created = toCreate.length
+      ? await this.createMembers(toCreate, sharedContext)
+      : []
+
+    const createdMap = new Map(
+      (Array.isArray(created) ? created : [created]).map((m) => [m.email, m])
+    )
+
+    return data.map(
+      (d) => existingMap.get(d.email) ?? createdMap.get(d.email)!
+    )
   }
 
   private validateSellerData_(data: any) {
