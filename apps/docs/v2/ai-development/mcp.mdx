@@ -1,0 +1,151 @@
+---
+title: "MCP Server"
+description: "Connect your AI environment to Mercur documentation via Model Context Protocol."
+---
+
+# MCP Server
+
+Mercur exposes a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server that lets AI tools **search Mercur documentation directly**. Instead of relying on training data that may be outdated, your AI assistant queries the actual docs in real time.
+
+```
+https://docs.mercurjs.com/mcp
+```
+
+---
+
+## Available tool
+
+### SearchMercurJsDocumentation
+
+Searches across all Mercur documentation and returns:
+
+- Relevant excerpts matching your query
+- Page titles for context
+- Direct links to documentation pages
+
+Use it when you need to look up API references, understand how a module works, find CLI commands, or retrieve examples during development.
+
+---
+
+## Connect to your AI environment
+
+<Tabs>
+  <Tab title="Cursor">
+    <Steps>
+      <Step title="Open MCP settings">
+        1. Press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>
+        2. Search for **Open MCP settings**
+        3. Select **Add custom MCP**
+      </Step>
+      <Step title="Configure the server">
+        Add the following to your `mcp.json`:
+
+        ```json
+        {
+          "mcpServers": {
+            "mercur": {
+              "url": "https://docs.mercurjs.com/mcp"
+            }
+          }
+        }
+        ```
+      </Step>
+      <Step title="Use it">
+        Restart Cursor and ask: **"Search Mercur docs for how to add a block"**
+      </Step>
+    </Steps>
+
+    See [Cursor MCP docs](https://docs.cursor.com/en/context/mcp) for more.
+  </Tab>
+  <Tab title="VS Code">
+    <Steps>
+      <Step title="Create MCP config">
+        Create a file at `.vscode/mcp.json` in your project root.
+      </Step>
+      <Step title="Configure the server">
+        ```json
+        {
+          "servers": {
+            "mercur": {
+              "type": "http",
+              "url": "https://docs.mercurjs.com/mcp"
+            }
+          }
+        }
+        ```
+      </Step>
+      <Step title="Use it">
+        Open the Copilot Chat panel and ask: **"List available MCP servers."**
+      </Step>
+    </Steps>
+
+    See [VS Code MCP docs](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for more.
+  </Tab>
+  <Tab title="Windsurf">
+    <Steps>
+      <Step title="Open MCP config">
+        1. Press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>
+        2. Search for **Open Windsurf MCP Configuration**
+      </Step>
+      <Step title="Configure the server">
+        ```json
+        {
+          "mcpServers": {
+            "mercur": {
+              "serverUrl": "https://docs.mercurjs.com/mcp"
+            }
+          }
+        }
+        ```
+      </Step>
+      <Step title="Use it">
+        Open Cascade and ask: **"Search Mercur docs for seller setup"**
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Claude">
+    <Steps>
+      <Step title="Add the MCP server">
+        1. Go to Claude → Settings → **Connectors**
+        2. Select **Add custom connector**
+        3. Enter:
+           - **Name**: Mercur
+           - **URL**: `https://docs.mercurjs.com/mcp`
+        4. Save
+      </Step>
+      <Step title="Use it">
+        In chat, click the **attachments (+)** button and select your Mercur MCP connector.
+      </Step>
+    </Steps>
+
+    See [Claude connector docs](https://modelcontextprotocol.io/docs/tutorials/use-remote-mcp-server) for more.
+  </Tab>
+  <Tab title="Claude Code">
+    <Steps>
+      <Step title="Install the MCP server">
+        ```bash
+        claude mcp add --transport http mercur https://docs.mercurjs.com/mcp
+        ```
+      </Step>
+      <Step title="Verify installation">
+        ```bash
+        claude mcp list
+        ```
+      </Step>
+      <Step title="Use it">
+        Claude Code can now query Mercur documentation directly during any conversation.
+      </Step>
+    </Steps>
+
+    See [Claude Code MCP docs](https://docs.anthropic.com/en/docs/claude-code/mcp) for more.
+  </Tab>
+</Tabs>
+
+---
+
+## When to use MCP vs llms.txt
+
+| Approach | Best for |
+|----------|----------|
+| **MCP Server** | Live search, always up-to-date, integrated environments |
+| **[llms.txt](/v2/ai-development/llms)** | Full context dump, tools without MCP, offline use |

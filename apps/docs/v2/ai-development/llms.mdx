@@ -1,0 +1,70 @@
+---
+title: "LLMs"
+description: "Feed Mercur documentation directly to LLMs for accurate, context-aware assistance."
+---
+
+# LLMs
+
+Mercur documentation is optimized for Large Language Models using the [llms.txt standard](https://llmstxt.org). This gives AI tools a structured map of all documentation — so they can answer technical questions accurately instead of guessing.
+
+Think of it like a sitemap, but for AI: a machine-readable file that describes what documentation exists, how it's organized, and where to find specific topics.
+
+---
+
+## Available files
+
+### llms.txt
+
+A structured index of all Mercur documentation pages with descriptions and links.
+
+```
+https://docs.mercurjs.com/llms.txt
+```
+
+Use this when your AI tool supports llms.txt natively or when you want to give it an overview of what's available without sending the full content.
+
+### llms-full.txt
+
+The entire Mercur documentation compiled into a single plain-text file.
+
+```
+https://docs.mercurjs.com/llms-full.txt
+```
+
+Use this when you want to give an LLM the complete context in one shot — ideal for complex questions that span multiple topics.
+
+---
+
+## How to use
+
+<Tabs>
+  <Tab title="Claude Projects">
+    1. Open [Claude](https://claude.ai) and create a new Project
+    2. In project knowledge, add a URL: `https://docs.mercurjs.com/llms-full.txt`
+    3. Claude now has full Mercur documentation context in every conversation within that project
+  </Tab>
+  <Tab title="ChatGPT">
+    1. Download `https://docs.mercurjs.com/llms-full.txt`
+    2. Upload it as a file in your conversation or attach it to a Custom GPT's knowledge base
+  </Tab>
+  <Tab title="AI IDE (paste)">
+    For any AI coding tool that accepts context:
+    1. Fetch the file: `curl -o mercur-docs.txt https://docs.mercurjs.com/llms-full.txt`
+    2. Attach it to your conversation or project context
+  </Tab>
+</Tabs>
+
+<Tip>
+  Both files are auto-generated and always reflect the latest documentation. No maintenance required.
+</Tip>
+
+---
+
+## When to use llms.txt vs MCP
+
+| Approach | Best for |
+|----------|----------|
+| **llms.txt / llms-full.txt** | One-time context loading, tools without MCP support, offline use |
+| **[MCP Server](/v2/ai-development/mcp)** | Live search, always up-to-date results, integrated AI environments |
+
+For the best experience, use the [MCP server](/v2/ai-development/mcp) if your tool supports it. Fall back to llms.txt when MCP isn't available.
