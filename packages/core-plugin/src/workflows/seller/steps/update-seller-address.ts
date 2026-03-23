@@ -1,15 +1,19 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { MercurModules, UpdateSellerAddressDTO } from "@mercurjs/types"
+import { MercurModules, SellerAddressDTO, UpdateSellerAddressDTO } from "@mercurjs/types"
 
 import SellerModuleService from "../../../modules/seller/service"
 
-export const updateSellerAddressStep = createStep(
+export const updateSellerAddressStep = createStep<
+  { seller_id: string; data: UpdateSellerAddressDTO },
+  SellerAddressDTO,
+  any
+>(
   "update-seller-address",
   async (
     {
       seller_id,
       data,
-    }: { seller_id: string; data: UpdateSellerAddressDTO },
+    },
     { container }
   ) => {
     const service =
@@ -21,7 +25,7 @@ export const updateSellerAddressStep = createStep(
     )
 
     if (seller.address) {
-      const updated = await service.updateSellerAddresss({
+      const updated = await service.updateSellerAddresses({
         id: seller.address.id,
         ...data,
       })
@@ -31,7 +35,7 @@ export const updateSellerAddressStep = createStep(
       })
     }
 
-    const created = await service.createSellerAddresss({
+    const created = await service.createSellerAddresses({
       ...data,
       seller_id,
     })
@@ -41,11 +45,11 @@ export const updateSellerAddressStep = createStep(
     const service =
       container.resolve<SellerModuleService>(MercurModules.SELLER)
     if (existing) {
-      await service.updateSellerAddresss(existing.id, existing)
+      await service.updateSellerAddresses(existing.id, existing)
     } else {
-      const current = await service.listSellerAddresss({ seller_id })
+      const current = await service.listSellerAddresses({ seller_id })
       if (current.length > 0) {
-        await service.deleteSellerAddresss([current[0].id])
+        await service.deleteSellerAddresses([current[0].id])
       }
     }
   }

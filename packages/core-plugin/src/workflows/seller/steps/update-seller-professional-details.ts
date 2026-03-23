@@ -1,18 +1,21 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import {
   MercurModules,
+  ProfessionalDetailsDTO,
   UpdateProfessionalDetailsDTO,
 } from "@mercurjs/types"
 
 import SellerModuleService from "../../../modules/seller/service"
 
-export const updateSellerProfessionalDetailsStep = createStep(
+
+export const updateSellerProfessionalDetailsStep = createStep<
+  { seller_id: string; data: UpdateProfessionalDetailsDTO },
+  ProfessionalDetailsDTO,
+  any
+>(
   "update-seller-professional-details",
   async (
-    {
-      seller_id,
-      data,
-    }: { seller_id: string; data: UpdateProfessionalDetailsDTO },
+    { seller_id, data },
     { container }
   ) => {
     const service =
@@ -24,7 +27,7 @@ export const updateSellerProfessionalDetailsStep = createStep(
     )
 
     if (seller.professional_details) {
-      const updated = await service.updateProfessionalDetailss({
+      const updated = await service.updateProfessionalDetails({
         id: seller.professional_details.id,
         ...data,
       })
@@ -34,7 +37,7 @@ export const updateSellerProfessionalDetailsStep = createStep(
       })
     }
 
-    const created = await service.createProfessionalDetailss({
+    const created = await service.createProfessionalDetails({
       ...data,
       seller_id,
     })
@@ -44,11 +47,11 @@ export const updateSellerProfessionalDetailsStep = createStep(
     const service =
       container.resolve<SellerModuleService>(MercurModules.SELLER)
     if (existing) {
-      await service.updateProfessionalDetailss(existing.id, existing)
+      await service.updateProfessionalDetails(existing.id, existing)
     } else {
-      const current = await service.listProfessionalDetailss({ seller_id })
+      const current = await service.listProfessionalDetails({ seller_id })
       if (current.length > 0) {
-        await service.deleteProfessionalDetailss([current[0].id])
+        await service.deleteProfessionalDetails([current[0].id])
       }
     }
   }

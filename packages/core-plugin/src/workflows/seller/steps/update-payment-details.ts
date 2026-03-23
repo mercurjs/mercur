@@ -1,15 +1,19 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { MercurModules, UpdatePaymentDetailsDTO } from "@mercurjs/types"
+import { MercurModules, PaymentDetailsDTO, UpdatePaymentDetailsDTO } from "@mercurjs/types"
 
 import SellerModuleService from "../../../modules/seller/service"
 
-export const updatePaymentDetailsStep = createStep(
+export const updatePaymentDetailsStep = createStep<
+  { seller_id: string; data: UpdatePaymentDetailsDTO },
+  PaymentDetailsDTO,
+  any
+>(
   "update-payment-details",
   async (
     {
       seller_id,
       data,
-    }: { seller_id: string; data: UpdatePaymentDetailsDTO },
+    },
     { container }
   ) => {
     const service =
@@ -43,9 +47,9 @@ export const updatePaymentDetailsStep = createStep(
     if (existing) {
       await service.updatePaymentDetails(existing.id, existing)
     } else {
-      const current = await service.listPaymentDetailss({ seller_id })
+      const current = await service.listPaymentDetails({ seller_id })
       if (current.length > 0) {
-        await service.deletePaymentDetailss([current[0].id])
+        await service.deletePaymentDetails([current[0].id])
       }
     }
   }

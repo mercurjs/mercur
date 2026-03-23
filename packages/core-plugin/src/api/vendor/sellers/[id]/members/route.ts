@@ -5,7 +5,7 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import { VendorInviteMemberType } from "../../validators"
-import { createMemberInviteWorkflow } from "../../../../../workflows/seller"
+import { createMemberInvitesWorkflow } from "../../../../../workflows/seller"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -34,13 +34,13 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorInviteMemberType>,
   res: MedusaResponse
 ) => {
-  const { result: invite } = await createMemberInviteWorkflow(req.scope).run({
-    input: {
+  const { result: invites } = await createMemberInvitesWorkflow(req.scope).run({
+    input: [{
       seller_id: req.params.id,
       email: req.validatedBody.email,
       role_handle: req.validatedBody.role_handle,
-    },
+    }],
   })
 
-  res.status(201).json({ member_invite: invite })
+  res.status(201).json({ member_invite: invites[0] })
 }
