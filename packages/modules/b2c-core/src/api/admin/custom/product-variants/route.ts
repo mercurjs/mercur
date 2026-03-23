@@ -10,6 +10,10 @@ import {
 } from "@medusajs/medusa/api/admin/products/helpers";
 import { wrapVariantsWithTotalInventoryQuantity } from "@medusajs/medusa/api/utils/middlewares/products/variant-inventory-quantity";
 
+import {
+  ContainerRegistrationKeys,
+  QueryContext,
+} from "@medusajs/framework/utils";
 import { attachManagedByToVariants } from "../../../../utils/stock-locations";
 import {
   listFilteredProductVariantsWorkflow,
@@ -24,7 +28,7 @@ import {
  * @oas [get] /admin/custom/product-variants
  * operationId: "AdminListProductVariantsFiltered"
  * summary: "List Product Variants (Filtered)"
- * description: "Retrieves a filtered list of product variants with advanced filtering options (seller, price, inventory)."
+ * description: "Retrieves a filtered list of product variants with advanced filtering options (seller, price, inventory). Supports pricing context (region_id, currency_code, customer_id, customer_group_id) to return calculated_price when fields=+calculated_price is requested."
  * x-authenticated: true
  * parameters:
  *   - name: offset
@@ -87,6 +91,36 @@ import {
  *       type: string
  *     required: false
  *     description: The order of the returned items.
+ *   - name: region_id
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Region ID used as pricing context. Required together with currency_code to retrieve calculated_price.
+ *   - name: currency_code
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Currency code used as pricing context (e.g. "eur"). Required to retrieve calculated_price.
+ *   - name: customer_id
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Customer ID used as pricing context. Enables customer-specific price list matching.
+ *   - name: customer_group_id
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Customer group ID used as pricing context. Enables group-specific price list matching.
+ *   - name: country_code
+ *     in: query
+ *     schema:
+ *       type: string
+ *     required: false
+ *     description: Country code used as pricing context (e.g. "pl"). Required to calculate tax-inclusive prices (calculated_amount_with_tax).
  * responses:
  *   "200":
  *     description: OK
@@ -130,12 +164,34 @@ export const GET = async (
     );
   }
 
-  const { custom, filters } = splitVariantFilters(req.filterableFields);
+  const { region_id, currency_code, customer_id, customer_group_id, country_code, ...filterableFields } =
+    req.filterableFields as AdminGetProductVariantsParamsType;
+
+  const pricingContext =
+    region_id || currency_code || customer_id || customer_group_id || country_code
+      ? {
+          ...(region_id && { region_id }),
+          ...(currency_code && { currency_code }),
+          ...(customer_id && { customer_id }),
+          ...(customer_group_id && { customer_group_id }),
+          ...(country_code && { country_code }),
+        }
+      : undefined;
+
+  const allFields = req.queryConfig.fields ?? [];
+  const withCalculatedPrice = allFields.some((f) =>
+    f === "calculated_price" || f.startsWith("calculated_price.")
+  );
+  const fieldsForWorkflow = allFields.filter(
+    (f) => f !== "calculated_price" && !f.startsWith("calculated_price.")
+  );
+
+  const { custom, filters } = splitVariantFilters(filterableFields);
 
   const { result } = await listFilteredProductVariantsWorkflow(req.scope).run({
     input: {
       ...custom,
-      fields: remapKeysForVariant(req.queryConfig.fields ?? []),
+      fields: remapKeysForVariant(fieldsForWorkflow),
       filters,
       pagination: req.queryConfig.pagination,
     },
@@ -155,6 +211,28 @@ export const GET = async (
 
   if (withInventoryQuantity) {
     await wrapVariantsWithTotalInventoryQuantity(req, filteredVariants || []);
+  }
+
+  if (pricingContext && withCalculatedPrice && filteredVariants.length > 0) {
+    type PricedVariant = Pick<HttpTypes.AdminProductVariant, "id" | "calculated_price">;
+
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    const variantIds = filteredVariants.map((v) => v.id);
+    const { data: priced } = await query.graph({
+      entity: "product_variant",
+      fields: ["id", "calculated_price.*"],
+      filters: { id: variantIds },
+      context: {
+        calculated_price: QueryContext(pricingContext),
+      },
+    });
+
+    const pricingMap = new Map(
+      (priced as unknown as PricedVariant[]).map((v) => [v.id, v.calculated_price ?? null])
+    );
+    filteredVariants.forEach((v) => {
+      (v as unknown as PricedVariant).calculated_price = pricingMap.get(v.id) ?? undefined;
+    });
   }
 
   res.json({
