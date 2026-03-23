@@ -65,7 +65,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/sellers",
     method: ["POST"],
     middlewares: [
-      authenticate("seller", ["bearer", "session"], {
+      authenticate("member", ["session", "bearer"], {
         allowUnregistered: true,
       }),
     ],
@@ -75,7 +75,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       unlessBaseUrl(
         unauthenticatedRoutes,
-        authenticate("seller", ["bearer", "session"], {
+        authenticate("member", ["session", "bearer"], {
           allowUnregistered: false,
         })
       ),

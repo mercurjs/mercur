@@ -2,11 +2,14 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import {
+  ContainerRegistrationKeys,
+  MedusaError,
+} from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { VendorUpdateSellerType } from "../validators"
-import { updateSellerWorkflow } from "../../../../workflows/seller"
+import { updateSellersWorkflow } from "../../../../workflows/seller"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -19,8 +22,15 @@ export const GET = async (
   } = await query.graph({
     entity: "seller",
     fields: req.queryConfig.fields,
-    filters: { id: req.auth_context.actor_id },
+    filters: { id: req.params.id },
   })
+
+  if (!seller) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Seller with id: ${req.params.id} was not found`
+    )
+  }
 
   res.json({ seller })
 }
@@ -31,10 +41,10 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  await updateSellerWorkflow(req.scope).run({
+  await updateSellersWorkflow(req.scope).run({
     input: {
-      id: req.auth_context.actor_id,
-      ...req.validatedBody,
+      selector: { id: req.params.id },
+      update: req.validatedBody,
     },
   })
 
@@ -43,7 +53,7 @@ export const POST = async (
   } = await query.graph({
     entity: "seller",
     fields: req.queryConfig.fields,
-    filters: { id: req.auth_context.actor_id },
+    filters: { id: req.params.id },
   })
 
   res.json({ seller })

@@ -1,8 +1,12 @@
-import { validateAndTransformQuery } from "@medusajs/framework/http"
+import {
+  validateAndTransformQuery,
+  applyDefaultFilters,
+} from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
+import { SellerStatus } from "@mercurjs/types"
 
-import { storeSellerQueryConfig } from "./query-config"
-import { StoreGetSellerParams, StoreGetSellersParams } from "./validators"
+import * as QueryConfig from "./query-config"
+import { StoreGetSellersParams, StoreGetSellerParams } from "./validators"
 
 export const storeSellersMiddlewares: MiddlewareRoute[] = [
   {
@@ -11,8 +15,23 @@ export const storeSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformQuery(
         StoreGetSellersParams,
-        storeSellerQueryConfig.list
+        QueryConfig.listSellerQueryConfig
       ),
+      applyDefaultFilters({
+        status: SellerStatus.OPEN,
+        closed_from: () => {
+          const now = new Date()
+          return {
+            $or: [{ closed_from: null }, { closed_from: { $gt: now } }],
+          }
+        },
+        closed_to: () => {
+          const now = new Date()
+          return {
+            $or: [{ closed_to: null }, { closed_to: { $lt: now } }],
+          }
+        },
+      }),
     ],
   },
   {
@@ -21,8 +40,23 @@ export const storeSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformQuery(
         StoreGetSellerParams,
-        storeSellerQueryConfig.retrieve
+        QueryConfig.retrieveSellerQueryConfig
       ),
+      applyDefaultFilters({
+        status: SellerStatus.OPEN,
+        closed_from: () => {
+          const now = new Date()
+          return {
+            $or: [{ closed_from: null }, { closed_from: { $gt: now } }],
+          }
+        },
+        closed_to: () => {
+          const now = new Date()
+          return {
+            $or: [{ closed_to: null }, { closed_to: { $lt: now } }],
+          }
+        },
+      }),
     ],
   },
 ]

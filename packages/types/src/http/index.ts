@@ -28,5 +28,6 @@ export * from "./shipping-profile"
 export * from "./stock-location"
 export * from "./payout"
 export * from "./commission"
+export * from "./subscription"
 
 export { StoreCompleteCartResponse } from "./order-group"
