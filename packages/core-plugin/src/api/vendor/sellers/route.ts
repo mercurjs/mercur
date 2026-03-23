@@ -51,7 +51,7 @@ export const POST = async (
   if (req.auth_context?.actor_id) {
     throw new MedusaError(
       MedusaError.Types.NOT_ALLOWED,
-      "Already registered as a member. Use the vendor API to manage sellers."
+      "Already registered as a member."
     )
   }
 
