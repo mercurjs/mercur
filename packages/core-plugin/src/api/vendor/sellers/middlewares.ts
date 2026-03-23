@@ -12,6 +12,9 @@ import {
   VendorInviteMember,
   VendorUpdateMemberRole,
   VendorUpdateSeller,
+  VendorUpsertSellerAddress,
+  VendorUpsertSellerPaymentDetails,
+  VendorUpsertSellerProfessionalDetails,
 } from "./validators"
 
 export const vendorSellersMiddlewares: MiddlewareRoute[] = [
@@ -55,6 +58,53 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/sellers/:id",
     middlewares: [
       validateAndTransformBody(VendorUpdateSeller),
+      validateAndTransformQuery(
+        VendorGetSellerParams,
+        QueryConfig.retrieveVendorSellerQueryConfig
+      ),
+    ],
+  },
+  // POST /vendor/sellers/:id/address — upsert seller address
+  {
+    method: ["POST"],
+    matcher: "/vendor/sellers/:id/address",
+    middlewares: [
+      validateAndTransformBody(VendorUpsertSellerAddress),
+      validateAndTransformQuery(
+        VendorGetSellerParams,
+        QueryConfig.retrieveVendorSellerQueryConfig
+      ),
+    ],
+  },
+  // POST /vendor/sellers/:id/payment-details — upsert seller payment details
+  {
+    method: ["POST"],
+    matcher: "/vendor/sellers/:id/payment-details",
+    middlewares: [
+      validateAndTransformBody(VendorUpsertSellerPaymentDetails),
+      validateAndTransformQuery(
+        VendorGetSellerParams,
+        QueryConfig.retrieveVendorSellerQueryConfig
+      ),
+    ],
+  },
+  // POST /vendor/sellers/:id/professional-details — upsert seller professional details
+  {
+    method: ["POST"],
+    matcher: "/vendor/sellers/:id/professional-details",
+    middlewares: [
+      validateAndTransformBody(VendorUpsertSellerProfessionalDetails),
+      validateAndTransformQuery(
+        VendorGetSellerParams,
+        QueryConfig.retrieveVendorSellerQueryConfig
+      ),
+    ],
+  },
+  // DELETE /vendor/sellers/:id/professional-details — remove professional status
+  {
+    method: ["DELETE"],
+    matcher: "/vendor/sellers/:id/professional-details",
+    middlewares: [
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
