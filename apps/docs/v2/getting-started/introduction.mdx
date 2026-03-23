@@ -41,11 +41,11 @@ Most AI coding tools generate loose snippets that you have to wire together your
 
 Here's what that looks like in practice:
 
-- **Adding features via CLI** — An AI agent can run `npx @mercurjs/cli@latest add reviews` to install a complete review system — data models, API routes, workflows, and UI — in one command. No guessing at file structure or imports. The CLI handles wiring automatically.
+- **Adding features via CLI** — An AI agent can run `bunx @mercurjs/cli@latest add reviews` to install a complete review system — data models, API routes, workflows, and UI — in one command. No guessing at file structure or imports. The CLI handles wiring automatically.
 - **Extending workflows without rebuilding them** — Need custom logic when an order is placed? AI can hook into the existing `complete-cart-with-split-orders` workflow and inject a step — without rewriting the entire cart flow. Medusa's workflow hooks make this safe and predictable.
-- **Generating typed integrations** — AI reads the generated route types from `npx @mercurjs/cli@latest codegen` and produces API calls that are correct by construction. No hallucinated endpoints, no wrong payloads — the types are the source of truth.
+- **Generating typed integrations** — AI reads the generated route types from `bunx @mercurjs/cli@latest codegen` and produces API calls that are correct by construction. No hallucinated endpoints, no wrong payloads — the types are the source of truth.
 - **Building UI pages** — AI can scaffold an admin or vendor page by creating a file in `src/routes/`. The dashboard SDK picks it up automatically through file-based routing. No manual route registration, no config files to update.
-- **Modifying blocks it can diff** — AI can compare local code against the registry with `npx @mercurjs/cli@latest diff`, understand what changed, and make targeted modifications instead of blind overwrites.
+- **Modifying blocks it can diff** — AI can compare local code against the registry with `bunx @mercurjs/cli@latest diff`, understand what changed, and make targeted modifications instead of blind overwrites.
 
 ### Connect your AI tools
 
