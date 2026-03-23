@@ -1,7 +1,13 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
-export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+import { StoreGetSellersParamsType } from "./validators"
+
+export const GET = async (
+  req: MedusaRequest<StoreGetSellersParamsType>,
+  res: MedusaResponse<HttpTypes.StoreSellerListResponse>
+) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: sellers, metadata } = await query.graph({
