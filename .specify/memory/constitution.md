@@ -4,7 +4,9 @@
 
 ### I. Block-Based Architecture
 
-Every marketplace feature is a **block** — a self-contained unit of modules, workflows, API routes, and UI extensions. Blocks are copied into the project via CLI, not linked or imported as dependencies. The developer owns the full source code after installation. No black-box packages.
+Reusable marketplace features intended for distribution and CLI installation MUST be implemented as **blocks** — self-contained units of modules, workflows, API routes, and UI extensions. Blocks are copied into the target project via CLI, not linked or imported as runtime dependencies. The developer owns the full source code after installation.
+
+Core platform primitives, shared plugin internals, providers, and package-local concerns MUST live in their owning package (`packages/core-plugin`, `packages/providers`, `packages/admin`, `packages/vendor`, `packages/dashboard-shared`, `packages/cli`, `packages/types`, or `apps/docs`) rather than being forced into `packages/registry`.
 
 ### II. Medusa Foundation
 
@@ -67,4 +69,4 @@ Constitution principles override all other guidance. Skills encode domain-specif
 
 Changes to this constitution require team review. Document the change, rationale, and migration impact before amending.
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-23 | **Last Amended**: 2026-03-23
+**Version**: 1.0.1 | **Ratified**: 2026-03-23 | **Last Amended**: 2026-03-23
