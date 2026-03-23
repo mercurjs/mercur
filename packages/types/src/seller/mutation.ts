@@ -3,6 +3,8 @@ export interface CreateSellerDTO {
   handle?: string
   email: string
   description?: string
+  logo?: string
+  banner?: string
   website_url?: string
   external_id?: string
   currency_code: string
@@ -19,6 +21,8 @@ export interface UpdateSellerDTO {
   handle?: string
   email?: string
   description?: string | null
+  logo?: string | null
+  banner?: string | null
   website_url?: string | null
   external_id?: string | null
   status?: string

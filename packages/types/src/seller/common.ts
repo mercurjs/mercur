@@ -166,6 +166,8 @@ export interface SellerDTO {
   handle: string
   email: string
   description: string | null
+  logo: string | null
+  banner: string | null
   website_url: string | null
   external_id: string | null
   currency_code: string
