@@ -2,7 +2,7 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, FeatureFlag, MedusaError } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { VendorCreateSellerAccountType } from "./validators"
@@ -10,6 +10,7 @@ import {
   createSellerAccountWorkflow,
   updateSellerAddressWorkflow,
 } from "../../../workflows/seller"
+import SellerRegistrationFeatureFlag from "../../../feature-flags/seller-registration"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -40,6 +41,13 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateSellerAccountType>,
   res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
+  if (!FeatureFlag.isFeatureEnabled(SellerRegistrationFeatureFlag.key)) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Seller self-registration is not enabled."
+    )
+  }
+
   if (req.auth_context?.actor_id) {
     throw new MedusaError(
       MedusaError.Types.NOT_ALLOWED,
