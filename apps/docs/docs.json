@@ -84,6 +84,14 @@
                 ]
               },
               {
+                "group": "AI Development",
+                "pages": [
+                  "v2/ai-development/llms",
+                  "v2/ai-development/mcp",
+                  "v2/ai-development/skills"
+                ]
+              },
+              {
                 "group": "Legal",
                 "pages": [
                   "v2/telemetry"
