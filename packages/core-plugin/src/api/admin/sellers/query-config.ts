@@ -10,6 +10,7 @@ export const adminSellerFields = [
   "external_id",
   "currency_code",
   "status",
+  "status_reason",
   "is_premium",
   "closed_from",
   "closed_to",
@@ -48,8 +49,9 @@ export const adminMembersQueryConfig = {
   list: {
     defaults: [
       "id",
+      "is_owner",
       "member.*",
-      "role.*",
+      "rbac_role.*",
     ],
     defaultLimit: 50,
     isList: true,

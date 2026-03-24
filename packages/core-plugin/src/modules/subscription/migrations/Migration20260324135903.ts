@@ -1,6 +1,6 @@
 import { Migration } from "@medusajs/framework/mikro-orm/migrations";
 
-export class Migration20260323170925 extends Migration {
+export class Migration20260324135903 extends Migration {
 
   override async up(): Promise<void> {
     this.addSql(`create table if not exists "subscription_plan" ("id" text not null, "currency_code" text not null, "monthly_amount" numeric not null, "free_months" integer not null default 0, "requires_orders" boolean not null default false, "metadata" jsonb null, "raw_monthly_amount" jsonb not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "subscription_plan_pkey" primary key ("id"));`);
