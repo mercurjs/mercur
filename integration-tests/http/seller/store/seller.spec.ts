@@ -310,92 +310,92 @@ medusaIntegrationTestRunner({
         })
       })
 
-      // describe("GET /store/sellers/:id", () => {
-      //   it("should retrieve a single seller by id", async () => {
-      //     const response = await api.get(
-      //       `/store/sellers/${sellerA.id}`,
-      //       storeHeaders
-      //     )
+      describe("GET /store/sellers/:id", () => {
+        it("should retrieve a single seller by id", async () => {
+          const response = await api.get(
+            `/store/sellers/${sellerA.id}`,
+            storeHeaders
+          )
 
-      //     expect(response.status).toEqual(200)
-      //     expect(response.data.seller).toBeDefined()
-      //     expect(response.data.seller.id).toEqual(sellerA.id)
-      //     expect(response.data.seller.name).toEqual("Alpha Store")
-      //     expect(response.data.seller.handle).toEqual("alpha-store")
-      //   })
+          expect(response.status).toEqual(200)
+          expect(response.data.seller).toBeDefined()
+          expect(response.data.seller.id).toEqual(sellerA.id)
+          expect(response.data.seller.name).toEqual("Alpha Store")
+          expect(response.data.seller.handle).toEqual("alpha-store")
+        })
 
-      //   it("should return 404 for non-existent seller", async () => {
-      //     const response = await api
-      //       .get(`/store/sellers/sel_nonexistent`, storeHeaders)
-      //       .catch((e) => e.response)
+        it("should return 404 for non-existent seller", async () => {
+          const response = await api
+            .get(`/store/sellers/sel_nonexistent`, storeHeaders)
+            .catch((e) => e.response)
 
-      //     expect(response.status).toEqual(404)
-      //   })
+          expect(response.status).toEqual(404)
+        })
 
-      //   it("should return 404 for pending seller", async () => {
-      //     const { seller: pendingSeller } = await createSellerUser(
-      //       appContainer,
-      //       {
-      //         email: "pending2@test.com",
-      //         name: "Pending Seller 2",
-      //       }
-      //     )
+        it("should return 404 for pending seller", async () => {
+          const { seller: pendingSeller } = await createSellerUser(
+            appContainer,
+            {
+              email: "pending2@test.com",
+              name: "Pending Seller 2",
+            }
+          )
 
-      //     const response = await api
-      //       .get(`/store/sellers/${pendingSeller.id}`, storeHeaders)
-      //       .catch((e) => e.response)
+          const response = await api
+            .get(`/store/sellers/${pendingSeller.id}`, storeHeaders)
+            .catch((e) => e.response)
 
-      //     expect(response.status).toEqual(404)
-      //   })
+          expect(response.status).toEqual(404)
+        })
 
-      //   it("should return 404 for suspended seller", async () => {
-      //     const { seller: suspendedSeller } = await createSellerUser(
-      //       appContainer,
-      //       {
-      //         email: "suspended2@test.com",
-      //         name: "Suspended Seller 2",
-      //       }
-      //     )
+        it("should return 404 for suspended seller", async () => {
+          const { seller: suspendedSeller } = await createSellerUser(
+            appContainer,
+            {
+              email: "suspended2@test.com",
+              name: "Suspended Seller 2",
+            }
+          )
 
-      //     await api.post(
-      //       `/admin/sellers/${suspendedSeller.id}/approve`,
-      //       {},
-      //       adminHeaders
-      //     )
-      //     await api.post(
-      //       `/admin/sellers/${suspendedSeller.id}/suspend`,
-      //       {},
-      //       adminHeaders
-      //     )
+          await api.post(
+            `/admin/sellers/${suspendedSeller.id}/approve`,
+            {},
+            adminHeaders
+          )
+          await api.post(
+            `/admin/sellers/${suspendedSeller.id}/suspend`,
+            {},
+            adminHeaders
+          )
 
-      //     const response = await api
-      //       .get(`/store/sellers/${suspendedSeller.id}`, storeHeaders)
-      //       .catch((e) => e.response)
+          const response = await api
+            .get(`/store/sellers/${suspendedSeller.id}`, storeHeaders)
+            .catch((e) => e.response)
 
-      //     expect(response.status).toEqual(404)
-      //   })
+          expect(response.status).toEqual(404)
+        })
 
-      //   it("should return only default fields", async () => {
-      //     const response = await api.get(
-      //       `/store/sellers/${sellerA.id}`,
-      //       storeHeaders
-      //     )
+        it("should return only default fields", async () => {
+          const response = await api.get(
+            `/store/sellers/${sellerA.id}`,
+            storeHeaders
+          )
 
-      //     expect(response.status).toEqual(200)
-      //     const seller = response.data.seller
-      //     expect(seller).toHaveProperty("id")
-      //     expect(seller).toHaveProperty("name")
-      //     expect(seller).toHaveProperty("handle")
-      //     expect(seller).toHaveProperty("description")
-      //     expect(seller).toHaveProperty("is_premium")
-      //     expect(seller).toHaveProperty("metadata")
-      //     expect(seller).not.toHaveProperty("email")
-      //     expect(seller).not.toHaveProperty("status")
-      //     expect(seller).not.toHaveProperty("currency_code")
-      //     expect(seller).not.toHaveProperty("closed_from")
-      //     expect(seller).not.toHaveProperty("closed_to")
-      //   })
-      // })
+          expect(response.status).toEqual(200)
+          const seller = response.data.seller
+          expect(seller).toHaveProperty("id")
+          expect(seller).toHaveProperty("name")
+          expect(seller).toHaveProperty("handle")
+          expect(seller).toHaveProperty("description")
+          expect(seller).toHaveProperty("is_premium")
+          expect(seller).toHaveProperty("metadata")
+          expect(seller).not.toHaveProperty("email")
+          expect(seller).not.toHaveProperty("status")
+          expect(seller).not.toHaveProperty("currency_code")
+          expect(seller).not.toHaveProperty("closed_from")
+          expect(seller).not.toHaveProperty("closed_to")
+        })
+      })
     })
   },
 })
