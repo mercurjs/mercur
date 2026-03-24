@@ -3,6 +3,7 @@ import {
   createFindParams,
   createOperatorMap,
 } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type VendorGetProductVariantsParamsType = z.infer<
   typeof VendorGetProductVariantsParams
@@ -14,8 +15,8 @@ export const VendorGetProductVariantsParams = createFindParams({
   z.object({
     q: z.string().optional(),
     id: z.union([z.string(), z.array(z.string())]).optional(),
-    manage_inventory: z.boolean().optional(),
-    allow_backorder: z.boolean().optional(),
+    manage_inventory: booleanString().optional(),
+    allow_backorder: booleanString().optional(),
     ean: z.union([z.string(), z.array(z.string())]).optional(),
     upc: z.union([z.string(), z.array(z.string())]).optional(),
     barcode: z.union([z.string(), z.array(z.string())]).optional(),

@@ -32,19 +32,56 @@ export const VendorCreateSeller = z
   .strict()
 
 export type VendorUpdateSellerType = z.infer<typeof VendorUpdateSeller>
-export const VendorUpdateSeller = z
-  .object({
-    name: z.preprocess((val: string) => val?.trim(), z.string().min(1)).optional(),
-    handle: z.preprocess((val: string) => val?.trim(), z.string().min(1)).optional(),
-    email: z.string().email().optional(),
-    phone: z.string().nullish(),
-    logo: z.string().nullish(),
-    cover_image: z.string().nullish(),
-    address_1: z.string().nullish(),
-    address_2: z.string().nullish(),
-    city: z.string().nullish(),
-    country_code: z.string().nullish(),
-    province: z.string().nullish(),
-    postal_code: z.string().nullish(),
-  })
-  .strict()
+export const VendorUpdateSeller = z.object({
+  name: z.string().optional(),
+  description: z.string().nullable().optional(),
+  logo: z.string().url().nullable().optional(),
+  banner: z.string().url().nullable().optional(),
+  website_url: z.string().nullable().optional(),
+  closed_from: z.coerce.date().nullable().optional(),
+  closed_to: z.coerce.date().nullable().optional(),
+  metadata: z.record(z.unknown()).nullable().optional(),
+})
+
+export type VendorInviteMemberType = z.infer<typeof VendorInviteMember>
+export const VendorInviteMember = z.object({
+  email: z.string().email(),
+  role_id: z.string(),
+})
+
+export type VendorUpdateMemberRoleType = z.infer<typeof VendorUpdateMemberRole>
+export const VendorUpdateMemberRole = z.object({
+  role_id: z.string(),
+})
+
+export type VendorUpsertSellerAddressType = z.infer<typeof VendorUpsertSellerAddress>
+export const VendorUpsertSellerAddress = z.object({
+  company: z.string().nullable().optional(),
+  first_name: z.string().nullable().optional(),
+  last_name: z.string().nullable().optional(),
+  address_1: z.string().nullable().optional(),
+  address_2: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  country_code: z.string().nullable().optional(),
+  province: z.string().nullable().optional(),
+  postal_code: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  metadata: z.record(z.unknown()).nullable().optional(),
+})
+
+export type VendorUpsertSellerPaymentDetailsType = z.infer<typeof VendorUpsertSellerPaymentDetails>
+export const VendorUpsertSellerPaymentDetails = z.object({
+  holder_name: z.string().optional(),
+  bank_name: z.string().nullable().optional(),
+  iban: z.string().nullable().optional(),
+  bic: z.string().nullable().optional(),
+  routing_number: z.string().nullable().optional(),
+  account_number: z.string().nullable().optional(),
+})
+
+export type VendorUpsertSellerProfessionalDetailsType = z.infer<typeof VendorUpsertSellerProfessionalDetails>
+export const VendorUpsertSellerProfessionalDetails = z.object({
+  corporate_name: z.string().optional(),
+  registration_number: z.string().nullable().optional(),
+  tax_id: z.string().nullable().optional(),
+})

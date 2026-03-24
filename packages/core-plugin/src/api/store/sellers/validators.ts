@@ -4,6 +4,7 @@ import {
   createOperatorMap,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type StoreGetSellerParamsType = z.infer<typeof StoreGetSellerParams>
 export const StoreGetSellerParams = createSelectParams()
@@ -18,6 +19,7 @@ export const StoreGetSellersParams = createFindParams({
     id: z.union([z.string(), z.array(z.string())]).optional(),
     handle: z.union([z.string(), z.array(z.string())]).optional(),
     name: z.union([z.string(), z.array(z.string())]).optional(),
+    is_premium: booleanString().optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })

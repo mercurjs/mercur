@@ -13,6 +13,27 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     }
   },
+  featureFlags: {
+    rbac: true,
+  },
+  modules: [
+    {
+      resolve: '@mercurjs/core-plugin/modules/admin-ui',
+      options: {
+        appDir: '',
+        path: '/dashboard',
+        disable: true
+      }
+    },
+    {
+      resolve: '@mercurjs/core-plugin/modules/vendor-ui',
+      options: {
+        appDir: '',
+        path: '/seller',
+        disable: true
+      }
+    },
+  ],
   plugins: [
     {
       resolve: "@mercurjs/core-plugin",

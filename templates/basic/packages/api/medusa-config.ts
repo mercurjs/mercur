@@ -24,14 +24,16 @@ module.exports = defineConfig({
       resolve: '@mercurjs/core-plugin/modules/admin-ui',
       options: {
         appDir: path.join(__dirname, '../../apps/admin'),
-        path: '/dashboard'
+        path: '/dashboard',
+        disable: true
       } as DashboardModuleOptions
     },
     {
       resolve: '@mercurjs/core-plugin/modules/vendor-ui',
       options: {
         appDir: path.join(__dirname, '../../apps/vendor'),
-        path: '/seller'
+        path: '/seller',
+        disable: true
       } as DashboardModuleOptions
     },
   ],

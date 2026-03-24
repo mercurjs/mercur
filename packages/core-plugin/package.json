@@ -34,18 +34,18 @@
     "medusa-v2"
   ],
   "scripts": {
-    "build": "tsc --declaration --outDir .medusa/server",
+    "build": "rm -rf .medusa && tsc --declaration --outDir .medusa/server",
     "dev": "medusa plugin:develop",
     "prepublishOnly": "tsc --declaration --outDir .medusa/server"
   },
   "devDependencies": {
     "cors": "^2.8.5",
-    "@medusajs/core-flows": "^2.13.3",
-    "@medusajs/cli": "^2.13.3",
-    "@medusajs/framework": "^2.13.3",
-    "@medusajs/icons": "^2.13.3",
-    "@medusajs/medusa": "^2.13.3",
-    "@medusajs/test-utils": "^2.13.3",
+    "@medusajs/core-flows": "^2.13.4",
+    "@medusajs/cli": "^2.13.4",
+    "@medusajs/framework": "^2.13.4",
+    "@medusajs/icons": "^2.13.4",
+    "@medusajs/medusa": "^2.13.4",
+    "@medusajs/test-utils": "^2.13.4",
     "@medusajs/ui": "4.1.1",
     "@mercurjs/types": "workspace:*",
     "@swc/core": "^1.7.28",
@@ -62,18 +62,19 @@
     "tsx": "^4.19.2",
     "typescript": "5.9.3",
     "yalc": "^1.0.0-pre.53",
-    "@medusajs/types": "2.13.3",
+    "@medusajs/types": "2.13.4",
     "zod": "3.25.76",
     "multer": "^2.0.2",
     "http-proxy-middleware": "^3.0.3"
   },
   "peerDependencies": {
-    "@medusajs/admin-sdk": "^2.13.3",
-    "@medusajs/cli": "^2.13.3",
-    "@medusajs/framework": "^2.13.3",
-    "@medusajs/icons": "^2.13.3",
-    "@medusajs/medusa": "^2.13.3",
-    "@medusajs/test-utils": "^2.13.3"
+    "@medusajs/admin-sdk": "^2.13.4",
+    "@medusajs/cli": "^2.13.4",
+    "@medusajs/framework": "^2.13.4",
+    "@medusajs/icons": "^2.13.4",
+    "@medusajs/medusa": "^2.13.4",
+    "@medusajs/test-utils": "^2.13.4",
+    "express": "^4.21.0"
   },
   "engines": {
     "node": ">=20"

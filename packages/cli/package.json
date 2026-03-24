@@ -48,9 +48,9 @@
     "validate-npm-package-name": "^7.0.2",
     "wait-on": "^9.0.3",
     "zod": "3.25.76",
-    "@medusajs/admin-shared": "2.13.3",
-    "@medusajs/admin-vite-plugin": "2.13.3",
-    "@medusajs/dashboard": "2.13.3",
+    "@medusajs/admin-shared": "2.13.4",
+    "@medusajs/admin-vite-plugin": "2.13.4",
+    "@medusajs/dashboard": "2.13.4",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
     "compression": "^1.8.0",
@@ -61,8 +61,8 @@
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
     "vite": "^5.4.21",
-    "@medusajs/admin-bundler": "2.13.3",
-    "@medusajs/framework": "2.13.3",
+    "@medusajs/admin-bundler": "2.13.4",
+    "@medusajs/framework": "2.13.4",
     "@mercurjs/dashboard-sdk": "2.0.0-canary.97"
   },
   "devDependencies": {

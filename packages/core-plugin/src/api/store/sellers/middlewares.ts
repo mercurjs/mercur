@@ -1,8 +1,32 @@
-import { validateAndTransformQuery } from "@medusajs/framework/http"
+import {
+  validateAndTransformQuery,
+  MedusaNextFunction,
+  MedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
+import { SellerStatus } from "@mercurjs/types"
 
 import { storeSellerQueryConfig } from "./query-config"
 import { StoreGetSellerParams, StoreGetSellersParams } from "./validators"
+
+function applySellerOpenFilters(
+  req: MedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  const now = new Date()
+
+  req.filterableFields.status ??= SellerStatus.OPEN
+
+  req.filterableFields.$and ??= []
+    ; (req.filterableFields.$and as any[]).push(
+      { $or: [{ closed_from: null }, { closed_from: { $gt: now } }] },
+      { $or: [{ closed_to: null }, { closed_to: { $lt: now } }] }
+    )
+
+  next()
+}
 
 export const storeSellersMiddlewares: MiddlewareRoute[] = [
   {
@@ -13,6 +37,7 @@ export const storeSellersMiddlewares: MiddlewareRoute[] = [
         StoreGetSellersParams,
         storeSellerQueryConfig.list
       ),
+      applySellerOpenFilters,
     ],
   },
   {
@@ -23,6 +48,7 @@ export const storeSellersMiddlewares: MiddlewareRoute[] = [
         StoreGetSellerParams,
         storeSellerQueryConfig.retrieve
       ),
+      applySellerOpenFilters,
     ],
   },
 ]
