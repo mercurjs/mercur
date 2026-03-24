@@ -4,7 +4,7 @@ import {
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { CreateSellerDTO, SellerRole } from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
@@ -27,13 +27,6 @@ export const createSellersWorkflow = createWorkflow(
       )
     )
 
-    const { data: sellerAdminRole } = useQueryGraphStep({
-      entity: "role",
-      fields: ["id"],
-      filters: { handle: "seller-administration" },
-      options: { throwIfKeyNotFound: true },
-    }).config({ name: "get-seller-admin-role" })
-
     const members = upsertMembersStep(
       transform(input, ({ sellers }) =>
         sellers.map(({ member }) => ({ email: member.email }))
@@ -42,12 +35,12 @@ export const createSellersWorkflow = createWorkflow(
 
     createSellerMembersStep(
       transform(
-        { sellers, members, sellerAdminRole },
-        ({ sellers, members, sellerAdminRole }) =>
+        { sellers, members },
+        ({ sellers, members }) =>
           sellers.map((seller, i) => ({
             seller_id: seller.id,
             member_id: members[i].id,
-            role_id: sellerAdminRole[0].id,
+            role_id: SellerRole.SELLER_ADMINISTRATION,
             is_owner: true,
           }))
       )
