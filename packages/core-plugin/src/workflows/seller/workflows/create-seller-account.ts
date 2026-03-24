@@ -8,7 +8,7 @@ import {
   emitEventStep,
   setAuthAppMetadataStep,
 } from "@medusajs/medusa/core-flows"
-import { CreateSellerDTO, SellerStatus } from "@mercurjs/types"
+import { CreateSellerDTO, SellerRole, SellerStatus } from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
 import {
@@ -49,7 +49,7 @@ export const createSellerAccountWorkflow = createWorkflow(
           {
             seller_id: seller.id,
             member_id: member.id,
-            role_id: "seller-administration",
+            role_id: SellerRole.SELLER_ADMINISTRATION,
             is_owner: true,
           },
         ]

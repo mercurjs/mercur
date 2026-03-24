@@ -5,7 +5,7 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
-import { CreateSellerDTO } from "@mercurjs/types"
+import { CreateSellerDTO, SellerRole } from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
 import { createSellersStep, upsertMembersStep, createSellerMembersStep } from "../steps"
@@ -60,7 +60,7 @@ export const createSellersWorkflow = createWorkflow(
           sellers.map((seller, i) => ({
             seller_id: seller.id,
             email: input.sellers[i].member.email,
-            role_handle: "seller-administration",
+            role_id: SellerRole.SELLER_ADMINISTRATION,
           }))
       )
     })

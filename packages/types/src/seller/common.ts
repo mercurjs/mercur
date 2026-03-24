@@ -2,6 +2,14 @@ export type SellerModuleOptions = {
   invite_valid_duration?: number
 }
 
+export enum SellerRole {
+  SELLER_ADMINISTRATION = "role_seller_administration",
+  INVENTORY_MANAGEMENT = "role_seller_inventory_management",
+  ORDER_MANAGEMENT = "role_seller_order_management",
+  ACCOUNTING = "role_seller_accounting",
+  SUPPORT = "role_seller_support",
+}
+
 export enum SellerStatus {
   OPEN = "open",
   PENDING_APPROVAL = "pending_approval",
