@@ -17,5 +17,11 @@ export const validateSuspendSellerStep = createStep(
         "Seller is already suspended"
       )
     }
+    if (seller.status === SellerStatus.PENDING_APPROVAL) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_ALLOWED,
+        "Cannot suspend a seller that is pending approval"
+      )
+    }
   }
 )
