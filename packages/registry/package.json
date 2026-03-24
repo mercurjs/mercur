@@ -10,12 +10,12 @@
 		"codegen": "bunx @mercurjs/cli@latest registry:codegen"
 	},
 	"dependencies": {
-		"@medusajs/framework": "^2.13.3",
-		"@medusajs/medusa": "^2.13.3",
+		"@medusajs/framework": "^2.13.4",
+		"@medusajs/medusa": "^2.13.4",
 		"@mercurjs/dashboard-shared": "workspace:*",
 		"@mercurjs/dashboard-sdk": "*",
 		"@medusajs/ui": "4.1.1",
-		"@medusajs/icons": "2.13.3",
+		"@medusajs/icons": "2.13.4",
 		"@tanstack/react-query": "5.64.2",
 		"react-i18next": "13.5.0",
 		"react-router-dom": "6.30.3",
@@ -24,7 +24,7 @@
 		"zod": "3.25.76",
 		"@mercurjs/core-plugin": "workspace:*",
 		"@mercurjs/vendor": "workspace:*",
-		"@medusajs/core-flows": "^2.13.3",
+		"@medusajs/core-flows": "^2.13.4",
 		"react-hook-form": "7.49.1",
 		"@hookform/resolvers": "3.4.2",
 		"jsonwebtoken": "9.0.2",
@@ -39,7 +39,7 @@
 		"@types/react-dom": "^18.2.22",
 		"@types/node": "^22",
 		"@types/unzipper": "^0.10.10",
-		"@medusajs/cli": "^2.13.3",
+		"@medusajs/cli": "^2.13.4",
 		"@types/multer": "^2.0.0",
 		"@types/jsonwebtoken": "^9.0.9"
 	}

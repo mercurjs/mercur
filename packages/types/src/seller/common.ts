@@ -2,6 +2,14 @@ export type SellerModuleOptions = {
   invite_valid_duration?: number
 }
 
+export enum SellerRole {
+  SELLER_ADMINISTRATION = "role_seller_administration",
+  INVENTORY_MANAGEMENT = "role_seller_inventory_management",
+  ORDER_MANAGEMENT = "role_seller_order_management",
+  ACCOUNTING = "role_seller_accounting",
+  SUPPORT = "role_seller_support",
+}
+
 export enum SellerStatus {
   OPEN = "open",
   PENDING_APPROVAL = "pending_approval",
@@ -146,7 +154,7 @@ export interface MemberInviteDTO {
   token: string
   accepted: boolean
   expires_at: Date
-  role_handle: string
+  role_id: string
   seller_id: string
   metadata: Record<string, unknown> | null
   created_at: Date
@@ -155,7 +163,7 @@ export interface MemberInviteDTO {
 
 export interface CreateMemberInviteDTO {
   email: string
-  role_handle: string
+  role_id: string
   seller_id: string
   metadata?: Record<string, unknown> | null
 }

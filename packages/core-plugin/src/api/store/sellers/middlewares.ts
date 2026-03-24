@@ -1,12 +1,32 @@
 import {
   validateAndTransformQuery,
-  applyDefaultFilters,
+  MedusaNextFunction,
+  MedusaRequest,
+  MedusaResponse,
 } from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
 import { SellerStatus } from "@mercurjs/types"
 
 import * as QueryConfig from "./query-config"
 import { StoreGetSellersParams, StoreGetSellerParams } from "./validators"
+
+function applySellerOpenFilters(
+  req: MedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  const now = new Date()
+
+  req.filterableFields.status ??= SellerStatus.OPEN
+
+  req.filterableFields.$and ??= []
+    ; (req.filterableFields.$and as any[]).push(
+      { $or: [{ closed_from: null }, { closed_from: { $gt: now } }] },
+      { $or: [{ closed_to: null }, { closed_to: { $lt: now } }] }
+    )
+
+  next()
+}
 
 export const storeSellersMiddlewares: MiddlewareRoute[] = [
   {
@@ -17,21 +37,7 @@ export const storeSellersMiddlewares: MiddlewareRoute[] = [
         StoreGetSellersParams,
         QueryConfig.listSellerQueryConfig
       ),
-      applyDefaultFilters({
-        status: SellerStatus.OPEN,
-        closed_from: () => {
-          const now = new Date()
-          return {
-            $or: [{ closed_from: null }, { closed_from: { $gt: now } }],
-          }
-        },
-        closed_to: () => {
-          const now = new Date()
-          return {
-            $or: [{ closed_to: null }, { closed_to: { $lt: now } }],
-          }
-        },
-      }),
+      applySellerOpenFilters,
     ],
   },
   {
@@ -42,21 +48,7 @@ export const storeSellersMiddlewares: MiddlewareRoute[] = [
         StoreGetSellerParams,
         QueryConfig.retrieveSellerQueryConfig
       ),
-      applyDefaultFilters({
-        status: SellerStatus.OPEN,
-        closed_from: () => {
-          const now = new Date()
-          return {
-            $or: [{ closed_from: null }, { closed_from: { $gt: now } }],
-          }
-        },
-        closed_to: () => {
-          const now = new Date()
-          return {
-            $or: [{ closed_to: null }, { closed_to: { $lt: now } }],
-          }
-        },
-      }),
+      applySellerOpenFilters,
     ],
   },
 ]

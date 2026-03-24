@@ -7,9 +7,8 @@ import {
 import {
   emitEventStep,
   setAuthAppMetadataStep,
-  useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import { CreateSellerDTO, SellerStatus } from "@mercurjs/types"
+import { CreateSellerDTO, SellerRole, SellerStatus } from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
 import {
@@ -37,13 +36,6 @@ export const createSellerAccountWorkflow = createWorkflow(
     const sellers = createSellersStep(sellerData)
     const seller = transform({ sellers }, ({ sellers }) => sellers[0])
 
-    const { data: sellerAdminRole } = useQueryGraphStep({
-      entity: "role",
-      fields: ["id"],
-      filters: { handle: "seller-administration" },
-      options: { throwIfKeyNotFound: true },
-    }).config({ name: "get-seller-admin-role" })
-
     const members = upsertMembersStep(
       transform(input, ({ member }) => [{ email: member.email }])
     )
@@ -52,12 +44,12 @@ export const createSellerAccountWorkflow = createWorkflow(
 
     createSellerMembersStep(
       transform(
-        { seller, member, sellerAdminRole },
-        ({ seller, member, sellerAdminRole }) => [
+        { seller, member },
+        ({ seller, member }) => [
           {
             seller_id: seller.id,
             member_id: member.id,
-            role_id: sellerAdminRole[0].id,
+            role_id: SellerRole.SELLER_ADMINISTRATION,
             is_owner: true,
           },
         ]

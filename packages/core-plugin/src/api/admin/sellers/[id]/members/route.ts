@@ -38,7 +38,7 @@ export const POST = async (
     input: {
       seller_id: req.params.id,
       member_id: req.validatedBody.member_id,
-      role_handle: req.validatedBody.role_handle,
+      role_id: req.validatedBody.role_id,
     },
   })
 

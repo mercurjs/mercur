@@ -6,7 +6,7 @@ import SellerModuleService from "../../../modules/seller/service"
 type CreateMemberInviteStepInput = {
   seller_id: string
   email: string
-  role_handle: string
+  role_id: string
 }
 
 export const createMemberInvitesStep = createStep(

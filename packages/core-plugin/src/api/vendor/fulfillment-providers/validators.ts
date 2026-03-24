@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { createFindParams } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type VendorGetFulfillmentProvidersParamsType = z.infer<
   typeof VendorGetFulfillmentProvidersParams
@@ -13,7 +14,7 @@ export const VendorGetFulfillmentProvidersParams = createFindParams({
     stock_location_id: z
       .union([z.string(), z.array(z.string())])
       .optional(),
-    is_enabled: z.boolean().optional(),
+    is_enabled: booleanString().optional(),
     q: z.string().optional(),
   })
 )
