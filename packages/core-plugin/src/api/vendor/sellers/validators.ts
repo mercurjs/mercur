@@ -51,12 +51,12 @@ export const VendorUpdateSeller = z.object({
 export type VendorInviteMemberType = z.infer<typeof VendorInviteMember>
 export const VendorInviteMember = z.object({
   email: z.string().email(),
-  role_handle: z.string(),
+  role_id: z.string(),
 })
 
 export type VendorUpdateMemberRoleType = z.infer<typeof VendorUpdateMemberRole>
 export const VendorUpdateMemberRole = z.object({
-  role_handle: z.string(),
+  role_id: z.string(),
 })
 
 export type VendorUpsertSellerAddressType = z.infer<typeof VendorUpsertSellerAddress>

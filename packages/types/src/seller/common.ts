@@ -146,7 +146,7 @@ export interface MemberInviteDTO {
   token: string
   accepted: boolean
   expires_at: Date
-  role_handle: string
+  role_id: string
   seller_id: string
   metadata: Record<string, unknown> | null
   created_at: Date
@@ -155,7 +155,7 @@ export interface MemberInviteDTO {
 
 export interface CreateMemberInviteDTO {
   email: string
-  role_handle: string
+  role_id: string
   seller_id: string
   metadata?: Record<string, unknown> | null
 }

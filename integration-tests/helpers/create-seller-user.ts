@@ -8,6 +8,7 @@ import {
 } from "@medusajs/framework/utils"
 import jwt from "jsonwebtoken"
 import Scrypt from "scrypt-kdf"
+import { createSellersWorkflow } from "@mercurjs/core-plugin/workflows"
 
 export const vendorHeaders = {
     headers: { "x-medusa-access-token": "test_token" },
@@ -22,12 +23,31 @@ export const createSellerUser = async (
 
     const authModule: IAuthModuleService = container.resolve(Modules.AUTH)
 
-    const sellerModule = container.resolve("seller")
-
-    const seller = await sellerModule.createSellers({
-        name,
-        email
+    const { result: sellers } = await createSellersWorkflow(container).run({
+        input: {
+            sellers: [
+                {
+                    name,
+                    email,
+                    currency_code: "usd",
+                    member: { email },
+                },
+            ],
+        },
     })
+
+    const seller = sellers[0]
+
+    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+    const { data: members } = await query.graph({
+        entity: "member",
+        fields: ["id"],
+        filters: { email },
+    })
+
+    const member = members[0]
+
     const hashConfig = { logN: 15, r: 8, p: 1 }
     const passwordHash = await Scrypt.kdf("somepassword", hashConfig)
 
@@ -42,7 +62,7 @@ export const createSellerUser = async (
             },
         ],
         app_metadata: {
-            seller_id: seller.id,
+            member_id: member.id,
         },
     })
 
@@ -51,8 +71,8 @@ export const createSellerUser = async (
     const { jwtSecret, jwtOptions } = projectConfig.http
     const token = jwt.sign(
         {
-            actor_id: seller.id,
-            actor_type: "seller",
+            actor_id: member.id,
+            actor_type: "member",
             auth_identity_id: authIdentity.id,
         },
         jwtSecret,
@@ -63,12 +83,14 @@ export const createSellerUser = async (
     )
 
     vendorHeaders.headers["authorization"] = `Bearer ${token}`
+    vendorHeaders.headers["x-seller-id"] = seller.id
 
     const headers = {
         headers: {
             authorization: `Bearer ${token}`,
+            "x-seller-id": seller.id,
         },
     }
 
-    return { seller, authIdentity, headers }
+    return { seller, member, authIdentity, headers }
 }

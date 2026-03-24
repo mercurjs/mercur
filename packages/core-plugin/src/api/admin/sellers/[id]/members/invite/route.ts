@@ -17,7 +17,7 @@ export const POST = async (
       {
         seller_id: req.params.id,
         email: req.validatedBody.email,
-        role_handle: req.validatedBody.role_handle,
+        role_id: req.validatedBody.role_id,
       },
     ],
   })

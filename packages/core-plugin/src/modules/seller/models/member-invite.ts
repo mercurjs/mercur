@@ -8,7 +8,7 @@ const MemberInvite = model
     token: model.text(),
     accepted: model.boolean().default(false),
     expires_at: model.dateTime(),
-    role_handle: model.text(),
+    role_id: model.text(),
     seller: model.belongsTo(() => Seller, {
       mappedBy: "member_invites",
     }),

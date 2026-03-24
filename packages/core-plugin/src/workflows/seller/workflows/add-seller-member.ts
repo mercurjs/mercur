@@ -5,7 +5,6 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import {
   emitEventStep,
-  useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 
 import { createSellerMembersStep } from "../steps"
@@ -16,26 +15,19 @@ export const addSellerMemberWorkflowId = "add-seller-member"
 type AddSellerMemberWorkflowInput = {
   seller_id: string
   member_id: string
-  role_handle: string
+  role_id: string
 }
 
 export const addSellerMemberWorkflow = createWorkflow(
   addSellerMemberWorkflowId,
   function (input: AddSellerMemberWorkflowInput) {
-    const { data: role } = useQueryGraphStep({
-      entity: "role",
-      fields: ["id"],
-      filters: { handle: input.role_handle },
-      options: { throwIfKeyNotFound: true },
-    }).config({ name: "get-role" })
-
     const sellerMembers = createSellerMembersStep(
       transform(
-        { input, role },
-        ({ input, role }) => [{
+        { input },
+        ({ input }) => [{
           seller_id: input.seller_id,
           member_id: input.member_id,
-          role_id: role[0].id,
+          role_id: input.role_id,
         }]
       )
     )

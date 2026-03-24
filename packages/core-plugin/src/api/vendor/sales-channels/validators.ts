@@ -3,6 +3,7 @@ import {
   createFindParams,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type VendorGetSalesChannelParamsType = z.infer<
   typeof VendorGetSalesChannelParams
@@ -20,6 +21,6 @@ export const VendorGetSalesChannelsParams = createFindParams({
     q: z.string().optional(),
     id: z.union([z.string(), z.array(z.string())]).optional(),
     name: z.union([z.string(), z.array(z.string())]).optional(),
-    is_disabled: z.boolean().optional(),
+    is_disabled: booleanString().optional(),
   })
 )

@@ -4,6 +4,7 @@ import {
   createOperatorMap,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type AdminGetSellerParamsType = z.infer<typeof AdminGetSellerParams>
 export const AdminGetSellerParams = createSelectParams()
@@ -20,7 +21,7 @@ export const AdminGetSellersParams = createFindParams({
     handle: z.string().optional(),
     email: z.string().optional(),
     status: z.union([z.string(), z.array(z.string())]).optional(),
-    is_premium: z.boolean().optional(),
+    is_premium: booleanString().optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })
@@ -79,7 +80,7 @@ export const AdminTerminateSeller = z.object({
 export type AdminAddSellerMemberType = z.infer<typeof AdminAddSellerMember>
 export const AdminAddSellerMember = z.object({
   member_id: z.string(),
-  role_handle: z.string(),
+  role_id: z.string(),
 })
 
 export type AdminInviteSellerMemberType = z.infer<
@@ -87,7 +88,7 @@ export type AdminInviteSellerMemberType = z.infer<
 >
 export const AdminInviteSellerMember = z.object({
   email: z.string().email(),
-  role_handle: z.string(),
+  role_id: z.string(),
 })
 
 export type AdminUpsertSellerAddressType = z.infer<

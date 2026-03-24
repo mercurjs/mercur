@@ -5,7 +5,6 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import {
   emitEventStep,
-  useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import { setAuthAppMetadataStep } from "@medusajs/medusa/core-flows"
 
@@ -30,13 +29,6 @@ export const acceptMemberInviteWorkflow = createWorkflow(
   function (input: AcceptMemberInviteWorkflowInput) {
     const invite = validateMemberInviteTokenStep(input.invite_token)
 
-    const { data: role } = useQueryGraphStep({
-      entity: "role",
-      fields: ["id"],
-      filters: { handle: invite.role_handle },
-      options: { throwIfKeyNotFound: true },
-    }).config({ name: "get-invite-role" })
-
     const members = upsertMembersStep(
       transform({ invite }, ({ invite }) => [{ email: invite.email }])
     )
@@ -45,11 +37,11 @@ export const acceptMemberInviteWorkflow = createWorkflow(
 
     const sellerMembers = createSellerMembersStep(
       transform(
-        { invite, member, role },
-        ({ invite, member, role }) => [{
+        { invite, member },
+        ({ invite, member }) => [{
           seller_id: invite.seller_id,
           member_id: member.id,
-          role_id: role[0].id,
+          role_id: invite.role_id,
         }]
       )
     )

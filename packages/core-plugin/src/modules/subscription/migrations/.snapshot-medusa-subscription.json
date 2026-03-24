@@ -15,38 +15,60 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "status": {
-          "name": "status",
+        "currency_code": {
+          "name": "currency_code",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "'pending'",
-          "enumItems": [
-            "pending",
-            "active",
-            "restricted",
-            "rejected"
-          ],
-          "mappedType": "enum"
+          "mappedType": "text"
         },
-        "data": {
-          "name": "data",
-          "type": "jsonb",
+        "monthly_amount": {
+          "name": "monthly_amount",
+          "type": "numeric",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "json"
+          "mappedType": "decimal"
         },
-        "context": {
-          "name": "context",
+        "free_months": {
+          "name": "free_months",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        },
+        "requires_orders": {
+          "name": "requires_orders",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
+        "metadata": {
+          "name": "metadata",
           "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "mappedType": "json"
+        },
+        "raw_monthly_amount": {
+          "name": "raw_monthly_amount",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
           "mappedType": "json"
         },
         "created_at": {
@@ -82,20 +104,29 @@
           "mappedType": "datetime"
         }
       },
-      "name": "payout_account",
+      "name": "subscription_plan",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_payout_account_deleted_at",
+          "keyName": "IDX_subscription_plan_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_account_deleted_at\" ON \"payout_account\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_subscription_plan_deleted_at\" ON \"subscription_plan\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "payout_account_pkey",
+          "keyName": "IDX_subscription_plan_unique_currency",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_subscription_plan_unique_currency\" ON \"subscription_plan\" (\"currency_code\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "subscription_plan_pkey",
           "columnNames": [
             "id"
           ],
@@ -120,17 +151,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "display_id": {
-          "name": "display_id",
-          "type": "serial",
-          "unsigned": true,
-          "autoincrement": true,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "currency_code": {
-          "name": "currency_code",
+        "reference": {
+          "name": "reference",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -138,17 +160,64 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "amount": {
-          "name": "amount",
+        "reference_id": {
+          "name": "reference_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "plan_id": {
+          "name": "plan_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "monthly_amount": {
+          "name": "monthly_amount",
           "type": "numeric",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "decimal"
         },
-        "data": {
-          "name": "data",
+        "free_months": {
+          "name": "free_months",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "free_from": {
+          "name": "free_from",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "free_to": {
+          "name": "free_to",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "metadata": {
+          "name": "metadata",
           "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
@@ -156,39 +225,13 @@
           "nullable": true,
           "mappedType": "json"
         },
-        "account_id": {
-          "name": "account_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'pending'",
-          "enumItems": [
-            "pending",
-            "processing",
-            "paid",
-            "failed",
-            "canceled"
-          ],
-          "mappedType": "enum"
-        },
-        "raw_amount": {
-          "name": "raw_amount",
+        "raw_monthly_amount": {
+          "name": "raw_monthly_amount",
           "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "json"
         },
         "created_at": {
@@ -224,29 +267,47 @@
           "mappedType": "datetime"
         }
       },
-      "name": "payout",
+      "name": "subscription_override",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_payout_account_id",
+          "keyName": "IDX_subscription_override_plan_id",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_account_id\" ON \"payout\" (\"account_id\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_subscription_override_plan_id\" ON \"subscription_override\" (\"plan_id\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_payout_deleted_at",
+          "keyName": "IDX_subscription_override_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_payout_deleted_at\" ON \"payout\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_subscription_override_deleted_at\" ON \"subscription_override\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "payout_pkey",
+          "keyName": "IDX_subscription_override_unique_reference",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_subscription_override_unique_reference\" ON \"subscription_override\" (\"reference\", \"reference_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_subscription_override_reference_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_subscription_override_reference_id\" ON \"subscription_override\" (\"reference_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "subscription_override_pkey",
           "columnNames": [
             "id"
           ],
@@ -258,136 +319,17 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "payout_account_id_foreign": {
-          "constraintName": "payout_account_id_foreign",
+        "subscription_override_plan_id_foreign": {
+          "constraintName": "subscription_override_plan_id_foreign",
           "columnNames": [
-            "account_id"
+            "plan_id"
           ],
-          "localTableName": "public.payout",
+          "localTableName": "public.subscription_override",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.payout_account",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "data": {
-          "name": "data",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "json"
-        },
-        "context": {
-          "name": "context",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "json"
-        },
-        "account_id": {
-          "name": "account_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        }
-      },
-      "name": "onboarding",
-      "schema": "public",
-      "indexes": [
-        {
-          "keyName": "IDX_onboarding_account_id_unique",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_onboarding_account_id_unique\" ON \"onboarding\" (\"account_id\") WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "IDX_onboarding_deleted_at",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_onboarding_deleted_at\" ON \"onboarding\" (\"deleted_at\") WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "onboarding_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "onboarding_account_id_foreign": {
-          "constraintName": "onboarding_account_id_foreign",
-          "columnNames": [
-            "account_id"
-          ],
-          "localTableName": "public.onboarding",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.payout_account",
+          "referencedTableName": "public.subscription_plan",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       },

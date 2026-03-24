@@ -13,7 +13,7 @@ export const createMemberInvitesWorkflowId = "create-member-invites"
 type CreateMemberInvitesWorkflowInput = {
   seller_id: string
   email: string
-  role_handle: string
+  role_id: string
 }[]
 
 export const createMemberInvitesWorkflow = createWorkflow(

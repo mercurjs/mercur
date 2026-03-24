@@ -4,6 +4,7 @@ import {
   createOperatorMap,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type VendorGetCustomerParamsType = z.infer<typeof VendorGetCustomerParams>
 export const VendorGetCustomerParams = createSelectParams()
@@ -17,7 +18,7 @@ export const VendorGetCustomersParams = createFindParams({
     q: z.string().optional(),
     id: z.union([z.string(), z.array(z.string())]).optional(),
     email: z.union([z.string(), z.array(z.string())]).optional(),
-    has_account: z.boolean().optional(),
+    has_account: booleanString().optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })

@@ -16,7 +16,7 @@ export const POST = async (
   await updateMemberRoleWorkflow(req.scope).run({
     input: {
       seller_member_id: req.params.member_id,
-      role_handle: req.validatedBody.role_handle,
+      role_id: req.validatedBody.role_id,
     },
   })
 
