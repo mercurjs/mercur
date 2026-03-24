@@ -157,20 +157,15 @@ Use this skill when:
 
 ## Using skills with other AI tools
 
-Skills ship in `.claude/skills/` by default, but they're plain markdown files — any AI coding tool that reads project-level prompts can use them. The recommended approach is to use a shared `.ai/skills/` directory as the canonical source and symlink from each tool's config directory.
+Skills ship in `.claude/skills/` — this is the canonical location, tracked in git. They're plain markdown files, so any AI coding tool that reads project-level prompts can use them.
 
 ### OpenAI Codex
 
-Codex reads skills from `.codex/skills/`. Symlink to the shared directory:
+Codex reads skills from `.codex/skills/`. Symlink to `.claude/skills/`:
 
 ```bash
-# Option A: symlink from .claude/skills (what ships with the template)
 mkdir -p .codex
 ln -s ../.claude/skills .codex/skills
-
-# Option B: if you've set up a shared .ai/skills/ directory
-mkdir -p .codex
-ln -s ../.ai/skills .codex/skills
 ```
 
 Codex picks up the same `SKILL.md` files and triggers them the same way.
@@ -186,24 +181,6 @@ cp .claude/skills/mercur-blocks/SKILL.md .cursor/rules/mercur-blocks.md
 ```
 
 Cursor rules use a similar markdown format — the skill content works as-is, though Cursor-specific frontmatter fields (like `globs`) can be added for file-pattern triggering.
-
-### Shared directory pattern
-
-For projects where multiple team members use different AI tools, set up a shared canonical directory:
-
-```bash
-# 1. Create shared directory
-mkdir -p .ai/skills
-
-# 2. Move skills there
-mv .claude/skills/* .ai/skills/
-
-# 3. Symlink from each tool
-ln -sf ../.ai/skills .claude/skills
-ln -sf ../.ai/skills .codex/skills
-```
-
-This ensures all tools see the same skills with no content duplication. Update skills in `.ai/skills/` and every tool gets the change.
 
 <Tip>
   Skills are markdown — they work with any AI tool that supports project-level context. If your tool doesn't have a conventional directory, you can paste skill content into custom instructions or system prompts.
