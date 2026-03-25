@@ -1,0 +1,31 @@
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
+import { UseMutationOptions, useMutation } from "@tanstack/react-query";
+import { sdk } from "../../lib/client";
+import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
+
+const SELLERS_QUERY_KEY = "sellers" as const;
+export const sellersQueryKeys = queryKeysFactory(SELLERS_QUERY_KEY);
+
+export const useCreateSellerAccount = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.vendor.sellers.mutate>,
+    ClientError,
+    InferClientInput<typeof sdk.vendor.sellers.mutate>
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.vendor.sellers.mutate(payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ["users", "me"],
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};

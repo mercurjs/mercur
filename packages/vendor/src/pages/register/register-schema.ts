@@ -3,16 +3,9 @@ import * as z from "zod"
 
 export const RegisterSchema = z
   .object({
-    name: z.string().min(2),
-    email: z.string().email(),
-    password: z
-      .string()
-      .min(12)
-      .regex(/[a-z]/)
-      .regex(/[A-Z]/)
-      .regex(/[0-9]/)
-      .regex(/[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/~`]/),
-    confirmPassword: z.string(),
+    email: z.string().email(i18n.t("register.validation.emailInvalid")),
+    password: z.string().min(8, i18n.t("register.validation.passwordMinLength")),
+    confirmPassword: z.string().min(1),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: i18n.t("register.passwordMismatch"),
