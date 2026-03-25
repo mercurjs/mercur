@@ -34,7 +34,7 @@
     "medusa-v2"
   ],
   "scripts": {
-    "build": "npx @mercurjs/cli@latest codegen && rm -rf .medusa && tsc --declaration --outDir .medusa/server",
+    "build": "bunx @mercurjs/cli@latest codegen && rm -rf .medusa && tsc --declaration --outDir .medusa/server",
     "dev": "medusa plugin:develop",
     "prepublishOnly": "tsc --declaration --outDir .medusa/server"
   },
