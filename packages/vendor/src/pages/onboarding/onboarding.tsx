@@ -11,6 +11,7 @@ import {
   Text,
   Textarea,
 } from "@medusajs/ui";
+import { AnimatePresence, motion } from "motion/react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -130,11 +131,42 @@ export const Onboarding = () => {
         style={step === 2 ? { paddingBottom: "5rem" } : undefined}
       >
         <div className="flex w-full max-w-[720px] flex-col">
-          {step === 1 ? (
-            <StoreStep form={storeForm} onSubmit={handleStoreSubmit} />
-          ) : (
-            <DetailsStep form={detailsForm} onSubmit={handleDetailsSubmit} />
-          )}
+          <AnimatePresence mode="wait">
+            {step === 1 ? (
+              <motion.div
+                key="store-step"
+                initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{
+                  opacity: 0,
+                  y: -16,
+                  filter: "blur(4px)",
+                  transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] },
+                }}
+                transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+              >
+                <StoreStep form={storeForm} onSubmit={handleStoreSubmit} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="details-step"
+                initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{
+                  opacity: 0,
+                  y: -16,
+                  filter: "blur(4px)",
+                  transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] },
+                }}
+                transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+              >
+                <DetailsStep
+                  form={detailsForm}
+                  onSubmit={handleDetailsSubmit}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -150,6 +182,19 @@ export const Onboarding = () => {
   );
 };
 
+const sectionVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: 0.06 * i,
+      duration: 0.4,
+      ease: [0.23, 1, 0.32, 1],
+    },
+  }),
+};
+
 const StoreStep = ({
   form,
   onSubmit,
@@ -161,7 +206,13 @@ const StoreStep = ({
 
   return (
     <>
-      <div className="pb-8 flex items-center gap-x-4">
+      <motion.div
+        className="pb-8 flex items-center gap-x-4"
+        variants={sectionVariants}
+        initial="hidden"
+        animate="visible"
+        custom={0}
+      >
         <Avatar fallback="?" variant="rounded" size="xlarge" />
         <div>
           <Heading level="h1" className="text-ui-fg-base">
@@ -171,13 +222,25 @@ const StoreStep = ({
             {t("onboarding.storeSetup.subtitle")}
           </Text>
         </div>
-      </div>
+      </motion.div>
 
       <Form {...form}>
         <form onSubmit={onSubmit}>
-          <div className="border-t border-dotted border-ui-border-base" />
+          <motion.div
+            className="border-t border-dotted border-ui-border-base"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={1}
+          />
 
-          <div className="grid grid-cols-2 gap-x-12 py-8">
+          <motion.div
+            className="grid grid-cols-2 gap-x-12 py-8"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={2}
+          >
             <div>
               <Text size="small" weight="plus" className="text-ui-fg-base">
                 {t("onboarding.storeSetup.title")}
@@ -261,16 +324,28 @@ const StoreStep = ({
                 )}
               />
             </div>
-          </div>
+          </motion.div>
 
-          <div className="border-t border-dotted border-ui-border-base" />
+          <motion.div
+            className="border-t border-dotted border-ui-border-base"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={3}
+          />
 
-          <div className="grid grid-cols-2 gap-x-12 py-8">
+          <motion.div
+            className="grid grid-cols-2 gap-x-12 py-8"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={4}
+          >
             <div />
             <Button type="submit" className="w-full">
               {t("actions.continue")}
             </Button>
-          </div>
+          </motion.div>
         </form>
       </Form>
     </>
@@ -293,7 +368,13 @@ const DetailsStep = ({
 
   return (
     <>
-      <div className="pb-8 flex items-center gap-x-4">
+      <motion.div
+        className="pb-8 flex items-center gap-x-4"
+        variants={sectionVariants}
+        initial="hidden"
+        animate="visible"
+        custom={0}
+      >
         <Avatar fallback="?" variant="rounded" size="xlarge" />
         <div>
           <Heading level="h1" className="text-ui-fg-base">
@@ -303,14 +384,26 @@ const DetailsStep = ({
             {t("onboarding.detailsSetup.subtitle")}
           </Text>
         </div>
-      </div>
+      </motion.div>
 
       <Form {...form}>
         <form onSubmit={onSubmit}>
-          <div className="border-t border-dotted border-ui-border-base" />
+          <motion.div
+            className="border-t border-dotted border-ui-border-base"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={1}
+          />
 
           {/* Address section */}
-          <div className="grid grid-cols-2 gap-x-12 py-8">
+          <motion.div
+            className="grid grid-cols-2 gap-x-12 py-8"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={2}
+          >
             <div>
               <Text size="small" weight="plus" className="text-ui-fg-base">
                 {t("onboarding.detailsSetup.addressTitle")}
@@ -487,12 +580,24 @@ const DetailsStep = ({
                 )}
               />
             </div>
-          </div>
+          </motion.div>
 
-          <div className="border-t border-dotted border-ui-border-base" />
+          <motion.div
+            className="border-t border-dotted border-ui-border-base"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={3}
+          />
 
           {/* Professional details section */}
-          <div className="grid grid-cols-2 gap-x-12 py-8">
+          <motion.div
+            className="grid grid-cols-2 gap-x-12 py-8"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={4}
+          >
             <div>
               <Text size="small" weight="plus" className="text-ui-fg-base">
                 {t("onboarding.detailsSetup.professionalTitle")}
@@ -510,66 +615,106 @@ const DetailsStep = ({
                   "onboarding.detailsSetup.isProfessionalDescription",
                 )}
               />
-              {isProfessional && (
-                <>
-                  <Form.Field
-                    control={form.control}
-                    name="corporate_name"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          {t("onboarding.detailsSetup.corporateName")}
-                        </Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="registration_number"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label optional>
-                          {t("onboarding.detailsSetup.registrationNumber")}
-                        </Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="tax_id"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label optional>
-                          {t("onboarding.detailsSetup.taxId")}
-                        </Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )}
-                  />
-                </>
-              )}
+              <AnimatePresence initial={false}>
+                {isProfessional && (
+                  <motion.div
+                    className="flex flex-col gap-y-4"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{
+                      opacity: 1,
+                      height: "auto",
+                      transition: {
+                        height: {
+                          duration: 0.35,
+                          ease: [0.23, 1, 0.32, 1],
+                        },
+                        opacity: { duration: 0.25, delay: 0.1 },
+                      },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      height: 0,
+                      transition: {
+                        height: {
+                          duration: 0.25,
+                          ease: [0.23, 1, 0.32, 1],
+                          delay: 0.05,
+                        },
+                        opacity: { duration: 0.15 },
+                      },
+                    }}
+                  >
+                    <Form.Field
+                      control={form.control}
+                      name="corporate_name"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>
+                            {t("onboarding.detailsSetup.corporateName")}
+                          </Form.Label>
+                          <Form.Control>
+                            <Input {...field} />
+                          </Form.Control>
+                          <Form.ErrorMessage />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
+                      name="registration_number"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label optional>
+                            {t("onboarding.detailsSetup.registrationNumber")}
+                          </Form.Label>
+                          <Form.Control>
+                            <Input {...field} />
+                          </Form.Control>
+                          <Form.ErrorMessage />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
+                      name="tax_id"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label optional>
+                            {t("onboarding.detailsSetup.taxId")}
+                          </Form.Label>
+                          <Form.Control>
+                            <Input {...field} />
+                          </Form.Control>
+                          <Form.ErrorMessage />
+                        </Form.Item>
+                      )}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="border-t border-dotted border-ui-border-base" />
+          <motion.div
+            className="border-t border-dotted border-ui-border-base"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={5}
+          />
 
-          <div className="grid grid-cols-2 gap-x-12 py-8">
+          <motion.div
+            className="grid grid-cols-2 gap-x-12 py-8"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={6}
+          >
             <div />
             <Button type="submit" className="w-full">
               {t("onboarding.detailsSetup.completeSetup")}
             </Button>
-          </div>
+          </motion.div>
         </form>
       </Form>
     </>
