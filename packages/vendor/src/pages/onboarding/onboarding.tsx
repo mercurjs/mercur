@@ -817,21 +817,6 @@ const SubmittedStep = ({ email }: { email: string }) => {
       </motion.div>
 
       <motion.div
-        className="mt-2 text-center"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          duration: 0.5,
-          delay: 0.55,
-          ease: [0.23, 1, 0.32, 1],
-        }}
-      >
-        <Text size="small" className="text-ui-fg-muted">
-          {t("onboarding.submitted.hint")}
-        </Text>
-      </motion.div>
-
-      <motion.div
         className="mt-6 w-full"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
