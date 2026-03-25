@@ -107,6 +107,7 @@ export const Onboarding = () => {
 
   const handleDetailsSubmit = detailsForm.handleSubmit(async (_data) => {
     // TODO: Submit onboarding data
+    setStep(3);
   });
 
   return (
@@ -124,60 +125,110 @@ export const Onboarding = () => {
         </button>
       </div>
 
-      <div
-        className={`flex flex-1 flex-col items-center px-4 ${
-          step === 1 ? "justify-center" : "pt-8"
-        }`}
-        style={step === 2 ? { paddingBottom: "5rem" } : undefined}
-      >
-        <div className="flex w-full max-w-[720px] flex-col">
-          <AnimatePresence mode="wait">
-            {step === 1 ? (
-              <motion.div
-                key="store-step"
-                initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{
-                  opacity: 0,
-                  y: -16,
-                  filter: "blur(4px)",
-                  transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] },
-                }}
-                transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
-              >
-                <StoreStep form={storeForm} onSubmit={handleStoreSubmit} />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="details-step"
-                initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{
-                  opacity: 0,
-                  y: -16,
-                  filter: "blur(4px)",
-                  transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] },
-                }}
-                transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
-              >
-                <DetailsStep
-                  form={detailsForm}
-                  onSubmit={handleDetailsSubmit}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+      <AnimatePresence mode="wait">
+        {step <= 2 ? (
+          <motion.div
+            key="form-steps"
+            className={`flex flex-1 flex-col items-center px-4 ${
+              step === 1 ? "justify-center" : "pt-8"
+            }`}
+            style={step === 2 ? { paddingBottom: "5rem" } : undefined}
+            exit={{
+              opacity: 0,
+              y: 40,
+              filter: "blur(6px)",
+              transition: { duration: 0.5, ease: [0, 0.71, 0.2, 1.01] },
+            }}
+          >
+            <div className="flex w-full max-w-[720px] flex-col">
+              <AnimatePresence mode="wait">
+                {step === 1 ? (
+                  <motion.div
+                    key="store-step"
+                    initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{
+                      opacity: 0,
+                      y: -16,
+                      filter: "blur(4px)",
+                      transition: {
+                        duration: 0.2,
+                        ease: [0.23, 1, 0.32, 1],
+                      },
+                    }}
+                    transition={{
+                      duration: 0.45,
+                      ease: [0.23, 1, 0.32, 1],
+                    }}
+                  >
+                    <StoreStep
+                      form={storeForm}
+                      onSubmit={handleStoreSubmit}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="details-step"
+                    initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{
+                      opacity: 0,
+                      y: -16,
+                      filter: "blur(4px)",
+                      transition: {
+                        duration: 0.2,
+                        ease: [0.23, 1, 0.32, 1],
+                      },
+                    }}
+                    transition={{
+                      duration: 0.45,
+                      ease: [0.23, 1, 0.32, 1],
+                    }}
+                  >
+                    <DetailsStep
+                      form={detailsForm}
+                      onSubmit={handleDetailsSubmit}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="submitted"
+            className="flex flex-1 flex-col items-center justify-center px-4"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+              duration: 0.6,
+              delay: 0.3,
+              ease: [0, 0.71, 0.2, 1.01],
+            }}
+          >
+            <SubmittedStep email={email} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="fixed bottom-0 left-0 right-0 flex items-center justify-center py-4 bg-ui-bg-subtle">
-        <Text size="small" weight="plus" className="text-ui-fg-muted">
-          {t("onboarding.step", {
-            current: String(step).padStart(2, "0"),
-            total: String(totalSteps).padStart(2, "0"),
-          })}
-        </Text>
-      </div>
+      <AnimatePresence>
+        {step <= 2 && (
+          <motion.div
+            className="fixed bottom-0 left-0 right-0 flex items-center justify-center py-4 bg-ui-bg-subtle"
+            exit={{
+              opacity: 0,
+              transition: { duration: 0.3, ease: [0.23, 1, 0.32, 1] },
+            }}
+          >
+            <Text size="small" weight="plus" className="text-ui-fg-muted">
+              {t("onboarding.step", {
+                current: String(step).padStart(2, "0"),
+                total: String(totalSteps).padStart(2, "0"),
+              })}
+            </Text>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -718,5 +769,118 @@ const DetailsStep = ({
         </form>
       </Form>
     </>
+  );
+};
+
+const SubmittedStep = ({ email }: { email: string }) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex w-full max-w-[360px] flex-col items-center">
+      <div className="relative mb-6">
+        <motion.div
+          className="flex size-14 items-center justify-center rounded-xl bg-ui-button-neutral shadow-buttons-neutral"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 0.5,
+            delay: 0.1,
+            ease: [0, 0.71, 0.2, 1.01],
+          }}
+        >
+          <Avatar fallback="M" variant="rounded" size="xlarge" />
+        </motion.div>
+        <motion.div
+          className="absolute -right-[5px] -top-1 flex size-5 items-center justify-center rounded-full border-[0.5px] border-[rgba(3,7,18,0.2)] bg-[#3B82F6] bg-gradient-to-b from-white/0 to-white/20 shadow-[0px_1px_2px_0px_rgba(3,7,18,0.12),0px_1px_2px_0px_rgba(255,255,255,0.10)_inset,0px_-1px_5px_0px_rgba(255,255,255,0.10)_inset]"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 1.2,
+            delay: 0.8,
+            ease: [0, 0.71, 0.2, 1.01],
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+          >
+            <motion.path
+              d="M5.8335 10.4167L9.16683 13.75L14.1668 6.25"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{
+                duration: 1.3,
+                delay: 1.1,
+                bounce: 0.6,
+                ease: [0.1, 0.8, 0.2, 1.01],
+              }}
+            />
+          </svg>
+        </motion.div>
+      </div>
+
+      <motion.div
+        className="flex flex-col items-center gap-y-1"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.5,
+          delay: 0.4,
+          ease: [0.23, 1, 0.32, 1],
+        }}
+      >
+        <Heading level="h1" className="text-center text-ui-fg-base">
+          {t("onboarding.submitted.title")}
+        </Heading>
+        <Text
+          size="small"
+          className="text-ui-fg-subtle text-center max-w-[300px]"
+        >
+          {t("onboarding.submitted.description", { email })}
+        </Text>
+      </motion.div>
+
+      <motion.div
+        className="mt-2 text-center"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.5,
+          delay: 0.55,
+          ease: [0.23, 1, 0.32, 1],
+        }}
+      >
+        <Text size="small" className="text-ui-fg-muted">
+          {t("onboarding.submitted.hint")}
+        </Text>
+      </motion.div>
+
+      <motion.div
+        className="mt-6 w-full"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.5,
+          delay: 0.7,
+          ease: [0.23, 1, 0.32, 1],
+        }}
+      >
+        <Button
+          variant="secondary"
+          className="w-full"
+          onClick={() => navigate("/login")}
+        >
+          {t("onboarding.submitted.action")}
+        </Button>
+      </motion.div>
+    </div>
   );
 };

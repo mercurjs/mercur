@@ -2993,6 +2993,12 @@
       "registrationNumber": "Registration number",
       "taxId": "Tax ID",
       "completeSetup": "Complete setup"
+    },
+    "submitted": {
+      "title": "Application submitted!",
+      "description": "Your seller account has been created and is pending approval. We'll notify you at {{email}} once your store is reviewed.",
+      "hint": "In the meantime, you can log in to complete your store setup.",
+      "action": "Go to login"
     }
   },
   "invite": {
