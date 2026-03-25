@@ -59,6 +59,7 @@ export const Onboarding = () => {
   const email = location.state?.email ?? "";
 
   const [step, setStep] = useState(1);
+  const [layoutStep, setLayoutStep] = useState(1);
   const totalSteps = 2;
 
   const { mutateAsync: logoutMutation } = useLogout();
@@ -130,9 +131,8 @@ export const Onboarding = () => {
           <motion.div
             key="form-steps"
             className={`flex flex-1 flex-col items-center px-4 ${
-              step === 1 ? "justify-center" : "pt-8"
+              layoutStep === 1 ? "justify-center" : "pt-8"
             }`}
-            style={step === 2 ? { paddingBottom: "5rem" } : undefined}
             exit={{
               opacity: 0,
               y: 40,
@@ -140,48 +140,48 @@ export const Onboarding = () => {
               transition: { duration: 0.5, ease: [0, 0.71, 0.2, 1.01] },
             }}
           >
-            <div className="flex w-full max-w-[720px] flex-col">
-              <AnimatePresence mode="wait">
+            <div
+              className="flex w-full max-w-[720px] flex-col"
+              style={layoutStep === 2 ? { paddingBottom: "5rem" } : undefined}
+            >
+              <AnimatePresence mode="wait" onExitComplete={() => setLayoutStep(step)}>
                 {step === 1 ? (
                   <motion.div
                     key="store-step"
-                    initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+                    initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
                     animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                     exit={{
                       opacity: 0,
-                      y: -16,
+                      y: -3,
                       filter: "blur(4px)",
                       transition: {
-                        duration: 0.2,
+                        duration: 0.25,
                         ease: [0.23, 1, 0.32, 1],
                       },
                     }}
                     transition={{
-                      duration: 0.45,
+                      duration: 0.4,
                       ease: [0.23, 1, 0.32, 1],
                     }}
                   >
-                    <StoreStep
-                      form={storeForm}
-                      onSubmit={handleStoreSubmit}
-                    />
+                    <StoreStep form={storeForm} onSubmit={handleStoreSubmit} />
                   </motion.div>
                 ) : (
                   <motion.div
                     key="details-step"
-                    initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+                    initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
                     animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                     exit={{
                       opacity: 0,
-                      y: -16,
+                      y: -3,
                       filter: "blur(4px)",
                       transition: {
-                        duration: 0.2,
+                        duration: 0.25,
                         ease: [0.23, 1, 0.32, 1],
                       },
                     }}
                     transition={{
-                      duration: 0.45,
+                      duration: 0.4,
                       ease: [0.23, 1, 0.32, 1],
                     }}
                   >
@@ -240,7 +240,7 @@ const sectionVariants = {
     y: 0,
     transition: {
       delay: 0.06 * i,
-      duration: 0.4,
+      duration: 0.35,
       ease: [0.23, 1, 0.32, 1],
     },
   }),
@@ -472,10 +472,7 @@ const DetailsStep = ({
                     <Form.Item>
                       <Form.Label>{t("fields.firstName")}</Form.Label>
                       <Form.Control>
-                        <Input
-                          autoComplete="given-name"
-                          {...field}
-                        />
+                        <Input autoComplete="given-name" {...field} />
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
@@ -488,10 +485,7 @@ const DetailsStep = ({
                     <Form.Item>
                       <Form.Label>{t("fields.lastName")}</Form.Label>
                       <Form.Control>
-                        <Input
-                          autoComplete="family-name"
-                          {...field}
-                        />
+                        <Input autoComplete="family-name" {...field} />
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
@@ -505,10 +499,7 @@ const DetailsStep = ({
                   <Form.Item>
                     <Form.Label optional>{t("fields.company")}</Form.Label>
                     <Form.Control>
-                      <Input
-                        autoComplete="organization"
-                        {...field}
-                      />
+                      <Input autoComplete="organization" {...field} />
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
@@ -521,10 +512,7 @@ const DetailsStep = ({
                   <Form.Item>
                     <Form.Label>{t("fields.country")}</Form.Label>
                     <Form.Control>
-                      <CountrySelect
-                        {...field}
-                        onChange={onChange}
-                      />
+                      <CountrySelect {...field} onChange={onChange} />
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
@@ -537,10 +525,7 @@ const DetailsStep = ({
                   <Form.Item>
                     <Form.Label>{t("fields.address")}</Form.Label>
                     <Form.Control>
-                      <Input
-                        autoComplete="address-line1"
-                        {...field}
-                      />
+                      <Input autoComplete="address-line1" {...field} />
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
@@ -551,14 +536,9 @@ const DetailsStep = ({
                 name="address_2"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label optional>
-                      {t("fields.address2")}
-                    </Form.Label>
+                    <Form.Label optional>{t("fields.address2")}</Form.Label>
                     <Form.Control>
-                      <Input
-                        autoComplete="address-line2"
-                        {...field}
-                      />
+                      <Input autoComplete="address-line2" {...field} />
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
@@ -572,10 +552,7 @@ const DetailsStep = ({
                     <Form.Item>
                       <Form.Label>{t("fields.city")}</Form.Label>
                       <Form.Control>
-                        <Input
-                          autoComplete="address-level2"
-                          {...field}
-                        />
+                        <Input autoComplete="address-level2" {...field} />
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
@@ -588,10 +565,7 @@ const DetailsStep = ({
                     <Form.Item>
                       <Form.Label>{t("fields.postalCode")}</Form.Label>
                       <Form.Control>
-                        <Input
-                          autoComplete="postal-code"
-                          {...field}
-                        />
+                        <Input autoComplete="postal-code" {...field} />
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
@@ -605,10 +579,7 @@ const DetailsStep = ({
                   <Form.Item>
                     <Form.Label optional>{t("fields.province")}</Form.Label>
                     <Form.Control>
-                      <Input
-                        autoComplete="address-level1"
-                        {...field}
-                      />
+                      <Input autoComplete="address-level1" {...field} />
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
@@ -621,10 +592,7 @@ const DetailsStep = ({
                   <Form.Item>
                     <Form.Label optional>{t("fields.phone")}</Form.Label>
                     <Form.Control>
-                      <Input
-                        autoComplete="tel"
-                        {...field}
-                      />
+                      <Input autoComplete="tel" {...field} />
                     </Form.Control>
                     <Form.ErrorMessage />
                   </Form.Item>
