@@ -123,7 +123,12 @@ export const Onboarding = () => {
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-center px-4">
+      <div
+        className={`flex flex-1 flex-col items-center px-4 ${
+          step === 1 ? "justify-center" : "pt-8"
+        }`}
+        style={step === 2 ? { paddingBottom: "5rem" } : undefined}
+      >
         <div className="flex w-full max-w-[720px] flex-col">
           {step === 1 ? (
             <StoreStep form={storeForm} onSubmit={handleStoreSubmit} />
@@ -133,7 +138,7 @@ export const Onboarding = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-center py-4">
+      <div className="fixed bottom-0 left-0 right-0 flex items-center justify-center py-4 bg-ui-bg-subtle">
         <Text size="small" weight="plus" className="text-ui-fg-muted">
           {t("onboarding.step", {
             current: String(step).padStart(2, "0"),
