@@ -15,6 +15,7 @@ module.exports = defineConfig({
   },
   featureFlags: {
     rbac: true,
+    seller_registration: true
   },
   modules: [
     {

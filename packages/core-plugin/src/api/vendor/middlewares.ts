@@ -39,7 +39,7 @@ import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewar
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorStoresMiddlewares } from "./stores/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
-import { scanUnauthenticatedRoutes, unlessBaseUrl } from "../utils"
+import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl } from "../utils"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
 const unauthenticatedRoutes = [
@@ -50,6 +50,7 @@ const unauthenticatedRoutes = [
 export const vendorMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/vendor/*",
+    methods: ['ALL'],
     middlewares: [
       (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
         const configModule: ConfigModule = req.scope.resolve("configModule")
@@ -63,7 +64,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   },
   {
     matcher: "/vendor/sellers",
-    method: ["POST"],
+    method: ["POST", "GET"],
     middlewares: [
       authenticate("member", ["session", "bearer"], {
         allowUnregistered: true,
@@ -78,6 +79,10 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
         authenticate("member", ["session", "bearer"], {
           allowUnregistered: false,
         })
+      ),
+      unlessBaseUrl(
+        unauthenticatedRoutes,
+        ensureSellerMiddleware
       ),
     ],
   },

@@ -1,22 +1,24 @@
 {
-  "name": "create-mercur",
+  "name": "@acme/vendor",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "dev": "vite --port 7001",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview --port 7001"
   },
   "dependencies": {
+    "@mercurjs/vendor": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zod": "3.25.76",
     "@medusajs/icons": "^2.13.4",
     "@medusajs/ui": "4.1.1",
-    "@mercurjs/dashboard-sdk": "2.0.0",
-    "@mercurjs/dashboard-shared": "2.0.0",
-    "@mercurjs/client": "2.0.0",
+    "@mercurjs/dashboard-sdk": "*",
+    "@mercurjs/dashboard-shared": "*",
+    "@mercurjs/client": "*",
     "react-i18next": "13.5.0",
     "@tanstack/react-query": "5.64.2",
     "react-router-dom": "6.30.3",
@@ -41,14 +43,7 @@
     "prettier": "^3.7.4",
     "ts-node": "^10.9.2",
     "turbo": "^2.7.4",
-    "typescript": "5.9.3"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "packageManager": "bun@1.3.8",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ]
+    "typescript": "5.9.3",
+    "@types/node": "^24.10.1"
+  }
 }
