@@ -2945,25 +2945,60 @@
     "notSellerYet": "Not a seller yet? - <0>Create an account</0>"
   },
   "register": {
-    "title": "Join Mercur Seller Panel",
-    "hint": "Sign up to start selling",
+    "title": "Start selling on {{name}}",
+    "hint": "Create account to get started",
     "companyName": "Company name",
     "confirmPassword": "Confirm password",
     "signUp": "Sign up",
     "alreadySeller": "Already have an account? - <0>Sign In</0>",
     "passwordMismatch": "Passwords don't match",
     "emailTaken": "Provided email is already taken",
+    "validation": {
+      "nameRequired": "Name must be at least 2 characters",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "confirmPasswordRequired": "Please confirm your password"
+    },
     "successTitle": "Thank you for registering!",
     "successHint": "You may need to wait for admin authorization before logging in. A confirmation email will be sent to you shortly.",
     "backToLogin": "Back to login"
   },
-  "validation": {
-    "rules": {
-      "lower": "At least one lowercase letter",
-      "upper": "At least one uppercase letter",
-      "12chars": "At least 12 characters",
-      "digit": "At least one digit",
-      "specialChar": "At least one special character"
+  "onboarding": {
+    "step": "Step {{current}} / {{total}}",
+    "organizationSetup": {
+      "title": "Setup your organization",
+      "subtitle": "Specify the name of your organization",
+      "organizationName": "Organization name",
+      "organizationNamePlaceholder": "My Organization"
+    },
+    "storeSetup": {
+      "title": "Setup your store",
+      "subtitle": "Specify the details of your store",
+      "storeName": "Store name",
+      "storeNamePlaceholder": "My Store",
+      "selectCurrency": "Select a currency",
+      "currencyHint": "Cannot be changed after store is created",
+      "descriptionPlaceholder": "A description of your store"
+    },
+    "detailsSetup": {
+      "title": "Complete your profile",
+      "subtitle": "Add your address and business details",
+      "addressTitle": "Address",
+      "addressSubtitle": "Your business address",
+      "professionalTitle": "Business details",
+      "professionalSubtitle": "Professional seller information",
+      "isProfessional": "Professional seller",
+      "isProfessionalDescription": "Register as a business entity",
+      "corporateName": "Corporate name",
+      "registrationNumber": "Registration number",
+      "taxId": "Tax ID",
+      "completeSetup": "Complete setup"
+    },
+    "submitted": {
+      "title": "Application submitted!",
+      "description": "Your seller account has been created and is pending approval. We'll notify you at {{email}} once your store is reviewed.",
+      "hint": "In the meantime, you can log in to complete your store setup.",
+      "action": "Go to login"
     }
   },
   "invite": {
