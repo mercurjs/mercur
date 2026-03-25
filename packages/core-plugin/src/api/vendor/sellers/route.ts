@@ -17,8 +17,14 @@ export const GET = async (
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const memberId = req.auth_context?.actor_id
 
-  const memberId = req.auth_context.actor_id
+  if (!memberId) {
+    throw new MedusaError(
+      MedusaError.Types.UNAUTHORIZED,
+      "You must be authenticated to access seller information."
+    )
+  }
 
   const { data: sellerMembers, metadata } = await query.graph({
     entity: "seller_member",

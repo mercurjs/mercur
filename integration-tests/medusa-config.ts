@@ -15,6 +15,7 @@ module.exports = defineConfig({
   },
   featureFlags: {
     rbac: true,
+    seller_registration: true
   },
   modules: [
     {
@@ -35,6 +36,10 @@ module.exports = defineConfig({
         path: '/seller',
         disable: true
       }
+    },
+    {
+      resolve: '@mercurjs/core-plugin/modules/seller',
+      dependencies: [Modules.EVENT_BUS],
     },
   ],
   plugins: [
