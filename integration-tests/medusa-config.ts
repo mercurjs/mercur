@@ -33,6 +33,14 @@ module.exports = defineConfig({
         disable: true
       }
     },
+    // Meilisearch block — loaded only when env vars are present (e.g. meilisearch integration tests)
+    ...(process.env.MEILISEARCH_HOST ? [{
+      resolve: '../packages/registry/src/meilisearch/modules/meilisearch',
+      options: {
+        host: process.env.MEILISEARCH_HOST,
+        apiKey: process.env.MEILISEARCH_API_KEY,
+      },
+    }] : []),
   ],
   plugins: [
     {

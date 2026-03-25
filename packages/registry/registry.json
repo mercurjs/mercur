@@ -228,7 +228,7 @@
         "@medusajs/core-flows"
       ],
       "registryDependencies": [],
-      "docs": "## Product Import/Export Block\n\n### Dependencies\n\nInstall dependencies in the **API workspace** (not the project root):\n\n```bash\ncd packages/api\nbun add @medusajs/core-flows multer @types/multer\n```\n\n### Configuration\n\nNo additional modules needed — uses built-in Medusa product CSV steps.\n\n### Middleware Setup\n\nAdd the import middleware to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from '@medusajs/medusa'\nimport { productImportExportMiddlewares } from './vendor/products/middlewares'\n\nexport default defineMiddlewares({\n  routes: [...productImportExportMiddlewares],\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@latest codegen\n```\n\n### Vendor Navigation\n\nThe block includes a `products/page.tsx` that overrides the default product list page, adding Import and Export buttons in the header. The buttons open drawer routes at `/products/import` and `/products/export`.",
+      "docs": "## Product Import/Export Block\n\n### Dependencies\n\nInstall dependencies in the **API workspace** (not the project root):\n\n```bash\ncd packages/api\nbun add @medusajs/core-flows multer @types/multer\n```\n\n### Configuration\n\nNo additional modules needed \u2014 uses built-in Medusa product CSV steps.\n\n### Middleware Setup\n\nAdd the import middleware to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from '@medusajs/medusa'\nimport { productImportExportMiddlewares } from './vendor/products/middlewares'\n\nexport default defineMiddlewares({\n  routes: [...productImportExportMiddlewares],\n})\n```\n\n### Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@latest codegen\n```\n\n### Vendor Navigation\n\nThe block includes a `products/page.tsx` that overrides the default product list page, adding Import and Export buttons in the header. The buttons open drawer routes at `/products/import` and `/products/export`.",
       "files": [
         {
           "path": "product-import-export/workflows/steps/get-seller-products.ts",
@@ -697,7 +697,7 @@
       "description": "Admin approval system powered by the Custom Fields module. Admins can list, review, accept or reject entity requests.",
       "dependencies": [],
       "registryDependencies": [],
-      "docs": "## Prerequisites\n\nThis block requires the **Custom Fields module** (`@mercurjs/core-plugin/modules/custom-fields`). Make sure it is registered in your `medusa-config.ts`.\n\n## Configuration\n\nAdd request-related custom fields to the entities you want to support approval workflows for. Product already has a built-in `status` field, so you only need to configure custom fields for other entities.\n\nAdd these fields to your Custom Fields module options in `medusa-config.ts`:\n\n```ts\n{\n  resolve: \"@mercurjs/core-plugin/modules/custom-fields\",\n  options: {\n    customFields: {\n      ProductCollection: {\n        request_status: {\n          type: \"enum\",\n          enum: [\"draft\", \"pending\", \"accepted\", \"rejected\"],\n          defaultValue: \"draft\",\n        },\n        submitter_id: { type: \"string\", nullable: true },\n        reviewer_id: { type: \"string\", nullable: true },\n        reviewer_note: { type: \"text\", nullable: true },\n      },\n      // Add the same fields to other entities as needed:\n      // ProductCategory, ProductType, ProductTag\n    },\n  },\n}\n```\n\n## Middlewares\n\nAdd the request middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { adminRequestsMiddlewares } from \"./admin/requests/middlewares\";\nimport { vendorProductCollectionRequestsMiddlewares } from \"./vendor/requests/product-collections/middlewares\";\nimport { vendorProductCategoryRequestsMiddlewares } from \"./vendor/requests/product-categories/middlewares\";\nimport { vendorProductTypeRequestsMiddlewares } from \"./vendor/requests/product-types/middlewares\";\nimport { vendorProductTagRequestsMiddlewares } from \"./vendor/requests/product-tags/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [\n    ...adminRequestsMiddlewares,\n    ...vendorProductCollectionRequestsMiddlewares,\n    ...vendorProductCategoryRequestsMiddlewares,\n    ...vendorProductTypeRequestsMiddlewares,\n    ...vendorProductTagRequestsMiddlewares,\n  ],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter updating the custom fields configuration, run migrations:\n\n```bash\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@latest codegen\n```\n\n## API Endpoints\n\n### Admin\n\n- `GET /admin/requests/:type` — List entities with request custom fields (filterable by `request_status`, `submitter_id`)\n- `GET /admin/requests/:type/:id` — Retrieve entity with request custom fields\n- `POST /admin/requests/:type/:id/accept` — Accept a request\n- `POST /admin/requests/:type/:id/reject` — Reject a request\n\nSupported `:type` values: `product_collection`, `product_category`, `product_type`, `product_tag`\n\n### Vendor\n\n- `GET /vendor/requests/product-collections` — List vendor's collection requests\n- `POST /vendor/requests/product-collections` — Create a collection request\n- `GET /vendor/requests/product-categories` — List vendor's category requests\n- `POST /vendor/requests/product-categories` — Create a category request\n- `GET /vendor/requests/product-types` — List vendor's type requests\n- `POST /vendor/requests/product-types` — Create a type request\n- `GET /vendor/requests/product-tags` — List vendor's tag requests\n- `POST /vendor/requests/product-tags` — Create a tag request",
+      "docs": "## Prerequisites\n\nThis block requires the **Custom Fields module** (`@mercurjs/core-plugin/modules/custom-fields`). Make sure it is registered in your `medusa-config.ts`.\n\n## Configuration\n\nAdd request-related custom fields to the entities you want to support approval workflows for. Product already has a built-in `status` field, so you only need to configure custom fields for other entities.\n\nAdd these fields to your Custom Fields module options in `medusa-config.ts`:\n\n```ts\n{\n  resolve: \"@mercurjs/core-plugin/modules/custom-fields\",\n  options: {\n    customFields: {\n      ProductCollection: {\n        request_status: {\n          type: \"enum\",\n          enum: [\"draft\", \"pending\", \"accepted\", \"rejected\"],\n          defaultValue: \"draft\",\n        },\n        submitter_id: { type: \"string\", nullable: true },\n        reviewer_id: { type: \"string\", nullable: true },\n        reviewer_note: { type: \"text\", nullable: true },\n      },\n      // Add the same fields to other entities as needed:\n      // ProductCategory, ProductType, ProductTag\n    },\n  },\n}\n```\n\n## Middlewares\n\nAdd the request middlewares to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { adminRequestsMiddlewares } from \"./admin/requests/middlewares\";\nimport { vendorProductCollectionRequestsMiddlewares } from \"./vendor/requests/product-collections/middlewares\";\nimport { vendorProductCategoryRequestsMiddlewares } from \"./vendor/requests/product-categories/middlewares\";\nimport { vendorProductTypeRequestsMiddlewares } from \"./vendor/requests/product-types/middlewares\";\nimport { vendorProductTagRequestsMiddlewares } from \"./vendor/requests/product-tags/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [\n    ...adminRequestsMiddlewares,\n    ...vendorProductCollectionRequestsMiddlewares,\n    ...vendorProductCategoryRequestsMiddlewares,\n    ...vendorProductTypeRequestsMiddlewares,\n    ...vendorProductTagRequestsMiddlewares,\n  ],\n});\n```\n\nIf you already have a `middlewares.ts` file, merge the middleware imports and spread them into your existing `routes` array.\n\n## Database Migrations\n\nAfter updating the custom fields configuration, run migrations:\n\n```bash\nnpx medusa db:migrate\n```\n\n## Run codegen\n\nAfter installing the block, regenerate SDK types:\n\n```bash\nnpx @mercurjs/cli@latest codegen\n```\n\n## API Endpoints\n\n### Admin\n\n- `GET /admin/requests/:type` \u2014 List entities with request custom fields (filterable by `request_status`, `submitter_id`)\n- `GET /admin/requests/:type/:id` \u2014 Retrieve entity with request custom fields\n- `POST /admin/requests/:type/:id/accept` \u2014 Accept a request\n- `POST /admin/requests/:type/:id/reject` \u2014 Reject a request\n\nSupported `:type` values: `product_collection`, `product_category`, `product_type`, `product_tag`\n\n### Vendor\n\n- `GET /vendor/requests/product-collections` \u2014 List vendor's collection requests\n- `POST /vendor/requests/product-collections` \u2014 Create a collection request\n- `GET /vendor/requests/product-categories` \u2014 List vendor's category requests\n- `POST /vendor/requests/product-categories` \u2014 Create a category request\n- `GET /vendor/requests/product-types` \u2014 List vendor's type requests\n- `POST /vendor/requests/product-types` \u2014 Create a type request\n- `GET /vendor/requests/product-tags` \u2014 List vendor's tag requests\n- `POST /vendor/requests/product-tags` \u2014 Create a tag request",
       "files": [
         {
           "path": "requests/types/index.ts",
@@ -978,6 +978,84 @@
       "categories": [
         "api",
         "vendor"
+      ]
+    },
+    {
+      "name": "meilisearch",
+      "description": "Opt-in Meilisearch search block for multi-vendor marketplaces with real-time seller-aware indexing, seller lifecycle sync, and injection-safe smart filtering.",
+      "dependencies": [
+        "meilisearch"
+      ],
+      "registryDependencies": [],
+      "docs": "## Prerequisites\n\nInstall and run a Meilisearch instance:\n\n```bash\ndocker run -d -p 7700:7700 getmeili/meilisearch\n```\n\n## Environment Variables\n\nAdd to your `.env` file:\n\n```env\nMEILISEARCH_HOST=http://localhost:7700\nMEILISEARCH_API_KEY=your_master_key_here\n```\n\n## Module Configuration\n\nAdd to your `medusa-config.ts`:\n\n```ts\nexport default defineConfig({\n  modules: [\n    {\n      resolve: './modules/meilisearch',\n      options: {\n        host: process.env.MEILISEARCH_HOST,\n        apiKey: process.env.MEILISEARCH_API_KEY,\n      },\n    },\n  ],\n})\n```\n\n## Middlewares\n\nAdd to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { allMeilisearchMiddlewares } from \"./meilisearch/api/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...allMeilisearchMiddlewares],\n});\n```\n\n## Initial Sync\n\nAfter starting the server, trigger a full re-index:\n\n```bash\ncurl -X POST http://localhost:9000/admin/meilisearch/sync \\\n  -H \"Authorization: Bearer YOUR_ADMIN_TOKEN\"\n```\n\n## Search\n\n```bash\ncurl -X POST http://localhost:9000/store/meilisearch/products \\\n  -H \"Content-Type: application/json\" \\\n  -H \"x-publishable-api-key: YOUR_KEY\" \\\n  -d '{\"query\": \"shoes\", \"filters\": {\"price_min\": 50, \"price_max\": 200}}'\n```",
+      "files": [
+        {
+          "path": "meilisearch/modules/meilisearch/index.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/modules/meilisearch/service.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/modules/meilisearch/types.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/subscribers/utils/meilisearch-product.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/subscribers/meilisearch-product-events-bridge.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/subscribers/meilisearch-products-changed.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/subscribers/meilisearch-products-deleted.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/subscribers/meilisearch-seller-suspended.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/subscribers/meilisearch-seller-unsuspended.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/workflows/meilisearch/steps/sync-meilisearch-products.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/workflows/meilisearch/workflows/sync-meilisearch.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/api/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/api/admin/meilisearch/route.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/api/store/meilisearch/products/search/validators.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/api/store/meilisearch/products/search/middlewares.ts",
+          "type": "registry:api"
+        },
+        {
+          "path": "meilisearch/api/store/meilisearch/products/search/route.ts",
+          "type": "registry:api"
+        }
+      ],
+      "categories": [
+        "search"
       ]
     }
   ]

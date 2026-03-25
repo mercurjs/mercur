@@ -26,6 +26,7 @@
         "@medusajs/medusa": "^2.13.4",
         "@mercurjs/core-plugin": "*",
         "jsonwebtoken": "^9.0.2",
+        "meilisearch": "^0.47.0",
         "scrypt-kdf": "^2.0.1",
       },
       "devDependencies": {
@@ -319,6 +320,7 @@
         "@tanstack/react-table": "8.20.5",
         "algoliasearch": "^5.40.0",
         "jsonwebtoken": "9.0.2",
+        "meilisearch": "^0.47.0",
         "react-hook-form": "7.49.1",
         "react-i18next": "13.5.0",
         "react-jwt": "2.0.0",
@@ -329,12 +331,16 @@
         "@medusajs/cli": "^2.13.4",
         "@mercurjs/cli": "workspace:*",
         "@mercurjs/types": "workspace:*",
+        "@swc/core": "^1.7.28",
+        "@swc/jest": "^0.2.36",
+        "@types/jest": "^29.5.13",
         "@types/jsonwebtoken": "^9.0.9",
         "@types/multer": "^2.0.0",
         "@types/node": "^22",
         "@types/react": "^18.2.66",
         "@types/react-dom": "^18.2.22",
         "@types/unzipper": "^0.10.10",
+        "jest": "^30.2.0",
       },
     },
     "packages/types": {
@@ -2692,6 +2698,8 @@
     "meant": ["meant@1.0.3", "", {}, "sha512-88ZRGcNxAq4EH38cQ4D85PM57pikCwS8Z99EWHODxN7KBY+UuPiqzRTtZzS8KTXO/ywSWbdjjJST2Hly/EQxLw=="],
 
     "media-typer": ["media-typer@0.3.0", "", {}, "sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ=="],
+
+    "meilisearch": ["meilisearch@0.47.0", "", {}, "sha512-Qq+hatuDJ0z5c+szVb0O/uI7Z2jfMUjj8eNB6xPyKp9Og7GVnrOZJRVoDPqGoVY484Iwh+F61y2UreIetda00w=="],
 
     "merge-descriptors": ["merge-descriptors@1.0.3", "", {}, "sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ=="],
 
