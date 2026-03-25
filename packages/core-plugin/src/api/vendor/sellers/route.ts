@@ -6,10 +6,7 @@ import { ContainerRegistrationKeys, FeatureFlag, MedusaError } from "@medusajs/f
 import { HttpTypes } from "@mercurjs/types"
 
 import { VendorCreateSellerAccountType } from "./validators"
-import {
-  createSellerAccountWorkflow,
-  updateSellerAddressWorkflow,
-} from "../../../workflows/seller"
+import { createSellerAccountWorkflow } from "../../../workflows/seller"
 import SellerRegistrationFeatureFlag from "../../../feature-flags/seller-registration"
 
 export const GET = async (
@@ -61,24 +58,17 @@ export const POST = async (
     )
   }
 
-  const { address, ...sellerData } = req.validatedBody
+  const { address, professional_details, ...sellerData } = req.validatedBody
 
   const { result: seller } = await createSellerAccountWorkflow(req.scope).run({
     input: {
       auth_identity_id: req.auth_context.auth_identity_id,
       seller: sellerData,
       member: { email: sellerData.email },
+      address,
+      professional_details,
     },
   })
-
-  if (address) {
-    await updateSellerAddressWorkflow(req.scope).run({
-      input: {
-        seller_id: seller.id,
-        data: address,
-      },
-    })
-  }
 
   res.status(201).json({ seller })
 }

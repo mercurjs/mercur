@@ -20,7 +20,7 @@ import * as z from "zod";
 import { Form } from "@components/common/form";
 import { SwitchBox } from "@components/common/switch-box/switch-box";
 import { CountrySelect } from "@components/inputs/country-select/country-select";
-import { useLogout } from "@hooks/api";
+import { useLogout, useCreateSellerAccount } from "@hooks/api";
 import { currencies } from "@lib/data/currencies";
 import { queryClient } from "@lib/query-client";
 
@@ -106,9 +106,34 @@ export const Onboarding = () => {
     setStep(2);
   });
 
-  const handleDetailsSubmit = detailsForm.handleSubmit(async (_data) => {
-    // TODO: Submit onboarding data
-    setStep(3);
+  const { mutateAsync: createSellerAccount, isPending: isCreating } =
+    useCreateSellerAccount();
+
+  const handleDetailsSubmit = detailsForm.handleSubmit(async (details) => {
+    const storeData = storeForm.getValues();
+    const {
+      is_professional,
+      corporate_name,
+      registration_number,
+      tax_id,
+      ...addressFields
+    } = details;
+
+    try {
+      await createSellerAccount({
+        name: storeData.name,
+        email,
+        currency_code: storeData.currency_code,
+        description: storeData.description || undefined,
+        address: addressFields,
+        professional_details: is_professional
+          ? { corporate_name, registration_number, tax_id }
+          : undefined,
+      });
+      setStep(3);
+    } catch (error: any) {
+      // Stay on step 2 — error is visible via mutation state
+    }
   });
 
   return (
@@ -188,6 +213,7 @@ export const Onboarding = () => {
                     <DetailsStep
                       form={detailsForm}
                       onSubmit={handleDetailsSubmit}
+                      isPending={isCreating}
                     />
                   </motion.div>
                 )}
@@ -406,9 +432,11 @@ const StoreStep = ({
 const DetailsStep = ({
   form,
   onSubmit,
+  isPending,
 }: {
   form: ReturnType<typeof useForm<DetailsSetupFormValues>>;
   onSubmit: () => void;
+  isPending?: boolean;
 }) => {
   const { t } = useTranslation();
 
@@ -730,7 +758,7 @@ const DetailsStep = ({
             custom={6}
           >
             <div />
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" isLoading={isPending}>
               {t("onboarding.detailsSetup.completeSetup")}
             </Button>
           </motion.div>

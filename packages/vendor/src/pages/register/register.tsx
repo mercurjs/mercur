@@ -1,4 +1,4 @@
-import { Children, ReactNode } from "react"
+import { Children, ReactNode, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Heading, Hint, Input, Text } from "@medusajs/ui"
@@ -10,6 +10,7 @@ import * as z from "zod"
 
 import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
+import { useSignUpWithEmailPass, useSignInWithEmailPass } from "@hooks/api"
 
 import { RegisterSchema } from "./register-schema"
 
@@ -33,6 +34,7 @@ const RegisterHeader = () => {
 const RegisterForm = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [serverError, setServerError] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -43,14 +45,32 @@ const RegisterForm = () => {
     },
   })
 
-  const handleSubmit = form.handleSubmit(async ({ email }) => {
-    navigate("/onboarding", { state: { email } })
+  const { mutateAsync: signUp, isPending: isSigningUp } =
+    useSignUpWithEmailPass()
+  const { mutateAsync: signIn, isPending: isSigningIn } =
+    useSignInWithEmailPass()
+
+  const isPending = isSigningUp || isSigningIn
+
+  const handleSubmit = form.handleSubmit(async ({ email, password }) => {
+    setServerError(null)
+    try {
+      await signUp({ email, password })
+      await signIn({ email, password })
+      navigate("/onboarding", { state: { email } })
+    } catch (error: any) {
+      setServerError(
+        error?.message || t("register.error")
+      )
+    }
   })
 
   const validationError =
     form.formState.errors.email?.message ||
     form.formState.errors.password?.message ||
     form.formState.errors.confirmPassword?.message
+
+  const displayError = validationError || serverError
 
   return (
     <div className="flex w-full flex-col items-center">
@@ -110,15 +130,15 @@ const RegisterForm = () => {
                 </Form.Item>
               )}
             />
-            {validationError && (
+            {displayError && (
               <div className="mt-6 text-center">
                 <Hint className="inline-flex" variant={"error"}>
-                  {validationError}
+                  {displayError}
                 </Hint>
               </div>
             )}
           </div>
-          <Button className="w-full" type="submit">
+          <Button className="w-full" type="submit" isLoading={isPending}>
             {t("actions.continue")}
           </Button>
         </form>

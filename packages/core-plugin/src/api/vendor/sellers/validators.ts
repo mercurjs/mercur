@@ -33,6 +33,13 @@ export const VendorCreateSellerAccount = z.object({
       phone: z.string().nullable().optional(),
     })
     .optional(),
+  professional_details: z
+    .object({
+      corporate_name: z.string().optional(),
+      registration_number: z.string().nullable().optional(),
+      tax_id: z.string().nullable().optional(),
+    })
+    .optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
 })
 
