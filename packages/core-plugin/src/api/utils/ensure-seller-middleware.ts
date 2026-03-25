@@ -8,7 +8,6 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
-
 const SELLER_ID_HEADER = "x-seller-id"
 
 export async function ensureSellerMiddleware(
@@ -33,7 +32,7 @@ export async function ensureSellerMiddleware(
   const { data: sellerMembers } = await query.graph(
     {
       entity: "seller_member",
-      fields: ["id", "seller_id", "member_id"],
+      fields: ["id", "seller_id", "member_id", "role_id"],
       filters: {
         seller_id: sellerId,
         member_id: memberId,
@@ -51,9 +50,18 @@ export async function ensureSellerMiddleware(
     )
   }
 
+  const sellerMember = sellerMembers[0]
+
   req.seller_context = {
     seller_id: sellerId,
-    seller_member: sellerMembers[0],
+    seller_member: sellerMember,
+  }
+
+  if (sellerMember.role_id) {
+    req.auth_context.app_metadata = {
+      ...req.auth_context.app_metadata,
+      roles: [sellerMember.role_id],
+    }
   }
 
   next()

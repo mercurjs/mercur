@@ -1,8 +1,13 @@
+export enum Entities {
+  seller = "seller",
+  seller_member = "seller_member",
+}
+
 export const listVendorSellersQueryConfig = {
   defaults: [
     "id",
     "seller.*",
-    "role.*",
+    "rbac_role.*",
   ],
   defaultLimit: 50,
   isList: true,
@@ -34,8 +39,9 @@ export const retrieveVendorSellerQueryConfig = {
 export const listVendorMembersQueryConfig = {
   defaults: [
     "id",
+    "is_owner",
     "member.*",
-    "role.*",
+    "rbac_role.*",
   ],
   defaultLimit: 50,
   isList: true,

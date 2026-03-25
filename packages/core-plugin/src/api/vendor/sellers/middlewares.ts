@@ -2,9 +2,11 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/medusa"
 
 import * as QueryConfig from "./query-config"
+import { Entities } from "./query-config"
 import {
   VendorCreateSellerAccount,
   VendorGetSellerParams,
@@ -47,6 +49,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: Entities.seller,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   // POST /vendor/sellers/:id — update seller
   {
@@ -58,6 +66,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: Entities.seller,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   // POST /vendor/sellers/:id/address — upsert seller address
@@ -71,6 +85,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: Entities.seller,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   // POST /vendor/sellers/:id/payment-details — upsert seller payment details
   {
@@ -82,6 +102,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: Entities.seller,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   // POST /vendor/sellers/:id/professional-details — upsert seller professional details
@@ -95,6 +121,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: Entities.seller,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   // DELETE /vendor/sellers/:id/professional-details — remove professional status
   {
@@ -105,6 +137,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: Entities.seller,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   // GET /vendor/sellers/:id/members — list members
@@ -117,6 +155,16 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.listVendorMembersQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: Entities.seller,
+        operation: PolicyOperation.read,
+      },
+      {
+        resource: Entities.seller_member,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   // POST /vendor/sellers/:id/members — invite member
   {
@@ -124,6 +172,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/sellers/:id/members",
     middlewares: [
       validateAndTransformBody(VendorInviteMember),
+    ],
+    policies: [
+      {
+        resource: Entities.seller_member,
+        operation: PolicyOperation.create,
+      },
     ],
   },
   // POST /vendor/sellers/:id/members/:member_id — update member role
@@ -133,11 +187,23 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorUpdateMemberRole),
     ],
+    policies: [
+      {
+        resource: Entities.seller_member,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   // DELETE /vendor/sellers/:id/members/:member_id — remove member
   {
     method: ["DELETE"],
     matcher: "/vendor/sellers/:id/members/:member_id",
     middlewares: [],
+    policies: [
+      {
+        resource: Entities.seller_member,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 ]
