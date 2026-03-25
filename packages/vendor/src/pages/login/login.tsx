@@ -100,7 +100,7 @@ const LoginForm = () => {
           onSubmit={handleSubmit}
           className="flex w-full flex-col gap-y-6"
         >
-          <div className="flex flex-col gap-y-1">
+          <div className="flex flex-col gap-y-2">
             <Form.Field
               control={form.control}
               name="email"
@@ -125,7 +125,6 @@ const LoginForm = () => {
               render={({ field }) => {
                 return (
                   <Form.Item>
-                    <Form.Label>{}</Form.Label>
                     <Form.Control>
                       <Input
                         type="password"
@@ -139,24 +138,23 @@ const LoginForm = () => {
                 )
               }}
             />
+            {validationError && (
+              <div className="mt-6 text-center">
+                <Hint className="inline-flex" variant={"error"}>
+                  {validationError}
+                </Hint>
+              </div>
+            )}
+            {serverError && (
+              <Alert
+                className="bg-ui-bg-base items-center p-2"
+                dismissible
+                variant="error"
+              >
+                {serverError}
+              </Alert>
+            )}
           </div>
-          {validationError && (
-            <div className="text-center">
-              <Hint className="inline-flex" variant={"error"}>
-                {validationError}
-              </Hint>
-            </div>
-          )}
-
-          {serverError && (
-            <Alert
-              className="bg-ui-bg-base items-center p-2"
-              dismissible
-              variant="error"
-            >
-              {serverError}
-            </Alert>
-          )}
           <Button className="w-full" type="submit" isLoading={isPending}>
             Sign In
           </Button>

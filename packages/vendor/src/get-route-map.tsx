@@ -1323,6 +1323,10 @@ export function getRouteMap({
                 return { Component: RegisterPage };
               },
             },
+            {
+              path: "/onboarding",
+              lazy: () => import("./pages/onboarding"),
+            },
             ...customPublicRoutes,
             {
               path: "*",
