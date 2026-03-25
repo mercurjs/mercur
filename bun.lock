@@ -82,7 +82,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.0.0",
+      "version": "2.1.0-canary.0",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -142,7 +142,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.0.0",
+      "version": "2.1.0-canary.0",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -197,7 +197,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.0.0",
+      "version": "2.1.0-canary.0",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -214,7 +214,7 @@
     },
     "packages/core-plugin": {
       "name": "@mercurjs/core-plugin",
-      "version": "2.0.0",
+      "version": "2.1.0-canary.0",
       "devDependencies": {
         "@medusajs/cli": "^2.13.4",
         "@medusajs/core-flows": "^2.13.4",
@@ -256,7 +256,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.0.0",
+      "version": "2.1.0-canary.0",
       "dependencies": {
         "@babel/parser": "7.25.6",
         "@babel/traverse": "7.25.6",
@@ -273,7 +273,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.0.0",
+      "version": "2.1.0-canary.0",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -327,13 +327,13 @@
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.0.0",
+      "version": "2.1.0-canary.0",
       "dependencies": {
         "stripe": "^15.5.0",
       },
       "devDependencies": {
         "@medusajs/framework": "2.13.4",
-        "@mercurjs/types": "2.0.0-canary.101",
+        "@mercurjs/types": "2.0.0",
         "tsup": "^8.5.0",
       },
       "peerDependencies": {
@@ -380,7 +380,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.0.0",
+      "version": "2.1.0-canary.0",
       "dependencies": {
         "@medusajs/types": "2.13.4",
       },
@@ -390,7 +390,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.0.0",
+      "version": "2.1.0-canary.0",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -3618,6 +3618,8 @@
 
     "@mercurjs/integration-tests/jsonwebtoken": ["jsonwebtoken@9.0.3", "", { "dependencies": { "jws": "^4.0.1", "lodash.includes": "^4.3.0", "lodash.isboolean": "^3.0.3", "lodash.isinteger": "^4.0.4", "lodash.isnumber": "^3.0.3", "lodash.isplainobject": "^4.0.6", "lodash.isstring": "^4.0.1", "lodash.once": "^4.0.0", "ms": "^2.1.1", "semver": "^7.5.4" } }, "sha512-MT/xP0CrubFRNLNKvxJ2BYfy53Zkm++5bX9dtuPbqAeQpTVe0MQTFhao8+Cp//EmJp244xt6Drw/GVEGCUj40g=="],
 
+    "@mercurjs/payout-stripe-connect/@mercurjs/types": ["@mercurjs/types@2.0.0", "", { "dependencies": { "@medusajs/types": "2.13.3" } }, "sha512-IB2c6DpJ9qlF5XEE9ec3id1VuRgfVO9dlQ7ufI7PkAbwN6y1s8VPs5vHE/RLKG+wLI7j8KifRgrYs4eFr6i0tA=="],
+
     "@mercurjs/registry/@types/node": ["@types/node@22.19.15", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg=="],
 
     "@mercurjs/vendor/@mercurjs/client": ["@mercurjs/client@2.0.0-canary.97", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-K/cFfsuJas2JC7d4aM5MJuYR9O3fgDP1HaNfj25FmAjWvuHpRpDIQTpOBCYuoURftrKOTPzopNvP7zxwue/IXg=="],
@@ -4253,6 +4255,8 @@
     "@mercurjs/integration-tests/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 
     "@mercurjs/integration-tests/jsonwebtoken/jws": ["jws@4.0.1", "", { "dependencies": { "jwa": "^2.0.1", "safe-buffer": "^5.0.1" } }, "sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA=="],
+
+    "@mercurjs/payout-stripe-connect/@mercurjs/types/@medusajs/types": ["@medusajs/types@2.13.3", "", { "dependencies": { "bignumber.js": "^9.1.2" }, "peerDependencies": { "ioredis": "^5.4.1", "vite": "^5.4.21" }, "optionalPeers": ["ioredis", "vite"] }, "sha512-MWd4NvpROJ+CvsvTuPxF9RsGKom/KMftYeh19UhB+w+K8OGWTNwfHLLzOvW3sAHhAjTzt+IDxLrxbqGcAcgw/w=="],
 
     "@mercurjs/registry/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 
