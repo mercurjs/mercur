@@ -37,10 +37,6 @@ module.exports = defineConfig({
         disable: true
       }
     },
-    {
-      resolve: '@mercurjs/core-plugin/modules/seller',
-      dependencies: [Modules.EVENT_BUS],
-    },
   ],
   plugins: [
     {
