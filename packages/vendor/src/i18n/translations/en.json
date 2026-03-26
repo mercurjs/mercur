@@ -62,7 +62,15 @@
     "unsavedChangesDescription": "You have unsaved changes that will be lost if you exit this form.",
     "includesTaxTooltip": "Prices in this column are tax inclusive.",
     "excludesTaxTooltip": "Prices in this column are tax exclusive.",
-    "noMoreData": "No more data"
+    "noMoreData": "No more data",
+    "searchOptions": "Search options...",
+    "noOptionsFound": "No options found",
+    "noOptionsAvailable": "No options available",
+    "selectValues": "Select values...",
+    "true": "True",
+    "false": "False",
+    "decrement": "Decrement",
+    "increment": "Increment"
   },
   "json": {
     "header": "JSON",
@@ -99,8 +107,13 @@
     }
   },
   "validation": {
-    "mustBeInt": "The value must be a whole number.",
-    "mustBePositive": "The value must be a positive number."
+    "rules": {
+      "lower": "At least one lowercase letter",
+      "upper": "At least one uppercase letter",
+      "12chars": "At least 12 characters",
+      "digit": "At least one digit",
+      "specialChar": "At least one special character"
+    }
   },
   "actions": {
     "save": "Save",
@@ -420,8 +433,8 @@
     "domain": "Products",
     "bulkDelete": {
       "title": "Delete Products",
-      "description": "You are about to delete {{count}} product(s). This action cannot be undone.",
-      "success": "Successfully deleted {{count}} product(s).",
+      "description": "You are about to delete {{count}} products from catalog. This action cannot be undone.",
+      "success": "Successfully deleted {{count}} products.",
       "error": "Failed to delete products."
     },
     "list": {
@@ -430,7 +443,23 @@
     "edit": {
       "header": "Edit Product",
       "description": "Edit the product details.",
-      "successToast": "Product {{title}} was successfully updated."
+      "successToast": "Product {{title}} was successfully updated.",
+      "attributes": {
+        "addAttribute": "Add Attribute",
+        "editHeader": "Edit Attribute",
+        "required": "Required attribute",
+        "valuesRequired": "At least one value is required",
+        "valuesPlaceholder": "Select or enter value",
+        "useForVariations": "Use for Variations",
+        "useForVariationsDescription": "Convert this attribute to a product option that generates variants.",
+        "conversionWarning": "Converting this attribute to a variation will affect existing product variants. This action may delete or modify variants.",
+        "editCustomValueTitle": "Custom Value",
+        "editCustomValueDescription": "Replacing this with a custom value will affect how your product appears in search and filters. Custom values are not searchable or filterable."
+      },
+      "informationalAttributes": {
+        "header": "Product Information",
+        "description": "Informational attributes that describe this product."
+      }
     },
     "create": {
       "title": "Create Product",
@@ -440,12 +469,17 @@
         "details": "Details",
         "organize": "Organize",
         "variants": "Variants",
-        "inventory": "Inventory kits"
+        "inventory": "Inventory kits",
+        "attributes": "Attributes"
       },
       "errors": {
         "variants": "Please select at least one variant.",
         "options": "Please create at least one option.",
-        "uniqueSku": "SKU must be unique."
+        "uniqueSku": "SKU must be unique across variants",
+        "primaryCategoryRequired": "Primary category is required",
+        "titleRequired": "Title is required",
+        "handleInvalidFormat": "Handle must contain only lowercase letters, numbers, and hyphens",
+        "handleMustContainLetter": "Handle must contain at least one letter"
       },
       "inventory": {
         "heading": "Inventory kits",
@@ -464,17 +498,26 @@
           "placeholder": "Small, Medium, Large"
         },
         "productVariants": {
-          "label": "Product variants",
-          "hint": "This ranking will affect the variants' order in your storefront.",
-          "alert": "Add options to create variants.",
-          "tip": "Variants left unchecked won't be created. You can always create and edit variants afterwards but this list fits the variations in your product options."
+          "searchPlaceholder": "Search variants...",
+          "media": "Media",
+          "tip": "Only variants with prices and stock will be visible to customers."
         },
         "productOptions": {
           "label": "Product options",
           "hint": "Define the options for the product, e.g. color, size, etc."
         }
       },
-      "successToast": "Product {{title}} was successfully created."
+      "successToast": "Product {{title}} was successfully created.",
+      "attributes": {
+        "description": "Add attributes to your product. Select from admin-defined attributes or create your own.",
+        "requiredHeading": "Required Attributes",
+        "requiredDescription": "These attributes are required for products in this category.",
+        "buttonLabel": "Attribute",
+        "learnMore": {
+          "label": "Learn more about attributes",
+          "content": "Attributes help customers find and filter your products. Admin-defined attributes appear in search results."
+        }
+      }
     },
     "export": {
       "header": "Export Product List",
@@ -514,12 +557,6 @@
       }
     },
     "deleteWarning": "You are about to delete the product {{title}}. This action cannot be undone.",
-    "bulkDelete": {
-      "title": "Delete Products",
-      "description": "You are about to delete {{count}} products from catalog. This action cannot be undone.",
-      "success": "Successfully deleted {{count}} products.",
-      "error": "Failed to delete products."
-    },
     "variants": {
       "header": "Variants",
       "empty": {
@@ -539,7 +576,7 @@
       "label": "Media",
       "editHint": "Add media to the product to showcase it in your storefront.",
       "manageImageVariants": "Manage associated variants",
-      "makeThumbnail": "Make thumbnail",
+      "makeThumbnail": "Make Thumbnail",
       "uploadImagesLabel": "Upload images",
       "uploadImagesHint": "Drag and drop images here or click to upload.",
       "invalidFileType": "'{{name}}' is not a supported file type. Supported file types are: {{types}}.",
@@ -549,21 +586,24 @@
       "deleteWarning_other": "You are about to delete {{count}} images. This action cannot be undone.",
       "deleteWarningWithThumbnail_one": "You are about to delete {{count}} image including the thumbnail. This action cannot be undone.",
       "deleteWarningWithThumbnail_other": "You are about to delete {{count}} images including the thumbnail. This action cannot be undone.",
-      "thumbnailTooltip": "Thumbnail",
+      "thumbnailTooltip": "This image is the thumbnail",
       "galleryLabel": "Gallery",
       "downloadImageLabel": "Download current image",
       "deleteImageLabel": "Delete current image",
       "emptyState": {
-        "header": "No media yet",
-        "description": "Add media to showcase it in your storefront.",
-        "action": "Add media"
+        "header": "No media",
+        "description": "No images assigned to this variant.",
+        "action": "Add images"
       },
       "successToast": "Media was successfully updated.",
       "variantImages": "Variant images",
       "showAvailableImages": "Show available images",
       "availableImages": "Select images",
       "selectToAdd": "Add product images to the variant. To add new images, add them to the product first.",
-      "removeSelected": "Remove Selected"
+      "removeSelected": "Remove Selected",
+      "selectImages": "Select Images",
+      "selectImagesHint": "Click images to add them to this variant.",
+      "editLabel": "Edit"
     },
     "variantMedia": {
       "label": "Variant Media",
@@ -680,6 +720,36 @@
       },
       "hs_code": {
         "label": "HS code"
+      },
+      "attributes": {
+        "add": {
+          "title": {
+            "label": "Title",
+            "placeholder": "Search or type attribute name...",
+            "required": "Attribute title is required"
+          },
+          "values": {
+            "label": "Values",
+            "placeholder": "Type values separated by commas",
+            "required": "At least one value is required"
+          }
+        },
+        "useForVariants": {
+          "label": "Use for Variations",
+          "description": "Enable this to create product variants based on this attribute.",
+          "editDescription": "Changing this will affect existing product variants."
+        },
+        "validation": {
+          "required": "{{name}} is required",
+          "requiredSelect": "Please select a value",
+          "requiredEnter": "Please enter a value",
+          "requiredSelectMultiple": "Please select at least one value"
+        },
+        "enterValuePlaceholder": "Enter value",
+        "selectValuePlaceholder": "Select a value"
+      },
+      "secondaryCategories": {
+        "label": "Secondary Categories"
       }
     },
     "variant": {
@@ -735,7 +805,11 @@
         "header": "Create Option",
         "successToast": "Option {{title}} was successfully created."
       },
-      "deleteWarning": "You are about to delete the product option: {{title}}. This action cannot be undone."
+      "deleteWarning": "Are you sure you want to delete the option \"{{title}}\"? This will remove all associated variants.",
+      "variations": {
+        "label": "Variations",
+        "description": "Attributes used to create product variants."
+      }
     },
     "organization": {
       "header": "Organize",
@@ -779,6 +853,12 @@
           "header": "Failed to delete product"
         }
       }
+    },
+    "bulkEdit": {
+      "title": "Bulk Edit Products",
+      "description": "Edit multiple products at once.",
+      "noChanges": "No changes to save.",
+      "success": "Products updated successfully."
     }
   },
   "collections": {
