@@ -90,6 +90,11 @@ export function getRouteMap({
                           };
                         },
                       },
+                      {
+                        path: "bulk-edit",
+                        lazy: () =>
+                          import("./pages/products/bulk-edit"),
+                      },
                     ],
                   },
                   {
@@ -143,9 +148,14 @@ export function getRouteMap({
                               import("./pages/products/[id]/attributes"),
                           },
                           {
-                            path: "additional-attributes",
+                            path: "attributes/add",
                             lazy: () =>
-                              import("./pages/products/[id]/additional-attributes"),
+                              import("./pages/products/[id]/attributes/add"),
+                          },
+                          {
+                            path: "informational-attributes/:attribute_id/edit",
+                            lazy: () =>
+                              import("./pages/products/[id]/informational-attributes/[attribute_id]/edit"),
                           },
                           {
                             path: "metadata",
