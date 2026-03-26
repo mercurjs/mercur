@@ -1,7 +1,4 @@
-import {
-  deleteProductsWorkflow,
-  updateProductsWorkflow,
-} from "@medusajs/core-flows"
+import { deleteProductsWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -14,6 +11,8 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { validateSellerProduct } from "../helpers"
 import { VendorUpdateProductType } from "../validators"
+import { transformProductWithInformationalAttributes } from "../utils/transform-product-attributes"
+import { updateProductWithVariantImagesWorkflow } from "../../../../workflows/product-attribute/workflows/update-product-with-variant-images"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -39,7 +38,11 @@ export const GET = async (
     )
   }
 
-  res.json({ product })
+  const transformedProduct = transformProductWithInformationalAttributes(
+    product as any
+  )
+
+  res.json({ product: transformedProduct })
 }
 
 export const POST = async (
@@ -52,7 +55,9 @@ export const POST = async (
 
   await validateSellerProduct(req.scope, sellerId, req.params.id)
 
-  const { result } = await updateProductsWorkflow(req.scope).run({
+  const { result } = await updateProductWithVariantImagesWorkflow(
+    req.scope
+  ).run({
     input: {
       selector: { id: req.params.id },
       update,
@@ -71,7 +76,11 @@ export const POST = async (
     filters: { id: result[0].id },
   })
 
-  res.json({ product })
+  const transformedProduct = transformProductWithInformationalAttributes(
+    product as any
+  )
+
+  res.json({ product: transformedProduct })
 }
 
 export const DELETE = async (

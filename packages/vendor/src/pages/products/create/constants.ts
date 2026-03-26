@@ -40,18 +40,22 @@ const ProductCreateVariantSchema = z.object({
       })
     )
     .optional(),
+  media: z.array(MediaSchema).optional(),
 })
 
 export type ProductCreateVariantSchema = z.infer<
   typeof ProductCreateVariantSchema
 >
 
-const ProductCreateOptionSchema = z.object({
-  title: z.string(),
-  values: z.array(z.string()).min(1),
+export const ProductCreateOptionSchema = z.object({
+  title: z.string().min(1, i18n.t("products.fields.attributes.add.title.required")),
+  values: z.array(z.string()).min(1, i18n.t("products.fields.attributes.add.values.required")),
+  metadata: z.record(z.unknown()).optional(),
+  useForVariants: z.boolean().optional(),
+  attributeId: z.string().optional(),
 })
 
-export type ProductCreateOptionSchema = z.infer<
+export type ProductCreateOptionSchemaType = z.infer<
   typeof ProductCreateOptionSchema
 >
 
@@ -64,7 +68,8 @@ export const ProductCreateBaseSchema = z.object({
   type_id: z.string().optional(),
   collection_id: z.string().optional(),
   shipping_profile_id: z.string().optional(),
-  categories: z.array(z.string()),
+  categories: z.array(z.string()).min(1, i18n.t("products.create.errors.primaryCategoryRequired")),
+  secondary_categories: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   sales_channels: z
     .array(
@@ -125,12 +130,7 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
   discountable: true,
   tags: [],
   sales_channels: [],
-  options: [
-    {
-      title: "Default option",
-      values: ["Default option value"],
-    },
-  ],
+  options: [],
   variants: decorateVariantsWithDefaultValues([
     {
       title: "Default variant",
@@ -146,6 +146,7 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
   enable_variants: false,
   media: [],
   categories: [],
+  secondary_categories: [],
   collection_id: "",
   shipping_profile_id: "",
   description: "",
