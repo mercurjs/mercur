@@ -113,41 +113,24 @@ export const ProductCreateOrganizationSection = () => {
           }}
         />
       </div>
-      <Form.Field
-        control={form.control}
-        name="categories"
-        render={({ field }) => {
-          return (
-            <Form.Item>
-              <Form.Label>
-                {t("products.fields.categories.label")}
-              </Form.Label>
-              <Form.Control>
-                <CategoryCombobox {...field} />
-              </Form.Control>
-              <Form.ErrorMessage />
-            </Form.Item>
-          );
-        }}
-      />
-      <Form.Field
-        control={form.control}
-        name={"secondary_categories" as any}
-        render={({ field }) => {
-          return (
-            <Form.Item>
-              <Form.Label optional>
-                {t("products.fields.secondaryCategories.label", "Secondary Categories")}
-              </Form.Label>
-              <Form.Control>
-                <CategoryCombobox {...field} />
-              </Form.Control>
-              <Form.ErrorMessage />
-            </Form.Item>
-          );
-        }}
-      />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Form.Field
+          control={form.control}
+          name="categories"
+          render={({ field }) => {
+            return (
+              <Form.Item>
+                <Form.Label optional>
+                  {t("products.fields.categories.label")}
+                </Form.Label>
+                <Form.Control>
+                  <CategoryCombobox {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            );
+          }}
+        />
         <Form.Field
           control={form.control}
           name="tags"
