@@ -140,6 +140,7 @@ export interface UpdateMemberDTO {
 
 export interface SellerMemberDTO {
   id: string
+  seller: SellerDTO
   seller_id: string
   member_id: string
   is_owner: boolean

@@ -10,7 +10,7 @@ import * as z from "zod"
 
 import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
-import { useSignUpWithEmailPass, useSignInWithEmailPass } from "@hooks/api"
+import { useSignUpWithEmailPass } from "@hooks/api"
 
 import { RegisterSchema } from "./register-schema"
 
@@ -45,18 +45,13 @@ const RegisterForm = () => {
     },
   })
 
-  const { mutateAsync: signUp, isPending: isSigningUp } =
+  const { mutateAsync: signUp, isPending } =
     useSignUpWithEmailPass()
-  const { mutateAsync: signIn, isPending: isSigningIn } =
-    useSignInWithEmailPass()
-
-  const isPending = isSigningUp || isSigningIn
 
   const handleSubmit = form.handleSubmit(async ({ email, password }) => {
     setServerError(null)
     try {
       await signUp({ email, password })
-      await signIn({ email, password })
       navigate("/onboarding", { state: { email } })
     } catch (error: any) {
       setServerError(

@@ -79,6 +79,8 @@ medusaIntegrationTestRunner({
         const { token } = registerResponse.data
 
         return {
+          email,
+          password,
           headers: {
             headers: {
               authorization: `Bearer ${token}`,
@@ -96,6 +98,7 @@ medusaIntegrationTestRunner({
             {
               name: "New Vendor",
               email: "newvendor@test.com",
+              member_email: "newvendor-member@test.com",
               currency_code: "usd",
             },
             headers
@@ -119,6 +122,7 @@ medusaIntegrationTestRunner({
             {
               name: "My Awesome Vendor",
               email: "awesomevendor@test.com",
+              member_email: "awesomevendor-member@test.com",
               currency_code: "usd",
             },
             headers
@@ -136,6 +140,7 @@ medusaIntegrationTestRunner({
             {
               name: "Pending Vendor",
               email: "pendingvendor@test.com",
+              member_email: "pendingvendor-member@test.com",
               currency_code: "usd",
             },
             headers
@@ -143,6 +148,49 @@ medusaIntegrationTestRunner({
 
           expect(response.status).toEqual(201)
           expect(response.data.seller.status).toEqual("pending_approval")
+        })
+
+        it("should create an owner member linked to the new seller", async () => {
+          const { email, password, headers } = await createUnregisteredToken()
+
+          const createResponse = await api.post(
+            `/vendor/sellers`,
+            {
+              name: "Member Check Vendor",
+              email: "membercheck@test.com",
+              member_email: "membercheck-member@test.com",
+              currency_code: "usd",
+            },
+            headers
+          )
+
+          expect(createResponse.status).toEqual(201)
+
+          const sellerId = createResponse.data.seller.id
+
+          // Re-authenticate to get a token with actor_id set
+          const authResponse = await api.post(
+            `/auth/member/emailpass`,
+            { email, password }
+          )
+          const authenticatedHeaders = {
+            headers: {
+              authorization: `Bearer ${authResponse.data.token}`,
+              "x-seller-id": sellerId,
+            },
+          }
+
+          const membersResponse = await api.get(
+            `/vendor/sellers/${sellerId}/members`,
+            authenticatedHeaders
+          )
+
+          expect(membersResponse.data.seller_members).toBeDefined()
+          expect(membersResponse.data.seller_members.length).toEqual(1)
+
+          const ownerMember = membersResponse.data.seller_members[0]
+          expect(ownerMember.is_owner).toBe(true)
+          expect(ownerMember.member).toBeDefined()
         })
 
         it("should include optional address during registration", async () => {
@@ -153,6 +201,7 @@ medusaIntegrationTestRunner({
             {
               name: "Address Vendor",
               email: "addressvendor@test.com",
+              member_email: "addressvendor-member@test.com",
               currency_code: "usd",
               address: {
                 first_name: "John",
@@ -177,6 +226,7 @@ medusaIntegrationTestRunner({
               {
                 name: "Duplicate Registration",
                 email: "duplicate@test.com",
+                member_email: "duplicate-member@test.com",
                 currency_code: "usd",
               },
               headersA
@@ -194,6 +244,7 @@ medusaIntegrationTestRunner({
               `/vendor/sellers`,
               {
                 email: "noname@test.com",
+                member_email: "noname-member@test.com",
                 currency_code: "usd",
               },
               headers
@@ -211,6 +262,7 @@ medusaIntegrationTestRunner({
               `/vendor/sellers`,
               {
                 name: "No Email Vendor",
+                member_email: "noemail-member@test.com",
                 currency_code: "usd",
               },
               headers
@@ -229,6 +281,25 @@ medusaIntegrationTestRunner({
               {
                 name: "No Currency Vendor",
                 email: "nocurrency@test.com",
+                member_email: "nocurrency-member@test.com",
+              },
+              headers
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(400)
+        })
+
+        it("should fail for missing member_email", async () => {
+          const { headers } = await createUnregisteredToken()
+
+          const response = await api
+            .post(
+              `/vendor/sellers`,
+              {
+                name: "No Member Email Vendor",
+                email: "nomemberemail@test.com",
+                currency_code: "usd",
               },
               headers
             )
@@ -246,6 +317,7 @@ medusaIntegrationTestRunner({
               {
                 name: "Bad Email Vendor",
                 email: "not-an-email",
+                member_email: "bademail-member@test.com",
                 currency_code: "usd",
               },
               headers
@@ -539,7 +611,7 @@ medusaIntegrationTestRunner({
               } as any,
               headersA
             )
-            .catch(() => {})
+            .catch(() => { })
 
           const after = await api.get(
             `/vendor/sellers/${sellerA.id}`,

@@ -2983,6 +2983,10 @@
     "detailsSetup": {
       "title": "Complete your profile",
       "subtitle": "Add your address and business details",
+      "userEmailTitle": "User email",
+      "userEmailSubtitle": "Your account login and contact email",
+      "userEmail": "Email address",
+      "userEmailHint": "Used as your account login and contact email",
       "addressTitle": "Address",
       "addressSubtitle": "Your business address",
       "professionalTitle": "Business details",

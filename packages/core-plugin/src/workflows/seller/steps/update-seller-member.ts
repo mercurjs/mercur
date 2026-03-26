@@ -26,6 +26,7 @@ export const updateSellerMembersStep = createStep(
     }
 
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
+    // @ts-expect-error
     await service.updateSellerMembers(prev)
   }
 )
