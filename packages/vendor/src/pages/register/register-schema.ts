@@ -4,10 +4,18 @@ import * as z from "zod"
 export const RegisterSchema = z
   .object({
     email: z.string().email(i18n.t("register.validation.emailInvalid")),
-    password: z.string().min(8, i18n.t("register.validation.passwordMinLength")),
+    password: z
+      .string()
+      .min(1)
+      .refine((val) => val.trim().length > 0),
     confirmPassword: z.string().min(1),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: i18n.t("register.passwordMismatch"),
-    path: ["confirmPassword"],
+  .superRefine(({ password, confirmPassword }, ctx) => {
+    if (password !== confirmPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: i18n.t("register.passwordMismatch"),
+        path: ["confirmPassword"],
+      })
+    }
   })

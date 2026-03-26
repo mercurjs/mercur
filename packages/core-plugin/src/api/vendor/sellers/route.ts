@@ -11,7 +11,7 @@ import SellerRegistrationFeatureFlag from "../../../feature-flags/seller-registr
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.VendorSellerMemberListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const memberId = req.auth_context?.actor_id
@@ -58,13 +58,13 @@ export const POST = async (
     )
   }
 
-  const { address, professional_details, ...sellerData } = req.validatedBody
+  const { address, professional_details, member_email, ...sellerData } = req.validatedBody
 
   const { result: seller } = await createSellerAccountWorkflow(req.scope).run({
     input: {
       auth_identity_id: req.auth_context.auth_identity_id,
       seller: sellerData,
-      member: { email: sellerData.email },
+      member_email,
       address,
       professional_details,
     },

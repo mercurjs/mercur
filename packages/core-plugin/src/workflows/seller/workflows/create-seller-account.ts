@@ -32,7 +32,7 @@ export const createSellerAccountWorkflowId = "create-seller-account"
 type CreateSellerAccountWorkflowInput = {
   auth_identity_id: string
   seller: CreateSellerDTO
-  member: { email: string }
+  member_email: string
   address?: UpdateSellerAddressDTO
   professional_details?: UpdateProfessionalDetailsDTO
 } & AdditionalData
@@ -48,7 +48,7 @@ export const createSellerAccountWorkflow = createWorkflow(
     const seller = transform({ sellers }, ({ sellers }) => sellers[0])
 
     const members = upsertMembersStep(
-      transform(input, ({ member }) => [{ email: member.email }])
+      transform(input, ({ member_email }) => [{ email: member_email }])
     )
 
     const member = transform({ members }, ({ members }) => members[0])

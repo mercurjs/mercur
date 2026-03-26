@@ -19,7 +19,7 @@ export const useSignInWithEmailPass = (
   return useMutation({
     mutationFn: async (payload) => {
       const data = (await sdk.auth.$actorType.$authProvider.mutate({
-        $actorType: "seller",
+        $actorType: "member",
         $authProvider: "emailpass",
         ...payload,
       })) as { token: string };
@@ -56,12 +56,20 @@ export const useSignUpWithEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.register.mutate({
-        $actorType: "seller",
+        $actorType: "member",
         $authProvider: "emailpass",
         ...payload,
       }),
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context);
+
+      await sdk.auth.session.mutate({
+        fetchOptions: {
+          headers: {
+            Authorization: `Bearer ${(data as { token: string }).token}`,
+          },
+        },
+      });
     },
     ...options,
   });
@@ -82,7 +90,7 @@ export const useSignUpForInvite = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.register.mutate({
-        $actorType: "seller",
+        $actorType: "member",
         $authProvider: "emailpass",
         ...payload,
       }),
@@ -102,7 +110,7 @@ export const useResetPasswordForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.resetPassword.mutate({
-        $actorType: "seller",
+        $actorType: "member",
         $authProvider: "emailpass",
         identifier: payload.email,
         metadata: {},
@@ -140,7 +148,7 @@ export const useUpdateProviderForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.update.mutate({
-        $actorType: "seller",
+        $actorType: "member",
         $authProvider: "emailpass",
         ...payload,
         fetchOptions: {

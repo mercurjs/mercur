@@ -26,3 +26,6 @@ export * from "./custom-fields"
 
 // UI types
 export * from "./dashboard"
+
+// Feature flags
+export * from "./feature-flags"

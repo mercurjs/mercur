@@ -1,16 +1,18 @@
 import { Children, ReactNode, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Spinner } from "@medusajs/icons"
 import { Button, Heading, Hint, Input, Text } from "@medusajs/ui"
+import { MercurFeatureFlags } from "@mercurjs/types"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, Navigate, useNavigate } from "react-router-dom"
 import config from "virtual:mercur/config"
 import * as z from "zod"
 
 import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
-import { useSignUpWithEmailPass, useSignInWithEmailPass } from "@hooks/api"
+import { useFeatureFlags, useSignUpWithEmailPass } from "@hooks/api"
 
 import { RegisterSchema } from "./register-schema"
 
@@ -45,18 +47,13 @@ const RegisterForm = () => {
     },
   })
 
-  const { mutateAsync: signUp, isPending: isSigningUp } =
+  const { mutateAsync: signUp, isPending } =
     useSignUpWithEmailPass()
-  const { mutateAsync: signIn, isPending: isSigningIn } =
-    useSignInWithEmailPass()
-
-  const isPending = isSigningUp || isSigningIn
 
   const handleSubmit = form.handleSubmit(async ({ email, password }) => {
     setServerError(null)
     try {
       await signUp({ email, password })
-      await signIn({ email, password })
       navigate("/onboarding", { state: { email } })
     } catch (error: any) {
       setServerError(
@@ -169,6 +166,20 @@ const RegisterFooter = () => {
 }
 
 const Root = ({ children }: { children?: ReactNode }) => {
+  const { feature_flags, isLoading } = useFeatureFlags()
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner className="text-ui-fg-interactive animate-spin" />
+      </div>
+    )
+  }
+
+  if (!feature_flags?.[MercurFeatureFlags.SELLER_REGISTRATION]) {
+    return <Navigate to="/login" replace />
+  }
+
   return (
     <div className="bg-ui-bg-subtle relative flex min-h-dvh w-dvw items-center justify-center p-4">
       <div className="flex w-full max-w-[360px] flex-col items-center">

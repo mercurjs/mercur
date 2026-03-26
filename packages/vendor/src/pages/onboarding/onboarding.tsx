@@ -10,11 +10,12 @@ import {
   Select,
   Text,
   Textarea,
+  toast,
 } from "@medusajs/ui";
 import { AnimatePresence, motion } from "motion/react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, Navigate, useNavigate } from "react-router-dom";
 import * as z from "zod";
 
 import { Form } from "@components/common/form";
@@ -28,11 +29,13 @@ const currencyList = Object.values(currencies);
 
 const StoreSetupSchema = z.object({
   name: z.string().min(1),
+  email: z.string().email(),
   currency_code: z.string().min(1),
   description: z.string().optional(),
 });
 
 const DetailsSetupSchema = z.object({
+  member_email: z.string().email(),
   first_name: z.string().min(1),
   last_name: z.string().min(1),
   company: z.string().optional(),
@@ -62,12 +65,18 @@ export const Onboarding = () => {
   const [layoutStep, setLayoutStep] = useState(1);
   const totalSteps = 2;
 
+  if (!email) {
+    return <Navigate to="/login" replace />;
+  }
+
   const { mutateAsync: logoutMutation } = useLogout();
 
   const handleLogout = async () => {
     await logoutMutation(undefined, {
       onSuccess: () => {
         queryClient.clear();
+      },
+      onSettled: () => {
         navigate("/login");
       },
     });
@@ -77,6 +86,7 @@ export const Onboarding = () => {
     resolver: zodResolver(StoreSetupSchema),
     defaultValues: {
       name: "",
+      email: "",
       currency_code: "",
       description: "",
     },
@@ -85,6 +95,7 @@ export const Onboarding = () => {
   const detailsForm = useForm<DetailsSetupFormValues>({
     resolver: zodResolver(DetailsSetupSchema),
     defaultValues: {
+      member_email: email,
       first_name: "",
       last_name: "",
       company: "",
@@ -116,14 +127,16 @@ export const Onboarding = () => {
       corporate_name,
       registration_number,
       tax_id,
+      member_email,
       ...addressFields
     } = details;
 
     try {
       await createSellerAccount({
         name: storeData.name,
-        email,
-        currency_code: storeData.currency_code,
+        email: storeData.email,
+        member_email,
+        currency_code: storeData.currency_code.toLowerCase(),
         description: storeData.description || undefined,
         address: addressFields,
         professional_details: is_professional
@@ -132,7 +145,7 @@ export const Onboarding = () => {
       });
       setStep(3);
     } catch (error: any) {
-      // Stay on step 2 — error is visible via mutation state
+      toast.error(error.message);
     }
   });
 
@@ -169,7 +182,10 @@ export const Onboarding = () => {
               className="flex w-full max-w-[720px] flex-col"
               style={layoutStep === 2 ? { paddingBottom: "5rem" } : undefined}
             >
-              <AnimatePresence mode="wait" onExitComplete={() => setLayoutStep(step)}>
+              <AnimatePresence
+                mode="wait"
+                onExitComplete={() => setLayoutStep(step)}
+              >
                 {step === 1 ? (
                   <motion.div
                     key="store-step"
@@ -213,6 +229,7 @@ export const Onboarding = () => {
                     <DetailsStep
                       form={detailsForm}
                       onSubmit={handleDetailsSubmit}
+                      onBack={() => setStep(1)}
                       isPending={isCreating}
                     />
                   </motion.div>
@@ -350,6 +367,29 @@ const StoreStep = ({
               />
               <Form.Field
                 control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t("onboarding.storeSetup.storeEmail")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input
+                        type="email"
+                        autoComplete="email"
+                        {...field}
+                        placeholder="store@example.com"
+                      />
+                    </Form.Control>
+                    <Form.Hint>
+                      {t("onboarding.storeSetup.storeEmailHint")}
+                    </Form.Hint>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
                 name="currency_code"
                 render={({ field: { onChange, ref, ...field } }) => (
                   <Form.Item>
@@ -432,10 +472,12 @@ const StoreStep = ({
 const DetailsStep = ({
   form,
   onSubmit,
+  onBack,
   isPending,
 }: {
   form: ReturnType<typeof useForm<DetailsSetupFormValues>>;
   onSubmit: () => void;
+  onBack: () => void;
   isPending?: boolean;
 }) => {
   const { t } = useTranslation();
@@ -475,13 +517,59 @@ const DetailsStep = ({
             custom={1}
           />
 
-          {/* Address section */}
+          {/* User email section */}
           <motion.div
             className="grid grid-cols-2 gap-x-12 py-8"
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
             custom={2}
+          >
+            <div>
+              <Text size="small" weight="plus" className="text-ui-fg-base">
+                {t("onboarding.detailsSetup.userEmailTitle")}
+              </Text>
+              <Text size="small" className="text-ui-fg-subtle mt-1">
+                {t("onboarding.detailsSetup.userEmailSubtitle")}
+              </Text>
+            </div>
+            <div className="flex flex-col gap-y-4">
+              <Form.Field
+                control={form.control}
+                name="member_email"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t("onboarding.detailsSetup.userEmail")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input type="email" autoComplete="email" {...field} />
+                    </Form.Control>
+                    <Form.Hint>
+                      {t("onboarding.detailsSetup.userEmailHint")}
+                    </Form.Hint>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="border-t border-dotted border-ui-border-base"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={3}
+          />
+
+          {/* Address section */}
+          <motion.div
+            className="grid grid-cols-2 gap-x-12 py-8"
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            custom={4}
           >
             <div>
               <Text size="small" weight="plus" className="text-ui-fg-base">
@@ -634,7 +722,7 @@ const DetailsStep = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            custom={3}
+            custom={5}
           />
 
           {/* Professional details section */}
@@ -643,7 +731,7 @@ const DetailsStep = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            custom={4}
+            custom={6}
           >
             <div>
               <Text size="small" weight="plus" className="text-ui-fg-base">
@@ -747,7 +835,7 @@ const DetailsStep = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            custom={5}
+            custom={7}
           />
 
           <motion.div
@@ -755,12 +843,22 @@ const DetailsStep = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            custom={6}
+            custom={8}
           >
             <div />
-            <Button type="submit" className="w-full" isLoading={isPending}>
-              {t("onboarding.detailsSetup.completeSetup")}
-            </Button>
+            <div className="flex gap-x-2">
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                onClick={onBack}
+              >
+                {t("actions.back")}
+              </Button>
+              <Button type="submit" className="w-full" isLoading={isPending}>
+                {t("onboarding.detailsSetup.completeSetup")}
+              </Button>
+            </div>
           </motion.div>
         </form>
       </Form>

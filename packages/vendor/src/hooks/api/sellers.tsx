@@ -3,13 +3,37 @@ import {
   InferClientInput,
   InferClientOutput,
 } from "@mercurjs/client";
-import { UseMutationOptions, useMutation } from "@tanstack/react-query";
+import {
+  UseMutationOptions,
+  UseQueryOptions,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
 import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 
 const SELLERS_QUERY_KEY = "sellers" as const;
 export const sellersQueryKeys = queryKeysFactory(SELLERS_QUERY_KEY);
+
+export const useSellers = (
+  query?: InferClientInput<typeof sdk.vendor.sellers.query>,
+  options?: Omit<
+    UseQueryOptions<
+      InferClientOutput<typeof sdk.vendor.sellers.query>,
+      ClientError
+    >,
+    "queryFn" | "queryKey"
+  >,
+) => {
+  const { data, ...rest } = useQuery({
+    queryKey: sellersQueryKeys.list(query),
+    queryFn: () => sdk.vendor.sellers.query({ ...query }),
+    ...options,
+  });
+
+  return { ...(data ?? {}), ...rest };
+};
 
 export const useCreateSellerAccount = (
   options?: UseMutationOptions<
