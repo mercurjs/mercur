@@ -33,6 +33,9 @@ const SORTABLE_ATTRIBUTES = ['title', 'variants.prices.amount']
 
 class MeilisearchModuleService {
   private client_: MeiliSearch
+  private host_: string
+  private productIndex_: ReturnType<MeiliSearch['index']>
+  private settingsApplied_ = false
 
   constructor(_: unknown, options: ModuleOptions) {
     if (!options?.host || !options?.apiKey) {
@@ -46,20 +49,21 @@ class MeilisearchModuleService {
         `[meilisearch block] Missing required environment variables: ${missing}`
       )
     }
+    this.host_ = options.host
     this.client_ = new MeiliSearch({
       host: options.host,
       apiKey: options.apiKey,
     })
+    this.productIndex_ = this.client_.index(IndexType.PRODUCT)
   }
 
   getHost(): string {
-    return (this.client_ as any).config?.host ?? ''
+    return this.host_
   }
 
   async getStatus(): Promise<{ documentCount: number; isHealthy: boolean }> {
     try {
-      const index = this.client_.index(IndexType.PRODUCT)
-      const stats = await index.getStats()
+      const stats = await this.productIndex_.getStats()
       return { documentCount: stats.numberOfDocuments, isHealthy: true }
     } catch {
       return { documentCount: 0, isHealthy: false }
@@ -70,24 +74,21 @@ class MeilisearchModuleService {
     if (!documents.length) {
       return
     }
-    const index = this.client_.index(IndexType.PRODUCT)
-    await index.addDocuments(documents, { primaryKey: 'id' })
+    await this.productIndex_.addDocuments(documents, { primaryKey: 'id' })
   }
 
   async batchDelete(ids: string[]): Promise<void> {
     if (!ids.length) {
       return
     }
-    const index = this.client_.index(IndexType.PRODUCT)
-    await index.deleteDocuments(ids)
+    await this.productIndex_.deleteDocuments(ids)
   }
 
   async search(
     query: string,
     options: Record<string, unknown>
   ): Promise<MeilisearchSearchResult> {
-    const index = this.client_.index(IndexType.PRODUCT)
-    const result = await index.search(query, options)
+    const result = await this.productIndex_.search(query, options)
     return {
       hits: (result.hits ?? []) as Array<{ id: string }>,
       totalHits: result.totalHits ?? result.estimatedTotalHits ?? 0,
@@ -101,12 +102,15 @@ class MeilisearchModuleService {
   }
 
   async ensureSettings(): Promise<void> {
-    const index = this.client_.index(IndexType.PRODUCT)
-    await index.updateSettings({
+    if (this.settingsApplied_) {
+      return
+    }
+    await this.productIndex_.updateSettings({
       searchableAttributes: SEARCHABLE_ATTRIBUTES,
       filterableAttributes: FILTERABLE_ATTRIBUTES,
       sortableAttributes: SORTABLE_ATTRIBUTES,
     })
+    this.settingsApplied_ = true
   }
 }
 

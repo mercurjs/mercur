@@ -15,28 +15,9 @@ import {
   createAdminUser,
 } from "../../../helpers/create-admin-user"
 import { IndexType } from "../../../../packages/registry/src/meilisearch/modules/meilisearch/types"
+import { mockGetStats } from "../../../helpers/mock-meilisearch"
 
 jest.setTimeout(60000)
-
-// ─── Mock meilisearch client ──────────────────────────────────────────────────
-
-const mockGetStats = jest.fn().mockResolvedValue({ numberOfDocuments: 42 })
-const mockIndexFn = jest.fn().mockReturnValue({
-  search: jest.fn().mockResolvedValue({ hits: [], totalHits: 0 }),
-  addDocuments: jest.fn().mockResolvedValue({}),
-  deleteDocuments: jest.fn().mockResolvedValue({}),
-  getStats: mockGetStats,
-  updateSettings: jest.fn().mockResolvedValue({}),
-})
-
-jest.mock("meilisearch", () => ({
-  MeiliSearch: jest.fn().mockImplementation(() => ({
-    index: mockIndexFn,
-    config: { host: "http://localhost:7700" },
-  })),
-}))
-
-// ─── Test suite ───────────────────────────────────────────────────────────────
 
 medusaIntegrationTestRunner({
   testSuite: ({ getContainer, api, dbConnection }) => {

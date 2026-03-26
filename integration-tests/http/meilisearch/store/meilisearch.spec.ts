@@ -16,28 +16,9 @@ import {
   generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { mockSearchFn } from "../../../helpers/mock-meilisearch"
 
 jest.setTimeout(60000)
-
-// ─── Mock meilisearch client so no real network calls are made ────────────────
-
-const mockSearchFn = jest.fn()
-const mockIndexFn = jest.fn().mockReturnValue({
-  search: mockSearchFn,
-  addDocuments: jest.fn().mockResolvedValue({}),
-  deleteDocuments: jest.fn().mockResolvedValue({}),
-  getStats: jest.fn().mockResolvedValue({ numberOfDocuments: 0 }),
-  updateSettings: jest.fn().mockResolvedValue({}),
-})
-
-jest.mock("meilisearch", () => ({
-  MeiliSearch: jest.fn().mockImplementation(() => ({
-    index: mockIndexFn,
-    config: { host: "http://localhost:7700" },
-  })),
-}))
-
-// ─── Test suite ───────────────────────────────────────────────────────────────
 
 medusaIntegrationTestRunner({
   testSuite: ({ getContainer, api, dbConnection }) => {
@@ -58,7 +39,6 @@ medusaIntegrationTestRunner({
 
         await createAdminUser(dbConnection, adminHeaders, appContainer)
 
-        // Create two sellers
         const resultActive = await createSellerUser(appContainer, {
           email: "active-seller@test.com",
           name: "Active Store",
@@ -71,11 +51,9 @@ medusaIntegrationTestRunner({
         })
         sellerSuspended = resultSuspended.seller
 
-        // Approve both sellers
         await api.post(`/admin/sellers/${sellerActive.id}/approve`, {}, adminHeaders)
         await api.post(`/admin/sellers/${sellerSuspended.id}/approve`, {}, adminHeaders)
 
-        // Create a product for each seller
         const productActiveRes = await api.post(
           `/vendor/products`,
           {
@@ -112,17 +90,14 @@ medusaIntegrationTestRunner({
         )
         productSuspendedId = productSuspendedRes.data.product.id
 
-        // Suspend the second seller
         await api.post(`/admin/sellers/${sellerSuspended.id}/suspend`, {}, adminHeaders)
 
-        // Generate store headers
         const publishableKey = await generatePublishableKey(appContainer)
         storeHeaders = generateStoreHeaders({ publishableKey })
       })
 
       describe("POST /store/meilisearch/products/search", () => {
         it("returns 200 with product list and metadata when meilisearch returns hits", async () => {
-          // Meilisearch returns the active seller product ID
           mockSearchFn.mockResolvedValueOnce({
             hits: [{ id: productActiveId }],
             totalHits: 1,
@@ -240,7 +215,7 @@ medusaIntegrationTestRunner({
         it("returns 400 when request body is invalid", async () => {
           const response = await api.post(
             `/store/meilisearch/products/search`,
-            { hitsPerPage: 9999 }, // exceeds max of 100
+            { hitsPerPage: 9999 },
             storeHeaders
           )
 
@@ -268,7 +243,6 @@ medusaIntegrationTestRunner({
         })
 
         it("hydrates products from Medusa DB in meilisearch relevance order", async () => {
-          // Simulate meilisearch returning prod_2 first (higher relevance)
           mockSearchFn.mockResolvedValueOnce({
             hits: [{ id: productActiveId }, { id: "some-other-id" }],
             totalHits: 2,
@@ -285,10 +259,8 @@ medusaIntegrationTestRunner({
             storeHeaders
           )
 
-          // Only existing products are returned (the mock returns a non-existent ID too)
           expect(response.status).toBe(200)
           const ids = response.data.products.map((p: any) => p.id)
-          // productActiveId should appear first (matches meilisearch hit order)
           expect(ids[0]).toBe(productActiveId)
         })
       })

@@ -1,10 +1,18 @@
 import { z } from 'zod'
 
+const safeStringPattern = /^[a-zA-Z0-9_\-]+$/
+
 export const StoreMeilisearchFiltersSchema = z.object({
-  categories: z.array(z.string().min(1)).optional(),
+  categories: z
+    .array(z.string().min(1).regex(safeStringPattern, 'Invalid category ID'))
+    .optional(),
   price_min: z.number().min(0).optional(),
   price_max: z.number().min(0).optional(),
-  seller_handle: z.string().min(1).optional(),
+  seller_handle: z
+    .string()
+    .min(1)
+    .regex(safeStringPattern, 'Invalid seller handle')
+    .optional(),
 })
 
 export const StoreMeilisearchSearchSchema = z.object({

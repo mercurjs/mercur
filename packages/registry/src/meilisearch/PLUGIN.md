@@ -112,6 +112,8 @@ export default defineMiddlewares({
 })
 ```
 
+> **Warning:** The CLI may prompt you to replace your existing `middlewares.ts` file during installation. If you already have middleware routes defined, **do not replace it**. Instead, manually merge the meilisearch middlewares into your existing `defineMiddlewares` call as shown above. Replacing the file removes the `defineMiddlewares` default export, which causes `req.validatedBody` to be `undefined` at runtime.
+
 ### Step 4: Set Environment Variables
 
 Add these to your `.env` file:

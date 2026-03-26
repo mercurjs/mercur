@@ -154,15 +154,25 @@ describe('meilisearchProductEventsBridgeHandler', () => {
 jest.mock('../subscribers/utils/meilisearch-product', () => ({
   filterProductsByStatus: jest.fn(),
   findAndTransformMeilisearchProducts: jest.fn(),
+  reindexSellerProducts: jest.fn().mockResolvedValue(undefined),
+  chunkArray: jest.fn((arr: any[], size: number) => {
+    const chunks: any[][] = []
+    for (let i = 0; i < arr.length; i += size) {
+      chunks.push(arr.slice(i, i + size))
+    }
+    return chunks
+  }),
 }))
 
 import {
   filterProductsByStatus,
   findAndTransformMeilisearchProducts,
+  reindexSellerProducts,
 } from '../subscribers/utils/meilisearch-product'
 
 const mockFilterProducts = filterProductsByStatus as jest.Mock
 const mockTransformProducts = findAndTransformMeilisearchProducts as jest.Mock
+const mockReindexSeller = reindexSellerProducts as jest.Mock
 
 describe('meilisearchProductsChangedHandler', () => {
   beforeEach(() => {
@@ -264,78 +274,26 @@ describe('meilisearchProductsDeletedHandler', () => {
 // ─── meilisearch-seller-suspended ────────────────────────────────────────────
 
 describe('meilisearchSellerSuspendedHandler', () => {
-  it('queries seller products via query.graph and emits PRODUCTS_CHANGED', async () => {
-    const container = makeContainer({
-      query: {
-        graph: jest.fn().mockResolvedValue({
-          data: [{ products: [{ id: 'prod_1' }, { id: 'prod_2' }] }],
-        }),
-      },
-    })
+  beforeEach(() => {
+    mockReindexSeller.mockClear()
+  })
+
+  it('delegates to reindexSellerProducts with action "suspended"', async () => {
+    const container = makeContainer()
 
     await meilisearchSellerSuspendedHandler({
       event: { data: { id: 'sel_1' } },
       container,
     } as any)
 
-    expect(container.query.graph).toHaveBeenCalledWith(
-      expect.objectContaining({ entity: 'seller', filters: { id: 'sel_1' } })
-    )
-    expect(container.eventBus.emit).toHaveBeenCalledWith({
-      name: MeilisearchEvents.PRODUCTS_CHANGED,
-      data: { ids: expect.arrayContaining(['prod_1', 'prod_2']) },
-    })
+    expect(mockReindexSeller).toHaveBeenCalledWith(container, 'sel_1', 'suspended')
   })
 
-  it('emits in chunks of 100 when seller has many products', async () => {
-    const productIds = Array.from({ length: 250 }, (_, i) => ({ id: `prod_${i}` }))
-    const container = makeContainer({
-      query: {
-        graph: jest.fn().mockResolvedValue({
-          data: [{ products: productIds }],
-        }),
-      },
-    })
-
-    await meilisearchSellerSuspendedHandler({
-      event: { data: { id: 'sel_1' } },
-      container,
-    } as any)
-
-    // 250 products = 3 chunks (100 + 100 + 50)
-    expect(container.eventBus.emit).toHaveBeenCalledTimes(3)
-    const firstChunkIds = container.eventBus.emit.mock.calls[0][0].data.ids
-    const secondChunkIds = container.eventBus.emit.mock.calls[1][0].data.ids
-    const thirdChunkIds = container.eventBus.emit.mock.calls[2][0].data.ids
-    expect(firstChunkIds).toHaveLength(100)
-    expect(secondChunkIds).toHaveLength(100)
-    expect(thirdChunkIds).toHaveLength(50)
-  })
-
-  it('does nothing when the seller has no linked products', async () => {
-    const container = makeContainer({
-      query: {
-        graph: jest.fn().mockResolvedValue({
-          data: [{ products: [] }],
-        }),
-      },
-    })
-
-    await meilisearchSellerSuspendedHandler({
-      event: { data: { id: 'sel_1' } },
-      container,
-    } as any)
-
-    expect(container.eventBus.emit).not.toHaveBeenCalled()
-  })
-
-  it('logs error and rethrows on failure (FR-012)', async () => {
+  it('propagates errors from reindexSellerProducts (FR-012)', async () => {
     const error = new Error('DB error')
-    const container = makeContainer({
-      query: {
-        graph: jest.fn().mockRejectedValue(error),
-      },
-    })
+    mockReindexSeller.mockRejectedValueOnce(error)
+
+    const container = makeContainer()
 
     await expect(
       meilisearchSellerSuspendedHandler({
@@ -343,44 +301,32 @@ describe('meilisearchSellerSuspendedHandler', () => {
         container,
       } as any)
     ).rejects.toThrow('DB error')
-
-    expect(container.logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('sel_1'),
-      error
-    )
   })
 })
 
 // ─── meilisearch-seller-unsuspended ──────────────────────────────────────────
 
 describe('meilisearchSellerUnsuspendedHandler', () => {
-  it('emits PRODUCTS_CHANGED for seller products on reinstatement', async () => {
-    const container = makeContainer({
-      query: {
-        graph: jest.fn().mockResolvedValue({
-          data: [{ products: [{ id: 'prod_1' }] }],
-        }),
-      },
-    })
+  beforeEach(() => {
+    mockReindexSeller.mockClear()
+  })
+
+  it('delegates to reindexSellerProducts with action "unsuspended"', async () => {
+    const container = makeContainer()
 
     await meilisearchSellerUnsuspendedHandler({
       event: { data: { id: 'sel_1' } },
       container,
     } as any)
 
-    expect(container.eventBus.emit).toHaveBeenCalledWith({
-      name: MeilisearchEvents.PRODUCTS_CHANGED,
-      data: { ids: ['prod_1'] },
-    })
+    expect(mockReindexSeller).toHaveBeenCalledWith(container, 'sel_1', 'unsuspended')
   })
 
-  it('logs error and rethrows on failure (FR-012)', async () => {
+  it('propagates errors from reindexSellerProducts (FR-012)', async () => {
     const error = new Error('Timeout')
-    const container = makeContainer({
-      query: {
-        graph: jest.fn().mockRejectedValue(error),
-      },
-    })
+    mockReindexSeller.mockRejectedValueOnce(error)
+
+    const container = makeContainer()
 
     await expect(
       meilisearchSellerUnsuspendedHandler({
@@ -388,10 +334,5 @@ describe('meilisearchSellerUnsuspendedHandler', () => {
         container,
       } as any)
     ).rejects.toThrow('Timeout')
-
-    expect(container.logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('sel_1'),
-      error
-    )
   })
 })

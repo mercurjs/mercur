@@ -42,7 +42,7 @@ export const MeilisearchVariantValidator = z.object({
       rules_count: z.number(),
     })
   ),
-}).passthrough()
+}).passthrough() // allows dynamically injected option keys (e.g. { size: "S" })
 
 export const MeilisearchProductValidator = z.object({
   id: z.string(),

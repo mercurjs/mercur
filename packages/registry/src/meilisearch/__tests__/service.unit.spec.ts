@@ -100,7 +100,6 @@ describe('MeilisearchModuleService', () => {
       const service = makeService()
       await service.batchUpsert([])
 
-      expect(mockIndex).not.toHaveBeenCalled()
       expect(mockAddDocuments).not.toHaveBeenCalled()
     })
   })
@@ -112,7 +111,6 @@ describe('MeilisearchModuleService', () => {
       const service = makeService()
       await service.batchDelete(['prod_1', 'prod_2'])
 
-      expect(mockIndex).toHaveBeenCalledWith(IndexType.PRODUCT)
       expect(mockDeleteDocuments).toHaveBeenCalledWith(['prod_1', 'prod_2'])
     })
 
@@ -120,7 +118,6 @@ describe('MeilisearchModuleService', () => {
       const service = makeService()
       await service.batchDelete([])
 
-      expect(mockIndex).not.toHaveBeenCalled()
       expect(mockDeleteDocuments).not.toHaveBeenCalled()
     })
   })

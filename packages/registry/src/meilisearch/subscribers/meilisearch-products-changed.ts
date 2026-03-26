@@ -27,15 +27,17 @@ export default async function meilisearchProductsChangedHandler({
       `Meilisearch sync: Processing ${event.data.ids.length} products — ${published.length} to upsert, ${other.length} to delete`
     )
 
-    const documentsToUpsert = published.length
-      ? await findAndTransformMeilisearchProducts(container, published)
-      : []
+    const [documentsToUpsert] = await Promise.all([
+      published.length
+        ? findAndTransformMeilisearchProducts(container, published)
+        : Promise.resolve([]),
+      other.length
+        ? meilisearch.batchDelete(other)
+        : Promise.resolve(),
+    ])
 
     if (documentsToUpsert.length) {
       await meilisearch.batchUpsert(documentsToUpsert)
-    }
-    if (other.length) {
-      await meilisearch.batchDelete(other)
     }
 
     logger.debug(

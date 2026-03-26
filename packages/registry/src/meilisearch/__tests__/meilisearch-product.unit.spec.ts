@@ -7,9 +7,7 @@ import { ContainerRegistrationKeys } from '@medusajs/framework/utils'
 // ─── Container factory ────────────────────────────────────────────────────────
 
 function makeContainer(queryGraphResult: any[]) {
-  // Deep clone to prevent test pollution — findAndTransformMeilisearchProducts mutates in-place
-  const cloned = JSON.parse(JSON.stringify(queryGraphResult))
-  const mockGraph = jest.fn().mockResolvedValue({ data: cloned })
+  const mockGraph = jest.fn().mockResolvedValue({ data: queryGraphResult })
   return {
     resolve: jest.fn().mockReturnValue({ graph: mockGraph }),
     _graph: mockGraph,

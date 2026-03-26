@@ -4,8 +4,7 @@ import { StepResponse, createStep } from '@medusajs/framework/workflows-sdk'
 
 import { MEILISEARCH_MODULE, MeilisearchModuleService } from '../../../modules/meilisearch'
 import { MeilisearchEvents } from '../../../modules/meilisearch/types'
-
-const CHUNK_SIZE = 100
+import { chunkArray } from '../../../subscribers/utils/meilisearch-product'
 
 export const syncMeilisearchProductsStep = createStep(
   'sync-meilisearch-products',
@@ -17,38 +16,37 @@ export const syncMeilisearchProductsStep = createStep(
       container.resolve<MeilisearchModuleService>(MEILISEARCH_MODULE)
     const eventBus = container.resolve<IEventBusModuleService>(Modules.EVENT_BUS)
 
-    // Configure index settings (filterable, searchable, sortable attributes)
     await meilisearch.ensureSettings()
 
-    // Delete products that are not published or have been soft-deleted
-    const { data: productsToDelete } = await query.graph({
+    const { data: allProducts } = await query.graph({
       entity: 'product',
-      filters: {
-        status: { $ne: 'published' },
-      },
-      fields: ['id'],
+      fields: ['id', 'status'],
     })
 
-    if (productsToDelete.length) {
-      await meilisearch.batchDelete(productsToDelete.map((p) => p.id))
+    const toDelete: string[] = []
+    const toIndex: string[] = []
+
+    for (const product of allProducts) {
+      if (product.status === 'published') {
+        toIndex.push(product.id)
+      } else {
+        toDelete.push(product.id)
+      }
     }
 
-    // Fetch all published product IDs and process in chunks
-    const { data: publishedProducts } = await query.graph({
-      entity: 'product',
-      filters: { status: 'published' },
-      fields: ['id'],
-    })
-
-    const productIds = publishedProducts.map((p) => p.id)
-
-    for (let i = 0; i < productIds.length; i += CHUNK_SIZE) {
-      const chunk = productIds.slice(i, i + CHUNK_SIZE)
-      await eventBus.emit({
-        name: MeilisearchEvents.PRODUCTS_CHANGED,
-        data: { ids: chunk },
-      })
+    if (toDelete.length) {
+      await meilisearch.batchDelete(toDelete)
     }
+
+    const chunks = chunkArray(toIndex, 100)
+    await Promise.all(
+      chunks.map((chunk) =>
+        eventBus.emit({
+          name: MeilisearchEvents.PRODUCTS_CHANGED,
+          data: { ids: chunk },
+        })
+      )
+    )
 
     return new StepResponse()
   }
