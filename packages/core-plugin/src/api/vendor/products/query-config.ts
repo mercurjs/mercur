@@ -34,6 +34,8 @@ export const vendorProductFields = [
   "*variants.prices",
   "*variants.options",
   "*categories",
+  "*attribute_values",
+  "*attribute_values.attribute",
 ]
 
 export const vendorProductQueryConfig = {
