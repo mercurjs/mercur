@@ -62,6 +62,14 @@ export const useSignUpWithEmailPass = (
       }),
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context);
+
+      await sdk.auth.session.mutate({
+        fetchOptions: {
+          headers: {
+            Authorization: `Bearer ${(data as { token: string }).token}`,
+          },
+        },
+      });
     },
     ...options,
   });

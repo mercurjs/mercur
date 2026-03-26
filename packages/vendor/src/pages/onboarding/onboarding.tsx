@@ -29,6 +29,7 @@ const currencyList = Object.values(currencies);
 
 const StoreSetupSchema = z.object({
   name: z.string().min(1),
+  email: z.string().email(),
   currency_code: z.string().min(1),
   description: z.string().optional(),
 });
@@ -85,6 +86,7 @@ export const Onboarding = () => {
     resolver: zodResolver(StoreSetupSchema),
     defaultValues: {
       name: "",
+      email: "",
       currency_code: "",
       description: "",
     },
@@ -132,7 +134,7 @@ export const Onboarding = () => {
     try {
       await createSellerAccount({
         name: storeData.name,
-        email,
+        email: storeData.email,
         member_email,
         currency_code: storeData.currency_code.toLowerCase(),
         description: storeData.description || undefined,
@@ -359,6 +361,29 @@ const StoreStep = ({
                         )}
                       />
                     </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t("onboarding.storeSetup.storeEmail")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input
+                        type="email"
+                        autoComplete="email"
+                        {...field}
+                        placeholder="store@example.com"
+                      />
+                    </Form.Control>
+                    <Form.Hint>
+                      {t("onboarding.storeSetup.storeEmailHint")}
+                    </Form.Hint>
                     <Form.ErrorMessage />
                   </Form.Item>
                 )}
