@@ -728,6 +728,7 @@ export type Routes = {
             };
         };
         uploads: typeof import("../../src/api/vendor/uploads/route");
+        featureFlags: typeof import("../../src/api/vendor/feature-flags/route");
         fulfillmentProviders: typeof import("../../src/api/vendor/fulfillment-providers/route");
         productVariants: typeof import("../../src/api/vendor/product-variants/route");
         stores: typeof import("../../src/api/vendor/stores/route");
