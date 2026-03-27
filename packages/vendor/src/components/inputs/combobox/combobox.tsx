@@ -56,6 +56,7 @@ interface ComboboxProps<T extends Value = Value>
   fetchNextPage?: () => void
   isFetchingNextPage?: boolean
   onCreateOption?: (value: string) => void
+  hideCreateOption?: boolean
   noResultsPlaceholder?: ReactNode
   allowClear?: boolean
   forceHideInput?: boolean // always hide input -> used for singe value select that don't have query/filter
@@ -73,6 +74,7 @@ const ComboboxImpl = <T extends Value = string>(
     fetchNextPage,
     isFetchingNextPage,
     onCreateOption,
+    hideCreateOption,
     noResultsPlaceholder,
     allowClear,
     forceHideInput,
@@ -193,6 +195,15 @@ const ComboboxImpl = <T extends Value = string>(
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
+      // Auto-create on close when hideCreateOption is set and there's unmatched text
+      if (hideCreateOption && onCreateOption && uncontrolledSearchValue.trim()) {
+        const matchesExisting = options.some(
+          (o) => o.label?.toLowerCase() === uncontrolledSearchValue.trim().toLowerCase()
+        )
+        if (!matchesExisting) {
+          onCreateOption(uncontrolledSearchValue.trim())
+        }
+      }
       setUncontrolledSearchValue("")
     }
 
@@ -398,7 +409,7 @@ const ComboboxImpl = <T extends Value = string>(
               </Text>
             </div>
           ))}
-        {!results.length && onCreateOption && (
+        {!results.length && onCreateOption && !hideCreateOption && (
           <Fragment>
             <PrimitiveSeparator className="bg-ui-border-base -mx-1" />
             <PrimitiveComboboxItem

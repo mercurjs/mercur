@@ -1,4 +1,5 @@
 export * from "./api-key-management"
+export * from "./attributes/attribute-list"
 export * from "./campaigns"
 export * from "./categories"
 export * from "./collections"

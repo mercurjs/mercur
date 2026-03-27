@@ -72,6 +72,7 @@ export const UpdateProductOption = z.object({
   id: z.string().optional(),
   title: z.string().optional(),
   values: z.array(z.string()).optional(),
+  convert_to_attribute: z.boolean().optional(),
 })
 export const VendorUpdateProductOption = WithAdditionalData(UpdateProductOption)
 
@@ -210,3 +211,73 @@ export const UpdateProduct = z
   })
   .strict()
 export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
+
+/* Attribute Inputs for Product Creation */
+
+const AttributeUIComponentEnum = z.enum([
+  "select",
+  "multivalue",
+  "unit",
+  "toggle",
+  "text_area",
+  "color_picker",
+])
+
+export type AdminAttributeInputType = z.infer<typeof AdminAttributeInput>
+export const AdminAttributeInput = z.object({
+  attribute_id: z.string(),
+  values: z.array(z.string()).min(1),
+  use_for_variations: z.boolean(),
+})
+
+export type VendorAttributeInputType = z.infer<typeof VendorAttributeInput>
+export const VendorAttributeInput = z.object({
+  name: z.string().min(1),
+  values: z.array(z.string()).min(1),
+  use_for_variations: z.boolean(),
+  ui_component: AttributeUIComponentEnum.optional(),
+  extends_attribute_id: z.string().optional(),
+})
+
+export type ProductAttributesAdditionalDataType = z.infer<
+  typeof ProductAttributesAdditionalData
+>
+export const ProductAttributesAdditionalData = z.object({
+  admin_attributes: z.array(AdminAttributeInput).optional(),
+  vendor_attributes: z.array(VendorAttributeInput).optional(),
+})
+
+/* Attribute Management Endpoints */
+
+export type VendorAddProductAttributeType = z.infer<
+  typeof VendorAddProductAttribute
+>
+export const VendorAddProductAttribute = z.object({
+  attribute_id: z.string().optional(),
+  name: z.string().optional(),
+  values: z.array(z.string()).min(1),
+  use_for_variations: z.boolean().optional().default(false),
+  ui_component: AttributeUIComponentEnum.optional(),
+  rank: z.number().optional(),
+})
+
+export type VendorUpdateProductAttributeType = z.infer<
+  typeof VendorUpdateProductAttribute
+>
+export const VendorUpdateProductAttribute = z.object({
+  name: z.string().optional(),
+  ui_component: AttributeUIComponentEnum.optional(),
+  values: z.array(z.string()).optional(),
+  use_for_variations: z.boolean().optional(),
+  rank: z.number().optional(),
+})
+
+/* Batch Variant Images */
+
+export type VendorBatchVariantImagesType = z.infer<
+  typeof VendorBatchVariantImages
+>
+export const VendorBatchVariantImages = z.object({
+  add: z.array(z.string()).optional(),
+  remove: z.array(z.string()).optional(),
+})

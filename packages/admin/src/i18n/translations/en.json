@@ -2748,6 +2748,61 @@
       "createdByLabel": "Created by"
     }
   },
+  "attributes": {
+    "domain": "Attributes",
+    "subtitle": "Manage product attributes and their possible values.",
+    "list": {
+      "title": "Attributes"
+    },
+    "create": {
+      "header": "Create Attribute",
+      "subtitle": "Define a new product attribute.",
+      "tabs": {
+        "details": "Details",
+        "type": "Type"
+      },
+      "successToast": "Attribute \"{{name}}\" was successfully created."
+    },
+    "edit": {
+      "header": "Edit Attribute",
+      "subtitle": "Update attribute details.",
+      "successToast": "Attribute \"{{name}}\" was successfully updated."
+    },
+    "editPossibleValue": {
+      "header": "Edit Possible Value",
+      "subtitle": "Update the possible value details.",
+      "successToast": "Possible value \"{{value}}\" was successfully updated."
+    },
+    "delete": {
+      "confirmation": "You are about to delete the attribute \"{{name}}\". This action cannot be undone.",
+      "successToast": "Attribute \"{{name}}\" was successfully deleted."
+    },
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "description": "Description",
+      "type": "Type",
+      "filterable": "Filterable",
+      "required": "Required",
+      "global": "Global",
+      "categories": "Product Categories",
+      "possibleValues": "Possible Values",
+      "value": "Value",
+      "rank": "Rank",
+      "metadata": "Metadata"
+    },
+    "type": {
+      "select": "Select",
+      "multivalue": "Multi-value",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    },
+    "hints": {
+      "global": "When enabled, this attribute applies to all products regardless of category.",
+      "categoryInheritance": "Child categories will inherit this attribute."
+    }
+  },
   "returnReasons": {
     "domain": "Return Reasons",
     "subtitle": "Manage reasons for returned items.",

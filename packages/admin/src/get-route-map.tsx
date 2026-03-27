@@ -1591,6 +1591,65 @@ export function getRouteMap({
                 ],
               },
               {
+                path: "attributes",
+                errorElement: <ErrorBoundary />,
+                element: <Outlet />,
+                handle: {
+                  breadcrumb: () => t("attributes.domain"),
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("./pages/attributes/attribute-list"),
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () =>
+                          import("./pages/attributes/attribute-create"),
+                      },
+                    ],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Breadcrumb, loader } =
+                        await import("./pages/attributes/attribute-detail");
+
+                      return {
+                        Component: Outlet,
+                        loader,
+                        handle: {
+                          breadcrumb: (
+                            match: UIMatch,
+                          ) => <Breadcrumb {...match} />,
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () =>
+                          import("./pages/attributes/attribute-detail"),
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import("./pages/attributes/attribute-edit"),
+                          },
+                          {
+                            path: "edit-possible-value",
+                            lazy: () =>
+                              import(
+                                "./pages/attributes/attribute-edit-possible-value"
+                              ),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
                 path: "product-types",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
