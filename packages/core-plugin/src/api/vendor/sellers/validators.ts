@@ -2,6 +2,7 @@ import {
   createFindParams,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { SellerRole } from "@mercurjs/types"
 import { z } from "zod"
 
 export type VendorGetSellersParamsType = z.infer<typeof VendorGetSellersParams>
@@ -59,12 +60,12 @@ export const VendorUpdateSeller = z.object({
 export type VendorInviteMemberType = z.infer<typeof VendorInviteMember>
 export const VendorInviteMember = z.object({
   email: z.string().email(),
-  role_id: z.string(),
+  role_id: z.nativeEnum(SellerRole),
 })
 
 export type VendorUpdateMemberRoleType = z.infer<typeof VendorUpdateMemberRole>
 export const VendorUpdateMemberRole = z.object({
-  role_id: z.string(),
+  role_id: z.nativeEnum(SellerRole),
 })
 
 export type VendorUpsertSellerAddressType = z.infer<typeof VendorUpsertSellerAddress>

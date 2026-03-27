@@ -6,6 +6,7 @@ import {
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createSellerDefaultsWorkflow } from "@mercurjs/core-plugin/workflows"
+import { SellerRole } from "@mercurjs/types"
 
 jest.setTimeout(50000)
 
@@ -921,7 +922,7 @@ medusaIntegrationTestRunner({
             `/vendor/sellers/${sellerA.id}/members`,
             {
               email: "invite@test.com",
-              role_id: "role_test",
+              role_id: SellerRole.SELLER_ADMINISTRATION,
             },
             headersA
           )
@@ -929,7 +930,7 @@ medusaIntegrationTestRunner({
           expect(response.status).toEqual(201)
           expect(response.data.member_invite).toBeDefined()
           expect(response.data.member_invite.email).toEqual("invite@test.com")
-          expect(response.data.member_invite.role_id).toEqual("role_test")
+          expect(response.data.member_invite.role_id).toEqual(SellerRole.SELLER_ADMINISTRATION)
         })
 
         it("should fail for invalid email format", async () => {
@@ -938,7 +939,7 @@ medusaIntegrationTestRunner({
               `/vendor/sellers/${sellerA.id}/members`,
               {
                 email: "not-an-email",
-                role_id: "role_test",
+                role_id: SellerRole.SELLER_ADMINISTRATION,
               },
               headersA
             )
@@ -952,7 +953,7 @@ medusaIntegrationTestRunner({
             .post(
               `/vendor/sellers/${sellerA.id}/members`,
               {
-                role_id: "role_test",
+                role_id: SellerRole.SELLER_ADMINISTRATION,
               },
               headersA
             )
@@ -974,6 +975,21 @@ medusaIntegrationTestRunner({
 
           expect(response.status).toEqual(400)
         })
+
+        it("should fail for invalid role_id", async () => {
+          const response = await api
+            .post(
+              `/vendor/sellers/${sellerA.id}/members`,
+              {
+                email: "invalidrole@test.com",
+                role_id: "invalid_role",
+              },
+              headersA
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(400)
+        })
       })
 
       describe("POST /vendor/sellers/:id/members/:member_id", () => {
@@ -985,7 +1001,7 @@ medusaIntegrationTestRunner({
             `/admin/sellers/${sellerA.id}/members`,
             {
               member_id: memberB.id,
-              role_id: "role_test",
+              role_id: SellerRole.SELLER_ADMINISTRATION,
             },
             adminHeaders
           )
@@ -995,7 +1011,7 @@ medusaIntegrationTestRunner({
         it("should update role on an existing seller_member", async () => {
           const response = await api.post(
             `/vendor/sellers/${sellerA.id}/members/${sellerMemberBId}`,
-            { role_id: "role_admin" },
+            { role_id: SellerRole.ORDER_MANAGEMENT },
             headersA
           )
 
@@ -1024,7 +1040,7 @@ medusaIntegrationTestRunner({
             `/admin/sellers/${sellerA.id}/members`,
             {
               member_id: memberB.id,
-              role_id: "role_test",
+              role_id: SellerRole.SELLER_ADMINISTRATION,
             },
             adminHeaders
           )
@@ -1062,6 +1078,69 @@ medusaIntegrationTestRunner({
             .catch((e) => e.response)
 
           expect(response.status).toBeGreaterThanOrEqual(400)
+        })
+      })
+
+      describe("GET /vendor/sellers/:id/members/me", () => {
+        it("should return current authenticated member", async () => {
+          const response = await api.get(
+            `/vendor/sellers/${sellerA.id}/members/me`,
+            headersA
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.seller_member).toBeDefined()
+          expect(response.data.seller_member.member).toBeDefined()
+          expect(response.data.seller_member.is_owner).toBe(true)
+        })
+
+        it("should return member with default fields", async () => {
+          const response = await api.get(
+            `/vendor/sellers/${sellerA.id}/members/me`,
+            headersA
+          )
+
+          expect(response.status).toEqual(200)
+          const sm = response.data.seller_member
+          expect(sm).toHaveProperty("id")
+          expect(sm).toHaveProperty("is_owner")
+          expect(sm).toHaveProperty("member")
+          expect(sm).toHaveProperty("rbac_role")
+        })
+
+        it("should return different members for different users", async () => {
+          const responseA = await api.get(
+            `/vendor/sellers/${sellerA.id}/members/me`,
+            headersA
+          )
+
+          // Add memberB to sellerA
+          const addResponse = await api.post(
+            `/admin/sellers/${sellerA.id}/members`,
+            {
+              member_id: memberB.id,
+              role_id: SellerRole.SELLER_ADMINISTRATION,
+            },
+            adminHeaders
+          )
+
+          const headersB_sellerA = {
+            headers: {
+              ...headersB.headers,
+              "x-seller-id": sellerA.id,
+            },
+          }
+
+          const responseB = await api.get(
+            `/vendor/sellers/${sellerA.id}/members/me`,
+            headersB_sellerA
+          )
+
+          expect(responseA.data.seller_member.id).not.toEqual(
+            responseB.data.seller_member.id
+          )
+          expect(responseA.data.seller_member.is_owner).toBe(true)
+          expect(responseB.data.seller_member.is_owner).toBe(false)
         })
       })
     })
