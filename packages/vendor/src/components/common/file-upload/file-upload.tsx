@@ -1,4 +1,4 @@
-import { ArrowDownTray } from "@medusajs/icons";
+import { CloudArrowUp } from "@medusajs/icons";
 import { Text, clx } from "@medusajs/ui";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 
@@ -121,7 +121,7 @@ export const FileUpload = ({
         ) : (
           <>
             <div className="text-ui-fg-subtle group-disabled:text-ui-fg-disabled flex items-center gap-x-2">
-              <ArrowDownTray />
+              <CloudArrowUp />
               <Text>{label}</Text>
             </div>
             {!!hint && (

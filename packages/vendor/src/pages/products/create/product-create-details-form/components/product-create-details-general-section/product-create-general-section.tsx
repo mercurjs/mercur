@@ -24,6 +24,7 @@ export const ProductCreateGeneralSection = () => {
                   <Form.Control>
                     <Input {...field} placeholder="Winter jacket" />
                   </Form.Control>
+                  <Form.ErrorMessage>{form.formState.errors.title?.message}</Form.ErrorMessage>
                 </Form.Item>
               )
             }}
@@ -59,6 +60,7 @@ export const ProductCreateGeneralSection = () => {
                   <Form.Control>
                     <HandleInput {...field} placeholder="winter-jacket" />
                   </Form.Control>
+                  <Form.ErrorMessage>{form.formState.errors.handle?.message}</Form.ErrorMessage>
                 </Form.Item>
               )
             }}

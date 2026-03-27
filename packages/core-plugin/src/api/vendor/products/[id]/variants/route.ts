@@ -14,7 +14,7 @@ export const GET = async (
   res: MedusaResponse<HttpTypes.VendorProductVariantListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context?.seller_id || req.auth_context.actor_id
 
   await validateSellerProduct(req.scope, sellerId, req.params.id)
 
@@ -41,7 +41,7 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context?.seller_id || req.auth_context.actor_id
   const { additional_data, ...variantData } = req.validatedBody
 
   await validateSellerProduct(req.scope, sellerId, req.params.id)

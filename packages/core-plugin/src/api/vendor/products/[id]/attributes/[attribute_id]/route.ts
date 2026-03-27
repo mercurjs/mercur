@@ -32,7 +32,7 @@ export const POST = async (
   const { name, ui_component, values, use_for_variations } =
     req.validatedBody
 
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context?.seller_id || req.auth_context.actor_id
 
   const {
     data: [attribute],
@@ -167,7 +167,7 @@ export const DELETE = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { id: product_id, attribute_id } = req.params
 
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context?.seller_id || req.auth_context.actor_id
 
   const {
     data: [attribute],
