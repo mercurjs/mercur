@@ -26,7 +26,7 @@ type AttributeValueType = {
   metadata: Record<string, unknown>
 }
 
-type FormValues = Record<string, unknown>
+type FormValues = any
 
 interface SortableItemProps {
   id: string
