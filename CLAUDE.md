@@ -198,3 +198,13 @@ Documentation site built with [Mintlify](https://mintlify.com). Configuration li
 - Heroku
 - DigitalOcean
 - Koyeb
+
+## Active Technologies
+- TypeScript (strict), same as the rest of the monorepo + `meilisearch` npm package (official TS client), `zod` (already in project), `@medusajs/framework` (already in project) (001-meilisearch-search)
+- Meilisearch index (no PostgreSQL models, no migrations) (001-meilisearch-search)
+- TypeScript (strict), same as the rest of the monorepo + `meilisearch` npm package (official TS client), `zod` (already in project), `@medusajs/framework` (already in project) + `meilisearch` (npm), `@medusajs/framework`, `@medusajs/framework/utils`, `zod` (001-meilisearch-search)
+- TypeScript (strict), matching the Mercur monorepo + `@medusajs/framework`, `@medusajs/framework/utils`, `@medusajs/ui`, `@tanstack/react-query`, `zod`, `ioredis` (Redis client — already available via Medusa) (002-buyer-vendor-messaging)
+- PostgreSQL (same instance as Medusa, via `model.define()` + standard migrations), Redis (rate limiting, SSE tokens, pub/sub, throttle state) (002-buyer-vendor-messaging)
+
+## Recent Changes
+- 001-meilisearch-search: Added TypeScript (strict), same as the rest of the monorepo + `meilisearch` npm package (official TS client), `zod` (already in project), `@medusajs/framework` (already in project)
