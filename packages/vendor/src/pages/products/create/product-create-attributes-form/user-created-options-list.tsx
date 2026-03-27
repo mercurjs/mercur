@@ -151,9 +151,22 @@ export const UserCreatedOptionsList = ({
                                         `options.${index}.title`,
                                         value
                                       )
+                                      form.setValue(
+                                        `options.${index}.attributeId`,
+                                        ""
+                                      )
+                                      form.setValue(
+                                        `options.${index}.metadata`,
+                                        { author: "vendor" }
+                                      )
+                                      form.setValue(
+                                        `options.${index}.values`,
+                                        []
+                                      )
                                     }
                                   : undefined
                               }
+                              hideCreateOption
                               className="w-full bg-ui-bg-base hover:bg-ui-bg-base-hover [&>div>input]:px-0 [&>div>input]:placeholder:text-ui-fg-muted"
                               multiple={false}
                               showCheck={false}

@@ -60,7 +60,7 @@ export type ProductCreateOptionSchemaType = z.infer<
 >
 
 export const ProductCreateBaseSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().min(1, i18n.t("products.fields.title.required")),
   subtitle: z.string().optional(),
   handle: z.string().optional(),
   description: z.string().optional(),
@@ -127,7 +127,7 @@ export const EditProductMediaSchema = z.object({
 export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
   z.infer<typeof ProductCreateSchema>
 > = {
-  discountable: true,
+  discountable: false,
   tags: [],
   sales_channels: [],
   options: [],

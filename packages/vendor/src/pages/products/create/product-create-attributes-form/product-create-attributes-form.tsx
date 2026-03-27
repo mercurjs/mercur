@@ -209,7 +209,7 @@ export const ProductCreateAttributesForm = forwardRef<
             allNonRequiredAttributes={
               nonRequiredAttributes as ProductAttribute[]
             }
-            allowCreate={false}
+            allowCreate={true}
           />
 
           {requiredFormFields.length === 0 ? (

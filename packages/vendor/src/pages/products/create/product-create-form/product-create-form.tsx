@@ -8,6 +8,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { RouteFocusModal, useRouteModal } from "@components/modals"
+import { TabbedFormContext } from "@components/tabbed-form"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useRegions } from "@hooks/api"
 import { useAttributes } from "../../../../hooks/api/attributes"
@@ -854,7 +855,7 @@ export const ProductCreateForm = ({
   }, [tab, maxReachedTab])
 
   return (
-    <>
+    <TabbedFormContext.Provider value={form}>
       <RouteFocusModal.Form form={form}>
         <KeyboundForm
           onKeyDown={(e) => {
@@ -1057,7 +1058,7 @@ export const ProductCreateForm = ({
                 variant="secondary"
                 className="whitespace-nowrap"
               >
-                Draft
+                {t("actions.saveAsDraft")}
               </Button>
               <PrimaryButton
                 tab={tab}
@@ -1069,7 +1070,7 @@ export const ProductCreateForm = ({
           </RouteFocusModal.Footer>
         </KeyboundForm>
       </RouteFocusModal.Form>
-    </>
+    </TabbedFormContext.Provider>
   )
 }
 

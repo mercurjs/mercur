@@ -120,7 +120,7 @@
   "actions": {
     "save": "Save",
     "saveChanges": "Save changes",
-    "saveAsDraft": "Save as draft",
+    "saveAsDraft": "Save draft",
     "saveAndClose": "Save and close",
     "copy": "Copy",
     "copied": "Copied",
@@ -643,7 +643,8 @@
       "title": {
         "label": "Title",
         "hint": "Give your product a short and clear title.<0/>50-60 characters is the recommended length for search engines.",
-        "placeholder": "Winter jacket"
+        "placeholder": "Winter jacket",
+        "required": "Please enter a title"
       },
       "subtitle": {
         "label": "Subtitle",
@@ -749,6 +750,10 @@
       },
       "secondaryCategories": {
         "label": "Secondary Categories"
+      },
+      "primaryCategory": {
+        "label": "Primary Category",
+        "tooltip": "The primary category defines which attributes are available for this product. Attributes are created by the Admin when setting up the marketplace."
       }
     },
     "variant": {
