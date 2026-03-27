@@ -32,7 +32,7 @@ export const useSellers = (
     ...options,
   });
 
-  return { ...(data ?? {}), ...rest };
+  return { ...data, ...rest };
 };
 
 export const useCreateSellerAccount = (

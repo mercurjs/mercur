@@ -15,6 +15,13 @@ export type VendorSellerListResponse = PaginatedResponse<{
   sellers: SellerDTO[]
 }>
 
+export interface VendorSellerMemberResponse {
+  /**
+   * The seller member's details.
+   */
+  seller_member: SellerMemberDTO
+}
+
 export type VendorSellerMemberListResponse = PaginatedResponse<{
   /**
    * The list of seller members.

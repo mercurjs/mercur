@@ -46,3 +46,12 @@ export const listVendorMembersQueryConfig = {
   defaultLimit: 50,
   isList: true,
 }
+
+export const retrieveVendorMemberQueryConfig = {
+  defaults: [
+    "id",
+    "is_owner",
+    "member.*",
+    "rbac_role.*",
+  ],
+}

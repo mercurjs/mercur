@@ -702,6 +702,7 @@ export type Routes = {
                 address: typeof import("../../src/api/vendor/sellers/[id]/address/route");
                 members: typeof import("../../src/api/vendor/sellers/[id]/members/route") & {
                     $memberId: typeof import("../../src/api/vendor/sellers/[id]/members/[member_id]/route");
+                    me: typeof import("../../src/api/vendor/sellers/[id]/members/me/route");
                 };
                 paymentDetails: typeof import("../../src/api/vendor/sellers/[id]/payment-details/route");
                 professionalDetails: typeof import("../../src/api/vendor/sellers/[id]/professional-details/route");

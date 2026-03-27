@@ -1,28 +1,28 @@
-import { Children, ReactNode } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { Trans, useTranslation } from "react-i18next"
-import { Link, useNavigate, useSearchParams } from "react-router-dom"
-import * as z from "zod"
+import { Children, ReactNode } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui";
+import { useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import * as z from "zod";
 
-import { Form } from "@components/common/form"
-import AvatarBox from "@components/common/logo-box/avatar-box"
-import { useSignInWithEmailPass } from "@hooks/api"
-import { isFetchError } from "@lib/is-fetch-error"
-import config from "virtual:mercur/config"
+import { Form } from "@components/common/form";
+import AvatarBox from "@components/common/logo-box/avatar-box";
+import { useSignInWithEmailPass } from "@hooks/api";
+import { isFetchError } from "@lib/is-fetch-error";
+import config from "virtual:mercur/config";
 
 const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
-})
+});
 
 const LoginLogo = () => {
-  return <AvatarBox />
-}
+  return <AvatarBox />;
+};
 
 const LoginHeader = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="mb-4 flex flex-col items-center">
@@ -31,18 +31,19 @@ const LoginHeader = () => {
         {t("login.hint")}
       </Text>
     </div>
-  )
-}
+  );
+};
 
 const LoginForm = () => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const reason = searchParams.get("reason") || ""
-  const reasonMessage = reason && reason.toLowerCase() === "unauthorized" ? "Session expired" : reason
-
-  const from = "/"
+  const reason = searchParams.get("reason") || "";
+  const reasonMessage =
+    reason && reason.toLowerCase() === "unauthorized"
+      ? "Session expired"
+      : reason;
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -50,9 +51,9 @@ const LoginForm = () => {
       email: "",
       password: "",
     },
-  })
+  });
 
-  const { mutateAsync, isPending } = useSignInWithEmailPass()
+  const { mutateAsync, isPending } = useSignInWithEmailPass();
 
   const handleSubmit = form.handleSubmit(async ({ email, password }) => {
     await mutateAsync(
@@ -67,39 +68,40 @@ const LoginForm = () => {
               form.setError("email", {
                 type: "manual",
                 message: error.message,
-              })
+              });
 
-              return
+              return;
             }
           }
 
           form.setError("root.serverError", {
             type: "manual",
             message: error.message,
-          })
+          });
         },
         onSuccess: () => {
+          const email = form.getValues("email");
           setTimeout(() => {
-            navigate(from, { replace: true })
-          }, 1000)
+            navigate("/store-select", {
+              replace: true,
+              state: { email },
+            });
+          }, 1000);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   const serverError =
-    form.formState.errors?.root?.serverError?.message || reasonMessage
+    form.formState.errors?.root?.serverError?.message || reasonMessage;
   const validationError =
     form.formState.errors.email?.message ||
-    form.formState.errors.password?.message
+    form.formState.errors.password?.message;
 
   return (
     <div className="flex w-full flex-col gap-y-3">
       <Form {...form}>
-        <form
-          onSubmit={handleSubmit}
-          className="flex w-full flex-col gap-y-6"
-        >
+        <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
           <div className="flex flex-col gap-y-2">
             <Form.Field
               control={form.control}
@@ -116,7 +118,7 @@ const LoginForm = () => {
                       />
                     </Form.Control>
                   </Form.Item>
-                )
+                );
               }}
             />
             <Form.Field
@@ -135,7 +137,7 @@ const LoginForm = () => {
                       />
                     </Form.Control>
                   </Form.Item>
-                )
+                );
               }}
             />
             {validationError && (
@@ -161,8 +163,8 @@ const LoginForm = () => {
         </form>
       </Form>
     </div>
-  )
-}
+  );
+};
 
 const LoginFooter = () => {
   return (
@@ -194,8 +196,8 @@ const LoginFooter = () => {
         </span>
       )}
     </div>
-  )
-}
+  );
+};
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
@@ -213,12 +215,12 @@ const Root = ({ children }: { children?: ReactNode }) => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export const LoginPage = Object.assign(Root, {
   Logo: LoginLogo,
   Header: LoginHeader,
   Form: LoginForm,
   Footer: LoginFooter,
-})
+});

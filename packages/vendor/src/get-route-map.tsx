@@ -1327,6 +1327,14 @@ export function getRouteMap({
               path: "/onboarding",
               lazy: () => import("./pages/onboarding"),
             },
+            {
+              path: "/store-select",
+              lazy: async () => {
+                const { StoreSelectPage } =
+                  await import("./pages/store-select");
+                return { Component: StoreSelectPage };
+              },
+            },
             ...customPublicRoutes,
             {
               path: "*",

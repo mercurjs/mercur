@@ -145,6 +145,23 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
+  // GET /vendor/sellers/:id/members/me — get current member
+  {
+    method: ["GET"],
+    matcher: "/vendor/sellers/:id/members/me",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetSellerParams,
+        QueryConfig.retrieveVendorMemberQueryConfig
+      ),
+    ],
+    policies: [
+      {
+        resource: Entities.seller,
+        operation: PolicyOperation.read,
+      },
+    ],
+  },
   // GET /vendor/sellers/:id/members — list members
   {
     method: ["GET"],

@@ -35,7 +35,6 @@ const StoreSetupSchema = z.object({
 });
 
 const DetailsSetupSchema = z.object({
-  member_email: z.string().email(),
   first_name: z.string().min(1),
   last_name: z.string().min(1),
   company: z.string().optional(),
@@ -95,7 +94,6 @@ export const Onboarding = () => {
   const detailsForm = useForm<DetailsSetupFormValues>({
     resolver: zodResolver(DetailsSetupSchema),
     defaultValues: {
-      member_email: email,
       first_name: "",
       last_name: "",
       company: "",
@@ -127,7 +125,6 @@ export const Onboarding = () => {
       corporate_name,
       registration_number,
       tax_id,
-      member_email,
       ...addressFields
     } = details;
 
@@ -135,7 +132,7 @@ export const Onboarding = () => {
       await createSellerAccount({
         name: storeData.name,
         email: storeData.email,
-        member_email,
+        member_email: email,
         currency_code: storeData.currency_code.toLowerCase(),
         description: storeData.description || undefined,
         address: addressFields,
@@ -517,59 +514,13 @@ const DetailsStep = ({
             custom={1}
           />
 
-          {/* User email section */}
-          <motion.div
-            className="grid grid-cols-2 gap-x-12 py-8"
-            variants={sectionVariants}
-            initial="hidden"
-            animate="visible"
-            custom={2}
-          >
-            <div>
-              <Text size="small" weight="plus" className="text-ui-fg-base">
-                {t("onboarding.detailsSetup.userEmailTitle")}
-              </Text>
-              <Text size="small" className="text-ui-fg-subtle mt-1">
-                {t("onboarding.detailsSetup.userEmailSubtitle")}
-              </Text>
-            </div>
-            <div className="flex flex-col gap-y-4">
-              <Form.Field
-                control={form.control}
-                name="member_email"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t("onboarding.detailsSetup.userEmail")}
-                    </Form.Label>
-                    <Form.Control>
-                      <Input type="email" autoComplete="email" {...field} />
-                    </Form.Control>
-                    <Form.Hint>
-                      {t("onboarding.detailsSetup.userEmailHint")}
-                    </Form.Hint>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                )}
-              />
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="border-t border-dotted border-ui-border-base"
-            variants={sectionVariants}
-            initial="hidden"
-            animate="visible"
-            custom={3}
-          />
-
           {/* Address section */}
           <motion.div
             className="grid grid-cols-2 gap-x-12 py-8"
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            custom={4}
+            custom={2}
           >
             <div>
               <Text size="small" weight="plus" className="text-ui-fg-base">
@@ -722,7 +673,7 @@ const DetailsStep = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            custom={5}
+            custom={3}
           />
 
           {/* Professional details section */}
@@ -731,7 +682,7 @@ const DetailsStep = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            custom={6}
+            custom={4}
           >
             <div>
               <Text size="small" weight="plus" className="text-ui-fg-base">
@@ -835,7 +786,7 @@ const DetailsStep = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            custom={7}
+            custom={5}
           />
 
           <motion.div
@@ -843,7 +794,7 @@ const DetailsStep = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            custom={8}
+            custom={6}
           >
             <div />
             <div className="flex gap-x-2">
