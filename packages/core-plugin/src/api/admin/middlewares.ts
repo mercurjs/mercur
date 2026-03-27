@@ -12,6 +12,7 @@ import { adminOrderGroupQueryConfig } from "./order-groups/query-config"
 import { AdminGetOrderGroupParams } from "./order-groups/validators"
 import { adminPayoutsMiddlewares } from "./payouts/middlewares"
 import { adminSellersMiddlewares } from "./sellers/middlewares"
+import { adminAttributeMiddlewares } from "./attributes/middlewares"
 import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/middlewares"
 
@@ -52,6 +53,7 @@ const maybeApplySellerOrderFilter = (
 }
 
 export const adminMiddlewares: MiddlewareRoute[] = [
+  ...adminAttributeMiddlewares,
   ...adminOrderGroupsMiddlewares,
   {
     method: ["GET"],
