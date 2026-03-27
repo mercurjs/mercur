@@ -1,1 +1,1 @@
-// Edit page component will be added in a later task
+export { AttributeEdit as Component } from "./attribute-edit"
