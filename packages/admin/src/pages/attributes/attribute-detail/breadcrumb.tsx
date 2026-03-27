@@ -1,7 +1,7 @@
 import { UIMatch } from "react-router-dom"
 import { useAttribute } from "../../../hooks/api"
 
-type AttributeDetailBreadcrumbProps = UIMatch<{ attribute: { name: string } }>
+type AttributeDetailBreadcrumbProps = UIMatch<unknown>
 
 export const AttributeDetailBreadcrumb = (
   props: AttributeDetailBreadcrumbProps

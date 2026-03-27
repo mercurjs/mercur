@@ -1,10 +1,5 @@
+import { ClientError } from "@mercurjs/client"
 import {
-  ClientError,
-  InferClientInput,
-  InferClientOutput,
-} from "@mercurjs/client"
-import {
-  QueryKey,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
@@ -19,23 +14,21 @@ export const attributesQueryKeys = queryKeysFactory(ATTRIBUTES_QUERY_KEY)
 
 export const useAttribute = (
   id: string,
-  query?: Omit<
-    InferClientInput<typeof sdk.admin.attributes.$id.query>,
-    "$id"
-  >,
+  query?: Record<string, any>,
   options?: Omit<
     UseQueryOptions<
-      InferClientOutput<typeof sdk.admin.attributes.$id.query>,
-      ClientError,
-      InferClientOutput<typeof sdk.admin.attributes.$id.query>,
-      QueryKey
+      { attribute: Record<string, any> },
+      ClientError
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: attributesQueryKeys.detail(id, query),
-    queryFn: () => sdk.admin.attributes.$id.query({ $id: id, ...query }),
+    queryFn: async () =>
+      sdk.admin.attributes.$id.query({ $id: id, ...query }) as Promise<{
+        attribute: Record<string, any>
+      }>,
     ...options,
   })
 
@@ -43,20 +36,22 @@ export const useAttribute = (
 }
 
 export const useAttributes = (
-  query?: InferClientInput<typeof sdk.admin.attributes.query>,
+  query?: Record<string, any>,
   options?: Omit<
     UseQueryOptions<
-      InferClientOutput<typeof sdk.admin.attributes.query>,
-      ClientError,
-      InferClientOutput<typeof sdk.admin.attributes.query>,
-      QueryKey
+      { attributes: Record<string, any>[]; count: number },
+      ClientError
     >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: attributesQueryKeys.list(query),
-    queryFn: () => sdk.admin.attributes.query({ ...query }),
+    queryFn: async () =>
+      sdk.admin.attributes.query({ ...query }) as Promise<{
+        attributes: Record<string, any>[]
+        count: number
+      }>,
     ...options,
   })
 
@@ -64,14 +59,11 @@ export const useAttributes = (
 }
 
 export const useCreateAttribute = (
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.attributes.mutate>,
-    ClientError,
-    InferClientInput<typeof sdk.admin.attributes.mutate>
-  >
+  options?: UseMutationOptions<any, ClientError, Record<string, any>>
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.attributes.mutate(payload),
+    mutationFn: (payload: Record<string, any>) =>
+      sdk.admin.attributes.mutate(payload as any),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: attributesQueryKeys.lists(),
@@ -85,17 +77,10 @@ export const useCreateAttribute = (
 
 export const useUpdateAttribute = (
   id: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.attributes.$id.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.admin.attributes.$id.mutate>,
-      "$id"
-    >
-  >
+  options?: UseMutationOptions<any, ClientError, Record<string, any>>
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
+    mutationFn: (payload: Record<string, any>) =>
       sdk.admin.attributes.$id.mutate({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
@@ -113,11 +98,7 @@ export const useUpdateAttribute = (
 
 export const useDeleteAttribute = (
   id: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.attributes.$id.delete>,
-    ClientError,
-    void
-  >
+  options?: UseMutationOptions<any, ClientError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.attributes.$id.delete({ $id: id }),
@@ -138,17 +119,10 @@ export const useDeleteAttribute = (
 export const useUpdateAttributePossibleValue = (
   attributeId: string,
   valueId: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.admin.attributes.$id.values.$valueId.mutate>,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.admin.attributes.$id.values.$valueId.mutate>,
-      "$id" | "$valueId"
-    >
-  >
+  options?: UseMutationOptions<any, ClientError, Record<string, any>>
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
+    mutationFn: (payload: Record<string, any>) =>
       sdk.admin.attributes.$id.values.$valueId.mutate({
         $id: attributeId,
         $valueId: valueId,

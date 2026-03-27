@@ -21,7 +21,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     id!,
     { fields: ATTRIBUTE_DETAIL_FIELDS },
     {
-      initialData,
+      initialData: initialData as any,
     }
   )
 
