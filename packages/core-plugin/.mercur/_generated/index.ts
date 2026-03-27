@@ -415,6 +415,13 @@ export type Routes = {
                 subscribe: typeof import("@medusajs/medusa/api/admin/workflows-executions/[workflow_id]/subscribe/route");
             };
         };
+        attributes: typeof import("../../src/api/admin/attributes/route") & {
+            $id: typeof import("../../src/api/admin/attributes/[id]/route") & {
+                values: typeof import("../../src/api/admin/attributes/[id]/values/route") & {
+                    $valueId: typeof import("../../src/api/admin/attributes/[id]/values/[value_id]/route");
+                };
+            };
+        };
         commissionRates: typeof import("../../src/api/admin/commission-rates/route") & {
             $id: typeof import("../../src/api/admin/commission-rates/[id]/route") & {
                 rules: typeof import("../../src/api/admin/commission-rates/[id]/rules/route");
@@ -635,7 +642,12 @@ export type Routes = {
                     $optionId: typeof import("../../src/api/vendor/products/[id]/options/[option_id]/route");
                 };
                 variants: typeof import("../../src/api/vendor/products/[id]/variants/route") & {
-                    $variantId: typeof import("../../src/api/vendor/products/[id]/variants/[variant_id]/route");
+                    $variantId: typeof import("../../src/api/vendor/products/[id]/variants/[variant_id]/route") & {
+                        media: typeof import("../../src/api/vendor/products/[id]/variants/[variant_id]/media/route");
+                    };
+                };
+                attributes: typeof import("../../src/api/vendor/products/[id]/attributes/route") & {
+                    $attributeId: typeof import("../../src/api/vendor/products/[id]/attributes/[attribute_id]/route");
                 };
             };
         };
@@ -697,7 +709,7 @@ export type Routes = {
             };
         };
         sellers: typeof import("../../src/api/vendor/sellers/route") & {
-            me: typeof import("@mercurjs/core-plugin/api/vendor/sellers/me/route");
+            me: typeof import("../../src/api/vendor/sellers/me/route");
             $id: typeof import("../../src/api/vendor/sellers/[id]/route") & {
                 address: typeof import("../../src/api/vendor/sellers/[id]/address/route");
                 members: typeof import("../../src/api/vendor/sellers/[id]/members/route") & {
