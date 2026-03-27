@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useMemo, useImperativeHandle } from "react"
+import { forwardRef, useEffect, useMemo, useImperativeHandle, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   InlineTip,
@@ -11,6 +11,7 @@ import {
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import type { AdminProductCategory } from "@medusajs/types"
 import { AttributeDTO } from "@mercurjs/types"
 import { Form } from "../../../../components/common/form"
 import {
@@ -22,6 +23,8 @@ import type {
   CreateAttributeFormValues,
   UpdateAttributeFormValues,
 } from "../types"
+import { MultiSelectCategory } from "../../attribute-create/components/multi-select-category"
+import { PossibleValuesList } from "../../attribute-create/components/possible-values-list"
 
 export interface AttributeFormRef {
   validateFields: (fields: string[]) => Promise<boolean>
@@ -32,6 +35,7 @@ export interface AttributeFormProps {
   onSubmit: (
     data: CreateAttributeFormValues | UpdateAttributeFormValues
   ) => Promise<void>
+  categories?: AdminProductCategory[]
   mode?: "create" | "update"
   activeTab?: "details" | "type"
   onFormStateChange?: (formState: {
@@ -53,6 +57,7 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
     {
       initialData,
       onSubmit,
+      categories,
       mode = "create",
       activeTab = "details",
       onFormStateChange,
@@ -60,6 +65,10 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
     ref
   ) => {
     const { t } = useTranslation()
+    const [showCategorySection, setShowCategorySection] = useState(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((initialData as any)?.product_categories?.length || 0) > 0
+    )
 
     const form = useForm<CreateAttributeFormValues | UpdateAttributeFormValues>({
       resolver: zodResolver(
@@ -296,6 +305,79 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
               </Form.Item>
             )}
           />
+
+          <Form.Field
+            control={form.control}
+            name="product_category_ids"
+            render={({ field }) => {
+              const categoryIds = (field.value as string[]) ?? []
+              const isGlobal = categoryIds.length === 0 && !showCategorySection
+              return (
+                <Form.Item data-testid="attribute-form-global-field">
+                  <div className="rounded-lg bg-ui-bg-component p-4 shadow-elevation-card-rest">
+                    <div className="flex gap-3">
+                      <Form.Control data-testid="attribute-form-global-control">
+                        <Switch
+                          checked={isGlobal}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              field.onChange([])
+                              setShowCategorySection(false)
+                            } else {
+                              setShowCategorySection(true)
+                            }
+                          }}
+                          className="mt-1"
+                          data-testid="attribute-form-global-switch"
+                        />
+                      </Form.Control>
+                      <div>
+                        <Form.Label data-testid="attribute-form-global-label">
+                          {t(
+                            "attributes.fields.global",
+                            "Yes, this is a global attribute"
+                          )}
+                        </Form.Label>
+                        <Text className="mt-1 text-xs text-ui-fg-subtle">
+                          {t(
+                            "attributes.hints.global",
+                            "When enabled, this attribute applies to all products regardless of category."
+                          )}
+                        </Text>
+                      </div>
+                    </div>
+                  </div>
+
+                  {(showCategorySection || categoryIds.length > 0) && (
+                    <div className="mt-4" data-testid="attribute-form-category-field">
+                      <Form.Label
+                        optional
+                        data-testid="attribute-form-category-label"
+                      >
+                        {t("attributes.fields.categories", "Product Categories")}
+                      </Form.Label>
+                      <div className="mt-1">
+                        <MultiSelectCategory
+                          categories={categories ?? []}
+                          value={categoryIds}
+                          onChange={(value) => field.onChange(value)}
+                        />
+                      </div>
+                      <Form.ErrorMessage data-testid="attribute-form-category-error" />
+                      <div className="mt-3">
+                        <InlineTip label="Warning" variant="warning">
+                          {t(
+                            "attributes.hints.categoryInheritance",
+                            "Child categories will inherit this attribute."
+                          )}
+                        </InlineTip>
+                      </div>
+                    </div>
+                  )}
+                </Form.Item>
+              )
+            }}
+          />
         </div>
       </div>
     )
@@ -363,7 +445,12 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
           </InlineTip>
         )}
 
-        {/* PossibleValuesList goes here */}
+        {(uiComponent === AttributeUIComponent.SELECT ||
+          uiComponent === AttributeUIComponent.MULTIVALUE) && (
+          <div data-testid="attribute-form-possible-values-section">
+            <PossibleValuesList />
+          </div>
+        )}
       </div>
     )
 
