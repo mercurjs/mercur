@@ -220,21 +220,25 @@ medusaIntegrationTestRunner({
           expect(response.data.seller).toBeDefined()
         })
 
-        it("should fail when already registered as member", async () => {
-          const response = await api
-            .post(
-              `/vendor/sellers`,
-              {
-                name: "Duplicate Registration",
-                email: "duplicate@test.com",
-                member_email: "duplicate-member@test.com",
-                currency_code: "usd",
-              },
-              headersA
-            )
-            .catch((e) => e.response)
+        it("should create a second store for an existing member", async () => {
+          const response = await api.post(
+            `/vendor/sellers`,
+            {
+              name: "Second Store",
+              email: "second-store@test.com",
+              currency_code: "usd",
+            },
+            headersA
+          )
 
-          expect(response.status).toEqual(400)
+          expect(response.status).toEqual(201)
+          expect(response.data.seller).toEqual(
+            expect.objectContaining({
+              name: "Second Store",
+              email: "second-store@test.com",
+              status: "pending_approval",
+            })
+          )
         })
 
         it("should fail for missing name", async () => {
@@ -326,6 +330,54 @@ medusaIntegrationTestRunner({
             .catch((e) => e.response)
 
           expect(response.status).toEqual(400)
+        })
+
+        it("should list multiple stores for a member with multiple sellers", async () => {
+          await api.post(
+            `/vendor/sellers`,
+            {
+              name: "Second Alpha Store",
+              email: "second-alpha@test.com",
+              currency_code: "usd",
+            },
+            headersA
+          )
+
+          const response = await api.get(`/vendor/sellers`, headersA)
+
+          expect(response.status).toEqual(200)
+          expect(response.data.seller_members.length).toEqual(2)
+        })
+
+        it("should create owner seller_member for existing member's new store", async () => {
+          const createResponse = await api.post(
+            `/vendor/sellers`,
+            {
+              name: "Ownership Check Store",
+              email: "ownership-check@test.com",
+              currency_code: "usd",
+            },
+            headersA
+          )
+
+          const sellerId = createResponse.data.seller.id
+          const headersA_newSeller = {
+            headers: {
+              ...headersA.headers,
+              "x-seller-id": sellerId,
+            },
+          }
+
+          const membersResponse = await api.get(
+            `/vendor/sellers/${sellerId}/members`,
+            headersA_newSeller
+          )
+
+          expect(membersResponse.data.seller_members.length).toEqual(1)
+          expect(membersResponse.data.seller_members[0].is_owner).toBe(true)
+          expect(membersResponse.data.seller_members[0].member.id).toEqual(
+            memberA.id
+          )
         })
       })
 

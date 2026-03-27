@@ -32,7 +32,8 @@ export const createSellerAccountWorkflowId = "create-seller-account"
 type CreateSellerAccountWorkflowInput = {
   auth_identity_id: string
   seller: CreateSellerDTO
-  member_email: string
+  member_email?: string
+  member_id?: string
   address?: UpdateSellerAddressDTO
   professional_details?: UpdateProfessionalDetailsDTO
 } & AdditionalData
@@ -47,31 +48,39 @@ export const createSellerAccountWorkflow = createWorkflow(
     const sellers = createSellersStep(sellerData)
     const seller = transform({ sellers }, ({ sellers }) => sellers[0])
 
-    const members = upsertMembersStep(
-      transform(input, ({ member_email }) => [{ email: member_email }])
-    )
+    const newMember = when('no-existing-member', input, ({ member_id }) => !member_id).then(() => {
+      const members = upsertMembersStep(
+        transform(input, ({ member_email }) => [{ email: member_email! }])
+      )
+      const member = transform({ members }, ({ members }) => members[0])
 
-    const member = transform({ members }, ({ members }) => members[0])
+      setAuthAppMetadataStep({
+        authIdentityId: input.auth_identity_id,
+        actorType: "member",
+        value: member.id,
+      })
+
+      return member
+    })
+
+    const memberId = transform(
+      { input, newMember },
+      ({ input, newMember }) => input.member_id || newMember?.id as string
+    )
 
     createSellerMembersStep(
       transform(
-        { seller, member },
-        ({ seller, member }) => [
+        { seller, memberId },
+        ({ seller, memberId }) => [
           {
             seller_id: seller.id,
-            member_id: member.id,
+            member_id: memberId,
             role_id: SellerRole.SELLER_ADMINISTRATION,
             is_owner: true,
           },
         ]
       )
     )
-
-    setAuthAppMetadataStep({
-      authIdentityId: input.auth_identity_id,
-      actorType: "member",
-      value: member.id,
-    })
 
     when(input, ({ address }) => !!address).then(() => {
       updateSellerAddressWorkflow.runAsStep({

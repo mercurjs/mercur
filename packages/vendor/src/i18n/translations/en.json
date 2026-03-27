@@ -2938,6 +2938,12 @@
       }
     }
   },
+  "storeSelect": {
+    "title": "Choose a store",
+    "subtitle": "These are all your available stores",
+    "pendingApproval": "Pending approval",
+    "addNewStore": "Add new store"
+  },
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
     "title": "Welcome to {{name}}",
@@ -2985,10 +2991,6 @@
     "detailsSetup": {
       "title": "Complete your profile",
       "subtitle": "Add your address and business details",
-      "userEmailTitle": "User email",
-      "userEmailSubtitle": "Your account login and contact email",
-      "userEmail": "Email address",
-      "userEmailHint": "Used as your account login and contact email",
       "addressTitle": "Address",
       "addressSubtitle": "Your business address",
       "professionalTitle": "Business details",

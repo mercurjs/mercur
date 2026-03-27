@@ -80,8 +80,12 @@ const LoginForm = () => {
           });
         },
         onSuccess: () => {
+          const email = form.getValues("email");
           setTimeout(() => {
-            navigate("/store-select", { replace: true });
+            navigate("/store-select", {
+              replace: true,
+              state: { email },
+            });
           }, 1000);
         },
       },
