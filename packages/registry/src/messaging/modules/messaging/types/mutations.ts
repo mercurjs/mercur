@@ -21,6 +21,16 @@ export interface MarkMessagesReadInput {
   reader_type: SenderType
 }
 
+export interface BlockCustomerInput {
+  customer_id: string
+  blocked_by: string
+  reason?: string | null
+}
+
+export interface UnblockCustomerInput {
+  customer_id: string
+}
+
 export interface PublishMessageEventInput {
   conversation_id: string
   recipient_id: string

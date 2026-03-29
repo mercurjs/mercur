@@ -1,6 +1,8 @@
 import {
   useQuery,
   useInfiniteQuery,
+  useMutation,
+  useQueryClient,
   UseQueryOptions,
 } from "@tanstack/react-query"
 import { client } from "../../lib/client"
@@ -22,6 +24,8 @@ export type AdminConversationDTO = {
   unread_count_customer: number
   unread_count_seller: number
   created_at: string
+  is_buyer_blocked?: boolean
+  block_reason?: string | null
 }
 
 export type AdminMessageDTO = {
@@ -102,4 +106,30 @@ export const useAdminConversation = (
     isFetchingNextPage,
     ...rest,
   }
+}
+
+export const useBlockCustomer = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: { customer_id: string; reason?: string }) =>
+      (client as any).admin.messages["chat-blocks"].mutate(data) as Promise<{ block: any }>,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [ADMIN_CONVERSATIONS_KEY] })
+      queryClient.invalidateQueries({ queryKey: [ADMIN_CONVERSATION_KEY] })
+    },
+  })
+}
+
+export const useUnblockCustomer = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (customerId: string) =>
+      (client as any).admin.messages["chat-blocks"].$customer_id.delete({ $customer_id: customerId }) as Promise<{ success: boolean }>,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [ADMIN_CONVERSATIONS_KEY] })
+      queryClient.invalidateQueries({ queryKey: [ADMIN_CONVERSATION_KEY] })
+    },
+  })
 }

@@ -75,8 +75,12 @@ export const GET = async (
     // Continue without enrichment
   }
 
+  // Check block status
+  const blockedSet = await service.checkBuyersBlocked([conversation.buyer_id])
+  const is_buyer_blocked = blockedSet.has(conversation.buyer_id)
+
   res.json({
-    conversation: { ...conversation, buyer_first_name },
+    conversation: { ...conversation, buyer_first_name, is_buyer_blocked },
     messages,
     next_cursor,
     buyer_orders,
@@ -105,6 +109,16 @@ export const POST = async (
   }
 
   const conversation = conversations[0]!
+
+  // Check if buyer is blocked from chat
+  const blockedSet = await service.checkBuyersBlocked([conversation.buyer_id])
+  if (blockedSet.has(conversation.buyer_id)) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Cannot send messages to a blocked customer"
+    )
+  }
+
   const { body } = req.validatedBody
 
   const { result: message } = await sendMessageWorkflow.run({

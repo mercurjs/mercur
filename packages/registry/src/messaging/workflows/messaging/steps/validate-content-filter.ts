@@ -3,7 +3,7 @@ import { MedusaError } from "@medusajs/framework/utils"
 
 import { MESSAGING_FILTERS_MODULE } from "../../../modules/messaging-filters"
 import type MessagingFiltersModuleService from "../../../modules/messaging-filters/service"
-import { getCompiledRuleset } from "../../../modules/messaging-filters/loaders/compile-filters"
+import { getCompiledRuleset, recompileFilters, isRulesetEmpty } from "../../../modules/messaging-filters/loaders/compile-filters"
 
 type ValidateContentFilterInput = {
   body: string
@@ -18,6 +18,15 @@ export const validateContentFilterStep = createStep(
     const filtersService = container.resolve<MessagingFiltersModuleService>(
       MESSAGING_FILTERS_MODULE
     )
+
+    // Lazy-compile rules if ruleset is empty (first message or after invalidation)
+    if (isRulesetEmpty()) {
+      try {
+        await recompileFilters(container)
+      } catch {
+        // Continue with empty ruleset
+      }
+    }
 
     const ruleset = getCompiledRuleset()
     const result = filtersService.evaluateMessage(input.body, ruleset)

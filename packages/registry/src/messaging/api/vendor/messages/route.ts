@@ -5,7 +5,13 @@ import {
 
 import { MESSAGING_MODULE } from "../../../modules/messaging"
 import type MessagingModuleService from "../../../modules/messaging/service"
+import { ConversationDTO } from "../../../modules/messaging/types/common"
 import { VendorListConversationsType } from "./validators"
+
+type EnrichedConversation = ConversationDTO & {
+  buyer_first_name?: string | null
+  is_buyer_blocked?: boolean
+}
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<VendorListConversationsType>,
@@ -23,11 +29,13 @@ export const GET = async (
       }
     )
 
+  const enriched = conversations as EnrichedConversation[]
+
   // Resolve buyer first names via customer link
-  if (conversations.length > 0) {
+  if (enriched.length > 0) {
     try {
       const query = req.scope.resolve("query")
-      const buyerIds = [...new Set(conversations.map((c: any) => c.buyer_id))]
+      const buyerIds = [...new Set(enriched.map((c) => c.buyer_id))]
 
       const { data: customers } = await query.graph({
         entity: "customer",
@@ -36,10 +44,10 @@ export const GET = async (
       })
 
       const customerMap = new Map(
-        (customers ?? []).map((c: any) => [c.id, c.first_name])
+        (customers ?? []).map((c: { id: string; first_name: string }) => [c.id, c.first_name])
       )
 
-      for (const conv of conversations as any[]) {
+      for (const conv of enriched) {
         conv.buyer_first_name = customerMap.get(conv.buyer_id) ?? null
       }
     } catch {
@@ -47,5 +55,14 @@ export const GET = async (
     }
   }
 
-  res.json({ conversations, next_cursor })
+  // Annotate block status
+  if (enriched.length > 0) {
+    const buyerIds = [...new Set(enriched.map((c) => c.buyer_id))]
+    const blockedSet = await service.checkBuyersBlocked(buyerIds)
+    for (const conv of enriched) {
+      conv.is_buyer_blocked = blockedSet.has(conv.buyer_id)
+    }
+  }
+
+  res.json({ conversations: enriched, next_cursor })
 }

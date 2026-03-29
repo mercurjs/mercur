@@ -1,10 +1,11 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Button, Container, Heading, Input, Label, Text } from "@medusajs/ui"
+import { Badge, Button, Container, Heading, Input, Label, Text } from "@medusajs/ui"
 import type { RouteConfig } from "@mercurjs/dashboard-sdk"
 
 import { useAdminConversations, AdminConversationDTO } from "../../hooks/api/messaging"
 import { useAdminMessagingSSE } from "../../hooks/api/use-admin-messaging-sse"
+import { useMessagingLayout } from "../../hooks/use-messaging-layout"
 
 export const config: RouteConfig = {
   label: "Messages",
@@ -42,6 +43,11 @@ const ConversationRow = ({
           <Text size="small" leading="compact" weight="plus">
             {conversation.buyer_name || conversation.buyer_id}
           </Text>
+          {conversation.is_buyer_blocked && (
+            <Badge color="red" size="2xsmall">
+              Blocked
+            </Badge>
+          )}
         </div>
         <Text
           size="small"
@@ -85,6 +91,8 @@ const AdminMessagesPage = () => {
   const { conversations, next_cursor, isLoading, isError, error } =
     useAdminConversations({ limit: 50, ...searchParams })
 
+  useMessagingLayout()
+
   if (isError) throw error
 
   const handleSearch = () => {
@@ -102,9 +110,9 @@ const AdminMessagesPage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-full flex-col gap-4">
       {/* Search Form */}
-      <Container className="p-0">
+      <Container className="shrink-0 p-0">
         <div className="px-6 py-4">
           <Heading>Message Oversight</Heading>
         </div>
@@ -165,22 +173,22 @@ const AdminMessagesPage = () => {
       </Container>
 
       {/* Results */}
-      <Container className="divide-y p-0">
-        <div className="px-6 py-4">
+      <Container className="flex min-h-0 flex-1 flex-col divide-y p-0">
+        <div className="shrink-0 px-6 py-4">
           <Text size="small" weight="plus">
             Conversations
           </Text>
         </div>
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex flex-1 items-center justify-center py-12">
             <Text className="text-ui-fg-muted">Loading...</Text>
           </div>
         ) : !conversations?.length ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex flex-1 items-center justify-center py-12">
             <Text className="text-ui-fg-muted">No conversations found</Text>
           </div>
         ) : (
-          <div className="divide-y">
+          <div className="flex-1 divide-y overflow-y-auto">
             {conversations.map((conv) => (
               <ConversationRow
                 key={conv.id}

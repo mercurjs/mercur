@@ -1,11 +1,11 @@
 import {
-  authenticate,
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
 import { MiddlewareRoute } from "@medusajs/medusa"
 
 import {
+  AdminBlockCustomer,
   AdminGetMessages,
   AdminSearchConversations,
 } from "./validators"
@@ -22,7 +22,6 @@ export const adminMessagingMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/messages",
     middlewares: [
-      authenticate("user", ["session", "bearer"]),
       validateAndTransformQuery(
         AdminSearchConversations,
         adminMessagingQueryConfig.listConversations
@@ -31,16 +30,8 @@ export const adminMessagingMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ["GET"],
-    matcher: "/admin/messages/events",
-    middlewares: [
-      authenticate("user", ["session", "bearer"]),
-    ],
-  },
-  {
-    method: ["GET"],
     matcher: "/admin/messages/filters",
     middlewares: [
-      authenticate("user", ["session", "bearer"]),
       validateAndTransformQuery(AdminListFilters, { defaults: ["*"], isList: true }),
     ],
   },
@@ -48,7 +39,6 @@ export const adminMessagingMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/messages/filters",
     middlewares: [
-      authenticate("user", ["session", "bearer"]),
       validateAndTransformBody(AdminCreateFilter),
     ],
   },
@@ -56,30 +46,27 @@ export const adminMessagingMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/messages/filters/:id",
     middlewares: [
-      authenticate("user", ["session", "bearer"]),
       validateAndTransformBody(AdminUpdateFilter),
-    ],
-  },
-  {
-    method: ["DELETE"],
-    matcher: "/admin/messages/filters/:id",
-    middlewares: [
-      authenticate("user", ["session", "bearer"]),
     ],
   },
   {
     method: ["GET"],
     matcher: "/admin/messages/blocked",
     middlewares: [
-      authenticate("user", ["session", "bearer"]),
       validateAndTransformQuery(AdminListBlocked, { defaults: ["*"], isList: true }),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/messages/chat-blocks",
+    middlewares: [
+      validateAndTransformBody(AdminBlockCustomer),
     ],
   },
   {
     method: ["GET"],
     matcher: "/admin/messages/:id",
     middlewares: [
-      authenticate("user", ["session", "bearer"]),
       validateAndTransformQuery(
         AdminGetMessages,
         adminMessagingQueryConfig.listMessages

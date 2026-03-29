@@ -26,10 +26,10 @@ export const validateRateLimitStep = createStep(
     }
 
     try {
-      // Check message rate limit: 10 per minute
+      // Check message rate limit: 20 per minute
       const msgResult = await redisService.checkRateLimit(
         `ratelimit:msg:${input.sender_id}`,
-        10,
+        20,
         60
       )
 

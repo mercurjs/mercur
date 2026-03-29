@@ -10,7 +10,7 @@ type RateLimitState = {
   counters: Map<string, { count: number; expiresAt: number }>
 }
 
-const MESSAGES_PER_MINUTE = 10
+const MESSAGES_PER_MINUTE = 20
 const CONVERSATIONS_PER_HOUR = 5
 const MSG_WINDOW_MS = 60_000
 const CONV_WINDOW_MS = 3_600_000
@@ -63,28 +63,28 @@ function checkRateLimit(
 }
 
 describe("Rate Limit Sliding Window", () => {
-  describe("message rate limit (10/min)", () => {
+  describe("message rate limit (20/min)", () => {
     it("allows first message", () => {
       const state = createState()
       const result = checkRateLimit(state, "user_1", false, Date.now())
       expect(result.allowed).toBe(true)
     })
 
-    it("allows up to 10 messages per minute", () => {
+    it("allows up to 20 messages per minute", () => {
       const state = createState()
       const now = Date.now()
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 20; i++) {
         const result = checkRateLimit(state, "user_1", false, now)
         expect(result.allowed).toBe(true)
       }
     })
 
-    it("blocks 11th message within the minute", () => {
+    it("blocks 21st message within the minute", () => {
       const state = createState()
       const now = Date.now()
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 20; i++) {
         checkRateLimit(state, "user_1", false, now)
       }
 
@@ -97,7 +97,7 @@ describe("Rate Limit Sliding Window", () => {
       const state = createState()
       const now = Date.now()
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 20; i++) {
         checkRateLimit(state, "user_1", false, now)
       }
 
@@ -172,7 +172,7 @@ describe("Rate Limit Sliding Window", () => {
       const now = Date.now()
 
       // User 1 hits limit
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 20; i++) {
         checkRateLimit(state, "user_1", false, now)
       }
 
@@ -189,7 +189,7 @@ describe("Rate Limit Sliding Window", () => {
       const state = createState()
       const now = Date.now()
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 20; i++) {
         checkRateLimit(state, "cust_123", false, now)
       }
 
@@ -200,7 +200,7 @@ describe("Rate Limit Sliding Window", () => {
       const state = createState()
       const now = Date.now()
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 20; i++) {
         checkRateLimit(state, "seller_456", false, now)
       }
 

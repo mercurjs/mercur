@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import {
   Badge,
@@ -16,6 +16,7 @@ import {
   MessageDTO,
 } from "../../../hooks/api/messaging"
 import { useMessagingSSE } from "../../../hooks/api/use-messaging-sse"
+import { useMessagingLayout } from "../../../hooks/use-messaging-layout"
 
 export const handle = {
   breadcrumb: () => "Conversation",
@@ -81,9 +82,11 @@ const MessageBubble = ({ message }: { message: MessageDTO }) => {
 const OrderSidebar = ({
   buyerName,
   orders,
+  isBuyerBlocked,
 }: {
   buyerName: string | null
   orders: any[]
+  isBuyerBlocked?: boolean
 }) => {
   return (
     <Container className="divide-y p-0">
@@ -91,9 +94,16 @@ const OrderSidebar = ({
         <Text size="small" leading="compact" weight="plus">
           Customer
         </Text>
-        <Text size="small" leading="compact" className="text-ui-fg-subtle mt-1">
-          {buyerName || "Customer"}
-        </Text>
+        <div className="flex items-center gap-x-2 mt-1">
+          <Text size="small" leading="compact" className="text-ui-fg-subtle">
+            {buyerName || "Customer"}
+          </Text>
+          {isBuyerBlocked && (
+            <Badge color="red" size="2xsmall">
+              Blocked
+            </Badge>
+          )}
+        </div>
       </div>
       {orders.length > 0 && (
         <div className="px-6 py-4">
@@ -151,33 +161,7 @@ const VendorConversationDetailPage = () => {
   const markRead = useMarkVendorRead(id!)
   const sendReply = useSendVendorReply(id!)
 
-  // Fix shell height chain so chat fills available space without page scroll
-  useLayoutEffect(() => {
-    const main = document.querySelector("main") as HTMLElement | null
-    const contentCol = main?.parentElement as HTMLElement | null
-    const gutter = main?.firstElementChild as HTMLElement | null
-
-    const origMain = main?.style.cssText ?? ""
-    const origCol = contentCol?.style.cssText ?? ""
-    const origGutter = gutter?.style.cssText ?? ""
-
-    if (contentCol) contentCol.style.overflow = "hidden"
-    if (main) {
-      main.style.overflow = "hidden"
-      main.style.minHeight = "0"
-    }
-    if (gutter) {
-      gutter.style.flex = "1"
-      gutter.style.minHeight = "0"
-      gutter.style.overflow = "hidden"
-    }
-
-    return () => {
-      if (main) main.style.cssText = origMain
-      if (contentCol) contentCol.style.cssText = origCol
-      if (gutter) gutter.style.cssText = origGutter
-    }
-  }, [])
+  useMessagingLayout()
 
   // Mark messages as read on mount
   useEffect(() => {
@@ -259,26 +243,34 @@ const VendorConversationDetailPage = () => {
         </div>
 
         {/* Compose area */}
-        <div id="chat-compose" className="border-t border-ui-border-base px-6 py-4 shrink-0">
-          <div className="flex gap-2">
-            <Textarea
-              placeholder="Type your reply..."
-              value={replyBody}
-              onChange={(e) => setReplyBody(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="flex-1 resize-none"
-              rows={2}
-            />
-            <Button
-              size="small"
-              onClick={handleSend}
-              disabled={!replyBody.trim() || sendReply.isPending}
-              isLoading={sendReply.isPending}
-            >
-              Send
-            </Button>
+        {conversation?.is_buyer_blocked ? (
+          <div className="border-t border-ui-border-base px-6 py-4 shrink-0">
+            <Text size="small" className="text-ui-fg-muted">
+              This customer has been blocked from chat by an administrator.
+            </Text>
           </div>
-        </div>
+        ) : (
+          <div id="chat-compose" className="border-t border-ui-border-base px-6 py-4 shrink-0">
+            <div className="flex gap-2">
+              <Textarea
+                placeholder="Type your reply..."
+                value={replyBody}
+                onChange={(e) => setReplyBody(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="flex-1 resize-none"
+                rows={2}
+              />
+              <Button
+                size="small"
+                onClick={handleSend}
+                disabled={!replyBody.trim() || sendReply.isPending}
+                isLoading={sendReply.isPending}
+              >
+                Send
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sidebar: Customer + Orders */}
@@ -286,6 +278,7 @@ const VendorConversationDetailPage = () => {
         <OrderSidebar
           buyerName={conversation?.buyer_first_name ?? null}
           orders={buyer_orders ?? []}
+          isBuyerBlocked={conversation?.is_buyer_blocked}
         />
       </div>
     </div>

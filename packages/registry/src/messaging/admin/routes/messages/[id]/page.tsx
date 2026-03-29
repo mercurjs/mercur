@@ -1,12 +1,15 @@
-import { useLayoutEffect, useRef } from "react"
+import { useRef, useState } from "react"
 import { useParams } from "react-router-dom"
-import { Badge, Button, Container, Heading, Text, clx } from "@medusajs/ui"
+import { Badge, Button, Container, Heading, Input, Label, Text, clx, toast, usePrompt } from "@medusajs/ui"
 
 import {
   useAdminConversation,
+  useBlockCustomer,
+  useUnblockCustomer,
   AdminMessageDTO,
 } from "../../../hooks/api/messaging"
 import { useAdminMessagingSSE } from "../../../hooks/api/use-admin-messaging-sse"
+import { useMessagingLayout } from "../../../hooks/use-messaging-layout"
 
 const formatTime = (dateStr: string): string => {
   const date = new Date(dateStr)
@@ -54,8 +57,14 @@ const MessageRow = ({ message }: { message: AdminMessageDTO }) => {
 const AdminConversationDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   useAdminMessagingSSE(id)
+  const prompt = usePrompt()
 
   const rootRef = useRef<HTMLDivElement>(null)
+  const [showBlockDialog, setShowBlockDialog] = useState(false)
+  const [blockReason, setBlockReason] = useState("")
+
+  const blockMutation = useBlockCustomer()
+  const unblockMutation = useUnblockCustomer()
 
   const {
     conversation,
@@ -68,32 +77,46 @@ const AdminConversationDetailPage = () => {
     error,
   } = useAdminConversation(id!)
 
-  useLayoutEffect(() => {
-    const main = document.querySelector("main") as HTMLElement | null
-    const contentCol = main?.parentElement as HTMLElement | null
-    const gutter = main?.firstElementChild as HTMLElement | null
+  const handleBlock = () => {
+    if (!conversation?.buyer_id) return
+    blockMutation.mutate(
+      {
+        customer_id: conversation.buyer_id,
+        reason: blockReason || undefined,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Customer blocked from chat")
+          setShowBlockDialog(false)
+          setBlockReason("")
+        },
+        onError: () => {
+          toast.error("Failed to block customer")
+        },
+      }
+    )
+  }
 
-    const origMain = main?.style.cssText ?? ""
-    const origCol = contentCol?.style.cssText ?? ""
-    const origGutter = gutter?.style.cssText ?? ""
+  const handleUnblock = async () => {
+    if (!conversation?.buyer_id) return
+    const confirmed = await prompt({
+      title: "Unblock Customer",
+      description:
+        "Are you sure you want to unblock this customer? They will be able to use chat again.",
+    })
+    if (!confirmed) return
 
-    if (contentCol) contentCol.style.overflow = "hidden"
-    if (main) {
-      main.style.overflow = "hidden"
-      main.style.minHeight = "0"
-    }
-    if (gutter) {
-      gutter.style.flex = "1"
-      gutter.style.minHeight = "0"
-      gutter.style.overflow = "hidden"
-    }
+    unblockMutation.mutate(conversation.buyer_id, {
+      onSuccess: () => {
+        toast.success("Customer unblocked")
+      },
+      onError: () => {
+        toast.error("Failed to unblock customer")
+      },
+    })
+  }
 
-    return () => {
-      if (main) main.style.cssText = origMain
-      if (contentCol) contentCol.style.cssText = origCol
-      if (gutter) gutter.style.cssText = origGutter
-    }
-  }, [])
+  useMessagingLayout()
 
   if (isError) throw error
 
@@ -162,12 +185,24 @@ const AdminConversationDetailPage = () => {
             <Text size="xsmall" className="text-ui-fg-muted">
               Customer
             </Text>
-            <Text size="small" leading="compact">
-              {conversation?.buyer_name || conversation?.buyer_id}
-            </Text>
+            <div className="flex items-center gap-x-2">
+              <Text size="small" leading="compact">
+                {conversation?.buyer_name || conversation?.buyer_id}
+              </Text>
+              {conversation?.is_buyer_blocked && (
+                <Badge color="red" size="2xsmall">
+                  Blocked
+                </Badge>
+              )}
+            </div>
             {conversation?.buyer_email && (
               <Text size="xsmall" className="text-ui-fg-subtle">
                 {conversation.buyer_email}
+              </Text>
+            )}
+            {conversation?.is_buyer_blocked && conversation?.block_reason && (
+              <Text size="xsmall" className="text-ui-fg-error mt-1">
+                Reason: {conversation.block_reason}
               </Text>
             )}
           </div>
@@ -198,6 +233,70 @@ const AdminConversationDetailPage = () => {
             <Text size="small" leading="compact">
               {messages?.length ?? 0}
             </Text>
+          </div>
+        </Container>
+
+        {/* Chat Block Management */}
+        <Container className="mt-4 p-0">
+          <div className="px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              Chat Access
+            </Text>
+          </div>
+          <div className="px-6 pb-4">
+            {showBlockDialog ? (
+              <div className="flex flex-col gap-3">
+                <div>
+                  <Label size="xsmall">Reason (optional)</Label>
+                  <Input
+                    size="small"
+                    placeholder="Why is this customer being blocked?"
+                    value={blockReason}
+                    onChange={(e) => setBlockReason(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="small"
+                    variant="danger"
+                    onClick={handleBlock}
+                    disabled={blockMutation.isPending}
+                    isLoading={blockMutation.isPending}
+                  >
+                    Confirm Block
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="secondary"
+                    onClick={() => {
+                      setShowBlockDialog(false)
+                      setBlockReason("")
+                    }}
+                    disabled={blockMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : conversation?.is_buyer_blocked ? (
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={handleUnblock}
+                disabled={unblockMutation.isPending}
+                isLoading={unblockMutation.isPending}
+              >
+                Unblock Customer
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                variant="danger"
+                onClick={() => setShowBlockDialog(true)}
+              >
+                Block Customer
+              </Button>
+            )}
           </div>
         </Container>
       </div>

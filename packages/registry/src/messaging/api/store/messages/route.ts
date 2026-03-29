@@ -2,12 +2,13 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 
 import { MESSAGING_MODULE } from "../../../modules/messaging"
 import type MessagingModuleService from "../../../modules/messaging/service"
 import { createConversationWorkflow } from "../../../workflows/messaging/workflows/create-conversation"
 import { sendMessageWorkflow } from "../../../workflows/messaging/workflows/send-message"
+import { resolveContextLabel } from "./helpers"
 import {
   StoreCreateConversationType,
   StoreListConversationsType,
@@ -40,6 +41,16 @@ export const POST = async (
   const customerId = req.auth_context.actor_id
   const { seller_id, body, context_type, context_id } = req.validatedBody
 
+  // Check if buyer is blocked from chat
+  const service = req.scope.resolve<MessagingModuleService>(MESSAGING_MODULE)
+  const blocked = await service.checkBuyersBlocked([customerId])
+  if (blocked.has(customerId)) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Your chat access has been suspended"
+    )
+  }
+
   // Check if seller exists and is active
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -50,13 +61,13 @@ export const POST = async (
   })
 
   if (!sellers || sellers.length === 0) {
-    res.status(404).json({ message: "Seller not found" })
-    return
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      "Seller not found"
+    )
   }
 
   // Find or create conversation
-  const service = req.scope.resolve<MessagingModuleService>(MESSAGING_MODULE)
-
   let conversation: any
   const existing = await service.listConversations(
     { buyer_id: customerId, seller_id },
@@ -75,35 +86,8 @@ export const POST = async (
 
   let message
   if (body) {
-    // Resolve context label
-    let context_label: string | null = null
-    if (context_type === "product" && context_id) {
-      try {
-        const { data: products } = await query.graph({
-          entity: "product",
-          fields: ["id", "title"],
-          filters: { id: context_id },
-        })
-        if (products?.length > 0) {
-          context_label = products[0].title
-        }
-      } catch {
-        // Product may not exist, continue without label
-      }
-    } else if (context_type === "order" && context_id) {
-      try {
-        const { data: orders } = await query.graph({
-          entity: "order",
-          fields: ["id", "display_id"],
-          filters: { id: context_id },
-        })
-        if (orders?.length > 0) {
-          context_label = `Order #${orders[0].display_id}`
-        }
-      } catch {
-        // Order may not exist, continue without label
-      }
-    }
+    // Resolve context label for display
+    const context_label = await resolveContextLabel(req.scope, context_type ?? null, context_id ?? null)
 
     const { result } = await sendMessageWorkflow.run({
       container: req.scope,

@@ -13,27 +13,55 @@ type AnonymizeBuyerInput = {
   buyer_id: string
 }
 
+const BATCH_SIZE = 100
+
 const findBuyerConversationsStep = createStep(
   "find-buyer-conversations",
   async (input: { buyer_id: string }, { container }) => {
     const service = container.resolve<MessagingModuleService>(MESSAGING_MODULE)
 
-    const conversations = await service.listConversations(
-      { buyer_id: input.buyer_id },
-      { take: 10000, select: ["id"] }
-    )
+    // Paginate to avoid unbounded queries
+    const allIds: string[] = []
+    let skip = 0
 
-    const ids = (conversations ?? []).map((c: any) => c.id)
+    while (true) {
+      const conversations = await service.listConversations(
+        { buyer_id: input.buyer_id },
+        { take: BATCH_SIZE, skip, select: ["id"] }
+      )
+
+      if (!conversations || conversations.length === 0) break
+
+      const ids = conversations.map((c: { id: string }) => c.id)
+      allIds.push(...ids)
+      skip += BATCH_SIZE
+
+      if (conversations.length < BATCH_SIZE) break
+    }
 
     // Update all conversations to reflect deleted buyer
-    for (const id of ids) {
+    for (const id of allIds) {
       await service.updateConversations({
         id,
         buyer_id: `deleted_${input.buyer_id}`,
       })
     }
 
-    return new StepResponse({ conversation_ids: ids })
+    return new StepResponse(
+      { conversation_ids: allIds },
+      { conversation_ids: allIds, original_buyer_id: input.buyer_id }
+    )
+  },
+  async (compensationData, { container }) => {
+    if (!compensationData) return
+    const service = container.resolve<MessagingModuleService>(MESSAGING_MODULE)
+    // Restore original buyer_id on rollback
+    for (const id of compensationData.conversation_ids) {
+      await service.updateConversations({
+        id,
+        buyer_id: compensationData.original_buyer_id,
+      })
+    }
   }
 )
 

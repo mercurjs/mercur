@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom"
 import { Badge, Container, Heading, Text, clx } from "@medusajs/ui"
-import { SingleColumnPage } from "@mercurjs/dashboard-shared"
 import type { RouteConfig } from "@mercurjs/dashboard-sdk"
 
 import { useVendorConversations, ConversationDTO } from "../../hooks/api/messaging"
 import { useMessagingSSE } from "../../hooks/api/use-messaging-sse"
+import { useMessagingLayout } from "../../hooks/use-messaging-layout"
 
 export const config: RouteConfig = {
   label: "Messages",
@@ -50,13 +50,20 @@ const ConversationRow = ({
     >
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex items-center justify-between gap-2">
-          <Text
-            size="small"
-            leading="compact"
-            weight={isUnread ? "plus" : "regular"}
-          >
-            {conversation.buyer_first_name || "Customer"}
-          </Text>
+          <div className="flex items-center gap-x-2">
+            <Text
+              size="small"
+              leading="compact"
+              weight={isUnread ? "plus" : "regular"}
+            >
+              {conversation.buyer_first_name || "Customer"}
+            </Text>
+            {conversation.is_buyer_blocked && (
+              <Badge color="red" size="2xsmall">
+                Blocked
+              </Badge>
+            )}
+          </div>
           <Text size="xsmall" className="text-ui-fg-muted shrink-0">
             {formatRelativeTime(conversation.last_message_at)}
           </Text>
@@ -91,24 +98,26 @@ const VendorMessagesPage = () => {
   const { conversations, next_cursor, isLoading, isError, error } =
     useVendorConversations({ limit: 50 })
 
+  useMessagingLayout()
+
   if (isError) throw error
 
   return (
-    <SingleColumnPage>
-      <Container className="divide-y p-0">
-        <div className="flex items-center justify-between px-6 py-4">
+    <div className="flex h-full flex-col">
+      <Container className="flex h-full flex-col divide-y p-0">
+        <div className="flex shrink-0 items-center justify-between px-6 py-4">
           <Heading>Messages</Heading>
         </div>
         {isLoading ? (
-          <div className="flex items-center justify-center px-6 py-12">
+          <div className="flex flex-1 items-center justify-center px-6 py-12">
             <Text className="text-ui-fg-muted">Loading conversations...</Text>
           </div>
         ) : !conversations?.length ? (
-          <div className="flex items-center justify-center px-6 py-12">
+          <div className="flex flex-1 items-center justify-center px-6 py-12">
             <Text className="text-ui-fg-muted">No conversations yet</Text>
           </div>
         ) : (
-          <div className="divide-y">
+          <div className="flex-1 divide-y overflow-y-auto">
             {conversations.map((conv) => (
               <ConversationRow
                 key={conv.id}
@@ -119,7 +128,7 @@ const VendorMessagesPage = () => {
           </div>
         )}
       </Container>
-    </SingleColumnPage>
+    </div>
   )
 }
 

@@ -17,3 +17,9 @@ export const AdminGetMessages = z.object({
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).optional().default(30),
 })
+
+export type AdminBlockCustomerType = z.infer<typeof AdminBlockCustomer>
+export const AdminBlockCustomer = z.object({
+  customer_id: z.string().min(1),
+  reason: z.string().max(500).optional(),
+})

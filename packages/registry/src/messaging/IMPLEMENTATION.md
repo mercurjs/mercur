@@ -21,8 +21,9 @@ The guide is framework-agnostic. Adapt the patterns to your stack (Next.js, Remi
 11. [Context Linking (Product / Order)](#context-linking-product--order)
 12. [Rate Limiting](#rate-limiting)
 13. [Content Filtering](#content-filtering)
-14. [Error Reference](#error-reference)
-15. [Full Integration Example](#full-integration-example)
+14. [Chat Blocking](#chat-blocking)
+15. [Error Reference](#error-reference)
+16. [Full Integration Example](#full-integration-example)
 
 ---
 
@@ -341,7 +342,7 @@ const res = await sdk.client.fetch(`/store/messages/${conversationId}`, {
 ### What happens server-side
 
 1. Ownership verified (customer must own the conversation)
-2. Rate limit checked (10 messages per 60 seconds)
+2. Rate limit checked (20 messages per 60 seconds)
 3. Content filter evaluated (blocks emails, phone numbers, URLs, and custom rules)
 4. Message created atomically (updates conversation preview, increments seller's unread count)
 5. SSE event published to the seller in real-time
@@ -547,6 +548,8 @@ eventSource.addEventListener("reconnected", () => {
 eventSource.addEventListener("error", () => {
   // EventSource auto-reconnects, but the token may have expired.
   // If the connection fails permanently, obtain a new token and reconnect.
+  // Use exponential backoff (1s, 2s, 4s, ... max 30s) to avoid overwhelming
+  // the server during outages. Reset the delay on successful reconnection.
 })
 ```
 
@@ -557,6 +560,7 @@ The SSE token expires after 30 seconds and is consumed on first use. If the SSE 
 ```ts
 function createSSEConnection(backendUrl, sdk, handlers) {
   let eventSource = null
+  let reconnectDelay = 1000
 
   async function connect() {
     // Always get a fresh token
@@ -568,7 +572,10 @@ function createSSEConnection(backendUrl, sdk, handlers) {
       `${backendUrl}/store/messages/events?token=${token}`
     )
 
-    eventSource.addEventListener("connected", handlers.onConnected)
+    eventSource.addEventListener("connected", () => {
+      reconnectDelay = 1000 // Reset backoff on success
+      handlers.onConnected?.()
+    })
     eventSource.addEventListener("new_message", handlers.onNewMessage)
     eventSource.addEventListener("messages_read", handlers.onMessagesRead)
     eventSource.addEventListener("unread_count", handlers.onUnreadCount)
@@ -576,7 +583,9 @@ function createSSEConnection(backendUrl, sdk, handlers) {
     eventSource.addEventListener("error", () => {
       // Close the dead connection and retry with a new token
       eventSource.close()
-      setTimeout(connect, 2000)  // backoff before retry
+      // Exponential backoff: 1s, 2s, 4s, 8s, ..., max 30s
+      setTimeout(connect, reconnectDelay)
+      reconnectDelay = Math.min(reconnectDelay * 2, 30000)
     })
   }
 
@@ -660,7 +669,7 @@ The backend enforces per-sender rate limits via Redis sliding windows.
 
 | Limit | Window | Scope |
 |-------|--------|-------|
-| 10 messages | 60 seconds | Per sender (customer) |
+| 20 messages | 60 seconds | Per sender (customer) |
 | 5 new conversations | 3600 seconds (1 hour) | Per sender (customer) |
 
 ### Behavior
@@ -727,6 +736,46 @@ try {
 
 ---
 
+## Chat Blocking
+
+An admin can block a customer from using chat. When a customer is blocked:
+
+- **Creating conversations** (`POST /store/messages`) returns `not_allowed` error
+- **Sending messages** (`POST /store/messages/:id`) returns `not_allowed` error
+- The customer's storefront account is **not affected** — they can still browse, add to cart, and checkout
+
+### Error messages
+
+| Action | Error message |
+|--------|--------------|
+| Blocked customer creates conversation | "Your chat access has been suspended" |
+| Blocked customer sends message | "Your chat access has been suspended" |
+
+### Handling block errors
+
+```ts
+try {
+  await sdk.client.fetch(`/store/messages/${id}`, {
+    method: "POST",
+    body: { body: userInput },
+  })
+} catch (error) {
+  if (error.type === "not_allowed" && error.message.includes("suspended")) {
+    // Customer is chat-blocked.
+    // Show: "Your chat access has been suspended. Please contact support."
+    // Disable the message compose UI to prevent further attempts.
+  }
+}
+```
+
+### UI recommendations
+
+- When a `not_allowed` error with "suspended" message is received, disable the message input and show a notice
+- Consider checking block status on the conversation detail page load — if the first `POST` fails with this error, the customer is blocked
+- There is no store API to check block status directly — the error on send is the signal
+
+---
+
 ## Error Reference
 
 | HTTP Status | Error Type | Cause | Resolution |
@@ -734,6 +783,7 @@ try {
 | 401 | `unauthorized` | Missing or invalid session/token | Re-authenticate the customer |
 | 400 | `invalid_data` | Validation failed (body too long, missing fields, content filtered) | Fix request body; check content filter rules |
 | 400 | `not_allowed` | Rate limit exceeded | Wait and retry after a delay |
+| 400 | `not_allowed` | Chat access suspended | Customer has been blocked from chat by an admin. Display the error message to the user. There is no self-service unblock — customer must contact support |
 | 404 | `not_found` | Conversation not found or not owned by customer | Verify conversation ID and ownership |
 | 404 | `not_found` | Referenced product/order does not exist | Verify context_id |
 | 401 | `unauthorized` | SSE token invalid, expired, or already consumed | Obtain a new token via `POST /sse-token` |
@@ -847,6 +897,7 @@ function createRealtimeConnection(handlers: {
   let eventSource: EventSource | null = null
   let reconnectTimeout: ReturnType<typeof setTimeout> | null = null
   let isIntentionallyClosed = false
+  let reconnectDelay = 1000
 
   async function connect() {
     isIntentionallyClosed = false
@@ -862,6 +913,7 @@ function createRealtimeConnection(handlers: {
     )
 
     eventSource.addEventListener("connected", () => {
+      reconnectDelay = 1000 // Reset backoff on success
       handlers.onConnected?.()
     })
 
@@ -878,6 +930,7 @@ function createRealtimeConnection(handlers: {
     })
 
     eventSource.addEventListener("reconnected", () => {
+      reconnectDelay = 1000 // Reset backoff on reconnect
       // Server reconnected — refetch data to catch up
       handlers.onConnected?.()
     })
@@ -887,8 +940,9 @@ function createRealtimeConnection(handlers: {
       eventSource?.close()
 
       if (!isIntentionallyClosed) {
-        // Reconnect with a new token after a delay
-        reconnectTimeout = setTimeout(connect, 3000)
+        // Exponential backoff: 1s, 2s, 4s, 8s, ..., max 30s
+        reconnectTimeout = setTimeout(connect, reconnectDelay)
+        reconnectDelay = Math.min(reconnectDelay * 2, 30000)
       }
     })
   }

@@ -7,6 +7,7 @@ import { MedusaError } from "@medusajs/framework/utils"
 import { MESSAGING_MODULE } from "../../../../modules/messaging"
 import type MessagingModuleService from "../../../../modules/messaging/service"
 import { sendMessageWorkflow } from "../../../../workflows/messaging/workflows/send-message"
+import { resolveContextLabel } from "../helpers"
 import { StoreGetMessagesType, StoreSendMessageType } from "../validators"
 
 export const GET = async (
@@ -66,39 +67,20 @@ export const POST = async (
   }
 
   const conversation = conversations[0]!
+
+  // Check if buyer is blocked from chat
+  const blocked = await service.checkBuyersBlocked([customerId])
+  if (blocked.has(customerId)) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Your chat access has been suspended"
+    )
+  }
+
   const { body, context_type, context_id } = req.validatedBody
 
-  // Resolve context label
-  let context_label: string | null = null
-  if (context_type === "product" && context_id) {
-    try {
-      const query = req.scope.resolve("query")
-      const { data: products } = await query.graph({
-        entity: "product",
-        fields: ["id", "title"],
-        filters: { id: context_id },
-      })
-      if (products?.length > 0) {
-        context_label = products[0].title
-      }
-    } catch {
-      // continue without label
-    }
-  } else if (context_type === "order" && context_id) {
-    try {
-      const query = req.scope.resolve("query")
-      const { data: orders } = await query.graph({
-        entity: "order",
-        fields: ["id", "display_id"],
-        filters: { id: context_id },
-      })
-      if (orders?.length > 0) {
-        context_label = `Order #${orders[0].display_id}`
-      }
-    } catch {
-      // continue without label
-    }
-  }
+  // Resolve context label for display
+  const context_label = await resolveContextLabel(req.scope, context_type ?? null, context_id ?? null)
 
   const { result: message } = await sendMessageWorkflow.run({
     container: req.scope,

@@ -80,6 +80,15 @@ export interface AdminConversationResponse {
   conversation: ConversationDTO
 }
 
+export interface ChatBlockDTO {
+  id: string
+  customer_id: string
+  blocked_by: string
+  reason: string | null
+  created_at: Date | string
+  updated_at: Date | string
+}
+
 export interface UnreadCountResponse {
   unread_count: number
 }

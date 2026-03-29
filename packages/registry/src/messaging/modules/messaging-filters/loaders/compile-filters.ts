@@ -1,7 +1,6 @@
-import { LoaderOptions } from "@medusajs/framework/types"
+import { LoaderOptions, IMedusaInternalService } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { MESSAGING_FILTERS_MODULE } from "../index"
-import type MessagingFiltersModuleService from "../service"
+import { FilterRule } from "../models/filter-rule"
 import { CompiledRuleset } from "../types/common"
 
 let compiledRuleset: CompiledRuleset = {
@@ -15,6 +14,14 @@ export function getCompiledRuleset(): CompiledRuleset {
   return compiledRuleset
 }
 
+export function isRulesetEmpty(): boolean {
+  return (
+    compiledRuleset.exactWords.size === 0 &&
+    compiledRuleset.containsPatterns.length === 0 &&
+    compiledRuleset.regexPatterns.length === 0
+  )
+}
+
 export function invalidateRuleset(): void {
   compiledRuleset = {
     exactWords: new Set<string>(),
@@ -25,12 +32,21 @@ export function invalidateRuleset(): void {
 }
 
 async function compileFilters(container: any): Promise<void> {
-  const service = container.resolve(MESSAGING_FILTERS_MODULE) as MessagingFiltersModuleService
-
-  const rules = await service.listFilterRules(
-    { is_enabled: true },
-    { take: 1000 }
-  )
+  // Try module container first (when called from module loader), then app container
+  let rules: any[]
+  try {
+    const service = container.resolve("filterRuleService") as IMedusaInternalService<typeof FilterRule>
+    const [results] = await service.listAndCount({ is_enabled: true } as any, { take: 1000 })
+    rules = results
+  } catch {
+    // Fallback: resolve from app container via module name (used by workflow steps)
+    try {
+      const service = container.resolve("messagingFilters")
+      rules = await service.listFilterRules({ is_enabled: true }, { take: 1000 })
+    } catch {
+      return
+    }
+  }
 
   const newRuleset: CompiledRuleset = {
     exactWords: new Set<string>(),
@@ -62,8 +78,10 @@ async function compileFilters(container: any): Promise<void> {
           regex.test("a".repeat(50))
           if (Date.now() - probeStart > 10) {
             // Pattern took >10ms on a short string — likely catastrophic backtracking
-            const logger = container.resolve?.(ContainerRegistrationKeys.LOGGER)
-            logger?.warn(`[messaging] Skipping ReDoS-prone regex rule ${rule.id}: ${rule.pattern}`)
+            try {
+              const logger = container.resolve?.(ContainerRegistrationKeys.LOGGER)
+              logger?.warn(`[messaging] Skipping ReDoS-prone regex rule ${rule.id}: ${rule.pattern}`)
+            } catch { /* no logger available */ }
             break
           }
           newRuleset.regexPatterns.push({
@@ -88,37 +106,9 @@ export async function recompileFilters(container: any): Promise<void> {
 export default async function compileFiltersLoader({
   container,
 }: LoaderOptions): Promise<void> {
-  const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
-
   try {
     await compileFilters(container)
-    logger.info(
-      `[messaging] Compiled ${compiledRuleset.exactWords.size} exact, ${compiledRuleset.containsPatterns.length} contains, ${compiledRuleset.regexPatterns.length} regex filter rules`
-    )
-  } catch (error) {
-    logger.warn(
-      `[messaging] Failed to compile filter rules on startup: ${error}`
-    )
-  }
-
-  // Subscribe to Redis filter_rules_changed channel for cross-instance invalidation
-  try {
-    const { MESSAGING_REDIS_MODULE } = await import("../../messaging-redis")
-    const redisService = container.resolve(MESSAGING_REDIS_MODULE) as any
-    const subscriber = redisService.createSubscriber?.()
-
-    if (subscriber) {
-      await subscriber.subscribe("filter_rules_changed")
-      subscriber.on("message", async (channel: string) => {
-        if (channel === "filter_rules_changed") {
-          logger.info("[messaging] Filter rules changed — recompiling")
-          await compileFilters(container)
-        }
-      })
-    }
-  } catch (error) {
-    logger.warn(
-      `[messaging] Failed to subscribe to filter invalidation channel: ${error}`
-    )
+  } catch {
+    // Will be compiled lazily on first message
   }
 }

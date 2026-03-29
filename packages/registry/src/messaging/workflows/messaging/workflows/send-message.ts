@@ -5,6 +5,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 
+import { validateChatBlockStep } from "../steps/validate-chat-block"
 import { validateRateLimitStep } from "../steps/validate-rate-limit"
 import { validateContentFilterStep } from "../steps/validate-content-filter"
 import { createMessageStep } from "../steps/create-message"
@@ -19,6 +20,14 @@ type SendMessageWorkflowInput = SendMessageInput & {
 export const sendMessageWorkflow = createWorkflow(
   { name: "send-message" },
   function (input: SendMessageWorkflowInput) {
+    const blockCheckInput = transform(input, (data) => ({
+      sender_id: data.sender_id,
+      sender_type: data.sender_type,
+      recipient_id: data.recipient_id,
+    }))
+
+    validateChatBlockStep(blockCheckInput)
+
     const rateLimitInput = transform(input, (data) => ({
       sender_id: data.sender_id,
       is_new_conversation: data.is_new_conversation,

@@ -1,4 +1,5 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { MESSAGING_MODULE } from "../../../modules/messaging"
 import type MessagingModuleService from "../../../modules/messaging/service"
 
@@ -16,7 +17,6 @@ export const anonymizeMessagesBatchStep = createStep(
     let totalAnonymized = 0
 
     for (const conversationId of input.conversation_ids) {
-      // Paginate through ALL messages sent by the deleted actor
       let hasMore = true
       let skip = 0
 
@@ -34,7 +34,7 @@ export const anonymizeMessagesBatchStep = createStep(
           break
         }
 
-        const messageIds = messages.map((m: any) => m.id)
+        const messageIds = messages.map((m: { id: string }) => m.id)
 
         for (const msgId of messageIds) {
           await service.updateMessages({
@@ -46,13 +46,26 @@ export const anonymizeMessagesBatchStep = createStep(
         totalAnonymized += messageIds.length
         skip += batchSize
 
-        // If we got fewer than batchSize, no more pages
         if (messages.length < batchSize) {
           hasMore = false
         }
       }
     }
 
-    return new StepResponse({ anonymized_count: totalAnonymized })
+    return new StepResponse(
+      { anonymized_count: totalAnonymized },
+      { conversation_ids: input.conversation_ids, actor_type: input.actor_type, count: totalAnonymized }
+    )
+  },
+  async (compensationData, { container }) => {
+    if (!compensationData) return
+    // Message body anonymization is irreversible — original content is lost.
+    // Log for auditability so operators know a partial rollback occurred.
+    const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
+    logger.warn(
+      `Messaging: anonymize-messages-batch compensation triggered for ${compensationData.count} messages ` +
+      `in conversations [${compensationData.conversation_ids.join(", ")}]. ` +
+      `Message bodies cannot be restored — they were replaced with "[Message removed]".`
+    )
   }
 )

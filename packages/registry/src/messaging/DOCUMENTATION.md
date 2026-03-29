@@ -1,6 +1,6 @@
 # Messaging Plugin Documentation
 
-Buyer-vendor messaging system with real-time SSE delivery, content filtering, admin oversight, GDPR erasure, cursor-based pagination, and dashboard UI for both vendor and admin panels.
+Buyer-vendor messaging system with real-time SSE delivery, content filtering, admin oversight, chat blocking, GDPR erasure, cursor-based pagination, and dashboard UI for both vendor and admin panels.
 
 ---
 
@@ -25,11 +25,12 @@ Buyer-vendor messaging system with real-time SSE delivery, content filtering, ad
 14. [Context Linking](#context-linking)
 15. [Unread Tracking](#unread-tracking)
 16. [GDPR & Data Privacy](#gdpr--data-privacy)
-17. [Event Subscribers](#event-subscribers)
-18. [Scheduled Jobs](#scheduled-jobs)
-19. [Error Reference](#error-reference)
-20. [Testing](#testing)
-21. [Configuration Reference](#configuration-reference)
+17. [Chat Blocking](#chat-blocking)
+18. [Event Subscribers](#event-subscribers)
+19. [Scheduled Jobs](#scheduled-jobs)
+20. [Error Reference](#error-reference)
+21. [Testing](#testing)
+22. [Configuration Reference](#configuration-reference)
 
 ---
 
@@ -47,6 +48,7 @@ Buyer-vendor messaging system with real-time SSE delivery, content filtering, ad
 │                        Workflows                                    │
 │  send-message  │  create-conversation  │  mark-messages-read        │
 │  anonymize-buyer  │  anonymize-vendor  │  filter-rule CRUD          │
+│  block-customer  │  unblock-customer                                │
 └──────────┬──────────────────────────────────────────────────────────┘
            │
            ▼
@@ -54,7 +56,8 @@ Buyer-vendor messaging system with real-time SSE delivery, content filtering, ad
 │  Messaging Module  │  │ Messaging Filters   │  │ Messaging Redis  │
 │  - Conversation    │  │ - FilterRule        │  │ - Pub/Sub        │
 │  - Message         │  │ - BlockedMessageLog │  │ - Rate Limiting  │
-│  - CRUD + Cursors  │  │ - Evaluation        │  │ - SSE Tokens     │
+│  - ChatBlock       │  │ - Evaluation        │  │ - SSE Tokens     │
+│  - CRUD + Cursors  │  │                     │  │                  │
 └────────────────────┘  └─────────────────────┘  └──────────────────┘
            │                                              │
            ▼                                              ▼
@@ -75,7 +78,7 @@ Three actor types interact with the system:
 |-------|-------------|-------------|
 | Customer (Buyer) | Session / Bearer | Create conversations, send messages, mark read, SSE via token |
 | Seller (Vendor) | Session / Bearer | List conversations, reply, mark read, SSE via session |
-| Admin | Session / Bearer | Search all conversations, manage filters, view blocked messages, SSE (all events) |
+| Admin | Session / Bearer | Search all conversations, manage filters, view blocked messages, block/unblock customers, SSE (all events) |
 
 ---
 
@@ -93,7 +96,7 @@ mercurjs add messaging
 |-----------|---------|
 | `ioredis` | Redis client for pub/sub, rate limiting, SSE tokens |
 
-Redis is **optional but strongly recommended**. Without it, SSE, rate limiting, notification throttling, and cross-instance filter cache sync are disabled. Core REST messaging (send, receive, mark read) continues to work.
+Redis is **optional but strongly recommended**. Without it, SSE, rate limiting, and notification throttling are disabled. Core REST messaging (send, receive, mark read) and content filtering continue to work.
 
 ### Environment variables
 
@@ -123,7 +126,7 @@ module.exports = defineConfig({
 npx medusa db:migrate
 ```
 
-This creates the `conversation`, `message`, `filter_rule`, and `blocked_message_log` tables.
+This creates the `conversation`, `message`, `chat_block`, `filter_rule`, and `blocked_message_log` tables.
 
 ---
 
@@ -182,7 +185,14 @@ encodeCursor(values: Record<string, string | number | null>): string
 decodeCursor(cursor: string): Record<string, string | number | null> | null
 ```
 
-Also inherits standard `MedusaService` CRUD methods: `listConversations`, `createConversations`, `updateConversations`, `deleteConversations`, `listMessages`, `createMessages`, `updateMessages`, `deleteMessages`.
+```typescript
+// Batch check which buyer IDs are chat-blocked (single WHERE IN query)
+checkBuyersBlocked(
+  buyerIds: string[]
+): Promise<Set<string>>
+```
+
+Also inherits standard `MedusaService` CRUD methods: `listConversations`, `createConversations`, `updateConversations`, `deleteConversations`, `listMessages`, `createMessages`, `updateMessages`, `deleteMessages`, `listChatBlocks`, `createChatBlocks`, `deleteChatBlocks`.
 
 ---
 
@@ -217,7 +227,7 @@ interface CompiledRuleset {
 }
 ```
 
-Compilation happens at module startup and is invalidated/recompiled when rules change. Cross-instance sync happens via Redis `filter_rules_changed` pub/sub channel.
+Compilation happens at module startup and is recompiled when rules change via admin CRUD workflows. Each workflow step (`invalidateFilterCacheStep`) recompiles the local in-memory cache and publishes to the Redis `filter_rules_changed` channel for future cross-instance support. Currently, filter recompilation is per-instance only — if running multiple instances, a restart or rule change on each instance is needed to refresh the cache.
 
 #### Built-in Filter Rules
 
@@ -354,6 +364,23 @@ If `REDIS_URL` is not provided or connection fails, the module registers a null 
 
 **Retention**: 30 days (cleaned up daily at 4 AM).
 
+### ChatBlock
+
+| Field | Type | Constraints |
+|-------|------|-------------|
+| `id` | string | Primary key, prefix: `cblk` |
+| `customer_id` | string | Required |
+| `blocked_by` | string | Admin user ID who blocked |
+| `reason` | string \| null | Optional reason for blocking |
+| `created_at` | datetime | Auto |
+| `updated_at` | datetime | Auto |
+| `deleted_at` | datetime \| null | Soft delete |
+
+**Indexes**:
+- `UNIQUE (customer_id)` where `deleted_at IS NULL` — one active block per customer
+
+A customer is either blocked or not — blocking is account-wide for chat (not per-conversation). The `blocked_by` field provides admin accountability. The unique index with a `deleted_at IS NULL` condition allows re-blocking after unblocking without conflicts.
+
 ---
 
 ## Module Links
@@ -390,11 +417,12 @@ Creates a message in a conversation with full validation pipeline.
 ```
 
 **Steps**:
-1. **validateRateLimitStep** — Checks 10 msg/60s and (if new conversation) 5 conv/3600s
-2. **validateContentFilterStep** — Evaluates against compiled ruleset, logs blocked
-3. **createMessageStep** — Atomic insert + conversation metadata update + unread increment
-4. **publishMessageEventStep** — Publishes `new_message` to Redis pub/sub
-5. **emitEventStep** — Emits `messaging.message.created` Medusa event
+1. **validateChatBlockStep** — Checks if the customer (buyer) in this conversation is chat-blocked. Blocks both directions: blocked customers cannot send, and no one can send to a blocked customer.
+2. **validateRateLimitStep** — Checks 10 msg/60s and (if new conversation) 5 conv/3600s
+3. **validateContentFilterStep** — Evaluates against compiled ruleset, logs blocked
+4. **createMessageStep** — Atomic insert + conversation metadata update + unread increment
+5. **publishMessageEventStep** — Publishes `new_message` to Redis pub/sub
+6. **emitEventStep** — Emits `messaging.message.created` Medusa event
 
 **Output**: `MessageDTO`
 
@@ -448,9 +476,13 @@ GDPR right-to-erasure handler for buyer deletion.
 **Input**: `{ buyer_id: string }`
 
 **Steps**:
-1. Find all conversations where `buyer_id` matches
+1. Find all conversations where `buyer_id` matches (paginated, batch size: 100)
 2. Update `buyer_id` to `deleted_{buyer_id}`
-3. Set all message bodies to `"[Message removed]"` (batch size: 500)
+3. Set all message bodies to `"[Message removed]"` (paginated, batch size: 100)
+
+**Compensation**:
+- Step 1 (find conversations): restores original `buyer_id` on all matched conversations
+- Step 2 (anonymize messages): logs a warning — message body replacement is irreversible
 
 ---
 
@@ -461,9 +493,12 @@ Vendor offboarding handler.
 **Input**: `{ seller_id: string }`
 
 **Steps**:
-1. Find all conversations where `seller_id` matches
+1. Find all conversations where `seller_id` matches (paginated, batch size: 100)
 2. Update `seller_id` to `deleted_{seller_id}`
 3. **Message bodies are preserved** (vendor content remains per specification)
+
+**Compensation**:
+- Step 1 (find conversations): restores original `seller_id` on all matched conversations
 
 ---
 
@@ -475,7 +510,49 @@ Vendor offboarding handler.
 | `updateFilterRuleWorkflow` | `{ id, match_type?, pattern?, description?, is_enabled? }` | Updates rule, blocks pattern change on built-in rules |
 | `deleteFilterRuleWorkflow` | `{ id }` | Soft-deletes rule, blocks deletion of built-in rules |
 
-All three invalidate the compiled filter cache and publish `filter_rules_changed` to Redis for cross-instance sync.
+All three recompile the local in-memory filter cache and publish `filter_rules_changed` to Redis (best-effort, for future cross-instance support).
+
+---
+
+### `blockCustomerWorkflow`
+
+Blocks a customer from chat. Idempotent — blocking an already-blocked customer returns the existing block record.
+
+**Input**:
+```typescript
+{
+  customer_id: string    // Customer to block
+  blocked_by: string     // Admin user ID performing the block
+  reason?: string | null // Optional reason
+}
+```
+
+**Steps**:
+1. **blockCustomerStep** — Checks for existing block (idempotent). If none exists, creates a `ChatBlock` record.
+
+**Output**: `ChatBlockDTO`
+
+**Compensation**: Deletes the created block record on rollback.
+
+---
+
+### `unblockCustomerWorkflow`
+
+Removes a chat block from a customer. Succeeds silently if the customer is not blocked.
+
+**Input**:
+```typescript
+{
+  customer_id: string    // Customer to unblock
+}
+```
+
+**Steps**:
+1. **unblockCustomerStep** — Finds and soft-deletes the existing `ChatBlock` record.
+
+**Output**: `null`
+
+**Compensation**: Re-creates the deleted block record on rollback.
 
 ---
 
@@ -525,8 +602,9 @@ Validation: `context_type` and `context_id` must both be set or both omitted.
 ```
 
 **Behavior**:
+- **Block check**: If the customer is chat-blocked, returns `not_allowed` error before any conversation/message processing
 - If conversation exists between buyer and seller, returns it (no duplicate)
-- If `body` provided: validates rate limit → validates content filter → creates message
+- If `body` provided: validates block → validates rate limit → validates content filter → creates message
 - Resolves context labels: product title or "Order #display_id"
 
 ---
@@ -620,7 +698,7 @@ Messages returned in **descending order** (newest first). Reverse for chronologi
 }
 ```
 
-**Pipeline**: ownership check → rate limit → content filter → create message → publish SSE → emit event.
+**Pipeline**: ownership check → **block check** → rate limit → content filter → create message → publish SSE → emit event.
 
 ---
 
@@ -686,6 +764,7 @@ All vendor endpoints require seller authentication.
 {
   conversations: Array<ConversationDTO & {
     buyer_first_name: string | null   // Enriched
+    is_buyer_blocked: boolean          // Chat block status
   }>
   next_cursor: string | null
 }
@@ -702,6 +781,7 @@ All vendor endpoints require seller authentication.
 {
   conversation: ConversationDTO & {
     buyer_first_name: string | null
+    is_buyer_blocked: boolean
   }
   messages: MessageDTO[]
   next_cursor: string | null
@@ -731,6 +811,8 @@ The `buyer_orders` array contains the buyer's recent orders with this seller, en
 
 Vendor replies have no context linking (no `context_type` / `context_id`).
 
+**Block enforcement**: If the buyer is chat-blocked, the vendor cannot send a reply. Returns `not_allowed` error: "Cannot send messages to a blocked customer".
+
 **Response** `200`: `{ message: MessageDTO }`
 
 ---
@@ -755,7 +837,7 @@ Direct session-based auth (no token exchange). See [SSE Real-Time Event System](
 
 ## API Reference — Admin
 
-All admin endpoints require admin user authentication. Admin has **read-only** access to conversations (cannot send messages).
+All admin endpoints require admin user authentication. Admin has **read-only** access to conversations (cannot send messages) and can manage customer chat blocks.
 
 ### `GET /admin/messages` — Search conversations
 
@@ -779,6 +861,7 @@ All admin endpoints require admin user authentication. Admin has **read-only** a
     seller_name?: string
     buyer_name?: string
     buyer_email?: string
+    is_buyer_blocked: boolean
   }>
   next_cursor: string | null
 }
@@ -795,6 +878,8 @@ All admin endpoints require admin user authentication. Admin has **read-only** a
     buyer_name: string | null
     buyer_email: string | null
     seller_name: string | null
+    is_buyer_blocked: boolean
+    block_reason: string | null   // Present when is_buyer_blocked is true
   }
   messages: MessageDTO[]    // includes sender_id
   next_cursor: string | null
@@ -904,6 +989,62 @@ Built-in rules cannot be deleted (returns `not_allowed`).
 
 ---
 
+### `POST /admin/messages/chat-blocks` — Block customer from chat
+
+**Request body**:
+```typescript
+{
+  customer_id: string      // Required, customer to block
+  reason?: string          // Optional, max 500 chars
+}
+```
+
+**Response** `201`:
+```typescript
+{
+  block: {
+    id: string
+    customer_id: string
+    blocked_by: string      // Admin user ID who performed the block
+    reason: string | null
+    created_at: string
+    updated_at: string
+  }
+}
+```
+
+**Behavior**:
+- Idempotent: blocking an already-blocked customer returns the existing block record
+- The `blocked_by` field is set from the authenticated admin's ID
+- Takes effect immediately — blocked customer cannot create conversations or send messages
+- Vendors cannot send messages to the blocked customer
+
+---
+
+### `GET /admin/messages/chat-blocks/:customer_id` — Check block status
+
+**Response** `200`:
+```typescript
+{
+  is_blocked: boolean
+}
+```
+
+---
+
+### `DELETE /admin/messages/chat-blocks/:customer_id` — Unblock customer
+
+**Response** `200`:
+```typescript
+{
+  success: true
+}
+```
+
+Succeeds silently if the customer is not currently blocked.
+
+---
+
 ### `GET /admin/messages/events` — SSE stream
 
 Direct session-based auth. Admin receives **all** messaging events globally (no filtering by recipient).
@@ -1007,6 +1148,7 @@ A comment-only frame sent every 30 seconds to keep the connection alive:
 - Server sends `reconnected` event but does **not** replay missed events
 - Clients should refetch conversations/messages after reconnection to catch up
 - Store SSE: token is consumed, so reconnection requires a new token
+- Dashboard SSE hooks use **exponential backoff** on error: 1s → 2s → 4s → 8s → ... → max 30s, reset to 1s on successful connection
 
 ### Graceful Degradation
 
@@ -1083,9 +1225,11 @@ Evaluation short-circuits on first match. Priority: exact > contains > regex.
 
 ### Cache Management
 
-- Rules compiled into memory at startup
-- Recompiled when any rule changes (create/update/delete)
-- Cross-instance invalidation via Redis `filter_rules_changed` pub/sub
+- Rules compiled into memory at startup (via module loader)
+- Lazily compiled on first message if startup compilation fails
+- Recompiled on the current instance when any rule changes (create/update/delete) via `invalidateFilterCacheStep`
+- The step also publishes to Redis `filter_rules_changed` channel for future cross-instance support
+- **Note**: Cross-instance invalidation requires a custom subscriber at the app level — not included by default due to MedusaJS module container limitations
 - Functions: `getCompiledRuleset()`, `invalidateRuleset()`, `recompileFilters()`
 
 ---
@@ -1096,7 +1240,7 @@ Enforced via Redis sliding window counters. Applies equally to customers and sel
 
 | Limit | Threshold | Window | Redis Key |
 |-------|-----------|--------|-----------|
-| Messages per sender | 10 | 60 seconds | `ratelimit:msg:{sender_id}` |
+| Messages per sender | 20 | 60 seconds | `ratelimit:msg:{sender_id}` |
 | New conversations per sender | 5 | 3600 seconds (1 hour) | `ratelimit:conv:{sender_id}` |
 
 ### Behavior
@@ -1170,18 +1314,20 @@ A scheduled job runs daily at 3 AM to reconcile drifted counters by counting act
 When a `customer.deleted` event fires:
 
 1. `anonymizeBuyerMessagesWorkflow` runs automatically
-2. All conversations: `buyer_id` → `deleted_{original_buyer_id}`
-3. All buyer messages: `body` → `"[Message removed]"` (batched, 500 per iteration)
+2. All conversations: `buyer_id` → `deleted_{original_buyer_id}` (paginated, 100 per batch)
+3. All buyer messages: `body` → `"[Message removed]"` (paginated, 100 per batch)
 4. Module links to customer entity are cleaned up
+5. Compensation: conversation `buyer_id` can be restored; message body anonymization is irreversible (logged)
 
 ### Vendor Deletion
 
 When a `seller.deleted` event fires:
 
 1. `anonymizeVendorMessagesWorkflow` runs automatically
-2. All conversations: `seller_id` → `deleted_{original_seller_id}`
+2. All conversations: `seller_id` → `deleted_{original_seller_id}` (paginated, 100 per batch)
 3. **Vendor message bodies are preserved** (per business specification)
 4. Module links to seller entity are cleaned up
+5. Compensation: conversation `seller_id` can be restored
 
 ### Data Retention
 
@@ -1189,6 +1335,61 @@ When a `seller.deleted` event fires:
 - Blocked message logs: 30-day retention, cleaned daily at 4 AM
 - SSE tokens: 30-second TTL, auto-expired by Redis
 - Rate limit counters: auto-expired by Redis (60s / 3600s TTL)
+
+---
+
+## Chat Blocking
+
+Admin-only feature to suspend a customer's chat access. Blocking prevents the customer from creating new conversations and sending messages, and prevents vendors from sending messages to the blocked customer. The customer's storefront account is unaffected.
+
+### How It Works
+
+1. **Admin blocks customer** via `POST /admin/messages/chat-blocks` (with optional reason)
+2. A `ChatBlock` record is created with a unique index on `customer_id`
+3. Block is enforced at three layers (defense in depth):
+   - **Route level**: Early exit before workflow execution (store and vendor POST handlers)
+   - **Workflow step**: `validateChatBlockStep` runs first in `sendMessageWorkflow`
+   - **UI level**: Compose area disabled in vendor dashboard, admin dashboard shows badge
+
+### Block Enforcement Matrix
+
+| Scenario | Result |
+|----------|--------|
+| Blocked customer creates conversation | `not_allowed`: "Your chat access has been suspended" |
+| Blocked customer sends message | `not_allowed`: "Your chat access has been suspended" |
+| Vendor sends to blocked customer | `not_allowed`: "Cannot send messages to a blocked customer" |
+| Non-blocked customer sends message | Allowed (normal flow) |
+| Admin blocks already-blocked customer | Idempotent — returns existing block |
+| Admin unblocks non-blocked customer | Succeeds silently |
+
+### Bidirectional Blocking
+
+When a customer is blocked, **both directions** are blocked:
+- The customer cannot send messages to any vendor
+- No vendor can send messages to the blocked customer
+
+This prevents vendors from unknowingly engaging with a blocked user.
+
+### UI Indicators
+
+| Dashboard | Location | Indicator |
+|-----------|----------|-----------|
+| Admin list | Next to buyer name | Red "Blocked" badge |
+| Admin detail | Sidebar + dedicated section | Red "Blocked" badge + Block/Unblock button |
+| Vendor list | Next to buyer name | Red "Blocked" badge |
+| Vendor detail | Sidebar + compose area | Red "Blocked" badge + disabled compose with notice |
+
+### Admin Block Dialog
+
+The admin detail page provides:
+- **Block action**: Opens an inline dialog with an optional reason input field and confirm/cancel buttons
+- **Unblock action**: Shows a confirmation prompt via `usePrompt` before proceeding
+
+### Security
+
+- Only admin users can create or remove blocks (no vendor or store routes for block management)
+- `blocked_by` field records which admin performed the block
+- Block is enforced redundantly at route level, workflow level, and UI level
 
 ---
 
@@ -1229,7 +1430,7 @@ Runs `anonymizeVendorMessagesWorkflow`. See [GDPR & Data Privacy](#gdpr--data-pr
 
 **Schedule**: `0 3 * * *` (daily at 3 AM)
 
-Iterates through all conversations in batches of 1000. For each conversation, counts actual unread messages for both parties. If the stored counter differs from the actual count, updates it. Logs all corrections.
+Iterates through all conversations in batches of 500. For each conversation, counts actual unread messages for both parties. If the stored counter differs from the actual count, updates it. Logs all corrections.
 
 ### Cleanup Blocked Messages
 
@@ -1246,6 +1447,8 @@ Soft-deletes `blocked_message_log` entries older than 30 days. Logs the number o
 | 400 | `invalid_data` | Request validation failed | Missing/invalid fields, body too long/short |
 | 400 | `invalid_data` | Content filter matched | Message contains blocked content |
 | 400 | `not_allowed` | Rate limit exceeded | Too many messages or conversations in window |
+| 400 | `not_allowed` | Chat blocked (customer) | Blocked customer attempts to create conversation or send message |
+| 400 | `not_allowed` | Chat blocked (vendor) | Vendor attempts to send message to blocked customer |
 | 400 | `not_allowed` | Built-in rule modification | Attempting to delete or modify built-in filter pattern |
 | 401 | `unauthorized` | Missing/invalid authentication | No session, expired token |
 | 401 | `unauthorized` | SSE token invalid/expired/consumed | Token already used or past 30s TTL |
@@ -1286,7 +1489,7 @@ The plugin includes unit tests covering core logic:
 
 ### `rate-limit.spec.ts`
 
-- 10 messages per 60 seconds enforced
+- 20 messages per 60 seconds enforced
 - 5 conversations per 3600 seconds enforced
 - Per-user isolation
 - Applies equally to customers and sellers
@@ -1299,6 +1502,32 @@ The plugin includes unit tests covering core logic:
 - Reset to 0 on mark read
 - Accumulation across multiple messages
 - Reconciliation corrects drifted counts
+
+### `chat-block.spec.ts` (unit)
+
+- Block record creation with customer_id, blocked_by, reason
+- Idempotent blocking (duplicate returns existing record)
+- Unblocking removes block and allows chat again
+- Unblocking non-blocked customer succeeds silently
+- Re-blocking after unblock creates new record
+- Batch checking (`checkBuyersBlocked`) with mixed blocked/unblocked IDs
+- Bidirectional enforcement: blocked customer cannot send, vendor cannot send to blocked customer
+- Multi-customer isolation: blocking one does not affect others
+- Full lifecycle: block → verify → unblock → re-block cycle
+- Admin accountability tracking (`blocked_by` field)
+
+### `chat-block-api.spec.ts` (integration)
+
+- Admin block API: creates block record, returns 201 with block data
+- Admin unblock API: removes block, returns success
+- Idempotent block (returns existing on duplicate)
+- Idempotent unblock (succeeds silently for non-blocked customer)
+- Store enforcement: blocked customer cannot create conversations
+- Store enforcement: blocked customer cannot send messages
+- Vendor enforcement: vendor cannot reply to blocked customer
+- `is_buyer_blocked` and `block_reason` fields included in admin and vendor GET responses
+- Cross-feature interaction: block does not affect unrelated conversations
+- Full lifecycle through API: block → enforce → unblock → verify restored access
 
 ---
 
@@ -1318,7 +1547,7 @@ The plugin includes unit tests covering core logic:
 | Channel | Publisher | Subscribers |
 |---------|-----------|------------|
 | `messaging` | `publishMessageEventStep` | SSE route handlers (store, vendor, admin) |
-| `filter_rules_changed` | `invalidateFilterCacheStep` | Filter compilation loader (all instances) |
+| `filter_rules_changed` | `invalidateFilterCacheStep` | None by default (available for custom cross-instance subscriber) |
 
 ### Module Identifiers
 
@@ -1346,6 +1575,7 @@ The plugin includes unit tests covering core logic:
 |-------|--------|--------|
 | `conversation` | messaging | `conv` |
 | `message` | messaging | `msg` |
+| `chat_block` | messaging | `cblk` |
 | `filter_rule` | messagingFilters | `filt` |
 | `blocked_message_log` | messagingFilters | `bml` |
 
@@ -1361,6 +1591,6 @@ The plugin includes unit tests covering core logic:
 | Route | Description |
 |-------|-------------|
 | `/messages` | Searchable conversation list with seller/buyer names |
-| `/messages/:id` | Read-only message thread with conversation metadata sidebar |
+| `/messages/:id` | Read-only message thread with conversation metadata sidebar, block/unblock controls |
 | `/messages/filters` | Content filter rule management |
 | `/messages/blocked` | Blocked message log viewer |

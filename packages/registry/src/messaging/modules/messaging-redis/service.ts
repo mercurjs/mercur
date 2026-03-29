@@ -9,13 +9,7 @@ class MessagingRedisModuleService {
 
   static readonly identifier = "messagingRedis"
 
-  __hooks = {
-    onApplicationShutdown: async () => {
-      if (this.connection_) {
-        this.connection_.disconnect()
-      }
-    },
-  }
+  __hooks: Record<string, () => Promise<void>>
 
   constructor(
     { messagingRedisConnection }: { messagingRedisConnection: Redis | null },

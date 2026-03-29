@@ -18,6 +18,7 @@ export const useMessagingSSE = (
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const unreadPollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const reconnectDelayRef = useRef(1000)
   const statusRef = useRef<SSEStatus>("disconnected")
   const mountedRef = useRef(true)
 
@@ -89,6 +90,7 @@ export const useMessagingSSE = (
       es.addEventListener("connected", () => {
         setStatus("connected")
         stopPolling()
+        reconnectDelayRef.current = 1000 // Reset backoff on success
       })
 
       es.addEventListener("new_message", (event: MessageEvent) => {
@@ -124,13 +126,16 @@ export const useMessagingSSE = (
         eventSourceRef.current = null
         startPolling()
 
-        // Schedule reconnect — track timer so cleanup can cancel it
+        // Exponential backoff: 1s, 2s, 4s, 8s, ..., max 30s
+        const delay = reconnectDelayRef.current
+        reconnectDelayRef.current = Math.min(delay * 2, 30000)
+
         reconnectTimerRef.current = setTimeout(() => {
           reconnectTimerRef.current = null
           if (mountedRef.current && statusRef.current === "polling") {
             connect()
           }
-        }, 5000)
+        }, delay)
       }
     }
 

@@ -96,7 +96,8 @@ export default async function messageNotificationHandler({
     // Send notification via Medusa notification module
     // Privacy: no message body included in email
     try {
-      const notificationService = container.resolve("notification") as any
+      const notificationService: { createNotifications: (data: Record<string, unknown>) => Promise<void> } =
+        container.resolve("notification")
       await notificationService.createNotifications({
         to: recipientEmail,
         channel: "email",

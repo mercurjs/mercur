@@ -1,11 +1,15 @@
-import { InjectManager, InjectTransactionManager, MedusaContext, MedusaService } from "@medusajs/framework/utils"
+import { InjectManager, MedusaContext, MedusaService } from "@medusajs/framework/utils"
 import { Context } from "@medusajs/framework/types"
 import { EntityManager, type Knex } from "@medusajs/framework/mikro-orm/knex"
 
 import { Conversation } from "./models/conversation"
 import { Message } from "./models/message"
+import { ChatBlock } from "./models/chat-block"
 import { CursorPaginatedResult, ConversationDTO, MessageDTO } from "./types/common"
 
+const TABLE_CONVERSATION = "conversation"
+const TABLE_MESSAGE = "message"
+const TABLE_CHAT_BLOCK = "chat_block"
 const MAX_PREVIEW_LENGTH = 100
 
 function escapeLike(value: string): string {
@@ -27,7 +31,39 @@ export function decodeCursor(cursor: string): Record<string, string | number | n
 class MessagingModuleService extends MedusaService({
   Conversation,
   Message,
+  ChatBlock,
 }) {
+  @InjectManager()
+  async checkBuyersBlocked(
+    buyerIds: string[],
+    @MedusaContext() sharedContext?: Context<EntityManager>
+  ): Promise<Set<string>> {
+    if (buyerIds.length === 0) return new Set()
+    const knex = sharedContext!.manager!.getKnex()
+    const rows: { customer_id: string }[] = await knex(TABLE_CHAT_BLOCK)
+      .select("customer_id")
+      .whereIn("customer_id", buyerIds)
+      .whereNull("deleted_at")
+    return new Set(rows.map((r) => r.customer_id))
+  }
+
+  @InjectManager()
+  async getBlockDetail(
+    customerId: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>
+  ): Promise<{ blocked: boolean; reason: string | null }> {
+    const knex = sharedContext!.manager!.getKnex()
+    const row: { reason: string | null } | undefined = await knex(TABLE_CHAT_BLOCK)
+      .select("reason")
+      .where("customer_id", customerId)
+      .whereNull("deleted_at")
+      .first()
+
+    return row
+      ? { blocked: true, reason: row.reason }
+      : { blocked: false, reason: null }
+  }
+
   @InjectManager()
   async listConversationsCursor(
     filter: { buyer_id?: string; seller_id?: string },
@@ -37,11 +73,10 @@ class MessagingModuleService extends MedusaService({
     const knex = sharedContext!.manager!.getKnex()
     const limit = Math.min(pagination.limit ?? 20, 50)
 
-    let query = knex("conversation")
+    let query = knex(TABLE_CONVERSATION)
       .select("*")
       .where("deleted_at", null)
-      .orderBy("last_message_at" as any, "desc")
-      .orderBy("id" as any, "desc")
+      .orderByRaw("last_message_at DESC NULLS LAST, id DESC")
       .limit(limit + 1)
 
     if (filter.buyer_id) {
@@ -91,12 +126,11 @@ class MessagingModuleService extends MedusaService({
     const knex = sharedContext!.manager!.getKnex()
     const limit = Math.min(pagination.limit ?? 30, 100)
 
-    let query = knex("message")
+    let query = knex(TABLE_MESSAGE)
       .select("*")
       .where("conversation_id", conversationId)
       .where("deleted_at", null)
-      .orderBy("created_at" as any, "desc")
-      .orderBy("id" as any, "desc")
+      .orderByRaw("created_at DESC, id DESC")
       .limit(limit + 1)
 
     if (pagination.cursor) {
@@ -129,6 +163,13 @@ class MessagingModuleService extends MedusaService({
     return { data, next_cursor }
   }
 
+  /**
+   * Cross-module admin search: joins conversation with seller + customer
+   * tables via raw Knex for performance (avoids N+1 queries). This is
+   * intentional — admin oversight requires denormalized data in a single
+   * paginated query. Module isolation is preserved at the application
+   * layer; this method is only used by the admin search route.
+   */
   @InjectManager()
   async searchConversationsAdmin(
     filter: {
@@ -145,7 +186,7 @@ class MessagingModuleService extends MedusaService({
     const knex = sharedContext!.manager!.getKnex()
     const limit = Math.min(pagination.limit ?? 20, 50)
 
-    let query = knex("conversation as c")
+    let query = knex(`${TABLE_CONVERSATION} as c`)
       .select(
         "c.*",
         "s.name as seller_name",
@@ -166,8 +207,7 @@ class MessagingModuleService extends MedusaService({
       )
       .leftJoin("customer as cust", "cust.id", "cc.customer_id")
       .where("c.deleted_at", null)
-      .orderBy("c.last_message_at" as any, "desc")
-      .orderBy("c.id" as any, "desc")
+      .orderByRaw("c.last_message_at DESC NULLS LAST, c.id DESC")
       .limit(limit + 1)
 
     if (filter.seller_name) {
@@ -193,7 +233,7 @@ class MessagingModuleService extends MedusaService({
     if (filter.context_type || filter.context_id) {
       query = query.whereExists(function () {
         this.select(knex.raw("1"))
-          .from("message as m")
+          .from(`${TABLE_MESSAGE} as m`)
           .whereRaw("m.conversation_id = c.id")
 
         if (filter.context_type) {
@@ -251,7 +291,7 @@ class MessagingModuleService extends MedusaService({
       ? "unread_count_customer"
       : "unread_count_seller"
 
-    let query = knex("conversation")
+    let query = knex(TABLE_CONVERSATION)
       .sum({ total: countField })
       .where("deleted_at", null)
 
@@ -268,7 +308,7 @@ class MessagingModuleService extends MedusaService({
     return Number(result?.total ?? 0)
   }
 
-  @InjectTransactionManager()
+  @InjectManager()
   async createMessageAtomic(
     data: {
       conversation_id: string
@@ -291,37 +331,39 @@ class MessagingModuleService extends MedusaService({
 
     const now = new Date()
 
-    const [message] = await knex("message")
-      .insert({
-        id: `msg_${generateId()}`,
-        conversation_id: data.conversation_id,
-        sender_id: data.sender_id,
-        sender_type: data.sender_type,
-        body: data.body,
-        context_type: data.context_type ?? null,
-        context_id: data.context_id ?? null,
-        context_label: data.context_label ?? null,
-        read_at: null,
-        created_at: now,
-        updated_at: now,
-        deleted_at: null,
-      })
-      .returning("*")
+    return await knex.transaction(async (trx) => {
+      const [message] = await trx(TABLE_MESSAGE)
+        .insert({
+          id: `msg_${generateId()}`,
+          conversation_id: data.conversation_id,
+          sender_id: data.sender_id,
+          sender_type: data.sender_type,
+          body: data.body,
+          context_type: data.context_type ?? null,
+          context_id: data.context_id ?? null,
+          context_label: data.context_label ?? null,
+          read_at: null,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+        })
+        .returning("*")
 
-    await knex("conversation")
-      .where("id", data.conversation_id)
-      .update({
-        last_message_preview: preview,
-        last_message_sender_type: data.sender_type,
-        last_message_at: now,
-        [recipientCounterField]: knex.raw(`?? + 1`, [recipientCounterField]),
-        updated_at: now,
-      })
+      await trx(TABLE_CONVERSATION)
+        .where("id", data.conversation_id)
+        .update({
+          last_message_preview: preview,
+          last_message_sender_type: data.sender_type,
+          last_message_at: now,
+          [recipientCounterField]: knex.raw(`?? + 1`, [recipientCounterField]),
+          updated_at: now,
+        })
 
-    return message
+      return message
+    })
   }
 
-  @InjectTransactionManager()
+  @InjectManager()
   async markMessagesReadAtomic(
     conversationId: string,
     readerType: "customer" | "seller",
@@ -335,32 +377,33 @@ class MessagingModuleService extends MedusaService({
         ? "unread_count_customer"
         : "unread_count_seller"
 
-    const updated = await knex("message")
-      .where("conversation_id", conversationId)
-      .where("sender_type", senderType)
-      .whereNull("read_at")
-      .whereNull("deleted_at")
-      .update({
-        read_at: new Date(),
-        updated_at: new Date(),
-      })
+    const now = new Date()
 
-    await knex("conversation")
-      .where("id", conversationId)
-      .update({
-        [counterField]: 0,
-        updated_at: new Date(),
-      })
+    return await knex.transaction(async (trx) => {
+      const updated = await trx(TABLE_MESSAGE)
+        .where("conversation_id", conversationId)
+        .where("sender_type", senderType)
+        .whereNull("read_at")
+        .whereNull("deleted_at")
+        .update({
+          read_at: now,
+          updated_at: now,
+        })
 
-    return updated
+      await trx(TABLE_CONVERSATION)
+        .where("id", conversationId)
+        .update({
+          [counterField]: 0,
+          updated_at: now,
+        })
+
+      return updated
+    })
   }
 }
 
 function generateId(): string {
-  return (
-    Date.now().toString(36) +
-    Math.random().toString(36).substring(2, 10)
-  )
+  return crypto.randomUUID().replace(/-/g, "").substring(0, 16)
 }
 
 export default MessagingModuleService

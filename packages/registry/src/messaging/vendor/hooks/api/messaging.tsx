@@ -27,6 +27,7 @@ export type ConversationDTO = {
   unread_count_seller: number
   created_at: string
   updated_at: string
+  is_buyer_blocked?: boolean
 }
 
 export type MessageDTO = {
@@ -128,8 +129,10 @@ export const useSendVendorReply = (
   options?: UseMutationOptions<{ message: MessageDTO }, ClientError, { body: string }>
 ) => {
   const queryClient = useQueryClient()
+  const { onSuccess, onError, ...restOptions } = options ?? {}
 
   return useMutation({
+    ...restOptions,
     mutationFn: (payload: { body: string }) =>
       (client as any).vendor.messages.$id.mutate({ $id: conversationId, ...payload }) as Promise<{ message: MessageDTO }>,
     onSuccess: (data, variables, context) => {
@@ -142,9 +145,9 @@ export const useSendVendorReply = (
       queryClient.invalidateQueries({
         queryKey: unreadQueryKeys.all,
       })
-      options?.onSuccess?.(data, variables, context)
+      onSuccess?.(data, variables, context)
     },
-    ...options,
+    onError,
   })
 }
 
@@ -153,8 +156,10 @@ export const useMarkVendorRead = (
   options?: UseMutationOptions<{ success: boolean }, ClientError, void>
 ) => {
   const queryClient = useQueryClient()
+  const { onSuccess, onError, ...restOptions } = options ?? {}
 
   return useMutation({
+    ...restOptions,
     mutationFn: () =>
       (client as any).vendor.messages.$id.read.mutate({ $id: conversationId }) as Promise<{ success: boolean }>,
     onSuccess: (data, variables, context) => {
@@ -167,8 +172,8 @@ export const useMarkVendorRead = (
       queryClient.invalidateQueries({
         queryKey: unreadQueryKeys.all,
       })
-      options?.onSuccess?.(data, variables, context)
+      onSuccess?.(data, variables, context)
     },
-    ...options,
+    onError,
   })
 }

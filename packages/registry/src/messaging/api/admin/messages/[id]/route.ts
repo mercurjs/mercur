@@ -73,12 +73,17 @@ export const GET = async (
     // Continue without enrichment
   }
 
+  // Check block status with reason
+  const blockDetail = await service.getBlockDetail(conversation.buyer_id)
+
   res.json({
     conversation: {
       ...conversation,
       buyer_name,
       buyer_email,
       seller_name,
+      is_buyer_blocked: blockDetail.blocked,
+      block_reason: blockDetail.reason,
     },
     messages,
     next_cursor,

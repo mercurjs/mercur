@@ -8,7 +8,7 @@ export const StoreListConversations = z.object({
 
 export type StoreCreateConversationType = z.infer<typeof StoreCreateConversation>
 export const StoreCreateConversation = z.object({
-  seller_id: z.string(),
+  seller_id: z.string().min(1),
   body: z.string().min(1).max(2000).optional(),
   context_type: z.enum(["product", "order"]).optional().nullable(),
   context_id: z.string().optional().nullable(),
