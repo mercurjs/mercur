@@ -1,8 +1,11 @@
 import { Children, ReactNode } from "react";
+import { Alert, Text } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
 import { useMe, useSubscription } from "@/hooks/api";
+import { SellerStatus } from "@mercurjs/types";
 
 import { StoreAddressSection } from "./_components/store-address-section";
 import { StoreConfigurationSection } from "./_components/store-configuration-section";
@@ -18,6 +21,7 @@ import {
 } from "./_components/store-detail-header";
 
 const Root = ({ children }: { children?: ReactNode }) => {
+  const { t } = useTranslation();
   const { seller_member, isPending, isError, error } = useMe();
   const {
     subscription_plan,
@@ -35,26 +39,67 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage data={seller} hasOutlet>
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage data={seller} hasOutlet>
-      <TwoColumnPage.Main>
-        <StoreGeneralSection seller={seller} />
-        <StorePaymentDetailsSection seller={seller} />
-        <StoreProfessionalDetailsSection seller={seller} />
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <StoreConfigurationSection seller={seller} />
-        <StoreAddressSection seller={seller} />
-        <StoreSubscriptionSection
-          subscription_plan={subscription_plan}
-          subscription_override={subscription_override}
-        />
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+  const statusAlert = (() => {
+    switch (seller.status) {
+      case SellerStatus.PENDING_APPROVAL:
+        return {
+          variant: "warning" as const,
+          title: t("store.alert.pendingApproval.title"),
+          description: t("store.alert.pendingApproval.description"),
+        };
+      case SellerStatus.SUSPENDED:
+        return {
+          variant: "error" as const,
+          title: t("store.alert.suspended.title"),
+          description:
+            seller.status_reason || t("store.alert.suspended.description"),
+        };
+      case SellerStatus.TERMINATED:
+        return {
+          variant: "error" as const,
+          title: t("store.alert.terminated.title"),
+          description:
+            seller.status_reason || t("store.alert.terminated.description"),
+        };
+      default:
+        return null;
+    }
+  })();
+
+  return (
+    <div className="flex flex-col gap-y-3">
+      {statusAlert && (
+        <Alert variant={statusAlert.variant} dismissible className="p-5">
+          <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">
+            {statusAlert.title}
+          </div>
+          <Text className="text-ui-fg-subtle txt-small leading-normal">
+            {statusAlert.description}
+          </Text>
+        </Alert>
+      )}
+      {Children.count(children) > 0 ? (
+        <TwoColumnPage data={seller} hasOutlet>
+          {children}
+        </TwoColumnPage>
+      ) : (
+        <TwoColumnPage data={seller} hasOutlet>
+          <TwoColumnPage.Main>
+            <StoreGeneralSection seller={seller} />
+            <StorePaymentDetailsSection seller={seller} />
+            <StoreProfessionalDetailsSection seller={seller} />
+          </TwoColumnPage.Main>
+          <TwoColumnPage.Sidebar>
+            <StoreConfigurationSection seller={seller} />
+            <StoreAddressSection seller={seller} />
+            <StoreSubscriptionSection
+              subscription_plan={subscription_plan}
+              subscription_override={subscription_override}
+            />
+          </TwoColumnPage.Sidebar>
+        </TwoColumnPage>
+      )}
+    </div>
   );
 };
 

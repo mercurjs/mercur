@@ -2586,6 +2586,20 @@
       "suspended": "Suspended",
       "terminated": "Terminated"
     },
+    "alert": {
+      "pendingApproval": {
+        "title": "Your store is under review",
+        "description": "Your application is being reviewed by our team. You will be notified once your store is approved."
+      },
+      "suspended": {
+        "title": "Your store has been suspended",
+        "description": "Your store has been suspended by the platform administrator. Please contact support for more information."
+      },
+      "terminated": {
+        "title": "Your store has been terminated",
+        "description": "Your store has been permanently terminated by the platform administrator. Please contact support for more information."
+      }
+    },
     "defaultCurrency": "Default currency",
     "defaultLocale": "Default locale",
     "defaultRegion": "Default region",
