@@ -8,6 +8,7 @@ import { Form } from "@components/common/form";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { HttpTypes } from "@mercurjs/types";
+import { useUpdateSellerPaymentDetails } from "@hooks/api";
 
 type StorePaymentDetailsFormProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
@@ -50,13 +51,7 @@ export const StorePaymentDetailsForm = ({
 
   const selectedType = form.watch("type");
 
-  // TODO: replace with actual update hook
-  const { mutateAsync, isPending } = {
-    isPending: false,
-    mutateAsync: async (_payload: any, _options?: any) => {
-      _options?.onSuccess?.();
-    },
-  };
+  const { mutateAsync, isPending } = useUpdateSellerPaymentDetails(seller.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const isABA = values.type === "aba";

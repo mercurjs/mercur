@@ -22,7 +22,13 @@ import { INavItem, NavItem } from "../../layout/nav-item";
 import { Shell } from "../../layout/shell";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useFeatureFlags, useLogout, useMe, useSelectSeller, useSellers } from "../../../hooks/api";
+import {
+  useFeatureFlags,
+  useLogout,
+  useMe,
+  useSelectSeller,
+  useSellers,
+} from "../../../hooks/api";
 import { MercurFeatureFlags } from "@mercurjs/types";
 import { queryClient } from "../../../lib/query-client";
 import { useSearch } from "../../../providers/search-provider";
@@ -146,6 +152,7 @@ const Logout = () => {
 const SwitchStore = ({ currentSellerId }: { currentSellerId: string }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { seller_member } = useMe();
   const { seller_members } = useSellers();
   const { mutateAsync: selectSeller } = useSelectSeller();
   const { feature_flags } = useFeatureFlags();
@@ -204,7 +211,11 @@ const SwitchStore = ({ currentSellerId }: { currentSellerId: string }) => {
           <>
             {!!seller_members?.length && <DropdownMenu.Separator />}
             <DropdownMenu.Item
-              onClick={() => navigate("/onboarding")}
+              onClick={() =>
+                navigate("/onboarding", {
+                  state: { email: seller_member?.member.email },
+                })
+              }
               className="gap-x-2"
             >
               <Plus className="text-ui-fg-subtle" />

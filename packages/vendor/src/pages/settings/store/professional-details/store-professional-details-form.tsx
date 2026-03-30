@@ -8,6 +8,10 @@ import { Form } from "@components/common/form";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { HttpTypes } from "@mercurjs/types";
+import {
+  useUpdateSellerProfessionalDetails,
+  useDeleteSellerProfessionalDetails,
+} from "@hooks/api";
 
 type StoreProfessionalDetailsFormProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
@@ -21,7 +25,9 @@ const StoreProfessionalDetailsSchema = zod
     tax_id: zod.string().optional().or(zod.literal("")),
   })
   .refine(
-    (data) => !data.is_professional || (data.corporate_name && data.corporate_name.length > 0),
+    (data) =>
+      !data.is_professional ||
+      (data.corporate_name && data.corporate_name.length > 0),
     {
       message: "Corporate name is required for professional sellers",
       path: ["corporate_name"],
@@ -47,18 +53,15 @@ export const StoreProfessionalDetailsForm = ({
 
   const isProfessional = form.watch("is_professional");
 
-  // TODO: replace with actual update hook
-  const { mutateAsync, isPending } = {
-    isPending: false,
-    mutateAsync: async (_payload: any, _options?: any) => {
-      _options?.onSuccess?.();
-    },
-  };
+  const { mutateAsync, isPending } = useUpdateSellerProfessionalDetails(
+    seller.id,
+  );
+  const { mutateAsync: deleteProfessionalDetails, isPending: isDeleting } =
+    useDeleteSellerProfessionalDetails(seller.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     if (!values.is_professional) {
-      // TODO: handle removing professional details
-      await mutateAsync(null, {
+      await deleteProfessionalDetails(undefined, {
         onSuccess: () => {
           toast.success(
             t(
@@ -181,10 +184,7 @@ export const StoreProfessionalDetailsForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label optional>
-                      {t(
-                        "store.professionalDetails.fields.taxId",
-                        "Tax ID",
-                      )}
+                      {t("store.professionalDetails.fields.taxId", "Tax ID")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />
@@ -203,7 +203,7 @@ export const StoreProfessionalDetailsForm = ({
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button type="submit" size="small" isLoading={isPending}>
+            <Button type="submit" size="small" isLoading={isPending || isDeleting}>
               {t("actions.save")}
             </Button>
           </div>

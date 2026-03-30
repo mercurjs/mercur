@@ -33,6 +33,7 @@ import { vendorShippingOptionTypesMiddlewares } from "./shipping-option-types/mi
 import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewares"
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorStoresMiddlewares } from "./stores/middlewares"
+import { vendorSubscriptionMiddlewares } from "./subscription/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
 import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
@@ -111,4 +112,5 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorStoresMiddlewares,
   ...vendorUploadsMiddlewares,
   ...vendorProductTagsMiddlewares,
+  ...vendorSubscriptionMiddlewares,
 ]

@@ -56,6 +56,7 @@ export async function ensureSellerMiddleware(
   req.seller_context = {
     seller_id: sellerId,
     seller_member: sellerMember,
+    currency_code: sellerMember.seller.currency_code
   }
 
   if (sellerMember.role_id) {

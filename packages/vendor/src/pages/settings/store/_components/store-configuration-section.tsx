@@ -28,7 +28,7 @@ export const StoreConfigurationSection = ({
                 {
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
-                  to: "configuration",
+                  to: "store-closure",
                 },
               ],
             },

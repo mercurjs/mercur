@@ -1,18 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, toast } from "@medusajs/ui";
+import { Button, Input, Textarea, toast } from "@medusajs/ui";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
+import { useCallback } from "react";
 
 import { FileType, FileUpload } from "@components/common/file-upload";
 import { Form } from "@components/common/form";
-import { CountrySelect } from "@components/inputs/country-select";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { uploadFilesQuery } from "@lib/client";
 import { MediaSchema } from "@pages/products/create/constants";
 import { HttpTypes } from "@mercurjs/types";
-import { useCallback } from "react";
+import { useUpdateSeller } from "@hooks/api";
 
 type EditStoreFormProps = HttpTypes.StoreSellerResponse;
 
@@ -20,17 +20,10 @@ const EditStoreSchema = zod.object({
   name: zod.string().min(1),
   handle: zod.string().min(1),
   email: zod.string().email().optional().or(zod.literal("")),
-  phone: zod.string().optional().or(zod.literal("")),
-  address: zod.object({
-    address_1: zod.string().optional().or(zod.literal("")),
-    address_2: zod.string().optional().or(zod.literal("")),
-    city: zod.string().optional().or(zod.literal("")),
-    province: zod.string().optional().or(zod.literal("")),
-    postal_code: zod.string().optional().or(zod.literal("")),
-    country_code: zod.string().optional().or(zod.literal("")),
-  }),
+  description: zod.string().optional().or(zod.literal("")),
+  website_url: zod.string().url().optional().or(zod.literal("")),
   media: zod.array(MediaSchema).optional(),
-  coverMedia: zod.array(MediaSchema).optional(),
+  bannerMedia: zod.array(MediaSchema).optional(),
 });
 
 const SUPPORTED_FORMATS = [
@@ -60,17 +53,14 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
       name: seller.name ?? "",
       handle: seller.handle ?? "",
       email: seller.email ?? "",
-      phone: seller.phone ?? "",
-      address: {
-        address_1: seller.address_1 ?? "",
-        address_2: seller.address_2 ?? "",
-        city: seller.city ?? "",
-        province: seller.province ?? "",
-        postal_code: seller.postal_code ?? "",
-        country_code: seller.country_code ?? "",
-      },
-      media: [],
-      coverMedia: [],
+      description: seller.description ?? "",
+      website_url: seller.website_url ?? "",
+      media: seller.logo
+        ? [{ id: "existing-logo", url: seller.logo, isThumbnail: false, file: null }]
+        : [],
+      bannerMedia: seller.banner
+        ? [{ id: "existing-banner", url: seller.banner, isThumbnail: false, file: null }]
+        : [],
     },
     resolver: zodResolver(EditStoreSchema),
   });
@@ -81,34 +71,40 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
     keyName: "field_id",
   });
 
-  const { fields: coverFields } = useFieldArray({
-    name: "coverMedia",
+  const { fields: bannerFields } = useFieldArray({
+    name: "bannerMedia",
     control: form.control,
     keyName: "field_id",
   });
 
-  // const { mutateAsync, isPending } = useUpdateMe();
-  const { mutateAsync, isPending } = {
-    isPending: false,
-    mutateAsync: () => {},
-  };
+  const { mutateAsync, isPending } = useUpdateSeller(seller.id);
+
   const handleSubmit = form.handleSubmit(async (values) => {
-    let logoUrl = seller.logo || "";
-    let coverImageUrl = seller.cover_image || "";
+    let logoUrl: string | null = null;
+    let bannerUrl: string | null = null;
+
+    const newLogoFile = values.media?.find((m) => m.file);
+    const newBannerFile = values.bannerMedia?.find((m) => m.file);
 
     try {
-      if (values.media?.length) {
-        const uploaded = await uploadFilesQuery(values.media);
-        logoUrl = uploaded.files?.[0]?.url || logoUrl;
+      if (newLogoFile) {
+        const uploaded = await uploadFilesQuery([newLogoFile]);
+        logoUrl = uploaded.files?.[0]?.url || null;
+      } else if (values.media?.length) {
+        logoUrl = values.media[0].url;
       }
-      if (values.coverMedia?.length) {
-        const uploaded = await uploadFilesQuery(values.coverMedia);
-        coverImageUrl = uploaded.files?.[0]?.url || coverImageUrl;
+
+      if (newBannerFile) {
+        const uploaded = await uploadFilesQuery([newBannerFile]);
+        bannerUrl = uploaded.files?.[0]?.url || null;
+      } else if (values.bannerMedia?.length) {
+        bannerUrl = values.bannerMedia[0].url;
       }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
       }
+      return;
     }
 
     await mutateAsync(
@@ -116,19 +112,14 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
         name: values.name,
         handle: values.handle,
         email: values.email || undefined,
-        phone: values.phone || null,
-        logo: logoUrl || null,
-        cover_image: coverImageUrl || null,
-        address_1: values.address.address_1 || null,
-        address_2: values.address.address_2 || null,
-        city: values.address.city || null,
-        province: values.address.province || null,
-        postal_code: values.address.postal_code || null,
-        country_code: values.address.country_code || null,
+        description: values.description || null,
+        website_url: values.website_url || null,
+        logo: logoUrl,
+        banner: bannerUrl,
       },
       {
         onSuccess: () => {
-          toast.success(t("app.menus.store.storeSettings"));
+          toast.success(t("store.toast.update"));
           handleSuccess();
         },
         onError: (error) => {
@@ -139,13 +130,13 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
   });
 
   const hasInvalidFiles = useCallback(
-    (fileList: FileType[]) => {
+    (fileList: FileType[], fieldName: "media" | "bannerMedia") => {
       const invalidFile = fileList.find(
         (f) => !SUPPORTED_FORMATS.includes(f.file.type),
       );
 
       if (invalidFile) {
-        form.setError("media", {
+        form.setError(fieldName, {
           type: "invalid_file",
           message: t("products.media.invalidFileType", {
             name: invalidFile.file.name,
@@ -163,20 +154,20 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
 
   const onLogoUploaded = (files: FileType[]) => {
     form.clearErrors("media");
-    if (hasInvalidFiles(files)) {
+    if (hasInvalidFiles(files, "media")) {
       return;
     }
 
     form.setValue("media", [{ ...files[0], isThumbnail: false }]);
   };
 
-  const onCoverUploaded = (files: FileType[]) => {
-    form.clearErrors("coverMedia");
-    if (hasInvalidFiles(files)) {
+  const onBannerUploaded = (files: FileType[]) => {
+    form.clearErrors("bannerMedia");
+    if (hasInvalidFiles(files, "bannerMedia")) {
       return;
     }
 
-    form.setValue("coverMedia", [{ ...files[0], isThumbnail: false }]);
+    form.setValue("bannerMedia", [{ ...files[0], isThumbnail: false }]);
   };
 
   return (
@@ -186,59 +177,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
         className="flex flex-1 flex-col overflow-hidden"
       >
         <RouteDrawer.Body className="flex flex-col gap-y-8 overflow-y-auto">
-          <div className="grid grid-cols-1 gap-4">
-            <Form.Field
-              name="media"
-              control={form.control}
-              render={() => {
-                const previewUrl = logoFields[0]?.url || seller.logo;
-
-                return (
-                  <Form.Item>
-                    <Form.Label>{t("store.logo", "Logo")}</Form.Label>
-                    <Form.Control>
-                      <FileUpload
-                        uploadedImage={previewUrl}
-                        multiple={false}
-                        label={t("products.media.uploadImagesLabel")}
-                        hint={t("products.media.uploadImagesHint")}
-                        hasError={!!form.formState.errors.media}
-                        formats={SUPPORTED_FORMATS}
-                        onUploaded={onLogoUploaded}
-                      />
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                );
-              }}
-            />
-            <Form.Field
-              name="coverMedia"
-              control={form.control}
-              render={() => {
-                const previewUrl = coverFields[0]?.url || seller.cover_image;
-
-                return (
-                  <Form.Item>
-                    <Form.Label>
-                      {t("store.coverImage", "Cover image")}
-                    </Form.Label>
-                    <Form.Control>
-                      <FileUpload
-                        uploadedImage={previewUrl}
-                        multiple={false}
-                        label={t("products.media.uploadImagesLabel")}
-                        hint={t("products.media.uploadImagesHint")}
-                        hasError={!!form.formState.errors.coverMedia}
-                        formats={SUPPORTED_FORMATS}
-                        onUploaded={onCoverUploaded}
-                      />
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                );
-              }}
-            />
+          <div className="flex flex-col gap-y-4">
             <Form.Field
               control={form.control}
               name="name"
@@ -246,7 +185,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 <Form.Item>
                   <Form.Label>{t("fields.name")}</Form.Label>
                   <Form.Control>
-                    <Input size="small" {...field} />
+                    <Input {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -259,7 +198,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 <Form.Item>
                   <Form.Label>{t("fields.handle")}</Form.Label>
                   <Form.Control>
-                    <Input size="small" {...field} />
+                    <Input {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -272,7 +211,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 <Form.Item>
                   <Form.Label>{t("fields.email")}</Form.Label>
                   <Form.Control>
-                    <Input size="small" type="email" {...field} />
+                    <Input type="email" {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -280,26 +219,12 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
             />
             <Form.Field
               control={form.control}
-              name="phone"
+              name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label optional>{t("fields.phone")}</Form.Label>
+                  <Form.Label optional>{t("fields.description")}</Form.Label>
                   <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            {/* Address Fields, using address subobject as in edit-location-form */}
-            <Form.Field
-              control={form.control}
-              name="address.address_1"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.address")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
+                    <Textarea {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -307,68 +232,76 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
             />
             <Form.Field
               control={form.control}
-              name="address.address_2"
+              name="website_url"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label optional>{t("fields.address2")}</Form.Label>
+                  <Form.Label optional>{t("fields.website")}</Form.Label>
                   <Form.Control>
-                    <Input size="small" {...field} />
+                    <Input {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
               )}
             />
+          </div>
+          <div className="flex flex-col gap-y-4">
             <Form.Field
+              name="media"
               control={form.control}
-              name="address.city"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.city")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
+              render={() => {
+                const logoFile = logoFields[0];
+                const previewUrl = logoFile?.url || null;
+
+                return (
+                  <Form.Item>
+                    <Form.Label optional>{t("store.logo")}</Form.Label>
+                    <Form.Control>
+                      <FileUpload
+                        uploadedImage={previewUrl}
+                        fileName={logoFile?.file?.name}
+                        fileSize={logoFile?.file?.size}
+                        multiple={false}
+                        label={t("products.media.uploadImagesLabel")}
+                        hint={t("products.media.uploadImagesHint")}
+                        hasError={!!form.formState.errors.media}
+                        formats={SUPPORTED_FORMATS}
+                        onUploaded={onLogoUploaded}
+                        onRemove={() => form.setValue("media", [])}
+                      />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
             />
             <Form.Field
+              name="bannerMedia"
               control={form.control}
-              name="address.province"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.state")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="address.postal_code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.postalCode")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="address.country_code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.country")}</Form.Label>
-                  <Form.Control>
-                    <CountrySelect {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
+              render={() => {
+                const bannerFile = bannerFields[0];
+                const previewUrl = bannerFile?.url || null;
+
+                return (
+                  <Form.Item>
+                    <Form.Label optional>{t("store.banner")}</Form.Label>
+                    <Form.Control>
+                      <FileUpload
+                        uploadedImage={previewUrl}
+                        fileName={bannerFile?.file?.name}
+                        fileSize={bannerFile?.file?.size}
+                        multiple={false}
+                        label={t("products.media.uploadImagesLabel")}
+                        hint={t("products.media.uploadImagesHint")}
+                        hasError={!!form.formState.errors.bannerMedia}
+                        formats={SUPPORTED_FORMATS}
+                        onUploaded={onBannerUploaded}
+                        onRemove={() => form.setValue("bannerMedia", [])}
+                      />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
             />
           </div>
         </RouteDrawer.Body>

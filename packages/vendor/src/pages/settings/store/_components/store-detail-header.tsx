@@ -29,13 +29,13 @@ const getStatusColor = (status: string) => {
 const getStatusLabel = (status: string, t: TFunction) => {
   switch (status) {
     case SellerStatus.OPEN:
-      return t("store.status.active", "Active");
+      return t("store.status.active");
     case SellerStatus.PENDING_APPROVAL:
-      return t("store.status.pendingApproval", "Pending");
+      return t("store.status.pendingApproval");
     case SellerStatus.SUSPENDED:
-      return t("store.status.suspended", "Suspended");
+      return t("store.status.suspended");
     case SellerStatus.TERMINATED:
-      return t("store.status.terminated", "Terminated");
+      return t("store.status.terminated");
     default:
       return status;
   }

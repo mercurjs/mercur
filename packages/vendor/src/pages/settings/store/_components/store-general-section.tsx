@@ -1,6 +1,6 @@
 import { Children, ReactNode } from "react";
 import { Photo } from "@medusajs/icons";
-import { Container, StatusBadge, Text } from "@medusajs/ui";
+import { Container, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { HttpTypes } from "@mercurjs/types";
@@ -82,11 +82,9 @@ export const StoreGeneralSection = ({
             <Text size="small" leading="compact" weight="plus">
               {t("fields.premium")}
             </Text>
-            <div>
-              <StatusBadge color={seller.is_premium ? "green" : "grey"}>
-                {seller.is_premium ? t("fields.true") : t("fields.false")}
-              </StatusBadge>
-            </div>
+            <Text size="small" leading="compact">
+              {seller.is_premium ? t("general.yes") : t("general.no")}
+            </Text>
           </div>
           <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
             <Text size="small" leading="compact" weight="plus">

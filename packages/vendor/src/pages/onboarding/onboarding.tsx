@@ -906,7 +906,7 @@ const SubmittedStep = ({ email }: { email: string }) => {
         <Button
           variant="secondary"
           className="w-full"
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/store-select")}
         >
           {t("onboarding.submitted.action")}
         </Button>

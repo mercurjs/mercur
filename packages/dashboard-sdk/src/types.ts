@@ -1,19 +1,53 @@
 import { ComponentType } from "react";
 
+/**
+ * Configuration for the Mercur dashboard plugin.
+ *
+ * Passed to `mercurDashboardPlugin()` in `vite.config.ts` to configure
+ * the vendor or admin dashboard at build time.
+ *
+ * @example
+ * ```ts
+ * mercurDashboardPlugin({
+ *   medusaConfigPath: '../../packages/api/medusa-config.ts',
+ *   initialPage: '/setup',
+ *   enableSellerRegistration: true,
+ * })
+ * ```
+ */
 export interface MercurConfig {
+    /** Path to the MedusaJS config file, resolved relative to the project root. */
     medusaConfigPath: string
+    /**
+     * Backend URL for API requests.
+     * @default "http://localhost:9000"
+     */
     backendUrl?: string
+    /** Dashboard display name. */
     name?: string
+    /** Path to a logo asset for the dashboard. */
     logo?: string
+    /**
+     * Override built-in layout components with custom implementations.
+     * Paths are resolved relative to `src/`.
+     */
     components?: {
         MainSidebar?: string
         SettingsSidebar?: string
         TopbarActions?: string
     },
+    /** Internationalization settings. */
     i18n?: {
+        /** The default language code (e.g. `"en"`). */
         defaultLanguage: string
     }
+    /** Whether to allow new sellers to register from the login screen. */
     enableSellerRegistration?: boolean;
+    /**
+     * The route to redirect to when an authenticated user visits `/`.
+     * @default "/products"
+     */
+    initialPage?: string;
 }
 
 export interface BuiltMercurConfig extends MercurConfig {
