@@ -84,10 +84,7 @@ export const useUpdateSellerAddress = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.sellers.$id.address.mutate>,
     ClientError,
-    Omit<
-      InferClientInput<typeof sdk.vendor.sellers.$id.address.mutate>,
-      "$id"
-    >
+    Omit<InferClientInput<typeof sdk.vendor.sellers.$id.address.mutate>, "$id">
   >,
 ) => {
   return useMutation({
@@ -136,9 +133,7 @@ export const useUpdateSellerPaymentDetails = (
 export const useUpdateSellerProfessionalDetails = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<
-      typeof sdk.vendor.sellers.$id.professionalDetails.mutate
-    >,
+    InferClientOutput<typeof sdk.vendor.sellers.$id.professionalDetails.mutate>,
     ClientError,
     Omit<
       InferClientInput<
@@ -170,9 +165,7 @@ export const useUpdateSellerProfessionalDetails = (
 export const useDeleteSellerProfessionalDetails = (
   id: string,
   options?: UseMutationOptions<
-    InferClientOutput<
-      typeof sdk.vendor.sellers.$id.professionalDetails.delete
-    >,
+    InferClientOutput<typeof sdk.vendor.sellers.$id.professionalDetails.delete>,
     ClientError
   >,
 ) => {
@@ -203,7 +196,7 @@ export const useCreateSellerAccount = (
     mutationFn: (payload) => sdk.vendor.sellers.mutate(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: ["users", "me"],
+        queryKey: sellersQueryKeys.all,
       });
       options?.onSuccess?.(data, variables, context);
     },
