@@ -7,7 +7,8 @@
 		"build": "tsc",
 		"dev": "tsc --watch",
 		"build:registry": "bunx @mercurjs/cli@latest registry:build",
-		"codegen": "bunx @mercurjs/cli@latest registry:codegen"
+		"codegen": "bunx @mercurjs/cli@latest registry:codegen",
+		"test": "jest --config jest.config.cjs"
 	},
 	"dependencies": {
 		"@medusajs/framework": "^2.13.4",
@@ -30,6 +31,7 @@
 		"jsonwebtoken": "9.0.2",
 		"react-jwt": "2.0.0",
 		"algoliasearch": "^5.40.0",
+		"meilisearch": "^0.47.0",
 		"@talkjs/react": "^0.1.11"
 	},
 	"devDependencies": {
@@ -41,6 +43,10 @@
 		"@types/unzipper": "^0.10.10",
 		"@medusajs/cli": "^2.13.4",
 		"@types/multer": "^2.0.0",
-		"@types/jsonwebtoken": "^9.0.9"
+		"@types/jsonwebtoken": "^9.0.9",
+		"@swc/core": "^1.7.28",
+		"@swc/jest": "^0.2.36",
+		"@types/jest": "^29.5.13",
+		"jest": "^30.2.0"
 	}
 }
