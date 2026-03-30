@@ -235,7 +235,9 @@
       },
       "store": {
         "label": "Продавница",
-        "storeSettings": "Поставки за складирање"
+        "storeSettings": "Поставки за складирање",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Одјави се"

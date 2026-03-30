@@ -7,6 +7,7 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
+import { SellerStatus } from "@mercurjs/types"
 
 const SELLER_ID_HEADER = "x-seller-id"
 
@@ -15,7 +16,7 @@ export async function ensureSellerMiddleware(
   res: MedusaResponse,
   next: MedusaNextFunction
 ) {
-  const sellerId = req.get(SELLER_ID_HEADER)
+  const sellerId = req.get(SELLER_ID_HEADER) || req.session?.seller_id
 
   if (!sellerId) {
     return next(
@@ -32,7 +33,7 @@ export async function ensureSellerMiddleware(
   const { data: sellerMembers } = await query.graph(
     {
       entity: "seller_member",
-      fields: ["id", "seller_id", "member_id", "role_id"],
+      fields: ["id", "seller_id", "member_id", "role_id", "seller.*"],
       filters: {
         seller_id: sellerId,
         member_id: memberId,

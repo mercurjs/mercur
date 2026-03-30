@@ -235,7 +235,9 @@
       },
       "store": {
         "label": "ストア",
-        "storeSettings": "ストア設定"
+        "storeSettings": "ストア設定",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "ログアウト"
@@ -2474,7 +2476,10 @@
         "placeholder": "wrong_size",
         "tooltip": "値は返品理由の一意の識別子である必要があります。"
       },
-      "label": { "label": "ラベル", "placeholder": "サイズが合わない" },
+      "label": {
+        "label": "ラベル",
+        "placeholder": "サイズが合わない"
+      },
       "description": {
         "label": "説明",
         "placeholder": "顧客が間違ったサイズを受け取った"

@@ -621,6 +621,16 @@
           "nullable": false,
           "mappedType": "text"
         },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'iban'",
+          "mappedType": "text"
+        },
         "holder_name": {
           "name": "holder_name",
           "type": "text",

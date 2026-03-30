@@ -3,7 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework"
 import { ContainerRegistrationKeys, FeatureFlag, MedusaError } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
+import { HttpTypes, SellerStatus } from "@mercurjs/types"
 
 import { VendorCreateSellerAccountType } from "./validators"
 import { createSellerAccountWorkflow } from "../../../workflows/seller"
@@ -28,6 +28,11 @@ export const GET = async (
     fields: req.queryConfig.fields,
     filters: {
       member_id: memberId,
+      seller: {
+        status: {
+          $ne: SellerStatus.TERMINATED,
+        },
+      },
     },
     pagination: req.queryConfig.pagination,
   })

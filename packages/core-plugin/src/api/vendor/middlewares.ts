@@ -1,16 +1,11 @@
 import {
-  ConfigModule,
-  MedusaNextFunction,
-  MedusaRequest,
-  MedusaResponse,
   MiddlewareRoute,
   authenticate,
 } from "@medusajs/framework"
-import { parseCorsOrigins } from "@medusajs/framework/utils"
-import cors from "cors"
 
 import { vendorCampaignsMiddlewares } from "./campaigns/middlewares"
 import { vendorCollectionsMiddlewares } from "./collections/middlewares"
+import { vendorMembersMiddlewares } from "./members/middlewares"
 import { vendorCurrenciesMiddlewares } from "./currencies/middlewares"
 import { vendorCustomersMiddlewares } from "./customers/middlewares"
 import { vendorFulfillmentProvidersMiddlewares } from "./fulfillment-providers/middlewares"
@@ -39,30 +34,17 @@ import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewar
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorStoresMiddlewares } from "./stores/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
-import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl } from "../utils"
+import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
 const unauthenticatedRoutes = [
   /^\/vendor\/sellers$/,
+  /^\/vendor\/sellers\/select$/,
   /^\/vendor\/feature-flags$/,
   ...scanUnauthenticatedRoutes(process.cwd()),
 ]
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
-  {
-    matcher: "/vendor/*",
-    methods: ['ALL'],
-    middlewares: [
-      (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {
-        const configModule: ConfigModule = req.scope.resolve("configModule")
-        return cors({
-          // @ts-expect-error: vendorCors is not defined in the medusa http config module
-          origin: parseCorsOrigins(configModule.projectConfig.http.vendorCors),
-          credentials: true,
-        })(req, res, next)
-      },
-    ],
-  },
   {
     matcher: "/vendor/sellers",
     method: ["POST", "GET"],
@@ -73,8 +55,18 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     ],
   },
   {
+    matcher: "/vendor/sellers/select",
+    method: ["POST"],
+    middlewares: [
+      authenticate("member", ["session", "bearer"], {
+        allowUnregistered: false,
+      }),
+    ],
+  },
+  {
     matcher: "/vendor/*",
     middlewares: [
+      vendorCorsMiddleware,
       unlessBaseUrl(
         unauthenticatedRoutes,
         authenticate("member", ["session", "bearer"], {
@@ -87,6 +79,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
+  ...vendorMembersMiddlewares,
   ...vendorCampaignsMiddlewares,
   ...vendorCollectionsMiddlewares,
   ...vendorCurrenciesMiddlewares,

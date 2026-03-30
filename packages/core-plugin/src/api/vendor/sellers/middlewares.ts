@@ -12,6 +12,7 @@ import {
   VendorGetSellerParams,
   VendorGetSellersParams,
   VendorInviteMember,
+  VendorSelectSeller,
   VendorUpdateMemberRole,
   VendorUpdateSeller,
   VendorUpsertSellerAddress,
@@ -20,6 +21,14 @@ import {
 } from "./validators"
 
 export const vendorSellersMiddlewares: MiddlewareRoute[] = [
+  // POST /vendor/sellers/select — select seller for session
+  {
+    method: ["POST"],
+    matcher: "/vendor/sellers/select",
+    middlewares: [
+      validateAndTransformBody(VendorSelectSeller),
+    ],
+  },
   // POST /vendor/sellers — create seller
   {
     method: ["POST"],

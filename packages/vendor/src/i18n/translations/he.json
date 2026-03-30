@@ -236,7 +236,9 @@
       },
       "store": {
         "label": "חנות",
-        "storeSettings": "הגדרות חנות"
+        "storeSettings": "הגדרות חנות",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "התנתק"
@@ -2666,7 +2668,10 @@
         "placeholder": "wrong_size",
         "tooltip": "הערך צריך להיות מזהה ייחודי לסיבת ההחזרה."
       },
-      "label": { "label": "תווית", "placeholder": "מידה שגויה" },
+      "label": {
+        "label": "תווית",
+        "placeholder": "מידה שגויה"
+      },
       "description": {
         "label": "תיאור",
         "placeholder": "הלקוח קיבל את המידה הלא נכונה"

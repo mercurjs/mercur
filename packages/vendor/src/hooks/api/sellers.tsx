@@ -12,6 +12,7 @@ import {
 import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
+import { membersQueryKeys } from "./members";
 
 const SELLERS_QUERY_KEY = "sellers" as const;
 export const sellersQueryKeys = queryKeysFactory(SELLERS_QUERY_KEY);
@@ -33,6 +34,25 @@ export const useSellers = (
   });
 
   return { ...data, ...rest };
+};
+
+export const useSelectSeller = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.vendor.sellers.select.mutate>,
+    ClientError,
+    InferClientInput<typeof sdk.vendor.sellers.select.mutate>
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.vendor.sellers.select.mutate(payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: membersQueryKeys.me(),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
 };
 
 export const useCreateSellerAccount = (

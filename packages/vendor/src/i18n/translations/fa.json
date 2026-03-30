@@ -235,7 +235,9 @@
       },
       "store": {
         "label": "فروشگاه",
-        "storeSettings": "تنظیمات فروشگاه"
+        "storeSettings": "تنظیمات فروشگاه",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "خروج"
@@ -2583,7 +2585,10 @@
         "placeholder": "wrong_size",
         "tooltip": "مقدار باید یک شناسه منحصر به فرد برای دلیل بازگشت باشد."
       },
-      "label": { "label": "برچسب", "placeholder": "سایز اشتباه" },
+      "label": {
+        "label": "برچسب",
+        "placeholder": "سایز اشتباه"
+      },
       "description": {
         "label": "توضیحات",
         "placeholder": "مشتری سایز اشتباه دریافت کرده است"

@@ -4,8 +4,33 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import AvatarBox from "@components/common/logo-box/avatar-box";
-import { useFeatureFlags, useSellers } from "@hooks/api";
-import { MercurFeatureFlags, SellerMemberDTO, SellerStatus } from "@mercurjs/types";
+import { useFeatureFlags, useSelectSeller, useSellers } from "@hooks/api";
+import {
+  MercurFeatureFlags,
+  SellerMemberDTO,
+  SellerStatus,
+} from "@mercurjs/types";
+
+const getSellerStatusBadge = (
+  status: string,
+  t: (key: string) => string,
+): { color: "green" | "orange" | "red" | "grey"; label: string } => {
+  switch (status) {
+    case SellerStatus.OPEN:
+      return { color: "green", label: t("storeSelect.status.open") };
+    case SellerStatus.PENDING_APPROVAL:
+      return {
+        color: "orange",
+        label: t("storeSelect.status.pendingApproval"),
+      };
+    case SellerStatus.SUSPENDED:
+      return { color: "red", label: t("storeSelect.status.suspended") };
+    case SellerStatus.TERMINATED:
+      return { color: "grey", label: t("storeSelect.status.terminated") };
+    default:
+      return { color: "grey", label: status };
+  }
+};
 
 const StoreSelectLogo = () => {
   return <AvatarBox />;
@@ -35,8 +60,10 @@ const StoreSelectList = ({
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { mutateAsync: selectSeller } = useSelectSeller();
 
-  const handleSelect = (_storeId: string) => {
+  const handleSelect = async (sellerId: string) => {
+    await selectSeller({ seller_id: sellerId });
     navigate("/", { replace: true });
   };
 
@@ -44,13 +71,12 @@ const StoreSelectList = ({
     <div className="shadow-elevation-card-rest bg-ui-bg-base flex w-full flex-col divide-y rounded-lg">
       {seller_members?.map((member) => {
         const seller = member.seller;
-        const isPending = seller.status === SellerStatus.PENDING_APPROVAL;
+        const badge = getSellerStatusBadge(seller.status, t);
 
         return (
           <button
             key={seller.id}
-            onClick={() => !isPending && handleSelect(seller.id)}
-            disabled={isPending}
+            onClick={() => handleSelect(seller.id)}
             className="transition-fg flex items-center gap-x-3 px-4 py-3 first:rounded-t-lg enabled:hover:bg-ui-bg-base-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Avatar
@@ -70,11 +96,8 @@ const StoreSelectList = ({
                 {seller.handle}
               </Text>
             </div>
-            {isPending ? (
-              <StatusBadge color="orange">{t("storeSelect.pendingApproval")}</StatusBadge>
-            ) : (
-              <ChevronRight className="text-ui-fg-muted" />
-            )}
+            <StatusBadge color={badge.color}>{badge.label}</StatusBadge>
+            <ChevronRight className="text-ui-fg-muted" />
           </button>
         );
       })}

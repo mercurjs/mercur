@@ -83,7 +83,6 @@
       "labels": {
         "key": "Κλειδί",
         "value": "Τιμή"
-        
       },
       "complexRow": {
         "label": "Ορισμένες γραμμές είναι απενεργοποιημένες",
@@ -236,7 +235,9 @@
       },
       "store": {
         "label": "Κατάστημα",
-        "storeSettings": "Ρυθμίσεις καταστήματος"
+        "storeSettings": "Ρυθμίσεις καταστήματος",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Αποσύνδεση"

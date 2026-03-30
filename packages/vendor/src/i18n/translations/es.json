@@ -265,7 +265,9 @@
       },
       "store": {
         "label": "Tienda",
-        "storeSettings": "Configuraciones de la tienda"
+        "storeSettings": "Configuraciones de la tienda",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Cerrar sesión"

@@ -236,7 +236,9 @@
       },
       "store": {
         "label": "Winkel",
-        "storeSettings": "Winkelinstellingen"
+        "storeSettings": "Winkelinstellingen",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Uitloggen"
@@ -2654,7 +2656,10 @@
         "placeholder": "verkeerde_maat",
         "tooltip": "De waarde moet een unieke identificatie zijn voor de retourreden."
       },
-      "label": { "label": "Label", "placeholder": "Verkeerde maat" },
+      "label": {
+        "label": "Label",
+        "placeholder": "Verkeerde maat"
+      },
       "description": {
         "label": "Beschrijving",
         "placeholder": "Klant ontving de verkeerde maat"

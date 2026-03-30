@@ -113,6 +113,7 @@ export type AdminUpsertSellerPaymentDetailsType = z.infer<
   typeof AdminUpsertSellerPaymentDetails
 >
 export const AdminUpsertSellerPaymentDetails = z.object({
+  type: z.string().optional(),
   holder_name: z.string().optional(),
   bank_name: z.string().nullable().optional(),
   iban: z.string().nullable().optional(),

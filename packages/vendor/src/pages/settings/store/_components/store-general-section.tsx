@@ -1,0 +1,107 @@
+import { Children, ReactNode } from "react";
+import { Photo } from "@medusajs/icons";
+import { Container, StatusBadge, Text } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+
+import { HttpTypes } from "@mercurjs/types";
+
+import { StoreDetailHeader } from "./store-detail-header";
+
+type StoreGeneralSectionProps = {
+  seller: HttpTypes.StoreSellerResponse["seller"];
+  children?: ReactNode;
+};
+
+export const StoreGeneralSection = ({
+  seller,
+  children,
+}: StoreGeneralSectionProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <Container className="divide-y p-0">
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <div className="bg-ui-bg-subtle relative h-32 w-full overflow-hidden rounded-t-lg">
+            {seller.banner ? (
+              <img
+                src={seller.banner}
+                alt={seller.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <Photo className="text-ui-fg-muted" />
+              </div>
+            )}
+          </div>
+          <StoreDetailHeader seller={seller} />
+          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              {t("fields.description")}
+            </Text>
+            <Text size="small" leading="compact">
+              {seller.description || "-"}
+            </Text>
+          </div>
+          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              {t("fields.handle")}
+            </Text>
+            <Text size="small" leading="compact">
+              {seller.handle ? `/${seller.handle}` : "-"}
+            </Text>
+          </div>
+          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              {t("fields.email")}
+            </Text>
+            <Text size="small" leading="compact">
+              {seller.email || "-"}
+            </Text>
+          </div>
+          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              {t("fields.website")}
+            </Text>
+            <Text size="small" leading="compact">
+              {seller.website_url || "-"}
+            </Text>
+          </div>
+          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              {t("fields.currency")}
+            </Text>
+            <Text size="small" leading="compact">
+              {seller.currency_code?.toUpperCase() || "-"}
+            </Text>
+          </div>
+          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              {t("fields.premium")}
+            </Text>
+            <div>
+              <StatusBadge color={seller.is_premium ? "green" : "grey"}>
+                {seller.is_premium ? t("fields.true") : t("fields.false")}
+              </StatusBadge>
+            </div>
+          </div>
+          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              {t("fields.createdAt")}
+            </Text>
+            <Text size="small" leading="compact">
+              {new Date(seller.created_at).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </Text>
+          </div>
+        </>
+      )}
+    </Container>
+  );
+};

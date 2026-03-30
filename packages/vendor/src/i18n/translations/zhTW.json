@@ -239,7 +239,9 @@
       },
       "store": {
         "label": "商店",
-        "storeSettings": "商店設定"
+        "storeSettings": "商店設定",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "登出"
@@ -395,7 +397,6 @@
       "required": "新擁有者為必填項。"
     }
   },
-
   "sales_channels": {
     "availableIn": "在 <1>{{y}}</1> 個銷售管道中的 <0>{{x}}</0> 個可用"
   },

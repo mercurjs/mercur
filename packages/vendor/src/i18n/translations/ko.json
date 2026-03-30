@@ -236,7 +236,9 @@
       },
       "store": {
         "label": "스토어",
-        "storeSettings": "스토어 설정"
+        "storeSettings": "스토어 설정",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "로그아웃"

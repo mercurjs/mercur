@@ -235,7 +235,9 @@
       },
       "store": {
         "label": "Магазин",
-        "storeSettings": "Настройки на магазина"
+        "storeSettings": "Настройки на магазина",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Изход"

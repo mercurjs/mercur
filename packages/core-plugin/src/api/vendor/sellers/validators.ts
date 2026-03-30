@@ -85,6 +85,7 @@ export const VendorUpsertSellerAddress = z.object({
 
 export type VendorUpsertSellerPaymentDetailsType = z.infer<typeof VendorUpsertSellerPaymentDetails>
 export const VendorUpsertSellerPaymentDetails = z.object({
+  type: z.string().optional(),
   holder_name: z.string().optional(),
   bank_name: z.string().nullable().optional(),
   iban: z.string().nullable().optional(),
@@ -98,4 +99,9 @@ export const VendorUpsertSellerProfessionalDetails = z.object({
   corporate_name: z.string().optional(),
   registration_number: z.string().nullable().optional(),
   tax_id: z.string().nullable().optional(),
+})
+
+export type VendorSelectSellerType = z.infer<typeof VendorSelectSeller>
+export const VendorSelectSeller = z.object({
+  seller_id: z.string(),
 })

@@ -9,15 +9,14 @@ import { Form } from "@components/common/form";
 import { CountrySelect } from "@components/inputs/country-select";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
-import { useUpdateMe } from "@hooks/api";
 import { uploadFilesQuery } from "@lib/client";
 import { MediaSchema } from "@pages/products/create/constants";
 import { HttpTypes } from "@mercurjs/types";
 import { useCallback } from "react";
 
-type EditSellerFormProps = HttpTypes.StoreSellerResponse;
+type EditStoreFormProps = HttpTypes.StoreSellerResponse;
 
-const EditSellerSchema = zod.object({
+const EditStoreSchema = zod.object({
   name: zod.string().min(1),
   handle: zod.string().min(1),
   email: zod.string().email().optional().or(zod.literal("")),
@@ -52,11 +51,11 @@ const SUPPORTED_FORMATS_FILE_EXTENSIONS = [
   ".svg",
 ];
 
-export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
+export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
-  const form = useForm<zod.infer<typeof EditSellerSchema>>({
+  const form = useForm<zod.infer<typeof EditStoreSchema>>({
     defaultValues: {
       name: seller.name ?? "",
       handle: seller.handle ?? "",
@@ -73,7 +72,7 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
       media: [],
       coverMedia: [],
     },
-    resolver: zodResolver(EditSellerSchema),
+    resolver: zodResolver(EditStoreSchema),
   });
 
   const { fields: logoFields } = useFieldArray({
@@ -88,8 +87,11 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
     keyName: "field_id",
   });
 
-  const { mutateAsync, isPending } = useUpdateMe();
-
+  // const { mutateAsync, isPending } = useUpdateMe();
+  const { mutateAsync, isPending } = {
+    isPending: false,
+    mutateAsync: () => {},
+  };
   const handleSubmit = form.handleSubmit(async (values) => {
     let logoUrl = seller.logo || "";
     let coverImageUrl = seller.cover_image || "";
@@ -126,7 +128,7 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
       },
       {
         onSuccess: () => {
-          toast.success(t("app.menus.seller.sellerSettings"));
+          toast.success(t("app.menus.store.storeSettings"));
           handleSuccess();
         },
         onError: (error) => {
@@ -214,8 +216,7 @@ export const EditSellerForm = ({ seller }: EditSellerFormProps) => {
               name="coverMedia"
               control={form.control}
               render={() => {
-                const previewUrl =
-                  coverFields[0]?.url || seller.cover_image;
+                const previewUrl = coverFields[0]?.url || seller.cover_image;
 
                 return (
                   <Form.Item>

@@ -864,23 +864,42 @@ export function getRouteMap({
 
               // STORE
               {
-                path: "seller",
+                path: "store",
                 errorElement: <ErrorBoundary />,
                 handle: {
-                  breadcrumb: () => t("seller.domain", "Seller"),
+                  breadcrumb: () => t("app.menus.store.label"),
                 },
                 children: [
                   {
                     path: "",
                     lazy: async () => {
-                      const { SellerDetailPage } =
-                        await import("./pages/settings/seller");
-                      return { Component: SellerDetailPage };
+                      const { StoreDetailPage } =
+                        await import("./pages/settings/store");
+                      return { Component: StoreDetailPage };
                     },
                     children: [
                       {
                         path: "edit",
-                        lazy: () => import("./pages/settings/seller/edit"),
+                        lazy: () => import("./pages/settings/store/edit"),
+                      },
+                      {
+                        path: "address",
+                        lazy: () => import("./pages/settings/store/address"),
+                      },
+                      {
+                        path: "payment-details",
+                        lazy: () =>
+                          import("./pages/settings/store/payment-details"),
+                      },
+                      {
+                        path: "professional-details",
+                        lazy: () =>
+                          import("./pages/settings/store/professional-details"),
+                      },
+                      {
+                        path: "configuration",
+                        lazy: () =>
+                          import("./pages/settings/store/configuration"),
                       },
                     ],
                   },
@@ -1318,8 +1337,7 @@ export function getRouteMap({
             {
               path: "/register",
               lazy: async () => {
-                const { RegisterPage } =
-                  await import("./pages/register");
+                const { RegisterPage } = await import("./pages/register");
                 return { Component: RegisterPage };
               },
             },

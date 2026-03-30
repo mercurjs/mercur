@@ -217,7 +217,6 @@
       },
       "settings": {
         "goToSettings": "Settings",
-        "goToSeller": "Seller",
         "goToUsers": "Users",
         "goToRegions": "Regions",
         "goToTaxRegions": "Tax Regions",
@@ -228,7 +227,8 @@
         "goToSecretApiKeys": "Secret API Keys",
         "goToWorkflows": "Workflows",
         "goToProfile": "Profile",
-        "goToReturnReasons": "Return reasons"
+        "goToReturnReasons": "Return reasons",
+        "goToStore": "Store"
       }
     },
     "menus": {
@@ -245,13 +245,10 @@
         }
       },
       "store": {
-        "label": "Seller",
-        "storeSettings": "Seller settings"
-      },
-      "seller": {
-        "label": "Seller",
-        "sellerSettings": "Seller settings",
-        "editSeller": "Edit Seller"
+        "label": "Store",
+        "storeSettings": "Store settings",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Log out"
@@ -420,8 +417,8 @@
     "domain": "Products",
     "bulkDelete": {
       "title": "Delete Products",
-      "description": "You are about to delete {{count}} product(s). This action cannot be undone.",
-      "success": "Successfully deleted {{count}} product(s).",
+      "description": "You are about to delete {{count}} products from catalog. This action cannot be undone.",
+      "success": "Successfully deleted {{count}} products.",
       "error": "Failed to delete products."
     },
     "list": {
@@ -514,12 +511,6 @@
       }
     },
     "deleteWarning": "You are about to delete the product {{title}}. This action cannot be undone.",
-    "bulkDelete": {
-      "title": "Delete Products",
-      "description": "You are about to delete {{count}} products from catalog. This action cannot be undone.",
-      "success": "Successfully deleted {{count}} products.",
-      "error": "Failed to delete products."
-    },
     "variants": {
       "header": "Variants",
       "empty": {
@@ -2942,7 +2933,13 @@
     "title": "Choose a store",
     "subtitle": "These are all your available stores",
     "pendingApproval": "Pending approval",
-    "addNewStore": "Add new store"
+    "addNewStore": "Add new store",
+    "status": {
+      "open": "Open",
+      "pendingApproval": "Pending approval",
+      "suspended": "Suspended",
+      "terminated": "Terminated"
+    }
   },
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
@@ -3229,6 +3226,7 @@
     "discountable": "Discountable",
     "promotionCode": "Promotion code",
     "handle": "Handle",
+    "website": "Website",
     "subtitle": "Subtitle",
     "by": "By",
     "item": "Item",
@@ -3358,7 +3356,9 @@
     "startDate": "Start date",
     "endDate": "End date",
     "draft": "Draft",
-    "values": "Values"
+    "values": "Values",
+    "premium": "Premium",
+    "professional": "Professional"
   },
   "dateTime": {
     "years_one": "Year",

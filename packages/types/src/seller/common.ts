@@ -40,6 +40,7 @@ export interface UpdateProfessionalDetailsDTO {
 
 export interface PaymentDetailsDTO {
   id: string
+  type: string
   holder_name: string
   bank_name: string | null
   iban: string | null
@@ -51,6 +52,7 @@ export interface PaymentDetailsDTO {
 }
 
 export interface CreatePaymentDetailsDTO {
+  type?: string
   holder_name: string
   bank_name?: string | null
   iban?: string | null
@@ -60,6 +62,7 @@ export interface CreatePaymentDetailsDTO {
 }
 
 export interface UpdatePaymentDetailsDTO {
+  type?: string
   holder_name?: string
   bank_name?: string | null
   iban?: string | null
@@ -141,6 +144,7 @@ export interface UpdateMemberDTO {
 export interface SellerMemberDTO {
   id: string
   seller: SellerDTO
+  member: MemberDTO
   seller_id: string
   member_id: string
   is_owner: boolean

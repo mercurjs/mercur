@@ -234,7 +234,9 @@
       },
       "store": {
         "label": "Loja",
-        "storeSettings": "Configurações da loja"
+        "storeSettings": "Configurações da loja",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Sair"
@@ -2445,7 +2447,10 @@
         "placeholder": "tamanho_errado",
         "tooltip": "O valor deve ser um identificador único para a razão da devolução."
       },
-      "label": { "label": "Etiqueta", "placeholder": "Tamanho errado" },
+      "label": {
+        "label": "Etiqueta",
+        "placeholder": "Tamanho errado"
+      },
       "description": {
         "label": "Descrição",
         "placeholder": "O cliente recebeu o tamanho errado"

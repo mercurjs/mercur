@@ -235,7 +235,9 @@
       },
       "store": {
         "label": "Дэлгүүр",
-        "storeSettings": "Дэлгүүрийн тохиргоо"
+        "storeSettings": "Дэлгүүрийн тохиргоо",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Гарах"
@@ -1398,7 +1400,7 @@
       "refundableAmount": "Буцаах боломжтой хэмжээ",
       "returnableQuantity": "Буцаах боломжтой хэмжээ"
     }
-  },    
+  },
   "draftOrders": {
     "domain": "Ноорог захиалгууд",
     "deleteWarning": "Та {{id}} ноорог захиалгыг устгах гэж байна. Энэ үйлдлийг буцаах боломжгүй.",
@@ -2242,7 +2244,7 @@
         "attribute": "Үйлчлүүлэгчдийн бүлгүүд"
       }
     }
-  },  
+  },
   "profile": {
     "domain": "Профайл",
     "manageYourProfileDetails": "Профайлын дэлгэрэнгүй мэдээллийг удирдах.",
@@ -2312,7 +2314,7 @@
       "currenciesRemoved": "Дэлгүүрээс валютууд амжилттай устгагдлаа",
       "updatedTaxInclusivitySuccessfully": "Татвар багтсан үнийг амжилттай шинэчлэгдлээ"
     }
-  },  
+  },
   "regions": {
     "domain": "Бүсүүд",
     "subtitle": "Бүс гэдэг нь та бүтээгдэхүүнээ борлуулдаг газар юм. Энэ нь олон улсыг хамарч, өөр өөр татварын хувь, үйлчилгээ үзүүлэгчид, валюттай байж болно.",
@@ -2415,7 +2417,7 @@
       "productTypeOverridesHeader": "Бүтээгдэхүүний төрлүүд",
       "shippingOptionOverridesHeader": "Хүргэлтийн сонголтууд"
     }
-  },  
+  },
   "locations": {
     "domain": "Байршлууд",
     "editLocation": "Байршлыг засах",
@@ -2546,7 +2548,7 @@
       "revokedAtLabel": "Цуцлагдсан",
       "createdByLabel": "Үүсгэсэн"
     }
-  },  
+  },
   "returnReasons": {
     "domain": "Буцаалтын Шалтгаанууд",
     "subtitle": "Буцаагдсан зүйлсийн шалтгааныг удирдах.",
@@ -2573,7 +2575,10 @@
         "placeholder": "wrong_size",
         "tooltip": "Утга нь буцаалтын шалтгааны хувьд өвөрмөц танигч байх ёстой."
       },
-      "label": { "label": "Шошго", "placeholder": "Буруу хэмжээ" },
+      "label": {
+        "label": "Шошго",
+        "placeholder": "Буруу хэмжээ"
+      },
       "description": {
         "label": "Тайлбар",
         "placeholder": "Үйлчлүүлэгч буруу хэмжээтэй бүтээгдэхүүн хүлээн авсан"
@@ -2671,7 +2676,7 @@
         "timeout": "Цаг хэтрэх"
       }
     }
-  },  
+  },
   "productTypes": {
     "domain": "Бүтээгдэхүүний Төрлүүд",
     "subtitle": "Бүтээгдэхүүнээ төрөлд ангилах.",
@@ -2918,5 +2923,5 @@
     "minutes_other": "Минут",
     "seconds_one": "Секунд",
     "seconds_other": "Секунд"
-  }  
+  }
 }
