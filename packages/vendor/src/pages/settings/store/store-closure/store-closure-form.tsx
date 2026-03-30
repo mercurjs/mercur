@@ -8,6 +8,7 @@ import { Form } from "@components/common/form";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { HttpTypes } from "@mercurjs/types";
+import { useUpdateSeller } from "@hooks/api";
 
 type StoreClosureFormProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
@@ -37,13 +38,7 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
     resolver: zodResolver(StoreClosureSchema),
   });
 
-  // TODO: replace with actual update hook
-  const { mutateAsync, isPending } = {
-    isPending: false,
-    mutateAsync: async (_payload: any, _options?: any) => {
-      _options?.onSuccess?.();
-    },
-  };
+  const { mutateAsync, isPending } = useUpdateSeller(seller.id);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await mutateAsync(

@@ -47,6 +47,8 @@
     "countOfTotalSelected": "{{count}} of {{total}} selected",
     "plusCount": "+ {{count}}",
     "plusCountMore": "+ {{count}} more",
+    "yes": "Yes",
+    "no": "No",
     "areYouSure": "Are you sure?",
     "areYouSureDescription": "You are about to delete the {{entity}} {{title}}. This action cannot be undone.",
     "noRecordsFound": "No records found",
@@ -2578,6 +2580,12 @@
     "domain": "Seller",
     "manageYourStoresDetails": "Manage your seller's details",
     "editStore": "Edit seller",
+    "status": {
+      "active": "Active",
+      "pendingApproval": "Pending approval",
+      "suspended": "Suspended",
+      "terminated": "Terminated"
+    },
     "defaultCurrency": "Default currency",
     "defaultLocale": "Default locale",
     "defaultRegion": "Default region",
@@ -2600,11 +2608,21 @@
     "company": "Company",
     "manageCompanyDetails": "Manage your company details",
     "logo": "Logo",
+    "banner": "Banner",
     "edit": {
       "header": "Edit Store"
     },
     "editCompany": {
       "header": "Edit Company"
+    },
+    "subscription": {
+      "header": "Subscription",
+      "noPlan": "No subscription plan",
+      "noPlanMessage": "Your store does not have an active subscription plan.",
+      "monthlyAmount": "Monthly amount",
+      "freeMonths": "Free months",
+      "freePeriod": "Free period",
+      "requiresOrders": "Requires orders"
     },
     "toast": {
       "update": "Store successfully updated",

@@ -48,6 +48,8 @@ export const VendorCreateSellerAccount = z.object({
 export type VendorUpdateSellerType = z.infer<typeof VendorUpdateSeller>
 export const VendorUpdateSeller = z.object({
   name: z.string().optional(),
+  handle: z.string().optional(),
+  email: z.string().email().optional(),
   description: z.string().nullable().optional(),
   logo: z.string().url().nullable().optional(),
   banner: z.string().url().nullable().optional(),

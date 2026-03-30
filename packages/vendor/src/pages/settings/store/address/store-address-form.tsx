@@ -9,6 +9,7 @@ import { CountrySelect } from "@components/inputs/country-select";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { HttpTypes } from "@mercurjs/types";
+import { useUpdateSellerAddress } from "@hooks/api";
 
 type StoreAddressFormProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
@@ -44,27 +45,19 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
     resolver: zodResolver(StoreAddressSchema),
   });
 
-  // TODO: replace with actual update hook
-  const { mutateAsync, isPending } = {
-    isPending: false,
-    mutateAsync: async (_payload: any, _options?: any) => {
-      _options?.onSuccess?.();
-    },
-  };
+  const { mutateAsync, isPending } = useUpdateSellerAddress(seller.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
       {
-        address: {
-          first_name: values.first_name,
-          last_name: values.last_name,
-          address_1: values.address_1 || null,
-          city: values.city || null,
-          province: values.province || null,
-          postal_code: values.postal_code,
-          country_code: values.country_code,
-          phone: values.phone,
-        },
+        first_name: values.first_name,
+        last_name: values.last_name,
+        address_1: values.address_1 || null,
+        city: values.city || null,
+        province: values.province || null,
+        postal_code: values.postal_code,
+        country_code: values.country_code,
+        phone: values.phone,
       },
       {
         onSuccess: () => {

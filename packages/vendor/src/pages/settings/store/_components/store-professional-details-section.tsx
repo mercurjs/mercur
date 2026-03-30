@@ -1,5 +1,5 @@
 import { PencilSquare } from "@medusajs/icons";
-import { Container, Heading, StatusBadge, Text } from "@medusajs/ui";
+import { Container, Heading, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "@components/common/action-menu";
@@ -43,11 +43,9 @@ export const StoreProfessionalDetailsSection = ({
         <Text size="small" leading="compact" weight="plus">
           {t("fields.professional")}
         </Text>
-        <div>
-          <StatusBadge color={isProfessional ? "green" : "grey"}>
-            {isProfessional ? t("fields.true") : t("fields.false")}
-          </StatusBadge>
-        </div>
+        <Text size="small" leading="compact">
+          {isProfessional ? t("general.yes") : t("general.no")}
+        </Text>
       </div>
       {isProfessional && (
         <>

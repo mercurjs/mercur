@@ -2,11 +2,12 @@ import { Children, ReactNode } from "react";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { useMe } from "@/hooks/api";
+import { useMe, useSubscription } from "@/hooks/api";
 
 import { StoreAddressSection } from "./_components/store-address-section";
 import { StoreConfigurationSection } from "./_components/store-configuration-section";
 import { StoreGeneralSection } from "./_components/store-general-section";
+import { StoreSubscriptionSection } from "./_components/store-subscription-section";
 import { StorePaymentDetailsSection } from "./_components/store-payment-details-section";
 import { StoreProfessionalDetailsSection } from "./_components/store-professional-details-section";
 import {
@@ -18,11 +19,16 @@ import {
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { seller_member, isPending, isError, error } = useMe();
+  const {
+    subscription_plan,
+    subscription_override,
+    isPending: isSubscriptionPending,
+  } = useSubscription();
 
   const seller = seller_member?.seller;
 
-  if (isPending || !seller) {
-    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={2} />;
+  if (isPending || isSubscriptionPending || !seller) {
+    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={3} />;
   }
 
   if (isError) {
@@ -43,6 +49,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <TwoColumnPage.Sidebar>
         <StoreConfigurationSection seller={seller} />
         <StoreAddressSection seller={seller} />
+        <StoreSubscriptionSection
+          subscription_plan={subscription_plan}
+          subscription_override={subscription_override}
+        />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );
@@ -56,6 +66,7 @@ export const StoreDetailPage = Object.assign(Root, {
   MainProfessionalDetailsSection: StoreProfessionalDetailsSection,
   SidebarConfigurationSection: StoreConfigurationSection,
   SidebarAddressSection: StoreAddressSection,
+  SidebarSubscriptionSection: StoreSubscriptionSection,
   Header: StoreDetailHeader,
   HeaderTitle: StoreDetailTitle,
   HeaderActions: StoreDetailActions,

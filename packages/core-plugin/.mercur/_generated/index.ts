@@ -737,6 +737,7 @@ export type Routes = {
         };
         productVariants: typeof import("../../src/api/vendor/product-variants/route");
         stores: typeof import("../../src/api/vendor/stores/route");
+        subscription: typeof import("../../src/api/vendor/subscription/route");
     };
     hooks: {
         payout: typeof import("../../src/api/hooks/payout/route");
