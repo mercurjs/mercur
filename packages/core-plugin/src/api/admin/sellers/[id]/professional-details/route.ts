@@ -3,11 +3,13 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HttpTypes, MercurModules } from "@mercurjs/types"
+import { HttpTypes } from "@mercurjs/types"
 
 import { AdminUpsertSellerProfessionalDetailsType } from "../../validators"
-import { updateSellerProfessionalDetailsWorkflow } from "../../../../../workflows/seller"
-import SellerModuleService from "../../../../../modules/seller/service"
+import {
+  updateSellerProfessionalDetailsWorkflow,
+  deleteSellerProfessionalDetailsWorkflow,
+} from "../../../../../workflows/seller"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminUpsertSellerProfessionalDetailsType>,
@@ -36,14 +38,11 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminSellerResponse>
 ) => {
-  const service = req.scope.resolve<SellerModuleService>(MercurModules.SELLER)
-  const existing = await service.listProfessionalDetails({
-    seller_id: req.params.id,
+  await deleteSellerProfessionalDetailsWorkflow(req.scope).run({
+    input: {
+      seller_id: req.params.id,
+    },
   })
-
-  if (existing.length > 0) {
-    await service.deleteProfessionalDetails([existing[0].id])
-  }
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const {

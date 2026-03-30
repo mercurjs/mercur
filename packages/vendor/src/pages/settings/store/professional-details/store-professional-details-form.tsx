@@ -8,7 +8,10 @@ import { Form } from "@components/common/form";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { HttpTypes } from "@mercurjs/types";
-import { useUpdateSellerProfessionalDetails } from "@hooks/api";
+import {
+  useUpdateSellerProfessionalDetails,
+  useDeleteSellerProfessionalDetails,
+} from "@hooks/api";
 
 type StoreProfessionalDetailsFormProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
@@ -53,9 +56,25 @@ export const StoreProfessionalDetailsForm = ({
   const { mutateAsync, isPending } = useUpdateSellerProfessionalDetails(
     seller.id,
   );
+  const { mutateAsync: deleteProfessionalDetails, isPending: isDeleting } =
+    useDeleteSellerProfessionalDetails(seller.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     if (!values.is_professional) {
+      await deleteProfessionalDetails(undefined, {
+        onSuccess: () => {
+          toast.success(
+            t(
+              "store.professionalDetails.edit.successToast",
+              "Professional details updated",
+            ),
+          );
+          handleSuccess();
+        },
+        onError: (error: Error) => {
+          toast.error(error.message);
+        },
+      });
       return;
     }
 
@@ -114,7 +133,6 @@ export const StoreProfessionalDetailsForm = ({
                       checked={value}
                       onCheckedChange={onChange}
                       {...field}
-                      disabled={!!details}
                     />
                   </Form.Control>
                 </div>
@@ -185,7 +203,7 @@ export const StoreProfessionalDetailsForm = ({
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button type="submit" size="small" isLoading={isPending}>
+            <Button type="submit" size="small" isLoading={isPending || isDeleting}>
               {t("actions.save")}
             </Button>
           </div>

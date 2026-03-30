@@ -167,6 +167,31 @@ export const useUpdateSellerProfessionalDetails = (
   });
 };
 
+export const useDeleteSellerProfessionalDetails = (
+  id: string,
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.vendor.sellers.$id.professionalDetails.delete
+    >,
+    ClientError
+  >,
+) => {
+  return useMutation({
+    mutationFn: () =>
+      sdk.vendor.sellers.$id.professionalDetails.delete({ $id: id }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: sellersQueryKeys.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: membersQueryKeys.me(),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
 export const useCreateSellerAccount = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.vendor.sellers.mutate>,
