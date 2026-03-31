@@ -39,8 +39,3 @@ yarn-error.log*
 
 apps/backend/.medusa
 packages/modules/*
-
-.migration/*
-.wip/*
-templates/
-docs/superpowers
