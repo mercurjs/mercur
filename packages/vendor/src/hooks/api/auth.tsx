@@ -77,7 +77,7 @@ export const useSignUpWithEmailPass = (
 
 export const useSignUpForInvite = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.$actorType.$authProvider.register.mutate>,
+    { token: string },
     ClientError,
     Omit<
       InferClientInput<
@@ -88,12 +88,15 @@ export const useSignUpForInvite = (
   >,
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.auth.$actorType.$authProvider.register.mutate({
+    mutationFn: async (payload) => {
+      const result = await sdk.auth.$actorType.$authProvider.register.mutate({
         $actorType: "member",
         $authProvider: "emailpass",
         ...payload,
-      }),
+      });
+
+      return result as { token: string };
+    },
     ...options,
   });
 };

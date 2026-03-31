@@ -1,5 +1,6 @@
 export type SellerModuleOptions = {
   invite_valid_duration?: number
+  jwt_secret?: string
 }
 
 export enum SellerRole {
@@ -151,6 +152,7 @@ export interface SellerMemberDTO {
   metadata: Record<string, unknown> | null
   created_at: Date
   updated_at: Date
+  role_id: string
 }
 
 export interface MemberInviteDTO {

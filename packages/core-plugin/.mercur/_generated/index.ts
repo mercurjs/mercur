@@ -702,6 +702,7 @@ export type Routes = {
                 address: typeof import("../../src/api/vendor/sellers/[id]/address/route");
                 members: typeof import("../../src/api/vendor/sellers/[id]/members/route") & {
                     $memberId: typeof import("../../src/api/vendor/sellers/[id]/members/[member_id]/route");
+                    invites: typeof import("../../src/api/vendor/sellers/[id]/members/invites/route");
                     me: typeof import("../../src/api/vendor/sellers/[id]/members/me/route");
                 };
                 paymentDetails: typeof import("../../src/api/vendor/sellers/[id]/payment-details/route");
@@ -733,6 +734,9 @@ export type Routes = {
         featureFlags: typeof import("../../src/api/vendor/feature-flags/route");
         fulfillmentProviders: typeof import("../../src/api/vendor/fulfillment-providers/route");
         members: {
+            invites: {
+                accept: typeof import("../../src/api/vendor/members/invites/accept/route");
+            };
             me: typeof import("../../src/api/vendor/members/me/route");
         };
         productVariants: typeof import("../../src/api/vendor/product-variants/route");

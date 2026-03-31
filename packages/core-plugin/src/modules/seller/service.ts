@@ -1,5 +1,7 @@
+import { configManager } from "@medusajs/framework/config"
 import { Context, DAL, FindConfig, InternalModuleDeclaration } from "@medusajs/framework/types"
 import {
+  generateJwtToken,
   InjectManager,
   isValidHandle,
   MedusaContext,
@@ -8,6 +10,7 @@ import {
   toHandle,
   InjectTransactionManager,
 } from "@medusajs/framework/utils"
+import jwt, { JwtPayload } from "jsonwebtoken"
 import crypto from "node:crypto"
 import {
   Seller,
@@ -52,7 +55,14 @@ class SellerModuleService extends MedusaService({
     super(...arguments)
     this.orderGroupRepository_ = orderGroupRepository
     this.baseRepository_ = baseRepository
-    this.options_ = (moduleDeclaration?.options as SellerModuleOptions) ?? {}
+
+    const opts = (moduleDeclaration?.options as SellerModuleOptions) ?? {}
+    this.options_ = {
+      ...opts,
+      jwt_secret:
+        opts.jwt_secret ??
+        configManager.config.projectConfig.http.jwtSecret as string,
+    }
   }
 
   @InjectTransactionManager()
@@ -132,12 +142,29 @@ class SellerModuleService extends MedusaService({
   ): Promise<T extends any[] ? MemberInviteDTO[] : MemberInviteDTO> {
     const validDuration = this.options_.invite_valid_duration ?? DEFAULT_INVITE_VALID_DURATION_SECONDS
 
-    const input = (Array.isArray(data) ? data : [data]).map((invite) => ({
-      ...invite,
-      token: invite.token ?? crypto.randomUUID(),
-      accepted: invite.accepted ?? false,
-      expires_at: invite.expires_at ?? new Date(Date.now() + validDuration * 1000),
-    }))
+    const inviteList = Array.isArray(data) ? data : [data]
+
+    const sellerIds = [...new Set(inviteList.map((i) => i.seller_id))]
+    const sellers = await this.listSellers(
+      { id: sellerIds },
+      { select: ["id", "name"] },
+      sharedContext,
+    )
+    const sellerMap = new Map(sellers.map((s) => [s.id, s.name]))
+
+    const input = inviteList.map((invite) => {
+      const id = invite.id ?? `meminv_${crypto.randomUUID()}`
+      return {
+        ...invite,
+        id,
+        token: this.generateInviteToken_(
+          { id, email: invite.email, seller_name: sellerMap.get(invite.seller_id) ?? "" },
+          validDuration,
+        ),
+        accepted: invite.accepted ?? false,
+        expires_at: invite.expires_at ?? new Date(Date.now() + validDuration * 1000),
+      }
+    })
 
     const result = await super.createMemberInvites(input, sharedContext)
     return (Array.isArray(data) ? result : result[0]) as any
@@ -148,20 +175,30 @@ class SellerModuleService extends MedusaService({
     token: string,
     @MedusaContext() sharedContext: Context = {},
   ): Promise<MemberInviteDTO> {
-    const [invites] = await this.listAndCountMemberInvites(
-      { token, accepted: false },
-      {},
-      sharedContext,
-    )
-
-    if (!invites.length) {
+    let decoded: JwtPayload
+    try {
+      decoded = jwt.verify(token, this.options_.jwt_secret, {
+        complete: true,
+      }) as JwtPayload
+    } catch {
       throw new MedusaError(
-        MedusaError.Types.NOT_FOUND,
-        "Invalid or already used invite token"
+        MedusaError.Types.INVALID_DATA,
+        "Invalid invite token"
       )
     }
 
-    const invite = invites[0] as MemberInviteDTO
+    const invite = await this.retrieveMemberInvite(
+      decoded.payload.id,
+      {},
+      sharedContext,
+    ) as MemberInviteDTO
+
+    if (invite.accepted) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_ALLOWED,
+        "Invite has already been accepted"
+      )
+    }
 
     if (new Date() > new Date(invite.expires_at)) {
       throw new MedusaError(
@@ -171,6 +208,19 @@ class SellerModuleService extends MedusaService({
     }
 
     return invite
+  }
+
+  private generateInviteToken_(
+    data: { id: string; email: string; seller_name: string },
+    expiresIn: number,
+  ): string {
+    return generateJwtToken(data, {
+      secret: this.options_.jwt_secret,
+      expiresIn,
+      jwtOptions: {
+        jwtid: crypto.randomUUID(),
+      },
+    })
   }
 
   private validateSellerData_(data: any) {

@@ -42,6 +42,7 @@ export const listVendorMembersQueryConfig = {
     "is_owner",
     "member.*",
     "rbac_role.*",
+    "created_at"
   ],
   defaultLimit: 50,
   isList: true,
@@ -53,5 +54,19 @@ export const retrieveVendorMemberQueryConfig = {
     "is_owner",
     "member.*",
     "rbac_role.*",
+    "created_at"
   ],
+}
+
+export const listVendorMemberInvitesQueryConfig = {
+  defaults: [
+    "id",
+    "email",
+    "accepted",
+    "role_id",
+    "expires_at",
+    "created_at",
+  ],
+  defaultLimit: 50,
+  isList: true,
 }

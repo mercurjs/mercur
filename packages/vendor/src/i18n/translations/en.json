@@ -2506,6 +2506,7 @@
     "inviteUser": "Invite User",
     "inviteUserHint": "Invite a new user to your store.",
     "sendInvite": "Send invite",
+    "selectRole": "Select a role",
     "pendingInvites": "Pending Invites",
     "deleteInviteWarning": "You are about to delete the invite for {{email}}. This action cannot be undone.",
     "resendInvite": "Resend invite",
@@ -2521,7 +2522,12 @@
     "roles": {
       "admin": "Admin",
       "developer": "Developer",
-      "member": "Member"
+      "member": "Member",
+      "administration": "Administration",
+      "inventoryManagement": "Inventory Management",
+      "orderManagement": "Order Management",
+      "accounting": "Accounting",
+      "support": "Support"
     },
     "list": {
       "empty": {
@@ -3039,7 +3045,7 @@
     }
   },
   "invite": {
-    "title": "Welcome to Mercur",
+    "title": "You've been invited to {{name}}",
     "hint": "Create your account below",
     "backToLogin": "Back to login",
     "createAccount": "Create account",

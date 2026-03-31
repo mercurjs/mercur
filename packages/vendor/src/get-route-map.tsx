@@ -1223,6 +1223,35 @@ export function getRouteMap({
                 ],
               },
 
+              // USERS
+              {
+                path: "users",
+                errorElement: <ErrorBoundary />,
+                element: <Outlet />,
+                handle: { breadcrumb: () => t("users.domain") },
+                children: [
+                  {
+                    path: "",
+                    lazy: async () => {
+                      const { TeamListPage } =
+                        await import("./pages/settings/team");
+                      return { Component: TeamListPage };
+                    },
+                    children: [
+                      {
+                        path: "invite",
+                        lazy: async () => {
+                          const { TeamInvite } =
+                            await import("./pages/settings/team/invite");
+
+                          return { Component: TeamInvite };
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
+
               // PRODUCT TYPES
               {
                 path: "product-types",
@@ -1344,6 +1373,10 @@ export function getRouteMap({
             {
               path: "/onboarding",
               lazy: () => import("./pages/onboarding"),
+            },
+            {
+              path: "/invite",
+              lazy: () => import("./pages/invite"),
             },
             {
               path: "/store-select",

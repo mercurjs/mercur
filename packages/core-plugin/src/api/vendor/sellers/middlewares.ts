@@ -171,6 +171,23 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
+  // GET /vendor/sellers/:id/members/invites — list pending invites
+  {
+    method: ["GET"],
+    matcher: "/vendor/sellers/:id/members/invites",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetSellersParams,
+        QueryConfig.listVendorMemberInvitesQueryConfig
+      ),
+    ],
+    policies: [
+      {
+        resource: Entities.seller_member,
+        operation: PolicyOperation.read,
+      },
+    ],
+  },
   // GET /vendor/sellers/:id/members — list members
   {
     method: ["GET"],

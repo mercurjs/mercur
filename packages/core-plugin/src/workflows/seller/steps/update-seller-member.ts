@@ -20,7 +20,7 @@ export const updateSellerMembersStep = createStep(
 
     return new StepResponse(updated, prev)
   },
-  async (prev: SellerMemberDTO[], { container }) => {
+  async (prev, { container }) => {
     if (!prev) {
       return
     }
