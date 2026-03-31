@@ -294,11 +294,11 @@ const MultiSelect = forwardRef<HTMLDivElement, MultiSelectProps>(
                       className="flex cursor-pointer items-center px-1 py-1 hover:bg-ui-bg-base-hover"
                       onClick={() => handleItemClick(option.value)}
                     >
-                      <div className="relative flex flex-1 items-center rounded-md px-2">
-                        {isSelected && (
-                          <CheckMini className="absolute left-3 top-1/2 -translate-y-1/2" />
-                        )}
-                        <Text className="ml-6">{option.label}</Text>
+                      <div className="flex flex-1 items-center gap-x-2 rounded-md px-2">
+                        <div className="flex size-5 shrink-0 items-center justify-center">
+                          {isSelected && <CheckMini />}
+                        </div>
+                        <Text className="truncate">{option.label}</Text>
                       </div>
                     </div>
                   )

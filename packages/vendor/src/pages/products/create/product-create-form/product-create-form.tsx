@@ -320,7 +320,7 @@ export const ProductCreateForm = ({
 
     if (allAttributes && allAttributes.length > 0) {
       dynamicAttributeFields = allAttributes.map(
-        (attr: any) => attr.handle
+        (attr: any) => attr.handle || attr.id
       )
     }
 
@@ -355,7 +355,8 @@ export const ProductCreateForm = ({
     allAttributes?.forEach((attr: any) => {
       if (!attr.is_required) return
 
-      const value = form.getValues(attr.handle as any)
+      const fieldHandle = attr.handle || attr.id
+      const value = form.getValues(fieldHandle as any)
       if (value === undefined || value === null || value === "")
         return
 
@@ -365,7 +366,7 @@ export const ProductCreateForm = ({
         value.length > 0
       ) {
         const useForVariants = form.getValues(
-          `${attr.handle}UseForVariants` as any
+          `${fieldHandle}UseForVariants` as any
         )
         const selectedValues = value
           .map((valueId: string) => {
@@ -399,13 +400,14 @@ export const ProductCreateForm = ({
         return
 
       const attribute = allAttributes?.find(
-        (attr: any) => attr.handle === fieldName
+        (attr: any) => (attr.handle || attr.id) === fieldName
       )
       if (!attribute) return
 
       if (Array.isArray(value) && value.length > 0) {
+        const attrFieldHandle = (attribute as any).handle || (attribute as any).id
         const useForVariants = form.getValues(
-          `${(attribute as any).handle}UseForVariants` as any
+          `${attrFieldHandle}UseForVariants` as any
         )
         const vals = value
           .map((valueId: string) => {
@@ -725,6 +727,9 @@ export const ProductCreateForm = ({
             },
           ]
         }
+        if (variantsImages.length > 0) {
+          additionalData.variants_images = variantsImages
+        }
         return Object.keys(additionalData).length > 0
           ? additionalData
           : undefined
@@ -756,9 +761,6 @@ export const ProductCreateForm = ({
           ),
         }
       }),
-      ...(variantsImages.length > 0 && {
-        variants_images: variantsImages,
-      }),
     }
 
     const productData = await mutateAsync(payloadToSend as any, {
@@ -767,7 +769,7 @@ export const ProductCreateForm = ({
       },
     })
 
-    toast.success(t("products.create.successToast"))
+    toast.success(t("products.create.successToast", { title: (productData as any).product.title }))
     handleSuccess(`../${(productData as any).product.id}`)
   })
 

@@ -1,27 +1,27 @@
 import { keepPreviousData } from "@tanstack/react-query"
-import { useLoaderData } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import { _DataTable } from "../../../../../components/table/data-table"
 import { useAttributes } from "../../../../../hooks/api"
 import { useAttributeTableColumns } from "../../../../../hooks/table/columns/use-attribute-table-columns"
+import { useAttributeTableFilters } from "../../../../../hooks/table/filters/use-attribute-table-filters"
+import { useAttributeTableQuery } from "../../../../../hooks/table/query/use-attribute-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-import { attributeListLoader } from "../../loader"
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 20
 
 export const AttributeListDataTable = () => {
-  const initialData = useLoaderData() as Awaited<
-    ReturnType<typeof attributeListLoader>
-  >
+  const { t } = useTranslation()
 
+  const { searchParams, raw } = useAttributeTableQuery({ pageSize: PAGE_SIZE })
   const { attributes, count, isPending, isError, error } = useAttributes(
-    { limit: PAGE_SIZE, offset: 0 },
+    searchParams,
     {
-      initialData,
       placeholderData: keepPreviousData,
     }
   )
 
+  const filters = useAttributeTableFilters()
   const columns = useAttributeTableColumns()
 
   const { table } = useDataTable({
@@ -30,6 +30,7 @@ export const AttributeListDataTable = () => {
     columns,
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
+    enablePagination: true,
   })
 
   if (isError) {
@@ -39,13 +40,23 @@ export const AttributeListDataTable = () => {
   return (
     <_DataTable
       table={table}
-      isLoading={isPending}
       columns={columns}
-      pageSize={PAGE_SIZE}
       count={count}
+      pageSize={PAGE_SIZE}
+      isLoading={isPending}
+      filters={filters}
+      orderBy={[
+        { key: "name", label: t("fields.name") },
+        { key: "created_at", label: t("fields.createdAt") },
+        { key: "updated_at", label: t("fields.updatedAt") },
+      ]}
       navigateTo={(row) => row.original.id}
-      search
       pagination
+      search
+      queryObject={raw}
+      noRecords={{
+        message: t("attributes.list.noRecordsMessage"),
+      }}
       data-testid="attribute-list-table"
     />
   )

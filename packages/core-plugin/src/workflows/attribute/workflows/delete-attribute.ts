@@ -3,7 +3,7 @@ import {
   createWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 
-import { deleteAttributeStep } from "../steps"
+import { deleteAttributeStep, validateAttributeDeleteStep } from "../steps"
 
 export const deleteAttributeWorkflowId = "delete-attribute-workflow"
 
@@ -14,6 +14,7 @@ type DeleteAttributeWorkflowInput = {
 export const deleteAttributeWorkflow = createWorkflow(
   deleteAttributeWorkflowId,
   (input: DeleteAttributeWorkflowInput) => {
+    validateAttributeDeleteStep(input)
     return new WorkflowResponse(deleteAttributeStep(input))
   }
 )

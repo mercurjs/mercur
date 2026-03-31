@@ -87,7 +87,7 @@ export const ProductCreateBaseSchema = z.object({
   weight: z.string().optional(),
   mid_code: z.string().optional(),
   hs_code: z.string().optional(),
-  options: z.array(ProductCreateOptionSchema).min(1),
+  options: z.array(ProductCreateOptionSchema),
   enable_variants: z.boolean(),
   variants: z.array(ProductCreateVariantSchema).min(1),
   media: z.array(MediaSchema).optional(),

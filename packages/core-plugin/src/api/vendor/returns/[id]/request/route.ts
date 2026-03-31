@@ -18,14 +18,14 @@ export const POST = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerReturn(req.scope, req.auth_context.actor_id, id)
+  await validateSellerReturn(req.scope, req.seller_context!.seller_id, id)
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { result } = await confirmReturnRequestWorkflow(req.scope).run({
     input: {
       return_id: id,
-      confirmed_by: req.auth_context.actor_id,
+      confirmed_by: req.seller_context!.seller_id,
     },
   })
 
@@ -52,7 +52,7 @@ export const DELETE = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerReturn(req.scope, req.auth_context.actor_id, id)
+  await validateSellerReturn(req.scope, req.seller_context!.seller_id, id)
 
   await cancelReturnRequestWorkflow(req.scope).run({
     input: {

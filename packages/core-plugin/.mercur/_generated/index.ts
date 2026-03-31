@@ -415,13 +415,6 @@ export type Routes = {
                 subscribe: typeof import("@medusajs/medusa/api/admin/workflows-executions/[workflow_id]/subscribe/route");
             };
         };
-        attributes: typeof import("../../src/api/admin/attributes/route") & {
-            $id: typeof import("../../src/api/admin/attributes/[id]/route") & {
-                values: typeof import("../../src/api/admin/attributes/[id]/values/route") & {
-                    $valueId: typeof import("../../src/api/admin/attributes/[id]/values/[value_id]/route");
-                };
-            };
-        };
         commissionRates: typeof import("../../src/api/admin/commission-rates/route") & {
             $id: typeof import("../../src/api/admin/commission-rates/[id]/route") & {
                 rules: typeof import("../../src/api/admin/commission-rates/[id]/rules/route");
@@ -448,6 +441,13 @@ export type Routes = {
                 terminate: typeof import("../../src/api/admin/sellers/[id]/terminate/route");
                 unsuspend: typeof import("../../src/api/admin/sellers/[id]/unsuspend/route");
                 unterminate: typeof import("../../src/api/admin/sellers/[id]/unterminate/route");
+            };
+        };
+        attributes: typeof import("../../src/api/admin/attributes/route") & {
+            $id: typeof import("../../src/api/admin/attributes/[id]/route") & {
+                values: typeof import("../../src/api/admin/attributes/[id]/values/route") & {
+                    $valueId: typeof import("../../src/api/admin/attributes/[id]/values/[value_id]/route");
+                };
             };
         };
         subscriptionPlans: typeof import("../../src/api/admin/subscription-plans/route") & {
@@ -743,6 +743,7 @@ export type Routes = {
             };
         };
         uploads: typeof import("../../src/api/vendor/uploads/route");
+        attributes: typeof import("../../src/api/vendor/attributes/route");
         featureFlags: typeof import("../../src/api/vendor/feature-flags/route");
         fulfillmentProviders: typeof import("../../src/api/vendor/fulfillment-providers/route");
         members: {

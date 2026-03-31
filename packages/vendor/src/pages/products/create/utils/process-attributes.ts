@@ -67,40 +67,29 @@ export const processAttributes = (
       )
     )
 
+  const mapToFormField = (attr: (typeof allAttributes)[number]): FormField => ({
+    key: attr.id,
+    id: attr.id,
+    name: attr.name,
+    handle: attr.handle || attr.id,
+    ui_component: attr.ui_component as FormField["ui_component"],
+    is_required: attr.is_required,
+    description: attr.description,
+    possible_values:
+      attr.possible_values?.map((value) => ({
+        value: value.id,
+        label: value.value,
+      })) || [],
+  })
+
   const requiredCategorySpecificFormFields: FormField[] =
     applicableCategoryAttributes
       .filter((attr) => attr.is_required)
-      .map((attr) => ({
-        key: attr.id,
-        id: attr.id,
-        name: attr.name,
-        handle: attr.handle,
-        ui_component: attr.ui_component as FormField["ui_component"],
-        is_required: attr.is_required,
-        description: attr.description,
-        possible_values:
-          attr.possible_values?.map((value) => ({
-            value: value.id,
-            label: value.value,
-          })) || [],
-      }))
+      .map(mapToFormField)
 
   const requiredGlobalFormFields: FormField[] = globalAttributes
     .filter((attr) => attr.is_required)
-    .map((attr) => ({
-      key: attr.id,
-      id: attr.id,
-      name: attr.name,
-      handle: attr.handle,
-      ui_component: attr.ui_component as FormField["ui_component"],
-      is_required: attr.is_required,
-      description: attr.description,
-      possible_values:
-        attr.possible_values?.map((value) => ({
-          value: value.id,
-          label: value.value,
-        })) || [],
-    }))
+    .map(mapToFormField)
 
   return {
     required: {

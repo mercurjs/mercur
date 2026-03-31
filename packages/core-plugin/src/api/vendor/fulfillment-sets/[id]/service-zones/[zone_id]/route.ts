@@ -22,7 +22,7 @@ export const GET = async (
   res: MedusaResponse<HttpTypes.VendorServiceZoneResponse>
 ) => {
   const { id, zone_id } = req.params
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   await validateSellerFulfillmentSet(req.scope, sellerId, id)
@@ -50,7 +50,7 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorFulfillmentSetResponse>
 ) => {
   const { id, zone_id } = req.params
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerFulfillmentSet(req.scope, sellerId, id)
 
@@ -90,7 +90,7 @@ export const DELETE = async (
   res: MedusaResponse<HttpTypes.VendorServiceZoneDeleteResponse>
 ) => {
   const { id, zone_id } = req.params
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerFulfillmentSet(req.scope, sellerId, id)
 

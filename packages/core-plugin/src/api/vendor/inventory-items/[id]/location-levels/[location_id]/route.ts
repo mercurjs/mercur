@@ -21,7 +21,7 @@ export const POST = async (
 ) => {
   const { id, location_id } = req.params
 
-  await validateSellerInventoryItem(req.scope, req.auth_context.actor_id, id)
+  await validateSellerInventoryItem(req.scope,  req.seller_context!.seller_id, id)
 
   await updateInventoryLevelsWorkflow(req.scope).run({
     input: {
@@ -44,7 +44,7 @@ export const DELETE = async (
 ) => {
   const { id, location_id } = req.params
 
-  await validateSellerInventoryItem(req.scope, req.auth_context.actor_id, id)
+  await validateSellerInventoryItem(req.scope,  req.seller_context!.seller_id, id)
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

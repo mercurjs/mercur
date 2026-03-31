@@ -91,15 +91,15 @@ export const AttributeGeneralSection = ({
       </div>
 
       <SectionRow
-        title={t("attributes.fields.description")}
-        value={attribute.description || "-"}
-        data-testid="attribute-general-section-description"
+        title={t("attributes.fields.handle")}
+        value={attribute.handle ? `/${attribute.handle}` : "-"}
+        data-testid="attribute-general-section-handle"
       />
 
       <SectionRow
-        title={t("attributes.fields.handle")}
-        value={attribute.handle || "-"}
-        data-testid="attribute-general-section-handle"
+        title={t("attributes.fields.description")}
+        value={attribute.description || "-"}
+        data-testid="attribute-general-section-description"
       />
 
       <SectionRow
@@ -124,24 +124,36 @@ export const AttributeGeneralSection = ({
         data-testid="attribute-general-section-required"
       />
 
-      {attribute.product_categories && attribute.product_categories.length > 0 && (
-        <SectionRow
-          title={t("attributes.fields.categories")}
-          value={
+      <SectionRow
+        title={t("attributes.fields.global")}
+        value={
+          attribute.product_categories && attribute.product_categories.length > 0
+            ? t("fields.false")
+            : t("fields.true")
+        }
+        data-testid="attribute-general-section-global"
+      />
+
+      <SectionRow
+        title={t("attributes.fields.category")}
+        value={
+          attribute.product_categories && attribute.product_categories.length > 0 ? (
             <div
               className="flex flex-wrap gap-1"
               data-testid="attribute-general-section-categories"
             >
-              {attribute.product_categories.map((category) => (
+              {attribute.product_categories.map((category: any) => (
                 <Badge key={category.id} size="2xsmall">
                   {category.name}
                 </Badge>
               ))}
             </div>
-          }
-          data-testid="attribute-general-section-categories-row"
-        />
-      )}
+          ) : (
+            "-"
+          )
+        }
+        data-testid="attribute-general-section-categories-row"
+      />
     </Container>
   )
 }

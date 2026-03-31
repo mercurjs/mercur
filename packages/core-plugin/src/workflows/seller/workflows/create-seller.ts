@@ -18,7 +18,7 @@ type CreateSellersWorkflowInput = {
   sellers: (CreateSellerDTO & { member: { email: string } })[]
 } & AdditionalData
 
-export const createSellersWorkflow = createWorkflow(
+export const createSellersWorkflow: ReturnType<typeof createWorkflow> = createWorkflow(
   createSellersWorkflowId,
   function (input: CreateSellersWorkflowInput) {
     const sellers = createSellersStep(

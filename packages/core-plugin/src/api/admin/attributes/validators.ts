@@ -36,8 +36,16 @@ export const GetAttributesParams = z.object({
   id: z.string().optional(),
   name: z.string().optional(),
   handle: z.string().optional(),
-  is_required: z.boolean().optional(),
-  is_filterable: z.boolean().optional(),
+  is_required: z.preprocess((val) => {
+    if (val === "true") return true
+    if (val === "false") return false
+    return val
+  }, z.boolean().optional()),
+  is_filterable: z.preprocess((val) => {
+    if (val === "true") return true
+    if (val === "false") return false
+    return val
+  }, z.boolean().optional()),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
   deleted_at: createOperatorMap().optional(),

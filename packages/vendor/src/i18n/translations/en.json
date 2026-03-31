@@ -115,7 +115,9 @@
       "12chars": "At least 12 characters",
       "digit": "At least one digit",
       "specialChar": "At least one special character"
-    }
+    },
+    "mustBeInt": "Must be a whole number",
+    "mustBePositive": "Must be a positive number"
   },
   "actions": {
     "save": "Save",
@@ -457,7 +459,7 @@
       },
       "informationalAttributes": {
         "header": "Product Information",
-        "description": "Informational attributes that describe this product."
+        "description": "Attributes used for informational purposes"
       }
     },
     "create": {
@@ -565,6 +567,12 @@
       "filtered": {
         "heading": "No results",
         "description": "No variants match the current filter criteria."
+      },
+      "editStocksAndPrices": {
+        "header": "Edit Stocks & Prices",
+        "description": "Manage stock locations and prices for all variants",
+        "action": "Edit Stocks & Prices",
+        "successToast": "Stocks and prices updated successfully"
       }
     },
     "attributes": "Attributes",
@@ -592,7 +600,8 @@
       "emptyState": {
         "header": "No media",
         "description": "No images assigned to this variant.",
-        "action": "Add images"
+        "action": "Add images",
+        "variantDescription": "This variant has no images. Add images to the variant."
       },
       "successToast": "Media was successfully updated.",
       "variantImages": "Variant images",
@@ -706,9 +715,9 @@
         "label": "Product options",
         "hint": "Options are used to define the color, size, etc. of the product",
         "add": "Add option",
-        "optionTitle": "Option title",
+        "optionTitle": "Title",
         "optionTitlePlaceholder": "Color",
-        "variations": "Variations (comma-separated)",
+        "variations": "Values",
         "variantionsPlaceholder": "Red, Blue, Green"
       },
       "variants": {

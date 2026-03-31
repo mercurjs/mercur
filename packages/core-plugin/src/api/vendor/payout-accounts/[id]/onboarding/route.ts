@@ -14,7 +14,7 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorOnboardingResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerPayoutAccount(req.scope, sellerId, req.params.id)
 

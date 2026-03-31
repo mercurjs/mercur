@@ -236,6 +236,63 @@ export const useUpdateProductVariant = (
   });
 };
 
+type UpdateVariantMediaPayload = {
+  add?: string[];
+  remove?: string[];
+};
+
+export const useUpdateVariantMedia = (
+  productId: string,
+  variantId: string,
+  options?: any
+) => {
+  return useMutation({
+    mutationFn: (payload: UpdateVariantMediaPayload) =>
+      fetchQuery(`/vendor/products/${productId}/variants/${variantId}/media`, {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.detail(variantId),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useUpdateProductVariantsBatch = (
+  productId: string,
+  options?: any
+) => {
+  return useMutation({
+    mutationFn: async (variants: Array<{ id: string; [key: string]: any }>) => {
+      const promises = variants.map((variant) => {
+        const { id, ...updateData } = variant
+        return fetchQuery(`/vendor/products/${productId}/variants/${id}`, {
+          method: "POST",
+          body: updateData,
+        })
+      })
+      return Promise.all(promises)
+    },
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.lists(),
+      })
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
 export const useDeleteVariant = (
   productId: string,
   variantId: string,
@@ -442,14 +499,14 @@ const productAttributesQueryKey = (id: string) => [
   id,
 ]
 
-export const useProductAttributes = (id: string) => {
+export const useProductAttributes = (_id: string) => {
   const { data, ...rest } = useQuery<ProductAttributesResponse>({
     queryFn: () =>
-      fetchQuery(`/vendor/products/${id}/applicable-attributes`, {
-        method: "GET",
-        query: { fields: "+is_required" },
-      }),
-    queryKey: productAttributesQueryKey(id),
+      sdk.vendor.attributes.query({
+        fields: "id,name,handle,description,ui_component,is_required,possible_values.*,product_categories.*",
+        limit: 100,
+      } as any),
+    queryKey: productAttributesQueryKey(_id),
   })
 
   return { ...data, ...rest }

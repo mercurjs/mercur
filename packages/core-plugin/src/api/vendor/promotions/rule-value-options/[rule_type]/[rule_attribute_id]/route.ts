@@ -49,7 +49,7 @@ export const GET = async (
     entity: `${queryConfig.entryPoint}_seller`,
     fields: [`${queryConfig.entryPoint}_id`],
     filters: {
-      seller_id: req.auth_context.actor_id,
+      seller_id: req.seller_context!.seller_id,
     },
   })
 

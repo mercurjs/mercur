@@ -16,7 +16,7 @@ type UpdateSellerPaymentDetailsWorkflowInput = {
   data: UpdatePaymentDetailsDTO
 } & AdditionalData
 
-export const updateSellerPaymentDetailsWorkflow = createWorkflow(
+export const updateSellerPaymentDetailsWorkflow: ReturnType<typeof createWorkflow> = createWorkflow(
   updateSellerPaymentDetailsWorkflowId,
   function (input: UpdateSellerPaymentDetailsWorkflowInput) {
     const paymentDetails = updatePaymentDetailsStep(input)

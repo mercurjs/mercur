@@ -15,7 +15,10 @@ import { ATTRIBUTE_MODULE } from "../../../modules/attribute"
 import { UpdateAttributeDTO } from "@mercurjs/types"
 
 import categoryAttributeLink from "../../../links/category-attribute-link"
-import { updateAttributesStep } from "../steps"
+import {
+  updateAttributesStep,
+  validatePossibleValuesRemovalStep,
+} from "../steps"
 
 const updateAttributesWorkflowId = "update-attributes"
 
@@ -26,6 +29,8 @@ export type UpdateAttributesWorkflowInput = {
 export const updateAttributesWorkflow = createWorkflow(
   updateAttributesWorkflowId,
   (input: UpdateAttributesWorkflowInput) => {
+    validatePossibleValuesRemovalStep(input)
+
     const toUpdateInput = transform({ input }, ({ input: { attributes } }) => {
       return attributes.map((attribute) => ({
         ...attribute,

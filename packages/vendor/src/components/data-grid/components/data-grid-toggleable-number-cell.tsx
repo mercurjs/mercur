@@ -11,12 +11,14 @@ import { DataGridCellContainer } from "./data-grid-cell-container"
 export const DataGridTogglableNumberCell = <TData, TValue = any>({
   context,
   disabledToggleTooltip,
+  hideInput,
   ...rest
 }: DataGridCellProps<TData, TValue> & {
   min?: number
   max?: number
   placeholder?: string
   disabledToggleTooltip?: string
+  hideInput?: boolean
 }) => {
   const { field, control, renderProps } = useDataGridCell({
     context,
@@ -43,7 +45,7 @@ export const DataGridTogglableNumberCell = <TData, TValue = any>({
               />
             }
           >
-            <Inner field={field} inputProps={input} {...rest} />
+            <Inner field={field} inputProps={input} hideInput={hideInput} {...rest} />
           </DataGridCellContainer>
         )
       }}
@@ -123,6 +125,7 @@ const Inner = ({
   field,
   inputProps,
   placeholder,
+  hideInput,
   ...props
 }: {
   field: ControllerRenderProps<any, string>
@@ -130,6 +133,7 @@ const Inner = ({
   min?: number
   max?: number
   placeholder?: string
+  hideInput?: boolean
 }) => {
   const { ref, value, onChange: _, onBlur, ...fieldProps } = field
   const {
@@ -177,6 +181,27 @@ const Inner = ({
     }
 
     onChange(localValue, value)
+  }
+
+  if (hideInput) {
+    return (
+      <div className="flex size-full items-center gap-x-2 pl-8">
+        <input
+          ref={combinedRefs}
+          className="sr-only"
+          onFocus={onFocus}
+          onBlur={() => {
+            onBlur()
+            onInputBlur()
+          }}
+          tabIndex={-1}
+          readOnly
+        />
+        <span className="txt-compact-small text-ui-fg-subtle">
+          {localValue?.checked ? "Enabled" : "Not enabled"}
+        </span>
+      </div>
+    )
   }
 
   return (

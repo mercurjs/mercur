@@ -12,7 +12,7 @@ export const DELETE = async (
   res: MedusaResponse<HttpTypes.VendorDeleteResponse>
 ) => {
   const { id } = req.params
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerFulfillmentSet(req.scope, sellerId, id)
 

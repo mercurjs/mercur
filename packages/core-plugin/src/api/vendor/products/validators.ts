@@ -208,8 +208,8 @@ export const UpdateProduct = z
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
+    additional_data: z.record(z.unknown()).nullish(),
   })
-  .strict()
 export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
 
 /* Attribute Inputs for Product Creation */

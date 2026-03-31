@@ -38,12 +38,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <TwoColumnPage.Main>
             <ProductGeneralSection />
             <ProductMediaSection />
-            <ProductOptionSection />
             <ProductVariantSection />
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <ProductShippingProfileSection />
             <ProductOrganizationSection />
+            <ProductAdditionalAttributesSection product={product} />
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}

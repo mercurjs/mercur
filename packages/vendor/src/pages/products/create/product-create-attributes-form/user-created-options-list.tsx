@@ -79,8 +79,8 @@ export const UserCreatedOptionsList = ({
                     fieldState,
                   }) => {
                     return (
-                      <Form.Item className="flex flex-row items-start gap-x-1.5 space-y-0 [&>div:last-child]:w-full">
-                        <Form.Label className="min-w-[60px] px-2 py-1.5">
+                      <Form.Item>
+                        <Form.Label>
                           {t(
                             "products.fields.attributes.add.title.label"
                           )}
@@ -166,7 +166,6 @@ export const UserCreatedOptionsList = ({
                                     }
                                   : undefined
                               }
-                              hideCreateOption
                               className="w-full bg-ui-bg-base hover:bg-ui-bg-base-hover [&>div>input]:px-0 [&>div>input]:placeholder:text-ui-fg-muted"
                               multiple={false}
                               showCheck={false}

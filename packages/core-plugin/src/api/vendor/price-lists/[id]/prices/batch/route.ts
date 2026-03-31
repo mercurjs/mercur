@@ -41,7 +41,7 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorPriceListBatchResponse>
 ) => {
   const id = req.params.id
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerPriceList(req.scope, sellerId, id)
 

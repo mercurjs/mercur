@@ -60,7 +60,7 @@ export const ProductVariantSection = () => {
         ? JSON.parse(manage_inventory)
         : undefined,
       fields:
-        "title,sku,thumbnail,*options,created_at,*inventory_items.inventory.location_levels,inventory_quantity,manage_inventory",
+        "title,sku,thumbnail,*options,created_at,updated_at,*inventory_items.inventory.location_levels,inventory_quantity,manage_inventory",
     },
     {
       placeholderData: keepPreviousData,
@@ -103,14 +103,9 @@ export const ProductVariantSection = () => {
             {
               actions: [
                 {
-                  label: t("products.editPrices"),
-                  to: `prices`,
+                  label: t("products.variants.editStocksAndPrices.action", "Edit Stocks & Prices"),
+                  to: `edit-stocks-and-prices`,
                   icon: <PencilSquare />,
-                },
-                {
-                  label: t("inventory.stock.action"),
-                  to: `stock`,
-                  icon: <Buildings />,
                 },
               ],
             },
@@ -311,6 +306,22 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
         enableSorting: true,
         sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
         sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
+      }),
+      columnHelper.accessor("created_at", {
+        header: t("fields.createdAt"),
+        enableSorting: true,
+        sortAscLabel: t("filters.sorting.dateAsc"),
+        sortDescLabel: t("filters.sorting.dateDesc"),
+        enableHiding: true,
+        isVisibleByDefault: false,
+      }),
+      columnHelper.accessor("updated_at", {
+        header: t("fields.updatedAt"),
+        enableSorting: true,
+        sortAscLabel: t("filters.sorting.dateAsc"),
+        sortDescLabel: t("filters.sorting.dateDesc"),
+        enableHiding: true,
+        isVisibleByDefault: false,
       }),
       ...optionColumns,
       columnHelper.display({

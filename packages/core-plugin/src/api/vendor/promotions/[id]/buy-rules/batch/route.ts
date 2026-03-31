@@ -21,7 +21,7 @@ export const POST = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerPromotion(req.scope, req.auth_context.actor_id, id)
+  await validateSellerPromotion(req.scope, req.seller_context!.seller_id, id)
 
   const { result } = await batchPromotionRulesWorkflow(req.scope).run({
     input: {

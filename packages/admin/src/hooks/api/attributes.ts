@@ -116,6 +116,30 @@ export const useDeleteAttribute = (
   })
 }
 
+export const useCreateAttributePossibleValue = (
+  attributeId: string,
+  options?: UseMutationOptions<any, ClientError, Record<string, any>>
+) => {
+  return useMutation({
+    mutationFn: (payload: Record<string, any>) =>
+      sdk.admin.attributes.$id.values.mutate({
+        $id: attributeId,
+        ...payload,
+      } as any),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: attributesQueryKeys.detail(attributeId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: attributesQueryKeys.lists(),
+      })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
 export const useUpdateAttributePossibleValue = (
   attributeId: string,
   valueId: string,

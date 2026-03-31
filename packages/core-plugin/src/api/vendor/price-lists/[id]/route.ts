@@ -15,7 +15,7 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorPriceListResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerPriceList(req.scope, sellerId, req.params.id)
 
@@ -33,7 +33,7 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorPriceListResponse>
 ) => {
   const id = req.params.id
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerPriceList(req.scope, sellerId, id)
 
@@ -53,7 +53,7 @@ export const DELETE = async (
   res: MedusaResponse<HttpTypes.VendorDeleteResponse>
 ) => {
   const id = req.params.id
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerPriceList(req.scope, sellerId, id)
 

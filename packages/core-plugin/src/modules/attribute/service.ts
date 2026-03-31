@@ -56,25 +56,41 @@ class AttributeModuleService extends MedusaService({
     input: UpdateAttributeDTO[],
     @MedusaContext() sharedContext?: Context<EntityManager>
   ) {
-    const upsertedValues =
-      await this.attributePossibleValueRepository_.upsert(
-        input.flatMap((element) => element.possible_values),
-        sharedContext
-      )
+    const inputsWithValues = input.filter(
+      (element) => element.possible_values !== undefined
+    )
+
+    const allPossibleValues = inputsWithValues.flatMap(
+      (element) => element.possible_values!
+    )
+
+    const upsertedValues = allPossibleValues.length
+      ? await this.attributePossibleValueRepository_.upsert(
+          allPossibleValues,
+          sharedContext
+        )
+      : []
 
     const attributesInput = input.map((toUpdate) => {
-      const { ...attribute } = toUpdate
+      const { possible_values, ...rest } = toUpdate
+
+      if (possible_values === undefined) {
+        return rest
+      }
+
       return {
-        ...attribute,
+        ...rest,
         possible_values: upsertedValues
-          .filter((val) => val.attribute_id === attribute.id)
+          .filter((val) => val.attribute_id === rest.id)
           .map((upserted) => ({ id: upserted.id })),
       }
     })
 
+    const hasRelationUpdates = inputsWithValues.length > 0
+
     return this.attributeRepository_.upsertWithReplace(
       attributesInput,
-      { relations: ["possible_values"] },
+      { relations: hasRelationUpdates ? ["possible_values"] : [] },
       sharedContext
     )
   }

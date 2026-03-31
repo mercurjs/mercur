@@ -122,7 +122,10 @@ export const ProductCreateAttributesForm = forwardRef<
       })
     })
 
-    const optionsValid = await form.trigger("options")
+    const currentOptions = form.getValues("options") || []
+    const optionsValid = currentOptions.length > 0
+      ? await form.trigger("options")
+      : true
 
     return Object.keys(errors).length === 0 && optionsValid
   }

@@ -12,7 +12,7 @@ export const GET = async (
   res: MedusaResponse<HttpTypes.VendorOrderChangesResponse>
 ) => {
   const { id } = req.params
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerOrder(req.scope, sellerId, id)
 

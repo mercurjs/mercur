@@ -216,7 +216,7 @@ const ComboboxImpl = <T extends Value = string>(
   const showSelected = showTag && !searchValue && !open
 
   const hideInput = forceHideInput || (!isArrayValue && hasValue && !open)
-  const selectedLabel = options.find((o) => o.value === selectedValues)?.label
+  const selectedLabel = options.find((o) => o.value === selectedValues)?.label || (typeof selectedValues === "string" ? selectedValues : undefined)
 
   const hidePlaceholder = showSelected || open
 
@@ -381,10 +381,10 @@ const ComboboxImpl = <T extends Value = string>(
               }
             )}
           >
-            <PrimitiveComboboxItemCheck className="flex !size-5 items-center justify-center">
+            <PrimitiveComboboxItemCheck className="flex !size-5 shrink-0 items-center justify-center">
               {isArrayValue ? <CheckMini /> : <EllipseMiniSolid />}
             </PrimitiveComboboxItemCheck>
-            <PrimitiveComboboxItemValue className="txt-compact-small">
+            <PrimitiveComboboxItemValue className="txt-compact-small truncate">
               {label}
             </PrimitiveComboboxItemValue>
           </PrimitiveComboboxItem>

@@ -16,7 +16,7 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorStockLocationResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerStockLocation(req.scope, sellerId, req.params.id)
 
@@ -40,7 +40,7 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateStockLocationType>,
   res: MedusaResponse<HttpTypes.VendorStockLocationResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerStockLocation(req.scope, sellerId, req.params.id)
 
@@ -64,7 +64,7 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorDeleteResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerStockLocation(req.scope, sellerId, req.params.id)
 

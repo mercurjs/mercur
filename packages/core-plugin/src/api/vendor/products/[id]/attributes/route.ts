@@ -25,7 +25,7 @@ export const POST = async (
   const { attribute_id, name, values, use_for_variations, ui_component } =
     req.validatedBody
 
-  const sellerId = req.seller_context?.seller_id || req.auth_context.actor_id
+  const sellerId =  req.seller_context!.seller_id
 
   if (!attribute_id && !name) {
     throw new MedusaError(

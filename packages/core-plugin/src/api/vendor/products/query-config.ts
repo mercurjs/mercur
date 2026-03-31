@@ -33,6 +33,7 @@ export const vendorProductFields = [
   "*variants",
   "*variants.prices",
   "*variants.options",
+  "*variants.inventory_items",
   "*categories",
   "*attribute_values",
   "*attribute_values.attribute",

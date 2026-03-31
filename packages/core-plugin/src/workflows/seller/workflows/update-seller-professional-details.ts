@@ -16,7 +16,7 @@ type UpdateSellerProfessionalDetailsWorkflowInput = {
   data: UpdateProfessionalDetailsDTO
 } & AdditionalData
 
-export const updateSellerProfessionalDetailsWorkflow = createWorkflow(
+export const updateSellerProfessionalDetailsWorkflow: ReturnType<typeof createWorkflow> = createWorkflow(
   updateSellerProfessionalDetailsWorkflowId,
   function (input: UpdateSellerProfessionalDetailsWorkflowInput) {
     const professionalDetails = updateSellerProfessionalDetailsStep(input)

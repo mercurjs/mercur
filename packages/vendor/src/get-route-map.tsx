@@ -177,6 +177,13 @@ export function getRouteMap({
                               import("./pages/products/[id]/options/create"),
                           },
                           {
+                            path: "options/:option_id/edit",
+                            lazy: () =>
+                              import(
+                                "./pages/products/[id]/options/[optionId]/edit"
+                              ),
+                          },
+                          {
                             path: "variants/create",
                             lazy: () =>
                               import("./pages/products/[id]/variants/create"),
@@ -186,6 +193,11 @@ export function getRouteMap({
                       {
                         path: "stock",
                         lazy: () => import("./pages/products/[id]/stock"),
+                      },
+                      {
+                        path: "edit-stocks-and-prices",
+                        lazy: () =>
+                          import("./pages/products/[id]/edit-stocks-and-prices"),
                       },
                     ],
                   },

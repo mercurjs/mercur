@@ -14,7 +14,7 @@ export const POST = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerInventoryItem(req.scope, req.auth_context.actor_id, id)
+  await validateSellerInventoryItem(req.scope,  req.seller_context!.seller_id, id)
 
   const { result } = await batchInventoryItemLevelsWorkflow(req.scope).run({
     input: {

@@ -14,7 +14,7 @@ export const POST = async (
   res: MedusaResponse<VendorHttpTypes.VendorSalesChannelResponse>
 ) => {
   const { id } = req.params
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
   const { add, remove } = req.validatedBody
 
   const productIdsToValidate = [...(add || []), ...(remove || [])]

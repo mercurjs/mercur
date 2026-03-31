@@ -1643,6 +1643,20 @@ export function getRouteMap({
                                 "./pages/attributes/attribute-edit-possible-value"
                               ),
                           },
+                          {
+                            path: "create-possible-value",
+                            lazy: () =>
+                              import(
+                                "./pages/attributes/attribute-create-possible-value"
+                              ),
+                          },
+                          {
+                            path: "edit-ranking",
+                            lazy: () =>
+                              import(
+                                "./pages/attributes/attribute-edit-ranking"
+                              ),
+                          },
                         ],
                       },
                     ],
