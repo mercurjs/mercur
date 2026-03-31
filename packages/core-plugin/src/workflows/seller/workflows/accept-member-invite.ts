@@ -1,12 +1,13 @@
 import {
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import {
   emitEventStep,
+  setAuthAppMetadataStep,
 } from "@medusajs/medusa/core-flows"
-import { setAuthAppMetadataStep } from "@medusajs/medusa/core-flows"
 
 import {
   validateMemberInviteTokenStep,
@@ -21,7 +22,7 @@ export const acceptMemberInviteWorkflowId = "accept-member-invite"
 type AcceptMemberInviteWorkflowInput = {
   invite_token: string
   auth_identity_id: string
-  member: { email: string }
+  member_id?: string
 }
 
 export const acceptMemberInviteWorkflow = createWorkflow(
@@ -35,7 +36,7 @@ export const acceptMemberInviteWorkflow = createWorkflow(
 
     const member = transform({ members }, ({ members }) => members[0])
 
-    const sellerMembers = createSellerMembersStep(
+    createSellerMembersStep(
       transform(
         { invite, member },
         ({ invite, member }) => [{
@@ -46,10 +47,12 @@ export const acceptMemberInviteWorkflow = createWorkflow(
       )
     )
 
-    setAuthAppMetadataStep({
-      authIdentityId: input.auth_identity_id,
-      actorType: "member",
-      value: member.id,
+    when('no-existing-member', input, ({ member_id }) => !member_id).then(() => {
+      setAuthAppMetadataStep({
+        authIdentityId: input.auth_identity_id,
+        actorType: "member",
+        value: member.id,
+      })
     })
 
     deleteMemberInviteStep([invite.id])

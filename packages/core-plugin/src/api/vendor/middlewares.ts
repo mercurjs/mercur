@@ -42,6 +42,8 @@ const unauthenticatedRoutes = [
   /^\/vendor\/sellers$/,
   /^\/vendor\/sellers\/select$/,
   /^\/vendor\/feature-flags$/,
+  /^\/vendor\/stores$/,
+  /^\/vendor\/members\/invites\/accept$/,
   ...scanUnauthenticatedRoutes(process.cwd()),
 ]
 

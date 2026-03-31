@@ -65,7 +65,8 @@
     "@medusajs/types": "2.13.4",
     "zod": "3.25.76",
     "multer": "^2.0.2",
-    "http-proxy-middleware": "^3.0.3"
+    "http-proxy-middleware": "^3.0.3",
+    "jsonwebtoken": "^9.0.2"
   },
   "peerDependencies": {
     "@medusajs/admin-sdk": "^2.13.4",

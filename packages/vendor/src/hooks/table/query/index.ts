@@ -1,4 +1,5 @@
 export * from "./use-campaign-table-query"
+export * from "./use-member-table-query"
 export * from "./use-collection-table-query"
 export * from "./use-customer-group-table-query"
 export * from "./use-customer-table-query"

@@ -15,17 +15,15 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useLocation, Navigate, useNavigate } from "react-router-dom";
+import { useLocation, Navigate, useNavigate, useLoaderData } from "react-router-dom";
 import * as z from "zod";
 
 import { Form } from "@components/common/form";
 import { SwitchBox } from "@components/common/switch-box/switch-box";
 import { CountrySelect } from "@components/inputs/country-select/country-select";
-import { useLogout, useCreateSellerAccount } from "@hooks/api";
-import { currencies } from "@lib/data/currencies";
+import { useLogout, useCreateSellerAccount, useStore } from "@hooks/api";
+import { onboardingLoader } from "./loader";
 import { queryClient } from "@lib/query-client";
-
-const currencyList = Object.values(currencies);
 
 const StoreSetupSchema = z.object({
   name: z.string().min(1),
@@ -294,6 +292,10 @@ const StoreStep = ({
   onSubmit: () => void;
 }) => {
   const { t } = useTranslation();
+  const initialData = useLoaderData() as Awaited<
+    ReturnType<typeof onboardingLoader>
+  >;
+  const { store } = useStore(undefined, { initialData });
 
   return (
     <>
@@ -401,12 +403,12 @@ const StoreStep = ({
                           />
                         </Select.Trigger>
                         <Select.Content>
-                          {currencyList.map((currency) => (
+                          {store?.supported_currencies?.map((sc) => (
                             <Select.Item
-                              key={currency.code}
-                              value={currency.code}
+                              key={sc.currency_code}
+                              value={sc.currency_code}
                             >
-                              {currency.name} ({currency.code.toUpperCase()})
+                              {sc.currency_code.toUpperCase()}
                             </Select.Item>
                           ))}
                         </Select.Content>

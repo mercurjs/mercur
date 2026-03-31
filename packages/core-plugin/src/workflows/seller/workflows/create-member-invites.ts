@@ -24,7 +24,7 @@ export const createMemberInvitesWorkflow = createWorkflow(
     emitEventStep({
       eventName: MemberInviteWorkflowEvents.CREATED,
       data: transform({ invites }, ({ invites }) =>
-        invites.map((inv) => ({ id: inv.id }))
+        invites.map((inv) => ({ id: inv.id, token: inv.token, expires_at: inv.expires_at }))
       ),
     })
 

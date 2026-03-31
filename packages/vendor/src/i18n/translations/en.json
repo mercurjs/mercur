@@ -2506,6 +2506,7 @@
     "inviteUser": "Invite User",
     "inviteUserHint": "Invite a new user to your store.",
     "sendInvite": "Send invite",
+    "selectRole": "Select a role",
     "pendingInvites": "Pending Invites",
     "deleteInviteWarning": "You are about to delete the invite for {{email}}. This action cannot be undone.",
     "resendInvite": "Resend invite",
@@ -2521,7 +2522,12 @@
     "roles": {
       "admin": "Admin",
       "developer": "Developer",
-      "member": "Member"
+      "member": "Member",
+      "administration": "Administration",
+      "inventoryManagement": "Inventory Management",
+      "orderManagement": "Order Management",
+      "accounting": "Accounting",
+      "support": "Support"
     },
     "list": {
       "empty": {
@@ -3039,16 +3045,17 @@
     }
   },
   "invite": {
-    "title": "Welcome to Mercur",
+    "title": "You've been invited to {{name}}",
     "hint": "Create your account below",
+    "existingMemberHint": "Sign in with your existing account",
     "backToLogin": "Back to login",
     "createAccount": "Create account",
+    "signIn": "Sign in",
     "alreadyHaveAccount": "Already have an account? - <0>Log in</0>",
     "emailTooltip": "Your email cannot be changed. If you would like to use another email, a new invite must be sent.",
     "invalidInvite": "The invite is invalid or has expired.",
-    "successTitle": "Your account has been registered",
-    "successHint": "Get started with Mercur right away.",
-    "successAction": "Start Mercur",
+    "successTitle": "You joined {{name}}",
+    "successHint": "You can now access the vendor portal. Log in to get started.",
     "invalidTokenTitle": "Your invite token is invalid",
     "invalidTokenHint": "Try requesting a new invite link.",
     "passwordMismatch": "Passwords do not match",

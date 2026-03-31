@@ -1,10 +1,8 @@
-import { MutationOptions, useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions, QueryKey } from "@tanstack/react-query";
 
 import { HttpTypes } from "@medusajs/types";
-import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
-import { pricePreferencesQueryKeys } from "./price-preferences";
-import { fetchQuery, sdk } from "../../lib/client";
+import { sdk } from "../../lib/client";
 import { ClientError, InferClientInput } from "@mercurjs/client";
 
 const STORE_QUERY_KEY = "store" as const;
@@ -26,40 +24,24 @@ export async function retrieveActiveStore(
 
 export const useStore = (
   query?: InferClientInput<typeof sdk.vendor.stores.query>,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminStoreResponse,
+      ClientError,
+      HttpTypes.AdminStoreResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => retrieveActiveStore(query),
     queryKey: storeQueryKeys.details(),
+    ...options,
   });
 
   return {
     ...data,
     ...rest,
   };
-};
-
-export const useUpdateStore = (
-  id: string,
-  options?: MutationOptions<
-    HttpTypes.AdminStoreResponse,
-    ClientError,
-    HttpTypes.AdminUpdateStore
-  >,
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      fetchQuery("/vendor/sellers/me", { method: "POST", body: payload }),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: pricePreferencesQueryKeys.list(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: pricePreferencesQueryKeys.details(),
-      });
-      queryClient.invalidateQueries({ queryKey: storeQueryKeys.details() });
-
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
 };

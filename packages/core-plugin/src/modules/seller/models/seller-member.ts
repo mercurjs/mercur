@@ -14,5 +14,12 @@ const SellerMember = model.define("SellerMember", {
   is_owner: model.boolean().default(false),
   metadata: model.json().nullable(),
 })
+  .indexes([
+    {
+      on: ["seller_id", "member_id"],
+      unique: true,
+      where: "deleted_at IS NULL",
+    },
+  ])
 
 export default SellerMember
