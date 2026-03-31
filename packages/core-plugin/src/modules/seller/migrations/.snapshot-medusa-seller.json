@@ -1277,6 +1277,15 @@
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_seller_member_deleted_at\" ON \"seller_member\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
+          "keyName": "IDX_seller_member_seller_id_member_id_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_seller_member_seller_id_member_id_unique\" ON \"seller_member\" (\"seller_id\", \"member_id\") WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "seller_member_pkey",
           "columnNames": [
             "id"

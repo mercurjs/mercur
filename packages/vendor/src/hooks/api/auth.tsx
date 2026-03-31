@@ -101,6 +101,30 @@ export const useSignUpForInvite = (
   });
 };
 
+export const useSignInForInvite = (
+  options?: UseMutationOptions<
+    { token: string },
+    ClientError,
+    Omit<
+      InferClientInput<typeof sdk.auth.$actorType.$authProvider.mutate>,
+      "$actorType" | "$authProvider"
+    >
+  >,
+) => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const result = await sdk.auth.$actorType.$authProvider.mutate({
+        $actorType: "member",
+        $authProvider: "emailpass",
+        ...payload,
+      });
+
+      return result as { token: string };
+    },
+    ...options,
+  });
+};
+
 export const useResetPasswordForEmailPass = (
   options?: UseMutationOptions<
     InferClientOutput<

@@ -152,13 +152,55 @@ class SellerModuleService extends MedusaService({
     )
     const sellerMap = new Map(sellers.map((s) => [s.id, s.name]))
 
+    const emails = inviteList.map((i) => i.email)
+    const existingMembers = await this.listMembers(
+      { email: emails },
+      { select: ["id", "email"] },
+      sharedContext,
+    )
+    const existingEmailSet = new Set(existingMembers.map((m) => m.email))
+
+    // Check if any invited emails already belong to the seller
+    if (existingMembers.length > 0) {
+      const memberIds = existingMembers.map((m) => m.id)
+      const existingSellerMembers = await this.listSellerMembers(
+        { seller_id: sellerIds, member_id: memberIds },
+        { select: ["seller_id", "member_id"] },
+        sharedContext,
+      )
+
+      if (existingSellerMembers.length > 0) {
+        const memberIdToEmail = new Map(existingMembers.map((m) => [m.id, m.email]))
+        const alreadyInSeller = new Set(
+          existingSellerMembers.map((sm) => `${sm.seller_id}:${memberIdToEmail.get(sm.member_id)}`)
+        )
+
+        const duplicates = inviteList.filter((i) =>
+          alreadyInSeller.has(`${i.seller_id}:${i.email}`)
+        )
+
+        if (duplicates.length > 0) {
+          const emails = duplicates.map((d) => d.email).join(", ")
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `The following emails are already members of the seller: ${emails}`
+          )
+        }
+      }
+    }
+
     const input = inviteList.map((invite) => {
       const id = invite.id ?? `meminv_${crypto.randomUUID()}`
       return {
         ...invite,
         id,
         token: this.generateInviteToken_(
-          { id, email: invite.email, seller_name: sellerMap.get(invite.seller_id) ?? "" },
+          {
+            id,
+            email: invite.email,
+            seller_name: sellerMap.get(invite.seller_id) ?? "",
+            existing_member: existingEmailSet.has(invite.email),
+          },
           validDuration,
         ),
         accepted: invite.accepted ?? false,
@@ -211,7 +253,7 @@ class SellerModuleService extends MedusaService({
   }
 
   private generateInviteToken_(
-    data: { id: string; email: string; seller_name: string },
+    data: { id: string; email: string; seller_name: string; existing_member: boolean },
     expiresIn: number,
   ): string {
     return generateJwtToken(data, {

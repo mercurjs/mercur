@@ -11,7 +11,7 @@ import * as z from "zod";
 
 import { Form } from "@components/common/form";
 import AvatarBox from "@components/common/logo-box/avatar-box";
-import { useSignUpForInvite } from "@hooks/api/auth";
+import { useSignInForInvite, useSignUpForInvite } from "@hooks/api/auth";
 import { useAcceptInvite } from "@hooks/api/invites";
 import { isFetchError } from "@lib/is-fetch-error";
 
@@ -19,10 +19,11 @@ const CreateAccountSchema = z
   .object({
     email: z.string().email(),
     password: z.string().min(1),
-    repeat_password: z.string().min(1),
+    repeat_password: z.string().optional(),
+    existing_member: z.boolean(),
   })
-  .superRefine(({ password, repeat_password }, ctx) => {
-    if (password !== repeat_password) {
+  .superRefine(({ password, repeat_password, existing_member }, ctx) => {
+    if (!existing_member && (!repeat_password || password !== repeat_password)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: i18n.t("invite.passwordMismatch"),
@@ -38,6 +39,7 @@ type DecodedInvite = {
   iat: number;
   email: string;
   seller_name: string;
+  existing_member: boolean;
 };
 
 export const Invite = () => {
@@ -52,14 +54,14 @@ export const Invite = () => {
     <div className="bg-ui-bg-subtle relative flex min-h-dvh w-dvw items-center justify-center p-4">
       <div className="flex w-full max-w-[360px] flex-col items-center">
         <AvatarBox checked={success} />
-        <div className="max-h-[440px] w-full will-change-contents">
+        <div className="w-full will-change-contents">
           {isValidInvite ? (
             <AnimatePresence>
               {!success ? (
                 <motion.div
                   key="create-account"
                   initial={false}
-                  animate={{ height: "440px", y: 0 }}
+                  animate={{ y: 0 }}
                   exit={{ height: 0, y: 40 }}
                   transition={{
                     duration: 0.8,
@@ -98,7 +100,7 @@ export const Invite = () => {
                   }}
                   className="w-full"
                 >
-                  <SuccessView />
+                  <SuccessView sellerName={invite.seller_name} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -155,27 +157,38 @@ const CreateView = ({
   const { t } = useTranslation();
   const [invalid, setInvalid] = useState(false);
 
+  const isExistingMember = invite.existing_member;
+
   const form = useForm<z.infer<typeof CreateAccountSchema>>({
     resolver: zodResolver(CreateAccountSchema),
     defaultValues: {
       email: invite.email || "",
       password: "",
       repeat_password: "",
+      existing_member: isExistingMember,
     },
   });
 
   const { mutateAsync: signUp, isPending: isCreatingAuthUser } =
     useSignUpForInvite();
 
+  const { mutateAsync: signIn, isPending: isSigningIn } =
+    useSignInForInvite();
+
   const { mutateAsync: acceptInvite, isPending: isAcceptingInvite } =
     useAcceptInvite();
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
-      const { token: authToken } = await signUp({
-        email: data.email,
-        password: data.password,
-      });
+      const { token: authToken } = isExistingMember
+        ? await signIn({
+            email: data.email,
+            password: data.password,
+          })
+        : await signUp({
+            email: data.email,
+            password: data.password,
+          });
 
       await acceptInvite({
         invite_token: token,
@@ -185,13 +198,23 @@ const CreateView = ({
       toast.success(t("invite.toast.accepted"));
       onSuccess();
     } catch (error) {
-      if (isFetchError(error) && error.status === 400) {
-        form.setError("root", {
-          type: "manual",
-          message: t("invite.invalidInvite"),
-        });
-        setInvalid(true);
-        return;
+      if (isFetchError(error)) {
+        if (error.status === 401) {
+          form.setError("root", {
+            type: "manual",
+            message: t("errors.invalidCredentials"),
+          });
+          return;
+        }
+
+        if (error.status === 400) {
+          form.setError("root", {
+            type: "manual",
+            message: t("invite.invalidInvite"),
+          });
+          setInvalid(true);
+          return;
+        }
       }
 
       form.setError("root", {
@@ -216,7 +239,9 @@ const CreateView = ({
           })}
         </Heading>
         <Text size="small" className="text-ui-fg-subtle text-center">
-          {t("invite.hint")}
+          {isExistingMember
+            ? t("invite.existingMemberHint")
+            : t("invite.hint")}
         </Text>
       </div>
       <Form {...form}>
@@ -256,23 +281,25 @@ const CreateView = ({
                 </Form.Item>
               )}
             />
-            <Form.Field
-              control={form.control}
-              name="repeat_password"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <Input
-                      autoComplete="off"
-                      type="password"
-                      {...field}
-                      className="bg-ui-bg-field-component"
-                      placeholder={t("fields.repeatPassword")}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+            {!isExistingMember && (
+              <Form.Field
+                control={form.control}
+                name="repeat_password"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <Input
+                        autoComplete="off"
+                        type="password"
+                        {...field}
+                        className="bg-ui-bg-field-component"
+                        placeholder={t("fields.repeatPassword")}
+                      />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+            )}
             {validationError && (
               <div className="mt-6 text-center">
                 <Hint className="inline-flex" variant="error">
@@ -293,10 +320,12 @@ const CreateView = ({
           <Button
             className="w-full"
             type="submit"
-            isLoading={isCreatingAuthUser || isAcceptingInvite}
+            isLoading={isCreatingAuthUser || isSigningIn || isAcceptingInvite}
             disabled={invalid}
           >
-            {t("invite.createAccount")}
+            {isExistingMember
+              ? t("invite.signIn")
+              : t("invite.createAccount")}
           </Button>
         </form>
       </Form>
@@ -305,28 +334,24 @@ const CreateView = ({
   );
 };
 
-const SuccessView = () => {
+const SuccessView = ({ sellerName }: { sellerName: string }) => {
   const { t } = useTranslation();
 
   return (
     <div className="flex w-full flex-col items-center gap-y-6">
       <div className="flex flex-col items-center gap-y-1">
-        <Heading className="text-center">{t("invite.successTitle")}</Heading>
+        <Heading className="text-center">
+          {t("invite.successTitle", { name: sellerName })}
+        </Heading>
         <Text size="small" className="text-ui-fg-subtle text-center">
           {t("invite.successHint")}
         </Text>
       </div>
       <Button variant="secondary" asChild className="w-full">
         <Link to="/login" replace>
-          {t("invite.successAction")}
+          {t("invite.backToLogin")}
         </Link>
       </Button>
-      <Link
-        to="/login"
-        className="txt-small text-ui-fg-base transition-fg hover:text-ui-fg-base-hover focus-visible:text-ui-fg-base-hover font-medium outline-none"
-      >
-        {t("invite.backToLogin")}
-      </Link>
     </div>
   );
 };
