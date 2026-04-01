@@ -248,8 +248,6 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
         };
       }
 
-      const quantity = variant.inventory_quantity;
-
       const inventoryItems = castVariant.inventory_items
         ?.map((i) => i.inventory)
         .filter(Boolean) as HttpTypes.AdminInventoryItem[];
@@ -257,14 +255,17 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
       const hasInventoryKit = inventoryItems.length > 1;
 
       const locations: Record<string, boolean> = {};
+      let totalStocked = 0;
 
       inventoryItems.forEach((i) => {
         i.location_levels?.forEach((l) => {
           locations[l.id] = true;
+          totalStocked += (l as any).stocked_quantity ?? 0;
         });
       });
 
       const locationCount = Object.keys(locations).length;
+      const quantity = variant.inventory_quantity ?? totalStocked;
 
       const text = hasInventoryKit
         ? t("products.variant.tableItemAvailable", {

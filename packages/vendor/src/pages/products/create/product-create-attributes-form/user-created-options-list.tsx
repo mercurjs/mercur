@@ -166,7 +166,7 @@ export const UserCreatedOptionsList = ({
                                     }
                                   : undefined
                               }
-                              className="w-full bg-ui-bg-base hover:bg-ui-bg-base-hover [&>div>input]:px-0 [&>div>input]:placeholder:text-ui-fg-muted"
+                              className="w-full bg-ui-bg-base hover:bg-ui-bg-base-hover"
                               multiple={false}
                               showCheck={false}
                             />

@@ -43,8 +43,10 @@ export const ProductAddAttribute = () => {
     useProductAttributes(id!)
   const { product, isLoading: isProductLoading } = useProduct(id!)
 
-  const availableAttributes = allAttributes
+  const nonRequiredAttributes = allAttributes
     ?.filter((attribute: any) => !attribute.is_required)
+
+  const availableAttributes = nonRequiredAttributes
     ?.filter(
       (attribute: any) =>
         !product?.informational_attributes?.some(
@@ -123,7 +125,9 @@ export const ProductAddAttribute = () => {
               options={options}
               allowRemove={false}
               availableAttributes={availableAttributes ?? []}
+              allNonRequiredAttributes={nonRequiredAttributes ?? []}
               isExistingProduct
+              allowCreate
             />
           </RouteDrawer.Body>
           <RouteDrawer.Footer>

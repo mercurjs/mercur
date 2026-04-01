@@ -77,11 +77,7 @@ const OuterComponent = ({
   const handleCheckedChange = (update: boolean) => {
     const newValue = { ...localValue, checked: update }
 
-    if (!update && !newValue.disabledToggle) {
-      newValue.quantity = ""
-    }
-
-    if (update && newValue.quantity === "") {
+    if (update && (newValue.quantity === "" || newValue.quantity === null || newValue.quantity === undefined)) {
       newValue.quantity = 0
     }
 
@@ -204,6 +200,27 @@ const Inner = ({
     )
   }
 
+  if (!localValue?.checked) {
+    return (
+      <div className="flex size-full items-center gap-x-2 pl-8">
+        <input
+          ref={combinedRefs}
+          className="sr-only"
+          onFocus={onFocus}
+          onBlur={() => {
+            onBlur()
+            onInputBlur()
+          }}
+          tabIndex={-1}
+          readOnly
+        />
+        <span className="txt-compact-small text-ui-fg-subtle">
+          Not enabled
+        </span>
+      </div>
+    )
+  }
+
   return (
     <div className="flex size-full items-center gap-x-2">
       <CurrencyInput
@@ -224,7 +241,6 @@ const Inner = ({
         decimalsLimit={0}
         autoComplete="off"
         tabIndex={-1}
-        placeholder={!localValue.checked ? placeholder : undefined}
       />
     </div>
   )

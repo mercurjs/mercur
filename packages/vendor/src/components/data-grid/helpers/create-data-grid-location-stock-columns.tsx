@@ -63,7 +63,6 @@ export const createDataGridLocationStockColumns = <
             <DataGridTogglableNumberCell
               context={context}
               disabledToggleTooltip={t("inventory.stock.disabledToggleTooltip")}
-              hideInput
             />
           )
         },
