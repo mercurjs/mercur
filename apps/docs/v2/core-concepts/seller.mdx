@@ -117,7 +117,9 @@ A seller is linked to many entities across the system:
 
 ## API examples
 
-### Create a seller (Vendor API)
+### Register a seller (Vendor API)
+
+The seller registration endpoint allows unauthenticated users to create a new seller account. The seller starts in `PENDING_APPROVAL` status.
 
 ```bash
 curl -X POST http://localhost:9000/vendor/sellers \
@@ -125,7 +127,33 @@ curl -X POST http://localhost:9000/vendor/sellers \
   -d '{
     "name": "Acme Electronics",
     "email": "hello@acme.com",
-    "phone": "+1234567890"
+    "member_email": "owner@acme.com",
+    "currency_code": "eur",
+    "address": {
+      "company": "Acme Electronics Ltd",
+      "address_1": "123 Market Street",
+      "city": "Berlin",
+      "country_code": "de",
+      "postal_code": "10115"
+    }
+  }'
+```
+
+### Create a seller (Admin API)
+
+Admins can create sellers directly with a specified status and send a member invite:
+
+```bash
+curl -X POST http://localhost:9000/admin/sellers \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Electronics",
+    "email": "hello@acme.com",
+    "currency_code": "eur",
+    "member": {
+      "email": "owner@acme.com"
+    }
   }'
 ```
 
@@ -138,24 +166,11 @@ curl http://localhost:9000/admin/sellers \
 
 ### Approve a seller (Admin API)
 
+Approves a seller in `PENDING_APPROVAL` status, changing it to `OPEN`:
+
 ```bash
 curl -X POST http://localhost:9000/admin/sellers/slr_abc123/approve \
   -H "Authorization: Bearer <admin-token>"
-```
-
-### Using the typed API client
-
-```typescript
-import { sdk } from "@lib/sdk"
-
-// List sellers with pagination
-const { sellers, count } = await sdk.admin.seller.list({
-  limit: 20,
-  offset: 0,
-})
-
-// Get a single seller
-const { seller } = await sdk.admin.seller.retrieve("slr_abc123")
 ```
 
 ## Extension points
