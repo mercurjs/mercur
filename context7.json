@@ -1,0 +1,23 @@
+{
+  "name": "Mercur",
+  "description": "Open-source AI-native marketplace framework built on MedusaJS v2. Provides blocks for seller management, commissions, payouts, order splitting, and vendor portals.",
+  "documentation": {
+    "paths": [
+      "apps/docs/v2/"
+    ],
+    "exclude": [
+      "apps/docs/v2/changelog/**",
+      "apps/docs/api-reference/**"
+    ]
+  },
+  "repository": "https://github.com/mercurjs/mercur",
+  "website": "https://mercurjs.com",
+  "tags": [
+    "marketplace",
+    "multi-vendor",
+    "medusajs",
+    "ecommerce",
+    "typescript",
+    "open-source"
+  ]
+}

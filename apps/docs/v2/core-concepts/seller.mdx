@@ -115,6 +115,49 @@ A seller is linked to many entities across the system:
 | Promotions | One-to-many | Seller-created promotions and discounts |
 | Price Lists | One-to-many | Custom pricing rules |
 
+## API examples
+
+### Create a seller (Vendor API)
+
+```bash
+curl -X POST http://localhost:9000/vendor/sellers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Electronics",
+    "email": "hello@acme.com",
+    "phone": "+1234567890"
+  }'
+```
+
+### List sellers (Admin API)
+
+```bash
+curl http://localhost:9000/admin/sellers \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+### Approve a seller (Admin API)
+
+```bash
+curl -X POST http://localhost:9000/admin/sellers/slr_abc123/approve \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+### Using the typed API client
+
+```typescript
+import { sdk } from "@lib/sdk"
+
+// List sellers with pagination
+const { sellers, count } = await sdk.admin.seller.list({
+  limit: 20,
+  offset: 0,
+})
+
+// Get a single seller
+const { seller } = await sdk.admin.seller.retrieve("slr_abc123")
+```
+
 ## Extension points
 
 The order completion workflow provides hooks for custom logic:

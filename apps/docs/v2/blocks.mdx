@@ -149,4 +149,46 @@ mode: "custom"
     </p>
   </div>
 
+  <div className="mt-12 mb-4">
+    <h2 className="text-2xl font-bold tracking-tight mb-4">Quick Start</h2>
+
+    <h3 className="text-lg font-semibold mb-2">Install a block</h3>
+
+```bash
+bunx @mercurjs/cli@latest add reviews
+```
+
+This copies the block source code into your project:
+
+```
+src/
+├── modules/reviews/          # Data model and service
+│   ├── models/
+│   ├── service.ts
+│   └── index.ts
+├── workflows/reviews/        # Business logic
+│   ├── create-review.ts
+│   └── index.ts
+├── api/
+│   ├── admin/reviews/        # Admin API routes
+│   ├── vendor/reviews/       # Vendor API routes
+│   └── store/reviews/        # Storefront API routes
+└── admin/
+    └── routes/reviews/       # Admin dashboard pages
+```
+
+    <h3 className="text-lg font-semibold mt-6 mb-2">Search blocks</h3>
+
+```bash
+bunx @mercurjs/cli@latest search -q "reviews"
+```
+
+    <h3 className="text-lg font-semibold mt-6 mb-2">Compare local changes against registry</h3>
+
+```bash
+bunx @mercurjs/cli@latest diff reviews
+```
+
+  </div>
+
 </div>

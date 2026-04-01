@@ -160,6 +160,40 @@ This means:
 
 The CLI (`@mercurjs/cli@latest`) manages this process: scaffolding projects, installing blocks, searching the registry, and comparing local changes against upstream versions.
 
+## Workflow example
+
+Here is a simplified example of how a Mercur workflow is structured. Workflows coordinate multi-step operations with automatic rollback on failure:
+
+```typescript
+import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+
+const validateSellerStep = createStep(
+  "validate-seller",
+  async ({ seller_id }, { container }) => {
+    const sellerService = container.resolve("sellerModuleService")
+    const seller = await sellerService.retrieveSeller(seller_id)
+
+    if (seller.status !== "active") {
+      throw new Error("Seller is not active")
+    }
+
+    return new StepResponse(seller)
+  }
+)
+
+const createProductForSellerWorkflow = createWorkflow(
+  "create-product-for-seller",
+  (input) => {
+    const seller = validateSellerStep({ seller_id: input.seller_id })
+
+    // Additional steps: create product, link to seller, etc.
+
+    return new WorkflowResponse({ seller })
+  }
+)
+```
+
 ## Design principles
 
 **Modular over monolithic** — Each marketplace feature is a separate module that can be installed, modified, or replaced independently. You don't need to use all of Mercur to benefit from it.
