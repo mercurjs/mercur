@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Select, toast } from "@medusajs/ui";
+import { Button, Input, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 
 import { Form } from "@components/common/form";
+import { CountrySelect } from "@components/inputs/country-select/country-select";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { HttpTypes } from "@mercurjs/types";
@@ -14,13 +15,8 @@ type StorePaymentDetailsFormProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
 };
 
-const PAYMENT_TYPES = [
-  { type: "iban", display_name: "International (IBAN/BIC)" },
-  { type: "aba", display_name: "US Bank Account" },
-] as const;
-
 const StorePaymentDetailsSchema = zod.object({
-  type: zod.string().default("iban"),
+  country_code: zod.string().min(1),
   holder_name: zod.string().min(1),
   bank_name: zod.string().optional().or(zod.literal("")),
   iban: zod.string().optional().or(zod.literal("")),
@@ -38,7 +34,7 @@ export const StorePaymentDetailsForm = ({
 
   const form = useForm<zod.infer<typeof StorePaymentDetailsSchema>>({
     defaultValues: {
-      type: details?.type ?? "iban",
+      country_code: details?.country_code ?? "",
       holder_name: details?.holder_name ?? "",
       bank_name: details?.bank_name ?? "",
       iban: details?.iban ?? "",
@@ -49,15 +45,15 @@ export const StorePaymentDetailsForm = ({
     resolver: zodResolver(StorePaymentDetailsSchema),
   });
 
-  const selectedType = form.watch("type");
+  const selectedCountry = form.watch("country_code");
 
   const { mutateAsync, isPending } = useUpdateSellerPaymentDetails(seller.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const isABA = values.type === "aba";
+    const isABA = values.country_code === "us";
     await mutateAsync(
       {
-        type: values.type,
+        country_code: values.country_code,
         holder_name: values.holder_name,
         bank_name: values.bank_name || null,
         iban: isABA ? null : values.iban || null,
@@ -91,29 +87,17 @@ export const StorePaymentDetailsForm = ({
         <RouteDrawer.Body className="flex flex-col gap-y-4 overflow-y-auto">
           <Form.Field
             control={form.control}
-            name="type"
-            render={({ field }) => (
+            name="country_code"
+            render={({ field: { onChange, ref: _ref, ...field } }) => (
               <Form.Item>
                 <Form.Label>
-                  {t("store.paymentDetails.fields.type", "Type")}
+                  {t(
+                    "store.paymentDetails.fields.countryCode",
+                    "Country",
+                  )}
                 </Form.Label>
                 <Form.Control>
-                  <Select
-                    size="small"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <Select.Trigger>
-                      <Select.Value />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {PAYMENT_TYPES.map((pt) => (
-                        <Select.Item key={pt.type} value={pt.type}>
-                          {pt.display_name}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
+                  <CountrySelect {...field} onChange={onChange} />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -152,7 +136,7 @@ export const StorePaymentDetailsForm = ({
               </Form.Item>
             )}
           />
-          {selectedType === "aba" ? (
+          {selectedCountry === "us" ? (
             <div className="grid grid-cols-2 gap-4">
               <Form.Field
                 control={form.control}

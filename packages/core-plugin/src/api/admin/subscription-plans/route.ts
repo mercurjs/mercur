@@ -5,11 +5,11 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { AdminCreateSubscriptionPlanType } from "./validators"
+import { AdminCreateSubscriptionPlanType, AdminGetSubscriptionPlansParamsType } from "./validators"
 import { createSubscriptionPlansWorkflow } from "../../../workflows/subscription"
 
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<AdminGetSubscriptionPlansParamsType>,
   res: MedusaResponse<HttpTypes.AdminSubscriptionPlanListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)

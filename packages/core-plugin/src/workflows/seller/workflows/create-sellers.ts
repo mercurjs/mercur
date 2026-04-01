@@ -8,7 +8,7 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { CreateSellerDTO, SellerRole } from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
-import { createSellersStep, upsertMembersStep, createSellerMembersStep } from "../steps"
+import { createSellersStep } from "../steps"
 import { SellerWorkflowEvents } from "../../events"
 import { createMemberInvitesWorkflow } from "./create-member-invites"
 
@@ -24,25 +24,6 @@ export const createSellersWorkflow: ReturnType<typeof createWorkflow> = createWo
     const sellers = createSellersStep(
       transform(input, ({ sellers }) =>
         sellers.map(({ member, ...seller }) => seller)
-      )
-    )
-
-    const members = upsertMembersStep(
-      transform(input, ({ sellers }) =>
-        sellers.map(({ member }) => ({ email: member.email }))
-      )
-    )
-
-    createSellerMembersStep(
-      transform(
-        { sellers, members },
-        ({ sellers, members }) =>
-          sellers.map((seller, i) => ({
-            seller_id: seller.id,
-            member_id: members[i].id,
-            role_id: SellerRole.SELLER_ADMINISTRATION,
-            is_owner: true,
-          }))
       )
     )
 

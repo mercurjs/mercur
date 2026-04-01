@@ -15,21 +15,13 @@ const maskValue = (value: string | null | undefined) => {
   return `••••${value.slice(-4)}`;
 };
 
-const PAYMENT_TYPES = [
-  { type: "iban", display_name: "International (IBAN/BIC)" },
-  { type: "aba", display_name: "US Bank Account" },
-];
-
-const getPaymentTypeLabel = (type: string | undefined) => {
-  return PAYMENT_TYPES.find((t) => t.type === type)?.display_name ?? type ?? "-";
-};
 
 export const StorePaymentDetailsSection = ({
   seller,
 }: StorePaymentDetailsSectionProps) => {
   const { t } = useTranslation();
   const details = seller.payment_details;
-  const isABA = details?.type === "aba";
+  const isABA = details?.country_code === "us";
 
   return (
     <Container className="divide-y p-0">
@@ -53,10 +45,10 @@ export const StorePaymentDetailsSection = ({
       </div>
       <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
         <Text size="small" leading="compact" weight="plus">
-          {t("store.paymentDetails.fields.type", "Type")}
+          {t("store.paymentDetails.fields.countryCode", "Country code")}
         </Text>
         <Text size="small" leading="compact">
-          {getPaymentTypeLabel(details?.type)}
+          {details?.country_code?.toUpperCase() || "-"}
         </Text>
       </div>
       <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">

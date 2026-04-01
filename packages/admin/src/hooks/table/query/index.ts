@@ -17,3 +17,4 @@ export * from "./use-seller-orders-table-query";
 export * from "./use-payout-table-query"
 export * from "./use-sellers-table-query";
 export * from "./use-attribute-table-query";
+export * from "./use-member-table-query";

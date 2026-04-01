@@ -44,6 +44,8 @@
     "plusCountMore": "+ {{count}} more",
     "areYouSure": "Are you sure?",
     "areYouSureDescription": "You are about to delete the {{entity}} {{title}}. This action cannot be undone.",
+    "yes": "Yes",
+    "no": "No",
     "noRecordsFound": "No records found",
     "typeToConfirm": "Please type {val} to confirm:",
     "noResultsTitle": "No results",
@@ -2454,7 +2456,12 @@
     "roles": {
       "admin": "Admin",
       "developer": "Developer",
-      "member": "Member"
+      "member": "Member",
+      "administration": "Store Administration",
+      "inventoryManagement": "Inventory Management",
+      "orderManagement": "Order Management",
+      "accounting": "Accounting",
+      "support": "Support"
     },
     "list": {
       "empty": {
@@ -3173,6 +3180,9 @@
     "automaticTaxes": "Automatic Taxes",
     "taxInclusivePricing": "Tax inclusive pricing",
     "currency": "Currency",
+    "website": "Website",
+    "premium": "Premium",
+    "professional": "Professional",
     "address": "Address",
     "address2": "Apartment, suite, etc.",
     "city": "City",
@@ -3309,8 +3319,8 @@
     "product-type": "Product Type",
     "product-update": "Product Update"
   },
-  "sellers": {
-    "domain": "Sellers",
+  "stores": {
+    "domain": "Stores",
     "fields": {
       "name": "Name",
       "handle": "Handle",
@@ -3324,23 +3334,80 @@
       "postal_code": "Postal Code",
       "city": "City",
       "province": "Province",
-      "country_code": "Country Code"
+      "country_code": "Country Code",
+      "premium": "Premium"
     },
     "status": {
-      "pending": "Pending",
-      "active": "Active",
-      "suspended": "Suspended"
+      "open": "Open",
+      "pending_approval": "Pending Approval",
+      "pendingApproval": "Pending Approval",
+      "suspended": "Suspended",
+      "terminated": "Terminated"
+    },
+    "premium": {
+      "yes": "Premium",
+      "no": "Standard",
+      "description": "Mark this store as a premium seller"
     },
     "invite": {
       "button": "Invite",
-      "header": "Invite Seller",
-      "hint": "Invite a new seller to your store",
+      "header": "Invite Store",
+      "hint": "Invite a new store to your marketplace",
       "successToast": "Invitation sent to {{email}}",
       "errorToast": "Failed to send invitation"
     },
     "edit": {
-      "header": "Edit Seller",
-      "successToast": "Seller {{name}} was successfully updated."
+      "header": "Edit Store",
+      "successToast": "Store {{name}} was successfully updated."
+    },
+    "create": {
+      "tabs": {
+        "details": "Details",
+        "users": "Users"
+      },
+      "header": "Create Store",
+      "hint": "Create a new store on the marketplace.",
+      "usersHeader": "Users",
+      "usersHint": "Invite the store owner by email. They will receive an invitation to set up their account.",
+      "ownerEmail": "Owner email",
+      "ownerEmailHint": "The owner will be granted the Store Administration role.",
+      "successToast": "Store created successfully"
+    },
+    "actions": {
+      "approve": {
+        "label": "Approve",
+        "title": "Approve store",
+        "description": "Are you sure you want to approve this store?",
+        "success": "Store approved"
+      },
+      "suspend": {
+        "label": "Suspend",
+        "title": "Suspend store",
+        "description": "Are you sure you want to suspend this store?",
+        "success": "Store suspended",
+        "successToast": "{{count}} store(s) suspended",
+        "errorToast": "Failed to suspend store(s)"
+      },
+      "unsuspend": {
+        "label": "Unsuspend",
+        "title": "Unsuspend store",
+        "description": "Are you sure you want to unsuspend this store?",
+        "success": "Store unsuspended",
+        "successToast": "{{count}} store(s) unsuspended",
+        "errorToast": "Failed to unsuspend store(s)"
+      },
+      "terminate": {
+        "label": "Terminate",
+        "title": "Terminate store",
+        "description": "Are you sure you want to terminate this store?",
+        "success": "Store terminated"
+      },
+      "unterminate": {
+        "label": "Unterminate",
+        "title": "Unterminate store",
+        "description": "Are you sure you want to unterminate this store?",
+        "success": "Store unterminated"
+      }
     }
   },
   "messages": {
