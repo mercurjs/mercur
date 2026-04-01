@@ -32,7 +32,7 @@ import {
 import { MercurFeatureFlags } from "@mercurjs/types";
 import { queryClient } from "../../../lib/query-client";
 import { useSearch } from "../../../providers/search-provider";
-import { ThemeToggle } from "../user-menu";
+import { LanguageToggle, ThemeToggle } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
@@ -308,6 +308,7 @@ export const Header = () => {
             <SwitchStore currentSellerId={seller_member.seller.id} />
             <DropdownMenu.Separator />
             <ThemeToggle />
+            <LanguageToggle />
             <DropdownMenu.Separator />
             <Logout />
           </DropdownMenu.Content>
