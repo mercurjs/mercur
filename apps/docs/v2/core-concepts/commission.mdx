@@ -94,8 +94,8 @@ curl -X POST http://localhost:9000/admin/commission-rates \
   -d '{
     "name": "Default Product Commission",
     "code": "default-product",
-    "type": "PERCENTAGE",
-    "target": "ITEM",
+    "type": "percentage",
+    "target": "item",
     "value": 15,
     "priority": 0
   }'
@@ -110,8 +110,8 @@ curl -X POST http://localhost:9000/admin/commission-rates \
   -d '{
     "name": "Electronics Commission",
     "code": "electronics",
-    "type": "PERCENTAGE",
-    "target": "ITEM",
+    "type": "percentage",
+    "target": "item",
     "value": 12,
     "priority": 10,
     "rules": [

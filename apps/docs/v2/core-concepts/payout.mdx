@@ -142,18 +142,22 @@ PayoutAccount
 ### Get seller's payout account (Vendor API)
 
 ```bash
-curl http://localhost:9000/vendor/payout-account \
+curl http://localhost:9000/vendor/payout-accounts/<account-id> \
   -H "Authorization: Bearer <seller-token>"
 ```
 
 ### Create payout onboarding (Vendor API)
 
+Initiates provider onboarding (e.g. Stripe Connect account setup). The `data` and `context` fields are passed to the payout provider:
+
 ```bash
-curl -X POST http://localhost:9000/vendor/payout-account/onboarding \
+curl -X POST http://localhost:9000/vendor/payout-accounts/<account-id>/onboarding \
   -H "Authorization: Bearer <seller-token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "return_url": "https://my-store.com/settings/payouts"
+    "context": {
+      "return_url": "https://my-store.com/settings/payouts"
+    }
   }'
 ```
 
