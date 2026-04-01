@@ -290,12 +290,12 @@ const AttributeCreatePossibleValueInner = () => {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      // Create new values with their rank based on position in the ranking list
+      // Create new values with their rank based on position in the ranking list (1-based)
       for (const [index, item] of rankingItems.entries()) {
         if (item.isNew) {
           await createValue({
             value: item.value,
-            rank: index,
+            rank: index + 1,
             metadata: {},
           })
         }
@@ -307,11 +307,11 @@ const AttributeCreatePossibleValueInner = () => {
           const existingPV = (attribute?.possible_values ?? []).find(
             (pv: any) => pv.id === item.id
           )
-          if (existingPV && existingPV.rank !== index) {
+          if (existingPV && existingPV.rank !== index + 1) {
             await sdk.admin.attributes.$id.values.$valueId.mutate({
               $id: id!,
               $valueId: item.id,
-              rank: index,
+              rank: index + 1,
             } as any)
           }
         }

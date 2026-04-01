@@ -186,7 +186,7 @@ export const ProductCreateForm = ({
       switch (attr.ui_component) {
         case "multivalue":
           defaults[attr.handle] = []
-          defaults[`${attr.handle}UseForVariants`] = true
+          defaults[`${attr.handle}UseForVariants`] = false
           break
         case "select":
         case "text":
