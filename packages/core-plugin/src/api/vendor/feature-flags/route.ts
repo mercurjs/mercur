@@ -14,7 +14,7 @@ export const GET = async (
   const flags = featureFlagRouter.listFlags()
 
   const featureFlags: Record<string, boolean> = {}
-  flags.forEach((flag) => {
+  flags.forEach((flag: any) => {
     featureFlags[flag.key] = flag.value
   })
 

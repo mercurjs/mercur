@@ -35,7 +35,7 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorPriceListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   const { result } = await createSellerPriceListsWorkflow(req.scope).run({
     input: {

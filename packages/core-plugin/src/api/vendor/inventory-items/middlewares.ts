@@ -29,7 +29,7 @@ const applySellerInventoryItemLinkFilter = (
   res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  req.filterableFields.seller_id = req.auth_context.actor_id
+  req.filterableFields.seller_id =  req.seller_context!.seller_id
 
   return maybeApplyLinkFilter({
     entryPoint: "inventory_item_seller",

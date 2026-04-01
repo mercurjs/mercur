@@ -175,6 +175,43 @@ Documentation site built with [Mintlify](https://mintlify.com). Configuration li
 - **Sections**: Quick start, Core Concepts, Product (modules, workflows, events, subscribers), Integrations, Deployment, API Reference, Changelog
 - **Dev server**: `mintlify dev` from `apps/docs/`
 
+## Skills (`.claude/skills/`)
+
+Before writing ANY admin UI code, invoke the relevant skill. Skills contain hard rules and exact code patterns.
+
+| Skill | When to use |
+|-------|-------------|
+| `admin-page-ui` | List pages, detail pages, Container sections, ActionMenu, empty states |
+| `admin-form-ui` | Form fields, edit drawers (RouteDrawer), create modals (RouteFocusModal) |
+| `admin-tab-ui` | Tabbed wizard forms (ProgressTabs, TabbedForm) |
+| `medusa-ui-conformance` | Before adding any custom UI — check if @medusajs/ui or local wrapper exists |
+| `cc-alignment` | Renaming/restructuring compound component exports |
+| `compound-components-migration-review` | Migrating pages to compound component pattern |
+| `code-review` | After completing implementation, before merging |
+| `admin-ui-review` | Reviewing admin UI code for pattern consistency |
+
+## Reusable Components (`packages/admin/src/components/`)
+
+**ALWAYS search for existing components before writing custom UI.** Never hand-roll what already exists.
+
+| Component | Path | Use for |
+|-----------|------|---------|
+| `HandleInput` | `components/inputs/handle-input/` | Handle/slug fields with `/` prefix |
+| `ChipInput` | `components/inputs/chip-input/` | Tag-like multi-value inputs |
+| `SwitchBox` | `components/common/switch-box/` | Switch with label + description card |
+| `Form.*` | `components/common/form/` | All form fields (Field, Label, Control, ErrorMessage, Hint) |
+| `ActionMenu` | `components/common/action-menu/` | Dropdown action menus (edit, delete) |
+| `SectionRow` | `components/common/section/` | Key-value rows in detail sections |
+| `RouteDrawer` | `components/modals/` | Edit drawers with route-based open/close |
+| `RouteFocusModal` | `components/modals/` | Create modals with route-based open/close |
+| `useRouteModal` | `components/modals/` | Get `handleSuccess()` — must be INSIDE RouteDrawer/RouteFocusModal |
+| `KeyboundForm` | `components/utilities/keybound-form/` | Form with Ctrl+Enter submit |
+| `_DataTable` | `components/table/data-table/` | Table with filters, search, sort, pagination |
+| `SingleColumnPage` | `components/layout/pages/` | List page wrapper |
+| `TwoColumnPage` | `components/layout/pages/` | Detail page wrapper (Main + Sidebar) |
+| `useDataTable` | `hooks/use-data-table` | Table state (pagination, row selection) synced to URL |
+| `useQueryParams` | `hooks/use-query-params` | Extract typed query params from URL |
+
 ## Architecture
 
 - **Foundation**: MedusaJS v2 (headless commerce)

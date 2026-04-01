@@ -12,7 +12,7 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreatePaymentCaptureType>,
   res: MedusaResponse<HttpTypes.VendorPaymentResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
   const { id } = req.params
 
   await validateSellerPayment(req.scope, sellerId, id)

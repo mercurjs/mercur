@@ -18,7 +18,7 @@ export const GET = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerInventoryItem(req.scope, req.auth_context.actor_id, id)
+  await validateSellerInventoryItem(req.scope,  req.seller_context!.seller_id, id)
 
   const inventoryItem = await refetchInventoryItem(
     id,
@@ -42,7 +42,7 @@ export const POST = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerInventoryItem(req.scope, req.auth_context.actor_id, id)
+  await validateSellerInventoryItem(req.scope,  req.seller_context!.seller_id, id)
 
   await updateInventoryItemsWorkflow(req.scope).run({
     input: {
@@ -65,7 +65,7 @@ export const DELETE = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerInventoryItem(req.scope, req.auth_context.actor_id, id)
+  await validateSellerInventoryItem(req.scope,  req.seller_context!.seller_id, id)
 
   await deleteInventoryItemWorkflow(req.scope).run({
     input: [id],

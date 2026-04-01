@@ -40,13 +40,13 @@ export const POST = async (
 ) => {
   await validateSellerOrder(
     req.scope,
-    req.auth_context.actor_id,
+    req.seller_context!.seller_id,
     req.validatedBody.order_id
   )
 
   const input = {
     ...req.validatedBody,
-    created_by: req.auth_context.actor_id,
+    created_by: req.seller_context!.seller_id,
   }
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)

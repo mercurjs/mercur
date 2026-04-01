@@ -46,7 +46,7 @@ export const POST = async (
   } = await query.graph({
     entity: "seller",
     fields: req.queryConfig.fields,
-    filters: { id: result[0].id },
+    filters: { id: (result as any[])[0].id },
   })
 
   res.status(201).json({ seller })

@@ -24,7 +24,7 @@ export const GET = async (
 ) => {
   const { id, rule_type: ruleType } = req.params
 
-  await validateSellerPromotion(req.scope, req.auth_context.actor_id, id)
+  await validateSellerPromotion(req.scope, req.seller_context!.seller_id, id)
 
   validateRuleType(ruleType)
 

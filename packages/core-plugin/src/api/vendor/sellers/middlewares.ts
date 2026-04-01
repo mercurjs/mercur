@@ -29,6 +29,29 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorSelectSeller),
     ],
   },
+  // GET /vendor/sellers/me — get current seller
+  {
+    method: ["GET"],
+    matcher: "/vendor/sellers/me",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetSellerParams,
+        QueryConfig.retrieveVendorSellerQueryConfig
+      ),
+    ],
+  },
+  // POST /vendor/sellers/me — update current seller
+  {
+    method: ["POST"],
+    matcher: "/vendor/sellers/me",
+    middlewares: [
+      validateAndTransformBody(VendorUpdateSeller),
+      validateAndTransformQuery(
+        VendorGetSellerParams,
+        QueryConfig.retrieveVendorSellerQueryConfig
+      ),
+    ],
+  },
   // POST /vendor/sellers — create seller
   {
     method: ["POST"],

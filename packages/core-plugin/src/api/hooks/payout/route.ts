@@ -19,7 +19,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
         attempts: 3,
       }
     )
-  } catch (err) {
+  } catch (err: any) {
     res.status(400).send(`Webhook Error: ${err.message}`)
     return
   }

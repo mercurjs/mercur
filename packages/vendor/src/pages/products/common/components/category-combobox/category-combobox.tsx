@@ -32,6 +32,8 @@ interface CategoryComboboxProps extends Omit<
 > {
   value: string[];
   onChange: (value: string[]) => void;
+  isSingleSelect?: boolean;
+  allowClear?: boolean;
 }
 
 type Level = {
@@ -45,7 +47,7 @@ const TAG_BASE_WIDTH = 28;
 export const CategoryCombobox = forwardRef<
   HTMLInputElement,
   CategoryComboboxProps
->(({ value, onChange, className, ...props }, ref) => {
+>(({ value, onChange, className, isSingleSelect, allowClear, ...props }, ref) => {
   const innerRef = useRef<HTMLInputElement>(null);
 
   useImperativeHandle<HTMLInputElement | null, HTMLInputElement | null>(

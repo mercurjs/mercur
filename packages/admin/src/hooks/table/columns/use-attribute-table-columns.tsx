@@ -1,328 +1,315 @@
-import { useMemo, useState } from "react";
-
-import { EllipsisHorizontal, PencilSquare, Trash } from "@medusajs/icons";
+import { createColumnHelper } from "@tanstack/react-table"
+import { useMemo, useState } from "react"
+import { createPortal } from "react-dom"
+import { useTranslation } from "react-i18next"
 import {
   Badge,
-  DropdownMenu,
-  IconButton,
+  Button,
+  Heading,
+  Prompt,
   Switch,
-  createDataTableColumnHelper,
+  Text,
   toast,
   usePrompt,
-} from "@medusajs/ui";
+} from "@medusajs/ui"
+import { PencilSquare, Trash } from "@medusajs/icons"
+import { TextCell } from "../../../components/table/table-cells/common/text-cell"
+import { ActionMenu } from "../../../components/common/action-menu"
+import { Combobox } from "../../../components/inputs/combobox"
+import {
+  useDeleteAttribute,
+  useUpdateAttribute,
+} from "../../../hooks/api/attributes"
+import { useProductCategories } from "../../../hooks/api"
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+const MAX_VISIBLE_VALUES = 2
 
-import type { AttributeDTO } from "@custom-types/attribute";
+// --- Filterable Toggle ---
 
-import { attributeQueryKeys } from "@/hooks/api/attributes";
-import { sdk } from "@/lib/client";
-import { CategorySelectionModal } from "@/pages/attributes/attribute-list/components/CategorySelectionModal";
+const FilterableToggle = ({ attribute }: { attribute: Record<string, any> }) => {
+  const { mutateAsync } = useUpdateAttribute(attribute.id)
 
-const columnHelper = createDataTableColumnHelper<AttributeDTO>();
+  const handleToggle = async (checked: boolean) => {
+    try {
+      await mutateAsync({ is_filterable: checked })
+    } catch (err: any) {
+      toast.error(err.message)
+    }
+  }
+
+  return (
+    <div onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
+      <Switch
+        checked={!!attribute.is_filterable}
+        onCheckedChange={handleToggle}
+        size="small"
+      />
+    </div>
+  )
+}
+
+// --- Global Toggle with Category Modal ---
+
+const GlobalToggle = ({ attribute }: { attribute: Record<string, any> }) => {
+  const { t } = useTranslation()
+  const { mutateAsync } = useUpdateAttribute(attribute.id)
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false)
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
+
+  const categories = attribute.product_categories ?? []
+  const isGlobal = !categories.length
+
+  const { product_categories: allCategories } = useProductCategories({
+    limit: 999,
+  })
+
+  const categoryOptions = (allCategories ?? []).map((cat: any) => ({
+    label: cat.name,
+    value: cat.id,
+  }))
+
+  const handleToggle = async (checked: boolean) => {
+    if (checked) {
+      // Turning ON global — remove category assignments
+      try {
+        await mutateAsync({ product_category_ids: [] })
+      } catch (err: any) {
+        toast.error(err.message)
+      }
+    } else {
+      // Turning OFF global — need to pick categories
+      setSelectedCategoryIds(categories.map((c: any) => c.id))
+      setCategoryModalOpen(true)
+    }
+  }
+
+  const handleSaveCategory = async () => {
+    if (!selectedCategoryIds.length) return
+
+    try {
+      await mutateAsync({
+        product_category_ids: selectedCategoryIds,
+      })
+      setCategoryModalOpen(false)
+      setSelectedCategoryIds([])
+    } catch (err: any) {
+      toast.error(err.message)
+    }
+  }
+
+  return (
+    <>
+      <div onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
+        <Switch
+          checked={isGlobal}
+          onCheckedChange={handleToggle}
+          size="small"
+        />
+      </div>
+      {categoryModalOpen &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+            }}
+          >
+            <div
+              className="bg-ui-bg-overlay fixed inset-0"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+            />
+            <div className="bg-ui-bg-base shadow-elevation-flyout relative flex w-full max-w-[400px] flex-col rounded-lg border">
+              <div className="flex flex-col gap-y-1 px-6 pt-6">
+                <Heading level="h2">
+                  {t("attributes.selectCategory.title")}
+                </Heading>
+                <Text size="small" className="text-ui-fg-subtle">
+                  {t("attributes.selectCategory.description")}
+                </Text>
+              </div>
+              <div className="px-6 py-4">
+                <Combobox
+                  options={categoryOptions}
+                  value={selectedCategoryIds}
+                  onChange={(val) => setSelectedCategoryIds(val as string[])}
+                />
+              </div>
+              <div className="flex items-center justify-end gap-x-2 p-6">
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => {
+                    setCategoryModalOpen(false)
+                    setSelectedCategoryIds([])
+                  }}
+                >
+                  {t("actions.cancel")}
+                </Button>
+                <Button
+                  size="small"
+                  disabled={!selectedCategoryIds.length}
+                  onClick={() => handleSaveCategory()}
+                >
+                  {t("actions.save")}
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+    </>
+  )
+}
+
+// --- Delete Actions ---
+
+const AttributeActions = ({
+  attribute,
+}: {
+  attribute: Record<string, any>
+}) => {
+  const { t } = useTranslation()
+  const prompt = usePrompt()
+  const { mutateAsync } = useDeleteAttribute(attribute.id)
+  const [inUseOpen, setInUseOpen] = useState(false)
+
+  const handleDelete = async () => {
+    const res = await prompt({
+      title: t("general.areYouSure"),
+      description: t("attributes.delete.confirmation", {
+        name: attribute.name,
+      }),
+      confirmText: t("actions.delete"),
+      cancelText: t("actions.cancel"),
+    })
+
+    if (!res) return
+
+    try {
+      await mutateAsync(undefined)
+      toast.success(
+        t("attributes.delete.successToast", { name: attribute.name })
+      )
+    } catch (err: any) {
+      const isInUse = err.message?.includes("can't be deleted")
+
+      if (isInUse) {
+        setInUseOpen(true)
+      } else {
+        toast.error(err.message)
+      }
+    }
+  }
+
+  return (
+    <>
+      <ActionMenu
+        groups={[
+          {
+            actions: [
+              {
+                label: t("actions.edit"),
+                to: `${attribute.id}/edit`,
+                icon: <PencilSquare />,
+              },
+            ],
+          },
+          {
+            actions: [
+              {
+                label: t("actions.delete"),
+                onClick: handleDelete,
+                icon: <Trash />,
+              },
+            ],
+          },
+        ]}
+      />
+      {createPortal(
+        <Prompt open={inUseOpen} variant="confirmation">
+          <Prompt.Content>
+            <Prompt.Header>
+              <Prompt.Title>{t("attributes.delete.title")}</Prompt.Title>
+              <Prompt.Description>
+                {t("attributes.delete.inUseMessage", {
+                  name: attribute.name,
+                })}
+              </Prompt.Description>
+            </Prompt.Header>
+            <Prompt.Footer>
+              <Prompt.Action onClick={() => setInUseOpen(false)}>
+                {t("attributes.delete.gotIt")}
+              </Prompt.Action>
+            </Prompt.Footer>
+          </Prompt.Content>
+        </Prompt>,
+        document.body
+      )}
+    </>
+  )
+}
+
+// --- Columns ---
+
+const columnHelper = createColumnHelper<any>()
 
 export const useAttributeTableColumns = () => {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const prompt = usePrompt();
+  const { t } = useTranslation()
 
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [currentAttribute, setCurrentAttribute] = useState<AttributeDTO | null>(
-    null,
-  );
-
-  const handleEdit = (attributeId: string) => {
-    navigate(`/settings/attributes/${attributeId}/edit`);
-  };
-
-  const handleToggleFilterable = async (
-    attributeId: string,
-    currentValue: boolean,
-    attribute: AttributeDTO,
-  ) => {
-    try {
-      await sdk.client.fetch(`/admin/attributes/${attributeId}`, {
-        method: "POST",
-        body: {
-          name: attribute.name,
-          description: attribute.description,
-          handle: attribute.handle,
-          is_filterable: !currentValue,
-          is_required: attribute.is_required,
-          ui_component: attribute.ui_component,
-          // metadata: {},
-          product_category_ids: attribute.product_categories?.map(
-            (category) => category.id,
-          ),
-          possible_values: attribute.possible_values?.map((value) => ({
-            id: value.id,
-            value: value.value,
-            rank: value.rank,
-            metadata: value.metadata,
-          })),
-        },
-      });
-
-      queryClient.invalidateQueries({ queryKey: attributeQueryKeys.lists() });
-      toast.success("Attribute updated!");
-    } catch (error) {
-      toast.error((error as Error).message);
-    }
-  };
-
-  const handleToggleGlobal = async (
-    attributeId: string,
-    newValue: boolean,
-    attribute: AttributeDTO,
-  ) => {
-    const isCurrentlyGlobal = !attribute.product_categories?.length;
-
-    if (isCurrentlyGlobal && !newValue) {
-      setCurrentAttribute(attribute);
-      setIsCategoryModalOpen(true);
-
-      return;
-    }
-
-    if (!isCurrentlyGlobal && newValue) {
-      try {
-        await sdk.client.fetch(`/admin/attributes/${attributeId}`, {
-          method: "POST",
-          body: {
-            name: attribute.name,
-            description: attribute.description,
-            handle: attribute.handle,
-            is_filterable: attribute.is_filterable,
-            is_required: attribute.is_required,
-            ui_component: attribute.ui_component,
-            product_category_ids: [],
-            possible_values: attribute.possible_values?.map((value) => ({
-              id: value.id,
-              value: value.value,
-              rank: value.rank,
-              metadata: value.metadata ?? {},
-            })),
-          },
-        });
-
-        queryClient.invalidateQueries({ queryKey: attributeQueryKeys.lists() });
-        queryClient.invalidateQueries({
-          queryKey: attributeQueryKeys.detail(attributeId),
-        });
-        toast.success("Attribute updated!");
-      } catch (error) {
-        toast.error((error as Error).message);
-      }
-
-      return;
-    }
-  };
-
-  const handleCategorySelection = async (selectedCategories: string[]) => {
-    if (!currentAttribute) return;
-
-    try {
-      await sdk.client.fetch(`/admin/attributes/${currentAttribute.id}`, {
-        method: "POST",
-        body: {
-          name: currentAttribute.name,
-          description: currentAttribute.description,
-          handle: currentAttribute.handle,
-          is_filterable: currentAttribute.is_filterable,
-          is_required: currentAttribute.is_required,
-          ui_component: currentAttribute.ui_component,
-          product_category_ids: selectedCategories,
-          possible_values: currentAttribute.possible_values?.map((value) => ({
-            id: value.id,
-            value: value.value,
-            rank: value.rank,
-            metadata: value.metadata,
-          })),
-        },
-      });
-
-      queryClient.invalidateQueries({ queryKey: attributeQueryKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: attributeQueryKeys.detail(currentAttribute.id),
-      });
-      toast.success("Attribute updated!");
-    } catch (error) {
-      toast.error((error as Error).message);
-    } finally {
-      setCurrentAttribute(null);
-      setIsCategoryModalOpen(false);
-    }
-  };
-
-  const handleDelete = async (attributeId: string, attributeName: string) => {
-    const confirmed = await prompt({
-      title: "Delete Attribute",
-      description: `You are about to delete attribute ${attributeName}. This action cannot be undone.`,
-      confirmText: "Delete",
-      cancelText: "Cancel",
-    });
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await sdk.client.fetch(`/admin/attributes/${attributeId}`, {
-        method: "DELETE",
-      });
-      toast.success("Attribute deleted!");
-      queryClient.invalidateQueries({ queryKey: attributeQueryKeys.lists() });
-    } catch (error) {
-      toast.error((error as Error).message);
-    }
-  };
-
-  const columns = useMemo(
+  return useMemo(
     () => [
       columnHelper.accessor("name", {
-        header: "Name",
+        header: () => t("attributes.fields.productAttribute"),
+        cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
       columnHelper.accessor("handle", {
-        header: "Handle",
+        header: () => t("attributes.fields.handle"),
+        cell: ({ getValue }) => <TextCell text={getValue() || "-"} />,
       }),
       columnHelper.accessor("is_filterable", {
-        header: "Filterable",
-        cell: (info) => {
-          const attribute = info.row.original;
-
-          return (
-            <div onClick={(e) => e.stopPropagation()}>
-              <Switch
-                checked={info.getValue()}
-                onCheckedChange={() =>
-                  handleToggleFilterable(
-                    attribute.id,
-                    info.getValue(),
-                    attribute,
-                  )
-                }
-                data-testid={`attribute-list-filterable-switch-${attribute.id}`}
-              />
-            </div>
-          );
-        },
+        header: () => t("attributes.fields.filterable"),
+        cell: ({ row }) => <FilterableToggle attribute={row.original} />,
       }),
-      columnHelper.accessor("product_categories", {
-        header: "Global",
-        cell: (info) => {
-          const attribute = info.row.original;
-          const isGlobal = !info.getValue()?.length;
-
-          return (
-            <Switch
-              checked={isGlobal}
-              onCheckedChange={(newValue) =>
-                handleToggleGlobal(attribute.id, newValue, attribute)
-              }
-              onClick={(e) => e.stopPropagation()}
-              data-testid={`attribute-list-global-switch-${attribute.id}`}
-            />
-          );
-        },
+      columnHelper.display({
+        id: "is_global",
+        header: () => t("attributes.fields.global"),
+        cell: ({ row }) => <GlobalToggle attribute={row.original} />,
       }),
-      columnHelper.accessor("possible_values", {
-        header: "Possible Values",
-        cell: (info) => {
-          const values = info.getValue();
-          if (!values || values.length === 0) {
-            return "-";
+      columnHelper.display({
+        id: "values",
+        header: () => t("attributes.fields.values"),
+        cell: ({ row }) => {
+          const values = row.original.possible_values ?? []
+          if (!values.length) {
+            return <span className="text-ui-fg-muted">-</span>
           }
-
-          if (values.length <= 3) {
-            return (
-              <div className="flex flex-wrap gap-2">
-                {values.map((value) => (
-                  <Badge size="xsmall" key={value.id}>
-                    {value.value}
-                  </Badge>
-                ))}
-              </div>
-            );
-          }
-
-          const remainingCount = values.length - 2;
-
+          const visible = values.slice(0, MAX_VISIBLE_VALUES)
+          const remaining = values.length - MAX_VISIBLE_VALUES
           return (
-            <div className="flex flex-wrap gap-2">
-              {values.slice(0, 2).map((value) => (
-                <Badge size="xsmall" key={value.id}>
-                  {value.value}
+            <div className="flex items-center gap-x-1">
+              {visible.map((v: any) => (
+                <Badge key={v.id} size="2xsmall" color="grey">
+                  {v.value}
                 </Badge>
               ))}
-              <Badge size="xsmall" color="grey">
-                +{remainingCount}
-              </Badge>
+              {remaining > 0 && (
+                <Badge size="2xsmall" color="grey">
+                  +{remaining}
+                </Badge>
+              )}
             </div>
-          );
+          )
         },
       }),
       columnHelper.display({
         id: "actions",
-        header: "",
-        cell: (info) => {
-          const attribute = info.row.original;
-
-          return (
-            <div className="flex items-center justify-end">
-              <DropdownMenu>
-                <DropdownMenu.Trigger asChild>
-                  <IconButton
-                    variant="transparent"
-                    size="small"
-                    data-testid={`attribute-list-row-action-menu-trigger-${attribute.id}`}
-                  >
-                    <EllipsisHorizontal />
-                  </IconButton>
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content
-                  align="end"
-                  data-testid={`attribute-list-row-action-menu-${attribute.id}`}
-                >
-                  <DropdownMenu.Item
-                    onClick={(e) => {
-                      (e.stopPropagation(), handleEdit(attribute.id));
-                    }}
-                    data-testid={`attribute-list-row-edit-action-${attribute.id}`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <PencilSquare /> Edit
-                    </span>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item
-                    onClick={(e) => {
-                      (e.stopPropagation(),
-                        handleDelete(attribute.id, attribute.name));
-                    }}
-                    data-testid={`attribute-list-row-delete-action-${attribute.id}`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <Trash /> Delete
-                    </span>
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu>
-            </div>
-          );
-        },
+        cell: ({ row }) => <AttributeActions attribute={row.original} />,
       }),
     ],
-    [navigate, queryClient, prompt, handleToggleFilterable, handleToggleGlobal],
-  );
-
-  return {
-    columns,
-    modal: (
-      <CategorySelectionModal
-        open={isCategoryModalOpen}
-        onOpenChange={setIsCategoryModalOpen}
-        onConfirm={handleCategorySelection}
-      />
-    ),
-  };
-};
+    [t]
+  )
+}

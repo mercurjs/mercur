@@ -21,7 +21,7 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId =  req.seller_context!.seller_id
 
   await validateSellerProduct(req.scope, sellerId, req.params.id)
 
@@ -40,7 +40,7 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId = req.auth_context.actor_id
+  const sellerId =  req.seller_context!.seller_id
   const { additional_data, ...update } = req.validatedBody
 
   await validateSellerProduct(req.scope, sellerId, req.params.id)
@@ -71,7 +71,7 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorDeleteResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId =  req.seller_context!.seller_id
 
   await validateSellerProduct(req.scope, sellerId, req.params.id)
 

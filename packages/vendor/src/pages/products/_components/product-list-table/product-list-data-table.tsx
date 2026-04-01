@@ -7,7 +7,8 @@ import {
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Trash } from "@medusajs/icons";
+import { useNavigate } from "react-router-dom";
+import { PencilSquare, Trash } from "@medusajs/icons";
 
 import { ExtendedAdminProduct } from "@custom-types/products";
 import { ActionMenu } from "@components/common/action-menu";
@@ -26,6 +27,7 @@ export const PAGE_SIZE = 10;
 
 export const ProductListDataTable = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
@@ -133,6 +135,21 @@ export const ProductListDataTable = () => {
         },
       ]}
       commands={[
+        {
+          action: () => {
+            const selectedIds = Object.keys(rowSelection)
+            const selectedProducts = (products ?? []).filter((p: any) =>
+              selectedIds.includes(p.id)
+            )
+            if (selectedProducts.length > 0) {
+              navigate("bulk-edit", {
+                state: { products: selectedProducts },
+              })
+            }
+          },
+          label: t("actions.edit"),
+          shortcut: "e",
+        },
         {
           action: handleDelete,
           label: t("actions.delete"),

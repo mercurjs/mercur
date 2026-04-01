@@ -17,7 +17,7 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorShippingOptionResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerShippingOption(req.scope, sellerId, req.params.id)
 
@@ -41,7 +41,7 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateShippingOptionType>,
   res: MedusaResponse<HttpTypes.VendorShippingOptionResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerShippingOption(req.scope, sellerId, req.params.id)
 
@@ -72,7 +72,7 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorShippingOptionDeleteResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
   const shippingOptionId = req.params.id
 
   await validateSellerShippingOption(req.scope, sellerId, shippingOptionId)

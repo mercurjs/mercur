@@ -56,6 +56,7 @@ interface ComboboxProps<T extends Value = Value>
   fetchNextPage?: () => void
   isFetchingNextPage?: boolean
   onCreateOption?: (value: string) => void
+  hideCreateOption?: boolean
   noResultsPlaceholder?: ReactNode
   allowClear?: boolean
   forceHideInput?: boolean // always hide input -> used for singe value select that don't have query/filter
@@ -73,6 +74,7 @@ const ComboboxImpl = <T extends Value = string>(
     fetchNextPage,
     isFetchingNextPage,
     onCreateOption,
+    hideCreateOption,
     noResultsPlaceholder,
     allowClear,
     forceHideInput,
@@ -193,6 +195,15 @@ const ComboboxImpl = <T extends Value = string>(
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
+      // Auto-create on close when hideCreateOption is set and there's unmatched text
+      if (hideCreateOption && onCreateOption && uncontrolledSearchValue.trim()) {
+        const matchesExisting = options.some(
+          (o) => o.label?.toLowerCase() === uncontrolledSearchValue.trim().toLowerCase()
+        )
+        if (!matchesExisting) {
+          onCreateOption(uncontrolledSearchValue.trim())
+        }
+      }
       setUncontrolledSearchValue("")
     }
 
@@ -205,7 +216,7 @@ const ComboboxImpl = <T extends Value = string>(
   const showSelected = showTag && !searchValue && !open
 
   const hideInput = forceHideInput || (!isArrayValue && hasValue && !open)
-  const selectedLabel = options.find((o) => o.value === selectedValues)?.label
+  const selectedLabel = options.find((o) => o.value === selectedValues)?.label || (typeof selectedValues === "string" ? selectedValues : undefined)
 
   const hidePlaceholder = showSelected || open
 
@@ -370,10 +381,10 @@ const ComboboxImpl = <T extends Value = string>(
               }
             )}
           >
-            <PrimitiveComboboxItemCheck className="flex !size-5 items-center justify-center">
+            <PrimitiveComboboxItemCheck className="flex !size-5 shrink-0 items-center justify-center">
               {isArrayValue ? <CheckMini /> : <EllipseMiniSolid />}
             </PrimitiveComboboxItemCheck>
-            <PrimitiveComboboxItemValue className="txt-compact-small">
+            <PrimitiveComboboxItemValue className="txt-compact-small truncate">
               {label}
             </PrimitiveComboboxItemValue>
           </PrimitiveComboboxItem>
@@ -398,7 +409,7 @@ const ComboboxImpl = <T extends Value = string>(
               </Text>
             </div>
           ))}
-        {!results.length && onCreateOption && (
+        {!results.length && onCreateOption && !hideCreateOption && (
           <Fragment>
             <PrimitiveSeparator className="bg-ui-border-base -mx-1" />
             <PrimitiveComboboxItem

@@ -34,7 +34,7 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateShippingProfileType>,
   res: MedusaResponse<HttpTypes.VendorShippingProfileResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   const { result } = await createSellerShippingProfilesWorkflow(req.scope).run({
     input: {

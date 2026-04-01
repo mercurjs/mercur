@@ -2748,6 +2748,92 @@
       "createdByLabel": "Created by"
     }
   },
+  "attributes": {
+    "domain": "Product Attributes",
+    "subtitle": "Manage product attributes and their possible values.",
+    "list": {
+      "title": "Product Attributes",
+      "noRecordsMessage": "No product attributes have been created yet."
+    },
+    "create": {
+      "header": "Create Attribute",
+      "subtitle": "Define a new product attribute.",
+      "tabs": {
+        "details": "Details",
+        "type": "Type"
+      },
+      "fillNameWarning": "Please fill in at least the name field before proceeding to Type configuration.",
+      "possibleValuesRequired": "At least one possible value is required for this type",
+      "successToast": "Attribute \"{{name}}\" was successfully created."
+    },
+    "edit": {
+      "header": "Edit Attribute",
+      "subtitle": "Update attribute details.",
+      "successToast": "Attribute \"{{name}}\" was successfully updated."
+    },
+    "editPossibleValue": {
+      "header": "Edit Possible Value",
+      "subtitle": "Update the possible value details.",
+      "successToast": "Possible value \"{{value}}\" was successfully updated."
+    },
+    "createPossibleValues": {
+      "header": "Create values",
+      "subtitle": "Create additional values to \"{{name}}\" attribute.",
+      "tabs": {
+        "values": "Values",
+        "organizeRanking": "Organize Ranking"
+      },
+      "addValue": "Add value",
+      "enterValue": "Enter value",
+      "successToast": "Values were successfully created."
+    },
+    "deletePossibleValue": {
+      "title": "Delete value",
+      "confirmation": "You are about to delete the possible value \"{{value}}\". This action cannot be undone.",
+      "successToast": "Possible value \"{{value}}\" was successfully deleted.",
+      "inUseMessage": "Value {{value}} can't be deleted because it's currently used by one or more Vendors in their product variants. To edit it, ask the Vendors to update their products first."
+    },
+    "delete": {
+      "title": "Delete attribute",
+      "confirmation": "You are about to delete the attribute \"{{name}}\". This action cannot be undone.",
+      "successToast": "Attribute \"{{name}}\" was successfully deleted.",
+      "inUseMessage": "Attribute {{name}} can't be deleted because it's currently used by one or more Vendors in their product variants. To delete it, ask the Vendors to update their products first.",
+      "gotIt": "Got it"
+    },
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "description": "Description",
+      "type": "Type",
+      "filterable": "Filterable",
+      "required": "Required",
+      "global": "Global",
+      "category": "Category",
+      "categories": "Product Categories",
+      "productAttribute": "Product Attribute",
+      "values": "Values",
+      "possibleValues": "Possible Values",
+      "value": "Value",
+      "rank": "Rank",
+      "metadata": "Metadata"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    },
+    "selectCategory": {
+      "title": "Select category",
+      "description": "Please select the category where this attribute applies.",
+      "placeholder": "Select category"
+    },
+    "hints": {
+      "global": "When enabled, this attribute applies to all products regardless of category.",
+      "categoryInheritance": "Child categories will inherit this attribute."
+    }
+  },
   "returnReasons": {
     "domain": "Return Reasons",
     "subtitle": "Manage reasons for returned items.",
@@ -3209,13 +3295,6 @@
         "confirmText": "Update",
         "cancelText": "Cancel"
       }
-    }
-  },
-  "attributes": {
-    "domain": "Product Attributes",
-    "create": {
-      "fillNameWarning": "Please fill in at least the name field before proceeding to Type configuration.",
-      "possibleValuesRequired": "At least one possible value is required for this type"
     }
   },
   "requests": {

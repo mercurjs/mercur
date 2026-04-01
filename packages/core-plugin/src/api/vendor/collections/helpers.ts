@@ -27,7 +27,7 @@ export const wrapCollectionsWithProducts = async (collections: ProductCollection
   const { data: sellerProducts } = await query.graph({
     entity: "product_seller",
     filters: {
-      seller_id: req.auth_context.actor_id,
+      seller_id: req.seller_context!.seller_id,
     },
     fields: ["product.*"],
   })

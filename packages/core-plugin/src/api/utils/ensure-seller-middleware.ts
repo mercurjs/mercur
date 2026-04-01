@@ -16,7 +16,21 @@ export async function ensureSellerMiddleware(
   res: MedusaResponse,
   next: MedusaNextFunction
 ) {
-  const sellerId = req.get(SELLER_ID_HEADER) || req.session?.seller_id
+  let sellerId = req.get(SELLER_ID_HEADER) || req.session?.seller_id
+
+  // If no seller_id from header or session, resolve from member's seller associations
+  if (!sellerId && req.auth_context?.actor_id) {
+    const q = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+    const { data: members } = await q.graph({
+      entity: "member",
+      fields: ["sellers.id"],
+      filters: { id: req.auth_context.actor_id },
+    })
+
+    if (members?.[0]?.sellers?.[0]?.id) {
+      sellerId = members[0].sellers[0].id
+    }
+  }
 
   if (!sellerId) {
     return next(

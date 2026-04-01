@@ -7,4 +7,6 @@ export enum MercurModules {
     VENDOR_UI = "vendor_ui",
     ADMIN_UI = "admin_ui",
     CODEGEN = "codegen",
+    ATTRIBUTE = "attribute",
+    VENDOR_PRODUCT_ATTRIBUTE = "vendor_product_attribute",
 }

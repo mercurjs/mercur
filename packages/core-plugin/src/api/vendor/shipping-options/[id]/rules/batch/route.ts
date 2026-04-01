@@ -21,7 +21,7 @@ export const POST = async (
   >,
   res: MedusaResponse<HttpTypes.VendorUpdateShippingOptionRulesResponse>
 ) => {
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
   const id = req.params.id
 
   await validateSellerShippingOption(req.scope, sellerId, id)

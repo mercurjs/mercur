@@ -7,6 +7,7 @@ import {
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
+  useQueries,
   useQuery,
 } from "@tanstack/react-query";
 
@@ -229,6 +230,9 @@ export const useUpdateInventoryLevel = (
         queryKey: inventoryItemLevelsQueryKeys.detail(inventoryItemId),
       });
       queryClient.invalidateQueries({
+        queryKey: inventoryItemLevelsQueryKeys.lists(),
+      });
+      queryClient.invalidateQueries({
         queryKey: variantsQueryKeys.details(),
       });
       options?.onSuccess?.(data, variables, context);
@@ -277,6 +281,84 @@ export const useBatchInventoryItemLocationLevels = (
   });
 };
 
+export type InventoryItemLocationLevel = {
+  id: string
+  location_id: string
+  stocked_quantity: number
+  reserved_quantity: number
+  incoming_quantity: number
+  available_quantity: number
+}
+
+export type InventoryItemWithLevels = {
+  inventory_item_id: string
+  location_levels: InventoryItemLocationLevel[]
+}
+
+type UseMultipleInventoryItemLevelsReturn = {
+  inventoryItemsWithLevels: InventoryItemWithLevels[]
+  allLocationLevels: InventoryItemLocationLevel[]
+  isPending: boolean
+  isRefetching: boolean
+  isError: boolean
+  error: Error | null | undefined
+  refetch: () => Promise<void>
+}
+
+export const useMultipleInventoryItemLevels = (
+  inventoryItemIds: string[],
+  query?: Record<string, any>
+): UseMultipleInventoryItemLevelsReturn => {
+  const queries = useQueries({
+    queries: inventoryItemIds.map((id) => ({
+      queryKey: inventoryItemLevelsQueryKeys.detail(id, query),
+      queryFn: () =>
+        fetchQuery(`/vendor/inventory-items/${id}/location-levels`, {
+          method: "GET",
+          query: { fields: "*stock_locations", ...query } as {
+            [key: string]: string | number
+          },
+        }),
+      enabled: Boolean(id),
+    })),
+  })
+
+  const isPending = queries.some((q) => q.isPending)
+  const isRefetching = queries.some((q) => q.isRefetching)
+  const isError = queries.some((q) => q.isError)
+  const error = queries.find((q) => q.error)?.error
+
+  const allLocationLevels: InventoryItemLocationLevel[] = queries
+    .filter((q) => q.data?.inventory_levels)
+    .flatMap((q) => q.data?.inventory_levels || [])
+
+  const inventoryItemsWithLevels: InventoryItemWithLevels[] = queries
+    .map((query, index) => {
+      if (query.data?.inventory_levels) {
+        return {
+          inventory_item_id: inventoryItemIds[index],
+          location_levels: query.data.inventory_levels as InventoryItemLocationLevel[],
+        }
+      }
+      return null
+    })
+    .filter((item): item is InventoryItemWithLevels => item !== null)
+
+  const refetch = async () => {
+    await Promise.all(queries.map((q) => q.refetch()))
+  }
+
+  return {
+    inventoryItemsWithLevels,
+    allLocationLevels,
+    isPending,
+    isRefetching,
+    isError,
+    error,
+    refetch,
+  }
+}
+
 export const useBatchInventoryItemsLocationLevels = (
   options?: UseMutationOptions<
     InferClientOutput<
@@ -294,6 +376,9 @@ export const useBatchInventoryItemsLocationLevels = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: inventoryItemLevelsQueryKeys.all,
       });
       queryClient.invalidateQueries({
         queryKey: variantsQueryKeys.lists(),

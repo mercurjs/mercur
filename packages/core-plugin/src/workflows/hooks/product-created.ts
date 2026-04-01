@@ -5,6 +5,8 @@ import { LinkDefinition } from "@medusajs/framework/types"
 import { Link, Query } from "@medusajs/framework/modules-sdk"
 import { MercurModules } from "@mercurjs/types"
 
+import { productsCreatedHookHandler } from "../product-attribute/utils/products-created-handler"
+
 createProductsWorkflow.hooks.productsCreated(
   async ({ products, additional_data }, { container }) => {
     if (!additional_data?.seller_id) {
@@ -65,6 +67,13 @@ createProductsWorkflow.hooks.productsCreated(
     if (inventoryLinks.length) {
       await link.create(inventoryLinks)
     }
+
+    // Process attribute assignments from additional_data
+    await productsCreatedHookHandler({
+      products,
+      additional_data: additional_data as Record<string, unknown>,
+      container,
+    })
 
     return new StepResponse(
       { productLinks: links, inventoryLinks },

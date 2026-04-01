@@ -37,6 +37,7 @@ import { vendorSubscriptionMiddlewares } from "./subscription/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
 import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
+import { vendorAttributesMiddlewares } from "./attributes/middlewares"
 
 const unauthenticatedRoutes = [
   /^\/vendor\/sellers$/,
@@ -68,6 +69,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   },
   {
     matcher: "/vendor/*",
+    method: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     middlewares: [
       vendorCorsMiddleware,
       unlessBaseUrl(
@@ -115,4 +117,5 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorUploadsMiddlewares,
   ...vendorProductTagsMiddlewares,
   ...vendorSubscriptionMiddlewares,
+  ...vendorAttributesMiddlewares,
 ]

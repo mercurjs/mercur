@@ -19,7 +19,7 @@ export const POST = async (
   res: MedusaResponse<AdminProductCategoryResponse>
 ) => {
   const { id } = req.params
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
 
   const productIdsToValidate = [
     ...(req.validatedBody.add || []),

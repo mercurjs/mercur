@@ -15,7 +15,7 @@ type UpdateSellerAddressWorkflowInput = {
   data: UpdateSellerAddressDTO
 } & AdditionalData
 
-export const updateSellerAddressWorkflow = createWorkflow(
+export const updateSellerAddressWorkflow: ReturnType<typeof createWorkflow> = createWorkflow(
   updateSellerAddressWorkflowId,
   function (input: UpdateSellerAddressWorkflowInput) {
     const address = updateSellerAddressStep(input)

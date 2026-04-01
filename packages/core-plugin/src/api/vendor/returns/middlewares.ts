@@ -36,13 +36,13 @@ const applySellerOrderLinkFilter = async (
   if (req.filterableFields.order_id) {
     await validateSellerOrder(
       req.scope,
-      req.auth_context.actor_id,
+      req.seller_context!.seller_id,
       req.filterableFields.order_id as string | string[]
     )
     return next()
   }
 
-  req.filterableFields.seller_id = req.auth_context.actor_id
+  req.filterableFields.seller_id = req.seller_context!.seller_id
 
   return maybeApplyLinkFilter({
     entryPoint: "order_seller",

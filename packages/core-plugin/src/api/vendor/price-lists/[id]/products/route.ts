@@ -18,7 +18,7 @@ export const POST = async (
   res: MedusaResponse<VendorHttpTypes.VendorPriceListResponse>
 ) => {
   const id = req.params.id
-  const sellerId = req.auth_context.actor_id
+  const sellerId = req.seller_context!.seller_id
   const { remove = [] } = req.validatedBody
 
   await validateSellerPriceList(req.scope, sellerId, id)
