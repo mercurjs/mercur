@@ -6,6 +6,13 @@
     "url": "https://github.com/mercurjs/mercur",
     "directory": "packages/types"
   },
+  "keywords": [
+    "marketplace",
+    "multi-vendor",
+    "medusajs",
+    "ecommerce",
+    "marketplace-types"
+  ],
   "description": "Type definitions for Mercur",
   "author": "Mercur",
   "license": "MIT",

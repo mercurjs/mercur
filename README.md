@@ -45,6 +45,16 @@ technology stack.
 - **CLI** — `@mercurjs/cli` for scaffolding projects, adding blocks, and managing registries
 - **Full code ownership** — code is copied into your project, no black-box dependencies
 
+## Using with AI Agents
+
+Mercur is built to be AI-agent friendly. Your AI coding assistant can use these resources to understand and work with Mercur projects:
+
+- **MCP Server**: `https://docs.mercurjs.com/mcp` — connect your agent for documentation search
+- **llms.txt**: `https://docs.mercurjs.com/llms.txt` — machine-readable project summary
+- **AGENTS.md**: included in every project created with `mercurjs create` — gives agents instant project context
+- **Skills**: `.claude/skills/` shipped with templates — domain-specific patterns for Claude Code
+- **AI Development Guide**: [docs.mercurjs.com/v2/ai-development/mcp](https://docs.mercurjs.com/v2/ai-development/mcp)
+
 ## Why Choose Mercur?
 
 - Full Ownership: Unlike SaaS platforms, you own your

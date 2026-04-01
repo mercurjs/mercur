@@ -9,6 +9,14 @@
   "type": "commonjs",
   "author": "MercurJS (https://github.com/mercurjs)",
   "license": "MIT",
+  "keywords": [
+    "marketplace",
+    "multi-vendor",
+    "medusajs",
+    "ecommerce",
+    "marketplace-client",
+    "api-client"
+  ],
   "publishConfig": {
     "access": "public"
   },

@@ -9,6 +9,16 @@
   "type": "module",
   "description": "Mercur CLI",
   "author": "MercurJS (https://github.com/mercurjs)",
+  "keywords": [
+    "marketplace",
+    "multi-vendor",
+    "medusajs",
+    "ecommerce",
+    "open-source-marketplace",
+    "headless-commerce",
+    "ai-ready",
+    "marketplace-framework"
+  ],
   "publishConfig": {
     "access": "public"
   },

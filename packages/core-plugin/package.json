@@ -27,9 +27,14 @@
     "./*": "./.medusa/server/src/*.js"
   },
   "keywords": [
-    "medusa",
-    "plugin",
-    "medusa-plugin-other",
+    "marketplace",
+    "multi-vendor",
+    "medusajs",
+    "ecommerce",
+    "open-source-marketplace",
+    "headless-commerce",
+    "ai-ready",
+    "marketplace-framework",
     "medusa-plugin",
     "medusa-v2"
   ],
