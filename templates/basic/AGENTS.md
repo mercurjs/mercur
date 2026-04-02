@@ -27,13 +27,13 @@
 
 ```bash
 # Add blocks from the Mercur registry
-mercurjs add <block-name>
+bunx @mercurjs/cli add <block-name>
 
 # Search available blocks
-mercurjs search -q "commission"
+bunx @mercurjs/cli search -q "commission"
 
 # Generate TypeScript types from API routes
-mercurjs codegen
+bunx @mercurjs/cli codegen
 
 # Start development server
 bun run dev
@@ -53,7 +53,7 @@ Mercur uses reusable blocks installed into your project:
 Install blocks:
 
 ```bash
-mercurjs add seller commission payout
+bunx @mercurjs/cli add seller commission payout
 ```
 
 ## Skills

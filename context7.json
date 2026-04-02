@@ -1,20 +1,4 @@
 {
-  "$schema": "https://context7.com/schema/context7.json",
-  "projectTitle": "Mercur",
-  "description": "Open-source AI-native marketplace framework built on MedusaJS v2. Provides blocks for seller management, commissions, payouts, order splitting, and vendor portals.",
-  "folders": [
-    "apps/docs/v2/"
-  ],
-  "excludeFolders": [
-    "apps/docs/v2/changelog",
-    "apps/docs/api-reference"
-  ],
-  "rules": [
-    "Mercur extends MedusaJS v2 — do not confuse with Medusa v1 patterns.",
-    "Use the block-based CLI (mercurjs add) to install features, not npm packages.",
-    "Modules are resolved via MercurModules enum, not string service names.",
-    "Seller statuses are: pending_approval, open, suspended, terminated."
-  ],
   "url": "https://context7.com/mercurjs/mercur",
   "public_key": "pk_mIfToseksi2vDdrKBjkFu"
 
