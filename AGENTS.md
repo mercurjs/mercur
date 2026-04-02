@@ -40,16 +40,16 @@ mercur/
 bunx @mercurjs/cli@latest create my-marketplace
 
 # Add blocks from registry
-mercurjs add <block-name>
+bunx @mercurjs/cli@latest add <block-name>
 
 # Generate TypeScript types from API routes
-mercurjs codegen
+bunx @mercurjs/cli@latest codegen
 
 # Search available blocks
-mercurjs search -q "commission"
+bunx @mercurjs/cli@latest search -q "commission"
 
 # View block details
-mercurjs view <block-name>
+bunx @mercurjs/cli@latest view <block-name>
 ```
 
 ## Block System
@@ -66,7 +66,7 @@ Mercur uses a block-based architecture where reusable pieces of functionality ar
 Install blocks with `mercurjs add`:
 
 ```bash
-mercurjs add seller commission payout
+bunx @mercurjs/cli@latest add seller commission payout
 ```
 
 ## Skills
