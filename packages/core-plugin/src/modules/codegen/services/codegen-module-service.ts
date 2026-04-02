@@ -38,7 +38,7 @@ export default class CodegenModuleService {
         ]
 
         const runner = lockfiles.find(([file]) => existsSync(join(cwd, file)))
-        return `${runner ? runner[1] : "npx"} mercurjs codegen`
+        return `${runner ? runner[1] : "npx"} @mercurjs/cli codegen`
     }
 
     private runCodegen_(): Promise<void> {
