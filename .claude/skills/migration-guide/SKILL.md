@@ -44,7 +44,7 @@ Based on classification, read from `docs/migrations/mercur-1.x-to-2.0/`:
 
 1. Set up fresh 2.0 project (see README.md)
 2. Update `medusa-config.ts` (plugins, modules, providers)
-3. Add registry blocks (`mercurjs add <block>`)
+3. Add registry blocks (`bunx @mercurjs/cli@latest add <block>`)
 4. Port custom backend code in order: providers → modules → workflows → links → subscribers → API routes → middlewares
 5. Port dashboard code (if applicable)
 6. Verify at each checkpoint

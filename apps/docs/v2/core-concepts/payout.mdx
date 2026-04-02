@@ -115,6 +115,59 @@ PayoutAccount
 └── Payout (one-to-many, per-order transfers)
 ```
 
+## Configuration example
+
+```typescript
+// medusa-config.ts
+{
+  resolve: "./modules/payout",
+  options: {
+    // How long payment authorizations are valid
+    authorizationWindowMs: 7 * 24 * 60 * 60 * 1000, // 7 days
+
+    // Time for seller to fulfill before capture
+    sellerActionWindowMs: 72 * 60 * 60 * 1000, // 72 hours
+
+    // Safety margin before authorization expiry
+    captureSafetyBufferMs: 24 * 60 * 60 * 1000, // 24 hours
+
+    // Minimum fulfillment status before capture
+    requiredFulfillmentStatus: "fulfilled",
+  },
+}
+```
+
+## API examples
+
+### Get seller's payout account (Vendor API)
+
+```bash
+curl http://localhost:9000/vendor/payout-accounts/<account-id> \
+  -H "Authorization: Bearer <seller-token>"
+```
+
+### Create payout onboarding (Vendor API)
+
+Initiates provider onboarding (e.g. Stripe Connect account setup). The `data` and `context` fields are passed to the payout provider:
+
+```bash
+curl -X POST http://localhost:9000/vendor/payout-accounts/<account-id>/onboarding \
+  -H "Authorization: Bearer <seller-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "context": {
+      "return_url": "https://my-store.com/settings/payouts"
+    }
+  }'
+```
+
+### List payouts (Admin API)
+
+```bash
+curl http://localhost:9000/admin/payouts \
+  -H "Authorization: Bearer <admin-token>"
+```
+
 ## Provider abstraction
 
 The payout module is **provider-agnostic**. A `PayoutProviderService` acts as a bridge to the external payment processor. It delegates all external operations — creating accounts, processing payouts, parsing webhooks — to a pluggable provider implementation.

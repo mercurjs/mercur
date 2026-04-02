@@ -83,6 +83,53 @@ The `getCommissionLines` method calculates commissions for a given cart or order
   All commission calculations use `BigNumber` arithmetic for precision. This is critical for financial accuracy — standard floating-point math can introduce rounding errors.
 </Info>
 
+## API examples
+
+### Create a commission rate (Admin API)
+
+```bash
+curl -X POST http://localhost:9000/admin/commission-rates \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Default Product Commission",
+    "code": "default-product",
+    "type": "percentage",
+    "target": "item",
+    "value": 15,
+    "priority": 0
+  }'
+```
+
+### Create a rate with rules (Admin API)
+
+```bash
+curl -X POST http://localhost:9000/admin/commission-rates \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Electronics Commission",
+    "code": "electronics",
+    "type": "percentage",
+    "target": "item",
+    "value": 12,
+    "priority": 10,
+    "rules": [
+      {
+        "reference": "product_category",
+        "reference_id": "pcat_electronics"
+      }
+    ]
+  }'
+```
+
+### List commission rates
+
+```bash
+curl http://localhost:9000/admin/commission-rates \
+  -H "Authorization: Bearer <admin-token>"
+```
+
 ## Commission lines
 
 A **CommissionLine** is the calculated commission for a single line item or shipping method. It stores:

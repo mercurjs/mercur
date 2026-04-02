@@ -115,6 +115,64 @@ A seller is linked to many entities across the system:
 | Promotions | One-to-many | Seller-created promotions and discounts |
 | Price Lists | One-to-many | Custom pricing rules |
 
+## API examples
+
+### Register a seller (Vendor API)
+
+The seller registration endpoint allows unauthenticated users to create a new seller account. The seller starts in `PENDING_APPROVAL` status.
+
+```bash
+curl -X POST http://localhost:9000/vendor/sellers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Electronics",
+    "email": "hello@acme.com",
+    "member_email": "owner@acme.com",
+    "currency_code": "eur",
+    "address": {
+      "company": "Acme Electronics Ltd",
+      "address_1": "123 Market Street",
+      "city": "Berlin",
+      "country_code": "de",
+      "postal_code": "10115"
+    }
+  }'
+```
+
+### Create a seller (Admin API)
+
+Admins can create sellers directly with a specified status and send a member invite:
+
+```bash
+curl -X POST http://localhost:9000/admin/sellers \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Electronics",
+    "email": "hello@acme.com",
+    "currency_code": "eur",
+    "member": {
+      "email": "owner@acme.com"
+    }
+  }'
+```
+
+### List sellers (Admin API)
+
+```bash
+curl http://localhost:9000/admin/sellers \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+### Approve a seller (Admin API)
+
+Approves a seller in `PENDING_APPROVAL` status, changing it to `OPEN`:
+
+```bash
+curl -X POST http://localhost:9000/admin/sellers/slr_abc123/approve \
+  -H "Authorization: Bearer <admin-token>"
+```
+
 ## Extension points
 
 The order completion workflow provides hooks for custom logic:

@@ -2,6 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "MercurJS documentation",
+  "description": "Mercur is an open-source AI-native marketplace framework built on MedusaJS v2. It provides block-based architecture for building multi-vendor marketplaces with seller management, commissions, order splitting, payouts, admin panel, and vendor portal. Code is copied directly into your project — full ownership, no black-box dependencies.",
   "logo": {
     "dark": "/logo.svg",
     "light": "/logo_dark.svg"
