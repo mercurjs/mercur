@@ -63,7 +63,7 @@ Mercur uses a block-based architecture where reusable pieces of functionality ar
 - **Admin Extensions** — UI components for the admin dashboard
 - **Vendor Extensions** — UI components for the vendor portal
 
-Install blocks with `mercurjs add`:
+Install blocks with `bunx @mercurjs/cli add`:
 
 ```bash
 bunx @mercurjs/cli@latest add seller commission payout
