@@ -884,6 +884,35 @@ export function getRouteMap({
                 lazy: () => import("./pages/settings"),
               },
 
+              // PROFILE
+              {
+                path: "profile",
+                errorElement: <ErrorBoundary />,
+                handle: {
+                  breadcrumb: () => t("profile.domain"),
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: async () => {
+                      const { ProfileDetailPage } =
+                        await import("./pages/settings/profile");
+                      return { Component: ProfileDetailPage };
+                    },
+                    children: [
+                      {
+                        path: "edit",
+                        lazy: async () => {
+                          const { ProfileEdit } =
+                            await import("./pages/settings/profile");
+                          return { Component: ProfileEdit };
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
+
               // STORE
               {
                 path: "store",

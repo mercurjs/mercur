@@ -40,6 +40,10 @@ const useSettingRoutes = (): INavItem[] => {
   return useMemo(
     () => [
       {
+        label: t("profile.domain"),
+        to: "/settings/profile",
+      },
+      {
         label: t("app.menus.store.label"),
         to: "/settings/store",
       },

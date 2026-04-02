@@ -2,6 +2,7 @@ import {
   BookOpen,
   CircleHalfSolid,
   EllipsisHorizontal,
+  GlobeEurope,
   Keyboard,
   OpenRectArrowOut,
   TimelineVertical,
@@ -30,6 +31,7 @@ import { queryClient } from "../../../lib/query-client";
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks";
 import { useTheme } from "../../../providers/theme-provider";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
+import { languages } from "../../../i18n/languages";
 
 export const UserMenu = () => {
   const { t } = useTranslation();
@@ -76,6 +78,7 @@ export const UserMenu = () => {
             {t("app.menus.user.shortcuts")}
           </DropdownMenu.Item>
           <ThemeToggle />
+          <LanguageToggle />
           <DropdownMenu.Separator />
           <Logout />
         </DropdownMenu.Content>
@@ -187,6 +190,48 @@ export const ThemeToggle = () => {
           >
             {t("app.menus.user.theme.dark")}
           </DropdownMenu.RadioItem>
+        </DropdownMenu.RadioGroup>
+      </DropdownMenu.SubMenuContent>
+    </DropdownMenu.SubMenu>
+  );
+};
+
+export const LanguageToggle = () => {
+  const { t, i18n } = useTranslation();
+
+  const sortedLanguages = languages.sort((a, b) =>
+    a.display_name.localeCompare(b.display_name)
+  );
+
+  const currentLanguage = sortedLanguages.find(
+    (lang) => lang.code === i18n.language
+  );
+
+  return (
+    <DropdownMenu.SubMenu>
+      <DropdownMenu.SubMenuTrigger
+        dir="ltr"
+        className="rounded-md rtl:rotate-180"
+      >
+        <GlobeEurope className="text-ui-fg-subtle me-2" />
+        <span className="rtl:rotate-180">
+          {currentLanguage?.display_name ?? t("profile.fields.languageLabel")}
+        </span>
+      </DropdownMenu.SubMenuTrigger>
+      <DropdownMenu.SubMenuContent className="max-h-[300px] overflow-y-auto">
+        <DropdownMenu.RadioGroup value={i18n.language}>
+          {sortedLanguages.map((language) => (
+            <DropdownMenu.RadioItem
+              key={language.code}
+              value={language.code}
+              onClick={(e) => {
+                e.preventDefault();
+                i18n.changeLanguage(language.code);
+              }}
+            >
+              {language.display_name}
+            </DropdownMenu.RadioItem>
+          ))}
         </DropdownMenu.RadioGroup>
       </DropdownMenu.SubMenuContent>
     </DropdownMenu.SubMenu>
