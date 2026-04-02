@@ -66,6 +66,26 @@ const Root = ({ children }: { children?: ReactNode }) => {
     }
   })();
 
+  if (Children.count(children) > 0) {
+    return (
+      <div className="flex flex-col gap-y-3">
+        {statusAlert && (
+          <Alert variant={statusAlert.variant} dismissible className="p-5">
+            <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">
+              {statusAlert.title}
+            </div>
+            <Text className="text-ui-fg-subtle txt-small leading-normal">
+              {statusAlert.description}
+            </Text>
+          </Alert>
+        )}
+        <TwoColumnPage data={seller} hasOutlet>
+          {children}
+        </TwoColumnPage>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-y-3">
       {statusAlert && (
@@ -78,27 +98,21 @@ const Root = ({ children }: { children?: ReactNode }) => {
           </Text>
         </Alert>
       )}
-      {Children.count(children) > 0 ? (
-        <TwoColumnPage data={seller} hasOutlet>
-          {children}
-        </TwoColumnPage>
-      ) : (
-        <TwoColumnPage data={seller} hasOutlet>
-          <TwoColumnPage.Main>
-            <StoreGeneralSection seller={seller} />
-            <StorePaymentDetailsSection seller={seller} />
-            <StoreProfessionalDetailsSection seller={seller} />
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <StoreConfigurationSection seller={seller} />
-            <StoreAddressSection seller={seller} />
-            <StoreSubscriptionSection
-              subscription_plan={subscription_plan}
-              subscription_override={subscription_override}
-            />
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
+      <TwoColumnPage data={seller} hasOutlet>
+        <TwoColumnPage.Main>
+          <StoreGeneralSection seller={seller} />
+        </TwoColumnPage.Main>
+        <TwoColumnPage.Sidebar>
+          <StoreConfigurationSection seller={seller} />
+          <StoreAddressSection seller={seller} />
+          <StoreProfessionalDetailsSection seller={seller} />
+          <StorePaymentDetailsSection seller={seller} />
+          <StoreSubscriptionSection
+            subscription_plan={subscription_plan}
+            subscription_override={subscription_override}
+          />
+        </TwoColumnPage.Sidebar>
+      </TwoColumnPage>
     </div>
   );
 };

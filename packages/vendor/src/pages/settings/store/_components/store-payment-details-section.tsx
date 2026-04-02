@@ -1,27 +1,13 @@
-import { PencilSquare } from "@medusajs/icons";
+import { CreditCard, PencilSquare } from "@medusajs/icons";
 import { Container, Heading, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "@components/common/action-menu";
+import { IconAvatar } from "@components/common/icon-avatar";
 import { HttpTypes } from "@mercurjs/types";
 
 type StorePaymentDetailsSectionProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
-};
-
-const maskValue = (value: string | null | undefined) => {
-  if (!value) return "-";
-  if (value.length <= 4) return value;
-  return `••••${value.slice(-4)}`;
-};
-
-const PAYMENT_TYPES = [
-  { type: "iban", display_name: "International (IBAN/BIC)" },
-  { type: "aba", display_name: "US Bank Account" },
-];
-
-const getPaymentTypeLabel = (type: string | undefined) => {
-  return PAYMENT_TYPES.find((t) => t.type === type)?.display_name ?? type ?? "-";
 };
 
 export const StorePaymentDetailsSection = ({
@@ -29,10 +15,18 @@ export const StorePaymentDetailsSection = ({
 }: StorePaymentDetailsSectionProps) => {
   const { t } = useTranslation();
   const details = seller.payment_details;
-  const isABA = details?.type === "aba";
+  const isABA = details?.country_code === "us";
+
+  const accountIdentifier = isABA
+    ? details?.account_number
+    : details?.iban;
+
+  const subtitle = [details?.bank_name, accountIdentifier]
+    .filter(Boolean)
+    .join(" \u2022 ");
 
   return (
-    <Container className="divide-y p-0">
+    <Container className="p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">
           {t("store.paymentDetails.header", "Payment Details")}
@@ -51,72 +45,27 @@ export const StorePaymentDetailsSection = ({
           ]}
         />
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("store.paymentDetails.fields.type", "Type")}
-        </Text>
-        <Text size="small" leading="compact">
-          {getPaymentTypeLabel(details?.type)}
-        </Text>
+      <div className="flex flex-col gap-2 px-2 pb-2">
+        <div className="px-4 pb-2">
+          <div className="flex items-center gap-4">
+            <IconAvatar size="large" variant="squared">
+              <CreditCard />
+            </IconAvatar>
+            <div className="flex flex-1 flex-col">
+              <Text size="small" leading="compact" weight="plus">
+                {details?.holder_name || "-"}
+              </Text>
+              <Text
+                size="small"
+                leading="compact"
+                className="text-ui-fg-subtle"
+              >
+                {subtitle || "-"}
+              </Text>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("store.paymentDetails.fields.holderName", "Account holder")}
-        </Text>
-        <Text size="small" leading="compact">
-          {details?.holder_name || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("store.paymentDetails.fields.bankName", "Bank name")}
-        </Text>
-        <Text size="small" leading="compact">
-          {details?.bank_name || "-"}
-        </Text>
-      </div>
-      {isABA ? (
-        <>
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("store.paymentDetails.fields.routingNumber", "Routing number")}
-            </Text>
-            <Text size="small" leading="compact">
-              {maskValue(details?.routing_number)}
-            </Text>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t(
-                "store.paymentDetails.fields.accountNumber",
-                "Account number",
-              )}
-            </Text>
-            <Text size="small" leading="compact">
-              {maskValue(details?.account_number)}
-            </Text>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("store.paymentDetails.fields.iban", "IBAN")}
-            </Text>
-            <Text size="small" leading="compact">
-              {maskValue(details?.iban)}
-            </Text>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("store.paymentDetails.fields.bic", "BIC / SWIFT")}
-            </Text>
-            <Text size="small" leading="compact">
-              {details?.bic || "-"}
-            </Text>
-          </div>
-        </>
-      )}
     </Container>
   );
 };

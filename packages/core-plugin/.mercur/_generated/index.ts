@@ -434,6 +434,7 @@ export type Routes = {
                 members: typeof import("../../src/api/admin/sellers/[id]/members/route") & {
                     $memberId: typeof import("../../src/api/admin/sellers/[id]/members/[member_id]/route");
                     invite: typeof import("../../src/api/admin/sellers/[id]/members/invite/route");
+                    invites: typeof import("../../src/api/admin/sellers/[id]/members/invites/route");
                 };
                 paymentDetails: typeof import("../../src/api/admin/sellers/[id]/payment-details/route");
                 professionalDetails: typeof import("../../src/api/admin/sellers/[id]/professional-details/route");

@@ -37,7 +37,7 @@ export const VendorCreateSellerAccount = z.object({
     .optional(),
   professional_details: z
     .object({
-      corporate_name: z.string().optional(),
+      corporate_name: z.string().nullable().optional(),
       registration_number: z.string().nullable().optional(),
       tax_id: z.string().nullable().optional(),
     })
@@ -87,7 +87,7 @@ export const VendorUpsertSellerAddress = z.object({
 
 export type VendorUpsertSellerPaymentDetailsType = z.infer<typeof VendorUpsertSellerPaymentDetails>
 export const VendorUpsertSellerPaymentDetails = z.object({
-  type: z.string().optional(),
+  country_code: z.string().optional(),
   holder_name: z.string().optional(),
   bank_name: z.string().nullable().optional(),
   iban: z.string().nullable().optional(),
@@ -98,7 +98,7 @@ export const VendorUpsertSellerPaymentDetails = z.object({
 
 export type VendorUpsertSellerProfessionalDetailsType = z.infer<typeof VendorUpsertSellerProfessionalDetails>
 export const VendorUpsertSellerProfessionalDetails = z.object({
-  corporate_name: z.string().optional(),
+  corporate_name: z.string().nullable().optional(),
   registration_number: z.string().nullable().optional(),
   tax_id: z.string().nullable().optional(),
 })

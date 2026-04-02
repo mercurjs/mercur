@@ -431,7 +431,7 @@ const transformMap: TransformMap = {
     transform: (seller: { id: string; name: string }) => ({
       id: seller.id,
       title: seller.name,
-      to: `/sellers/${seller.id}`,
+      to: `/stores/${seller.id}`,
       value: `seller:${seller.id}`,
     }),
   },

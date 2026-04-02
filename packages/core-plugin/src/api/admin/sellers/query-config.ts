@@ -51,7 +51,24 @@ export const adminMembersQueryConfig = {
       "id",
       "is_owner",
       "member.*",
+      "created_at",
       "rbac_role.*",
+    ],
+    defaultLimit: 50,
+    isList: true,
+  },
+}
+
+export const adminMemberInvitesQueryConfig = {
+  list: {
+    defaults: [
+      "id",
+      "email",
+      "accepted",
+      "role_id",
+      "expires_at",
+      "created_at",
+      "updated_at",
     ],
     defaultLimit: 50,
     isList: true,

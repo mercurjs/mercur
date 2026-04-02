@@ -4,7 +4,7 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 
-import { adminSellerQueryConfig, adminMembersQueryConfig } from "./query-config"
+import { adminSellerQueryConfig, adminMembersQueryConfig, adminMemberInvitesQueryConfig } from "./query-config"
 import {
   AdminGetSellerParams,
   AdminGetSellersParams,
@@ -187,6 +187,17 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/sellers/:id/members",
     middlewares: [
       validateAndTransformBody(AdminAddSellerMember),
+    ],
+  },
+  // GET /admin/sellers/:id/members/invites — list invites
+  {
+    method: ["GET"],
+    matcher: "/admin/sellers/:id/members/invites",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetSellersParams,
+        adminMemberInvitesQueryConfig.list
+      ),
     ],
   },
   // POST /admin/sellers/:id/members/invite — invite by email

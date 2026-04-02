@@ -13,13 +13,17 @@ import {
   toast,
 } from "@medusajs/ui";
 import { AnimatePresence, motion } from "motion/react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useLocation, Navigate, useNavigate, useLoaderData } from "react-router-dom";
+import {
+  useLocation,
+  Navigate,
+  useNavigate,
+  useLoaderData,
+} from "react-router-dom";
 import * as z from "zod";
 
 import { Form } from "@components/common/form";
-import { SwitchBox } from "@components/common/switch-box/switch-box";
 import { CountrySelect } from "@components/inputs/country-select/country-select";
 import { useLogout, useCreateSellerAccount, useStore } from "@hooks/api";
 import { onboardingLoader } from "./loader";
@@ -43,7 +47,6 @@ const DetailsSetupSchema = z.object({
   province: z.string().optional(),
   postal_code: z.string().min(1),
   phone: z.string().optional(),
-  is_professional: z.boolean(),
   corporate_name: z.string().optional(),
   registration_number: z.string().optional(),
   tax_id: z.string().optional(),
@@ -102,7 +105,6 @@ export const Onboarding = () => {
       province: "",
       postal_code: "",
       phone: "",
-      is_professional: true,
       corporate_name: "",
       registration_number: "",
       tax_id: "",
@@ -118,13 +120,8 @@ export const Onboarding = () => {
 
   const handleDetailsSubmit = detailsForm.handleSubmit(async (details) => {
     const storeData = storeForm.getValues();
-    const {
-      is_professional,
-      corporate_name,
-      registration_number,
-      tax_id,
-      ...addressFields
-    } = details;
+    const { corporate_name, registration_number, tax_id, ...addressFields } =
+      details;
 
     try {
       await createSellerAccount({
@@ -134,9 +131,10 @@ export const Onboarding = () => {
         currency_code: storeData.currency_code.toLowerCase(),
         description: storeData.description || undefined,
         address: addressFields,
-        professional_details: is_professional
-          ? { corporate_name, registration_number, tax_id }
-          : undefined,
+        professional_details:
+          corporate_name || registration_number || tax_id
+            ? { corporate_name, registration_number, tax_id }
+            : undefined,
       });
       setStep(3);
     } catch (error: any) {
@@ -481,11 +479,6 @@ const DetailsStep = ({
 }) => {
   const { t } = useTranslation();
 
-  const isProfessional = useWatch({
-    control: form.control,
-    name: "is_professional",
-  });
-
   return (
     <>
       <motion.div
@@ -695,91 +688,51 @@ const DetailsStep = ({
               </Text>
             </div>
             <div className="flex flex-col gap-y-4">
-              <SwitchBox
+              <Form.Field
                 control={form.control}
-                name="is_professional"
-                label={t("onboarding.detailsSetup.isProfessional")}
-                description={t(
-                  "onboarding.detailsSetup.isProfessionalDescription",
+                name="corporate_name"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label optional>
+                      {t("onboarding.detailsSetup.corporateName")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input {...field} />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
                 )}
               />
-              <AnimatePresence initial={false}>
-                {isProfessional && (
-                  <motion.div
-                    className="flex flex-col gap-y-4"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{
-                      opacity: 1,
-                      height: "auto",
-                      transition: {
-                        height: {
-                          duration: 0.35,
-                          ease: [0.23, 1, 0.32, 1],
-                        },
-                        opacity: { duration: 0.25, delay: 0.1 },
-                      },
-                    }}
-                    exit={{
-                      opacity: 0,
-                      height: 0,
-                      transition: {
-                        height: {
-                          duration: 0.25,
-                          ease: [0.23, 1, 0.32, 1],
-                          delay: 0.05,
-                        },
-                        opacity: { duration: 0.15 },
-                      },
-                    }}
-                  >
-                    <Form.Field
-                      control={form.control}
-                      name="corporate_name"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>
-                            {t("onboarding.detailsSetup.corporateName")}
-                          </Form.Label>
-                          <Form.Control>
-                            <Input {...field} />
-                          </Form.Control>
-                          <Form.ErrorMessage />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name="registration_number"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label optional>
-                            {t("onboarding.detailsSetup.registrationNumber")}
-                          </Form.Label>
-                          <Form.Control>
-                            <Input {...field} />
-                          </Form.Control>
-                          <Form.ErrorMessage />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name="tax_id"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label optional>
-                            {t("onboarding.detailsSetup.taxId")}
-                          </Form.Label>
-                          <Form.Control>
-                            <Input {...field} />
-                          </Form.Control>
-                          <Form.ErrorMessage />
-                        </Form.Item>
-                      )}
-                    />
-                  </motion.div>
+              <Form.Field
+                control={form.control}
+                name="registration_number"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label optional>
+                      {t("onboarding.detailsSetup.registrationNumber")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input {...field} />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
                 )}
-              </AnimatePresence>
+              />
+              <Form.Field
+                control={form.control}
+                name="tax_id"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label optional>
+                      {t("onboarding.detailsSetup.taxId")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input {...field} />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
             </div>
           </motion.div>
 
@@ -908,7 +861,7 @@ const SubmittedStep = ({ email }: { email: string }) => {
         <Button
           variant="secondary"
           className="w-full"
-          onClick={() => navigate("/store-select")}
+          onClick={() => navigate("/login")}
         >
           {t("onboarding.submitted.action")}
         </Button>

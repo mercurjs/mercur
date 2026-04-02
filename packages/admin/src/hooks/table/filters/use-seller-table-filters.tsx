@@ -11,16 +11,36 @@ export const useSellerTableFilters = (): Filter[] => {
     multiple: true,
     options: [
       {
-        label: t("sellers.status.pending"),
-        value: "pending",
+        label: t("stores.status.open"),
+        value: "open",
       },
       {
-        label: t("sellers.status.active"),
-        value: "active",
+        label: t("stores.status.pendingApproval"),
+        value: "pending_approval",
       },
       {
-        label: t("sellers.status.suspended"),
+        label: t("stores.status.suspended"),
         value: "suspended",
+      },
+      {
+        label: t("stores.status.terminated"),
+        value: "terminated",
+      },
+    ],
+  }
+
+  const premiumFilter: Filter = {
+    key: "is_premium",
+    label: t("stores.fields.premium"),
+    type: "select",
+    options: [
+      {
+        label: t("stores.premium.yes"),
+        value: "true",
+      },
+      {
+        label: t("stores.premium.no"),
+        value: "false",
       },
     ],
   }
@@ -34,5 +54,5 @@ export const useSellerTableFilters = (): Filter[] => {
     type: "date",
   }))
 
-  return [statusFilter, ...dateFilters]
+  return [statusFilter, premiumFilter, ...dateFilters]
 }

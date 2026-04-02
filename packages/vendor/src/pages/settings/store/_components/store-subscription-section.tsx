@@ -1,7 +1,10 @@
+import { CurrencyDollar } from "@medusajs/icons";
 import { Container, Heading, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
+import { IconAvatar } from "@components/common/icon-avatar";
 import { NoRecords } from "@components/common/empty-table-content";
+import { getStylizedAmount } from "@/lib/money-amount-helpers";
 import { HttpTypes } from "@mercurjs/types";
 
 type StoreSubscriptionSectionProps = {
@@ -17,61 +20,41 @@ export const StoreSubscriptionSection = ({
 
   const effectiveMonthlyAmount =
     subscription_override?.monthly_amount ?? subscription_plan?.monthly_amount;
-  const effectiveFreeMonths =
-    subscription_override?.free_months ?? subscription_plan?.free_months;
+
+  if (!subscription_plan) {
+    return null;
+  }
 
   return (
-    <Container className="divide-y p-0">
+    <Container className="p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("store.subscription.header")}</Heading>
       </div>
-      {!subscription_plan ? (
-        <NoRecords
-          className="h-[180px]"
-          icon={null}
-          title={t("store.subscription.noPlan")}
-          message={t("store.subscription.noPlanMessage")}
-        />
-      ) : (
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4">
-          <Text size="small" leading="compact" weight="plus">
-            {t("store.subscription.monthlyAmount")}
-          </Text>
-          <Text size="small" leading="compact">
-            {effectiveMonthlyAmount}{" "}
-            {subscription_plan.currency_code?.toUpperCase()}
-          </Text>
-
-          <Text size="small" leading="compact" weight="plus">
-            {t("store.subscription.freeMonths")}
-          </Text>
-          <Text size="small" leading="compact">
-            {effectiveFreeMonths}
-          </Text>
-
-          {subscription_override?.free_from && (
-            <>
+      <div className="flex flex-col gap-2 px-2 pb-2">
+        <div className="px-4 pb-2">
+          <div className="flex items-center gap-4">
+            <IconAvatar size="large" variant="squared">
+              <CurrencyDollar />
+            </IconAvatar>
+            <div className="flex flex-1 flex-col">
               <Text size="small" leading="compact" weight="plus">
-                {t("store.subscription.freePeriod")}
+                {subscription_plan.currency_code?.toUpperCase()}
               </Text>
-              <Text size="small" leading="compact">
-                {new Date(subscription_override.free_from).toLocaleDateString()}
-                {subscription_override.free_to &&
-                  ` – ${new Date(subscription_override.free_to).toLocaleDateString()}`}
+              <Text
+                size="small"
+                leading="compact"
+                className="text-ui-fg-subtle"
+              >
+                {getStylizedAmount(
+                  effectiveMonthlyAmount ?? 0,
+                  subscription_plan.currency_code,
+                )}
+                /{t("store.subscription.month", "month")}
               </Text>
-            </>
-          )}
-
-          <Text size="small" leading="compact" weight="plus">
-            {t("store.subscription.requiresOrders")}
-          </Text>
-          <Text size="small" leading="compact">
-            {subscription_plan.requires_orders
-              ? t("general.yes")
-              : t("general.no")}
-          </Text>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </Container>
   );
 };
