@@ -176,7 +176,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                         "react-i18next",
                         "@medusajs/ui",
                         "@medusajs/dashboard",
-                        "@medusajs/js-sdk",
+                        "@mercurjs/client",
                         "@tanstack/react-query",
                     ],
                 },
