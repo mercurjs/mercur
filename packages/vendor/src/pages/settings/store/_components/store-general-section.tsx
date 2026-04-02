@@ -1,11 +1,12 @@
 import { Children, ReactNode } from "react";
 import { Photo } from "@medusajs/icons";
-import { Container, Text } from "@medusajs/ui";
+import { Badge, Container, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { HttpTypes } from "@mercurjs/types";
 
 import { StoreDetailHeader } from "./store-detail-header";
+import { currencies } from "@/lib/data/currencies";
 
 type StoreGeneralSectionProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
@@ -74,9 +75,14 @@ export const StoreGeneralSection = ({
             <Text size="small" leading="compact" weight="plus">
               {t("fields.currency")}
             </Text>
-            <Text size="small" leading="compact">
-              {seller.currency_code?.toUpperCase() || "-"}
-            </Text>
+            <div className="flex items-center gap-x-2">
+              <Badge size="2xsmall">
+                {seller.currency_code?.toUpperCase()}
+              </Badge>
+              <Text size="small" leading="compact">
+                {currencies[seller.currency_code?.toUpperCase()]?.name || "-"}
+              </Text>
+            </div>
           </div>
           <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
             <Text size="small" leading="compact" weight="plus">

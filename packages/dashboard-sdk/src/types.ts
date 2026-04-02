@@ -10,7 +10,6 @@ import { ComponentType } from "react";
  * ```ts
  * mercurDashboardPlugin({
  *   medusaConfigPath: '../../packages/api/medusa-config.ts',
- *   initialPage: '/setup',
  *   enableSellerRegistration: true,
  * })
  * ```
@@ -43,11 +42,6 @@ export interface MercurConfig {
     }
     /** Whether to allow new sellers to register from the login screen. */
     enableSellerRegistration?: boolean;
-    /**
-     * The route to redirect to when an authenticated user visits `/`.
-     * @default "/products"
-     */
-    initialPage?: string;
 }
 
 export interface BuiltMercurConfig extends MercurConfig {

@@ -1,10 +1,18 @@
+import { useState } from "react";
 import { ExclamationCircleSolid } from "@medusajs/icons";
-import { Button, Container, Heading, Text, toast } from "@medusajs/ui";
+import {
+  Button,
+  Container,
+  Heading,
+  Text,
+  Textarea,
+  toast,
+} from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import {
   useApproveSeller,
-  useTerminateSeller,
+  useSuspendSeller,
 } from "../../../../hooks/api/sellers";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
@@ -17,10 +25,11 @@ type StoreRequestSectionProps = {
 
 export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
   const { t } = useTranslation();
+  const [reason, setReason] = useState("");
   const { mutateAsync: approveSeller, isPending: isApproving } =
     useApproveSeller(seller.id);
-  const { mutateAsync: terminateSeller, isPending: isTerminating } =
-    useTerminateSeller(seller.id);
+  const { mutateAsync: suspendSeller, isPending: isSuspending } =
+    useSuspendSeller(seller.id);
 
   const handleConfirm = async () => {
     try {
@@ -35,9 +44,9 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
 
   const handleReject = async () => {
     try {
-      await terminateSeller();
+      await suspendSeller({ reason: reason || undefined });
       toast.success(
-        t("stores.terminate.successToast", "Store rejected successfully"),
+        t("stores.suspend.successToast", "Store suspended successfully"),
       );
     } catch (error) {
       toast.error((error as Error).message);
@@ -64,9 +73,22 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
             <Text className="text-ui-fg-subtle">
               {t(
                 "stores.request.description",
-                "A new store request has been submitted. Review the details, make any necessary updates, and choose whether to confirm and publish the store or terminate the request.",
+                "A new store request has been submitted. Review the details, make any necessary updates, and choose whether to confirm and publish the store or suspend the request.",
               )}
             </Text>
+          </div>
+          <div className="flex flex-col gap-y-2 px-6 py-4">
+            <Text size="small" weight="plus" className="text-ui-fg-subtle">
+              {t("stores.request.reasonLabel", "Suspend reason")}
+            </Text>
+            <Textarea
+              placeholder={t(
+                "stores.request.reasonPlaceholder",
+                "Optional reason for suspending this store...",
+              )}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+            />
           </div>
           <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
             <Button
@@ -81,9 +103,9 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
               size="small"
               variant="secondary"
               onClick={handleReject}
-              isLoading={isTerminating}
+              isLoading={isSuspending}
             >
-              {t("stores.request.terminate", "Terminate")}
+              {t("stores.request.suspend", "Suspend")}
             </Button>
           </div>
         </div>

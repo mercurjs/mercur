@@ -1,8 +1,9 @@
-import { PencilSquare } from "@medusajs/icons";
+import { BuildingStorefront, PencilSquare } from "@medusajs/icons";
 import { Container, Heading, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "@components/common/action-menu";
+import { IconAvatar } from "@components/common/icon-avatar";
 import { HttpTypes } from "@mercurjs/types";
 
 type StoreAddressSectionProps = {
@@ -17,7 +18,6 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
     const parts = [
       address?.address_1,
       address?.city,
-      address?.province,
       address?.postal_code,
       address?.country_code?.toUpperCase(),
     ].filter(Boolean);
@@ -28,7 +28,7 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
   const formattedAddress = formatAddress();
 
   return (
-    <Container className="divide-y p-0">
+    <Container className="p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("store.address.header", "Address")}</Heading>
         <ActionMenu
@@ -45,37 +45,28 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
           ]}
         />
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("fields.firstName")}
-        </Text>
-        <Text size="small" leading="compact">
-          {address?.first_name || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("fields.lastName")}
-        </Text>
-        <Text size="small" leading="compact">
-          {address?.last_name || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("fields.address")}
-        </Text>
-        <Text size="small" leading="compact">
-          {formattedAddress || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("fields.phone")}
-        </Text>
-        <Text size="small" leading="compact">
-          {address?.phone || "-"}
-        </Text>
+      <div className="flex flex-col gap-2 px-2 pb-2">
+        <div className="px-4 pb-2">
+          <div className="flex items-center gap-4">
+            <IconAvatar size="large" variant="squared">
+              <BuildingStorefront />
+            </IconAvatar>
+            <div className="flex flex-1 flex-col">
+              <Text size="small" leading="compact" weight="plus">
+                {[address?.first_name, address?.last_name]
+                  .filter(Boolean)
+                  .join(" ") || "-"}
+              </Text>
+              <Text
+                size="small"
+                leading="compact"
+                className="text-ui-fg-subtle"
+              >
+                {formattedAddress || "-"}
+              </Text>
+            </div>
+          </div>
+        </div>
       </div>
     </Container>
   );

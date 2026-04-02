@@ -4,12 +4,8 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import AvatarBox from "@components/common/logo-box/avatar-box";
-import { useFeatureFlags, useSelectSeller, useSellers } from "@hooks/api";
-import {
-  MercurFeatureFlags,
-  SellerMemberDTO,
-  SellerStatus,
-} from "@mercurjs/types";
+import { useSelectSeller, useSellers } from "@hooks/api";
+import { SellerMemberDTO, SellerStatus } from "@mercurjs/types";
 
 const getSellerStatusBadge = (
   status: string,
@@ -51,11 +47,9 @@ const StoreSelectHeader = () => {
 
 const StoreSelectList = ({
   seller_members,
-  canCreateStore,
   email,
 }: {
   seller_members: SellerMemberDTO[];
-  canCreateStore: boolean;
   email: string;
 }) => {
   const { t } = useTranslation();
@@ -101,17 +95,15 @@ const StoreSelectList = ({
           </button>
         );
       })}
-      {canCreateStore && (
-        <button
-          onClick={() => navigate("/onboarding", { state: { email } })}
-          className="hover:bg-ui-bg-base-hover transition-fg flex items-center justify-center gap-x-2 rounded-b-lg px-4 py-3"
-        >
-          <Plus className="text-ui-fg-muted" />
-          <Text size="small" weight="plus" leading="compact">
-            {t("storeSelect.addNewStore")}
-          </Text>
-        </button>
-      )}
+      <button
+        onClick={() => navigate("/onboarding", { state: { email } })}
+        className="hover:bg-ui-bg-base-hover transition-fg flex items-center justify-center gap-x-2 rounded-b-lg px-4 py-3"
+      >
+        <Plus className="text-ui-fg-muted" />
+        <Text size="small" weight="plus" leading="compact">
+          {t("storeSelect.addNewStore")}
+        </Text>
+      </button>
     </div>
   );
 };
@@ -123,12 +115,7 @@ const StoreSelectFooter = () => {
 const Root = () => {
   const location = useLocation();
   const email = (location.state as { email?: string })?.email ?? "";
-  const { seller_members, isLoading: isSellersLoading } = useSellers();
-  const { feature_flags, isLoading: isFlagsLoading } = useFeatureFlags();
-
-  const isLoading = isSellersLoading || isFlagsLoading;
-  const canCreateStore =
-    !!feature_flags?.[MercurFeatureFlags.SELLER_REGISTRATION];
+  const { seller_members, isLoading } = useSellers();
 
   if (isLoading) {
     return (
@@ -145,7 +132,6 @@ const Root = () => {
         <StoreSelectHeader />
         <StoreSelectList
           seller_members={seller_members ?? []}
-          canCreateStore={canCreateStore}
           email={email}
         />
         <StoreSelectFooter />

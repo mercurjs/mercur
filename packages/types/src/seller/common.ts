@@ -20,7 +20,7 @@ export enum SellerStatus {
 
 export interface ProfessionalDetailsDTO {
   id: string
-  corporate_name: string
+  corporate_name: string | null
   registration_number: string | null
   tax_id: string | null
   created_at: Date
@@ -28,13 +28,13 @@ export interface ProfessionalDetailsDTO {
 }
 
 export interface CreateProfessionalDetailsDTO {
-  corporate_name: string
+  corporate_name?: string | null
   registration_number?: string | null
   tax_id?: string | null
 }
 
 export interface UpdateProfessionalDetailsDTO {
-  corporate_name?: string
+  corporate_name?: string | null
   registration_number?: string | null
   tax_id?: string | null
 }

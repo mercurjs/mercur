@@ -3,7 +3,7 @@ import Seller from "./seller"
 
 const ProfessionalDetails = model.define("ProfessionalDetails", {
   id: model.id({ prefix: "selprodet" }).primaryKey(),
-  corporate_name: model.text(),
+  corporate_name: model.text().nullable(),
   registration_number: model.text().nullable(),
   tax_id: model.text().nullable(),
   seller: model.belongsTo(() => Seller, {

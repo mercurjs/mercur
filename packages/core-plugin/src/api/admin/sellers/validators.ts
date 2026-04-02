@@ -126,7 +126,7 @@ export type AdminUpsertSellerProfessionalDetailsType = z.infer<
   typeof AdminUpsertSellerProfessionalDetails
 >
 export const AdminUpsertSellerProfessionalDetails = z.object({
-  corporate_name: z.string().optional(),
+  corporate_name: z.string().nullable().optional(),
   registration_number: z.string().nullable().optional(),
   tax_id: z.string().nullable().optional(),
 })

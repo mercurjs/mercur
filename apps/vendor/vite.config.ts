@@ -8,7 +8,6 @@ export default defineConfig({
     react(),
     mercurDashboardPlugin({
       medusaConfigPath: '../../packages/api/medusa-config.ts',
-      initialPage: '/setup',
     }),
   ],
 })

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Textarea, toast } from "@medusajs/ui";
+import { Button, Input, Select, Textarea, toast } from "@medusajs/ui";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -15,6 +15,7 @@ import { MediaSchema } from "@pages/products/product-create/constants";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
 import { useUpdateSeller } from "@hooks/api/sellers";
+import { SellerStatus } from "@mercurjs/types";
 
 type Seller = InferClientOutput<typeof sdk.admin.sellers.$id.query>["seller"];
 
@@ -28,6 +29,7 @@ const EditStoreSchema = zod.object({
   email: zod.string().email().optional().or(zod.literal("")),
   description: zod.string().optional().or(zod.literal("")),
   website_url: zod.string().url().optional().or(zod.literal("")),
+  status: zod.nativeEnum(SellerStatus),
   is_premium: zod.boolean(),
   media: zod.array(MediaSchema).optional(),
   bannerMedia: zod.array(MediaSchema).optional(),
@@ -62,6 +64,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       email: seller.email ?? "",
       description: seller.description ?? "",
       website_url: seller.website_url ?? "",
+      status: (seller.status as SellerStatus) ?? SellerStatus.PENDING_APPROVAL,
       is_premium: seller.is_premium ?? false,
       media: seller.logo
         ? [{ id: "existing-logo", url: seller.logo, isThumbnail: false, file: null }]
@@ -122,6 +125,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
         email: values.email || undefined,
         description: values.description || null,
         website_url: values.website_url || null,
+        status: values.status,
         is_premium: values.is_premium,
         logo: logoUrl,
         banner: bannerUrl,
@@ -249,6 +253,30 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                   <Form.Label optional>{t("fields.website")}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="status"
+              render={({ field: { onChange, ref, ...field } }) => (
+                <Form.Item>
+                  <Form.Label>{t("fields.status")}</Form.Label>
+                  <Form.Control>
+                    <Select onValueChange={onChange} {...field}>
+                      <Select.Trigger ref={ref}>
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {Object.values(SellerStatus).map((status) => (
+                          <Select.Item key={status} value={status}>
+                            {t(`stores.status.${status}`)}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>

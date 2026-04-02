@@ -49,13 +49,6 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateSellerAccountType>,
   res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
-  if (!FeatureFlag.isFeatureEnabled(SellerRegistrationFeatureFlag.key)) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_ALLOWED,
-      "Seller self-registration is not enabled."
-    )
-  }
-
   const { address, professional_details, member_email, ...sellerData } = req.validatedBody
 
   const existingMemberId = req.auth_context?.actor_id

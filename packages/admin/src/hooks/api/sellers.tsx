@@ -107,12 +107,13 @@ export const useSuspendSeller = (
   id: string,
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.sellers.$id.suspend.mutate>,
-    ClientError
+    ClientError,
+    { reason?: string }
   >,
 ) => {
   return useMutation({
-    mutationFn: () =>
-      sdk.admin.sellers.$id.suspend.mutate({ $id: id }),
+    mutationFn: (payload?: { reason?: string }) =>
+      sdk.admin.sellers.$id.suspend.mutate({ $id: id, reason: payload?.reason }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: sellersQueryKeys.detail(id),

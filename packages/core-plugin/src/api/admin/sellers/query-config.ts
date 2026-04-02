@@ -51,6 +51,7 @@ export const adminMembersQueryConfig = {
       "id",
       "is_owner",
       "member.*",
+      "created_at",
       "rbac_role.*",
     ],
     defaultLimit: 50,
