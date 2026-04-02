@@ -25,7 +25,7 @@ module.exports = defineConfig({
       options: {
         appDir: path.join(__dirname, '../../apps/admin'),
         path: '/dashboard',
-        disable: true
+        disable: false
       } as DashboardModuleOptions
     },
     {
@@ -33,7 +33,7 @@ module.exports = defineConfig({
       options: {
         appDir: path.join(__dirname, '../../apps/vendor'),
         path: '/seller',
-        disable: true
+        disable: false
       } as DashboardModuleOptions
     },
   ],
