@@ -7,7 +7,7 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { SellerStatus } from "@mercurjs/types"
+import { SellerContext } from "../../types/seller-context"
 
 const SELLER_ID_HEADER = "x-seller-id"
 
@@ -17,20 +17,6 @@ export async function ensureSellerMiddleware(
   next: MedusaNextFunction
 ) {
   let sellerId = req.get(SELLER_ID_HEADER) || req.session?.seller_id
-
-  // If no seller_id from header or session, resolve from member's seller associations
-  if (!sellerId && req.auth_context?.actor_id) {
-    const q = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-    const { data: members } = await q.graph({
-      entity: "member",
-      fields: ["sellers.id"],
-      filters: { id: req.auth_context.actor_id },
-    })
-
-    if (members?.[0]?.sellers?.[0]?.id) {
-      sellerId = members[0].sellers[0].id
-    }
-  }
 
   if (!sellerId) {
     return next(
@@ -71,7 +57,7 @@ export async function ensureSellerMiddleware(
     seller_id: sellerId,
     seller_member: sellerMember,
     currency_code: sellerMember.seller.currency_code
-  }
+  } as SellerContext
 
   if (sellerMember.role_id) {
     req.auth_context.app_metadata = {
