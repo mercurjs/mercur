@@ -293,7 +293,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
 
                 return (
                   <Form.Item>
-                    <Form.Label optional>{t("store.logo", "Logo")}</Form.Label>
+                    <Form.Label optional>{t("store.logo")}</Form.Label>
                     <Form.Control>
                       <FileUpload
                         uploadedImage={previewUrl}
@@ -322,7 +322,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
 
                 return (
                   <Form.Item>
-                    <Form.Label optional>{t("store.banner", "Banner")}</Form.Label>
+                    <Form.Label optional>{t("store.banner")}</Form.Label>
                     <Form.Control>
                       <FileUpload
                         uploadedImage={previewUrl}

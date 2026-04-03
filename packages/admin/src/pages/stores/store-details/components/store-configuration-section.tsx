@@ -22,7 +22,7 @@ export const StoreConfigurationSection = ({
     <Container className="flex flex-col gap-y-4">
       <div className="flex items-center justify-between">
         <Heading level="h2">
-          {t("store.scheduledClosure.header", "Scheduled Closure")}
+          {t("store.scheduledClosure.header")}
         </Heading>
         <ActionMenu
           groups={[

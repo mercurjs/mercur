@@ -67,10 +67,7 @@ export const StorePaymentDetailsForm = ({
       {
         onSuccess: () => {
           toast.success(
-            t(
-              "store.paymentDetails.edit.successToast",
-              "Payment details updated",
-            ),
+            t("store.paymentDetails.edit.successToast"),
           );
           handleSuccess();
         },
@@ -94,10 +91,7 @@ export const StorePaymentDetailsForm = ({
             render={({ field: { onChange, ref: _ref, ...field } }) => (
               <Form.Item>
                 <Form.Label>
-                  {t(
-                    "store.paymentDetails.fields.countryCode",
-                    "Country",
-                  )}
+                  {t("store.paymentDetails.fields.countryCode")}
                 </Form.Label>
                 <Form.Control>
                   <CountrySelect {...field} onChange={onChange} />
@@ -112,10 +106,7 @@ export const StorePaymentDetailsForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  {t(
-                    "store.paymentDetails.fields.holderName",
-                    "Account holder",
-                  )}
+                  {t("store.paymentDetails.fields.holderName")}
                 </Form.Label>
                 <Form.Control>
                   <Input size="small" {...field} />
@@ -130,7 +121,7 @@ export const StorePaymentDetailsForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label optional>
-                  {t("store.paymentDetails.fields.bankName", "Bank name")}
+                  {t("store.paymentDetails.fields.bankName")}
                 </Form.Label>
                 <Form.Control>
                   <Input size="small" {...field} />
@@ -149,7 +140,6 @@ export const StorePaymentDetailsForm = ({
                     <Form.Label optional>
                       {t(
                         "store.paymentDetails.fields.routingNumber",
-                        "Routing number",
                       )}
                     </Form.Label>
                     <Form.Control>
@@ -167,7 +157,6 @@ export const StorePaymentDetailsForm = ({
                     <Form.Label optional>
                       {t(
                         "store.paymentDetails.fields.accountNumber",
-                        "Account number",
                       )}
                     </Form.Label>
                     <Form.Control>
@@ -186,7 +175,7 @@ export const StorePaymentDetailsForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label optional>
-                      {t("store.paymentDetails.fields.iban", "IBAN")}
+                      {t("store.paymentDetails.fields.iban")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />
@@ -201,7 +190,7 @@ export const StorePaymentDetailsForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label optional>
-                      {t("store.paymentDetails.fields.bic", "BIC / SWIFT")}
+                      {t("store.paymentDetails.fields.bic")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />

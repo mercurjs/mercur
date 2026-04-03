@@ -21,17 +21,11 @@ export const StoreProfessionalDetailsEdit = () => {
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>
-            {t(
-              "store.professionalDetails.edit.header",
-              "Edit Professional Details",
-            )}
+            {t("store.professionalDetails.edit.header")}
           </Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
-          {t(
-            "store.professionalDetails.edit.description",
-            "Update the professional details for this store.",
-          )}
+          {t("store.professionalDetails.edit.description")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
       {!isLoading && seller && (

@@ -44,7 +44,7 @@ export const StoreSubscriptionSection = ({
     <Container className="p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">
-          {t("store.subscription.header", "Subscription Plan")}
+          {t("store.subscription.header")}
         </Heading>
       </div>
       <div className="flex flex-col gap-2 px-2 pb-2">
@@ -66,7 +66,7 @@ export const StoreSubscriptionSection = ({
                   leading="compact"
                   className="text-ui-fg-subtle"
                 >
-                  {getStylizedAmount(effectiveAmount, plan.currency_code)}/{t("store.subscription.month", "month")}
+                  {getStylizedAmount(effectiveAmount, plan.currency_code)}/{t("store.subscription.month")}
                 </Text>
               </div>
               <div className="flex size-7 items-center justify-center">

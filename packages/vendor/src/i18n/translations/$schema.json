@@ -9592,6 +9592,63 @@
         "currencyAlreadyAdded": {
           "type": "string"
         },
+        "status": {
+          "type": "object",
+          "properties": {
+            "active": { "type": "string" },
+            "pendingApproval": { "type": "string" },
+            "suspended": { "type": "string" },
+            "terminated": { "type": "string" }
+          },
+          "required": ["active", "pendingApproval", "suspended", "terminated"],
+          "additionalProperties": false
+        },
+        "alert": {
+          "type": "object",
+          "properties": {
+            "pendingApproval": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "required": ["title", "description"],
+              "additionalProperties": false
+            },
+            "suspended": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "required": ["title", "description"],
+              "additionalProperties": false
+            },
+            "terminated": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "required": ["title", "description"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["pendingApproval", "suspended", "terminated"],
+          "additionalProperties": false
+        },
+        "company": {
+          "type": "string"
+        },
+        "manageCompanyDetails": {
+          "type": "string"
+        },
+        "logo": {
+          "type": "string"
+        },
+        "banner": {
+          "type": "string"
+        },
         "edit": {
           "type": "object",
           "properties": {
@@ -9600,6 +9657,137 @@
             }
           },
           "required": ["header"],
+          "additionalProperties": false
+        },
+        "editCompany": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            }
+          },
+          "required": ["header"],
+          "additionalProperties": false
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["header", "edit"],
+          "additionalProperties": false
+        },
+        "paymentDetails": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            },
+            "fields": {
+              "type": "object",
+              "properties": {
+                "countryCode": { "type": "string" },
+                "holderName": { "type": "string" },
+                "bankName": { "type": "string" },
+                "iban": { "type": "string" },
+                "bic": { "type": "string" },
+                "routingNumber": { "type": "string" },
+                "accountNumber": { "type": "string" }
+              },
+              "required": ["countryCode", "holderName", "bankName", "iban", "bic", "routingNumber", "accountNumber"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["header", "edit", "fields"],
+          "additionalProperties": false
+        },
+        "professionalDetails": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            },
+            "fields": {
+              "type": "object",
+              "properties": {
+                "corporateName": { "type": "string" },
+                "registrationNumber": { "type": "string" },
+                "taxId": { "type": "string" }
+              },
+              "required": ["corporateName", "registrationNumber", "taxId"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["header", "edit", "fields"],
+          "additionalProperties": false
+        },
+        "scheduledClosure": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            },
+            "fields": {
+              "type": "object",
+              "properties": {
+                "closedFrom": { "type": "string" },
+                "closedTo": { "type": "string" },
+                "closedToHint": { "type": "string" }
+              },
+              "required": ["closedFrom", "closedTo", "closedToHint"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["header", "edit", "fields"],
+          "additionalProperties": false
+        },
+        "subscription": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "noPlan": { "type": "string" },
+            "noPlanMessage": { "type": "string" },
+            "monthlyAmount": { "type": "string" },
+            "freeMonths": { "type": "string" },
+            "freePeriod": { "type": "string" },
+            "requiresOrders": { "type": "string" },
+            "month": { "type": "string" }
+          },
+          "required": ["header", "noPlan", "noPlanMessage", "monthlyAmount", "freeMonths", "freePeriod", "requiresOrders", "month"],
           "additionalProperties": false
         },
         "toast": {
@@ -9639,6 +9827,8 @@
         "domain",
         "manageYourStoresDetails",
         "editStore",
+        "status",
+        "alert",
         "defaultCurrency",
         "defaultLocale",
         "defaultRegion",
@@ -9658,7 +9848,17 @@
         "removeLocaleWarning_other",
         "currencyAlreadyAdded",
         "localeAlreadyAdded",
+        "company",
+        "manageCompanyDetails",
+        "logo",
+        "banner",
         "edit",
+        "editCompany",
+        "address",
+        "paymentDetails",
+        "professionalDetails",
+        "scheduledClosure",
+        "subscription",
         "toast"
       ],
       "additionalProperties": false

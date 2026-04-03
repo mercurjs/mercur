@@ -67,7 +67,7 @@ export const StoreAddressEditForm = ({
       {
         onSuccess: () => {
           toast.success(
-            t("store.address.edit.successToast", "Address updated"),
+            t("store.address.edit.successToast"),
           );
           handleSuccess();
         },

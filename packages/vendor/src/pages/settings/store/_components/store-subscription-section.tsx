@@ -49,7 +49,7 @@ export const StoreSubscriptionSection = ({
                   effectiveMonthlyAmount ?? 0,
                   subscription_plan.currency_code,
                 )}
-                /{t("store.subscription.month", "month")}
+                /{t("store.subscription.month")}
               </Text>
             </div>
           </div>

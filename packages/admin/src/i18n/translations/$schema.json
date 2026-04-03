@@ -9219,6 +9219,12 @@
         "currencyAlreadyAdded": {
           "type": "string"
         },
+        "logo": {
+          "type": "string"
+        },
+        "banner": {
+          "type": "string"
+        },
         "edit": {
           "type": "object",
           "properties": {
@@ -9227,6 +9233,121 @@
             }
           },
           "required": ["header"],
+          "additionalProperties": false
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["header", "edit"],
+          "additionalProperties": false
+        },
+        "paymentDetails": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            },
+            "fields": {
+              "type": "object",
+              "properties": {
+                "countryCode": { "type": "string" },
+                "holderName": { "type": "string" },
+                "bankName": { "type": "string" },
+                "iban": { "type": "string" },
+                "bic": { "type": "string" },
+                "routingNumber": { "type": "string" },
+                "accountNumber": { "type": "string" }
+              },
+              "required": ["countryCode", "holderName", "bankName", "iban", "bic", "routingNumber", "accountNumber"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["header", "edit", "fields"],
+          "additionalProperties": false
+        },
+        "professionalDetails": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            },
+            "fields": {
+              "type": "object",
+              "properties": {
+                "corporateName": { "type": "string" },
+                "registrationNumber": { "type": "string" },
+                "taxId": { "type": "string" }
+              },
+              "required": ["corporateName", "registrationNumber", "taxId"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["header", "edit", "fields"],
+          "additionalProperties": false
+        },
+        "scheduledClosure": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            },
+            "fields": {
+              "type": "object",
+              "properties": {
+                "closedFrom": { "type": "string" },
+                "closedTo": { "type": "string" },
+                "closedToHint": { "type": "string" }
+              },
+              "required": ["closedFrom", "closedTo", "closedToHint"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["header", "edit", "fields"],
+          "additionalProperties": false
+        },
+        "subscription": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "month": { "type": "string" }
+          },
+          "required": ["header", "month"],
           "additionalProperties": false
         },
         "toast": {
@@ -9272,7 +9393,14 @@
         "removeCurrencyWarning_one",
         "removeCurrencyWarning_other",
         "currencyAlreadyAdded",
+        "logo",
+        "banner",
         "edit",
+        "address",
+        "paymentDetails",
+        "professionalDetails",
+        "scheduledClosure",
+        "subscription",
         "toast"
       ],
       "additionalProperties": false

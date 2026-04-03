@@ -21,14 +21,11 @@ export const Component = () => {
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>
-            {t("store.paymentDetails.edit.header", "Edit Payment Details")}
+            {t("store.paymentDetails.edit.header")}
           </Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
-          {t(
-            "store.paymentDetails.edit.description",
-            "Update the payment details for your store.",
-          )}
+          {t("store.paymentDetails.edit.description")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
       {!isPending && seller && <StorePaymentDetailsForm seller={seller} />}
