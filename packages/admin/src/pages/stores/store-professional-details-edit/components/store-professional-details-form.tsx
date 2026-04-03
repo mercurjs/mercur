@@ -18,7 +18,7 @@ type StoreProfessionalDetailsFormProps = {
 };
 
 const StoreProfessionalDetailsSchema = zod.object({
-  corporate_name: zod.string().min(1, "Corporate name is required"),
+  corporate_name: zod.string().optional().or(zod.literal("")),
   registration_number: zod.string().optional().or(zod.literal("")),
   tax_id: zod.string().optional().or(zod.literal("")),
 });
@@ -46,17 +46,14 @@ export const StoreProfessionalDetailsForm = ({
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
       {
-        corporate_name: values.corporate_name,
+        corporate_name: values.corporate_name || null,
         registration_number: values.registration_number || null,
         tax_id: values.tax_id || null,
       },
       {
         onSuccess: () => {
           toast.success(
-            t(
-              "store.professionalDetails.edit.successToast",
-              "Professional details updated",
-            ),
+            t("store.professionalDetails.edit.successToast"),
           );
           handleSuccess();
         },
@@ -79,11 +76,8 @@ export const StoreProfessionalDetailsForm = ({
             name="corporate_name"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>
-                  {t(
-                    "store.professionalDetails.fields.corporateName",
-                    "Corporate name",
-                  )}
+                <Form.Label optional>
+                  {t("store.professionalDetails.fields.corporateName")}
                 </Form.Label>
                 <Form.Control>
                   <Input size="small" {...field} />
@@ -98,10 +92,7 @@ export const StoreProfessionalDetailsForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label optional>
-                  {t(
-                    "store.professionalDetails.fields.registrationNumber",
-                    "Registration number",
-                  )}
+                  {t("store.professionalDetails.fields.registrationNumber")}
                 </Form.Label>
                 <Form.Control>
                   <Input size="small" {...field} />
@@ -116,7 +107,7 @@ export const StoreProfessionalDetailsForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label optional>
-                  {t("store.professionalDetails.fields.taxId", "Tax ID")}
+                  {t("store.professionalDetails.fields.taxId")}
                 </Form.Label>
                 <Form.Control>
                   <Input size="small" {...field} />

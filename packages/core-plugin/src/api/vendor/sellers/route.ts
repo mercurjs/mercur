@@ -53,7 +53,7 @@ export const POST = async (
 
   const existingMemberId = req.auth_context?.actor_id
 
-  if (!existingMemberId && !member_email) {
+  if (!existingMemberId) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,
       "member_email is required when creating a new account"

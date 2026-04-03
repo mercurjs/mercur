@@ -2505,6 +2505,63 @@
     "edit": {
       "header": "Edit Store"
     },
+    "logo": "Logo",
+    "banner": "Banner",
+    "address": {
+      "header": "Address",
+      "edit": {
+        "header": "Edit Address",
+        "description": "Update the address for this store.",
+        "successToast": "Address updated"
+      }
+    },
+    "paymentDetails": {
+      "header": "Payment Details",
+      "edit": {
+        "header": "Edit Payment Details",
+        "description": "Update the payment details for this store.",
+        "successToast": "Payment details updated"
+      },
+      "fields": {
+        "countryCode": "Country",
+        "holderName": "Account holder",
+        "bankName": "Bank name",
+        "iban": "IBAN",
+        "bic": "BIC / SWIFT",
+        "routingNumber": "Routing number",
+        "accountNumber": "Account number"
+      }
+    },
+    "professionalDetails": {
+      "header": "Company Details",
+      "edit": {
+        "header": "Edit Professional Details",
+        "description": "Update the professional details for this store.",
+        "successToast": "Professional details updated"
+      },
+      "fields": {
+        "corporateName": "Corporate name",
+        "registrationNumber": "Registration number",
+        "taxId": "Tax ID"
+      }
+    },
+    "scheduledClosure": {
+      "header": "Scheduled Closure",
+      "edit": {
+        "header": "Schedule Store Closure",
+        "description": "Configure the scheduled closure dates for this store.",
+        "successToast": "Scheduled closure updated"
+      },
+      "fields": {
+        "closedFrom": "Close from",
+        "closedTo": "Close until",
+        "closedToHint": "If empty, the store will remain closed indefinitely."
+      }
+    },
+    "subscription": {
+      "header": "Subscription Plan",
+      "month": "month"
+    },
     "toast": {
       "update": "Store successfully updated",
       "currenciesUpdated": "Currencies updated successfully",

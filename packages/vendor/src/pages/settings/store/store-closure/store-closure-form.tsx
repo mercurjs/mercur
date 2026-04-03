@@ -49,10 +49,7 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
       {
         onSuccess: () => {
           toast.success(
-            t(
-              "store.scheduledClosure.edit.successToast",
-              "Scheduled closure updated",
-            ),
+            t("store.scheduledClosure.edit.successToast"),
           );
           handleSuccess();
         },
@@ -75,10 +72,7 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
                 return (
                   <Form.Item>
                     <Form.Label>
-                      {t(
-                        "store.scheduledClosure.fields.closedFrom",
-                        "Close from",
-                      )}
+                      {t("store.scheduledClosure.fields.closedFrom")}
                     </Form.Label>
                     <Form.Control>
                       <DatePicker
@@ -101,16 +95,10 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
                 return (
                   <Form.Item>
                     <Form.Label optional>
-                      {t(
-                        "store.scheduledClosure.fields.closedTo",
-                        "Close until",
-                      )}
+                      {t("store.scheduledClosure.fields.closedTo")}
                     </Form.Label>
                     <Form.Hint>
-                      {t(
-                        "store.scheduledClosure.fields.closedToHint",
-                        "If empty, the store will remain closed indefinitely.",
-                      )}
+                      {t("store.scheduledClosure.fields.closedToHint")}
                     </Form.Hint>
                     <Form.Control>
                       <DatePicker

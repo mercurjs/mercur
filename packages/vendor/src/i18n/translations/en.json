@@ -2686,6 +2686,15 @@
     "domain": "Seller",
     "manageYourStoresDetails": "Manage your seller's details",
     "editStore": "Edit seller",
+    "profileCompletion": {
+      "title": "Complete store profile",
+      "steps": {
+        "storeDetails": "Add store details",
+        "address": "Add address",
+        "companyDetails": "Add company details",
+        "paymentDetails": "Add payment details"
+      }
+    },
     "status": {
       "active": "Active",
       "pendingApproval": "Pending approval",
@@ -2735,6 +2744,57 @@
     "editCompany": {
       "header": "Edit Company"
     },
+    "address": {
+      "header": "Address",
+      "edit": {
+        "header": "Edit Address",
+        "description": "Update the address for your store.",
+        "successToast": "Address updated"
+      }
+    },
+    "paymentDetails": {
+      "header": "Payment Details",
+      "edit": {
+        "header": "Edit Payment Details",
+        "description": "Update the payment details for your store.",
+        "successToast": "Payment details updated"
+      },
+      "fields": {
+        "countryCode": "Country",
+        "holderName": "Account holder",
+        "bankName": "Bank name",
+        "iban": "IBAN",
+        "bic": "BIC / SWIFT",
+        "routingNumber": "Routing number",
+        "accountNumber": "Account number"
+      }
+    },
+    "professionalDetails": {
+      "header": "Company Details",
+      "edit": {
+        "header": "Edit Professional Details",
+        "description": "Update the professional details for your store.",
+        "successToast": "Professional details updated"
+      },
+      "fields": {
+        "corporateName": "Corporate name",
+        "registrationNumber": "Registration number",
+        "taxId": "Tax ID"
+      }
+    },
+    "scheduledClosure": {
+      "header": "Scheduled Closure",
+      "edit": {
+        "header": "Schedule Store Closure",
+        "description": "Configure the scheduled closure dates for your store.",
+        "successToast": "Scheduled closure updated"
+      },
+      "fields": {
+        "closedFrom": "Close from",
+        "closedTo": "Close until",
+        "closedToHint": "If empty, the store will remain closed indefinitely."
+      }
+    },
     "subscription": {
       "header": "Subscription",
       "noPlan": "No subscription plan",
@@ -2742,7 +2802,8 @@
       "monthlyAmount": "Monthly amount",
       "freeMonths": "Free months",
       "freePeriod": "Free period",
-      "requiresOrders": "Requires orders"
+      "requiresOrders": "Requires orders",
+      "month": "month"
     },
     "toast": {
       "update": "Store successfully updated",

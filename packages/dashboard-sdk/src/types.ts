@@ -34,6 +34,7 @@ export interface MercurConfig {
         MainSidebar?: string
         SettingsSidebar?: string
         TopbarActions?: string
+        StoreSetup?: string
     },
     /** Internationalization settings. */
     i18n?: {

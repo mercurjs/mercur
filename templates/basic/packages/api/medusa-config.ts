@@ -19,13 +19,19 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     }
   },
+  featureFlags: {
+    rbac: true,
+    seller_registration: true
+  },
   modules: [
+    {
+      resolve: "@medusajs/medusa/rbac",
+    },
     {
       resolve: '@mercurjs/core-plugin/modules/admin-ui',
       options: {
         appDir: path.join(__dirname, '../../apps/admin'),
         path: '/dashboard',
-        disable: false
       } as DashboardModuleOptions
     },
     {
@@ -33,7 +39,6 @@ module.exports = defineConfig({
       options: {
         appDir: path.join(__dirname, '../../apps/vendor'),
         path: '/seller',
-        disable: false
       } as DashboardModuleOptions
     },
   ],
