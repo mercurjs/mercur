@@ -28,10 +28,19 @@ const DEFAULT_BRANCH = "canary";
 const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
-  basic: "basic",
+  basic: {
+    path: "basic",
+    description: "Full marketplace starter — sellers, products, orders, admin & vendor panels",
+  },
   // todo: uncomment registry template
-  // registry: "registry",
-  plugin: "plugin",
+  // registry: {
+  //   path: "registry",
+  //   description: "Create and publish your own block registry",
+  // },
+  plugin: {
+    path: "plugin",
+    description: "MedusaJS plugin template — for building reusable marketplace extensions",
+  },
 } as const;
 
 export const create = new Command()
@@ -55,6 +64,7 @@ export const create = new Command()
   .option("--db-port <port>", "PostgreSQL port.", "5432")
   .action(async (name, opts) => {
     try {
+      const createStart = Date.now();
       validateNodeVersion();
       showTelemetryNoticeIfNeeded();
 
@@ -92,9 +102,10 @@ export const create = new Command()
           message: `Which ${highlighter.info(
             "template"
           )} would you like to use?`,
-          choices: Object.entries(CREATE_TEMPLATES).map(([key, value]) => ({
-            title: value,
+          choices: Object.entries(CREATE_TEMPLATES).map(([key, tmpl]) => ({
+            title: key,
             value: key,
+            description: tmpl.description,
           })),
         });
 
@@ -224,7 +235,14 @@ export const create = new Command()
         cwd: projectDir,
       });
 
-      spinner("Mercur project successfully created!").succeed();
+      const totalDuration = ((Date.now() - createStart) / 1000).toFixed(1);
+      spinner(`Mercur project successfully created! (${totalDuration}s)`).succeed();
+
+      const isNewDb = dbResult?.success && !dbResult.alreadyExists;
+
+      if (isNewDb) {
+        logger.log(sellerCredentials());
+      }
 
       if (dbResult?.success) {
         spinner("Starting development server...").info();
@@ -244,6 +262,9 @@ export const create = new Command()
 
         const printRestartHint = () => {
           logger.break();
+          if (isNewDb) {
+            logger.log(sellerCredentials());
+          }
           logger.log(kleur.bgGreen(kleur.black(" Project stopped. To start again: ")));
           logger.log(successMessage(projectDir, packageManager));
           logger.log(feedbackOutro());
@@ -263,8 +284,14 @@ export const create = new Command()
           resources: ["http://localhost:9000/health"],
           timeout: 60000,
         }).then(async () => {
+          logger.break();
+          logger.log(serverUrls());
+          if (isNewDb) {
+            logger.log(sellerCredentials());
+          }
           try {
             await open(inviteUrl);
+            spinner("Admin panel opened in your browser.").succeed();
           } catch {
             spinner("Open this URL in your browser to create your admin account:").info();
             logger.log(highlighter.info(inviteUrl));
@@ -291,6 +318,22 @@ async function createOrFindProjectDir(projectDir: string): Promise<void> {
   const pathExists = await fs.pathExists(projectDir);
   if (!pathExists) {
     await fs.mkdir(projectDir);
+    return;
+  }
+
+  const files = await fs.readdir(projectDir);
+  const nonHidden = files.filter((f) => !f.startsWith("."));
+  if (nonHidden.length > 0) {
+    const { proceed } = await prompts({
+      type: "confirm",
+      name: "proceed",
+      message: `Directory ${highlighter.info(path.basename(projectDir))} already exists and contains ${nonHidden.length} file(s). Continue and overwrite?`,
+      initial: false,
+    });
+
+    if (!proceed) {
+      process.exit(0);
+    }
   }
 }
 
@@ -302,7 +345,7 @@ async function downloadTemplate({
   template: keyof typeof CREATE_TEMPLATES;
 }) {
   const url = `https://codeload.github.com/mercurjs/mercur/tar.gz/${DEFAULT_BRANCH}`;
-  const templatePath = CREATE_TEMPLATES[template];
+  const templatePath = CREATE_TEMPLATES[template].path;
   const filter = `mercur-${DEFAULT_BRANCH.replace(/^v/, "").replaceAll("/", "-")}/templates/${templatePath}/`;
 
   await pipeline(
@@ -380,6 +423,27 @@ ${header("Launch Application:")}
 ${header("Documentation:")}
 
   - ${createTerminalLink("Getting Started", "https://docs.mercurjs.com/v2/welcome")}
+`;
+}
+
+function sellerCredentials(): string {
+  return `
+${kleur.bgCyan(kleur.black(" Demo Seller Credentials "))}
+
+  Email:    ${highlighter.info("seller@medusa-test.com")}
+  Password: ${highlighter.info("supersecret")}
+  Login at: ${highlighter.info("http://localhost:9000/seller")}
+`;
+}
+
+function serverUrls(): string {
+  const header = (message: string) => kleur.bold(message);
+  return `
+${header("Your marketplace is running:")}
+
+  API:          ${highlighter.info("http://localhost:9000")}
+  Admin Panel:  ${highlighter.info("http://localhost:9000/dashboard")}
+  Vendor Panel: ${highlighter.info("http://localhost:9000/seller")}
 `;
 }
 
