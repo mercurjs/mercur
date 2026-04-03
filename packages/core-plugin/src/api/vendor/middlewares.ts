@@ -69,7 +69,6 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   },
   {
     matcher: "/vendor/*",
-    method: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     middlewares: [
       vendorCorsMiddleware,
       unlessBaseUrl(
