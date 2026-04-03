@@ -79,6 +79,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
             </Text>
           </Alert>
         )}
+
         <TwoColumnPage data={seller} hasOutlet>
           {children}
         </TwoColumnPage>

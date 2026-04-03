@@ -2686,6 +2686,15 @@
     "domain": "Seller",
     "manageYourStoresDetails": "Manage your seller's details",
     "editStore": "Edit seller",
+    "profileCompletion": {
+      "title": "Complete store profile",
+      "steps": {
+        "storeDetails": "Add store details",
+        "address": "Add address",
+        "companyDetails": "Add company details",
+        "paymentDetails": "Add payment details"
+      }
+    },
     "status": {
       "active": "Active",
       "pendingApproval": "Pending approval",
