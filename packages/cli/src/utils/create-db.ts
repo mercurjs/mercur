@@ -225,7 +225,6 @@ async function getDbClient({
         connectionTimeoutMillis: 5000,
       });
       await client.connect();
-      spinnerRef?.stop();
       return {
         client,
         dbConnectionString: formatConnectionString({
@@ -362,7 +361,7 @@ async function seedDatabase({ projectDir, spinner: parentSpinner }: DbSetupArgs)
           ? ["bun", "run", "seed"]
           : ["npm", "run", "seed"];
 
-    seedSpinner.text = "Seeding database...";
+    seedSpinner.text = "Seeding database with demo data...";
     await execa(seedCmd[0], seedCmd.slice(1), { cwd: apiDir });
 
     if (!parentSpinner) {
