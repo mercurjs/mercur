@@ -217,6 +217,13 @@ class SellerModuleService extends MedusaService({
     token: string,
     @MedusaContext() sharedContext: Context = {},
   ): Promise<MemberInviteDTO> {
+    if (!this.options_.jwt_secret) {
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        "JWT secret is not configured"
+      )
+    }
+
     let decoded: JwtPayload
     try {
       decoded = jwt.verify(token, this.options_.jwt_secret, {
