@@ -18,7 +18,6 @@
     "medusa"
   ],
   "scripts": {
-    "build": "medusa build",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start",
     "dev": "medusa develop",

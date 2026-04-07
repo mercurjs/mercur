@@ -39,7 +39,7 @@
     "medusa-v2"
   ],
   "scripts": {
-    "build": "bunx @mercurjs/cli@latest codegen && rm -rf .medusa && tsc --declaration --outDir .medusa/server",
+    "build": "bunx @mercurjs/cli codegen && rm -rf .medusa && tsc --declaration --outDir .medusa/server",
     "dev": "medusa plugin:develop",
     "prepublishOnly": "tsc --declaration --outDir .medusa/server"
   },
@@ -71,7 +71,8 @@
     "zod": "3.25.76",
     "multer": "^2.0.2",
     "http-proxy-middleware": "^3.0.3",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "@mercurjs/cli": "2.0.1"
   },
   "peerDependencies": {
     "@medusajs/admin-sdk": "^2.13.4",
