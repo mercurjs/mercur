@@ -59,10 +59,10 @@ A seller account moves through **four statuses** over its lifetime:
 
 ### Status Definitions
 
-- `**pending_approval**` — The seller has registered but has not yet been reviewed by the platform operator.
-- `**open**` — The seller is active and may list products, receive orders, and collect payouts.
-- `**suspended**` — The seller's operations are temporarily frozen. Products remain in the catalog but cannot be purchased.
-- `**terminated**` — The seller account is permanently closed. This status is irreversible.
+- **`pending_approval`** — The seller has registered but has not yet been reviewed by the platform operator.
+- **`open`** — The seller is active and may list products, receive orders, and collect payouts.
+- **`suspended`** — The seller's operations are temporarily frozen. Products remain in the catalog but cannot be purchased.
+- **`terminated`** — The seller account is permanently closed. This status is irreversible.
 
 ### Status Transition Rules
 
