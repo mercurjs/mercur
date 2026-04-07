@@ -23,8 +23,7 @@ import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
 import waitOn from "wait-on";
 
-// todo: change to main after new release
-const DEFAULT_BRANCH = "canary";
+const DEFAULT_BRANCH = "main";
 const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
@@ -273,7 +272,7 @@ export const create = new Command()
 
         // Ctrl+C sends SIGINT to the whole process group (parent + child).
         // Suppress Node's default exit so we can wait for the child to close first.
-        process.on("SIGINT", () => {});
+        process.on("SIGINT", () => { });
 
         serverProcess.on("close", () => {
           printRestartHint();
