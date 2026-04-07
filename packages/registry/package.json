@@ -4,7 +4,6 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "tsc",
 		"dev": "tsc --watch",
 		"build:registry": "bunx @mercurjs/cli@latest registry:build",
 		"codegen": "bunx @mercurjs/cli@latest registry:codegen",
