@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import {
   Drawer,
@@ -7,6 +7,7 @@ import {
   Label,
   Text,
   Heading,
+  Prompt,
   toast,
 } from "@medusajs/ui"
 import {
@@ -77,13 +78,13 @@ export const EditGlobalFeeDrawer = ({ fee, open, onClose }: Props) => {
     }
   }
 
+  const [showDeactivatePrompt, setShowDeactivatePrompt] = useState(false)
+
   const handleDeactivate = async () => {
-    if (!confirm("Are you sure you want to deactivate this global fee?")) {
-      return
-    }
     try {
       await deactivateMutation.mutateAsync()
       toast.success("Global fee deactivated")
+      setShowDeactivatePrompt(false)
       onClose()
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to deactivate")
@@ -177,11 +178,27 @@ export const EditGlobalFeeDrawer = ({ fee, open, onClose }: Props) => {
           <div className="flex items-center justify-between w-full">
             <Button
               variant="danger"
-              onClick={handleDeactivate}
+              onClick={() => setShowDeactivatePrompt(true)}
               disabled={deactivateMutation.isPending}
             >
               Deactivate Fee
             </Button>
+            <Prompt open={showDeactivatePrompt} onOpenChange={setShowDeactivatePrompt}>
+              <Prompt.Content>
+                <Prompt.Header>
+                  <Prompt.Title>Deactivate Global Fee</Prompt.Title>
+                  <Prompt.Description>
+                    Are you sure you want to deactivate this global fee? Orders will not have a global fee applied until a new one is activated.
+                  </Prompt.Description>
+                </Prompt.Header>
+                <Prompt.Footer>
+                  <Prompt.Cancel>Cancel</Prompt.Cancel>
+                  <Prompt.Action onClick={handleDeactivate}>
+                    Deactivate
+                  </Prompt.Action>
+                </Prompt.Footer>
+              </Prompt.Content>
+            </Prompt>
             <div className="flex gap-2">
               <Button variant="secondary" onClick={onClose}>
                 Cancel

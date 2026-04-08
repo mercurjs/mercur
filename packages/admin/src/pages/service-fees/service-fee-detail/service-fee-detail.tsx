@@ -1,9 +1,11 @@
+import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import {
   Badge,
   Button,
   Container,
   Heading,
+  Prompt,
   Text,
   toast,
 } from "@medusajs/ui"
@@ -27,12 +29,13 @@ export const ServiceFeeDetailPage = () => {
   const { service_fee, isLoading } = useServiceFee(id!)
   const { change_logs } = useServiceFeeChangeLogs(id!)
   const deactivateMutation = useDeactivateServiceFee(id!)
+  const [showDeactivatePrompt, setShowDeactivatePrompt] = useState(false)
 
   const handleDeactivate = async () => {
-    if (!confirm("Are you sure you want to deactivate this fee?")) return
     try {
       await deactivateMutation.mutateAsync()
       toast.success("Fee deactivated")
+      setShowDeactivatePrompt(false)
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to deactivate")
     }
@@ -78,9 +81,25 @@ export const ServiceFeeDetailPage = () => {
           </Badge>
         </div>
         <div className="flex gap-2">
-          <Button variant="danger" onClick={handleDeactivate}>
+          <Button variant="danger" onClick={() => setShowDeactivatePrompt(true)}>
             Deactivate
           </Button>
+          <Prompt open={showDeactivatePrompt} onOpenChange={setShowDeactivatePrompt}>
+            <Prompt.Content>
+              <Prompt.Header>
+                <Prompt.Title>Deactivate Service Fee</Prompt.Title>
+                <Prompt.Description>
+                  Are you sure you want to deactivate this service fee? It will no longer apply to new orders.
+                </Prompt.Description>
+              </Prompt.Header>
+              <Prompt.Footer>
+                <Prompt.Cancel>Cancel</Prompt.Cancel>
+                <Prompt.Action onClick={handleDeactivate}>
+                  Deactivate
+                </Prompt.Action>
+              </Prompt.Footer>
+            </Prompt.Content>
+          </Prompt>
           <Button onClick={() => navigate(`/settings/service-fees/${id}/edit`)}>
             <PencilSquare />
             Edit Fee

@@ -26,6 +26,7 @@ type CreateServiceFeeFormData = {
   end_date?: string
   eligibility_type?: "categories" | "product_group"
   application_mode?: "include" | "exclude"
+  categories?: string[]
   apply_to_shops?: boolean
   shop_selection_method?: "all" | "upload_ids" | "shop_groups"
 }
@@ -46,6 +47,7 @@ export const ServiceFeeCreatePage = () => {
       custom_period: false,
       eligibility_type: "categories",
       application_mode: "include",
+      categories: [],
       apply_to_shops: false,
       shop_selection_method: "all",
     },
@@ -65,6 +67,14 @@ export const ServiceFeeCreatePage = () => {
         charging_level: data.charging_level,
         value: Number(data.value),
         status: "active",
+      }
+
+      if (data.categories && data.categories.length > 0) {
+        payload.rules = data.categories.map((catId: string) => ({
+          reference: "product_category",
+          reference_id: catId,
+          mode: data.application_mode || "include",
+        }))
       }
 
       if (data.custom_period && data.start_date) {
@@ -359,24 +369,59 @@ export const ServiceFeeCreatePage = () => {
                   </div>
 
                   <div>
-                    <Label>Select category</Label>
-                    <Select>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select category" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="electronics">
-                          Electronics
-                        </Select.Item>
-                        <Select.Item value="mobile">
-                          Mobile &amp; Gadgets
-                        </Select.Item>
-                        <Select.Item value="fashion">Fashion</Select.Item>
-                        <Select.Item value="home">
-                          Home &amp; Living
-                        </Select.Item>
-                      </Select.Content>
-                    </Select>
+                    <Label>Select Categories</Label>
+                    <Controller
+                      name="categories"
+                      control={control}
+                      render={({ field }) => {
+                        const values = field.value || []
+                        return (
+                          <div className="space-y-2">
+                            {values.map((cat: string, idx: number) => (
+                              <div key={idx} className="flex gap-2 items-center">
+                                <Select
+                                  value={cat}
+                                  onValueChange={(val) => {
+                                    const updated = [...values]
+                                    updated[idx] = val
+                                    field.onChange(updated)
+                                  }}
+                                >
+                                  <Select.Trigger className="flex-1">
+                                    <Select.Value placeholder="Select category" />
+                                  </Select.Trigger>
+                                  <Select.Content>
+                                    <Select.Item value="electronics">Electronics</Select.Item>
+                                    <Select.Item value="mobile">Mobile &amp; Gadgets</Select.Item>
+                                    <Select.Item value="fashion">Fashion</Select.Item>
+                                    <Select.Item value="home">Home &amp; Living</Select.Item>
+                                  </Select.Content>
+                                </Select>
+                                <Button
+                                  variant="transparent"
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = values.filter((_: string, i: number) => i !== idx)
+                                    field.onChange(updated)
+                                  }}
+                                  className="text-ui-fg-error"
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            ))}
+                            <Button
+                              variant="transparent"
+                              type="button"
+                              onClick={() => field.onChange([...values, ""])}
+                              className="text-ui-fg-interactive"
+                            >
+                              + Add Another Category
+                            </Button>
+                          </div>
+                        )
+                      }}
+                    />
                   </div>
                 </div>
               </Container>

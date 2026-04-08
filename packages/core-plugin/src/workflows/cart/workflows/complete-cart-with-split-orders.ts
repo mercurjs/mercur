@@ -53,6 +53,7 @@ import {
 } from "../utils"
 import { registerUsageStep } from "../../promotion"
 import { refreshOrderCommissionLinesWorkflow } from "../../commission/workflows/refresh-order-commission-lines"
+import { refreshOrderServiceFeeLinesWorkflow } from "../../service-fee/workflows/refresh-order-service-fee-lines"
 
 type CompleteCartWithSplitOrdersWorkflowInput = {
     cart_id: string
@@ -505,6 +506,11 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             parallelize(
                 addOrderTransactionStep(orderTransactions),
                 refreshOrderCommissionLinesWorkflow.runAsStep({
+                    input: {
+                        order_ids: orderIds
+                    }
+                }),
+                refreshOrderServiceFeeLinesWorkflow.runAsStep({
                     input: {
                         order_ids: orderIds
                     }
