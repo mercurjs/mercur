@@ -1234,6 +1234,52 @@ export function getRouteMap({
                 ],
               },
               {
+                path: "service-fees",
+                errorElement: <ErrorBoundary />,
+                element: <Outlet />,
+                handle: {
+                  breadcrumb: () => "Service Fees",
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () =>
+                      import(
+                        "./pages/service-fees/service-fee-list"
+                      ),
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () =>
+                          import(
+                            "./pages/service-fees/service-fee-create"
+                          ),
+                      },
+                    ],
+                  },
+                  {
+                    path: ":id",
+                    element: <Outlet />,
+                    children: [
+                      {
+                        path: "",
+                        lazy: () =>
+                          import(
+                            "./pages/service-fees/service-fee-detail"
+                          ),
+                      },
+                      {
+                        path: "edit",
+                        lazy: () =>
+                          import(
+                            "./pages/service-fees/service-fee-edit"
+                          ),
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
                 path: "users",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,

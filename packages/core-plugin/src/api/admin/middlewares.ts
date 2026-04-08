@@ -15,6 +15,7 @@ import { adminSellersMiddlewares } from "./sellers/middlewares"
 import { adminAttributeMiddlewares } from "./attributes/middlewares"
 import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/middlewares"
+import { adminServiceFeesMiddlewares } from "./service-fees/middlewares"
 
 const maybeApplySellerProductFilter = (
   req: AuthenticatedMedusaRequest,
@@ -69,6 +70,7 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminSellersMiddlewares,
   ...adminCommissionRatesMiddlewares,
   ...adminSubscriptionPlanRoutesMiddlewares,
+  ...adminServiceFeesMiddlewares,
   {
     method: ["GET"],
     matcher: "/admin/products",

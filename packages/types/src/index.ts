@@ -32,3 +32,6 @@ export * from "./dashboard"
 
 // Feature flags
 export * from "./feature-flags"
+
+// Service Fee types
+export * from "./service-fee"

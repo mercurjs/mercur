@@ -29,5 +29,6 @@ export * from "./stock-location"
 export * from "./payout"
 export * from "./commission"
 export * from "./subscription"
+export * from "./service-fee"
 
 export { StoreCompleteCartResponse } from "./order-group"

@@ -89,6 +89,10 @@ const useSettingRoutes = (): INavItem[] => {
         label: "Commission Rates",
         to: "/settings/commission-rates",
       },
+      {
+        label: "Service Fees",
+        to: "/settings/service-fees",
+      },
       ...extensionNavItems,
     ],
     [t],
