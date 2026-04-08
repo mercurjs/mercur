@@ -234,11 +234,31 @@ export const ServiceFeeCreatePage = () => {
                 Period
               </Heading>
               <div className="space-y-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    {...register("custom_period")}
-                    className="rounded border-ui-border-base"
+                <div
+                  className="flex items-center gap-3 cursor-pointer"
+                  onClick={() => {
+                    const current = watch("custom_period")
+                    // @ts-ignore - setValue from useForm
+                    control._formValues.custom_period = !current
+                    control._subjects.values.next({ values: { ...control._formValues, custom_period: !current } })
+                  }}
+                >
+                  <Controller
+                    name="custom_period"
+                    control={control}
+                    render={({ field }) => (
+                      <div
+                        className={`w-10 h-6 rounded-full transition-colors cursor-pointer flex items-center ${
+                          field.value ? "bg-ui-bg-interactive justify-end" : "bg-ui-bg-switch-off justify-start"
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          field.onChange(!field.value)
+                        }}
+                      >
+                        <div className="w-5 h-5 rounded-full bg-white shadow-sm mx-0.5" />
+                      </div>
+                    )}
                   />
                   <div>
                     <Text className="font-medium">Set Custom Period</Text>
@@ -246,7 +266,7 @@ export const ServiceFeeCreatePage = () => {
                       Define a specific date range for this fee
                     </Text>
                   </div>
-                </label>
+                </div>
 
                 {customPeriod ? (
                   <div className="grid grid-cols-2 gap-4">

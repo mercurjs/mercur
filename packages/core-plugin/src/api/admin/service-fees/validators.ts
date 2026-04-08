@@ -45,27 +45,42 @@ const ServiceFeeRuleSchema = z.object({
 })
 
 export type AdminCreateServiceFeeType = z.infer<typeof AdminCreateServiceFee>
-export const AdminCreateServiceFee = z.object({
-  name: z.string().max(255),
-  display_name: z.string().max(255),
-  code: z.string().max(255),
-  type: z.nativeEnum(ServiceFeeType),
-  target: z.nativeEnum(ServiceFeeTarget).optional(),
-  charging_level: z.nativeEnum(ServiceFeeChargingLevel),
-  status: z.nativeEnum(ServiceFeeStatus).optional(),
-  value: z.number().positive().max(100),
-  currency_code: z.string().nullish(),
-  min_amount: z.number().positive().nullish(),
-  max_amount: z.number().positive().nullish(),
-  include_tax: z.boolean().optional(),
-  is_enabled: z.boolean().optional(),
-  priority: z.number().optional(),
-  effective_date: z.coerce.date().nullish(),
-  start_date: z.coerce.date().nullish(),
-  end_date: z.coerce.date().nullish(),
-  replaces_fee_id: z.string().nullish(),
-  rules: z.array(ServiceFeeRuleSchema).optional(),
-})
+export const AdminCreateServiceFee = z
+  .object({
+    name: z.string().max(255),
+    display_name: z.string().max(255),
+    code: z.string().max(255),
+    type: z.nativeEnum(ServiceFeeType),
+    target: z.nativeEnum(ServiceFeeTarget).optional(),
+    charging_level: z.nativeEnum(ServiceFeeChargingLevel),
+    status: z.nativeEnum(ServiceFeeStatus).optional(),
+    value: z.number().positive(),
+    currency_code: z.string().nullish(),
+    min_amount: z.number().positive().nullish(),
+    max_amount: z.number().positive().nullish(),
+    include_tax: z.boolean().optional(),
+    is_enabled: z.boolean().optional(),
+    priority: z.number().optional(),
+    effective_date: z.coerce.date().nullish(),
+    start_date: z.coerce.date().nullish(),
+    end_date: z.coerce.date().nullish(),
+    replaces_fee_id: z.string().nullish(),
+    rules: z.array(ServiceFeeRuleSchema).optional(),
+  })
+  .refine(
+    (data) => data.type !== ServiceFeeType.PERCENTAGE || data.value <= 100,
+    { message: "Percentage fee value cannot exceed 100", path: ["value"] }
+  )
+  .refine(
+    (data) =>
+      data.min_amount == null ||
+      data.max_amount == null ||
+      data.min_amount <= data.max_amount,
+    {
+      message: "min_amount must be less than or equal to max_amount",
+      path: ["min_amount"],
+    }
+  )
 
 export type AdminUpdateServiceFeeType = z.infer<typeof AdminUpdateServiceFee>
 export const AdminUpdateServiceFee = z.object({
@@ -75,7 +90,7 @@ export const AdminUpdateServiceFee = z.object({
   type: z.nativeEnum(ServiceFeeType).optional(),
   target: z.nativeEnum(ServiceFeeTarget).optional(),
   status: z.nativeEnum(ServiceFeeStatus).optional(),
-  value: z.number().positive().max(100).optional(),
+  value: z.number().positive().optional(),
   currency_code: z.string().nullish(),
   min_amount: z.number().positive().nullish(),
   max_amount: z.number().positive().nullish(),

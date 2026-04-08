@@ -177,14 +177,23 @@ export const ServiceFeeEditPage = () => {
               <Heading level="h2" className="mb-4">
                 Period
               </Heading>
-              <label className="flex items-center gap-2 cursor-pointer mb-4">
-                <input
-                  type="checkbox"
-                  {...register("custom_period")}
-                  className="rounded border-ui-border-base"
-                />
+              <div
+                className="flex items-center gap-3 cursor-pointer mb-4"
+                onClick={() => {
+                  const current = watch("custom_period")
+                  // Toggle custom_period via setValue equivalent
+                  reset({ ...watch(), custom_period: !current }, { keepDirty: true })
+                }}
+              >
+                <div
+                  className={`w-10 h-6 rounded-full transition-colors cursor-pointer flex items-center ${
+                    customPeriod ? "bg-ui-bg-interactive justify-end" : "bg-ui-bg-switch-off justify-start"
+                  }`}
+                >
+                  <div className="w-5 h-5 rounded-full bg-white shadow-sm mx-0.5" />
+                </div>
                 <Text className="font-medium">Set Custom Period</Text>
-              </label>
+              </div>
               {customPeriod ? (
                 <div className="grid grid-cols-2 gap-4">
                   <div>

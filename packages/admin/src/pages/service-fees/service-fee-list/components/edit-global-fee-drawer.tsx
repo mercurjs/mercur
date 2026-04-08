@@ -22,8 +22,17 @@ type EditGlobalFeeFormData = {
   effective_date: string
 }
 
+type ServiceFeeData = {
+  id: string
+  name: string
+  display_name: string
+  value: number
+  effective_date: string | null
+  [key: string]: unknown
+}
+
 type Props = {
-  fee: any
+  fee: ServiceFeeData
   open: boolean
   onClose: () => void
 }

@@ -81,7 +81,7 @@ Fees are additive. An order can incur a Global Fee, an Item Level fee, and a Sho
 Item and Shop level fees use a rules engine with include/exclude modes. Include mode means the fee applies *only* to selected categories/groups. Exclude mode means the fee applies to *everything except* selected categories/groups. The commission module's rule-matching pattern was extended to support this dual-mode logic.
 
 ### Scheduled Job for Pending Activation
-Fees with future effective dates enter `pending` status. A MedusaJS scheduled job runs every 5 minutes, checking for pending fees whose effective_date has passed, and atomically activates them (deactivating predecessors for Global fees). Uses `FOR UPDATE SKIP LOCKED` for concurrent safety.
+Fees with future effective dates enter `pending` status. A MedusaJS scheduled job runs every 5 minutes, checking for pending fees whose effective_date has passed, and atomically activates them (deactivating predecessors for Global fees before activating the new one within the same context). The job is naturally idempotent since the WHERE clause only matches pending fees.
 
 ### Append-Only Audit Log
 Every mutation (create, edit, deactivate, activate) writes to `service_fee_change_log` with actor ID, timestamp, action type, and before/after snapshots. The table has no UPDATE or DELETE operations at the application level, ensuring compliance-ready audit trails.
