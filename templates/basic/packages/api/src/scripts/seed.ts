@@ -29,8 +29,7 @@ import {
   updateStoresStep,
   updateStoresWorkflow,
 } from "@medusajs/medusa/core-flows";
-import { ApiKey } from "../../.medusa/types/query-entry-points";
-import { MercurModules } from "@mercurjs/types";
+import { ApiKeyDTO } from "@mercurjs/types";
 
 const updateStoreCurrencies = createWorkflow(
   "update-store-currencies",
@@ -434,7 +433,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info("Finished seeding stock location data.");
 
   logger.info("Seeding publishable API key data...");
-  let publishableApiKey: ApiKey | null = null;
+  let publishableApiKey: ApiKeyDTO | null = null;
   const { data } = await query.graph({
     entity: "api_key",
     fields: ["id"],
@@ -460,7 +459,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
       },
     });
 
-    publishableApiKey = publishableApiKeyResult as ApiKey;
+    publishableApiKey = publishableApiKeyResult as ApiKeyDTO;
   }
 
   // Link sales channel to API key (idempotent)
@@ -1061,155 +1060,4 @@ export default async function seedDemoData({ container }: ExecArgs) {
   }
 
   logger.info("Finished seeding inventory levels data.");
-
-  logger.info("Seeding seller data...");
-  const sellerEmail = "seller@medusa-test.com";
-  const sellerModule = container.resolve(MercurModules.SELLER)
-  const authModule: IAuthModuleService = container.resolve(Modules.AUTH);
-
-  const existingSellers = await sellerModule.listSellers({
-    email: sellerEmail,
-  });
-
-  let seller;
-  if (existingSellers.length) {
-    seller = existingSellers[0];
-    logger.info("Seller already exists, skipping creation.");
-  } else {
-    seller = await sellerModule.createSellers({
-      name: "Test Seller",
-      email: sellerEmail,
-    });
-
-    const authResult = await authModule.register("emailpass", {
-      body: { email: sellerEmail, password: "supersecret" },
-    });
-
-    if (!authResult.success || !authResult.authIdentity) {
-      throw new Error(
-        `Failed to register seller auth identity: ${authResult.error}`
-      );
-    }
-
-    await authModule.updateAuthIdentities({
-      id: authResult.authIdentity.id,
-      app_metadata: {
-        seller_id: seller.id,
-      },
-    });
-
-    logger.info("Seller created with email: seller@medusa-test.com / password: supersecret");
-  }
-
-  // Link entities to seller (idempotent — runs every time)
-  logger.info("Linking products to seller...");
-  for (const product of seededProducts) {
-    try {
-      await link.create({
-        [Modules.PRODUCT]: {
-          product_id: product.id,
-        },
-        [MercurModules.SELLER]: {
-          seller_id: seller.id,
-        },
-      });
-    } catch (error: unknown) {
-      if (!(error instanceof Error && error.message.includes("already exists"))) {
-        throw error;
-      }
-    }
-  }
-
-  logger.info("Linking stock location to seller...");
-  try {
-    await link.create({
-      [Modules.STOCK_LOCATION]: {
-        stock_location_id: stockLocation.id,
-      },
-      [MercurModules.SELLER]: {
-        seller_id: seller.id,
-      },
-    });
-  } catch (error: unknown) {
-    if (!(error instanceof Error && error.message.includes("already exists"))) {
-      throw error;
-    }
-  }
-
-  logger.info("Linking fulfillment set to seller...");
-  try {
-    await link.create({
-      [MercurModules.SELLER]: {
-        seller_id: seller.id,
-      },
-      [Modules.FULFILLMENT]: {
-        fulfillment_set_id: fulfillmentSet.id,
-      },
-    });
-  } catch (error: unknown) {
-    if (!(error instanceof Error && error.message.includes("already exists"))) {
-      throw error;
-    }
-  }
-
-  logger.info("Linking service zones to seller...");
-  const fulfillmentSetWithZones = await fulfillmentModuleService.retrieveFulfillmentSet(
-    fulfillmentSet.id,
-    { relations: ["service_zones"] }
-  );
-  for (const zone of fulfillmentSetWithZones.service_zones) {
-    try {
-      await link.create({
-        [MercurModules.SELLER]: {
-          seller_id: seller.id,
-        },
-        [Modules.FULFILLMENT]: {
-          service_zone_id: zone.id,
-        },
-      });
-    } catch (error: unknown) {
-      if (!(error instanceof Error && error.message.includes("already exists"))) {
-        throw error;
-      }
-    }
-  }
-
-  logger.info("Linking shipping profile to seller...");
-  try {
-    await link.create({
-      [Modules.FULFILLMENT]: {
-        shipping_profile_id: shippingProfile.id,
-      },
-      [MercurModules.SELLER]: {
-        seller_id: seller.id,
-      },
-    });
-  } catch (error: unknown) {
-    if (!(error instanceof Error && error.message.includes("already exists"))) {
-      throw error;
-    }
-  }
-
-  logger.info("Linking shipping options to seller...");
-  const shippingOptions = await fulfillmentModuleService.listShippingOptions({
-    service_zone: { id: fulfillmentSetWithZones.service_zones.map((z) => z.id) },
-  });
-  for (const option of shippingOptions) {
-    try {
-      await link.create({
-        [Modules.FULFILLMENT]: {
-          shipping_option_id: option.id,
-        },
-        [MercurModules.SELLER]: {
-          seller_id: seller.id,
-        },
-      });
-    } catch (error: unknown) {
-      if (!(error instanceof Error && error.message.includes("already exists"))) {
-        throw error;
-      }
-    }
-  }
-
-  logger.info("Finished seeding seller data.");
 }
