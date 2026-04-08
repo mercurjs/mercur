@@ -10,7 +10,7 @@
     "preview": "vite preview --port 7000"
   },
   "dependencies": {
-    "@mercurjs/admin": "2.0.1",
+    "@mercurjs/admin": "2.0.2",
     "@acme/api": "*"
   },
   "devDependencies": {

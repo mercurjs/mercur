@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/payout-stripe-connect",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Stripe Connect payment provider for Mercur",
   "private": false,
   "type": "module",
