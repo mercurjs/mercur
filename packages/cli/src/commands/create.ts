@@ -237,12 +237,6 @@ export const create = new Command()
       const totalDuration = ((Date.now() - createStart) / 1000).toFixed(1);
       spinner(`Mercur project successfully created! (${totalDuration}s)`).succeed();
 
-      const isNewDb = dbResult?.success && !dbResult.alreadyExists;
-
-      if (isNewDb) {
-        logger.log(sellerCredentials());
-      }
-
       if (dbResult?.success) {
         spinner("Starting development server...").info();
 
@@ -261,9 +255,6 @@ export const create = new Command()
 
         const printRestartHint = () => {
           logger.break();
-          if (isNewDb) {
-            logger.log(sellerCredentials());
-          }
           logger.log(kleur.bgGreen(kleur.black(" Project stopped. To start again: ")));
           logger.log(successMessage(projectDir, packageManager));
           logger.log(feedbackOutro());
@@ -285,9 +276,6 @@ export const create = new Command()
         }).then(async () => {
           logger.break();
           logger.log(serverUrls());
-          if (isNewDb) {
-            logger.log(sellerCredentials());
-          }
           try {
             await open(inviteUrl);
             spinner("Admin panel opened in your browser.").succeed();
@@ -422,16 +410,6 @@ ${header("Launch Application:")}
 ${header("Documentation:")}
 
   - ${createTerminalLink("Getting Started", "https://docs.mercurjs.com/v2/welcome")}
-`;
-}
-
-function sellerCredentials(): string {
-  return `
-${kleur.bgCyan(kleur.black(" Demo Seller Credentials "))}
-
-  Email:    ${highlighter.info("seller@medusa-test.com")}
-  Password: ${highlighter.info("supersecret")}
-  Login at: ${highlighter.info("http://localhost:9000/seller")}
 `;
 }
 
