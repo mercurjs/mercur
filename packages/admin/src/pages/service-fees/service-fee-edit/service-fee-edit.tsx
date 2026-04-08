@@ -76,7 +76,7 @@ export const ServiceFeeEditPage = () => {
 
       await updateMutation.mutateAsync(payload)
       toast.success("Service fee updated")
-      navigate(`/service-fees/${id}`)
+      navigate(`/settings/service-fees/${id}`)
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to update")
     }
@@ -98,7 +98,7 @@ export const ServiceFeeEditPage = () => {
       <div className="mb-4">
         <Button
           variant="transparent"
-          onClick={() => navigate(`/service-fees/${id}`)}
+          onClick={() => navigate(`/settings/service-fees/${id}`)}
         >
           &larr; Back to Service Fees
         </Button>
@@ -230,7 +230,7 @@ export const ServiceFeeEditPage = () => {
                 <Button
                   variant="secondary"
                   className="w-full"
-                  onClick={() => navigate(`/service-fees/${id}`)}
+                  onClick={() => navigate(`/settings/service-fees/${id}`)}
                   type="button"
                 >
                   Cancel

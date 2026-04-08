@@ -1247,15 +1247,13 @@ export function getRouteMap({
                       import(
                         "./pages/service-fees/service-fee-list"
                       ),
-                    children: [
-                      {
-                        path: "create",
-                        lazy: () =>
-                          import(
-                            "./pages/service-fees/service-fee-create"
-                          ),
-                      },
-                    ],
+                  },
+                  {
+                    path: "create",
+                    lazy: () =>
+                      import(
+                        "./pages/service-fees/service-fee-create"
+                      ),
                   },
                   {
                     path: ":id",

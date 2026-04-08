@@ -20,10 +20,13 @@ export class Migration20260408120000 extends Migration {
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_service_fee_change_log_service_fee_id" ON "service_fee_change_log" ("service_fee_id") WHERE deleted_at IS NULL;`)
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_service_fee_change_log_deleted_at" ON "service_fee_change_log" ("deleted_at") WHERE deleted_at IS NULL;`)
 
-    this.addSql(`alter table if exists "service_fee_rule" add constraint "service_fee_rule_service_fee_id_foreign" foreign key ("service_fee_id") references "service_fee" ("id") on update cascade;`)
+    this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "IDX_one_active_global_fee" ON "service_fee" ("charging_level") WHERE charging_level = 'global' AND status = 'active' AND deleted_at IS NULL;`)
+
+    this.addSql(`alter table if exists "service_fee_rule" add constraint "service_fee_rule_service_fee_id_foreign" foreign key ("service_fee_id") references "service_fee" ("id") on update cascade on delete cascade;`)
   }
 
   override async down(): Promise<void> {
+    this.addSql(`DROP INDEX IF EXISTS "IDX_one_active_global_fee";`)
     this.addSql(`alter table if exists "service_fee_rule" drop constraint if exists "service_fee_rule_service_fee_id_foreign";`)
     this.addSql(`drop table if exists "service_fee_change_log" cascade;`)
     this.addSql(`drop table if exists "service_fee_line" cascade;`)

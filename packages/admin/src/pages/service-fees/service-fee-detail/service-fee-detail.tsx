@@ -60,7 +60,7 @@ export const ServiceFeeDetailPage = () => {
   return (
     <div className="max-w-[1200px] mx-auto py-8 px-4">
       <div className="mb-4">
-        <Button variant="transparent" onClick={() => navigate("/service-fees")}>
+        <Button variant="transparent" onClick={() => navigate("/settings/service-fees")}>
           &larr; Back to Service Fees
         </Button>
       </div>
@@ -81,7 +81,7 @@ export const ServiceFeeDetailPage = () => {
           <Button variant="danger" onClick={handleDeactivate}>
             Deactivate
           </Button>
-          <Button onClick={() => navigate(`/service-fees/${id}/edit`)}>
+          <Button onClick={() => navigate(`/settings/service-fees/${id}/edit`)}>
             <PencilSquare />
             Edit Fee
           </Button>

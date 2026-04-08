@@ -451,6 +451,13 @@ export type Routes = {
                 };
             };
         };
+        serviceFees: typeof import("../../src/api/admin/service-fees/route") & {
+            $id: typeof import("../../src/api/admin/service-fees/[id]/route") & {
+                changeLogs: typeof import("../../src/api/admin/service-fees/[id]/change-logs/route");
+                deactivate: typeof import("../../src/api/admin/service-fees/[id]/deactivate/route");
+                rules: typeof import("../../src/api/admin/service-fees/[id]/rules/route");
+            };
+        };
         subscriptionPlans: typeof import("../../src/api/admin/subscription-plans/route") & {
             $id: typeof import("../../src/api/admin/subscription-plans/[id]/route") & {
                 overrides: typeof import("../../src/api/admin/subscription-plans/[id]/overrides/route") & {

@@ -78,7 +78,7 @@ export const ServiceFeeCreatePage = () => {
 
       await createMutation.mutateAsync(payload)
       toast.success("Service fee created")
-      navigate("/service-fees")
+      navigate("/settings/service-fees")
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to create service fee")
     }
@@ -87,7 +87,7 @@ export const ServiceFeeCreatePage = () => {
   return (
     <div className="max-w-[1200px] mx-auto py-8 px-4">
       <div className="mb-4">
-        <Button variant="transparent" onClick={() => navigate("/service-fees")}>
+        <Button variant="transparent" onClick={() => navigate("/settings/service-fees")}>
           &larr; Back to Service Fees
         </Button>
       </div>
@@ -445,7 +445,7 @@ export const ServiceFeeCreatePage = () => {
                 <Button
                   variant="secondary"
                   className="w-full"
-                  onClick={() => navigate("/service-fees")}
+                  onClick={() => navigate("/settings/service-fees")}
                   type="button"
                 >
                   Cancel

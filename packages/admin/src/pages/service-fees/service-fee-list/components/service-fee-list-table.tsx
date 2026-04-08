@@ -114,7 +114,7 @@ export const ServiceFeeListTable = () => {
     pageSize: 20,
     isLoading,
     onRowClick: (row) => {
-      navigate(`/service-fees/${row.original.id}`)
+      navigate(`/settings/service-fees/${row.original.id}`)
     },
   })
 

@@ -17,7 +17,7 @@ export const ServiceFeeListPage = () => {
             Manage service fee rules for your marketplace
           </Text>
         </div>
-        <Button onClick={() => navigate("/service-fees/create")}>
+        <Button onClick={() => navigate("/settings/service-fees/create")}>
           <Plus />
           Create New Fee
         </Button>

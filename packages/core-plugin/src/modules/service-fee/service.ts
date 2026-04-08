@@ -78,11 +78,19 @@ class ServiceFeeModuleService extends MedusaService({
       sharedContext
     )
 
+    // Filter by date range (start_date/end_date enforcement)
+    const now = new Date()
+    const activeFees = serviceFees.filter((fee) => {
+      if (fee.start_date && new Date(fee.start_date) > now) return false
+      if (fee.end_date && new Date(fee.end_date) < now) return false
+      return true
+    })
+
     const feeLines: CreateServiceFeeLineDTO[] = []
 
     for (const item of context.items ?? []) {
-      for (const fee of serviceFees) {
-        const isApplicable = this.isFeeApplicableToItem(fee as any, item as any)
+      for (const fee of activeFees) {
+        const isApplicable = this.isFeeApplicableToItem(fee, item)
         if (!isApplicable) continue
 
         const baseAmount = MathBN.convert(item.subtotal)
@@ -120,8 +128,23 @@ class ServiceFeeModuleService extends MedusaService({
   }
 
   private isFeeApplicableToItem(
-    fee: any,
-    item: any
+    fee: {
+      charging_level: string
+      rules?: Array<{
+        reference: string
+        reference_id: string
+        mode: string
+      }>
+    },
+    item: {
+      product?: {
+        id: string
+        type_id?: string
+        collection_id?: string
+        categories?: Array<{ id: string }>
+        seller?: { id: string }
+      }
+    }
   ): boolean {
     if (fee.charging_level === ServiceFeeChargingLevel.GLOBAL) {
       return true
@@ -234,6 +257,18 @@ class ServiceFeeModuleService extends MedusaService({
     const activated: ServiceFeeDTO[] = []
 
     for (const fee of toActivate) {
+      // ATOMIC: Deactivate predecessor BEFORE activating new (same context/transaction)
+      if (
+        fee.charging_level === ServiceFeeChargingLevel.GLOBAL &&
+        fee.replaces_fee_id
+      ) {
+        await this.deactivateServiceFee(
+          fee.replaces_fee_id,
+          "system",
+          sharedContext
+        )
+      }
+
       const updated = await this.updateServiceFees(
         [{ id: fee.id, status: ServiceFeeStatus.ACTIVE, is_enabled: true }] as any,
         sharedContext
@@ -248,17 +283,6 @@ class ServiceFeeModuleService extends MedusaService({
         JSON.parse(JSON.stringify(updatedFee)),
         sharedContext
       )
-
-      if (
-        fee.charging_level === ServiceFeeChargingLevel.GLOBAL &&
-        fee.replaces_fee_id
-      ) {
-        await this.deactivateServiceFee(
-          fee.replaces_fee_id,
-          "system",
-          sharedContext
-        )
-      }
 
       activated.push(updatedFee as unknown as ServiceFeeDTO)
     }
