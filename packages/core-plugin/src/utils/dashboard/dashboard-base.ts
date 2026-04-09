@@ -96,6 +96,7 @@ export abstract class DashboardBase {
 
         const proxyMiddleware = createProxyMiddleware({
             target: this.getViteDevServerUrl(),
+            pathRewrite: { [`^${route}`]: "" },
         })
 
         const staticServer = express.Router()
@@ -123,6 +124,7 @@ export abstract class DashboardBase {
                 }
 
                 case "static": {
+                    req.url = req.url.slice(route.length) || "/"
                     staticServer(req, res, next)
                     return
                 }
