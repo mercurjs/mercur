@@ -1,19 +1,29 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Button, Heading, Hint, Input, Text, toast } from "@medusajs/ui";
+import {
+  Alert,
+  Button,
+  Heading,
+  Hint,
+  Input,
+  Text,
+  toast,
+} from "@medusajs/ui";
 import i18n from "i18next";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { decodeToken } from "react-jwt";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import * as z from "zod";
 
 import { Form } from "@components/common/form";
 import AvatarBox from "@components/common/logo-box/avatar-box";
 import { useSignInForInvite, useSignUpForInvite } from "@hooks/api/auth";
 import { useAcceptInvite } from "@hooks/api/invites";
+import { useSelectSeller } from "@hooks/api";
 import { isFetchError } from "@lib/is-fetch-error";
+import { sdk } from "@lib/client";
 
 const CreateAccountSchema = z
   .object({
@@ -51,64 +61,105 @@ export const Invite = () => {
   const isValidInvite = invite && validateDecodedInvite(invite);
 
   return (
-    <div className="bg-ui-bg-subtle relative flex min-h-dvh w-dvw items-center justify-center p-4">
-      <div className="flex w-full max-w-[360px] flex-col items-center">
-        <AvatarBox checked={success} />
-        <div className="w-full will-change-contents">
-          {isValidInvite ? (
-            <AnimatePresence>
-              {!success ? (
-                <motion.div
-                  key="create-account"
-                  initial={false}
-                  animate={{ y: 0 }}
-                  exit={{ height: 0, y: 40 }}
-                  transition={{
-                    duration: 0.8,
-                    delay: 0.6,
-                    ease: [0, 0.71, 0.2, 1.01],
-                  }}
-                  className="w-full will-change-transform"
-                >
-                  <motion.div
-                    initial={false}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.7 }}
-                    transition={{
-                      duration: 0.6,
-                      delay: 0,
-                      ease: [0, 0.71, 0.2, 1.01],
-                    }}
-                    key="inner-create-account"
-                  >
-                    <CreateView
-                      onSuccess={() => setSuccess(true)}
-                      token={token!}
-                      invite={invite}
-                    />
-                  </motion.div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="success-view"
-                  initial={{ opacity: 0, scale: 0.4 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{
-                    duration: 1,
-                    delay: 0.6,
-                    ease: [0, 0.71, 0.2, 1.01],
-                  }}
-                  className="w-full"
-                >
-                  <SuccessView sellerName={invite.seller_name} />
-                </motion.div>
-              )}
-            </AnimatePresence>
+    <div className="flex h-dvh w-dvw overflow-hidden">
+      <div className="flex w-full flex-col lg:w-[584px] lg:shrink-0 h-full bg-ui-bg-base border-r border-ui-border-base overflow-y-auto">
+        <AnimatePresence mode="wait">
+          {success && invite ? (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex flex-1 flex-col items-center justify-center p-8 lg:px-14"
+            >
+              <SuccessView sellerName={invite.seller_name} />
+            </motion.div>
           ) : (
-            <InvalidView />
+            <motion.div
+              key="form"
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="flex flex-1 flex-col p-8 lg:px-14 lg:py-12"
+            >
+              <AvatarBox />
+              <div className="mt-8 w-full">
+                {isValidInvite ? (
+                  <CreateView
+                    token={token!}
+                    invite={invite}
+                    onSuccess={() => setSuccess(true)}
+                  />
+                ) : (
+                  <InvalidView />
+                )}
+              </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
+      <div
+        className="hidden lg:flex flex-1 relative overflow-hidden items-center justify-center"
+        style={{
+          backgroundImage: "url(/onboarding/bg.svg)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <img
+          src="/onboarding/0.png"
+          alt=""
+          className="w-[75%] max-h-[75%] object-contain"
+        />
+      </div>
+    </div>
+  );
+};
+
+const SuccessView = ({ sellerName }: { sellerName: string }) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { mutateAsync: selectSeller } = useSelectSeller();
+  const hasRedirected = useRef(false);
+
+  useEffect(() => {
+    if (hasRedirected.current) return;
+    hasRedirected.current = true;
+
+    const redirect = async () => {
+      await new Promise((r) => setTimeout(r, 2500));
+
+      try {
+        const { seller_members } = await sdk.vendor.sellers.query({});
+        if (seller_members?.length === 1) {
+          await selectSeller({ seller_id: seller_members[0].seller.id });
+          navigate("/", { replace: true });
+          return;
+        }
+      } catch {
+        // Fall through
+      }
+
+      navigate("/store-select", { replace: true });
+    };
+
+    redirect();
+  }, [navigate, selectSeller]);
+
+  return (
+    <div className="flex flex-col items-center text-center">
+      <AvatarBox checked />
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+      >
+        <Heading>
+          {t("invite.successTitle", { name: sellerName })}
+        </Heading>
+        <Text size="small" className="text-ui-fg-subtle mt-1">
+          {t("invite.successHint")}
+        </Text>
+      </motion.div>
     </div>
   );
 };
@@ -117,14 +168,16 @@ const LoginLink = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex w-full flex-col items-center">
-      <div className="my-6 h-px w-full border-b border-dotted" />
-      <Link
-        to="/login"
-        className="txt-small text-ui-fg-base transition-fg hover:text-ui-fg-base-hover focus-visible:text-ui-fg-base-hover font-medium outline-none"
-      >
-        {t("invite.backToLogin")}
-      </Link>
+    <div className="mt-8">
+      <span className="text-ui-fg-muted txt-small">
+        {t("invite.alreadyHaveAccount", "Already have an account?")}{" "}
+        <Link
+          to="/login"
+          className="txt-small text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
+        >
+          {t("invite.logIn", "Log in")}
+        </Link>
+      </span>
     </div>
   );
 };
@@ -133,26 +186,24 @@ const InvalidView = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex flex-col items-center gap-y-1">
-        <Heading>{t("invite.invalidTokenTitle")}</Heading>
-        <Text size="small" className="text-ui-fg-subtle text-center">
-          {t("invite.invalidTokenHint")}
-        </Text>
-      </div>
+    <div className="flex flex-col">
+      <Heading>{t("invite.invalidTokenTitle")}</Heading>
+      <Text size="small" className="text-ui-fg-subtle mt-1">
+        {t("invite.invalidTokenHint")}
+      </Text>
       <LoginLink />
     </div>
   );
 };
 
 const CreateView = ({
-  onSuccess,
   token,
   invite,
+  onSuccess,
 }: {
-  onSuccess: () => void;
   token: string;
   invite: DecodedInvite;
+  onSuccess: () => void;
 }) => {
   const { t } = useTranslation();
   const [invalid, setInvalid] = useState(false);
@@ -195,6 +246,21 @@ const CreateView = ({
         auth_token: authToken,
       });
 
+      // Re-login to get a fresh token with updated actor_id
+      const { token: freshToken } = await signIn({
+        email: data.email,
+        password: data.password,
+      });
+
+      // Establish session with the fresh token
+      await sdk.auth.session.mutate({
+        fetchOptions: {
+          headers: {
+            Authorization: `Bearer ${freshToken}`,
+          },
+        },
+      });
+
       toast.success(t("invite.toast.accepted"));
       onSuccess();
     } catch (error) {
@@ -231,33 +297,30 @@ const CreateView = ({
     form.formState.errors.repeat_password?.message;
 
   return (
-    <div className="flex w-full flex-col items-center">
-      <div className="mb-4 flex flex-col items-center">
-        <Heading>
-          {t("invite.title", {
-            name: invite.seller_name,
-          })}
-        </Heading>
-        <Text size="small" className="text-ui-fg-subtle text-center">
-          {isExistingMember
-            ? t("invite.existingMemberHint")
-            : t("invite.hint")}
-        </Text>
-      </div>
+    <div className="flex w-full flex-col">
+      <Heading>
+        {t("invite.title", {
+          name: invite.seller_name,
+        })}
+      </Heading>
+      <Text size="small" className="text-ui-fg-subtle mt-1 mb-6">
+        {isExistingMember
+          ? t("invite.existingMemberHint")
+          : t("invite.hint")}
+      </Text>
       <Form {...form}>
         <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
-          <div className="flex flex-col gap-y-2">
+          <div className="flex flex-col gap-y-4">
             <Form.Field
               control={form.control}
               name="email"
               render={({ field }) => (
                 <Form.Item>
+                  <Form.Label>{t("fields.email")}</Form.Label>
                   <Form.Control>
                     <Input
                       autoComplete="off"
                       {...field}
-                      className="bg-ui-bg-field-component"
-                      placeholder={t("fields.email")}
                       disabled
                     />
                   </Form.Control>
@@ -269,13 +332,12 @@ const CreateView = ({
               name="password"
               render={({ field }) => (
                 <Form.Item>
+                  <Form.Label>{t("fields.password")}</Form.Label>
                   <Form.Control>
                     <Input
                       autoComplete="new-password"
                       type="password"
                       {...field}
-                      className="bg-ui-bg-field-component"
-                      placeholder={t("fields.password")}
                     />
                   </Form.Control>
                 </Form.Item>
@@ -287,13 +349,12 @@ const CreateView = ({
                 name="repeat_password"
                 render={({ field }) => (
                   <Form.Item>
+                    <Form.Label>{t("fields.repeatPassword")}</Form.Label>
                     <Form.Control>
                       <Input
                         autoComplete="off"
                         type="password"
                         {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.repeatPassword")}
                       />
                     </Form.Control>
                   </Form.Item>
@@ -301,11 +362,9 @@ const CreateView = ({
               />
             )}
             {validationError && (
-              <div className="mt-6 text-center">
-                <Hint className="inline-flex" variant="error">
-                  {validationError}
-                </Hint>
-              </div>
+              <Hint className="inline-flex" variant="error">
+                {validationError}
+              </Hint>
             )}
             {serverError && (
               <Alert
@@ -323,35 +382,11 @@ const CreateView = ({
             isLoading={isCreatingAuthUser || isSigningIn || isAcceptingInvite}
             disabled={invalid}
           >
-            {isExistingMember
-              ? t("invite.signIn")
-              : t("invite.createAccount")}
+            {t("actions.continue")}
           </Button>
         </form>
       </Form>
       <LoginLink />
-    </div>
-  );
-};
-
-const SuccessView = ({ sellerName }: { sellerName: string }) => {
-  const { t } = useTranslation();
-
-  return (
-    <div className="flex w-full flex-col items-center gap-y-6">
-      <div className="flex flex-col items-center gap-y-1">
-        <Heading className="text-center">
-          {t("invite.successTitle", { name: sellerName })}
-        </Heading>
-        <Text size="small" className="text-ui-fg-subtle text-center">
-          {t("invite.successHint")}
-        </Text>
-      </div>
-      <Button variant="secondary" asChild className="w-full">
-        <Link to="/login" replace>
-          {t("invite.backToLogin")}
-        </Link>
-      </Button>
     </div>
   );
 };
