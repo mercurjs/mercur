@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input, Select, Textarea } from "@medusajs/ui";
+import i18n from "i18next";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useLoaderData } from "react-router-dom";
@@ -11,9 +12,9 @@ import { useStore } from "@hooks/api";
 import { onboardingLoader } from "../../../pages/onboarding/loader";
 
 const StoreStepSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  currency_code: z.string().min(1),
+  name: z.string().min(1, i18n.t("onboarding.wizard.validation.nameRequired")),
+  email: z.string().email(i18n.t("onboarding.wizard.validation.emailInvalid")),
+  currency_code: z.string().min(1, i18n.t("onboarding.wizard.validation.currencyRequired")),
   description: z.string().optional(),
   handle: z.string().optional(),
 });
