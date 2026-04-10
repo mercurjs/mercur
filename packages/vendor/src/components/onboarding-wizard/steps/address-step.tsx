@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input } from "@medusajs/ui";
+import i18n from "i18next";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -12,7 +13,7 @@ const AddressStepSchema = z.object({
   address_2: z.string().optional(),
   postal_code: z.string().optional(),
   city: z.string().optional(),
-  country_code: z.string().min(1),
+  country_code: z.string().min(1, i18n.t("onboarding.wizard.validation.countryRequired")),
   province: z.string().optional(),
 });
 
