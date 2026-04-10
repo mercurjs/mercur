@@ -21,11 +21,11 @@ export const Component = () => {
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>
-            {t("store.scheduledClosure.edit.header")}
+            {t("store.timeOff.create.header")}
           </Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
-          {t("store.scheduledClosure.edit.description")}
+          {t("store.timeOff.create.description")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
       {!isPending && seller && <StoreClosureForm seller={seller} />}
