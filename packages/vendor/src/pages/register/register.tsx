@@ -181,8 +181,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <div className="bg-ui-bg-subtle relative flex min-h-dvh w-dvw items-center justify-center p-4">
-      <div className="flex w-full max-w-[360px] flex-col items-center">
+    <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
+      <div className="m-4 flex w-full max-w-[280px] flex-col items-center">
         {Children.count(children) > 0 ? (
           children
         ) : (

@@ -3,7 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
+import { HttpTypes, SellerStatus } from "@mercurjs/types"
 
 import { AdminCreateSellerType } from "./validators"
 import { createSellersWorkflow } from "../../../workflows/seller"
@@ -35,9 +35,14 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const sellerInput = {
+    ...req.validatedBody,
+    status: req.validatedBody.status || SellerStatus.OPEN,
+  }
+
   const { result } = await createSellersWorkflow(req.scope).run({
     input: {
-      sellers: [req.validatedBody],
+      sellers: [sellerInput],
     },
   })
 
