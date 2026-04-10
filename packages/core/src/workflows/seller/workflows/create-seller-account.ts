@@ -15,6 +15,7 @@ import {
   SellerStatus,
   UpdateSellerAddressDTO,
   UpdateProfessionalDetailsDTO,
+  UpdatePaymentDetailsDTO,
 } from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
@@ -26,6 +27,7 @@ import {
 import { SellerWorkflowEvents } from "../../events"
 import { updateSellerAddressWorkflow } from "./update-seller-address"
 import { updateSellerProfessionalDetailsWorkflow } from "./update-seller-professional-details"
+import { updateSellerPaymentDetailsWorkflow } from "./update-seller-payment-details"
 
 export const createSellerAccountWorkflowId = "create-seller-account"
 
@@ -36,6 +38,7 @@ type CreateSellerAccountWorkflowInput = {
   member_id?: string
   address?: UpdateSellerAddressDTO
   professional_details?: UpdateProfessionalDetailsDTO
+  payment_details?: UpdatePaymentDetailsDTO
 } & AdditionalData
 
 export const createSellerAccountWorkflow = createWorkflow(
@@ -101,6 +104,15 @@ export const createSellerAccountWorkflow = createWorkflow(
         })
       }
     )
+
+    when(input, ({ payment_details }) => !!payment_details).then(() => {
+      updateSellerPaymentDetailsWorkflow.runAsStep({
+        input: transform({ seller, input }, ({ seller, input }) => ({
+          seller_id: seller.id,
+          data: input.payment_details!,
+        })),
+      })
+    })
 
     const sellerAccountCreated = createHook("sellerAccountCreated", {
       seller,
