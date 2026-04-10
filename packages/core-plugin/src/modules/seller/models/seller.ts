@@ -24,6 +24,7 @@ const Seller = model
     is_premium: model.boolean().default(false),
     closed_from: model.dateTime().nullable(),
     closed_to: model.dateTime().nullable(),
+    closure_note: model.text().nullable(),
     professional_details: model.hasOne(() => ProfessionalDetails, {
       mappedBy: "seller",
     }),

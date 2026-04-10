@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, DatePicker, toast } from "@medusajs/ui";
+import { Button, DatePicker, Textarea, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -14,15 +14,11 @@ type StoreClosureFormProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
 };
 
-const StoreClosureSchema = z
-  .object({
-    closed_from: z.date({ required_error: "Close from date is required" }),
-    closed_to: z.date().nullable(),
-  })
-  .refine((data) => data.closed_from >= new Date(new Date().toDateString()), {
-    message: "Close from date cannot be in the past",
-    path: ["closed_from"],
-  });
+const StoreClosureSchema = z.object({
+  closed_from: z.date({ required_error: "Please enter a first day" }),
+  closed_to: z.date().nullable(),
+  closure_note: z.string().nullable(),
+});
 
 export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
   const { t } = useTranslation();
@@ -34,6 +30,7 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
         ? new Date(seller.closed_from)
         : null,
       closed_to: seller.closed_to ? new Date(seller.closed_to) : null,
+      closure_note: seller.closure_note ?? "",
     },
     resolver: zodResolver(StoreClosureSchema),
   });
@@ -45,12 +42,11 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
       {
         closed_from: data.closed_from || null,
         closed_to: data.closed_to || null,
+        closure_note: data.closure_note || null,
       },
       {
         onSuccess: () => {
-          toast.success(
-            t("store.scheduledClosure.edit.successToast"),
-          );
+          toast.success(t("store.timeOff.create.successToast"));
           handleSuccess();
         },
         onError: (error: Error) => {
@@ -72,12 +68,11 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
                 return (
                   <Form.Item>
                     <Form.Label>
-                      {t("store.scheduledClosure.fields.closedFrom")}
+                      {t("store.timeOff.fields.firstDay")}
                     </Form.Label>
                     <Form.Control>
                       <DatePicker
                         granularity="minute"
-                        hourCycle={12}
                         shouldCloseOnSelect={false}
                         {...field}
                       />
@@ -95,16 +90,37 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
                 return (
                   <Form.Item>
                     <Form.Label optional>
-                      {t("store.scheduledClosure.fields.closedTo")}
+                      {t("store.timeOff.fields.lastDay")}
                     </Form.Label>
-                    <Form.Hint>
-                      {t("store.scheduledClosure.fields.closedToHint")}
-                    </Form.Hint>
                     <Form.Control>
                       <DatePicker
                         granularity="minute"
                         shouldCloseOnSelect={false}
                         {...field}
+                      />
+                    </Form.Control>
+                    <Form.Hint>
+                      {t("store.timeOff.fields.lastDayHint")}
+                    </Form.Hint>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="closure_note"
+              render={({ field }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label optional>
+                      {t("store.timeOff.fields.note")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Textarea
+                        {...field}
+                        value={field.value ?? ""}
                       />
                     </Form.Control>
                     <Form.ErrorMessage />
