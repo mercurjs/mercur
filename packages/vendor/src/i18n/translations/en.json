@@ -3203,20 +3203,78 @@
       "description": "Your seller account has been created and is pending approval. We'll notify you at {{email}} once your store is reviewed.",
       "hint": "In the meantime, you can select your store and complete your setup.",
       "action": "Continue to dashboard"
+    },
+    "wizard": {
+      "stepOf": "Step {{current}} of {{total}}",
+      "steps": {
+        "store": "Store Details",
+        "address": "Address",
+        "company": "Company Details",
+        "payment": "Payment Details"
+      },
+      "store": {
+        "title": "Enter your store details",
+        "name": "Name",
+        "email": "Email",
+        "handle": "Handle",
+        "handlePlaceholder": "my-store",
+        "currency": "Currency",
+        "selectCurrency": "Select",
+        "currencyHint": "Cannot be changed after store is created"
+      },
+      "skip": "Skip",
+      "address": {
+        "title": "Enter your address",
+        "address": "Address",
+        "address2": "Apartment, suite, etc.",
+        "postalCode": "Postal Code",
+        "city": "City",
+        "country": "Country",
+        "state": "State"
+      },
+      "company": {
+        "title": "Enter your company details",
+        "subtitle": "Professional seller information",
+        "corporateName": "Corporate name",
+        "registrationNumber": "Registration number",
+        "taxId": "Tax ID"
+      },
+      "payment": {
+        "title": "Enter your payment details",
+        "subtitle": "How you'd like to receive payouts",
+        "accountName": "Account name",
+        "accountNumber": "Account number",
+        "achRoutingNumber": "ACH routing number",
+        "iban": "IBAN",
+        "swiftBic": "SWIFT / BIC"
+      },
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "emailInvalid": "Please enter an email",
+        "currencyRequired": "Please select a currency",
+        "countryRequired": "Please select a country",
+        "accountNameRequired": "Please enter account name"
+      },
+      "preview": {
+        "title": "Welcome to Mercur",
+        "description": "Your all-in-one vendor portal for managing your store, products, orders, and payouts.",
+        "placeholder": "App preview"
+      }
     }
   },
   "invite": {
-    "title": "You've been invited to {{name}}",
-    "hint": "Create your account below",
+    "title": "You're invited to join {{name}}!",
+    "hint": "Enter your details and create a password to set up your account.",
     "existingMemberHint": "Sign in with your existing account",
     "backToLogin": "Back to login",
     "createAccount": "Create account",
     "signIn": "Sign in",
-    "alreadyHaveAccount": "Already have an account? - <0>Log in</0>",
+    "alreadyHaveAccount": "Already have an account?",
+    "logIn": "Log in",
     "emailTooltip": "Your email cannot be changed. If you would like to use another email, a new invite must be sent.",
     "invalidInvite": "The invite is invalid or has expired.",
-    "successTitle": "You joined {{name}}",
-    "successHint": "You can now access the vendor portal. Log in to get started.",
+    "successTitle": "Welcome to {{name}}!",
+    "successHint": "Setting up your account...",
     "invalidTokenTitle": "Your invite token is invalid",
     "invalidTokenHint": "Try requesting a new invite link.",
     "passwordMismatch": "Passwords do not match",

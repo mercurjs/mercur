@@ -17,6 +17,7 @@ export const VendorGetSellerParams = createSelectParams()
 export type VendorCreateSellerAccountType = z.infer<typeof VendorCreateSellerAccount>
 export const VendorCreateSellerAccount = z.object({
   name: z.string(),
+  handle: z.string().optional(),
   email: z.string().email(),
   member_email: z.string().email(),
   description: z.string().nullable().optional(),
@@ -40,6 +41,17 @@ export const VendorCreateSellerAccount = z.object({
       corporate_name: z.string().nullable().optional(),
       registration_number: z.string().nullable().optional(),
       tax_id: z.string().nullable().optional(),
+    })
+    .optional(),
+  payment_details: z
+    .object({
+      country_code: z.string().optional(),
+      holder_name: z.string().optional(),
+      bank_name: z.string().nullable().optional(),
+      iban: z.string().nullable().optional(),
+      bic: z.string().nullable().optional(),
+      routing_number: z.string().nullable().optional(),
+      account_number: z.string().nullable().optional(),
     })
     .optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
