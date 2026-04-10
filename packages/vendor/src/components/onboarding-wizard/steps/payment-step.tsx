@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input } from "@medusajs/ui";
+import i18n from "i18next";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -8,8 +9,8 @@ import { Form } from "@components/common/form";
 import { CountrySelect } from "@components/inputs/country-select/country-select";
 
 const PaymentStepSchema = z.object({
-  country_code: z.string().min(1),
-  holder_name: z.string().min(1),
+  country_code: z.string().min(1, i18n.t("onboarding.wizard.validation.countryRequired")),
+  holder_name: z.string().min(1, i18n.t("onboarding.wizard.validation.accountNameRequired")),
   iban: z.string().optional(),
   bic: z.string().optional(),
   routing_number: z.string().optional(),
