@@ -3248,6 +3248,13 @@
         "iban": "IBAN",
         "swiftBic": "SWIFT / BIC"
       },
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "emailInvalid": "Please enter an email",
+        "currencyRequired": "Please select a currency",
+        "countryRequired": "Please select a country",
+        "accountNameRequired": "Please enter account name"
+      },
       "preview": {
         "title": "Welcome to Mercur",
         "description": "Your all-in-one vendor portal for managing your store, products, orders, and payouts.",
