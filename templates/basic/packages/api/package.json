@@ -27,27 +27,27 @@
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
   },
   "dependencies": {
-    "@medusajs/admin-sdk": "^2.13.4",
-    "@medusajs/cli": "^2.13.4",
-    "@medusajs/framework": "^2.13.4",
-    "@medusajs/dashboard": "^2.13.4",
-    "@medusajs/admin-shared": "^2.13.4",
-    "@medusajs/medusa": "^2.13.4",
+    "@medusajs/admin-sdk": "2.13.4",
+    "@medusajs/cli": "2.13.4",
+    "@medusajs/framework": "2.13.4",
+    "@medusajs/dashboard": "2.13.4",
+    "@medusajs/admin-shared": "2.13.4",
+    "@medusajs/medusa": "2.13.4",
     "@medusajs/draft-order": "2.13.4",
     "@mercurjs/core": "2.0.2",
     "@mercurjs/types": "2.0.2",
-    "http-proxy-middleware": "^3.0.3",
+    "http-proxy-middleware": "3.0.3",
     "@mercurjs/cli": "2.0.2"
   },
   "devDependencies": {
-    "@medusajs/test-utils": "^2.13.4",
-    "@swc/core": "^1.7.28",
-    "@swc/jest": "^0.2.36",
-    "@types/jest": "^29.5.13",
-    "@types/node": "^20.12.11",
-    "jest": "^29.7.0",
-    "prop-types": "^15.8.1",
-    "yalc": "^1.0.0-pre.53"
+    "@medusajs/test-utils": "2.13.4",
+    "@swc/core": "1.7.28",
+    "@swc/jest": "0.2.36",
+    "@types/jest": "29.5.13",
+    "@types/node": "20.12.11",
+    "jest": "29.7.0",
+    "prop-types": "15.8.1",
+    "yalc": "1.0.0-pre.53"
   },
   "engines": {
     "node": ">=20"

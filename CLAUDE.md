@@ -175,6 +175,15 @@ Documentation site built with [Mintlify](https://mintlify.com). Configuration li
 - **Sections**: Quick start, Core Concepts, Product (modules, workflows, events, subscribers), Integrations, Deployment, API Reference, Changelog
 - **Dev server**: `mintlify dev` from `apps/docs/`
 
+## Dependency Management
+
+- **Exact versions only** — no `^` or `~` ranges in `package.json`. Update dependencies with explicit `bun update <pkg>` and commit the lockfile change.
+- **Frozen lockfile in CI** — all CI workflows use `bun install --frozen-lockfile`. Never modify the lockfile in CI.
+- **Audit on every build** — `bun audit` runs as a blocking CI step. Known upstream CVEs are tracked in `.audit-ignore` with justification comments. New CVEs must be fixed or explicitly acknowledged before merging.
+- **New dependency review** — CI flags new/changed dependencies in PRs via `scripts/check-new-deps.sh`. Reviewer must explicitly approve any new package.
+- **GitHub Actions pinned to SHA** — never use `@v4` tags, always full commit SHA with version comment.
+- **Lockfile always committed** — `bun.lock` must be in version control and updated in the same PR as `package.json` changes.
+
 ## Skills (`.claude/skills/`)
 
 Before writing ANY admin UI code, invoke the relevant skill. Skills contain hard rules and exact code patterns.

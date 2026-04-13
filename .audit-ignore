@@ -1,0 +1,36 @@
+# MikroORM SQL Injection — transitive dep from @medusajs/framework, fix must come from upstream
+GHSA-gwhv-j974-6fxm
+# MikroORM Prototype Pollution — transitive dep from @medusajs/framework
+GHSA-qpfv-44f3-qqx6
+# Axios SSRF NO_PROXY bypass — transitive dep from @medusajs/framework, @medusajs/medusa
+GHSA-3p68-rc4w-qgx5
+# Axios Header Injection SSRF — transitive dep from @medusajs/framework, @medusajs/medusa
+GHSA-fvcv-3m26-pcqx
+# lodash Code Injection via _.template — transitive dep from wait-on, @medusajs/cli
+GHSA-r5fr-rjxr-66jc
+# lodash Prototype Pollution — transitive dep from wait-on, @medusajs/cli
+GHSA-f23m-r3pf-42rh
+# path-to-regexp ReDoS (sequential optional groups) — transitive dep from @medusajs/framework, express
+GHSA-j3q9-mxjg-w52f
+# path-to-regexp ReDoS (multiple route parameters) — transitive dep from @medusajs/framework, express
+GHSA-37ch-88jc-xwx2
+# path-to-regexp ReDoS (multiple wildcards) — transitive dep from @medusajs/framework, express
+GHSA-27v5-c462-wpq7
+# fast-xml-parser Entity Expansion bypass — transitive dep from @medusajs/framework, @medusajs/medusa
+GHSA-8gc5-j5rx-235r
+# fast-xml-parser Entity Expansion zero check — transitive dep from @medusajs/framework
+GHSA-jp2q-39xq-3w4g
+# flatted Prototype Pollution — dev-only dep from eslint
+GHSA-rf6f-7fwh-wjgh
+# ajv ReDoS — dev-only dep from eslint, @medusajs/cli
+GHSA-2g4f-4pwh-qvx6
+# brace-expansion DoS — dev/build dep from eslint, glob, ts-morph
+GHSA-f886-m6hf-6m8v
+# vite Path Traversal — dev-only, local dev server
+GHSA-4w7w-66w2-5vf9
+# esbuild dev server request forgery — dev-only
+GHSA-67mh-4wv8-2f99
+# picomatch ReDoS via extglob — dev/build tooling
+GHSA-c2c7-rcm5-vvqj
+# picomatch Method Injection — dev/build tooling
+GHSA-3v7f-55p6-f55p

@@ -30,10 +30,10 @@
   "devDependencies": {
     "@medusajs/framework": "2.13.4",
     "@mercurjs/types": "2.0.0",
-    "tsup": "^8.5.0"
+    "tsup": "8.5.0"
   },
   "dependencies": {
-    "stripe": "^15.5.0"
+    "stripe": "15.5.0"
   },
   "keywords": [
     "medusa-plugin",
