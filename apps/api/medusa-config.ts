@@ -15,6 +15,9 @@ module.exports = withMercur({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     }
   },
+  admin:{
+    disable:true
+  },
   featureFlags: {
     seller_registration: true
   },
