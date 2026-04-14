@@ -1,0 +1,96 @@
+name: Issue Triage
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    # Skip: bot comments, org member comments, labeled wontfix/duplicate
+    if: >
+      (github.event_name == 'issues' &&
+       github.event.issue.user.type != 'Bot' &&
+       !contains(toJSON(github.event.issue.labels.*.name), 'wontfix') &&
+       !contains(toJSON(github.event.issue.labels.*.name), 'duplicate')) ||
+      (github.event_name == 'issue_comment' &&
+       github.event.comment.user.type != 'Bot' &&
+       github.event.action == 'created' &&
+       github.event.comment.author_association != 'MEMBER' &&
+       github.event.comment.author_association != 'OWNER')
+
+    permissions:
+      contents: read
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
+
+      - name: Run triage agent
+        id: triage
+        uses: anthropics/claude-code-action@d59651bd82c48d81756854675ce4fa4d69722200 # v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt_file: .github/prompts/issue-triage.md
+          prompt: |
+            Analyse this GitHub issue and provide a triage response.
+
+            Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+
+            Body:
+            ${{ github.event.issue.body || github.event.comment.body }}
+
+            Labels: ${{ join(github.event.issue.labels.*.name, ', ') }}
+          claude_args: '--allowed-tools "Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh search:*)"'
+
+      - name: Post to Discord
+        if: steps.triage.outputs.result != ''
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          TRIAGE_RESULT: ${{ steps.triage.outputs.result }}
+        run: |
+          # Extract classification from result
+          CLASSIFICATION=$(echo "$TRIAGE_RESULT" | grep -oP 'CLASSIFICATION: \K.*' | head -1 || echo "unknown")
+          SUMMARY=$(echo "$TRIAGE_RESULT" | grep -oP 'SUMMARY: \K.*' | head -1 || echo "$ISSUE_TITLE")
+          RELATED=$(echo "$TRIAGE_RESULT" | grep -oP 'RELATED_FILES: \K.*' | head -1 || echo "none")
+
+          # Extract suggested response (everything after SUGGESTED_RESPONSE:)
+          SUGGESTED=$(echo "$TRIAGE_RESULT" | sed -n '/^SUGGESTED_RESPONSE: /,$ { s/^SUGGESTED_RESPONSE: //; p }')
+
+          # Pick emoji based on classification
+          case "$CLASSIFICATION" in
+            bug) EMOJI="🔴" ;;
+            feature-request) EMOJI="🟢" ;;
+            question) EMOJI="🔵" ;;
+            duplicate) EMOJI="🟡" ;;
+            *) EMOJI="⚪" ;;
+          esac
+
+          # Build Discord message
+          # Truncate fields to stay within Discord's 2000 char limit
+          SUGGESTED_TRUNC=$(echo "$SUGGESTED" | head -c 800)
+
+          CONTENT="${EMOJI} **${CLASSIFICATION^^}** · mercurjs/mercur#${ISSUE_NUMBER}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**${SUMMARY}**
+
+📍 Related: \`${RELATED}\`
+🔗 ${ISSUE_URL}
+
+💬 **Suggested response:**
+> ${SUGGESTED_TRUNC}"
+
+          # Post to Discord via webhook
+          jq -n --arg content "$CONTENT" '{"content": $content}' | \
+            curl -s -X POST "$DISCORD_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d @-
