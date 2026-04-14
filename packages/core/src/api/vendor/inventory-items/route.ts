@@ -37,7 +37,7 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateInventoryItemType>,
   res: MedusaResponse<HttpTypes.VendorInventoryItemResponse>
 ) => {
-  const sellerId =  req.seller_context!.seller_id
+  const sellerId = req.seller_context!.seller_id
 
   const { result } = await createSellerInventoryItemsWorkflow(req.scope).run({
     input: {

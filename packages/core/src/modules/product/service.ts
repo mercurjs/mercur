@@ -293,26 +293,35 @@ class ProductModuleService extends MedusaService({
 
   @InjectTransactionManager()
   async confirmProductChange(
-    id: string,
-    data: { confirmed_by?: string },
+    data:
+      | { id: string; confirmed_by?: string }
+      | { id: string; confirmed_by?: string }[],
     sharedContext?: Context
   ) {
-    const change = await this.retrieveProductChange(id, {}, sharedContext);
+    const items = Array.isArray(data) ? data : [data];
 
-    if (change.status !== ProductChangeStatus.PENDING) {
-      throw new MedusaError(
-        MedusaError.Types.NOT_ALLOWED,
-        `Cannot confirm product change with status '${change.status}'. Only pending changes can be confirmed.`
+    for (const item of items) {
+      const change = await this.retrieveProductChange(
+        item.id,
+        {},
+        sharedContext
       );
+
+      if (change.status !== ProductChangeStatus.PENDING) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_ALLOWED,
+          `Cannot confirm product change with status '${change.status}'. Only pending changes can be confirmed.`
+        );
+      }
     }
 
     await this.updateProductChanges(
-      {
-        id,
+      items.map((item) => ({
+        id: item.id,
         status: ProductChangeStatus.CONFIRMED,
-        confirmed_by: data.confirmed_by,
+        confirmed_by: item.confirmed_by,
         confirmed_at: new Date(),
-      },
+      })),
       sharedContext
     );
   }
@@ -323,6 +332,7 @@ class ProductModuleService extends MedusaService({
     data: {
       declined_by?: string;
       declined_reason?: string;
+      rejection_reasons?: { id: string }[];
     },
     sharedContext?: Context
   ) {
@@ -342,6 +352,7 @@ class ProductModuleService extends MedusaService({
         declined_by: data.declined_by,
         declined_at: new Date(),
         declined_reason: data.declined_reason,
+        rejection_reasons: data.rejection_reasons as any,
       },
       sharedContext
     );
@@ -375,38 +386,52 @@ class ProductModuleService extends MedusaService({
 
   @InjectTransactionManager()
   async addProductAction(
-    data: {
-      product_change_id: string;
-      product_id: string;
-      action: string;
-      details?: Record<string, unknown>;
-      internal_note?: string;
-    },
+    data:
+      | {
+          product_change_id: string;
+          product_id: string;
+          action: string;
+          details?: Record<string, unknown>;
+          internal_note?: string;
+        }
+      | {
+          product_change_id: string;
+          product_id: string;
+          action: string;
+          details?: Record<string, unknown>;
+          internal_note?: string;
+        }[],
     sharedContext?: Context
   ) {
-    const change = await this.retrieveProductChange(
-      data.product_change_id,
-      {},
-      sharedContext
-    );
+    const items = Array.isArray(data) ? data : [data];
 
-    if (change.status !== ProductChangeStatus.PENDING) {
-      throw new MedusaError(
-        MedusaError.Types.NOT_ALLOWED,
-        `Cannot add action to product change with status '${change.status}'. Only pending changes accept actions.`
+    for (const item of items) {
+      const change = await this.retrieveProductChange(
+        item.product_change_id,
+        {},
+        sharedContext
       );
+
+      if (change.status !== ProductChangeStatus.PENDING) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_ALLOWED,
+          `Cannot add action to product change with status '${change.status}'. Only pending changes accept actions.`
+        );
+      }
     }
 
-    return await this.createProductChangeActions(
-      {
-        product_change_id: data.product_change_id,
-        product_id: data.product_id,
-        action: data.action,
-        details: data.details ?? {},
-        internal_note: data.internal_note,
-      },
+    const result = await this.createProductChangeActions(
+      items.map((item) => ({
+        product_change_id: item.product_change_id,
+        product_id: item.product_id,
+        action: item.action,
+        details: item.details ?? {},
+        internal_note: item.internal_note,
+      })),
       sharedContext
     );
+
+    return Array.isArray(data) ? result : result[0];
   }
 }
 

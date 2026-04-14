@@ -26,6 +26,7 @@ export {
   AttributeType,
   RejectionReasonType,
   ProductChangeStatus,
+  ProductChangeActionType,
   // common DTOs
   type ProductDTO,
   type ProductVariantDTO,
