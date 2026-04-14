@@ -1,6 +1,6 @@
 import { Migration } from "@medusajs/framework/mikro-orm/migrations";
 
-export class Migration20260414124345 extends Migration {
+export class Migration20260414141012 extends Migration {
 
   override async up(): Promise<void> {
     this.addSql(`alter table if exists "product_variant" drop constraint if exists "product_variant_gtin_unique";`);
@@ -41,7 +41,7 @@ export class Migration20260414124345 extends Migration {
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_product_category_path" ON "product_category" ("mpath") WHERE deleted_at IS NULL;`);
     this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "IDX_category_handle_unique" ON "product_category" ("handle") WHERE deleted_at IS NULL;`);
 
-    this.addSql(`create table if not exists "product_category_attribute" ("product_attribute_id" text not null, "product_category_id" text not null, constraint "product_category_attribute_pkey" primary key ("product_attribute_id", "product_category_id"));`);
+    this.addSql(`create table if not exists "product_category_attribute" ("product_category_id" text not null, "product_attribute_id" text not null, constraint "product_category_attribute_pkey" primary key ("product_category_id", "product_attribute_id"));`);
 
     this.addSql(`create table if not exists "product_collection" ("id" text not null, "title" text not null, "handle" text not null, "metadata" jsonb null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "product_collection_pkey" primary key ("id"));`);
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_product_collection_deleted_at" ON "product_collection" ("deleted_at") WHERE deleted_at IS NULL;`);
@@ -122,8 +122,8 @@ export class Migration20260414124345 extends Migration {
 
     this.addSql(`alter table if exists "product_category" add constraint "product_category_parent_category_id_foreign" foreign key ("parent_category_id") references "product_category" ("id") on update cascade on delete cascade;`);
 
-    this.addSql(`alter table if exists "product_category_attribute" add constraint "product_category_attribute_product_attribute_id_foreign" foreign key ("product_attribute_id") references "product_attribute" ("id") on update cascade on delete cascade;`);
     this.addSql(`alter table if exists "product_category_attribute" add constraint "product_category_attribute_product_category_id_foreign" foreign key ("product_category_id") references "product_category" ("id") on update cascade on delete cascade;`);
+    this.addSql(`alter table if exists "product_category_attribute" add constraint "product_category_attribute_product_attribute_id_foreign" foreign key ("product_attribute_id") references "product_attribute" ("id") on update cascade on delete cascade;`);
 
     this.addSql(`alter table if exists "product" add constraint "product_type_id_foreign" foreign key ("type_id") references "product_type" ("id") on update cascade on delete set null;`);
     this.addSql(`alter table if exists "product" add constraint "product_brand_id_foreign" foreign key ("brand_id") references "product_brand" ("id") on update cascade on delete set null;`);

@@ -28,7 +28,7 @@ const ProductCategory = model
 
     // --- Marketplace addition: category ↔ attribute assignment ---
     attributes: model.manyToMany(() => ProductAttribute, {
-      mappedBy: "categories",
+      pivotTable: "product_category_attribute",
     }),
   })
   .cascades({
