@@ -43,6 +43,14 @@ export enum ProductChangeStatus {
   CANCELED = "canceled",
 }
 
+/**
+ * Action types for ProductChangeAction.
+ * Phase 1 only uses STATUS_CHANGE. Future phases add new types without migration.
+ */
+export enum ProductChangeActionType {
+  STATUS_CHANGE = "STATUS_CHANGE",
+}
+
 // --- DTOs ---
 
 // --- ProductImage ---
