@@ -96,7 +96,7 @@ complete control over their products, orders, and store
 management in one intuitive interface.
 
 Discover
-<a href="https://github.com/mercurjs/vendor-panel">Vendor
+<a href="https://github.com/mercurjs/mercur/tree/main/packages/vendor">Vendor
 Panel</a> - <a href="https://www.mercurjs.com/contact">
 Contact us to get demo </a>
 

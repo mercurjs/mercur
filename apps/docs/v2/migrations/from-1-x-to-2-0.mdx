@@ -61,6 +61,45 @@ These areas do not currently have full 1.x parity and should be treated as manua
 - **`SecondaryCategory`** — no full 1.x parity today. Port manually for now if your project depends on it. Fuller support is planned for a future 2.x release.
 - **Product attributes** — the 1.x attribute module is not carried over 1:1. Port manually for now if your project depends on it. Fuller support is planned for a future 2.x release.
 
+## Order Set to Order Group
+
+The 1.x `OrderSet` entity has been renamed to **`OrderGroup`** in 2.0. This is a breaking change that affects database tables, API endpoints, workflow names, event names, and types.
+
+### What changed
+
+| Aspect | 1.x | 2.0 |
+|--------|-----|-----|
+| Entity / table | `order_set` | `order_group` |
+| ID prefix | `os_` | `og_` |
+| API endpoints | `/admin/order-sets`, `/store/order-set` | `/admin/order-groups`, `/store/order-groups` |
+| Workflows | `getFormattedOrderSetListWorkflow` | `getOrderGroupsListWorkflow`, `getOrderGroupDetailWorkflow` |
+| Events | `OrderSetWorkflowEvents` | `OrderGroupWorkflowEvents` |
+| Types | `OrderSetDTO` | `OrderGroupDTO` (from `@mercurjs/types`) |
+
+### Removed fields
+
+Two fields that existed on `OrderSet` in 1.x have been **removed** from `OrderGroup`:
+
+- **`payment_collection_id`** — Payment collections are now linked at the individual **order** level, not at the group level. Each per-seller order gets its own link to the cart's payment collection during checkout. To get the payment collection, query the linked orders instead of the group.
+- **`sales_channel_id`** — Sales channel information is stored on each individual order, not on the group.
+
+### New computed fields
+
+Two fields are now **computed at query time** (not stored as columns):
+
+- **`seller_count`** — Count of distinct sellers across all linked orders
+- **`total`** — Sum of order totals from linked order summaries
+
+### Migration steps
+
+1. Update imports: `OrderSetDTO` → `OrderGroupDTO` (from `@mercurjs/types`)
+2. Update API calls: `/order-sets` → `/order-groups`
+3. Update workflow references: `getFormattedOrderSetListWorkflow` → `getOrderGroupsListWorkflow`
+4. Update event listeners: `OrderSetWorkflowEvents` → `OrderGroupWorkflowEvents`
+5. If you used `payment_collection_id` or `sales_channel_id` from the order set, retrieve these from the individual orders instead (via the `order_group_order` link)
+
+See [Order Groups](/v2/core-concepts/order-groups) for the full 2.0 data model and API reference.
+
 ## Porting Custom Backend Code
 
 ### Modules
