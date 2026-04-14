@@ -270,7 +270,7 @@ const MobileSidebarContainer = ({ children }: PropsWithChildren) => {
 const isTopLevelRoute = (pathname: string) => {
   const clean = pathname.replace(/\/$/, "")
   const segments = clean.split("/").filter(Boolean)
-  return segments.length === 1 || clean === "/settings/store"
+  return segments.length === 1
 }
 
 const StoreSetupWidget = () => {
