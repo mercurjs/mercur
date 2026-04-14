@@ -22,7 +22,7 @@ module.exports = defineConfig({
       resolve: "@medusajs/medusa/rbac",
     },
     {
-      resolve: '@mercurjs/core-plugin/modules/admin-ui',
+      resolve: '@mercurjs/core/modules/admin-ui',
       options: {
         appDir: '',
         path: '/dashboard',
@@ -30,7 +30,7 @@ module.exports = defineConfig({
       }
     },
     {
-      resolve: '@mercurjs/core-plugin/modules/vendor-ui',
+      resolve: '@mercurjs/core/modules/vendor-ui',
       options: {
         appDir: '',
         path: '/seller',
@@ -48,7 +48,7 @@ module.exports = defineConfig({
   ],
   plugins: [
     {
-      resolve: "@mercurjs/core-plugin",
+      resolve: "@mercurjs/core",
       options: {}
     }
   ]

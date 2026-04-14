@@ -31,7 +31,7 @@ import {
 } from "@medusajs/medusa/core-flows";
 import { ApiKey } from "../../.medusa/types/query-entry-points";
 import { MercurModules } from "@mercurjs/types";
-import { createSellerDefaultsWorkflow } from '@mercurjs/core-plugin/workflows'
+import { createSellerDefaultsWorkflow } from '@mercurjs/core/workflows'
 
 const updateStoreCurrencies = createWorkflow(
   "update-store-currencies",

@@ -6,7 +6,7 @@
   "license": "MIT",
   "exports": {
     "./_generated": {
-      "types": "./.mercur/_generated/index.ts"
+      "types": "./.mercur/index.d.ts"
     }
   },
   "keywords": [
@@ -19,8 +19,8 @@
   ],
   "scripts": {
     "seed": "medusa exec ./src/scripts/seed.ts",
-    "start": "medusa start",
-    "dev": "medusa develop",
+    "start": "mercurjs start",
+    "dev": "mercurjs develop",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
@@ -33,7 +33,7 @@
     "@medusajs/admin-shared": "^2.13.4",
     "@medusajs/medusa": "^2.13.4",
     "@medusajs/draft-order": "2.13.4",
-    "@mercurjs/core-plugin": "*",
+    "@mercurjs/core": "*",
     "@mercurjs/types": "*",
     "http-proxy-middleware": "^3.0.3",
     "@mercurjs/cli": "*"

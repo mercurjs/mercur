@@ -19,7 +19,7 @@ mercur/
 ├── packages/admin/         # Admin dashboard UI
 ├── packages/cli/           # @mercurjs/cli — scaffolding, blocks, codegen
 ├── packages/client/        # @mercurjs/client — typed API client
-├── packages/core-plugin/   # @mercurjs/core-plugin — core Medusa plugin
+├── packages/core/   # @mercurjs/core — core Medusa plugin
 ├── packages/dashboard-sdk/ # Vite plugin for dashboard apps
 ├── packages/registry/      # Official block registry
 ├── packages/types/         # @mercurjs/types — shared type definitions

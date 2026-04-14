@@ -12,6 +12,9 @@ import { init } from "./commands/init";
 import { search } from "./commands/search";
 import { telemetry } from "./commands/telemetry";
 import { view } from "./commands/view";
+import { build } from "./commands/build";
+import { develop } from "./commands/develop";
+import { start } from "./commands/start";
 import { pluginBuild } from "./commands/plugin-build";
 
 process.on("SIGINT", () => process.exit(0));
@@ -39,7 +42,10 @@ async function main() {
     .addCommand(search)
     .addCommand(telemetry)
     .addCommand(view)
-    .addCommand(pluginBuild);
+    .addCommand(pluginBuild)
+    .addCommand(build)
+    .addCommand(develop)
+    .addCommand(start);
 
   program.parse();
 }

@@ -114,7 +114,7 @@ module.exports = defineConfig({
   modules: [
     // ... payment provider above
     {
-      resolve: "@mercurjs/core-plugin/modules/payout",
+      resolve: "@mercurjs/core/modules/payout",
       options: {
         providers: [
           {
@@ -318,7 +318,7 @@ Card authorizations in Europe typically last **7 days**. Design your seller acce
 
 ```ts
 {
-  resolve: "@mercurjs/core-plugin/modules/payout",
+  resolve: "@mercurjs/core/modules/payout",
   options: {
     authorizationWindowMs: 7 * 24 * 60 * 60 * 1000,    // 7 days
     sellerActionWindowMs: 72 * 60 * 60 * 1000,          // 72 hours

@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@mercurjs/types": "workspace:*",
-    "@mercurjs/core-plugin": "workspace:*",
+    "@mercurjs/core": "workspace:*",
     "@mercurjs/dashboard-sdk": "workspace:*",
     "tsup": "^8.0.2",
     "typescript": "5.9.3",

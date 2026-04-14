@@ -118,11 +118,11 @@ export const templateBasicRules: TemplateBasicRule[] = [
     id: "api-extension-knowledge",
     description: "How the starter backend should explain routes, modules, workflows, links, and codegen.",
     sourcePaths: [
-      "packages/core-plugin/AGENTS.md",
-      "packages/core-plugin/src/api/README.md",
-      "packages/core-plugin/src/modules/README.md",
+      "packages/core/AGENTS.md",
+      "packages/core/src/api/README.md",
+      "packages/core/src/modules/README.md",
       "packages/types/AGENTS.md",
-      "packages/core-plugin/package.json",
+      "packages/core/package.json",
     ],
     targetPaths: [
       "templates/basic/AGENTS.md",

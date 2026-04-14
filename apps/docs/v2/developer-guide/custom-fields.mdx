@@ -20,7 +20,7 @@ module.exports = defineConfig({
   // ...
   modules: [
     {
-      resolve: "@mercurjs/core-plugin/modules/custom-fields",
+      resolve: "@mercurjs/core/modules/custom-fields",
       options: {
         customFields: {
           Product: {
@@ -117,7 +117,7 @@ The module ships with two workflow steps you can compose into your own workflows
 import {
   upsertCustomFieldsStep,
   deleteCustomFieldsStep,
-} from "@mercurjs/core-plugin/workflows";
+} from "@mercurjs/core/workflows";
 ```
 
 - **`upsertCustomFieldsStep`** — Takes `{ alias, data }` where `alias` is the entity name (e.g. `"product"`) and `data` contains the entity ID and field values.
