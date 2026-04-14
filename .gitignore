@@ -39,3 +39,11 @@ yarn-error.log*
 
 apps/backend/.medusa
 packages/modules/*
+.agents
+apps/admin
+apps/admin-test
+docs/
+apps/vendor
+templates/
+apps/apps/
+apps/api/static
