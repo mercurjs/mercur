@@ -12,7 +12,7 @@ mercur/
 │   ├── admin/            # Admin dashboard UI
 │   ├── cli/              # @mercurjs/cli - CLI tool
 │   ├── client/           # @mercurjs/client - API client
-│   ├── core-plugin/      # @mercurjs/core-plugin - Core Medusa plugin (modules, workflows, providers)
+│   ├── core/      # @mercurjs/core - Core Medusa plugin (modules, workflows, providers)
 │   ├── dashboard-sdk/    # @mercurjs/dashboard-sdk - Vite plugin for dashboards
 │   ├── dashboard-shared/ # Shared UI components for admin and vendor dashboards
 │   ├── registry/         # Official block registry
@@ -162,7 +162,7 @@ export default {
 
 React-based vendor portal UI framework.
 
-## Core Package (`packages/core-plugin`)
+## Core Package (`packages/core`)
 
 MedusaJS v2 plugin providing marketplace functionality.
 

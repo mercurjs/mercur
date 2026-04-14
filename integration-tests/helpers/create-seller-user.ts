@@ -8,7 +8,7 @@ import {
 } from "@medusajs/framework/utils"
 import jwt from "jsonwebtoken"
 import Scrypt from "scrypt-kdf"
-import { createSellersWorkflow } from "@mercurjs/core-plugin/workflows"
+import { createSellersWorkflow } from "@mercurjs/core/workflows"
 
 export const vendorHeaders = {
     headers: { "x-medusa-access-token": "test_token" },

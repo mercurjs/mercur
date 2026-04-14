@@ -5,7 +5,7 @@ import {
   createAdminUser,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
-import { createSellerDefaultsWorkflow } from "@mercurjs/core-plugin/workflows"
+import { createSellerDefaultsWorkflow } from "@mercurjs/core/workflows"
 import { SellerRole } from "@mercurjs/types"
 
 jest.setTimeout(50000)

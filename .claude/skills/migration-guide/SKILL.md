@@ -59,7 +59,7 @@ Based on classification, read from `docs/migrations/mercur-1.x-to-2.0/`:
 ## Stop conditions
 
 Stop and ask the user when:
-- A custom module depends on internal APIs not exposed in `@mercurjs/core-plugin`
+- A custom module depends on internal APIs not exposed in `@mercurjs/core`
 - A third-party integration (Resend, Stripe Connect, Stripe Tax) is a launch blocker and has no 2.0 equivalent
 - Database schema conflicts cannot be resolved with standard migrations
 - The project uses MedusaJS core modifications

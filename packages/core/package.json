@@ -1,10 +1,10 @@
 {
-  "name": "@mercurjs/core-plugin",
+  "name": "@mercurjs/core",
   "version": "2.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
-    "directory": "packages/core-plugin"
+    "directory": "packages/core"
   },
   "description": "Core plugin for MercurJS.",
   "author": "Medusa (https://medusajs.com)",
@@ -13,6 +13,10 @@
     ".medusa/server"
   ],
   "exports": {
+    ".": {
+      "types": "./.medusa/server/src/with-mercur.d.ts",
+      "default": "./.medusa/server/src/with-mercur.js"
+    },
     "./_generated": {
       "types": "./.mercur/_generated/index.ts"
     },
@@ -24,6 +28,10 @@
       "default": "./.medusa/server/src/modules/*/index.js"
     },
     "./providers/*": "./.medusa/server/src/providers/*/index.js",
+    "./with-mercur": {
+      "types": "./.medusa/server/src/with-mercur.d.ts",
+      "default": "./.medusa/server/src/with-mercur.js"
+    },
     "./*": "./.medusa/server/src/*.js"
   },
   "keywords": [

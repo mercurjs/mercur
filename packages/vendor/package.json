@@ -83,7 +83,7 @@
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
     "@medusajs/types": "2.13.4",
-    "@mercurjs/core-plugin": "workspace:*",
+    "@mercurjs/core": "workspace:*",
     "@mercurjs/dashboard-sdk": "workspace:*",
     "@mercurjs/types": "workspace:*"
   }

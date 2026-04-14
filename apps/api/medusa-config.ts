@@ -1,14 +1,14 @@
-import { loadEnv, defineConfig } from '@medusajs/framework/utils'
+import { loadEnv } from '@medusajs/framework/utils'
+import { withMercur } from '@mercurjs/core'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
-module.exports = defineConfig({
+module.exports = withMercur({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
-      // @ts-expect-error: vendorCors is not defined in medusa config module
       vendorCors: process.env.VENDOR_CORS!,
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET || "supersecret",
@@ -16,15 +16,11 @@ module.exports = defineConfig({
     }
   },
   featureFlags: {
-    rbac: true,
     seller_registration: true
   },
   modules: [
     {
-      resolve: "@medusajs/medusa/rbac",
-    },
-    {
-      resolve: '@mercurjs/core-plugin/modules/admin-ui',
+      resolve: '@mercurjs/core/modules/admin-ui',
       options: {
         appDir: '',
         path: '/dashboard',
@@ -32,7 +28,7 @@ module.exports = defineConfig({
       }
     },
     {
-      resolve: '@mercurjs/core-plugin/modules/vendor-ui',
+      resolve: '@mercurjs/core/modules/vendor-ui',
       options: {
         appDir: '',
         path: '/seller',
@@ -40,10 +36,4 @@ module.exports = defineConfig({
       }
     },
   ],
-  plugins: [
-    {
-      resolve: "@mercurjs/core-plugin",
-      options: {}
-    }
-  ]
 })

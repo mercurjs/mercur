@@ -15,8 +15,8 @@ Start with a working 2.0 project (see [Installation](/v2/getting-started/install
 
 | 1.x Package | 2.0 Equivalent |
 |-------------|----------------|
-| `@mercurjs/b2c-core` | `@mercurjs/core-plugin` |
-| `@mercurjs/commission` | Built into core-plugin |
+| `@mercurjs/b2c-core` | `@mercurjs/core` |
+| `@mercurjs/commission` | Built into core |
 | `@mercurjs/algolia` | Block: `mercurjs add algolia` |
 | `@mercurjs/resend` | No 2.0 equivalent — port manually |
 | `@mercurjs/payment-stripe-connect` | No 2.0 equivalent — port manually |
@@ -34,7 +34,7 @@ Start with a working 2.0 project (see [Installation](/v2/getting-started/install
 
 ## What You DON'T Need to Port
 
-Built into core-plugin today:
+Built into core today:
 
 - `seller`
 - `payout`
@@ -65,7 +65,7 @@ These areas do not currently have full 1.x parity and should be treated as manua
 
 ### Modules
 
-Copy to `packages/api/src/modules/`, register in `medusa-config.ts`. Update imports from `@mercurjs/b2c-core` to `@mercurjs/core-plugin`.
+Copy to `packages/api/src/modules/`, register in `medusa-config.ts`. Update imports from `@mercurjs/b2c-core` to `@mercurjs/core`.
 
 ### Workflows
 
@@ -86,7 +86,7 @@ Run `bunx @mercurjs/cli@latest codegen` after adding routes.
 
 ### Links and Subscribers
 
-Copy to `packages/api/src/links/` and `src/subscribers/`. Don't duplicate links that core-plugin already provides (seller↔product, seller↔order, etc.).
+Copy to `packages/api/src/links/` and `src/subscribers/`. Don't duplicate links that core already provides (seller↔product, seller↔order, etc.).
 
 ### Custom Providers
 
