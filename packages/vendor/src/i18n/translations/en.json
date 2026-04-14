@@ -2697,14 +2697,14 @@
     },
     "status": {
       "active": "Active",
-      "pendingApproval": "Pending approval",
+      "pendingApproval": "Pending",
       "suspended": "Suspended",
       "terminated": "Terminated"
     },
     "alert": {
       "pendingApproval": {
-        "title": "Your store is under review",
-        "description": "Your application is being reviewed by our team. You will be notified once your store is approved."
+        "title": "Store request",
+        "description": "Store request has been submitted successfully. Once the Admin reviews it, you'll receive a notification in your panel."
       },
       "suspended": {
         "title": "Your store has been suspended",
@@ -2746,6 +2746,10 @@
     },
     "address": {
       "header": "Address",
+      "empty": {
+        "title": "No address",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Address",
         "description": "Update the address for your store.",
@@ -2754,6 +2758,10 @@
     },
     "paymentDetails": {
       "header": "Payment Details",
+      "empty": {
+        "title": "No payment details",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Payment Details",
         "description": "Update the payment details for your store.",
@@ -2771,6 +2779,10 @@
     },
     "professionalDetails": {
       "header": "Company Details",
+      "empty": {
+        "title": "No company details",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Professional Details",
         "description": "Update the professional details for your store.",
@@ -2782,18 +2794,34 @@
         "taxId": "Tax ID"
       }
     },
-    "scheduledClosure": {
-      "header": "Scheduled Closure",
-      "edit": {
-        "header": "Schedule Store Closure",
-        "description": "Configure the scheduled closure dates for your store.",
-        "successToast": "Scheduled closure updated"
+    "timeOff": {
+      "header": "Time off",
+      "columns": {
+        "firstDay": "First day",
+        "lastDay": "Last day",
+        "note": "Note"
+      },
+      "empty": {
+        "title": "No time off yet",
+        "message": "This store doesn't have scheduled time off",
+        "action": "Create"
+      },
+      "create": {
+        "header": "Create Time Off",
+        "description": "Schedule a time off period for your store.",
+        "successToast": "Time off saved"
       },
       "fields": {
-        "closedFrom": "Close from",
-        "closedTo": "Close until",
-        "closedToHint": "If empty, the store will remain closed indefinitely."
-      }
+        "firstDay": "First day",
+        "lastDay": "Last day",
+        "lastDayHint": "Leave empty to keep the store closed indefinitely",
+        "note": "Note"
+      },
+      "deleteConfirm": {
+        "title": "Delete time off",
+        "description": "Are you sure you want to remove this time off period?"
+      },
+      "deleteSuccess": "Time off removed"
     },
     "subscription": {
       "header": "Subscription",
@@ -2804,6 +2832,9 @@
       "freePeriod": "Free period",
       "requiresOrders": "Requires orders",
       "month": "month"
+    },
+    "edit": {
+      "websiteHint": "Must include protocol (e.g. https://)"
     },
     "toast": {
       "update": "Store successfully updated",
