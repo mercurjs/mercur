@@ -13,6 +13,7 @@ import { logger } from "@/src/utils/logger";
 const MIDDLEWARES_TO_DISABLE: Record<string, string> = {
   "dist/api/admin/products/middlewares.js": "adminProductRoutesMiddlewares",
   "dist/api/admin/product-variants/middlewares.js": "adminProductVariantRoutesMiddlewares",
+  "dist/api/admin/product-categories/middlewares.js": "adminProductCategoryRoutesMiddlewares",
 };
 
 /**
@@ -23,6 +24,7 @@ const MIDDLEWARES_TO_DISABLE: Record<string, string> = {
 const ROUTE_GLOBS_TO_DISABLE = [
   "dist/api/admin/products/**/route.js",
   "dist/api/admin/product-variants/**/route.js",
+  "dist/api/admin/product-categories/**/route.js",
 ];
 
 const DISABLED_ROUTE_CONTENT = `"use strict";
