@@ -167,6 +167,13 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                         "virtual:mercur/components",
                         "virtual:mercur/menu-items",
                         "virtual:mercur/i18n",
+                        "virtual:medusa/routes",
+                        "virtual:medusa/menu-items",
+                        "virtual:medusa/i18n",
+                        "virtual:medusa/widgets",
+                        "virtual:medusa/forms",
+                        "virtual:medusa/displays",
+                        "virtual:medusa/links",
                     ],
                     include: [
                         "react",

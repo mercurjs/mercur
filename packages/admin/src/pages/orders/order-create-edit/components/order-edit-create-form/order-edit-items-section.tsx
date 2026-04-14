@@ -4,7 +4,7 @@ import { MagnifyingGlass } from "@medusajs/icons";
 import { AdminOrder, AdminOrderPreview } from "@medusajs/types";
 import { Button, Heading, Input, Text, toast } from "@medusajs/ui";
 
-import debounce from "lodash/debounce";
+import debounce from "lodash.debounce";
 import { useTranslation } from "react-i18next";
 
 import {
