@@ -44,7 +44,6 @@ const ProductVariant = model
       pivotEntity: () => ProductVariantProductImage,
     }),
     attribute_values: model.manyToMany(() => ProductAttributeValue, {
-      pivotTable: "product_variant_attribute_value",
       mappedBy: "variants",
     }),
   })

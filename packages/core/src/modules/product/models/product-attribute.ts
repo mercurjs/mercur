@@ -24,7 +24,6 @@ const ProductAttribute = model
       mappedBy: "attribute",
     }),
     categories: model.manyToMany(() => ProductCategory, {
-      pivotTable: "product_category_attribute",
       mappedBy: "attributes",
     }),
     variant_products: model.manyToMany(() => Product, {

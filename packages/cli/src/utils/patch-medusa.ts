@@ -1,5 +1,6 @@
-import { writeFileSync } from "fs";
-import { join } from "path";
+import { createRequire } from "module";
+import { readFileSync, writeFileSync } from "fs";
+import { dirname, join } from "path";
 import fg from "fast-glob";
 import resolveCwd from "resolve-cwd";
 import { packageDirectory } from "pkg-dir";
@@ -43,6 +44,14 @@ exports.${exportName} = [];
 `;
 }
 
+/**
+ * Product link definition lines to strip from @medusajs/link-modules
+ * definitions/index.js so Mercur's own product links take precedence.
+ */
+const PRODUCT_LINK_PATTERNS = [
+  /.*require\("\.\/product-.*"\).*\n?/g,
+];
+
 export async function patchMedusa() {
   try {
     const resolved = resolveCwd("@medusajs/medusa");
@@ -66,7 +75,38 @@ export async function patchMedusa() {
         writeFileSync(routeFile, DISABLED_ROUTE_CONTENT);
       }
     }
+
+    // Strip product link definitions from @medusajs/link-modules
+    await patchLinkModules();
   } catch (err) {
     logger.error(`Failed to patch Medusa: ${err}`);
+  }
+}
+
+async function patchLinkModules() {
+  try {
+    // The runtime resolves @medusajs/link-modules via the discoveryPath
+    // in @medusajs/medusa/link-modules, which may point to a different
+    // copy than what resolveCwd finds (e.g. bun's .bun/ cache).
+    // We follow the same resolution chain the runtime uses.
+    const medusaLinkModules = resolveCwd("@medusajs/medusa/link-modules");
+    const require_ = createRequire(medusaLinkModules);
+    const linkModulesEntry = require_.resolve("@medusajs/link-modules");
+    const linkModulesDir = await packageDirectory({ cwd: dirname(linkModulesEntry) });
+
+    if (!linkModulesDir) {
+      return;
+    }
+
+    const indexPath = join(linkModulesDir, "dist/definitions/index.js");
+    let content = readFileSync(indexPath, "utf-8");
+
+    for (const pattern of PRODUCT_LINK_PATTERNS) {
+      content = content.replace(pattern, "");
+    }
+
+    writeFileSync(indexPath, content);
+  } catch (err) {
+    logger.error(`Failed to patch link-modules: ${err}`);
   }
 }

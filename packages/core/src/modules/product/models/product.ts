@@ -70,7 +70,6 @@ const Product = model
       mappedBy: "products",
     }),
     variant_attributes: model.manyToMany(() => ProductAttribute, {
-      pivotTable: "product_variant_attribute",
       mappedBy: "variant_products",
     }),
     changes: model.hasMany(() => ProductChange, {

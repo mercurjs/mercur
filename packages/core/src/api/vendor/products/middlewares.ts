@@ -15,7 +15,6 @@ import {
   vendorProductVariantQueryConfig,
 } from "./query-config"
 import {
-  VendorAddProductAttribute,
   VendorBatchVariantImages,
   VendorCreateProduct,
   VendorCreateProductOption,
@@ -25,7 +24,6 @@ import {
   VendorGetProductVariantParams,
   VendorGetProductVariantsParams,
   VendorUpdateProduct,
-  VendorUpdateProductAttribute,
   VendorUpdateProductOption,
   VendorUpdateProductVariant,
 } from "./validators"
@@ -167,34 +165,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["DELETE"],
     matcher: "/vendor/products/:id/options/:option_id",
-    middlewares: [],
-  },
-  // Attribute management routes
-  {
-    method: ["POST"],
-    matcher: "/vendor/products/:id/attributes",
-    middlewares: [
-      validateAndTransformBody(VendorAddProductAttribute),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/vendor/products/:id/attributes/:attribute_id",
-    middlewares: [
-      validateAndTransformBody(VendorUpdateProductAttribute),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["DELETE"],
-    matcher: "/vendor/products/:id/attributes/:attribute_id",
     middlewares: [],
   },
   // Variant media route

@@ -26,7 +26,7 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
 
   const featureFlags = {
     ...config.featureFlags,
-    rbac: config.featureFlags?.rbac ?? true,
+    rbac: true,
   }
 
   const modules = [

@@ -444,13 +444,6 @@ export type Routes = {
                 unterminate: typeof import("../../src/api/admin/sellers/[id]/unterminate/route");
             };
         };
-        attributes: typeof import("../../src/api/admin/attributes/route") & {
-            $id: typeof import("../../src/api/admin/attributes/[id]/route") & {
-                values: typeof import("../../src/api/admin/attributes/[id]/values/route") & {
-                    $valueId: typeof import("../../src/api/admin/attributes/[id]/values/[value_id]/route");
-                };
-            };
-        };
         subscriptionPlans: typeof import("../../src/api/admin/subscription-plans/route") & {
             $id: typeof import("../../src/api/admin/subscription-plans/[id]/route") & {
                 overrides: typeof import("../../src/api/admin/subscription-plans/[id]/overrides/route") & {
@@ -647,9 +640,6 @@ export type Routes = {
                         media: typeof import("../../src/api/vendor/products/[id]/variants/[variant_id]/media/route");
                     };
                 };
-                attributes: typeof import("../../src/api/vendor/products/[id]/attributes/route") & {
-                    $attributeId: typeof import("../../src/api/vendor/products/[id]/attributes/[attribute_id]/route");
-                };
             };
         };
         promotions: typeof import("../../src/api/vendor/promotions/route") & {
@@ -744,7 +734,6 @@ export type Routes = {
             };
         };
         uploads: typeof import("../../src/api/vendor/uploads/route");
-        attributes: typeof import("../../src/api/vendor/attributes/route");
         featureFlags: typeof import("../../src/api/vendor/feature-flags/route");
         fulfillmentProviders: typeof import("../../src/api/vendor/fulfillment-providers/route");
         members: {

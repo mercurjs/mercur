@@ -1,8 +1,8 @@
 export { default as Product } from "./product";
-export { default as ProductAttribute } from "./product-attribute";
-export { default as ProductAttributeValue } from "./product-attribute-value";
 export { default as ProductBrand } from "./product-brand";
 export { default as ProductCategory } from "./product-category";
+export { default as ProductAttribute } from "./product-attribute";
+export { default as ProductAttributeValue } from "./product-attribute-value";
 export { default as ProductCollection } from "./product-collection";
 export { default as ProductImage } from "./product-image";
 export { default as ProductRejectionReason } from "./product-rejection-reason";
