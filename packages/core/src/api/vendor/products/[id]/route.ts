@@ -1,4 +1,7 @@
-import { deleteProductsWorkflow } from "@medusajs/core-flows"
+import {
+  deleteProductsWorkflow,
+  updateProductsWorkflow,
+} from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -11,15 +14,13 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { validateSellerProduct } from "../helpers"
 import { VendorUpdateProductType } from "../validators"
-import { transformProductWithInformationalAttributes } from "../utils/transform-product-attributes"
-import { updateProductWithVariantImagesWorkflow } from "../../../../workflows/product-attribute/workflows/update-product-with-variant-images"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
+  const sellerId = req.seller_context!.seller_id
 
   await validateSellerProduct(req.scope, sellerId, req.params.id)
 
@@ -38,11 +39,7 @@ export const GET = async (
     )
   }
 
-  const transformedProduct = transformProductWithInformationalAttributes(
-    product as any
-  )
-
-  res.json({ product: transformedProduct })
+  res.json({ product: product as any })
 }
 
 export const POST = async (
@@ -50,14 +47,12 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
+  const sellerId = req.seller_context!.seller_id
   const { additional_data, ...update } = req.validatedBody
 
   await validateSellerProduct(req.scope, sellerId, req.params.id)
 
-  const { result } = await updateProductWithVariantImagesWorkflow(
-    req.scope
-  ).run({
+  const { result } = await updateProductsWorkflow(req.scope).run({
     input: {
       selector: { id: req.params.id },
       update,
@@ -76,11 +71,7 @@ export const POST = async (
     filters: { id: result[0].id },
   })
 
-  const transformedProduct = transformProductWithInformationalAttributes(
-    product as any
-  )
-
-  res.json({ product: transformedProduct })
+  res.json({ product: product as any })
 }
 
 export const DELETE = async (

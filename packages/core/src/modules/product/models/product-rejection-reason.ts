@@ -11,7 +11,6 @@ const ProductRejectionReason = model
     is_active: model.boolean().default(true),
     metadata: model.json().nullable(),
     product_changes: model.manyToMany(() => ProductChange, {
-      pivotTable: "product_change_rejection_reason",
       mappedBy: "rejection_reasons",
     }),
   })

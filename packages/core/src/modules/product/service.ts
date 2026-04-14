@@ -1,4 +1,4 @@
-import { Context, DAL, FindConfig } from "@medusajs/framework/types";
+import { Context, FindConfig } from "@medusajs/framework/types";
 import {
   InjectTransactionManager,
   kebabCase,
@@ -40,7 +40,6 @@ type UpdateCategoryInput = {
 };
 
 interface InjectedDependencies {
-  baseRepository: DAL.RepositoryService;
   productCategoryService: ProductCategoryService;
 }
 
@@ -60,18 +59,12 @@ class ProductModuleService extends MedusaService({
   ProductVariant,
   ProductVariantProductImage,
 }) {
-  protected readonly baseRepository_: DAL.RepositoryService;
   protected readonly productCategoryService_: ProductCategoryService;
 
-  constructor({ baseRepository, productCategoryService }: InjectedDependencies) {
-    // @ts-ignore
-    // eslint-disable-next-line prefer-rest-params
+  constructor(container: InjectedDependencies) {
     super(...arguments);
-    this.baseRepository_ = baseRepository;
-    this.productCategoryService_ = productCategoryService;
+    this.productCategoryService_ = container.productCategoryService;
   }
-
-  // --- Product overrides ---
 
   // @ts-expect-error
   async retrieveProduct(

@@ -39,14 +39,6 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
     )
       ? []
       : [{ resolve: "@medusajs/medusa/rbac" as const }]),
-    ...((config.modules ?? []).some(
-      (m) =>
-        typeof m === "object" &&
-        "resolve" in m &&
-        m.resolve === "@mercurjs/core/modules/product"
-    )
-      ? []
-      : [{ resolve: "@mercurjs/core/modules/product" as const }]),
   ]
 
   const plugins = [
