@@ -1,5 +1,6 @@
+import { createRequire } from "module";
 import { readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+import { dirname, join } from "path";
 import fg from "fast-glob";
 import resolveCwd from "resolve-cwd";
 import { packageDirectory } from "pkg-dir";
@@ -84,8 +85,14 @@ export async function patchMedusa() {
 
 async function patchLinkModules() {
   try {
-    const resolved = resolveCwd("@medusajs/link-modules");
-    const linkModulesDir = await packageDirectory({ cwd: resolved });
+    // The runtime resolves @medusajs/link-modules via the discoveryPath
+    // in @medusajs/medusa/link-modules, which may point to a different
+    // copy than what resolveCwd finds (e.g. bun's .bun/ cache).
+    // We follow the same resolution chain the runtime uses.
+    const medusaLinkModules = resolveCwd("@medusajs/medusa/link-modules");
+    const require_ = createRequire(medusaLinkModules);
+    const linkModulesEntry = require_.resolve("@medusajs/link-modules");
+    const linkModulesDir = await packageDirectory({ cwd: dirname(linkModulesEntry) });
 
     if (!linkModulesDir) {
       return;
