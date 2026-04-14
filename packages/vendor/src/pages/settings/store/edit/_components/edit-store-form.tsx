@@ -237,7 +237,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 <Form.Item>
                   <Form.Label optional>{t("fields.website")}</Form.Label>
                   <Form.Control>
-                    <Input {...field} />
+                    <Input placeholder="https://example.com" {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>

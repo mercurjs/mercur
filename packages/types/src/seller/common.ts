@@ -191,6 +191,7 @@ export interface SellerDTO {
   is_premium: boolean
   closed_from: Date | null
   closed_to: Date | null
+  closure_note: string | null
   professional_details: ProfessionalDetailsDTO | null
   address: SellerAddressDTO | null
   payment_details: PaymentDetailsDTO | null

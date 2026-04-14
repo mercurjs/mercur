@@ -68,6 +68,7 @@ export const VendorUpdateSeller = z.object({
   website_url: z.string().nullable().optional(),
   closed_from: z.coerce.date().nullable().optional(),
   closed_to: z.coerce.date().nullable().optional(),
+  closure_note: z.string().nullable().optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
 })
 

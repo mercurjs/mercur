@@ -29,6 +29,7 @@ export const retrieveVendorSellerQueryConfig = {
     "is_premium",
     "closed_from",
     "closed_to",
+    "closure_note",
     "*address",
     "*payment_details",
     "*professional_details",
