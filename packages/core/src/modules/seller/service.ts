@@ -1,10 +1,8 @@
 import { configManager } from "@medusajs/framework/config"
-import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
 import { Context, DAL, FindConfig, InternalModuleDeclaration } from "@medusajs/framework/types"
 import {
   generateJwtToken,
   InjectManager,
-  isObject,
   isValidHandle,
   MedusaContext,
   MedusaError,
@@ -24,23 +22,13 @@ import {
   MemberInvite,
   OrderGroup,
 } from "./models"
+import { OrderGroupRepository } from "./repositories"
 import { MemberDTO, MemberInviteDTO, OrderGroupDTO, SellerDTO, SellerModuleOptions } from "@mercurjs/types"
 
 const DEFAULT_INVITE_VALID_DURATION_SECONDS = 60 * 60 * 24 * 7 // 7 days
-const OPERATOR_MAP = {
-  $eq: "=",
-  $lt: "<",
-  $gt: ">",
-  $lte: "<=",
-  $gte: ">=",
-  $ne: "!=",
-  $in: "IN",
-  $nin: "NOT IN",
-  $like: "LIKE",
-  $ilike: "ILIKE",
-}
 
 type InjectedDependencies = {
+  orderGroupRepository: OrderGroupRepository
   baseRepository: DAL.RepositoryService
 }
 
@@ -54,16 +42,18 @@ class SellerModuleService extends MedusaService({
   MemberInvite,
   OrderGroup,
 }) {
+  protected readonly orderGroupRepository_: OrderGroupRepository
   protected readonly baseRepository_: DAL.RepositoryService
-  protected readonly options_: SellerModuleOptions
+  protected readonly options_: SellerModuleOptions & { jwt_secret: string }
 
   constructor(
-    { baseRepository }: InjectedDependencies,
+    { orderGroupRepository, baseRepository }: InjectedDependencies,
     protected readonly moduleDeclaration?: InternalModuleDeclaration,
   ) {
     // @ts-ignore
     // eslint-disable-next-line prefer-rest-params
     super(...arguments)
+    this.orderGroupRepository_ = orderGroupRepository
     this.baseRepository_ = baseRepository
 
     const opts = (moduleDeclaration?.options as SellerModuleOptions) ?? {}
@@ -288,194 +278,6 @@ class SellerModuleService extends MedusaService({
     }
   }
 
-  private parseOrderGroupFilterValue_(
-    column: string,
-    value: unknown,
-    whereClauses: string[],
-    params: unknown[]
-  ) {
-    if (!isObject(value)) {
-      if (Array.isArray(value)) {
-        const placeholders = value.map(() => "?").join(",")
-        whereClauses.push(`${column} IN (${placeholders})`)
-        params.push(...value)
-      } else {
-        whereClauses.push(`${column} = ?`)
-        params.push(value)
-      }
-      return
-    }
-
-    for (const [operator, operand] of Object.entries(value)) {
-      const sqlOperator = OPERATOR_MAP[operator]
-      if (!sqlOperator) {
-        continue
-      }
-
-      if (sqlOperator === "IN" || sqlOperator === "NOT IN") {
-        const values = Array.isArray(operand) ? operand : [operand]
-        const placeholders = values.map(() => "?").join(",")
-        whereClauses.push(`${column} ${sqlOperator} (${placeholders})`)
-        params.push(...values)
-      } else {
-        whereClauses.push(`${column} ${sqlOperator} ?`)
-        params.push(operand)
-      }
-    }
-  }
-
-  private async findAndCountOrderGroups_(
-    filters: Record<string, any> = {},
-    config: FindConfig<any> = {},
-    sharedContext: Context = {}
-  ): Promise<[Record<string, any>[], number]> {
-    const manager = (sharedContext.transactionManager ??
-      sharedContext.manager) as SqlEntityManager | undefined
-
-    if (!manager) {
-      throw new MedusaError(
-        MedusaError.Types.UNEXPECTED_STATE,
-        "Order group queries require an active manager"
-      )
-    }
-
-    const knex = manager.getKnex()
-    const orderBy = config.order || {}
-
-    const params: unknown[] = []
-    const whereClauses: string[] = ["og.deleted_at IS NULL"]
-
-    if (filters.id) {
-      const ids = Array.isArray(filters.id) ? filters.id : [filters.id]
-      const placeholders = ids.map(() => "?").join(",")
-      whereClauses.push(`og.id IN (${placeholders})`)
-      params.push(...ids)
-    }
-
-    if (filters.customer_id) {
-      const customerIds = Array.isArray(filters.customer_id)
-        ? filters.customer_id
-        : [filters.customer_id]
-      const placeholders = customerIds.map(() => "?").join(",")
-      whereClauses.push(`og.customer_id IN (${placeholders})`)
-      params.push(...customerIds)
-    }
-
-    if (filters.seller_id) {
-      const sellerIds = Array.isArray(filters.seller_id)
-        ? filters.seller_id
-        : [filters.seller_id]
-      const placeholders = sellerIds.map(() => "?").join(",")
-      whereClauses.push(`oso.seller_id IN (${placeholders})`)
-      params.push(...sellerIds)
-    }
-
-    if (filters.status) {
-      const statuses = Array.isArray(filters.status)
-        ? filters.status
-        : [filters.status]
-      const placeholders = statuses.map(() => "?").join(",")
-      whereClauses.push(`o.status IN (${placeholders})`)
-      params.push(...statuses)
-    }
-
-    if (filters.sales_channel_id) {
-      const salesChannelIds = Array.isArray(filters.sales_channel_id)
-        ? filters.sales_channel_id
-        : [filters.sales_channel_id]
-      const placeholders = salesChannelIds.map(() => "?").join(",")
-      whereClauses.push(`o.sales_channel_id IN (${placeholders})`)
-      params.push(...salesChannelIds)
-    }
-
-    if (filters.created_at) {
-      this.parseOrderGroupFilterValue_(
-        "og.created_at",
-        filters.created_at,
-        whereClauses,
-        params
-      )
-    }
-
-    if (filters.updated_at) {
-      this.parseOrderGroupFilterValue_(
-        "og.updated_at",
-        filters.updated_at,
-        whereClauses,
-        params
-      )
-    }
-
-    if (filters.q) {
-      whereClauses.push("(og.id ILIKE ? OR og.customer_id ILIKE ?)")
-      const searchPattern = `%${filters.q}%`
-      params.push(searchPattern, searchPattern)
-    }
-
-    const orderByClauses: string[] = []
-    if (orderBy.created_at) {
-      orderByClauses.push(`og.created_at ${orderBy.created_at}`)
-    }
-    if (orderBy.updated_at) {
-      orderByClauses.push(`og.updated_at ${orderBy.updated_at}`)
-    }
-    if (orderByClauses.length === 0) {
-      orderByClauses.push("og.created_at DESC")
-    }
-
-    const whereClause = whereClauses.join(" AND ")
-
-    const countQuery = `
-      SELECT COUNT(DISTINCT og.id) as count
-      FROM order_group og
-      LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id
-      LEFT JOIN "order" o ON o.id = ogo.order_id
-      LEFT JOIN order_order_seller_seller oso ON oso.order_id = o.id
-      WHERE ${whereClause}
-    `
-
-    let query = `
-      SELECT
-        og.*,
-        COUNT(DISTINCT oso.seller_id) as seller_count,
-        COALESCE(SUM((os.totals->>'current_order_total')::numeric), 0) as total
-      FROM order_group og
-      LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id
-      LEFT JOIN "order" o ON o.id = ogo.order_id
-      LEFT JOIN order_summary os ON os.order_id = o.id AND os.version = o.version
-      LEFT JOIN order_order_seller_seller oso ON oso.order_id = o.id
-      WHERE ${whereClause}
-      GROUP BY og.id
-      ORDER BY ${orderByClauses.join(", ")}
-    `
-
-    const paginationParams: unknown[] = []
-
-    if (config.take) {
-      query += " LIMIT ?"
-      paginationParams.push(config.take)
-    }
-
-    if (config.skip) {
-      query += " OFFSET ?"
-      paginationParams.push(config.skip)
-    }
-
-    const [result, countResult] = await Promise.all([
-      knex.raw(query, [...params, ...paginationParams]),
-      knex.raw(countQuery, params),
-    ])
-
-    const rows = result.rows.map((row) => ({
-      ...row,
-      total: row.total ? Number(row.total) : 0,
-      seller_count: row.seller_count ? Number(row.seller_count) : 0,
-    })) ?? []
-    const count = parseInt(countResult.rows?.[0]?.count || "0", 10)
-
-    return [rows, count]
-  }
-
   @InjectManager()
   // @ts-ignore
   async listOrderGroups(
@@ -483,9 +285,11 @@ class SellerModuleService extends MedusaService({
     config: FindConfig<any> = {},
     @MedusaContext() sharedContext: Context = {}
   ) {
-    const [orderGroups] = await this.findAndCountOrderGroups_(
-      filters,
-      config,
+    const [orderGroups] = await this.orderGroupRepository_.findAndCount(
+      {
+        where: filters,
+        options: config,
+      },
       sharedContext
     )
 
@@ -499,9 +303,11 @@ class SellerModuleService extends MedusaService({
     config: FindConfig<any> = {},
     @MedusaContext() sharedContext: Context = {}
   ) {
-    const [orderGroups, count] = await this.findAndCountOrderGroups_(
-      filters,
-      config,
+    const [orderGroups, count] = await this.orderGroupRepository_.findAndCount(
+      {
+        where: filters,
+        options: config,
+      },
       sharedContext
     )
     return [
@@ -517,9 +323,11 @@ class SellerModuleService extends MedusaService({
     config: FindConfig<any> = {},
     @MedusaContext() sharedContext: Context = {}
   ) {
-    const [orderGroups] = await this.findAndCountOrderGroups_(
-      { id },
-      config,
+    const [orderGroups] = await this.orderGroupRepository_.findAndCount(
+      {
+        where: { id },
+        options: config,
+      },
       sharedContext
     )
 
