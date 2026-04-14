@@ -407,6 +407,11 @@ ${header("Launch Application:")}
   - cd ./${relativePath}
   - ${packageManager === "npm" ? "npm run" : packageManager} dev
 
+${header("Create your first seller:")}
+
+  Once the server is running, open the Vendor Panel and register at:
+  ${highlighter.info("http://localhost:9000/seller/register")}
+
 ${header("Documentation:")}
 
   - ${createTerminalLink("Getting Started", "https://docs.mercurjs.com/v2/welcome")}
@@ -421,6 +426,11 @@ ${header("Your marketplace is running:")}
   API:          ${highlighter.info("http://localhost:9000")}
   Admin Panel:  ${highlighter.info("http://localhost:9000/dashboard")}
   Vendor Panel: ${highlighter.info("http://localhost:9000/seller")}
+
+${header("Create your first seller:")}
+
+  Open the Vendor Panel and register a new account at:
+  ${highlighter.info("http://localhost:9000/seller/register")}
 `;
 }
 

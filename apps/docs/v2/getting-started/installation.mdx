@@ -49,6 +49,30 @@ The CLI will prompt for a project name and template, then handle everything auto
 | `--no-deps` | Skip dependency installation | — |
 | `--skip-db` | Skip database setup | — |
 
+## Access your marketplace
+
+Once the development server is running, your marketplace is available at:
+
+| Panel | URL |
+|-------|-----|
+| API | `http://localhost:9000` |
+| Admin Panel | `http://localhost:9000/dashboard` |
+| Vendor Panel | `http://localhost:9000/seller` |
+
+### Create an admin account
+
+The CLI automatically opens the admin invite page in your browser after setup. Follow the on-screen instructions to create your first admin account.
+
+### Create your first seller
+
+The seed data does not include a seller account. To create one, open the Vendor Panel and register:
+
+```
+http://localhost:9000/seller/register
+```
+
+Fill in the registration form and complete the onboarding wizard. Once submitted, the seller will appear in the Admin Panel for approval.
+
 ## Start the development server
 
 After stopping the server, start it again from your project directory:
