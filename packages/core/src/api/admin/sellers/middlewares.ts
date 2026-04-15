@@ -4,10 +4,16 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 
-import { adminSellerQueryConfig, adminMembersQueryConfig, adminMemberInvitesQueryConfig } from "./query-config"
+import {
+  adminSellerQueryConfig,
+  adminMembersQueryConfig,
+  adminMemberInvitesQueryConfig,
+  adminSellerProductsQueryConfig,
+} from "./query-config"
 import {
   AdminGetSellerParams,
   AdminGetSellersParams,
+  AdminGetSellerProductsParams,
   AdminCreateSeller,
   AdminUpdateSeller,
   AdminSuspendSeller,
@@ -178,6 +184,17 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         AdminGetSellersParams,
         adminMembersQueryConfig.list
+      ),
+    ],
+  },
+  // GET /admin/sellers/:id/products — list seller products
+  {
+    method: ["GET"],
+    matcher: "/admin/sellers/:id/products",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetSellerProductsParams,
+        adminSellerProductsQueryConfig.list
       ),
     ],
   },

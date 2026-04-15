@@ -69,6 +69,32 @@ export const useSellers = (
   return { ...data, ...rest };
 };
 
+export const useSellerProducts = (
+  id: string,
+  query?: Omit<
+    InferClientInput<typeof sdk.admin.sellers.$id.products.query>,
+    "$id"
+  >,
+  options?: Omit<
+    UseQueryOptions<
+      InferClientOutput<typeof sdk.admin.sellers.$id.products.query>,
+      ClientError,
+      InferClientOutput<typeof sdk.admin.sellers.$id.products.query>,
+      QueryKey
+    >,
+    "queryKey" | "queryFn"
+  >,
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      sdk.admin.sellers.$id.products.query({ $id: id, ...query }),
+    queryKey: [...sellersQueryKeys.detail(id), "products", query],
+    ...options,
+  });
+
+  return { ...data, ...rest };
+};
+
 export const useCreateSeller = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.sellers.mutate>,

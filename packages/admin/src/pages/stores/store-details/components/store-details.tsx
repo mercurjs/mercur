@@ -1,5 +1,6 @@
 import { ReactNode, Children, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { TwoColumnPageSkeleton } from "../../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../../components/layout/pages";
@@ -14,6 +15,8 @@ import { StoreAddressSection } from "./store-address-section";
 import { StoreSubscriptionSection } from "./store-subscription-section";
 import { StoreMembersSection } from "./store-members-section";
 import { StoreRequestSection } from "./store-request-section";
+import { StoreOrdersSection } from "./store-orders-section";
+import { StoreProductsSection } from "./store-products-section";
 import {
   StoreDetailHeader,
   StoreDetailTitle,
@@ -21,9 +24,9 @@ import {
   StoreDetailEditButton,
 } from "./store-detail-header";
 
-const TABS = [{ value: "users", label: "Users" }] as const;
+const TABS = ["orders", "users", "products", "timeOff"] as const;
 
-type Tab = (typeof TABS)[number]["value"];
+type Tab = (typeof TABS)[number];
 
 const TabBar = ({
   activeTab,
@@ -32,22 +35,42 @@ const TabBar = ({
   activeTab: Tab;
   onTabChange: (tab: Tab) => void;
 }) => {
+  const { t } = useTranslation();
+
+  const labels: Record<Tab, string> = {
+    orders: t("orders.domain"),
+    users: t("users.domain"),
+    products: t("products.domain"),
+    timeOff: t("store.timeOff.header"),
+  };
+
   return (
-    <div className="flex items-center gap-x-3 py-2">
+    <div
+      role="tablist"
+      aria-label={t("stores.domain")}
+      className="flex flex-wrap items-center gap-x-3 py-2"
+      data-testid="store-detail-tabs"
+    >
       {TABS.map((tab) => {
-        const isActive = activeTab === tab.value;
+        const isActive = activeTab === tab;
 
         return (
           <button
-            key={tab.value}
-            onClick={() => onTabChange(tab.value)}
+            key={tab}
+            type="button"
+            onClick={() => onTabChange(tab)}
+            role="tab"
+            aria-selected={isActive}
+            aria-controls={`store-detail-tab-panel-${tab}`}
+            id={`store-detail-tab-${tab}`}
+            data-testid={`store-detail-tab-${tab}`}
             className={`txt-compact-medium-plus rounded-full px-4 py-1.5 transition-colors ${
               isActive
                 ? "border-ui-border-base bg-ui-bg-base shadow-borders-base text-ui-fg-base"
                 : "text-ui-fg-subtle hover:text-ui-fg-base"
             }`}
           >
-            {tab.label}
+            {labels[tab]}
           </button>
         );
       })}
@@ -57,7 +80,7 @@ const TabBar = ({
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState<Tab>("users");
+  const [activeTab, setActiveTab] = useState<Tab>("orders");
 
   const { seller, isLoading, isError, error } = useSeller(id!);
 
@@ -85,10 +108,44 @@ const Root = ({ children }: { children?: ReactNode }) => {
         )}
         <StoreGeneralSection seller={seller} />
         <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
-        {activeTab === "users" && <StoreMembersSection sellerId={seller.id} />}
+        {activeTab === "orders" && (
+          <div
+            role="tabpanel"
+            id="store-detail-tab-panel-orders"
+            aria-labelledby="store-detail-tab-orders"
+          >
+            <StoreOrdersSection sellerId={seller.id} />
+          </div>
+        )}
+        {activeTab === "users" && (
+          <div
+            role="tabpanel"
+            id="store-detail-tab-panel-users"
+            aria-labelledby="store-detail-tab-users"
+          >
+            <StoreMembersSection sellerId={seller.id} />
+          </div>
+        )}
+        {activeTab === "products" && (
+          <div
+            role="tabpanel"
+            id="store-detail-tab-panel-products"
+            aria-labelledby="store-detail-tab-products"
+          >
+            <StoreProductsSection sellerId={seller.id} />
+          </div>
+        )}
+        {activeTab === "timeOff" && (
+          <div
+            role="tabpanel"
+            id="store-detail-tab-panel-timeOff"
+            aria-labelledby="store-detail-tab-timeOff"
+          >
+            <StoreConfigurationSection seller={seller} />
+          </div>
+        )}
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <StoreConfigurationSection seller={seller} />
         <StoreAddressSection seller={seller} />
         <StoreCompanyDetailsSection seller={seller} />
         <StorePaymentDetailsSection seller={seller} />
@@ -102,9 +159,9 @@ export const StoreDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: StoreGeneralSection,
+  MainConfigurationSection: StoreConfigurationSection,
   MainPaymentDetailsSection: StorePaymentDetailsSection,
   MainCompanyDetailsSection: StoreCompanyDetailsSection,
-  SidebarConfigurationSection: StoreConfigurationSection,
   SidebarAddressSection: StoreAddressSection,
   SidebarSubscriptionSection: StoreSubscriptionSection,
   SidebarMembersSection: StoreMembersSection,
