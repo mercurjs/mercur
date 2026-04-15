@@ -7,7 +7,16 @@ import {
   isValidHandle,
   toHandle,
 } from "@medusajs/framework/utils";
-import { ProductChangeStatus } from "@mercurjs/types";
+import {
+  AttributeType,
+  CreateProductAttributeDTO,
+  CreateProductDTO,
+  ProductAttributeDTO,
+  ProductChangeActionDTO,
+  ProductChangeStatus,
+  ProductDTO,
+  UpdateProductDTO,
+} from "@mercurjs/types";
 import {
   Product,
   ProductAttribute,
@@ -37,6 +46,14 @@ type UpdateCategoryInput = {
   rank?: number;
   parent_category_id?: string | null;
   metadata?: Record<string, unknown> | null;
+};
+
+type AddProductActionInput = {
+  product_change_id: string;
+  product_id: string;
+  action: string;
+  details?: Record<string, unknown>;
+  internal_note?: string;
 };
 
 interface InjectedDependencies {
@@ -140,9 +157,89 @@ class ProductModuleService extends MedusaService({
     }
   }
 
+  private validateProductAttributeType_(
+    attr: Partial<
+      Pick<
+        CreateProductAttributeDTO,
+        "name" | "type" | "is_variant_axis" | "is_filterable"
+      >
+    > & { id?: string }
+  ): void {
+    const VARIANT_AXIS_ALLOWED = new Set<AttributeType>([
+      AttributeType.SINGLE_SELECT,
+      AttributeType.MULTI_SELECT,
+    ]);
+    const FILTERABLE_ALLOWED = new Set<AttributeType>([
+      AttributeType.SINGLE_SELECT,
+      AttributeType.MULTI_SELECT,
+      AttributeType.TOGGLE,
+      AttributeType.UNIT,
+    ]);
+
+    if (
+      attr.is_variant_axis &&
+      attr.type &&
+      !VARIANT_AXIS_ALLOWED.has(attr.type)
+    ) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `Attribute '${attr.name ?? attr.id ?? "(unnamed)"}' (type=${attr.type}) cannot be a variant axis. Only single_select and multi_select attributes may drive variants.`
+      );
+    }
+
+    if (
+      attr.is_filterable &&
+      attr.type &&
+      !FILTERABLE_ALLOWED.has(attr.type)
+    ) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `Attribute '${attr.name ?? attr.id ?? "(unnamed)"}' (type=${attr.type}) cannot be filterable. Only single_select, multi_select, toggle, and unit attributes are filterable.`
+      );
+    }
+  }
+
   @InjectTransactionManager()
   // @ts-ignore
-  async createProducts(data: any | any[], sharedContext?: Context) {
+  async createProductAttributes<
+    TInput extends CreateProductAttributeDTO | CreateProductAttributeDTO[]
+  >(
+    data: TInput,
+    sharedContext?: Context
+  ): Promise<
+    TInput extends CreateProductAttributeDTO[]
+    ? ProductAttributeDTO[]
+    : ProductAttributeDTO
+  > {
+    const input = (Array.isArray(data) ? data : [data]).map((attr) => {
+      this.validateProductAttributeType_(attr);
+      return attr;
+    });
+
+    const result = await super.createProductAttributes(
+      input as any,
+      sharedContext
+    );
+    return (Array.isArray(data) ? result : result[0]) as any;
+  }
+
+  // @ts-expect-error
+  createProducts(
+    data: CreateProductDTO[],
+    sharedContext?: Context
+  ): Promise<ProductDTO[]>;
+  // @ts-expect-error
+  createProducts(
+    data: CreateProductDTO,
+    sharedContext?: Context
+  ): Promise<ProductDTO>;
+
+  @InjectTransactionManager()
+  // @ts-expect-error
+  async createProducts(
+    data: any,
+    sharedContext?: Context
+  ): Promise<ProductDTO | ProductDTO[]> {
     const input = (Array.isArray(data) ? data : [data]).map((product) => {
       this.validateProductHandle(product.handle);
 
@@ -154,13 +251,61 @@ class ProductModuleService extends MedusaService({
     });
 
     const result = await super.createProducts(input, sharedContext);
-    return Array.isArray(data) ? result : result[0];
+    return (Array.isArray(data) ? result : result[0]) as any
   }
 
+  // @ts-expect-error
+  updateProducts(
+    id: string,
+    data: UpdateProductDTO,
+    sharedContext?: Context
+  ): Promise<ProductDTO>;
+  // @ts-expect-error
+  updateProducts(
+    selector: Record<string, unknown>,
+    data: UpdateProductDTO,
+    sharedContext?: Context
+  ): Promise<ProductDTO[]>;
+  // @ts-expect-error
+  updateProducts(
+    data: (UpdateProductDTO & { id: string })[],
+    sharedContext?: Context
+  ): Promise<ProductDTO[]>;
+
   @InjectTransactionManager()
-  // @ts-ignore
-  async updateProducts(data: any | any[], sharedContext?: Context) {
-    const input = (Array.isArray(data) ? data : [data]).map((product) => {
+  // @ts-expect-error
+  async updateProducts(
+    idOrSelectorOrData:
+      | string
+      | Record<string, unknown>
+      | (UpdateProductDTO & { id: string })[],
+    dataOrContext?: UpdateProductDTO | Context,
+    sharedContext?: Context
+  ): Promise<ProductDTO | ProductDTO[]> {
+    const isSelectorForm =
+      typeof idOrSelectorOrData === "string" ||
+      (!Array.isArray(idOrSelectorOrData) &&
+        dataOrContext &&
+        typeof dataOrContext === "object");
+
+    if (isSelectorForm) {
+      const update = dataOrContext as UpdateProductDTO;
+      this.validateProductHandle(update.handle);
+
+      if (!update.handle && update.title) {
+        update.handle = toHandle(update.title);
+      }
+
+      // @ts-ignore
+      return await super.updateProducts(
+        idOrSelectorOrData as any,
+        update,
+        sharedContext
+      );
+    }
+
+    const data = idOrSelectorOrData as (UpdateProductDTO & { id: string })[];
+    const input = data.map((product) => {
       this.validateProductHandle(product.handle);
 
       if (!product.handle && product.title) {
@@ -171,11 +316,8 @@ class ProductModuleService extends MedusaService({
     });
 
     // @ts-ignore
-    return super.updateProducts(input, sharedContext);
+    return await super.updateProducts(input, dataOrContext as Context);
   }
-
-  // --- ProductCategory overrides (delegates to ProductCategoryService for tree ops) ---
-
   // @ts-expect-error
   async createProductCategories(
     data: any | any[],
@@ -384,25 +526,20 @@ class ProductModuleService extends MedusaService({
     );
   }
 
+  addProductAction(
+    data: AddProductActionInput[],
+    sharedContext?: Context
+  ): Promise<ProductChangeActionDTO[]>;
+  addProductAction(
+    data: AddProductActionInput,
+    sharedContext?: Context
+  ): Promise<ProductChangeActionDTO>;
+
   @InjectTransactionManager()
   async addProductAction(
-    data:
-      | {
-          product_change_id: string;
-          product_id: string;
-          action: string;
-          details?: Record<string, unknown>;
-          internal_note?: string;
-        }
-      | {
-          product_change_id: string;
-          product_id: string;
-          action: string;
-          details?: Record<string, unknown>;
-          internal_note?: string;
-        }[],
+    data: AddProductActionInput | AddProductActionInput[],
     sharedContext?: Context
-  ) {
+  ): Promise<ProductChangeActionDTO | ProductChangeActionDTO[]> {
     const items = Array.isArray(data) ? data : [data];
 
     for (const item of items) {
@@ -431,7 +568,7 @@ class ProductModuleService extends MedusaService({
       sharedContext
     );
 
-    return Array.isArray(data) ? result : result[0];
+    return (Array.isArray(data) ? result : result[0]) as any
   }
 }
 

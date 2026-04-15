@@ -60,7 +60,7 @@ export const acceptProductsWorkflow = createWorkflow(
 
         const updateInput = transform({ input }, ({ input }) => ({
             selector: { id: input.product_ids },
-            update: {
+            data: {
                 status: ProductStatus.ACCEPTED,
                 is_active: true,
             },

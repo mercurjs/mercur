@@ -41,33 +41,33 @@ export const rejectProductWorkflow = createWorkflow(
       rejection_reason_ids: input.rejection_reason_ids,
     })
 
-    const actionData = transform(
-      { product },
-      ({ product }) => ({
+    const actionData = transform({ product }, ({ product }) => [
+      {
         product_change_id: product.product_change.id,
         product_id: product.id,
         action: ProductChangeActionType.STATUS_CHANGE,
         details: { status: ProductStatus.REJECTED },
-      })
-    )
+      },
+    ])
 
     createProductChangeActionStep(actionData)
 
     const declineData = transform(
       { product, input },
-      ({ product, input }) => ({
-        product_change: product.product_change,
-        declined_by: input.actor_id,
-        declined_reason: input.message,
-        rejection_reason_ids: input.rejection_reason_ids,
-      })
+      ({ product, input }) => (
+        {
+          product_change: product.product_change,
+          declined_by: input.actor_id,
+          declined_reason: input.message,
+          rejection_reason_ids: input.rejection_reason_ids,
+        }),
     )
 
     declineProductChangeStep(declineData)
 
     const updateInput = transform({ input }, ({ input }) => ({
       selector: { id: input.product_id },
-      update: { status: ProductStatus.REJECTED },
+      data: { status: ProductStatus.REJECTED },
     }))
 
     updateProductsStep(updateInput)

@@ -2,25 +2,34 @@ import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { Modules } from "@medusajs/framework/utils"
 import ProductModuleService from "../../../modules/product/service"
 
+type CreateProductChangeStepInput = {
+  product_id: string
+  created_by?: string
+}
+
 export const createProductChangeStep = createStep(
   "create-product-change",
-  async (
-    data: { product_id: string; created_by?: string },
-    { container }
-  ) => {
+  async (data: CreateProductChangeStepInput[], { container }) => {
     const service = container.resolve<ProductModuleService>(Modules.PRODUCT)
-    const change = await service.createProductChanges({
-      product_id: data.product_id,
-      created_by: data.created_by,
-    })
-    return new StepResponse(change, change.id)
+
+    const changes = await service.createProductChanges(
+      data.map((item) => ({
+        product_id: item.product_id,
+        created_by: item.created_by,
+      }))
+    )
+
+    return new StepResponse(
+      changes,
+      changes.map((c) => c.id)
+    )
   },
-  async (changeId: string, { container }) => {
-    if (!changeId) {
+  async (changeIds: string[], { container }) => {
+    if (!changeIds?.length) {
       return
     }
 
     const service = container.resolve<ProductModuleService>(Modules.PRODUCT)
-    await service.deleteProductChanges([changeId])
+    await service.deleteProductChanges(changeIds)
   }
 )

@@ -12,16 +12,12 @@ type CreateProductChangeActionStepInput = {
 
 export const createProductChangeActionStep = createStep(
   "create-product-change-action",
-  async (
-    data: CreateProductChangeActionStepInput | CreateProductChangeActionStepInput[],
-    { container }
-  ) => {
+  async (data: CreateProductChangeActionStepInput[], { container }) => {
     const service = container.resolve<ProductModuleService>(Modules.PRODUCT)
-    const result = await service.addProductAction(data)
-    const actions = Array.isArray(result) ? result : [result]
+    const actions = await service.addProductAction(data)
 
     return new StepResponse(
-      result,
+      actions,
       actions.map((a) => a.id)
     )
   },
