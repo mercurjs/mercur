@@ -2,14 +2,14 @@ import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { Modules } from "@medusajs/framework/utils"
 import ProductModuleService from "../../../modules/product/service"
 
-type CreateProductChangeStepInput = {
+type CreateProductChangesStepInput = {
   product_id: string
   created_by?: string
 }
 
-export const createProductChangeStep = createStep(
-  "create-product-change",
-  async (data: CreateProductChangeStepInput[], { container }) => {
+export const createProductChangesStep = createStep(
+  "create-product-changes",
+  async (data: CreateProductChangesStepInput[], { container }) => {
     const service = container.resolve<ProductModuleService>(Modules.PRODUCT)
 
     const changes = await service.createProductChanges(

@@ -10,8 +10,8 @@ import { ProductStatus, ProductChangeActionType } from "@mercurjs/types"
 import { ProductWorkflowEvents } from "../events"
 import {
     validateAcceptProductsStep,
-    createProductChangeActionStep,
-    confirmProductChangeStep,
+    createProductChangeActionsStep,
+    confirmProductChangesStep,
     updateProductsStep,
 } from "../steps"
 
@@ -45,7 +45,7 @@ export const acceptProductsWorkflow = createWorkflow(
                 }))
         )
 
-        createProductChangeActionStep(actionDataList)
+        createProductChangeActionsStep(actionDataList)
 
         const changeDataList = transform(
             { products, input },
@@ -56,7 +56,7 @@ export const acceptProductsWorkflow = createWorkflow(
                 }))
         )
 
-        confirmProductChangeStep(changeDataList)
+        confirmProductChangesStep(changeDataList)
 
         const updateInput = transform({ input }, ({ input }) => ({
             selector: { id: input.product_ids },

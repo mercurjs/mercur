@@ -18,8 +18,8 @@ import {
 
 import { ProductWorkflowEvents } from "../events"
 import {
-  createProductChangeActionStep,
-  createProductChangeStep,
+  createProductChangeActionsStep,
+  createProductChangesStep,
   createProductsStep,
 } from "../steps"
 import { validateSellerProductPermissionsStep } from "../steps/validate-seller-product-permissions"
@@ -64,7 +64,7 @@ export const submitSellerProductsWorkflow = createWorkflow(
         (createdProducts).map((p) => ({ product_id: p.id }))
     )
 
-    const changes = createProductChangeStep(changeInputs)
+    const changes = createProductChangesStep(changeInputs)
 
     const actionInputs = transform(
       { changes, createdProducts },
@@ -77,7 +77,7 @@ export const submitSellerProductsWorkflow = createWorkflow(
         }))
     )
 
-    createProductChangeActionStep(actionInputs)
+    createProductChangeActionsStep(actionInputs)
 
     const linkData = transform(
       { createdProducts, input },
