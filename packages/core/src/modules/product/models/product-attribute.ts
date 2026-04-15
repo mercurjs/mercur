@@ -16,6 +16,7 @@ const ProductAttribute = model
     is_variant_axis: model.boolean().default(false),
     rank: model.number().default(0),
     is_active: model.boolean().default(true),
+    is_global: model.boolean().default(true),
     created_by: model.text().nullable(),
     metadata: model.json().nullable(),
 
