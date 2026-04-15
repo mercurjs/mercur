@@ -10,11 +10,13 @@ import {
 import {
   AttributeType,
   CreateProductAttributeDTO,
+  CreateProductAttributeValueDTO,
   CreateProductDTO,
   ProductAttributeDTO,
   ProductChangeActionDTO,
   ProductChangeStatus,
   ProductDTO,
+  UpdateProductAttributeDTO,
   UpdateProductDTO,
 } from "@mercurjs/types";
 import {
@@ -224,6 +226,404 @@ class ProductModuleService extends MedusaService({
   }
 
   // @ts-expect-error
+  updateProductAttributes(
+    id: string,
+    data: UpdateProductAttributeDTO,
+    sharedContext?: Context
+  ): Promise<ProductAttributeDTO>;
+  // @ts-expect-error
+  updateProductAttributes(
+    selector: Record<string, unknown>,
+    data: UpdateProductAttributeDTO,
+    sharedContext?: Context
+  ): Promise<ProductAttributeDTO[]>;
+  // @ts-expect-error
+  updateProductAttributes(
+    data: (UpdateProductAttributeDTO & { id: string })[],
+    sharedContext?: Context
+  ): Promise<ProductAttributeDTO[]>;
+
+  @InjectTransactionManager()
+  // @ts-expect-error
+  async updateProductAttributes(
+    idOrSelectorOrData:
+      | string
+      | Record<string, unknown>
+      | (UpdateProductAttributeDTO & { id: string })[],
+    dataOrContext?: UpdateProductAttributeDTO | Context,
+    sharedContext?: Context
+  ): Promise<ProductAttributeDTO | ProductAttributeDTO[]> {
+    const isSelectorForm =
+      typeof idOrSelectorOrData === "string" ||
+      (!Array.isArray(idOrSelectorOrData) &&
+        dataOrContext &&
+        typeof dataOrContext === "object");
+
+    if (isSelectorForm) {
+      const update = dataOrContext as UpdateProductAttributeDTO;
+      this.validateProductAttributeType_(update);
+
+      // @ts-ignore
+      return await super.updateProductAttributes(
+        idOrSelectorOrData as any,
+        update,
+        sharedContext
+      );
+    }
+
+    const data = idOrSelectorOrData as (UpdateProductAttributeDTO & {
+      id: string;
+    })[];
+
+    for (const attr of data) {
+      this.validateProductAttributeType_(attr);
+    }
+
+    // @ts-ignore
+    return await super.updateProductAttributes(data, dataOrContext as Context);
+  }
+
+  private hasVariantAttributeInput_(product: any): boolean {
+    if (product.variant_attributes !== undefined) return true;
+    if (Array.isArray(product.variants)) {
+      for (const v of product.variants) {
+        if (v && (v as any).attribute_values !== undefined) return true;
+      }
+    }
+    return false;
+  }
+
+  private resolveVariantAttributeValues_(
+    variant: any,
+    byKey: Map<string, { attrId: string; valueByKey: Map<string, string> }>
+  ): { id: string }[] {
+    const attrVals = variant.attribute_values as
+      | Record<string, string | string[]>
+      | { id: string }[]
+      | undefined;
+
+    if (!attrVals || Array.isArray(attrVals)) {
+      return (attrVals as { id: string }[] | undefined) ?? [];
+    }
+
+    const result: { id: string }[] = [];
+    for (const [key, raw] of Object.entries(attrVals)) {
+      const entry = byKey.get(key);
+      if (!entry) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          `Attribute '${key}' is not among the product's variant_attributes`
+        );
+      }
+      const vals = Array.isArray(raw) ? raw : [raw];
+      for (const v of vals) {
+        const id = entry.valueByKey.get(v);
+        if (!id) {
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `Value '${v}' does not exist for attribute '${key}'`
+          );
+        }
+        result.push({ id });
+      }
+    }
+    return result;
+  }
+
+  private async normalizeVariantAttributes_(
+    products: any[],
+    sharedContext?: Context
+  ): Promise<any[]> {
+    // Preload existing product.variant_attributes (with values) for update path
+    const productIds = products
+      .map((p) => p.id)
+      .filter((id): id is string => typeof id === "string");
+
+    const existingByProductId = new Map<string, any[]>();
+    if (productIds.length) {
+      const existingProducts = await this.listProducts(
+        { id: productIds },
+        {
+          relations: ["variant_attributes", "variant_attributes.values"],
+          take: productIds.length,
+        },
+        sharedContext
+      );
+      for (const p of existingProducts as any[]) {
+        existingByProductId.set(p.id, p.variant_attributes ?? []);
+      }
+    }
+
+    // Gather ids/handles to batch-load referenced attributes
+    const refIds = new Set<string>();
+    const refHandles = new Set<string>();
+    const isInlineEntry = (entry: any): boolean =>
+      typeof entry?.name === "string" && typeof entry?.type === "string";
+
+    for (const product of products) {
+      const entries = product.variant_attributes as any[] | undefined;
+      if (!entries) continue;
+      for (const entry of entries) {
+        if (isInlineEntry(entry)) continue;
+        if (typeof entry.id === "string") refIds.add(entry.id);
+        else if (typeof entry.handle === "string") refHandles.add(entry.handle);
+      }
+    }
+
+    const refAttrsById = new Map<string, any>();
+    const refAttrsByHandle = new Map<string, any>();
+    if (refIds.size) {
+      const byIds = await this.listProductAttributes(
+        { id: Array.from(refIds) } as any,
+        { relations: ["values"] },
+        sharedContext
+      );
+      for (const a of byIds as any[]) {
+        refAttrsById.set(a.id, a);
+        if (a.handle) refAttrsByHandle.set(a.handle, a);
+      }
+    }
+    if (refHandles.size) {
+      const byHandles = await this.listProductAttributes(
+        { handle: Array.from(refHandles) } as any,
+        { relations: ["values"] },
+        sharedContext
+      );
+      for (const a of byHandles as any[]) {
+        if (!refAttrsById.has(a.id)) {
+          refAttrsById.set(a.id, a);
+          if (a.handle) refAttrsByHandle.set(a.handle, a);
+        }
+      }
+    }
+
+    // Collect inline-create payloads across all products for a batched create
+    type InlineSlot = {
+      productIdx: number;
+      entryIdx: number;
+      payload: CreateProductAttributeDTO;
+    };
+    const inlineSlots: InlineSlot[] = [];
+
+    for (let pi = 0; pi < products.length; pi++) {
+      const product = products[pi];
+      const entries = product.variant_attributes as any[] | undefined;
+      if (!entries) continue;
+
+      const existingList = product.id
+        ? existingByProductId.get(product.id) ?? []
+        : [];
+
+      for (let ei = 0; ei < entries.length; ei++) {
+        const entry = entries[ei];
+        if (!isInlineEntry(entry)) continue;
+
+        // On update path, an inline payload may match an attribute already
+        // linked to the product — treat as upsert (reference + merge values).
+        const match = existingList.find(
+          (a: any) =>
+            (entry.id && a.id === entry.id) ||
+            (entry.handle && a.handle === entry.handle) ||
+            (entry.name && a.name === entry.name)
+        );
+        if (match) continue;
+
+        if (entry.is_variant_axis === false) {
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `Inline variant_attribute '${entry.name}' must have is_variant_axis=true`
+          );
+        }
+        if (!Array.isArray(entry.values) || entry.values.length === 0) {
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `Inline variant_attribute '${entry.name}' must include at least one value`
+          );
+        }
+
+        this.validateProductAttributeType_({
+          name: entry.name,
+          type: entry.type,
+          is_variant_axis: true,
+          is_filterable: entry.is_filterable,
+        });
+
+        inlineSlots.push({
+          productIdx: pi,
+          entryIdx: ei,
+          payload: {
+            ...entry,
+            is_global: false,
+            is_variant_axis: true,
+            created_by: entry.created_by ?? product.created_by ?? null,
+          },
+        });
+      }
+    }
+
+    let createdInline: any[] = [];
+    if (inlineSlots.length) {
+      const created = (await this.createProductAttributes(
+        inlineSlots.map((s) => s.payload),
+        sharedContext
+      )) as any;
+      createdInline = Array.isArray(created) ? created : [created];
+    }
+    const createdBySlot = new Map<string, any>();
+    for (let i = 0; i < inlineSlots.length; i++) {
+      const s = inlineSlots[i];
+      createdBySlot.set(`${s.productIdx}:${s.entryIdx}`, createdInline[i]);
+    }
+
+    // Validate references (must be global unless already linked to the product)
+    for (let pi = 0; pi < products.length; pi++) {
+      const product = products[pi];
+      const entries = product.variant_attributes as any[] | undefined;
+      if (!entries) continue;
+      const existingList = product.id
+        ? existingByProductId.get(product.id) ?? []
+        : [];
+
+      for (const entry of entries) {
+        if (isInlineEntry(entry)) continue;
+        const alreadyLinked =
+          (entry.id && existingList.some((a: any) => a.id === entry.id)) ||
+          (entry.handle &&
+            existingList.some((a: any) => a.handle === entry.handle));
+        if (alreadyLinked) continue;
+
+        const attr = entry.id
+          ? refAttrsById.get(entry.id)
+          : entry.handle
+            ? refAttrsByHandle.get(entry.handle)
+            : undefined;
+
+        if (!attr) {
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `Variant attribute reference ${
+              entry.id ? `id='${entry.id}'` : `handle='${entry.handle}'`
+            } not found`
+          );
+        }
+        if (!attr.is_global) {
+          throw new MedusaError(
+            MedusaError.Types.NOT_ALLOWED,
+            `Attribute '${attr.name}' (${attr.id}) is not global and cannot be referenced by another product`
+          );
+        }
+      }
+    }
+
+    // Build per-product resolution (attribute ids to link, value lookup for variants)
+    const result: any[] = [];
+
+    for (let pi = 0; pi < products.length; pi++) {
+      const product = { ...products[pi] };
+      const entries = product.variant_attributes as any[] | undefined;
+
+      if (!entries) {
+        result.push(product);
+        continue;
+      }
+
+      const existingList = product.id
+        ? existingByProductId.get(product.id) ?? []
+        : [];
+
+      const attributeIds: string[] = [];
+      const byKey = new Map<
+        string,
+        { attrId: string; valueByKey: Map<string, string> }
+      >();
+
+      for (let ei = 0; ei < entries.length; ei++) {
+        const entry = entries[ei];
+        const inline = isInlineEntry(entry);
+        let attr: any;
+        let valuesToUpsert: CreateProductAttributeValueDTO[] | undefined;
+
+        if (!inline) {
+          if (entry.id) {
+            attr =
+              refAttrsById.get(entry.id) ??
+              existingList.find((a: any) => a.id === entry.id);
+          } else if (entry.handle) {
+            attr =
+              refAttrsByHandle.get(entry.handle) ??
+              existingList.find((a: any) => a.handle === entry.handle);
+          }
+          if (Array.isArray(entry.values) && entry.values.length) {
+            valuesToUpsert = entry.values;
+          }
+        } else {
+          const match = existingList.find(
+            (a: any) =>
+              (entry.id && a.id === entry.id) ||
+              (entry.handle && a.handle === entry.handle) ||
+              (entry.name && a.name === entry.name)
+          );
+          if (match) {
+            attr = match;
+            if (Array.isArray(entry.values) && entry.values.length) {
+              valuesToUpsert = entry.values;
+            }
+          } else {
+            attr = createdBySlot.get(`${pi}:${ei}`);
+          }
+        }
+
+        if (!attr) continue;
+
+        if (valuesToUpsert?.length) {
+          const existingNames = new Set<string>(
+            (attr.values ?? []).map((v: any) => v.name)
+          );
+          const newValuePayloads = valuesToUpsert
+            .filter((v) => v.name && !existingNames.has(v.name))
+            .map((v) => ({ ...v, attribute_id: attr.id }));
+          if (newValuePayloads.length) {
+            const created = (await this.createProductAttributeValues(
+              newValuePayloads as any,
+              sharedContext
+            )) as any;
+            const createdArr = Array.isArray(created) ? created : [created];
+            attr = {
+              ...attr,
+              values: [...(attr.values ?? []), ...createdArr],
+            };
+          }
+        }
+
+        attributeIds.push(attr.id);
+        const valueByKey = new Map<string, string>();
+        for (const v of attr.values ?? []) {
+          if (v.name) valueByKey.set(v.name, v.id);
+          if (v.handle) valueByKey.set(v.handle, v.id);
+        }
+        const lookupEntry = { attrId: attr.id, valueByKey };
+        byKey.set(attr.id, lookupEntry);
+        if (attr.handle) byKey.set(attr.handle, lookupEntry);
+        if (attr.name) byKey.set(attr.name, lookupEntry);
+      }
+
+      product.variant_attributes = attributeIds.map((id) => ({ id }));
+
+      if (Array.isArray(product.variants) && product.variants.length) {
+        product.variants = product.variants.map((variant: any) => {
+          if (variant?.attribute_values === undefined) return variant;
+          const resolved = this.resolveVariantAttributeValues_(variant, byKey);
+          return { ...variant, attribute_values: resolved };
+        });
+      }
+
+      result.push(product);
+    }
+
+    return result;
+  }
+
+  // @ts-expect-error
   createProducts(
     data: CreateProductDTO[],
     sharedContext?: Context
@@ -250,8 +650,12 @@ class ProductModuleService extends MedusaService({
       return product;
     });
 
-    const result = await super.createProducts(input, sharedContext);
-    return (Array.isArray(data) ? result : result[0]) as any
+    const finalInput = input.some((p) => this.hasVariantAttributeInput_(p))
+      ? await this.normalizeVariantAttributes_(input, sharedContext)
+      : input;
+
+    const result = await super.createProducts(finalInput, sharedContext);
+    return (Array.isArray(data) ? result : result[0]) as any;
   }
 
   // @ts-expect-error
@@ -296,6 +700,40 @@ class ProductModuleService extends MedusaService({
         update.handle = toHandle(update.title);
       }
 
+      if (this.hasVariantAttributeInput_(update)) {
+        const wasIdForm = typeof idOrSelectorOrData === "string";
+        let productIds: string[];
+        if (wasIdForm) {
+          productIds = [idOrSelectorOrData as string];
+        } else {
+          const products = await this.listProducts(
+            idOrSelectorOrData as any,
+            { select: ["id"] as any },
+            sharedContext
+          );
+          productIds = (products as any[]).map((p) => p.id);
+        }
+
+        if (!productIds.length) {
+          return wasIdForm ? (undefined as any) : [];
+        }
+
+        const batch = productIds.map((id) => ({
+          id,
+          ...update,
+        })) as (UpdateProductDTO & { id: string })[];
+
+        const normalized = await this.normalizeVariantAttributes_(
+          batch,
+          sharedContext
+        );
+
+        // @ts-ignore
+        const results = await super.updateProducts(normalized, sharedContext);
+        const arr = Array.isArray(results) ? results : [results];
+        return (wasIdForm ? arr[0] : arr) as any;
+      }
+
       // @ts-ignore
       return await super.updateProducts(
         idOrSelectorOrData as any,
@@ -315,8 +753,15 @@ class ProductModuleService extends MedusaService({
       return product;
     });
 
+    const finalInput = input.some((p) => this.hasVariantAttributeInput_(p))
+      ? await this.normalizeVariantAttributes_(
+          input,
+          dataOrContext as Context
+        )
+      : input;
+
     // @ts-ignore
-    return await super.updateProducts(input, dataOrContext as Context);
+    return await super.updateProducts(finalInput, dataOrContext as Context);
   }
   // @ts-expect-error
   async createProductCategories(

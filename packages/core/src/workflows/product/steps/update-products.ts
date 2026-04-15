@@ -3,21 +3,35 @@ import { Modules } from "@medusajs/framework/utils"
 import { ProductDTO, UpdateProductDTO } from "@mercurjs/types"
 import ProductModuleService from "../../../modules/product/service"
 
-type UpdateProductsStepInput = {
-  selector: Record<string, unknown>
-  data: UpdateProductDTO
-}
+export type UpdateProductsStepInput =
+  | {
+    selector: Record<string, unknown>
+    data: UpdateProductDTO
+  }
+  | {
+    products: (UpdateProductDTO & { id: string })[]
+  }
 
 export const updateProductsStep = createStep(
   "update-products",
-  async (
-    { selector, data }: UpdateProductsStepInput,
-    { container }
-  ) => {
+  async (input: UpdateProductsStepInput, { container }) => {
     const service = container.resolve<ProductModuleService>(Modules.PRODUCT)
-    const prevProducts = await service.listProducts(selector)
 
-    const products = await service.updateProducts(selector, data)
+    if ("products" in input) {
+      if (!input.products.length) {
+        return new StepResponse<ProductDTO[], ProductDTO[]>([], [])
+      }
+
+      const prevProducts = await service.listProducts({
+        id: input.products.map((p) => p.id),
+      })
+
+      const products = await service.updateProducts(input.products)
+      return new StepResponse(products, prevProducts as any)
+    }
+
+    const prevProducts = await service.listProducts(input.selector)
+    const products = await service.updateProducts(input.selector, input.data)
 
     return new StepResponse(products, prevProducts)
   },
