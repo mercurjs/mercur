@@ -49,29 +49,40 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
           ]}
         />
       </div>
-      <div className="flex flex-col gap-2 px-2 pb-2">
-        <div className="px-4 pb-2">
-          <div className="flex items-center gap-4">
-            <IconAvatar size="large" variant="squared">
-              <BuildingStorefront />
-            </IconAvatar>
-            <div className="flex flex-1 flex-col">
-              <Text size="small" leading="compact" weight="plus">
-                {[address?.first_name, address?.last_name]
-                  .filter(Boolean)
-                  .join(" ") || "-"}
-              </Text>
-              <Text
-                size="small"
-                leading="compact"
-                className="text-ui-fg-subtle"
-              >
-                {formattedAddress || "-"}
-              </Text>
+      {formattedAddress ? (
+        <div className="flex flex-col gap-2 px-2 pb-2">
+          <div className="px-4 pb-2">
+            <div className="flex items-center gap-4">
+              <IconAvatar size="large" variant="squared">
+                <BuildingStorefront />
+              </IconAvatar>
+              <div className="flex flex-1 flex-col">
+                <Text size="small" leading="compact" weight="plus">
+                  {[address?.first_name, address?.last_name]
+                    .filter(Boolean)
+                    .join(" ") || address?.company || formattedAddress}
+                </Text>
+                <Text
+                  size="small"
+                  leading="compact"
+                  className="text-ui-fg-subtle"
+                >
+                  {formattedAddress}
+                </Text>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col items-center gap-y-1 pb-6 pt-2">
+          <Text size="small" leading="compact" weight="plus">
+            {t("store.address.empty.title")}
+          </Text>
+          <Text size="small" className="text-ui-fg-muted">
+            {t("store.address.empty.message")}
+          </Text>
+        </div>
+      )}
     </Container>
   );
 };
