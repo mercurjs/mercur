@@ -105,6 +105,7 @@ export interface CreateProductAttributeDTO {
   is_variant_axis?: boolean;
   rank?: number;
   is_active?: boolean;
+  is_global?: boolean;
   created_by?: string | null;
   metadata?: Record<string, unknown> | null;
   values?: CreateProductAttributeValueDTO[];
@@ -122,6 +123,19 @@ export interface UpdateProductAttributeDTO {
   is_active?: boolean;
   metadata?: Record<string, unknown> | null;
 }
+
+/**
+ * Inline input for product's `variant_attributes` relation. Each entry is
+ * either a reference to an existing (global) attribute by `id` or `handle`,
+ * or an inline-create of a product-scoped (non-global) attribute.
+ *
+ * On update, references may also carry a `values` array for upsert-by-name
+ * semantics.
+ */
+export type ProductVariantAttributeInputDTO =
+  | { id: string; values?: CreateProductAttributeValueDTO[] }
+  | { handle: string; values?: CreateProductAttributeValueDTO[] }
+  | CreateProductAttributeDTO;
 
 // --- ProductCategory ---
 
@@ -174,6 +188,13 @@ export interface CreateProductVariantDTO {
   gtin?: string | null;
   metadata?: Record<string, unknown> | null;
   product_id?: string;
+  /**
+   * Map of attribute key (`id`, `handle`, or `name`, matched in that order)
+   * to value `name` (for `single_select`) or array of value names (for
+   * `multi_select`). Resolved to `ProductAttributeValue` ids when the
+   * product is created.
+   */
+  attribute_values?: Record<string, string | string[]>;
 }
 
 export interface UpdateProductVariantDTO {
@@ -198,6 +219,12 @@ export interface UpdateProductVariantDTO {
   asin?: string | null;
   gtin?: string | null;
   metadata?: Record<string, unknown> | null;
+  /**
+   * See {@link CreateProductVariantDTO.attribute_values}. Passing this on
+   * update replaces the variant's attribute-value links with the resolved
+   * set; omitting it leaves existing links untouched.
+   */
+  attribute_values?: Record<string, string | string[]>;
 }
 
 export interface UpsertProductVariantDTO extends UpdateProductVariantDTO {
@@ -237,6 +264,13 @@ export interface CreateProductDTO {
   category_ids?: string[];
   images?: UpsertProductImageDTO[];
   variants?: CreateProductVariantDTO[];
+  /**
+   * Attributes that act as variant axes for this product. Each entry is
+   * either a reference to an existing global attribute (`{ id }` or
+   * `{ handle }`) or an inline-create payload for a new product-scoped
+   * (non-global) attribute.
+   */
+  variant_attributes?: ProductVariantAttributeInputDTO[];
 }
 
 export interface UpdateProductDTO {
@@ -267,6 +301,13 @@ export interface UpdateProductDTO {
   category_ids?: string[];
   images?: UpsertProductImageDTO[];
   variants?: UpsertProductVariantDTO[];
+  /**
+   * See {@link CreateProductDTO.variant_attributes}. On update, references
+   * may also carry a `values` array to upsert values onto the matched
+   * attribute (values are merged by `name`). Omitting this field leaves
+   * existing variant-attribute links untouched.
+   */
+  variant_attributes?: ProductVariantAttributeInputDTO[];
 }
 
 export interface UpsertProductDTO extends UpdateProductDTO {

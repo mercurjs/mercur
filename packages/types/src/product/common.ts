@@ -157,6 +157,7 @@ export interface ProductAttributeDTO {
   is_variant_axis: boolean;
   rank: number;
   is_active: boolean;
+  is_global: boolean;
   created_by: string | null;
   metadata: Record<string, unknown> | null;
   values?: ProductAttributeValueDTO[];
