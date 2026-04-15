@@ -27,7 +27,7 @@ export const deactivateProductWorkflow = createWorkflow(
 
     const updateInput = transform({ input }, ({ input }) => ({
       selector: { id: input.product_id },
-      update: { is_active: false },
+      data: { is_active: false },
     }))
 
     updateProductsStep(updateInput)

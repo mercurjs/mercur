@@ -7,7 +7,7 @@ export const createProductsStep = createStep(
   "create-products",
   async (data: CreateProductDTO[], { container }) => {
     const service = container.resolve<ProductModuleService>(Modules.PRODUCT)
-    const products = await service.createProducts(data as any) as any[]
+    const products = await service.createProducts(data)
     return new StepResponse(
       products,
       products.map((p) => p.id)
