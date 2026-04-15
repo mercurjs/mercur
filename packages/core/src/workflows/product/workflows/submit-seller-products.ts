@@ -1,5 +1,4 @@
 import { AdditionalData } from "@medusajs/framework/types"
-import { Modules } from "@medusajs/framework/utils"
 import {
   createHook,
   createWorkflow,
@@ -7,7 +6,6 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import {
-  createRemoteLinkStep,
   emitEventStep,
 } from "@medusajs/medusa/core-flows"
 import {
@@ -55,6 +53,15 @@ export const submitSellerProductsWorkflow = createWorkflow(
       }))
     )
 
+    // Extension point for developer-supplied validation (uniqueness,
+    // identifier checksum, custom dedup, etc.). Fires before any mutation —
+    // throwing from a handler aborts the workflow without side effects.
+    const validate = createHook("validate", {
+      input,
+      products: productData,
+      seller_id: input.seller_id,
+    })
+
     const createdProducts = createProductsStep(productData)
 
     // One ProductChange + STATUS_CHANGE action per created product.
@@ -79,17 +86,6 @@ export const submitSellerProductsWorkflow = createWorkflow(
 
     createProductChangeActionsStep(actionInputs)
 
-    const linkData = transform(
-      { createdProducts, input },
-      ({ createdProducts, input }) =>
-        (createdProducts).map((product) => ({
-          [Modules.PRODUCT]: { product_id: product.id },
-          seller: { seller_id: input.seller_id },
-        }))
-    )
-
-    createRemoteLinkStep(linkData)
-
     emitEventStep({
       eventName: ProductWorkflowEvents.CREATED,
       data: transform({ createdProducts }, ({ createdProducts }) =>
@@ -104,7 +100,7 @@ export const submitSellerProductsWorkflow = createWorkflow(
     })
 
     return new WorkflowResponse(createdProducts, {
-      hooks: [sellerProductsSubmitted],
+      hooks: [validate, sellerProductsSubmitted] as const,
     })
   }
 )

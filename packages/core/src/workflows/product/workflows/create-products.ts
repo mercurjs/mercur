@@ -20,6 +20,14 @@ type CreateProductsWorkflowInput = {
 export const createProductsWorkflow = createWorkflow(
   createProductsWorkflowId,
   function (input: CreateProductsWorkflowInput) {
+    // Extension point for developer-supplied validation. Fires before any
+    // mutation — throwing from a handler aborts the workflow without side
+    // effects.
+    const validate = createHook("validate", {
+      input,
+      products: input.products,
+    })
+
     const products = createProductsStep(input.products)
 
     const productsCreated = createHook("productsCreated", {
@@ -36,6 +44,8 @@ export const createProductsWorkflow = createWorkflow(
       data: eventData,
     })
 
-    return new WorkflowResponse(products, { hooks: [productsCreated] })
+    return new WorkflowResponse(products, {
+      hooks: [validate, productsCreated] as const,
+    })
   }
 )
