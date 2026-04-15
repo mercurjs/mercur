@@ -15,6 +15,7 @@ import {
   ProductChangeActionDTO,
   ProductChangeStatus,
   ProductDTO,
+  UpdateProductAttributeDTO,
   UpdateProductDTO,
 } from "@mercurjs/types";
 import {
@@ -221,6 +222,64 @@ class ProductModuleService extends MedusaService({
       sharedContext
     );
     return (Array.isArray(data) ? result : result[0]) as any;
+  }
+
+  // @ts-expect-error
+  updateProductAttributes(
+    id: string,
+    data: UpdateProductAttributeDTO,
+    sharedContext?: Context
+  ): Promise<ProductAttributeDTO>;
+  // @ts-expect-error
+  updateProductAttributes(
+    selector: Record<string, unknown>,
+    data: UpdateProductAttributeDTO,
+    sharedContext?: Context
+  ): Promise<ProductAttributeDTO[]>;
+  // @ts-expect-error
+  updateProductAttributes(
+    data: (UpdateProductAttributeDTO & { id: string })[],
+    sharedContext?: Context
+  ): Promise<ProductAttributeDTO[]>;
+
+  @InjectTransactionManager()
+  // @ts-expect-error
+  async updateProductAttributes(
+    idOrSelectorOrData:
+      | string
+      | Record<string, unknown>
+      | (UpdateProductAttributeDTO & { id: string })[],
+    dataOrContext?: UpdateProductAttributeDTO | Context,
+    sharedContext?: Context
+  ): Promise<ProductAttributeDTO | ProductAttributeDTO[]> {
+    const isSelectorForm =
+      typeof idOrSelectorOrData === "string" ||
+      (!Array.isArray(idOrSelectorOrData) &&
+        dataOrContext &&
+        typeof dataOrContext === "object");
+
+    if (isSelectorForm) {
+      const update = dataOrContext as UpdateProductAttributeDTO;
+      this.validateProductAttributeType_(update);
+
+      // @ts-ignore
+      return await super.updateProductAttributes(
+        idOrSelectorOrData as any,
+        update,
+        sharedContext
+      );
+    }
+
+    const data = idOrSelectorOrData as (UpdateProductAttributeDTO & {
+      id: string;
+    })[];
+
+    for (const attr of data) {
+      this.validateProductAttributeType_(attr);
+    }
+
+    // @ts-ignore
+    return await super.updateProductAttributes(data, dataOrContext as Context);
   }
 
   // @ts-expect-error

@@ -28,6 +28,12 @@ export const ProductAttributeValueWorkflowEvents = {
   DELETED: "product_attribute_value.deleted",
 } as const
 
+export const ProductCategoryWorkflowEvents = {
+  CREATED: "product_category.created",
+  UPDATED: "product_category.updated",
+  DELETED: "product_category.deleted",
+} as const
+
 export const ProductRejectionReasonWorkflowEvents = {
   CREATED: "product_rejection_reason.created",
   UPDATED: "product_rejection_reason.updated",
