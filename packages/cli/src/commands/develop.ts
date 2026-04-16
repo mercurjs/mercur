@@ -32,7 +32,7 @@ async function runDevelop(opts: z.infer<typeof developOptionsSchema>) {
     const options = developOptionsSchema.parse(opts);
 
     await writeRouteTypes(options.cwd);
-    await patchMedusa();
+    // await patchMedusa(); // TODO: re-enable when plugin provides full admin product route overrides
 
     const medusaBin = await getCommandBin("@medusajs/cli", "medusa", options.cwd);
 
