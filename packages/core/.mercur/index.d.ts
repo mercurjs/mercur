@@ -216,9 +216,9 @@ export type Routes = {
         pricePreferences: typeof import("@medusajs/medusa/api/admin/price-preferences/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/price-preferences/[id]/route");
         };
-        productCategories: typeof import("@medusajs/medusa/api/admin/product-categories/route") & {
-            $id: typeof import("@medusajs/medusa/api/admin/product-categories/[id]/route") & {
-                products: typeof import("@medusajs/medusa/api/admin/product-categories/[id]/products/route");
+        productCategories: typeof import("../../src/api/admin/product-categories/route") & {
+            $id: typeof import("../../src/api/admin/product-categories/[id]/route") & {
+                products: typeof import("../../src/api/admin/product-categories/[id]/products/route");
             };
         };
         productTags: typeof import("@medusajs/medusa/api/admin/product-tags/route") & {
@@ -229,7 +229,7 @@ export type Routes = {
         };
         productVariants: typeof import("@medusajs/medusa/api/admin/product-variants/route");
         products: typeof import("../../src/api/admin/products/route") & {
-            $id: typeof import("@medusajs/medusa/api/admin/products/[id]/route") & {
+            $id: typeof import("../../src/api/admin/products/[id]/route") & {
                 images: {
                     $imageId: {
                         variants: {
@@ -254,6 +254,11 @@ export type Routes = {
                         batch: typeof import("@medusajs/medusa/api/admin/products/[id]/variants/inventory-items/batch/route");
                     };
                 };
+                accept: typeof import("../../src/api/admin/products/[id]/accept/route");
+                activate: typeof import("../../src/api/admin/products/[id]/activate/route");
+                deactivate: typeof import("../../src/api/admin/products/[id]/deactivate/route");
+                reject: typeof import("../../src/api/admin/products/[id]/reject/route");
+                requestChanges: typeof import("../../src/api/admin/products/[id]/request-changes/route");
             };
             batch: typeof import("@medusajs/medusa/api/admin/products/batch/route");
             export: typeof import("@medusajs/medusa/api/admin/products/export/route");
@@ -443,6 +448,19 @@ export type Routes = {
                 unsuspend: typeof import("../../src/api/admin/sellers/[id]/unsuspend/route");
                 unterminate: typeof import("../../src/api/admin/sellers/[id]/unterminate/route");
             };
+        };
+        productAttributes: typeof import("../../src/api/admin/product-attributes/route") & {
+            $id: typeof import("../../src/api/admin/product-attributes/[id]/route") & {
+                values: typeof import("../../src/api/admin/product-attributes/[id]/values/route") & {
+                    $valueId: typeof import("../../src/api/admin/product-attributes/[id]/values/[value_id]/route");
+                };
+            };
+        };
+        productBrands: typeof import("../../src/api/admin/product-brands/route") & {
+            $id: typeof import("../../src/api/admin/product-brands/[id]/route");
+        };
+        productRejectionReasons: typeof import("../../src/api/admin/product-rejection-reasons/route") & {
+            $id: typeof import("../../src/api/admin/product-rejection-reasons/[id]/route");
         };
         subscriptionPlans: typeof import("../../src/api/admin/subscription-plans/route") & {
             $id: typeof import("../../src/api/admin/subscription-plans/[id]/route") & {

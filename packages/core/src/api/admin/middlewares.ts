@@ -16,23 +16,11 @@ import { adminSellersMiddlewares } from "./sellers/middlewares"
 import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/middlewares"
 
-const maybeApplySellerProductFilter = (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  if (!req.query.seller_id) {
-    return next()
-  }
-
-  req.filterableFields.seller_id = req.query.seller_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: "product_seller",
-    resourceId: "product_id",
-    filterableField: "seller_id",
-  })(req, res, next)
-}
+import { adminProductsMiddlewares } from "./products/middlewares"
+import { adminProductBrandsMiddlewares } from "./product-brands/middlewares"
+import { adminProductCategoriesMiddlewares } from "./product-categories/middlewares"
+import { adminProductAttributesMiddlewares } from "./product-attributes/middlewares"
+import { adminProductRejectionReasonsMiddlewares } from "./product-rejection-reasons/middlewares"
 
 const maybeApplySellerOrderFilter = (
   req: AuthenticatedMedusaRequest,
@@ -68,18 +56,14 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminSellersMiddlewares,
   ...adminCommissionRatesMiddlewares,
   ...adminSubscriptionPlanRoutesMiddlewares,
-  {
-    method: ["GET"],
-    matcher: "/admin/products",
-    middlewares: [
-      maybeApplySellerProductFilter,
-    ],
-  },
+  ...adminProductsMiddlewares,
+  ...adminProductBrandsMiddlewares,
+  ...adminProductCategoriesMiddlewares,
+  ...adminProductAttributesMiddlewares,
+  ...adminProductRejectionReasonsMiddlewares,
   {
     method: ["GET"],
     matcher: "/admin/orders",
-    middlewares: [
-      maybeApplySellerOrderFilter,
-    ],
+    middlewares: [maybeApplySellerOrderFilter],
   },
 ]
