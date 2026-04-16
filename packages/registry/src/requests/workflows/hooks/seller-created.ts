@@ -1,4 +1,4 @@
-import { createSellerWorkflow } from "@mercurjs/core/workflows"
+import { createSellerWorkflow } from "@mercurjs/core-plugin/workflows"
 import { StepResponse } from "@medusajs/framework/workflows-sdk"
 import { MedusaError } from "@medusajs/framework/utils"
 import { SellerStatus } from "@mercurjs/types"
