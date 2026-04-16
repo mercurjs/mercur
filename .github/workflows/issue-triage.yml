@@ -59,9 +59,25 @@ jobs:
         uses: anthropics/claude-code-action@d59651bd82c48d81756854675ce4fa4d69722200 # v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt_file: .github/prompts/issue-triage.md
+          show_full_output: true
           prompt: |
-            Analyse this GitHub issue and provide a triage response.
+            You are an issue triage agent for Mercur — an open-source marketplace framework built on MedusaJS v2.
+
+            Mercur is a monorepo with this structure:
+            - packages/core/ — Core Medusa plugin (modules, workflows, providers, API routes)
+            - packages/admin/ — Admin dashboard UI (React)
+            - packages/vendor/ — Vendor portal UI (React)
+            - packages/cli/ — CLI tool (mercurjs command)
+            - packages/client/ — API client with codegen types
+            - packages/dashboard-sdk/ — Vite plugin for dashboards
+            - packages/dashboard-shared/ — Shared UI components
+            - packages/registry/ — Official block registry
+            - apps/api/ — MedusaJS API application
+            - apps/docs/ — Documentation site (Mintlify)
+
+            Key concepts: Blocks (modules, links, workflows, API routes, admin/vendor extensions), Sellers, Offers, Orders, Commissions.
+
+            Analyse this GitHub issue and provide a triage response:
 
             Issue #${{ steps.fetch_issue.outputs.number || github.event.issue.number }}: ${{ steps.fetch_issue.outputs.title || github.event.issue.title }}
 
@@ -69,6 +85,19 @@ jobs:
             ${{ steps.fetch_issue.outputs.body || github.event.issue.body || github.event.comment.body }}
 
             Labels: ${{ steps.fetch_issue.outputs.labels || join(github.event.issue.labels.*.name, ', ') }}
+
+            Instructions:
+            1. Classify the issue as one of: bug, feature-request, question, duplicate
+            2. Search the codebase for files related to the issue
+            3. Check open issues for duplicates using gh issue list
+            4. Write a suggested response (2-4 sentences, helpful, references specific files when relevant)
+            5. Output your analysis in this EXACT format (no markdown fences):
+
+            CLASSIFICATION: {bug|feature-request|question|duplicate}
+            RELATED_FILES: {comma-separated file paths, or "none"}
+            DUPLICATE_OF: {issue number if duplicate, or "none"}
+            SUMMARY: {one-line summary}
+            SUGGESTED_RESPONSE: {your draft response}
           claude_args: '--allowed-tools "Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh search:*)"'
 
       - name: Post to Discord
