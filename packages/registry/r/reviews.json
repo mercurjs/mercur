@@ -56,7 +56,7 @@
     },
     {
       "path": "reviews/links/seller-review.ts",
-      "content": "import { defineLink } from \"@medusajs/framework/utils\";\n\nimport ReviewModule from \"../modules/reviews\";\nimport SellerModule from \"@mercurjs/core/modules/seller\";\n\nexport default defineLink(SellerModule.linkable.seller, {\n  linkable: ReviewModule.linkable.review,\n  isList: true,\n});\n",
+      "content": "import { defineLink } from \"@medusajs/framework/utils\";\n\nimport ReviewModule from \"../modules/reviews\";\nimport SellerModule from \"@mercurjs/core-plugin/modules/seller\";\n\nexport default defineLink(SellerModule.linkable.seller, {\n  linkable: ReviewModule.linkable.review,\n  isList: true,\n});\n",
       "type": "registry:api"
     },
     {
