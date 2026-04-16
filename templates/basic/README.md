@@ -33,8 +33,8 @@ COOKIE_SECRET=your-super-secret-cookie-key
 4. Install dependencies and start the dev server:
 
 ```bash
-npm install
-npm run dev
+bun install
+bun dev
 ```
 
 5. Open `http://localhost:9000` to access the Medusa backend
@@ -108,7 +108,7 @@ Links define relationships between modules. See the [Links](https://docs.medusaj
 You can extend your project with pre-built blocks using the Mercur CLI:
 
 ```bash
-npx @mercurjs/cli add block-name
+bunx @mercurjs/cli add block-name
 ```
 
 Configure your block sources in `blocks.json`:
@@ -130,7 +130,7 @@ Configure your block sources in `blocks.json`:
 To build all apps and packages:
 
 ```bash
-npm run build
+bun run build
 ```
 
 ## Questions
