@@ -97,22 +97,18 @@ jobs:
             *) EMOJI="⚪" ;;
           esac
 
-          # Build Discord message
-          # Truncate fields to stay within Discord's 2000 char limit
+          # Build Discord message and post via webhook
           SUGGESTED_TRUNC=$(echo "$SUGGESTED" | head -c 800)
 
-          CONTENT="${EMOJI} **${CLASSIFICATION^^}** · mercurjs/mercur#${ISSUE_NUMBER}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-**${SUMMARY}**
-
-📍 Related: \`${RELATED}\`
-🔗 ${ISSUE_URL}
-
-💬 **Suggested response:**
-> ${SUGGESTED_TRUNC}"
-
-          # Post to Discord via webhook
-          jq -n --arg content "$CONTENT" '{"content": $content}' | \
+          jq -n \
+            --arg emoji "$EMOJI" \
+            --arg cls "${CLASSIFICATION^^}" \
+            --arg num "$ISSUE_NUMBER" \
+            --arg summary "$SUMMARY" \
+            --arg related "$RELATED" \
+            --arg url "$ISSUE_URL" \
+            --arg suggested "$SUGGESTED_TRUNC" \
+            '{"content": "\($emoji) **\($cls)** \u00b7 mercurjs/mercur#\($num)\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n**\($summary)**\n\n\ud83d\udccd Related: `\($related)`\n\ud83d\udd17 \($url)\n\n\ud83d\udcac **Suggested response:**\n> \($suggested)"}' | \
             curl -s -X POST "$DISCORD_WEBHOOK_URL" \
               -H "Content-Type: application/json" \
               -d @-
