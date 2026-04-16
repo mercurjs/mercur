@@ -74,7 +74,7 @@ jobs:
       - name: Post to Discord
         if: steps.triage.outputs.result != ''
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_TRIAGE_WEBHOOK_URL }}
           ISSUE_NUMBER: ${{ steps.fetch_issue.outputs.number || github.event.issue.number }}
           ISSUE_TITLE: ${{ steps.fetch_issue.outputs.title || github.event.issue.title }}
           ISSUE_URL: ${{ steps.fetch_issue.outputs.url || github.event.issue.html_url }}
