@@ -10,14 +10,21 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 
-import { adminProductQueryConfig } from "./query-config"
+import {
+  adminProductQueryConfig,
+  adminProductVariantQueryConfig,
+} from "./query-config"
 import {
   AdminCreateProduct,
+  AdminCreateProductVariant,
   AdminGetProductParams,
   AdminGetProductsParams,
+  AdminGetProductVariantParams,
+  AdminGetProductVariantsParams,
   AdminRejectProduct,
   AdminRequestProductChanges,
   AdminUpdateProduct,
+  AdminUpdateProductVariant,
 } from "./validators"
 
 // Filters products by seller_id via the product_seller link.
@@ -136,6 +143,60 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/admin/products/:id/deactivate",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetProductParams,
+        adminProductQueryConfig.retrieve
+      ),
+    ],
+  },
+
+  // --- Variant sub-resource ---
+  {
+    method: ["GET"],
+    matcher: "/admin/products/:id/variants",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetProductVariantsParams,
+        adminProductVariantQueryConfig.list
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/products/:id/variants",
+    middlewares: [
+      validateAndTransformBody(AdminCreateProductVariant),
+      validateAndTransformQuery(
+        AdminGetProductParams,
+        adminProductQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/admin/products/:id/variants/:variant_id",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetProductVariantParams,
+        adminProductVariantQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/products/:id/variants/:variant_id",
+    middlewares: [
+      validateAndTransformBody(AdminUpdateProductVariant),
+      validateAndTransformQuery(
+        AdminGetProductParams,
+        adminProductQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["DELETE"],
+    matcher: "/admin/products/:id/variants/:variant_id",
     middlewares: [
       validateAndTransformQuery(
         AdminGetProductParams,

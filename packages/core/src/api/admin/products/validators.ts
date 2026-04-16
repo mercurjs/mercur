@@ -138,6 +138,50 @@ const UpdateProductVariant = z
   })
   .strict()
 
+// --- Variant query params ---
+
+export type AdminGetProductVariantParamsType = z.infer<
+  typeof AdminGetProductVariantParams
+>
+export const AdminGetProductVariantParams = createSelectParams()
+
+const AdminGetProductVariantsParamsFields = z.object({
+  q: z.string().optional(),
+  id: z.union([z.string(), z.array(z.string())]).optional(),
+  sku: z.string().optional(),
+  ean: z.string().optional(),
+  upc: z.string().optional(),
+  barcode: z.string().optional(),
+})
+
+export type AdminGetProductVariantsParamsType = z.infer<
+  typeof AdminGetProductVariantsParams
+>
+export const AdminGetProductVariantsParams = createFindParams({
+  offset: 0,
+  limit: 50,
+})
+  .merge(AdminGetProductVariantsParamsFields)
+  .merge(applyAndAndOrOperators(AdminGetProductVariantsParamsFields))
+
+// --- Variant create / update ---
+
+export type AdminCreateProductVariantType = z.infer<
+  typeof CreateProductVariant
+> &
+  AdditionalData
+export const AdminCreateProductVariant =
+  WithAdditionalData(CreateProductVariant)
+
+export type AdminUpdateProductVariantType = z.infer<
+  typeof UpdateProductVariant
+> &
+  AdditionalData
+export const AdminUpdateProductVariant =
+  WithAdditionalData(UpdateProductVariant)
+
+// --- Product create / update ---
+
 export type AdminCreateProductType = z.infer<typeof CreateProduct> &
   AdditionalData
 const CreateProduct = z

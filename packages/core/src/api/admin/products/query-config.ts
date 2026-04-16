@@ -58,3 +58,45 @@ export const adminProductQueryConfig = {
     isList: false,
   },
 }
+
+export const adminProductVariantFields = [
+  "id",
+  "title",
+  "sku",
+  "ean",
+  "upc",
+  "isbn",
+  "asin",
+  "gtin",
+  "barcode",
+  "hs_code",
+  "mid_code",
+  "allow_backorder",
+  "manage_inventory",
+  "variant_rank",
+  "weight",
+  "length",
+  "height",
+  "width",
+  "origin_country",
+  "material",
+  "metadata",
+  "created_at",
+  "updated_at",
+  "*prices",
+  "prices.price_rules.value",
+  "prices.price_rules.attribute",
+  "*attribute_values",
+]
+
+export const adminProductVariantQueryConfig = {
+  list: {
+    defaults: adminProductVariantFields,
+    defaultLimit: 50,
+    isList: true,
+  },
+  retrieve: {
+    defaults: adminProductVariantFields,
+    isList: false,
+  },
+}

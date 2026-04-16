@@ -240,8 +240,8 @@ export type Routes = {
                 options: typeof import("@medusajs/medusa/api/admin/products/[id]/options/route") & {
                     $optionId: typeof import("@medusajs/medusa/api/admin/products/[id]/options/[option_id]/route");
                 };
-                variants: typeof import("@medusajs/medusa/api/admin/products/[id]/variants/route") & {
-                    $variantId: typeof import("@medusajs/medusa/api/admin/products/[id]/variants/[variant_id]/route") & {
+                variants: typeof import("../../src/api/admin/products/[id]/variants/route") & {
+                    $variantId: typeof import("../../src/api/admin/products/[id]/variants/[variant_id]/route") & {
                         images: {
                             batch: typeof import("@medusajs/medusa/api/admin/products/[id]/variants/[variant_id]/images/batch/route");
                         };

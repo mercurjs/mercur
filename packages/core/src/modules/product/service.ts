@@ -12,12 +12,16 @@ import {
   CreateProductAttributeDTO,
   CreateProductAttributeValueDTO,
   CreateProductDTO,
+  CreateProductVariantDTO,
   ProductAttributeDTO,
   ProductChangeActionDTO,
   ProductChangeStatus,
   ProductDTO,
+  ProductVariantDTO,
   UpdateProductAttributeDTO,
   UpdateProductDTO,
+  UpdateProductVariantDTO,
+  UpsertProductVariantDTO,
 } from "@mercurjs/types";
 import {
   Product,
@@ -763,6 +767,95 @@ class ProductModuleService extends MedusaService({
     // @ts-ignore
     return await super.updateProducts(finalInput, dataOrContext as Context);
   }
+  upsertProductVariants(
+    data: UpsertProductVariantDTO[],
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO[]>;
+  upsertProductVariants(
+    data: UpsertProductVariantDTO,
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO>;
+
+  @InjectTransactionManager()
+  async upsertProductVariants(
+    data: UpsertProductVariantDTO[] | UpsertProductVariantDTO,
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO[] | ProductVariantDTO> {
+    const input = Array.isArray(data) ? data : [data];
+    const forUpdate = input.filter(
+      (v): v is UpsertProductVariantDTO & { id: string } => !!v.id
+    );
+    const forCreate = input.filter(
+      (v): v is CreateProductVariantDTO => !v.id
+    );
+
+    let created: ProductVariantDTO[] = [];
+    let updated: ProductVariantDTO[] = [];
+
+    if (forCreate.length) {
+      const result = await super.createProductVariants(forCreate, sharedContext);
+      created = (Array.isArray(result) ? result : [result]) as unknown as ProductVariantDTO[];
+    }
+    if (forUpdate.length) {
+      // @ts-ignore
+      const result = await super.updateProductVariants(forUpdate, sharedContext);
+      updated = (Array.isArray(result) ? result : [result]) as unknown as ProductVariantDTO[];
+    }
+
+    const all = [...created, ...updated];
+    return Array.isArray(data) ? all : all[0];
+  }
+
+  // @ts-expect-error
+  updateProductVariants(
+    id: string,
+    data: UpdateProductVariantDTO,
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO>;
+  // @ts-expect-error
+  updateProductVariants(
+    selector: Record<string, unknown>,
+    data: UpdateProductVariantDTO,
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO[]>;
+  // @ts-expect-error
+  updateProductVariants(
+    data: (UpdateProductVariantDTO & { id: string })[],
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO[]>;
+
+  @InjectTransactionManager()
+  // @ts-expect-error
+  async updateProductVariants(
+    idOrSelectorOrData:
+      | string
+      | Record<string, unknown>
+      | (UpdateProductVariantDTO & { id: string })[],
+    dataOrContext?: UpdateProductVariantDTO | Context,
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO | ProductVariantDTO[]> {
+    const isSelectorForm =
+      typeof idOrSelectorOrData === "string" ||
+      (!Array.isArray(idOrSelectorOrData) &&
+        dataOrContext &&
+        typeof dataOrContext === "object");
+
+    if (isSelectorForm) {
+      // @ts-ignore
+      return await super.updateProductVariants(
+        idOrSelectorOrData as string | Record<string, unknown>,
+        dataOrContext as UpdateProductVariantDTO,
+        sharedContext
+      );
+    }
+
+    // @ts-ignore
+    return await super.updateProductVariants(
+      idOrSelectorOrData,
+      dataOrContext as Context
+    );
+  }
+
   // @ts-expect-error
   async createProductCategories(
     data: any | any[],
