@@ -58,7 +58,7 @@ jobs:
         id: triage
         uses: anthropics/claude-code-action@d59651bd82c48d81756854675ce4fa4d69722200 # v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           show_full_output: true
           prompt: |
             You are an issue triage agent for Mercur — an open-source marketplace framework built on MedusaJS v2.
