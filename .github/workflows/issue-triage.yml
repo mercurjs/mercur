@@ -5,12 +5,19 @@ on:
     types: [opened]
   issue_comment:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to triage'
+        required: true
+        type: number
 
 jobs:
   triage:
     runs-on: ubuntu-latest
     # Skip: bot comments, org member comments, labeled wontfix/duplicate
     if: >
+      github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'issues' &&
        github.event.issue.user.type != 'Bot' &&
        !contains(toJSON(github.event.issue.labels.*.name), 'wontfix') &&
@@ -32,6 +39,21 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Fetch issue data (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        id: fetch_issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ISSUE=$(gh issue view ${{ inputs.issue_number }} --json number,title,body,labels --jq '{number, title, body, labels: [.labels[].name]}')
+          echo "number=$(echo "$ISSUE" | jq -r '.number')" >> "$GITHUB_OUTPUT"
+          echo "title=$(echo "$ISSUE" | jq -r '.title')" >> "$GITHUB_OUTPUT"
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$ISSUE" | jq -r '.body' >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "labels=$(echo "$ISSUE" | jq -r '.labels | join(", ")')" >> "$GITHUB_OUTPUT"
+          echo "url=https://github.com/${{ github.repository }}/issues/${{ inputs.issue_number }}" >> "$GITHUB_OUTPUT"
+
       - name: Run triage agent
         id: triage
         uses: anthropics/claude-code-action@d59651bd82c48d81756854675ce4fa4d69722200 # v1
@@ -41,21 +63,21 @@ jobs:
           prompt: |
             Analyse this GitHub issue and provide a triage response.
 
-            Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+            Issue #${{ steps.fetch_issue.outputs.number || github.event.issue.number }}: ${{ steps.fetch_issue.outputs.title || github.event.issue.title }}
 
             Body:
-            ${{ github.event.issue.body || github.event.comment.body }}
+            ${{ steps.fetch_issue.outputs.body || github.event.issue.body || github.event.comment.body }}
 
-            Labels: ${{ join(github.event.issue.labels.*.name, ', ') }}
+            Labels: ${{ steps.fetch_issue.outputs.labels || join(github.event.issue.labels.*.name, ', ') }}
           claude_args: '--allowed-tools "Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh search:*)"'
 
       - name: Post to Discord
         if: steps.triage.outputs.result != ''
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          ISSUE_TITLE: ${{ github.event.issue.title }}
-          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_NUMBER: ${{ steps.fetch_issue.outputs.number || github.event.issue.number }}
+          ISSUE_TITLE: ${{ steps.fetch_issue.outputs.title || github.event.issue.title }}
+          ISSUE_URL: ${{ steps.fetch_issue.outputs.url || github.event.issue.html_url }}
           TRIAGE_RESULT: ${{ steps.triage.outputs.result }}
         run: |
           # Extract classification from result
