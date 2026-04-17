@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/dashboard-sdk",
-  "version": "2.0.2",
+  "version": "2.1.0-canary.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -36,5 +36,6 @@
     "typescript": "5.9.3",
     "vite": "^5.4.21",
     "@types/react": "^18.2.66"
-  }
+  },
+  "peerDependencies": {}
 }

@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/cli",
-  "version": "2.0.2",
+  "version": "2.1.0-canary.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -43,7 +43,7 @@
     "@medusajs/admin-vite-plugin": "2.13.4",
     "@medusajs/dashboard": "2.13.4",
     "@medusajs/framework": "2.13.4",
-    "@mercurjs/dashboard-sdk": "2.0.0-canary.97",
+    "@mercurjs/dashboard-sdk": "2.1.0-canary.1",
     "@types/cross-spawn": "^6.0.6",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
@@ -87,5 +87,6 @@
     "@types/validate-npm-package-name": "^4.0.2",
     "@types/wait-on": "^5.3.4",
     "tsup": "^8.5.0"
-  }
+  },
+  "peerDependencies": {}
 }
