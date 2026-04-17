@@ -40,7 +40,11 @@ export const POST = async (
 
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
-      products: [productData as unknown as CreateProductDTO],
+      products: [{
+        ...productData,
+        created_by_actor: 'admin',
+        created_by: req.auth_context.actor_id
+      } as unknown as CreateProductDTO],
       additional_data,
     },
   })

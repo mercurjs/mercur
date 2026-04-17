@@ -35,9 +35,6 @@ export const adminProductFields = [
   "*images",
   "*categories",
   "*variants",
-  "*variants.prices",
-  "variants.prices.price_rules.value",
-  "variants.prices.price_rules.attribute",
   "*variant_attributes",
   "*variant_attributes.values",
 ]
@@ -72,7 +69,6 @@ export const adminProductVariantFields = [
   "hs_code",
   "mid_code",
   "allow_backorder",
-  "manage_inventory",
   "variant_rank",
   "weight",
   "length",
@@ -83,9 +79,6 @@ export const adminProductVariantFields = [
   "metadata",
   "created_at",
   "updated_at",
-  "*prices",
-  "prices.price_rules.value",
-  "prices.price_rules.attribute",
   "*attribute_values",
 ]
 

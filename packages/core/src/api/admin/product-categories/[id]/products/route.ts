@@ -2,7 +2,7 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { batchLinkProductsToCategoryWorkflow } from "@medusajs/core-flows"
+import { batchLinkProductsToCategoryWorkflow } from "../../../../../workflows/product/workflows/batch-link-products-in-category"
 
 import { AdminBatchLinkProductsToCategoryType } from "../../validators"
 
