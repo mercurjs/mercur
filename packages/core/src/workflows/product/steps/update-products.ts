@@ -31,9 +31,15 @@ export const updateProductsStep = createStep(
     }
 
     const prevProducts = await service.listProducts(input.selector)
-    const products = await service.updateProducts(input.selector, input.data)
+    const productsToUpdate = prevProducts.map((p) => ({
+      id: p.id,
+      ...input.data,
+    })) as (UpdateProductDTO & { id: string })[]
+    const products = await service.updateProducts(productsToUpdate)
 
-    return new StepResponse(products, prevProducts)
+    const result = Array.isArray(products) ? products : [products]
+
+    return new StepResponse(result, prevProducts)
   },
   async (prevProducts, { container }) => {
     if (!prevProducts?.length) {

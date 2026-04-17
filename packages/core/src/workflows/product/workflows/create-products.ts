@@ -6,7 +6,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { CreateProductDTO } from "@mercurjs/types"
+import { CreateProductDTO, ProductStatus } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { createProductsStep } from "../steps"
@@ -20,15 +20,20 @@ type CreateProductsWorkflowInput = {
 export const createProductsWorkflow = createWorkflow(
   createProductsWorkflowId,
   function (input: CreateProductsWorkflowInput) {
-    // Extension point for developer-supplied validation. Fires before any
-    // mutation — throwing from a handler aborts the workflow without side
-    // effects.
     const validate = createHook("validate", {
       input,
       products: input.products,
     })
 
-    const products = createProductsStep(input.products)
+    const normalizedProducts = transform({ input }, ({ input }) =>
+      input.products.map((p) => ({
+        ...p,
+        status: ProductStatus.ACCEPTED,
+        is_active: true,
+      }))
+    )
+
+    const products = createProductsStep(normalizedProducts)
 
     const productsCreated = createHook("productsCreated", {
       products,

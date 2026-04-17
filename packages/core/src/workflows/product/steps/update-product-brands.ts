@@ -21,13 +21,11 @@ export const updateProductBrandsStep = createStep(
     const prevBrands = (await service.listProductBrands(
       selector
     ))
-    const brands = await service.updateProductBrands([
-      {
-        selector,
-        data: update
-      },
-    ]
-    )
+    const brandsToUpdate = prevBrands.map((b) => ({
+      id: b.id,
+      ...update,
+    }))
+    const brands = await service.updateProductBrands(brandsToUpdate)
     return new StepResponse(brands, prevBrands)
   },
   async (prevBrands, { container }) => {
