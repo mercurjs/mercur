@@ -16,10 +16,6 @@ export const createMemberInvitesStep = createStep(
 
     const invites: MemberInviteDTO[] = await service.createMemberInvites(input)
 
-    for (const invite of invites) {
-      console.log(`\n🔗 Invite link: http://localhost:7001/invite?token=${invite.token}\n`)
-    }
-
     return new StepResponse(invites, invites.map((inv) => inv.id))
   },
   async (ids: string[], { container }) => {
