@@ -1,6 +1,8 @@
-import { Children, ReactNode } from "react";
-import { Alert, Text } from "@medusajs/ui";
+import React, { Children, ReactNode } from "react";
+import { InformationCircleSolid } from "@medusajs/icons";
+import { Alert, Button, Container, Heading, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
+import components from "virtual:mercur/components";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
@@ -8,7 +10,7 @@ import { useMe, useSubscription } from "@/hooks/api";
 import { SellerStatus } from "@mercurjs/types";
 
 import { StoreAddressSection } from "./_components/store-address-section";
-import { StoreConfigurationSection } from "./_components/store-configuration-section";
+import { StoreTimeOffSection } from "./_components/store-time-off-section";
 import { StoreGeneralSection } from "./_components/store-general-section";
 import { StoreSubscriptionSection } from "./_components/store-subscription-section";
 import { StorePaymentDetailsSection } from "./_components/store-payment-details-section";
@@ -39,14 +41,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
+  const isPendingApproval = seller.status === SellerStatus.PENDING_APPROVAL;
+
   const statusAlert = (() => {
     switch (seller.status) {
-      case SellerStatus.PENDING_APPROVAL:
-        return {
-          variant: "warning" as const,
-          title: t("store.alert.pendingApproval.title"),
-          description: t("store.alert.pendingApproval.description"),
-        };
       case SellerStatus.SUSPENDED:
         return {
           variant: "error" as const,
@@ -66,29 +64,31 @@ const Root = ({ children }: { children?: ReactNode }) => {
     }
   })();
 
-  if (Children.count(children) > 0) {
-    return (
-      <div className="flex flex-col gap-y-3">
-        {statusAlert && (
-          <Alert variant={statusAlert.variant} dismissible className="p-5">
-            <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">
-              {statusAlert.title}
-            </div>
-            <Text className="text-ui-fg-subtle txt-small leading-normal">
-              {statusAlert.description}
+  const StoreSetup = components.StoreSetup as
+    | React.ComponentType<{ seller: any }>
+    | undefined;
+
+  const StatusBanner = () => (
+    <>
+      {isPendingApproval && (
+        <Container className="p-0">
+          <div className="flex items-center gap-x-3 px-6 py-4 border-b border-ui-border-base">
+            <InformationCircleSolid className="text-ui-fg-interactive" />
+            <Heading level="h2">{t("store.alert.pendingApproval.title")}</Heading>
+          </div>
+          <div className="px-6 py-4">
+            <Text size="small" className="text-ui-fg-subtle">
+              {t("store.alert.pendingApproval.description")}
             </Text>
-          </Alert>
-        )}
-
-        <TwoColumnPage data={seller} hasOutlet>
-          {children}
-        </TwoColumnPage>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-y-3">
+          </div>
+          <div className="flex justify-end px-6 py-4 border-t border-ui-border-base bg-ui-bg-subtle rounded-b-lg">
+            <Button variant="secondary" size="small">
+              {t("actions.cancel")}
+            </Button>
+          </div>
+        </Container>
+      )}
+      {StoreSetup && <StoreSetup seller={seller} />}
       {statusAlert && (
         <Alert variant={statusAlert.variant} dismissible className="p-5">
           <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">
@@ -99,22 +99,34 @@ const Root = ({ children }: { children?: ReactNode }) => {
           </Text>
         </Alert>
       )}
+    </>
+  );
+
+  if (Children.count(children) > 0) {
+    return (
       <TwoColumnPage data={seller} hasOutlet>
-        <TwoColumnPage.Main>
-          <StoreGeneralSection seller={seller} />
-        </TwoColumnPage.Main>
-        <TwoColumnPage.Sidebar>
-          <StoreConfigurationSection seller={seller} />
-          <StoreAddressSection seller={seller} />
-          <StoreProfessionalDetailsSection seller={seller} />
-          <StorePaymentDetailsSection seller={seller} />
-          <StoreSubscriptionSection
-            subscription_plan={subscription_plan}
-            subscription_override={subscription_override}
-          />
-        </TwoColumnPage.Sidebar>
+        {children}
       </TwoColumnPage>
-    </div>
+    );
+  }
+
+  return (
+    <TwoColumnPage data={seller} hasOutlet>
+      <TwoColumnPage.Main>
+        <StatusBanner />
+        <StoreGeneralSection seller={seller} />
+        <StoreTimeOffSection seller={seller} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <StoreAddressSection seller={seller} />
+        <StoreProfessionalDetailsSection seller={seller} />
+        <StorePaymentDetailsSection seller={seller} />
+        <StoreSubscriptionSection
+          subscription_plan={subscription_plan}
+          subscription_override={subscription_override}
+        />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   );
 };
 
@@ -124,7 +136,7 @@ export const StoreDetailPage = Object.assign(Root, {
   MainGeneralSection: StoreGeneralSection,
   MainPaymentDetailsSection: StorePaymentDetailsSection,
   MainProfessionalDetailsSection: StoreProfessionalDetailsSection,
-  SidebarConfigurationSection: StoreConfigurationSection,
+  MainTimeOffSection: StoreTimeOffSection,
   SidebarAddressSection: StoreAddressSection,
   SidebarSubscriptionSection: StoreSubscriptionSection,
   Header: StoreDetailHeader,

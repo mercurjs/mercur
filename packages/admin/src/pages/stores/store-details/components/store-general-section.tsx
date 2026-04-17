@@ -1,5 +1,4 @@
 import { Children, ReactNode } from "react";
-import { Photo } from "@medusajs/icons";
 import { Badge, Container, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
@@ -37,7 +36,18 @@ export const StoreGeneralSection = ({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
-                <Photo className="text-ui-fg-muted" />
+                <div
+                  className="h-full w-full"
+                  style={{
+                    background: `repeating-linear-gradient(
+                      -45deg,
+                      transparent,
+                      transparent 10px,
+                      rgba(255,255,255,0.5) 10px,
+                      rgba(255,255,255,0.5) 20px
+                    )`,
+                  }}
+                />
               </div>
             )}
           </div>
@@ -83,7 +93,7 @@ export const StoreGeneralSection = ({
                 {seller.currency_code?.toUpperCase()}
               </Badge>
               <Text size="small" leading="compact">
-                {currencies[seller.currency_code.toUpperCase()].name}
+                {currencies[seller.currency_code?.toUpperCase()]?.name || "-"}
               </Text>
             </div>
           </div>
@@ -92,7 +102,7 @@ export const StoreGeneralSection = ({
               {t("fields.premium")}
             </Text>
             <Text size="small" leading="compact">
-              {seller.is_premium ? t("general.yes") : t("general.no")}
+              {seller.is_premium ? t("stores.premium.yes") : t("stores.premium.no")}
             </Text>
           </div>
           <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">

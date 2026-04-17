@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Checkbox, toast } from "@medusajs/ui"
+import { Checkbox, toast, usePrompt } from "@medusajs/ui"
 
-import { PencilSquare } from "@medusajs/icons"
+import { PencilSquare, XCircleSolid } from "@medusajs/icons"
 
 import { keepPreviousData } from "@tanstack/react-query"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
@@ -15,10 +15,11 @@ import { useSellersTableColumns } from "../../../../../hooks/table/columns/use-s
 import { useSellerTableFilters } from "../../../../../hooks/table/filters"
 import { useSellersTableQuery } from "../../../../../hooks/table/query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-import { SellerDTO } from "@mercurjs/types"
+import { SellerDTO, SellerStatus } from "@mercurjs/types"
 import { sdk } from "../../../../../lib/client"
 import { queryClient } from "../../../../../lib/query-client"
 import { sellersQueryKeys } from "../../../../../hooks/api/sellers"
+import { useTerminateSeller } from "../../../../../hooks/api/sellers"
 
 const PAGE_SIZE = 10
 
@@ -122,6 +123,33 @@ export const StoreListDataTable = () => {
 const columnHelper = createColumnHelper<SellerDTO>()
 
 const StoreActions = ({ seller }: { seller: SellerDTO }) => {
+  const { t } = useTranslation()
+  const prompt = usePrompt()
+  const { mutateAsync: terminateSeller } = useTerminateSeller(seller.id)
+
+  const handleTerminate = async () => {
+    const confirmed = await prompt({
+      title: t("stores.actions.terminate.title"),
+      description: t("stores.actions.terminate.description"),
+      verificationText: seller.email || seller.name,
+      confirmText: t("actions.confirm"),
+      cancelText: t("actions.cancel"),
+    })
+
+    if (!confirmed) {
+      return
+    }
+
+    await terminateSeller(undefined, {
+      onSuccess: () => {
+        toast.success(t("stores.actions.terminate.success"))
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    })
+  }
+
   return (
     <ActionMenu
       groups={[
@@ -129,9 +157,18 @@ const StoreActions = ({ seller }: { seller: SellerDTO }) => {
           actions: [
             {
               icon: <PencilSquare />,
-              label: "Edit",
+              label: t("actions.edit"),
               to: `/stores/${seller.id}/edit`,
             },
+            ...(seller.status !== SellerStatus.TERMINATED
+              ? [
+                  {
+                    icon: <XCircleSolid />,
+                    label: t("stores.actions.terminate.label"),
+                    onClick: handleTerminate,
+                  },
+                ]
+              : []),
           ],
         },
       ]}

@@ -2509,6 +2509,10 @@
     "banner": "Banner",
     "address": {
       "header": "Address",
+      "empty": {
+        "title": "No address",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Address",
         "description": "Update the address for this store.",
@@ -2517,6 +2521,10 @@
     },
     "paymentDetails": {
       "header": "Payment Details",
+      "empty": {
+        "title": "No payment details",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Payment Details",
         "description": "Update the payment details for this store.",
@@ -2534,6 +2542,10 @@
     },
     "professionalDetails": {
       "header": "Company Details",
+      "empty": {
+        "title": "No company details",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Professional Details",
         "description": "Update the professional details for this store.",
@@ -2543,6 +2555,14 @@
         "corporateName": "Corporate name",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"
+      }
+    },
+    "timeOff": {
+      "header": "Time off",
+      "empty": {
+        "title": "No time off yet",
+        "message": "This store doesn't have scheduled time off",
+        "action": "Create"
       }
     },
     "scheduledClosure": {
@@ -3238,7 +3258,7 @@
     "taxInclusivePricing": "Tax inclusive pricing",
     "currency": "Currency",
     "website": "Website",
-    "premium": "Premium",
+    "premium": "Featured Store",
     "professional": "Professional",
     "address": "Address",
     "address2": "Apartment, suite, etc.",
@@ -3392,7 +3412,7 @@
       "city": "City",
       "province": "Province",
       "country_code": "Country Code",
-      "premium": "Premium"
+      "premium": "Featured"
     },
     "status": {
       "open": "Open",
@@ -3402,9 +3422,9 @@
       "terminated": "Terminated"
     },
     "premium": {
-      "yes": "Premium",
+      "yes": "Featured",
       "no": "Standard",
-      "description": "Mark this store as a premium seller"
+      "description": "If checked, the store will be highlighted with a special badge for internal use or promotional purposes."
     },
     "invite": {
       "button": "Invite",
@@ -3429,6 +3449,14 @@
       "ownerEmail": "Owner email",
       "ownerEmailHint": "The owner will be granted the Store Administration role.",
       "successToast": "Store created successfully"
+    },
+    "request": {
+      "title": "Store request",
+      "description": "A new store request has been submitted. Review the details, make any necessary updates, and choose whether to confirm and publish the store or suspend the request.",
+      "reasonLabel": "Suspend reason",
+      "reasonPlaceholder": "Optional reason for suspending this store...",
+      "confirm": "Confirm",
+      "suspend": "Suspend"
     },
     "actions": {
       "approve": {

@@ -14,6 +14,7 @@ export const adminSellerFields = [
   "is_premium",
   "closed_from",
   "closed_to",
+  "closure_note",
   "*address",
   "*payment_details",
   "*professional_details",
@@ -67,6 +68,25 @@ export const adminMemberInvitesQueryConfig = {
       "accepted",
       "role_id",
       "expires_at",
+      "created_at",
+      "updated_at",
+    ],
+    defaultLimit: 50,
+    isList: true,
+  },
+}
+
+export const adminSellerProductsQueryConfig = {
+  list: {
+    defaults: [
+      "id",
+      "title",
+      "handle",
+      "status",
+      "thumbnail",
+      "*collection",
+      "*sales_channels",
+      "variants.id",
       "created_at",
       "updated_at",
     ],

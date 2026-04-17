@@ -28,6 +28,26 @@ export const AdminGetSellersParams = createFindParams({
   })
 )
 
+export type AdminGetSellerProductsParamsType = z.infer<
+  typeof AdminGetSellerProductsParams
+>
+export const AdminGetSellerProductsParams = createFindParams({
+  offset: 0,
+  limit: 50,
+}).merge(
+  z.object({
+    q: z.string().optional(),
+    id: z.union([z.string(), z.array(z.string())]).optional(),
+    status: z.union([z.string(), z.array(z.string())]).optional(),
+    collection_id: z.union([z.string(), z.array(z.string())]).optional(),
+    sales_channel_id: z.union([z.string(), z.array(z.string())]).optional(),
+    type_id: z.union([z.string(), z.array(z.string())]).optional(),
+    tag_id: z.union([z.string(), z.array(z.string())]).optional(),
+    created_at: createOperatorMap().optional(),
+    updated_at: createOperatorMap().optional(),
+  })
+)
+
 export type AdminCreateSellerType = z.infer<typeof AdminCreateSeller>
 export const AdminCreateSeller = z.object({
   name: z.string(),
@@ -44,6 +64,7 @@ export const AdminCreateSeller = z.object({
   is_premium: z.boolean().optional(),
   closed_from: z.coerce.date().nullable().optional(),
   closed_to: z.coerce.date().nullable().optional(),
+  closure_note: z.string().nullable().optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
   member: z.object({
     email: z.string().email(),
@@ -65,6 +86,7 @@ export const AdminUpdateSeller = z.object({
   is_premium: z.boolean().optional(),
   closed_from: z.coerce.date().nullable().optional(),
   closed_to: z.coerce.date().nullable().optional(),
+  closure_note: z.string().nullable().optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
 })
 
