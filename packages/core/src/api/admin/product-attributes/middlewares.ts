@@ -90,6 +90,11 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
   {
     method: ["DELETE"],
     matcher: "/admin/product-attributes/:id/values/:value_id",
-    middlewares: [],
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetProductAttributeParams,
+        adminProductAttributeQueryConfig.retrieve
+      ),
+    ],
   },
 ]

@@ -6,11 +6,10 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse<HttpTypes.VendorProductCategoryResponse>
+  res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -19,9 +18,7 @@ export const GET = async (
   } = await query.graph({
     entity: "product_category",
     fields: req.queryConfig.fields,
-    filters: {
-      id: req.params.id,
-    },
+    filters: { id: req.params.id },
   })
 
   if (!product_category) {

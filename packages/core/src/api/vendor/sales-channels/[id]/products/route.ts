@@ -7,19 +7,13 @@ import {
 import { HttpTypes as VendorHttpTypes } from "@mercurjs/types"
 
 import { refetchSalesChannel } from "../../helpers"
-import { validateSellerProducts } from "../../../product-categories/helpers"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<HttpTypes.AdminBatchLink>,
   res: MedusaResponse<VendorHttpTypes.VendorSalesChannelResponse>
 ) => {
   const { id } = req.params
-  const sellerId = req.seller_context!.seller_id
   const { add, remove } = req.validatedBody
-
-  const productIdsToValidate = [...(add || []), ...(remove || [])]
-
-  await validateSellerProducts(req.scope, sellerId, productIdsToValidate)
 
   await linkProductsToSalesChannelWorkflow(req.scope).run({
     input: {

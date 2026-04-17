@@ -1,4 +1,3 @@
-import { createProductsWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -7,6 +6,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
+import { submitSellerProductsWorkflow } from "../../../workflows"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<VendorGetProductsParamsType>,
@@ -34,18 +34,15 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
+  const sellerId = req.seller_context!.seller_id
   const { additional_data, ...productData } = req.validatedBody
 
   const {
     result: [createdProduct],
-  } = await createProductsWorkflow(req.scope).run({
+  } = await submitSellerProductsWorkflow(req.scope).run({
     input: {
       products: [productData],
-      additional_data: {
-        ...additional_data,
-        seller_id: sellerId,
-      },
+      seller_id: sellerId
     },
   })
 

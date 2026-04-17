@@ -1,25 +1,24 @@
 import {
-  AuthenticatedMedusaRequest,
+  MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
 
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse<HttpTypes.VendorProductVariantListResponse>
+  req: MedusaRequest,
+  res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: variants, metadata } = await query.graph({
-    entity: "variant",
+  const { data: product_categories, metadata } = await query.graph({
+    entity: "product_category",
     fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
 
   res.json({
-    variants,
+    product_categories,
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,

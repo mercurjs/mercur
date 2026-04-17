@@ -554,6 +554,25 @@ class ProductModuleService extends MedusaService({
   }
 
   // @ts-expect-error
+  async createProductAttributeValues(
+    data: any | any[],
+    sharedContext?: Context
+  ) {
+    const input = (Array.isArray(data) ? data : [data]).map((val: any) => {
+      if (!val.handle && val.name) {
+        val.handle = toHandle(val.name);
+      }
+      return val;
+    });
+
+    const result = await super.createProductAttributeValues(
+      input,
+      sharedContext
+    );
+    return Array.isArray(data) ? result : result[0];
+  }
+
+  // @ts-expect-error
   createProductBrands(
     data: CreateProductBrandDTO[],
     sharedContext?: Context

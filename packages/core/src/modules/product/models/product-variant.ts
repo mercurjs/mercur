@@ -14,7 +14,6 @@ const ProductVariant = model
     ean: model.text().searchable().nullable(),
     upc: model.text().searchable().nullable(),
     allow_backorder: model.boolean().default(false),
-    manage_inventory: model.boolean().default(true),
     hs_code: model.text().nullable(),
     origin_country: model.text().nullable(),
     mid_code: model.text().nullable(),
