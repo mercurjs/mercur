@@ -50,6 +50,4 @@ export interface VendorDeleteResponse {
 
 export interface VendorProduct extends ProductDTO {
   sales_channels?: SalesChannelDTO[];
-  informational_attributes?: import("../attribute").InformationalAttributeDTO[];
-  variation_attributes?: import("../attribute").InformationalAttributeDTO[];
 }
