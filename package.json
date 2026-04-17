@@ -5,6 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "release:check": "bun scripts/release-check.ts",
     "test:integration:http": "turbo run test:integration:http --filter=@mercurjs/integration-tests",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
