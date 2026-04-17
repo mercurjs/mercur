@@ -168,7 +168,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.1.0-canary.1",
+      "version": "2.1.0-canary.2",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -228,7 +228,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.1.0-canary.1",
+      "version": "2.1.0-canary.2",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -239,7 +239,7 @@
         "@medusajs/admin-vite-plugin": "2.13.4",
         "@medusajs/dashboard": "2.13.4",
         "@medusajs/framework": "2.13.4",
-        "@mercurjs/dashboard-sdk": "2.1.0-canary.1",
+        "@mercurjs/dashboard-sdk": "2.1.0-canary.2",
         "@types/cross-spawn": "^6.0.6",
         "@vitejs/plugin-react": "^4.2.1",
         "autoprefixer": "^10.4.19",
@@ -287,7 +287,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.1.0-canary.1",
+      "version": "2.1.0-canary.2",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -304,7 +304,7 @@
     },
     "packages/core": {
       "name": "@mercurjs/core",
-      "version": "2.1.0-canary.1",
+      "version": "2.1.0-canary.2",
       "devDependencies": {
         "@medusajs/cli": "^2.13.4",
         "@medusajs/core-flows": "^2.13.4",
@@ -314,7 +314,7 @@
         "@medusajs/test-utils": "^2.13.4",
         "@medusajs/types": "2.13.4",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/cli": "2.1.0-canary.1",
+        "@mercurjs/cli": "2.1.0-canary.2",
         "@mercurjs/types": "workspace:*",
         "@swc/core": "^1.7.28",
         "@types/cors": "^2.8.17",
@@ -348,7 +348,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.1.0-canary.1",
+      "version": "2.1.0-canary.2",
       "dependencies": {
         "@babel/parser": "7.25.6",
         "@babel/traverse": "7.25.6",
@@ -365,7 +365,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.1.0-canary.1",
+      "version": "2.1.0-canary.2",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -378,7 +378,7 @@
         "@medusajs/dashboard": "^2.13.4",
         "@medusajs/icons": "2.13.4",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/client": "2.1.0-canary.1",
+        "@mercurjs/client": "2.1.0-canary.2",
         "@radix-ui/react-dialog": "1.1.4",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -419,7 +419,7 @@
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.1.0-canary.1",
+      "version": "2.1.0-canary.2",
       "dependencies": {
         "stripe": "^15.5.0",
       },
@@ -477,7 +477,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.1.0-canary.1",
+      "version": "2.1.0-canary.2",
       "dependencies": {
         "@medusajs/types": "2.13.4",
       },
@@ -487,7 +487,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.1.0-canary.1",
+      "version": "2.1.0-canary.2",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -500,8 +500,8 @@
         "@medusajs/dashboard": "^2.13.4",
         "@medusajs/icons": "2.13.4",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/client": "2.1.0-canary.1",
-        "@mercurjs/dashboard-shared": "2.1.0-canary.1",
+        "@mercurjs/client": "2.1.0-canary.2",
+        "@mercurjs/dashboard-shared": "2.1.0-canary.2",
         "@radix-ui/react-dialog": "1.1.4",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
