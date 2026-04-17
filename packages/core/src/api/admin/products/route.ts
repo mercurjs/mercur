@@ -44,7 +44,7 @@ export const POST = async (
         ...productData,
         created_by_actor: 'admin',
         created_by: req.auth_context.actor_id
-      }],
+      } as unknown as CreateProductDTO],
       additional_data,
     },
   })

@@ -3,7 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
+import { CreateProductDTO, HttpTypes } from "@mercurjs/types"
 
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 import { submitSellerProductsWorkflow } from "../../../workflows"
@@ -41,7 +41,7 @@ export const POST = async (
     result: [createdProduct],
   } = await submitSellerProductsWorkflow(req.scope).run({
     input: {
-      products: [productData],
+      products: [productData as unknown as CreateProductDTO],
       seller_id: sellerId
     },
   })
