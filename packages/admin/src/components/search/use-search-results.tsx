@@ -92,6 +92,7 @@ const useDynamicSearchResults = (
   const { t } = useTranslation()
 
   const debouncedSearch = useDebouncedSearch(q, 300)
+  const isSearchEnabled = Boolean(debouncedSearch)
 
   const orderResponse = useOrders(
     {
@@ -100,7 +101,7 @@ const useDynamicSearchResults = (
       fields: "id,display_id,email",
     },
     {
-      enabled: isAreaEnabled(currentArea, "order"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "order"),
       placeholderData: keepPreviousData,
     }
   )
@@ -114,7 +115,7 @@ const useDynamicSearchResults = (
         "id,title,thumbnail,-type,-collection,-options,-tags,-images,-variants,-sales_channels",
     },
     {
-      enabled: isAreaEnabled(currentArea, "product"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "product"),
       placeholderData: keepPreviousData,
     }
   )
@@ -127,7 +128,7 @@ const useDynamicSearchResults = (
       fields: "id,name",
     },
     {
-      enabled: isAreaEnabled(currentArea, "category"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "category"),
       placeholderData: keepPreviousData,
     }
   )
@@ -139,7 +140,7 @@ const useDynamicSearchResults = (
       fields: "id,title",
     },
     {
-      enabled: isAreaEnabled(currentArea, "collection"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "collection"),
       placeholderData: keepPreviousData,
     }
   )
@@ -151,7 +152,7 @@ const useDynamicSearchResults = (
       fields: "id,email,first_name,last_name",
     },
     {
-      enabled: isAreaEnabled(currentArea, "customer"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "customer"),
       placeholderData: keepPreviousData,
     }
   )
@@ -163,7 +164,7 @@ const useDynamicSearchResults = (
       fields: "id,name",
     },
     {
-      enabled: isAreaEnabled(currentArea, "seller"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "seller"),
       placeholderData: keepPreviousData,
     }
   )
@@ -175,7 +176,7 @@ const useDynamicSearchResults = (
       fields: "id,title,sku",
     },
     {
-      enabled: isAreaEnabled(currentArea, "inventory"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "inventory"),
       placeholderData: keepPreviousData,
     }
   )
@@ -187,7 +188,7 @@ const useDynamicSearchResults = (
       fields: "id,code,status",
     },
     {
-      enabled: isAreaEnabled(currentArea, "promotion"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "promotion"),
       placeholderData: keepPreviousData,
     }
   )
@@ -199,7 +200,7 @@ const useDynamicSearchResults = (
       fields: "id,name",
     },
     {
-      enabled: isAreaEnabled(currentArea, "campaign"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "campaign"),
       placeholderData: keepPreviousData,
     }
   )
@@ -211,7 +212,7 @@ const useDynamicSearchResults = (
       fields: "id,title",
     },
     {
-      enabled: isAreaEnabled(currentArea, "priceList"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "priceList"),
       placeholderData: keepPreviousData,
     }
   )
@@ -223,7 +224,7 @@ const useDynamicSearchResults = (
       fields: "id,value",
     },
     {
-      enabled: isAreaEnabled(currentArea, "productType"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "productType"),
       placeholderData: keepPreviousData,
     }
   )
@@ -235,7 +236,7 @@ const useDynamicSearchResults = (
       fields: "id,value",
     },
     {
-      enabled: isAreaEnabled(currentArea, "productTag"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "productTag"),
       placeholderData: keepPreviousData,
     }
   )
@@ -247,7 +248,7 @@ const useDynamicSearchResults = (
       fields: "id,name",
     },
     {
-      enabled: isAreaEnabled(currentArea, "location"),
+      enabled: isSearchEnabled && isAreaEnabled(currentArea, "location"),
       placeholderData: keepPreviousData,
     }
   )

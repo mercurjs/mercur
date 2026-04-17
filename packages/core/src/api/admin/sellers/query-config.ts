@@ -75,3 +75,22 @@ export const adminMemberInvitesQueryConfig = {
     isList: true,
   },
 }
+
+export const adminSellerProductsQueryConfig = {
+  list: {
+    defaults: [
+      "id",
+      "title",
+      "handle",
+      "status",
+      "thumbnail",
+      "*collection",
+      "*sales_channels",
+      "variants.id",
+      "created_at",
+      "updated_at",
+    ],
+    defaultLimit: 50,
+    isList: true,
+  },
+}

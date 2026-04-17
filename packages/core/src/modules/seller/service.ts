@@ -61,7 +61,7 @@ class SellerModuleService extends MedusaService({
       ...opts,
       jwt_secret:
         opts.jwt_secret ??
-        configManager.config.projectConfig.http.jwtSecret as string,
+        (configManager.config.projectConfig.http.jwtSecret as string),
     }
   }
 
