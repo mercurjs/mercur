@@ -6,8 +6,10 @@ export interface SellerContext {
   seller_member: SellerMemberDTO
 }
 
-declare module "express" {
-  interface Request {
-    seller_context?: SellerContext
+declare global {
+  namespace Express {
+    interface Request {
+      seller_context?: SellerContext
+    }
   }
 }

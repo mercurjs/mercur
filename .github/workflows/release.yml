@@ -30,6 +30,9 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
+      - name: Security audit
+        run: bun run audit
+
       - name: Build
         run: bun run build
 

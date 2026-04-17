@@ -7,22 +7,22 @@
     "test:integration:meilisearch": "TEST_TYPE=integration:http MEILISEARCH_HOST=http://localhost:7700 MEILISEARCH_API_KEY=masterKey NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit --testPathPattern=meilisearch"
   },
   "dependencies": {
-    "@medusajs/framework": "^2.13.4",
-    "@medusajs/medusa": "^2.13.4",
+    "@medusajs/framework": "2.13.4",
+    "@medusajs/medusa": "2.13.4",
     "@mercurjs/core": "*",
-    "jsonwebtoken": "^9.0.2",
-    "scrypt-kdf": "^2.0.1",
-    "@medusajs/draft-order": "^2.13.4",
-    "meilisearch": "^0.47.0"
+    "jsonwebtoken": "9.0.2",
+    "scrypt-kdf": "2.0.1",
+    "@medusajs/draft-order": "2.13.4",
+    "meilisearch": "0.47.0"
   },
   "devDependencies": {
     "@mercurjs/types": "*",
-    "@medusajs/test-utils": "^2.13.4",
-    "@swc/core": "^1.7.28",
-    "@swc/jest": "^0.2.36",
-    "@types/jest": "^29.5.13",
-    "@types/node": "^20.12.11",
-    "jest": "^30.2.0",
+    "@medusajs/test-utils": "2.13.4",
+    "@swc/core": "1.7.28",
+    "@swc/jest": "0.2.36",
+    "@types/jest": "29.5.13",
+    "@types/node": "20.12.11",
+    "jest": "30.2.0",
     "typescript": "5.9.3",
     "@medusajs/types": "2.13.4"
   }

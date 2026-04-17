@@ -44,7 +44,7 @@ class SellerModuleService extends MedusaService({
 }) {
   protected readonly orderGroupRepository_: OrderGroupRepository
   protected readonly baseRepository_: DAL.RepositoryService
-  protected readonly options_: SellerModuleOptions
+  protected readonly options_: SellerModuleOptions & { jwt_secret: string }
 
   constructor(
     { orderGroupRepository, baseRepository }: InjectedDependencies,
@@ -57,11 +57,15 @@ class SellerModuleService extends MedusaService({
     this.baseRepository_ = baseRepository
 
     const opts = (moduleDeclaration?.options as SellerModuleOptions) ?? {}
+    const jwtSecret =
+      opts.jwt_secret ??
+      (configManager.config?.projectConfig?.http?.jwtSecret as string | undefined) ??
+      process.env.JWT_SECRET ??
+      "supersecret"
+
     this.options_ = {
       ...opts,
-      jwt_secret:
-        opts.jwt_secret ??
-        configManager.config.projectConfig.http.jwtSecret as string,
+      jwt_secret: jwtSecret,
     }
   }
 
