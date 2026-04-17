@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/payout-stripe-connect",
-  "version": "2.1.0-canary.2",
+  "version": "2.1.0-canary.4",
   "description": "Stripe Connect payment provider for Mercur",
   "private": false,
   "type": "module",
@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@medusajs/framework": "2.13.4",
-    "@mercurjs/types": "2.1.0-canary.2",
+    "@mercurjs/types": "2.1.0-canary.4",
     "tsup": "^8.5.0"
   },
   "dependencies": {
