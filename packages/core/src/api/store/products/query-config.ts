@@ -31,9 +31,6 @@ export const storeProductFields = [
   "*images",
   "*categories",
   "*variants",
-  "*variants.prices",
-  "variants.prices.price_rules.value",
-  "variants.prices.price_rules.attribute",
   "*variant_attributes",
   "*variant_attributes.values",
 ]
