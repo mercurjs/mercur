@@ -59,6 +59,7 @@ const PRODUCT_LINK_PATTERNS = [
  */
 const CORE_FLOW_PRODUCT_GLOBS = [
   "dist/product/**/*.js",
+  "dist/product-category/**/*.js",
 ];
 
 const STUBBED_MODULE_CONTENT = `"use strict";

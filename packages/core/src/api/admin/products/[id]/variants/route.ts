@@ -4,26 +4,26 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
-import { CreateProductDTO } from "@mercurjs/types"
 
-import { createProductsWorkflow } from "../../../workflows/product/workflows/create-products"
-import { AdminCreateProductType } from "./validators"
+import { createProductVariantsWorkflow } from "../../../../../workflows/product/workflows/create-product-variants"
+import { AdminCreateProductVariantType } from "../../validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const productId = req.params.id
 
-  const { data: products, metadata } = await query.graph({
-    entity: "product",
+  const { data: variants, metadata } = await query.graph({
+    entity: "variant",
     fields: req.queryConfig.fields,
-    filters: req.filterableFields,
+    filters: { ...req.filterableFields, product_id: productId },
     pagination: req.queryConfig.pagination,
   })
 
   res.json({
-    products,
+    variants,
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,
@@ -31,28 +31,28 @@ export const GET = async (
 }
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest<AdminCreateProductType & AdditionalData>,
+  req: AuthenticatedMedusaRequest<
+    AdminCreateProductVariantType & AdditionalData
+  >,
   res: MedusaResponse
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const productId = req.params.id
+  const { additional_data, ...rest } = req.validatedBody
 
-  const { additional_data, ...productData } = req.validatedBody
-
-  const { result } = await createProductsWorkflow(req.scope).run({
+  await createProductVariantsWorkflow(req.scope).run({
     input: {
-      products: [productData as unknown as CreateProductDTO],
+      product_variants: [{ ...rest, product_id: productId }],
       additional_data,
     },
   })
-
-  const createdId = result[0].id
 
   const {
     data: [product],
   } = await query.graph({
     entity: "product",
     fields: req.queryConfig.fields,
-    filters: { id: createdId },
+    filters: { id: productId },
   })
 
   res.status(200).json({ product })
