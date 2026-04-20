@@ -6,6 +6,7 @@ import {
   ContainerRegistrationKeys,
 } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
+import { HttpTypes } from "@mercurjs/types"
 
 import { deleteProductAttributeValuesWorkflow } from "../../../../../../workflows/product/workflows/delete-product-attribute-values"
 import { updateProductAttributeValuesWorkflow } from "../../../../../../workflows/product/workflows/update-product-attribute-values"
@@ -13,7 +14,7 @@ import { AdminUpdateProductAttributeValueType } from "../../../validators"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminUpdateProductAttributeValueType & AdditionalData>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductAttributeResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { additional_data, ...update } = req.validatedBody
@@ -38,7 +39,7 @@ export const POST = async (
 
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductAttributeResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

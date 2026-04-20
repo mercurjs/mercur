@@ -6,6 +6,7 @@ import {
 
 import { adminProductBrandQueryConfig } from "./query-config"
 import {
+  AdminBatchLinkSellersToBrand,
   AdminCreateProductBrand,
   AdminGetProductBrandParams,
   AdminGetProductBrandsParams,
@@ -59,5 +60,10 @@ export const adminProductBrandsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/admin/product-brands/:id",
     middlewares: [],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/product-brands/:id/sellers",
+    middlewares: [validateAndTransformBody(AdminBatchLinkSellersToBrand)],
   },
 ]

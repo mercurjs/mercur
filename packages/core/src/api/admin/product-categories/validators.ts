@@ -93,3 +93,11 @@ export const AdminBatchLinkProductsToCategory = z.object({
   add: z.array(z.string()).optional(),
   remove: z.array(z.string()).optional(),
 })
+
+export type AdminBatchLinkSellersToCategoryType = z.infer<
+  typeof AdminBatchLinkSellersToCategory
+>
+export const AdminBatchLinkSellersToCategory = z.object({
+  add: z.array(z.string()).optional(),
+  remove: z.array(z.string()).optional(),
+})

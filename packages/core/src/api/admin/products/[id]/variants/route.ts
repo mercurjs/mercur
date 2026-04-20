@@ -4,13 +4,14 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
+import { HttpTypes } from "@mercurjs/types"
 
 import { createProductVariantsWorkflow } from "../../../../../workflows/product/workflows/create-product-variants"
 import { AdminCreateProductVariantType } from "../../validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductVariantListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id
@@ -34,7 +35,7 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<
     AdminCreateProductVariantType & AdditionalData
   >,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id

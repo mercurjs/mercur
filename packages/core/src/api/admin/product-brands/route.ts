@@ -4,13 +4,14 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
+import { HttpTypes } from "@mercurjs/types"
 
 import { createProductBrandsWorkflow } from "../../../workflows/product/workflows/create-product-brands"
 import { AdminCreateProductBrandType } from "./validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductBrandListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -31,7 +32,7 @@ export const GET = async (
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminCreateProductBrandType & AdditionalData>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductBrandResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

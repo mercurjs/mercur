@@ -4,13 +4,14 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
+import { HttpTypes } from "@mercurjs/types"
 
 import { createProductRejectionReasonsWorkflow } from "../../../workflows/product/workflows/create-product-rejection-reasons"
 import { AdminCreateProductRejectionReasonType } from "./validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductRejectionReasonListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -31,7 +32,7 @@ export const GET = async (
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminCreateProductRejectionReasonType & AdditionalData>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductRejectionReasonResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

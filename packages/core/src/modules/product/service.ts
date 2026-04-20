@@ -553,6 +553,26 @@ class ProductModuleService extends MedusaService({
     return await super.updateProductAttributes(data, dataOrContext as Context);
   }
 
+  @InjectTransactionManager()
+  // @ts-ignore
+  async createProductAttributeValues<TInput extends any | any[]>(
+    data: TInput,
+    sharedContext?: Context
+  ): Promise<TInput extends any[] ? any[] : any> {
+    const input = (Array.isArray(data) ? data : [data]).map((val: any) => {
+      if (!val.handle && val.name) {
+        val.handle = toHandle(val.name);
+      }
+      return val;
+    });
+
+    const result = await super.createProductAttributeValues(
+      input,
+      sharedContext
+    );
+    return (Array.isArray(data) ? result : result[0]) as any;
+  }
+
   // @ts-expect-error
   createProductBrands(
     data: CreateProductBrandDTO[],

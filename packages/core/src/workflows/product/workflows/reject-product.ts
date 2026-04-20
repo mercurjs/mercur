@@ -4,11 +4,12 @@ import {
   WorkflowResponse,
   transform,
 } from "@medusajs/framework/workflows-sdk"
-import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { ProductStatus, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import {
+  retrieveProductWithChangeStep,
   validateRejectProductStep,
   createProductChangeActionsStep,
   declineProductChangeStep,
@@ -27,14 +28,9 @@ type RejectProductWorkflowInput = {
 export const rejectProductWorkflow = createWorkflow(
   rejectProductWorkflowId,
   function (input: RejectProductWorkflowInput) {
-    const { data: products } = useQueryGraphStep({
-      entity: "product",
-      fields: ["id", "status", "product_change.*"],
-      filters: { id: input.product_id },
-      options: { throwIfKeyNotFound: true },
-    }).config({ name: "get-product" })
-
-    const product = transform({ products }, ({ products }) => products[0])
+    const product = retrieveProductWithChangeStep({
+      product_id: input.product_id,
+    })
 
     validateRejectProductStep({
       product,

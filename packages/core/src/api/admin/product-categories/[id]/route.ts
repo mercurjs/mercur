@@ -8,6 +8,7 @@ import {
 } from "@medusajs/framework/utils"
 
 import { AdditionalData } from "@medusajs/framework/types"
+import { HttpTypes } from "@mercurjs/types"
 
 import { deleteProductCategoriesWorkflow } from "../../../../workflows/product/workflows/delete-product-categories"
 import { updateProductCategoriesWorkflow } from "../../../../workflows/product/workflows/update-product-categories"
@@ -15,7 +16,7 @@ import { AdminUpdateProductCategoryType } from "../validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductCategoryResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -39,7 +40,7 @@ export const GET = async (
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminUpdateProductCategoryType & AdditionalData>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductCategoryResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -71,7 +72,7 @@ export const POST = async (
 
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductCategoryDeleteResponse>
 ) => {
   await deleteProductCategoriesWorkflow(req.scope).run({
     input: { ids: [req.params.id] },

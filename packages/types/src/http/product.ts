@@ -1,9 +1,27 @@
 import {
+  DeleteResponse,
   PaginatedResponse,
-  ProductDTO,
-  ProductVariantDTO,
   SalesChannelDTO,
 } from "@medusajs/types"
+import { ProductDTO, ProductVariantDTO } from "../product/common"
+
+export interface AdminProductResponse {
+  product: ProductDTO
+}
+
+export type AdminProductListResponse = PaginatedResponse<{
+  products: ProductDTO[]
+}>
+
+export type AdminProductDeleteResponse = DeleteResponse<"product">
+
+export interface AdminProductVariantResponse {
+  variant: ProductVariantDTO
+}
+
+export type AdminProductVariantListResponse = PaginatedResponse<{
+  variants: ProductVariantDTO[]
+}>
 
 export interface VendorProductResponse {
   /**

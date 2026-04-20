@@ -17,7 +17,11 @@ export const updateProductAttributeValuesStep = createStep(
   ) => {
     const service = container.resolve<ProductModuleService>(Modules.PRODUCT)
     const prevValues = await service.listProductAttributeValues(selector)
-    const result = await service.updateProductAttributeValues([{ selector, data: update }])
+    const valuesToUpdate = prevValues.map((v) => ({
+      id: v.id,
+      ...update,
+    }))
+    const result = await service.updateProductAttributeValues(valuesToUpdate)
     return new StepResponse(result, prevValues)
   },
   async (prevValues: any, { container }) => {

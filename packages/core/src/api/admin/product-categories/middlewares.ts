@@ -7,6 +7,7 @@ import {
 import { adminProductCategoryQueryConfig } from "./query-config"
 import {
   AdminBatchLinkProductsToCategory,
+  AdminBatchLinkSellersToCategory,
   AdminCreateProductCategory,
   AdminProductCategoriesParams,
   AdminProductCategoryParams,
@@ -65,5 +66,10 @@ export const adminProductCategoriesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-categories/:id/products",
     middlewares: [validateAndTransformBody(AdminBatchLinkProductsToCategory)],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/product-categories/:id/sellers",
+    middlewares: [validateAndTransformBody(AdminBatchLinkSellersToCategory)],
   },
 ]

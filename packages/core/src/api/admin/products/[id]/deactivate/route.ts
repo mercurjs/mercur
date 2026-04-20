@@ -7,11 +7,13 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
+import { HttpTypes } from "@mercurjs/types"
+
 import { deactivateProductWorkflow } from "../../../../../workflows/product/workflows/deactivate-product"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
