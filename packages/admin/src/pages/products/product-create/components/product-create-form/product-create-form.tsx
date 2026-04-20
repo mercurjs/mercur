@@ -29,14 +29,12 @@ import { DeepPartial } from "react-hook-form";
 const SAVE_DRAFT_BUTTON = "save-draft-button";
 
 type ProductCreateFormProps = {
-  defaultChannel?: HttpTypes.AdminSalesChannel;
   children?: ReactNode;
   schema?: z.ZodType<ProductCreateSchemaType>;
   defaultValues?: DeepPartial<ProductCreateSchemaType>;
 };
 
 export const ProductCreateForm = ({
-  defaultChannel,
   children,
   schema,
   defaultValues: extraDefaults,
@@ -47,9 +45,6 @@ export const ProductCreateForm = ({
     defaultValues: {
       ...PRODUCT_CREATE_FORM_DEFAULTS,
       ...extraDefaults,
-      sales_channels: defaultChannel
-        ? [{ id: defaultChannel.id, name: defaultChannel.name }]
-        : [],
     } as ProductCreateSchemaType,
     resolver: zodResolver(schema ?? ProductCreateSchema),
   });
@@ -163,9 +158,9 @@ export const ProductCreateForm = ({
 
   const transformTabs = useCallback(
     (tabs: TabDefinition<ProductCreateSchemaType>[]) => {
-      const showInventoryTab = watchedVariants?.some(
-        (v) => v.manage_inventory && v.inventory_kit
-      ) ?? false;
+      const showInventoryTab =
+        watchedVariants?.some((v) => v.manage_inventory && v.inventory_kit) ??
+        false;
 
       return tabs.map((tab) => {
         if (tab.id === "inventory") {

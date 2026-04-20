@@ -10,7 +10,7 @@ import { Form } from "../../../components/common/form"
 import { Combobox } from "../../../components/inputs/combobox"
 import { RouteDrawer, useRouteModal } from "../../../components/modals"
 import { KeyboundForm } from "../../../components/utilities/keybound-form"
-import { useAttribute, useUpdateAttribute } from "../../../hooks/api/attributes"
+import { useProductAttribute, useUpdateProductAttribute } from "../../../hooks/api/product-attributes"
 import { useProductCategories } from "../../../hooks/api"
 import { ATTRIBUTE_DETAIL_FIELDS } from "../attribute-detail/constants"
 import { AttributeUIComponent, UpdateAttributeSchema } from "./schema"
@@ -56,7 +56,7 @@ const AttributeEditForm = ({ attribute }: AttributeEditFormProps) => {
     },
   })
 
-  const { mutateAsync, isPending: isMutating } = useUpdateAttribute(attribute.id)
+  const { mutateAsync, isPending: isMutating } = useUpdateProductAttribute(attribute.id)
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await mutateAsync(data, {
@@ -249,7 +249,7 @@ const AttributeEditForm = ({ attribute }: AttributeEditFormProps) => {
 export const AttributeEdit = () => {
   const { id } = useParams()
 
-  const { attribute, isPending, isError, error } = useAttribute(id!, {
+  const { product_attribute: attribute, isPending, isError, error } = useProductAttribute(id!, {
     fields: ATTRIBUTE_DETAIL_FIELDS,
   })
 

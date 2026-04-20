@@ -64,18 +64,8 @@ export const ProductCreateSchema = z
     discountable: z.boolean(),
     type_id: z.string().optional(),
     collection_id: z.string().optional(),
-    shipping_profile_id: z.string().optional(),
-    categories: z.array(z.string()),
+    category_id: z.string().min(1),
     tags: z.array(z.string()).optional(),
-    seller_id: z.string().optional(),
-    sales_channels: z
-      .array(
-        z.object({
-          id: z.string(),
-          name: z.string(),
-        })
-      )
-      .optional(),
     origin_country: z.string().optional(),
     material: z.string().optional(),
     width: z.string().optional(),
@@ -84,6 +74,12 @@ export const ProductCreateSchema = z
     weight: z.string().optional(),
     mid_code: z.string().optional(),
     hs_code: z.string().optional(),
+    attributes: z.array(z.object({
+      attribute_id: z.string().optional(),
+      title: z.string().min(1),
+      values: z.union([z.string(), z.array(z.string())]).optional(),
+      is_custom: z.boolean(),
+    })).optional(),
     options: z.array(ProductCreateOptionSchema).min(1),
     enable_variants: z.boolean(),
     variants: z.array(ProductCreateVariantSchema).min(1),
@@ -124,7 +120,6 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
 > = {
   discountable: true,
   tags: [],
-  sales_channels: [],
   options: [
     {
       title: "Default option",
@@ -143,12 +138,11 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
       is_default: true,
     },
   ]),
+  attributes: [],
   enable_variants: false,
   media: [],
-  categories: [],
-  seller_id: "",
+  category_id: "",
   collection_id: "",
-  shipping_profile_id: "",
   description: "",
   handle: "",
   height: "",

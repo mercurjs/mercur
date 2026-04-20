@@ -32,10 +32,10 @@ import { useParams } from "react-router-dom"
 
 import { RouteFocusModal, useRouteModal } from "../../../components/modals"
 import {
-  useAttribute,
-  useCreateAttributePossibleValue,
-  attributesQueryKeys,
-} from "../../../hooks/api/attributes"
+  useProductAttribute,
+  useCreateProductAttributeValue,
+  productAttributesQueryKeys,
+} from "../../../hooks/api/product-attributes"
 import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 import { ATTRIBUTE_DETAIL_FIELDS } from "../attribute-detail/constants"
@@ -167,11 +167,11 @@ const AttributeCreatePossibleValueInner = () => {
   const { id } = useParams()
   const { handleSuccess } = useRouteModal()
 
-  const { attribute, isPending: isAttributeLoading } = useAttribute(id!, {
+  const { product_attribute: attribute, isPending: isAttributeLoading } = useProductAttribute(id!, {
     fields: ATTRIBUTE_DETAIL_FIELDS,
   })
 
-  const { mutateAsync: createValue } = useCreateAttributePossibleValue(id!)
+  const { mutateAsync: createValue } = useCreateProductAttributeValue(id!)
 
   const [activeTab, setActiveTab] = useState<"values" | "organize-ranking">(
     "values"
@@ -308,7 +308,7 @@ const AttributeCreatePossibleValueInner = () => {
             (pv: any) => pv.id === item.id
           )
           if (existingPV && existingPV.rank !== index + 1) {
-            await sdk.admin.attributes.$id.values.$valueId.mutate({
+            await sdk.admin.productAttributes.$id.values.$valueId.mutate({
               $id: id!,
               $valueId: item.id,
               rank: index + 1,
@@ -319,7 +319,7 @@ const AttributeCreatePossibleValueInner = () => {
 
       // Invalidate queries so the detail page refreshes
       queryClient.invalidateQueries({
-        queryKey: attributesQueryKeys.detail(id!),
+        queryKey: productAttributesQueryKeys.detail(id!),
       })
 
       toast.success(t("attributes.createPossibleValues.successToast"))

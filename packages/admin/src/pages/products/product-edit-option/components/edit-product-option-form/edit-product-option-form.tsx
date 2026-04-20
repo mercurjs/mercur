@@ -1,30 +1,30 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Input } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Input } from "@medusajs/ui";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
 
-import { HttpTypes } from "@medusajs/types"
-import { Form } from "../../../../../components/common/form"
-import { ChipInput } from "../../../../../components/inputs/chip-input"
-import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useUpdateProductOption } from "../../../../../hooks/api/products"
+import { HttpTypes } from "@medusajs/types";
+import { Form } from "../../../../../components/common/form";
+import { ChipInput } from "../../../../../components/inputs/chip-input";
+import { RouteDrawer, useRouteModal } from "../../../../../components/modals";
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
+// import { useUpdateProductOption } from "../../../../../hooks/api/products"
 
 type EditProductOptionFormProps = {
-  option: HttpTypes.AdminProductOption
-}
+  option: HttpTypes.AdminProductOption;
+};
 
 const CreateProductOptionSchema = z.object({
   title: z.string().min(1),
   values: z.array(z.string()).optional(),
-})
+});
 
 export const CreateProductOptionForm = ({
   option,
 }: EditProductOptionFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const form = useForm<z.infer<typeof CreateProductOptionSchema>>({
     defaultValues: {
@@ -32,26 +32,26 @@ export const CreateProductOptionForm = ({
       values: option.values.map((v: any) => v.value),
     },
     resolver: zodResolver(CreateProductOptionSchema),
-  })
+  });
 
-  const { mutateAsync, isPending } = useUpdateProductOption(
-    option.product_id!,
-    option.id
-  )
+  // const { mutateAsync, isPending } = useUpdateProductOption(
+  //   option.product_id!,
+  //   option.id
+  // )
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    mutateAsync(
-      {
-        id: option.id,
-        ...values,
-      },
-      {
-        onSuccess: () => {
-          handleSuccess()
-        },
-      }
-    )
-  })
+    // mutateAsync(
+    //   {
+    //     id: option.id,
+    //     ...values,
+    //   },
+    //   {
+    //     onSuccess: () => {
+    //       handleSuccess()
+    //     },
+    //   }
+    // )
+  });
 
   return (
     <RouteDrawer.Form form={form} data-testid="product-edit-option-form">
@@ -60,7 +60,10 @@ export const CreateProductOptionForm = ({
         className="flex flex-1 flex-col overflow-hidden"
         data-testid="product-edit-option-keybound-form"
       >
-        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-4 overflow-auto" data-testid="product-edit-option-form-body">
+        <RouteDrawer.Body
+          className="flex flex-1 flex-col gap-y-4 overflow-auto"
+          data-testid="product-edit-option-form-body"
+        >
           <Form.Field
             control={form.control}
             name="title"
@@ -75,7 +78,7 @@ export const CreateProductOptionForm = ({
                       <Input
                         {...field}
                         placeholder={t(
-                          "products.fields.options.optionTitlePlaceholder"
+                          "products.fields.options.optionTitlePlaceholder",
                         )}
                         data-testid="product-edit-option-form-title-input"
                       />
@@ -83,7 +86,7 @@ export const CreateProductOptionForm = ({
                   </Form.Control>
                   <Form.ErrorMessage data-testid="product-edit-option-form-title-error" />
                 </Form.Item>
-              )
+              );
             }}
           />
           <Form.Field
@@ -100,7 +103,7 @@ export const CreateProductOptionForm = ({
                       <ChipInput
                         {...field}
                         placeholder={t(
-                          "products.fields.options.variantionsPlaceholder"
+                          "products.fields.options.variantionsPlaceholder",
                         )}
                         data-testid="product-edit-option-form-values-chip-input"
                       />
@@ -108,23 +111,33 @@ export const CreateProductOptionForm = ({
                   </Form.Control>
                   <Form.ErrorMessage data-testid="product-edit-option-form-values-error" />
                 </Form.Item>
-              )
+              );
             }}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer data-testid="product-edit-option-form-footer">
-          <div className="flex items-center justify-end gap-x-2" data-testid="product-edit-option-form-footer-actions">
-            <RouteDrawer.Close asChild data-testid="product-edit-option-form-cancel-button-wrapper">
-              <Button variant="secondary" size="small" data-testid="product-edit-option-form-cancel-button">
+          <div
+            className="flex items-center justify-end gap-x-2"
+            data-testid="product-edit-option-form-footer-actions"
+          >
+            <RouteDrawer.Close
+              asChild
+              data-testid="product-edit-option-form-cancel-button-wrapper"
+            >
+              <Button
+                variant="secondary"
+                size="small"
+                data-testid="product-edit-option-form-cancel-button"
+              >
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button type="submit" size="small" isLoading={isPending} data-testid="product-edit-option-form-save-button">
+            {/* <Button type="submit" size="small" isLoading={isPending} data-testid="product-edit-option-form-save-button">
               {t("actions.save")}
-            </Button>
+            </Button> */}
           </div>
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};

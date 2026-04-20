@@ -19,7 +19,7 @@ import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { _DataTable } from "../../../../../components/table/data-table"
 import { TextCell } from "../../../../../components/table/table-cells/common/text-cell"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-import { useUpdateAttribute } from "../../../../../hooks/api/attributes"
+import { useUpdateProductAttribute } from "../../../../../hooks/api/product-attributes"
 
 type AttributePossibleValuesSectionProps = {
   attribute: Record<string, any>
@@ -34,7 +34,7 @@ const PossibleValueActions = ({
 }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
-  const { mutateAsync } = useUpdateAttribute(attribute.id)
+  const { mutateAsync } = useUpdateProductAttribute(attribute.id)
   const [inUseOpen, setInUseOpen] = useState(false)
 
   const handleDelete = async () => {

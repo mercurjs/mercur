@@ -25,7 +25,7 @@ import {
   RouteFocusModal,
   useRouteModal,
 } from "../../../components/modals"
-import { useAttribute, attributesQueryKeys } from "../../../hooks/api/attributes"
+import { useProductAttribute, productAttributesQueryKeys } from "../../../hooks/api/product-attributes"
 import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 import { ATTRIBUTE_DETAIL_FIELDS } from "../attribute-detail/constants"
@@ -70,7 +70,7 @@ const EditRankingInner = () => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const { attribute, isPending: isLoading } = useAttribute(id!, {
+  const { product_attribute: attribute, isPending: isLoading } = useProductAttribute(id!, {
     fields: ATTRIBUTE_DETAIL_FIELDS,
   })
 
@@ -122,7 +122,7 @@ const EditRankingInner = () => {
         .filter((u) => u.newRank !== u.oldRank)
 
       for (const update of updates) {
-        await sdk.admin.attributes.$id.values.$valueId.mutate({
+        await sdk.admin.productAttributes.$id.values.$valueId.mutate({
           $id: id!,
           $valueId: update.id,
           rank: update.newRank,
@@ -130,7 +130,7 @@ const EditRankingInner = () => {
       }
 
       queryClient.invalidateQueries({
-        queryKey: attributesQueryKeys.detail(id!),
+        queryKey: productAttributesQueryKeys.detail(id!),
       })
 
       toast.success(t("attributes.editRanking.successToast", "Ranking updated successfully."))

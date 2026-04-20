@@ -17,9 +17,9 @@ import { TextCell } from "../../../components/table/table-cells/common/text-cell
 import { ActionMenu } from "../../../components/common/action-menu"
 import { Combobox } from "../../../components/inputs/combobox"
 import {
-  useDeleteAttribute,
-  useUpdateAttribute,
-} from "../../../hooks/api/attributes"
+  useDeleteProductAttribute,
+  useUpdateProductAttribute,
+} from "../../../hooks/api/product-attributes"
 import { useProductCategories } from "../../../hooks/api"
 
 const MAX_VISIBLE_VALUES = 2
@@ -27,7 +27,7 @@ const MAX_VISIBLE_VALUES = 2
 // --- Filterable Toggle ---
 
 const FilterableToggle = ({ attribute }: { attribute: Record<string, any> }) => {
-  const { mutateAsync } = useUpdateAttribute(attribute.id)
+  const { mutateAsync } = useUpdateProductAttribute(attribute.id)
 
   const handleToggle = async (checked: boolean) => {
     try {
@@ -52,7 +52,7 @@ const FilterableToggle = ({ attribute }: { attribute: Record<string, any> }) => 
 
 const GlobalToggle = ({ attribute }: { attribute: Record<string, any> }) => {
   const { t } = useTranslation()
-  const { mutateAsync } = useUpdateAttribute(attribute.id)
+  const { mutateAsync } = useUpdateProductAttribute(attribute.id)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
 
@@ -174,7 +174,7 @@ const AttributeActions = ({
 }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
-  const { mutateAsync } = useDeleteAttribute(attribute.id)
+  const { mutateAsync } = useDeleteProductAttribute(attribute.id)
   const [inUseOpen, setInUseOpen] = useState(false)
 
   const handleDelete = async () => {

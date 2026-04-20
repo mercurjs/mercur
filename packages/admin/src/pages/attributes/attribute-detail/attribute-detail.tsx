@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
-import { useAttribute } from "../../../hooks/api"
+import { useProductAttribute } from "../../../hooks/api"
 
 import { AttributeGeneralSection } from "./components/attribute-general-section"
 import { AttributePossibleValuesSection } from "./components/attribute-possible-values-section"
@@ -17,7 +17,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     ReturnType<typeof attributeDetailLoader>
   >
 
-  const { attribute, isPending, isError, error } = useAttribute(
+  const { product_attribute: attribute, isPending, isError, error } = useProductAttribute(
     id!,
     { fields: ATTRIBUTE_DETAIL_FIELDS },
     {

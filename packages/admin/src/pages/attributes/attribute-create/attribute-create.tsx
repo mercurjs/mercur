@@ -1,81 +1,84 @@
-import { useRef, useState } from "react"
-import { Button, Heading, ProgressTabs, Text, toast } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import { useRef, useState } from "react";
+import { Button, Heading, ProgressTabs, Text, toast } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 
 import {
   AttributeForm,
   type AttributeFormRef,
-} from "../attribute-edit/components/attribute-form"
+} from "../attribute-edit/components/attribute-form";
 import type {
   CreateAttributeFormValues,
   UpdateAttributeFormValues,
-} from "../attribute-edit/types"
-import { useCreateAttribute, useProductCategories } from "../../../hooks/api"
-import { RouteFocusModal, useRouteModal } from "../../../components/modals"
+} from "../attribute-edit/types";
+import {
+  useCreateProductAttribute,
+  useProductCategories,
+} from "../../../hooks/api";
+import { RouteFocusModal, useRouteModal } from "../../../components/modals";
 
 const AttributeCreateInner = () => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const formRef = useRef<AttributeFormRef>(null)
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
+  const formRef = useRef<AttributeFormRef>(null);
 
-  const [activeTab, setActiveTab] = useState<"details" | "type">("details")
+  const [activeTab, setActiveTab] = useState<"details" | "type">("details");
   const [tabStatuses, setTabStatuses] = useState<{
-    detailsStatus: "not-started" | "in-progress" | "completed"
-    typeStatus: "not-started" | "in-progress" | "completed"
+    detailsStatus: "not-started" | "in-progress" | "completed";
+    typeStatus: "not-started" | "in-progress" | "completed";
   }>({
     detailsStatus: "not-started",
     typeStatus: "not-started",
-  })
+  });
 
-  const { mutateAsync, isPending } = useCreateAttribute()
+  const { mutateAsync, isPending } = useCreateProductAttribute();
   const { product_categories: categories = [] } = useProductCategories({
     limit: 999,
-  })
+  });
 
   const handleSave = async (
-    data: CreateAttributeFormValues | UpdateAttributeFormValues
+    data: CreateAttributeFormValues | UpdateAttributeFormValues,
   ) => {
     await mutateAsync(data as CreateAttributeFormValues, {
       onSuccess: () => {
         toast.success(
           t("attributes.create.successToast", {
             name: (data as CreateAttributeFormValues).name,
-          })
-        )
-        handleSuccess("/settings/attributes")
+          }),
+        );
+        handleSuccess("/settings/attributes");
       },
       onError: (error) => {
-        toast.error(error.message)
+        toast.error(error.message);
       },
-    })
-  }
+    });
+  };
 
   const handleTabChange = (value: string) => {
-    const newTab = value as "details" | "type"
+    const newTab = value as "details" | "type";
 
     if (newTab === "type" && tabStatuses.detailsStatus === "not-started") {
       toast.warning(
         t(
           "attributes.create.fillNameWarning",
-          "Please fill in the name first."
-        )
-      )
-      return
+          "Please fill in the name first.",
+        ),
+      );
+      return;
     }
 
-    setActiveTab(newTab)
-  }
+    setActiveTab(newTab);
+  };
 
   const handleNext = async () => {
     if (formRef.current) {
-      const isValid = await formRef.current.validateFields(["name"])
+      const isValid = await formRef.current.validateFields(["name"]);
       if (isValid) {
-        setActiveTab("type")
+        setActiveTab("type");
       }
     } else {
-      setActiveTab("type")
+      setActiveTab("type");
     }
-  }
+  };
 
   return (
     <ProgressTabs
@@ -84,9 +87,7 @@ const AttributeCreateInner = () => {
       className="flex size-full flex-col overflow-hidden"
       data-testid="attribute-create-progress-tabs"
     >
-      <RouteFocusModal.Header
-        data-testid="attribute-create-modal-header"
-      >
+      <RouteFocusModal.Header data-testid="attribute-create-modal-header">
         <ProgressTabs.List
           className="justify-start flex w-full items-center"
           data-testid="attribute-create-progress-tabs-list"
@@ -127,7 +128,7 @@ const AttributeCreateInner = () => {
               >
                 {t(
                   "attributes.create.subtitle",
-                  "Define a new product attribute."
+                  "Define a new product attribute.",
                 )}
               </Text>
             </RouteFocusModal.Description>
@@ -179,13 +180,13 @@ const AttributeCreateInner = () => {
         </div>
       </RouteFocusModal.Footer>
     </ProgressTabs>
-  )
-}
+  );
+};
 
 export const AttributeCreate = () => {
   return (
     <RouteFocusModal data-testid="attribute-create-modal">
       <AttributeCreateInner />
     </RouteFocusModal>
-  )
-}
+  );
+};

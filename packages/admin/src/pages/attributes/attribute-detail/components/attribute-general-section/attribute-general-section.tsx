@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom"
 import { AttributeDTO } from "@mercurjs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section/section-row"
-import { useDeleteAttribute } from "../../../../../hooks/api"
+import { useDeleteProductAttribute } from "../../../../../hooks/api"
 
 type AttributeGeneralSectionProps = {
   attribute: AttributeDTO & {
@@ -20,7 +20,7 @@ export const AttributeGeneralSection = ({
   const { t } = useTranslation()
   const navigate = useNavigate()
   const prompt = usePrompt()
-  const { mutateAsync } = useDeleteAttribute(attribute.id)
+  const { mutateAsync } = useDeleteProductAttribute(attribute.id)
 
   const handleDelete = async () => {
     const confirmed = await prompt({

@@ -3,13 +3,11 @@ import {
   EllipseMiniSolid,
   TriangleRightMini,
   TrianglesMini,
-  XMarkMini,
 } from "@medusajs/icons"
 import { AdminProductCategoryResponse } from "@medusajs/types"
 import { Divider, Text, clx } from "@medusajs/ui"
 import { Popover as RadixPopover } from "radix-ui"
 import {
-  CSSProperties,
   ComponentPropsWithoutRef,
   Fragment,
   MouseEvent,
@@ -17,7 +15,6 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
-  useMemo,
   useRef,
   useState,
 } from "react"
@@ -31,17 +28,14 @@ interface CategoryComboboxProps
     ComponentPropsWithoutRef<"input">,
     "value" | "defaultValue" | "onChange"
   > {
-  value: string[]
-  onChange: (value: string[]) => void
+  value: string
+  onChange: (value: string) => void
 }
 
 type Level = {
   id: string
   label: string
 }
-
-const TABLUAR_NUM_WIDTH = 8
-const TAG_BASE_WIDTH = 28
 
 export const CategoryCombobox = forwardRef<
   HTMLInputElement,
@@ -74,13 +68,21 @@ export const CategoryCombobox = forwardRef<
       }
     )
 
+  // Fetch the selected category name for display
+  const { product_categories: selectedCategories } = useProductCategories(
+    {
+      id: value,
+      fields: "id,name",
+    },
+    {
+      enabled: !!value && !open,
+    }
+  )
+
+  const selectedLabel = selectedCategories?.[0]?.name
+
   const [showLoading, setShowLoading] = useState(false)
 
-  /**
-   * We add a small artificial delay to the end of the loading state,
-   * this is done to prevent the popover from flickering too much when
-   * navigating between levels or searching.
-   */
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | undefined
 
@@ -129,10 +131,11 @@ export const CategoryCombobox = forwardRef<
         e.preventDefault()
         e.stopPropagation()
 
-        if (isSelected(value, option.value)) {
-          onChange(value.filter((v) => v !== option.value))
+        if (value === option.value) {
+          onChange("")
         } else {
-          onChange([...value, option.value])
+          onChange(option.value)
+          handleOpenChange(false)
         }
 
         innerRef.current?.focus()
@@ -158,15 +161,8 @@ export const CategoryCombobox = forwardRef<
 
   const options = getOptions(product_categories || [])
 
-  const showTag = value.length > 0
-  const showSelected = !open && value.length > 0
-
-  const tagWidth = useMemo(() => {
-    const count = value.length
-    const digits = count.toString().length
-
-    return TAG_BASE_WIDTH + digits * TABLUAR_NUM_WIDTH
-  }, [value])
+  const hasValue = !!value
+  const hideInput = hasValue && !open
 
   const showLevelUp = !searchValue && level.length > 0
 
@@ -257,63 +253,43 @@ export const CategoryCombobox = forwardRef<
             "has-[:invalid]:shadow-borders-error has-[[aria-invalid=true]]:shadow-borders-error",
             "has-[:disabled]:bg-ui-bg-disabled has-[:disabled]:text-ui-fg-disabled has-[:disabled]:cursor-not-allowed",
             {
-              // Fake the focus state as long as the popover is open,
-              // this prevents the styling from flickering when navigating
-              // between levels.
               "shadow-borders-interactive-with-active": open,
             },
             className
           )}
-          style={
-            {
-              "--tag-width": `${tagWidth}px`,
-            } as CSSProperties
-          }
         >
-          {showTag && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault()
-                onChange([])
-              }}
-              className="bg-ui-bg-base hover:bg-ui-bg-base-hover txt-compact-small-plus text-ui-fg-subtle focus-within:border-ui-fg-interactive transition-fg absolute start-0.5 top-0.5 flex h-[28px] items-center rounded-[4px] border py-[3px] ps-1.5 pe-1 outline-none"
-            >
-              <span className="tabular-nums">{value.length}</span>
-              <XMarkMini className="text-ui-fg-muted" />
-            </button>
-          )}
-          {showSelected && (
-            <div className="pointer-events-none absolute inset-y-0 start-[calc(var(--tag-width)+8px)] flex size-full items-center">
-              <Text size="small" leading="compact">
-                {t("general.selected")}
-              </Text>
-            </div>
-          )}
-          <input
-            ref={innerRef}
-            value={searchValue}
-            onChange={(e) => {
-              onSearchValueChange(e.target.value)
-            }}
-            className={clx(
-              "txt-compact-small size-full cursor-pointer appearance-none bg-transparent pe-8 outline-none",
-              "hover:bg-ui-bg-field-hover",
-              "focus:cursor-text",
-              "placeholder:text-ui-fg-muted",
-              {
-                "ps-2": !showTag,
-                "ps-[calc(var(--tag-width)+8px)]": showTag,
-              }
+          <div className="relative flex size-full items-center">
+            {hideInput && (
+              <div className="pointer-events-none absolute inset-y-0 start-2 flex size-full items-center overflow-hidden">
+                <Text size="small" leading="compact" className="truncate">
+                  {selectedLabel}
+                </Text>
+              </div>
             )}
-            {...props}
-          />
+            <input
+              ref={innerRef}
+              value={searchValue}
+              onChange={(e) => {
+                onSearchValueChange(e.target.value)
+              }}
+              className={clx(
+                "txt-compact-small text-ui-fg-base size-full cursor-pointer appearance-none bg-transparent ps-2 pe-8 outline-none",
+                "hover:bg-ui-bg-field-hover",
+                "focus:cursor-text",
+                "placeholder:text-ui-fg-muted",
+                {
+                  "opacity-0": hideInput,
+                }
+              )}
+              {...props}
+            />
+          </div>
           <button
             type="button"
             onClick={() => handleOpenChange(true)}
             className="text-ui-fg-muted transition-fg hover:bg-ui-bg-field-hover absolute end-0 flex size-8 items-center justify-center rounded-r outline-none"
           >
-            <TrianglesMini className="text-ui-fg-muted" />
+            <TrianglesMini />
           </button>
         </div>
       </RadixPopover.Anchor>
@@ -397,7 +373,7 @@ export const CategoryCombobox = forwardRef<
                   tabIndex={-1}
                 >
                   <div className="flex size-5 items-center justify-center">
-                    {isSelected(value, option.value) && <EllipseMiniSolid />}
+                    {value === option.value && <EllipseMiniSolid />}
                   </div>
                   <Text
                     as="span"
@@ -492,8 +468,4 @@ function getOptions(
       has_children: cat.category_children?.length > 0,
     }
   })
-}
-
-function isSelected(values: string[], value: string): boolean {
-  return values.includes(value)
 }

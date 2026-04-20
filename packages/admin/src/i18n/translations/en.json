@@ -422,6 +422,7 @@
       "tabs": {
         "details": "Details",
         "organize": "Organize",
+        "attributes": "Attributes",
         "variants": "Variants",
         "inventory": "Inventory kits"
       },
@@ -541,9 +542,9 @@
     "variantCount_other": "{{count}} variants",
     "deleteVariantWarning": "You are about to delete the variant {{title}}. This action cannot be undone.",
     "productStatus": {
-      "draft": "Draft",
-      "published": "Published",
-      "proposed": "Proposed",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "changes_required": "Changes Required",
       "rejected": "Rejected"
     },
     "columns": {

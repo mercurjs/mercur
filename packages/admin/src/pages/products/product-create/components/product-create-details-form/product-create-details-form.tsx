@@ -1,11 +1,10 @@
-import { Divider, Heading } from "@medusajs/ui";
+import { Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { defineTabMeta } from "../../../../../components/tabbed-form/types";
 import { ProductCreateSchemaType } from "../../types";
 import { ProductCreateGeneralSection } from "./components/product-create-details-general-section";
 import { ProductCreateMediaSection } from "./components/product-create-details-media-section";
-import { ProductCreateVariantsSection } from "./components/product-create-details-variant-section";
 
 const Root = () => {
   return (
@@ -25,8 +24,6 @@ const Root = () => {
           <ProductCreateGeneralSection />
           <ProductCreateMediaSection />
         </div>
-        <Divider data-testid="product-create-details-form-divider" />
-        <ProductCreateVariantsSection />
       </div>
     </div>
   );
@@ -35,7 +32,7 @@ const Root = () => {
 Root._tabMeta = defineTabMeta<ProductCreateSchemaType>({
   id: "details",
   labelKey: "products.create.tabs.details",
-  validationFields: ["title", "handle", "description", "media", "options", "variants"],
+  validationFields: ["title", "handle", "description", "media"],
 });
 
 export const ProductCreateDetailsForm = Root;

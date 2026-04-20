@@ -1,13 +1,13 @@
 import { LoaderFunctionArgs } from "react-router-dom"
 
-import { attributesQueryKeys } from "../../../hooks/api"
+import { productAttributesQueryKeys } from "../../../hooks/api"
 import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 
 const attributeListQuery = () => ({
-  queryKey: attributesQueryKeys.lists(),
+  queryKey: productAttributesQueryKeys.lists(),
   queryFn: async () =>
-    sdk.admin.attributes.query({
+    sdk.admin.productAttributes.query({
       limit: 20,
       offset: 0,
       fields: "*possible_values,*product_categories",

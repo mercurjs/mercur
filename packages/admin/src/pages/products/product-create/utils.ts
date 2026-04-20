@@ -16,19 +16,12 @@ export const normalizeProductFormValues = (
   return {
     status: values.status,
     is_giftcard: false,
-    ...(values.seller_id
-      ? { additional_data: { seller_id: values.seller_id } }
-      : {}),
     tags: values?.tags?.length
       ? values.tags?.map((tag) => ({ id: tag }))
       : undefined,
-    sales_channels: values?.sales_channels?.length
-      ? values.sales_channels?.map((sc) => ({ id: sc.id }))
-      : undefined,
     images,
     collection_id: values.collection_id || undefined,
-    shipping_profile_id: values.shipping_profile_id || undefined,
-    categories: values.categories.map((id) => ({ id })),
+    categories: values.category_id ? [{ id: values.category_id }] : undefined,
     type_id: values.type_id || undefined,
     handle: values.handle?.trim(),
     origin_country: values.origin_country || undefined,
