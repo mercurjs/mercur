@@ -8,6 +8,7 @@ import {
 } from "@medusajs/framework/utils"
 
 import { AdditionalData } from "@medusajs/framework/types"
+import { HttpTypes } from "@mercurjs/types"
 
 import { deleteProductRejectionReasonsWorkflow } from "../../../../workflows/product/workflows/delete-product-rejection-reasons"
 import { updateProductRejectionReasonsWorkflow } from "../../../../workflows/product/workflows/update-product-rejection-reasons"
@@ -15,7 +16,7 @@ import { AdminUpdateProductRejectionReasonType } from "../validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductRejectionReasonResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -39,7 +40,7 @@ export const GET = async (
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminUpdateProductRejectionReasonType & AdditionalData>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductRejectionReasonResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -72,7 +73,7 @@ export const POST = async (
 
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductRejectionReasonDeleteResponse>
 ) => {
   await deleteProductRejectionReasonsWorkflow(req.scope).run({
     input: { ids: [req.params.id] },
