@@ -3452,11 +3452,14 @@
     },
     "request": {
       "title": "Store request",
-      "description": "A new store request has been submitted. Review the details, make any necessary updates, and choose whether to confirm and publish the store or suspend the request.",
-      "reasonLabel": "Suspend reason",
-      "reasonPlaceholder": "Optional reason for suspending this store...",
+      "description": "A new store request has been submitted. Review the details, make any necessary updates, and choose whether to confirm and publish the store or reject the request.",
       "confirm": "Confirm",
-      "suspend": "Suspend"
+      "reject": "Reject",
+      "confirmNoteLabel": "Approval note",
+      "rejectNoteLabel": "Rejection reason",
+      "notePlaceholder": "Optional note for the vendor...",
+      "confirmSuccess": "Store approved",
+      "rejectSuccess": "Store rejected"
     },
     "actions": {
       "approve": {
