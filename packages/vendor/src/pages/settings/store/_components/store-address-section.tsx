@@ -54,7 +54,7 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
               </IconAvatar>
               <div className="flex flex-1 flex-col">
                 <Text size="small" leading="compact" weight="plus">
-                  {(address as any)?.name || t("store.address.defaultName")}
+                  {address?.name || t("store.address.defaultName")}
                 </Text>
                 <Text
                   size="small"

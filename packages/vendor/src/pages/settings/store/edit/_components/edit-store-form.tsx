@@ -55,7 +55,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
       name: seller.name ?? "",
       handle: seller.handle ?? "",
       email: seller.email ?? "",
-      phone: (seller as any).phone ?? "",
+      phone: seller.phone ?? "",
       description: seller.description ?? "",
       website_url: seller.website_url ?? "",
       media: seller.logo
@@ -120,7 +120,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
         website_url: values.website_url || null,
         logo: logoUrl,
         banner: bannerUrl,
-      } as any,
+      },
       {
         onSuccess: () => {
           toast.success(t("store.toast.update"));

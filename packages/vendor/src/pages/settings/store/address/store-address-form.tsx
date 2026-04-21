@@ -32,7 +32,7 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
 
   const form = useForm<zod.infer<typeof StoreAddressSchema>>({
     defaultValues: {
-      name: (address as any)?.name ?? "",
+      name: address?.name ?? "",
       address_1: address?.address_1 ?? "",
       address_2: address?.address_2 ?? "",
       city: address?.city ?? "",
@@ -55,7 +55,7 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
         province: values.province || null,
         postal_code: values.postal_code || null,
         country_code: values.country_code,
-      } as any,
+      },
       {
         onSuccess: () => {
           toast.success(

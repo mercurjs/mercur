@@ -74,6 +74,7 @@ export interface UpdatePaymentDetailsDTO {
 
 export interface SellerAddressDTO {
   id: string
+  name: string | null
   company: string | null
   first_name: string | null
   last_name: string | null
@@ -90,6 +91,7 @@ export interface SellerAddressDTO {
 }
 
 export interface CreateSellerAddressDTO {
+  name?: string | null
   company?: string | null
   first_name?: string | null
   last_name?: string | null
@@ -104,6 +106,7 @@ export interface CreateSellerAddressDTO {
 }
 
 export interface UpdateSellerAddressDTO {
+  name?: string | null
   company?: string | null
   first_name?: string | null
   last_name?: string | null
@@ -180,6 +183,7 @@ export interface SellerDTO {
   name: string
   handle: string
   email: string
+  phone: string | null
   description: string | null
   logo: string | null
   banner: string | null

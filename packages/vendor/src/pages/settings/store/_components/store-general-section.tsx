@@ -76,7 +76,7 @@ export const StoreGeneralSection = ({
               {t("fields.phone")}
             </Text>
             <Text size="small" leading="compact">
-              {(seller as any).phone || "-"}
+              {seller.phone || "-"}
             </Text>
           </div>
           <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
