@@ -97,26 +97,6 @@ export const StoreGeneralSection = ({
               </Text>
             </div>
           </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.premium")}
-            </Text>
-            <Text size="small" leading="compact">
-              {seller.is_premium ? t("stores.premium.yes") : t("stores.premium.no")}
-            </Text>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.createdAt")}
-            </Text>
-            <Text size="small" leading="compact">
-              {new Date(seller.created_at).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </Text>
-          </div>
         </>
       )}
     </Container>
