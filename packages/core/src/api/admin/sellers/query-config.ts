@@ -3,6 +3,7 @@ export const adminSellerFields = [
   "name",
   "handle",
   "email",
+  "phone",
   "description",
   "logo",
   "banner",
