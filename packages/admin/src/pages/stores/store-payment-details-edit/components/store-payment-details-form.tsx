@@ -62,7 +62,7 @@ export const StorePaymentDetailsForm = ({
         iban: isABA ? null : values.iban || null,
         bic: isABA ? null : values.bic || null,
         routing_number: isABA ? values.routing_number || null : null,
-        account_number: isABA ? values.account_number || null : null,
+        account_number: values.account_number || null,
       },
       {
         onSuccess: () => {
@@ -134,13 +134,11 @@ export const StorePaymentDetailsForm = ({
             <div className="grid grid-cols-2 gap-4">
               <Form.Field
                 control={form.control}
-                name="routing_number"
+                name="account_number"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label optional>
-                      {t(
-                        "store.paymentDetails.fields.routingNumber",
-                      )}
+                    <Form.Label>
+                      {t("store.paymentDetails.fields.accountNumber")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />
@@ -151,13 +149,11 @@ export const StorePaymentDetailsForm = ({
               />
               <Form.Field
                 control={form.control}
-                name="account_number"
+                name="routing_number"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label optional>
-                      {t(
-                        "store.paymentDetails.fields.accountNumber",
-                      )}
+                    <Form.Label>
+                      {t("store.paymentDetails.fields.achRoutingNumber")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />
@@ -174,8 +170,23 @@ export const StorePaymentDetailsForm = ({
                 name="iban"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label optional>
+                    <Form.Label>
                       {t("store.paymentDetails.fields.iban")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input size="small" {...field} />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="account_number"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t("store.paymentDetails.fields.accountNumber")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />
@@ -189,8 +200,8 @@ export const StorePaymentDetailsForm = ({
                 name="bic"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label optional>
-                      {t("store.paymentDetails.fields.bic")}
+                    <Form.Label>
+                      {t("store.paymentDetails.fields.swiftBic")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />

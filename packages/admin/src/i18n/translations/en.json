@@ -2532,11 +2532,13 @@
       },
       "fields": {
         "countryCode": "Country",
-        "holderName": "Account holder",
+        "holderName": "Account name",
         "bankName": "Bank name",
         "iban": "IBAN",
-        "bic": "BIC / SWIFT",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
         "routingNumber": "Routing number",
+        "achRoutingNumber": "ACH routing number",
         "accountNumber": "Account number"
       }
     },
