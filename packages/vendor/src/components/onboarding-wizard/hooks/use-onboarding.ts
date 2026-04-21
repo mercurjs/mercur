@@ -2,8 +2,8 @@ import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@medusajs/ui";
 
-import { useCreateSellerAccount } from "@hooks/api";
-import { sdk } from "@lib/client";
+import { useCreateSellerAccount, useLogout } from "@hooks/api";
+import { queryClient } from "@lib/query-client";
 import { TOTAL_STEPS } from "../constants";
 
 type StoreData = {
@@ -59,6 +59,7 @@ export const useOnboarding = (memberEmail: string) => {
 
   const { mutateAsync: createSeller, isPending: isCreating } =
     useCreateSellerAccount();
+  const { mutateAsync: logout } = useLogout();
 
   const isPending = isCreating || isSubmitting;
 
@@ -162,21 +163,23 @@ export const useOnboarding = (memberEmail: string) => {
         const newSellerId = result.seller.id;
         setSellerId(newSellerId);
 
+        // Force a fresh login so the new member_id lands in the JWT.
         try {
-          await sdk.auth.session.mutate({});
+          await logout();
         } catch {
-          // The backend also falls back to auth identity metadata, so this
-          // refresh only optimizes the immediate post-onboarding session.
+          // If logout fails we still redirect to /login — user will re-auth there.
         }
+        queryClient.clear();
+        sessionStorage.removeItem("mercur_onboarding_email");
 
-        navigate("/store-select", { replace: true });
+        navigate("/login", { replace: true });
       } catch (error: any) {
         toast.error(error.message);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [createSeller, memberEmail, navigate],
+    [createSeller, logout, memberEmail, navigate],
   );
 
   // Step 4: Payment — create seller with everything and finish

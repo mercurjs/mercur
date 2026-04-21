@@ -8,21 +8,13 @@ import {
 } from "@medusajs/framework/utils"
 
 import { VendorSelectSellerType } from "../validators"
-import { resolveMemberActorId } from "../../../utils"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorSelectSellerType>,
   res: MedusaResponse
 ) => {
   const { seller_id } = req.validatedBody
-  const memberId = await resolveMemberActorId(req)
-
-  if (!memberId) {
-    throw new MedusaError(
-      MedusaError.Types.UNAUTHORIZED,
-      "You must be authenticated to select a seller account."
-    )
-  }
+  const memberId = req.auth_context.actor_id
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

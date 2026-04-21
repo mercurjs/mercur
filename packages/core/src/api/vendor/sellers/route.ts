@@ -6,7 +6,6 @@ import { ContainerRegistrationKeys, FeatureFlag, MedusaError } from "@medusajs/f
 import { HttpTypes, SellerStatus } from "@mercurjs/types"
 
 import { VendorCreateSellerAccountType } from "./validators"
-import { resolveMemberActorId } from "../../utils"
 import { createSellerAccountWorkflow } from "../../../workflows/seller"
 import SellerRegistrationFeatureFlag from "../../../feature-flags/seller-registration"
 
@@ -15,7 +14,7 @@ export const GET = async (
   res: MedusaResponse<HttpTypes.VendorSellerMemberListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const memberId = await resolveMemberActorId(req)
+  const memberId = req.auth_context?.actor_id
 
   if (!memberId) {
     throw new MedusaError(
@@ -55,7 +54,7 @@ export const POST = async (
   const { result: seller } = await createSellerAccountWorkflow(req.scope).run({
     input: {
       auth_identity_id: req.auth_context.auth_identity_id,
-      member_id: (await resolveMemberActorId(req)) || undefined,
+      member_id: req.auth_context.actor_id || undefined,
       seller: sellerData,
       member_email,
       address,

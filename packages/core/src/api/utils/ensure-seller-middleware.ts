@@ -10,7 +10,6 @@ import {
 } from "@medusajs/framework/utils"
 import { IRbacModuleService } from "@medusajs/types"
 import { ensureSellerDefaultRoles } from "../../modules/seller/utils/ensure-seller-default-roles"
-import { resolveMemberActorId } from "./resolve-member-actor-id"
 import { SellerContext } from "../../types/seller-context"
 
 const SELLER_ID_HEADER = "x-seller-id"
@@ -31,17 +30,7 @@ export async function ensureSellerMiddleware(
     )
   }
 
-  const memberId = await resolveMemberActorId(req)
-
-  if (!memberId) {
-    return next(
-      new MedusaError(
-        MedusaError.Types.UNAUTHORIZED,
-        "You must be authenticated to access seller information."
-      )
-    )
-  }
-
+  const memberId = req.auth_context.actor_id
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: sellerMembers } = await query.graph(
