@@ -4,13 +4,21 @@ import {
 } from "@medusajs/framework"
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
+import { resolveMemberActorId } from "../../../../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorSellerMemberResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const memberId = req.auth_context.actor_id
+  const memberId = await resolveMemberActorId(req)
+
+  if (!memberId) {
+    throw new MedusaError(
+      MedusaError.Types.UNAUTHORIZED,
+      "You must be authenticated to access member information."
+    )
+  }
 
   const { data: sellerMembers } = await query.graph({
     entity: "seller_member",

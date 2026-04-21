@@ -6,7 +6,11 @@ import {
 import {
   ContainerRegistrationKeys,
   MedusaError,
+  Modules,
 } from "@medusajs/framework/utils"
+import { IRbacModuleService } from "@medusajs/types"
+import { ensureSellerDefaultRoles } from "../../modules/seller/utils/ensure-seller-default-roles"
+import { resolveMemberActorId } from "./resolve-member-actor-id"
 import { SellerContext } from "../../types/seller-context"
 
 const SELLER_ID_HEADER = "x-seller-id"
@@ -27,7 +31,17 @@ export async function ensureSellerMiddleware(
     )
   }
 
-  const memberId = req.auth_context.actor_id
+  const memberId = await resolveMemberActorId(req)
+
+  if (!memberId) {
+    return next(
+      new MedusaError(
+        MedusaError.Types.UNAUTHORIZED,
+        "You must be authenticated to access seller information."
+      )
+    )
+  }
+
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: sellerMembers } = await query.graph(
@@ -56,10 +70,14 @@ export async function ensureSellerMiddleware(
   req.seller_context = {
     seller_id: sellerId,
     seller_member: sellerMember,
-    currency_code: sellerMember.seller.currency_code
+    currency_code: sellerMember.seller.currency_code,
   } as SellerContext
 
   if (sellerMember.role_id) {
+    const rbacService: IRbacModuleService = req.scope.resolve(Modules.RBAC)
+
+    await ensureSellerDefaultRoles(rbacService)
+
     req.auth_context.app_metadata = {
       ...req.auth_context.app_metadata,
       roles: [sellerMember.role_id],

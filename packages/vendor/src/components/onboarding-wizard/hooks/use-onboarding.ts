@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@medusajs/ui";
 
 import { useCreateSellerAccount } from "@hooks/api";
+import { sdk } from "@lib/client";
 import { TOTAL_STEPS } from "../constants";
 
 type StoreData = {
@@ -158,6 +159,13 @@ export const useOnboarding = (memberEmail: string) => {
 
         const newSellerId = result.seller.id;
         setSellerId(newSellerId);
+
+        try {
+          await sdk.auth.session.mutate({});
+        } catch {
+          // The backend also falls back to auth identity metadata, so this
+          // refresh only optimizes the immediate post-onboarding session.
+        }
 
         navigate("/store-select", { replace: true });
       } catch (error: any) {
