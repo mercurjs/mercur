@@ -26,6 +26,7 @@ import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
 import { useUpdateSeller } from "@hooks/api/sellers";
 import { currencies } from "@/lib/data/currencies";
+import { SellerStatus } from "@mercurjs/types";
 
 type Seller = InferClientOutput<typeof sdk.admin.sellers.$id.query>["seller"];
 
@@ -34,6 +35,7 @@ type StoreEditFormProps = {
 };
 
 const EditStoreSchema = zod.object({
+  status: zod.nativeEnum(SellerStatus),
   name: zod.string().min(1),
   description: zod.string().optional().or(zod.literal("")),
   handle: zod.string().optional().or(zod.literal("")),
@@ -69,6 +71,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
 
   const form = useForm<zod.infer<typeof EditStoreSchema>>({
     defaultValues: {
+      status: (seller.status as SellerStatus) ?? SellerStatus.OPEN,
       name: seller.name ?? "",
       description: seller.description ?? "",
       handle: seller.handle ?? "",
@@ -130,6 +133,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
 
     await mutateAsync(
       {
+        status: values.status,
         name: values.name,
         handle: values.handle || undefined,
         email: values.email || undefined,
@@ -206,6 +210,34 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       >
         <RouteDrawer.Body className="flex flex-col gap-y-8 overflow-y-auto">
           <div className="flex flex-col gap-y-4">
+            <Form.Field
+              control={form.control}
+              name="status"
+              render={({ field: { onChange, value, ref: _ref, ...field } }) => (
+                <Form.Item>
+                  <Form.Label>{t("fields.status")}</Form.Label>
+                  <Form.Control>
+                    <Select {...field} value={value} onValueChange={onChange}>
+                      <Select.Trigger>
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        <Select.Item value={SellerStatus.OPEN}>
+                          {t("stores.status.open")}
+                        </Select.Item>
+                        <Select.Item value={SellerStatus.PENDING_APPROVAL}>
+                          {t("stores.status.pendingApproval")}
+                        </Select.Item>
+                        <Select.Item value={SellerStatus.SUSPENDED}>
+                          {t("stores.status.suspended")}
+                        </Select.Item>
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
             <Form.Field
               control={form.control}
               name="name"

@@ -23,7 +23,7 @@ const EditStoreSchema = zod.object({
   email: zod.string().email().optional().or(zod.literal("")),
   phone: zod.string().optional().or(zod.literal("")),
   description: zod.string().optional().or(zod.literal("")),
-  website_url: zod.string().url().optional().or(zod.literal("")),
+  website_url: zod.string().optional().or(zod.literal("")),
   media: zod.array(MediaSchema).optional(),
   bannerMedia: zod.array(MediaSchema).optional(),
 });
@@ -256,7 +256,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 <Form.Item>
                   <Form.Label optional>{t("fields.website")}</Form.Label>
                   <Form.Control>
-                    <Input placeholder="https://example.com" {...field} />
+                    <HandleInput {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>

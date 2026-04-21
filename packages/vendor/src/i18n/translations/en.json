@@ -3176,14 +3176,15 @@
     }
   },
   "login": {
-    "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to {{name}}",
-    "hint": "Sign in to access the vendor hub",
-    "notSellerYet": "Not a seller yet? - <0>Create an account</0>"
+    "forgotPassword": "Forgot password? <0>Reset</0>",
+    "title": "Welcome back!",
+    "hint": "Log in to your vendor account.",
+    "submit": "Log in",
+    "notSellerYet": "Not a seller yet? <0>Create an account</0>"
   },
   "register": {
-    "title": "Start selling on {{name}}",
-    "hint": "Create account to get started",
+    "title": "Create your vendor account",
+    "hint": "Start selling on {{name}}.",
     "companyName": "Company name",
     "confirmPassword": "Confirm password",
     "signUp": "Sign up",
