@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router-dom"
 import { Checkbox, toast, usePrompt } from "@medusajs/ui"
 
 import { PencilSquare, Trash } from "@medusajs/icons"
@@ -25,6 +26,7 @@ const PAGE_SIZE = 10
 
 export const StoreListDataTable = () => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [selection, setSelection] = useState<RowSelectionState>({})
 
   const { searchParams, raw } = useSellersTableQuery({
@@ -75,6 +77,15 @@ export const StoreListDataTable = () => {
         { key: "created_at", label: t("fields.createdAt") },
       ]}
       commands={[
+        {
+          action: async (selection) => {
+            const ids = Object.keys(selection)
+            if (!ids.length) return
+            navigate(`bulk-edit?ids=${ids.join(",")}`)
+          },
+          label: t("stores.actions.edit.label"),
+          shortcut: "e",
+        },
         {
           action: async (selection) => {
             const ids = Object.keys(selection)

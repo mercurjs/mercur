@@ -3483,6 +3483,9 @@
         "description": "Are you sure you want to reject this store?",
         "success": "Store rejected"
       },
+      "edit": {
+        "label": "Edit"
+      },
       "delete": {
         "label": "Delete",
         "title": "Delete store",
@@ -3491,6 +3494,11 @@
         "successToast": "{{count}} store(s) deleted",
         "errorToast": "Failed to delete store(s)"
       }
+    },
+    "bulkEdit": {
+      "successToast": "{{count}} store(s) updated",
+      "emptyHeading": "No stores selected",
+      "emptyDescription": "Select stores from the list to edit them here."
     }
   },
   "messages": {

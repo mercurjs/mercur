@@ -209,7 +209,7 @@ export const useDataGridCell = <TData, TValue>({
   }, [anchor, coords])
 
   const fieldWithoutOverlay = useMemo(() => {
-    return type === "boolean"
+    return type === "boolean" || type === "select"
   }, [type])
 
   useEffect(() => {
