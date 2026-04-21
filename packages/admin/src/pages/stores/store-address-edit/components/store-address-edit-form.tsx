@@ -19,6 +19,7 @@ type StoreAddressEditFormProps = {
 };
 
 const StoreAddressSchema = zod.object({
+  name: zod.string().min(1),
   address_1: zod.string().optional().or(zod.literal("")),
   address_2: zod.string().optional().or(zod.literal("")),
   city: zod.string().optional().or(zod.literal("")),
@@ -36,6 +37,7 @@ export const StoreAddressEditForm = ({
 
   const form = useForm<zod.infer<typeof StoreAddressSchema>>({
     defaultValues: {
+      name: address?.name ?? "",
       address_1: address?.address_1 ?? "",
       address_2: address?.address_2 ?? "",
       city: address?.city ?? "",
@@ -51,6 +53,7 @@ export const StoreAddressEditForm = ({
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
       {
+        name: values.name,
         address_1: values.address_1 || null,
         address_2: values.address_2 || null,
         city: values.city || null,
@@ -79,6 +82,19 @@ export const StoreAddressEditForm = ({
         className="flex flex-1 flex-col overflow-hidden"
       >
         <RouteDrawer.Body className="flex flex-col gap-y-4 overflow-y-auto">
+          <Form.Field
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("store.address.nameLabel")}</Form.Label>
+                <Form.Control>
+                  <Input size="small" placeholder={t("store.address.namePlaceholder")} {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
           <Form.Field
             control={form.control}
             name="country_code"

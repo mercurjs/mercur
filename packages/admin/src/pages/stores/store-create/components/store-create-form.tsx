@@ -24,6 +24,7 @@ export const StoreCreateForm = ({ children }: StoreCreateFormProps) => {
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
       currency_code: "",
       handle: "",
       member_email: "",
@@ -38,6 +39,7 @@ export const StoreCreateForm = ({ children }: StoreCreateFormProps) => {
       await createSeller({
         name: values.name,
         email: values.email,
+        phone: values.phone || undefined,
         currency_code: values.currency_code,
         handle: values.handle || undefined,
         member: {

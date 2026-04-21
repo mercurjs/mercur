@@ -69,6 +69,19 @@ const Root = () => {
           />
           <Form.Field
             control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("fields.phone")}</Form.Label>
+                <Form.Control>
+                  <Input type="tel" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
             name="currency_code"
             render={({ field: { onChange, ref, ...field } }) => (
               <Form.Item>
@@ -103,7 +116,7 @@ const Root = () => {
 Root._tabMeta = defineTabMeta<CreateStoreSchemaType>({
   id: "details",
   labelKey: "stores.create.tabs.details",
-  validationFields: ["name", "email", "currency_code"],
+  validationFields: ["name", "email", "phone", "currency_code"],
 });
 
 export const StoreCreateDetailsTab = Root;

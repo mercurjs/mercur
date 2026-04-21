@@ -35,6 +35,8 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
   const { mutateAsync: suspendSeller, isPending: isRejecting } =
     useSuspendSeller(seller.id);
 
+  const requesterLabel = seller.email || seller.name;
+
   const cancel = () => {
     setPendingAction(null);
     setNote("");
@@ -60,12 +62,12 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
   return (
     <Container className="p-0">
       <div className="flex items-center gap-x-3 border-b border-ui-border-base px-6 py-4">
-        <ExclamationCircleSolid className="text-orange-500" />
+        <ExclamationCircleSolid className="text-ui-tag-blue-icon" />
         <Heading level="h2">{t("stores.request.title")}</Heading>
       </div>
       <div className="px-6 py-4">
         <Text className="text-ui-fg-subtle">
-          {t("stores.request.description")}
+          {t("stores.request.description", { requester: requesterLabel })}
         </Text>
       </div>
       {pendingAction ? (
@@ -108,17 +110,17 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
           <>
             <Button
               size="small"
-              variant="danger"
-              onClick={() => setPendingAction("reject")}
-            >
-              {t("stores.request.reject")}
-            </Button>
-            <Button
-              size="small"
-              variant="primary"
+              variant="secondary"
               onClick={() => setPendingAction("confirm")}
             >
               {t("stores.request.confirm")}
+            </Button>
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={() => setPendingAction("reject")}
+            >
+              {t("stores.request.reject")}
             </Button>
           </>
         )}

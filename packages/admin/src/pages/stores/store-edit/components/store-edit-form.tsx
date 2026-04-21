@@ -29,6 +29,7 @@ const EditStoreSchema = zod.object({
   name: zod.string().min(1),
   handle: zod.string().optional().or(zod.literal("")),
   email: zod.string().email().optional().or(zod.literal("")),
+  phone: zod.string().optional().or(zod.literal("")),
   description: zod.string().optional().or(zod.literal("")),
   website_url: zod.string().url().optional().or(zod.literal("")),
   status: zod.nativeEnum(SellerStatus),
@@ -64,6 +65,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       name: seller.name ?? "",
       handle: seller.handle ?? "",
       email: seller.email ?? "",
+      phone: seller.phone ?? "",
       description: seller.description ?? "",
       website_url: seller.website_url ?? "",
       status: (seller.status as SellerStatus) ?? SellerStatus.PENDING_APPROVAL,
@@ -125,6 +127,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
         name: values.name,
         handle: values.handle || undefined,
         email: values.email || undefined,
+        phone: values.phone || null,
         description: values.description || null,
         website_url: values.website_url || null,
         status: values.status,
@@ -231,6 +234,19 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                   <Form.Label>{t("fields.email")}</Form.Label>
                   <Form.Control>
                     <Input type="email" {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label optional>{t("fields.phone")}</Form.Label>
+                  <Form.Control>
+                    <Input type="tel" {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>

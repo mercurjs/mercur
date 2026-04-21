@@ -3,6 +3,7 @@ import { z } from "zod";
 export const CreateStoreSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
+  phone: z.string().optional().or(z.literal("")),
   currency_code: z.string().min(1),
   handle: z.string().optional().or(z.literal("")),
   member_email: z.string().email(),

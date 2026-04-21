@@ -2509,6 +2509,9 @@
     "banner": "Banner",
     "address": {
       "header": "Address",
+      "defaultName": "Headquarters",
+      "nameLabel": "Name",
+      "namePlaceholder": "Headquarters",
       "empty": {
         "title": "No address",
         "message": "There are no records to show"
@@ -3455,7 +3458,7 @@
     },
     "request": {
       "title": "Store request",
-      "description": "A new store request has been submitted. Review the details, make any necessary updates, and choose whether to confirm and publish the store or reject the request.",
+      "description": "{{requester}} has submitted a store request. Review the details, make any necessary updates, and choose whether to confirm and publish the store or reject the request.",
       "confirm": "Confirm",
       "reject": "Reject",
       "confirmNoteLabel": "Approval note",
