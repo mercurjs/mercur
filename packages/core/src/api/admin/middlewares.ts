@@ -15,6 +15,8 @@ import { adminSellersMiddlewares } from "./sellers/middlewares"
 import { adminAttributeMiddlewares } from "./attributes/middlewares"
 import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/middlewares"
+import { requireAdminWarehouseCapability } from "./middlewares/require-warehouse-capability"
+import { validateCancelOrderMiddleware } from "./middlewares/validate-cancel-order"
 
 const maybeApplySellerProductFilter = (
   req: AuthenticatedMedusaRequest,
@@ -82,5 +84,75 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       maybeApplySellerOrderFilter,
     ],
+  },
+  // Mercur cancel-order invariant — enforce marketplace rule regardless of flag.
+  // See specs/005-admin-warehouse-capability-lock.
+  {
+    method: ["POST"],
+    matcher: "/admin/orders/:id/cancel",
+    middlewares: [validateCancelOrderMiddleware],
+  },
+  // Warehouse capability lock — gated by `admin_warehouse_management` feature flag.
+  // Baseline Mercur keeps fulfillment vendor-owned; these matchers reject direct
+  // admin calls unless the flag is explicitly enabled.
+  {
+    method: ["POST"],
+    matcher: "/admin/orders/:id/fulfillments",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/orders/:id/fulfillments/:fulfillment_id/cancel",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/orders/:id/fulfillments/:fulfillment_id/mark-as-delivered",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/orders/:id/fulfillments/:fulfillment_id/shipments",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/returns/:id/receive",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/returns/:id/receive/confirm",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/returns/:id/receive-items",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST", "DELETE"],
+    matcher: "/admin/returns/:id/receive-items/:action_id",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/returns/:id/dismiss-items",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST", "DELETE"],
+    matcher: "/admin/returns/:id/dismiss-items/:action_id",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/reservations",
+    middlewares: [requireAdminWarehouseCapability],
+  },
+  {
+    method: ["POST", "DELETE"],
+    matcher: "/admin/reservations/:id",
+    middlewares: [requireAdminWarehouseCapability],
   },
 ]

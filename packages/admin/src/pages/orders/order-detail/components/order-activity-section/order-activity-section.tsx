@@ -16,8 +16,6 @@ export const OrderActivitySection = ({ order }: OrderActivityProps) => {
         <div className="flex items-center justify-between" data-testid="order-activity-header">
           <Heading level="h2" data-testid="order-activity-heading">{t("orders.activity.header")}</Heading>
         </div>
-        {/* TODO: Re-add when we have support for notes */}
-        {/* <OrderNoteForm order={order} /> */}
       </div>
       <OrderTimeline order={order} />
     </Container>

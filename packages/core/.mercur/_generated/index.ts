@@ -104,7 +104,7 @@ export type Routes = {
                 request: typeof import("@medusajs/medusa/api/admin/exchanges/[id]/request/route");
             };
         };
-        featureFlags: typeof import("@medusajs/medusa/api/admin/feature-flags/route");
+        featureFlags: typeof import("../../src/api/admin/feature-flags/route");
         fulfillmentProviders: typeof import("@medusajs/medusa/api/admin/fulfillment-providers/route") & {
             $id: {
                 options: typeof import("@medusajs/medusa/api/admin/fulfillment-providers/[id]/options/route");
@@ -142,7 +142,7 @@ export type Routes = {
             $id: typeof import("@medusajs/medusa/api/admin/invites/[id]/route") & {
                 resend: typeof import("@medusajs/medusa/api/admin/invites/[id]/resend/route");
             };
-            accept: typeof import("@mercurjs/core/api/admin/invites/accept/route");
+            accept: typeof import("@medusajs/medusa/api/admin/invites/accept/route");
         };
         locales: typeof import("@medusajs/medusa/api/admin/locales/route") & {
             $code: typeof import("@medusajs/medusa/api/admin/locales/[code]/route");
@@ -427,7 +427,6 @@ export type Routes = {
             $id: typeof import("../../src/api/admin/payouts/[id]/route");
         };
         sellers: typeof import("../../src/api/admin/sellers/route") & {
-            invite: typeof import("@mercurjs/core/api/admin/sellers/invite/route");
             $id: typeof import("../../src/api/admin/sellers/[id]/route") & {
                 address: typeof import("../../src/api/admin/sellers/[id]/address/route");
                 approve: typeof import("../../src/api/admin/sellers/[id]/approve/route");
@@ -437,6 +436,7 @@ export type Routes = {
                     invites: typeof import("../../src/api/admin/sellers/[id]/members/invites/route");
                 };
                 paymentDetails: typeof import("../../src/api/admin/sellers/[id]/payment-details/route");
+                products: typeof import("../../src/api/admin/sellers/[id]/products/route");
                 professionalDetails: typeof import("../../src/api/admin/sellers/[id]/professional-details/route");
                 suspend: typeof import("../../src/api/admin/sellers/[id]/suspend/route");
                 terminate: typeof import("../../src/api/admin/sellers/[id]/terminate/route");

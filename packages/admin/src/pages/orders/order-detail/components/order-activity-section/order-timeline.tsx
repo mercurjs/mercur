@@ -694,68 +694,6 @@ const OrderActivityCollapsible = ({
   );
 };
 
-/**
- * TODO: Add once notes are supported.
- */
-// const NoteBody = ({ note }: { note: Note }) => {
-//   const { t } = useTranslation()
-//   const prompt = usePrompt()
-
-//   const { first_name, last_name, email } = note.author || {}
-//   const name = [first_name, last_name].filter(Boolean).join(" ")
-
-//   const byLine = t("orders.activity.events.note.byLine", {
-//     author: name || email,
-//   })
-
-//   const { mutateAsync } = {} // useAdminDeleteNote(note.id)
-
-//   const handleDelete = async () => {
-//     const res = await prompt({
-//       title: t("general.areYouSure"),
-//       description: "This action cannot be undone",
-//       confirmText: t("actions.delete"),
-//       cancelText: t("actions.cancel"),
-//     })
-
-//     if (!res) {
-//       return
-//     }
-
-//     await mutateAsync()
-//   }
-
-//   return (
-//     <div className="flex flex-col gap-y-2 pt-2">
-//       <div className="bg-ui-bg-component shadow-borders-base group grid grid-cols-[1fr_20px] items-start gap-x-2 text-pretty rounded-r-2xl rounded-bl-md rounded-tl-xl px-3 py-1.5">
-//         <div className="flex h-full min-h-7 items-center">
-//           <Text size="xsmall" className="text-ui-fg-subtle">
-//             {note.value}
-//           </Text>
-//         </div>
-//         <IconButton
-//           size="small"
-//           variant="transparent"
-//           className="transition-fg invisible opacity-0 group-hover:visible group-hover:opacity-100"
-//           type="button"
-//           onClick={handleDelete}
-//         >
-//           <span className="sr-only">
-//             {t("orders.activity.comment.deleteButtonText")}
-//           </span>
-//           <XMarkMini className="text-ui-fg-muted" />
-//         </IconButton>
-//       </div>
-//       <Link
-//         to={`/settings/users/${note.author_id}`}
-//         className="text-ui-fg-subtle hover:text-ui-fg-base transition-fg w-fit"
-//       >
-//         <Text size="small">{byLine}</Text>
-//       </Link>
-//     </div>
-//   )
-// }
-
 const FulfillmentCreatedBody = ({
   fulfillment,
 }: {
