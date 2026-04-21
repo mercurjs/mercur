@@ -3449,15 +3449,21 @@
     "create": {
       "tabs": {
         "details": "Details",
-        "users": "Users"
+        "users": "Admin"
       },
-      "header": "Create Store",
-      "hint": "Create a new store on the marketplace.",
-      "usersHeader": "Users",
-      "usersHint": "Invite the store owner by email. They will receive an invitation to set up their account.",
+      "header": "Details",
+      "usersHeader": "Admin",
+      "usersHint": "Assign an admin to manage this store. Select an existing user or invite a new one.",
+      "usersHintSecondary": "Once the store is created, the selected user will receive an invitation to join.",
       "ownerEmail": "Owner email",
       "ownerEmailHint": "The owner will be granted the Store Administration role.",
-      "successToast": "Store created successfully"
+      "successToast": "Store created successfully",
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "emailRequired": "Please enter an email",
+        "emailInvalid": "Please enter a valid email",
+        "currencyRequired": "Please select a currency"
+      }
     },
     "request": {
       "title": "Store request",

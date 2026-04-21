@@ -1,9 +1,11 @@
+import { Children, ReactNode } from "react";
 import { ChevronRight, Plus, Spinner } from "@medusajs/icons";
 import { Avatar, Heading, StatusBadge, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import AvatarBox from "@components/common/logo-box/avatar-box";
+import { AuthLayout } from "@components/layout/auth-layout";
 import { useSelectSeller, useSellers } from "@hooks/api";
 import { SellerMemberDTO, SellerStatus } from "@mercurjs/types";
 
@@ -36,9 +38,9 @@ const StoreSelectHeader = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="mb-4 flex flex-col items-center">
+    <div className="mb-6 flex flex-col">
       <Heading>{t("storeSelect.title")}</Heading>
-      <Text size="small" className="text-ui-fg-subtle text-center">
+      <Text size="small" className="text-ui-fg-subtle">
         {t("storeSelect.subtitle")}
       </Text>
     </div>
@@ -119,31 +121,39 @@ const StoreSelectFooter = () => {
   return null;
 };
 
-const Root = () => {
+const Root = ({ children }: { children?: ReactNode }) => {
   const location = useLocation();
   const email = (location.state as { email?: string })?.email ?? "";
   const { seller_members, isLoading } = useSellers();
 
   if (isLoading) {
     return (
-      <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
-        <Spinner className="text-ui-fg-muted animate-spin" />
-      </div>
+      <AuthLayout>
+        <div className="flex flex-1 items-center justify-center">
+          <Spinner className="text-ui-fg-muted animate-spin" />
+        </div>
+      </AuthLayout>
     );
   }
 
   return (
-    <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
-      <div className="flex w-[380px] flex-col items-center">
-        <StoreSelectLogo />
-        <StoreSelectHeader />
-        <StoreSelectList
-          seller_members={seller_members ?? []}
-          email={email}
-        />
-        <StoreSelectFooter />
-      </div>
-    </div>
+    <AuthLayout>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <StoreSelectLogo />
+          <div className="mt-8">
+            <StoreSelectHeader />
+            <StoreSelectList
+              seller_members={seller_members ?? []}
+              email={email}
+            />
+          </div>
+          <StoreSelectFooter />
+        </>
+      )}
+    </AuthLayout>
   );
 };
 

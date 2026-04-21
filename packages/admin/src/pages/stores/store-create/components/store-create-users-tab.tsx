@@ -14,12 +14,12 @@ const Root = () => {
     <div className="flex flex-1 flex-col items-center overflow-y-auto px-3">
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-y-8 px-px py-16">
         <div>
-          <Heading>{t("stores.create.usersHeader", "Users")}</Heading>
+          <Heading>{t("stores.create.usersHeader")}</Heading>
           <Text size="small" className="text-ui-fg-subtle">
-            {t(
-              "stores.create.usersHint",
-              "Invite the store owner by email. They will receive an invitation to set up their account.",
-            )}
+            {t("stores.create.usersHint")}
+          </Text>
+          <Text size="small" className="text-ui-fg-subtle mt-1">
+            {t("stores.create.usersHintSecondary")}
           </Text>
         </div>
         <div className="flex flex-col gap-y-4">

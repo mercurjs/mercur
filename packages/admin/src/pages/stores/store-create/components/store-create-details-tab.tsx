@@ -1,4 +1,4 @@
-import { Heading, Input, Select, Text } from "@medusajs/ui";
+import { Heading, Input, Select } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../components/common/form";
@@ -17,13 +17,7 @@ const Root = () => {
     <div className="flex flex-1 flex-col items-center overflow-y-auto px-3">
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-y-8 px-px py-16">
         <div>
-          <Heading>{t("stores.create.header", "Create Store")}</Heading>
-          <Text size="small" className="text-ui-fg-subtle">
-            {t(
-              "stores.create.hint",
-              "Create a new store on the marketplace.",
-            )}
-          </Text>
+          <Heading>{t("stores.create.header")}</Heading>
         </div>
         <div className="flex flex-col gap-y-4">
           <Form.Field
