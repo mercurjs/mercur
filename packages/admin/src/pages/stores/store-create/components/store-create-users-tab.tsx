@@ -28,7 +28,7 @@ const Root = () => {
             name="member_email"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label optional>
+                <Form.Label>
                   {t("stores.create.ownerEmail", "Owner email")}
                 </Form.Label>
                 <Form.Control>
@@ -38,12 +38,6 @@ const Root = () => {
                     placeholder="owner@example.com"
                   />
                 </Form.Control>
-                <Form.Hint>
-                  {t(
-                    "stores.create.ownerEmailHint",
-                    "The owner will be granted the Store Administration role.",
-                  )}
-                </Form.Hint>
                 <Form.ErrorMessage />
               </Form.Item>
             )}

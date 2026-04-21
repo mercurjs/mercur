@@ -25,7 +25,6 @@ export const StoreCreateForm = ({ children }: StoreCreateFormProps) => {
       name: "",
       email: "",
       currency_code: "",
-      description: "",
       handle: "",
       member_email: "",
     },
@@ -40,7 +39,6 @@ export const StoreCreateForm = ({ children }: StoreCreateFormProps) => {
         name: values.name,
         email: values.email,
         currency_code: values.currency_code,
-        description: values.description || undefined,
         handle: values.handle || undefined,
         member: {
           email: values.member_email,

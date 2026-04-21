@@ -1,7 +1,8 @@
-import { Heading, Input, Select, Text, Textarea } from "@medusajs/ui";
+import { Heading, Input, Select, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../components/common/form";
+import { HandleInput } from "../../../../components/inputs/handle-input";
 import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
 import { useStore } from "../../../../hooks/api";
@@ -43,9 +44,11 @@ const Root = () => {
             name="handle"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label optional>{t("fields.handle")}</Form.Label>
+                <Form.Label optional tooltip={t("stores.handleTooltip")}>
+                  {t("fields.handle")}
+                </Form.Label>
                 <Form.Control>
-                  <Input {...field} />
+                  <HandleInput {...field} />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -86,19 +89,6 @@ const Root = () => {
                       ))}
                     </Select.Content>
                   </Select>
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label optional>{t("fields.description")}</Form.Label>
-                <Form.Control>
-                  <Textarea {...field} />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
