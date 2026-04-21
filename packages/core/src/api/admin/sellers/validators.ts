@@ -53,6 +53,7 @@ export const AdminCreateSeller = z.object({
   name: z.string(),
   handle: z.string().optional(),
   email: z.string().email(),
+  phone: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   logo: z.string().url().nullable().optional(),
   banner: z.string().url().nullable().optional(),
@@ -76,6 +77,7 @@ export const AdminUpdateSeller = z.object({
   name: z.string().optional(),
   handle: z.string().optional(),
   email: z.string().email().optional(),
+  phone: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   logo: z.string().url().nullable().optional(),
   banner: z.string().url().nullable().optional(),
@@ -118,6 +120,7 @@ export type AdminUpsertSellerAddressType = z.infer<
   typeof AdminUpsertSellerAddress
 >
 export const AdminUpsertSellerAddress = z.object({
+  name: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
   first_name: z.string().nullable().optional(),
   last_name: z.string().nullable().optional(),

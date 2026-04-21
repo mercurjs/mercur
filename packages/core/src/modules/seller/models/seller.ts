@@ -13,6 +13,7 @@ const Seller = model
     name: model.text().searchable(),
     handle: model.text().searchable(),
     email: model.text().searchable(),
+    phone: model.text().nullable(),
     description: model.text().nullable(),
     logo: model.text().nullable(),
     banner: model.text().nullable(),
