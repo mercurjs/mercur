@@ -1,6 +1,7 @@
 export type SellerModuleOptions = {
   invite_valid_duration?: number
   jwt_secret?: string
+  vendor_url?: string
 }
 
 export enum SellerRole {

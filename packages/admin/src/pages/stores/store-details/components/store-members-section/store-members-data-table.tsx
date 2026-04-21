@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
-import { Trash } from "@medusajs/icons";
-import { toast } from "@medusajs/ui";
+import { ArrowPath, Link as LinkIcon, Trash } from "@medusajs/icons";
+import { StatusBadge, toast } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
@@ -11,7 +11,10 @@ import { _DataTable } from "../../../../../components/table/data-table";
 import { DateCell } from "../../../../../components/table/table-cells/common/date-cell";
 import {
   useSellerMembers,
+  useSellerInvites,
   useRemoveSellerMember,
+  useDeleteSellerInvite,
+  useResendSellerInvite,
 } from "../../../../../hooks/api/sellers";
 import { useMemberTableQuery } from "../../../../../hooks/table/query";
 import { useDataTable } from "../../../../../hooks/use-data-table";
@@ -27,6 +30,26 @@ const ROLE_TRANSLATION_MAP: Record<string, string> = {
   [SellerRole.SUPPORT]: "users.roles.support",
 };
 
+type MemberRow = {
+  kind: "member";
+  id: string;
+  email: string;
+  role_id: string;
+  created_at: string | null;
+  member: SellerMemberDTO;
+};
+
+type InviteRow = {
+  kind: "invite";
+  id: string;
+  email: string;
+  role_id: string;
+  created_at: string | null;
+  invite_url?: string | null;
+};
+
+type UserRow = MemberRow | InviteRow;
+
 type StoreMembersDataTableProps = {
   sellerId: string;
 };
@@ -36,21 +59,58 @@ export const StoreMembersDataTable = ({
 }: StoreMembersDataTableProps) => {
   const { t } = useTranslation();
 
-  const { searchParams, raw } = useMemberTableQuery({ pageSize: PAGE_SIZE });
-  const { seller_members, count, isPending, isError, error } =
-    useSellerMembers(sellerId, searchParams, {
-      placeholderData: keepPreviousData,
-    });
+  const { raw } = useMemberTableQuery({ pageSize: PAGE_SIZE });
+  const {
+    seller_members,
+    isPending: isMembersPending,
+    isError,
+    error,
+  } = useSellerMembers(
+    sellerId,
+    { limit: 100, offset: 0 },
+    { placeholderData: keepPreviousData },
+  );
+
+  const { member_invites, isPending: isInvitesPending } =
+    useSellerInvites(sellerId);
+
+  const rows: UserRow[] = useMemo(() => {
+    const members: MemberRow[] = (
+      (seller_members as SellerMemberDTO[] | undefined) ?? []
+    ).map((m) => ({
+      kind: "member",
+      id: m.id,
+      email: m.member?.email ?? "-",
+      role_id: m.role_id,
+      created_at: m.created_at ?? null,
+      member: m,
+    }));
+
+    const invites: InviteRow[] = (
+      (member_invites as any[] | undefined) ?? []
+    )
+      .filter((invite) => !invite.accepted)
+      .map((invite) => ({
+        kind: "invite",
+        id: invite.id,
+        email: invite.email,
+        role_id: invite.role_id,
+        created_at: invite.created_at ?? null,
+        invite_url: invite.invite_url ?? null,
+      }));
+
+    return [...invites, ...members];
+  }, [seller_members, member_invites]);
 
   const columns = useColumns(sellerId);
 
   const { table } = useDataTable({
-    data: (seller_members as SellerMemberDTO[]) ?? [],
+    data: rows,
     columns,
     enablePagination: true,
-    count,
+    count: rows.length,
     pageSize: PAGE_SIZE,
-    getRowId: (row) => row.id,
+    getRowId: (row) => `${row.kind}:${row.id}`,
   });
 
   if (isError) {
@@ -61,10 +121,10 @@ export const StoreMembersDataTable = ({
     <_DataTable
       table={table}
       columns={columns}
-      count={count}
+      count={rows.length}
       pageSize={PAGE_SIZE}
       pagination
-      isLoading={isPending}
+      isLoading={isMembersPending || isInvitesPending}
       queryObject={raw}
       orderBy={[
         { key: "created_at", label: t("fields.createdAt") },
@@ -77,26 +137,24 @@ export const StoreMembersDataTable = ({
   );
 };
 
-const columnHelper = createColumnHelper<SellerMemberDTO>();
+const columnHelper = createColumnHelper<UserRow>();
 
 const useColumns = (sellerId: string) => {
   const { t } = useTranslation();
 
   return useMemo(
     () => [
-      columnHelper.accessor("member.email", {
+      columnHelper.accessor("email", {
         header: () => (
           <div className="flex h-full w-full items-center">
             <span>{t("fields.email")}</span>
           </div>
         ),
-        cell: ({ row }) => {
-          return (
-            <div className="flex size-full items-center overflow-hidden">
-              <span className="truncate">{row.original.member?.email}</span>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="flex size-full items-center overflow-hidden">
+            <span className="truncate">{row.original.email}</span>
+          </div>
+        ),
       }),
       columnHelper.accessor("role_id", {
         header: () => (
@@ -116,6 +174,26 @@ const useColumns = (sellerId: string) => {
           );
         },
       }),
+      columnHelper.display({
+        id: "status",
+        header: () => (
+          <div className="flex h-full w-full items-center">
+            <span>{t("fields.status")}</span>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const isPending = row.original.kind === "invite";
+          return (
+            <div className="flex size-full items-center">
+              <StatusBadge color={isPending ? "orange" : "green"}>
+                {isPending
+                  ? t("users.status.pending")
+                  : t("users.status.active")}
+              </StatusBadge>
+            </div>
+          );
+        },
+      }),
       columnHelper.accessor("created_at", {
         header: () => (
           <div className="flex h-full w-full items-center">
@@ -130,14 +208,120 @@ const useColumns = (sellerId: string) => {
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
+          const isAdminRole =
+            row.original.role_id === SellerRole.SELLER_ADMINISTRATION;
+
+          if (row.original.kind === "member") {
+            if (isAdminRole) return null;
+            return (
+              <MemberActions
+                member={row.original.member}
+                sellerId={sellerId}
+              />
+            );
+          }
+
           return (
-            <MemberActions member={row.original} sellerId={sellerId} />
+            <InviteActions
+              invite={row.original}
+              sellerId={sellerId}
+              allowDelete={!isAdminRole}
+            />
           );
         },
       }),
     ],
     [t, sellerId],
   );
+};
+
+const InviteActions = ({
+  invite,
+  sellerId,
+  allowDelete = true,
+}: {
+  invite: InviteRow;
+  sellerId: string;
+  allowDelete?: boolean;
+}) => {
+  const { t } = useTranslation();
+  const { mutateAsync: resend } = useResendSellerInvite(sellerId);
+  const { mutateAsync: deleteInvite } = useDeleteSellerInvite(sellerId);
+
+  const handleResend = async () => {
+    try {
+      await resend({ invite_id: invite.id });
+      toast.success(
+        t("stores.members.invite.resendSuccess", { email: invite.email }),
+      );
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      let url = invite.invite_url;
+      if (!url) {
+        const response = (await resend({ invite_id: invite.id })) as {
+          member_invite?: { invite_url?: string | null };
+        };
+        url = response?.member_invite?.invite_url ?? null;
+      }
+
+      if (!url) {
+        toast.error(t("stores.members.invite.noVendorUrl"));
+        return;
+      }
+
+      await navigator.clipboard.writeText(url);
+      toast.success(t("stores.members.invite.linkCopied"));
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteInvite({ invite_id: invite.id });
+      toast.success(
+        t("stores.members.invite.deleteSuccess", { email: invite.email }),
+      );
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const groups = [
+    {
+      actions: [
+        {
+          icon: <ArrowPath />,
+          label: t("users.resendInvite"),
+          onClick: handleResend,
+        },
+        {
+          icon: <LinkIcon />,
+          label: t("users.copyInviteLink"),
+          onClick: handleCopyLink,
+        },
+      ],
+    },
+  ];
+
+  if (allowDelete) {
+    groups.push({
+      actions: [
+        {
+          icon: <Trash />,
+          label: t("actions.delete"),
+          onClick: handleDelete,
+        },
+      ],
+    });
+  }
+
+  return <ActionMenu groups={groups} />;
 };
 
 const MemberActions = ({

@@ -1,6 +1,5 @@
 import React, { Children, ReactNode } from "react";
-import { InformationCircleSolid } from "@medusajs/icons";
-import { Alert, Button, Container, Heading, Text } from "@medusajs/ui";
+import { Alert, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import components from "virtual:mercur/components";
 
@@ -41,8 +40,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  const isPendingApproval = seller.status === SellerStatus.PENDING_APPROVAL;
-
   const statusAlert = (() => {
     switch (seller.status) {
       case SellerStatus.SUSPENDED:
@@ -70,24 +67,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const StatusBanner = () => (
     <>
-      {isPendingApproval && (
-        <Container className="p-0">
-          <div className="flex items-center gap-x-3 px-6 py-4 border-b border-ui-border-base">
-            <InformationCircleSolid className="text-ui-fg-interactive" />
-            <Heading level="h2">{t("store.alert.pendingApproval.title")}</Heading>
-          </div>
-          <div className="px-6 py-4">
-            <Text size="small" className="text-ui-fg-subtle">
-              {t("store.alert.pendingApproval.description")}
-            </Text>
-          </div>
-          <div className="flex justify-end px-6 py-4 border-t border-ui-border-base bg-ui-bg-subtle rounded-b-lg">
-            <Button variant="secondary" size="small">
-              {t("actions.cancel")}
-            </Button>
-          </div>
-        </Container>
-      )}
       {StoreSetup && <StoreSetup seller={seller} />}
       {statusAlert && (
         <Alert variant={statusAlert.variant} dismissible className="p-5">

@@ -5,7 +5,7 @@ import {
   Trash,
   XCircleSolid,
 } from "@medusajs/icons";
-import { Avatar, Badge, Heading, StatusBadge, toast, usePrompt } from "@medusajs/ui";
+import { Avatar, Heading, StatusBadge, Tooltip, toast, usePrompt } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 
@@ -67,9 +67,9 @@ export const StoreDetailTitle = ({ seller }: StoreProps) => {
       <div className="flex items-center gap-x-2">
         <Heading>{seller.name}</Heading>
         {seller.is_premium && (
-          <Badge size="2xsmall" color="purple">
-            {t("stores.fields.premium")}
-          </Badge>
+          <Tooltip content={t("stores.fields.premium")}>
+            <CheckCircleSolid className="text-ui-tag-blue-icon" />
+          </Tooltip>
         )}
       </div>
     </div>

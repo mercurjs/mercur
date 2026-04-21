@@ -68,6 +68,7 @@ export const adminMemberInvitesQueryConfig = {
       "email",
       "accepted",
       "role_id",
+      "token",
       "expires_at",
       "created_at",
       "updated_at",

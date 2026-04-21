@@ -2453,6 +2453,10 @@
       "pending": "Pending",
       "expired": "Expired"
     },
+    "status": {
+      "active": "Active",
+      "pending": "Pending"
+    },
     "roles": {
       "admin": "Admin",
       "developer": "Developer",
@@ -3438,6 +3442,20 @@
       "hint": "Invite a new store to your marketplace",
       "successToast": "Invitation sent to {{email}}",
       "errorToast": "Failed to send invitation"
+    },
+    "members": {
+      "addUser": {
+        "header": "Add User",
+        "hint": "Add new user to manage this store. You can select existing user or invite new ones.",
+        "assignSuccess": "User {{email}} assigned to the store"
+      },
+      "invite": {
+        "resendSuccess": "Invite resent to {{email}}",
+        "deleteSuccess": "Invite for {{email}} deleted",
+        "linkCopied": "Invite link copied to clipboard",
+        "copyFailed": "Failed to copy invite link",
+        "noVendorUrl": "Vendor URL is not configured on the backend (MERCUR_VENDOR_URL)"
+      }
     },
     "edit": {
       "header": "Edit Store",

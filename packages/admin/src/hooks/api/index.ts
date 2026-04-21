@@ -27,6 +27,7 @@ export * from "./promotions";
 export * from "./refund-reasons";
 export * from "./regions";
 export * from "./reservations";
+export * from "./members";
 export * from "./sales-channels";
 export * from "./sellers";
 export * from "./subscription-plans";

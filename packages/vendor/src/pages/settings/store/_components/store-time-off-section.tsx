@@ -154,10 +154,6 @@ export const StoreTimeOffSection = ({ seller }: StoreTimeOffSectionProps) => {
         heading={t("store.timeOff.header")}
         enableSearch={false}
         enablePagination={false}
-        action={{
-          to: "store-closure",
-          label: t("actions.create"),
-        }}
       />
     </Container>
   );

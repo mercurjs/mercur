@@ -28,14 +28,12 @@ const Root = () => {
             name="member_email"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>
-                  {t("stores.create.ownerEmail", "Owner email")}
-                </Form.Label>
+                <Form.Label>{t("fields.email")}</Form.Label>
                 <Form.Control>
                   <Input
                     type="email"
                     {...field}
-                    placeholder="owner@example.com"
+                    placeholder="admin@example.com"
                   />
                 </Form.Control>
                 <Form.ErrorMessage />
