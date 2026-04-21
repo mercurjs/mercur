@@ -3465,33 +3465,19 @@
         "description": "Are you sure you want to approve this store?",
         "success": "Store approved"
       },
-      "suspend": {
-        "label": "Suspend",
-        "title": "Suspend store",
-        "description": "Are you sure you want to suspend this store?",
-        "success": "Store suspended",
-        "successToast": "{{count}} store(s) suspended",
-        "errorToast": "Failed to suspend store(s)"
+      "reject": {
+        "label": "Reject",
+        "title": "Reject store",
+        "description": "Are you sure you want to reject this store?",
+        "success": "Store rejected"
       },
-      "unsuspend": {
-        "label": "Unsuspend",
-        "title": "Unsuspend store",
-        "description": "Are you sure you want to unsuspend this store?",
-        "success": "Store unsuspended",
-        "successToast": "{{count}} store(s) unsuspended",
-        "errorToast": "Failed to unsuspend store(s)"
-      },
-      "terminate": {
-        "label": "Terminate",
-        "title": "Terminate store",
-        "description": "Are you sure you want to terminate this store?",
-        "success": "Store terminated"
-      },
-      "unterminate": {
-        "label": "Unterminate",
-        "title": "Unterminate store",
-        "description": "Are you sure you want to unterminate this store?",
-        "success": "Store unterminated"
+      "delete": {
+        "label": "Delete",
+        "title": "Delete store",
+        "description": "Are you sure you want to delete this store? This action cannot be undone.",
+        "success": "Store deleted",
+        "successToast": "{{count}} store(s) deleted",
+        "errorToast": "Failed to delete store(s)"
       }
     }
   },

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Checkbox, toast, usePrompt } from "@medusajs/ui"
 
-import { PencilSquare, XCircleSolid } from "@medusajs/icons"
+import { PencilSquare, Trash } from "@medusajs/icons"
 
 import { keepPreviousData } from "@tanstack/react-query"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
@@ -15,7 +15,7 @@ import { useSellersTableColumns } from "../../../../../hooks/table/columns/use-s
 import { useSellerTableFilters } from "../../../../../hooks/table/filters"
 import { useSellersTableQuery } from "../../../../../hooks/table/query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-import { SellerDTO, SellerStatus } from "@mercurjs/types"
+import { SellerDTO } from "@mercurjs/types"
 import { sdk } from "../../../../../lib/client"
 import { queryClient } from "../../../../../lib/query-client"
 import { sellersQueryKeys } from "../../../../../hooks/api/sellers"
@@ -81,39 +81,19 @@ export const StoreListDataTable = () => {
             try {
               await Promise.all(
                 ids.map((id) =>
-                  sdk.admin.sellers.$id.suspend.mutate({ $id: id })
+                  sdk.admin.sellers.$id.terminate.mutate({ $id: id })
                 )
               )
-              toast.success(t("stores.actions.suspend.successToast", { count: ids.length }))
+              toast.success(t("stores.actions.delete.successToast", { count: ids.length }))
             } catch {
-              toast.error(t("stores.actions.suspend.errorToast"))
+              toast.error(t("stores.actions.delete.errorToast"))
             }
             await queryClient.invalidateQueries({
               queryKey: sellersQueryKeys.lists(),
             })
           },
-          label: t("stores.actions.suspend.label"),
-          shortcut: "s",
-        },
-        {
-          action: async (selection) => {
-            const ids = Object.keys(selection)
-            try {
-              await Promise.all(
-                ids.map((id) =>
-                  sdk.admin.sellers.$id.unsuspend.mutate({ $id: id })
-                )
-              )
-              toast.success(t("stores.actions.unsuspend.successToast", { count: ids.length }))
-            } catch {
-              toast.error(t("stores.actions.unsuspend.errorToast"))
-            }
-            await queryClient.invalidateQueries({
-              queryKey: sellersQueryKeys.lists(),
-            })
-          },
-          label: t("stores.actions.unsuspend.label"),
-          shortcut: "u",
+          label: t("stores.actions.delete.label"),
+          shortcut: "d",
         },
       ]}
     />
@@ -127,10 +107,10 @@ const StoreActions = ({ seller }: { seller: SellerDTO }) => {
   const prompt = usePrompt()
   const { mutateAsync: terminateSeller } = useTerminateSeller(seller.id)
 
-  const handleTerminate = async () => {
+  const handleDelete = async () => {
     const confirmed = await prompt({
-      title: t("stores.actions.terminate.title"),
-      description: t("stores.actions.terminate.description"),
+      title: t("stores.actions.delete.title"),
+      description: t("stores.actions.delete.description"),
       verificationText: seller.email || seller.name,
       confirmText: t("actions.confirm"),
       cancelText: t("actions.cancel"),
@@ -142,7 +122,7 @@ const StoreActions = ({ seller }: { seller: SellerDTO }) => {
 
     await terminateSeller(undefined, {
       onSuccess: () => {
-        toast.success(t("stores.actions.terminate.success"))
+        toast.success(t("stores.actions.delete.success"))
       },
       onError: (error) => {
         toast.error(error.message)
@@ -160,15 +140,11 @@ const StoreActions = ({ seller }: { seller: SellerDTO }) => {
               label: t("actions.edit"),
               to: `/stores/${seller.id}/edit`,
             },
-            ...(seller.status !== SellerStatus.TERMINATED
-              ? [
-                  {
-                    icon: <XCircleSolid />,
-                    label: t("stores.actions.terminate.label"),
-                    onClick: handleTerminate,
-                  },
-                ]
-              : []),
+            {
+              icon: <Trash />,
+              label: t("stores.actions.delete.label"),
+              onClick: handleDelete,
+            },
           ],
         },
       ]}

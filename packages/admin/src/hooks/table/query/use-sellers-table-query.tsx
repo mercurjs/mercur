@@ -1,9 +1,16 @@
 import { useQueryParams } from "@hooks/use-query-params";
+import { SellerStatus } from "@mercurjs/types";
 
 type UseSellersTableQueryProps = {
   prefix?: string;
   pageSize?: number;
 };
+
+const ACTIVE_STATUSES = [
+  SellerStatus.OPEN,
+  SellerStatus.PENDING_APPROVAL,
+  SellerStatus.SUSPENDED,
+];
 
 export const useSellersTableQuery = ({
   prefix,
@@ -21,7 +28,7 @@ export const useSellersTableQuery = ({
     offset: offset ? Number(offset) : 0,
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
-    status: status?.split(","),
+    status: status?.split(",") ?? ACTIVE_STATUSES,
     is_premium: is_premium ? is_premium === "true" : undefined,
     q,
     order: order ? order : undefined,
