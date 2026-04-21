@@ -3415,15 +3415,15 @@
       "premium": "Featured"
     },
     "status": {
-      "open": "Open",
-      "pending_approval": "Pending Approval",
-      "pendingApproval": "Pending Approval",
-      "suspended": "Suspended",
+      "open": "Active",
+      "pending_approval": "Pending",
+      "pendingApproval": "Pending",
+      "suspended": "Inactive",
       "terminated": "Terminated"
     },
     "premium": {
-      "yes": "Featured",
-      "no": "Standard",
+      "yes": "Yes",
+      "no": "No",
       "description": "If checked, the store will be highlighted with a special badge for internal use or promotional purposes."
     },
     "invite": {
