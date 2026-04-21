@@ -2686,6 +2686,7 @@
     "domain": "Seller",
     "manageYourStoresDetails": "Manage your seller's details",
     "editStore": "Edit seller",
+    "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
     "profileCompletion": {
       "title": "Complete store profile",
       "steps": {
@@ -2746,6 +2747,9 @@
     },
     "address": {
       "header": "Address",
+      "defaultName": "Headquarters",
+      "nameLabel": "Name",
+      "namePlaceholder": "Headquarters",
       "empty": {
         "title": "No address",
         "message": "There are no records to show"
@@ -2789,7 +2793,7 @@
         "successToast": "Professional details updated"
       },
       "fields": {
-        "corporateName": "Corporate name",
+        "corporateName": "Company",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"
       }
@@ -3224,7 +3228,7 @@
       "professionalSubtitle": "Professional seller information",
       "isProfessional": "Professional seller",
       "isProfessionalDescription": "Register as a business entity",
-      "corporateName": "Corporate name",
+      "corporateName": "Company",
       "registrationNumber": "Registration number",
       "taxId": "Tax ID",
       "completeSetup": "Complete setup"
@@ -3248,6 +3252,7 @@
         "name": "Name",
         "email": "Email",
         "handle": "Handle",
+        "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
         "handlePlaceholder": "my-store",
         "currency": "Currency",
         "selectCurrency": "Select",
@@ -3256,6 +3261,8 @@
       "skip": "Skip",
       "address": {
         "title": "Enter your address",
+        "name": "Name",
+        "namePlaceholder": "Headquarters",
         "address": "Address",
         "address2": "Apartment, suite, etc.",
         "postalCode": "Postal Code",
@@ -3266,7 +3273,7 @@
       "company": {
         "title": "Enter your company details",
         "subtitle": "Professional seller information",
-        "corporateName": "Corporate name",
+        "corporateName": "Company",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"
       },
@@ -3569,7 +3576,7 @@
     "company": "Company",
     "phone": "Phone",
     "metadata": "Metadata",
-    "selectCountry": "Select country",
+    "selectCountry": "Select",
     "products": "Products",
     "variants": "Variants",
     "orders": "Orders",

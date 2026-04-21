@@ -9,6 +9,7 @@ import { Form } from "@components/common/form";
 import { CountrySelect } from "@components/inputs/country-select/country-select";
 
 const AddressStepSchema = z.object({
+  name: z.string().min(1, i18n.t("onboarding.wizard.validation.nameRequired")),
   address_1: z.string().optional(),
   address_2: z.string().optional(),
   postal_code: z.string().optional(),
@@ -31,6 +32,7 @@ export const AddressStep = ({ onSubmit, onSkip, isPending }: AddressStepProps) =
   const form = useForm<AddressStepValues>({
     resolver: zodResolver(AddressStepSchema),
     defaultValues: {
+      name: "",
       address_1: "",
       address_2: "",
       postal_code: "",
@@ -53,6 +55,24 @@ export const AddressStep = ({ onSubmit, onSkip, isPending }: AddressStepProps) =
       <Form {...form}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-y-6">
           <div className="flex flex-col gap-y-4">
+            <Form.Field
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>
+                    {t("onboarding.wizard.address.name")}
+                  </Form.Label>
+                  <Form.Control>
+                    <Input
+                      placeholder={t("onboarding.wizard.address.namePlaceholder")}
+                      {...field}
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
             <Form.Field
               control={form.control}
               name="address_1"

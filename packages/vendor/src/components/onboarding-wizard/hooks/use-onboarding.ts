@@ -9,12 +9,14 @@ import { TOTAL_STEPS } from "../constants";
 type StoreData = {
   name: string;
   email: string;
+  phone?: string;
   currency_code: string;
   description?: string;
   handle?: string;
 };
 
 type AddressData = {
+  name?: string;
   address_1?: string;
   address_2?: string;
   postal_code?: string;
@@ -120,11 +122,13 @@ export const useOnboarding = (memberEmail: string) => {
           name: storeData.name,
           handle: storeData.handle || undefined,
           email: storeData.email,
+          phone: storeData.phone || undefined,
           member_email: memberEmail,
           currency_code: storeData.currency_code.toLowerCase(),
           description: storeData.description || undefined,
           address: addressData
             ? {
+                name: addressData.name || undefined,
                 address_1: addressData.address_1 || undefined,
                 address_2: addressData.address_2 || undefined,
                 postal_code: addressData.postal_code || undefined,
@@ -150,9 +154,7 @@ export const useOnboarding = (memberEmail: string) => {
                 routing_number: isUS
                   ? paymentData.routing_number || null
                   : null,
-                account_number: isUS
-                  ? null
-                  : paymentData.account_number || null,
+                account_number: paymentData.account_number || null,
               }
             : undefined,
         });
