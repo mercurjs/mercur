@@ -3441,6 +3441,9 @@
     },
     "edit": {
       "header": "Edit Store",
+      "mediaHeading": "Media",
+      "mediaTipLabel": "Tip:",
+      "mediaTipBody": "This media will be visible on the storefront.",
       "successToast": "Store {{name}} was successfully updated."
     },
     "create": {

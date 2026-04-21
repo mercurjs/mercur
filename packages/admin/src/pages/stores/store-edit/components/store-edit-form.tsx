@@ -1,5 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Badge, Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui";
+import { InformationCircleSolid } from "@medusajs/icons";
+import {
+  Button,
+  Heading,
+  Input,
+  Select,
+  Text,
+  Textarea,
+  toast,
+} from "@medusajs/ui";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -16,7 +25,6 @@ import { MediaSchema } from "@pages/products/product-create/constants";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
 import { useUpdateSeller } from "@hooks/api/sellers";
-import { SellerStatus } from "@mercurjs/types";
 import { currencies } from "@/lib/data/currencies";
 
 type Seller = InferClientOutput<typeof sdk.admin.sellers.$id.query>["seller"];
@@ -27,12 +35,11 @@ type StoreEditFormProps = {
 
 const EditStoreSchema = zod.object({
   name: zod.string().min(1),
+  description: zod.string().optional().or(zod.literal("")),
   handle: zod.string().optional().or(zod.literal("")),
   email: zod.string().email().optional().or(zod.literal("")),
   phone: zod.string().optional().or(zod.literal("")),
-  description: zod.string().optional().or(zod.literal("")),
-  website_url: zod.string().url().optional().or(zod.literal("")),
-  status: zod.nativeEnum(SellerStatus),
+  website_url: zod.string().optional().or(zod.literal("")),
   is_premium: zod.boolean(),
   media: zod.array(MediaSchema).optional(),
   bannerMedia: zod.array(MediaSchema).optional(),
@@ -63,12 +70,11 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
   const form = useForm<zod.infer<typeof EditStoreSchema>>({
     defaultValues: {
       name: seller.name ?? "",
+      description: seller.description ?? "",
       handle: seller.handle ?? "",
       email: seller.email ?? "",
       phone: seller.phone ?? "",
-      description: seller.description ?? "",
       website_url: seller.website_url ?? "",
-      status: (seller.status as SellerStatus) ?? SellerStatus.PENDING_APPROVAL,
       is_premium: seller.is_premium ?? false,
       media: seller.logo
         ? [{ id: "existing-logo", url: seller.logo, isThumbnail: false, file: null }]
@@ -130,7 +136,6 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
         phone: values.phone || null,
         description: values.description || null,
         website_url: values.website_url || null,
-        status: values.status,
         is_premium: values.is_premium,
         logo: logoUrl,
         banner: bannerUrl,
@@ -190,6 +195,9 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
     form.setValue("bannerMedia", [{ ...files[0], isThumbnail: false }]);
   };
 
+  const currencyCode = seller.currency_code?.toUpperCase() ?? "";
+  const currencyName = currencies[currencyCode]?.name ?? currencyCode;
+
   return (
     <RouteDrawer.Form form={form}>
       <KeyboundForm
@@ -206,6 +214,19 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                   <Form.Label>{t("fields.name")}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label optional>{t("fields.description")}</Form.Label>
+                  <Form.Control>
+                    <Textarea {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -254,51 +275,12 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
             />
             <Form.Field
               control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.description")}</Form.Label>
-                  <Form.Control>
-                    <Textarea {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
               name="website_url"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label optional>{t("fields.website")}</Form.Label>
                   <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="status"
-              render={({ field: { onChange, ref, ...field } }) => (
-                <Form.Item>
-                  <Form.Label>{t("fields.status")}</Form.Label>
-                  <Form.Control>
-                    <Select onValueChange={onChange} {...field}>
-                      <Select.Trigger ref={ref}>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {Object.values(SellerStatus)
-                          .filter((s) => s !== SellerStatus.TERMINATED)
-                          .map((status) => (
-                            <Select.Item key={status} value={status}>
-                              {t(`stores.status.${status}`)}
-                            </Select.Item>
-                          ))}
-                      </Select.Content>
-                    </Select>
+                    <HandleInput {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -306,17 +288,26 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
             />
             <Form.Item>
               <Form.Label>{t("fields.currency")}</Form.Label>
-              <div className="flex items-center gap-x-2">
-                <Badge size="2xsmall">
-                  {seller.currency_code?.toUpperCase()}
-                </Badge>
-                <Text size="small" leading="compact" className="text-ui-fg-subtle">
-                  {currencies[seller.currency_code?.toUpperCase()]?.name ?? "-"}
-                </Text>
-              </div>
+              <Select value={currencyCode} disabled>
+                <Select.Trigger>
+                  <Select.Value placeholder={currencyName}>
+                    {currencyName}
+                  </Select.Value>
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value={currencyCode}>{currencyName}</Select.Item>
+                </Select.Content>
+              </Select>
             </Form.Item>
           </div>
+          <SwitchBox
+            control={form.control}
+            name="is_premium"
+            label={t("fields.premium")}
+            description={t("stores.premium.description")}
+          />
           <div className="flex flex-col gap-y-4">
+            <Heading level="h2">{t("stores.edit.mediaHeading")}</Heading>
             <Form.Field
               name="media"
               control={form.control}
@@ -375,13 +366,16 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                 );
               }}
             />
+            <div className="bg-ui-bg-subtle flex items-start gap-x-2 rounded-lg px-3 py-2">
+              <InformationCircleSolid className="text-ui-fg-muted mt-[2px]" />
+              <Text size="small" className="text-ui-fg-subtle">
+                <span className="text-ui-fg-base font-medium">
+                  {t("stores.edit.mediaTipLabel")}
+                </span>{" "}
+                {t("stores.edit.mediaTipBody")}
+              </Text>
+            </div>
           </div>
-          <SwitchBox
-            control={form.control}
-            name="is_premium"
-            label={t("fields.premium")}
-            description={t("stores.premium.description")}
-          />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
           <div className="flex items-center justify-end gap-x-2">
