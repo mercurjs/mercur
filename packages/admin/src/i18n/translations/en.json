@@ -3400,6 +3400,7 @@
   },
   "stores": {
     "domain": "Stores",
+    "handleTooltip": "The handle is used as the URL slug for the store. Leave empty to auto-generate from the name.",
     "fields": {
       "name": "Name",
       "handle": "Handle",

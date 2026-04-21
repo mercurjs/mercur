@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Select, Textarea, toast } from "@medusajs/ui";
+import { Badge, Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -8,6 +8,7 @@ import { useCallback } from "react";
 import { FileType, FileUpload } from "@components/common/file-upload";
 import { Form } from "@components/common/form";
 import { SwitchBox } from "@components/common/switch-box";
+import { HandleInput } from "@components/inputs/handle-input";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { uploadFilesQuery } from "@lib/client";
@@ -16,6 +17,7 @@ import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
 import { useUpdateSeller } from "@hooks/api/sellers";
 import { SellerStatus } from "@mercurjs/types";
+import { currencies } from "@/lib/data/currencies";
 
 type Seller = InferClientOutput<typeof sdk.admin.sellers.$id.query>["seller"];
 
@@ -25,7 +27,7 @@ type StoreEditFormProps = {
 
 const EditStoreSchema = zod.object({
   name: zod.string().min(1),
-  handle: zod.string().min(1),
+  handle: zod.string().optional().or(zod.literal("")),
   email: zod.string().email().optional().or(zod.literal("")),
   description: zod.string().optional().or(zod.literal("")),
   website_url: zod.string().url().optional().or(zod.literal("")),
@@ -121,7 +123,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
     await mutateAsync(
       {
         name: values.name,
-        handle: values.handle,
+        handle: values.handle || undefined,
         email: values.email || undefined,
         description: values.description || null,
         website_url: values.website_url || null,
@@ -211,9 +213,11 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
               name="handle"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t("fields.handle")}</Form.Label>
+                  <Form.Label optional tooltip={t("stores.handleTooltip")}>
+                    {t("fields.handle")}
+                  </Form.Label>
                   <Form.Control>
-                    <Input {...field} />
+                    <HandleInput {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -270,11 +274,13 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                         <Select.Value />
                       </Select.Trigger>
                       <Select.Content>
-                        {Object.values(SellerStatus).map((status) => (
-                          <Select.Item key={status} value={status}>
-                            {t(`stores.status.${status}`)}
-                          </Select.Item>
-                        ))}
+                        {Object.values(SellerStatus)
+                          .filter((s) => s !== SellerStatus.TERMINATED)
+                          .map((status) => (
+                            <Select.Item key={status} value={status}>
+                              {t(`stores.status.${status}`)}
+                            </Select.Item>
+                          ))}
                       </Select.Content>
                     </Select>
                   </Form.Control>
@@ -282,6 +288,17 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                 </Form.Item>
               )}
             />
+            <Form.Item>
+              <Form.Label>{t("fields.currency")}</Form.Label>
+              <div className="flex items-center gap-x-2">
+                <Badge size="2xsmall">
+                  {seller.currency_code?.toUpperCase()}
+                </Badge>
+                <Text size="small" leading="compact" className="text-ui-fg-subtle">
+                  {currencies[seller.currency_code?.toUpperCase()]?.name ?? "-"}
+                </Text>
+              </div>
+            </Form.Item>
           </div>
           <div className="flex flex-col gap-y-4">
             <Form.Field
